@@ -1,5 +1,5 @@
 <template>
-  <div class="w-[300px] h-full bg-blue-500/5 text-white relative shadow-sm">
+  <div class="w-[300px] h-full bg-white/50 text-white relative shadow-sm">
     <div class="h-[80px] flex items-center">
       <div class="px-[20px] flex justify-center items-center">
         <h3 class="font-medium text-sm md:text-sm lg:text-base">
@@ -10,14 +10,29 @@
         </p>
       </div>
     </div>
-    <div
-      class="h-[calc(100vh-80px)] bg-opacity-0 py-[20px] px-[20px] z-2 relative"
-    >
+    <div class="h-[calc(100vh-80px)] bg-opacity-0 py-[20px] z-2 relative">
       <div class="flex flex-col justify-between h-full space-y-[10px]">
-        <div class="flex flex-col justify-between space-y-3 mt-5">
+        <div
+          class="flex flex-col justify-between space-y-3 mt-5 px-[14px] overflow-y-auto no-scrollbar"
+        >
           <SidebarItem name="Dashboard" :icon="Squares2X2Icon" to="/" />
+          <SidebarItem
+            name="Components"
+            :icon="PuzzlePieceIcon"
+            to="/components"
+          />
+          <SidebarItem name="Tables" :icon="TableCellsIcon" to="/tables" />
+          <SidebarItem
+            name="Contents"
+            :icon="DocumentTextIcon"
+            to="/contents"
+          />
           <SidebarItem name="Products" :icon="ArchiveBoxIcon" to="/products" />
           <SidebarItem name="Bookings" :icon="CalendarIcon" to="/bookings" />
+          <SidebarItem name="Customers" :icon="UsersIcon" to="/customers" />
+          <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
+          <SidebarItem name="Customers" :icon="UsersIcon" to="/customers" />
+          <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
           <SidebarItem name="Customers" :icon="UsersIcon" to="/customers" />
           <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
           <SidebarItem
@@ -55,12 +70,15 @@ import {
   ArchiveBoxIcon,
   CalendarDaysIcon,
   UsersIcon,
+  DocumentTextIcon,
   WalletIcon,
   ArrowLeftOnRectangleIcon,
   Cog6ToothIcon,
   CalendarIcon,
   UserGroupIcon,
   DocumentCheckIcon,
+  PuzzlePieceIcon,
+  TableCellsIcon,
   CircleStackIcon,
 } from "@heroicons/vue/24/outline";
 </script>

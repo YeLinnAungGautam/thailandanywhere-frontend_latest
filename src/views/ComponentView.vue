@@ -54,22 +54,6 @@ const form = ref({
             v-model="form.password"
           />
         </InputField>
-        <InputField label="Select Category" required>
-          <select
-            class="block px-4 appearance-none w-full py-2 border border-gray-300 rounded-md shadow focus:border-blue-100 focus:ring-blue-100"
-            name=""
-            id=""
-          >
-            <option value="1">Fashion</option>
-            <option value="2">Food & Drink</option>
-            <option value="3">Travel</option>
-            <option value="4">Gaming</option>
-            <option value="5">Sport</option>
-          </select>
-        </InputField>
-        <InputField label="Image Upload" required>
-          <Input type="file" placeholder="Enter your name" multiple
-        /></InputField>
       </div>
     </div>
     <div class="bg-white/60 p-4 rounded-lg shadow-sm mb-5">

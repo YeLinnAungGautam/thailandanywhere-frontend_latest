@@ -1,5 +1,5 @@
 <template>
-  <div class="w-screen h-screen flex">
+  <div class="relative flex min-h-screen">
     <!-- Sidebar -->
     <Sidebar />
     <!-- Main -->

@@ -34,14 +34,14 @@ provide(
 </script>
 
 <template>
-  <div class="">
-    <Label :for="props.id" :required="props.required" v-if="props.label">{{
-      props.label
-    }}</Label>
+  <div class="relative">
     <slot v-bind="props" />
     <InputErrorMessage v-if="props.error">{{ props.error }}</InputErrorMessage>
     <InputHelperMessage :id="ariaDescribedBy" v-if="props.help">{{
       props.help
     }}</InputHelperMessage>
+    <Label :for="props.id" :required="props.required" v-if="props.label">{{
+      props.label
+    }}</Label>
   </div>
 </template>

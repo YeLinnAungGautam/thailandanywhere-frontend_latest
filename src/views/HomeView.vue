@@ -11,6 +11,7 @@ import {
   ScatterChart,
 } from "vue-chart-3";
 import { Chart, registerables } from "chart.js";
+import { ArchiveBoxIcon, CalendarIcon ,UsersIcon} from "@heroicons/vue/24/outline";
 
 Chart.register(...registerables);
 
@@ -30,47 +31,76 @@ const testData = {
     <div class="mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Dashboard</h3>
     </div>
-    <div class="grid grid-cols-2 gap-4 mb-5">
+    <div class="grid grid-cols-4 gap-4 mb-5">
       <div
-        class="bg-white px-4 py-8 rounded-lg shadow-lg flex items-center justify-center backdrop-blur-lg backdrop-filter"
+        class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 flex justify-between"
       >
-        <DoughnutChart :chartData="testData" class="w-[400px]" />
+        <div class="text-gray-500 shadow-lg p-4 rounded-lg">
+          <ArchiveBoxIcon class="w-10 h-10" />
+        </div>
+        <div>
+          <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
+            Total Products
+          </h3>
+          <p
+            class="text-blue-500 text-2xl font-medium tracking-wide font-roboto"
+          >
+            +138
+          </p>
+        </div>
       </div>
       <div
-        class="bg-white px-4 py-8 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
+        class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 flex justify-between"
       >
-        <BarChart :chartData="testData" />
+        <div class="text-gray-500 shadow-lg p-4 rounded-lg">
+          <CalendarIcon class="w-10 h-10" />
+        </div>
+        <div>
+          <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
+            Total Booking
+          </h3>
+          <p
+            class="text-blue-500 text-2xl font-medium tracking-wide font-roboto"
+          >
+            +18
+          </p>
+        </div>
       </div>
       <div
-        class="bg-white px-4 py-8 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
+        class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 flex justify-between"
       >
-        <LineChart :chartData="testData" />
+        <div class="text-gray-500 shadow-lg p-4 rounded-lg">
+          <UsersIcon class="w-10 h-10" />
+        </div>
+        <div>
+          <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
+            Total Customers
+          </h3>
+          <p
+            class="text-blue-500 text-2xl font-medium tracking-wide font-roboto"
+          >
+            +1400
+          </p>
+        </div>
       </div>
       <div
-        class="bg-white px-4 py-8 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
+        class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 flex justify-between"
       >
-        <PieChart :chartData="testData" />
+        <div class="text-gray-500 shadow-lg p-4 rounded-lg">
+          <ArchiveBoxIcon class="w-10 h-10" />
+        </div>
+        <div>
+          <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
+            Total Products
+          </h3>
+          <p
+            class="text-blue-500 text-2xl font-medium tracking-wide font-roboto"
+          >
+            +138
+          </p>
+        </div>
       </div>
-      <div
-        class="bg-white px-4 py-8 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
-      >
-        <PolarAreaChart :chartData="testData" />
-      </div>
-      <div
-        class="bg-white px-4 py-8 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
-      >
-        <RadarChart :chartData="testData" />
-      </div>
-      <div
-        class="bg-white px-4 py-8 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
-      >
-        <BubbleChart :chartData="testData" />
-      </div>
-      <div
-        class="bg-white px-4 py-8 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
-      >
-        <ScatterChart :chartData="testData" />
-      </div>
+   
     </div>
   </Layout>
 </template>

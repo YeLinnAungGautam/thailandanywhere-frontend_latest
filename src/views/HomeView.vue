@@ -11,7 +11,11 @@ import {
   ScatterChart,
 } from "vue-chart-3";
 import { Chart, registerables } from "chart.js";
-import { ArchiveBoxIcon, CalendarIcon ,UsersIcon} from "@heroicons/vue/24/outline";
+import {
+  ArchiveBoxIcon,
+  CalendarIcon,
+  UsersIcon,
+} from "@heroicons/vue/24/outline";
 
 Chart.register(...registerables);
 
@@ -31,7 +35,7 @@ const testData = {
     <div class="mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Dashboard</h3>
     </div>
-    <div class="grid grid-cols-4 gap-4 mb-5">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5">
       <div
         class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 flex justify-between"
       >
@@ -100,7 +104,6 @@ const testData = {
           </p>
         </div>
       </div>
-   
     </div>
   </Layout>
 </template>

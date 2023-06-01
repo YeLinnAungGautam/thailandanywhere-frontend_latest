@@ -4,6 +4,7 @@ import TableView from "../views/TableView.vue";
 import ProductView from "../views/ProductView.vue";
 import BookingView from "../views/BookingView.vue";
 import NewBookingView from "../views/NewBookingView.vue";
+import CustomerView from "../views/CustomerView.vue";
 const routes = [
   {
     path: "/",
@@ -24,6 +25,11 @@ const routes = [
     path: "/products",
     name: "products",
     component: ProductView,
+  },
+  {
+    path: "/customers",
+    name: "customers",
+    component: CustomerView,
   },
   {
     path: "/bookings",

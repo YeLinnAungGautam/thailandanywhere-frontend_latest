@@ -17,4 +17,6 @@ import Sidebar from "../components/Sidebar.vue";
 import Topbar from "../components/Topbar.vue";
 </script>
 
-<style lang="scss" scoped></style>
+<style>
+
+</style>

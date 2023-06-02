@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-[300px] bg-white md:bg-white/50  text-white absolute md:relative shadow-sm transition duration-200"
+    class="w-[300px] bg-white md:bg-white/50 text-white absolute md:relative shadow-sm transition duration-200"
     v-show="isShowSidebar"
   >
     <div class="h-[80px] w-full flex items-center">

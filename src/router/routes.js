@@ -6,7 +6,13 @@ import BookingView from "../views/BookingView.vue";
 import NewBookingView from "../views/NewBookingView.vue";
 import CustomerView from "../views/CustomerView.vue";
 import EditBookingView from "../views/EditBookingView.vue";
+import LoginView from "../views/LoginView.vue";
 const routes = [
+  {
+    path: "/login",
+    name: "login",
+    component: LoginView,
+  },
   {
     path: "/",
     name: "home",

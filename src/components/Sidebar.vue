@@ -36,12 +36,13 @@
           <SidebarItem name="Products" :icon="ArchiveBoxIcon" to="/products" />
           <SidebarItem name="Bookings" :icon="CalendarIcon" to="/bookings" />
           <SidebarItem name="Customers" :icon="UsersIcon" to="/customers" />
-          <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
           <SidebarItem
             name="Calendar"
             :icon="CalendarDaysIcon"
             to="/calendar"
           />
+          <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
+
           <SidebarItem
             name="Reservation"
             :icon="DocumentCheckIcon"

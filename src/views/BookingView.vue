@@ -186,7 +186,7 @@ const data = ref([
               <tr
                 v-for="r in data"
                 :key="r.id"
-                class="bg-white even:bg-gray-50"
+                class="bg-white even:bg-gray-50 hover:bg-gray-50"
               >
                 <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                   {{ r.id }}

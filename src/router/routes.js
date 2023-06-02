@@ -7,6 +7,7 @@ import NewBookingView from "../views/NewBookingView.vue";
 import CustomerView from "../views/CustomerView.vue";
 import EditBookingView from "../views/EditBookingView.vue";
 import LoginView from "../views/LoginView.vue";
+import CalendarView from "../views/CalendarView.vue";
 const routes = [
   {
     path: "/login",
@@ -42,6 +43,11 @@ const routes = [
     path: "/bookings",
     name: "bookings",
     component: BookingView,
+  },
+  {
+    path: "/calendar",
+    name: "calendar",
+    component: CalendarView,
   },
   {
     path: "/bookings/new",

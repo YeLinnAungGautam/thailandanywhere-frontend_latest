@@ -10,7 +10,7 @@ import { DocumentCheckIcon } from "@heroicons/vue/24/outline";
 <template>
   <Layout>
     <div class="mb-5 flex items-center justify-between">
-      <h3 class="text-2xl font-medium text-gray-600">New Booking</h3>
+      <h3 class="text-2xl font-medium text-gray-600">Edit Booking</h3>
     </div>
     <div class="bg-white p-6 rounded-lg shadow-sm mb-5">
       <h4 class="text-gray-600 font-medium mb-8 text-base">

@@ -2,6 +2,7 @@
 import Layout from "./Layout.vue";
 import { ref } from "vue";
 import Button from "../components/Button.vue";
+import Pagination from "../components/Pagination.vue";
 import {
   PencilSquareIcon,
   TrashIcon,
@@ -90,7 +91,7 @@ const data = ref([
     <div class="mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Products</h3>
     </div>
-    <div class="grid grid-cols-4 gap-5">
+    <div class="grid grid-cols-1 gap-2 md:grid-cols-4 md:gap-5">
       <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
         <ul class="space-y-4">
           <li
@@ -119,7 +120,9 @@ const data = ref([
           </li>
         </ul>
       </div>
-      <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 col-span-3">
+      <div
+        class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 md:col-span-3 hidden md:block"
+      >
         <!-- search input sort filter -->
         <div class="flex items-center justify-between mb-5">
           <div>
@@ -195,105 +198,30 @@ const data = ref([
                   {{ r.sku }}
                 </td>
                 <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                  <div class="flex items-center gap-2">
-                    <button
-                      class="hover:bg-blue-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
-                    >
-                      <EyeIcon class="w-5 h-5" />
-                    </button>
-                    <button
-                      class="hover:bg-blue-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
-                    >
-                      <PencilSquareIcon class="w-5 h-5" />
-                    </button>
-                    <button
-                      class="hover:bg-blue-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
-                    >
-                      <TrashIcon class="w-5 h-5" />
-                    </button>
-                  </div>
-                </td>
+                <div class="flex items-center gap-2">
+                  <button
+                    class="hover:bg-blue-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                  >
+                    <EyeIcon class="w-5 h-5" />
+                  </button>
+                  <button
+                    class="hover:bg-yellow-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                  >
+                    <PencilSquareIcon class="w-5 h-5" />
+                  </button>
+                  <button
+                    class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                  >
+                    <TrashIcon class="w-5 h-5" />
+                  </button>
+                </div>
+              </td>
               </tr>
             </tbody>
           </table>
         </div>
         <!-- pagination -->
-        <div class="flex items-center justify-between mb-5">
-          <div>
-            <p class="inline-block mr-2 text-gray-500 font-medium">
-              Showing 1 to 10 of 97 results
-            </p>
-          </div>
-          <div class="w-3/5 sm:w-3/5 md:w-[300px]">
-            <nav
-              class="inline-flex rounded-md shadow-sm w-full"
-              aria-label="Pagination"
-            >
-              <a
-                href="#"
-                class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-              >
-                <span class="sr-only">Previous</span>
-                <svg
-                  class="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </a>
-              <!-- Current: "z-10 bg-indigo-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600", Default: "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0" -->
-              <a
-                href="#"
-                aria-current="page"
-                class="relative z-10 inline-flex items-center bg-blue-500 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                >1</a
-              >
-              <a
-                href="#"
-                class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                >2</a
-              >
-              <a
-                href="#"
-                class="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex"
-                >3</a
-              >
-              <span
-                class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0"
-                >...</span
-              >
-              <a
-                href="#"
-                class="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex"
-                >8</a
-              >
-              <a
-                href="#"
-                class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-              >
-                <span class="sr-only">Next</span>
-                <svg
-                  class="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </a>
-            </nav>
-          </div>
-        </div>
+        <Pagination/>
       </div>
     </div>
   </Layout>

@@ -2,15 +2,19 @@
 import Layout from "./Layout.vue";
 import { ref } from "vue";
 import Button from "../components/Button.vue";
+import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@headlessui/vue";
 import Pagination from "../components/Pagination.vue";
 import {
   PencilSquareIcon,
   TrashIcon,
+  ShareIcon,
   EyeIcon,
   TicketIcon,
   BuildingOfficeIcon,
+  PlusIcon,
   UserGroupIcon,
   UsersIcon,
+  AdjustmentsHorizontalIcon,
 } from "@heroicons/vue/24/outline";
 const data = ref([
   {
@@ -91,138 +95,202 @@ const data = ref([
     <div class="mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Products</h3>
     </div>
-    <div class="grid grid-cols-1 gap-2 md:grid-cols-4 md:gap-5">
-      <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
-        <ul class="space-y-4">
-          <li
-            class="flex items-center gap-3 tracking-wide text-sm cursor-pointer p-4 bg-blue-500 text-white shadow rounded-md"
-          >
-            <TicketIcon class="w-5 h-5" />
-            <p>Flight Tickets</p>
-          </li>
-          <li
-            class="flex items-center gap-3 tracking-wide text-gray-600 text-sm cursor-pointer p-4 bg-white/60 shadow rounded-md hover:bg-blue-500 hover:text-white transition"
-          >
-            <BuildingOfficeIcon class="w-5 h-5" />
-            <p>Hotels</p>
-          </li>
-          <li
-            class="flex items-center gap-3 tracking-wide text-gray-600 text-sm cursor-pointer p-4 bg-white/60 shadow rounded-md hover:bg-blue-500 hover:text-white transition"
-          >
-            <UsersIcon class="w-5 h-5" />
-            <p>Experiences</p>
-          </li>
-          <li
-            class="flex items-center gap-3 tracking-wide text-gray-600 text-sm cursor-pointer p-4 bg-white/60 shadow rounded-md hover:bg-blue-500 hover:text-white transition"
-          >
-            <UserGroupIcon class="w-5 h-5" />
-            <p>Group Tours</p>
-          </li>
-        </ul>
-      </div>
-      <div
-        class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 md:col-span-3 hidden md:block"
-      >
-        <!-- search input sort filter -->
-        <div class="flex items-center justify-between mb-5">
-          <div>
-            <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>
-            <select
-              class="border-2 p-2 rounded-md w-16 focus:outline-none focus:ring-0"
+    <div class="">
+      <TabGroup>
+        <TabList
+          class="space-x-2 bg-white/60 p-6 rounded-lg shadow-sm mb-5 flex"
+        >
+          <Tab as="template" v-slot="{ selected }">
+            <button
+              :class="{
+                'bg-blue-500 text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-white shadow rounded-md"
             >
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="30">30</option>
-              <option value="40">40</option>
-              <option value="50">50</option>
-            </select>
-            <p class="inline-block ml-2 text-gray-500 font-medium">entries</p>
-          </div>
-          <div class="">
-            <input
-              type="text"
-              class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
-              placeholder="Search for products.."
-            />
-          </div>
-        </div>
-        <div class="overflow-auto rounded-lg shadow mb-5">
-          <table class="w-full">
-            <thead class="bg-gray-50 border-b-2 border-gray-200">
-              <tr>
-                <th
-                  class="w-20 p-3 text-sm font-medium tracking-wide text-left"
-                >
-                  No.
-                </th>
-                <th
-                  class="w-30 p-3 text-sm font-medium tracking-wide text-left"
-                >
-                  Image
-                </th>
-                <th class="p-3 text-sm font-medium tracking-wide text-left">
-                  Name
-                </th>
-                <th class="p-3 text-sm font-medium tracking-wide text-left">
-                  Name (Burmese)
-                </th>
-                <th class="p-3 text-sm font-medium tracking-wide text-left">
-                  SKU
-                </th>
-                <th
-                  class="w-30 p-3 text-sm font-medium tracking-wide text-left"
-                >
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-              <tr
-                v-for="r in data"
-                :key="r.id"
-                class="bg-white even:bg-gray-50  hover:bg-gray-50"
-              >
-                <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                  {{ r.id }}
-                </td>
-                <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                  <img :src="r.image" class="w-14 h-12 rounded-lg" alt="" />
-                </td>
-                <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                  {{ r.name }}
-                </td>
-                <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                  {{ r.mm_name }}
-                </td>
-                <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                  {{ r.sku }}
-                </td>
-                <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                <div class="flex items-center gap-2">
-                  <button
-                    class="hover:bg-blue-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
-                  >
-                    <EyeIcon class="w-5 h-5" />
-                  </button>
-                  <button
-                    class="hover:bg-yellow-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
-                  >
-                    <PencilSquareIcon class="w-5 h-5" />
-                  </button>
-                  <button
-                    class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
-                  >
-                    <TrashIcon class="w-5 h-5" />
-                  </button>
+              Van Tours
+            </button>
+          </Tab>
+          <Tab as="template" v-slot="{ selected }">
+            <button
+              :class="{
+                'bg-blue-500 text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-white shadow rounded-md"
+            >
+              Flights
+            </button>
+          </Tab>
+          <Tab as="template" v-slot="{ selected }">
+            <button
+              :class="{
+                'bg-blue-500 text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-white shadow rounded-md"
+            >
+              Entrance Tickets
+            </button>
+          </Tab>
+          <Tab as="template" v-slot="{ selected }">
+            <button
+              :class="{
+                'bg-blue-500 text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-white shadow rounded-md"
+            >
+              Hotels
+            </button>
+          </Tab>
+          <Tab as="template" v-slot="{ selected }">
+            <button
+              :class="{
+                'bg-blue-500 text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-white shadow rounded-md"
+            >
+              Experiences
+            </button>
+          </Tab>
+          <Tab as="template" v-slot="{ selected }">
+            <button
+              :class="{
+                'bg-blue-500 text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-white shadow rounded-md"
+            >
+              Group Tours
+            </button>
+          </Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <div
+              class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 md:col-span-3 hidden md:block"
+            >
+              <h3 class="text-xl font-medium text-gray-600 tracking-wide mb-3">
+                Van Tours
+              </h3>
+              <!-- search input sort filter -->
+              <div class="flex items-center justify-between mb-8">
+                <div class="">
+                  <input
+                    type="text"
+                    class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+                    placeholder="Search Van Tours..."
+                  />
+                  <input
+                    type="text"
+                    class="mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+                  />
+                  <input
+                    type="text"
+                    class="mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+                  />
+                  <AdjustmentsHorizontalIcon
+                    class="w-6 text-gray-600 h-6 inline-block mx-2 cursor-pointer"
+                  />
                 </div>
-              </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <!-- pagination -->
-        <Pagination/>
-      </div>
+                <div class="space-x-3">
+                  <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
+                  <Button :leftIcon="PlusIcon"> Create </Button>
+                </div>
+              </div>
+              <div class="overflow-auto rounded-lg shadow mb-5">
+                <table class="w-full">
+                  <thead class="bg-gray-50 border-b-2 border-gray-200">
+                    <tr>
+                      <th
+                        class="w-20 p-3 text-sm font-medium tracking-wide text-left"
+                      >
+                        No.
+                      </th>
+                      <th
+                        class="w-30 p-3 text-sm font-medium tracking-wide text-left"
+                      >
+                        Image
+                      </th>
+                      <th
+                        class="p-3 text-sm font-medium tracking-wide text-left"
+                      >
+                        Name
+                      </th>
+                      <th
+                        class="p-3 text-sm font-medium tracking-wide text-left"
+                      >
+                        Name (Burmese)
+                      </th>
+                      <th
+                        class="p-3 text-sm font-medium tracking-wide text-left"
+                      >
+                        SKU
+                      </th>
+                      <th
+                        class="w-30 p-3 text-sm font-medium tracking-wide text-left"
+                      >
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-100">
+                    <tr
+                      v-for="r in data"
+                      :key="r.id"
+                      class="bg-white even:bg-gray-50 hover:bg-gray-50"
+                    >
+                      <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                        {{ r.id }}
+                      </td>
+                      <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                        <img
+                          :src="r.image"
+                          class="w-14 h-12 rounded-lg"
+                          alt=""
+                        />
+                      </td>
+                      <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                        {{ r.name }}
+                      </td>
+                      <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                        {{ r.mm_name }}
+                      </td>
+                      <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                        {{ r.sku }}
+                      </td>
+                      <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                        <div class="flex items-center gap-2">
+                          <button
+                            class="hover:bg-blue-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                          >
+                            <EyeIcon class="w-5 h-5" />
+                          </button>
+                          <button
+                            class="hover:bg-yellow-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                          >
+                            <PencilSquareIcon class="w-5 h-5" />
+                          </button>
+                          <button
+                            class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                          >
+                            <TrashIcon class="w-5 h-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <!-- pagination -->
+              <Pagination /></div
+          ></TabPanel>
+          <TabPanel>Content 2</TabPanel>
+          <TabPanel>Content 3</TabPanel>
+        </TabPanels>
+      </TabGroup>
     </div>
   </Layout>
 </template>

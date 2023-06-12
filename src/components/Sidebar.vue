@@ -24,42 +24,60 @@
     <div class="h-[calc(100vh-80px)] bg-opacity-0 py-[20px] z-2 relative">
       <div class="flex flex-col justify-between h-full space-y-[10px]">
         <div
-          class="flex flex-col justify-between space-y-3 mt-5 px-[14px] overflow-y-auto no-scrollbar"
+          class="flex flex-col justify-between space-y-3 mt-5 px-[14px] h-full overflow-y-auto no-scrollbar"
         >
-          <SidebarItem name="Dashboard" :icon="Squares2X2Icon" to="/" />
-          <!-- <SidebarItem
-            name="Components"
-            :icon="PuzzlePieceIcon"
-            to="/components"
-          /> -->
-          <!-- <SidebarItem name="Tables" :icon="TableCellsIcon" to="/tables" /> -->
-          <SidebarItem name="Products" :icon="ArchiveBoxIcon" to="/products" />
-          <SidebarItem name="Bookings" :icon="CalendarIcon" to="/bookings" />
-          <SidebarItem name="Customers" :icon="UsersIcon" to="/customers" />
-          <SidebarItem
-            name="Calendar"
-            :icon="CalendarDaysIcon"
-            to="/calendar"
-          />
-          <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
+          <div>
+            <SidebarItem name="Dashboard" :icon="Squares2X2Icon" to="/" />
+            <SidebarItem
+              name="Products"
+              :icon="ArchiveBoxIcon"
+              to="/products"
+            />
+            <SidebarItem
+              name="Sales"
+              :icon="PresentationChartBarIcon"
+              to="/bookings"
+            />
+            <SidebarItem name="Partners" :icon="UserGroupIcon" to="/bookings" />
+            <SidebarItem
+              name="Reservations"
+              :icon="ClockIcon"
+              to="/bookings"
+            />
+            <SidebarItem name="Database" :icon="CircleStackIcon" to="/bookings" />
+            <SidebarItem name="Bookings" :icon="CalendarIcon" to="/bookings" />
+            <SidebarItem name="Customers" :icon="UsersIcon" to="/customers" />
+            <SidebarItem
+              name="Calendar"
+              :icon="CalendarDaysIcon"
+              to="/calendar"
+            />
+            <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
 
-          <SidebarItem
-            name="Reservation"
-            :icon="DocumentCheckIcon"
-            to="/reservation"
-          />
-          <SidebarItem name="Database" :icon="CircleStackIcon" to="/database" />
-          <SidebarItem
-            name="Partnership"
-            :icon="UserGroupIcon"
-            to="/partnership"
-          />
-          <SidebarItem name="Setting" :icon="Cog6ToothIcon" to="/setting" />
-          <SidebarItem
-            name="Logout"
-            :icon="ArrowLeftOnRectangleIcon"
-            to="/setting"
-          />
+            <SidebarItem
+              name="Reservation"
+              :icon="DocumentCheckIcon"
+              to="/reservation"
+            />
+            <SidebarItem
+              name="Database"
+              :icon="CircleStackIcon"
+              to="/database"
+            />
+            <SidebarItem
+              name="Partnership"
+              :icon="UserGroupIcon"
+              to="/partnership"
+            />
+          </div>
+          <div>
+            <SidebarItem name="Setting" :icon="Cog6ToothIcon" to="/setting" />
+            <SidebarItem
+              name="Logout"
+              :icon="ArrowLeftOnRectangleIcon"
+              to="/setting"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -86,6 +104,8 @@ import {
   PuzzlePieceIcon,
   TableCellsIcon,
   CircleStackIcon,
+  PresentationChartBarIcon,
+  ClockIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted } from "vue";
 import { storeToRefs } from "pinia";

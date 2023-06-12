@@ -36,15 +36,15 @@
             <SidebarItem
               name="Sales"
               :icon="PresentationChartBarIcon"
-              to="/bookings"
+              to="/sales"
             />
-            <SidebarItem name="Partners" :icon="UserGroupIcon" to="/bookings" />
+            <SidebarItem name="Partners" :icon="UserGroupIcon" to="/partners" />
             <SidebarItem
               name="Reservations"
               :icon="ClockIcon"
-              to="/bookings"
+              to="/reservations"
             />
-            <SidebarItem name="Database" :icon="CircleStackIcon" to="/bookings" />
+            <SidebarItem name="Database" :icon="CircleStackIcon" to="/database" />
             <SidebarItem name="Bookings" :icon="CalendarIcon" to="/bookings" />
             <SidebarItem name="Customers" :icon="UsersIcon" to="/customers" />
             <SidebarItem

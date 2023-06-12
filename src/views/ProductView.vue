@@ -104,9 +104,9 @@ const data = ref([
             <button
               :class="{
                 'bg-blue-500 text-white': selected,
-                'bg-white text-black': !selected,
+                'bg-white text-gray-600': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-white shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
             >
               Van Tours
             </button>
@@ -115,9 +115,9 @@ const data = ref([
             <button
               :class="{
                 'bg-blue-500 text-white': selected,
-                'bg-white text-black': !selected,
+                'bg-white text-gray-600': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-white shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm text-gray-600 cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none shadow rounded-md"
             >
               Flights
             </button>
@@ -128,7 +128,7 @@ const data = ref([
                 'bg-blue-500 text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-white shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
             >
               Entrance Tickets
             </button>
@@ -139,7 +139,7 @@ const data = ref([
                 'bg-blue-500 text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-white shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
             >
               Hotels
             </button>
@@ -150,7 +150,7 @@ const data = ref([
                 'bg-blue-500 text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-white shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
             >
               Experiences
             </button>
@@ -161,7 +161,7 @@ const data = ref([
                 'bg-blue-500 text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-white shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
             >
               Group Tours
             </button>

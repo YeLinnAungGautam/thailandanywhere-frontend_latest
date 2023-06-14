@@ -8,6 +8,8 @@ import CustomerView from "../views/CustomerView.vue";
 import EditBookingView from "../views/EditBookingView.vue";
 import LoginView from "../views/LoginView.vue";
 import CalendarView from "../views/CalendarView.vue";
+import SaleView from "../views/SaleView.vue";
+import PartnerView from "../views/PartnerView.vue";
 const routes = [
   {
     path: "/login",
@@ -33,6 +35,16 @@ const routes = [
     path: "/products",
     name: "products",
     component: ProductView,
+  },
+  {
+    path: "/sales",
+    name: "sales",
+    component: SaleView,
+  },
+  {
+    path: "/partners",
+    name: "partners",
+    component: PartnerView,
   },
   {
     path: "/customers",

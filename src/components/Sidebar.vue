@@ -39,21 +39,16 @@
               to="/sales"
             />
             <SidebarItem name="Partners" :icon="UserGroupIcon" to="/partners" />
-            <SidebarItem
-              name="Reservations"
-              :icon="ClockIcon"
-              to="/reservations"
-            />
-            <SidebarItem name="Database" :icon="CircleStackIcon" to="/database" />
+
+            <SidebarItem name="Blogs" :icon="DocumentTextIcon" to="/blogs" />
             <SidebarItem name="Bookings" :icon="CalendarIcon" to="/bookings" />
             <SidebarItem name="Customers" :icon="UsersIcon" to="/customers" />
+            <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
             <SidebarItem
               name="Calendar"
               :icon="CalendarDaysIcon"
               to="/calendar"
             />
-            <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
-
             <SidebarItem
               name="Reservation"
               :icon="DocumentCheckIcon"
@@ -64,19 +59,16 @@
               :icon="CircleStackIcon"
               to="/database"
             />
-            <SidebarItem
-              name="Partnership"
-              :icon="UserGroupIcon"
-              to="/partnership"
-            />
           </div>
           <div>
             <SidebarItem name="Setting" :icon="Cog6ToothIcon" to="/setting" />
-            <SidebarItem
-              name="Logout"
-              :icon="ArrowLeftOnRectangleIcon"
-              to="/setting"
-            />
+            <button
+              @click.prevent="logoutHandler"
+              class="inline-flex rounded-md relative items-center py-[12px] px-[10px] w-full text-sm text-gray-600 tracking-wider hover:shadow-md transition duration-150"
+            >
+              <ArrowLeftOnRectangleIcon class="w-6 h-6 mr-2" />
+              Logout
+            </button>
           </div>
         </div>
       </div>
@@ -109,12 +101,27 @@ import {
 } from "@heroicons/vue/24/outline";
 import { onMounted } from "vue";
 import { storeToRefs } from "pinia";
-
+import { useAuthStore } from "../stores/auth";
 const sidebarStore = useSidebarStore();
+import { useRouter } from "vue-router";
+const router = useRouter();
 const { isShowSidebar } = storeToRefs(sidebarStore);
-
+const authStore = useAuthStore();
 const toggleSidebarHandler = () => {
   sidebarStore.toggleSidebar();
+};
+
+import { useToast } from "vue-toastification";
+const toast = useToast();
+
+const logoutHandler = async () => {
+  try {
+    const response = await authStore.logout();
+    router.push("/login");
+    toast.success(response.message);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 onMounted(() => {

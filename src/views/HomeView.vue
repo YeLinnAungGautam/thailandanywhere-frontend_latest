@@ -10,6 +10,7 @@ import {
   BubbleChart,
   ScatterChart,
 } from "vue-chart-3";
+import { useAuthStore } from "../stores/auth";
 import { Chart, registerables } from "chart.js";
 import {
   ArchiveBoxIcon,
@@ -18,6 +19,8 @@ import {
 } from "@heroicons/vue/24/outline";
 
 Chart.register(...registerables);
+
+const authStore = useAuthStore();
 
 const saleData = {
   labels: [
@@ -56,7 +59,7 @@ const saleData = {
 </script>
 
 <template>
-  <Layout>
+  <Layout :title="`Welcome back, ${authStore.user.name.split(' ')[0]}!`">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 mb-3">
       <div class="col-span-2">
         <div

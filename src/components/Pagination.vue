@@ -1,61 +1,64 @@
 <template>
-  <div class="flex items-center justify-between mb-5">
+  <div class="flex items-center justify-between mb-5" v-if="data">
     <div class="">
       <nav class="inline-flex gap-3 w-full" aria-label="Pagination">
-        <a
-          href="#"
-          class="relative inline-flex items-center rounded-full px-2 text-sm tracking-wide py-2 text-gray-400 border border-gray-400 hover:text-white hover:bg-blue-600 focus:z-20 focus:outline-offset-0"
-        >
-          <span>
-            <ChevronLeftIcon class="w-4 h-4" />
-          </span>
-        </a>
-        <!-- Current: "z-10 bg-indigo-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600", Default: "text-gray-900  hover:bg-gray-50 focus:outline-offset-0" -->
-        <a
-          href="#"
+        <button
+          v-for="page in pages"
+          :key="page"
+          @click.prevent="changePage(page.url)"
           aria-current="page"
-          class="relative z-10 inline-flex items-center bg-blue-500 px-4 text-xs rounded-full font-medium text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >1</a
+          :disabled="!page.url"
+          :class="[
+            page.active
+              ? 'bg-blue-500 text-white'
+              : 'bg-white text-blue-500',
+            !page.url ? 'bg-gray-100 border-none text-gray-500' : '',
+          ]"
+          class="relative z-10 inline-flex items-center w-10 h-10 justify-center text-xs rounded-full font-medium focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
-        <a
-          href="#"
-          class="relative z-10 inline-flex items-center px-4 text-sm rounded-full font-medium text-gray-600 focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >2</a
-        >
-        <a
-          href="#"
-          class="relative z-10 inline-flex items-center px-4 text-sm rounded-full font-medium text-gray-600 focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >3</a
-        >
-        <span
-          class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 focus:outline-offset-0"
-          >...</span
-        >
-        <a
-          href="#"
-          class="relative z-10 inline-flex items-center px-4 text-sm rounded-full font-medium text-gray-600 focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >8</a
-        >
-        <a
-          href="#"
-          class="relative inline-flex items-center rounded-full px-2 text-sm tracking-wide py-2 text-gray-400 border border-gray-400 hover:text-white hover:bg-blue-600 focus:z-20 focus:outline-offset-0"
-        >
-          <span>
-            <ChevronRightIcon class="w-4 h-4" />
-          </span>
-        </a>
+          {{ page.label }}
+        </button>
       </nav>
     </div>
     <div>
-      <!-- <p class="inline-block mr-2 text-gray-500 font-medium">
-        Showing 1 to 10 of 97 results
-      </p> -->
+      <p class="inline-block mr-2 text-gray-500 font-medium">
+        Showing {{ data.meta.from }} to {{ data.meta.to }} of
+        {{ data.meta.total }} records
+      </p>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/vue/24/outline";
+import axios from "axios";
+import { computed } from "vue";
+
+const props = defineProps({
+  data: {
+    type: Object,
+    required: true,
+  },
+});
+
+const emit = defineEmits(["changePage"]);
+
+const pages = computed(() => {
+  return props.data?.meta.links.map((page) => {
+    let label = page.label;
+    if (label === "&laquo; Previous") {
+      label = "<";
+    }
+    if (label === "Next &raquo;") {
+      label = ">";
+    }
+    return { ...page, label: label };
+  });
+});
+console.log("🚀 ~ file: Pagination.vue:54 ~ pages ~ pages:", pages.value);
+const changePage = async (url) => {
+  emit("changePage", url);
+};
 </script>
 
 <style lang="scss" scoped></style>

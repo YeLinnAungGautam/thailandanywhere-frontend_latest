@@ -13,17 +13,15 @@
           Welcome to Dashboard
         </p>
       </div>
-      <div class="space-y-6 flex flex-col">
+      <form @submit.prevent="loginHandler" class="space-y-6 flex flex-col">
         <InputField label="Email address" required>
-          <Input type="email" />
+          <Input type="email" v-model="formData.email" />
         </InputField>
         <InputField label="Password" required>
-          <Input type="email" />
+          <Input type="password" v-model="formData.password" />
         </InputField>
-        <router-link to="/" class="mx-auto">
-          <Button> Login to Dashboard </Button>
-        </router-link>
-      </div>
+        <Button type="submit"> Login to Dashboard </Button>
+      </form>
     </div>
   </div>
 </template>
@@ -33,6 +31,30 @@ import Button from "../components/Button.vue";
 import Input from "../components/Input.vue";
 import InputField from "../components/InputField.vue";
 import { ArrowRightOnRectangleIcon } from "@heroicons/vue/24/outline";
+import { useAuthStore } from "../stores/auth";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
+const toast = useToast();
+
+const router = useRouter();
+const authStore = useAuthStore();
+
+const formData = ref({
+  email: "admin@gmail.com",
+  password: "password",
+});
+
+const loginHandler = async () => {
+  try {
+    const response = await authStore.login(formData.value);
+    toast.success(response.message);
+    router.push({ name: "home" });
+  } catch (error) {
+    formData.value = { email: "", password: "" };
+    toast.error(error.response.data.message);
+  }
+};
 </script>
 
 <style scoped>

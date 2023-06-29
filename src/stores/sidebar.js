@@ -9,7 +9,7 @@ export const useSidebarStore = defineStore("sidebar", {
     },
     showSidebar() {
       this.isShowSidebar = true;
-    },
+    },  
     hideSidebar() {
       this.isShowSidebar = false;
     },

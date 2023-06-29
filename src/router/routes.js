@@ -10,11 +10,19 @@ import LoginView from "../views/LoginView.vue";
 import CalendarView from "../views/CalendarView.vue";
 import SaleView from "../views/SaleView.vue";
 import PartnerView from "../views/PartnerView.vue";
+import BlogView from "../views/BlogView.vue";
+import BlogCategoryView from "../views/BlogCategoryView.vue";
+import NewBlogView from "../views/NewBlogView.vue";
+import EditBlogView from "../views/EditBlogView.vue";
+
 const routes = [
   {
     path: "/login",
     name: "login",
     component: LoginView,
+    meta: {
+      guest: true,
+    },
   },
   {
     path: "/",
@@ -50,6 +58,26 @@ const routes = [
     path: "/customers",
     name: "customers",
     component: CustomerView,
+  },
+  {
+    path: "/blogs",
+    name: "blogs",
+    component: BlogView,
+  },
+  {
+    path: "/blogs/new",
+    name: "new_blog",
+    component: NewBlogView,
+  },
+  {
+    path: "/blogs/edit/:slug",
+    name: "edit_blog",
+    component: EditBlogView,
+  },
+  {
+    path: "/blogs/categories",
+    name: "blog_categories",
+    component: BlogCategoryView,
   },
   {
     path: "/bookings",

@@ -71,6 +71,7 @@ const addNewHandler = async () => {
     previewImage.value = null;
     errors.value = null;
     categoryModalOpen.value = false;
+    await categoryStore.getListAction();
     toast.success(response.message);
   } catch (error) {
     if (error.response.data.errors) {
@@ -98,6 +99,7 @@ const updateHandler = async () => {
     previewImage.value = null;
     errors.value = null;
     categoryModalOpen.value = false;
+    await categoryStore.getListAction();
     toast.success(response.message);
   } catch (error) {
     if (error.response.data.errors) {
@@ -113,7 +115,6 @@ const onSubmitHandler = async () => {
   } else {
     addNewHandler();
   }
-  await categoryStore.getListAction();
 };
 
 const editModalOpenHandler = (data) => {

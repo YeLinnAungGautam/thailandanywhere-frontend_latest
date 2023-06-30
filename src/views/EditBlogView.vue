@@ -77,7 +77,8 @@ const getDetail = async () => {
     formData.value.title = result.title;
     formData.value.category_id = result.category.id;
     formData.value.tags = result.tags;
-    formData.value.content = result.content;
+    // formData.value.content = result.content;
+    textEditor.value.setHTML(result.content);
   } catch (error) {
     console.log(error);
   }

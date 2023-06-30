@@ -26,7 +26,7 @@ const textEditor = ref(null);
 const onSubmitHandler = async () => {
   const frmData = new FormData();
   frmData.append("title", formData.value.title);
-  frmData.append("content", formData.value.content);
+  frmData.append("content", JSON.stringify(formData.value.content));
   try {
     const response = await postStore.addNewAction(frmData);
     formData.value = {

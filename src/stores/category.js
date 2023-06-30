@@ -2,9 +2,21 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 export const useCategoryStore = defineStore("category", {
-  state: () => ({ data: null, loading: false }),
+  state: () => ({ data: null, loading: false, categories: null }),
   getters: {},
   actions: {
+    async getSimpleListAction(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/categories-list");
+        this.categories = response.data.result;
+        this.loading = false;
+        return response.data;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
     async getListAction(params) {
       try {
         this.loading = true;

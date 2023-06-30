@@ -1,14 +1,21 @@
 <script setup>
 import Layout from "./Layout.vue";
-import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
 import { onMounted, onUnmounted, ref } from "vue";
 import Button from "../components/Button.vue";
 import { QuillEditor } from "@vueup/vue-quill";
 import { useToast } from "vue-toastification";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
+
 import { usePostStore } from "../stores/post";
+import { useCategoryStore } from "../stores/category";
+import { useTagStore } from "../stores/tag";
 import { useRouter } from "vue-router";
+import { storeToRefs } from "pinia";
+
 const postStore = usePostStore();
+const categoryStore = useCategoryStore();
+const tagStore = useTagStore();
+
 const toast = useToast();
 const router = useRouter();
 
@@ -19,19 +26,27 @@ const editorOptions = {
 const formData = ref({
   title: "",
   content: "",
+  category_id: null,
+  tags: [],
 });
+
 const errors = ref(null);
 const textEditor = ref(null);
+const { categories } = storeToRefs(categoryStore);
+const { tags } = storeToRefs(tagStore);
 
 const onSubmitHandler = async () => {
   const frmData = new FormData();
   frmData.append("title", formData.value.title);
+  frmData.append("category_id", formData.value.category_id);
+  frmData.append("tags", formData.value.tags);
   frmData.append("content", JSON.stringify(formData.value.content));
   try {
     const response = await postStore.addNewAction(frmData);
     formData.value = {
       title: "",
       content: "",
+      category_id: null,
     };
     errors.value = null;
     textEditor.value.setHTML("");
@@ -49,7 +64,10 @@ const onSubmitHandler = async () => {
   }
 };
 
-onMounted(() => {});
+onMounted(async () => {
+  await categoryStore.getSimpleListAction();
+  await tagStore.getSimpleListAction();
+});
 </script>
 
 <template>
@@ -72,6 +90,31 @@ onMounted(() => {});
             {{ errors.name[0] }}
           </p>
         </div>
+
+        <div>
+          <p class="text-gray-800 text-sm mb-2">Category</p>
+          <v-select
+            v-model="formData.category_id"
+            class="style-chooser"
+            :options="categories ?? []"
+            label="name"
+            :clearable="false"
+            :reduce="(category) => category.id"
+            placeholder="Choose category"
+          ></v-select>
+        </div>
+        <div>
+          <p class="text-gray-800 text-sm mb-2">Tags</p>
+          <v-select
+            v-model="formData.tags"
+            class="style-chooser"
+            multiple
+            :options="tags ?? []"
+            taggable
+            label="name"
+            placeholder="Choose Tags"
+          ></v-select>
+        </div>
         <div class="">
           <p for="name" class="text-gray-800 text-sm mb-2">Blog Content</p>
           <QuillEditor
@@ -80,6 +123,7 @@ onMounted(() => {});
             theme="snow"
             class="!bg-white/50 !border-1 !border-gray-300 !rounded-bl-md !rounded-br-md !shadow-sm !text-base !text-gray-900 !h-96"
             toolbar="essential"
+            contentType="html"
             v-model:content="formData.content"
           />
         </div>
@@ -90,3 +134,24 @@ onMounted(() => {});
     </div>
   </Layout>
 </template>
+
+<style>
+.style-chooser .vs__dropdown-toggle {
+  border: 1px solid #d1d5db;
+  padding: 10px 5px;
+  border-radius: 8px;
+}
+
+.style-chooser .vs__dropdown-menu .vs__dropdown-option--highlight {
+  background: #2563eb;
+}
+
+.style-chooser .vs__dropdown-menu .vs__dropdown-option {
+  padding: 10px 18px;
+}
+
+.style-chooser .vs__dropdown-toggle .vs__selected-options .vs__selected {
+  padding: 4px 10px;
+  border: none;
+}
+</style>

@@ -80,7 +80,6 @@ onMounted(() => {});
             theme="snow"
             class="!bg-white/50 !border-1 !border-gray-300 !rounded-bl-md !rounded-br-md !shadow-sm !text-base !text-gray-900 !h-96"
             toolbar="essential"
-            contentType="html"
             v-model:content="formData.content"
           />
         </div>

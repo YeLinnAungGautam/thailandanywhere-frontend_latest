@@ -47,6 +47,7 @@ const onSubmitHandler = async () => {
       title: "",
       content: "",
       category_id: null,
+      tags: [],
     };
     errors.value = null;
     textEditor.value.setHTML("");

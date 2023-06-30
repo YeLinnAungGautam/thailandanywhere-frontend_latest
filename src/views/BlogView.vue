@@ -152,9 +152,15 @@ const onDeleteHandler = async (id) => {
               <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
                 {{ post.title }}
               </td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap"></td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap"></td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap"></td>
+              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+                {{ post.category.name }}
+              </td>
+              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+                {{ post.updated_at }}
+              </td>
+              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+                {{ post.created_at }}
+              </td>
               <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
                   <router-link :to="'/blogs/edit/' + post.slug">

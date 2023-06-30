@@ -8,10 +8,20 @@ import { useToast } from "vue-toastification";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import { usePostStore } from "../stores/post";
 import { useRouter, useRoute } from "vue-router";
+import { useCategoryStore } from "../stores/category";
+import { useTagStore } from "../stores/tag";
+import { storeToRefs } from "pinia";
+
 const postStore = usePostStore();
+const categoryStore = useCategoryStore();
+const tagStore = useTagStore();
+
 const toast = useToast();
 const router = useRouter();
 const route = useRoute();
+
+const { categories } = storeToRefs(categoryStore);
+const { tags } = storeToRefs(tagStore);
 
 const editorOptions = {
   placeholder: "Write an awesome blog post here ...",
@@ -21,6 +31,8 @@ const formData = ref({
   slug: null,
   title: "",
   content: "",
+  category_id: null,
+  tags: [],
 });
 const errors = ref(null);
 const textEditor = ref(null);
@@ -28,6 +40,8 @@ const textEditor = ref(null);
 const onSubmitHandler = async () => {
   const frmData = new FormData();
   frmData.append("title", formData.value.title);
+  frmData.append("category_id", formData.value.category_id);
+  frmData.append("tags", formData.value.tags);
   frmData.append("content", formData.value.content);
   frmData.append("_method", "PUT");
   try {
@@ -36,6 +50,8 @@ const onSubmitHandler = async () => {
       title: "",
       content: "",
       id: null,
+      category_id: null,
+      tags: [],
     };
     errors.value = null;
     textEditor.value.setHTML("");
@@ -59,6 +75,8 @@ const getDetail = async () => {
     const { result } = response;
     formData.value.slug = result.slug;
     formData.value.title = result.title;
+    formData.value.category_id = result.category.id;
+    formData.value.tags = result.tags;
     formData.value.content = result.content;
   } catch (error) {
     console.log(error);
@@ -67,6 +85,8 @@ const getDetail = async () => {
 
 onMounted(async () => {
   await getDetail();
+  await categoryStore.getSimpleListAction();
+  await tagStore.getSimpleListAction();
 });
 </script>
 
@@ -89,6 +109,30 @@ onMounted(async () => {
           <p v-if="errors?.name" class="mt-1 text-sm text-red-600">
             {{ errors.name[0] }}
           </p>
+        </div>
+        <div>
+          <p class="text-gray-800 text-sm mb-2">Category</p>
+          <v-select
+            v-model="formData.category_id"
+            class="style-chooser"
+            :options="categories ?? []"
+            label="name"
+            :clearable="false"
+            :reduce="(category) => category.id"
+            placeholder="Choose category"
+          ></v-select>
+        </div>
+        <div>
+          <p class="text-gray-800 text-sm mb-2">Tags</p>
+          <v-select
+            v-model="formData.tags"
+            class="style-chooser"
+            multiple
+            :options="tags ?? []"
+            taggable
+            label="name"
+            placeholder="Choose Tags"
+          ></v-select>
         </div>
         <div class="">
           <p for="name" class="text-gray-800 text-sm mb-2">Blog Content</p>

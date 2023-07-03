@@ -11,6 +11,7 @@ import {
   TicketIcon,
   BuildingOfficeIcon,
   SquaresPlusIcon,
+  ChatBubbleLeftRightIcon,
   UserGroupIcon,
   UsersIcon,
   PlusIcon,
@@ -30,7 +31,6 @@ const { data, loading } = storeToRefs(postStore);
 const showEntries = ref(10);
 const errors = ref(null);
 const search = ref("");
-
 
 onMounted(async () => {
   await postStore.getListAction();
@@ -64,7 +64,10 @@ const onDeleteHandler = async (id) => {
         const response = await postStore.deleteAction(id);
         toast.success(response.message);
       } catch (error) {
-        console.log("🚀 ~ file: BlogView.vue:65 ~ onDeleteHandler ~ error:", error)
+        console.log(
+          "🚀 ~ file: BlogView.vue:65 ~ onDeleteHandler ~ error:",
+          error
+        );
         if (error.response.data.errors) {
           errors.value = error.response.data.errors;
         }
@@ -130,6 +133,9 @@ const onDeleteHandler = async (id) => {
                 Category
               </th>
               <th class="p-4 text-sm font-medium tracking-wide text-left">
+                Meta
+              </th>
+              <th class="p-4 text-sm font-medium tracking-wide text-left">
                 Updated at
               </th>
               <th class="p-4 text-sm font-medium tracking-wide text-left">
@@ -155,6 +161,16 @@ const onDeleteHandler = async (id) => {
               <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
                 {{ post.category.name }}
               </td>
+              <td class="p-4 text-sm text-gray-700 whitespace-nowrap gap-3 flex items-center">
+                <div class="flex items-center">
+                  <EyeIcon class="w-4 h-4 mr-1" />{{ post.views }}
+                </div>
+                <div class="flex items-center">
+                  <ChatBubbleLeftRightIcon class="w-4 h-4 mr-1" />{{
+                    post.comments.length
+                  }}
+                </div>
+              </td>
               <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
                 {{ post.updated_at }}
               </td>
@@ -163,6 +179,13 @@ const onDeleteHandler = async (id) => {
               </td>
               <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
+                  <router-link :to="'/blogs/edit/' + post.slug">
+                    <button
+                      class="hover:bg-blue-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                    >
+                      <EyeIcon class="w-5 h-5" />
+                    </button>
+                  </router-link>
                   <router-link :to="'/blogs/edit/' + post.slug">
                     <button
                       class="hover:bg-yellow-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"

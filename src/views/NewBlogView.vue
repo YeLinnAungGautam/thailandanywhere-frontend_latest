@@ -26,7 +26,7 @@ const editorOptions = {
 
 const formData = ref({
   title: "",
-  content: "",
+  content: null,
   category_id: null,
   tags: [],
   feature_image: null,
@@ -86,7 +86,7 @@ const onSubmitHandler = async () => {
   frmData.append("title", formData.value.title);
   frmData.append("category_id", formData.value.category_id);
   frmData.append("tags", formData.value.tags);
-  
+
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -95,12 +95,12 @@ const onSubmitHandler = async () => {
   }
 
   frmData.append("feature_image", formData.value.feature_image);
-  frmData.append("content", JSON.stringify(formData.value.content));
+  frmData.append("content", formData.value.content);
   try {
     const response = await postStore.addNewAction(frmData);
     formData.value = {
       title: "",
-      content: "",
+      content: null,
       category_id: null,
       tags: [],
     };

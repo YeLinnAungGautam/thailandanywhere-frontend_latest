@@ -81,7 +81,7 @@ const onDeleteHandler = async (id) => {
 
 <template>
   <Layout>
-    <div class="mb-5 flex items-center justify-between">
+    <div class="flex items-center justify-between mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Blog Posts</h3>
       <div class="space-x-3">
         <router-link to="/blogs/categories">
@@ -92,14 +92,14 @@ const onDeleteHandler = async (id) => {
         </router-link>
       </div>
     </div>
-    <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
+    <div class="p-6 mb-5 rounded-lg shadow-sm bg-white/60">
       <!-- search input sort filter -->
       <div class="flex items-center justify-between mb-5">
         <div>
-          <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>
+          <p class="inline-block mr-2 font-medium text-gray-500">Show</p>
           <select
             v-model="showEntries"
-            class="border-2 p-2 rounded-md w-16 focus:outline-none focus:ring-0"
+            class="w-16 p-2 border-2 rounded-md focus:outline-none focus:ring-0"
           >
             <option value="10">10</option>
             <option value="20">20</option>
@@ -108,7 +108,7 @@ const onDeleteHandler = async (id) => {
             <option value="50">50</option>
             <option value="100">100</option>
           </select>
-          <p class="inline-block ml-2 text-gray-500 font-medium">entries</p>
+          <p class="inline-block ml-2 font-medium text-gray-500">entries</p>
         </div>
         <div class="">
           <input
@@ -119,9 +119,9 @@ const onDeleteHandler = async (id) => {
           />
         </div>
       </div>
-      <div class="overflow-auto rounded-lg shadow mb-5" v-if="!loading">
+      <div class="mb-5 overflow-auto rounded-lg shadow" v-if="!loading">
         <table class="w-full">
-          <thead class="bg-gray-50 border-b-2 border-gray-200">
+          <thead class="border-b-2 border-gray-200 bg-gray-50">
             <tr>
               <th class="p-4 text-sm font-medium tracking-wide text-left">
                 No.
@@ -156,12 +156,14 @@ const onDeleteHandler = async (id) => {
                 {{ post.id }}
               </td>
               <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
-                {{ post.title }}
+                {{ post.title.slice(0, 50) }}
               </td>
               <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
                 {{ post.category.name }}
               </td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap gap-3 flex items-center">
+              <td
+                class="flex items-center gap-3 p-4 text-sm text-gray-700 whitespace-nowrap"
+              >
                 <div class="flex items-center">
                   <EyeIcon class="w-4 h-4 mr-1" />{{ post.views }}
                 </div>
@@ -181,21 +183,21 @@ const onDeleteHandler = async (id) => {
                 <div class="flex items-center gap-2">
                   <router-link :to="'/blogs/edit/' + post.slug">
                     <button
-                      class="hover:bg-blue-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                      class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
                     >
                       <EyeIcon class="w-5 h-5" />
                     </button>
                   </router-link>
                   <router-link :to="'/blogs/edit/' + post.slug">
                     <button
-                      class="hover:bg-yellow-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                      class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                     >
                       <PencilSquareIcon class="w-5 h-5" />
                     </button>
                   </router-link>
                   <button
                     @click.prevent="onDeleteHandler(post.id)"
-                    class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                    class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
                   >
                     <TrashIcon class="w-5 h-5" />
                   </button>

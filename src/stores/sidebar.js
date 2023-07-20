@@ -1,7 +1,11 @@
 import { defineStore } from "pinia";
 
 export const useSidebarStore = defineStore("sidebar", {
-  state: () => ({ isShowSidebar: true, isSideBarDropdownShow: false }),
+  state: () => ({
+    isShowSidebar: true,
+    isSideBarDropdownShow: false,
+    isTopBarDropdownShow: false,
+  }),
   getters: {},
   actions: {
     customSideBar() {
@@ -9,7 +13,7 @@ export const useSidebarStore = defineStore("sidebar", {
     },
     showSidebar() {
       this.isShowSidebar = true;
-    },  
+    },
     hideSidebar() {
       this.isShowSidebar = false;
     },
@@ -18,6 +22,9 @@ export const useSidebarStore = defineStore("sidebar", {
     },
     toggleSideBarDropdown() {
       this.isSideBarDropdownShow = !this.isSideBarDropdownShow;
+    },
+    toggleTopBarDropdown() {
+      this.isTopBarDropdownShow = !this.isTopBarDropdownShow;
     },
   },
 });

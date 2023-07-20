@@ -222,12 +222,12 @@ const data = ref([
                       <th
                         class="p-3 text-sm font-medium tracking-wide text-left"
                       >
-                        Name (Burmese)
+                        Prices ( Agent )
                       </th>
                       <th
                         class="p-3 text-sm font-medium tracking-wide text-left"
                       >
-                        SKU
+                        Destination Count
                       </th>
                       <th
                         class="w-30 p-3 text-sm font-medium tracking-wide text-left"
@@ -289,6 +289,9 @@ const data = ref([
           ></TabPanel>
           <TabPanel>Content 2</TabPanel>
           <TabPanel>Content 3</TabPanel>
+          <TabPanel>Content 4</TabPanel>
+          <TabPanel>Content 5</TabPanel>
+          <TabPanel>Content 6</TabPanel>
         </TabPanels>
       </TabGroup>
     </div>

@@ -21,7 +21,7 @@
         </button>
       </div>
     </div>
-    <div class="h-[calc(100vh-80px)] bg-opacity-0 py-[20px] z-2 relative">
+    <div class="h-[calc(100vh-80px)] bg-opacity-0 py-[20px] z-50 relative">
       <div class="flex flex-col justify-between h-full space-y-[10px]">
         <div
           class="flex flex-col justify-between space-y-3 mt-5 px-[14px] h-full overflow-y-auto no-scrollbar"
@@ -60,7 +60,7 @@
               to="/database"
             />
           </div>
-          <div>
+          <!-- <div>
             <SidebarItem name="Setting" :icon="Cog6ToothIcon" to="/setting" />
             <button
               @click.prevent="logoutHandler"
@@ -69,7 +69,7 @@
               <ArrowLeftOnRectangleIcon class="w-6 h-6 mr-2" />
               Logout
             </button>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -113,16 +113,6 @@ const toggleSidebarHandler = () => {
 
 import { useToast } from "vue-toastification";
 const toast = useToast();
-
-const logoutHandler = async () => {
-  try {
-    const response = await authStore.logout();
-    router.push("/login");
-    toast.success(response.message);
-  } catch (error) {
-    console.log(error);
-  }
-};
 
 onMounted(() => {
   // console.log(window.innerWidth);

@@ -31,7 +31,7 @@
             <SidebarItem
               name="Products"
               :icon="ArchiveBoxIcon"
-              to="/products"
+              to="/products/page"
             />
             <SidebarItem
               name="Sales"

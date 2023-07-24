@@ -14,6 +14,18 @@ import BlogView from "../views/BlogView.vue";
 import BlogCategoryView from "../views/BlogCategoryView.vue";
 import NewBlogView from "../views/NewBlogView.vue";
 import EditBlogView from "../views/EditBlogView.vue";
+import DatabaseView from "../views/DatabaseView.vue";
+import VantourView from "../views/EditVantour.vue";
+import VantourlistView from "../views/VanTour.vue";
+import VantourviewView from "../views/VantourView.vue";
+import GrouptourlistView from "../views/Grouptour.vue";
+import GrouptourviewView from "../views/GrouptourView.vue";
+import GrouptourcreateView from "../views/GrouptourEdit.vue";
+import AirportcreateView from "../views/AirportCreate.vue";
+import AirportupdateView from "../views/AirportEdit.vue";
+import EntranceView from "../views/EntranceTicket.vue";
+import EntranceCreateView from "../views/EntranceCreate.vue";
+import EntranceUpdateView from "../views/EntranceUpdate.vue";
 
 const routes = [
   {
@@ -40,7 +52,7 @@ const routes = [
     component: TableView,
   },
   {
-    path: "/products",
+    path: "/products/:id",
     name: "products",
     component: ProductView,
   },
@@ -98,6 +110,66 @@ const routes = [
     path: "/bookings/edit",
     name: "edit_bookings",
     component: EditBookingView,
+  },
+  {
+    path: "/database",
+    name: "database",
+    component: DatabaseView,
+  },
+  {
+    path: "/vantour/edit",
+    name: "vantouredit",
+    component: VantourView,
+  },
+  {
+    path: "/vantour/view/:id",
+    name: "vantourview",
+    component: VantourviewView,
+  },
+  {
+    path: "/vantour",
+    name: "vantour",
+    component: VantourlistView,
+  },
+  {
+    path: "/grouptour",
+    name: "grouptour",
+    component: GrouptourlistView,
+  },
+  {
+    path: "/grouptour/view/:id",
+    name: "grouptourview",
+    component: GrouptourviewView,
+  },
+  {
+    path: "/grouptour/create",
+    name: "grouptourcreate",
+    component: GrouptourcreateView,
+  },
+  {
+    path: "/airport/create",
+    name: "airportcreate",
+    component: AirportcreateView,
+  },
+  {
+    path: "/airport/update/:id",
+    name: "airportupdate",
+    component: AirportupdateView,
+  },
+  {
+    path: "/entrance",
+    name: "entrance",
+    component: EntranceView,
+  },
+  {
+    path: "/entrance/create",
+    name: "entrancecreate",
+    component: EntranceCreateView,
+  },
+  {
+    path: "/entrance/update/:id",
+    name: "entranceupdate",
+    component: EntranceUpdateView,
   },
 ];
 

@@ -1,13 +1,15 @@
 <script setup>
 import Layout from "./Layout.vue";
-import { onMounted, ref } from "vue";
+import Productcategory from "../views/ProductCategory.vue";
+import CityView from "../views/CityView.vue";
+import CarView from "../views/CarView.vue";
+import ProductTag from "../views/ProductTag.vue";
+import ProductSubCategory from "../views/ProductSubCategory.vue";
+import DestinationView from "../views/DestinationView.vue";
+import { ref } from "vue";
 import Button from "../components/Button.vue";
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@headlessui/vue";
-import VanTour from "../views/VanTour.vue";
-import GroupTour from "../views/Grouptour.vue";
-import Airport from "../views/AirportTicket.vue";
-import Entrance from "../views/EntranceTicket.vue";
-import { useRouter, useRoute } from "vue-router";
+import Pagination from "../components/Pagination.vue";
 import {
   PencilSquareIcon,
   TrashIcon,
@@ -20,40 +22,19 @@ import {
   UsersIcon,
   AdjustmentsHorizontalIcon,
 } from "@heroicons/vue/24/outline";
-
-const router = useRouter();
-const route = useRoute();
-
-const selectedTab = ref(0);
-
-const changeTab = (index) => {
-  selectedTab.value = index;
-};
-
-const changeUseRouter = () => {
-  if (route.params.id) {
-    changeTab(route.params.id);
-  } else if (route.params.id == "page") {
-    changeTab(0);
-  }
-};
-
-onMounted(() => {
-  changeUseRouter();
-});
 </script>
 
 <template>
   <Layout>
     <div class="mb-5">
-      <h3 class="text-2xl font-medium text-gray-600">Products</h3>
+      <h3 class="text-2xl font-medium text-gray-600">Database</h3>
     </div>
     <div class="">
-      <TabGroup :selectedIndex="selectedTab">
+      <TabGroup>
         <TabList
           class="space-x-2 bg-white/60 p-6 rounded-lg shadow-sm mb-5 flex"
         >
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(0)">
+          <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
                 'bg-blue-500 text-white': selected,
@@ -61,10 +42,10 @@ onMounted(() => {
               }"
               class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
             >
-              Van Tours
+              Product Category
             </button>
           </Tab>
-          <!-- <Tab as="template" v-slot="{ selected }" @click="changeTab(1)">
+          <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
                 'bg-blue-500 text-white': selected,
@@ -72,21 +53,10 @@ onMounted(() => {
               }"
               class="flex items-center gap-3 tracking-wide text-sm text-gray-600 cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none shadow rounded-md"
             >
-              Flights
-            </button>
-          </Tab> -->
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(1)">
-            <button
-              :class="{
-                'bg-blue-500 text-white': selected,
-                'bg-white text-black': !selected,
-              }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
-            >
-              Airport Pickup
+              Product Sub Category
             </button>
           </Tab>
-          <!-- <Tab as="template" v-slot="{ selected }" @click="changeTab(3)">
+          <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
                 'bg-blue-500 text-white': selected,
@@ -94,21 +64,10 @@ onMounted(() => {
               }"
               class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
             >
-              Hotels
-            </button>
-          </Tab> -->
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(2)">
-            <button
-              :class="{
-                'bg-blue-500 text-white': selected,
-                'bg-white text-black': !selected,
-              }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
-            >
-              Entrance Tickets
+              Product Tag
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(3)">
+          <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
                 'bg-blue-500 text-white': selected,
@@ -116,22 +75,51 @@ onMounted(() => {
               }"
               class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
             >
-              Group Tours
+              Destination
+            </button>
+          </Tab>
+          <Tab as="template" v-slot="{ selected }">
+            <button
+              :class="{
+                'bg-blue-500 text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+            >
+              City
+            </button>
+          </Tab>
+          <Tab as="template" v-slot="{ selected }">
+            <button
+              :class="{
+                'bg-blue-500 text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+            >
+              Car
             </button>
           </Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
-            <VanTour />
+            <Productcategory />
           </TabPanel>
           <TabPanel>
-            <Airport />
+            <ProductSubCategory />
           </TabPanel>
           <TabPanel>
-            <Entrance />
+            <ProductTag />
           </TabPanel>
           <TabPanel>
-            <GroupTour />
+            <DestinationView />
+          </TabPanel>
+          <TabPanel>
+            <CityView />
+          </TabPanel>
+
+          <TabPanel>
+            <CarView />
           </TabPanel>
         </TabPanels>
       </TabGroup>

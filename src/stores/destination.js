@@ -1,16 +1,17 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 
-export const useCategoryStore = defineStore("category", {
-  state: () => ({ data: null, loading: false, categories: null }),
+export const useDestinationStore = defineStore("destination", {
+  state: () => ({ dests: null, loading: false }),
   getters: {},
   actions: {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/categories-list");
-        this.categories = response.data.result;
+        const response = await axios.get("/destinations?limit=1000&page=1");
+        this.dests = response.data.result;
         this.loading = false;
+
         return response.data;
       } catch (error) {
         this.loading = false;
@@ -20,18 +21,19 @@ export const useCategoryStore = defineStore("category", {
     async getChangePage(url) {
       this.loading = true;
       const response = await axios.get(url);
-      this.categories = response.data.result;
+      this.dests = response.data.result;
       this.loading = false;
       return response.data;
     },
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/categories", {
+        const response = await axios.get("/destinations", {
           params: params,
         });
-        this.categories = response.data.result;
+        this.dests = response.data.result;
         this.loading = false;
+        console.log(response);
         return response.data;
       } catch (error) {
         this.loading = false;
@@ -40,7 +42,7 @@ export const useCategoryStore = defineStore("category", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/categories", data);
+        const response = await axios.post("/destinations", data);
         return response.data;
       } catch (error) {
         throw error;
@@ -48,7 +50,7 @@ export const useCategoryStore = defineStore("category", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/categories/" + id, data);
+        const response = await axios.post("/destinations/" + id, data);
         return response.data;
       } catch (error) {
         throw error;
@@ -56,7 +58,7 @@ export const useCategoryStore = defineStore("category", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/categories/" + id);
+        const response = await axios.delete("/destinations/" + id);
         return response.data;
       } catch (error) {
         throw error;

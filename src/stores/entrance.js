@@ -1,16 +1,17 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 
-export const useCategoryStore = defineStore("category", {
-  state: () => ({ data: null, loading: false, categories: null }),
+export const useEntranceStore = defineStore("entrance", {
+  state: () => ({ entrances: null, loading: false }),
   getters: {},
   actions: {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/categories-list");
-        this.categories = response.data.result;
+        const response = await axios.get("/entrance-tickets");
+        this.entrances = response.data.result;
         this.loading = false;
+
         return response.data;
       } catch (error) {
         this.loading = false;
@@ -19,19 +20,24 @@ export const useCategoryStore = defineStore("category", {
     },
     async getChangePage(url) {
       this.loading = true;
-      const response = await axios.get(url);
-      this.categories = response.data.result;
+      const urlSearchParams = new URLSearchParams(new URL(url).search);
+      const pageValue = urlSearchParams.get("page");
+      const response = await axios.get(
+        "/entrance-tickets?limit=10&page=" + pageValue
+      );
+      this.entrances = response.data.result;
       this.loading = false;
       return response.data;
     },
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/categories", {
+        const response = await axios.get("/entrance-tickets", {
           params: params,
         });
-        this.categories = response.data.result;
+        this.entrances = response.data.result;
         this.loading = false;
+        console.log(response);
         return response.data;
       } catch (error) {
         this.loading = false;
@@ -40,7 +46,16 @@ export const useCategoryStore = defineStore("category", {
     },
     async addNewAction(data) {
       try {
-        const response = await axios.post("/categories", data);
+        const response = await axios.post("/entrance-tickets", data);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    async getDetailAction(id) {
+      try {
+        const response = await axios.get("/entrance-tickets/" + id);
         return response.data;
       } catch (error) {
         throw error;
@@ -48,7 +63,7 @@ export const useCategoryStore = defineStore("category", {
     },
     async updateAction(data, id) {
       try {
-        const response = await axios.post("/categories/" + id, data);
+        const response = await axios.post("/entrance-tickets/" + id, data);
         return response.data;
       } catch (error) {
         throw error;
@@ -56,7 +71,8 @@ export const useCategoryStore = defineStore("category", {
     },
     async deleteAction(id) {
       try {
-        const response = await axios.delete("/categories/" + id);
+        const response = await axios.delete("/entrance-tickets/" + id);
+        console.log(response.data);
         return response.data;
       } catch (error) {
         throw error;

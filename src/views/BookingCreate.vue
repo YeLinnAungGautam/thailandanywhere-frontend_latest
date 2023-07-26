@@ -436,14 +436,14 @@ onMounted(async () => {
                     </div>
                   </div>
                 </div>
-                <div class="grid grid-cols-2 gap-8">
+                <div class="grid grid-cols-3 gap-4">
                   <div
                     v-for="(item, index) in formData.items"
                     :key="index"
                     class="grid grid-cols-12 relative"
                   >
                     <div
-                      class="grid grid-cols-3 gap-4 col-span-12 p-3 border-2 border-gray-300 rounded-lg"
+                      class="grid grid-cols-2 gap-4 col-span-12 p-3 border-2 border-gray-300 rounded-lg"
                     >
                       <div class="flex-1">
                         <p class="text-gray-800 text-sm mb-2">Item Type</p>
@@ -537,6 +537,7 @@ onMounted(async () => {
                           class="style-chooser"
                           :options="payment_status"
                           label="name"
+                          disabled
                           :clearable="false"
                           :reduce="(d) => d.name"
                           placeholder="Choose Payment Status"

@@ -265,7 +265,7 @@ onMounted(async () => {
             <div class="col-span-2">
               <div class="grid grid-cols-1">
                 <div class="grid grid-cols-12 relative">
-                  <div class="grid grid-cols-3 gap-4 col-span-12 rounded-lg">
+                  <div class="grid grid-cols-3 gap-8 col-span-12 rounded-lg">
                     <div class="flex-1">
                       <p class="text-gray-800 text-sm mb-2">Product Choose</p>
 
@@ -520,7 +520,7 @@ onMounted(async () => {
                         </p>
                         <a :href="showImage.receipt_image" target="_blink">
                           <img
-                            class="p-2 rounded-lg shadow w-[300px] h-auto"
+                            class="p-2 rounded-lg shadow w-full border border-gray-300 h-auto"
                             :src="showImage.receipt_image"
                             alt=""
                           />
@@ -535,7 +535,7 @@ onMounted(async () => {
                           target="_blink"
                         >
                           <img
-                            class="p-2 rounded-lg shadow w-[300px] h-auto"
+                            class="p-2 rounded-lg shadow w-full border border-gray-300 h-auto"
                             :src="showImage.confirmation_letter"
                             alt=""
                           />

@@ -36,9 +36,14 @@ const changePage = async (url) => {
 const errors = ref([]);
 
 const search = ref("");
+const seen = ref(true);
+const seenClick = () => {
+  seen.value = !seen.value;
+};
 
 onMounted(async () => {
   await reservationStore.getListAction();
+  console.log(reservations.value, "this is reservations");
 });
 
 watch(search, async (newValue) => {
@@ -93,42 +98,42 @@ watch(search, async (newValue) => {
                 Reservation Status
               </th>
               <th class="p-3 text-sm font-medium tracking-wide text-left">
-                Service Date
+                Booking Date
               </th>
               <th class="w-30 p-3 text-sm font-medium tracking-wide text-left">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100">
-            <tr
-              v-for="r in reservations?.data"
-              :key="r.id"
-              class="bg-white even:bg-gray-50 hover:bg-gray-50"
-            >
+          <tbody
+            class="divide-y divide-gray-200 group"
+            v-for="r in reservations?.data"
+            :key="r.id"
+          >
+            <tr class="bg-white">
               <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                 {{ r.id }}
               </td>
 
               <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                {{ r.booking.crm_id }}
+                {{ r.crm_id }}
               </td>
               <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                 <p
                   v-if="r.payment_status == 'Fully paid'"
-                  class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow"
+                  class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
                 >
                   {{ r.payment_status }}
                 </p>
                 <p
                   v-if="r.payment_status == 'Not paid'"
-                  class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow"
+                  class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
                 >
                   {{ r.payment_status }}
                 </p>
                 <p
                   v-if="r.payment_status == 'partially paid'"
-                  class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow"
+                  class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
                 >
                   {{ r.payment_status }}
                 </p>
@@ -141,18 +146,78 @@ watch(search, async (newValue) => {
               </td>
 
               <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                {{ r.service_date }}
+                {{ r.booking_date }}
+              </td>
+              <td
+                class="p-3 text-sm text-gray-700 whitespace-nowrap"
+                @click="seenClick"
+              >
+                <p
+                  class="px-2 py-1 hover:bg-blue-800 cursor-pointer bg-blue-500 inline-block rounded-full text-xs text-white shadow"
+                >
+                  seen<i class="fa-solid fa-chevron-down ml-2"></i>
+                </p>
+              </td>
+            </tr>
+            <tr
+              class="bg-gray-100 hover:bg-gray-200"
+              :class="seen ? 'hidden' : ''"
+              v-for="d in r.items"
+              :key="d.id"
+            >
+              <td class="p-3 text-sm text-gray-700 whitespace-nowrap"></td>
+
+              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
+                  PrivateVanTour
+                </p>
+                <p v-if="d.product_type == 'App\\Models\\GroupTour'">
+                  GroupTour
+                </p>
+                <p v-if="d.product_type == 'App\\Models\\AirportPickup'">
+                  Airpot Pickup
+                </p>
+                <p v-if="d.product_type == 'App\\Models\\EntranceTicket'">
+                  Entrance Ticket
+                </p>
+              </td>
+              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                <p
+                  v-if="d.payment_status == 'Fully paid'"
+                  class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                >
+                  {{ d.payment_status }}
+                </p>
+                <p
+                  v-if="d.payment_status == 'Not paid'"
+                  class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                >
+                  {{ d.payment_status }}
+                </p>
+                <p
+                  v-if="d.payment_status == 'partially paid'"
+                  class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                >
+                  {{ d.payment_status }}
+                </p>
+              </td>
+              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                {{ d.reservation_status }}
+              </td>
+
+              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                {{ d.service_date }}
               </td>
               <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
-                  <router-link :to="'/reservation/update/' + r.id">
+                  <router-link :to="'/reservation/update/' + d.id">
                     <button
                       class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
                     >
                       <EyeIcon class="w-5 h-5" />
                     </button>
                   </router-link>
-                  <router-link :to="'/reservation/update/' + r.id">
+                  <router-link :to="'/reservation/update/' + d.id">
                     <button
                       class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                     >

@@ -5,6 +5,10 @@ import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
 import { onMounted, onUnmounted, ref } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 import { useToast } from "vue-toastification";
 import { useRouter, useRoute } from "vue-router";
@@ -351,6 +355,8 @@ const changeType = (a) => {
   }
 };
 
+const url = ref("");
+
 onMounted(async () => {
   await getDetail();
   await vantourStore.getSimpleListAction();
@@ -358,6 +364,10 @@ onMounted(async () => {
   await airportStore.getSimpleListAction();
   await entranceStore.getSimpleListAction();
   await customerStore.getSimpleListAction();
+  url.value =
+    "https://api-blog.thanywhere.com/admin/bookings/" +
+    route.params.id +
+    "/receipt";
 });
 </script>
 
@@ -799,7 +809,11 @@ onMounted(async () => {
               </div>
             </div>
           </div>
-          <div class="text-end">
+          <div class="text-end space-x-4">
+            <a :href="url" target="_blink">
+              <Button> Print Receipt </Button>
+            </a>
+
             <Button @click.prevent="onSubmitHandler"> Update </Button>
           </div>
         </div>

@@ -436,7 +436,7 @@ onMounted(async () => {
                     </div>
                   </div>
                 </div>
-                <div class="grid grid-cols-3 gap-4">
+                <div class="grid grid-cols-2 gap-4">
                   <div
                     v-for="(item, index) in formData.items"
                     :key="index"

@@ -44,6 +44,7 @@ export const useBookingStore = defineStore("booking", {
         throw error;
       }
     },
+
     async addNewAction(data) {
       try {
         const response = await axios.post("/bookings", data);

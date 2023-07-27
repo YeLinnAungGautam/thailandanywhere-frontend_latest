@@ -12,7 +12,7 @@ export const useSubProductStore = defineStore("subproduct", {
         const response = await axios.get("/product-sub-categories");
         this.subData = response.data.result;
         this.loading = false;
-
+        console.log(response.data, "this is sub");
         return response.data;
       } catch (error) {
         this.loading = false;

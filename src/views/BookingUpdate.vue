@@ -5,10 +5,6 @@ import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
 import { onMounted, onUnmounted, ref } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
-import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
-
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 import { useToast } from "vue-toastification";
 import { useRouter, useRoute } from "vue-router";

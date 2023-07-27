@@ -3,6 +3,7 @@ import ComponentView from "../views/ComponentView.vue";
 import TableView from "../views/TableView.vue";
 import ProductView from "../views/ProductView.vue";
 import BookingView from "../views/BookingView.vue";
+import BookingCreateView from "../views/BookingCreate.vue";
 import NewBookingView from "../views/NewBookingView.vue";
 import CustomerView from "../views/CustomerView.vue";
 import EditBookingView from "../views/EditBookingView.vue";
@@ -26,7 +27,11 @@ import AirportupdateView from "../views/AirportEdit.vue";
 import EntranceView from "../views/EntranceTicket.vue";
 import EntranceCreateView from "../views/EntranceCreate.vue";
 import EntranceUpdateView from "../views/EntranceUpdate.vue";
-
+import CustomerCreateView from "../views/CustomerCreate.vue";
+import CustomerUpdateView from "../views/CustomerEdit.vue";
+import UpdateBookingView from "../views/BookingUpdate.vue";
+import ReservationView from "../views/Reservation.vue";
+import ReservationUpdateView from "../views/ReservationUpdate.vue";
 const routes = [
   {
     path: "/login",
@@ -72,6 +77,16 @@ const routes = [
     component: CustomerView,
   },
   {
+    path: "/customers/create",
+    name: "customerscreate",
+    component: CustomerCreateView,
+  },
+  {
+    path: "/customers/update/:id",
+    name: "customersupdate",
+    component: CustomerUpdateView,
+  },
+  {
     path: "/blogs",
     name: "blogs",
     component: BlogView,
@@ -97,6 +112,11 @@ const routes = [
     component: BookingView,
   },
   {
+    path: "/bookings/create",
+    name: "bookings_create",
+    component: BookingCreateView,
+  },
+  {
     path: "/calendar",
     name: "calendar",
     component: CalendarView,
@@ -110,6 +130,11 @@ const routes = [
     path: "/bookings/edit",
     name: "edit_bookings",
     component: EditBookingView,
+  },
+  {
+    path: "/bookings/update/:id",
+    name: "update_bookings",
+    component: UpdateBookingView,
   },
   {
     path: "/database",
@@ -170,6 +195,16 @@ const routes = [
     path: "/entrance/update/:id",
     name: "entranceupdate",
     component: EntranceUpdateView,
+  },
+  {
+    path: "/reservation",
+    name: "reservation",
+    component: ReservationView,
+  },
+  {
+    path: "/reservation/update/:id",
+    name: "reservationupdate",
+    component: ReservationUpdateView,
   },
 ];
 

@@ -292,7 +292,8 @@ const onSubmitHandler = async () => {
 
     errors.value = null;
     toast.success(response.message);
-    router.push("/bookings");
+    // router.push("/bookings/update/" + route.params.id);
+    window.location.reload(true);
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
@@ -467,7 +468,7 @@ onMounted(async () => {
                         @option:selected="chooseType"
                       ></v-select>
                     </div>
-                    <div class="w-[200px]" v-if="formitem.product_type">
+                    <div class="min-w-[200px]" v-if="formitem.product_type">
                       <p class="text-gray-800 text-sm mb-2">Product Choose</p>
                       <v-select
                         v-model="formitem.product_id"
@@ -497,7 +498,7 @@ onMounted(async () => {
                     </div>
                   </div>
                 </div>
-                <div class="grid grid-cols-3 gap-4">
+                <div class="grid grid-cols-2 gap-4">
                   <div
                     v-for="(item, index) in formData.items"
                     :key="index"

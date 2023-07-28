@@ -406,7 +406,7 @@ onMounted(async () => {
                         @option:selected="chooseType"
                       ></v-select>
                     </div>
-                    <div class="w-[200px]" v-if="formitem.product_type">
+                    <div class="min-w-[200px]" v-if="formitem.product_type">
                       <p class="text-gray-800 text-sm mb-2">Product Choose</p>
                       <v-select
                         v-model="formitem.product_id"

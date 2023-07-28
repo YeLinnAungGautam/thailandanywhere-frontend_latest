@@ -290,7 +290,7 @@ const onSubmitHandler = async () => {
 const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
-  previewImage.value = data.icon;
+  previewImage.value = data.image;
   cityModalOpen.value = true;
 };
 

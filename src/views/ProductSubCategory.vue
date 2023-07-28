@@ -72,7 +72,10 @@
               <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
                 {{ sub.name }}
               </td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td
+                class="p-4 text-sm text-gray-700 whitespace-nowrap"
+                v-if="sub.category.name"
+              >
                 {{ sub.category.name }}
               </td>
               <td class="p-4 text-sm text-gray-700 whitespace-nowrap">

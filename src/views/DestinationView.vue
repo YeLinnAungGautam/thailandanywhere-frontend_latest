@@ -72,7 +72,10 @@
               <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
                 {{ des.name }}
               </td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td
+                class="p-4 text-sm text-gray-700 whitespace-nowrap"
+                v-if="des.category.name"
+              >
                 {{ des.category.name }}
               </td>
               <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
@@ -327,7 +330,7 @@ const onDeleteHandler = async (id) => {
 onMounted(async () => {
   await destStore.getListAction();
   await productStore.getSimpleListAction();
-  console.log(dest.value, "pro");
+  // console.log(dest.value, "pro");
 });
 
 watch(showEntries, async (newValue) => {

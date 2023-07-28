@@ -153,19 +153,19 @@ watch(search, async (newValue) => {
               </td>
               <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                 <p
-                  v-if="r.payment_status == 'fully_paid'"
+                  v-if="r.payment_status == 'fully paid'"
                   class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow"
                 >
                   {{ r.payment_status }}
                 </p>
                 <p
-                  v-if="r.payment_status == 'not_paid'"
+                  v-if="r.payment_status == 'not paid'"
                   class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow"
                 >
                   {{ r.payment_status }}
                 </p>
                 <p
-                  v-if="r.payment_status == 'partially_paid'"
+                  v-if="r.payment_status == 'partially paid'"
                   class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow"
                 >
                   {{ r.payment_status }}

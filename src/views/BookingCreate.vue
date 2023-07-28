@@ -47,9 +47,9 @@ const payment = [
   { id: "4", name: "CB Bank" },
 ];
 const payment_status = [
-  { id: "1", name: "fully_paid" },
-  { id: "2", name: "not_paid" },
-  { id: "3", name: "partially_paid" },
+  { id: "1", name: "fully paid" },
+  { id: "2", name: "not paid" },
+  { id: "3", name: "partially paid" },
 ];
 const reservation_status = [
   { id: "1", name: "reserved" },

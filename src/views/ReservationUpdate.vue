@@ -47,14 +47,14 @@ const payment = [
   { id: "4", name: "CB Bank" },
 ];
 const payment_status = [
-  { id: "1", name: "Fully paid" },
-  { id: "2", name: "Not paid" },
+  { id: "1", name: "fully paid" },
+  { id: "2", name: "not paid" },
   { id: "3", name: "partially paid" },
 ];
 const reservation_status = [
-  { id: "1", name: "Reserved" },
-  { id: "2", name: "Awaiting payment" },
-  { id: "3", name: "Declined" },
+  { id: "1", name: "reserved" },
+  { id: "2", name: "awaiting_payment" },
+  { id: "3", name: "declined" },
 ];
 
 const formItemType = [

@@ -47,14 +47,14 @@ const payment = [
   { id: "4", name: "CB Bank" },
 ];
 const payment_status = [
-  { id: "1", name: "Fully paid" },
-  { id: "2", name: "Not paid" },
-  { id: "3", name: "partially paid" },
+  { id: "1", name: "fully_paid" },
+  { id: "2", name: "not_paid" },
+  { id: "3", name: "partially_paid" },
 ];
 const reservation_status = [
-  { id: "1", name: "Reserved" },
-  { id: "2", name: "Awaiting payment" },
-  { id: "3", name: "Declined" },
+  { id: "1", name: "reserved" },
+  { id: "2", name: "awaiting_payment" },
+  { id: "3", name: "declined" },
 ];
 
 const formItemType = [
@@ -353,6 +353,7 @@ const changeType = (a) => {
 };
 
 const url = ref("");
+const urlPaid = ref("");
 
 onMounted(async () => {
   await getDetail();
@@ -365,6 +366,10 @@ onMounted(async () => {
     "https://api-blog.thanywhere.com/admin/bookings/" +
     route.params.id +
     "/receipt";
+  urlPaid.value =
+    "https://api-blog.thanywhere.com/admin/bookings/" +
+    route.params.id +
+    "/receipt?paid=1";
 });
 </script>
 
@@ -372,7 +377,14 @@ onMounted(async () => {
   <Layout>
     <div class="mb-5 flex items-center justify-between">
       <h3 class="text-2xl font-medium text-gray-600">Update Booking</h3>
-      <div class="space-x-3"></div>
+      <div class="space-x-3">
+        <a :href="urlPaid" target="_blink">
+          <Button> Only Paid Print </Button>
+        </a>
+        <a :href="url" target="_blink">
+          <Button> Print Receipt </Button>
+        </a>
+      </div>
     </div>
     <div class="grid grid-cols-2 gap-3">
       <div class="bg-white/60 col-span-2 p-6 rounded-lg shadow-sm mb-5">
@@ -507,6 +519,88 @@ onMounted(async () => {
                     <div
                       class="grid grid-cols-2 gap-4 col-span-12 p-3 border-2 border-gray-300 rounded-lg"
                     >
+                      <div class="col-span-1">
+                        <div
+                          class="py-2 text-gray-600"
+                          v-if="
+                            item.product_type ==
+                              'App\\Models\\PrivateVanTour' ||
+                            item.product_type == '1'
+                          "
+                        >
+                          <p
+                            class="font-semibold text-md border-b-2 border-b-gray-700 inline-block"
+                          >
+                            Private Van Tour
+                          </p>
+                        </div>
+                        <div
+                          class="py-2 text-gray-600"
+                          v-if="
+                            item.product_type == 'App\\Models\\GroupTour' ||
+                            item.product_type == '2'
+                          "
+                        >
+                          <p
+                            class="font-semibold text-md border-b-2 border-b-gray-700 inline-block"
+                          >
+                            Group Tour
+                          </p>
+                        </div>
+                        <div
+                          class="py-2 text-gray-600"
+                          v-if="
+                            item.product_type == 'App\\Models\\AirportPickup' ||
+                            item.product_type == '3'
+                          "
+                        >
+                          <p
+                            class="font-semibold text-md border-b-2 border-b-gray-700 inline-block"
+                          >
+                            Airport Pickup
+                          </p>
+                        </div>
+                        <div
+                          class="text-md py-2 text-bold text-gray-600"
+                          v-if="
+                            item.product_type ==
+                              'App\\Models\\EntranceTicket' ||
+                            item.product_type == '4'
+                          "
+                        >
+                          <p
+                            class="font-semibold text-md border-b-2 border-b-gray-700 inline-block"
+                          >
+                            Entrance Ticket
+                          </p>
+                        </div>
+                      </div>
+                      <div>
+                        <p
+                          v-if="item.reservation_status == 'reserved'"
+                          class="bg-green-500 rounded-full px-3 py-1 text-center text-white shadow"
+                        >
+                          {{ item.reservation_status }}
+                        </p>
+                        <p
+                          v-if="item.reservation_status == 'awaiting_payment'"
+                          class="bg-yellow-500 rounded-full px-3 py-1 text-center text-white shadow"
+                        >
+                          {{ item.reservation_status }}
+                        </p>
+                        <p
+                          v-if="item.reservation_status == 'declined'"
+                          class="bg-red-500 rounded-full px-3 py-1 text-center text-white shadow"
+                        >
+                          {{ item.reservation_status }}
+                        </p>
+                        <p
+                          v-if="item.reservation_status == null"
+                          class="bg-gray-500 rounded-full px-3 py-1 text-center text-white shadow"
+                        >
+                          Not Check
+                        </p>
+                      </div>
                       <div class="flex-1 hidden">
                         <p class="text-gray-800 text-sm mb-2">Item Type</p>
                         <v-select
@@ -520,6 +614,7 @@ onMounted(async () => {
                           placeholder="Choose product type"
                         ></v-select>
                       </div>
+
                       <div class="flex-1">
                         <p class="text-gray-800 text-sm mb-2">Product Choose</p>
 
@@ -807,9 +902,12 @@ onMounted(async () => {
             </div>
           </div>
           <div class="text-end space-x-4">
+            <!-- <a :href="urlPaid" target="_blink">
+              <Button> Only Paid Print </Button>
+            </a>
             <a :href="url" target="_blink">
               <Button> Print Receipt </Button>
-            </a>
+            </a> -->
 
             <Button @click.prevent="onSubmitHandler"> Update </Button>
           </div>

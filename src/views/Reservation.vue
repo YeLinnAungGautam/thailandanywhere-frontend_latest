@@ -120,19 +120,19 @@ watch(search, async (newValue) => {
               </td>
               <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                 <p
-                  v-if="r.payment_status == 'Fully paid'"
+                  v-if="r.payment_status == 'fully_paid'"
                   class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
                 >
                   {{ r.payment_status }}
                 </p>
                 <p
-                  v-if="r.payment_status == 'Not paid'"
+                  v-if="r.payment_status == 'not_paid'"
                   class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
                 >
                   {{ r.payment_status }}
                 </p>
                 <p
-                  v-if="r.payment_status == 'partially paid'"
+                  v-if="r.payment_status == 'partially_paid'"
                   class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
                 >
                   {{ r.payment_status }}
@@ -183,19 +183,19 @@ watch(search, async (newValue) => {
               </td>
               <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                 <p
-                  v-if="d.payment_status == 'Fully paid'"
+                  v-if="d.payment_status == 'fully_paid'"
                   class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
                 >
                   {{ d.payment_status }}
                 </p>
                 <p
-                  v-if="d.payment_status == 'Not paid'"
+                  v-if="d.payment_status == 'not_paid'"
                   class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
                 >
                   {{ d.payment_status }}
                 </p>
                 <p
-                  v-if="d.payment_status == 'partially paid'"
+                  v-if="d.payment_status == 'partially_paid'"
                   class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
                 >
                   {{ d.payment_status }}

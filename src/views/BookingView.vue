@@ -126,6 +126,9 @@ watch(search, async (newValue) => {
                 Payment Status
               </th>
               <th class="p-3 text-sm font-medium tracking-wide text-left">
+                Reservation Status
+              </th>
+              <th class="p-3 text-sm font-medium tracking-wide text-left">
                 Booking Date
               </th>
               <th class="w-30 p-3 text-sm font-medium tracking-wide text-left">
@@ -150,23 +153,26 @@ watch(search, async (newValue) => {
               </td>
               <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                 <p
-                  v-if="r.payment_status == 'Fully paid'"
+                  v-if="r.payment_status == 'fully_paid'"
                   class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow"
                 >
                   {{ r.payment_status }}
                 </p>
                 <p
-                  v-if="r.payment_status == 'Not paid'"
+                  v-if="r.payment_status == 'not_paid'"
                   class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow"
                 >
                   {{ r.payment_status }}
                 </p>
                 <p
-                  v-if="r.payment_status == 'partially paid'"
+                  v-if="r.payment_status == 'partially_paid'"
                   class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow"
                 >
                   {{ r.payment_status }}
                 </p>
+              </td>
+              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                {{ r.reservation_status }}
               </td>
               <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                 {{ r.booking_date }}

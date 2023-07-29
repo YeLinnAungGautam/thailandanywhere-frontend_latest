@@ -615,7 +615,7 @@ onMounted(async () => {
                         ></v-select>
                       </div>
 
-                      <div class="flex-1">
+                      <div class="flex-1 col-span-2">
                         <p class="text-gray-800 text-sm mb-2">Product Choose</p>
 
                         <v-select

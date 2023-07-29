@@ -32,6 +32,8 @@ import CustomerUpdateView from "../views/CustomerEdit.vue";
 import UpdateBookingView from "../views/BookingUpdate.vue";
 import ReservationView from "../views/Reservation.vue";
 import ReservationUpdateView from "../views/ReservationUpdate.vue";
+import ExpensesView from "../views/Expenses.vue";
+
 const routes = [
   {
     path: "/login",
@@ -205,6 +207,11 @@ const routes = [
     path: "/reservation/update/:id",
     name: "reservationupdate",
     component: ReservationUpdateView,
+  },
+  {
+    path: "/expenses",
+    name: "expenses",
+    component: ExpensesView,
   },
 ];
 

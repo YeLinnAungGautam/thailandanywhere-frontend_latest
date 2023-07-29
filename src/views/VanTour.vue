@@ -72,14 +72,17 @@
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               <div class="flex space-x-2 items-center">
-                <p v-for="(p, index) in r.cars" :key="index">{{ p.price }}/</p>
+                <p v-for="(p, index) in r.cars" :key="index">
+                  ( {{ p.price }} )
+                </p>
               </div>
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               <div class="flex space-x-2 items-center">
-                <p v-for="(e, index) in r.destinations" :key="index">
+                <!-- <p v-for="(e, index) in r.destinations" :key="index">
                   {{ e.entry_fee }}/
-                </p>
+                </p> -->
+                <p>{{ r.destinations.length }}</p>
               </div>
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">

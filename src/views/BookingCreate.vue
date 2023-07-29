@@ -445,7 +445,7 @@ onMounted(async () => {
                     <div
                       class="grid grid-cols-2 gap-4 col-span-12 p-3 border-2 border-gray-300 rounded-lg"
                     >
-                      <div class="flex-1">
+                      <div class="flex-1 col-span-2">
                         <p class="text-gray-800 text-sm mb-2">Item Type</p>
                         <v-select
                           v-model="item.product_type"
@@ -458,7 +458,7 @@ onMounted(async () => {
                           placeholder="Choose product type"
                         ></v-select>
                       </div>
-                      <div class="flex-1">
+                      <div class="flex-1 col-span-2">
                         <p class="text-gray-800 text-sm mb-2">Product Choose</p>
 
                         <v-select

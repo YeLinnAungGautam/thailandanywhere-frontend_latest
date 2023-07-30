@@ -41,15 +41,14 @@ const soldFrom = [
   { id: "4", name: "Telegram" },
 ];
 const payment = [
-  { id: "1", name: "KBZ Bank" },
-  { id: "2", name: "Kpay" },
-  { id: "3", name: "WavePay" },
-  { id: "4", name: "CB Bank" },
+  { id: "1", name: "K+" },
+  { id: "2", name: "SCB" },
+  { id: "3", name: "Bankok Bank" },
 ];
 const payment_status = [
-  { id: "1", name: "fully paid" },
-  { id: "2", name: "not paid" },
-  { id: "3", name: "partially paid" },
+  { id: "1", name: "fully_paid" },
+  { id: "2", name: "not_paid" },
+  { id: "3", name: "partially_paid" },
 ];
 const reservation_status = [
   { id: "1", name: "reserved" },
@@ -242,6 +241,8 @@ const changeType = (a) => {
   }
 };
 
+const action = ref("");
+
 onMounted(async () => {
   await getDetail();
   await vantourStore.getSimpleListAction();
@@ -249,13 +250,20 @@ onMounted(async () => {
   await airportStore.getSimpleListAction();
   await entranceStore.getSimpleListAction();
   await customerStore.getSimpleListAction();
+  action.value = route.params.action;
+  console.log(action.value);
 });
 </script>
 
 <template>
   <Layout>
     <div class="mb-5 flex items-center justify-between">
-      <h3 class="text-2xl font-medium text-gray-600">Update Reservation</h3>
+      <h3 class="text-2xl font-medium text-gray-600" v-if="action === 'view'">
+        View Reservation
+      </h3>
+      <h3 class="text-2xl font-medium text-gray-600" v-if="action === 'update'">
+        Update Reservation
+      </h3>
       <div class="space-x-3"></div>
     </div>
     <div class="grid grid-cols-2 gap-3">
@@ -548,7 +556,7 @@ onMounted(async () => {
             </div>
           </div>
         </div>
-        <div class="text-end">
+        <div class="text-end" v-if="action == 'update'">
           <Button @click.prevent="onSubmitHandler"> Update </Button>
         </div>
       </div>

@@ -41,15 +41,14 @@ const soldFrom = [
   { id: "4", name: "Telegram" },
 ];
 const payment = [
-  { id: "1", name: "KBZ Bank" },
-  { id: "2", name: "Kpay" },
-  { id: "3", name: "WavePay" },
-  { id: "4", name: "CB Bank" },
+  { id: "1", name: "K+" },
+  { id: "2", name: "SCB" },
+  { id: "3", name: "Bankok Bank" },
 ];
 const payment_status = [
-  { id: "1", name: "fully paid" },
-  { id: "2", name: "not paid" },
-  { id: "3", name: "partially paid" },
+  { id: "1", name: "fully_paid" },
+  { id: "2", name: "not_paid" },
+  { id: "3", name: "partially_paid" },
 ];
 const reservation_status = [
   { id: "1", name: "reserved" },
@@ -82,7 +81,7 @@ const formitem = ref({
   product_type: "",
   product_id: "",
   service_date: "",
-  quantity: "",
+  quantity: "1",
   duration: "",
   selling_price: "",
   comment: "",
@@ -291,13 +290,26 @@ const onSubmitHandler = async () => {
     toast.error(error.response.data.message);
   }
 };
-
+const todayVali = ref("");
 const getTodayDate = () => {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
   formData.value.booking_date = `${year}-${month}-${day}`;
+};
+const isBeforeToday = (date) => {
+  const today = new Date();
+  return new Date(date) < today;
+};
+const isAfterToday = (date) => {
+  const today = new Date();
+  return new Date(date) > today;
+};
+
+const todayCheck = (service_date) => {
+  todayVali.value = isBeforeToday(service_date);
+  console.log(todayVali.value);
 };
 
 onMounted(async () => {
@@ -507,10 +519,17 @@ onMounted(async () => {
                         <p class="text-gray-800 text-sm mb-2">Service Date</p>
                         <input
                           v-model="item.service_date"
+                          @change="todayCheck(item.service_date)"
                           type="date"
                           id="title"
-                          class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                          class="h-12 w-full bg-white/50 border rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                          :class="
+                            todayVali ? 'border-red-600' : 'border-gray-300'
+                          "
                         />
+                        <p v-if="todayVali" class="text-xs text-red-600">
+                          Please choose today and after
+                        </p>
                         <p
                           v-if="errors?.service_date"
                           class="mt-1 text-sm text-red-600"

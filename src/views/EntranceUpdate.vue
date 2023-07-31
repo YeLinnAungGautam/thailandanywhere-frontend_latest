@@ -232,6 +232,9 @@ const getDetail = async () => {
 const citylist = ref([]);
 const taglist = ref([]);
 const categorylist = ref([]);
+
+const pageaction = ref("");
+
 onMounted(async () => {
   await getDetail();
   await cityStore.getSimpleListAction();
@@ -240,6 +243,7 @@ onMounted(async () => {
   citylist.value = cities.value.data;
   taglist.value = tags.value.data;
   categorylist.value = products.value.data;
+  pageaction.value = route.params.action;
   // console.log(products.value, "categorylist");
 });
 </script>
@@ -247,7 +251,18 @@ onMounted(async () => {
 <template>
   <Layout>
     <div class="mb-5 flex items-center justify-between">
-      <h3 class="text-2xl font-medium text-gray-600">Edit Entrance Ticket</h3>
+      <h3
+        class="text-2xl font-medium text-gray-600"
+        v-if="pageaction == 'view'"
+      >
+        View Entrance Ticket
+      </h3>
+      <h3
+        class="text-2xl font-medium text-gray-600"
+        v-if="pageaction == 'edit'"
+      >
+        Edit Entrance Ticket
+      </h3>
       <div class="space-x-3"></div>
     </div>
     <div class="grid grid-cols-3 gap-3">
@@ -422,7 +437,12 @@ onMounted(async () => {
           </div>
 
           <div class="text-end">
-            <Button @click.prevent="onSubmitHandler"> Update Vantour </Button>
+            <Button
+              @click.prevent="onSubmitHandler"
+              v-if="pageaction == 'edit'"
+            >
+              Update Vantour
+            </Button>
           </div>
         </div>
       </div>

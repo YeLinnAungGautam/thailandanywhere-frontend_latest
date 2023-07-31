@@ -205,13 +205,15 @@ const citylist = ref([]);
 const taglist = ref([]);
 const destlist = ref([]);
 
+const pageAction = ref("");
+
 onMounted(async () => {
   await getDetail();
   await cityStore.getSimpleListAction();
   await productStore.getSimpleListTagAction();
 
   await destinationStore.getSimpleListAction();
-
+  pageAction.value = route.params.action;
   citylist.value = cities.value.data;
   taglist.value = tags.value.data;
   destlist.value = dests.value.data;
@@ -221,7 +223,18 @@ onMounted(async () => {
 <template>
   <Layout>
     <div class="mb-5 flex items-center justify-between">
-      <h3 class="text-2xl font-medium text-gray-600">Edit Group Tour</h3>
+      <h3
+        class="text-2xl font-medium text-gray-600"
+        v-if="pageAction == 'view'"
+      >
+        View Group Tour
+      </h3>
+      <h3
+        class="text-2xl font-medium text-gray-600"
+        v-if="pageAction == 'edit'"
+      >
+        Edit Group Tour
+      </h3>
       <div class="space-x-3"></div>
     </div>
     <div class="grid grid-cols-3 gap-3">
@@ -317,7 +330,12 @@ onMounted(async () => {
             </p>
           </div>
           <div class="text-end">
-            <Button @click.prevent="onSubmitHandler"> Update </Button>
+            <Button
+              @click.prevent="onSubmitHandler"
+              v-if="pageAction == 'edit'"
+            >
+              Update
+            </Button>
           </div>
         </div>
       </div>

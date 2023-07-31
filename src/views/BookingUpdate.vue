@@ -41,15 +41,14 @@ const soldFrom = [
   { id: "4", name: "Telegram" },
 ];
 const payment = [
-  { id: "1", name: "KBZ Bank" },
-  { id: "2", name: "Kpay" },
-  { id: "3", name: "WavePay" },
-  { id: "4", name: "CB Bank" },
+  { id: "1", name: "K+" },
+  { id: "2", name: "SCB" },
+  { id: "3", name: "Bankok Bank" },
 ];
 const payment_status = [
-  { id: "1", name: "fully paid" },
-  { id: "2", name: "not paid" },
-  { id: "3", name: "partially paid" },
+  { id: "1", name: "fully_paid" },
+  { id: "2", name: "not_paid" },
+  { id: "3", name: "partially_paid" },
 ];
 const reservation_status = [
   { id: "1", name: "reserved" },
@@ -352,8 +351,23 @@ const changeType = (a) => {
   }
 };
 
+const isBeforeToday = (date) => {
+  const today = new Date();
+  return new Date(date) < today;
+};
+const isAfterToday = (date) => {
+  const today = new Date();
+  return new Date(date) > today;
+};
+const todayVali = ref("");
+const todayCheck = (service_date) => {
+  todayVali.value = isBeforeToday(service_date);
+  console.log(todayVali.value);
+};
+
 const url = ref("");
 const urlPaid = ref("");
+const action = ref("");
 
 onMounted(async () => {
   await getDetail();
@@ -370,13 +384,19 @@ onMounted(async () => {
     "https://api-blog.thanywhere.com/admin/bookings/" +
     route.params.id +
     "/receipt?paid=1";
+  action.value = route.params.action;
 });
 </script>
 
 <template>
   <Layout>
     <div class="mb-5 flex items-center justify-between">
-      <h3 class="text-2xl font-medium text-gray-600">Update Booking</h3>
+      <h3 class="text-2xl font-medium text-gray-600" v-if="action == 'view'">
+        View Booking
+      </h3>
+      <h3 class="text-2xl font-medium text-gray-600" v-if="action == 'edit'">
+        Update Booking
+      </h3>
       <div class="space-x-3">
         <a :href="urlPaid" target="_blink">
           <Button> Only Paid Print </Button>
@@ -492,7 +512,7 @@ onMounted(async () => {
                         placeholder="Choose product type"
                       ></v-select>
                     </div>
-                    <div>
+                    <div v-if="action == 'edit'">
                       <button
                         @click.prevent="addNewitem"
                         class="mt-6 flex-1"
@@ -615,7 +635,7 @@ onMounted(async () => {
                         ></v-select>
                       </div>
 
-                      <div class="flex-1">
+                      <div class="flex-1 col-span-2">
                         <p class="text-gray-800 text-sm mb-2">Product Choose</p>
 
                         <v-select
@@ -678,10 +698,17 @@ onMounted(async () => {
                         <p class="text-gray-800 text-sm mb-2">Service Date</p>
                         <input
                           v-model="item.service_date"
+                          @change="todayCheck(item.service_date)"
                           type="date"
                           id="title"
-                          class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                          :class="
+                            todayVali ? 'border-red-600' : 'border-gray-300'
+                          "
+                          class="h-12 w-full bg-white/50 border rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                         />
+                        <p v-if="todayVali" class="text-xs text-red-600">
+                          Please choose today and after
+                        </p>
                         <p
                           v-if="errors?.service_date"
                           class="mt-1 text-sm text-red-600"
@@ -909,7 +936,9 @@ onMounted(async () => {
               <Button> Print Receipt </Button>
             </a> -->
 
-            <Button @click.prevent="onSubmitHandler"> Update </Button>
+            <Button @click.prevent="onSubmitHandler" v-if="action == 'edit'">
+              Update
+            </Button>
           </div>
         </div>
       </div>

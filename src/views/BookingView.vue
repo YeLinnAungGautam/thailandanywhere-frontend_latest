@@ -153,19 +153,19 @@ watch(search, async (newValue) => {
               </td>
               <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                 <p
-                  v-if="r.payment_status == 'fully paid'"
+                  v-if="r.payment_status == 'fully_paid'"
                   class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow"
                 >
                   {{ r.payment_status }}
                 </p>
                 <p
-                  v-if="r.payment_status == 'not paid'"
+                  v-if="r.payment_status == 'not_paid'"
                   class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow"
                 >
                   {{ r.payment_status }}
                 </p>
                 <p
-                  v-if="r.payment_status == 'partially paid'"
+                  v-if="r.payment_status == 'partially_paid'"
                   class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow"
                 >
                   {{ r.payment_status }}
@@ -179,14 +179,14 @@ watch(search, async (newValue) => {
               </td>
               <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
-                  <router-link :to="'/bookings/update/' + r.id">
+                  <router-link :to="'/bookings/update/' + r.id + '/view'">
                     <button
                       class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
                     >
                       <EyeIcon class="w-5 h-5" />
                     </button>
                   </router-link>
-                  <router-link :to="'/bookings/update/' + r.id">
+                  <router-link :to="'/bookings/update/' + r.id + '/edit'">
                     <button
                       class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                     >

@@ -80,6 +80,8 @@ const formData = ref({
 const formitem = ref({
   product_type: "",
   product_id: "",
+  car_id: "",
+  car_list: [],
   service_date: "",
   quantity: "1",
   duration: "",
@@ -111,6 +113,70 @@ const chooseType = async () => {
     console.log(productList.value);
   }
 };
+const carType = ref([]);
+const chooseCar = async (id) => {
+  if (formitem.value.product_type == "1" && id) {
+    const res = await vantourStore.getDetailAction(id);
+    console.log(res);
+    carType.value = res.result.cars;
+  } else if (formitem.value.product_type == "2") {
+    const res = await grouptourStore.getDetailAction(id);
+    formitem.value.selling_price = res.result.price;
+    carType.value = res.result.cars;
+    console.log(res);
+  } else if (formitem.value.product_type == "3") {
+    const res = await airportStore.getDetailAction(id);
+    carType.value = res.result.cars;
+    console.log(res);
+  } else if (formitem.value.product_type == "4") {
+    const res = await entranceStore.getDetailAction(id);
+    carType.value = res.result.cars;
+    console.log(res);
+  }
+};
+const chooseCarPrice = async (type, productId, id) => {
+  if (type == "1") {
+    const res = await vantourStore.getDetailAction(productId);
+    console.log(res);
+    for (let i = 0; i < res.result.cars.length; i++) {
+      formitem.value.car_list = res.result.cars;
+      if (res.result.cars[i].id == id) {
+        formitem.value.selling_price = res.result.cars[i].price;
+        console.log(res.result.cars[i].price);
+      }
+    }
+  } else if (type == "2") {
+    const res = await grouptourStore.getDetailAction(productId);
+    formitem.value.car_list = res.result.cars;
+    for (let i = 0; i < res.result.cars.length; i++) {
+      if (res.result.cars[i].id == id) {
+        formitem.value.selling_price = res.result.cars[i].price;
+        console.log(res.result.cars[i].price);
+      }
+    }
+    console.log(res);
+  } else if (type == "3") {
+    const res = await airportStore.getDetailAction(productId);
+    formitem.value.car_list = res.result.cars;
+    for (let i = 0; i < res.result.cars.length; i++) {
+      if (res.result.cars[i].id == id) {
+        formitem.value.selling_price = res.result.cars[i].price;
+        console.log(res.result.cars[i].price);
+      }
+    }
+    console.log(res);
+  } else if (type == "4") {
+    const res = await entranceStore.getDetailAction(productId);
+    formitem.value.car_list = res.result.cars;
+    for (i = 0; i < res.result.cars.length; i++) {
+      if (res.result.cars[i].id == id) {
+        formitem.value.selling_price = res.result.cars[i].price;
+        console.log(res.result.cars[i].price);
+      }
+    }
+    console.log(res);
+  }
+};
 const addNewitem = () => {
   formData.value.items.push(formitem.value);
   console.log(formData.value.items);
@@ -118,6 +184,8 @@ const addNewitem = () => {
     product_type: "",
     product_id: "",
     service_date: "",
+    car_id: "",
+    car_list: [],
     quantity: "",
     duration: "",
     selling_price: "",
@@ -199,6 +267,9 @@ const onSubmitHandler = async () => {
       "items[" + x + "][product_id]",
       formData.value.items[x].product_id
     );
+  }
+  for (var x = 0; x < formData.value.items.length; x++) {
+    frmData.append("items[" + x + "][car_id]", formData.value.items[x].car_id);
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
@@ -427,6 +498,32 @@ onMounted(async () => {
                         label="name"
                         :clearable="false"
                         :reduce="(d) => d.id"
+                        @option:selected="chooseCar(formitem.product_id)"
+                        placeholder="Choose product type"
+                      ></v-select>
+                    </div>
+                    <div
+                      class="min-w-[200px]"
+                      v-if="
+                        formitem.product_type == '1' ||
+                        formitem.product_type == '3'
+                      "
+                    >
+                      <p class="text-gray-800 text-sm mb-2">Choose Car</p>
+                      <v-select
+                        v-model="formitem.car_id"
+                        class="style-chooser"
+                        :options="carType"
+                        label="name"
+                        :clearable="false"
+                        :reduce="(d) => d.id"
+                        @option:selected="
+                          chooseCarPrice(
+                            formitem.product_type,
+                            formitem.product_id,
+                            formitem.car_id
+                          )
+                        "
                         placeholder="Choose product type"
                       ></v-select>
                     </div>
@@ -470,6 +567,7 @@ onMounted(async () => {
                           placeholder="Choose product type"
                         ></v-select>
                       </div>
+
                       <div class="flex-1 col-span-2">
                         <p class="text-gray-800 text-sm mb-2">Product Choose</p>
 
@@ -509,6 +607,20 @@ onMounted(async () => {
                           v-model="item.product_id"
                           class="style-chooser"
                           :options="entrances?.data"
+                          label="name"
+                          :clearable="false"
+                          :reduce="(d) => d.id"
+                          placeholder="Choose product type"
+                        ></v-select>
+                      </div>
+                      <div class="flex-1" v-if="item.car_id">
+                        <p class="text-gray-800 text-sm mb-2">Choose CarType</p>
+
+                        <v-select
+                          v-model="item.car_id"
+                          class="style-chooser"
+                          disabled
+                          :options="item.car_list"
                           label="name"
                           :clearable="false"
                           :reduce="(d) => d.id"

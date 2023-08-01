@@ -236,13 +236,17 @@ const citylist = ref([]);
 const taglist = ref([]);
 const destlist = ref([]);
 const carList = ref([]);
+
+const actionPager = ref("");
+
 onMounted(async () => {
   await getDetail();
   await cityStore.getSimpleListAction();
   await productStore.getSimpleListTagAction();
   await carStore.getSimpleListAction();
   await destinationStore.getSimpleListAction();
-
+  actionPager.value = route.params.action;
+  console.log(actionPager.value);
   citylist.value = cities.value.data;
   taglist.value = tags.value.data;
   destlist.value = dests.value.data;
@@ -254,7 +258,18 @@ onMounted(async () => {
 <template>
   <Layout>
     <div class="mb-5 flex items-center justify-between">
-      <h3 class="text-2xl font-medium text-gray-600">Edit Airport Pickup</h3>
+      <h3
+        class="text-2xl font-medium text-gray-600"
+        v-if="route.params.action == 'view'"
+      >
+        View Airport Pickup
+      </h3>
+      <h3
+        class="text-2xl font-medium text-gray-600"
+        v-if="route.params.action == 'edit'"
+      >
+        Edit Airport Pickup {{ route.params.action }}
+      </h3>
       <div class="space-x-3"></div>
     </div>
     <div class="grid grid-cols-3 gap-3">
@@ -422,7 +437,7 @@ onMounted(async () => {
               {{ errors.description[0] }}
             </p>
           </div>
-          <div class="text-end">
+          <div class="text-end" v-if="route.params.action == 'edit'">
             <Button @click.prevent="onSubmitHandler"> Update </Button>
           </div>
         </div>

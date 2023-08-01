@@ -11,51 +11,78 @@ import {
   ScatterChart,
 } from "vue-chart-3";
 import { useAuthStore } from "../stores/auth";
-import { Chart, registerables } from "chart.js";
-import {
-  ArchiveBoxIcon,
-  CalendarIcon,
-  UsersIcon,
-} from "@heroicons/vue/24/outline";
+import { useVantourStore } from "../stores/vantour";
+import { useGrouptourStore } from "../stores/grouptour";
+import { useAirportStore } from "../stores/airport";
+import { useEntranceStore } from "../stores/entrance";
+import { useBookingStore } from "../stores/booking";
+import { storeToRefs } from "pinia";
+import { onMounted } from "vue";
 
-Chart.register(...registerables);
+// import { Chart, registerables } from "chart.js";
+// import {
+//   ArchiveBoxIcon,
+//   CalendarIcon,
+//   UsersIcon,
+// } from "@heroicons/vue/24/outline";
+
+// Chart.register(...registerables);
 
 const authStore = useAuthStore();
+const vantourStore = useVantourStore();
+const grouptourStore = useGrouptourStore();
+const airportStore = useAirportStore();
+const entranceStore = useEntranceStore();
+const bookingStore = useBookingStore();
 
-const saleData = {
-  labels: [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ],
-  datasets: [
-    {
-      label: "Sales",
-      data: [
-        1000, 1200, 900, 1500, 1800, 1300, 2000, 2200, 1700, 1900, 2300, 2100,
-      ],
-      backgroundColor: ["#2563EB"],
-    },
-  ],
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  },
-};
+const { vantours, loading } = storeToRefs(vantourStore);
+const { grouptours } = storeToRefs(grouptourStore);
+const { airports } = storeToRefs(airportStore);
+const { entrances } = storeToRefs(entranceStore);
+const { bookings } = storeToRefs(bookingStore);
+
+// const saleData = {
+//   labels: [
+//     "Jan",
+//     "Feb",
+//     "Mar",
+//     "Apr",
+//     "May",
+//     "Jun",
+//     "Jul",
+//     "Aug",
+//     "Sep",
+//     "Oct",
+//     "Nov",
+//     "Dec",
+//   ],
+//   datasets: [
+//     {
+//       label: "Sales",
+//       data: [
+//         1000, 1200, 900, 1500, 1800, 1300, 2000, 2200, 1700, 1900, 2300, 2100,
+//       ],
+//       backgroundColor: ["#2563EB"],
+//     },
+//   ],
+//   options: {
+//     responsive: true,
+//     maintainAspectRatio: false,
+//     scales: {
+//       y: {
+//         beginAtZero: true,
+//       },
+//     },
+//   },
+// };
+onMounted(async () => {
+  await vantourStore.getSimpleListAction();
+  await grouptourStore.getSimpleListAction();
+  await airportStore.getSimpleListAction();
+  await entranceStore.getSimpleListAction();
+  await bookingStore.getSimpleListAction();
+  console.log(vantours.value);
+});
 </script>
 
 <template>
@@ -74,57 +101,89 @@ const saleData = {
             </select>
           </div>
         </div>
-        <div class="flex items-center justify-between gap-3">
+        <div class="grid grid-cols-2 gap-4">
           <div class="bg-white/60 p-6 rounded-lg shadow-sm w-full">
-            <div>
-              <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
-                Sales
-              </h3>
-              <p
-                class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
-              >
-                80.5k
-              </p>
-            </div>
+            <router-link to="/products/0">
+              <div>
+                <h3
+                  class="text-gray-600 text-xl font-medium tracking-wide mb-1"
+                >
+                  Van Tour
+                </h3>
+                <p
+                  class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
+                >
+                  {{ vantours?.data.length }}
+                </p>
+              </div>
+            </router-link>
           </div>
           <div class="bg-white/60 p-6 rounded-lg shadow-sm w-full">
-            <div>
-              <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
-                Gross
-              </h3>
-              <p
-                class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
-              >
-                35.0k
-              </p>
-            </div>
+            <router-link to="products/3">
+              <div>
+                <h3
+                  class="text-gray-600 text-xl font-medium tracking-wide mb-1"
+                >
+                  Group Tour
+                </h3>
+                <p
+                  class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
+                >
+                  {{ grouptours?.data.length }}
+                </p>
+              </div>
+            </router-link>
           </div>
           <div class="bg-white/60 p-6 rounded-lg shadow-sm w-full">
-            <div>
-              <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
-                Recievables
-              </h3>
-              <p
-                class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
-              >
-                20.0k
-              </p>
-            </div>
+            <router-link to="/products/1">
+              <div>
+                <h3
+                  class="text-gray-600 text-xl font-medium tracking-wide mb-1"
+                >
+                  Airport pickup
+                </h3>
+                <p
+                  class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
+                >
+                  {{ airports?.data.length }}
+                </p>
+              </div>
+            </router-link>
           </div>
           <div class="bg-white/60 p-6 rounded-lg shadow-sm w-full">
-            <div>
-              <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
-                Payables
-              </h3>
-              <p
-                class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
-              >
-                15.0k
-              </p>
-            </div>
+            <router-link to="/products/2">
+              <div>
+                <h3
+                  class="text-gray-600 text-xl font-medium tracking-wide mb-1"
+                >
+                  Entrance Ticket
+                </h3>
+                <p
+                  class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
+                >
+                  {{ entrances?.data.length }}
+                </p>
+              </div>
+            </router-link>
+          </div>
+          <div class="bg-white/60 p-6 rounded-lg shadow-sm w-full col-span-2">
+            <router-link to="bookings">
+              <div class="">
+                <h3
+                  class="text-gray-600 text-xl font-medium tracking-wide mb-1"
+                >
+                  Booking List Count
+                </h3>
+                <p
+                  class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
+                >
+                  {{ bookings?.data.length }}
+                </p>
+              </div>
+            </router-link>
           </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4 mb-3">
+        <!-- <div class="grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4 mb-3">
           <div
             class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
           >
@@ -153,7 +212,7 @@ const saleData = {
             </p>
             <DoughnutChart :chartData="saleData" />
           </div>
-        </div>
+        </div> -->
       </div>
       <div class="bg-white/60 rounded-md shadow-sm p-4">
         <div class="flex items-center justify-between mb-5">

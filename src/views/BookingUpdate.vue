@@ -85,6 +85,8 @@ const formitem = ref({
   duration: "",
   selling_price: "",
   comment: "",
+  car_id: "",
+  car_list: [],
   reservation_status: "",
   payment_method: "",
   payment_status: "",
@@ -121,6 +123,9 @@ const addNewitem = () => {
     quantity: "",
     duration: "",
     selling_price: "",
+    car_id: "",
+    car_list: [],
+    car_name: "",
     comment: "",
     reservation_status: "",
     payment_method: "",
@@ -214,6 +219,9 @@ const onSubmitHandler = async () => {
     );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
+    frmData.append("items[" + x + "][car_id]", formData.value.items[x].car_id);
+  }
+  for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][service_date]",
       formData.value.items[x].service_date
@@ -285,6 +293,7 @@ const onSubmitHandler = async () => {
       items: [],
       reciept_image: [],
       money_exchange_rate: "",
+      car_name: "",
       discount: "",
       comment: "",
     };
@@ -304,9 +313,74 @@ const onSubmitHandler = async () => {
     toast.error(error.response.data.message);
   }
 };
+const carType = ref([]);
+const chooseCar = async (id) => {
+  if (formitem.value.product_type == "1" && id) {
+    const res = await vantourStore.getDetailAction(id);
+    console.log(res);
+    carType.value = res.result.cars;
+  } else if (formitem.value.product_type == "2") {
+    const res = await grouptourStore.getDetailAction(id);
+    formitem.value.selling_price = res.result.price;
+    carType.value = res.result.cars;
+    console.log(res);
+  } else if (formitem.value.product_type == "3") {
+    const res = await airportStore.getDetailAction(id);
+    carType.value = res.result.cars;
+    console.log(res);
+  } else if (formitem.value.product_type == "4") {
+    const res = await entranceStore.getDetailAction(id);
+    carType.value = res.result.cars;
+    console.log(res);
+  }
+};
+const chooseCarPrice = async (type, productId, id) => {
+  if (type == "1") {
+    const res = await vantourStore.getDetailAction(productId);
+    console.log(res);
+    for (let i = 0; i < res.result.cars.length; i++) {
+      formitem.value.car_list = res.result.cars;
+      if (res.result.cars[i].id == id) {
+        formitem.value.selling_price = res.result.cars[i].price;
+        console.log(res.result.cars[i].price);
+      }
+    }
+  } else if (type == "2") {
+    const res = await grouptourStore.getDetailAction(productId);
+    formitem.value.car_list = res.result.cars;
+    for (let i = 0; i < res.result.cars.length; i++) {
+      if (res.result.cars[i].id == id) {
+        formitem.value.selling_price = res.result.cars[i].price;
+        console.log(res.result.cars[i].price);
+      }
+    }
+    console.log(res);
+  } else if (type == "3") {
+    const res = await airportStore.getDetailAction(productId);
+    formitem.value.car_list = res.result.cars;
+    for (let i = 0; i < res.result.cars.length; i++) {
+      if (res.result.cars[i].id == id) {
+        formitem.value.selling_price = res.result.cars[i].price;
+        console.log(res.result.cars[i].price);
+      }
+    }
+    console.log(res);
+  } else if (type == "4") {
+    const res = await entranceStore.getDetailAction(productId);
+    formitem.value.car_list = res.result.cars;
+    for (i = 0; i < res.result.cars.length; i++) {
+      if (res.result.cars[i].id == id) {
+        formitem.value.selling_price = res.result.cars[i].price;
+        console.log(res.result.cars[i].price);
+      }
+    }
+    console.log(res);
+  }
+};
 const getDetail = async () => {
   try {
     const response = await bookingStore.getDetailAction(route.params.id);
+    console.log(response, "this is response");
     formData.value.customer_id = response.result.customer.id;
     formData.value.sold_from = response.result.sold_from;
     formData.value.payment_method = response.result.payment_method;
@@ -331,6 +405,12 @@ const getDetail = async () => {
         payment_status: response.result.items[x].payment_status,
         exchange_rate: response.result.items[x].exchange_rate,
         cost_price: response.result.items[x].cost_price,
+        car_id: response.result.items[x].car
+          ? response.result.items[x].car.id
+          : "",
+        car_name: response.result.items[x].car
+          ? response.result.items[x].car.name
+          : "",
       };
       formData.value.items.push(itemData);
     }
@@ -477,7 +557,10 @@ onMounted(async () => {
 
             <div class="col-span-2">
               <div class="col-span-2">
-                <div class="flex items-center justify-start mb-2">
+                <div
+                  class="flex items-center justify-start mb-2"
+                  v-if="action == 'edit'"
+                >
                   <label class="text-sm block text-gray-600 mr-3" for="">
                     Items
                     <small class="text-xs text-red-600"
@@ -485,7 +568,7 @@ onMounted(async () => {
                     >
                   </label>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" v-if="action == 'edit'">
                   <div class="flex items-center justify-start gap-8 mb-6">
                     <div class="w-[200px]">
                       <p class="text-gray-800 text-sm mb-2">Item Type</p>
@@ -509,10 +592,36 @@ onMounted(async () => {
                         label="name"
                         :clearable="false"
                         :reduce="(d) => d.id"
+                        @option:selected="chooseCar(formitem.product_id)"
                         placeholder="Choose product type"
                       ></v-select>
                     </div>
-                    <div v-if="action == 'edit'">
+                    <div
+                      class="min-w-[200px]"
+                      v-if="
+                        formitem.product_type == '1' ||
+                        formitem.product_type == '3'
+                      "
+                    >
+                      <p class="text-gray-800 text-sm mb-2">Choose Car</p>
+                      <v-select
+                        v-model="formitem.car_id"
+                        class="style-chooser"
+                        :options="carType"
+                        label="name"
+                        :clearable="false"
+                        :reduce="(d) => d.id"
+                        @option:selected="
+                          chooseCarPrice(
+                            formitem.product_type,
+                            formitem.product_id,
+                            formitem.car_id
+                          )
+                        "
+                        placeholder="Choose product type"
+                      ></v-select>
+                    </div>
+                    <div>
                       <button
                         @click.prevent="addNewitem"
                         class="mt-6 flex-1"
@@ -694,6 +803,29 @@ onMounted(async () => {
                           placeholder="Choose product type"
                         ></v-select>
                       </div>
+                      <div class="flex-1" v-if="item.car_name">
+                        <p class="text-gray-800 text-sm mb-2">Car Type</p>
+                        <input
+                          v-model="item.car_name"
+                          type="text"
+                          disabled
+                          class="h-12 w-full bg-white/50 border rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                        />
+                      </div>
+                      <div class="flex-1" v-if="item.car_id && !item.car_name">
+                        <p class="text-gray-800 text-sm mb-2">Choose CarType</p>
+
+                        <v-select
+                          v-model="item.car_id"
+                          class="style-chooser"
+                          disabled
+                          :options="item.car_list"
+                          label="name"
+                          :clearable="false"
+                          :reduce="(d) => d.id"
+                          placeholder="Choose product type"
+                        ></v-select>
+                      </div>
                       <div class="flex-1">
                         <p class="text-gray-800 text-sm mb-2">Service Date</p>
                         <input
@@ -741,6 +873,7 @@ onMounted(async () => {
                           placeholder="Choose Payment Status"
                         ></v-select>
                       </div>
+
                       <div class="flex-1 hidden">
                         <p class="text-gray-800 text-sm mb-2">Exchange Rate</p>
                         <input
@@ -765,6 +898,7 @@ onMounted(async () => {
                           {{ errors.quantity[0] }}
                         </p>
                       </div>
+
                       <div class="flex-1">
                         <p class="text-gray-800 text-sm mb-2">Duration</p>
                         <input

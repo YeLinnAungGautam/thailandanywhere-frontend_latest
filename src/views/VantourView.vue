@@ -244,17 +244,20 @@ const citylist = ref([]);
 const taglist = ref([]);
 const destlist = ref([]);
 const carList = ref([]);
+
+const actionPage = ref("");
+
 onMounted(async () => {
   await getDetail();
   await cityStore.getSimpleListAction();
   await productStore.getSimpleListTagAction();
   await carStore.getSimpleListAction();
   await destinationStore.getSimpleListAction();
-
+  actionPage.value = route.params.action;
   citylist.value = cities.value.data;
   taglist.value = tags.value.data;
   destlist.value = dests.value.data;
-  console.log(formData.value.tag, "this is dest");
+  console.log(formData.value, "this is dest");
   carList.value = cars.value.data;
 });
 </script>
@@ -262,7 +265,19 @@ onMounted(async () => {
 <template>
   <Layout>
     <div class="mb-5 flex items-center justify-between">
-      <h3 class="text-2xl font-medium text-gray-600">Edit VanTour</h3>
+      <h3
+        class="text-2xl font-medium text-gray-600"
+        v-if="actionPage == 'view'"
+      >
+        View VanTour
+      </h3>
+      <h3
+        class="text-2xl font-medium text-gray-600"
+        v-if="actionPage == 'edit'"
+      >
+        Edit VanTour
+      </h3>
+
       <div class="space-x-3"></div>
     </div>
     <div class="grid grid-cols-3 gap-3">
@@ -442,11 +457,11 @@ onMounted(async () => {
               {{ errors.description[0] }}
             </p>
           </div>
-          <div class="">
+          <div class="" v-if="actionPage == 'edit'">
             <p class="text-gray-800 text-sm mb-2">Long-Description</p>
             <textarea
               v-model="formData.long_description"
-              rows="3"
+              rows="10"
               id="title"
               class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
             />
@@ -457,7 +472,22 @@ onMounted(async () => {
               {{ errors.long_description[0] }}
             </p>
           </div>
-          <div class="text-end">
+          <div class="" v-if="actionPage == 'view'">
+            <p class="text-gray-800 text-sm mb-2">Long-Description</p>
+            <textarea
+              v-model="formData.long_description"
+              rows="10"
+              id="title"
+              class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+            />
+            <p
+              v-if="errors?.long_description"
+              class="mt-1 text-sm text-red-600"
+            >
+              {{ errors.long_description[0] }}
+            </p>
+          </div>
+          <div class="text-end" v-if="actionPage == 'edit'">
             <Button @click.prevent="onSubmitHandler"> Update Vantour </Button>
           </div>
         </div>

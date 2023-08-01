@@ -74,6 +74,8 @@ const formData = ref({
   product_id: "",
   product_type: "",
   quantity: "",
+  car_id: "",
+  car_name: "",
   receipt_image: "",
   reservation_status: "",
   selling_price: "",
@@ -135,6 +137,7 @@ const onSubmitHandler = async () => {
   frmData.append("reservation_status", formData.value.reservation_status);
   frmData.append("selling_price", formData.value.selling_price);
   frmData.append("service_date", formData.value.service_date);
+  frmData.append("car_id", formData.value.car_id);
   try {
     const response = await reservationStore.updateAction(
       frmData,
@@ -149,6 +152,8 @@ const onSubmitHandler = async () => {
       payment_method: "",
       payment_status: "",
       product_id: "",
+      car_id: "",
+      car_name: "",
       product_type: "",
       quantity: "",
       receipt_image: "",
@@ -174,7 +179,7 @@ const onSubmitHandler = async () => {
 const getDetail = async () => {
   try {
     const response = await reservationStore.getDetailAction(route.params.id);
-    console.log(response);
+    console.log(response, "this is response");
     // formData.value.comment = response.result.comment;
     showImage.value.confirmation_letter = response.result.confirmation_letter;
     // formData.value.cost_price = response.result.cost_price;
@@ -212,6 +217,12 @@ const getDetail = async () => {
       formData.value.cost_price = "";
     } else {
       formData.value.cost_price = response.result.cost_price;
+    }
+    if (response.result.car == null) {
+      formData.value.car_id = "";
+    } else if (response.result.car != null) {
+      formData.value.car_id = response.result.car.id;
+      formData.value.car_name = response.result.car.name;
     }
     if (response.result.comment == "null") {
       formData.value.comment = "";
@@ -333,6 +344,17 @@ onMounted(async () => {
                         :reduce="(d) => d.id"
                         placeholder="Choose product type"
                       ></v-select>
+                    </div>
+                    <!-- <p>{{ formData.car_name }}</p> -->
+                    <div class="flex-1" v-if="formData.car_name">
+                      <p class="text-gray-800 text-sm mb-2">Car Type</p>
+                      <input
+                        v-model="formData.car_name"
+                        type="text"
+                        disabled
+                        id="title"
+                        class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                      />
                     </div>
                     <div class="flex-1">
                       <p class="text-gray-800 text-sm mb-2">Service Date</p>

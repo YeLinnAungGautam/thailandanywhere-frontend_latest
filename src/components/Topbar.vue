@@ -13,10 +13,6 @@
     </div>
     <div class="">
       <div class="flex items-center justify-start space-x-6 cursor-pointer">
-        <div class="hidden md:flex items-center justify-start space-x-6">
-          <MagnifyingGlassIcon class="w-6 h-6" />
-          <!-- <BellIcon class="w-6 h-6" /> -->
-        </div>
         <!-- drop down  -->
         <div class="relative">
           <button

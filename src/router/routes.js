@@ -63,11 +63,11 @@ const routes = [
     name: "products",
     component: ProductView,
   },
-  {
-    path: "/sales",
-    name: "sales",
-    component: SaleView,
-  },
+  // {
+  //   path: "/sales",
+  //   name: "sales",
+  //   component: SaleView,
+  // },
   {
     path: "/partners",
     name: "partners",

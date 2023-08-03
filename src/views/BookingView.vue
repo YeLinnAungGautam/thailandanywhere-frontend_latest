@@ -77,7 +77,7 @@ watch(search, async (newValue) => {
 <template>
   <Layout>
     <div class="mb-5 flex items-center justify-between">
-      <h3 class="text-2xl font-medium text-gray-600">Bookings List</h3>
+      <h3 class="text-2xl font-medium text-gray-600">Sales List</h3>
       <div class="space-x-3">
         <router-link to="/bookings/create">
           <Button :leftIcon="PlusIcon" @click="CustomerCreate"> Create </Button>

@@ -50,6 +50,10 @@ const payment_status = [
   { id: "2", name: "not_paid" },
   { id: "3", name: "partially_paid" },
 ];
+const payment_currency = [
+  { id: "1", name: "MMK" },
+  { id: "2", name: "USD" },
+];
 const reservation_status = [
   { id: "1", name: "reserved" },
   { id: "2", name: "awaiting_payment" },
@@ -214,6 +218,15 @@ const handlerConfirmFileChange = (e) => {
   let selectedFile = e.target.files[0];
   if (selectedFile) {
     formData.value.confirmation_letter.push(selectedFile);
+  }
+};
+
+const addComment = ref(false);
+const addToggle = () => {
+  if (addComment.value) {
+    addComment.value = false;
+  } else {
+    addComment.value = true;
   }
 };
 
@@ -391,157 +404,210 @@ onMounted(async () => {
 
 <template>
   <Layout>
-    <div class="mb-5 flex items-center justify-between">
-      <h3 class="text-2xl font-medium text-gray-600">Create Booking</h3>
-      <div class="space-x-3"></div>
-    </div>
-    <div class="grid grid-cols-2 gap-3">
-      <div class="bg-white/60 col-span-2 p-6 rounded-lg shadow-sm mb-5">
-        <div class="space-y-4">
-          <div class="grid grid-cols-2 gap-8">
-            <div class="">
-              <p class="text-gray-800 text-sm mb-2">Customer ID</p>
-              <v-select
-                v-model="formData.customer_id"
-                class="style-chooser"
-                :options="customer?.data"
-                label="name"
-                :clearable="false"
-                :reduce="(d) => d.id"
-                placeholder="Choose customer"
-              ></v-select>
+    <div
+      class="grid grid-cols-3 gap-3 bg-blue-100/50 col-span-2 p-6 rounded-lg shadow-sm mb-5"
+    >
+      <div class="mb-5 flex items-center justify-between col-span-2">
+        <h3 class="text-2xl font-medium text-blue-400">Create New Sales</h3>
+        <div class="space-x-3"></div>
+      </div>
+      <div class="col-span-3">
+        <div class="grid grid-cols-3">
+          <div class="grid grid-cols-2 gap-4 col-span-2">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="">
+                <p class="text-blue-400 text-xs mb-2">Customer Name</p>
+                <v-select
+                  v-model="formData.customer_id"
+                  class="style-chooser placeholder-sm"
+                  :options="customer?.data"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.id"
+                ></v-select>
+              </div>
+              <div class="">
+                <p class="text-blue-400 text-xs mb-2">Sale Date</p>
+                <input
+                  v-model="formData.booking_date"
+                  type="date"
+                  id="title"
+                  class="h-10 w-full bg-white/50 border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
+                <p
+                  v-if="errors?.booking_date"
+                  class="mt-1 text-sm text-red-600"
+                >
+                  {{ errors.booking_date[0] }}
+                </p>
+              </div>
             </div>
-            <div class="">
-              <p class="text-gray-800 text-sm mb-2">Booking Date</p>
-              <input
-                v-model="formData.booking_date"
-                type="date"
-                id="title"
-                class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-              />
-              <p v-if="errors?.booking_date" class="mt-1 text-sm text-red-600">
-                {{ errors.booking_date[0] }}
-              </p>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-8">
-            <div class="">
-              <p class="text-gray-800 text-sm mb-2">Sold From</p>
-              <v-select
-                v-model="formData.sold_from"
-                class="style-chooser"
-                :options="soldFrom"
-                label="name"
-                :clearable="false"
-                :reduce="(d) => d.name"
-                placeholder="Choose Sold From"
-              ></v-select>
-            </div>
-            <div class="">
-              <p class="text-gray-800 text-sm mb-2">Payment Method</p>
-              <v-select
-                v-model="formData.payment_method"
-                class="style-chooser"
-                :options="payment"
-                label="name"
-                :clearable="false"
-                :reduce="(d) => d.name"
-                placeholder="Choose Payment Method"
-              ></v-select>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-8">
-            <div class="">
-              <p class="text-gray-800 text-sm mb-2">Payment Status</p>
-              <v-select
-                v-model="formData.payment_status"
-                class="style-chooser"
-                :options="payment_status"
-                label="name"
-                :clearable="false"
-                :reduce="(d) => d.name"
-                placeholder="Choose Payment Status"
-              ></v-select>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="">
+                <p class="text-blue-400 text-xs mb-2">Sold From</p>
+                <v-select
+                  v-model="formData.sold_from"
+                  class="style-chooser"
+                  :options="soldFrom"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.name"
+                ></v-select>
+              </div>
+              <div class="">
+                <p class="text-blue-400 text-xs mb-2">Payment Method</p>
+                <v-select
+                  v-model="formData.payment_method"
+                  class="style-chooser"
+                  :options="payment"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.name"
+                ></v-select>
+              </div>
             </div>
 
-            <div class="col-span-2">
-              <div class="col-span-2">
-                <div class="flex items-center justify-start mb-2">
-                  <label class="text-sm block text-gray-600 mr-3" for="">
-                    Items
-                    <small class="text-xs text-red-600"
-                      >( Don't forget add )</small
-                    >
-                  </label>
-                </div>
-                <div class="mb-3">
-                  <div class="flex items-center justify-start gap-8 mb-6">
-                    <div class="w-[200px]">
-                      <p class="text-gray-800 text-sm mb-2">Item Type</p>
-                      <v-select
-                        v-model="formitem.product_type"
-                        class="style-chooser"
-                        :options="formItemType"
-                        label="name"
-                        :clearable="false"
-                        :reduce="(d) => d.id"
-                        placeholder="Choose product type"
-                        @option:selected="chooseType"
-                      ></v-select>
-                    </div>
-                    <div class="min-w-[200px]" v-if="formitem.product_type">
-                      <p class="text-gray-800 text-sm mb-2">Product Choose</p>
-                      <v-select
-                        v-model="formitem.product_id"
-                        class="style-chooser"
-                        :options="productList"
-                        label="name"
-                        :clearable="false"
-                        :reduce="(d) => d.id"
-                        @option:selected="chooseCar(formitem.product_id)"
-                        placeholder="Choose product type"
-                      ></v-select>
-                    </div>
-                    <div
-                      class="min-w-[200px]"
-                      v-if="
-                        formitem.product_type == '1' ||
-                        formitem.product_type == '3'
-                      "
-                    >
-                      <p class="text-gray-800 text-sm mb-2">Choose Car</p>
-                      <v-select
-                        v-model="formitem.car_id"
-                        class="style-chooser"
-                        :options="carType"
-                        label="name"
-                        :clearable="false"
-                        :reduce="(d) => d.id"
-                        @option:selected="
-                          chooseCarPrice(
-                            formitem.product_type,
-                            formitem.product_id,
-                            formitem.car_id
-                          )
-                        "
-                        placeholder="Choose product type"
-                      ></v-select>
-                    </div>
-                    <div>
-                      <button
-                        @click.prevent="addNewitem"
-                        class="mt-6 flex-1"
-                        v-if="formitem.product_id"
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-blue-400 text-xs mb-2">Payment Currency</p>
+                <v-select
+                  v-model="formData.payment_currency"
+                  class="style-chooser"
+                  :options="payment_currency"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.name"
+                ></v-select>
+              </div>
+              <div>
+                <p class="text-blue-400 text-xs mb-2">Payment Status</p>
+                <v-select
+                  v-model="formData.payment_status"
+                  class="style-chooser"
+                  :options="payment_status"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.name"
+                ></v-select>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="">
+                <p class="text-blue-400 text-xs mb-2">Customer Address</p>
+                <input
+                  type="text"
+                  id="title"
+                  class="h-10 w-full bg-white/50 border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                />
+              </div>
+              <div class="">
+                <p class="text-blue-400 text-xs mb-2">Reciept Image</p>
+                <input
+                  class="block mt-2 w-full text-xs py-2 text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none"
+                  id="large_size"
+                  type="file"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="col-span-1 text-end space-y-4">
+            <p class="text-blue-400 text-xs">Balance Due</p>
+            <p class="text-blue-400 font-bold text-4xl tracking-wide">
+              5,000 thb
+            </p>
+            <p
+              class="text-blue-400 border border-blue-400 inline-block py-2 px-4 text-sm"
+            >
+              Receive Payment
+            </p>
+          </div>
+
+          <div class="gird grid-cols-1 col-span-3 pt-10">
+            <div
+              class="mb-3 text-sm font-semibold cursor-pointer flex justify-end"
+            >
+              <p @click="addToggle">+ Add Item</p>
+            </div>
+            <div class="col-span-1 bg-white p-3 rounded">
+              <div class="col-span-1">
+                <!-- <div class="col-span-2">
+                  <div class="flex items-center justify-start mb-2">
+                    <label class="text-sm block text-gray-600 mr-3" for="">
+                      Items
+                      <small class="text-xs text-red-600"
+                        >( Don't forget add )</small
                       >
-                        <i
-                          class="fa-solid fa-plus text-sm font-semibold px-2 py-1 rounded-full shadow text-white bg-blue-600"
-                        ></i>
-                      </button>
-                      <button v-if="!formitem.product_id" class="mt-6 flex-1">
-                        <i
-                          class="fa-solid fa-plus text-sm font-semibold px-2 py-1 rounded-full shadow text-white bg-gray-500"
-                        ></i>
-                      </button>
+                    </label>
+                  </div>
+                  <div class="mb-3">
+                    <div class="flex items-center justify-start gap-8 mb-6">
+                      <div class="w-[200px]">
+                        <p class="text-gray-800 text-sm mb-2">Item Type</p>
+                        <v-select
+                          v-model="formitem.product_type"
+                          class="style-chooser"
+                          :options="formItemType"
+                          label="name"
+                          :clearable="false"
+                          :reduce="(d) => d.id"
+                          placeholder="Choose product type"
+                          @option:selected="chooseType"
+                        ></v-select>
+                      </div>
+                      <div class="min-w-[200px]" v-if="formitem.product_type">
+                        <p class="text-gray-800 text-sm mb-2">Product Choose</p>
+                        <v-select
+                          v-model="formitem.product_id"
+                          class="style-chooser"
+                          :options="productList"
+                          label="name"
+                          :clearable="false"
+                          :reduce="(d) => d.id"
+                          @option:selected="chooseCar(formitem.product_id)"
+                          placeholder="Choose product type"
+                        ></v-select>
+                      </div>
+                      <div
+                        class="min-w-[200px]"
+                        v-if="
+                          formitem.product_type == '1' ||
+                          formitem.product_type == '3'
+                        "
+                      >
+                        <p class="text-gray-800 text-sm mb-2">Choose Car</p>
+                        <v-select
+                          v-model="formitem.car_id"
+                          class="style-chooser"
+                          :options="carType"
+                          label="name"
+                          :clearable="false"
+                          :reduce="(d) => d.id"
+                          @option:selected="
+                            chooseCarPrice(
+                              formitem.product_type,
+                              formitem.product_id,
+                              formitem.car_id
+                            )
+                          "
+                          placeholder="Choose product type"
+                        ></v-select>
+                      </div>
+                      <div>
+                        <button
+                          @click.prevent="addNewitem"
+                          class="mt-6 flex-1"
+                          v-if="formitem.product_id"
+                        >
+                          <i
+                            class="fa-solid fa-plus text-sm font-semibold px-2 py-1 rounded-full shadow text-white bg-blue-600"
+                          ></i>
+                        </button>
+                        <button v-if="!formitem.product_id" class="mt-6 flex-1">
+                          <i
+                            class="fa-solid fa-plus text-sm font-semibold px-2 py-1 rounded-full shadow text-white bg-gray-500"
+                          ></i>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -816,53 +882,369 @@ onMounted(async () => {
                       </button>
                     </div>
                   </div>
+                </div> -->
+                <div class="px-6 pt-3">
+                  <table class="w-full">
+                    <thead>
+                      <tr class="border-b border-gray-300">
+                        <th
+                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                        ></th>
+
+                        <th
+                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                        >
+                          P Type
+                        </th>
+                        <th
+                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                        >
+                          Product Name
+                        </th>
+                        <th
+                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                        >
+                          Car Type
+                        </th>
+
+                        <th
+                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                        >
+                          Service Date
+                        </th>
+                        <th
+                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                        >
+                          Quantity
+                        </th>
+                        <th
+                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                        >
+                          Amount
+                        </th>
+                        <th
+                          class="py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                        ></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        class="border-b border-gray-300"
+                        v-for="(item, index) in formData.items"
+                        :key="index"
+                      >
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        >
+                          {{ index + 1 }}
+                        </td>
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        >
+                          <!-- <v-select
+                            v-model="item.product_type"
+                            class="style-chooser"
+                            :options="formItemType"
+                            label="name"
+                            disabled
+                            :clearable="false"
+                            :reduce="(d) => d.id"
+                            placeholder="Choose product type"
+                          ></v-select> -->
+                          <p v-if="item.product_type == '1'">Vantour</p>
+                          <p v-if="item.product_type == '2'">Group</p>
+                          <p v-if="item.product_type == '3'">Airport</p>
+                          <p v-if="item.product_type == '4'">Entrance</p>
+                        </td>
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        >
+                          <v-select
+                            v-if="item.product_type == '1'"
+                            v-model="item.product_id"
+                            class="style-chooser"
+                            disabled
+                            :options="vantours?.data"
+                            label="name"
+                            :clearable="false"
+                            :reduce="(d) => d.id"
+                            placeholder="Choose product type"
+                          ></v-select>
+                          <v-select
+                            v-if="item.product_type == '2'"
+                            v-model="item.product_id"
+                            class="style-chooser"
+                            :options="grouptours?.data"
+                            label="name"
+                            :clearable="false"
+                            :reduce="(d) => d.id"
+                            placeholder="Choose product type"
+                          ></v-select>
+                          <v-select
+                            v-if="item.product_type == '3'"
+                            v-model="item.product_id"
+                            class="style-chooser"
+                            :options="airports?.data"
+                            label="name"
+                            :clearable="false"
+                            :reduce="(d) => d.id"
+                            placeholder="Choose product type"
+                          ></v-select>
+                          <v-select
+                            v-if="item.product_type == '4'"
+                            v-model="item.product_id"
+                            class="style-chooser"
+                            :options="entrances?.data"
+                            label="name"
+                            :clearable="false"
+                            :reduce="(d) => d.id"
+                            placeholder="Choose product type"
+                          ></v-select>
+                        </td>
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        >
+                          <v-select
+                            v-if="item.car_id"
+                            v-model="item.car_id"
+                            class="style-chooser"
+                            disabled
+                            :options="item.car_list"
+                            label="name"
+                            :clearable="false"
+                            :reduce="(d) => d.id"
+                            placeholder="Choose product type"
+                          ></v-select>
+                          <p v-if="!item.car_id">-</p>
+                        </td>
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        >
+                          <input
+                            type="date"
+                            v-model="item.service_date"
+                            class="focus:outline-none"
+                          />
+                        </td>
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        >
+                          <input
+                            type="number"
+                            v-model="item.quantity"
+                            class="focus:outline-none"
+                          />
+                        </td>
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        >
+                          <p>{{ item.selling_price }}</p>
+                        </td>
+
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        >
+                          <button
+                            class="text-sm text-red-600"
+                            @click.prevent="removeFromitem(index)"
+                          >
+                            <i
+                              class="fa-solid fa-minus text-xs font-semibold px-1 py-[1.5px] bg-red-500 rounded-full shadow text-white"
+                            ></i>
+                          </button>
+                        </td>
+                      </tr>
+                      <tr
+                        class="border-b border-gray-300"
+                        v-if="formData.items.length == 0"
+                      >
+                        <td
+                          colspan="10"
+                          class="py-3 px-4 text-center border-gray-300 text-sm text-red-500"
+                        >
+                          there isn't item !
+                        </td>
+                      </tr>
+                      <tr
+                        class="border rounded-lg border-gray-300 bg-gray-200/25"
+                        v-if="addComment"
+                      >
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        ></td>
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        >
+                          <v-select
+                            v-model="formitem.product_type"
+                            class="style-chooser min-w-[80px]"
+                            :options="formItemType"
+                            label="name"
+                            :clearable="false"
+                            :reduce="(d) => d.id"
+                            @option:selected="chooseType"
+                          ></v-select>
+                        </td>
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        >
+                          <v-select
+                            v-model="formitem.product_id"
+                            class="style-chooser min-w-[100px]"
+                            :options="productList"
+                            label="name"
+                            :clearable="false"
+                            :reduce="(d) => d.id"
+                            @option:selected="chooseCar(formitem.product_id)"
+                          ></v-select>
+                        </td>
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        >
+                          <div
+                            class=""
+                            v-if="
+                              formitem.product_type == '1' ||
+                              formitem.product_type == '3'
+                            "
+                          >
+                            <v-select
+                              v-model="formitem.car_id"
+                              class="style-chooser"
+                              :options="carType"
+                              label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              @option:selected="
+                                chooseCarPrice(
+                                  formitem.product_type,
+                                  formitem.product_id,
+                                  formitem.car_id
+                                )
+                              "
+                            ></v-select>
+                          </div>
+                        </td>
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        ></td>
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        ></td>
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        ></td>
+
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        >
+                          <button
+                            @click.prevent="addNewitem"
+                            class="flex-1"
+                            v-if="formitem.product_id"
+                          >
+                            <i
+                              class="fa-solid fa-plus text-xs font-semibold px-1 py-[1.5px] rounded-full shadow text-white bg-blue-600"
+                            ></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-              </div>
-              <div class="grid grid-cols-2 gap-8 mt-4">
-                <div class="">
-                  <p class="text-gray-800 text-sm mb-2">Money Exchange Rate</p>
-                  <input
-                    v-model="formData.money_exchange_rate"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                  />
-                  <p
-                    v-if="errors?.money_exchange_rate"
-                    class="mt-1 text-sm text-red-600"
-                  >
-                    {{ errors.money_exchange_rate[0] }}
-                  </p>
+                <div class="grid grid-cols-3">
+                  <div></div>
+                  <div></div>
+                  <div class="mt-6 px-6">
+                    <div class="grid grid-cols-2 gap-4">
+                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
+                        Subtotal
+                      </p>
+                      <input
+                        v-model="formData.money_exchange_rate"
+                        type="text"
+                        id="title"
+                        class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                      />
+                      <!-- <p
+                        v-if="errors?.money_exchange_rate"
+                        class="mt-1 text-sm text-red-600"
+                      >
+                        {{ errors.money_exchange_rate[0] }}
+                      </p> -->
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
+                        Discount
+                      </p>
+                      <input
+                        v-model="formData.discount"
+                        type="text"
+                        id="title"
+                        class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                      />
+                      <p
+                        v-if="errors?.discount"
+                        class="mt-1 text-sm text-red-600"
+                      >
+                        {{ errors.discount[0] }}
+                      </p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
+                        Total:
+                      </p>
+                      <input
+                        v-model="formData.discount"
+                        type="text"
+                        id="title"
+                        class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                      />
+                      <!-- <textarea
+                        v-model="formData.comment"
+                        rows="3"
+                        id="title"
+                        class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                      />
+                      <p
+                        v-if="errors?.comment"
+                        class="mt-1 text-sm text-red-600"
+                      >
+                        {{ errors.comment[0] }}
+                      </p> -->
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
+                        Deposit:
+                      </p>
+                      <input
+                        type="text"
+                        id="title"
+                        class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                      />
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
+                        Balance Due:
+                      </p>
+                      <input
+                        type="text"
+                        id="title"
+                        class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                      />
+                    </div>
+                    <div class="text-end mt-6 mb-3">
+                      <Button
+                        @click.prevent="onSubmitHandler"
+                        class="px-14 py-2"
+                      >
+                        Create
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                <div class="">
-                  <p class="text-gray-800 text-sm mb-2">Discount</p>
-                  <input
-                    v-model="formData.discount"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                  />
-                  <p v-if="errors?.discount" class="mt-1 text-sm text-red-600">
-                    {{ errors.discount[0] }}
-                  </p>
-                </div>
-              </div>
-              <div class="">
-                <p class="text-gray-800 text-sm mb-2 mt-2">Comment</p>
-                <textarea
-                  v-model="formData.comment"
-                  rows="3"
-                  id="title"
-                  class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                />
-                <p v-if="errors?.comment" class="mt-1 text-sm text-red-600">
-                  {{ errors.comment[0] }}
-                </p>
               </div>
             </div>
-          </div>
-          <div class="text-end">
-            <Button @click.prevent="onSubmitHandler"> Create </Button>
           </div>
         </div>
       </div>
@@ -873,7 +1255,7 @@ onMounted(async () => {
 <style>
 .style-chooser .vs__dropdown-toggle {
   border: 1px solid #d1d5db;
-  padding: 10px 5px;
+  padding: 4px 2px 4px 2px !important;
   border-radius: 8px;
 }
 
@@ -888,6 +1270,9 @@ onMounted(async () => {
 .style-chooser .vs__dropdown-toggle .vs__selected-options .vs__selected {
   padding: 4px 10px;
   border: none;
+}
+.vs__selected {
+  font-size: 14px !important;
 }
 
 .table-responsive {

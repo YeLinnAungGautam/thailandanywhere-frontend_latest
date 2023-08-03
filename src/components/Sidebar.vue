@@ -33,15 +33,15 @@
               :icon="ArchiveBoxIcon"
               to="/products/page"
             />
-            <SidebarItem
+            <!-- <SidebarItem
               name="Sales"
               :icon="PresentationChartBarIcon"
               to="/sales"
-            />
+            /> -->
             <SidebarItem name="Partners" :icon="UserGroupIcon" to="/partners" />
 
             <SidebarItem name="Blogs" :icon="DocumentTextIcon" to="/blogs" />
-            <SidebarItem name="Bookings" :icon="CalendarIcon" to="/bookings" />
+            <SidebarItem name="Sales" :icon="CalendarIcon" to="/bookings" />
             <SidebarItem name="Customers" :icon="UsersIcon" to="/customers" />
             <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
             <SidebarItem

@@ -42,9 +42,10 @@ const soldFrom = [
   { id: "4", name: "Telegram" },
 ];
 const payment = [
-  { id: "1", name: "K+" },
-  { id: "2", name: "SCB" },
-  { id: "3", name: "Bankok Bank" },
+  { id: "1", name: "KBZ Bank" },
+  { id: "2", name: "CB Bank" },
+  { id: "3", name: "K pay" },
+  { id: "4", name: "Yoma Bank" },
 ];
 const payment_status = [
   { id: "1", name: "fully_paid" },
@@ -198,7 +199,7 @@ const handlerFeatureFileChange = (e) => {
 };
 
 const removeFeatureSelectImage = () => {
-  formData.value.feature_image = null;
+  formData.value.receipt_image = "";
   featureImagePreview.value = null;
 };
 
@@ -1431,10 +1432,7 @@ onMounted(async () => {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr
-                        class="border rounded-lg border-gray-300 bg-gray-200/25"
-                        v-if="addComment"
-                      >
+                      <tr class="rounded-lg" v-if="addComment">
                         <td
                           colspan="2"
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
@@ -1497,7 +1495,7 @@ onMounted(async () => {
                             v-model="formitem.service_date"
                             @change="todayCheck"
                             id="title"
-                            class="bg-gray-50 px-1 py-1.5 focus:outline-none rounded"
+                            class="px-1 py-1.5 focus:outline-none rounded"
                             :class="
                               todayVali == true
                                 ? 'text-blue-600'
@@ -1514,7 +1512,7 @@ onMounted(async () => {
                           <input
                             type="number"
                             v-model="formitem.quantity"
-                            class="border-gray-400 bg-gray-50 px-1 py-1.5 focus:outline-none rounded border"
+                            class="border-gray-400 px-1 py-1.5 focus:outline-none rounded border"
                           />
                         </td>
                         <td
@@ -1544,6 +1542,15 @@ onMounted(async () => {
                               class="fa-solid fa-plus text-xs font-semibold px-1 py-[1.5px] rounded-full shadow text-white bg-blue-600"
                             ></i>
                           </button>
+                        </td>
+                      </tr>
+                      <tr class="border-b border-gray-300 text-xs text-red-500">
+                        <td
+                          class="text-right pb-2"
+                          colspan="8"
+                          v-if="addComment"
+                        >
+                          don't forget to click add button for new item!
                         </td>
                       </tr>
                       <tr
@@ -1916,13 +1923,22 @@ onMounted(async () => {
                         class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-sm"
                       />
                     </div>
-                    <div class="text-end mt-6 mb-3" v-if="action == 'edit'">
+                    <div
+                      class="text-end mt-6 mb-3"
+                      v-if="formData.receipt_image != '' && action == 'edit'"
+                    >
                       <Button
                         @click.prevent="onSubmitHandler"
                         class="px-14 py-2"
                       >
                         Update
                       </Button>
+                    </div>
+                    <div
+                      class="text-end mt-6 mb-3"
+                      v-if="formData.receipt_image == '' && action == 'edit'"
+                    >
+                      <Button class="px-14 py-2 bg-gray-300"> Update </Button>
                     </div>
                   </div>
                 </div>

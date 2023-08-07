@@ -16,6 +16,7 @@ import { useGrouptourStore } from "../stores/grouptour";
 import { useAirportStore } from "../stores/airport";
 import { useEntranceStore } from "../stores/entrance";
 import { useBookingStore } from "../stores/booking";
+import { useSidebarStore } from "../stores/sidebar";
 
 const enabled = ref(false);
 
@@ -28,12 +29,14 @@ const grouptourStore = useGrouptourStore();
 const airportStore = useAirportStore();
 const entranceStore = useEntranceStore();
 const bookingStore = useBookingStore();
+const sidebar = useSidebarStore();
 
 const { customer, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
 const { grouptours } = storeToRefs(grouptourStore);
 const { airports } = storeToRefs(airportStore);
 const { entrances } = storeToRefs(entranceStore);
+const { isOpenCustomerCreate } = storeToRefs(sidebar);
 
 const soldFrom = [
   { id: "1", name: "Facebook" },
@@ -42,10 +45,12 @@ const soldFrom = [
   { id: "4", name: "Telegram" },
 ];
 const payment = [
-  { id: "1", name: "KBZ Bank" },
-  { id: "2", name: "CB Bank" },
-  { id: "3", name: "K pay" },
-  { id: "4", name: "Yoma Bank" },
+  { id: "1", name: "KPAY" },
+  { id: "2", name: "AYAPAY" },
+  { id: "3", name: "CBPAY" },
+  { id: "4", name: "KBZ BANKING" },
+  { id: "5", name: "CB BANKING" },
+  { id: "6", name: "MAB BANKING" },
 ];
 const payment_status = [
   { id: "1", name: "fully_paid" },
@@ -261,7 +266,7 @@ const handlerFeatureFileChange = (e) => {
 };
 
 const removeFeatureSelectImage = () => {
-  formData.value.feature_image = null;
+  formData.value.receipt_image = "";
   featureImagePreview.value = null;
 };
 
@@ -469,10 +474,10 @@ const clickdetaildesClose = () => {
 
 const customerOpen = ref(false);
 const customerOpenH = () => {
-  customerOpen.value = true;
+  sidebar.toggleCustomerCreate();
 };
 const customerClose = async () => {
-  customerOpen.value = false;
+  sidebar.toggleCustomerCreate();
   await customerStore.getSimpleListAction();
 };
 
@@ -490,7 +495,7 @@ onMounted(async () => {
       <div class="mb-5 flex items-center justify-between col-span-3">
         <h3 class="text-2xl font-medium text-blue-400">Create New Sales</h3>
         <div
-          class="space-x-3 px-2 text-xs py-1.5 bg-gray-300 border shadow-sm rounded cursor-pointer hover:bg-blue-400 hover:text-white"
+          class="space-x-3 px-2 text-xs py-1.5 hover:shadow-lg border shadow-sm rounded cursor-pointer bg-blue-400 text-white"
           @click="customerOpenH"
         >
           <i class="fa-solid fa-user-plus"></i> Create New Customer
@@ -631,19 +636,13 @@ onMounted(async () => {
                   </DialogPanel>
                 </Modal>
                 <Modal
-                  :isOpen="customerOpen"
-                  @closeModal="customerOpen = false"
+                  :isOpen="isOpenCustomerCreate"
+                  @closeModal="isOpenCustomerCreate = false"
                 >
                   <DialogPanel
                     class="w-full max-w-[800px] transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
                   >
-                    <!-- <DialogTitle
-                      as="h3"
-                      class="text-md font-medium leading-6 text-gray-900 mb-5"
-                    >
-                      Customer Create
-                    </DialogTitle> -->
-                    <CustomerCreate />
+                    <CustomerCreate action="sales" />
                     <div class="flex justify-end items-center">
                       <button @click="customerClose" class="text-sm">
                         close
@@ -1141,7 +1140,10 @@ onMounted(async () => {
                     </div>
                     <div
                       class="text-end mt-6 mb-3"
-                      v-if="formData.items.length != 0"
+                      v-if="
+                        formData.items.length != 0 &&
+                        formData.receipt_image != ''
+                      "
                     >
                       <Button
                         @click.prevent="onSubmitHandler"
@@ -1152,7 +1154,10 @@ onMounted(async () => {
                     </div>
                     <div
                       class="text-end mt-6 mb-3"
-                      v-if="formData.items.length == 0"
+                      v-if="
+                        formData.items.length == 0 ||
+                        formData.receipt_image == ''
+                      "
                     >
                       <Button class="px-14 py-2 bg-gray-400"> Create </Button>
                     </div>

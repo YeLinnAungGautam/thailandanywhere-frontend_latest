@@ -5,6 +5,7 @@ export const useSidebarStore = defineStore("sidebar", {
     isShowSidebar: true,
     isSideBarDropdownShow: false,
     isTopBarDropdownShow: false,
+    isOpenCustomerCreate: false,
   }),
   getters: {},
   actions: {
@@ -25,6 +26,9 @@ export const useSidebarStore = defineStore("sidebar", {
     },
     toggleTopBarDropdown() {
       this.isTopBarDropdownShow = !this.isTopBarDropdownShow;
+    },
+    toggleCustomerCreate() {
+      this.isOpenCustomerCreate = !this.isOpenCustomerCreate;
     },
   },
 });

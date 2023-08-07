@@ -9,6 +9,7 @@ import { useToast } from "vue-toastification";
 import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useCustomerStore } from "../stores/customer";
+import { useSidebarStore } from "../stores/sidebar";
 import { Switch } from "@headlessui/vue";
 
 const enabled = ref(false);
@@ -17,6 +18,7 @@ const toast = useToast();
 const router = useRouter();
 const route = useRoute();
 const customerStore = useCustomerStore();
+const sidebar = useSidebarStore();
 
 const formData = ref({
   name: "",
@@ -94,6 +96,12 @@ const onSubmitHandler = async () => {
     enabled.value = false;
     errors.value = null;
     toast.success(response.message);
+    if (props.action == "sales") {
+      sidebar.toggleCustomerCreate();
+      await customerStore.getSimpleListAction();
+    } else {
+      router.push("/customers");
+    }
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
@@ -105,6 +113,10 @@ const onSubmitHandler = async () => {
     toast.error(error.response.data.message);
   }
 };
+
+const props = defineProps(["action"]);
+
+console.log(props.action);
 
 onMounted(async () => {});
 </script>

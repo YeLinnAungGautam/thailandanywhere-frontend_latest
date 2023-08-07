@@ -418,7 +418,7 @@ const onSubmitHandler = async () => {
     enabled.value = false;
     errors.value = null;
     toast.success(response.message);
-    router.push("/bookings");
+    // router.push("/bookings");
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",

@@ -403,6 +403,7 @@ const onSubmitHandler = async () => {
 
   try {
     const response = await bookingStore.addNewAction(frmData);
+    console.log(response, "create response");
     formData.value = {
       customer_id: "",
       sold_from: "",
@@ -418,7 +419,8 @@ const onSubmitHandler = async () => {
     enabled.value = false;
     errors.value = null;
     toast.success(response.message);
-    // router.push("/bookings");
+    router.push("/bookings/update/" + response.result.id + "/edit");
+    // bookings/update/65/edit
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",

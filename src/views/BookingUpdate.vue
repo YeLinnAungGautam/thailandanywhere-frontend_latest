@@ -363,6 +363,7 @@ const onSubmitHandler = async () => {
       deposit: 0,
       balance_due_date: "",
     };
+    balance_due.value = "";
 
     errors.value = null;
     toast.success(response.message);

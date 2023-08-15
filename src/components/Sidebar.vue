@@ -1,20 +1,20 @@
 <template>
   <div
-    class="w-[300px] bg-white md:bg-white/50 text-white absolute md:relative shadow-sm transition duration-200"
+    class="w-[300px] bg-[#F9FBFC] text-white absolute md:relative shadow-sm transition duration-200"
     v-show="isShowSidebar"
   >
     <div class="h-[80px] w-full flex items-center">
       <div class="flex w-full items-center justify-between px-[20px]">
         <div class="flex items-center">
-          <h3 class="font-medium text-sm md:text-sm lg:text-base">
+          <h3 class="text-sm font-medium md:text-sm lg:text-base">
             <img src="../../public/logo.jpg" class="w-10 h-10 rounded" alt="" />
           </h3>
-          <p class="font-medium tracking-wide ml-2 text-md text-gray-600">
+          <p class="ml-2 font-medium tracking-wide text-gray-600 text-md">
             Thailand Anywhere
           </p>
         </div>
         <button
-          class="bg-blue-500 block md:hidden rounded-md shadow text-white p-3"
+          class="block p-3 text-white bg-blue-500 rounded-md shadow md:hidden"
           @click.prevent="toggleSidebarHandler"
         >
           <XMarkIcon class="w-5 h-5" />

@@ -295,12 +295,7 @@ const onSubmitHandler = async () => {
   frmData.append("payment_currency", formData.value.payment_currency);
   frmData.append("balance_due", balance_due.value);
   frmData.append("balance_due_date", formData.value.balance_due_date);
-  // if (formData.value.receipt_image.length > 0) {
-  //   for (let i = 0; i < formData.value.receipt_image.length; i++) {
-  //     let file = formData.value.receipt_image[i];
-  //     frmData.append("items[" + i + "][receipt_image]", file);
-  //   }
-  // }
+
   frmData.append("receipt_image", formData.value.receipt_image);
   if (formData.value.confirmation_letter.length > 0) {
     for (let i = 0; i < formData.value.confirmation_letter.length; i++) {

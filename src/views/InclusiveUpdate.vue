@@ -220,6 +220,7 @@ const onSubmitHandler = async () => {
   frmData.append("description", formData.value.description);
   frmData.append("price", formData.value.price);
   frmData.append("agent_price", formData.value.agent_price);
+  frmData.append("_method", "PUT");
 
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
@@ -254,7 +255,10 @@ const onSubmitHandler = async () => {
   frmData.append("cover_image", formData.value.cover_image);
 
   try {
-    const response = await inclusiveStore.addNewAction(frmData);
+    const response = await inclusiveStore.updateAction(
+      frmData,
+      route.params.id
+    );
     formData.value = {
       name: "",
       description: "",
@@ -280,13 +284,117 @@ const onSubmitHandler = async () => {
   }
 };
 
-onMounted(async () => {});
+const editData = ref({
+  cover_image: "",
+  images: [],
+});
+
+const getDetail = async () => {
+  try {
+    const response = await inclusiveStore.getDetailAction(route.params.id);
+    console.log(response, "this is response");
+    formData.value.name = response.result.name;
+    formData.value.description = response.result.description;
+    formData.value.price = response.result.price;
+    formData.value.agent_price = response.result.agent_price;
+    editData.value.cover_image = response.result.cover_image;
+    editData.value.images = response.result.images;
+    formData.value.sku_code = response.result.sku_code;
+    if (response.result.airport_pickups.length != 0) {
+      for (const x in response.result.airport_pickups) {
+        const itemData = {
+          product_type: "3",
+          product_id: response.result.airport_pickups[x].product.id,
+          car_id: response.result.airport_pickups[x].car
+            ? response.result.airport_pickups[x].car.id
+            : "",
+          car_name: response.result.airport_pickups[x].car
+            ? response.result.airport_pickups[x].car.name
+            : "",
+        };
+        formData.value.items.push(itemData);
+      }
+    }
+    if (response.result.entrance_tickets.length != 0) {
+      for (const x in response.result.entrance_tickets) {
+        const itemData = {
+          product_type: "4",
+          product_id: response.result.entrance_tickets[x].product.id,
+          car_id: response.result.entrance_tickets[x].car
+            ? response.result.entrance_tickets[x].car.id
+            : "",
+          car_name: response.result.entrance_tickets[x].car
+            ? response.result.entrance_tickets[x].car.name
+            : "",
+        };
+        formData.value.items.push(itemData);
+      }
+    }
+    if (response.result.group_tours.length != 0) {
+      for (const x in response.result.group_tours) {
+        const itemData = {
+          product_type: "2",
+          product_id: response.result.group_tours[x].product.id,
+          car_id: response.result.group_tours[x].car
+            ? response.result.group_tours[x].car.id
+            : "",
+          car_name: response.result.group_tours[x].car
+            ? response.result.group_tours[x].car.name
+            : "",
+        };
+        formData.value.items.push(itemData);
+      }
+    }
+    if (response.result.private_van_tours.length != 0) {
+      for (const x in response.result.private_van_tours) {
+        const itemData = {
+          product_type: "1",
+          product_id: response.result.private_van_tours[x].product.id,
+          car_id: response.result.private_van_tours[x].car
+            ? response.result.private_van_tours[x].car.id
+            : "",
+          car_name: response.result.private_van_tours[x].car
+            ? response.result.private_van_tours[x].car.name
+            : "",
+        };
+        formData.value.items.push(itemData);
+      }
+    }
+
+    console.log(formData.value.items, "this is push");
+    console.log(formData.value.receipt_images, "this is image");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const pageAction = ref("");
+
+onMounted(async () => {
+  await getDetail();
+  pageAction.value = route.params.action;
+  await vantourStore.getSimpleListAction();
+  await grouptourStore.getSimpleListAction();
+  await airportStore.getSimpleListAction();
+  await entranceStore.getSimpleListAction();
+});
 </script>
 
 <template>
   <Layout>
     <div class="mb-5 flex items-center justify-between">
-      <h3 class="text-2xl font-medium text-gray-600">Create Inclusive</h3>
+      <h3
+        class="text-2xl font-medium text-gray-600"
+        v-if="pageAction == 'view'"
+      >
+        View Inclusive
+      </h3>
+      <h3
+        class="text-2xl font-medium text-gray-600"
+        v-if="pageAction == 'edit'"
+      >
+        Edit Inclusive
+      </h3>
       <div class="space-x-3"></div>
     </div>
     <div class="grid grid-cols-3 gap-3">
@@ -479,7 +587,11 @@ onMounted(async () => {});
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
                         >
                           <v-select
-                            v-if="item.product_type == '1'"
+                            v-if="
+                              item.product_type ==
+                                'App\\Models\\PrivateVanTour' ||
+                              item.product_type == '1'
+                            "
                             v-model="item.product_id"
                             class="style-chooser"
                             disabled
@@ -490,7 +602,10 @@ onMounted(async () => {});
                             placeholder="Choose product type"
                           ></v-select>
                           <v-select
-                            v-if="item.product_type == '2'"
+                            v-if="
+                              item.product_type == 'App\\Models\\GroupTour' ||
+                              item.product_type == '2'
+                            "
                             v-model="item.product_id"
                             class="style-chooser"
                             :options="grouptours?.data"
@@ -500,7 +615,11 @@ onMounted(async () => {});
                             placeholder="Choose product type"
                           ></v-select>
                           <v-select
-                            v-if="item.product_type == '3'"
+                            v-if="
+                              item.product_type ==
+                                'App\\Models\\AirportPickup' ||
+                              item.product_type == '3'
+                            "
                             v-model="item.product_id"
                             class="style-chooser"
                             :options="airports?.data"
@@ -510,7 +629,11 @@ onMounted(async () => {});
                             placeholder="Choose product type"
                           ></v-select>
                           <v-select
-                            v-if="item.product_type == '4'"
+                            v-if="
+                              item.product_type ==
+                                'App\\Models\\EntranceTicket' ||
+                              item.product_type == '4'
+                            "
                             v-model="item.product_id"
                             class="style-chooser"
                             :options="entrances?.data"
@@ -524,16 +647,19 @@ onMounted(async () => {});
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
                         >
                           <v-select
-                            v-if="item.car_id"
+                            v-if="item.car_id && !item.car_name"
                             v-model="item.car_id"
                             class="style-chooser"
-                            disabled
                             :options="item.car_list"
                             label="name"
+                            disabled
                             :clearable="false"
                             :reduce="(d) => d.id"
                             placeholder="Choose product type"
                           ></v-select>
+                          <p v-if="item.car_id && item.car_name">
+                            {{ item.car_name }}
+                          </p>
                           <p v-if="!item.car_id">-</p>
                         </td>
 
@@ -580,7 +706,7 @@ onMounted(async () => {});
             </p>
           </div>
 
-          <div class="text-end">
+          <div class="text-end" v-if="pageAction == 'edit'">
             <Button @click.prevent="onSubmitHandler"> Create </Button>
           </div>
         </div>
@@ -589,6 +715,16 @@ onMounted(async () => {});
         <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
           <div class="flex items-center justify-start gap-3 mb-3">
             <p>Images</p>
+            <div>
+              <button
+                class="text-sm text-blue-600"
+                @click.prevent="openFileImagePicker"
+              >
+                <i
+                  class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
+                ></i>
+              </button>
+            </div>
             <input
               multiple
               type="file"
@@ -598,37 +734,17 @@ onMounted(async () => {});
               accept="image/*"
             />
           </div>
+
           <div
-            class="grid grid-cols-3 gap-2"
+            class="grid grid-cols-3 gap-2 mb-6 bg-white rounded-md shadow"
             v-if="imagesPreview.length == 0"
-            @click.prevent="openFileImagePicker"
           >
             <div
-              class="cursor-pointer w-full h-[130px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
+              class="relative"
+              v-for="(image, index) in editData.images"
+              :key="index"
             >
-              <span class="text-xs"
-                ><i
-                  class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-blue-500 rounded-full shadow text-white"
-                ></i
-              ></span>
-            </div>
-            <div
-              class="cursor-pointer w-full h-[130px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
-            >
-              <span class="text-xs"
-                ><i
-                  class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-blue-500 rounded-full shadow text-white"
-                ></i
-              ></span>
-            </div>
-            <div
-              class="cursor-pointer w-full h-[130px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
-            >
-              <span class="text-xs"
-                ><i
-                  class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-blue-500 rounded-full shadow text-white"
-                ></i
-              ></span>
+              <img class="h-auto w-full rounded" :src="image.image" alt="" />
             </div>
           </div>
           <div class="grid grid-cols-3 gap-2">
@@ -668,36 +784,40 @@ onMounted(async () => {});
               @change="handlerFeatureFileChange"
               accept="image/*"
             />
+
             <button
+              class="text-sm text-red-600"
               v-if="!featureImagePreview"
               @click.prevent="openFileFeaturePicker"
-              class="text-sm text-blue-500"
-            ></button>
+            >
+              <i
+                class="fa-solid fa-minus text-sm font-semibold px-2 py-1 bg-red-500 rounded-full shadow text-white"
+              ></i>
+            </button>
             <button
               v-else
               @click.prevent="removeFeatureSelectImage"
-              class="rounded-full text-sm text-red-600 items-center justify-center flex"
+              class="text-sm text-red-500"
             >
-              <XCircleIcon class="w-8 h-8 font-semibold" />
+              <i
+                class="fa-solid fa-minus text-sm font-semibold px-2 py-1 bg-red-500 rounded-full shadow text-white"
+              ></i>
             </button>
           </div>
-          <div
-            v-if="!featureImagePreview"
-            @click.prevent="openFileFeaturePicker"
-            class="cursor-pointer w-full h-[200px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
-          >
-            <span class="text-xs"
-              ><i
-                class="fa-solid fa-plus text-lg font-semibold py-3 px-5 bg-blue-500 rounded-full shadow text-white"
-              ></i
-            ></span>
-          </div>
+
           <div v-if="featureImagePreview" class="">
             <img
+              v-if="featureImagePreview || !formData.cover_image"
               class="h-auto w-full rounded"
               :src="featureImagePreview"
               alt=""
             />
+          </div>
+          <div
+            v-if="!featureImagePreview"
+            class="p-2 bg-white rounded-md shadow"
+          >
+            <img :src="editData.cover_image" alt="" class="w-full" />
           </div>
           <p v-if="errors?.image" class="mt-1 text-sm text-red-600">
             {{ errors.image[0] }}

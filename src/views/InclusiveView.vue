@@ -3,7 +3,7 @@
     class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 md:col-span-3 hidden md:block"
   >
     <h3 class="text-xl font-medium text-gray-600 tracking-wide mb-3">
-      Group Tours
+      Inclusive List
     </h3>
     <!-- search input sort filter -->
     <div class="flex items-center justify-between mb-8">
@@ -12,7 +12,7 @@
           type="text"
           v-model="search"
           class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
-          placeholder="Search Group Tours..."
+          placeholder="Search Inclusive List..."
         />
         <input
           type="text"
@@ -60,7 +60,7 @@
         <tbody class="divide-y divide-gray-100">
           <tr
             class="bg-white even:bg-gray-50 hover:bg-gray-50"
-            v-for="(r, index) in grouptours?.data"
+            v-for="(r, index) in inclusives?.data"
             :key="index"
           >
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
@@ -76,18 +76,18 @@
               {{ r.price }}
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-              <!-- {{ r.agent_price }} -->
+              {{ r.agent_price }}
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">
-                <router-link :to="'/grouptour/view/' + r.id + '/view'">
+                <router-link :to="'/inclusive/view/' + r.id + '/view'">
                   <button
                     class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
                   >
                     <EyeIcon class="w-5 h-5" />
                   </button>
                 </router-link>
-                <router-link :to="'/grouptour/view/' + r.id + '/edit'">
+                <router-link :to="'/inclusive/view/' + r.id + '/edit'">
                   <button
                     class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                   >
@@ -107,7 +107,7 @@
       </table>
     </div>
     <!-- pagination -->
-    <Pagination v-if="!loading" :data="grouptours" @change-page="changePage" />
+    <Pagination v-if="!loading" :data="inclusives" @change-page="changePage" />
   </div>
 </template>
 
@@ -127,7 +127,7 @@ import {
 import Pagination from "../components/Pagination.vue";
 import { onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
-import { useGrouptourStore } from "../stores/grouptour";
+import { useInclusiveStore } from "../stores/inclusion";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
@@ -135,8 +135,8 @@ import { useToast } from "vue-toastification";
 
 const router = useRouter();
 const toast = useToast();
-const grouptourStore = useGrouptourStore();
-const { grouptours, loading } = storeToRefs(grouptourStore);
+const inclusiveStore = useInclusiveStore();
+const { inclusives, loading } = storeToRefs(inclusiveStore);
 
 const search = ref("");
 const errors = ref([]);
@@ -147,7 +147,7 @@ const inclusiveHandling = () => {
 
 const changePage = async (url) => {
   console.log(url);
-  await grouptourStore.getChangePage(url);
+  await inclusiveStore.getChangePage(url);
 };
 
 const onDeleteHandler = async (id) => {
@@ -162,7 +162,7 @@ const onDeleteHandler = async (id) => {
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
-        const response = await grouptourStore.deleteAction(id);
+        const response = await inclusiveStore.deleteAction(id);
         toast.success(response.message);
       } catch (error) {
         console.log(
@@ -174,16 +174,16 @@ const onDeleteHandler = async (id) => {
         }
         toast.error(error.response.data.message);
       }
-      await grouptourStore.getListAction();
+      await inclusiveStore.getListAction();
     }
   });
 };
 
 onMounted(async () => {
-  await grouptourStore.getListAction();
+  await inclusiveStore.getListAction();
 });
 
 watch(search, async (newValue) => {
-  await grouptourStore.getListAction({ search: search.value });
+  await inclusiveStore.getListAction({ search: search.value });
 });
 </script>

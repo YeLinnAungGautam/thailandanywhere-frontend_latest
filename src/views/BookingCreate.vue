@@ -17,6 +17,7 @@ import { useAirportStore } from "../stores/airport";
 import { useEntranceStore } from "../stores/entrance";
 import { useBookingStore } from "../stores/booking";
 import { useSidebarStore } from "../stores/sidebar";
+import { useInclusiveStore } from "../stores/inclusion";
 
 const enabled = ref(false);
 
@@ -29,12 +30,14 @@ const grouptourStore = useGrouptourStore();
 const airportStore = useAirportStore();
 const entranceStore = useEntranceStore();
 const bookingStore = useBookingStore();
+const inclusiveStore = useInclusiveStore();
 const sidebar = useSidebarStore();
 
 const { customer, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
 const { grouptours } = storeToRefs(grouptourStore);
 const { airports } = storeToRefs(airportStore);
+const { inclusives } = storeToRefs(inclusiveStore);
 const { entrances } = storeToRefs(entranceStore);
 const { isOpenCustomerCreate } = storeToRefs(sidebar);
 
@@ -72,6 +75,7 @@ const formItemType = [
   { id: "2", name: "Group Tour", data: "App\Models\GroupTour" },
   { id: "3", name: "Airport Pickup", data: " App\Models\AirportPickup" },
   { id: "4", name: "Entrance Ticket", data: "App\Models\EntranceTicket" },
+  { id: "5", name: "Inclusive", data: "App\Models\Inclusive" },
 ];
 
 const formData = ref({
@@ -155,6 +159,10 @@ const chooseType = async () => {
     await entranceStore.getSimpleListAction();
     productList.value = entrances.value.data;
     console.log(productList.value);
+  } else if (formitem.value.product_type == "5") {
+    await inclusiveStore.getSimpleListAction();
+    productList.value = inclusives.value.data;
+    console.log(productList.value);
   }
 };
 const carType = ref([]);
@@ -176,6 +184,9 @@ const chooseCar = async (id) => {
     const res = await entranceStore.getDetailAction(id);
     formitem.value.selling_price = res.result.variations[0].price;
     console.log(res.result.variations[0].price);
+  } else if (formitem.value.product_type == "5") {
+    const res = await inclusiveStore.getDetailAction(id);
+    formitem.value.selling_price = res.result.price;
   }
 };
 const chooseCarPrice = async (type, productId, id) => {
@@ -323,6 +334,11 @@ const onSubmitHandler = async () => {
       frmData.append(
         "items[" + x + "][product_type]",
         `App\\Models\\EntranceTicket`
+      );
+    } else if (formData.value.items[x].product_type == "5") {
+      frmData.append(
+        "items[" + x + "][product_type]",
+        `App\\Models\\Inclusive`
       );
     }
   }
@@ -893,6 +909,7 @@ onMounted(async () => {
                           <p v-if="item.product_type == '2'">Group</p>
                           <p v-if="item.product_type == '3'">Airport</p>
                           <p v-if="item.product_type == '4'">Entrance</p>
+                          <p v-if="item.product_type == '5'">Inclusive</p>
                         </td>
                         <td
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
@@ -933,6 +950,16 @@ onMounted(async () => {
                             v-model="item.product_id"
                             class="style-chooser"
                             :options="entrances?.data"
+                            label="name"
+                            :clearable="false"
+                            :reduce="(d) => d.id"
+                            placeholder="Choose product type"
+                          ></v-select>
+                          <v-select
+                            v-if="item.product_type == '5'"
+                            v-model="item.product_id"
+                            class="style-chooser"
+                            :options="inclusives?.data"
                             label="name"
                             :clearable="false"
                             :reduce="(d) => d.id"

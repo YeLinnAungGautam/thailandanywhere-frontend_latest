@@ -17,6 +17,7 @@ import { useAirportStore } from "../stores/airport";
 import { useEntranceStore } from "../stores/entrance";
 import { useBookingStore } from "../stores/booking";
 import { useSidebarStore } from "../stores/sidebar";
+import { useInclusiveStore } from "../stores/inclusion";
 
 const enabled = ref(false);
 
@@ -30,12 +31,14 @@ const grouptourStore = useGrouptourStore();
 const airportStore = useAirportStore();
 const entranceStore = useEntranceStore();
 const bookingStore = useBookingStore();
+const inclusiveStore = useInclusiveStore();
 
 const { customer, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
 const { grouptours } = storeToRefs(grouptourStore);
 const { airports } = storeToRefs(airportStore);
 const { entrances } = storeToRefs(entranceStore);
+const { inclusives } = storeToRefs(inclusiveStore);
 const { isOpenCustomerCreate } = storeToRefs(sidebar);
 
 const soldFrom = [
@@ -73,6 +76,7 @@ const formItemType = [
   { id: "2", name: "Group Tour" },
   { id: "3", name: "Airport Pickup" },
   { id: "4", name: "Entrance Ticket" },
+  { id: "5", name: "Inclusive" },
 ];
 
 const formData = ref({
@@ -155,6 +159,10 @@ const chooseType = async () => {
   } else if (formitem.value.product_type == "4") {
     await entranceStore.getSimpleListAction();
     productList.value = entrances.value.data;
+    console.log(productList.value);
+  } else if (formitem.value.product_type == "5") {
+    await inclusiveStore.getSimpleListAction();
+    productList.value = inclusives.value.data;
     console.log(productList.value);
   }
 };
@@ -270,6 +278,14 @@ const onSubmitHandler = async () => {
       frmData.append(
         "items[" + x + "][product_type]",
         `App\\Models\\EntranceTicket`
+      );
+    } else if (
+      formData.value.items[x].product_type == "5" ||
+      formData.value.items[x].product_type == "App\\Models\\Inclusive"
+    ) {
+      frmData.append(
+        "items[" + x + "][product_type]",
+        `App\\Models\\Inclusive`
       );
     }
   }
@@ -399,6 +415,10 @@ const chooseCar = async (id) => {
     const res = await entranceStore.getDetailAction(id);
     carType.value = res.result.cars;
     console.log(res);
+  } else if (formitem.value.product_type == "5") {
+    const res = await inclusiveStore.getDetailAction(id);
+    formitem.value.selling_price = res.result.price;
+    console.log(res);
   }
 };
 const chooseCarPrice = async (type, productId, id) => {
@@ -442,6 +462,16 @@ const chooseCarPrice = async (type, productId, id) => {
       }
     }
     console.log(res);
+  } else if (type == "5") {
+    const res = await inclusiveStore.getDetailAction(productId);
+    formitem.value.car_list = res.result.cars;
+    for (i = 0; i < res.result.cars.length; i++) {
+      if (res.result.cars[i].id == id) {
+        formitem.value.selling_price = res.result.cars[i].price;
+        console.log(res.result.cars[i].price);
+      }
+    }
+    console.log(res);
   }
 };
 const getDetail = async () => {
@@ -465,7 +495,7 @@ const getDetail = async () => {
     for (const x in response.result.items) {
       const itemData = {
         product_type: response.result.items[x].product_type,
-        product_id: response.result.items[x].product.id,
+        product_id: response.result.items[x].product_id,
         service_date: response.result.items[x].service_date,
         quantity: response.result.items[x].quantity,
         duration: response.result.items[x].duration,
@@ -498,7 +528,9 @@ const changeType = (a) => {
   } else if (a == "App\\Models\\Airport Pickup") {
     return (a.value = "3");
   } else if (a == "App\\Models\\Entrance Ticket") {
-    return (a.value = "3");
+    return (a.value = "4");
+  } else if (a == "App\\Models\\Inclusive") {
+    return (a.value = "5");
   }
 };
 
@@ -572,6 +604,7 @@ onMounted(async () => {
   await grouptourStore.getSimpleListAction();
   await airportStore.getSimpleListAction();
   await entranceStore.getSimpleListAction();
+  await inclusiveStore.getSimpleListAction();
   await customerStore.getSimpleListAction();
   url.value =
     "https://api-blog.thanywhere.com/admin/bookings/" +
@@ -1635,6 +1668,15 @@ onMounted(async () => {
                                 Entrance Ticket
                               </p>
                             </div>
+                            <div
+                              class="text-md py-2 text-bold text-gray-600"
+                              v-if="
+                                item.product_type == 'App\\Models\\Inclusive' ||
+                                item.product_type == '5'
+                              "
+                            >
+                              <p class="text-sm inline-block">Inclusive</p>
+                            </div>
                           </div>
                         </td>
                         <td
@@ -1691,6 +1733,19 @@ onMounted(async () => {
                             v-model="item.product_id"
                             class="style-chooser"
                             :options="entrances?.data"
+                            label="name"
+                            :clearable="false"
+                            :reduce="(d) => d.id"
+                            placeholder="Choose product type"
+                          ></v-select>
+                          <v-select
+                            v-if="
+                              item.product_type == 'App\\Models\\Inclusive' ||
+                              item.product_type == '5'
+                            "
+                            v-model="item.product_id"
+                            class="style-chooser"
+                            :options="inclusives?.data"
                             label="name"
                             :clearable="false"
                             :reduce="(d) => d.id"

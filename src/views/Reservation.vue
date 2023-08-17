@@ -193,6 +193,9 @@ watch(search, async (newValue) => {
                     <p v-if="d.product_type == 'App\\Models\\EntranceTicket'">
                       Entrance Ticket
                     </p>
+                    <p v-if="d.product_type == 'App\\Models\\Inclusive'">
+                      Inclusive
+                    </p>
                   </div>
                   <div
                     class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
@@ -219,7 +222,9 @@ watch(search, async (newValue) => {
                   <div
                     class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
                   >
-                    {{ d.reservation_status }}
+                    <p v-if="d.reservation_status != 'null'">
+                      {{ d.reservation_status }}
+                    </p>
                   </div>
 
                   <div

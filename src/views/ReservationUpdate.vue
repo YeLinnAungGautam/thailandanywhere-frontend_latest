@@ -15,6 +15,7 @@ import { useGrouptourStore } from "../stores/grouptour";
 import { useAirportStore } from "../stores/airport";
 import { useEntranceStore } from "../stores/entrance";
 import { useReservationStore } from "../stores/reservation";
+import { useInclusiveStore } from "../stores/inclusion";
 
 const enabled = ref(false);
 
@@ -27,12 +28,14 @@ const grouptourStore = useGrouptourStore();
 const airportStore = useAirportStore();
 const entranceStore = useEntranceStore();
 const reservationStore = useReservationStore();
+const inclusiveStore = useInclusiveStore();
 
 const { customer, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
 const { grouptours } = storeToRefs(grouptourStore);
 const { airports } = storeToRefs(airportStore);
 const { entrances } = storeToRefs(entranceStore);
+const { inclusives } = storeToRefs(inclusiveStore);
 
 const soldFrom = [
   { id: "1", name: "Facebook" },
@@ -61,6 +64,7 @@ const formItemType = [
   { id: "2", name: "Group Tour" },
   { id: "3", name: "Airport Pickup" },
   { id: "4", name: "Entrance Ticket" },
+  { id: "5", name: "Inclusive" },
 ];
 
 const formData = ref({
@@ -104,6 +108,10 @@ const chooseType = async () => {
   } else if (formitem.value.product_type == "4") {
     await entranceStore.getSimpleListAction();
     productList.value = entrances.value.data;
+    console.log(productList.value);
+  } else if (formitem.value.product_type == "5") {
+    await inclusiveStore.getSimpleListAction();
+    productList.value = inclusives.value.data;
     console.log(productList.value);
   }
 };
@@ -248,7 +256,9 @@ const changeType = (a) => {
   } else if (a == "App\\Models\\Airport Pickup") {
     return (a.value = "3");
   } else if (a == "App\\Models\\Entrance Ticket") {
-    return (a.value = "3");
+    return (a.value = "4");
+  } else if (a == "App\\Models\\Inclusive") {
+    return (a.value = "5");
   }
 };
 
@@ -261,6 +271,7 @@ onMounted(async () => {
   await airportStore.getSimpleListAction();
   await entranceStore.getSimpleListAction();
   await customerStore.getSimpleListAction();
+  await inclusiveStore.getSimpleListAction();
   action.value = route.params.action;
   console.log(action.value);
 });
@@ -339,6 +350,19 @@ onMounted(async () => {
                         v-model="formData.product_id"
                         class="style-chooser"
                         :options="entrances?.data"
+                        label="name"
+                        :clearable="false"
+                        :reduce="(d) => d.id"
+                        placeholder="Choose product type"
+                      ></v-select>
+                      <v-select
+                        v-if="
+                          formData.product_type == 'App\\Models\\Inclusive' ||
+                          formData.product_type == '5'
+                        "
+                        v-model="formData.product_id"
+                        class="style-chooser"
+                        :options="inclusives?.data"
                         label="name"
                         :clearable="false"
                         :reduce="(d) => d.id"

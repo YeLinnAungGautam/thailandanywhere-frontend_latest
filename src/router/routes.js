@@ -33,6 +33,7 @@ import UpdateBookingView from "../views/BookingUpdate.vue";
 import ReservationView from "../views/Reservation.vue";
 import ReservationUpdateView from "../views/ReservationUpdate.vue";
 import ExpensesView from "../views/Expenses.vue";
+import InclusiveView from "../views/InclusiveCreate.vue";
 
 const routes = [
   {
@@ -212,6 +213,11 @@ const routes = [
     path: "/expenses",
     name: "expenses",
     component: ExpensesView,
+  },
+  {
+    path: "/inclusive/create",
+    name: "inclusive-create",
+    component: InclusiveView,
   },
 ];
 

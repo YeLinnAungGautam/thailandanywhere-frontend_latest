@@ -14,14 +14,12 @@
           class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
           placeholder="Search Inclusive List..."
         />
+
         <input
           type="text"
           class="px-4 py-2 mr-3 text-gray-500 border rounded-md shadow-sm focus:ring-0 focus:outline-none"
         />
-        <input
-          type="text"
-          class="px-4 py-2 mr-3 text-gray-500 border rounded-md shadow-sm focus:ring-0 focus:outline-none"
-        />
+
         <AdjustmentsHorizontalIcon
           class="inline-block w-6 h-6 mx-2 text-gray-600 cursor-pointer"
         />
@@ -73,10 +71,10 @@
               {{ r.name }}
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-              {{ r.price }}
+              {{ r.price }} B
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-              {{ r.agent_price }}
+              {{ r.agent_price }} B
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">

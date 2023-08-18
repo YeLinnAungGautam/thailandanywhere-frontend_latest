@@ -88,7 +88,7 @@ const formData = ref({
   payment_currency: "",
   items: [],
   money_exchange_rate: "",
-  discount: "",
+  discount: "0",
   comment: "",
   receipt_image: "",
   confirmation_letter: [],
@@ -495,6 +495,14 @@ const customerClose = async () => {
   await customerStore.getSimpleListAction();
 };
 
+const allowCreate = computed(() => {
+  if (formData.value.items.length == 0 && formData.value.receipt_image == "") {
+    return false;
+  } else if (formData.value.items.length != 0 && formData.value.deposit == 0) {
+    return true;
+  }
+});
+
 onMounted(async () => {
   await customerStore.getSimpleListAction();
   getTodayDate();
@@ -611,6 +619,29 @@ onMounted(async () => {
                 ></v-select>
               </div>
             </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-blue-400 text-xs mb-2">Balance Due Date</p>
+
+                <input
+                  v-model="formData.balance_due_date"
+                  type="date"
+                  id="title"
+                  :class="
+                    formData.balance_due_date != ''
+                      ? 'bg-white'
+                      : ' bg-transparent'
+                  "
+                  class="h-10 w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
+                <p
+                  v-if="errors?.balance_due_date"
+                  class="mt-1 text-sm text-red-600"
+                >
+                  {{ errors.balance_due_date[0] }}
+                </p>
+              </div>
+            </div>
           </div>
           <div class="col-span-1 text-end space-y-4">
             <p class="text-blue-400 text-xs">Balance Due</p>
@@ -714,7 +745,7 @@ onMounted(async () => {
                     <thead>
                       <tr class="border-b border-gray-300">
                         <th
-                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          class="py-2 text-start px-4 text-xs text-blue-400"
                         ></th>
 
                         <th
@@ -761,7 +792,7 @@ onMounted(async () => {
                         >
                           <v-select
                             v-model="formitem.product_type"
-                            class="style-chooser min-w-[80px]"
+                            class="style-chooser max-w-[200px]"
                             :options="formItemType"
                             label="name"
                             :clearable="false"
@@ -774,7 +805,7 @@ onMounted(async () => {
                         >
                           <v-select
                             v-model="formitem.product_id"
-                            class="style-chooser min-w-[100px]"
+                            class="style-chooser min-w-[200px]"
                             :options="productList"
                             label="name"
                             :clearable="false"
@@ -817,7 +848,7 @@ onMounted(async () => {
                             v-model="formitem.service_date"
                             @change="todayCheck"
                             id="title"
-                            class="px-1 py-1.5 focus:outline-none rounded"
+                            class="px-1 py-1.5 focus:outline-none text-xs rounded"
                             :class="
                               todayVali == true
                                 ? 'text-blue-600'
@@ -825,7 +856,7 @@ onMounted(async () => {
                             "
                           />
                           <p class="text-xs text-red-400" v-if="!todayVali">
-                            must be another day after today
+                            fill after today
                           </p>
                         </td>
                         <td
@@ -834,7 +865,7 @@ onMounted(async () => {
                           <input
                             type="number"
                             v-model="formitem.quantity"
-                            class="border-gray-400 px-1 py-1.5 focus:outline-none rounded border"
+                            class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
                           />
                         </td>
                         <td
@@ -989,7 +1020,7 @@ onMounted(async () => {
                           <input
                             type="date"
                             v-model="item.service_date"
-                            class="focus:outline-none"
+                            class="focus:outline-none text-xs"
                           />
                         </td>
                         <td
@@ -1167,7 +1198,7 @@ onMounted(async () => {
                         class="h-8 mt-2 w-full bg-gray-300 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                       />
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <!-- <div class="grid grid-cols-2 gap-4">
                       <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
                         Due Date:
                       </p>
@@ -1177,14 +1208,8 @@ onMounted(async () => {
                         id="title"
                         class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-sm"
                       />
-                    </div>
-                    <div
-                      class="text-end mt-6 mb-3"
-                      v-if="
-                        formData.items.length != 0 &&
-                        formData.receipt_image != ''
-                      "
-                    >
+                    </div> -->
+                    <div class="text-end mt-6 mb-3" v-show="allowCreate">
                       <Button
                         @click.prevent="onSubmitHandler"
                         class="px-14 py-2"
@@ -1192,13 +1217,7 @@ onMounted(async () => {
                         Create
                       </Button>
                     </div>
-                    <div
-                      class="text-end mt-6 mb-3"
-                      v-if="
-                        formData.items.length == 0 ||
-                        formData.receipt_image == ''
-                      "
-                    >
+                    <div class="text-end mt-6 mb-3" v-show="!allowCreate">
                       <Button class="px-14 py-2 bg-gray-400"> Create </Button>
                     </div>
                   </div>

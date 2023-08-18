@@ -358,7 +358,7 @@ onMounted(async () => {});
                     <thead>
                       <tr class="border-b border-gray-300">
                         <th
-                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          class="py-2 text-start px-4 text-xs text-blue-400"
                         ></th>
 
                         <th

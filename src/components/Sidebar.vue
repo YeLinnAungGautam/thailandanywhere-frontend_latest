@@ -31,6 +31,21 @@
             <SidebarItem
               name="Products"
               :icon="ArchiveBoxIcon"
+              :activePaths="[
+                'products',
+                'inclusive-create',
+                'inclusive-view',
+                'vantourview',
+                'vantour',
+                'airportcreate',
+                'airportupdate',
+                'grouptour',
+                'grouptourview',
+                'grouptourcreate',
+                'entrance',
+                'entrancecreate',
+                'entranceupdate',
+              ]"
               to="/products/page"
             />
             <!-- <SidebarItem
@@ -40,9 +55,29 @@
             /> -->
             <SidebarItem name="Partners" :icon="UserGroupIcon" to="/partners" />
 
-            <SidebarItem name="Blogs" :icon="DocumentTextIcon" to="/blogs" />
-            <SidebarItem name="Sales" :icon="CalendarIcon" to="/bookings" />
-            <SidebarItem name="Customers" :icon="UsersIcon" to="/customers" />
+            <SidebarItem
+              name="Blogs"
+              :icon="DocumentTextIcon"
+              to="/blogs"
+              :activePaths="['new_blog']"
+            />
+            <SidebarItem
+              name="Sales"
+              :icon="CalendarIcon"
+              to="/bookings"
+              :activePaths="[
+                'bookings',
+                'bookings_create',
+                'edit_bookings',
+                'update_bookings',
+              ]"
+            />
+            <SidebarItem
+              name="Customers"
+              :icon="UsersIcon"
+              to="/customers"
+              :activePaths="['customers', 'customerscreate', 'customersupdate']"
+            />
             <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
             <SidebarItem
               name="Calendar"
@@ -53,6 +88,7 @@
               name="Reservation"
               :icon="DocumentCheckIcon"
               to="/reservation"
+              :activePaths="['reservation', 'reservationupdate', 'customersupdate']"
             />
             <SidebarItem
               name="Database"

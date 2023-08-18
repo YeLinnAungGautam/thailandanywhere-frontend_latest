@@ -64,6 +64,7 @@ const payment_status = [
 const payment_currency = [
   { id: "1", name: "MMK" },
   { id: "2", name: "USD" },
+  { id: "2", name: "THB" },
 ];
 const reservation_status = [
   { id: "1", name: "reserved" },
@@ -1248,6 +1249,9 @@ onMounted(async () => {
                 <v-select
                   v-model="formData.customer_id"
                   class="style-chooser placeholder-sm"
+                  :class="{
+                    'bg-white rounded-lg': formData.customer_id !== '',
+                  }"
                   :options="customer?.data"
                   label="name"
                   :clearable="false"
@@ -1258,9 +1262,12 @@ onMounted(async () => {
                 <p class="text-blue-400 text-xs mb-2">Sale Date</p>
                 <input
                   v-model="formData.booking_date"
+                  :class="{
+                    'bg-white rounded-lg': formData.booking_date !== '',
+                  }"
                   type="date"
                   id="title"
-                  class="h-10 w-full bg-white/50 border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  class="h-10 w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
                 />
                 <p
                   v-if="errors?.booking_date"
@@ -1276,6 +1283,9 @@ onMounted(async () => {
                 <v-select
                   v-model="formData.sold_from"
                   class="style-chooser"
+                  :class="{
+                    'bg-white rounded-lg': formData.sold_from !== '',
+                  }"
                   :options="soldFrom"
                   label="name"
                   :clearable="false"
@@ -1287,6 +1297,9 @@ onMounted(async () => {
                 <v-select
                   v-model="formData.payment_method"
                   class="style-chooser"
+                  :class="{
+                    'bg-white rounded-lg': formData.payment_method !== '',
+                  }"
                   :options="payment"
                   label="name"
                   :clearable="false"
@@ -1301,6 +1314,9 @@ onMounted(async () => {
                 <v-select
                   v-model="formData.payment_currency"
                   class="style-chooser"
+                  :class="{
+                    'bg-white rounded-lg': formData.payment_currency !== '',
+                  }"
                   :options="payment_currency"
                   label="name"
                   :clearable="false"
@@ -1312,6 +1328,9 @@ onMounted(async () => {
                 <v-select
                   v-model="formData.payment_status"
                   class="style-chooser"
+                  :class="{
+                    'bg-white rounded-lg': formData.payment_status !== '',
+                  }"
                   :options="payment_status"
                   label="name"
                   :clearable="false"

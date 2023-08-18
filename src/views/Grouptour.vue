@@ -14,14 +14,7 @@
           class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
           placeholder="Search Group Tours..."
         />
-        <input
-          type="text"
-          class="mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
-        />
-        <input
-          type="text"
-          class="mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
-        />
+
         <AdjustmentsHorizontalIcon
           class="w-6 text-gray-600 h-6 inline-block mx-2 cursor-pointer"
         />
@@ -68,7 +61,7 @@
               {{ r.name }}
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-              {{ r.price }}
+              {{ r.price }} B
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">

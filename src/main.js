@@ -20,7 +20,7 @@ if (token) {
 const app = createApp(App);
 
 const options = {
-  // You can set your default options here
+  timeout: 1500,
 };
 
 app.use(Toast, options);

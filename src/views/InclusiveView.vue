@@ -1,8 +1,8 @@
 <template>
   <div
-    class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 md:col-span-3 hidden md:block"
+    class="hidden p-6 mb-5 rounded-lg shadow-sm bg-white/60 md:col-span-3 md:block"
   >
-    <h3 class="text-xl font-medium text-gray-600 tracking-wide mb-3">
+    <h3 class="mb-3 text-xl font-medium tracking-wide text-gray-600">
       Inclusive List
     </h3>
     <!-- search input sort filter -->
@@ -15,8 +15,13 @@
           placeholder="Search Inclusive List..."
         />
 
+        <input
+          type="text"
+          class="px-4 py-2 mr-3 text-gray-500 border rounded-md shadow-sm focus:ring-0 focus:outline-none"
+        />
+
         <AdjustmentsHorizontalIcon
-          class="w-6 text-gray-600 h-6 inline-block mx-2 cursor-pointer"
+          class="inline-block w-6 h-6 mx-2 text-gray-600 cursor-pointer"
         />
       </div>
       <div class="space-x-3">
@@ -26,14 +31,14 @@
         </Button>
       </div>
     </div>
-    <div class="overflow-auto rounded-lg shadow mb-5">
+    <div class="mb-5 overflow-auto rounded-lg shadow">
       <table class="w-full">
-        <thead class="bg-gray-50 border-b-2 border-gray-200">
+        <thead class="border-b-2 border-gray-200 bg-gray-50">
           <tr>
             <th class="w-20 p-3 text-sm font-medium tracking-wide text-left">
               No.
             </th>
-            <th class="w-30 p-3 text-sm font-medium tracking-wide text-left">
+            <th class="p-3 text-sm font-medium tracking-wide text-left w-30">
               Image
             </th>
             <th class="p-3 text-sm font-medium tracking-wide text-left">
@@ -45,7 +50,7 @@
             <th class="p-3 text-sm font-medium tracking-wide text-left">
               Agent Prices
             </th>
-            <th class="w-30 p-3 text-sm font-medium tracking-wide text-left">
+            <th class="p-3 text-sm font-medium tracking-wide text-left w-30">
               Actions
             </th>
           </tr>
@@ -60,7 +65,7 @@
               {{ r.id }}
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-              <img :src="r.cover_image" class="w-14 h-12 rounded-lg" alt="" />
+              <img :src="r.cover_image" class="h-12 rounded-lg w-14" alt="" />
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               {{ r.name }}

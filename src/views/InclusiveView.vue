@@ -15,11 +15,6 @@
           placeholder="Search Inclusive List..."
         />
 
-        <input
-          type="text"
-          class="px-4 py-2 mr-3 text-gray-500 border rounded-md shadow-sm focus:ring-0 focus:outline-none"
-        />
-
         <AdjustmentsHorizontalIcon
           class="inline-block w-6 h-6 mx-2 text-gray-600 cursor-pointer"
         />

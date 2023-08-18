@@ -63,6 +63,7 @@ const payment_status = [
 const payment_currency = [
   { id: "1", name: "MMK" },
   { id: "2", name: "USD" },
+  { id: "2", name: "THB" },
 ];
 const reservation_status = [
   { id: "1", name: "reserved" },

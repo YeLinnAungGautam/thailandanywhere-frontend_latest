@@ -581,7 +581,30 @@ onMounted(async () => {});
           </div>
 
           <div class="text-end">
-            <Button @click.prevent="onSubmitHandler"> Create </Button>
+            <Button
+              class="bg-gray-300"
+              v-if="
+                formData.items.length == 0 ||
+                formData.images.length == 0 ||
+                formData.cover_image == '' ||
+                formData.name == '' ||
+                formData.description == ''
+              "
+            >
+              Create
+            </Button>
+            <Button
+              @click.prevent="onSubmitHandler"
+              v-if="
+                formData.items.length != 0 &&
+                formData.images.length != 0 &&
+                formData.cover_image != '' &&
+                formData.name != '' &&
+                formData.description != ''
+              "
+            >
+              Create
+            </Button>
           </div>
         </div>
       </div>

@@ -36,6 +36,7 @@
                 'inclusive-create',
                 'inclusive-view',
                 'vantourview',
+                'vantouredit',
                 'vantour',
                 'airportcreate',
                 'airportupdate',
@@ -88,7 +89,11 @@
               name="Reservation"
               :icon="DocumentCheckIcon"
               to="/reservation"
-              :activePaths="['reservation', 'reservationupdate', 'customersupdate']"
+              :activePaths="[
+                'reservation',
+                'reservationupdate',
+                'customersupdate',
+              ]"
             />
             <SidebarItem
               name="Database"

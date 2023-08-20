@@ -515,7 +515,7 @@ const getDetail = async () => {
       };
       formData.value.items.push(itemData);
     }
-    console.log(formData.value.items, "this is push");
+    loadingState.value = false;
   } catch (error) {
     console.log(error);
   }
@@ -598,15 +598,24 @@ const url = ref("");
 const urlPaid = ref("");
 const action = ref("");
 
+const loadingState = ref(false);
+
 const allowCreate = computed(() => {
-  if (formData.value.items.length == 0 && formData.value.receipt_image == "") {
-    return false;
+  if (
+    formData.value.items.length != 0 &&
+    formData.value.deposit != 0 &&
+    formData.value.receipt_image != ""
+  ) {
+    return true;
   } else if (formData.value.items.length != 0 && formData.value.deposit == 0) {
     return true;
+  } else {
+    return false;
   }
 });
 
 onMounted(async () => {
+  loadingState.value = true;
   await getDetail();
   await vantourStore.getSimpleListAction();
   await grouptourStore.getSimpleListAction();
@@ -628,836 +637,890 @@ onMounted(async () => {
 
 <template>
   <Layout>
-    <div
-      class="grid grid-cols-3 gap-3 bg-blue-100/50 col-span-2 p-6 rounded-lg shadow-sm mb-5"
-    >
-      <div class="mb-5 flex items-center justify-between col-span-3">
-        <h3 class="text-2xl font-medium text-blue-400" v-if="action == 'view'">
-          View Sale
-        </h3>
-        <h3 class="text-2xl font-medium text-blue-400" v-if="action == 'edit'">
-          Update Sale
-        </h3>
-        <div
-          class="space-x-3 px-2 text-xs py-1.5 hover:shadow-lg border shadow-sm rounded cursor-pointer bg-blue-400 text-white"
-          @click="customerOpenH"
-        >
-          <i class="fa-solid fa-user-plus"></i> Create New Customer
+    <div>
+      <div
+        v-if="loadingState"
+        class="h-screen w-full flex justify-center items-center"
+      >
+        <div class="flex space-x-4 justify-center items-center">
+          <p class=" ">Loading , Please wait</p>
+          <div role="status">
+            <svg
+              aria-hidden="true"
+              class="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+              viewBox="0 0 100 101"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                fill="currentColor"
+              />
+              <path
+                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                fill="currentFill"
+              />
+            </svg>
+            <span class="sr-only">Loading...</span>
+          </div>
         </div>
       </div>
-      <div class="col-span-3">
-        <div class="grid grid-cols-3">
-          <div class="grid grid-cols-2 gap-4 col-span-2">
-            <div class="grid grid-cols-2 gap-4">
-              <div class="">
-                <p class="text-blue-400 text-xs mb-2">Customer Name</p>
-
-                <v-select
-                  v-model="formData.customer_id"
-                  class="style-chooser placeholder-sm"
-                  :class="{
-                    'bg-white rounded-lg': formData.customer_id !== '',
-                  }"
-                  :options="customer?.data"
-                  label="name"
-                  :clearable="false"
-                  :reduce="(d) => d.id"
-                ></v-select>
-              </div>
-              <div class="">
-                <p class="text-blue-400 text-xs mb-2">Sale Date</p>
-                <input
-                  v-model="formData.booking_date"
-                  :class="{
-                    'bg-white rounded-lg': formData.booking_date !== '',
-                  }"
-                  type="date"
-                  id="title"
-                  class="h-10 w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                />
-                <p
-                  v-if="errors?.booking_date"
-                  class="mt-1 text-sm text-red-600"
-                >
-                  {{ errors.booking_date[0] }}
-                </p>
-              </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div class="">
-                <p class="text-blue-400 text-xs mb-2">Sold From</p>
-                <v-select
-                  v-model="formData.sold_from"
-                  class="style-chooser"
-                  :class="{
-                    'bg-white rounded-lg': formData.sold_from !== '',
-                  }"
-                  :options="soldFrom"
-                  label="name"
-                  :clearable="false"
-                  :reduce="(d) => d.name"
-                ></v-select>
-              </div>
-              <div class="">
-                <p class="text-blue-400 text-xs mb-2">Payment Method</p>
-                <v-select
-                  v-model="formData.payment_method"
-                  class="style-chooser"
-                  :class="{
-                    'bg-white rounded-lg': formData.payment_method !== '',
-                  }"
-                  :options="payment"
-                  label="name"
-                  :clearable="false"
-                  :reduce="(d) => d.name"
-                ></v-select>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <p class="text-blue-400 text-xs mb-2">Payment Currency</p>
-                <v-select
-                  v-model="formData.payment_currency"
-                  class="style-chooser"
-                  :class="{
-                    'bg-white rounded-lg': formData.payment_currency !== '',
-                  }"
-                  :options="payment_currency"
-                  label="name"
-                  :clearable="false"
-                  :reduce="(d) => d.name"
-                ></v-select>
-              </div>
-              <div>
-                <p class="text-blue-400 text-xs mb-2">Payment Status</p>
-                <v-select
-                  v-model="formData.payment_status"
-                  class="style-chooser"
-                  :class="{
-                    'bg-white rounded-lg': formData.payment_status !== '',
-                  }"
-                  :options="payment_status"
-                  label="name"
-                  :clearable="false"
-                  :reduce="(d) => d.name"
-                ></v-select>
-              </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <p class="text-blue-400 text-xs mb-2">Balance Due Date</p>
-
-                <input
-                  v-model="formData.balance_due_date"
-                  type="date"
-                  id="title"
-                  :class="
-                    formData.balance_due_date != ''
-                      ? 'bg-white'
-                      : ' bg-transparent'
-                  "
-                  class="h-10 w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                />
-                <p
-                  v-if="errors?.balance_due_date"
-                  class="mt-1 text-sm text-red-600"
-                >
-                  {{ errors.balance_due_date[0] }}
-                </p>
-              </div>
-            </div>
+      <div
+        v-if="!loadingState"
+        class="grid grid-cols-3 gap-3 bg-blue-100/50 col-span-2 p-6 rounded-lg shadow-sm mb-5"
+      >
+        <div class="mb-5 flex items-center justify-between col-span-3">
+          <h3
+            class="text-2xl font-medium text-blue-400"
+            v-if="action == 'view'"
+          >
+            View Sale
+          </h3>
+          <h3
+            class="text-2xl font-medium text-blue-400"
+            v-if="action == 'edit'"
+          >
+            Update Sale
+          </h3>
+          <div
+            class="space-x-3 px-2 text-xs py-1.5 hover:shadow-lg border shadow-sm rounded cursor-pointer bg-blue-400 text-white"
+            @click="customerOpenH"
+          >
+            <i class="fa-solid fa-user-plus"></i> Create New Customer
           </div>
-          <div class="col-span-1 text-end space-y-4">
-            <p class="text-blue-400 text-xs">Balance Due</p>
-            <p class="text-blue-400 font-bold text-4xl tracking-wide">
-              {{ balance_due }} thb
-            </p>
+        </div>
+        <div class="col-span-3">
+          <div class="grid grid-cols-3">
+            <div class="grid grid-cols-2 gap-4 col-span-2">
+              <div class="grid grid-cols-2 gap-4">
+                <div class="">
+                  <p class="text-blue-400 text-xs mb-2">Customer Name</p>
 
-            <a
-              :href="urlPaid"
-              target="_blink"
-              class="border border-blue-400 inline-block py-2 px-4"
-            >
-              <p class="text-blue-400 text-sm">Receive Payment</p>
-            </a>
-          </div>
-
-          <div class="gird grid-cols-1 col-span-3 pt-10">
-            <div
-              class="mb-3 text-sm font-semibold cursor-pointer flex justify-end"
-            >
-              <p @click="addToggle" v-if="!addComment">+ Add Item</p>
-              <p @click="addToggle" v-if="addComment">- Remove Item</p>
-            </div>
-            <div class="col-span-1 bg-white p-3 rounded">
-              <div class="col-span-1">
-                <Modal :isOpen="desopen" @closeModal="desopen = false">
-                  <DialogPanel
-                    class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+                  <v-select
+                    v-model="formData.customer_id"
+                    class="style-chooser placeholder-sm"
+                    :class="{
+                      'bg-white rounded-lg': formData.customer_id !== '',
+                    }"
+                    :options="customer?.data"
+                    label="name"
+                    :clearable="false"
+                    :reduce="(d) => d.id"
+                  ></v-select>
+                </div>
+                <div class="">
+                  <p class="text-blue-400 text-xs mb-2">Sale Date</p>
+                  <input
+                    v-model="formData.booking_date"
+                    :class="{
+                      'bg-white rounded-lg': formData.booking_date !== '',
+                    }"
+                    type="date"
+                    id="title"
+                    class="h-10 w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  />
+                  <p
+                    v-if="errors?.booking_date"
+                    class="mt-1 text-sm text-red-600"
                   >
-                    <DialogTitle
-                      as="h3"
-                      class="text-md font-medium leading-6 text-gray-900 mb-5"
+                    {{ errors.booking_date[0] }}
+                  </p>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="">
+                  <p class="text-blue-400 text-xs mb-2">Sold From</p>
+                  <v-select
+                    v-model="formData.sold_from"
+                    class="style-chooser"
+                    :class="{
+                      'bg-white rounded-lg': formData.sold_from !== '',
+                    }"
+                    :options="soldFrom"
+                    label="name"
+                    :clearable="false"
+                    :reduce="(d) => d.name"
+                  ></v-select>
+                </div>
+                <div class="">
+                  <p class="text-blue-400 text-xs mb-2">Payment Method</p>
+                  <v-select
+                    v-model="formData.payment_method"
+                    class="style-chooser"
+                    :class="{
+                      'bg-white rounded-lg': formData.payment_method !== '',
+                    }"
+                    :options="payment"
+                    label="name"
+                    :clearable="false"
+                    :reduce="(d) => d.name"
+                  ></v-select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-blue-400 text-xs mb-2">Payment Currency</p>
+                  <v-select
+                    v-model="formData.payment_currency"
+                    class="style-chooser"
+                    :class="{
+                      'bg-white rounded-lg': formData.payment_currency !== '',
+                    }"
+                    :options="payment_currency"
+                    label="name"
+                    :clearable="false"
+                    :reduce="(d) => d.name"
+                  ></v-select>
+                </div>
+                <div>
+                  <p class="text-blue-400 text-xs mb-2">Payment Status</p>
+                  <v-select
+                    v-model="formData.payment_status"
+                    class="style-chooser"
+                    :class="{
+                      'bg-white rounded-lg': formData.payment_status !== '',
+                    }"
+                    :options="payment_status"
+                    label="name"
+                    :clearable="false"
+                    :reduce="(d) => d.name"
+                  ></v-select>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-blue-400 text-xs mb-2">Balance Due Date</p>
+
+                  <input
+                    v-model="formData.balance_due_date"
+                    type="date"
+                    id="title"
+                    :class="
+                      formData.balance_due_date != ''
+                        ? 'bg-white'
+                        : ' bg-transparent'
+                    "
+                    class="h-10 w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  />
+                  <p
+                    v-if="errors?.balance_due_date"
+                    class="mt-1 text-sm text-red-600"
+                  >
+                    {{ errors.balance_due_date[0] }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-span-1 text-end space-y-4">
+              <p class="text-blue-400 text-xs">Balance Due</p>
+              <p class="text-blue-400 font-bold text-4xl tracking-wide">
+                {{ balance_due }} thb
+              </p>
+
+              <a
+                :href="urlPaid"
+                target="_blink"
+                class="border border-blue-400 inline-block py-2 px-4"
+              >
+                <p class="text-blue-400 text-sm">Receive Payment</p>
+              </a>
+            </div>
+
+            <div class="gird grid-cols-1 col-span-3 pt-10">
+              <div
+                class="mb-3 text-sm font-semibold cursor-pointer flex justify-end"
+              >
+                <p @click="addToggle" v-if="!addComment">+ Add Item</p>
+                <p @click="addToggle" v-if="addComment">- Remove Item</p>
+              </div>
+              <div class="col-span-1 bg-white p-3 rounded">
+                <div class="col-span-1">
+                  <Modal :isOpen="desopen" @closeModal="desopen = false">
+                    <DialogPanel
+                      class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
                     >
-                      Description
-                    </DialogTitle>
-                    <div class="grid grid-cols-1 py-4">
-                      <textarea
-                        name=""
-                        id=""
-                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
-                        cols="30"
-                        rows="10"
-                        v-model="formitem.comment"
-                      ></textarea>
-                    </div>
-                    <div class="flex justify-between items-center">
-                      <button @click="closedes" class="text-sm">close</button>
-                      <button
-                        @click="closedes"
-                        class="text-sm px-2 py-1 bg-blue-500 text-white rounded"
+                      <DialogTitle
+                        as="h3"
+                        class="text-md font-medium leading-6 text-gray-900 mb-5"
                       >
-                        + add
-                      </button>
-                    </div>
-                  </DialogPanel>
-                </Modal>
-                <Modal
-                  :isOpen="isOpenCustomerCreate"
-                  @closeModal="isOpenCustomerCreate = false"
-                >
-                  <DialogPanel
-                    class="w-full max-w-[800px] transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+                        Description
+                      </DialogTitle>
+                      <div class="grid grid-cols-1 py-4">
+                        <textarea
+                          name=""
+                          id=""
+                          class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                          cols="30"
+                          rows="10"
+                          v-model="formitem.comment"
+                        ></textarea>
+                      </div>
+                      <div class="flex justify-between items-center">
+                        <button @click="closedes" class="text-sm">close</button>
+                        <button
+                          @click="closedes"
+                          class="text-sm px-2 py-1 bg-blue-500 text-white rounded"
+                        >
+                          + add
+                        </button>
+                      </div>
+                    </DialogPanel>
+                  </Modal>
+                  <Modal
+                    :isOpen="isOpenCustomerCreate"
+                    @closeModal="isOpenCustomerCreate = false"
                   >
-                    <CustomerCreate action="sales" />
-                    <div class="flex justify-end items-center">
-                      <button @click="customerClose" class="text-sm">
-                        close
-                      </button>
-                    </div>
-                  </DialogPanel>
-                </Modal>
-                <Modal
-                  :isOpen="clickdetaildes"
-                  @closeModal="clickdetaildesToggle = false"
-                >
-                  <DialogPanel
-                    class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
-                  >
-                    <DialogTitle
-                      as="h3"
-                      class="text-md font-medium leading-6 text-gray-900 mb-5"
+                    <DialogPanel
+                      class="w-full max-w-[800px] transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
                     >
-                      Detail Description
-                    </DialogTitle>
-                    <div class="grid grid-cols-1 py-4">
-                      <textarea
-                        name=""
-                        id=""
-                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
-                        cols="30"
-                        rows="10"
-                        v-model="itemDes"
-                      ></textarea>
-                    </div>
-                    <div class="flex justify-between items-center">
-                      <button @click="clickdetaildesClose" class="text-sm">
-                        close
-                      </button>
-                    </div>
-                  </DialogPanel>
-                </Modal>
-                <div class="px-6 pt-3">
-                  <table class="w-full">
-                    <thead>
-                      <tr class="border-b border-gray-300">
-                        <th
-                          class="py-2 text-start px-4 text-xs text-blue-400"
-                        ></th>
+                      <CustomerCreate action="sales" />
+                      <div class="flex justify-end items-center">
+                        <button @click="customerClose" class="text-sm">
+                          close
+                        </button>
+                      </div>
+                    </DialogPanel>
+                  </Modal>
+                  <Modal
+                    :isOpen="clickdetaildes"
+                    @closeModal="clickdetaildesToggle = false"
+                  >
+                    <DialogPanel
+                      class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+                    >
+                      <DialogTitle
+                        as="h3"
+                        class="text-md font-medium leading-6 text-gray-900 mb-5"
+                      >
+                        Detail Description
+                      </DialogTitle>
+                      <div class="grid grid-cols-1 py-4">
+                        <textarea
+                          name=""
+                          id=""
+                          class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                          cols="30"
+                          rows="10"
+                          v-model="itemDes"
+                        ></textarea>
+                      </div>
+                      <div class="flex justify-between items-center">
+                        <button @click="clickdetaildesClose" class="text-sm">
+                          close
+                        </button>
+                      </div>
+                    </DialogPanel>
+                  </Modal>
+                  <div class="px-6 pt-3">
+                    <table class="w-full">
+                      <thead>
+                        <tr class="border-b border-gray-300">
+                          <th
+                            class="py-2 text-start px-4 text-xs text-blue-400"
+                          ></th>
 
-                        <th
-                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
-                        >
-                          P Type
-                        </th>
-                        <th
-                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
-                        >
-                          Product Name
-                        </th>
-                        <th
-                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
-                        >
-                          Car Type
-                        </th>
+                          <th
+                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          >
+                            P Type
+                          </th>
+                          <th
+                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          >
+                            Product Name
+                          </th>
+                          <th
+                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          >
+                            Car Type
+                          </th>
 
-                        <th
-                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
-                        >
-                          Service Date
-                        </th>
-                        <th
-                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
-                        >
-                          Quantity
-                        </th>
-                        <th
-                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
-                        >
-                          Amount
-                        </th>
-                        <th
-                          class="py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
-                        ></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr class="rounded-lg" v-if="addComment">
-                        <td
-                          colspan="2"
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
-                        >
-                          <v-select
-                            v-model="formitem.product_type"
-                            class="style-chooser max-w-[200px]"
-                            :options="formItemType"
-                            label="name"
-                            :clearable="false"
-                            :reduce="(d) => d.id"
-                            @option:selected="chooseType"
-                          ></v-select>
-                        </td>
-                        <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
-                        >
-                          <v-select
-                            v-model="formitem.product_id"
-                            class="style-chooser min-w-[200px]"
-                            :options="productList"
-                            label="name"
-                            :clearable="false"
-                            :reduce="(d) => d.id"
-                            @option:selected="chooseCar(formitem.product_id)"
-                          ></v-select>
-                        </td>
-                        <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
-                        >
-                          <div
-                            class=""
-                            v-if="
-                              formitem.product_type == '1' ||
-                              formitem.product_type == '3'
-                            "
+                          <th
+                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          >
+                            Service Date
+                          </th>
+                          <th
+                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          >
+                            Quantity
+                          </th>
+                          <th
+                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          >
+                            Amount
+                          </th>
+                          <th
+                            class="py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          ></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="rounded-lg" v-if="addComment">
+                          <td
+                            colspan="2"
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
                           >
                             <v-select
-                              v-model="formitem.car_id"
-                              class="style-chooser"
-                              :options="carType"
+                              v-model="formitem.product_type"
+                              class="style-chooser max-w-[200px]"
+                              :options="formItemType"
                               label="name"
                               :clearable="false"
                               :reduce="(d) => d.id"
-                              @option:selected="
-                                chooseCarPrice(
-                                  formitem.product_type,
-                                  formitem.product_id,
-                                  formitem.car_id
-                                )
-                              "
+                              @option:selected="chooseType"
                             ></v-select>
-                          </div>
-                        </td>
-                        <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
-                        >
-                          <input
-                            type="date"
-                            v-model="formitem.service_date"
-                            @change="todayCheck"
-                            id="title"
-                            class="px-1 py-1.5 text-xs focus:outline-none rounded"
-                            :class="
-                              todayVali == true
-                                ? 'text-blue-600'
-                                : 'text-red-600'
-                            "
-                          />
-                          <p class="text-xs text-red-400" v-if="!todayVali">
-                            fill after today
-                          </p>
-                        </td>
-                        <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
-                        >
-                          <input
-                            type="number"
-                            v-model="formitem.quantity"
-                            class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
-                          />
-                        </td>
-                        <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
-                        >
-                          <p>{{ formitem.selling_price }}</p>
-                        </td>
-
-                        <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
-                        >
-                          <button
-                            class="text-sm text-blue-600 mr-4"
-                            @click="clickdes"
+                          </td>
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
                           >
-                            <i
-                              class="fa-solid fa-ellipsis text-xs font-semibold px-1 py-[1.5px] bg-blue-500 rounded-full shadow text-white"
-                              title="add description"
-                            ></i>
-                          </button>
-                          <button
-                            @click.prevent="addNewitem"
-                            class="flex-1"
-                            v-if="formitem.product_id && todayVali"
+                            <v-select
+                              v-model="formitem.product_id"
+                              class="style-chooser min-w-[200px]"
+                              :options="productList"
+                              label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              @option:selected="chooseCar(formitem.product_id)"
+                            ></v-select>
+                          </td>
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
                           >
-                            <i
-                              class="fa-solid fa-plus text-xs font-semibold px-1 py-[1.5px] rounded-full shadow text-white bg-blue-600"
-                            ></i>
-                          </button>
-                        </td>
-                      </tr>
-                      <tr class="border-b border-gray-300 text-xs text-red-500">
-                        <td
-                          class="text-right pb-2"
-                          colspan="8"
-                          v-if="addComment"
-                        >
-                          don't forget to click add button for new item!
-                        </td>
-                      </tr>
-                      <tr
-                        class="border-b border-gray-300"
-                        v-for="(item, index) in formData.items"
-                        :key="index"
-                      >
-                        <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
-                        >
-                          <i
-                            v-if="item.reservation_status == 'reserved'"
-                            class="fa-solid fa-circle-check text-lg text-green-600"
-                          ></i>
-                          <i
-                            v-if="item.reservation_status == 'awaiting_payment'"
-                            class="fa-solid fa-circle-exclamation text-lg text-yellow-500"
-                          ></i>
-                          <i
-                            v-if="item.reservation_status == 'declined'"
-                            class="fa-solid fa-circle-xmark text-lg text-red-600"
-                          ></i>
-                        </td>
-                        <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
-                        >
-                          <!-- <v-select
-                            v-model="item.product_type"
-                            class="style-chooser"
-                            :options="formItemType"
-                            label="name"
-                            disabled
-                            :clearable="false"
-                            :reduce="(d) => d.id"
-                            placeholder="Choose product type"
-                          ></v-select> -->
-                          <!-- <p v-if="item.product_type == '1'">Vantour</p>
-                          <p v-if="item.product_type == '2'">Group</p>
-                          <p v-if="item.product_type == '3'">Airport</p>
-                          <p v-if="item.product_type == '4'">Entrance</p> -->
-                          <div class="col-span-1">
                             <div
-                              class="py-2 text-gray-600"
+                              class=""
+                              v-if="
+                                formitem.product_type == '1' ||
+                                formitem.product_type == '3'
+                              "
+                            >
+                              <v-select
+                                v-model="formitem.car_id"
+                                class="style-chooser"
+                                :options="carType"
+                                label="name"
+                                :clearable="false"
+                                :reduce="(d) => d.id"
+                                @option:selected="
+                                  chooseCarPrice(
+                                    formitem.product_type,
+                                    formitem.product_id,
+                                    formitem.car_id
+                                  )
+                                "
+                              ></v-select>
+                            </div>
+                          </td>
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          >
+                            <input
+                              type="date"
+                              v-model="formitem.service_date"
+                              @change="todayCheck"
+                              id="title"
+                              class="px-1 py-1.5 text-xs focus:outline-none rounded"
+                              :class="
+                                todayVali == true
+                                  ? 'text-blue-600'
+                                  : 'text-red-600'
+                              "
+                            />
+                            <p class="text-xs text-red-400" v-if="!todayVali">
+                              fill after today
+                            </p>
+                          </td>
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          >
+                            <input
+                              type="number"
+                              v-model="formitem.quantity"
+                              class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
+                            />
+                          </td>
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          >
+                            <p>{{ formitem.selling_price }}</p>
+                          </td>
+
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          >
+                            <button
+                              class="text-sm text-blue-600 mr-4"
+                              @click="clickdes"
+                            >
+                              <i
+                                class="fa-solid fa-ellipsis text-xs font-semibold px-1 py-[1.5px] bg-blue-500 rounded-full shadow text-white"
+                                title="add description"
+                              ></i>
+                            </button>
+                            <button
+                              @click.prevent="addNewitem"
+                              class="flex-1"
+                              v-if="formitem.product_id && todayVali"
+                            >
+                              <i
+                                class="fa-solid fa-plus text-xs font-semibold px-1 py-[1.5px] rounded-full shadow text-white bg-blue-600"
+                              ></i>
+                            </button>
+                          </td>
+                        </tr>
+                        <tr
+                          class="border-b border-gray-300 text-xs text-red-500"
+                        >
+                          <td
+                            class="text-right pb-2"
+                            colspan="8"
+                            v-if="addComment"
+                          >
+                            don't forget to click add button for new item!
+                          </td>
+                        </tr>
+                        <tr
+                          class="border-b border-gray-300"
+                          v-for="(item, index) in formData.items"
+                          :key="index"
+                        >
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          >
+                            <i
+                              v-if="item.reservation_status == 'reserved'"
+                              class="fa-solid fa-circle-check text-lg text-green-600"
+                            ></i>
+                            <i
+                              v-if="
+                                item.reservation_status == 'awaiting_payment'
+                              "
+                              class="fa-solid fa-circle-exclamation text-lg text-yellow-500"
+                            ></i>
+                            <i
+                              v-if="item.reservation_status == 'declined'"
+                              class="fa-solid fa-circle-xmark text-lg text-red-600"
+                            ></i>
+                          </td>
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          >
+                            <!-- <v-select
+                              v-model="item.product_type"
+                              class="style-chooser"
+                              :options="formItemType"
+                              label="name"
+                              disabled
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              placeholder="Choose product type"
+                            ></v-select> -->
+                            <!-- <p v-if="item.product_type == '1'">Vantour</p>
+                            <p v-if="item.product_type == '2'">Group</p>
+                            <p v-if="item.product_type == '3'">Airport</p>
+                            <p v-if="item.product_type == '4'">Entrance</p> -->
+                            <div class="col-span-1">
+                              <div
+                                class="py-2 text-gray-600"
+                                v-if="
+                                  item.product_type ==
+                                    'App\\Models\\PrivateVanTour' ||
+                                  item.product_type == '1'
+                                "
+                              >
+                                <p class="text-sm inline-block">
+                                  Private Van Tour
+                                </p>
+                              </div>
+                              <div
+                                class="py-2 text-gray-600"
+                                v-if="
+                                  item.product_type ==
+                                    'App\\Models\\GroupTour' ||
+                                  item.product_type == '2'
+                                "
+                              >
+                                <p class="text-sm inline-block">Group Tour</p>
+                              </div>
+                              <div
+                                class="py-2 text-gray-600"
+                                v-if="
+                                  item.product_type ==
+                                    'App\\Models\\AirportPickup' ||
+                                  item.product_type == '3'
+                                "
+                              >
+                                <p class="text-sm inline-block">
+                                  Airport Pickup
+                                </p>
+                              </div>
+                              <div
+                                class="text-md py-2 text-bold text-gray-600"
+                                v-if="
+                                  item.product_type ==
+                                    'App\\Models\\EntranceTicket' ||
+                                  item.product_type == '4'
+                                "
+                              >
+                                <p class="text-sm inline-block">
+                                  Entrance Ticket
+                                </p>
+                              </div>
+                              <div
+                                class="text-md py-2 text-bold text-gray-600"
+                                v-if="
+                                  item.product_type ==
+                                    'App\\Models\\Inclusive' ||
+                                  item.product_type == '5'
+                                "
+                              >
+                                <p class="text-sm inline-block">Inclusive</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          >
+                            <v-select
                               v-if="
                                 item.product_type ==
                                   'App\\Models\\PrivateVanTour' ||
                                 item.product_type == '1'
                               "
-                            >
-                              <p class="text-sm inline-block">
-                                Private Van Tour
-                              </p>
-                            </div>
-                            <div
-                              class="py-2 text-gray-600"
+                              v-model="item.product_id"
+                              class="style-chooser"
+                              disabled
+                              :options="vantours?.data"
+                              label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              placeholder="Choose product type"
+                            ></v-select>
+                            <v-select
                               v-if="
                                 item.product_type == 'App\\Models\\GroupTour' ||
                                 item.product_type == '2'
                               "
-                            >
-                              <p class="text-sm inline-block">Group Tour</p>
-                            </div>
-                            <div
-                              class="py-2 text-gray-600"
+                              v-model="item.product_id"
+                              class="style-chooser"
+                              :options="grouptours?.data"
+                              label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              placeholder="Choose product type"
+                            ></v-select>
+                            <v-select
                               v-if="
                                 item.product_type ==
                                   'App\\Models\\AirportPickup' ||
                                 item.product_type == '3'
                               "
-                            >
-                              <p class="text-sm inline-block">Airport Pickup</p>
-                            </div>
-                            <div
-                              class="text-md py-2 text-bold text-gray-600"
+                              v-model="item.product_id"
+                              class="style-chooser"
+                              :options="airports?.data"
+                              label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              placeholder="Choose product type"
+                            ></v-select>
+                            <v-select
                               v-if="
                                 item.product_type ==
                                   'App\\Models\\EntranceTicket' ||
                                 item.product_type == '4'
                               "
-                            >
-                              <p class="text-sm inline-block">
-                                Entrance Ticket
-                              </p>
-                            </div>
-                            <div
-                              class="text-md py-2 text-bold text-gray-600"
+                              v-model="item.product_id"
+                              class="style-chooser"
+                              :options="entrances?.data"
+                              label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              placeholder="Choose product type"
+                            ></v-select>
+                            <v-select
                               v-if="
                                 item.product_type == 'App\\Models\\Inclusive' ||
                                 item.product_type == '5'
                               "
+                              v-model="item.product_id"
+                              class="style-chooser"
+                              :options="inclusives?.data"
+                              label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              placeholder="Choose product type"
+                            ></v-select>
+                          </td>
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          >
+                            <v-select
+                              v-if="item.car_id && !item.car_name"
+                              v-model="item.car_id"
+                              class="style-chooser"
+                              :options="item.car_list"
+                              label="name"
+                              disabled
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              placeholder="Choose product type"
+                            ></v-select>
+                            <p v-if="item.car_id && item.car_name">
+                              {{ item.car_name }}
+                            </p>
+                            <p v-if="!item.car_id">-</p>
+                          </td>
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          >
+                            <input
+                              type="date"
+                              v-model="item.service_date"
+                              class="focus:outline-none text-xs"
+                            />
+                          </td>
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          >
+                            <p>{{ item.quantity }}</p>
+                          </td>
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          >
+                            <p>{{ item.selling_price }}</p>
+                          </td>
+
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          >
+                            <button
+                              class="text-sm text-blue-600 mr-4"
+                              @click="clickdetaildesToggle(item.comment)"
                             >
-                              <p class="text-sm inline-block">Inclusive</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                              <i
+                                class="fa-solid fa-ellipsis text-xs font-semibold px-1 py-[1.5px] bg-blue-500 rounded-full shadow text-white"
+                                title="add description"
+                              ></i>
+                            </button>
+                            <button
+                              class="text-sm text-red-600"
+                              @click.prevent="removeFromitem(index)"
+                            >
+                              <i
+                                class="fa-solid fa-minus text-xs font-semibold px-1 py-[1.5px] bg-red-500 rounded-full shadow text-white"
+                              ></i>
+                            </button>
+                          </td>
+                        </tr>
+                        <tr
+                          class="border-b border-gray-300"
+                          v-if="formData.items.length == 0"
                         >
-                          <v-select
-                            v-if="
-                              item.product_type ==
-                                'App\\Models\\PrivateVanTour' ||
-                              item.product_type == '1'
-                            "
-                            v-model="item.product_id"
-                            class="style-chooser"
-                            disabled
-                            :options="vantours?.data"
-                            label="name"
-                            :clearable="false"
-                            :reduce="(d) => d.id"
-                            placeholder="Choose product type"
-                          ></v-select>
-                          <v-select
-                            v-if="
-                              item.product_type == 'App\\Models\\GroupTour' ||
-                              item.product_type == '2'
-                            "
-                            v-model="item.product_id"
-                            class="style-chooser"
-                            :options="grouptours?.data"
-                            label="name"
-                            :clearable="false"
-                            :reduce="(d) => d.id"
-                            placeholder="Choose product type"
-                          ></v-select>
-                          <v-select
-                            v-if="
-                              item.product_type ==
-                                'App\\Models\\AirportPickup' ||
-                              item.product_type == '3'
-                            "
-                            v-model="item.product_id"
-                            class="style-chooser"
-                            :options="airports?.data"
-                            label="name"
-                            :clearable="false"
-                            :reduce="(d) => d.id"
-                            placeholder="Choose product type"
-                          ></v-select>
-                          <v-select
-                            v-if="
-                              item.product_type ==
-                                'App\\Models\\EntranceTicket' ||
-                              item.product_type == '4'
-                            "
-                            v-model="item.product_id"
-                            class="style-chooser"
-                            :options="entrances?.data"
-                            label="name"
-                            :clearable="false"
-                            :reduce="(d) => d.id"
-                            placeholder="Choose product type"
-                          ></v-select>
-                          <v-select
-                            v-if="
-                              item.product_type == 'App\\Models\\Inclusive' ||
-                              item.product_type == '5'
-                            "
-                            v-model="item.product_id"
-                            class="style-chooser"
-                            :options="inclusives?.data"
-                            label="name"
-                            :clearable="false"
-                            :reduce="(d) => d.id"
-                            placeholder="Choose product type"
-                          ></v-select>
-                        </td>
-                        <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
-                        >
-                          <v-select
-                            v-if="item.car_id && !item.car_name"
-                            v-model="item.car_id"
-                            class="style-chooser"
-                            :options="item.car_list"
-                            label="name"
-                            disabled
-                            :clearable="false"
-                            :reduce="(d) => d.id"
-                            placeholder="Choose product type"
-                          ></v-select>
-                          <p v-if="item.car_id && item.car_name">
-                            {{ item.car_name }}
-                          </p>
-                          <p v-if="!item.car_id">-</p>
-                        </td>
-                        <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
-                        >
-                          <input
-                            type="date"
-                            v-model="item.service_date"
-                            class="focus:outline-none text-xs"
-                          />
-                        </td>
-                        <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
-                        >
-                          <p>{{ item.quantity }}</p>
-                        </td>
-                        <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
-                        >
-                          <p>{{ item.selling_price }}</p>
-                        </td>
-
-                        <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
-                        >
-                          <button
-                            class="text-sm text-blue-600 mr-4"
-                            @click="clickdetaildesToggle(item.comment)"
+                          <td
+                            colspan="10"
+                            class="py-3 px-4 text-center border-gray-300 text-sm text-red-500"
                           >
-                            <i
-                              class="fa-solid fa-ellipsis text-xs font-semibold px-1 py-[1.5px] bg-blue-500 rounded-full shadow text-white"
-                              title="add description"
-                            ></i>
-                          </button>
-                          <button
-                            class="text-sm text-red-600"
-                            @click.prevent="removeFromitem(index)"
-                          >
-                            <i
-                              class="fa-solid fa-minus text-xs font-semibold px-1 py-[1.5px] bg-red-500 rounded-full shadow text-white"
-                            ></i>
-                          </button>
-                        </td>
-                      </tr>
-                      <tr
-                        class="border-b border-gray-300"
-                        v-if="formData.items.length == 0"
-                      >
-                        <td
-                          colspan="10"
-                          class="py-3 px-4 text-center border-gray-300 text-sm text-red-500"
-                        >
-                          there isn't item !
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="grid grid-cols-3">
-                  <div class="col-span-2 grid grid-cols-3 gap-4 mt-4">
-                    <!-- <div
-                      v-for="(image, index) in formData.receipt_images"
-                      :key="index"
-                    >
-                      <a :href="image.image" target="_blink">
-                        <img :src="image.image" alt="" />
-                      </a>
-                    </div> -->
+                            there isn't item !
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
-
-                  <div class="mt-6 px-6">
-                    <div class="grid grid-cols-2 gap-4">
-                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
-                        Subtotal
-                      </p>
-                      <input
-                        v-model="sub_total"
-                        disabled
-                        type="text"
-                        id="title"
-                        class="h-8 mt-2 w-full bg-gray-300 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                      />
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
-                        Discount
-                      </p>
-                      <input
-                        v-model="formData.discount"
-                        type="text"
-                        id="title"
-                        class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                      />
-                      <p
-                        v-if="errors?.discount"
-                        class="mt-1 text-sm text-red-600"
+                  <div class="grid grid-cols-3">
+                    <div class="col-span-2 grid grid-cols-3 gap-4 mt-4">
+                      <!-- <div
+                        v-for="(image, index) in formData.receipt_images"
+                        :key="index"
                       >
-                        {{ errors.discount[0] }}
-                      </p>
+                        <a :href="image.image" target="_blink">
+                          <img :src="image.image" alt="" />
+                        </a>
+                      </div> -->
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
-                        Total:
-                      </p>
-                      <input
-                        v-model="grand_total"
-                        disabled
-                        type="text"
-                        id="title"
-                        class="h-8 mt-2 w-full bg-gray-300 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                      />
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
-                        Deposit:
-                      </p>
-                      <input
-                        type="text"
-                        v-model="formData.deposit"
-                        id="title"
-                        class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                      />
-                    </div>
-                    <!-- <div class="grid grid-cols-2 gap-4">
-                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
-                        Reciept Image
-                      </p>
-                      <input
-                        @change="handlerFeatureFileChange"
-                        type="file"
-                        id="title"
-                        class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                      />
-                    </div> -->
-                    <div
-                      class="grid grid-cols-2 gap-4"
-                      v-if="formData.deposit > 0"
-                    >
-                      <div class="relative">
+
+                    <div class="mt-6 px-6">
+                      <div class="grid grid-cols-2 gap-4">
                         <p
                           class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3"
                         >
+                          Subtotal
+                        </p>
+                        <input
+                          v-model="sub_total"
+                          disabled
+                          type="text"
+                          id="title"
+                          class="h-8 mt-2 w-full bg-gray-300 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                        />
+                      </div>
+                      <div class="grid grid-cols-2 gap-4">
+                        <p
+                          class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3"
+                        >
+                          Discount
+                        </p>
+                        <input
+                          v-model="formData.discount"
+                          type="text"
+                          id="title"
+                          class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                        />
+                        <p
+                          v-if="errors?.discount"
+                          class="mt-1 text-sm text-red-600"
+                        >
+                          {{ errors.discount[0] }}
+                        </p>
+                      </div>
+                      <div class="grid grid-cols-2 gap-4">
+                        <p
+                          class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3"
+                        >
+                          Total:
+                        </p>
+                        <input
+                          v-model="grand_total"
+                          disabled
+                          type="text"
+                          id="title"
+                          class="h-8 mt-2 w-full bg-gray-300 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                        />
+                      </div>
+                      <div class="grid grid-cols-2 gap-4">
+                        <p
+                          class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3"
+                        >
+                          Deposit:
+                        </p>
+                        <input
+                          type="text"
+                          v-model="formData.deposit"
+                          id="title"
+                          class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                        />
+                      </div>
+                      <!-- <div class="grid grid-cols-2 gap-4">
+                        <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
                           Reciept Image
                         </p>
                         <input
-                          type="file"
-                          ref="featureImageInput"
-                          class="hidden"
                           @change="handlerFeatureFileChange"
-                          accept="image/*"
+                          type="file"
+                          id="title"
+                          class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                         />
-                        <button
+                      </div> -->
+                      <div
+                        class="grid grid-cols-2 gap-4"
+                        v-if="formData.deposit > 0"
+                      >
+                        <div class="relative">
+                          <p
+                            class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3"
+                          >
+                            Reciept Image
+                          </p>
+                          <input
+                            type="file"
+                            ref="featureImageInput"
+                            class="hidden"
+                            @change="handlerFeatureFileChange"
+                            accept="image/*"
+                          />
+                          <button
+                            v-if="!featureImagePreview"
+                            @click.prevent="openFileFeaturePicker"
+                            class="text-sm text-blue-500"
+                          ></button>
+                          <button
+                            v-else
+                            @click.prevent="removeFeatureSelectImage"
+                            class="rounded-full text-sm text-red-600 absolute top-[4px] right-[-33px]"
+                          >
+                            <XCircleIcon class="w-8 h-8 font-semibold" />
+                          </button>
+                        </div>
+                        <div
                           v-if="!featureImagePreview"
                           @click.prevent="openFileFeaturePicker"
-                          class="text-sm text-blue-500"
-                        ></button>
-                        <button
-                          v-else
-                          @click.prevent="removeFeatureSelectImage"
-                          class="rounded-full text-sm text-red-600 absolute top-[4px] right-[-33px]"
+                          class="cursor-pointer mt-2 w-full h-[100px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
                         >
-                          <XCircleIcon class="w-8 h-8 font-semibold" />
-                        </button>
+                          <span class="text-xs"
+                            ><i
+                              class="fa-solid fa-plus text-lg font-semibold py-3 px-5 bg-blue-500 rounded-full shadow text-white"
+                            ></i
+                          ></span>
+                        </div>
+                        <div v-if="featureImagePreview" class="">
+                          <img
+                            class="h-auto w-full rounded mt-2"
+                            :src="featureImagePreview"
+                            alt=""
+                          />
+                        </div>
                       </div>
                       <div
-                        v-if="!featureImagePreview"
-                        @click.prevent="openFileFeaturePicker"
-                        class="cursor-pointer mt-2 w-full h-[100px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
+                        class="grid grid-cols-2 gap-4"
+                        :class="action == 'view' ? 'mb-4' : ''"
                       >
-                        <span class="text-xs"
-                          ><i
-                            class="fa-solid fa-plus text-lg font-semibold py-3 px-5 bg-blue-500 rounded-full shadow text-white"
-                          ></i
-                        ></span>
-                      </div>
-                      <div v-if="featureImagePreview" class="">
-                        <img
-                          class="h-auto w-full rounded mt-2"
-                          :src="featureImagePreview"
-                          alt=""
+                        <p
+                          class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3"
+                        >
+                          Balance Due:
+                        </p>
+                        <input
+                          type="text"
+                          v-model="balance_due"
+                          id="title"
+                          class="h-8 mt-2 w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                         />
                       </div>
-                    </div>
-                    <div
-                      class="grid grid-cols-2 gap-4"
-                      :class="action == 'view' ? 'mb-4' : ''"
-                    >
-                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
-                        Balance Due:
-                      </p>
-                      <input
-                        type="text"
-                        v-model="balance_due"
-                        id="title"
-                        class="h-8 mt-2 w-full border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                      />
-                    </div>
-                    <!-- <div
-                      class="grid grid-cols-2 gap-4"
-                      :class="action == 'view' ? 'mb-4' : ''"
-                    >
-                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
-                        Due Date:
-                      </p>
-                      <input
-                        type="date"
-                        v-model="formData.balance_due_date"
-                        id="title"
-                        class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-sm"
-                      />
-                    </div> -->
-                    <div
-                      class="text-end mt-6 mb-3"
-                      v-if="allowCreate && action == 'edit'"
-                    >
-                      <Button
-                        @click.prevent="onSubmitHandler"
-                        class="px-14 py-2"
+                      <!-- <div
+                        class="grid grid-cols-2 gap-4"
+                        :class="action == 'view' ? 'mb-4' : ''"
                       >
-                        Update
-                      </Button>
-                    </div>
-                    <div
-                      class="text-end mt-6 mb-3"
-                      v-if="!allowCreate && action == 'edit'"
-                    >
-                      <Button class="px-14 py-2 bg-gray-300"> Update </Button>
+                        <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
+                          Due Date:
+                        </p>
+                        <input
+                          type="date"
+                          v-model="formData.balance_due_date"
+                          id="title"
+                          class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-sm"
+                        />
+                      </div> -->
+                      <div
+                        class="text-end mt-6 mb-3"
+                        v-if="allowCreate && action == 'edit'"
+                      >
+                        <Button
+                          @click.prevent="onSubmitHandler"
+                          class="px-14 py-2"
+                        >
+                          Update
+                        </Button>
+                      </div>
+                      <div
+                        class="text-end mt-6 mb-3"
+                        v-if="!allowCreate && action == 'edit'"
+                      >
+                        <Button class="px-14 py-2 bg-gray-300"> Update </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="col-span-3 grid grid-cols-4 gap-4 mt-4">
-              <div
-                v-for="(image, index) in formData.receipt_images"
-                :key="index"
-              >
-                <p class="text-sm mb-2">Receipt Image {{ index + 1 }}</p>
-                <a :href="image.image" target="_blink">
-                  <img :src="image.image" alt="" />
-                </a>
+              <div class="col-span-3 grid grid-cols-4 gap-4 mt-4">
+                <div
+                  v-for="(image, index) in formData.receipt_images"
+                  :key="index"
+                >
+                  <p class="text-sm mb-2">Receipt Image {{ index + 1 }}</p>
+                  <a :href="image.image" target="_blink">
+                    <img :src="image.image" alt="" />
+                  </a>
+                </div>
               </div>
             </div>
           </div>

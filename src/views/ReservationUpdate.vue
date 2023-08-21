@@ -279,7 +279,7 @@ onMounted(async () => {
 
 <template>
   <Layout>
-    <div class="mb-5 flex items-center justify-between">
+    <!-- <div class="mb-5 flex items-center justify-between">
       <h3 class="text-2xl font-medium text-gray-600" v-if="action === 'view'">
         View Reservation
       </h3>
@@ -297,7 +297,7 @@ onMounted(async () => {
                 <div class="grid grid-cols-12 relative">
                   <div class="grid grid-cols-3 gap-8 col-span-12 rounded-lg">
                     <div class="flex-1">
-                      <p class="text-gray-800 text-sm mb-2">Product Choose</p>
+                      <p class="text-gray-800 text-xs mb-2">Product Choose</p>
 
                       <v-select
                         v-if="
@@ -369,9 +369,8 @@ onMounted(async () => {
                         placeholder="Choose product type"
                       ></v-select>
                     </div>
-                    <!-- <p>{{ formData.car_name }}</p> -->
                     <div class="flex-1" v-if="formData.car_name">
-                      <p class="text-gray-800 text-sm mb-2">Car Type</p>
+                      <p class="text-gray-800 text-xs mb-2">Car Type</p>
                       <input
                         v-model="formData.car_name"
                         type="text"
@@ -381,7 +380,7 @@ onMounted(async () => {
                       />
                     </div>
                     <div class="flex-1">
-                      <p class="text-gray-800 text-sm mb-2">Service Date</p>
+                      <p class="text-gray-800 text-xs mb-2">Service Date</p>
                       <input
                         v-model="formData.service_date"
                         type="date"
@@ -390,13 +389,13 @@ onMounted(async () => {
                       />
                       <p
                         v-if="errors?.service_date"
-                        class="mt-1 text-sm text-red-600"
+                        class="mt-1 text-xs text-red-600"
                       >
                         {{ errors.service_date[0] }}
                       </p>
                     </div>
                     <div class="flex-1">
-                      <p class="text-gray-800 text-sm mb-2">Payment Method</p>
+                      <p class="text-gray-800 text-xs mb-2">Payment Method</p>
                       <v-select
                         v-model="formData.payment_method"
                         class="style-chooser"
@@ -408,7 +407,7 @@ onMounted(async () => {
                       ></v-select>
                     </div>
                     <div class="flex-1">
-                      <p class="text-gray-800 text-sm mb-2">Payment Status</p>
+                      <p class="text-gray-800 text-xs mb-2">Payment Status</p>
                       <v-select
                         v-model="formData.payment_status"
                         class="style-chooser"
@@ -420,7 +419,7 @@ onMounted(async () => {
                       ></v-select>
                     </div>
                     <div class="flex-1">
-                      <p class="text-gray-800 text-sm mb-2">Exchange Rate</p>
+                      <p class="text-gray-800 text-xs mb-2">Exchange Rate</p>
                       <input
                         v-model="formData.exchange_rate"
                         type="text"
@@ -429,7 +428,7 @@ onMounted(async () => {
                       />
                     </div>
                     <div class="flex-1">
-                      <p class="text-gray-800 text-sm mb-2">Quantity</p>
+                      <p class="text-gray-800 text-xs mb-2">Quantity</p>
                       <input
                         v-model="formData.quantity"
                         type="text"
@@ -438,13 +437,13 @@ onMounted(async () => {
                       />
                       <p
                         v-if="errors?.quantity"
-                        class="mt-1 text-sm text-red-600"
+                        class="mt-1 text-xs text-red-600"
                       >
                         {{ errors.quantity[0] }}
                       </p>
                     </div>
                     <div class="flex-1">
-                      <p class="text-gray-800 text-sm mb-2">Duration</p>
+                      <p class="text-gray-800 text-xs mb-2">Duration</p>
                       <input
                         v-model="formData.duration"
                         type="text"
@@ -453,13 +452,13 @@ onMounted(async () => {
                       />
                       <p
                         v-if="errors?.duration"
-                        class="mt-1 text-sm text-red-600"
+                        class="mt-1 text-xs text-red-600"
                       >
                         {{ errors.duration[0] }}
                       </p>
                     </div>
                     <div class="flex-1">
-                      <p class="text-gray-800 text-sm mb-2">Selling Price</p>
+                      <p class="text-gray-800 text-xs mb-2">Selling Price</p>
                       <input
                         v-model="formData.selling_price"
                         type="text"
@@ -468,13 +467,13 @@ onMounted(async () => {
                       />
                       <p
                         v-if="errors?.selling_price"
-                        class="mt-1 text-sm text-red-600"
+                        class="mt-1 text-xs text-red-600"
                       >
                         {{ errors.selling_price[0] }}
                       </p>
                     </div>
                     <div class="flex-1">
-                      <p class="text-gray-800 text-sm mb-2">Cost Price</p>
+                      <p class="text-gray-800 text-xs mb-2">Cost Price</p>
                       <input
                         v-model="formData.cost_price"
                         type="text"
@@ -483,28 +482,14 @@ onMounted(async () => {
                       />
                       <p
                         v-if="errors?.cost_price"
-                        class="mt-1 text-sm text-red-600"
+                        class="mt-1 text-xs text-red-600"
                       >
                         {{ errors.cost_price[0] }}
                       </p>
                     </div>
-                    <!-- <div class="flex-1">
-                      <p class="text-gray-800 text-sm mb-2">Comment</p>
-                      <input
-                        v-model="formData.comment"
-                        type="text"
-                        id="title"
-                        class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                      />
-                      <p
-                        v-if="errors?.comment"
-                        class="mt-1 text-sm text-red-600"
-                      >
-                        {{ errors.comment[0] }}
-                      </p>
-                    </div> -->
+
                     <div class="flex-1">
-                      <p class="text-gray-800 text-sm mb-2">
+                      <p class="text-gray-800 text-xs mb-2">
                         Reservation Status
                       </p>
                       <v-select
@@ -518,7 +503,7 @@ onMounted(async () => {
                       ></v-select>
                     </div>
                     <div class="flex-1">
-                      <p class="text-gray-800 text-sm mb-2">Receipt Image</p>
+                      <p class="text-gray-800 text-xs mb-2">Receipt Image</p>
                       <input
                         @change="handlerFeatureFileChange"
                         type="file"
@@ -527,13 +512,13 @@ onMounted(async () => {
                       />
                       <p
                         v-if="errors?.receipt_image"
-                        class="mt-1 text-sm text-red-600"
+                        class="mt-1 text-xs text-red-600"
                       >
                         {{ errors.receipt_image[0] }}
                       </p>
                     </div>
                     <div class="flex-1">
-                      <p class="text-gray-800 text-sm mb-2">
+                      <p class="text-gray-800 text-xs mb-2">
                         confirmation Letter
                       </p>
                       <input
@@ -544,13 +529,13 @@ onMounted(async () => {
                       />
                       <p
                         v-if="errors?.confirmation_letter"
-                        class="mt-1 text-sm text-red-600"
+                        class="mt-1 text-xs text-red-600"
                       >
                         {{ errors.confirmation_letter[0] }}
                       </p>
                     </div>
                     <div class="col-span-3 mb-2">
-                      <p class="text-gray-800 text-sm mb-2 mt-2">Comment</p>
+                      <p class="text-gray-800 text-xs mb-2 mt-2">Comment</p>
                       <textarea
                         v-model="formData.comment"
                         rows="3"
@@ -559,7 +544,7 @@ onMounted(async () => {
                       />
                       <p
                         v-if="errors?.comment"
-                        class="mt-1 text-sm text-red-600"
+                        class="mt-1 text-xs text-red-600"
                       >
                         {{ errors.comment[0] }}
                       </p>
@@ -569,7 +554,7 @@ onMounted(async () => {
                       v-if="showImage.receipt_image"
                     >
                       <div>
-                        <p class="text-gray-800 text-sm mb-2 mt-2">
+                        <p class="text-gray-800 text-xs mb-2 mt-2">
                           Receipt Image
                         </p>
                         <a :href="showImage.receipt_image" target="_blink">
@@ -581,7 +566,7 @@ onMounted(async () => {
                         </a>
                       </div>
                       <div>
-                        <p class="text-gray-800 text-sm mb-2 mt-2">
+                        <p class="text-gray-800 text-xs mb-2 mt-2">
                           Confirmation Letter
                         </p>
                         <a
@@ -604,6 +589,217 @@ onMounted(async () => {
         </div>
         <div class="text-end" v-if="action == 'update'">
           <Button @click.prevent="onSubmitHandler"> Update </Button>
+        </div>
+      </div>
+    </div> -->
+    <div>
+      <div class="flex justify-between items-center pb-6">
+        <p class="text-blue-500 font-semibold text-sm">
+          Reservation : Car Rental
+        </p>
+        <p class="px-4 py-2 border border-blue-500 text-blue-500 text-xs">
+          Complete Booking
+        </p>
+      </div>
+      <div class="grid grid-cols-3 gap-8">
+        <div class="col-span-2">
+          <div
+            class="flex justify-start items-center text-xs bg-blue-500 text-white font-semibold px-4 py-2"
+          >
+            <p>Reservation Code :</p>
+            <p>CS1232_002</p>
+          </div>
+
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+            <p>Payment status</p>
+          </div>
+          <div class="grid grid-cols-2 gap-4 bg-gray-200/50 py-4">
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Payment Currency</p>
+              <p class="font-semibold text-xs">THB</p>
+            </div>
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Payment Method:</p>
+              <p class="font-semibold text-xs">Collect</p>
+            </div>
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Payment Status</p>
+              <p class="font-semibold text-xs">Unpaid</p>
+            </div>
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Payment Due:</p>
+              <p class="font-semibold text-xs">09/08/2023</p>
+            </div>
+          </div>
+
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+            <p>Customer Infomation</p>
+          </div>
+          <div class="grid grid-cols-2 gap-4 bg-gray-200/50 py-4">
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Name</p>
+              <p class="font-semibold text-xs">Kaung Myat Kyaw</p>
+            </div>
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Contact</p>
+              <p class="font-semibold text-xs">+959 23432432</p>
+            </div>
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Passport Number</p>
+              <p class="font-semibold text-xs">4324324</p>
+            </div>
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Payment Due:</p>
+              <p class="font-semibold text-xs">09/08/2023</p>
+            </div>
+          </div>
+
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+            <p>Car Infomation</p>
+          </div>
+          <div class="grid grid-cols-2 gap-4 bg-gray-200/50 py-4">
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Car Type</p>
+              <p class="font-semibold text-xs">Saloon</p>
+            </div>
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Product</p>
+              <p class="font-semibold text-xs">Day Trip to Pattaya</p>
+            </div>
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Pickup Time</p>
+              <p class="font-semibold text-xs">08:00 am</p>
+            </div>
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Durations</p>
+              <p class="font-semibold text-xs">10 hrs</p>
+            </div>
+          </div>
+
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+            <p>Customer Reviews</p>
+          </div>
+          <div class="bg-gray-200/50 py-4 space-y-2">
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Feedback</p>
+              <p class="font-semibold text-xs">
+                Customers thought the driver was a little fast
+              </p>
+            </div>
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Score</p>
+              <p class="font-semibold text-xs">8/10</p>
+            </div>
+          </div>
+        </div>
+
+        <div class=" ">
+          <div
+            class="flex justify-start items-center text-xs bg-blue-500 text-white font-semibold px-4 py-2"
+          >
+            <p>Add Route Plan</p>
+          </div>
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+            <p>Route Plan</p>
+          </div>
+          <div class="bg-gray-200/50 p-6">
+            <div class="pl-4 space-y-2 border border-gray-200 p-4 bg-white">
+              <div class="flex justify-start items-center space-x-4">
+                <i class="fa-solid fa-location-dot text-xs text-orange-500"></i>
+                <p class="font-semibold text-xs">Pick up from Hotal</p>
+              </div>
+              <div class="flex justify-start items-center space-x-4">
+                <i class="fa-solid fa-location-dot text-xs text-orange-500"></i>
+                <p class="font-semibold text-xs">Wat Pho</p>
+              </div>
+              <div class="flex justify-start items-center space-x-4">
+                <i class="fa-solid fa-location-dot text-xs text-orange-500"></i>
+                <p class="font-semibold text-xs">Wat Arun</p>
+              </div>
+              <div class="flex justify-start items-center space-x-4">
+                <i class="fa-solid fa-location-dot text-xs text-orange-500"></i>
+                <p class="font-semibold text-xs">Wat Samphren</p>
+              </div>
+              <div class="flex justify-start items-center space-x-4">
+                <i class="fa-solid fa-location-dot text-xs text-orange-500"></i>
+                <p class="font-semibold text-xs">Back Home</p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+            <p>Other Information</p>
+          </div>
+          <div class="bg-gray-200/50 px-3 py-5 space-y-2">
+            <div class="px-6 space-y-2">
+              <p class="text-gray-400 text-xs">Special Requests</p>
+              <p class="font-semibold py-2 px-4 bg-white text-xs">
+                Strengly request English speaking driver.
+              </p>
+            </div>
+            <div class="px-6 space-y-2">
+              <p class="text-gray-400 text-xs">Other Information</p>
+              <p class="font-semibold py-2 px-4 bg-white text-xs">
+                Ask driver is collect 4000thb for other tickets
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+            <p>Car Information</p>
+          </div>
+          <div class="bg-gray-200/50 px-3 py-5 space-y-2">
+            <div class="px-6 space-y-2">
+              <p class="text-gray-400 text-xs">Supplier Name</p>
+              <p class="font-semibold py-2 px-4 bg-white text-xs">Vistor</p>
+            </div>
+            <div class="px-6 space-y-2">
+              <p class="text-gray-400 text-xs">Driver Name</p>
+              <p class="font-semibold py-2 px-4 bg-white text-xs">Vistor</p>
+            </div>
+            <div class="px-6 space-y-2">
+              <p class="text-gray-400 text-xs">Driver Contact</p>
+              <p class="font-semibold py-2 px-4 bg-white text-xs">-</p>
+            </div>
+            <div class="px-6 space-y-2">
+              <p class="text-gray-400 text-xs">Car Number</p>
+              <p class="font-semibold py-2 px-4 bg-white text-xs">-</p>
+            </div>
+            <div class="px-6 space-y-2">
+              <p class="text-gray-400 text-xs">Car Photos</p>
+              <p
+                class="font-semibold py-4 px-4 flex justify-center items-center text-xs border border-gray-400 border-dashed"
+              >
+                <i class="fa-solid fa-plus text-2xl text-gray-400"></i>
+              </p>
+            </div>
+          </div>
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs"
+          >
+            -
+          </div>
         </div>
       </div>
     </div>

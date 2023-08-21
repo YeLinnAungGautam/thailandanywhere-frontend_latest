@@ -123,7 +123,16 @@ const grand_total = computed(() => {
 });
 
 const balance_due = computed(() => {
-  return grand_total.value - formData.value.deposit;
+  if (
+    grand_total.value - formData.value.deposit == 0 &&
+    formData.value.items.length != 0
+  ) {
+    formData.value.payment_status = "fully_paid";
+    return grand_total.value - formData.value.deposit;
+  } else {
+    formData.value.payment_status = "";
+    return grand_total.value - formData.value.deposit;
+  }
 });
 
 const formitem = ref({

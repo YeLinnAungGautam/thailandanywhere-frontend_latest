@@ -124,7 +124,16 @@ const grand_total = computed(() => {
 });
 
 const balance_due = computed(() => {
-  return grand_total.value - formData.value.deposit;
+  if (
+    grand_total.value - formData.value.deposit == 0 &&
+    formData.value.items.length != 0
+  ) {
+    formData.value.payment_status = "fully_paid";
+    return grand_total.value - formData.value.deposit;
+  } else {
+    formData.value.payment_status = paymentStatus.value;
+    return grand_total.value - formData.value.deposit;
+  }
 });
 
 const formitem = ref({
@@ -474,6 +483,8 @@ const chooseCarPrice = async (type, productId, id) => {
     console.log(res);
   }
 };
+
+const paymentStatus = ref("");
 const getDetail = async () => {
   try {
     const response = await bookingStore.getDetailAction(route.params.id);
@@ -482,6 +493,7 @@ const getDetail = async () => {
     formData.value.sold_from = response.result.sold_from;
     formData.value.payment_method = response.result.payment_method;
     formData.value.payment_status = response.result.payment_status;
+    paymentStatus.value = response.result.payment_status;
     formData.value.payment_currency = response.result.payment_currency;
     formData.value.booking_date = response.result.booking_date;
     formData.value.money_exchange_rate = response.result.money_exchange_rate;

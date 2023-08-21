@@ -496,10 +496,16 @@ const customerClose = async () => {
 };
 
 const allowCreate = computed(() => {
-  if (formData.value.items.length == 0 && formData.value.receipt_image == "") {
-    return false;
+  if (
+    formData.value.items.length != 0 &&
+    formData.value.deposit != 0 &&
+    formData.value.receipt_image != ""
+  ) {
+    return true;
   } else if (formData.value.items.length != 0 && formData.value.deposit == 0) {
     return true;
+  } else {
+    return false;
   }
 });
 

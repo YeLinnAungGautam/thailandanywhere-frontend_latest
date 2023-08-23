@@ -31,10 +31,11 @@ import CustomerCreateView from "../views/CustomerCreate.vue";
 import CustomerUpdateView from "../views/CustomerEdit.vue";
 import UpdateBookingView from "../views/BookingUpdate.vue";
 import ReservationView from "../views/Reservation.vue";
-import ReservationUpdateView from "../views/ReservationUpdate.vue";
+import ReservationUpdate from "../views/ReservationUpdate.vue";
 import ExpensesView from "../views/Expenses.vue";
 import InclusiveView from "../views/InclusiveCreate.vue";
 import InclusiveDetailView from "../views/InclusiveUpdate.vue";
+import ReservationViewView from "../views/ReservationView.vue";
 
 const routes = [
   {
@@ -206,9 +207,14 @@ const routes = [
     component: ReservationView,
   },
   {
-    path: "/reservation/update/:id/:action",
-    name: "reservationupdate",
-    component: ReservationUpdateView,
+    path: "/reservation/update/:id/:crm",
+    name: "reservation-update",
+    component: ReservationUpdate,
+  },
+  {
+    path: "/reservation/view/:id/:crm",
+    name: "reservation-view",
+    component: ReservationViewView,
   },
   {
     path: "/expenses",

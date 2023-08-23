@@ -237,7 +237,7 @@ watch(search, async (newValue) => {
                   >
                     <div class="flex items-center gap-2">
                       <router-link
-                        :to="'/reservation/update/' + d.id + '/view'"
+                        :to="'/reservation/view/' + d.id + '/' + r.crm_id"
                       >
                         <button
                           class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
@@ -246,7 +246,7 @@ watch(search, async (newValue) => {
                         </button>
                       </router-link>
                       <router-link
-                        :to="'/reservation/update/' + d.id + '/update'"
+                        :to="'/reservation/update/' + d.id + '/' + r.crm_id"
                       >
                         <button
                           class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"

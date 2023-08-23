@@ -71,6 +71,14 @@ export const useReservationStore = defineStore("reservation", {
         throw error;
       }
     },
+    async updateInfoAction(data, id) {
+      try {
+        const response = await axios.post("/reservations/info/" + id, data);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
     async deleteAction(id) {
       try {
         const response = await axios.delete("/reservations/" + id);

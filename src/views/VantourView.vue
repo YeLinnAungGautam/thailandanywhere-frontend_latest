@@ -446,12 +446,13 @@ onMounted(async () => {
             </div>
           </div>
           <div class="">
-            <p class="text-gray-800 text-sm mb-2">Description</p>
+            <p class="text-gray-800 text-sm mb-2">Routes</p>
             <textarea
               v-model="formData.description"
               rows="3"
               id="title"
               class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              placeholder="place , place , place "
             />
             <p v-if="errors?.description" class="mt-1 text-sm text-red-600">
               {{ errors.description[0] }}

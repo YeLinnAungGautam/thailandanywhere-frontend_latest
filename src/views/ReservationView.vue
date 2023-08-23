@@ -383,15 +383,14 @@ const carInfoSecHandle = () => {
   car_info_sec.value = !car_info_sec.value;
 };
 
-const action = ref("");
-const crm = ref("");
-
 const routeArray = ref([]);
 const updateArray = () => {
   routeArray.value = route_plan.value.split(",").map((item) => item.trim());
   console.log(routeArray.value, "this is array");
 };
 
+const action = ref("");
+const crm = ref("");
 onMounted(async () => {
   await getDetail();
   await vantourStore.getSimpleListAction();
@@ -494,8 +493,7 @@ onMounted(async () => {
                 v-model="formData.service_date"
                 type="date"
                 id="title"
-                class="h-8 font-semibold w-full bg-transparent px-4 py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
-                :class="formData.service_date != '' ? 'bg-white' : ''"
+                class="h-8 font-semibold w-full bg-transparent py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
               />
             </div>
           </div>
@@ -558,8 +556,7 @@ onMounted(async () => {
                 v-model="formData.duration"
                 type="text"
                 id="title"
-                class="h-8 w-full bg-transparent font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                :class="formData.duration != '' ? 'bg-white' : ''"
+                class="h-8 w-full bg-transparent font-semibold py-2 text-gray-900 focus:outline-none text-xs"
               />
             </div>
           </div>
@@ -576,9 +573,8 @@ onMounted(async () => {
               <p class="text-gray-400 text-xs font">Feedback</p>
 
               <textarea
-                class="w-full bg-transparent border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 font-semibold text-xs"
+                class="w-full bg-transparent font-semibold py-2 text-gray-900 focus:outline-none text-xs"
                 cols="4"
-                :class="secForm.customer_feedback != '' ? 'bg-white' : ''"
                 v-model="secForm.customer_feedback"
               ></textarea>
             </div>
@@ -588,19 +584,18 @@ onMounted(async () => {
                 v-model="secForm.customer_score"
                 type="text"
                 id="title"
-                class="h-8 w-full bg-transparent font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                :class="secForm.customer_score != '' ? 'bg-white' : ''"
+                class="h-8 w-full bg-transparent font-semibold py-2 text-gray-900 focus:outline-none text-xs"
               />
             </div>
           </div>
-          <div class="flex justify-end items-center">
+          <!-- <div class="flex justify-end items-center">
             <button
               @click.prevent="onSubmitHandler"
               class="my-10 px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 shadow"
             >
               Update Reservation
             </button>
-          </div>
+          </div> -->
         </div>
 
         <div class=" ">
@@ -620,7 +615,7 @@ onMounted(async () => {
             <div class="pl-4 space-y-2 border border-gray-200 p-4 bg-white">
               <!-- <textarea
                 class="w-full bg-transparent font-semibold shadow-sm px-4 py-2 text-gray-900 focus:outline-none text-xs"
-                cols="4"
+                rows="4"
                 v-model="route_plan"
               ></textarea> -->
               <ol v-for="r in routeArray" :key="r">

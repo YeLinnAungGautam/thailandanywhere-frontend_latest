@@ -252,7 +252,13 @@ const getDetail = async () => {
     console.log(response, "this is response");
 
     formData.value.duration = response.result.duration;
-    formData.value.product_name = response.result.product.name;
+    if (response.result.product_type != "App\\Models\\Inclusive") {
+      if (response.result.product.name != null) {
+        formData.value.product_name = response.result.product.name;
+      }
+    } else {
+      formData.value.product_name = "inclusive";
+    }
     formData.value.cus_name = response.result.customer_info.name;
     formData.value.cus_contact = response.result.customer_info.phone_number;
     formData.value.cus_passport = response.result.customer_info.nrc_number;
@@ -263,21 +269,38 @@ const getDetail = async () => {
     } else {
       route_plan_part.value = false;
     }
-    secForm.value.customer_feedback =
-      response.result.reservation_info.customer_feedback;
-    secForm.value.customer_score =
-      response.result.reservation_info.customer_score;
-    secForm.value.special_request =
-      response.result.reservation_info.special_request;
-    secForm.value.other_info = response.result.reservation_info.other_info;
-    secForm.value.supplier_name =
-      response.result.reservation_car_info.supplier_name;
-    secForm.value.driver_name =
-      response.result.reservation_car_info.driver_name;
-    secForm.value.driver_contact =
-      response.result.reservation_car_info.driver_contact;
-    secForm.value.car_number = response.result.reservation_car_info.car_number;
-    previewImage.value = response.result.reservation_car_info.car_photo;
+    if (response.result.reservation_info != null) {
+      secForm.value.customer_feedback =
+        response.result.reservation_info.customer_feedback;
+      secForm.value.customer_score =
+        response.result.reservation_info.customer_score;
+      secForm.value.special_request =
+        response.result.reservation_info.special_request;
+      secForm.value.other_info = response.result.reservation_info.other_info;
+    } else {
+      secForm.value.customer_feedback = "";
+      secForm.value.customer_score = "";
+      secForm.value.special_request = "";
+      secForm.value.other_info = "";
+    }
+
+    if (response.result.reservation_car_info != null) {
+      secForm.value.supplier_name =
+        response.result.reservation_car_info.supplier_name;
+      secForm.value.driver_name =
+        response.result.reservation_car_info.driver_name;
+      secForm.value.driver_contact =
+        response.result.reservation_car_info.driver_contact;
+      secForm.value.car_number =
+        response.result.reservation_car_info.car_number;
+      previewImage.value = response.result.reservation_car_info.car_photo;
+    } else {
+      secForm.value.supplier_name = "";
+      secForm.value.driver_name = "";
+      secForm.value.driver_contact = "";
+      secForm.value.car_number = "";
+      previewImage.value = "";
+    }
 
     if (response.result.payment_method == "null") {
       formData.value.payment_method = "";
@@ -314,6 +337,7 @@ const getDetail = async () => {
     }
     if (response.result.car == null) {
       formData.value.car_id = "";
+      formData.value.car_name = "-";
     } else if (response.result.car != null) {
       formData.value.car_id = response.result.car.id;
       formData.value.car_name = response.result.car.name;
@@ -330,6 +354,9 @@ const getDetail = async () => {
     // formData.value.reservation_status = response.result.reservation_status;
     formData.value.selling_price = response.result.selling_price;
     formData.value.service_date = response.result.service_date;
+
+    console.log(formData.value, "first");
+    console.log(secForm.value, "sec");
   } catch (error) {
     console.log(error);
   }
@@ -595,6 +622,21 @@ onMounted(async () => {
           </div>
           <div class="flex justify-end items-center">
             <button
+              v-if="
+                !formData.payment_method ||
+                !formData.payment_status ||
+                !formData.reservation_status
+              "
+              class="my-10 px-4 py-2 bg-gray-500 text-white hover:bg-gray-500 shadow"
+            >
+              Update Reservation
+            </button>
+            <button
+              v-if="
+                formData.payment_method &&
+                formData.payment_status &&
+                formData.reservation_status
+              "
               @click.prevent="onSubmitHandler"
               class="my-10 px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 shadow"
             >

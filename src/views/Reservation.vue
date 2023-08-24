@@ -36,6 +36,19 @@ const changePage = async (url) => {
 };
 const errors = ref([]);
 
+const product_type = [
+  { id: "1", name: "Inclusive", type: "App\\Models\\Inclusive" },
+  { id: "2", name: "Entrance Ticket", type: "App\\Models\\EntranceTicket" },
+  { id: "3", name: "Private Van Tour", type: "App\\Models\\PrivateVanTour" },
+  { id: "4", name: "Group Tour", type: "App\\Models\\GroupTour" },
+  { id: "5", name: "Airport Pickup", type: "App\\Models\\AirportPickup" },
+  { id: "6", name: "ALL", type: "" },
+];
+
+const chooseType = () => {
+  console.log(search.value);
+};
+
 const search = ref("");
 const seen = ref(true);
 const seenClick = () => {
@@ -48,7 +61,7 @@ onMounted(async () => {
 });
 
 watch(search, async (newValue) => {
-  await reservationStore.getListAction({ search: search.value });
+  await reservationStore.getListAction({ product_type: search.value });
 });
 </script>
 
@@ -60,14 +73,16 @@ watch(search, async (newValue) => {
     <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
       <!-- search input sort filter -->
       <div class="flex items-center justify-between mb-5">
-        <div class="">
-          <input
-            v-model="search"
-            type="text"
-            class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
-            placeholder="Search for Reservation.."
-          />
-        </div>
+        <v-select
+          v-model="search"
+          class="style-chooser text-xs py-2 w-[350px]"
+          :options="product_type"
+          label="name"
+          :clearable="false"
+          :reduce="(d) => d.type"
+          @option:selected="chooseType"
+          placeholder="please choose product type"
+        ></v-select>
         <div>
           <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>
           <select
@@ -102,6 +117,7 @@ watch(search, async (newValue) => {
           <div class="text-center text-sm font-medium tracking-wide py-2"></div>
         </div>
         <div
+          v-show="!loading"
           class="divide-y divide-gray-200 group relative"
           v-for="r in reservations?.data"
           :key="r.id"
@@ -260,6 +276,18 @@ watch(search, async (newValue) => {
               </DisclosurePanel>
             </transition>
           </Disclosure>
+        </div>
+        <div v-if="loading" class="flex justify-center items-center py-20">
+          <div
+            class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] mr-4"
+            role="status"
+          >
+            <span
+              class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+              >Loading...</span
+            >
+          </div>
+          Loading ...
         </div>
       </div>
       <!-- pagination -->

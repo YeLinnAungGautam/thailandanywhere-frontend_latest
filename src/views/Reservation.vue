@@ -55,6 +55,10 @@ const seenClick = () => {
   seen.value = !seen.value;
 };
 
+const searchValue = (val) => {
+  search.value = val;
+};
+
 onMounted(async () => {
   await reservationStore.getListAction();
   console.log(reservations.value, "this is reservations");
@@ -73,7 +77,7 @@ watch(search, async (newValue) => {
     <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
       <!-- search input sort filter -->
       <div class="flex items-center justify-between mb-5">
-        <v-select
+        <!-- <v-select
           v-model="search"
           class="style-chooser text-xs py-2 w-[350px]"
           :options="product_type"
@@ -82,7 +86,67 @@ watch(search, async (newValue) => {
           :reduce="(d) => d.type"
           @option:selected="chooseType"
           placeholder="please choose product type"
-        ></v-select>
+        ></v-select> -->
+        <div class="space-x-2 flex justify-start items-center gap-2">
+          <p
+            class="text-sm px-4 cursor-pointer hover:bg-blue-500 hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            @click="searchValue('')"
+            :class="search == '' ? 'bg-blue-500 text-white' : ''"
+          >
+            All
+          </p>
+          <p
+            class="text-sm px-4 cursor-pointer hover:bg-blue-500 hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            @click="searchValue('App\\Models\\PrivateVanTour')"
+            :class="
+              search == 'App\\Models\\PrivateVanTour'
+                ? 'bg-blue-500 text-white'
+                : ''
+            "
+          >
+            Private Van tour
+          </p>
+          <p
+            class="text-sm px-4 cursor-pointer hover:bg-blue-500 hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            @click="searchValue('App\\Models\\GroupTour')"
+            :class="
+              search == 'App\\Models\\GroupTour' ? 'bg-blue-500 text-white' : ''
+            "
+          >
+            Group Tour
+          </p>
+          <p
+            class="text-sm px-4 cursor-pointer hover:bg-blue-500 hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            @click="searchValue('App\\Models\\EntranceTicket')"
+            :class="
+              search == 'App\\Models\\EntranceTicket'
+                ? 'bg-blue-500 text-white'
+                : ''
+            "
+          >
+            Entrance Ticket
+          </p>
+          <p
+            class="text-sm px-4 cursor-pointer hover:bg-blue-500 hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            @click="searchValue('App\\Models\\AirportPickup')"
+            :class="
+              search == 'App\\Models\\AirportPickup'
+                ? 'bg-blue-500 text-white'
+                : ''
+            "
+          >
+            Airport Pickup
+          </p>
+          <p
+            class="text-sm px-4 cursor-pointer hover:bg-blue-500 hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            @click="searchValue('App\\Models\\Inclusive')"
+            :class="
+              search == 'App\\Models\\Inclusive' ? 'bg-blue-500 text-white' : ''
+            "
+          >
+            Inclusive
+          </p>
+        </div>
         <div>
           <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>
           <select

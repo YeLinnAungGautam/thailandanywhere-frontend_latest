@@ -96,6 +96,8 @@ const secForm = ref({
   customer_score: "",
   special_request: "",
   other_info: "",
+  pickup_location: "",
+  route_plan: "",
   supplier_name: "",
   driver_name: "",
   driver_contact: "",
@@ -187,6 +189,8 @@ const onSubmitHandler = async () => {
       secfrm.append("customer_score", secForm.value.customer_score);
       secfrm.append("special_request", secForm.value.special_request);
       secfrm.append("other_info", secForm.value.other_info);
+      secfrm.append("pickup_location", secForm.value.pickup_location);
+      secfrm.append("route_plan", secForm.value.route_plan);
       secfrm.append("supplier_name", secForm.value.supplier_name);
       secfrm.append("driver_name", secForm.value.driver_name);
       secfrm.append("driver_contact", secForm.value.driver_contact);
@@ -222,10 +226,12 @@ const onSubmitHandler = async () => {
       customer_score: "",
       special_request: "",
       other_info: "",
+      pickup_location: "",
       supplier_name: "",
       driver_name: "",
       driver_contact: "",
       car_number: "",
+      route_plan: "",
       car_photo: "",
     };
 
@@ -252,6 +258,8 @@ const getDetail = async () => {
     console.log(response, "this is response");
 
     formData.value.duration = response.result.duration;
+    secForm.value.special_request = response.result.special_request;
+    console.log(secForm.value.special_request, "this is special");
     if (response.result.product_type != "App\\Models\\Inclusive") {
       if (response.result.product.name != null) {
         formData.value.product_name = response.result.product.name;
@@ -263,24 +271,25 @@ const getDetail = async () => {
     formData.value.cus_contact = response.result.customer_info.phone_number;
     formData.value.cus_passport = response.result.customer_info.nrc_number;
     formData.value.cus_email = response.result.customer_info.email;
-    if (response.result.product_type == "App\\Models\\PrivateVanTour") {
-      route_plan.value = response.result.product.description;
-      updateArray();
-    } else {
-      route_plan_part.value = false;
+    if (response.result.reservation_info != null) {
+      secForm.value.route_plan = response.result.reservation_info.route_plan;
+    } else if (response.result.product_type === "App\\Models\\PrivateVanTour") {
+      secForm.value.route_plan = response.result.product.description;
     }
+    console.log(secForm.value.route_plan);
     if (response.result.reservation_info != null) {
       secForm.value.customer_feedback =
         response.result.reservation_info.customer_feedback;
       secForm.value.customer_score =
         response.result.reservation_info.customer_score;
-      secForm.value.special_request =
-        response.result.reservation_info.special_request;
+      secForm.value.route_plan = response.result.reservation_info.route_plan;
       secForm.value.other_info = response.result.reservation_info.other_info;
+      secForm.value.pickup_location =
+        response.result.reservation_info.pickup_location;
     } else {
       secForm.value.customer_feedback = "";
       secForm.value.customer_score = "";
-      secForm.value.special_request = "";
+      secForm.value.pickup_location = "";
       secForm.value.other_info = "";
     }
 
@@ -415,7 +424,9 @@ const crm = ref("");
 
 const routeArray = ref([]);
 const updateArray = () => {
-  routeArray.value = route_plan.value.split(",").map((item) => item.trim());
+  routeArray.value = secForm.value.route_plan.value
+    .split(",")
+    .map((item) => item.trim());
   console.log(routeArray.value, "this is array");
 };
 
@@ -429,7 +440,6 @@ onMounted(async () => {
   await inclusiveStore.getSimpleListAction();
   action.value = route.params.action;
   crm.value = route.params.crm;
-  console.log(formData.value.car);
 });
 </script>
 
@@ -660,16 +670,17 @@ onMounted(async () => {
           </div>
           <div class="bg-gray-200/50 p-6" v-if="route_plan_part">
             <div class="pl-4 space-y-2 border border-gray-200 p-4 bg-white">
-              <!-- <textarea
-                class="w-full bg-transparent font-semibold shadow-sm px-4 py-2 text-gray-900 focus:outline-none text-xs"
+              <textarea
+                class="w-full bg-transparent font-semibold shadow-sm px-4 py-2 text-gray-900 focus:outline-none text-xs border border-gray-300"
+                placeholder="enter like one, two, three"
                 cols="4"
-                v-model="route_plan"
-              ></textarea> -->
-              <ol v-for="r in routeArray" :key="r">
+                v-model="secForm.route_plan"
+              ></textarea>
+              <!-- <ol v-for="r in routeArray" :key="r" class="">
                 <li class="text-xs font-semibold">
                   <i class="fa-solid fa-map-pin mr-2"></i>{{ r }}
                 </li>
-              </ol>
+              </ol> -->
             </div>
           </div>
 
@@ -693,13 +704,22 @@ onMounted(async () => {
                 v-model="secForm.special_request"
               ></textarea>
             </div>
-            <div class="px-6 space-y-2">
+            <!-- <div class="px-6 space-y-2">
               <p class="text-gray-400 text-xs">Other Information</p>
               <textarea
                 class="w-full bg-transparent border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
                 cols="4"
                 :class="secForm.other_info != '' ? 'bg-white' : ''"
                 v-model="secForm.other_info"
+              ></textarea>
+            </div> -->
+            <div class="px-6 space-y-2">
+              <p class="text-gray-400 text-xs">Pickup Location</p>
+              <textarea
+                class="w-full bg-transparent border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                cols="4"
+                :class="secForm.pickup_location != '' ? 'bg-white' : ''"
+                v-model="secForm.pickup_location"
               ></textarea>
             </div>
           </div>

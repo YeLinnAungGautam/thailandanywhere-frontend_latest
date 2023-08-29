@@ -101,6 +101,8 @@ const secForm = ref({
   driver_contact: "",
   car_number: "",
   car_photo: "",
+  pickup_location: "",
+  route_plan: "",
 });
 
 const fileInput = ref(null);
@@ -225,6 +227,8 @@ const onSubmitHandler = async () => {
       supplier_name: "",
       driver_name: "",
       driver_contact: "",
+      pickup_location: "",
+      route_plan: "",
       car_number: "",
       car_photo: "",
     };
@@ -252,6 +256,8 @@ const getDetail = async () => {
     console.log(response, "this is response");
 
     formData.value.duration = response.result.duration;
+    secForm.value.special_request = response.result.special_request;
+    console.log(secForm.value.special_request, "this is special");
     if (response.result.product_type != "App\\Models\\Inclusive") {
       if (response.result.product.name != null) {
         formData.value.product_name = response.result.product.name;
@@ -263,24 +269,27 @@ const getDetail = async () => {
     formData.value.cus_contact = response.result.customer_info.phone_number;
     formData.value.cus_passport = response.result.customer_info.nrc_number;
     formData.value.cus_email = response.result.customer_info.email;
-    if (response.result.product_type == "App\\Models\\PrivateVanTour") {
-      route_plan.value = response.result.product.description;
+    if (response.result.reservation_info != null) {
+      secForm.value.route_plan = response.result.reservation_info.route_plan;
       updateArray();
-    } else {
-      route_plan_part.value = false;
+    } else if (response.result.product_type === "App\\Models\\PrivateVanTour") {
+      secForm.value.route_plan = response.result.product.description;
+      updateArray();
     }
+    console.log(secForm.value.route_plan);
     if (response.result.reservation_info != null) {
       secForm.value.customer_feedback =
         response.result.reservation_info.customer_feedback;
       secForm.value.customer_score =
         response.result.reservation_info.customer_score;
-      secForm.value.special_request =
-        response.result.reservation_info.special_request;
+      secForm.value.route_plan = response.result.reservation_info.route_plan;
       secForm.value.other_info = response.result.reservation_info.other_info;
+      secForm.value.pickup_location =
+        response.result.reservation_info.pickup_location;
     } else {
       secForm.value.customer_feedback = "";
       secForm.value.customer_score = "";
-      secForm.value.special_request = "";
+      secForm.value.pickup_location = "";
       secForm.value.other_info = "";
     }
 
@@ -400,6 +409,11 @@ const routePlanHandle = () => {
   route_plan_part.value = !route_plan_part.value;
 };
 
+const reser_plan_part = ref(true);
+const reserPlanHandle = () => {
+  reser_plan_part.value = !reser_plan_part.value;
+};
+
 const other_info_part = ref(true);
 const otherInfoHandle = () => {
   other_info_part.value = !other_info_part.value;
@@ -412,7 +426,9 @@ const carInfoSecHandle = () => {
 
 const routeArray = ref([]);
 const updateArray = () => {
-  routeArray.value = route_plan.value.split(",").map((item) => item.trim());
+  routeArray.value = secForm.value.route_plan
+    .split(",")
+    .map((item) => item.trim());
   console.log(routeArray.value, "this is array");
 };
 
@@ -428,7 +444,6 @@ onMounted(async () => {
   await inclusiveStore.getSimpleListAction();
   action.value = route.params.action;
   crm.value = route.params.crm;
-  console.log(formData.value.car);
 });
 </script>
 
@@ -479,7 +494,10 @@ onMounted(async () => {
             <div class="pl-10 pr-10 space-y-2">
               <p class="text-gray-400 text-xs">Payment Method:</p>
               <!-- <p class="font-semibold text-xs">Collect</p> -->
-              <v-select
+              <p class="font-semibold text-xs py-1.5">
+                {{ formData.payment_method }}
+              </p>
+              <!-- <v-select
                 v-model="formData.payment_method"
                 class="style-chooser font-semibold text-xs py-1.5"
                 :options="payment"
@@ -487,11 +505,14 @@ onMounted(async () => {
                 :clearable="false"
                 :reduce="(d) => d.name"
                 placeholder=""
-              ></v-select>
+              ></v-select> -->
             </div>
             <div class="pl-10 pr-10 space-y-2">
               <p class="text-gray-400 text-xs">Payment Status</p>
-              <v-select
+              <p class="font-semibold text-xs py-1.5">
+                {{ formData.payment_status }}
+              </p>
+              <!-- <v-select
                 v-model="formData.payment_status"
                 class="style-chooser font-semibold text-xs py-1.5"
                 :options="payment_status"
@@ -499,11 +520,14 @@ onMounted(async () => {
                 :clearable="false"
                 :reduce="(d) => d.name"
                 placeholder=""
-              ></v-select>
+              ></v-select> -->
             </div>
             <div class="pl-10 pr-10 space-y-2">
               <p class="text-gray-400 text-xs">Reservation Status</p>
-              <v-select
+              <p class="font-semibold text-xs py-1.5">
+                {{ formData.reservation_status }}
+              </p>
+              <!-- <v-select
                 v-model="formData.reservation_status"
                 class="style-chooser font-semibold text-xs py-1.5"
                 :options="reservation_status"
@@ -511,17 +535,17 @@ onMounted(async () => {
                 :clearable="false"
                 :reduce="(d) => d.name"
                 placeholder=""
-              ></v-select>
+              ></v-select> -->
             </div>
             <div class="pl-10 pr-10 space-y-2">
               <p class="text-gray-400 text-xs">Payment Due:</p>
-              <!-- <p class="font-semibold text-xs">09/08/2023</p> -->
-              <input
+              <p class="font-semibold text-xs">{{ formData.service_date }}</p>
+              <!-- <input
                 v-model="formData.service_date"
                 type="date"
                 id="title"
                 class="h-8 font-semibold w-full bg-transparent py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
-              />
+              /> -->
             </div>
           </div>
 
@@ -629,7 +653,7 @@ onMounted(async () => {
           <div
             class="flex justify-start items-center text-xs bg-blue-500 text-white font-semibold px-4 py-2"
           >
-            <p>Add Route Plan</p>
+            <p>Add Reservation Detail</p>
           </div>
           <div
             class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
@@ -640,11 +664,6 @@ onMounted(async () => {
           </div>
           <div class="bg-gray-200/50 p-6" v-if="route_plan_part">
             <div class="pl-4 space-y-2 border border-gray-200 p-4 bg-white">
-              <!-- <textarea
-                class="w-full bg-transparent font-semibold shadow-sm px-4 py-2 text-gray-900 focus:outline-none text-xs"
-                rows="4"
-                v-model="route_plan"
-              ></textarea> -->
               <ol v-for="r in routeArray" :key="r">
                 <li class="text-xs font-semibold">
                   <i class="fa-solid fa-map-pin mr-2"></i>{{ r }}
@@ -664,7 +683,7 @@ onMounted(async () => {
             class="bg-gray-200/50 px-3 py-5 space-y-2"
             v-if="other_info_part"
           >
-            <div class="px-6 space-y-2">
+            <div class="px-4 space-y-2">
               <p class="text-gray-400 text-xs">Special Requests</p>
               <textarea
                 class="w-full bg-transparent border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
@@ -673,7 +692,7 @@ onMounted(async () => {
                 v-model="secForm.special_request"
               ></textarea>
             </div>
-            <div class="px-6 space-y-2">
+            <!-- <div class="px-6 space-y-2">
               <p class="text-gray-400 text-xs">Other Information</p>
               <textarea
                 class="w-full bg-transparent border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
@@ -681,6 +700,21 @@ onMounted(async () => {
                 :class="secForm.other_info != '' ? 'bg-white' : ''"
                 v-model="secForm.other_info"
               ></textarea>
+            </div> -->
+            <div class="space-y-2 px-4">
+              <p class="text-gray-400 text-xs">Pickup Location Information</p>
+              <div class="mapouter">
+                <div class="gmap_canvas">
+                  <iframe
+                    class="w-full h-[400px]"
+                    :src="
+                      'https://maps.google.com/maps?q=' +
+                      secForm.pickup_location +
+                      '&hl=es;z=14&amp;output=embed'
+                    "
+                  ></iframe>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -770,6 +804,27 @@ onMounted(async () => {
               </div>
             </div>
           </div>
+
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            @click="reserPlanHandle"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+            <p>Reservation Information</p>
+          </div>
+          <div class="bg-gray-200/50" v-if="reser_plan_part">
+            <div class="px-10">
+              <v-select
+                v-model="formData.reservation_status"
+                class="style-chooser font-semibold text-xs py-1.5"
+                :options="reservation_status"
+                label="name"
+                :clearable="false"
+                :reduce="(d) => d.name"
+                placeholder=""
+              ></v-select>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -807,5 +862,22 @@ onMounted(async () => {
 /* Hide scrollbar for Firefox */
 .scrollbar-hide {
   scrollbar-width: none;
+}
+
+.mapouter {
+  position: relative;
+  text-align: right;
+  width: 100%;
+  height: 400px;
+}
+.gmap_canvas {
+  overflow: hidden;
+  background: none !important;
+  width: 100%;
+  height: 400px;
+}
+.gmap_iframe {
+  width: 100% !important;
+  height: 400px !important;
 }
 </style>

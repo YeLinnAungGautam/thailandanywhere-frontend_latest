@@ -96,6 +96,7 @@ const formData = ref({
   deposit: 0,
   balance_due_date: "",
   receipt_images: [],
+  special_request: "",
 });
 
 const sub_total = computed(() => {
@@ -232,6 +233,8 @@ const onSubmitHandler = async () => {
   frmData.append("customer_id", formData.value.customer_id);
   frmData.append("sold_from", formData.value.sold_from);
   frmData.append("payment_method", formData.value.payment_method);
+  frmData.append("special_request", formData.value.special_request);
+
   frmData.append("payment_status", formData.value.payment_status);
   frmData.append("booking_date", formData.value.booking_date);
   frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
@@ -388,6 +391,7 @@ const onSubmitHandler = async () => {
       due_date: "",
       deposit: 0,
       balance_due_date: "",
+      special_request: "",
     };
     balance_due.value = "";
 
@@ -499,6 +503,8 @@ const getDetail = async () => {
     formData.value.money_exchange_rate = response.result.money_exchange_rate;
     formData.value.money_exchange_rate = response.result.money_exchange_rate;
     formData.value.comment = response.result.comment;
+    formData.value.special_request = response.result.special_request;
+
     formData.value.discount = response.result.discount;
     formData.value.balance_due_date = response.result.balance_due_date;
     formData.value.deposit = response.result.deposit;
@@ -513,6 +519,7 @@ const getDetail = async () => {
         duration: response.result.items[x].duration,
         selling_price: response.result.items[x].selling_price,
         comment: response.result.items[x].comment,
+        special_request: response.result.items[x].special_request,
         reservation_status: response.result.items[x].reservation_status,
         payment_method: response.result.items[x].payment_method,
         payment_status: response.result.items[x].payment_status,
@@ -579,13 +586,16 @@ const closedes = () => {
 };
 const clickdetaildes = ref(false);
 const itemDes = ref();
-const clickdetaildesToggle = (a) => {
+const itemSpecial = ref();
+const clickdetaildesToggle = (a, b) => {
   clickdetaildes.value = true;
   itemDes.value = a;
+  itemSpecial.value = b;
 };
 const clickdetaildesClose = () => {
   clickdetaildes.value = false;
   itemDes.value = "";
+  itemSpecial.value = "";
 };
 
 const customerOpen = ref(false);
@@ -856,16 +866,28 @@ onMounted(async () => {
                         as="h3"
                         class="text-md font-medium leading-6 text-gray-900 mb-5"
                       >
-                        Description
+                        Description & Special Request
                       </DialogTitle>
-                      <div class="grid grid-cols-1 py-4">
+                      <div class="grid grid-cols-1 py-4 space-y-2">
+                        <p class="text-xs">Description</p>
                         <textarea
                           name=""
                           id=""
                           class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
                           cols="30"
-                          rows="10"
+                          rows="5"
                           v-model="formitem.comment"
+                        ></textarea>
+                      </div>
+                      <div class="grid grid-cols-1 py-4 space-y-2">
+                        <p class="text-xs">Special request</p>
+                        <textarea
+                          name=""
+                          id=""
+                          class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                          cols="30"
+                          rows="5"
+                          v-model="formitem.special_request"
                         ></textarea>
                       </div>
                       <div class="flex justify-between items-center">
@@ -905,16 +927,28 @@ onMounted(async () => {
                         as="h3"
                         class="text-md font-medium leading-6 text-gray-900 mb-5"
                       >
-                        Detail Description
+                        Detail Description & Special Request
                       </DialogTitle>
                       <div class="grid grid-cols-1 py-4">
+                        <p class="text-xs">Description</p>
                         <textarea
                           name=""
                           id=""
                           class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
                           cols="30"
-                          rows="10"
+                          rows="5"
                           v-model="itemDes"
+                        ></textarea>
+                      </div>
+                      <div class="grid grid-cols-1 py-4 space-y-2">
+                        <p class="text-xs">Special request</p>
+                        <textarea
+                          name=""
+                          id=""
+                          class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                          cols="30"
+                          rows="5"
+                          v-model="itemSpecial"
                         ></textarea>
                       </div>
                       <div class="flex justify-between items-center">
@@ -945,7 +979,7 @@ onMounted(async () => {
                           <th
                             class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
                           >
-                            Car Type
+                            Variable
                           </th>
 
                           <th
@@ -1308,7 +1342,12 @@ onMounted(async () => {
                           >
                             <button
                               class="text-sm text-blue-600 mr-4"
-                              @click="clickdetaildesToggle(item.comment)"
+                              @click="
+                                clickdetaildesToggle(
+                                  item.comment,
+                                  item.special_request
+                                )
+                              "
                             >
                               <i
                                 class="fa-solid fa-ellipsis text-xs font-semibold px-1 py-[1.5px] bg-blue-500 rounded-full shadow text-white"

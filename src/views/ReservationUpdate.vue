@@ -714,7 +714,7 @@ onMounted(async () => {
               ></textarea>
             </div> -->
             <div class="px-6 space-y-2">
-              <p class="text-gray-400 text-xs">Map Link</p>
+              <p class="text-gray-400 text-xs">Pickup Location</p>
               <textarea
                 class="w-full bg-transparent border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
                 cols="4"

@@ -683,7 +683,7 @@ onMounted(async () => {
             class="bg-gray-200/50 px-3 py-5 space-y-2"
             v-if="other_info_part"
           >
-            <div class="px-6 space-y-2">
+            <div class="px-4 space-y-2">
               <p class="text-gray-400 text-xs">Special Requests</p>
               <textarea
                 class="w-full bg-transparent border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
@@ -701,8 +701,8 @@ onMounted(async () => {
                 v-model="secForm.other_info"
               ></textarea>
             </div> -->
-            <div class="px-2 space-y-2">
-              <p class="text-gray-400 text-xs">Pickup Information</p>
+            <div class="space-y-2 px-4">
+              <p class="text-gray-400 text-xs">Pickup Location Information</p>
               <div class="mapouter">
                 <div class="gmap_canvas">
                   <iframe

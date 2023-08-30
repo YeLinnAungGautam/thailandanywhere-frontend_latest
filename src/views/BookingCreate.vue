@@ -129,8 +129,15 @@ const balance_due = computed(() => {
   ) {
     formData.value.payment_status = "fully_paid";
     return grand_total.value - formData.value.deposit;
-  } else {
-    formData.value.payment_status = "";
+  } else if (
+    grand_total.value - formData.value.deposit != 0 &&
+    formData.value.items.length != 0 &&
+    formData.value.deposit != 0
+  ) {
+    formData.value.payment_status = "partially_paid";
+    return grand_total.value - formData.value.deposit;
+  } else if (formData.value.deposit == 0 && formData.value.items.length != 0) {
+    formData.value.payment_status = "not_paid";
     return grand_total.value - formData.value.deposit;
   }
 });
@@ -193,7 +200,9 @@ const chooseCar = async (id) => {
     console.log(res);
   } else if (formitem.value.product_type == "4") {
     const res = await entranceStore.getDetailAction(id);
-    formitem.value.selling_price = res.result.variations[0].price;
+    console.log(res, "choose");
+    // formitem.value.selling_price = res.result.variations[0].price;
+    carType.value = res.result.variations;
     console.log(res.result.variations[0].price);
   } else if (formitem.value.product_type == "5") {
     const res = await inclusiveStore.getDetailAction(id);
@@ -233,11 +242,15 @@ const chooseCarPrice = async (type, productId, id) => {
     console.log(res);
   } else if (type == "4") {
     const res = await entranceStore.getDetailAction(productId);
-    formitem.value.car_list = res.result.cars;
-    for (i = 0; i < res.result.cars.length; i++) {
-      if (res.result.cars[i].id == id) {
-        formitem.value.selling_price = res.result.cars[i].price;
-        console.log(res.result.cars[i].price);
+    formitem.value.car_list = res.result.variations;
+    // console.log(productId, "product id");
+    // console.log(res, "product id");
+    // console.log(id, "product id id");
+
+    for (let i = 0; i < res.result.variations.length; i++) {
+      if (res.result.variations[i].id == id) {
+        formitem.value.selling_price = res.result.variations[i].price;
+        console.log(res.result.variations[i].price);
       }
     }
     console.log(res);
@@ -361,8 +374,20 @@ const onSubmitHandler = async () => {
     );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append("items[" + x + "][car_id]", formData.value.items[x].car_id);
+    if (formData.value.items[x].product_type != "4") {
+      frmData.append(
+        "items[" + x + "][car_id]",
+        formData.value.items[x].car_id
+      );
+    } else {
+      frmData.append(
+        "items[" + x + "][variation_id]",
+        formData.value.items[x].car_id
+      );
+    }
+    console.log(formData.value.items[x].car_id, "this is variation");
   }
+
   for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][service_date]",
@@ -894,6 +919,23 @@ onMounted(async () => {
                               formitem.product_type == '3'
                             "
                           >
+                            <v-select
+                              v-model="formitem.car_id"
+                              class="style-chooser"
+                              :options="carType"
+                              label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              @option:selected="
+                                chooseCarPrice(
+                                  formitem.product_type,
+                                  formitem.product_id,
+                                  formitem.car_id
+                                )
+                              "
+                            ></v-select>
+                          </div>
+                          <div class="" v-if="formitem.product_type == '4'">
                             <v-select
                               v-model="formitem.car_id"
                               class="style-chooser"

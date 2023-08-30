@@ -80,6 +80,7 @@ const formData = ref({
   quantity: "",
   car_id: "",
   car_name: "",
+  variation_name: "",
   receipt_image: "",
   reservation_status: "",
   selling_price: "",
@@ -89,6 +90,7 @@ const formData = ref({
   cus_contact: "",
   cus_passport: "",
   cus_email: "",
+  receipt_images: [],
 });
 
 const secForm = ref({
@@ -251,12 +253,13 @@ const onSubmitHandler = async () => {
 };
 
 const route_plan = ref("");
+const booking_status = ref("");
 
 const getDetail = async () => {
   try {
     const response = await reservationStore.getDetailAction(route.params.id);
     console.log(response, "this is response");
-
+    booking_status.value = response.result.booking;
     formData.value.duration = response.result.duration;
     secForm.value.special_request = response.result.special_request;
     console.log(secForm.value.special_request, "this is special");
@@ -351,11 +354,18 @@ const getDetail = async () => {
       formData.value.car_id = response.result.car.id;
       formData.value.car_name = response.result.car.name;
     }
+    if (response.result.variation == null) {
+      formData.value.car_id = "";
+      formData.value.car_name = "-";
+    } else if (response.result.variation != null) {
+      formData.value.variation_name = response.result.variation.name;
+    }
     if (response.result.comment == "null") {
       formData.value.comment = "";
     } else {
       formData.value.comment = response.result.comment;
     }
+    formData.value.receipt_images = response.result.booking?.receipts;
     formData.value.product_id = response.result.product_id;
     formData.value.product_type = response.result.product_type;
     formData.value.quantity = response.result.quantity;
@@ -399,6 +409,11 @@ const feedbackHandle = () => {
   feedback_part.value = !feedback_part.value;
 };
 
+const receipt_part = ref(true);
+const receiptHandle = () => {
+  receipt_part.value = !receipt_part.value;
+};
+
 const carInfo_part = ref(true);
 const carInfoPartHandle = () => {
   carInfo_part.value = !carInfo_part.value;
@@ -412,6 +427,11 @@ const routePlanHandle = () => {
 const other_info_part = ref(true);
 const otherInfoHandle = () => {
   other_info_part.value = !other_info_part.value;
+};
+
+const reservation_info_part = ref(true);
+const reservationInfoHandle = () => {
+  reservation_info_part.value = !reservation_info_part.value;
 };
 
 const car_info_sec = ref(true);
@@ -485,12 +505,16 @@ onMounted(async () => {
           >
             <div class="pl-10 space-y-2">
               <p class="text-gray-400 text-xs">Payment Currency</p>
-              <p class="font-semibold text-xs py-1.5">THB</p>
+              <p class="font-semibold text-xs py-1.5">
+                {{ booking_status.payment_currency }}
+              </p>
             </div>
             <div class="pl-10 pr-10 space-y-2">
               <p class="text-gray-400 text-xs">Payment Method:</p>
-              <!-- <p class="font-semibold text-xs">Collect</p> -->
-              <v-select
+              <p class="font-semibold text-xs py-1.5">
+                {{ booking_status.payment_method }}
+              </p>
+              <!-- <v-select
                 v-model="formData.payment_method"
                 class="style-chooser font-semibold text-xs py-1.5"
                 :options="payment"
@@ -498,11 +522,14 @@ onMounted(async () => {
                 :clearable="false"
                 :reduce="(d) => d.name"
                 placeholder=""
-              ></v-select>
+              ></v-select> -->
             </div>
             <div class="pl-10 pr-10 space-y-2">
               <p class="text-gray-400 text-xs">Payment Status</p>
-              <v-select
+              <p class="font-semibold text-xs py-1.5">
+                {{ booking_status.payment_status }}
+              </p>
+              <!-- <v-select
                 v-model="formData.payment_status"
                 class="style-chooser font-semibold text-xs py-1.5"
                 :options="payment_status"
@@ -510,11 +537,14 @@ onMounted(async () => {
                 :clearable="false"
                 :reduce="(d) => d.name"
                 placeholder=""
-              ></v-select>
+              ></v-select> -->
             </div>
             <div class="pl-10 pr-10 space-y-2">
               <p class="text-gray-400 text-xs">Reservation Status</p>
-              <v-select
+              <p class="font-semibold text-xs py-1.5">
+                {{ booking_status.reservation_status }}
+              </p>
+              <!-- <v-select
                 v-model="formData.reservation_status"
                 class="style-chooser font-semibold text-xs py-1.5"
                 :options="reservation_status"
@@ -522,7 +552,7 @@ onMounted(async () => {
                 :clearable="false"
                 :reduce="(d) => d.name"
                 placeholder=""
-              ></v-select>
+              ></v-select> -->
             </div>
             <div class="pl-10 pr-10 space-y-2">
               <p class="text-gray-400 text-xs">Payment Due:</p>
@@ -578,8 +608,30 @@ onMounted(async () => {
             v-if="carInfo_part"
           >
             <div class="pl-10 space-y-2">
-              <p class="text-gray-400 text-xs">Car Type</p>
-              <p class="font-semibold text-xs">{{ formData.car_name }}</p>
+              <p
+                v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+                class="text-gray-400 text-xs"
+              >
+                Variation Type
+              </p>
+              <p
+                v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+                class="text-gray-400 text-xs"
+              >
+                Car Type
+              </p>
+              <p
+                class="font-semibold text-xs"
+                v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+              >
+                {{ formData.variation_name }}
+              </p>
+              <p
+                class="font-semibold text-xs"
+                v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+              >
+                {{ formData.car_name }}
+              </p>
             </div>
             <div class="pl-10 space-y-2">
               <p class="text-gray-400 text-xs">Product</p>
@@ -630,6 +682,21 @@ onMounted(async () => {
               />
             </div>
           </div>
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            @click="receiptHandle"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+            <p>Receipt Images</p>
+          </div>
+          <!-- <div class="grid grid-cols-3 gap-4" v-if="receipt_part">
+            <div v-for="(image, index) in formData.receipt_images" :key="index">
+              <p class="text-xs mb-2 mt-2">Receipt Image {{ index + 1 }}</p>
+              <a :href="image.image" target="_blink">
+                <img :src="image.image" alt="" />
+              </a>
+            </div>
+          </div> -->
           <div class="flex justify-end items-center">
             <button
               v-if="
@@ -653,13 +720,21 @@ onMounted(async () => {
               Update Reservation
             </button>
           </div>
+          <div class="grid grid-cols-3 gap-4" v-if="receipt_part">
+            <div v-for="(image, index) in formData.receipt_images" :key="index">
+              <p class="text-xs mb-2 mt-2">Receipt Image {{ index + 1 }}</p>
+              <a :href="image.image" target="_blink">
+                <img :src="image.image" alt="" />
+              </a>
+            </div>
+          </div>
         </div>
 
         <div class=" ">
           <div
             class="flex justify-start items-center text-xs bg-blue-500 text-white font-semibold px-4 py-2"
           >
-            <p>Add Route Plan</p>
+            <p>Add Reservation Detail</p>
           </div>
           <div
             class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
@@ -807,6 +882,57 @@ onMounted(async () => {
                     ><i class="fa-solid fa-plus text-2xl text-gray-400"></i
                   ></span>
                 </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            @click="reservationInfoHandle"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+            <p>Reservation Information</p>
+          </div>
+          <div
+            class="bg-gray-200/50 px-3 py-5 space-y-2"
+            v-if="reservation_info_part"
+          >
+            <div>
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs">Payment Method:</p>
+                <!-- <p class="font-semibold text-xs">Collect</p> -->
+                <v-select
+                  v-model="formData.payment_method"
+                  class="style-chooser font-semibold text-xs py-1.5"
+                  :options="payment"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.name"
+                  placeholder=""
+                ></v-select>
+              </div>
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs">Payment Status</p>
+                <v-select
+                  v-model="formData.payment_status"
+                  class="style-chooser font-semibold text-xs py-1.5"
+                  :options="payment_status"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.name"
+                  placeholder=""
+                ></v-select>
+              </div>
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs">Reservation Status</p>
+                <v-select
+                  v-model="formData.reservation_status"
+                  class="style-chooser font-semibold text-xs py-1.5"
+                  :options="reservation_status"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.name"
+                  placeholder=""
+                ></v-select>
               </div>
             </div>
           </div>

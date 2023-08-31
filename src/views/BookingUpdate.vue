@@ -397,18 +397,6 @@ const onSubmitHandler = async () => {
       formData.value.items[x].payment_status
     );
   }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][exchange_rate]",
-      formData.value.items[x].exchange_rate
-    );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][cost_price]",
-      formData.value.items[x].cost_price
-    );
-  }
 
   try {
     const response = await bookingStore.updateAction(frmData, route.params.id);

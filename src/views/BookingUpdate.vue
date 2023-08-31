@@ -131,8 +131,15 @@ const balance_due = computed(() => {
   ) {
     formData.value.payment_status = "fully_paid";
     return grand_total.value - formData.value.deposit;
-  } else {
-    formData.value.payment_status = paymentStatus.value;
+  } else if (
+    grand_total.value - formData.value.deposit != 0 &&
+    formData.value.items.length != 0 &&
+    formData.value.deposit != 0
+  ) {
+    formData.value.payment_status = "partially_paid";
+    return grand_total.value - formData.value.deposit;
+  } else if (formData.value.deposit == 0 && formData.value.items.length != 0) {
+    formData.value.payment_status = "not_paid";
     return grand_total.value - formData.value.deposit;
   }
 });
@@ -227,13 +234,15 @@ const removeFeatureSelectImage = () => {
   featureImagePreview.value = null;
 };
 
+const nullData = ref(" ");
+
 const onSubmitHandler = async () => {
   const frmData = new FormData();
   frmData.append("_method", "PUT");
   frmData.append("customer_id", formData.value.customer_id);
   frmData.append("sold_from", formData.value.sold_from);
   frmData.append("payment_method", formData.value.payment_method);
-  frmData.append("special_request", formData.value.special_request);
+  // frmData.append("special_request", formData.value.special_request);
 
   frmData.append("payment_status", formData.value.payment_status);
   frmData.append("booking_date", formData.value.booking_date);
@@ -309,8 +318,31 @@ const onSubmitHandler = async () => {
     );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append("items[" + x + "][car_id]", formData.value.items[x].car_id);
+    if (
+      formData.value.items[x].product_type != "4" &&
+      !formData.value.items[x].variation_id
+    ) {
+      frmData.append(
+        "items[" + x + "][car_id]",
+        formData.value.items[x].car_id
+      );
+    } else if (formData.value.items[x].product_type == "5") {
+      frmData.append("items[" + x + "][car_id]", "0");
+    } else if (formData.value.items[x].product_type == "2") {
+      frmData.append("items[" + x + "][car_id]", "0");
+    } else if (formData.value.items[x].product_type == "4") {
+      frmData.append(
+        "items[" + x + "][variation_id]",
+        formData.value.items[x].car_id
+      );
+    } else if (formData.value.items[x].variation_id != "") {
+      frmData.append(
+        "items[" + x + "][variation_id]",
+        formData.value.items[x].variation_id
+      );
+    }
   }
+
   for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][service_date]",
@@ -327,6 +359,12 @@ const onSubmitHandler = async () => {
     frmData.append(
       "items[" + x + "][duration]",
       formData.value.items[x].duration
+    );
+  }
+  for (var x = 0; x < formData.value.items.length; x++) {
+    frmData.append(
+      "items[" + x + "][special_request]",
+      formData.value.items[x].special_request
     );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
@@ -394,11 +432,13 @@ const onSubmitHandler = async () => {
       special_request: "",
     };
     balance_due.value = "";
+    featureImagePreview.value = "";
 
     errors.value = null;
     toast.success(response.message);
     // router.push("/bookings/update/" + route.params.id);
-    window.location.reload(true);
+    getDetail();
+    // window.location.reload(true);
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
@@ -427,7 +467,9 @@ const chooseCar = async (id) => {
     console.log(res);
   } else if (formitem.value.product_type == "4") {
     const res = await entranceStore.getDetailAction(id);
-    formitem.value.selling_price = res.result.variations[0].price;
+    console.log(res, "choose");
+    // formitem.value.selling_price = res.result.variations[0].price;
+    carType.value = res.result.variations;
     console.log(res.result.variations[0].price);
   } else if (formitem.value.product_type == "5") {
     const res = await inclusiveStore.getDetailAction(id);
@@ -467,21 +509,15 @@ const chooseCarPrice = async (type, productId, id) => {
     console.log(res);
   } else if (type == "4") {
     const res = await entranceStore.getDetailAction(productId);
-    formitem.value.car_list = res.result.cars;
-    for (i = 0; i < res.result.cars.length; i++) {
-      if (res.result.cars[i].id == id) {
-        formitem.value.selling_price = res.result.cars[i].price;
-        console.log(res.result.cars[i].price);
-      }
-    }
-    console.log(res);
-  } else if (type == "5") {
-    const res = await inclusiveStore.getDetailAction(productId);
-    formitem.value.car_list = res.result.cars;
-    for (i = 0; i < res.result.cars.length; i++) {
-      if (res.result.cars[i].id == id) {
-        formitem.value.selling_price = res.result.cars[i].price;
-        console.log(res.result.cars[i].price);
+    formitem.value.car_list = res.result.variations;
+    // console.log(productId, "product id");
+    // console.log(res, "product id");
+    // console.log(id, "product id id");
+
+    for (let i = 0; i < res.result.variations.length; i++) {
+      if (res.result.variations[i].id == id) {
+        formitem.value.selling_price = res.result.variations[i].price;
+        console.log(res.result.variations[i].price);
       }
     }
     console.log(res);
@@ -492,7 +528,7 @@ const paymentStatus = ref("");
 const getDetail = async () => {
   try {
     const response = await bookingStore.getDetailAction(route.params.id);
-    console.log(response, "this is response");
+    console.log(response, "this is response get");
     formData.value.customer_id = response.result.customer.id;
     formData.value.sold_from = response.result.sold_from;
     formData.value.payment_method = response.result.payment_method;
@@ -528,12 +564,19 @@ const getDetail = async () => {
         car_id: response.result.items[x].car
           ? response.result.items[x].car.id
           : "",
+        variation_id: response.result.items[x].variation
+          ? response.result.items[x].variation.id
+          : "",
         car_name: response.result.items[x].car
           ? response.result.items[x].car.name
+          : "",
+        variation_name: response.result.items[x].variation
+          ? response.result.items[x].variation.name
           : "",
       };
       formData.value.items.push(itemData);
     }
+    console.log(formData.value.items, "this is formData");
     loadingState.value = false;
   } catch (error) {
     console.log(error);
@@ -1057,6 +1100,23 @@ onMounted(async () => {
                                 "
                               ></v-select>
                             </div>
+                            <div class="" v-if="formitem.product_type == '4'">
+                              <v-select
+                                v-model="formitem.car_id"
+                                class="style-chooser"
+                                :options="carType"
+                                label="name"
+                                :clearable="false"
+                                :reduce="(d) => d.id"
+                                @option:selected="
+                                  chooseCarPrice(
+                                    formitem.product_type,
+                                    formitem.product_id,
+                                    formitem.car_id
+                                  )
+                                "
+                              ></v-select>
+                            </div>
                           </td>
                           <td
                             class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
@@ -1315,7 +1375,10 @@ onMounted(async () => {
                             <p v-if="item.car_id && item.car_name">
                               {{ item.car_name }}
                             </p>
-                            <p v-if="!item.car_id">-</p>
+                            <p v-if="item.variation_name">
+                              {{ item.variation_name }}
+                            </p>
+                            <p v-if="!item.car_id && !item.variation_name">-</p>
                           </td>
                           <td
                             class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"

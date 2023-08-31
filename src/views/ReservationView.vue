@@ -260,7 +260,17 @@ const getDetail = async () => {
     console.log(response, "this is response");
     booking_status.value = response.result.booking;
     formData.value.duration = response.result.duration;
-    secForm.value.special_request = response.result.special_request;
+    if (response.result.reservation_info) {
+      if (response.result.reservation_info.special_request != null) {
+        secForm.value.special_request =
+          response.result.reservation_info.special_request;
+      }
+    } else if (
+      response.result.special_request &&
+      !response.result.reservation_info
+    ) {
+      secForm.value.special_request = response.result.special_request;
+    }
     console.log(secForm.value.special_request, "this is special");
     if (response.result.product_type != "App\\Models\\Inclusive") {
       if (response.result.product.name != null) {
@@ -356,8 +366,7 @@ const getDetail = async () => {
       formData.value.car_name = response.result.car.name;
     }
     if (response.result.variation == null) {
-      formData.value.car_id = "";
-      formData.value.car_name = "-";
+      formData.value.variation_name = "";
     } else if (response.result.variation != null) {
       formData.value.variation_name = response.result.variation.name;
     }

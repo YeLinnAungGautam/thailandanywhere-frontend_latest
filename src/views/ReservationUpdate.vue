@@ -167,13 +167,15 @@ const handlerConfirmFileChange = (e) => {
 const onSubmitHandler = async () => {
   const frmData = new FormData();
   frmData.append("_method", "PUT");
-  frmData.append("duration", formData.value.duration);
+  if (formData.value.duration) {
+    frmData.append("duration", formData.value.duration);
+  }
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("payment_status", formData.value.payment_status);
-  // frmData.append("product_id", formData.value.comment);
+
   frmData.append("product_type", formData.value.product_type);
   frmData.append("quantity", formData.value.quantity);
-  frmData.append("receipt_image", formData.value.receipt_image);
+  // frmData.append("receipt_image", formData.value.receipt_image);
   frmData.append("reservation_status", formData.value.reservation_status);
   frmData.append("selling_price", formData.value.selling_price);
   frmData.append("service_date", formData.value.service_date);
@@ -187,17 +189,39 @@ const onSubmitHandler = async () => {
     if (response.status) {
       const secfrm = new FormData();
       secfrm.append("_method", "PUT");
-      secfrm.append("customer_feedback", secForm.value.customer_feedback);
-      secfrm.append("customer_score", secForm.value.customer_score);
+      if (secForm.value.customer_feedback) {
+        secfrm.append("customer_feedback", secForm.value.customer_feedback);
+      }
+      if (secForm.value.customer_score) {
+        secfrm.append("customer_score", secForm.value.customer_score);
+      }
+
       secfrm.append("special_request", secForm.value.special_request);
-      secfrm.append("other_info", secForm.value.other_info);
-      secfrm.append("pickup_location", secForm.value.pickup_location);
-      secfrm.append("route_plan", secForm.value.route_plan);
-      secfrm.append("supplier_name", secForm.value.supplier_name);
-      secfrm.append("driver_name", secForm.value.driver_name);
-      secfrm.append("driver_contact", secForm.value.driver_contact);
-      secfrm.append("car_number", secForm.value.car_number);
-      secfrm.append("car_photo", secForm.value.car_photo);
+
+      if (secForm.value.other_info) {
+        secfrm.append("other_info", secForm.value.other_info);
+      }
+      if (secForm.value.pickup_location) {
+        secfrm.append("pickup_location", secForm.value.pickup_location);
+      }
+      if (secForm.value.route_plan) {
+        secfrm.append("route_plan", secForm.value.route_plan);
+      }
+      if (secForm.value.supplier_name) {
+        secfrm.append("supplier_name", secForm.value.supplier_name);
+      }
+      if (secForm.value.driver_name) {
+        secfrm.append("driver_name", secForm.value.driver_name);
+      }
+      if (secForm.value.driver_contact) {
+        secfrm.append("driver_contact", secForm.value.driver_contact);
+      }
+      if (secForm.value.car_number) {
+        secfrm.append("car_number", secForm.value.car_number);
+      }
+      if (secForm.value.car_photo) {
+        secfrm.append("car_photo", secForm.value.car_photo);
+      }
       await reservationStore.updateInfoAction(secfrm, route.params.id);
     }
     formData.value = {
@@ -261,7 +285,17 @@ const getDetail = async () => {
     console.log(response, "this is response");
     booking_status.value = response.result.booking;
     formData.value.duration = response.result.duration;
-    secForm.value.special_request = response.result.special_request;
+    if (response.result.reservation_info) {
+      if (response.result.reservation_info.special_request != null) {
+        secForm.value.special_request =
+          response.result.reservation_info.special_request;
+      }
+    } else if (
+      response.result.special_request &&
+      !response.result.reservation_info
+    ) {
+      secForm.value.special_request = response.result.special_request;
+    }
     console.log(secForm.value.special_request, "this is special");
     if (response.result.product_type != "App\\Models\\Inclusive") {
       if (response.result.product.name != null) {
@@ -354,9 +388,9 @@ const getDetail = async () => {
       formData.value.car_id = response.result.car.id;
       formData.value.car_name = response.result.car.name;
     }
+    console.log(formData.value.car_name, "this is car name");
     if (response.result.variation == null) {
-      formData.value.car_id = "";
-      formData.value.car_name = "-";
+      formData.value.variation_name = "";
     } else if (response.result.variation != null) {
       formData.value.variation_name = response.result.variation.name;
     }

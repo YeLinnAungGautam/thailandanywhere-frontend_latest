@@ -573,21 +573,7 @@ onMounted(async () => {
                 placeholder=""
               ></v-select> -->
             </div>
-            <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Reservation Status</p>
-              <p class="font-semibold text-xs py-1.5">
-                {{ booking_status.reservation_status }}
-              </p>
-              <!-- <v-select
-                v-model="formData.reservation_status"
-                class="style-chooser font-semibold text-xs py-1.5"
-                :options="reservation_status"
-                label="name"
-                :clearable="false"
-                :reduce="(d) => d.name"
-                placeholder=""
-              ></v-select> -->
-            </div>
+
             <div class="pl-10 pr-10 space-y-2">
               <p class="text-gray-400 text-xs">Payment Due:</p>
               <!-- <p class="font-semibold text-xs">09/08/2023</p> -->
@@ -635,7 +621,18 @@ onMounted(async () => {
             @click="carInfoPartHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
-            <p>Car Infomation</p>
+            <p
+              v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+              class=""
+            >
+              Ticket Information
+            </p>
+            <p
+              v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+              class=""
+            >
+              Car Information
+            </p>
           </div>
           <div
             class="grid grid-cols-2 gap-4 bg-gray-200/50 py-4"
@@ -723,14 +720,17 @@ onMounted(async () => {
             <i class="fa-solid fa-angle-down"></i>
             <p>Receipt Images</p>
           </div>
-          <!-- <div class="grid grid-cols-3 gap-4" v-if="receipt_part">
+          <div
+            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
+            v-if="receipt_part"
+          >
             <div v-for="(image, index) in formData.receipt_images" :key="index">
               <p class="text-xs mb-2 mt-2">Receipt Image {{ index + 1 }}</p>
               <a :href="image.image" target="_blink">
                 <img :src="image.image" alt="" />
               </a>
             </div>
-          </div> -->
+          </div>
           <div class="flex justify-end items-center">
             <button
               v-if="
@@ -753,14 +753,6 @@ onMounted(async () => {
             >
               Update Reservation
             </button>
-          </div>
-          <div class="grid grid-cols-3 gap-4" v-if="receipt_part">
-            <div v-for="(image, index) in formData.receipt_images" :key="index">
-              <p class="text-xs mb-2 mt-2">Receipt Image {{ index + 1 }}</p>
-              <a :href="image.image" target="_blink">
-                <img :src="image.image" alt="" />
-              </a>
-            </div>
           </div>
         </div>
 

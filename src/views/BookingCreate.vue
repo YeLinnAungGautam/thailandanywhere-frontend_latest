@@ -42,19 +42,54 @@ const { entrances } = storeToRefs(entranceStore);
 const { isOpenCustomerCreate } = storeToRefs(sidebar);
 
 const soldFrom = [
-  { id: "1", name: "Facebook" },
-  { id: "2", name: "Twitter" },
-  { id: "3", name: "Instagram" },
-  { id: "4", name: "Telegram" },
+  { id: "1", name: "Viber" },
+  { id: "2", name: "Phone" },
 ];
-const payment = [
+const payment_mm = [
   { id: "1", name: "KPAY" },
   { id: "2", name: "AYAPAY" },
   { id: "3", name: "CBPAY" },
   { id: "4", name: "KBZ BANKING" },
   { id: "5", name: "CB BANKING" },
   { id: "6", name: "MAB BANKING" },
+  { id: "7", name: "YOMA BANK" },
 ];
+const payment_thb = [
+  { id: "1", name: "Kasikorn" },
+  { id: "2", name: "Bangkok Bank" },
+  { id: "3", name: "Bank of Ayudhaya" },
+  { id: "4", name: "SCB Bank" },
+  { id: "5", name: "Others..." },
+];
+
+const payment_usd = [
+  { id: "1", name: "KPAY" },
+  { id: "2", name: "AYAPAY" },
+  { id: "3", name: "CBPAY" },
+  { id: "4", name: "KBZ BANKING" },
+  { id: "5", name: "CB BANKING" },
+  { id: "6", name: "MAB BANKING" },
+  { id: "7", name: "YOMA BANK" },
+  { id: "8", name: "Kasikorn" },
+  { id: "9", name: "Bangkok Bank" },
+  { id: "10", name: "Bank of Ayudhaya" },
+  { id: "11", name: "SCB Bank" },
+  { id: "12", name: "Others..." },
+];
+
+const payment = ref([]);
+
+const choosePaymentBank = () => {
+  console.log(formData.value.payment_currency);
+  if (formData.value.payment_currency == "MMK") {
+    payment.value = payment_mm;
+  } else if (formData.value.payment_currency == "THB") {
+    payment.value = payment_thb;
+  } else {
+    payment.value = payment_usd;
+  }
+};
+// Kasikorn, Bangkok Bank, Bank of Ayudhaya, SCB Bank , Others
 const payment_status = [
   { id: "1", name: "fully_paid" },
   { id: "2", name: "not_paid" },
@@ -109,6 +144,13 @@ const sub_total = computed(() => {
   return totalsub;
 });
 
+const sub_qty_total = computed(() => {
+  let totalsub = 0;
+  totalsub = formitem.value.quantity * formitem.value.selling_price;
+  formitem.value.total_amount = totalsub;
+  return totalsub;
+});
+
 const grand_total = computed(() => {
   // console.log(sub_total.value, formData.value.discount);
   if (formData.value.discount.trim().endsWith("%")) {
@@ -158,6 +200,7 @@ const formitem = ref({
   exchange_rate: "",
   cost_price: "",
   special_request: "",
+  total_amount: "",
 });
 const productList = ref([]);
 const chooseType = async () => {
@@ -265,7 +308,7 @@ const addNewitem = () => {
     service_date: "",
     car_id: "",
     car_list: [],
-    quantity: "",
+    quantity: "1",
     duration: "",
     selling_price: "",
     comment: "",
@@ -275,6 +318,7 @@ const addNewitem = () => {
     exchange_rate: "",
     cost_price: "",
     special_request: "",
+    total_amount: "",
   };
   todayVali.value = false;
   addToggle();
@@ -519,11 +563,22 @@ const closedes = () => {
 };
 const clickdetaildes = ref(false);
 const itemDes = ref();
-const clickdetaildesToggle = (a, b) => {
+const clickdetaildesToggle = (a, b, index) => {
+  console.log(a, b, index);
   clickdetaildes.value = true;
   itemDes.value = a;
   itemSpecial.value = b;
+  indexValue.value = index;
 };
+
+const indexValue = ref("");
+
+const clickdetaildesUpdate = (x) => {
+  formData.value.items[x].comment = itemDes.value;
+  formData.value.items[x].special_request = itemSpecial.value;
+  clickdetaildes.value = false;
+};
+
 const itemSpecial = ref("");
 
 const clickdetaildesClose = () => {
@@ -625,6 +680,25 @@ onMounted(async () => {
                   :reduce="(d) => d.name"
                 ></v-select>
               </div>
+
+              <div>
+                <p class="text-blue-400 text-xs mb-2">Payment Currency</p>
+                <v-select
+                  v-model="formData.payment_currency"
+                  class="style-chooser"
+                  :class="{
+                    'bg-white rounded-lg': formData.payment_currency !== '',
+                  }"
+                  :options="payment_currency"
+                  @option:selected="choosePaymentBank"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.name"
+                ></v-select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
               <div class="">
                 <p class="text-blue-400 text-xs mb-2">Payment Method</p>
                 <v-select
@@ -639,23 +713,6 @@ onMounted(async () => {
                   :reduce="(d) => d.name"
                 ></v-select>
               </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <p class="text-blue-400 text-xs mb-2">Payment Currency</p>
-                <v-select
-                  v-model="formData.payment_currency"
-                  class="style-chooser"
-                  :class="{
-                    'bg-white rounded-lg': formData.payment_currency !== '',
-                  }"
-                  :options="payment_currency"
-                  label="name"
-                  :clearable="false"
-                  :reduce="(d) => d.name"
-                ></v-select>
-              </div>
               <div>
                 <p class="text-blue-400 text-xs mb-2">Payment Status</p>
                 <v-select
@@ -665,6 +722,7 @@ onMounted(async () => {
                     'bg-white rounded-lg': formData.payment_status !== '',
                   }"
                   :options="payment_status"
+                  disabled
                   label="name"
                   :clearable="false"
                   :reduce="(d) => d.name"
@@ -833,6 +891,12 @@ onMounted(async () => {
                       <button @click="clickdetaildesClose" class="text-sm">
                         close
                       </button>
+                      <button
+                        @click="clickdetaildesUpdate(indexValue)"
+                        class="text-sm px-2 py-1 bg-blue-500 text-white rounded"
+                      >
+                        update
+                      </button>
                     </div>
                   </DialogPanel>
                 </Modal>
@@ -984,7 +1048,8 @@ onMounted(async () => {
                         <td
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
                         >
-                          <p>{{ formitem.selling_price }}</p>
+                          <!-- <p>{{ formitem.selling_price }}</p> -->
+                          <p>{{ sub_qty_total }}</p>
                         </td>
 
                         <td
@@ -1144,7 +1209,7 @@ onMounted(async () => {
                         <td
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
                         >
-                          <p>{{ item.selling_price }}</p>
+                          <p>{{ item.selling_price * item.quantity }}</p>
                         </td>
 
                         <td
@@ -1155,7 +1220,8 @@ onMounted(async () => {
                             @click="
                               clickdetaildesToggle(
                                 item.comment,
-                                item.special_request
+                                item.special_request,
+                                index
                               )
                             "
                           >

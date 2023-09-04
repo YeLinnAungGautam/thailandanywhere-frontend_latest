@@ -7,6 +7,12 @@
       >
         <Bars3Icon class="w-6 h-6" />
       </button>
+      <p
+        class="bg-white/60 p-2 rounded-md shadow cursor-pointer"
+        @click="goBack()"
+      >
+        <ArrowUturnLeftIcon class="w-6 h-6" />
+      </p>
       <p class="text-sm font-poppins text-blue-500 font-medium">
         Welcome back, {{ authStore.user.name.split(" ")[0] }} !
       </p>
@@ -76,6 +82,7 @@ import {
   MagnifyingGlassIcon,
   // BellIcon,
   Bars3Icon,
+  ArrowUturnLeftIcon,
 } from "@heroicons/vue/24/outline";
 import { useSidebarStore } from "../stores/sidebar";
 import { useAuthStore } from "../stores/auth";
@@ -100,6 +107,10 @@ const logoutHandler = async () => {
   } catch (error) {
     console.log(error);
   }
+};
+
+const goBack = () => {
+  router.go(-1);
 };
 </script>
 

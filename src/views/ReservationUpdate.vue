@@ -44,9 +44,18 @@ const soldFrom = [
   { id: "4", name: "Telegram" },
 ];
 const payment = [
-  { id: "1", name: "K+" },
-  { id: "2", name: "SCB" },
-  { id: "3", name: "Bankok Bank" },
+  { id: "1", name: "KPAY" },
+  { id: "2", name: "AYAPAY" },
+  { id: "3", name: "CBPAY" },
+  { id: "4", name: "KBZ BANKING" },
+  { id: "5", name: "CB BANKING" },
+  { id: "6", name: "MAB BANKING" },
+  { id: "7", name: "YOMA BANK" },
+  { id: "8", name: "Kasikorn" },
+  { id: "9", name: "Bangkok Bank" },
+  { id: "10", name: "Bank of Ayudhaya" },
+  { id: "11", name: "SCB Bank" },
+  { id: "12", name: "Others..." },
 ];
 const payment_status = [
   { id: "1", name: "fully_paid" },
@@ -733,21 +742,6 @@ onMounted(async () => {
           </div>
           <div class="flex justify-end items-center">
             <button
-              v-if="
-                !formData.payment_method ||
-                !formData.payment_status ||
-                !formData.reservation_status
-              "
-              class="my-10 px-4 py-2 bg-gray-500 text-white hover:bg-gray-500 shadow"
-            >
-              Update Reservation
-            </button>
-            <button
-              v-if="
-                formData.payment_method &&
-                formData.payment_status &&
-                formData.reservation_status
-              "
               @click.prevent="onSubmitHandler"
               class="my-10 px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 shadow"
             >

@@ -105,6 +105,7 @@ const secForm = ref({
   car_number: "",
   car_photo: "",
   pickup_location: "",
+  dropoff_location: "",
   route_plan: "",
 });
 
@@ -254,7 +255,7 @@ const onSubmitHandler = async () => {
 };
 
 const route_plan = ref("");
-
+const dropoff_location = ref("");
 const booking_status = ref("");
 
 const getDetail = async () => {
@@ -274,7 +275,7 @@ const getDetail = async () => {
     ) {
       secForm.value.special_request = response.result.special_request;
     }
-    console.log(secForm.value.special_request, "this is special");
+    // console.log(secForm.value.special_request, "this is special");
     if (response.result.product_type != "App\\Models\\Inclusive") {
       if (response.result.product.name != null) {
         formData.value.product_name = response.result.product.name;
@@ -286,27 +287,30 @@ const getDetail = async () => {
     formData.value.cus_contact = response.result.customer_info.phone_number;
     formData.value.cus_passport = response.result.customer_info.nrc_number;
     formData.value.cus_email = response.result.customer_info.email;
-    if (response.result.reservation_info != null) {
-      secForm.value.route_plan = response.result.reservation_info.route_plan;
+    if (response.result.route_plan) {
+      secForm.value.route_plan = response.result.route_plan;
       updateArray();
     } else if (response.result.product_type === "App\\Models\\PrivateVanTour") {
       secForm.value.route_plan = response.result.product.description;
       updateArray();
     }
-    console.log(secForm.value.route_plan);
+    secForm.value.pickup_location = response.result.pickup_location;
+    secForm.value.dropoff_location = response.result.dropoff_location;
+    console.log(secForm.value.pickup_location, "this is pickup");
     if (response.result.reservation_info != null) {
       secForm.value.customer_feedback =
         response.result.reservation_info.customer_feedback;
       secForm.value.customer_score =
         response.result.reservation_info.customer_score;
       secForm.value.route_plan = response.result.reservation_info.route_plan;
+      updateArray();
       secForm.value.other_info = response.result.reservation_info.other_info;
       secForm.value.pickup_location =
         response.result.reservation_info.pickup_location;
     } else {
       secForm.value.customer_feedback = "";
       secForm.value.customer_score = "";
-      secForm.value.pickup_location = "";
+
       secForm.value.other_info = "";
     }
 
@@ -368,6 +372,7 @@ const getDetail = async () => {
       formData.value.car_id = response.result.car.id;
       formData.value.car_name = response.result.car.name;
     }
+    console.log(formData.value.car_name, "this is car name");
     if (response.result.variation == null) {
       formData.value.variation_name = "";
     } else if (response.result.variation != null) {

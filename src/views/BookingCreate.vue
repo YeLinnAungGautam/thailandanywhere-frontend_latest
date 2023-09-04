@@ -201,6 +201,9 @@ const formitem = ref({
   cost_price: "",
   special_request: "",
   total_amount: "",
+  pickup_location: "",
+  dropoff_location: "",
+  route_plan: "",
 });
 const productList = ref([]);
 const chooseType = async () => {
@@ -319,6 +322,9 @@ const addNewitem = () => {
     cost_price: "",
     special_request: "",
     total_amount: "",
+    route_plan: "",
+    pickup_location: "",
+    dropoff_location: "",
   };
   todayVali.value = false;
   addToggle();
@@ -415,6 +421,24 @@ const onSubmitHandler = async () => {
     frmData.append(
       "items[" + x + "][product_id]",
       formData.value.items[x].product_id
+    );
+  }
+  for (var x = 0; x < formData.value.items.length; x++) {
+    frmData.append(
+      "items[" + x + "][pickup_location]",
+      formData.value.items[x].pickup_location
+    );
+  }
+  for (var x = 0; x < formData.value.items.length; x++) {
+    frmData.append(
+      "items[" + x + "][dropoff_location]",
+      formData.value.items[x].dropoff_location
+    );
+  }
+  for (var x = 0; x < formData.value.items.length; x++) {
+    frmData.append(
+      "items[" + x + "][route_plan]",
+      formData.value.items[x].route_plan
     );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
@@ -563,19 +587,30 @@ const closedes = () => {
 };
 const clickdetaildes = ref(false);
 const itemDes = ref();
-const clickdetaildesToggle = (a, b, index) => {
+const clickdetaildesToggle = (a, b, c, d, index, t, r) => {
   console.log(a, b, index);
   clickdetaildes.value = true;
   itemDes.value = a;
   itemSpecial.value = b;
+  itemPickup.value = c;
+  itemDropoff.value = d;
   indexValue.value = index;
+  itemType.value = t;
+  itemRoutePlan.value = r;
 };
+const itemType = ref("");
+const itemRoutePlan = ref("");
 
 const indexValue = ref("");
+const itemPickup = ref("");
+const itemDropoff = ref("");
 
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
   formData.value.items[x].special_request = itemSpecial.value;
+  formData.value.items[x].pickup_location = itemPickup.value;
+  formData.value.items[x].dropoff_location = itemDropoff.value;
+  formData.value.items[x].route_plan = itemRoutePlan.value;
   clickdetaildes.value = false;
 };
 
@@ -585,6 +620,8 @@ const clickdetaildesClose = () => {
   clickdetaildes.value = false;
   itemDes.value = "";
   itemSpecial.value = "";
+  itemPickup.value = "";
+  itemDropoff.value = "";
 };
 
 const customerOpen = ref(false);
@@ -796,7 +833,7 @@ onMounted(async () => {
               <div class="col-span-1">
                 <Modal :isOpen="desopen" @closeModal="desopen = false">
                   <DialogPanel
-                    class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+                    class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all space-y-2"
                   >
                     <DialogTitle
                       as="h3"
@@ -804,7 +841,7 @@ onMounted(async () => {
                     >
                       Description & Special Request
                     </DialogTitle>
-                    <div class="grid grid-cols-1 py-4 space-y-2">
+                    <div class="grid grid-cols-1 space-y-2">
                       <p class="text-xs">Description</p>
                       <textarea
                         name=""
@@ -815,7 +852,7 @@ onMounted(async () => {
                         v-model="formitem.comment"
                       ></textarea>
                     </div>
-                    <div class="grid grid-cols-1 py-4 space-y-2">
+                    <div class="grid grid-cols-1 space-y-2">
                       <p class="text-xs">Special request</p>
                       <textarea
                         name=""
@@ -824,6 +861,57 @@ onMounted(async () => {
                         cols="30"
                         rows="5"
                         v-model="formitem.special_request"
+                      ></textarea>
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="
+                        formitem.product_type == '1' ||
+                        formitem.product_type == '3'
+                      "
+                    >
+                      <p class="text-xs">Pickup Location</p>
+                      <textarea
+                        name=""
+                        id=""
+                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        cols="30"
+                        rows="1"
+                        v-model="formitem.pickup_location"
+                      ></textarea>
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="
+                        formitem.product_type == '1' ||
+                        formitem.product_type == '3'
+                      "
+                    >
+                      <p class="text-xs">Dropoff Location</p>
+                      <textarea
+                        name=""
+                        id=""
+                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        cols="30"
+                        rows="1"
+                        v-model="formitem.dropoff_location"
+                      ></textarea>
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="
+                        formitem.product_type == '1' ||
+                        formitem.product_type == '3'
+                      "
+                    >
+                      <p class="text-xs">Route Plan</p>
+                      <textarea
+                        name=""
+                        id=""
+                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        cols="30"
+                        rows="1"
+                        v-model="formitem.route_plan"
                       ></textarea>
                     </div>
                     <div class="flex justify-between items-center">
@@ -857,7 +945,7 @@ onMounted(async () => {
                   @closeModal="clickdetaildesToggle = false"
                 >
                   <DialogPanel
-                    class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+                    class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all space-y-2"
                   >
                     <DialogTitle
                       as="h3"
@@ -865,7 +953,7 @@ onMounted(async () => {
                     >
                       Detail Description & Special Request
                     </DialogTitle>
-                    <div class="grid grid-cols-1 py-4 space-y-2">
+                    <div class="grid grid-cols-1 space-y-2">
                       <p class="text-sm">Description</p>
                       <textarea
                         name=""
@@ -876,7 +964,7 @@ onMounted(async () => {
                         v-model="itemDes"
                       ></textarea>
                     </div>
-                    <div class="grid grid-cols-1 py-4 space-y-2">
+                    <div class="grid grid-cols-1 space-y-2">
                       <p class="text-sm">Special Request</p>
                       <textarea
                         name=""
@@ -885,6 +973,48 @@ onMounted(async () => {
                         cols="30"
                         rows="5"
                         v-model="itemSpecial"
+                      ></textarea>
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="itemType == '1' || itemType == '3'"
+                    >
+                      <p class="text-sm">Pickup Location</p>
+                      <textarea
+                        name=""
+                        id=""
+                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        cols="30"
+                        rows="1"
+                        v-model="itemPickup"
+                      ></textarea>
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="itemType == '1' || itemType == '3'"
+                    >
+                      <p class="text-sm">Dropoff Location</p>
+                      <textarea
+                        name=""
+                        id=""
+                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        cols="30"
+                        rows="1"
+                        v-model="itemDropoff"
+                      ></textarea>
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="itemType == '1' || itemType == '3'"
+                    >
+                      <p class="text-sm">Route Plan</p>
+                      <textarea
+                        name=""
+                        id=""
+                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        cols="30"
+                        rows="1"
+                        v-model="itemRoutePlan"
                       ></textarea>
                     </div>
                     <div class="flex justify-between items-center">
@@ -1221,7 +1351,11 @@ onMounted(async () => {
                               clickdetaildesToggle(
                                 item.comment,
                                 item.special_request,
-                                index
+                                item.pickup_location,
+                                item.dropoff_location,
+                                index,
+                                item.product_type,
+                                item.route_plan
                               )
                             "
                           >

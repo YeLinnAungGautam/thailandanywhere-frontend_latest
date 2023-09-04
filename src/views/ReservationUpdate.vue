@@ -44,18 +44,9 @@ const soldFrom = [
   { id: "4", name: "Telegram" },
 ];
 const payment = [
-  { id: "1", name: "KPAY" },
-  { id: "2", name: "AYAPAY" },
-  { id: "3", name: "CBPAY" },
-  { id: "4", name: "KBZ BANKING" },
-  { id: "5", name: "CB BANKING" },
-  { id: "6", name: "MAB BANKING" },
-  { id: "7", name: "YOMA BANK" },
-  { id: "8", name: "Kasikorn" },
-  { id: "9", name: "Bangkok Bank" },
-  { id: "10", name: "Bank of Ayudhaya" },
-  { id: "11", name: "SCB Bank" },
-  { id: "12", name: "Others..." },
+  { id: "1", name: "K + " },
+  { id: "2", name: "SCB " },
+  { id: "3", name: "Bangkok Bank" },
 ];
 const payment_status = [
   { id: "1", name: "fully_paid" },

@@ -7,7 +7,7 @@
       <div class="flex w-full items-center justify-between px-[20px]">
         <div class="flex items-center">
           <h3 class="text-sm font-medium md:text-sm lg:text-base">
-            <img src="../../public/logo.jpg" class="w-10 h-10 rounded" alt="" />
+            <img src="../../public/logo.jpeg" class="w-10 h-10 rounded" alt="" />
           </h3>
           <p class="ml-2 font-medium tracking-wide text-gray-600 text-md">
             Thailand Anywhere
@@ -29,6 +29,28 @@
           <div>
             <SidebarItem name="Dashboard" :icon="Squares2X2Icon" to="/" />
             <SidebarItem
+              name="Sales"
+              :icon="CalendarIcon"
+              to="/bookings"
+              :activePaths="[
+                'bookings',
+                'bookings_create',
+                'edit_bookings',
+                'update_bookings',
+              ]"
+            />
+            <SidebarItem
+              name="Reservation"
+              :icon="DocumentCheckIcon"
+              to="/reservation"
+              :activePaths="[
+                'reservation',
+                'reservationupdate',
+                'customersupdate',
+              ]"
+            />
+
+            <SidebarItem
               name="Products"
               :icon="ArchiveBoxIcon"
               :activePaths="[
@@ -49,6 +71,12 @@
               ]"
               to="/products/page"
             />
+
+            <SidebarItem
+              name="Database"
+              :icon="CircleStackIcon"
+              to="/database"
+            />
             <!-- <SidebarItem
               name="Sales"
               :icon="PresentationChartBarIcon"
@@ -62,17 +90,7 @@
               to="/blogs"
               :activePaths="['new_blog']"
             />
-            <SidebarItem
-              name="Sales"
-              :icon="CalendarIcon"
-              to="/bookings"
-              :activePaths="[
-                'bookings',
-                'bookings_create',
-                'edit_bookings',
-                'update_bookings',
-              ]"
-            />
+
             <SidebarItem
               name="Customers"
               :icon="UsersIcon"
@@ -84,21 +102,6 @@
               name="Calendar"
               :icon="CalendarDaysIcon"
               to="/calendar"
-            />
-            <SidebarItem
-              name="Reservation"
-              :icon="DocumentCheckIcon"
-              to="/reservation"
-              :activePaths="[
-                'reservation',
-                'reservationupdate',
-                'customersupdate',
-              ]"
-            />
-            <SidebarItem
-              name="Database"
-              :icon="CircleStackIcon"
-              to="/database"
             />
           </div>
           <!-- <div>

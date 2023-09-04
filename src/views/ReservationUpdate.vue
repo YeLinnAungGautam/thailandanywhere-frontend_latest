@@ -44,9 +44,9 @@ const soldFrom = [
   { id: "4", name: "Telegram" },
 ];
 const payment = [
-  { id: "1", name: "K+" },
-  { id: "2", name: "SCB" },
-  { id: "3", name: "Bankok Bank" },
+  { id: "1", name: "K + " },
+  { id: "2", name: "SCB " },
+  { id: "3", name: "Bangkok Bank" },
 ];
 const payment_status = [
   { id: "1", name: "fully_paid" },
@@ -733,21 +733,6 @@ onMounted(async () => {
           </div>
           <div class="flex justify-end items-center">
             <button
-              v-if="
-                !formData.payment_method ||
-                !formData.payment_status ||
-                !formData.reservation_status
-              "
-              class="my-10 px-4 py-2 bg-gray-500 text-white hover:bg-gray-500 shadow"
-            >
-              Update Reservation
-            </button>
-            <button
-              v-if="
-                formData.payment_method &&
-                formData.payment_status &&
-                formData.reservation_status
-              "
               @click.prevent="onSubmitHandler"
               class="my-10 px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 shadow"
             >

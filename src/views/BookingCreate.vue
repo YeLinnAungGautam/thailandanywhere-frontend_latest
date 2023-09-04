@@ -42,19 +42,54 @@ const { entrances } = storeToRefs(entranceStore);
 const { isOpenCustomerCreate } = storeToRefs(sidebar);
 
 const soldFrom = [
-  { id: "1", name: "Facebook" },
-  { id: "2", name: "Twitter" },
-  { id: "3", name: "Instagram" },
-  { id: "4", name: "Telegram" },
+  { id: "1", name: "Viber" },
+  { id: "2", name: "Phone" },
 ];
-const payment = [
+const payment_mm = [
   { id: "1", name: "KPAY" },
   { id: "2", name: "AYAPAY" },
   { id: "3", name: "CBPAY" },
   { id: "4", name: "KBZ BANKING" },
   { id: "5", name: "CB BANKING" },
   { id: "6", name: "MAB BANKING" },
+  { id: "7", name: "YOMA BANK" },
 ];
+const payment_thb = [
+  { id: "1", name: "Kasikorn" },
+  { id: "2", name: "Bangkok Bank" },
+  { id: "3", name: "Bank of Ayudhaya" },
+  { id: "4", name: "SCB Bank" },
+  { id: "5", name: "Others..." },
+];
+
+const payment_usd = [
+  { id: "1", name: "KPAY" },
+  { id: "2", name: "AYAPAY" },
+  { id: "3", name: "CBPAY" },
+  { id: "4", name: "KBZ BANKING" },
+  { id: "5", name: "CB BANKING" },
+  { id: "6", name: "MAB BANKING" },
+  { id: "7", name: "YOMA BANK" },
+  { id: "8", name: "Kasikorn" },
+  { id: "9", name: "Bangkok Bank" },
+  { id: "10", name: "Bank of Ayudhaya" },
+  { id: "11", name: "SCB Bank" },
+  { id: "12", name: "Others..." },
+];
+
+const payment = ref([]);
+
+const choosePaymentBank = () => {
+  console.log(formData.value.payment_currency);
+  if (formData.value.payment_currency == "MMK") {
+    payment.value = payment_mm;
+  } else if (formData.value.payment_currency == "THB") {
+    payment.value = payment_thb;
+  } else {
+    payment.value = payment_usd;
+  }
+};
+// Kasikorn, Bangkok Bank, Bank of Ayudhaya, SCB Bank , Others
 const payment_status = [
   { id: "1", name: "fully_paid" },
   { id: "2", name: "not_paid" },
@@ -109,6 +144,13 @@ const sub_total = computed(() => {
   return totalsub;
 });
 
+const sub_qty_total = computed(() => {
+  let totalsub = 0;
+  totalsub = formitem.value.quantity * formitem.value.selling_price;
+  formitem.value.total_amount = totalsub;
+  return totalsub;
+});
+
 const grand_total = computed(() => {
   // console.log(sub_total.value, formData.value.discount);
   if (formData.value.discount.trim().endsWith("%")) {
@@ -158,6 +200,10 @@ const formitem = ref({
   exchange_rate: "",
   cost_price: "",
   special_request: "",
+  total_amount: "",
+  pickup_location: "",
+  dropoff_location: "",
+  route_plan: "",
 });
 const productList = ref([]);
 const chooseType = async () => {
@@ -265,7 +311,7 @@ const addNewitem = () => {
     service_date: "",
     car_id: "",
     car_list: [],
-    quantity: "",
+    quantity: "1",
     duration: "",
     selling_price: "",
     comment: "",
@@ -275,6 +321,10 @@ const addNewitem = () => {
     exchange_rate: "",
     cost_price: "",
     special_request: "",
+    total_amount: "",
+    route_plan: "",
+    pickup_location: "",
+    dropoff_location: "",
   };
   todayVali.value = false;
   addToggle();
@@ -371,6 +421,24 @@ const onSubmitHandler = async () => {
     frmData.append(
       "items[" + x + "][product_id]",
       formData.value.items[x].product_id
+    );
+  }
+  for (var x = 0; x < formData.value.items.length; x++) {
+    frmData.append(
+      "items[" + x + "][pickup_location]",
+      formData.value.items[x].pickup_location
+    );
+  }
+  for (var x = 0; x < formData.value.items.length; x++) {
+    frmData.append(
+      "items[" + x + "][dropoff_location]",
+      formData.value.items[x].dropoff_location
+    );
+  }
+  for (var x = 0; x < formData.value.items.length; x++) {
+    frmData.append(
+      "items[" + x + "][route_plan]",
+      formData.value.items[x].route_plan
     );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
@@ -519,17 +587,41 @@ const closedes = () => {
 };
 const clickdetaildes = ref(false);
 const itemDes = ref();
-const clickdetaildesToggle = (a, b) => {
+const clickdetaildesToggle = (a, b, c, d, index, t, r) => {
+  console.log(a, b, index);
   clickdetaildes.value = true;
   itemDes.value = a;
   itemSpecial.value = b;
+  itemPickup.value = c;
+  itemDropoff.value = d;
+  indexValue.value = index;
+  itemType.value = t;
+  itemRoutePlan.value = r;
 };
+const itemType = ref("");
+const itemRoutePlan = ref("");
+
+const indexValue = ref("");
+const itemPickup = ref("");
+const itemDropoff = ref("");
+
+const clickdetaildesUpdate = (x) => {
+  formData.value.items[x].comment = itemDes.value;
+  formData.value.items[x].special_request = itemSpecial.value;
+  formData.value.items[x].pickup_location = itemPickup.value;
+  formData.value.items[x].dropoff_location = itemDropoff.value;
+  formData.value.items[x].route_plan = itemRoutePlan.value;
+  clickdetaildes.value = false;
+};
+
 const itemSpecial = ref("");
 
 const clickdetaildesClose = () => {
   clickdetaildes.value = false;
   itemDes.value = "";
   itemSpecial.value = "";
+  itemPickup.value = "";
+  itemDropoff.value = "";
 };
 
 const customerOpen = ref(false);
@@ -625,6 +717,25 @@ onMounted(async () => {
                   :reduce="(d) => d.name"
                 ></v-select>
               </div>
+
+              <div>
+                <p class="text-blue-400 text-xs mb-2">Payment Currency</p>
+                <v-select
+                  v-model="formData.payment_currency"
+                  class="style-chooser"
+                  :class="{
+                    'bg-white rounded-lg': formData.payment_currency !== '',
+                  }"
+                  :options="payment_currency"
+                  @option:selected="choosePaymentBank"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.name"
+                ></v-select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
               <div class="">
                 <p class="text-blue-400 text-xs mb-2">Payment Method</p>
                 <v-select
@@ -639,23 +750,6 @@ onMounted(async () => {
                   :reduce="(d) => d.name"
                 ></v-select>
               </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <p class="text-blue-400 text-xs mb-2">Payment Currency</p>
-                <v-select
-                  v-model="formData.payment_currency"
-                  class="style-chooser"
-                  :class="{
-                    'bg-white rounded-lg': formData.payment_currency !== '',
-                  }"
-                  :options="payment_currency"
-                  label="name"
-                  :clearable="false"
-                  :reduce="(d) => d.name"
-                ></v-select>
-              </div>
               <div>
                 <p class="text-blue-400 text-xs mb-2">Payment Status</p>
                 <v-select
@@ -665,6 +759,7 @@ onMounted(async () => {
                     'bg-white rounded-lg': formData.payment_status !== '',
                   }"
                   :options="payment_status"
+                  disabled
                   label="name"
                   :clearable="false"
                   :reduce="(d) => d.name"
@@ -738,7 +833,7 @@ onMounted(async () => {
               <div class="col-span-1">
                 <Modal :isOpen="desopen" @closeModal="desopen = false">
                   <DialogPanel
-                    class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+                    class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all space-y-2"
                   >
                     <DialogTitle
                       as="h3"
@@ -746,7 +841,7 @@ onMounted(async () => {
                     >
                       Description & Special Request
                     </DialogTitle>
-                    <div class="grid grid-cols-1 py-4 space-y-2">
+                    <div class="grid grid-cols-1 space-y-2">
                       <p class="text-xs">Description</p>
                       <textarea
                         name=""
@@ -757,7 +852,7 @@ onMounted(async () => {
                         v-model="formitem.comment"
                       ></textarea>
                     </div>
-                    <div class="grid grid-cols-1 py-4 space-y-2">
+                    <div class="grid grid-cols-1 space-y-2">
                       <p class="text-xs">Special request</p>
                       <textarea
                         name=""
@@ -766,6 +861,57 @@ onMounted(async () => {
                         cols="30"
                         rows="5"
                         v-model="formitem.special_request"
+                      ></textarea>
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="
+                        formitem.product_type == '1' ||
+                        formitem.product_type == '3'
+                      "
+                    >
+                      <p class="text-xs">Pickup Location</p>
+                      <textarea
+                        name=""
+                        id=""
+                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        cols="30"
+                        rows="1"
+                        v-model="formitem.pickup_location"
+                      ></textarea>
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="
+                        formitem.product_type == '1' ||
+                        formitem.product_type == '3'
+                      "
+                    >
+                      <p class="text-xs">Dropoff Location</p>
+                      <textarea
+                        name=""
+                        id=""
+                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        cols="30"
+                        rows="1"
+                        v-model="formitem.dropoff_location"
+                      ></textarea>
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="
+                        formitem.product_type == '1' ||
+                        formitem.product_type == '3'
+                      "
+                    >
+                      <p class="text-xs">Route Plan</p>
+                      <textarea
+                        name=""
+                        id=""
+                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        cols="30"
+                        rows="1"
+                        v-model="formitem.route_plan"
                       ></textarea>
                     </div>
                     <div class="flex justify-between items-center">
@@ -799,7 +945,7 @@ onMounted(async () => {
                   @closeModal="clickdetaildesToggle = false"
                 >
                   <DialogPanel
-                    class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+                    class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all space-y-2"
                   >
                     <DialogTitle
                       as="h3"
@@ -807,7 +953,7 @@ onMounted(async () => {
                     >
                       Detail Description & Special Request
                     </DialogTitle>
-                    <div class="grid grid-cols-1 py-4 space-y-2">
+                    <div class="grid grid-cols-1 space-y-2">
                       <p class="text-sm">Description</p>
                       <textarea
                         name=""
@@ -818,7 +964,7 @@ onMounted(async () => {
                         v-model="itemDes"
                       ></textarea>
                     </div>
-                    <div class="grid grid-cols-1 py-4 space-y-2">
+                    <div class="grid grid-cols-1 space-y-2">
                       <p class="text-sm">Special Request</p>
                       <textarea
                         name=""
@@ -829,9 +975,57 @@ onMounted(async () => {
                         v-model="itemSpecial"
                       ></textarea>
                     </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="itemType == '1' || itemType == '3'"
+                    >
+                      <p class="text-sm">Pickup Location</p>
+                      <textarea
+                        name=""
+                        id=""
+                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        cols="30"
+                        rows="1"
+                        v-model="itemPickup"
+                      ></textarea>
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="itemType == '1' || itemType == '3'"
+                    >
+                      <p class="text-sm">Dropoff Location</p>
+                      <textarea
+                        name=""
+                        id=""
+                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        cols="30"
+                        rows="1"
+                        v-model="itemDropoff"
+                      ></textarea>
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="itemType == '1' || itemType == '3'"
+                    >
+                      <p class="text-sm">Route Plan</p>
+                      <textarea
+                        name=""
+                        id=""
+                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        cols="30"
+                        rows="1"
+                        v-model="itemRoutePlan"
+                      ></textarea>
+                    </div>
                     <div class="flex justify-between items-center">
                       <button @click="clickdetaildesClose" class="text-sm">
                         close
+                      </button>
+                      <button
+                        @click="clickdetaildesUpdate(indexValue)"
+                        class="text-sm px-2 py-1 bg-blue-500 text-white rounded"
+                      >
+                        update
                       </button>
                     </div>
                   </DialogPanel>
@@ -984,7 +1178,8 @@ onMounted(async () => {
                         <td
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
                         >
-                          <p>{{ formitem.selling_price }}</p>
+                          <!-- <p>{{ formitem.selling_price }}</p> -->
+                          <p>{{ sub_qty_total }}</p>
                         </td>
 
                         <td
@@ -1144,7 +1339,7 @@ onMounted(async () => {
                         <td
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
                         >
-                          <p>{{ item.selling_price }}</p>
+                          <p>{{ item.selling_price * item.quantity }}</p>
                         </td>
 
                         <td
@@ -1155,7 +1350,12 @@ onMounted(async () => {
                             @click="
                               clickdetaildesToggle(
                                 item.comment,
-                                item.special_request
+                                item.special_request,
+                                item.pickup_location,
+                                item.dropoff_location,
+                                index,
+                                item.product_type,
+                                item.route_plan
                               )
                             "
                           >

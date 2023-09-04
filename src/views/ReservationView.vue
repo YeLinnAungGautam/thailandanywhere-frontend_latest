@@ -44,10 +44,13 @@ const soldFrom = [
   { id: "4", name: "Telegram" },
 ];
 const payment = [
-  { id: "1", name: "K+" },
-  { id: "2", name: "SCB" },
-  { id: "3", name: "Bankok Bank" },
+  { id: "1", name: "K + " },
+  { id: "2", name: "SCB " },
+  { id: "3", name: "Bangkok Bank" },
 ];
+// K +
+// SCB
+// Bangkok Bank
 const payment_status = [
   { id: "1", name: "fully_paid" },
   { id: "2", name: "not_paid" },

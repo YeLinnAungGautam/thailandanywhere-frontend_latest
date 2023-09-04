@@ -193,7 +193,9 @@ watch(search, async (newValue) => {
               v-for="d in r.items"
               :key="d.id"
             >
-              <div class="p-3 text-sm mt-2 text-gray-700 whitespace-nowrap">
+              <div
+                class="p-3 text-sm mt-2 text-center text-gray-700 whitespace-nowrap"
+              >
                 {{ r.crm_id }}
               </div>
               <div

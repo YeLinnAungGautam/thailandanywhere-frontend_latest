@@ -98,7 +98,7 @@
               @click="settingHandle"
             /> -->
             <div
-              class="inline-flex text-[.75rem] rounded-md relative items-center py-[12px] px-[10px] w-full text-sm text-gray-600 font-roboto hover:text-[#FF5B00] hover:bg-[rgb(255, 91, 0, 0.1) transition duration-150"
+              class="inline-flex text-[.75rem] rounded-md relative items-center py-[12px] px-[10px] w-full text-sm font-roboto text-gray-600 bg-[#FFFEFD] hover:text-[#FF5B00] hover:bg-[rgb(255, 91, 0, 0.1) transition duration-150"
               @click="toggleSidebarShowSetting"
             >
               <component
@@ -119,7 +119,7 @@
             </div>
 
             <div
-              class="shadow duration-150 transition-all"
+              class="transition-all duration-150 shadow"
               v-if="isShowSetting"
             >
               <SidebarItem

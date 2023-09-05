@@ -668,12 +668,12 @@ onMounted(async () => {
 <template>
   <Layout>
     <div
-      class="grid grid-cols-3 gap-3 bg-blue-100/50 col-span-2 p-6 rounded-lg shadow-sm mb-5"
+      class="grid grid-cols-3 col-span-2 gap-3 p-6 mb-5 rounded-lg shadow-sm "
     >
-      <div class="mb-5 flex items-center justify-between col-span-3">
-        <h3 class="text-2xl font-medium text-blue-400">Create New Sales</h3>
+      <div class="flex items-center justify-between col-span-3 mb-5">
+        <h3 class="text-2xl font-medium text-[#ff613c]">Create New Sales</h3>
         <div
-          class="space-x-3 px-2 text-xs py-1.5 hover:shadow-lg border shadow-sm rounded cursor-pointer bg-blue-400 text-white"
+          class="space-x-3 px-2 text-xs py-1.5 hover:shadow-lg border shadow-sm rounded cursor-pointer bg-[#ff613c] text-white"
           @click="customerOpenH"
         >
           <i class="fa-solid fa-user-plus"></i> Create New Customer
@@ -681,10 +681,10 @@ onMounted(async () => {
       </div>
       <div class="col-span-3">
         <div class="grid grid-cols-3">
-          <div class="grid grid-cols-2 gap-4 col-span-2">
+          <div class="grid grid-cols-2 col-span-2 gap-4">
             <div class="grid grid-cols-2 gap-4">
               <div class="">
-                <p class="text-blue-400 text-xs mb-2">Customer Name</p>
+                <p class="mb-2 text-xs text-[#ff613c]">Customer Name</p>
 
                 <v-select
                   v-model="formData.customer_id"
@@ -699,12 +699,12 @@ onMounted(async () => {
                 ></v-select>
               </div>
               <div class="">
-                <p class="text-blue-400 text-xs mb-2">Sale Date</p>
+                <p class="mb-2 text-xs text-[#ff613c]">Sale Date</p>
                 <input
                   v-model="formData.booking_date"
                   type="date"
                   id="title"
-                  class="h-10 w-full bg-white border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
                 <p
                   v-if="errors?.booking_date"
@@ -716,7 +716,7 @@ onMounted(async () => {
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div class="">
-                <p class="text-blue-400 text-xs mb-2">Sold From</p>
+                <p class="mb-2 text-xs text-[#ff613c]">Sold From</p>
                 <v-select
                   v-model="formData.sold_from"
                   class="style-chooser"
@@ -731,7 +731,7 @@ onMounted(async () => {
               </div>
 
               <div>
-                <p class="text-blue-400 text-xs mb-2">Payment Currency</p>
+                <p class="mb-2 text-xs text-[#ff613c]">Payment Currency</p>
                 <v-select
                   v-model="formData.payment_currency"
                   class="style-chooser"
@@ -749,7 +749,7 @@ onMounted(async () => {
 
             <div class="grid grid-cols-2 gap-4">
               <div class="">
-                <p class="text-blue-400 text-xs mb-2">Payment Method</p>
+                <p class="mb-2 text-xs text-[#ff613c]">Payment Method</p>
                 <v-select
                   v-model="formData.payment_method"
                   class="style-chooser"
@@ -763,7 +763,7 @@ onMounted(async () => {
                 ></v-select>
               </div>
               <div>
-                <p class="text-blue-400 text-xs mb-2">Payment Status</p>
+                <p class="mb-2 text-xs text-[#ff613c]">Payment Status</p>
                 <v-select
                   v-model="formData.payment_status"
                   class="style-chooser"
@@ -778,7 +778,7 @@ onMounted(async () => {
                 ></v-select>
               </div>
               <div>
-                <p class="text-blue-400 text-xs mb-2">CRMID</p>
+                <p class="mb-2 text-xs text-[#ff613c]">CRMID</p>
 
                 <input
                   v-model="formData.crm_id"
@@ -787,7 +787,7 @@ onMounted(async () => {
                   :class="
                     formData.crm_id != '' ? 'bg-white' : ' bg-transparent'
                   "
-                  class="h-10 w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
                 <p v-if="errors?.crm_id" class="mt-1 text-sm text-red-600">
                   {{ errors.crm_id[0] }}
@@ -796,7 +796,7 @@ onMounted(async () => {
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <p class="text-blue-400 text-xs mb-2">Balance Due Date</p>
+                <p class="mb-2 text-xs text-[#ff613c]">Balance Due Date</p>
 
                 <input
                   v-model="formData.balance_due_date"
@@ -807,7 +807,7 @@ onMounted(async () => {
                       ? 'bg-white'
                       : ' bg-transparent'
                   "
-                  class="h-10 w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
                 <p
                   v-if="errors?.balance_due_date"
@@ -817,7 +817,7 @@ onMounted(async () => {
                 </p>
               </div>
               <div>
-                <p class="text-blue-400 text-xs mb-2">Money Exchange Rate</p>
+                <p class="mb-2 text-xs text-[#ff613c]">Money Exchange Rate</p>
 
                 <input
                   v-model="formData.money_exchange_rate"
@@ -828,7 +828,7 @@ onMounted(async () => {
                       ? 'bg-white'
                       : ' bg-transparent'
                   "
-                  class="h-10 w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
                 <p
                   v-if="errors?.money_exchange_rate"
@@ -840,10 +840,10 @@ onMounted(async () => {
             </div>
             <!-- <div class="grid grid-cols-2 gap-4">
               <div class="col-span-2">
-                <p class="text-blue-400 text-xs mb-2">Special Request</p>
+                <p class="mb-2 text-xs text-[#ff613c]">Special Request</p>
                 <textarea
                   v-model="formData.special_request"
-                  class="w-full h-14 border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  class="w-full px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm h-14 focus:outline-none focus:border-gray-300"
                   :class="
                     formData.special_request != ''
                       ? 'bg-white'
@@ -859,34 +859,34 @@ onMounted(async () => {
               </div>
             </div> -->
           </div>
-          <div class="col-span-1 text-end space-y-4">
-            <p class="text-blue-400 text-xs">Balance Due</p>
-            <p class="text-blue-400 font-bold text-4xl tracking-wide">
+          <div class="col-span-1 space-y-4 text-end">
+            <p class="text-xs text-[#ff613c]">Balance Due</p>
+            <p class="text-4xl font-bold tracking-wide text-[#ff613c]">
               {{ balance_due }} thb
             </p>
             <p
-              class="text-blue-400 border border-blue-400 inline-block py-2 px-4 text-sm"
+              class="inline-block px-4 py-2 text-sm text-[#ff613c] border border-[#ff613c]"
             >
               Receive Payment
             </p>
           </div>
 
-          <div class="gird grid-cols-1 col-span-3 pt-10">
+          <div class="grid-cols-1 col-span-3 pt-10 gird">
             <div
-              class="mb-3 text-sm font-semibold cursor-pointer flex justify-end"
+              class="flex justify-end mb-3 text-sm font-semibold cursor-pointer"
             >
               <p @click="addToggle" v-if="!addComment">+ Add Item</p>
               <p @click="addToggle" v-if="addComment">- Remove Item</p>
             </div>
-            <div class="col-span-1 bg-white p-3 rounded">
+            <div class="col-span-1 p-3 bg-white rounded">
               <div class="col-span-1">
                 <Modal :isOpen="desopen" @closeModal="desopen = false">
                   <DialogPanel
-                    class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all space-y-2"
+                    class="w-full max-w-md p-4 space-y-2 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
                   >
                     <DialogTitle
                       as="h3"
-                      class="text-md font-medium leading-6 text-gray-900 mb-5"
+                      class="mb-5 font-medium leading-6 text-gray-900 text-md"
                     >
                       Description & Special Request
                     </DialogTitle>
@@ -895,7 +895,7 @@ onMounted(async () => {
                       <textarea
                         name=""
                         id=""
-                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         cols="30"
                         rows="3"
                         v-model="formitem.comment"
@@ -906,7 +906,7 @@ onMounted(async () => {
                       <textarea
                         name=""
                         id=""
-                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         cols="30"
                         rows="3"
                         v-model="formitem.special_request"
@@ -939,7 +939,7 @@ onMounted(async () => {
                       <textarea
                         name=""
                         id=""
-                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         cols="30"
                         rows="1"
                         v-model="formitem.pickup_location"
@@ -956,7 +956,7 @@ onMounted(async () => {
                       <textarea
                         name=""
                         id=""
-                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         cols="30"
                         rows="1"
                         v-model="formitem.dropoff_location"
@@ -973,17 +973,17 @@ onMounted(async () => {
                       <textarea
                         name=""
                         id=""
-                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         cols="30"
                         rows="1"
                         v-model="formitem.route_plan"
                       ></textarea>
                     </div>
-                    <div class="flex justify-between items-center">
+                    <div class="flex items-center justify-between">
                       <button @click="closedes" class="text-sm">close</button>
                       <button
                         @click="closedes"
-                        class="text-sm px-2 py-1 bg-blue-500 text-white rounded"
+                        class="px-2 py-1 text-sm text-white bg-blue-500 rounded"
                       >
                         + add
                       </button>
@@ -998,7 +998,7 @@ onMounted(async () => {
                     class="w-full max-w-[800px] transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
                   >
                     <CustomerCreate action="sales" />
-                    <div class="flex justify-end items-center">
+                    <div class="flex items-center justify-end">
                       <button @click="customerClose" class="text-sm">
                         close
                       </button>
@@ -1010,11 +1010,11 @@ onMounted(async () => {
                   @closeModal="clickdetaildesToggle = false"
                 >
                   <DialogPanel
-                    class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all space-y-2"
+                    class="w-full max-w-md p-4 space-y-2 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
                   >
                     <DialogTitle
                       as="h3"
-                      class="text-md font-medium leading-6 text-gray-900 mb-5"
+                      class="mb-5 font-medium leading-6 text-gray-900 text-md"
                     >
                       Detail Description & Special Request
                     </DialogTitle>
@@ -1023,7 +1023,7 @@ onMounted(async () => {
                       <textarea
                         name=""
                         id=""
-                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         cols="30"
                         rows="5"
                         v-model="itemDes"
@@ -1034,7 +1034,7 @@ onMounted(async () => {
                       <textarea
                         name=""
                         id=""
-                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         cols="30"
                         rows="5"
                         v-model="itemSpecial"
@@ -1045,7 +1045,7 @@ onMounted(async () => {
                       <input
                         type="date"
                         v-model="itemServiceDate"
-                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                       />
                     </div>
                     <div
@@ -1056,7 +1056,7 @@ onMounted(async () => {
                       <textarea
                         name=""
                         id=""
-                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         cols="30"
                         rows="1"
                         v-model="itemPickup"
@@ -1070,7 +1070,7 @@ onMounted(async () => {
                       <textarea
                         name=""
                         id=""
-                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         cols="30"
                         rows="1"
                         v-model="itemDropoff"
@@ -1084,19 +1084,19 @@ onMounted(async () => {
                       <textarea
                         name=""
                         id=""
-                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         cols="30"
                         rows="1"
                         v-model="itemRoutePlan"
                       ></textarea>
                     </div>
-                    <div class="flex justify-between items-center">
+                    <div class="flex items-center justify-between">
                       <button @click="clickdetaildesClose" class="text-sm">
                         close
                       </button>
                       <button
                         @click="clickdetaildesUpdate(indexValue)"
-                        class="text-sm px-2 py-1 bg-blue-500 text-white rounded"
+                        class="px-2 py-1 text-sm text-white bg-blue-500 rounded"
                       >
                         update
                       </button>
@@ -1108,42 +1108,42 @@ onMounted(async () => {
                     <thead>
                       <tr class="border-b border-gray-300">
                         <th
-                          class="py-2 text-start px-4 text-xs text-blue-400"
+                          class="px-4 py-2 text-xs text-[#ff613c] text-start"
                         ></th>
 
                         <th
-                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
                         >
                           P Type
                         </th>
                         <th
-                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
                         >
                           Product Name
                         </th>
                         <th
-                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
                         >
                           Variable
                         </th>
 
                         <th
-                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
                         >
                           Rate
                         </th>
                         <th
-                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
                         >
                           Quantity
                         </th>
                         <th
-                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
                         >
                           Amount
                         </th>
                         <th
-                          class="py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          class="px-4 py-2 text-xs text-[#ff613c] border-gray-300 text-start"
                         ></th>
                       </tr>
                     </thead>
@@ -1151,7 +1151,7 @@ onMounted(async () => {
                       <tr class="rounded-lg" v-if="addComment">
                         <td
                           colspan="2"
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <v-select
                             v-model="formitem.product_type"
@@ -1164,7 +1164,7 @@ onMounted(async () => {
                           ></v-select>
                         </td>
                         <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <v-select
                             v-model="formitem.product_id"
@@ -1177,7 +1177,7 @@ onMounted(async () => {
                           ></v-select>
                         </td>
                         <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <div
                             class=""
@@ -1221,7 +1221,7 @@ onMounted(async () => {
                           </div>
                         </td>
                         <!-- <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <input
                             type="date"
@@ -1240,12 +1240,12 @@ onMounted(async () => {
                           </p>
                         </td> -->
                         <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <p>{{ formitem.selling_price }}</p>
                         </td>
                         <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <input
                             type="number"
@@ -1254,17 +1254,17 @@ onMounted(async () => {
                           />
                         </td>
                         <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <!-- <p>{{ formitem.selling_price }}</p> -->
                           <p>{{ sub_qty_total }}</p>
                         </td>
 
                         <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <button
-                            class="text-sm text-blue-600 mr-4"
+                            class="mr-4 text-sm text-blue-600"
                             @click="clickdes"
                           >
                             <i
@@ -1283,9 +1283,9 @@ onMounted(async () => {
                           </button>
                         </td>
                       </tr>
-                      <tr class="border-b border-gray-300 text-xs text-red-500">
+                      <tr class="text-xs text-red-500 border-b border-gray-300">
                         <td
-                          class="text-right pb-2"
+                          class="pb-2 text-right"
                           colspan="8"
                           v-if="addComment"
                         >
@@ -1298,20 +1298,20 @@ onMounted(async () => {
                         :key="index"
                       >
                         <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <!-- <i
-                            class="fa-solid fa-circle-check text-lg text-green-600"
+                            class="text-lg text-green-600 fa-solid fa-circle-check"
                           ></i>
                           <i
-                            class="fa-solid fa-circle-exclamation text-lg text-yellow-500"
+                            class="text-lg text-yellow-500 fa-solid fa-circle-exclamation"
                           ></i> -->
                           <i
-                            class="fa-solid fa-circle-xmark text-lg text-red-600"
+                            class="text-lg text-red-600 fa-solid fa-circle-xmark"
                           ></i>
                         </td>
                         <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <!-- <v-select
                             v-model="item.product_type"
@@ -1330,7 +1330,7 @@ onMounted(async () => {
                           <p v-if="item.product_type == '5'">Inclusive</p>
                         </td>
                         <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <v-select
                             v-if="item.product_type == '1'"
@@ -1385,7 +1385,7 @@ onMounted(async () => {
                           ></v-select>
                         </td>
                         <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <v-select
                             v-if="item.car_id"
@@ -1401,35 +1401,35 @@ onMounted(async () => {
                           <p v-if="!item.car_id">-</p>
                         </td>
                         <!-- <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <input
                             type="date"
                             v-model="item.service_date"
-                            class="focus:outline-none text-xs"
+                            class="text-xs focus:outline-none"
                           />
                         </td> -->
                         <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <p>{{ item.selling_price }}</p>
                         </td>
                         <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <p>{{ item.quantity }}</p>
                         </td>
                         <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <p>{{ item.selling_price * item.quantity }}</p>
                         </td>
 
                         <td
-                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <button
-                            class="text-sm text-blue-600 mr-4"
+                            class="mr-4 text-sm text-blue-600"
                             @click="
                               clickdetaildesToggle(
                                 item.comment,
@@ -1464,7 +1464,7 @@ onMounted(async () => {
                       >
                         <td
                           colspan="10"
-                          class="py-3 px-4 text-center border-gray-300 text-sm text-red-500"
+                          class="px-4 py-3 text-sm text-center text-red-500 border-gray-300"
                         >
                           there isn't item !
                         </td>
@@ -1475,9 +1475,9 @@ onMounted(async () => {
                 <div class="grid grid-cols-3">
                   <div></div>
                   <div></div>
-                  <div class="mt-6 px-6">
+                  <div class="px-6 mt-6">
                     <div class="grid grid-cols-2 gap-4">
-                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
+                      <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
                         Subtotal
                       </p>
                       <input
@@ -1485,18 +1485,18 @@ onMounted(async () => {
                         disabled
                         type="text"
                         id="title"
-                        class="h-8 mt-2 w-full bg-gray-300 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                        class="w-full h-8 px-4 py-2 mt-2 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300"
                       />
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
+                      <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
                         Discount
                       </p>
                       <input
                         v-model="formData.discount"
                         type="text"
                         id="title"
-                        class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                        class="w-full h-8 px-4 py-2 mt-2 text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
                       />
                       <p
                         v-if="errors?.discount"
@@ -1506,7 +1506,7 @@ onMounted(async () => {
                       </p>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
+                      <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
                         Total:
                       </p>
                       <input
@@ -1514,29 +1514,29 @@ onMounted(async () => {
                         disabled
                         type="text"
                         id="title"
-                        class="h-8 mt-2 w-full bg-gray-300 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                        class="w-full h-8 px-4 py-2 mt-2 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300"
                       />
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
+                      <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
                         Deposit:
                       </p>
                       <input
                         type="text"
                         v-model="formData.deposit"
                         id="title"
-                        class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                        class="w-full h-8 px-4 py-2 mt-2 text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
                       />
                     </div>
                     <!-- <div class="grid grid-cols-2 gap-4">
-                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
+                      <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
                         Reciept Image
                       </p>
                       <input
                         @change="handlerFeatureFileChange"
                         type="file"
                         id="title"
-                        class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                        class="w-full h-12 px-4 py-2 text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
                       />
                     </div> -->
                     <div
@@ -1545,7 +1545,7 @@ onMounted(async () => {
                     >
                       <div class="relative">
                         <p
-                          class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3"
+                          class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end"
                         >
                           Reciept Image
                         </p>
@@ -1559,7 +1559,7 @@ onMounted(async () => {
                         <button
                           v-if="!featureImagePreview"
                           @click.prevent="openFileFeaturePicker"
-                          class="text-sm text-blue-500"
+                          class="text-sm text-[#ff613c]"
                         ></button>
                         <button
                           v-else
@@ -1576,20 +1576,20 @@ onMounted(async () => {
                       >
                         <span class="text-xs"
                           ><i
-                            class="fa-solid fa-plus text-lg font-semibold py-3 px-5 bg-blue-500 rounded-full shadow text-white"
+                            class="px-5 py-3 text-lg font-semibold text-white bg-[#ff613c] rounded-full shadow fa-solid fa-plus"
                           ></i
                         ></span>
                       </div>
                       <div v-if="featureImagePreview" class="">
                         <img
-                          class="h-auto w-full rounded mt-2"
+                          class="w-full h-auto mt-2 rounded"
                           :src="featureImagePreview"
                           alt=""
                         />
                       </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
+                      <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
                         Balance Due:
                       </p>
                       <input
@@ -1597,30 +1597,30 @@ onMounted(async () => {
                         disabled
                         v-model="balance_due"
                         id="title"
-                        class="h-8 mt-2 w-full bg-gray-300 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                        class="w-full h-8 px-4 py-2 mt-2 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300"
                       />
                     </div>
                     <!-- <div class="grid grid-cols-2 gap-4">
-                      <p class="text-gray-800 text-sm mb-2 text-end pr-8 mt-3">
+                      <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
                         Due Date:
                       </p>
                       <input
                         type="date"
                         v-model="formData.balance_due_date"
                         id="title"
-                        class="h-8 mt-2 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-sm"
+                        class="w-full h-8 px-4 py-2 mt-2 text-sm text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
                       />
                     </div> -->
-                    <div class="text-end mt-6 mb-3" v-show="allowCreate">
+                    <div class="mt-6 mb-3 text-end" v-show="allowCreate">
                       <Button
                         @click.prevent="onSubmitHandler"
-                        class="px-14 py-2"
+                        class="py-2 px-14"
                       >
                         Create
                       </Button>
                     </div>
-                    <div class="text-end mt-6 mb-3" v-show="!allowCreate">
-                      <Button class="px-14 py-2 bg-gray-400"> Create </Button>
+                    <div class="mt-6 mb-3 text-end" v-show="!allowCreate">
+                      <Button class="py-2 bg-gray-400 px-14"> Create </Button>
                     </div>
                   </div>
                 </div>

@@ -2,18 +2,18 @@
   <div class="h-[80px] flex items-center justify-between px-[20px] w-full">
     <div class="flex items-center gap-3">
       <button
-        class="bg-white/60 p-2 rounded-md shadow cursor-pointer"
+        class="p-2 rounded-md shadow cursor-pointer bg-white/60"
         @click.prevent="toggleSidebarHandler"
       >
         <Bars3Icon class="w-6 h-6" />
       </button>
       <p
-        class="bg-white/60 p-2 rounded-md shadow cursor-pointer"
+        class="p-2 rounded-md shadow cursor-pointer bg-white/60"
         @click="goBack()"
       >
         <ArrowUturnLeftIcon class="w-6 h-6" />
       </p>
-      <p class="text-sm font-poppins text-blue-500 font-medium">
+      <p class="text-sm font-poppins text-[#ff613c] font-medium">
         Welcome back, {{ authStore.user.name.split(" ")[0] }} !
       </p>
     </div>
@@ -27,7 +27,7 @@
             class="flex text-sm bg-gray-800 rounded-full focus:ring-0 hover:shadow focus:ring-gray-300 dark:focus:ring-gray-600"
           >
             <img
-              class="w-9 h-9 md:w-10 md:h-10 rounded-full shadow-lg"
+              class="rounded-full shadow-lg w-9 h-9 md:w-10 md:h-10"
               :src="`https://ui-avatars.com/api/?background=3B81F6&color=fff&name=${authStore.user.name}&font-size=0.33`"
               alt=""
             />
@@ -49,7 +49,7 @@
                 <p
                   class="block px-4 py-2 text-sm text-gray-500 bg-white hover:text-blue-400 hover:scale-105"
                 >
-                  <i class="fa-solid fa-gear mr-2"></i>Setting
+                  <i class="mr-2 fa-solid fa-gear"></i>Setting
                 </p>
               </li>
               <li>
@@ -57,7 +57,7 @@
                   @click.prevent="logoutHandler"
                   class="block px-4 py-2 text-sm text-gray-500 bg-white hover:text-red-400 hover:scale-105"
                 >
-                  <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>
+                  <i class="mr-1 fa-solid fa-arrow-right-from-bracket"></i>
                   Logout
                 </p>
               </li>
@@ -66,11 +66,11 @@
         </div>
         <!-- <div class="flex items-center justify-start space-x-3 cursor-pointer">
           <img
-            class="w-9 h-9 md:w-10 md:h-10 rounded-full shadow-lg"
+            class="rounded-full shadow-lg w-9 h-9 md:w-10 md:h-10"
             :src="`https://ui-avatars.com/api/?background=3B81F6&color=fff&name=${authStore.user.name}&font-size=0.33`"
             alt=""
           />
-          <div class="hidden md:block text-base">{{ authStore.user.name }}</div>
+          <div class="hidden text-base md:block">{{ authStore.user.name }}</div>
         </div> -->
       </div>
     </div>

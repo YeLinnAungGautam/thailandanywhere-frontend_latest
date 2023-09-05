@@ -912,7 +912,7 @@ onMounted(async () => {
                         v-model="formitem.special_request"
                       ></textarea>
                     </div>
-                    <div class="grid grid-cols-1 space-y-2">
+                    <div class="grid hidden grid-cols-1 space-y-2">
                       <p class="text-xs">Service Date</p>
                       <input
                         type="date"
@@ -1130,6 +1130,11 @@ onMounted(async () => {
                         <th
                           class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
                         >
+                          Service Date
+                        </th>
+                        <th
+                          class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
+                        >
                           Rate
                         </th>
                         <th
@@ -1220,7 +1225,7 @@ onMounted(async () => {
                             ></v-select>
                           </div>
                         </td>
-                        <!-- <td
+                        <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <input
@@ -1238,7 +1243,7 @@ onMounted(async () => {
                           <p class="text-xs text-red-400" v-if="!todayVali">
                             fill after today
                           </p>
-                        </td> -->
+                        </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
@@ -1400,7 +1405,7 @@ onMounted(async () => {
                           ></v-select>
                           <p v-if="!item.car_id">-</p>
                         </td>
-                        <!-- <td
+                        <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <input
@@ -1408,7 +1413,7 @@ onMounted(async () => {
                             v-model="item.service_date"
                             class="text-xs focus:outline-none"
                           />
-                        </td> -->
+                        </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >

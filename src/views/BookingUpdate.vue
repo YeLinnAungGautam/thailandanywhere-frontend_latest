@@ -1321,13 +1321,17 @@ onMounted(async () => {
                           <th
                             class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
                           >
-                            Variable
+                            Variation
                           </th>
-
                           <th
                             class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
                           >
                             Service Date
+                          </th>
+                          <th
+                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                          >
+                            Rate
                           </th>
                           <th
                             class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
@@ -1416,6 +1420,25 @@ onMounted(async () => {
                                 "
                               ></v-select>
                             </div>
+                          </td>
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          >
+                            <input
+                              type="date"
+                              v-model="formitem.service_date"
+                              @change="todayCheck"
+                              id="title"
+                              class="px-1 py-1.5 focus:outline-none text-xs rounded"
+                              :class="
+                                todayVali == true
+                                  ? 'text-blue-600'
+                                  : 'text-red-600'
+                              "
+                            />
+                            <p class="text-xs text-red-400" v-if="!todayVali">
+                              fill after today
+                            </p>
                           </td>
                           <td
                             class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
@@ -1664,6 +1687,15 @@ onMounted(async () => {
                               {{ item.variation_name }}
                             </p>
                             <p v-if="!item.car_id && !item.variation_name">-</p>
+                          </td>
+                          <td
+                            class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                          >
+                            <input
+                              type="date"
+                              v-model="item.service_date"
+                              class="focus:outline-none text-xs"
+                            />
                           </td>
                           <td
                             class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"

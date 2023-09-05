@@ -5,7 +5,7 @@
     >
       <div class="flex flex-col items-center justify-start gap-3 mb-8">
         <img
-          src="../../public/logo.jpeg"
+          src="../../public/logo.jpg"
           class="w-20 h-20 rounded shadow-md"
           alt=""
         />

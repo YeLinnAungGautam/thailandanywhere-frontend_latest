@@ -222,7 +222,7 @@ watch(search, async (newValue) => {
             Reservation Status
           </div>
           <div class="text-center text-sm font-medium tracking-wide py-2">
-            Booking Date
+            Service Date
           </div>
           <div class="text-center text-sm font-medium tracking-wide py-2"></div>
         </div>
@@ -262,10 +262,25 @@ watch(search, async (newValue) => {
                   </p>
                 </div>
                 <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                  <p v-if="r.reservation_status != 'null'">
+                  <p v-if="!r.reservation_status">-</p>
+                  <p
+                    v-if="r.reservation_status == 'reserved'"
+                    class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                  >
                     {{ r.reservation_status }}
                   </p>
-                  <p v-if="r.reservation_status == 'null'">-</p>
+                  <p
+                    v-if="r.reservation_status == 'declined'"
+                    class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                  >
+                    {{ r.reservation_status }}
+                  </p>
+                  <p
+                    v-if="r.reservation_status == 'awaiting_payment'"
+                    class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                  >
+                    {{ r.reservation_status }}
+                  </p>
                 </div>
 
                 <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
@@ -364,7 +379,23 @@ watch(search, async (newValue) => {
                   <div
                     class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
                   >
-                    <p v-if="d.reservation_status != 'null'">
+                    <p v-if="!d.reservation_status">-</p>
+                    <p
+                      v-if="d.reservation_status == 'reserved'"
+                      class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                    >
+                      {{ d.reservation_status }}
+                    </p>
+                    <p
+                      v-if="d.reservation_status == 'declined'"
+                      class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                    >
+                      {{ d.reservation_status }}
+                    </p>
+                    <p
+                      v-if="d.reservation_status == 'awaiting_payment'"
+                      class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                    >
                       {{ d.reservation_status }}
                     </p>
                   </div>

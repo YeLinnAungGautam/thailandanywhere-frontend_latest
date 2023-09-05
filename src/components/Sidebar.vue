@@ -7,7 +7,11 @@
       <div class="flex w-full items-center justify-between px-[20px]">
         <div class="flex items-center">
           <h3 class="text-sm font-medium md:text-sm lg:text-base">
-            <img src="../../public/logo.jpeg" class="w-10 h-10 rounded" alt="" />
+            <img
+              src="../../public/logo.jpeg"
+              class="w-10 h-10 rounded"
+              alt=""
+            />
           </h3>
           <p class="ml-2 font-medium tracking-wide text-gray-600 text-md">
             Thailand Anywhere
@@ -77,12 +81,6 @@
               :icon="CircleStackIcon"
               to="/database"
             />
-            <!-- <SidebarItem
-              name="Sales"
-              :icon="PresentationChartBarIcon"
-              to="/sales"
-            /> -->
-            <SidebarItem name="Partners" :icon="UserGroupIcon" to="/partners" />
 
             <SidebarItem
               name="Blogs"
@@ -97,13 +95,51 @@
               to="/customers"
               :activePaths="['customers', 'customerscreate', 'customersupdate']"
             />
-            <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
-            <SidebarItem
-              name="Calendar"
-              :icon="CalendarDaysIcon"
-              to="/calendar"
-            />
+
+            <!-- <SidebarItem
+              name="Setting"
+              :icon="Cog6ToothIcon"
+              @click="settingHandle"
+            /> -->
+            <div
+              class="inline-flex text-[.75rem] rounded-md relative items-center py-[12px] px-[10px] w-full text-sm text-gray-600 font-roboto hover:text-[#FF5B00] hover:bg-[rgb(255, 91, 0, 0.1) transition duration-150"
+              @click="toggleSidebarShowSetting"
+            >
+              <component
+                :is="Cog6ToothIcon"
+                class="w-4 h-4 mr-[1.2rem]"
+              ></component>
+              Setting
+              <component
+                v-if="!isShowSetting"
+                :is="ChevronDownIcon"
+                class="w-4 h-4 ml-[4.2rem]"
+              ></component>
+              <component
+                v-if="isShowSetting"
+                :is="ChevronUpIcon"
+                class="w-4 h-4 ml-[4.2rem]"
+              ></component>
+            </div>
+
+            <div
+              class="shadow duration-150 transition-all"
+              v-if="isShowSetting"
+            >
+              <SidebarItem
+                name="Partners"
+                :icon="UserGroupIcon"
+                to="/partners"
+              />
+              <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
+              <SidebarItem
+                name="Calendar"
+                :icon="CalendarDaysIcon"
+                to="/calendar"
+              />
+            </div>
           </div>
+
           <!-- <div>
             <SidebarItem name="Setting" :icon="Cog6ToothIcon" to="/setting" />
             <button
@@ -142,17 +178,23 @@ import {
   CircleStackIcon,
   PresentationChartBarIcon,
   ClockIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
 } from "@heroicons/vue/24/outline";
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useAuthStore } from "../stores/auth";
 const sidebarStore = useSidebarStore();
 import { useRouter } from "vue-router";
 const router = useRouter();
-const { isShowSidebar } = storeToRefs(sidebarStore);
+const { isShowSidebar, isShowSetting } = storeToRefs(sidebarStore);
 const authStore = useAuthStore();
 const toggleSidebarHandler = () => {
   sidebarStore.toggleSidebar();
+};
+
+const toggleSidebarShowSetting = () => {
+  sidebarStore.toggleShowSetting();
 };
 
 import { useToast } from "vue-toastification";

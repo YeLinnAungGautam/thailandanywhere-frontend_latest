@@ -6,6 +6,7 @@ export const useSidebarStore = defineStore("sidebar", {
     isSideBarDropdownShow: false,
     isTopBarDropdownShow: false,
     isOpenCustomerCreate: false,
+    isShowSetting: false,
   }),
   getters: {},
   actions: {
@@ -17,6 +18,12 @@ export const useSidebarStore = defineStore("sidebar", {
     },
     hideSidebar() {
       this.isShowSidebar = false;
+    },
+    showSettingHandle() {
+      this.isShowSetting = true;
+    },
+    toggleShowSetting() {
+      this.isShowSetting = !this.isShowSetting;
     },
     toggleSidebar() {
       this.isShowSidebar = !this.isShowSidebar;

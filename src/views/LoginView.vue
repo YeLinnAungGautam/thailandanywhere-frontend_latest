@@ -5,15 +5,15 @@
     >
       <div class="flex flex-col items-center justify-start gap-3 mb-8">
         <img
-          src="../assets/photo_2023-09-05_16-25-47.jpg"
-          class="w-20 h-20 shadow-md rounded"
+          src="../../public/logo.jpg"
+          class="w-20 h-20 rounded shadow-md"
           alt=""
         />
-        <p class="font-medium font-poppins tracking-wide text-lg text-gray-600">
+        <p class="text-lg font-medium tracking-wide text-gray-600 font-poppins">
           Welcome to Dashboard
         </p>
       </div>
-      <form @submit.prevent="loginHandler" class="space-y-6 flex flex-col">
+      <form @submit.prevent="loginHandler" class="flex flex-col space-y-6">
         <InputField label="Email address" required>
           <Input type="email" v-model="formData.email" />
         </InputField>

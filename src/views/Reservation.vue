@@ -196,7 +196,7 @@ watch(search, async (newValue) => {
               <div
                 class="p-3 text-sm mt-2 text-center text-gray-700 whitespace-nowrap"
               >
-                {{ r.crm_id }}
+                {{ d.crm_id }}
               </div>
               <div
                 class="p-3 text-sm mt-2 text-center text-gray-700 whitespace-nowrap"
@@ -271,17 +271,17 @@ watch(search, async (newValue) => {
               </div>
               <div class="py-3 pl-10 text-sm text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
-                  <router-link
-                    :to="'/reservation/view/' + d.id + '/' + r.crm_id"
+                  <!-- <router-link
+                    :to="'/reservation/view/' + d.id + '/' + d.crm_id"
                   >
                     <button
                       class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
                     >
                       <EyeIcon class="w-5 h-5" />
                     </button>
-                  </router-link>
+                  </router-link> -->
                   <router-link
-                    :to="'/reservation/update/' + d.id + '/' + r.crm_id"
+                    :to="'/reservation/update/' + d.id + '/' + d.crm_id"
                   >
                     <button
                       class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"

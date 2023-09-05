@@ -123,6 +123,7 @@ const formData = ref({
   payment_currency: "",
   items: [],
   money_exchange_rate: "",
+  crm_id: "",
   discount: "0",
   comment: "",
   receipt_image: "",
@@ -372,6 +373,8 @@ const onSubmitHandler = async () => {
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("payment_status", formData.value.payment_status);
   frmData.append("booking_date", formData.value.booking_date);
+  frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
+  frmData.append("crm_id", formData.value.crm_id);
 
   frmData.append("discount", formData.value.discount);
   frmData.append("comment", formData.value.comment);
@@ -535,6 +538,7 @@ const onSubmitHandler = async () => {
       items: [],
       receipt_image: [],
       money_exchange_rate: "",
+      crm_id: "",
       discount: "",
       comment: "",
     };
@@ -765,6 +769,22 @@ onMounted(async () => {
                   :reduce="(d) => d.name"
                 ></v-select>
               </div>
+              <div>
+                <p class="text-blue-400 text-xs mb-2">CRMID</p>
+
+                <input
+                  v-model="formData.crm_id"
+                  type="text"
+                  id="title"
+                  :class="
+                    formData.crm_id != '' ? 'bg-white' : ' bg-transparent'
+                  "
+                  class="h-10 w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
+                <p v-if="errors?.crm_id" class="mt-1 text-sm text-red-600">
+                  {{ errors.crm_id[0] }}
+                </p>
+              </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
@@ -786,6 +806,27 @@ onMounted(async () => {
                   class="mt-1 text-sm text-red-600"
                 >
                   {{ errors.balance_due_date[0] }}
+                </p>
+              </div>
+              <div>
+                <p class="text-blue-400 text-xs mb-2">Money Exchange Rate</p>
+
+                <input
+                  v-model="formData.money_exchange_rate"
+                  type="number"
+                  id="title"
+                  :class="
+                    formData.money_exchange_rate != ''
+                      ? 'bg-white'
+                      : ' bg-transparent'
+                  "
+                  class="h-10 w-full border border-gray-300 rounded-lg shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
+                <p
+                  v-if="errors?.money_exchange_rate"
+                  class="mt-1 text-sm text-red-600"
+                >
+                  {{ errors.money_exchange_rate[0] }}
                 </p>
               </div>
             </div>

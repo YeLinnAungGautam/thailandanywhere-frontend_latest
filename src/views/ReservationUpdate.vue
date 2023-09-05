@@ -99,6 +99,7 @@ const secForm = ref({
   special_request: "",
   other_info: "",
   pickup_location: "",
+  dropoff_location: "",
   route_plan: "",
   supplier_name: "",
   driver_name: "",
@@ -204,6 +205,9 @@ const onSubmitHandler = async () => {
       if (secForm.value.pickup_location) {
         secfrm.append("pickup_location", secForm.value.pickup_location);
       }
+      if (secForm.value.dropoff_location) {
+        secfrm.append("dropoff_location", secForm.value.dropoff_location);
+      }
       if (secForm.value.route_plan) {
         secfrm.append("route_plan", secForm.value.route_plan);
       }
@@ -253,6 +257,7 @@ const onSubmitHandler = async () => {
       special_request: "",
       other_info: "",
       pickup_location: "",
+      dropoff_location: "",
       supplier_name: "",
       driver_name: "",
       driver_contact: "",
@@ -277,6 +282,7 @@ const onSubmitHandler = async () => {
 };
 
 const route_plan = ref("");
+const dropoff_location = ref("");
 const booking_status = ref("");
 
 const getDetail = async () => {
@@ -296,7 +302,7 @@ const getDetail = async () => {
     ) {
       secForm.value.special_request = response.result.special_request;
     }
-    console.log(secForm.value.special_request, "this is special");
+    // console.log(secForm.value.special_request, "this is special");
     if (response.result.product_type != "App\\Models\\Inclusive") {
       if (response.result.product.name != null) {
         formData.value.product_name = response.result.product.name;
@@ -308,12 +314,14 @@ const getDetail = async () => {
     formData.value.cus_contact = response.result.customer_info.phone_number;
     formData.value.cus_passport = response.result.customer_info.nrc_number;
     formData.value.cus_email = response.result.customer_info.email;
-    if (response.result.reservation_info != null) {
-      secForm.value.route_plan = response.result.reservation_info.route_plan;
+    if (response.result.route_plan) {
+      secForm.value.route_plan = response.result.route_plan;
     } else if (response.result.product_type === "App\\Models\\PrivateVanTour") {
       secForm.value.route_plan = response.result.product.description;
     }
-    console.log(secForm.value.route_plan);
+    secForm.value.pickup_location = response.result.pickup_location;
+    secForm.value.dropoff_location = response.result.dropoff_location;
+    console.log(secForm.value.pickup_location, "this is pickup");
     if (response.result.reservation_info != null) {
       secForm.value.customer_feedback =
         response.result.reservation_info.customer_feedback;
@@ -326,7 +334,7 @@ const getDetail = async () => {
     } else {
       secForm.value.customer_feedback = "";
       secForm.value.customer_score = "";
-      secForm.value.pickup_location = "";
+
       secForm.value.other_info = "";
     }
 
@@ -762,11 +770,6 @@ onMounted(async () => {
                 cols="4"
                 v-model="secForm.route_plan"
               ></textarea>
-              <!-- <ol v-for="r in routeArray" :key="r" class="">
-                <li class="text-xs font-semibold">
-                  <i class="fa-solid fa-map-pin mr-2"></i>{{ r }}
-                </li>
-              </ol> -->
             </div>
           </div>
 
@@ -806,6 +809,15 @@ onMounted(async () => {
                 cols="4"
                 :class="secForm.pickup_location != '' ? 'bg-white' : ''"
                 v-model="secForm.pickup_location"
+              ></textarea>
+            </div>
+            <div class="px-6 space-y-2">
+              <p class="text-gray-400 text-xs">Dropoff Location</p>
+              <textarea
+                class="w-full bg-transparent border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                cols="4"
+                :class="secForm.dropoff_location != '' ? 'bg-white' : ''"
+                v-model="secForm.dropoff_location"
               ></textarea>
             </div>
           </div>

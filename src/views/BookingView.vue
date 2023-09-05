@@ -295,13 +295,13 @@ watch(search, async (newValue) => {
                   >
                     <i class="fa-solid fa-chevron-down"></i>
                   </p>
-                  <router-link :to="'/bookings/update/' + r.id + '/view'">
+                  <!-- <router-link :to="'/bookings/update/' + r.id + '/view'">
                     <button
                       class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
                     >
                       <EyeIcon class="w-5 h-5" />
                     </button>
-                  </router-link>
+                  </router-link> -->
                   <router-link :to="'/bookings/update/' + r.id + '/edit'">
                     <button
                       class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
@@ -334,7 +334,9 @@ watch(search, async (newValue) => {
                 >
                   <div
                     class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
-                  ></div>
+                  >
+                    {{ d.crm_id }}
+                  </div>
                   <div
                     class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
                   >

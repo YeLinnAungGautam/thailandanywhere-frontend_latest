@@ -42,8 +42,12 @@ const { entrances } = storeToRefs(entranceStore);
 const { isOpenCustomerCreate } = storeToRefs(sidebar);
 
 const soldFrom = [
-  { id: "1", name: "Viber" },
-  { id: "2", name: "Phone" },
+  { id: "1", name: "Facebook" },
+  { id: "2", name: "Twitter" },
+  { id: "3", name: "Instagram" },
+  { id: "4", name: "Twitter" },
+  { id: "5", name: "Viber" },
+  { id: "6", name: "Phone" },
 ];
 const payment_mm = [
   { id: "1", name: "KPAY" },
@@ -591,11 +595,12 @@ const closedes = () => {
 };
 const clickdetaildes = ref(false);
 const itemDes = ref();
-const clickdetaildesToggle = (a, b, c, d, index, t, r) => {
+const clickdetaildesToggle = (a, b, c, d, index, t, r, s) => {
   console.log(a, b, index);
   clickdetaildes.value = true;
   itemDes.value = a;
   itemSpecial.value = b;
+  itemServiceDate.value = s;
   itemPickup.value = c;
   itemDropoff.value = d;
   indexValue.value = index;
@@ -612,6 +617,7 @@ const itemDropoff = ref("");
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
   formData.value.items[x].special_request = itemSpecial.value;
+  formData.value.items[x].service_date = itemServiceDate.value;
   formData.value.items[x].pickup_location = itemPickup.value;
   formData.value.items[x].dropoff_location = itemDropoff.value;
   formData.value.items[x].route_plan = itemRoutePlan.value;
@@ -619,11 +625,13 @@ const clickdetaildesUpdate = (x) => {
 };
 
 const itemSpecial = ref("");
+const itemServiceDate = ref("");
 
 const clickdetaildesClose = () => {
   clickdetaildes.value = false;
   itemDes.value = "";
   itemSpecial.value = "";
+  itemServiceDate.value = "";
   itemPickup.value = "";
   itemDropoff.value = "";
 };
@@ -889,7 +897,7 @@ onMounted(async () => {
                         id=""
                         class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
                         cols="30"
-                        rows="5"
+                        rows="3"
                         v-model="formitem.comment"
                       ></textarea>
                     </div>
@@ -900,9 +908,25 @@ onMounted(async () => {
                         id=""
                         class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
                         cols="30"
-                        rows="5"
+                        rows="3"
                         v-model="formitem.special_request"
                       ></textarea>
+                    </div>
+                    <div class="grid grid-cols-1 space-y-2">
+                      <p class="text-xs">Service Date</p>
+                      <input
+                        type="date"
+                        v-model="formitem.service_date"
+                        @change="todayCheck"
+                        id="title"
+                        class="px-1 py-1.5 focus:outline-none text-xs rounded"
+                        :class="
+                          todayVali == true ? 'text-blue-600' : 'text-red-600'
+                        "
+                      />
+                      <p class="text-xs text-red-400" v-if="!todayVali">
+                        fill after today
+                      </p>
                     </div>
                     <div
                       class="grid grid-cols-1 space-y-2"
@@ -1016,6 +1040,14 @@ onMounted(async () => {
                         v-model="itemSpecial"
                       ></textarea>
                     </div>
+                    <div class="grid grid-cols-1 space-y-2">
+                      <p class="text-sm">Service Date</p>
+                      <input
+                        type="date"
+                        v-model="itemServiceDate"
+                        class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
+                      />
+                    </div>
                     <div
                       class="grid grid-cols-1 space-y-2"
                       v-if="itemType == '1' || itemType == '3'"
@@ -1098,7 +1130,7 @@ onMounted(async () => {
                         <th
                           class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
                         >
-                          Service Date
+                          Rate
                         </th>
                         <th
                           class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
@@ -1188,7 +1220,7 @@ onMounted(async () => {
                             ></v-select>
                           </div>
                         </td>
-                        <td
+                        <!-- <td
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
                         >
                           <input
@@ -1206,6 +1238,11 @@ onMounted(async () => {
                           <p class="text-xs text-red-400" v-if="!todayVali">
                             fill after today
                           </p>
+                        </td> -->
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        >
+                          <p>{{ formitem.selling_price }}</p>
                         </td>
                         <td
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
@@ -1363,7 +1400,7 @@ onMounted(async () => {
                           ></v-select>
                           <p v-if="!item.car_id">-</p>
                         </td>
-                        <td
+                        <!-- <td
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
                         >
                           <input
@@ -1371,6 +1408,11 @@ onMounted(async () => {
                             v-model="item.service_date"
                             class="focus:outline-none text-xs"
                           />
+                        </td> -->
+                        <td
+                          class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
+                        >
+                          <p>{{ item.selling_price }}</p>
                         </td>
                         <td
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
@@ -1396,7 +1438,8 @@ onMounted(async () => {
                                 item.dropoff_location,
                                 index,
                                 item.product_type,
-                                item.route_plan
+                                item.route_plan,
+                                item.service_date
                               )
                             "
                           >

@@ -1130,6 +1130,11 @@ onMounted(async () => {
                         <th
                           class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
                         >
+                          Service Date
+                        </th>
+                        <th
+                          class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                        >
                           Rate
                         </th>
                         <th
@@ -1220,7 +1225,7 @@ onMounted(async () => {
                             ></v-select>
                           </div>
                         </td>
-                        <!-- <td
+                        <td
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
                         >
                           <input
@@ -1238,7 +1243,7 @@ onMounted(async () => {
                           <p class="text-xs text-red-400" v-if="!todayVali">
                             fill after today
                           </p>
-                        </td> -->
+                        </td>
                         <td
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
                         >
@@ -1400,7 +1405,7 @@ onMounted(async () => {
                           ></v-select>
                           <p v-if="!item.car_id">-</p>
                         </td>
-                        <!-- <td
+                        <td
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
                         >
                           <input
@@ -1408,7 +1413,7 @@ onMounted(async () => {
                             v-model="item.service_date"
                             class="focus:outline-none text-xs"
                           />
-                        </td> -->
+                        </td>
                         <td
                           class="py-3 text-start px-4 border-gray-300 text-sm text-gray-800"
                         >

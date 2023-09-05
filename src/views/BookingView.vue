@@ -67,6 +67,11 @@ const onDeleteHandler = async (id) => {
 
 const search = ref("");
 
+const strippedNumber = (text) => {
+  // Split the string by "_", and get the second part (index 1)
+  return text.split("_")[1];
+};
+
 onMounted(async () => {
   await bookingStore.getListAction();
 });
@@ -242,6 +247,7 @@ watch(search, async (newValue) => {
                   {{ r.crm_id }}
                 </div>
                 <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                  <p v-if="!r.payment_status">-</p>
                   <p
                     v-if="r.payment_status == 'fully_paid'"
                     class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
@@ -335,7 +341,7 @@ watch(search, async (newValue) => {
                   <div
                     class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
                   >
-                    {{ d.crm_id }}
+                    {{ strippedNumber(d.crm_id) }}
                   </div>
                   <div
                     class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
@@ -359,6 +365,7 @@ watch(search, async (newValue) => {
                   <div
                     class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
                   >
+                    <p v-if="!d.payment_status">-</p>
                     <p
                       v-if="d.payment_status == 'fully_paid'"
                       class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"

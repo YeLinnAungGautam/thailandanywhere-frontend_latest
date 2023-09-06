@@ -8,6 +8,8 @@ import GroupTour from "../views/Grouptour.vue";
 import Airport from "../views/AirportTicket.vue";
 import Entrance from "../views/EntranceTicket.vue";
 import Inclusive from "../views/InclusiveView.vue";
+import Hotel from "../views/HotelView.vue";
+import Room from "../views/RoomView.vue";
 import { useRouter, useRoute } from "vue-router";
 import {
   PencilSquareIcon,
@@ -52,7 +54,7 @@ onMounted(() => {
     <div class="">
       <TabGroup :selectedIndex="selectedTab">
         <TabList
-          class="space-x-2 bg-white/60 p-6 rounded-lg shadow-sm mb-5 flex"
+          class="flex p-6 mb-5 space-x-2 rounded-lg shadow-sm bg-white/60"
         >
           <Tab as="template" v-slot="{ selected }" @click="changeTab(0)">
             <button
@@ -109,6 +111,28 @@ onMounted(() => {
               Inclusive
             </button>
           </Tab>
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(5)">
+            <button
+              :class="{
+                'bg-[#ff613c] text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+            >
+              Hotels
+            </button>
+          </Tab>
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(6)">
+            <button
+              :class="{
+                'bg-[#ff613c] text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+            >
+              Rooms
+            </button>
+          </Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -125,6 +149,12 @@ onMounted(() => {
           </TabPanel>
           <TabPanel>
             <Inclusive />
+          </TabPanel>
+          <TabPanel>
+            <Hotel />
+          </TabPanel>
+          <TabPanel>
+            <Room />
           </TabPanel>
         </TabPanels>
       </TabGroup>

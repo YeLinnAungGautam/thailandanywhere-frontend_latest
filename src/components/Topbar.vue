@@ -28,7 +28,7 @@
           >
             <img
               class="rounded-full shadow-lg w-9 h-9 md:w-10 md:h-10"
-              :src="`https://ui-avatars.com/api/?background=3B81F6&color=fff&name=${authStore.user.name}&font-size=0.33`"
+              :src="`https://ui-avatars.com/api/?background=ff613c&color=fff&name=${authStore.user.name}&font-size=0.33`"
               alt=""
             />
           </button>

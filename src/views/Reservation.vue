@@ -90,59 +90,63 @@ watch(search, async (newValue) => {
         ></v-select> -->
         <div class="space-x-2 flex justify-start items-center gap-2">
           <p
-            class="text-sm px-4 cursor-pointer hover:bg-blue-500 hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('')"
-            :class="search == '' ? 'bg-blue-500 text-white' : ''"
+            :class="search == '' ? 'bg-[#ff613c] text-white' : ''"
           >
             All
           </p>
           <p
-            class="text-sm px-4 cursor-pointer hover:bg-blue-500 hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\PrivateVanTour')"
             :class="
               search == 'App\\Models\\PrivateVanTour'
-                ? 'bg-blue-500 text-white'
+                ? 'bg-[#ff613c] text-white'
                 : ''
             "
           >
             Private Van tour
           </p>
           <p
-            class="text-sm px-4 cursor-pointer hover:bg-blue-500 hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\GroupTour')"
             :class="
-              search == 'App\\Models\\GroupTour' ? 'bg-blue-500 text-white' : ''
+              search == 'App\\Models\\GroupTour'
+                ? 'bg-[#ff613c] text-white'
+                : ''
             "
           >
             Group Tour
           </p>
           <p
-            class="text-sm px-4 cursor-pointer hover:bg-blue-500 hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\EntranceTicket')"
             :class="
               search == 'App\\Models\\EntranceTicket'
-                ? 'bg-blue-500 text-white'
+                ? 'bg-[#ff613c] text-white'
                 : ''
             "
           >
             Entrance Ticket
           </p>
           <p
-            class="text-sm px-4 cursor-pointer hover:bg-blue-500 hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\AirportPickup')"
             :class="
               search == 'App\\Models\\AirportPickup'
-                ? 'bg-blue-500 text-white'
+                ? 'bg-[#ff613c] text-white'
                 : ''
             "
           >
             Airport Pickup
           </p>
           <p
-            class="text-sm px-4 cursor-pointer hover:bg-blue-500 hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\Inclusive')"
             :class="
-              search == 'App\\Models\\Inclusive' ? 'bg-blue-500 text-white' : ''
+              search == 'App\\Models\\Inclusive'
+                ? 'bg-[#ff613c] text-white'
+                : ''
             "
           >
             Inclusive

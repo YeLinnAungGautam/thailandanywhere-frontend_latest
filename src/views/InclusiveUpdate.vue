@@ -768,7 +768,7 @@ onMounted(async () => {
             >
               <span class="text-xs"
                 ><i
-                  class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-blue-500 rounded-full shadow text-white"
+                  class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-[#ff613c] rounded-full shadow text-white"
                 ></i
               ></span>
             </div>

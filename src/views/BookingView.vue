@@ -116,102 +116,7 @@ watch(search, async (newValue) => {
           <p class="inline-block ml-2 text-gray-500 font-medium">entries</p>
         </div>
       </div>
-      <!-- <div class="overflow-auto rounded-lg shadow mb-5">
-        <table class="w-full">
-          <thead class="bg-gray-50 border-b-2 border-gray-200">
-            <tr>
-              <th class="w-20 p-3 text-sm font-medium tracking-wide text-left">
-                No.
-              </th>
-              <th class="w-30 p-3 text-sm font-medium tracking-wide text-left">
-                Customer
-              </th>
-              <th class="p-3 text-sm font-medium tracking-wide text-left">
-                CRM ID
-              </th>
-              <th class="p-3 text-sm font-medium tracking-wide text-left">
-                Payment Status
-              </th>
-              <th class="p-3 text-sm font-medium tracking-wide text-left">
-                Reservation Status
-              </th>
-              <th class="p-3 text-sm font-medium tracking-wide text-left">
-                Booking Date
-              </th>
-              <th class="w-30 p-3 text-sm font-medium tracking-wide text-left">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <tr
-              v-for="r in bookings?.data"
-              :key="r.id"
-              class="bg-white even:bg-gray-50 hover:bg-gray-50"
-            >
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                {{ r.id }}
-              </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                {{ r.customer.name }}
-              </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                {{ r.crm_id }}
-              </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                <p
-                  v-if="r.payment_status == 'fully_paid'"
-                  class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow"
-                >
-                  {{ r.payment_status }}
-                </p>
-                <p
-                  v-if="r.payment_status == 'not_paid'"
-                  class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow"
-                >
-                  {{ r.payment_status }}
-                </p>
-                <p
-                  v-if="r.payment_status == 'partially_paid'"
-                  class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow"
-                >
-                  {{ r.payment_status }}
-                </p>
-              </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                {{ r.reservation_status }}
-              </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                {{ r.booking_date }}
-              </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                <div class="flex items-center gap-2">
-                  <router-link :to="'/bookings/update/' + r.id + '/view'">
-                    <button
-                      class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
-                    >
-                      <EyeIcon class="w-5 h-5" />
-                    </button>
-                  </router-link>
-                  <router-link :to="'/bookings/update/' + r.id + '/edit'">
-                    <button
-                      class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
-                    >
-                      <PencilSquareIcon class="w-5 h-5" />
-                    </button>
-                  </router-link>
-                  <button
-                    @click.prevent="onDeleteHandler(r.id)"
-                    class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
-                  >
-                    <TrashIcon class="w-5 h-5" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div> -->
+
       <div class="overflow-auto rounded-lg shadow mb-5">
         <div class="grid grid-cols-7 gap-2 bg-gray-100">
           <div class="text-center text-sm font-medium tracking-wide py-2">
@@ -440,3 +345,14 @@ watch(search, async (newValue) => {
     </div>
   </Layout>
 </template>
+
+<style>
+.focus\:ring-0:focus {
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
+    var(--tw-ring-offset-width) #ff613c;
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
+    calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
+    var(--tw-shadow, 0 0 #0000);
+}
+</style>

@@ -668,7 +668,7 @@ onMounted(async () => {
 <template>
   <Layout>
     <div
-      class="grid grid-cols-3 col-span-2 gap-3 p-6 mb-5 rounded-lg shadow-sm "
+      class="grid grid-cols-3 col-span-2 gap-3 p-6 mb-5 rounded-lg shadow-sm"
     >
       <div class="flex items-center justify-between col-span-3 mb-5">
         <h3 class="text-2xl font-medium text-[#ff613c]">Create New Sales</h3>
@@ -912,7 +912,7 @@ onMounted(async () => {
                         v-model="formitem.special_request"
                       ></textarea>
                     </div>
-                    <div class="grid hidden grid-cols-1 space-y-2">
+                    <!-- <div class="grid hidden grid-cols-1 space-y-2">
                       <p class="text-xs">Service Date</p>
                       <input
                         type="date"
@@ -927,7 +927,7 @@ onMounted(async () => {
                       <p class="text-xs text-red-400" v-if="!todayVali">
                         fill after today
                       </p>
-                    </div>
+                    </div> -->
                     <div
                       class="grid grid-cols-1 space-y-2"
                       v-if="
@@ -983,7 +983,7 @@ onMounted(async () => {
                       <button @click="closedes" class="text-sm">close</button>
                       <button
                         @click="closedes"
-                        class="px-2 py-1 text-sm text-white bg-blue-500 rounded"
+                        class="px-2 py-1 text-sm text-white bg-[#ff613c] rounded"
                       >
                         + add
                       </button>
@@ -1040,14 +1040,14 @@ onMounted(async () => {
                         v-model="itemSpecial"
                       ></textarea>
                     </div>
-                    <div class="grid grid-cols-1 space-y-2">
+                    <!-- <div class="grid grid-cols-1 space-y-2">
                       <p class="text-sm">Service Date</p>
                       <input
                         type="date"
                         v-model="itemServiceDate"
                         class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                       />
-                    </div>
+                    </div> -->
                     <div
                       class="grid grid-cols-1 space-y-2"
                       v-if="itemType == '1' || itemType == '3'"
@@ -1096,7 +1096,7 @@ onMounted(async () => {
                       </button>
                       <button
                         @click="clickdetaildesUpdate(indexValue)"
-                        class="px-2 py-1 text-sm text-white bg-blue-500 rounded"
+                        class="px-2 py-1 text-sm text-white bg-[#ff613c] rounded"
                       >
                         update
                       </button>
@@ -1283,7 +1283,7 @@ onMounted(async () => {
                             v-if="formitem.product_id && todayVali"
                           >
                             <i
-                              class="fa-solid fa-plus text-xs font-semibold px-1 py-[1.5px] rounded-full shadow text-white bg-blue-600"
+                              class="fa-solid fa-plus text-xs font-semibold px-1 py-[1.5px] rounded-full shadow text-white bg-[#ff613c]"
                             ></i>
                           </button>
                         </td>

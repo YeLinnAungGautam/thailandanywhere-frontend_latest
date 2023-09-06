@@ -3,7 +3,7 @@
     :to="to"
     :class="{
       'text-[#FF5B00] bg-[#FF5B00]/10': isActive(),
-      'text-gray-600 bg-[#ffede3]': !isActive(),
+      'text-gray-600 bg-white': !isActive(),
     }"
     class="inline-flex mb-1 shadow-sm text-[.75rem] rounded-md relative items-center py-[12px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[rgb(255, 91, 0, 0.1) transition duration-150"
   >

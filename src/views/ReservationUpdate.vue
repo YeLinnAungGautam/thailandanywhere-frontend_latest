@@ -509,17 +509,17 @@ onMounted(async () => {
   <Layout>
     <div>
       <div class="flex justify-between items-center pb-6">
-        <p class="text-blue-500 font-semibold text-sm">
+        <p class="text-[#ff613c] font-semibold text-sm">
           Reservation : Car Rental
         </p>
         <p
-          class="px-4 py-2 border border-blue-500 text-blue-500 text-xs"
+          class="px-4 py-2 border border-[#ff613c] text-[#ff613c] text-xs"
           v-if="formData.reservation_status == 'reserved'"
         >
           Complete Booking
         </p>
         <p
-          class="px-4 py-2 border border-blue-500 text-blue-500 text-xs"
+          class="px-4 py-2 border border-[#ff613c] text-[#ff613c] text-xs"
           v-if="formData.reservation_status != 'reserved'"
         >
           Pending Booking
@@ -528,10 +528,10 @@ onMounted(async () => {
       <div class="grid grid-cols-3 gap-8">
         <div class="col-span-2">
           <div
-            class="flex justify-start items-center text-xs bg-blue-500 text-white font-semibold px-4 py-2"
+            class="flex justify-start items-center text-xs bg-[#ff613c] text-white font-semibold px-4 py-2"
           >
             <p>Reservation Code :</p>
-            <p class="ml-2">{{ crm }}</p>
+            <p class="ml-2 text-white">{{ crm }}</p>
           </div>
 
           <div
@@ -742,7 +742,7 @@ onMounted(async () => {
           <div class="flex justify-end items-center">
             <button
               @click.prevent="onSubmitHandler"
-              class="my-10 px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 shadow"
+              class="my-10 px-4 py-2 bg-[#ff613c] text-white hover:bg-blue-600 shadow"
             >
               Update Reservation
             </button>
@@ -751,7 +751,7 @@ onMounted(async () => {
 
         <div class=" ">
           <div
-            class="flex justify-start items-center text-xs bg-blue-500 text-white font-semibold px-4 py-2"
+            class="flex justify-start items-center text-xs bg-[#ff613c] text-white font-semibold px-4 py-2"
           >
             <p>Add Reservation Detail</p>
           </div>

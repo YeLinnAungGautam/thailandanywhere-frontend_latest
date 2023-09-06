@@ -37,10 +37,10 @@ import {
           <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-gray-600': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Product Category
             </button>
@@ -48,10 +48,10 @@ import {
           <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-gray-600': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm text-gray-600 cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm text-gray-600 cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none shadow rounded-md"
             >
               Product Sub Category
             </button>
@@ -59,10 +59,10 @@ import {
           <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Product Tag
             </button>
@@ -70,10 +70,10 @@ import {
           <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Destination
             </button>
@@ -81,10 +81,10 @@ import {
           <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               City
             </button>
@@ -92,10 +92,10 @@ import {
           <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Car
             </button>

@@ -103,10 +103,10 @@ const data = ref([
           <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-gray-600': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Van Tours
             </button>
@@ -114,10 +114,10 @@ const data = ref([
           <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-gray-600': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm text-gray-600 cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm text-gray-600 cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none shadow rounded-md"
             >
               Flights
             </button>
@@ -125,10 +125,10 @@ const data = ref([
           <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Entrance Tickets
             </button>
@@ -136,10 +136,10 @@ const data = ref([
           <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Hotels
             </button>
@@ -147,10 +147,10 @@ const data = ref([
           <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Experiences
             </button>
@@ -158,10 +158,10 @@ const data = ref([
           <Tab as="template" v-slot="{ selected }">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Group Tours
             </button>
@@ -264,17 +264,17 @@ const data = ref([
                       <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                         <div class="flex items-center gap-2">
                           <button
-                            class="hover:bg-blue-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                            class="hover:bg-[#ff613c] p-2 bg-white text-[#ff613c] transition shadow rounded hover:text-white"
                           >
                             <EyeIcon class="w-5 h-5" />
                           </button>
                           <button
-                            class="hover:bg-yellow-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                            class="hover:bg-yellow-500 p-2 bg-white text-[#ff613c] transition shadow rounded hover:text-white"
                           >
                             <PencilSquareIcon class="w-5 h-5" />
                           </button>
                           <button
-                            class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                            class="hover:bg-red-500 p-2 bg-white text-[#ff613c] transition shadow rounded hover:text-white"
                           >
                             <TrashIcon class="w-5 h-5" />
                           </button>

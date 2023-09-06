@@ -824,7 +824,7 @@ onMounted(async () => {
           <div role="status">
             <svg
               aria-hidden="true"
-              class="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+              class="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-[#ff613c]"
               viewBox="0 0 100 101"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -844,23 +844,23 @@ onMounted(async () => {
       </div>
       <div
         v-if="!loadingState"
-        class="grid grid-cols-3 gap-3 bg-blue-100/50 col-span-2 p-6 rounded-lg shadow-sm mb-5"
+        class="grid grid-cols-3 gap-3 col-span-2 p-6 rounded-lg shadow-sm mb-5"
       >
         <div class="mb-5 flex items-center justify-between col-span-3">
           <h3
-            class="text-2xl font-medium text-blue-400"
+            class="text-2xl font-medium text-[#ff613c]"
             v-if="action == 'view'"
           >
             View Sale
           </h3>
           <h3
-            class="text-2xl font-medium text-blue-400"
+            class="text-2xl font-medium text-[#ff613c]"
             v-if="action == 'edit'"
           >
             Update Sale
           </h3>
           <div
-            class="space-x-3 px-2 text-xs py-1.5 hover:shadow-lg border shadow-sm rounded cursor-pointer bg-blue-400 text-white"
+            class="space-x-3 px-2 text-xs py-1.5 hover:shadow-lg border shadow-sm rounded cursor-pointer bg-[#ff613c] text-white"
             @click="customerOpenH"
           >
             <i class="fa-solid fa-user-plus"></i> Create New Customer
@@ -871,7 +871,7 @@ onMounted(async () => {
             <div class="grid grid-cols-2 gap-4 col-span-2">
               <div class="grid grid-cols-2 gap-4">
                 <div class="">
-                  <p class="text-blue-400 text-xs mb-2">Customer Name</p>
+                  <p class="text-[#ff613c] text-xs mb-2">Customer Name</p>
 
                   <v-select
                     v-model="formData.customer_id"
@@ -886,7 +886,7 @@ onMounted(async () => {
                   ></v-select>
                 </div>
                 <div class="">
-                  <p class="text-blue-400 text-xs mb-2">Sale Date</p>
+                  <p class="text-[#ff613c] text-xs mb-2">Sale Date</p>
                   <input
                     v-model="formData.booking_date"
                     :class="{
@@ -906,7 +906,7 @@ onMounted(async () => {
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div class="">
-                  <p class="text-blue-400 text-xs mb-2">Sold From</p>
+                  <p class="text-[#ff613c] text-xs mb-2">Sold From</p>
                   <v-select
                     v-model="formData.sold_from"
                     class="style-chooser"
@@ -921,7 +921,7 @@ onMounted(async () => {
                 </div>
 
                 <div>
-                  <p class="text-blue-400 text-xs mb-2">Payment Currency</p>
+                  <p class="text-[#ff613c] text-xs mb-2">Payment Currency</p>
                   <v-select
                     v-model="formData.payment_currency"
                     class="style-chooser"
@@ -939,7 +939,7 @@ onMounted(async () => {
 
               <div class="grid grid-cols-2 gap-4">
                 <div class="">
-                  <p class="text-blue-400 text-xs mb-2">Payment Method</p>
+                  <p class="text-[#ff613c] text-xs mb-2">Payment Method</p>
                   <v-select
                     v-model="formData.payment_method"
                     class="style-chooser"
@@ -953,7 +953,7 @@ onMounted(async () => {
                   ></v-select>
                 </div>
                 <div>
-                  <p class="text-blue-400 text-xs mb-2">Payment Status</p>
+                  <p class="text-[#ff613c] text-xs mb-2">Payment Status</p>
                   <v-select
                     v-model="formData.payment_status"
                     class="style-chooser"
@@ -968,7 +968,7 @@ onMounted(async () => {
                   ></v-select>
                 </div>
                 <div>
-                  <p class="text-blue-400 text-xs mb-2">CRMID</p>
+                  <p class="text-[#ff613c] text-xs mb-2">CRMID</p>
 
                   <input
                     v-model="formData.crm_id"
@@ -986,7 +986,7 @@ onMounted(async () => {
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <p class="text-blue-400 text-xs mb-2">Balance Due Date</p>
+                  <p class="text-[#ff613c] text-xs mb-2">Balance Due Date</p>
 
                   <input
                     v-model="formData.balance_due_date"
@@ -1007,7 +1007,7 @@ onMounted(async () => {
                   </p>
                 </div>
                 <div>
-                  <p class="text-blue-400 text-xs mb-2">Money Exchange Rate</p>
+                  <p class="text-[#ff613c] text-xs mb-2">Money Exchange Rate</p>
 
                   <input
                     v-model="formData.money_exchange_rate"
@@ -1030,17 +1030,17 @@ onMounted(async () => {
               </div>
             </div>
             <div class="col-span-1 text-end space-y-4">
-              <p class="text-blue-400 text-xs">Balance Due</p>
-              <p class="text-blue-400 font-bold text-4xl tracking-wide">
+              <p class="text-[#ff613c] text-xs">Balance Due</p>
+              <p class="text-[#ff613c] font-bold text-4xl tracking-wide">
                 {{ balance_due }} thb
               </p>
 
               <a
                 :href="urlPaid"
                 target="_blink"
-                class="border border-blue-400 inline-block py-2 px-4"
+                class="border border-[#ff613c] inline-block py-2 px-4"
               >
-                <p class="text-blue-400 text-sm">Receive Payment</p>
+                <p class="text-[#ff613c] text-sm">Receive Payment</p>
               </a>
             </div>
 
@@ -1085,7 +1085,7 @@ onMounted(async () => {
                           v-model="formitem.special_request"
                         ></textarea>
                       </div>
-                      <div class="grid grid-cols-1 space-y-2">
+                      <!-- <div class="grid grid-cols-1 space-y-2">
                         <p class="text-xs">Service Date</p>
                         <input
                           type="date"
@@ -1100,7 +1100,7 @@ onMounted(async () => {
                         <p class="text-xs text-red-400" v-if="!todayVali">
                           fill after today
                         </p>
-                      </div>
+                      </div> -->
                       <div
                         class="grid grid-cols-1 space-y-2"
                         v-if="
@@ -1165,7 +1165,7 @@ onMounted(async () => {
                         <button @click="closedes" class="text-sm">close</button>
                         <button
                           @click="closedes"
-                          class="text-sm px-2 py-1 bg-blue-500 text-white rounded"
+                          class="text-sm px-2 py-1 bg-[#ff613c] text-white rounded"
                         >
                           + add
                         </button>
@@ -1222,14 +1222,14 @@ onMounted(async () => {
                           v-model="itemSpecial"
                         ></textarea>
                       </div>
-                      <div class="grid grid-cols-1 space-y-2">
+                      <!-- <div class="grid grid-cols-1 space-y-2">
                         <p class="text-sm">Service Date</p>
                         <input
                           type="date"
                           v-model="itemServiceDate"
                           class="border border-gray-300 rounded-sm focus:outline-none px-4 py-4 text-sm"
                         />
-                      </div>
+                      </div> -->
                       <div
                         class="grid grid-cols-1 space-y-2"
                         v-if="
@@ -1293,7 +1293,7 @@ onMounted(async () => {
                         </button>
                         <button
                           @click="clickdetaildesUpdate(indexValue)"
-                          class="text-sm px-2 py-1 bg-blue-500 text-white rounded"
+                          class="text-sm px-2 py-1 bg-[#ff613c] text-white rounded"
                         >
                           update
                         </button>
@@ -1305,46 +1305,46 @@ onMounted(async () => {
                       <thead>
                         <tr class="border-b border-gray-300">
                           <th
-                            class="py-2 text-start px-4 text-xs text-blue-400"
+                            class="py-2 text-start px-4 text-xs text-[#ff613c]"
                           ></th>
 
                           <th
-                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-[#ff613c]"
                           >
                             P Type
                           </th>
                           <th
-                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-[#ff613c]"
                           >
                             Product Name
                           </th>
                           <th
-                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-[#ff613c]"
                           >
                             Variation
                           </th>
                           <th
-                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-[#ff613c]"
                           >
                             Service Date
                           </th>
                           <th
-                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-[#ff613c]"
                           >
                             Rate
                           </th>
                           <th
-                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-[#ff613c]"
                           >
                             Quantity
                           </th>
                           <th
-                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-[#ff613c]"
                           >
                             Amount
                           </th>
                           <th
-                            class="py-2 text-start px-4 border-gray-300 text-xs text-blue-400"
+                            class="py-2 text-start px-4 border-gray-300 text-xs text-[#ff613c]"
                           ></th>
                         </tr>
                       </thead>
@@ -1881,7 +1881,7 @@ onMounted(async () => {
                         >
                           <span class="text-xs"
                             ><i
-                              class="fa-solid fa-plus text-lg font-semibold py-3 px-5 bg-blue-500 rounded-full shadow text-white"
+                              class="fa-solid fa-plus text-lg font-semibold py-3 px-5 bg-[#ff613c] rounded-full shadow text-white"
                             ></i
                           ></span>
                         </div>
@@ -1931,7 +1931,7 @@ onMounted(async () => {
                           name=""
                           id=""
                           v-model="checkCondition"
-                          class="w-6 h-6 text-blue-500 border-gray-300 rounded-md"
+                          class="w-6 h-6 bg-[#ff613c] border-gray-300 rounded-md"
                         />
                         <p class="text-xs">
                           click want update when deposit not change

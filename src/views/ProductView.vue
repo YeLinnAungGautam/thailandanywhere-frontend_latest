@@ -57,10 +57,10 @@ onMounted(() => {
           <Tab as="template" v-slot="{ selected }" @click="changeTab(0)">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-gray-600': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Van Tours
             </button>
@@ -68,10 +68,10 @@ onMounted(() => {
           <Tab as="template" v-slot="{ selected }" @click="changeTab(1)">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Airport Pickup
             </button>
@@ -79,10 +79,10 @@ onMounted(() => {
           <Tab as="template" v-slot="{ selected }" @click="changeTab(2)">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Entrance Tickets
             </button>
@@ -90,10 +90,10 @@ onMounted(() => {
           <Tab as="template" v-slot="{ selected }" @click="changeTab(3)">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Group Tours
             </button>
@@ -101,10 +101,10 @@ onMounted(() => {
           <Tab as="template" v-slot="{ selected }" @click="changeTab(4)">
             <button
               :class="{
-                'bg-blue-500 text-white': selected,
+                'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-blue-500 focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Inclusive
             </button>

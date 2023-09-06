@@ -151,7 +151,7 @@
             >
               <span class="text-xs"
                 ><i
-                  class="fa-solid fa-plus text-4xl font-semibold py-4 px-5 bg-blue-500 rounded-full shadow text-white"
+                  class="fa-solid fa-plus text-4xl font-semibold py-4 px-5 bg-[#ff613c] rounded-full shadow text-white"
                 ></i
               ></span>
             </div>

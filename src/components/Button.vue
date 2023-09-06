@@ -27,7 +27,7 @@ const buttonClass = computed(() => {
     {
       variants: {
         intent: {
-          primary: "bg-blue-600 text-white",
+          primary: "bg-[#ff613c] text-white",
           secondary: "bg-gray-600 text-white",
           success: "bg-green-600 text-white",
           text: "bg-white text-gray-800",

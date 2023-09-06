@@ -111,7 +111,7 @@ onMounted(async () => {
                   Van Tour
                 </h3>
                 <p
-                  class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
+                  class="text-[#ff613c] text-3xl font-medium tracking-wide font-roboto"
                 >
                   {{ vantours?.data.length }}
                 </p>
@@ -127,7 +127,7 @@ onMounted(async () => {
                   Group Tour
                 </h3>
                 <p
-                  class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
+                  class="text-[#ff613c] text-3xl font-medium tracking-wide font-roboto"
                 >
                   {{ grouptours?.data.length }}
                 </p>
@@ -143,7 +143,7 @@ onMounted(async () => {
                   Airport pickup
                 </h3>
                 <p
-                  class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
+                  class="text-[#ff613c] text-3xl font-medium tracking-wide font-roboto"
                 >
                   {{ airports?.data.length }}
                 </p>
@@ -159,7 +159,7 @@ onMounted(async () => {
                   Entrance Ticket
                 </h3>
                 <p
-                  class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
+                  class="text-[#ff613c] text-3xl font-medium tracking-wide font-roboto"
                 >
                   {{ entrances?.data.length }}
                 </p>
@@ -175,7 +175,7 @@ onMounted(async () => {
                   Booking List Count
                 </h3>
                 <p
-                  class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
+                  class="text-[#ff613c] text-3xl font-medium tracking-wide font-roboto"
                 >
                   {{ bookings?.data.length }}
                 </p>

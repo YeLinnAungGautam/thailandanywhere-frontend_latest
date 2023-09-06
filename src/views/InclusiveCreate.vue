@@ -631,7 +631,7 @@ onMounted(async () => {});
             >
               <span class="text-xs"
                 ><i
-                  class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-blue-500 rounded-full shadow text-white"
+                  class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-[#ff613c] rounded-full shadow text-white"
                 ></i
               ></span>
             </div>
@@ -640,7 +640,7 @@ onMounted(async () => {});
             >
               <span class="text-xs"
                 ><i
-                  class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-blue-500 rounded-full shadow text-white"
+                  class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-[#ff613c] rounded-full shadow text-white"
                 ></i
               ></span>
             </div>
@@ -649,7 +649,7 @@ onMounted(async () => {});
             >
               <span class="text-xs"
                 ><i
-                  class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-blue-500 rounded-full shadow text-white"
+                  class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-[#ff613c] rounded-full shadow text-white"
                 ></i
               ></span>
             </div>
@@ -675,7 +675,7 @@ onMounted(async () => {});
             >
               <span class="text-xs"
                 ><i
-                  class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-blue-500 rounded-full shadow text-white"
+                  class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-[#ff613c] rounded-full shadow text-white"
                 ></i
               ></span>
             </div>
@@ -694,7 +694,7 @@ onMounted(async () => {});
             <button
               v-if="!featureImagePreview"
               @click.prevent="openFileFeaturePicker"
-              class="text-sm text-blue-500"
+              class="text-sm text-[#ff613c]"
             ></button>
             <button
               v-else
@@ -711,7 +711,7 @@ onMounted(async () => {});
           >
             <span class="text-xs"
               ><i
-                class="fa-solid fa-plus text-lg font-semibold py-3 px-5 bg-blue-500 rounded-full shadow text-white"
+                class="fa-solid fa-plus text-lg font-semibold py-3 px-5 bg-[#ff613c] rounded-full shadow text-white"
               ></i
             ></span>
           </div>

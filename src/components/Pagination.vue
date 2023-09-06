@@ -9,9 +9,7 @@
           aria-current="page"
           :disabled="!page.url"
           :class="[
-            page.active
-              ? 'bg-blue-500 text-white'
-              : 'bg-white text-blue-500',
+            page.active ? 'bg-[#ff613c] text-white' : 'bg-white text-[#ff613c]',
             !page.url ? 'bg-gray-100 border-none text-gray-500' : '',
           ]"
           class="relative z-10 inline-flex items-center w-10 h-10 justify-center text-xs rounded-full font-medium focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"

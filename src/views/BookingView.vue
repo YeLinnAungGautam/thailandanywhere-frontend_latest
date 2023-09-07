@@ -174,8 +174,9 @@ watch(search, async (newValue) => {
                 </div>
                 <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
                   <p v-if="!r.reservation_status">-</p>
+
                   <p
-                    v-if="r.reservation_status == 'reserved'"
+                    v-if="r.reservation_status == 'confirmed'"
                     class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
                   >
                     {{ r.reservation_status }}
@@ -187,7 +188,7 @@ watch(search, async (newValue) => {
                     {{ r.reservation_status }}
                   </p>
                   <p
-                    v-if="r.reservation_status == 'awaiting_payment'"
+                    v-if="r.reservation_status == 'awaiting'"
                     class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
                   >
                     {{ r.reservation_status }}
@@ -266,11 +267,16 @@ watch(search, async (newValue) => {
                     <p v-if="d.product_type == 'App\\Models\\Inclusive'">
                       Inclusive
                     </p>
+                    <p v-if="d.product_type == 'App\\Models\\Hotel'">
+                      Hotel / Roam
+                    </p>
                   </div>
                   <div
                     class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
                   >
-                    <p v-if="!d.payment_status">-</p>
+                    <p v-if="!d.payment_status || d.payment_status == 'null'">
+                      -
+                    </p>
                     <p
                       v-if="d.payment_status == 'fully_paid'"
                       class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
@@ -293,7 +299,13 @@ watch(search, async (newValue) => {
                   <div
                     class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
                   >
-                    <p v-if="!d.reservation_status">-</p>
+                    <p
+                      v-if="
+                        !d.reservation_status || d.reservation_status == 'null'
+                      "
+                    >
+                      -
+                    </p>
                     <p
                       v-if="d.reservation_status == 'reserved'"
                       class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"

@@ -267,7 +267,6 @@ const chooseCar = async (id) => {
   } else if (formitem.value.product_type == "4") {
     const res = await entranceStore.getDetailAction(id);
     console.log(res, "choose");
-    // formitem.value.selling_price = res.result.variations[0].price;
     carType.value = res.result.variations;
     console.log(res.result.variations[0].price);
   } else if (formitem.value.product_type == "5") {
@@ -312,9 +311,6 @@ const chooseCarPrice = async (type, productId, id) => {
   } else if (type == "4") {
     const res = await entranceStore.getDetailAction(productId);
     formitem.value.car_list = res.result.variations;
-    // console.log(productId, "product id");
-    // console.log(res, "product id");
-    // console.log(id, "product id id");
 
     for (let i = 0; i < res.result.variations.length; i++) {
       if (res.result.variations[i].id == id) {
@@ -458,26 +454,18 @@ const onSubmitHandler = async () => {
       "items[" + x + "][product_id]",
       formData.value.items[x].product_id
     );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][pickup_location]",
       formData.value.items[x].pickup_location
     );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][dropoff_location]",
       formData.value.items[x].dropoff_location
     );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][route_plan]",
       formData.value.items[x].route_plan
     );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
     if (formData.value.items[x].product_type === "6") {
       frmData.append(
         "items[" + x + "][room_id]",
@@ -495,69 +483,46 @@ const onSubmitHandler = async () => {
         formData.value.items[x].car_id
       );
     }
-  }
-
-  for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][service_date]",
       formData.value.items[x].service_date
     );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][quantity]",
       formData.value.items[x].quantity
     );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][duration]",
       formData.value.items[x].duration
     );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][special_request]",
       formData.value.items[x].special_request
     );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][selling_price]",
       formData.value.items[x].selling_price
     );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][comment]",
       formData.value.items[x].comment
     );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][reservation_status]",
       formData.value.items[x].reservation_status
     );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][payment_method]",
       formData.value.items[x].payment_method
     );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][payment_status]",
       formData.value.items[x].payment_status
     );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][exchange_rate]",
       formData.value.items[x].exchange_rate
     );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][cost_price]",
       formData.value.items[x].cost_price

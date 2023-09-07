@@ -18,6 +18,7 @@ import { useEntranceStore } from "../stores/entrance";
 import { useBookingStore } from "../stores/booking";
 import { useSidebarStore } from "../stores/sidebar";
 import { useInclusiveStore } from "../stores/inclusion";
+import { useRoomStore } from "../stores/room";
 import { useHotelStore } from "../stores/hotel";
 
 const enabled = ref(false);
@@ -34,6 +35,7 @@ const entranceStore = useEntranceStore();
 const bookingStore = useBookingStore();
 const hotelStore = useHotelStore();
 const inclusiveStore = useInclusiveStore();
+const roomStore = useRoomStore();
 
 const { customer, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
@@ -41,6 +43,8 @@ const { grouptours } = storeToRefs(grouptourStore);
 const { airports } = storeToRefs(airportStore);
 const { entrances } = storeToRefs(entranceStore);
 const { inclusives } = storeToRefs(inclusiveStore);
+const { rooms } = storeToRefs(roomStore);
+const { hotels } = storeToRefs(hotelStore);
 const { isOpenCustomerCreate } = storeToRefs(sidebar);
 
 const soldFrom = [
@@ -303,8 +307,6 @@ const onSubmitHandler = async () => {
   frmData.append("customer_id", formData.value.customer_id);
   frmData.append("sold_from", formData.value.sold_from);
   frmData.append("payment_method", formData.value.payment_method);
-  // frmData.append("special_request", formData.value.special_request);
-
   frmData.append("payment_status", formData.value.payment_status);
   frmData.append("booking_date", formData.value.booking_date);
   frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
@@ -319,12 +321,7 @@ const onSubmitHandler = async () => {
   frmData.append("payment_currency", formData.value.payment_currency);
   frmData.append("balance_due", balance_due.value);
   frmData.append("balance_due_date", formData.value.balance_due_date);
-  // if (formData.value.reciept_image.length > 0) {
-  //   for (let i = 0; i < formData.value.reciept_image.length; i++) {
-  //     let file = formData.value.reciept_image[i];
-  //     frmData.append("items[" + i + "][receipt_image]", file);
-  //   }
-  // }
+
   if (formData.value.confirmation_letter.length > 0) {
     for (let i = 0; i < formData.value.confirmation_letter.length; i++) {
       let file = formData.value.confirmation_letter[i];
@@ -387,6 +384,27 @@ const onSubmitHandler = async () => {
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     if (
+      formData.value.items[x].product_type == "6" &&
+      !formData.value.items[x].room_id
+    ) {
+      frmData.append(
+        "items[" + x + "][room_id]",
+        formData.value.items[x].car_id
+      );
+    } else if (
+      formData.value.items[x].room_id != "" &&
+      formData.value.items[x].room_name != "" &&
+      formData.value.items[x].product_type != "5" &&
+      formData.value.items[x].product_type != "4" &&
+      formData.value.items[x].product_type != "3" &&
+      formData.value.items[x].product_type != "2" &&
+      formData.value.items[x].product_type != "1"
+    ) {
+      frmData.append(
+        "items[" + x + "][room_id]",
+        formData.value.items[x].room_id
+      );
+    } else if (
       formData.value.items[x].product_type != "4" &&
       !formData.value.items[x].variation_id
     ) {
@@ -402,11 +420,6 @@ const onSubmitHandler = async () => {
       frmData.append(
         "items[" + x + "][variation_id]",
         formData.value.items[x].car_id
-      );
-    } else if (formData.value.items[x].product_type == "6") {
-      frmData.append(
-        "items[" + x + "][room_id]",
-        formData.value.items[x].room_id
       );
     } else if (formData.value.items[x].variation_id != "") {
       frmData.append(
@@ -561,7 +574,7 @@ const chooseCar = async (id) => {
   } else if (formitem.value.product_type == "4") {
     const res = await entranceStore.getDetailAction(id);
     console.log(res, "choose");
-    // formitem.value.selling_price = res.result.variations[0].price;
+
     carType.value = res.result.variations;
     console.log(res.result.variations[0].price);
   } else if (formitem.value.product_type == "5") {
@@ -569,7 +582,7 @@ const chooseCar = async (id) => {
     formitem.value.selling_price = res.result.price;
   } else if (formitem.value.product_type == "6") {
     const res = await hotelStore.getDetailAction(id);
-    roomType.value = res.result.rooms;
+    carType.value = res.result.rooms;
   }
 };
 const chooseCarPrice = async (type, productId, id) => {
@@ -619,7 +632,7 @@ const chooseCarPrice = async (type, productId, id) => {
     console.log(res);
   } else if (type == "6") {
     const res = await hotelStore.getDetailAction(productId);
-    formitem.value.room_list = res.result.rooms;
+    formitem.value.car_list = res.result.rooms;
     const room = res.result.rooms.filter((r) => r.id === id)[0];
     formitem.value.room = room;
     formitem.value.selling_price = room.room_price;
@@ -679,6 +692,12 @@ const getDetail = async () => {
           : "",
         variation_name: response.result.items[x].variation
           ? response.result.items[x].variation.name
+          : "",
+        room_name: response.result.items[x].room
+          ? response.result.items[x].room.name
+          : "",
+        room_id: response.result.items[x].room
+          ? response.result.items[x].room.id
           : "",
       };
       formData.value.items.push(itemData);
@@ -829,6 +848,7 @@ onMounted(async () => {
   await entranceStore.getSimpleListAction();
   await inclusiveStore.getSimpleListAction();
   await customerStore.getSimpleListAction();
+  await hotelStore.getSimpleListAction();
   url.value =
     "https://api-blog.thanywhere.com/admin/bookings/" +
     route.params.id +
@@ -1432,7 +1452,13 @@ onMounted(async () => {
                                 "
                               ></v-select>
                             </div>
-                            <div class="" v-if="formitem.product_type == '4'">
+                            <div
+                              class=""
+                              v-if="
+                                formitem.product_type == '4' ||
+                                formitem.product_type == '6'
+                              "
+                            >
                               <v-select
                                 v-model="formitem.car_id"
                                 class="style-chooser"
@@ -1549,20 +1575,6 @@ onMounted(async () => {
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
-                            <!-- <v-select
-                              v-model="item.product_type"
-                              class="style-chooser"
-                              :options="formItemType"
-                              label="name"
-                              disabled
-                              :clearable="false"
-                              :reduce="(d) => d.id"
-                              placeholder="Choose product type"
-                            ></v-select> -->
-                            <!-- <p v-if="item.product_type == '1'">Vantour</p>
-                            <p v-if="item.product_type == '2'">Group</p>
-                            <p v-if="item.product_type == '3'">Airport</p>
-                            <p v-if="item.product_type == '4'">Entrance</p> -->
                             <div class="col-span-1">
                               <div
                                 class="py-2 text-gray-600"
@@ -1619,6 +1631,15 @@ onMounted(async () => {
                                 "
                               >
                                 <p class="inline-block text-sm">Inclusive</p>
+                              </div>
+                              <div
+                                class="py-2 text-gray-600 text-md text-bold"
+                                v-if="
+                                  item.product_type == 'App\\Models\\Hotel' ||
+                                  item.product_type == '6'
+                                "
+                              >
+                                <p class="inline-block text-sm">Hotel room</p>
                               </div>
                             </div>
                           </td>
@@ -1694,6 +1715,19 @@ onMounted(async () => {
                               :reduce="(d) => d.id"
                               placeholder="Choose product type"
                             ></v-select>
+                            <v-select
+                              v-if="
+                                item.product_type == 'App\\Models\\Hotel' ||
+                                item.product_type == '6'
+                              "
+                              v-model="item.product_id"
+                              class="style-chooser"
+                              :options="hotels?.data"
+                              label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              placeholder="Choose product type"
+                            ></v-select>
                           </td>
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -1715,7 +1749,18 @@ onMounted(async () => {
                             <p v-if="item.variation_name">
                               {{ item.variation_name }}
                             </p>
-                            <p v-if="!item.car_id && !item.variation_name">-</p>
+                            <p v-if="item.room_name">
+                              {{ item.room_name }}
+                            </p>
+                            <p
+                              v-if="
+                                !item.car_id &&
+                                !item.variation_name &&
+                                !item.room_name
+                              "
+                            >
+                              -
+                            </p>
                           </td>
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"

@@ -84,7 +84,13 @@
             </p>
           </div>
 
-          <div class="text-end">
+          <div class="text-end flex justify-end items-center">
+            <p
+              class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
+              @click="createModalOpen = false"
+            >
+              close
+            </p>
             <Button type="submit"> Submit </Button>
           </div>
         </form>

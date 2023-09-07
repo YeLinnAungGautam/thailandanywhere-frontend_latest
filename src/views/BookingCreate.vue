@@ -495,7 +495,6 @@ const onSubmitHandler = async () => {
         formData.value.items[x].car_id
       );
     }
-    console.log(formData.value.items[x].car_id, "this is variation");
   }
 
   for (var x = 0; x < formData.value.items.length; x++) {

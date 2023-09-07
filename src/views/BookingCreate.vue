@@ -18,6 +18,8 @@ import { useEntranceStore } from "../stores/entrance";
 import { useBookingStore } from "../stores/booking";
 import { useSidebarStore } from "../stores/sidebar";
 import { useInclusiveStore } from "../stores/inclusion";
+import { useRoomStore } from "../stores/room";
+import { useHotelStore } from "../stores/hotel";
 
 const enabled = ref(false);
 
@@ -31,7 +33,9 @@ const airportStore = useAirportStore();
 const entranceStore = useEntranceStore();
 const bookingStore = useBookingStore();
 const inclusiveStore = useInclusiveStore();
+const hotelStore = useHotelStore();
 const sidebar = useSidebarStore();
+const roomStore = useRoomStore();
 
 const { customer, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
@@ -39,6 +43,8 @@ const { grouptours } = storeToRefs(grouptourStore);
 const { airports } = storeToRefs(airportStore);
 const { inclusives } = storeToRefs(inclusiveStore);
 const { entrances } = storeToRefs(entranceStore);
+const { rooms } = storeToRefs(roomStore);
+const { hotels } = storeToRefs(hotelStore);
 const { isOpenCustomerCreate } = storeToRefs(sidebar);
 
 const soldFrom = [
@@ -111,11 +117,12 @@ const reservation_status = [
 ];
 
 const formItemType = [
-  { id: "1", name: "Van Tour", data: "App\Models\PrivateVanTour" },
-  { id: "2", name: "Group Tour", data: "App\Models\GroupTour" },
-  { id: "3", name: "Airport Pickup", data: " App\Models\AirportPickup" },
-  { id: "4", name: "Entrance Ticket", data: "App\Models\EntranceTicket" },
-  { id: "5", name: "Inclusive", data: "App\Models\Inclusive" },
+  { id: "1", name: "Van Tour", data: "AppModelsPrivateVanTour" },
+  { id: "2", name: "Group Tour", data: "AppModelsGroupTour" },
+  { id: "3", name: "Airport Pickup", data: " AppModelsAirportPickup" },
+  { id: "4", name: "Entrance Ticket", data: "AppModelsEntranceTicket" },
+  { id: "5", name: "Inclusive", data: "AppModelsInclusive" },
+  { id: "6", name: "Hotel Room", data: "AppModelsRoom" },
 ];
 
 const formData = ref({
@@ -194,6 +201,8 @@ const formitem = ref({
   product_id: "",
   car_id: "",
   car_list: [],
+  room_id: "",
+  room: null,
   service_date: "",
   quantity: "1",
   duration: "",
@@ -232,9 +241,15 @@ const chooseType = async () => {
     await inclusiveStore.getSimpleListAction();
     productList.value = inclusives.value.data;
     console.log(productList.value);
+  } else if (formitem.value.product_type == "6") {
+    await hotelStore.getSimpleListAction();
+    productList.value = hotels.value.data;
+    console.log(productList.value);
   }
 };
 const carType = ref([]);
+const roomType = ref([]);
+
 const chooseCar = async (id) => {
   if (formitem.value.product_type == "1" && id) {
     const res = await vantourStore.getDetailAction(id);
@@ -258,6 +273,9 @@ const chooseCar = async (id) => {
   } else if (formitem.value.product_type == "5") {
     const res = await inclusiveStore.getDetailAction(id);
     formitem.value.selling_price = res.result.price;
+  } else if (formitem.value.product_type == "6") {
+    const res = await hotelStore.getDetailAction(id);
+    roomType.value = res.result.rooms;
   }
 };
 const chooseCarPrice = async (type, productId, id) => {
@@ -305,6 +323,14 @@ const chooseCarPrice = async (type, productId, id) => {
       }
     }
     console.log(res);
+  } else if (type == "6") {
+    const res = await hotelStore.getDetailAction(productId);
+    formitem.value.room_list = res.result.rooms;
+    const room = res.result.rooms.filter((r) => r.id === id)[0];
+    formitem.value.room = room;
+    formitem.value.selling_price = room.room_price;
+    formitem.value.extra_price = room.extra_price;
+    console.log(formitem.value.room);
   }
 };
 const addNewitem = () => {
@@ -317,6 +343,7 @@ const addNewitem = () => {
     car_id: "",
     car_list: [],
     quantity: "1",
+    room_id: "",
     duration: "",
     selling_price: "",
     comment: "",
@@ -422,6 +449,8 @@ const onSubmitHandler = async () => {
         "items[" + x + "][product_type]",
         `App\\Models\\Inclusive`
       );
+    } else if (formData.value.items[x].product_type == "6") {
+      frmData.append("items[" + x + "][product_type]", `App\\Models\\Hotel`);
     }
   }
   for (var x = 0; x < formData.value.items.length; x++) {
@@ -449,6 +478,12 @@ const onSubmitHandler = async () => {
     );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
+    if (formData.value.items[x].product_type === "6") {
+      frmData.append(
+        "items[" + x + "][room_id]",
+        formData.value.items[x].room_id
+      );
+    }
     if (formData.value.items[x].product_type != "4") {
       frmData.append(
         "items[" + x + "][car_id]",
@@ -1224,6 +1259,23 @@ onMounted(async () => {
                               "
                             ></v-select>
                           </div>
+                          <div class="" v-if="formitem.product_type == '6'">
+                            <v-select
+                              v-model="formitem.room_id"
+                              class="style-chooser"
+                              :options="roomType"
+                              label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              @option:selected="
+                                chooseCarPrice(
+                                  formitem.product_type,
+                                  formitem.product_id,
+                                  formitem.room_id
+                                )
+                              "
+                            ></v-select>
+                          </div>
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -1333,6 +1385,7 @@ onMounted(async () => {
                           <p v-if="item.product_type == '3'">Airport</p>
                           <p v-if="item.product_type == '4'">Entrance</p>
                           <p v-if="item.product_type == '5'">Inclusive</p>
+                          <p v-if="item.product_type == '6'">Hotel / Room</p>
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -1388,6 +1441,17 @@ onMounted(async () => {
                             :reduce="(d) => d.id"
                             placeholder="Choose product type"
                           ></v-select>
+                          <v-select
+                            v-if="item.product_type == '6'"
+                            v-model="item.product_id"
+                            class="style-chooser"
+                            :options="hotels?.data"
+                            label="name"
+                            disabled
+                            :clearable="false"
+                            :reduce="(d) => d.id"
+                            placeholder="Choose product type"
+                          ></v-select>
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -1403,7 +1467,18 @@ onMounted(async () => {
                             :reduce="(d) => d.id"
                             placeholder="Choose product type"
                           ></v-select>
-                          <p v-if="!item.car_id">-</p>
+                          <v-select
+                            v-if="item.room_id"
+                            v-model="item.room_id"
+                            class="style-chooser"
+                            disabled
+                            :options="item.room_list"
+                            label="name"
+                            :clearable="false"
+                            :reduce="(d) => d.id"
+                            placeholder="Choose product type"
+                          ></v-select>
+                          <p v-if="!item.car_id && !item.room_id">-</p>
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"

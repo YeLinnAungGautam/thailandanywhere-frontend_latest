@@ -9,16 +9,16 @@ import { DocumentCheckIcon } from "@heroicons/vue/24/outline";
 
 <template>
   <Layout>
-    <div class="mb-5 flex items-center justify-between">
+    <div class="flex items-center justify-between mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Edit Booking</h3>
     </div>
-    <div class="bg-white p-6 rounded-lg shadow-sm mb-5">
-      <h4 class="text-gray-600 font-medium mb-8 text-base">
+    <div class="p-6 mb-5 bg-white rounded-lg shadow-sm">
+      <h4 class="mb-8 text-base font-medium text-gray-600">
         Customer Booking Form
       </h4>
       <form
         action=""
-        class="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8 mb-5"
+        class="grid grid-cols-1 gap-6 mb-5 md:grid-cols-2 md:gap-8"
       >
         <InputField label="Name" required>
           <Input type="text" />
@@ -37,7 +37,7 @@ import { DocumentCheckIcon } from "@heroicons/vue/24/outline";
         </InputField>
       </form>
       <Button class="">
-        <DocumentCheckIcon class="w-5 h-5 inline-block mr-2" /><span
+        <DocumentCheckIcon class="inline-block w-5 h-5 mr-2" /><span
           >Submit Form</span
         >
       </Button>

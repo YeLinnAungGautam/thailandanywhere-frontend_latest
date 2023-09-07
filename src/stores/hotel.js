@@ -64,5 +64,13 @@ export const useHotelStore = defineStore("hotel", {
         throw error;
       }
     },
+    async getDetailAction(id) {
+      try {
+        const response = await axios.get("/hotels/" + id);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

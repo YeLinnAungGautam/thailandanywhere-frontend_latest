@@ -393,12 +393,6 @@ onMounted(async () => {
         <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
           <div class="flex items-center justify-start gap-3 mb-3">
             <p>Images</p>
-            <!-- <button
-              @click.prevent="openFileImagePicker"
-              class="text-sm text-[#ff613c]"
-            >
-              + Upload
-            </button> -->
 
             <input
               multiple

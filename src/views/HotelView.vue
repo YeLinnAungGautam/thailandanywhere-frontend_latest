@@ -7,7 +7,7 @@
     <!-- modal -->
     <Modal :isOpen="createModalOpen" @closeModal="createModalOpen = false">
       <DialogPanel
-        class="w-full max-w-md p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
+        class="max-w-xl p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
       >
         <DialogTitle
           as="h3"
@@ -52,7 +52,43 @@
               {{ errors.place[0] }}
             </p>
           </div>
-
+          <div class="mb-2 space-y-1">
+            <label for="name" class="text-sm text-gray-800">Legal Name</label>
+            <input
+              type="text"
+              v-model="formData.legal_name"
+              id="name"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.legal_name" class="mt-1 text-sm text-red-600">
+              {{ errors.legal_name[0] }}
+            </p>
+          </div>
+          <div class="mb-2 space-y-1">
+            <label for="name" class="text-sm text-gray-800"
+              >Contract Due Date</label
+            >
+            <input
+              v-model="formData.contract_due"
+              type="date"
+              id="title"
+              class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+            />
+            <p>{{ formData.contract_due }}</p>
+          </div>
+          <div class="mb-2 space-y-1">
+            <label for="name" class="text-sm text-gray-800">Contracts</label>
+            <input
+              type="file"
+              multiple
+              @change="contract_file"
+              id="name"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.contracts" class="mt-1 text-sm text-red-600">
+              {{ errors.contracts[0] }}
+            </p>
+          </div>
           <div class="text-end flex justify-end items-center">
             <p
               class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
@@ -194,6 +230,9 @@ const formData = ref({
   name: "",
   city_id: null,
   place: "",
+  legal_name: "",
+  contract_due: "",
+  contracts: [],
 });
 
 const addNewHandler = async () => {
@@ -201,12 +240,26 @@ const addNewHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("city_id", formData.value.city_id);
   frmData.append("place", formData.value.place);
+  frmData.append("legal_name", formData.value.legal_name);
+  frmData.append("contract_due", formData.value.contract_due);
+  console.log(formData.value.contracts);
+  if (formData.value.contracts) {
+    // frmData.append("contracts", formData.value.contracts);
+    for (let i = 0; i < formData.value.contracts.length; i++) {
+      let file = formData.value.contracts[i];
+      frmData.append("contracts[" + i + "]", file);
+    }
+  }
+
   try {
     const response = await hotelStore.addNewAction(frmData);
     formData.value = {
       name: "",
       city_id: null,
       place: "",
+      legal_name: "",
+      contract_due: "",
+      contracts: [],
     };
     errors.value = null;
     createModalOpen.value = false;
@@ -220,11 +273,33 @@ const addNewHandler = async () => {
   }
 };
 
+const contract_file = (e) => {
+  let selectedFile = e.target.files;
+  if (selectedFile) {
+    for (let index = 0; index < selectedFile.length; index++) {
+      // formData.value.contracts.push(selectedFile[index]);
+      let file = selectedFile[index];
+      formData.value.contracts.push(file);
+    }
+    console.log(formData.value.contracts, "this is contracts");
+  }
+};
+
 const updateHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("place", formData.value.place);
   frmData.append("city_id", formData.value.city_id);
+  frmData.append("legal_name", formData.value.legal_name);
+  frmData.append("contract_due", formData.value.contract_due);
+  if (formData.value.contracts) {
+    // frmData.append("contracts", formData.value.contracts);
+    for (let i = 0; i < formData.value.contracts.length; i++) {
+      let file = formData.value.contracts[i];
+      frmData.append("contracts[" + i + "]", file);
+    }
+  }
+
   frmData.append("_method", "PUT");
   try {
     const response = await hotelStore.updateAction(frmData, formData.value.id);
@@ -233,6 +308,9 @@ const updateHandler = async () => {
       city_id: null,
       place: "",
       id: "",
+      legal_name: "",
+      contract_due: "",
+      contracts: "",
     };
     errors.value = null;
     createModalOpen.value = false;
@@ -257,8 +335,12 @@ const onSubmitHandler = async () => {
 const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
-  formData.value.city_id = data.city_id;
+  formData.value.city_id = data.city.id;
   formData.value.place = data.place;
+  formData.value.legal_name = data.legal_name;
+  formData.value.contract_due = data.contract_due;
+  formData.value.contracts = [];
+  console.log(formData.value.contract_due);
   createModalOpen.value = true;
 };
 

@@ -68,7 +68,18 @@
               {{ errors.room_price[0] }}
             </p>
           </div>
-
+          <div class="mb-2 space-y-1">
+            <label for="room_price" class="text-sm text-gray-800">Cost</label>
+            <input
+              type="number"
+              v-model="formData.cost"
+              id="cost"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.cost" class="mt-1 text-sm text-red-600">
+              {{ errors.cost[0] }}
+            </p>
+          </div>
           <div class="mb-2 space-y-1">
             <label for="description" class="text-sm text-gray-800"
               >Description</label
@@ -242,6 +253,7 @@ const formData = ref({
   description: "",
   extra_price: "",
   room_price: "",
+  cost: "",
 });
 
 const addNewHandler = async () => {
@@ -251,6 +263,8 @@ const addNewHandler = async () => {
   frmData.append("description", formData.value.description);
   frmData.append("extra_price", formData.value.extra_price);
   frmData.append("room_price", formData.value.room_price);
+  frmData.append("cost", formData.value.cost);
+
   try {
     const response = await roomStore.addNewAction(frmData);
     formData.value = {
@@ -260,6 +274,7 @@ const addNewHandler = async () => {
       description: "",
       extra_price: "",
       room_price: "",
+      cost: "",
     };
     errors.value = null;
     createModalOpen.value = false;
@@ -280,6 +295,8 @@ const updateHandler = async () => {
   frmData.append("description", formData.value.description);
   frmData.append("extra_price", formData.value.extra_price);
   frmData.append("room_price", formData.value.room_price);
+  frmData.append("cost", formData.value.cost);
+
   frmData.append("_method", "PUT");
   try {
     const response = await roomStore.updateAction(frmData, formData.value.id);
@@ -290,6 +307,7 @@ const updateHandler = async () => {
       description: "",
       extra_price: "",
       room_price: "",
+      cost: "",
     };
     errors.value = null;
     createModalOpen.value = false;
@@ -314,10 +332,11 @@ const onSubmitHandler = async () => {
 const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
-  formData.value.hotel_id = data.hotel_id;
+  formData.value.hotel_id = data.hotel.id;
   formData.value.extra_price = data.extra_price;
   formData.value.room_price = data.room_price;
   formData.value.description = data.description;
+  formData.value.cost = data.cost;
   createModalOpen.value = true;
 };
 

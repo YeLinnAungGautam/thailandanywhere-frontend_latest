@@ -11,7 +11,7 @@ export const useHotelStore = defineStore("hotel", {
         const response = await axios.get("/hotels?limit=1000&page=1");
         this.hotels = response.data.result;
         this.loading = false;
-
+        console.log(response);
         return response.data;
       } catch (error) {
         this.loading = false;

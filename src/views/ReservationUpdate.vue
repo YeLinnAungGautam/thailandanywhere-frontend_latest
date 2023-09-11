@@ -2,7 +2,7 @@
 import Layout from "./Layout.vue";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
 import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
@@ -103,7 +103,11 @@ const formData = ref({
   cus_passport: "",
   cus_email: "",
   receipt_images: [],
+  upload_receipt: "",
 });
+
+const expense_amount_upload = ref(null);
+const expense_amount = ref(0);
 
 const secForm = ref({
   customer_feedback: "",
@@ -155,6 +159,22 @@ const exphandleFileChange = (e) => {
 const expremoveSelectedImage = () => {
   formData.value.expense_paid_slip = null;
   expPreviewImage.value = null;
+};
+
+const uploadRecePreview = ref("");
+
+const recehandleFileChange = (e) => {
+  let selectedFile = e.target.files[0];
+  console.log(selectedFile);
+  if (selectedFile) {
+    formData.value.upload_receipt = e.target.files[0];
+    uploadRecePreview.value = URL.createObjectURL(selectedFile);
+  }
+};
+
+const receremoveSelectedImage = () => {
+  formData.value.upload_receipt = null;
+  uploadRecePreview.value = null;
 };
 
 const productList = ref([]);
@@ -336,6 +356,7 @@ const getDetail = async () => {
     const response = await reservationStore.getDetailAction(route.params.id);
     console.log(response, "this is response");
     booking_status.value = response.result.booking;
+    formData.value = response.result;
     formData.value.duration = response.result.duration;
     if (response.result.reservation_info) {
       if (response.result.reservation_info.special_request != null) {
@@ -557,8 +578,25 @@ const updateArray = () => {
   console.log(routeArray.value, "this is array");
 };
 
+const changeName = () => {
+  if (formData.value.product_type == "App\\Models\\EntranceTicket") {
+    secForm.value.supplier_name = formData.value.product_name;
+  }
+};
+
+const allowUpdate = () => {
+  if (expense_amount.value == 0) {
+    return true;
+  } else if (expense_amount.value != 0 && upload_receipt == "") {
+    return false;
+  } else if (expense_amount.value == expense_amount_upload.value) {
+    return true;
+  }
+};
+
 onMounted(async () => {
   await getDetail();
+  changeName();
   await vantourStore.getSimpleListAction();
   await grouptourStore.getSimpleListAction();
   await airportStore.getSimpleListAction();
@@ -613,8 +651,7 @@ onMounted(async () => {
             <div class="pl-10 space-y-2">
               <p class="text-gray-400 text-xs">Total Amount</p>
               <p class="font-semibold text-xs py-1.5">
-                <!-- {{ booking_status.total }} -->
-                12000
+                {{ formData.selling_price * formData.quantity }}
               </p>
             </div>
             <div class="pl-10 space-y-2">
@@ -738,11 +775,17 @@ onMounted(async () => {
               <p class="text-gray-400 text-xs">Product</p>
               <p class="font-semibold text-xs">{{ formData.product_name }}</p>
             </div>
-            <div class="pl-10 space-y-2">
+            <div
+              class="pl-10 space-y-2"
+              v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+            >
               <p class="text-gray-400 text-xs">Pickup Time</p>
               <p class="font-semibold text-xs">08:00 am</p>
             </div>
-            <div class="pl-10 pr-10 space-y-2">
+            <div
+              class="pl-10 pr-10 space-y-2"
+              v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+            >
               <p class="text-gray-400 text-xs">Durations</p>
               <input
                 v-model="formData.duration"
@@ -872,7 +915,10 @@ onMounted(async () => {
               ></textarea>
             </div>
 
-            <div class="px-6 space-y-2">
+            <div
+              class="px-6 space-y-2"
+              v-if="!formData.product_type == 'App\\Models\\EntranceTicket'"
+            >
               <p class="text-gray-400 text-xs">Pickup Location</p>
               <textarea
                 class="w-full bg-white border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
@@ -880,7 +926,10 @@ onMounted(async () => {
                 v-model="secForm.pickup_location"
               ></textarea>
             </div>
-            <div class="px-6 space-y-2">
+            <div
+              class="px-6 space-y-2"
+              v-if="!formData.product_type == 'App\\Models\\EntranceTicket'"
+            >
               <p class="text-gray-400 text-xs">Dropoff Location</p>
               <textarea
                 class="w-full bg-white border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
@@ -895,7 +944,10 @@ onMounted(async () => {
             @click="carInfoSecHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
-            <p>Car Information</p>
+            <p v-if="formData.product_type == 'App\\Models\\EntranceTicket'">
+              Supplier Information
+            </p>
+            <p v-else>Car Information</p>
           </div>
           <div class="bg-gray-200/50 px-3 py-5 space-y-2" v-if="car_info_sec">
             <div class="px-6 space-y-2">
@@ -907,7 +959,10 @@ onMounted(async () => {
                 class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
               />
             </div>
-            <div class="px-6 space-y-2">
+            <div
+              class="px-6 space-y-2"
+              v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+            >
               <p class="text-gray-400 text-xs">Driver Name</p>
               <input
                 v-model="secForm.driver_name"
@@ -916,7 +971,10 @@ onMounted(async () => {
                 class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
               />
             </div>
-            <div class="px-6 space-y-2">
+            <div
+              class="px-6 space-y-2"
+              v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+            >
               <p class="text-gray-400 text-xs">Driver Contact</p>
               <input
                 v-model="secForm.driver_contact"
@@ -925,8 +983,24 @@ onMounted(async () => {
                 class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
               />
             </div>
-            <div class="px-6 space-y-2">
+            <div
+              class="px-6 space-y-2"
+              v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+            >
+              <p class="text-gray-400 text-xs">Reference Number</p>
+              <input
+                v-model="secForm.reference_number"
+                type="text"
+                id="title"
+                class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+              />
+            </div>
+            <div
+              class="px-6 space-y-2"
+              v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+            >
               <p class="text-gray-400 text-xs">Car Number</p>
+
               <input
                 v-model="secForm.car_number"
                 type="text"
@@ -935,7 +1009,13 @@ onMounted(async () => {
               />
             </div>
             <div class="px-6 space-y-2">
-              <p class="text-gray-400 text-xs">Car Photos</p>
+              <p
+                class="text-gray-400 text-xs"
+                v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+              >
+                Booking Confirmation Letter
+              </p>
+              <p class="text-gray-400 text-xs" v-else>Car Photos</p>
               <!-- <p
                 class="font-semibold py-4 px-4 flex justify-center items-center text-xs border border-gray-400 border-dashed"
               >
@@ -981,6 +1061,7 @@ onMounted(async () => {
             @click="reservationInfoHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
+
             <p>Reservation Information</p>
           </div>
           <div
@@ -1069,8 +1150,8 @@ onMounted(async () => {
                   <input
                     type="file"
                     id="image"
-                    ref="fileInput"
-                    class="hidden"
+                    class=""
+                    v-if="!expPreviewImage"
                     @change="exphandleFileChange"
                     accept="image/*"
                   />
@@ -1081,14 +1162,58 @@ onMounted(async () => {
                       class="rounded w-full h-auto"
                     />
                   </div>
-                  <div
-                    v-else
-                    @click.prevent="openFilePicker"
-                    class="font-semibold py-4 px-4 flex justify-center items-center text-xs border border-gray-400 border-dashed"
-                  >
-                    <span class="text-xs"
-                      ><i class="fa-solid fa-plus text-2xl text-gray-400"></i
-                    ></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+
+            <p>Expense Information</p>
+          </div>
+
+          <div
+            class="bg-gray-200/50 py-5 space-y-2"
+            v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+          >
+            <div class="space-y-2">
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs">Expense Amount</p>
+                <input
+                  v-model="expense_amount"
+                  type="number"
+                  class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
+              </div>
+
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs">Upload Payment Receipt</p>
+                <div class="space-y-1 mb-2">
+                  <label for="image" class="text-gray-800 text-sm relative">
+                    <span
+                      v-if="uploadRecePreview"
+                      @click.prevent="receremoveSelectedImage"
+                      class="text-red-400 text-xs cursor-pointer font-semibold underline absolute top-0 left-0"
+                      ><i class="fa-solid fa-circle-minus text-3xl"></i></span
+                  ></label>
+                  <input
+                    type="file"
+                    id="image"
+                    class=""
+                    v-if="!uploadRecePreview"
+                    @change="recehandleFileChange"
+                    accept="image/*"
+                  />
+                  <div v-if="uploadRecePreview" class="w-full h-auto">
+                    <img
+                      :src="uploadRecePreview"
+                      alt="Image preview"
+                      class="rounded w-full h-auto"
+                    />
                   </div>
                 </div>
               </div>

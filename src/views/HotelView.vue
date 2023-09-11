@@ -71,7 +71,6 @@
             <input
               v-model="formData.contract_due"
               type="date"
-              id="title"
               class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
             />
             <p>{{ formData.contract_due }}</p>

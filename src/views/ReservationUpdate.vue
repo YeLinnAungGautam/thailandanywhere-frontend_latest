@@ -85,7 +85,7 @@ const formData = ref({
   bank_name: "",
   bank_account_number: "",
   cost: "",
-  expense_paid_slip: "",
+  paid_slip: "",
   payment_status: "",
   product_id: "",
   product_type: "",
@@ -93,7 +93,6 @@ const formData = ref({
   car_id: "",
   car_name: "",
   variation_name: "",
-  receipt_image: "",
   reservation_status: "",
   selling_price: "",
   service_date: "",
@@ -103,7 +102,7 @@ const formData = ref({
   cus_passport: "",
   cus_email: "",
   receipt_images: [],
-  upload_receipt: "",
+  receipt_image: "",
 });
 
 const expense_amount_upload = ref(null);
@@ -124,6 +123,7 @@ const secForm = ref({
   driver_contact: "",
   car_number: "",
   car_photo: "",
+  reference_number: "",
 });
 
 const fileInput = ref(null);
@@ -151,13 +151,13 @@ const expPreviewImage = ref(null);
 const exphandleFileChange = (e) => {
   let selectedFile = e.target.files[0];
   if (selectedFile) {
-    formData.value.expense_paid_slip = e.target.files[0];
+    formData.value.paid_slip = e.target.files[0];
     expPreviewImage.value = URL.createObjectURL(selectedFile);
   }
 };
 
 const expremoveSelectedImage = () => {
-  formData.value.expense_paid_slip = null;
+  formData.value.paid_slip = null;
   expPreviewImage.value = null;
 };
 
@@ -167,13 +167,13 @@ const recehandleFileChange = (e) => {
   let selectedFile = e.target.files[0];
   console.log(selectedFile);
   if (selectedFile) {
-    formData.value.upload_receipt = e.target.files[0];
+    formData.value.receipt_image = e.target.files[0];
     uploadRecePreview.value = URL.createObjectURL(selectedFile);
   }
 };
 
 const receremoveSelectedImage = () => {
-  formData.value.upload_receipt = null;
+  formData.value.receipt_image = null;
   uploadRecePreview.value = null;
 };
 
@@ -221,9 +221,9 @@ const onSubmitHandler = async () => {
     frmData.append("duration", formData.value.duration);
   }
   frmData.append("payment_method", formData.value.payment_method);
-  frmData.append("bank_name", formData.value.bank_name);
-  frmData.append("bank_account_number", formData.value.bank_account_number);
-  frmData.append("cost", formData.value.cost);
+  // frmData.append("bank_name", formData.value.bank_name);
+  // frmData.append("bank_account_number", formData.value.bank_account_number);
+  // frmData.append("cost", formData.value.cost);
 
   frmData.append("payment_status", formData.value.payment_status);
 
@@ -234,7 +234,7 @@ const onSubmitHandler = async () => {
   frmData.append("selling_price", formData.value.selling_price);
   frmData.append("service_date", formData.value.service_date);
   frmData.append("car_id", formData.value.car_id);
-  frmData.append("expense_paid_slip", formData.value.expense_paid_slip);
+  // frmData.append("paid_slip", formData.value.paid_slip);
 
   try {
     const response = await reservationStore.updateAction(
@@ -247,6 +247,27 @@ const onSubmitHandler = async () => {
       if (secForm.value.customer_feedback) {
         secfrm.append("customer_feedback", secForm.value.customer_feedback);
       }
+      if (formData.value.bank_name) {
+        secfrm.append("bank_name", formData.value.bank_name);
+      }
+      if (formData.value.bank_account_number) {
+        secfrm.append(
+          "bank_account_number",
+          formData.value.bank_account_number
+        );
+      }
+
+      secfrm.append("expense_amount", expense_amount.value);
+
+      if (formData.value.receipt_image) {
+        secfrm.append("receipt_image", formData.value.receipt_image);
+      }
+      if (formData.value.paid_slip) {
+        secfrm.append("paid_slip", formData.value.paid_slip);
+      }
+      if (formData.value.cost) {
+        secfrm.append("cost", formData.value.cost);
+      }
       if (secForm.value.customer_score) {
         secfrm.append("customer_score", secForm.value.customer_score);
       }
@@ -255,6 +276,9 @@ const onSubmitHandler = async () => {
       }
       if (secForm.value.product_score) {
         secfrm.append("product_score", secForm.value.product_score);
+      }
+      if (secForm.value.reference_number) {
+        secfrm.append("reference_number", secForm.value.reference_number);
       }
 
       secfrm.append("special_request", secForm.value.special_request);
@@ -284,7 +308,11 @@ const onSubmitHandler = async () => {
         secfrm.append("car_number", secForm.value.car_number);
       }
       if (secForm.value.car_photo) {
-        secfrm.append("car_photo", secForm.value.car_photo);
+        if (formData.value.product_type == "App\\Models\\EntranceTicket") {
+          secfrm.append("booking_confirm_letter", secForm.value.car_photo);
+        } else {
+          secfrm.append("car_photo", secForm.value.car_photo);
+        }
       }
       await reservationStore.updateInfoAction(secfrm, route.params.id);
     }
@@ -297,7 +325,7 @@ const onSubmitHandler = async () => {
       payment_method: "",
       bank_name: "",
       bank_account_number: "",
-      expense_paid_slip: "",
+      paid_slip: "",
       cost: "",
       payment_status: "",
       product_id: "",
@@ -390,10 +418,17 @@ const getDetail = async () => {
     secForm.value.dropoff_location = response.result.dropoff_location;
     console.log(secForm.value.pickup_location, "this is pickup");
     if (response.result.reservation_info != null) {
+      expense_amount.value = response.result.reservation_info.expense_amount;
+      expense_amount_upload.value =
+        response.result.reservation_info.expense_amount;
       secForm.value.customer_feedback =
         response.result.reservation_info.customer_feedback;
       secForm.value.customer_score =
         response.result.reservation_info.customer_score;
+      formData.value.bank_name = response.result.reservation_info.bank_name;
+      formData.value.bank_account_number =
+        response.result.reservation_info.bank_account_number;
+      formData.value.cost = response.result.reservation_info.cost;
       secForm.value.driver_score =
         response.result.reservation_info.driver_score;
       secForm.value.product_score =
@@ -417,6 +452,7 @@ const getDetail = async () => {
         response.result.reservation_car_info.driver_name;
       secForm.value.driver_contact =
         response.result.reservation_car_info.driver_contact;
+
       secForm.value.car_number =
         response.result.reservation_car_info.car_number;
       previewImage.value = response.result.reservation_car_info.car_photo;
@@ -433,7 +469,9 @@ const getDetail = async () => {
     } else {
       formData.value.payment_method = response.result.payment_method;
     }
-    expPreviewImage.value = response.result.expense_paid_slip;
+    expPreviewImage.value =
+      "https://api-blog.thanywhere.com/storage/images/" +
+      response.result.reservation_info.paid_slip;
     if (response.result.bank_name == "null") {
       formData.value.bank_name = "";
     } else {
@@ -587,7 +625,7 @@ const changeName = () => {
 const allowUpdate = () => {
   if (expense_amount.value == 0) {
     return true;
-  } else if (expense_amount.value != 0 && upload_receipt == "") {
+  } else if (expense_amount.value != 0 && formData.value.receipt_image == "") {
     return false;
   } else if (expense_amount.value == expense_amount_upload.value) {
     return true;
@@ -863,6 +901,17 @@ onMounted(async () => {
           </div>
           <div class="flex justify-end items-center">
             <button
+              v-if="
+                (formData.product_type = 'App\\Models\\EntranceTicket') &&
+                allowUpdate
+              "
+              @click.prevent="onSubmitHandler"
+              class="my-10 px-4 py-2 bg-[#ff613c] text-white hover:bg-blue-600 shadow"
+            >
+              Update Reservation
+            </button>
+            <button
+              v-else
               @click.prevent="onSubmitHandler"
               class="my-10 px-4 py-2 bg-[#ff613c] text-white hover:bg-blue-600 shadow"
             >
@@ -879,12 +928,19 @@ onMounted(async () => {
           </div>
           <div
             class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
             @click="routePlanHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
             <p>Route Plan</p>
           </div>
-          <div class="bg-gray-200/50 p-6" v-if="route_plan_part">
+          <div
+            class="bg-gray-200/50 p-6"
+            v-if="
+              route_plan_part &&
+              formData.product_type != 'App\\Models\\EntranceTicket'
+            "
+          >
             <div class="pl-4 space-y-2 border border-gray-200 p-4 bg-white">
               <textarea
                 class="w-full bg-transparent font-semibold shadow-sm px-4 py-2 text-gray-900 focus:outline-none text-xs border border-gray-300"

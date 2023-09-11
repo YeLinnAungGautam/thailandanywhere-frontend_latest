@@ -223,12 +223,12 @@ const formitem = ref({
   payment_status: "",
   exchange_rate: "",
   cost_price: "",
-  special_request: "",
+  special_request: "-",
   total_amount: "",
-  pickup_location: "",
+  pickup_location: "-",
   pickup_time: "",
-  dropoff_location: "",
-  route_plan: "",
+  dropoff_location: "-",
+  route_plan: "-",
 });
 const productList = ref([]);
 
@@ -368,12 +368,12 @@ const addNewitem = () => {
     payment_status: "",
     exchange_rate: "",
     cost_price: "",
-    special_request: "",
+    special_request: "-",
     total_amount: "",
-    route_plan: "",
-    pickup_location: "",
+    route_plan: "-",
+    pickup_location: "-",
     pickup_time: "",
-    dropoff_location: "",
+    dropoff_location: "-",
   };
   todayVali.value = false;
   addToggle();

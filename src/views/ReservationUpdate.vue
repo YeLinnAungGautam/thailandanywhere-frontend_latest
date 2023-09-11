@@ -77,6 +77,7 @@ const formItemType = [
 
 const formData = ref({
   comment: "",
+  pickup_time: "",
   confirmation_letter: "",
   cost_price: "",
   duration: "",
@@ -123,7 +124,7 @@ const secForm = ref({
   driver_contact: "",
   car_number: "",
   car_photo: "",
-  reference_number: "",
+  ref_number: "",
 });
 
 const fileInput = ref(null);
@@ -277,8 +278,8 @@ const onSubmitHandler = async () => {
       if (secForm.value.product_score) {
         secfrm.append("product_score", secForm.value.product_score);
       }
-      if (secForm.value.reference_number) {
-        secfrm.append("reference_number", secForm.value.reference_number);
+      if (secForm.value.ref_number) {
+        secfrm.append("ref_number", secForm.value.ref_number);
       }
 
       secfrm.append("special_request", secForm.value.special_request);
@@ -388,6 +389,11 @@ const getDetail = async () => {
     if (response.result.receipt_images) {
       booking_receipt.value = response.result.receipt_images;
     }
+    if (response.result.pickup_time) {
+      formData.value.pickup_time = response.result.pickup_time;
+    } else {
+      formData.value.pickup_time = "-";
+    }
     if (response.result.booking_confirm_letters) {
       booking_confirm_letters.value = response.result.booking_confirm_letters;
     }
@@ -431,6 +437,7 @@ const getDetail = async () => {
         response.result.reservation_info.expense_amount;
       secForm.value.customer_feedback =
         response.result.reservation_info.customer_feedback;
+      secForm.value.ref_number = response.result.reservation_info.ref_number;
       secForm.value.customer_score =
         response.result.reservation_info.customer_score;
       formData.value.bank_name = response.result.reservation_info.bank_name;
@@ -842,7 +849,7 @@ onMounted(async () => {
               v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
             >
               <p class="text-gray-400 text-xs">Pickup Time</p>
-              <p class="font-semibold text-xs">08:00 am</p>
+              <p class="font-semibold text-xs">{{ formData.pickup_time }}</p>
             </div>
             <div
               class="pl-10 pr-10 space-y-2"
@@ -1097,7 +1104,7 @@ onMounted(async () => {
             >
               <p class="text-gray-400 text-xs">Reference Number</p>
               <input
-                v-model="secForm.reference_number"
+                v-model="secForm.ref_number"
                 type="text"
                 id="title"
                 class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"

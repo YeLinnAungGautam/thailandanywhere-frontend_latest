@@ -18,6 +18,7 @@ import { useEntranceStore } from "../stores/entrance";
 import { useBookingStore } from "../stores/booking";
 import { useSidebarStore } from "../stores/sidebar";
 import { useInclusiveStore } from "../stores/inclusion";
+import { useRoomStore } from "../stores/room";
 import { useHotelStore } from "../stores/hotel";
 
 const enabled = ref(false);
@@ -34,6 +35,7 @@ const entranceStore = useEntranceStore();
 const bookingStore = useBookingStore();
 const hotelStore = useHotelStore();
 const inclusiveStore = useInclusiveStore();
+const roomStore = useRoomStore();
 
 const { customer, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
@@ -41,6 +43,8 @@ const { grouptours } = storeToRefs(grouptourStore);
 const { airports } = storeToRefs(airportStore);
 const { entrances } = storeToRefs(entranceStore);
 const { inclusives } = storeToRefs(inclusiveStore);
+const { rooms } = storeToRefs(roomStore);
+const { hotels } = storeToRefs(hotelStore);
 const { isOpenCustomerCreate } = storeToRefs(sidebar);
 
 const soldFrom = [
@@ -83,13 +87,23 @@ const payment_usd = [
   { id: "12", name: "Others..." },
 ];
 
+const paymentArray = [
+  // Bank Transfer, International Remittance, Cash, etc
+  { id: "1", name: "Bank Transfer" },
+  { id: "2", name: "International Remittance" },
+  { id: "3", name: "Cash" },
+  { id: "4", name: "Other ..." },
+];
+
 const payment = ref([]);
+const paymentValid = ref(true);
 
 const choosePaymentBank = () => {
   console.log(formData.value.payment_currency);
   if (formData.value.payment_currency == "MMK") {
     payment.value = payment_mm;
   } else if (formData.value.payment_currency == "THB") {
+    paymentValid.value = false;
     payment.value = payment_thb;
   } else {
     payment.value = payment_usd;
@@ -125,6 +139,7 @@ const formData = ref({
   customer_id: "",
   sold_from: "",
   payment_method: "",
+  bank_name: "",
   payment_status: "",
   booking_date: "",
   items: [],
@@ -201,6 +216,7 @@ const formitem = ref({
   duration: "",
   selling_price: "",
   pickup_location: "",
+  pickup_time: "",
   dropoff_location: "",
   route_plan: "",
   comment: "",
@@ -254,6 +270,7 @@ const addNewitem = () => {
     car_id: "",
     car_list: [],
     pickup_location: "",
+    pickup_time: "",
     dropoff_location: "",
     route_plan: "",
     car_name: "",
@@ -303,7 +320,7 @@ const onSubmitHandler = async () => {
   frmData.append("customer_id", formData.value.customer_id);
   frmData.append("sold_from", formData.value.sold_from);
   frmData.append("payment_method", formData.value.payment_method);
-  // frmData.append("special_request", formData.value.special_request);
+  frmData.append("bank_name", formData.value.bank_name);
 
   frmData.append("payment_status", formData.value.payment_status);
   frmData.append("booking_date", formData.value.booking_date);
@@ -319,12 +336,7 @@ const onSubmitHandler = async () => {
   frmData.append("payment_currency", formData.value.payment_currency);
   frmData.append("balance_due", balance_due.value);
   frmData.append("balance_due_date", formData.value.balance_due_date);
-  // if (formData.value.reciept_image.length > 0) {
-  //   for (let i = 0; i < formData.value.reciept_image.length; i++) {
-  //     let file = formData.value.reciept_image[i];
-  //     frmData.append("items[" + i + "][receipt_image]", file);
-  //   }
-  // }
+
   if (formData.value.confirmation_letter.length > 0) {
     for (let i = 0; i < formData.value.confirmation_letter.length; i++) {
       let file = formData.value.confirmation_letter[i];
@@ -387,6 +399,27 @@ const onSubmitHandler = async () => {
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     if (
+      formData.value.items[x].product_type == "6" &&
+      !formData.value.items[x].room_id
+    ) {
+      frmData.append(
+        "items[" + x + "][room_id]",
+        formData.value.items[x].car_id
+      );
+    } else if (
+      formData.value.items[x].room_id != "" &&
+      formData.value.items[x].room_name != "" &&
+      formData.value.items[x].product_type != "5" &&
+      formData.value.items[x].product_type != "4" &&
+      formData.value.items[x].product_type != "3" &&
+      formData.value.items[x].product_type != "2" &&
+      formData.value.items[x].product_type != "1"
+    ) {
+      frmData.append(
+        "items[" + x + "][room_id]",
+        formData.value.items[x].room_id
+      );
+    } else if (
       formData.value.items[x].product_type != "4" &&
       !formData.value.items[x].variation_id
     ) {
@@ -402,11 +435,6 @@ const onSubmitHandler = async () => {
       frmData.append(
         "items[" + x + "][variation_id]",
         formData.value.items[x].car_id
-      );
-    } else if (formData.value.items[x].product_type == "6") {
-      frmData.append(
-        "items[" + x + "][room_id]",
-        formData.value.items[x].room_id
       );
     } else if (formData.value.items[x].variation_id != "") {
       frmData.append(
@@ -431,19 +459,41 @@ const onSubmitHandler = async () => {
   for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][pickup_location]",
-      formData.value.items[x].pickup_location
+      formData.value.items[x].pickup_location != "" ||
+        formData.value.items[x].pickup_location != null ||
+        formData.value.items[x].pickup_location != "undefined"
+        ? formData.value.items[x].pickup_location
+        : ""
+    );
+  }
+  for (var x = 0; x < formData.value.items.length; x++) {
+    frmData.append(
+      "items[" + x + "][pickup_time]",
+      formData.value.items[x].pickup_time != "" ||
+        formData.value.items[x].pickup_time != null ||
+        formData.value.items[x].pickup_time != "undefined"
+        ? formData.value.items[x].pickup_time
+        : ""
     );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][dropoff_location]",
-      formData.value.items[x].dropoff_location
+      formData.value.items[x].dropoff_location != "" ||
+        formData.value.items[x].dropoff_location != null ||
+        formData.value.items[x].dropoff_location != "undefined"
+        ? formData.value.items[x].dropoff_location
+        : ""
     );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][route_plan]",
-      formData.value.items[x].route_plan
+      formData.value.items[x].route_plan != "" ||
+        formData.value.items[x].route_plan != null ||
+        formData.value.items[x].route_plan != "undefined"
+        ? formData.value.items[x].route_plan
+        : ""
     );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
@@ -455,7 +505,11 @@ const onSubmitHandler = async () => {
   for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][special_request]",
-      formData.value.items[x].special_request
+      formData.value.items[x].special_request != "" ||
+        formData.value.items[x].special_request != null ||
+        formData.value.items[x].special_request != "undefined"
+        ? formData.value.items[x].special_request
+        : ""
     );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
@@ -467,7 +521,11 @@ const onSubmitHandler = async () => {
   for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][comment]",
-      formData.value.items[x].comment
+      formData.value.items[x].comment != "" ||
+        formData.value.items[x].comment != null ||
+        formData.value.items[x].comment != "undefined"
+        ? formData.value.items[x].comment
+        : ""
     );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
@@ -547,29 +605,34 @@ const roomType = ref([]);
 const chooseCar = async (id) => {
   if (formitem.value.product_type == "1" && id) {
     const res = await vantourStore.getDetailAction(id);
+    formitem.value.comment = res.result.long_description;
     console.log(res);
     carType.value = res.result.cars;
   } else if (formitem.value.product_type == "2") {
     const res = await grouptourStore.getDetailAction(id);
+    formitem.value.comment = res.result.description;
     formitem.value.selling_price = res.result.price;
     carType.value = res.result.cars;
     console.log(res);
   } else if (formitem.value.product_type == "3") {
     const res = await airportStore.getDetailAction(id);
+    formitem.value.comment = res.result.description;
     carType.value = res.result.cars;
     console.log(res);
   } else if (formitem.value.product_type == "4") {
     const res = await entranceStore.getDetailAction(id);
+    formitem.value.comment = res.result.description;
     console.log(res, "choose");
-    // formitem.value.selling_price = res.result.variations[0].price;
     carType.value = res.result.variations;
     console.log(res.result.variations[0].price);
   } else if (formitem.value.product_type == "5") {
     const res = await inclusiveStore.getDetailAction(id);
+    formitem.value.comment = res.result.description;
     formitem.value.selling_price = res.result.price;
   } else if (formitem.value.product_type == "6") {
     const res = await hotelStore.getDetailAction(id);
-    roomType.value = res.result.rooms;
+    formitem.value.comment = res.result.description;
+    carType.value = res.result.rooms;
   }
 };
 const chooseCarPrice = async (type, productId, id) => {
@@ -606,9 +669,6 @@ const chooseCarPrice = async (type, productId, id) => {
   } else if (type == "4") {
     const res = await entranceStore.getDetailAction(productId);
     formitem.value.car_list = res.result.variations;
-    // console.log(productId, "product id");
-    // console.log(res, "product id");
-    // console.log(id, "product id id");
 
     for (let i = 0; i < res.result.variations.length; i++) {
       if (res.result.variations[i].id == id) {
@@ -619,12 +679,24 @@ const chooseCarPrice = async (type, productId, id) => {
     console.log(res);
   } else if (type == "6") {
     const res = await hotelStore.getDetailAction(productId);
-    formitem.value.room_list = res.result.rooms;
+    formitem.value.car_list = res.result.rooms;
     const room = res.result.rooms.filter((r) => r.id === id)[0];
     formitem.value.room = room;
     formitem.value.selling_price = room.room_price;
     formitem.value.extra_price = room.extra_price;
     console.log(formitem.value.room);
+  }
+};
+
+const checkType = (product) => {
+  if (product.cars) {
+    return product.cars;
+  }
+  if (product.variations) {
+    return product.variations;
+  }
+  if (product.rooms) {
+    return product.rooms;
   }
 };
 
@@ -636,6 +708,8 @@ const getDetail = async () => {
     formData.value.customer_id = response.result.customer.id;
     formData.value.sold_from = response.result.sold_from;
     formData.value.payment_method = response.result.payment_method;
+    formData.value.bank_name = response.result.bank_name;
+
     formData.value.payment_status = response.result.payment_status;
     paymentStatus.value = response.result.payment_status;
     formData.value.payment_currency = response.result.payment_currency;
@@ -644,7 +718,7 @@ const getDetail = async () => {
     formData.value.crm_id = response.result.crm_id;
     formData.value.comment = response.result.comment;
     formData.value.special_request = response.result.special_request;
-
+    depositStoreValue.value = response.result.deposit;
     formData.value.discount = response.result.discount;
     formData.value.balance_due_date = response.result.balance_due_date;
     formData.value.deposit = response.result.deposit;
@@ -653,21 +727,41 @@ const getDetail = async () => {
     for (const x in response.result.items) {
       const itemData = {
         product_type: response.result.items[x].product_type,
+        crm_id: response.result.items[x].crm_id,
         product_id: response.result.items[x].product_id,
         service_date: response.result.items[x].service_date,
         quantity: response.result.items[x].quantity,
         duration: response.result.items[x].duration,
         selling_price: response.result.items[x].selling_price,
-        comment: response.result.items[x].comment,
-        special_request: response.result.items[x].special_request,
+        comment:
+          response.result.items[x].comment != "null"
+            ? response.result.items[x].comment
+            : "",
+        special_request:
+          response.result.items[x].special_request != "null"
+            ? response.result.items[x].special_request
+            : "",
         reservation_status: response.result.items[x].reservation_status,
         payment_method: response.result.items[x].payment_method,
         payment_status: response.result.items[x].payment_status,
         exchange_rate: response.result.items[x].exchange_rate,
         cost_price: response.result.items[x].cost_price,
-        pickup_location: response.result.items[x].pickup_location,
-        dropoff_location: response.result.items[x].dropoff_location,
-        route_plan: response.result.items[x].route_plan,
+        pickup_location:
+          response.result.items[x].pickup_location != "null"
+            ? response.result.items[x].pickup_location
+            : "",
+        pickup_time:
+          response.result.items[x].pickup_time != "null"
+            ? response.result.items[x].pickup_time
+            : "",
+        dropoff_location:
+          response.result.items[x].dropoff_location != "null"
+            ? response.result.items[x].dropoff_location
+            : "",
+        route_plan:
+          response.result.items[x].route_plan != "null"
+            ? response.result.items[x].route_plan
+            : "",
         car_id: response.result.items[x].car
           ? response.result.items[x].car.id
           : "",
@@ -680,9 +774,17 @@ const getDetail = async () => {
         variation_name: response.result.items[x].variation
           ? response.result.items[x].variation.name
           : "",
+        room_name: response.result.items[x].room
+          ? response.result.items[x].room.name
+          : "",
+        room_id: response.result.items[x].room
+          ? response.result.items[x].room.id
+          : "",
+        variation_type: checkType(response.result.items[x].product),
       };
       formData.value.items.push(itemData);
     }
+    choosePaymentBank();
     console.log(formData.value.items, "this is formData");
     loadingState.value = false;
   } catch (error) {
@@ -736,13 +838,14 @@ const closedes = () => {
 };
 const clickdetaildes = ref(false);
 const itemDes = ref();
-const clickdetaildesToggle = (a, b, c, d, index, t, r, s) => {
+const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s) => {
   console.log(a, b, index);
   clickdetaildes.value = true;
   itemDes.value = a;
   itemSpecial.value = b;
   itemServiceDate.value = s;
   itemPickup.value = c;
+  itemPickupTime.value = x;
   itemDropoff.value = d;
   indexValue.value = index;
   itemType.value = t;
@@ -754,12 +857,14 @@ const itemRoutePlan = ref("");
 const indexValue = ref("");
 const itemPickup = ref("");
 const itemDropoff = ref("");
+const itemPickupTime = ref("");
 
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
   formData.value.items[x].special_request = itemSpecial.value;
   formData.value.items[x].service_date = itemServiceDate.value;
   formData.value.items[x].pickup_location = itemPickup.value;
+  formData.value.items[x].pickup_time = itemPickupTime.value;
   formData.value.items[x].dropoff_location = itemDropoff.value;
   formData.value.items[x].route_plan = itemRoutePlan.value;
   clickdetaildes.value = false;
@@ -775,6 +880,7 @@ const clickdetaildesClose = () => {
   itemServiceDate.value = "";
   itemPickup.value = "";
   itemDropoff.value = "";
+  itemPickupTime.value = "";
 };
 
 const customerOpen = ref(false);
@@ -820,15 +926,42 @@ const allowCreate = computed(() => {
   }
 });
 
+const depositStoreValue = ref("");
+const allowDeposite = computed(() => {
+  if (formData.value.deposit == depositStoreValue.value) {
+    console.log("this is true");
+    return true;
+  } else {
+    return false;
+  }
+});
+
+const strippedNumber = (text) => {
+  // Split the string by "_", and get the second part (index 1)
+  return text.split("_")[1];
+};
+
+const chooseSellingPrice = (id, arr, index) => {
+  console.log("this is selling price", id, arr, index);
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i].id == id) {
+      formData.value.items[index].selling_price = arr[i].price;
+      console.log("hello", formData.value.items[index].selling_price);
+    }
+  }
+};
+
 onMounted(async () => {
   loadingState.value = true;
   await getDetail();
+
   await vantourStore.getSimpleListAction();
   await grouptourStore.getSimpleListAction();
   await airportStore.getSimpleListAction();
   await entranceStore.getSimpleListAction();
   await inclusiveStore.getSimpleListAction();
   await customerStore.getSimpleListAction();
+  await hotelStore.getSimpleListAction();
   url.value =
     "https://api-blog.thanywhere.com/admin/bookings/" +
     route.params.id +
@@ -968,14 +1101,22 @@ onMounted(async () => {
 
               <div class="grid grid-cols-2 gap-4">
                 <div class="">
+                  <p class="text-[#ff613c] text-xs mb-2">Bank Name</p>
+                  <v-select
+                    v-model="formData.bank_name"
+                    class="style-chooser bg-white rounded-lg"
+                    :options="payment"
+                    label="name"
+                    :clearable="false"
+                    :reduce="(d) => d.name"
+                  ></v-select>
+                </div>
+                <div class="">
                   <p class="text-[#ff613c] text-xs mb-2">Payment Method</p>
                   <v-select
                     v-model="formData.payment_method"
-                    class="style-chooser"
-                    :class="{
-                      'bg-white rounded-lg': formData.payment_method !== '',
-                    }"
-                    :options="payment"
+                    class="style-chooser bg-white rounded-lg"
+                    :options="paymentArray"
                     label="name"
                     :clearable="false"
                     :reduce="(d) => d.name"
@@ -1037,17 +1178,19 @@ onMounted(async () => {
                 </div>
                 <div>
                   <p class="text-[#ff613c] text-xs mb-2">Money Exchange Rate</p>
-
                   <input
                     v-model="formData.money_exchange_rate"
+                    v-if="paymentValid"
                     type="number"
                     id="title"
-                    :class="
-                      formData.money_exchange_rate != ''
-                        ? 'bg-white'
-                        : ' bg-transparent'
-                    "
-                    class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                  <input
+                    v-if="!paymentValid"
+                    disabled
+                    type="number"
+                    id="title"
+                    class="w-full bg-gray-100 h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                   />
                   <p
                     v-if="errors?.money_exchange_rate"
@@ -1114,22 +1257,7 @@ onMounted(async () => {
                           v-model="formitem.special_request"
                         ></textarea>
                       </div>
-                      <!-- <div class="grid grid-cols-1 space-y-2">
-                        <p class="text-xs">Service Date</p>
-                        <input
-                          type="date"
-                          v-model="formitem.service_date"
-                          @change="todayCheck"
-                          id="title"
-                          class="px-1 py-1.5 focus:outline-none text-xs rounded"
-                          :class="
-                            todayVali == true ? 'text-blue-600' : 'text-red-600'
-                          "
-                        />
-                        <p class="text-xs text-red-400" v-if="!todayVali">
-                          fill after today
-                        </p>
-                      </div> -->
+
                       <div
                         class="grid grid-cols-1 space-y-2"
                         v-if="
@@ -1149,6 +1277,25 @@ onMounted(async () => {
                           rows="1"
                           v-model="formitem.pickup_location"
                         ></textarea>
+                      </div>
+                      <div
+                        class="grid grid-cols-1 space-y-2"
+                        v-if="
+                          formitem.product_type == '1' ||
+                          formitem.product_type == '3' ||
+                          formitem.product_type ==
+                            'App\\Models\\PrivateVanTour' ||
+                          formitem.product_type == 'App\\Models\\AirportPickup'
+                        "
+                      >
+                        <p class="text-xs">Pickup Time</p>
+                        <input
+                          type="time"
+                          name=""
+                          v-model="formitem.pickup_time"
+                          class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                          id=""
+                        />
                       </div>
                       <div
                         class="grid grid-cols-1 space-y-2"
@@ -1251,14 +1398,7 @@ onMounted(async () => {
                           v-model="itemSpecial"
                         ></textarea>
                       </div>
-                      <!-- <div class="grid grid-cols-1 space-y-2">
-                        <p class="text-sm">Service Date</p>
-                        <input
-                          type="date"
-                          v-model="itemServiceDate"
-                          class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                        />
-                      </div> -->
+
                       <div
                         class="grid grid-cols-1 space-y-2"
                         v-if="
@@ -1277,6 +1417,25 @@ onMounted(async () => {
                           rows="1"
                           v-model="itemPickup"
                         ></textarea>
+                      </div>
+                      <div
+                        class="grid grid-cols-1 space-y-2"
+                        v-if="
+                          itemType == '1' ||
+                          itemType == '3' ||
+                          itemType == 'App\\Models\\PrivateVanTour' ||
+                          itemType == 'App\\Models\\AirportPickup'
+                        "
+                      >
+                        <p class="text-sm">Pickup Time</p>
+
+                        <input
+                          type="time"
+                          name=""
+                          v-model="itemPickupTime"
+                          class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                          id=""
+                        />
                       </div>
                       <div
                         class="grid grid-cols-1 space-y-2"
@@ -1432,7 +1591,13 @@ onMounted(async () => {
                                 "
                               ></v-select>
                             </div>
-                            <div class="" v-if="formitem.product_type == '4'">
+                            <div
+                              class=""
+                              v-if="
+                                formitem.product_type == '4' ||
+                                formitem.product_type == '6'
+                              "
+                            >
                               <v-select
                                 v-model="formitem.car_id"
                                 class="style-chooser"
@@ -1529,40 +1694,20 @@ onMounted(async () => {
                           :key="index"
                         >
                           <td
+                            v-if="item.crm_id"
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
-                            <i
-                              v-if="item.reservation_status == 'reserved'"
-                              class="text-lg text-green-600 fa-solid fa-circle-check"
-                            ></i>
-                            <i
-                              v-if="
-                                item.reservation_status == 'awaiting_payment'
-                              "
-                              class="text-lg text-yellow-500 fa-solid fa-circle-exclamation"
-                            ></i>
-                            <i
-                              v-if="item.reservation_status == 'declined'"
-                              class="text-lg text-red-600 fa-solid fa-circle-xmark"
-                            ></i>
+                            {{ strippedNumber(item.crm_id) }}
+                          </td>
+                          <td
+                            v-if="!item.crm_id"
+                            class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
+                          >
+                            -
                           </td>
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
-                            <!-- <v-select
-                              v-model="item.product_type"
-                              class="style-chooser"
-                              :options="formItemType"
-                              label="name"
-                              disabled
-                              :clearable="false"
-                              :reduce="(d) => d.id"
-                              placeholder="Choose product type"
-                            ></v-select> -->
-                            <!-- <p v-if="item.product_type == '1'">Vantour</p>
-                            <p v-if="item.product_type == '2'">Group</p>
-                            <p v-if="item.product_type == '3'">Airport</p>
-                            <p v-if="item.product_type == '4'">Entrance</p> -->
                             <div class="col-span-1">
                               <div
                                 class="py-2 text-gray-600"
@@ -1619,6 +1764,15 @@ onMounted(async () => {
                                 "
                               >
                                 <p class="inline-block text-sm">Inclusive</p>
+                              </div>
+                              <div
+                                class="py-2 text-gray-600 text-md text-bold"
+                                v-if="
+                                  item.product_type == 'App\\Models\\Hotel' ||
+                                  item.product_type == '6'
+                                "
+                              >
+                                <p class="inline-block text-sm">Hotel room</p>
                               </div>
                             </div>
                           </td>
@@ -1694,6 +1848,19 @@ onMounted(async () => {
                               :reduce="(d) => d.id"
                               placeholder="Choose product type"
                             ></v-select>
+                            <v-select
+                              v-if="
+                                item.product_type == 'App\\Models\\Hotel' ||
+                                item.product_type == '6'
+                              "
+                              v-model="item.product_id"
+                              class="style-chooser"
+                              :options="hotels?.data"
+                              label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              placeholder="Choose product type"
+                            ></v-select>
                           </td>
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -1704,18 +1871,78 @@ onMounted(async () => {
                               class="style-chooser"
                               :options="item.car_list"
                               label="name"
-                              disabled
                               :clearable="false"
                               :reduce="(d) => d.id"
+                              @option:selected="
+                                chooseSellingPrice(
+                                  item.car_id,
+                                  item.car_list,
+                                  index
+                                )
+                              "
                               placeholder="Choose product type"
                             ></v-select>
-                            <p v-if="item.car_id && item.car_name">
-                              {{ item.car_name }}
+                            <v-select
+                              v-if="item.car_id && item.car_name"
+                              v-model="item.car_id"
+                              class="style-chooser"
+                              :options="item.variation_type"
+                              label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              @option:selected="
+                                chooseSellingPrice(
+                                  item.car_id,
+                                  item.variation_type,
+                                  index
+                                )
+                              "
+                              placeholder="Choose product type"
+                            ></v-select>
+                            <v-select
+                              v-if="item.variation_name"
+                              v-model="item.variation_id"
+                              class="style-chooser"
+                              :options="item.variation_type"
+                              label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              @option:selected="
+                                chooseSellingPrice(
+                                  item.variation_id,
+                                  item.variation_type,
+                                  index
+                                )
+                              "
+                              placeholder="Choose product type"
+                            ></v-select>
+                            <v-select
+                              v-if="item.room_name"
+                              v-model="item.room_id"
+                              class="style-chooser"
+                              :options="item.variation_type"
+                              label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              @option:selected="
+                                chooseSellingPrice(
+                                  item.room_id,
+                                  item.variation_type,
+                                  index
+                                )
+                              "
+                              placeholder="Choose product type"
+                            ></v-select>
+
+                            <p
+                              v-if="
+                                !item.car_id &&
+                                !item.variation_name &&
+                                !item.room_name
+                              "
+                            >
+                              -
                             </p>
-                            <p v-if="item.variation_name">
-                              {{ item.variation_name }}
-                            </p>
-                            <p v-if="!item.car_id && !item.variation_name">-</p>
                           </td>
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -1752,6 +1979,7 @@ onMounted(async () => {
                                   item.comment,
                                   item.special_request,
                                   item.pickup_location,
+                                  item.pickup_time,
                                   item.dropoff_location,
                                   index,
                                   item.product_type,
@@ -1862,17 +2090,7 @@ onMounted(async () => {
                           class="w-full h-8 px-4 py-2 mt-2 text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
                         />
                       </div>
-                      <!-- <div class="grid grid-cols-2 gap-4">
-                        <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
-                          Reciept Image
-                        </p>
-                        <input
-                          @change="handlerFeatureFileChange"
-                          type="file"
-                          id="title"
-                          class="w-full h-12 px-4 py-2 text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-                        />
-                      </div> -->
+
                       <div
                         class="grid grid-cols-2 gap-4"
                         v-if="formData.deposit > 0"
@@ -1935,24 +2153,13 @@ onMounted(async () => {
                           type="text"
                           v-model="balance_due"
                           id="title"
-                          class="w-full h-8 px-4 py-2 mt-2 text-gray-900 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300"
+                          disabled
+                          class="w-full h-8 px-4 py-2 mt-2 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300"
                         />
                       </div>
-                      <!-- <div
-                        class="grid grid-cols-2 gap-4"
-                        :class="action == 'view' ? 'mb-4' : ''"
-                      >
-                        <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
-                          Due Date:
-                        </p>
-                        <input
-                          type="date"
-                          v-model="formData.balance_due_date"
-                          id="title"
-                          class="w-full h-8 px-4 py-2 mt-2 text-sm text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-                        />
-                      </div> -->
+
                       <div
+                        v-if="allowDeposite"
                         class="flex items-center justify-end mt-4 mb-4 space-x-3 flex-nowrap"
                       >
                         <input

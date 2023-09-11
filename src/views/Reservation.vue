@@ -224,7 +224,7 @@ watch(search, async (newValue) => {
               <div
                 class="p-3 text-sm mt-2 text-center text-gray-700 whitespace-nowrap"
               >
-                <p v-if="!d.payment_status || d.payment_status == null">-</p>
+                <p v-if="!d.payment_status || d.payment_status == 'null'">-</p>
                 <p
                   v-if="d.payment_status == 'fully_paid'"
                   class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
@@ -247,7 +247,11 @@ watch(search, async (newValue) => {
               <div
                 class="p-3 text-sm mt-2 text-center text-gray-700 whitespace-nowrap"
               >
-                <p v-if="!d.reservation_status">-</p>
+                <p
+                  v-if="!d.reservation_status || d.reservation_status == 'null'"
+                >
+                  -
+                </p>
                 <p
                   v-if="d.reservation_status == 'reserved'"
                   class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"

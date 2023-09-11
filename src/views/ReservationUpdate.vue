@@ -173,7 +173,7 @@ const recehandleFileChange = (e) => {
 };
 
 const receremoveSelectedImage = () => {
-  formData.value.receipt_image = null;
+  formData.value.receipt_image = "";
   uploadRecePreview.value = null;
 };
 
@@ -378,11 +378,19 @@ const onSubmitHandler = async () => {
 const route_plan = ref("");
 const dropoff_location = ref("");
 const booking_status = ref("");
+const booking_confirm_letters = ref("");
+const booking_receipt = ref("");
 
 const getDetail = async () => {
   try {
     const response = await reservationStore.getDetailAction(route.params.id);
     console.log(response, "this is response");
+    if (response.result.receipt_images) {
+      booking_receipt.value = response.result.receipt_images;
+    }
+    if (response.result.booking_confirm_letters) {
+      booking_confirm_letters.value = response.result.booking_confirm_letters;
+    }
     booking_status.value = response.result.booking;
     formData.value = response.result;
     formData.value.duration = response.result.duration;
@@ -469,9 +477,11 @@ const getDetail = async () => {
     } else {
       formData.value.payment_method = response.result.payment_method;
     }
-    expPreviewImage.value =
-      "https://api-blog.thanywhere.com/storage/images/" +
-      response.result.reservation_info.paid_slip;
+    if (response.result.reservation_info?.paid_slip != null) {
+      expPreviewImage.value =
+        "https://api-blog.thanywhere.com/storage/images/" +
+        response.result.reservation_info.paid_slip;
+    }
     if (response.result.bank_name == "null") {
       formData.value.bank_name = "";
     } else {
@@ -622,15 +632,29 @@ const changeName = () => {
   }
 };
 
-const allowUpdate = () => {
+const allowUpdate = computed(() => {
   if (expense_amount.value == 0) {
+    console.log(expense_amount.value, formData.value.receipt_image, "one");
     return true;
-  } else if (expense_amount.value != 0 && formData.value.receipt_image == "") {
-    return false;
   } else if (expense_amount.value == expense_amount_upload.value) {
+    console.log(expense_amount.value, formData.value.receipt_image, "three");
+    return true;
+  } else if (
+    expense_amount.value != 0 &&
+    (formData.value.receipt_image == undefined ||
+      formData.value.receipt_image == "")
+  ) {
+    console.log(expense_amount.value, formData.value.receipt_image, "two");
+    return false;
+  } else if (
+    expense_amount.value != expense_amount_upload.value &&
+    (formData.value.receipt_image != undefined ||
+      formData.value.receipt_image != "")
+  ) {
+    console.log(expense_amount.value, formData.value.receipt_image, "four");
     return true;
   }
-};
+});
 
 onMounted(async () => {
   await getDetail();
@@ -899,10 +923,37 @@ onMounted(async () => {
               </a>
             </div>
           </div>
+          <div
+            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
+            v-if="receipt_part"
+          >
+            <div v-for="(image, index) in booking_confirm_letters" :key="index">
+              <p class="text-xs mb-2 mt-2">
+                Booking Confirm Letter {{ index + 1 }}
+              </p>
+              <a :href="image.file" target="_blink">
+                <img :src="image.file" alt="" />
+              </a>
+            </div>
+          </div>
+          <div
+            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
+            v-if="receipt_part"
+          >
+            <div v-for="(image, index) in booking_receipt" :key="index">
+              <p class="text-xs mb-2 mt-2">
+                Upload Payment Receipt {{ index + 1 }}
+              </p>
+              <a :href="image.file" target="_blink">
+                <img :src="image.file" alt="" />
+              </a>
+            </div>
+          </div>
+
           <div class="flex justify-end items-center">
             <button
               v-if="
-                (formData.product_type = 'App\\Models\\EntranceTicket') &&
+                formData.product_type == 'App\\Models\\EntranceTicket' &&
                 allowUpdate
               "
               @click.prevent="onSubmitHandler"
@@ -910,8 +961,9 @@ onMounted(async () => {
             >
               Update Reservation
             </button>
+
             <button
-              v-else
+              v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
               @click.prevent="onSubmitHandler"
               class="my-10 px-4 py-2 bg-[#ff613c] text-white hover:bg-blue-600 shadow"
             >

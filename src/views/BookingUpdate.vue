@@ -102,11 +102,13 @@ const choosePaymentBank = () => {
   console.log(formData.value.payment_currency);
   if (formData.value.payment_currency == "MMK") {
     payment.value = payment_mm;
+    paymentValid.value = true;
   } else if (formData.value.payment_currency == "THB") {
     paymentValid.value = false;
     payment.value = payment_thb;
   } else {
     payment.value = payment_usd;
+    paymentValid.value = true;
   }
 };
 const payment_status = [
@@ -118,7 +120,7 @@ const payment_status = [
 const payment_currency = [
   { id: "1", name: "MMK" },
   { id: "2", name: "USD" },
-  { id: "2", name: "THB" },
+  { id: "3", name: "THB" },
 ];
 const reservation_status = [
   { id: "1", name: "reserved" },

@@ -219,6 +219,7 @@ const formitem = ref({
   selling_price: "",
   pickup_location: "",
   pickup_time: "",
+  customer_attachment: "",
   dropoff_location: "",
   route_plan: "",
   comment: "",
@@ -259,6 +260,15 @@ const chooseType = async () => {
     console.log(productList.value);
   }
 };
+
+const customerFile = (e) => {
+  let selectedFile = e.target.files[0];
+  if (selectedFile) {
+    formitem.value.customer_attachment = e.target.files[0];
+    // featureImagePreview.value = URL.createObjectURL(selectedFile);
+  }
+};
+
 const addNewitem = () => {
   formData.value.items.push(formitem.value);
   console.log(formData.value.items);
@@ -273,6 +283,7 @@ const addNewitem = () => {
     car_list: [],
     pickup_location: "",
     pickup_time: "",
+    customer_attachment: "",
     dropoff_location: "",
     route_plan: "",
     car_name: "",
@@ -477,6 +488,12 @@ const onSubmitHandler = async () => {
         ? formData.value.items[x].pickup_time
         : ""
     );
+    if (formData.value.items[x].customer_attachment) {
+      frmData.append(
+        "items[" + x + "][customer_attachment]",
+        formData.value.items[x].customer_attachment
+      );
+    }
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
@@ -1343,6 +1360,21 @@ onMounted(async () => {
                           rows="1"
                           v-model="formitem.route_plan"
                         ></textarea>
+                      </div>
+                      <div
+                        class="grid grid-cols-1 space-y-2"
+                        v-if="
+                          formitem.product_type == '3' ||
+                          formitem.product_type == 'App\\Models\\AirportPickup'
+                        "
+                      >
+                        <p class="text-xs">Customer Attachment</p>
+                        <input
+                          type="file"
+                          name=""
+                          @change="customerFile"
+                          id=""
+                        />
                       </div>
                       <div class="flex items-center justify-between">
                         <button @click="closedes" class="text-sm">close</button>

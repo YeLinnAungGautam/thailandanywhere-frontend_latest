@@ -94,6 +94,7 @@ const formData = ref({
   car_id: "",
   car_name: "",
   variation_name: "",
+  hotel_name: "",
   reservation_status: "",
   selling_price: "",
   service_date: "",
@@ -104,6 +105,7 @@ const formData = ref({
   cus_email: "",
   receipt_images: [],
   receipt_image: "",
+  customer_attachment: "",
 });
 
 const expense_amount_upload = ref(null);
@@ -309,7 +311,10 @@ const onSubmitHandler = async () => {
         secfrm.append("car_number", secForm.value.car_number);
       }
       if (secForm.value.car_photo) {
-        if (formData.value.product_type == "App\\Models\\EntranceTicket") {
+        if (
+          formData.value.product_type == "App\\Models\\EntranceTicket" ||
+          formData.value.product_type == "App\\Models\\Hotel"
+        ) {
           secfrm.append("booking_confirm_letter", secForm.value.car_photo);
         } else {
           secfrm.append("car_photo", secForm.value.car_photo);
@@ -387,6 +392,9 @@ const getDetail = async () => {
     const response = await reservationStore.getDetailAction(route.params.id);
     console.log(response, "this is response");
     titleDataChanges(response.result.product_type);
+    if (response.result.customer_attachment != null) {
+      formData.customer_attachment = response.result.customer_attachment;
+    }
     if (response.result.receipt_images) {
       booking_receipt.value = response.result.receipt_images;
     }
@@ -545,6 +553,11 @@ const getDetail = async () => {
       formData.value.variation_name = "";
     } else if (response.result.variation != null) {
       formData.value.variation_name = response.result.variation.name;
+    }
+    if (response.result.room == null) {
+      formData.value.hotel_name = "";
+    } else if (response.result.room != null) {
+      formData.value.hotel_name = response.result.room.name;
     }
     if (response.result.comment == "null") {
       formData.value.comment = "";
@@ -818,6 +831,15 @@ onMounted(async () => {
               </a>
             </div>
           </div>
+          <div
+            class="px-6 py-5 bg-gray-200/50 flex justify-start items-center space-x-4"
+            v-if="receipt_part && formData.customer_attachment"
+          >
+            <p class="text-xs mb-2 mt-2">Customer Attachment File --</p>
+            <p class="text-sm font-semibold text-blue-500">
+              <a :href="formData.customer_attachment" target="_blink">Link</a>
+            </p>
+          </div>
 
           <div
             class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
@@ -890,7 +912,16 @@ onMounted(async () => {
                 Variation Type
               </p>
               <p
-                v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+                v-if="formData.product_type == 'App\\Models\\Hotel'"
+                class="text-gray-400 text-xs"
+              >
+                Hotel Type
+              </p>
+              <p
+                v-if="
+                  formData.product_type != 'App\\Models\\EntranceTicket' &&
+                  formData.product_type != 'App\\Models\\Hotel'
+                "
                 class="text-gray-400 text-xs"
               >
                 Car Type
@@ -903,7 +934,16 @@ onMounted(async () => {
               </p>
               <p
                 class="font-semibold text-xs"
-                v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+                v-if="formData.product_type == 'App\\Models\\Hotel'"
+              >
+                {{ formData.hotel_name }}
+              </p>
+              <p
+                class="font-semibold text-xs"
+                v-if="
+                  formData.product_type != 'App\\Models\\EntranceTicket' &&
+                  formData.product_type != 'App\\Models\\Hotel'
+                "
               >
                 {{ formData.car_name }}
               </p>
@@ -914,14 +954,20 @@ onMounted(async () => {
             </div>
             <div
               class="pl-10 space-y-2"
-              v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
             >
               <p class="text-gray-400 text-xs">Pickup Time</p>
               <p class="font-semibold text-xs">{{ formData.pickup_time }}</p>
             </div>
             <div
               class="pl-10 pr-10 space-y-2"
-              v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
             >
               <p class="text-gray-400 text-xs">Durations</p>
               <input
@@ -984,7 +1030,8 @@ onMounted(async () => {
           <div class="flex justify-end items-center">
             <button
               v-if="
-                formData.product_type == 'App\\Models\\EntranceTicket' &&
+                (formData.product_type == 'App\\Models\\EntranceTicket' ||
+                  formData.product_type == 'App\\Models\\Hotel') &&
                 allowUpdate
               "
               @click.prevent="onSubmitHandler"
@@ -994,7 +1041,10 @@ onMounted(async () => {
             </button>
 
             <button
-              v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
               @click.prevent="onSubmitHandler"
               class="my-10 px-4 py-2 bg-[#ff613c] text-white hover:bg-blue-600 shadow"
             >
@@ -1011,7 +1061,10 @@ onMounted(async () => {
           </div>
           <div
             class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
-            v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+            v-if="
+              formData.product_type != 'App\\Models\\EntranceTicket' &&
+              formData.product_type != 'App\\Models\\Hotel'
+            "
             @click="routePlanHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
@@ -1021,7 +1074,8 @@ onMounted(async () => {
             class="bg-gray-200/50 p-6"
             v-if="
               route_plan_part &&
-              formData.product_type != 'App\\Models\\EntranceTicket'
+              formData.product_type != 'App\\Models\\EntranceTicket' &&
+              formData.product_type != 'App\\Models\\Hotel'
             "
           >
             <div class="pl-4 space-y-2 border border-gray-200 p-4 bg-white">
@@ -1056,7 +1110,10 @@ onMounted(async () => {
 
             <div
               class="px-6 space-y-2"
-              v-if="!formData.product_type == 'App\\Models\\EntranceTicket'"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
             >
               <p class="text-gray-400 text-xs">Pickup Location</p>
               <textarea
@@ -1067,7 +1124,10 @@ onMounted(async () => {
             </div>
             <div
               class="px-6 space-y-2"
-              v-if="!formData.product_type == 'App\\Models\\EntranceTicket'"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
             >
               <p class="text-gray-400 text-xs">Dropoff Location</p>
               <textarea
@@ -1083,13 +1143,26 @@ onMounted(async () => {
             @click="carInfoSecHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
-            <p v-if="formData.product_type == 'App\\Models\\EntranceTicket'">
+            <p
+              v-if="
+                formData.product_type == 'App\\Models\\EntranceTicket' ||
+                formData.product_type == 'App\\Models\\Hotel'
+              "
+            >
               Supplier Information
             </p>
             <p v-if="formData.product_type == 'App\\Models\\AirportPickup'">
               Assign Information
             </p>
-            <p v-else>Car Information</p>
+            <p
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel' &&
+                formData.product_type == 'App\\Models\\AirportPickup'
+              "
+            >
+              Car Information
+            </p>
           </div>
           <div class="bg-gray-200/50 px-3 py-5 space-y-2" v-if="car_info_sec">
             <div class="px-6 space-y-2">
@@ -1103,7 +1176,10 @@ onMounted(async () => {
             </div>
             <div
               class="px-6 space-y-2"
-              v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
             >
               <p class="text-gray-400 text-xs">Driver Name</p>
               <input
@@ -1115,7 +1191,10 @@ onMounted(async () => {
             </div>
             <div
               class="px-6 space-y-2"
-              v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
             >
               <p class="text-gray-400 text-xs">Driver Contact</p>
               <input
@@ -1127,7 +1206,10 @@ onMounted(async () => {
             </div>
             <div
               class="px-6 space-y-2"
-              v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+              v-if="
+                formData.product_type == 'App\\Models\\EntranceTicket' ||
+                formData.product_type == 'App\\Models\\Hotel'
+              "
             >
               <p class="text-gray-400 text-xs">Reference Number</p>
               <input
@@ -1139,7 +1221,10 @@ onMounted(async () => {
             </div>
             <div
               class="px-6 space-y-2"
-              v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
             >
               <p class="text-gray-400 text-xs">Car Number</p>
 
@@ -1153,7 +1238,10 @@ onMounted(async () => {
             <div class="px-6 space-y-2">
               <p
                 class="text-gray-400 text-xs"
-                v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+                v-if="
+                  formData.product_type == 'App\\Models\\EntranceTicket' ||
+                  formData.product_type == 'App\\Models\\Hotel'
+                "
               >
                 Booking Confirmation Letter
               </p>
@@ -1311,7 +1399,10 @@ onMounted(async () => {
 
           <div
             class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
-            v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+            v-if="
+              formData.product_type == 'App\\Models\\EntranceTicket' ||
+              formData.product_type == 'App\\Models\\Hotel'
+            "
           >
             <i class="fa-solid fa-angle-down"></i>
 
@@ -1320,7 +1411,10 @@ onMounted(async () => {
 
           <div
             class="bg-gray-200/50 py-5 space-y-2"
-            v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+            v-if="
+              formData.product_type == 'App\\Models\\EntranceTicket' ||
+              formData.product_type == 'App\\Models\\Hotel'
+            "
           >
             <div class="space-y-2">
               <div class="pl-10 pr-10 space-y-2">

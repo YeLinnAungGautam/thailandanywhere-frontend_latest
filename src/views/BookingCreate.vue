@@ -230,6 +230,7 @@ const formitem = ref({
   pickup_time: "",
   dropoff_location: "-",
   route_plan: "-",
+  customer_attachment: "",
 });
 const productList = ref([]);
 
@@ -376,6 +377,7 @@ const addNewitem = () => {
     route_plan: "-",
     pickup_location: "-",
     pickup_time: "",
+    customer_attachment: "",
     dropoff_location: "-",
   };
   todayVali.value = false;
@@ -400,6 +402,14 @@ const handlerFeatureFileChange = (e) => {
   if (selectedFile) {
     formData.value.receipt_image = e.target.files[0];
     featureImagePreview.value = URL.createObjectURL(selectedFile);
+  }
+};
+
+const customerFile = (e) => {
+  let selectedFile = e.target.files[0];
+  if (selectedFile) {
+    formitem.value.customer_attachment = e.target.files[0];
+    // featureImagePreview.value = URL.createObjectURL(selectedFile);
   }
 };
 
@@ -487,6 +497,10 @@ const onSubmitHandler = async () => {
     frmData.append(
       "items[" + x + "][pickup_time]",
       formData.value.items[x].pickup_time
+    );
+    frmData.append(
+      "items[" + x + "][customer_attachment]",
+      formData.value.items[x].customer_attachment
     );
     frmData.append(
       "items[" + x + "][dropoff_location]",
@@ -625,7 +639,7 @@ const closedes = () => {
 };
 const clickdetaildes = ref(false);
 const itemDes = ref();
-const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s) => {
+const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s, file) => {
   console.log(a, b, index);
   clickdetaildes.value = true;
   itemDes.value = a;
@@ -637,10 +651,11 @@ const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s) => {
   indexValue.value = index;
   itemType.value = t;
   itemRoutePlan.value = r;
+  itemFile.value = file;
 };
 const itemType = ref("");
 const itemRoutePlan = ref("");
-
+const itemFile = ref("");
 const indexValue = ref("");
 const itemPickup = ref("");
 const itemDropoff = ref("");
@@ -651,7 +666,7 @@ const clickdetaildesUpdate = (x) => {
   formData.value.items[x].special_request = itemSpecial.value;
   formData.value.items[x].service_date = itemServiceDate.value;
   formData.value.items[x].pickup_location = itemPickup.value;
-  formData.value.items[x].pickup_time = itemPickupTime.value;
+  formData.value.items[x].customer_attachment = itemFile;
   formData.value.items[x].dropoff_location = itemDropoff.value;
   formData.value.items[x].route_plan = itemRoutePlan.value;
   clickdetaildes.value = false;
@@ -985,6 +1000,13 @@ onMounted(async () => {
                         v-model="formitem.route_plan"
                       ></textarea>
                     </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="formitem.product_type == '3'"
+                    >
+                      <p class="text-xs">Customer Attachment</p>
+                      <input type="file" name="" @change="customerFile" id="" />
+                    </div>
                     <div class="flex items-center justify-between">
                       <button @click="closedes" class="text-sm">close</button>
                       <button
@@ -1101,6 +1123,13 @@ onMounted(async () => {
                         rows="1"
                         v-model="itemRoutePlan"
                       ></textarea>
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="itemType == '3'"
+                    >
+                      <p class="text-sm">customer_attachment</p>
+                      <p>...</p>
                     </div>
                     <div class="flex items-center justify-between">
                       <button @click="clickdetaildesClose" class="text-sm">
@@ -1497,7 +1526,8 @@ onMounted(async () => {
                                 index,
                                 item.product_type,
                                 item.route_plan,
-                                item.service_date
+                                item.service_date,
+                                item.customer_attachment
                               )
                             "
                           >

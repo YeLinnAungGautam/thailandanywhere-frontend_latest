@@ -936,7 +936,7 @@ onMounted(async () => {
                 class="font-semibold text-xs"
                 v-if="formData.product_type == 'App\\Models\\Hotel'"
               >
-                {{ formData.hotel_name }}
+                <!-- {{ formData.hotel_name }} -->
               </p>
               <p
                 class="font-semibold text-xs"
@@ -1152,13 +1152,13 @@ onMounted(async () => {
               Supplier Information
             </p>
             <p v-if="formData.product_type == 'App\\Models\\AirportPickup'">
-              Assign Information
+              Assign Driver
             </p>
             <p
               v-if="
                 formData.product_type != 'App\\Models\\EntranceTicket' &&
                 formData.product_type != 'App\\Models\\Hotel' &&
-                formData.product_type == 'App\\Models\\AirportPickup'
+                formData.product_type != 'App\\Models\\AirportPickup'
               "
             >
               Car Information

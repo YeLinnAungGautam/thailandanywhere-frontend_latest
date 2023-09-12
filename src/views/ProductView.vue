@@ -7,6 +7,7 @@ import VanTour from "../views/VanTour.vue";
 import GroupTour from "../views/Grouptour.vue";
 import Airport from "../views/AirportTicket.vue";
 import Entrance from "../views/EntranceTicket.vue";
+import EntranceVariation from "../views/EntranceTicketVariation.vue";
 import Inclusive from "../views/InclusiveView.vue";
 import Hotel from "../views/HotelView.vue";
 import Room from "../views/RoomView.vue";
@@ -97,7 +98,7 @@ onMounted(() => {
               }"
               class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
-              Group Tours
+              Entrance Tickets Variation
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(4)">
@@ -108,7 +109,7 @@ onMounted(() => {
               }"
               class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
-              Inclusive
+              Group Tours
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(5)">
@@ -119,10 +120,21 @@ onMounted(() => {
               }"
               class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
-              Hotels
+              Inclusive
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(6)">
+            <button
+              :class="{
+                'bg-[#ff613c] text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+            >
+              Hotels
+            </button>
+          </Tab>
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(7)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -143,6 +155,9 @@ onMounted(() => {
           </TabPanel>
           <TabPanel>
             <Entrance />
+          </TabPanel>
+          <TabPanel>
+            <EntranceVariation />
           </TabPanel>
           <TabPanel>
             <GroupTour />

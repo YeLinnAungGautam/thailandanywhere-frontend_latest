@@ -12,18 +12,21 @@ import { storeToRefs } from "pinia";
 import { useCityStore } from "../stores/city";
 import { useProductStore } from "../stores/product";
 import { useEntranceStore } from "../stores/entrance";
+import { useVariationStore } from "../stores/variations";
 
 const toast = useToast();
 const router = useRouter();
 const route = useRoute();
 const cityStore = useCityStore();
 const productStore = useProductStore();
+const variationsStore = useVariationStore();
 
 const vantourStore = useEntranceStore();
 
 const { cities } = storeToRefs(cityStore);
 const { tags } = storeToRefs(productStore);
 const { products } = storeToRefs(productStore);
+const { variations } = storeToRefs(variationsStore);
 
 const formData = ref({
   name: "",
@@ -34,6 +37,7 @@ const formData = ref({
   city_id: [],
   images: [],
   category: [],
+  variations: [],
   feature_image: "",
 });
 const editData = ref({
@@ -45,24 +49,6 @@ const editData = ref({
   images: [],
 });
 
-const formPrice = ref({
-  name: "",
-  age_group: "",
-  price: "",
-});
-const addNewPrice = () => {
-  editData.value.variations.push(formPrice.value);
-  console.log(editData.value.variations, "variations");
-  formPrice.value = {
-    name: "",
-    age_group: "",
-    price: "",
-  };
-};
-
-const removeFromPrice = (index) => {
-  editData.value.variations.splice(index, 1);
-};
 const errors = ref(null);
 
 const featureImageInput = ref(null);
@@ -133,24 +119,10 @@ const onSubmitHandler = async () => {
   for (var x = 0; x < formData.value.category.length; x++) {
     frmData.append("category_ids[" + x + "]", formData.value.category[x]);
   }
-  for (var x = 0; x < editData.value.variations.length; x++) {
-    frmData.append(
-      "variations[" + x + "][name]",
-      editData.value.variations[x].name
-    );
+  for (var x = 0; x < formData.value.variations.length; x++) {
+    frmData.append("variations[" + x + "]", formData.value.variations[x]);
   }
-  for (var x = 0; x < editData.value.variations.length; x++) {
-    frmData.append(
-      "variations[" + x + "][age_group]",
-      editData.value.variations[x].age_group
-    );
-  }
-  for (var x = 0; x < editData.value.variations.length; x++) {
-    frmData.append(
-      "variations[" + x + "][price]",
-      editData.value.variations[x].price
-    );
-  }
+
   try {
     const response = await vantourStore.updateAction(frmData, route.params.id);
     formData.value = {
@@ -162,6 +134,7 @@ const onSubmitHandler = async () => {
       tag: [],
       city_id: [],
       images: [],
+      variations: [],
       feature_image: "",
     };
     errors.value = null;
@@ -185,6 +158,13 @@ const updateEditTagData = () => {
     formData.value.tag.push(tagid);
   }
   console.log(formData.value.tag, "this is tag");
+};
+const updateEditvariationsData = () => {
+  for (const key in editData.value.variations) {
+    const variationsid = editData.value.variations[key].id;
+    formData.value.variations.push(variationsid);
+  }
+  console.log(formData.value.variations, "this is variations");
 };
 const updateEditCityData = () => {
   for (const key in editData.value.city_id) {
@@ -223,6 +203,7 @@ const getDetail = async () => {
 
     updateEditTagData();
     updateEditCityData();
+    updateEditvariationsData();
     updateEditCategoryData();
   } catch (error) {
     console.log(error);
@@ -232,7 +213,7 @@ const getDetail = async () => {
 const citylist = ref([]);
 const taglist = ref([]);
 const categorylist = ref([]);
-
+const variationslist = ref([]);
 const pageaction = ref("");
 
 onMounted(async () => {
@@ -240,11 +221,13 @@ onMounted(async () => {
   await cityStore.getSimpleListAction();
   await productStore.getSimpleListTagAction();
   await productStore.getSimpleListAction();
+  await variationsStore.getSimpleListAction();
   citylist.value = cities.value.data;
   taglist.value = tags.value.data;
   categorylist.value = products.value.data;
   pageaction.value = route.params.action;
-  // console.log(products.value, "categorylist");
+  variationslist.value = variations.value.data;
+  // console.log(variations, "categorylist");
 });
 </script>
 
@@ -335,91 +318,18 @@ onMounted(async () => {
           </div>
           <div class="col-span-2">
             <div class="col-span-2">
-              <div class="flex items-center justify-start mb-2">
-                <label class="text-sm block text-gray-600 mr-3" for="">
-                  Prices</label
-                >
-              </div>
-
-              <div class="flex items-center justify-between gap-3 mb-3">
-                <div class="flex-1">
-                  <input
-                    v-model="formPrice.name"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter name"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="formPrice.age_group"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter age group"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="formPrice.price"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter price"
-                  />
-                </div>
-                <div>
-                  <button @click.prevent="addNewPrice" class="">
-                    <i
-                      class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
-                    ></i>
-                  </button>
-                </div>
-              </div>
-
-              <div
-                v-for="(price, index) in editData.variations"
-                :key="index"
-                class="flex items-center justify-between gap-3 mb-3"
-              >
-                <div class="flex-1">
-                  <input
-                    v-model="price.name"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter name"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="price.age_group"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter age group"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="price.price"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter prices"
-                  />
-                </div>
-                <div>
-                  <button
-                    class="text-sm text-red-600"
-                    @click.prevent="removeFromPrice(index)"
-                  >
-                    <i
-                      class="fa-solid fa-minus text-sm font-semibold px-2 py-1 bg-red-500 rounded-full shadow text-white"
-                    ></i>
-                  </button>
-                </div>
+              <div>
+                <p class="text-gray-800 text-sm mb-2">Variations</p>
+                <v-select
+                  v-model="formData.variations"
+                  class="style-chooser"
+                  :options="variationslist ?? []"
+                  label="name"
+                  multiple
+                  :clearable="false"
+                  :reduce="(variations) => variations.id"
+                  placeholder="Choose variations"
+                ></v-select>
               </div>
             </div>
           </div>

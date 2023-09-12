@@ -90,14 +90,15 @@ const payment_usd = [
 const payment = ref([]);
 const paymentValid = ref(true);
 const choosePaymentBank = () => {
-  console.log(formData.value.payment_currency);
   if (formData.value.payment_currency == "MMK") {
     payment.value = payment_mm;
+    paymentValid.value = true;
   } else if (formData.value.payment_currency == "THB") {
     payment.value = payment_thb;
     paymentValid.value = false;
   } else {
     payment.value = payment_usd;
+    paymentValid.value = true;
   }
 };
 // Kasikorn, Bangkok Bank, Bank of Ayudhaya, SCB Bank , Others

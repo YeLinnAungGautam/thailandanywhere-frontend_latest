@@ -220,6 +220,9 @@ watch(search, async (newValue) => {
                 <p v-if="d.product_type == 'App\\Models\\Inclusive'">
                   Inclusive
                 </p>
+                <p v-if="d.product_type == 'App\\Models\\Hotel'">
+                  Hotel & Room
+                </p>
               </div>
               <div
                 class="p-3 text-sm mt-2 text-center text-gray-700 whitespace-nowrap"

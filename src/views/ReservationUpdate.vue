@@ -756,6 +756,51 @@ onMounted(async () => {
 
           <div
             class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            @click="receiptHandle"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+            <p>Receipt Images</p>
+          </div>
+          <div
+            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
+            v-if="receipt_part"
+          >
+            <div v-for="(image, index) in formData.receipt_images" :key="index">
+              <p class="text-xs mb-2 mt-2">Receipt Image {{ index + 1 }}</p>
+              <a :href="image.image" target="_blink">
+                <img :src="image.image" alt="" />
+              </a>
+            </div>
+          </div>
+          <div
+            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
+            v-if="receipt_part"
+          >
+            <div v-for="(image, index) in booking_confirm_letters" :key="index">
+              <p class="text-xs mb-2 mt-2">
+                Booking Confirm Letter {{ index + 1 }}
+              </p>
+              <a :href="image.file" target="_blink">
+                <img :src="image.file" alt="" />
+              </a>
+            </div>
+          </div>
+          <div
+            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
+            v-if="receipt_part"
+          >
+            <div v-for="(image, index) in booking_receipt" :key="index">
+              <p class="text-xs mb-2 mt-2">
+                Upload Payment Receipt {{ index + 1 }}
+              </p>
+              <a :href="image.file" target="_blink">
+                <img :src="image.file" alt="" />
+              </a>
+            </div>
+          </div>
+
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
             @click="customerHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
@@ -910,50 +955,6 @@ onMounted(async () => {
                   class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
                 />
               </div>
-            </div>
-          </div>
-          <div
-            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
-            @click="receiptHandle"
-          >
-            <i class="fa-solid fa-angle-down"></i>
-            <p>Receipt Images</p>
-          </div>
-          <div
-            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
-            v-if="receipt_part"
-          >
-            <div v-for="(image, index) in formData.receipt_images" :key="index">
-              <p class="text-xs mb-2 mt-2">Receipt Image {{ index + 1 }}</p>
-              <a :href="image.image" target="_blink">
-                <img :src="image.image" alt="" />
-              </a>
-            </div>
-          </div>
-          <div
-            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
-            v-if="receipt_part"
-          >
-            <div v-for="(image, index) in booking_confirm_letters" :key="index">
-              <p class="text-xs mb-2 mt-2">
-                Booking Confirm Letter {{ index + 1 }}
-              </p>
-              <a :href="image.file" target="_blink">
-                <img :src="image.file" alt="" />
-              </a>
-            </div>
-          </div>
-          <div
-            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
-            v-if="receipt_part"
-          >
-            <div v-for="(image, index) in booking_receipt" :key="index">
-              <p class="text-xs mb-2 mt-2">
-                Upload Payment Receipt {{ index + 1 }}
-              </p>
-              <a :href="image.file" target="_blink">
-                <img :src="image.file" alt="" />
-              </a>
             </div>
           </div>
 

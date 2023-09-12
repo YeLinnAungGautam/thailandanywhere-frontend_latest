@@ -437,7 +437,7 @@ const getDetail = async () => {
         response.result.reservation_info.expense_amount;
       secForm.value.customer_feedback =
         response.result.reservation_info.customer_feedback;
-      secForm.value.ref_number = response.result.reservation_info.ref_number;
+
       secForm.value.customer_score =
         response.result.reservation_info.customer_score;
       formData.value.bank_name = response.result.reservation_info.bank_name;
@@ -556,7 +556,8 @@ const getDetail = async () => {
     formData.value.quantity = response.result.quantity;
     formData.value.selling_price = response.result.selling_price;
     formData.value.service_date = response.result.service_date;
-
+    secForm.value.ref_number =
+      response.result.reservation_supplier_info?.ref_number;
     console.log(formData.value, "first");
     console.log(secForm.value, "sec");
   } catch (error) {
@@ -672,6 +673,7 @@ onMounted(async () => {
   await entranceStore.getSimpleListAction();
   await customerStore.getSimpleListAction();
   await inclusiveStore.getSimpleListAction();
+  console.log(booking_confirm_letters.value, "this is something");
   action.value = route.params.action;
   crm.value = route.params.crm;
 });
@@ -774,7 +776,7 @@ onMounted(async () => {
           </div>
           <div
             class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
-            v-if="receipt_part"
+            v-if="receipt_part && booking_confirm_letters.length != 0"
           >
             <div v-for="(image, index) in booking_confirm_letters" :key="index">
               <p class="text-xs mb-2 mt-2">
@@ -787,7 +789,7 @@ onMounted(async () => {
           </div>
           <div
             class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
-            v-if="receipt_part"
+            v-if="receipt_part && booking_receipt.length != 0"
           >
             <div v-for="(image, index) in booking_receipt" :key="index">
               <p class="text-xs mb-2 mt-2">

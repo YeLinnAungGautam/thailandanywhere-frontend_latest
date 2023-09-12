@@ -12,7 +12,7 @@ import { storeToRefs } from "pinia";
 import { useCityStore } from "../stores/city";
 import { useProductStore } from "../stores/product";
 // import { useCategoryStore } from "../stores/category";
-
+import { useVariationStore } from "../stores/variations";
 import { useEntranceStore } from "../stores/entrance";
 
 const toast = useToast();
@@ -20,6 +20,7 @@ const router = useRouter();
 const route = useRoute();
 const cityStore = useCityStore();
 const productStore = useProductStore();
+const variationsStore = useVariationStore();
 // const categoryStore = useCategoryStore();
 
 const entranceStore = useEntranceStore();
@@ -27,6 +28,7 @@ const entranceStore = useEntranceStore();
 const { cities } = storeToRefs(cityStore);
 const { tags } = storeToRefs(productStore);
 const { products } = storeToRefs(productStore);
+const { variations } = storeToRefs(variationsStore);
 
 const formData = ref({
   name: "",
@@ -41,24 +43,6 @@ const formData = ref({
   feature_image: "",
 });
 
-const formPrice = ref({
-  name: "",
-  age_group: "",
-  price: "",
-});
-const addNewPrice = () => {
-  formData.value.variations.push(formPrice.value);
-  console.log(formData.value.variations);
-  formPrice.value = {
-    name: "",
-    age_group: "",
-    price: "",
-  };
-};
-
-const removeFromPrice = (index) => {
-  formData.value.variations.splice(index, 1);
-};
 const errors = ref(null);
 
 const featureImageInput = ref(null);
@@ -131,23 +115,9 @@ const onSubmitHandler = async () => {
     frmData.append("category_ids[" + x + "]", formData.value.category[x]);
   }
   for (var x = 0; x < formData.value.variations.length; x++) {
-    frmData.append(
-      "variations[" + x + "][name]",
-      formData.value.variations[x].name
-    );
+    frmData.append("variations[" + x + "]", formData.value.variations[x]);
   }
-  for (var x = 0; x < formData.value.variations.length; x++) {
-    frmData.append(
-      "variations[" + x + "][age_group]",
-      formData.value.variations[x].age_group
-    );
-  }
-  for (var x = 0; x < formData.value.variations.length; x++) {
-    frmData.append(
-      "variations[" + x + "][price]",
-      formData.value.variations[x].price
-    );
-  }
+
   try {
     const response = await entranceStore.addNewAction(frmData);
     formData.value = {
@@ -179,14 +149,15 @@ const onSubmitHandler = async () => {
 const citylist = ref([]);
 const taglist = ref([]);
 const categorylist = ref([]);
+const variationslist = ref([]);
 
 onMounted(async () => {
   await cityStore.getSimpleListAction();
   await productStore.getSimpleListTagAction();
-
+  await variationsStore.getSimpleListAction();
   await productStore.getSimpleListAction();
   citylist.value = cities.value.data;
-
+  variationslist.value = variations.value.data;
   taglist.value = tags.value.data;
   categorylist.value = products.value.data;
 });
@@ -268,89 +239,18 @@ onMounted(async () => {
           </div>
           <div class="col-span-2">
             <div class="col-span-2">
-              <div class="flex items-center justify-start mb-2">
-                <label class="text-sm block text-gray-600 mr-3" for="">
-                  Variations</label
-                >
-              </div>
-              <div class="flex items-center justify-between gap-3 mb-3">
-                <div class="flex-1">
-                  <input
-                    v-model="formPrice.name"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter name"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="formPrice.age_group"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter age group"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="formPrice.price"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter price"
-                  />
-                </div>
-                <div>
-                  <button @click.prevent="addNewPrice" class="">
-                    <i
-                      class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
-                    ></i>
-                  </button>
-                </div>
-              </div>
-              <div
-                v-for="(price, index) in formData.variations"
-                :key="index"
-                class="flex items-center justify-between gap-3 mb-3"
-              >
-                <div class="flex-1">
-                  <input
-                    v-model="price.name"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter name"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="price.age_group"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter age group"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="price.price"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter prices"
-                  />
-                </div>
-                <div>
-                  <button
-                    class="text-sm text-red-600"
-                    @click.prevent="removeFromPrice(index)"
-                  >
-                    <i
-                      class="fa-solid fa-minus text-sm font-semibold px-2 py-1 bg-red-500 rounded-full shadow text-white"
-                    ></i>
-                  </button>
-                </div>
+              <div>
+                <p class="text-gray-800 text-sm mb-2">Variations</p>
+                <v-select
+                  v-model="formData.variations"
+                  class="style-chooser"
+                  :options="variationslist ?? []"
+                  label="name"
+                  multiple
+                  :clearable="false"
+                  :reduce="(variations) => variations.id"
+                  placeholder="Choose variations"
+                ></v-select>
               </div>
             </div>
           </div>
@@ -376,12 +276,6 @@ onMounted(async () => {
         <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
           <div class="flex items-center justify-start gap-3 mb-3">
             <p>Images</p>
-            <!-- <button
-              @click.prevent="openFileImagePicker"
-              class="text-sm text-[#ff613c]"
-            >
-              + Upload
-            </button> -->
 
             <input
               multiple

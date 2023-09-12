@@ -55,7 +55,7 @@ onMounted(() => {
     <div class="">
       <TabGroup :selectedIndex="selectedTab">
         <TabList
-          class="flex p-6 mb-5 space-x-2 rounded-lg shadow-sm bg-white/60"
+          class="flex p-6 mb-5 space-x-2 rounded-lg shadow-sm bg-white/60 overflow-x-scroll"
         >
           <Tab as="template" v-slot="{ selected }" @click="changeTab(0)">
             <button
@@ -63,7 +63,7 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-gray-600': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[150px] text-center"
             >
               Van Tours
             </button>
@@ -74,7 +74,7 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[150px] text-center flex-nowrap"
             >
               Airport Pickup
             </button>
@@ -85,9 +85,9 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
-              Entrance Tickets
+              Attractions
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(3)">
@@ -96,7 +96,7 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[250px] text-center"
             >
               Entrance Tickets Variation
             </button>
@@ -107,7 +107,7 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[150px] text-center"
             >
               Group Tours
             </button>
@@ -118,7 +118,7 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Inclusive
             </button>
@@ -129,7 +129,7 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Hotels
             </button>
@@ -140,7 +140,7 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
               Rooms
             </button>

@@ -668,7 +668,7 @@ const allowUpdate = computed(() => {
 const titleData = ref("");
 const titleDataChanges = (data) => {
   if (data == "App\\Models\\EntranceTicket") {
-    titleData.value = "Entranction";
+    titleData.value = "Attractions";
   } else if (data == "App\\Models\\AirportPickup") {
     titleData.value = "Airport Pickup";
   } else if (data == "App\\Models\\Hotel") {

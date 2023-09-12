@@ -283,7 +283,7 @@ const chooseCar = async (id) => {
     console.log(res);
   } else if (formitem.value.product_type == "4") {
     const res = await entranceStore.getDetailAction(id);
-    formitem.value.comment = res.result.description;
+    // formitem.value.comment = res.result.description;
     console.log(res, "choose");
     carType.value = res.result.variations;
     console.log(res.result.variations[0].price);
@@ -294,7 +294,7 @@ const chooseCar = async (id) => {
     formitem.value.selling_price = res.result.price;
   } else if (formitem.value.product_type == "6") {
     const res = await hotelStore.getDetailAction(id);
-    formitem.value.comment = res.result.description;
+    // formitem.value.comment = res.result.description;
     roomType.value = res.result.rooms;
   }
 };
@@ -306,7 +306,7 @@ const chooseCarPrice = async (type, productId, id) => {
       formitem.value.car_list = res.result.cars;
       if (res.result.cars[i].id == id) {
         formitem.value.selling_price = res.result.cars[i].price;
-        console.log(res.result.cars[i].price);
+        console.log(res.result.cars[i]);
       }
     }
   } else if (type == "2") {
@@ -336,7 +336,8 @@ const chooseCarPrice = async (type, productId, id) => {
     for (let i = 0; i < res.result.variations.length; i++) {
       if (res.result.variations[i].id == id) {
         formitem.value.selling_price = res.result.variations[i].price;
-        console.log(res.result.variations[i].price);
+        formitem.value.comment = res.result.variations[i].description;
+        console.log(res.result.variations[i].description);
       }
     }
     console.log(res);
@@ -347,7 +348,8 @@ const chooseCarPrice = async (type, productId, id) => {
     formitem.value.room = room;
     formitem.value.selling_price = room.room_price;
     formitem.value.extra_price = room.extra_price;
-    console.log(formitem.value.room);
+    formitem.value.comment = room.description;
+    console.log(room);
   }
 };
 const addNewitem = () => {

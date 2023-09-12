@@ -151,6 +151,15 @@ watch(search, async (newValue) => {
           >
             Inclusive
           </p>
+          <p
+            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            @click="searchValue('App\\Models\\Hotel')"
+            :class="
+              search == 'App\\Models\\Hotel' ? 'bg-[#ff613c] text-white' : ''
+            "
+          >
+            Hotel
+          </p>
         </div>
         <div>
           <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>

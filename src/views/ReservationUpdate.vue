@@ -386,6 +386,7 @@ const getDetail = async () => {
   try {
     const response = await reservationStore.getDetailAction(route.params.id);
     console.log(response, "this is response");
+    titleDataChanges(response.result.product_type);
     if (response.result.receipt_images) {
       booking_receipt.value = response.result.receipt_images;
     }
@@ -664,6 +665,23 @@ const allowUpdate = computed(() => {
   }
 });
 
+const titleData = ref("");
+const titleDataChanges = (data) => {
+  if (data == "App\\Models\\EntranceTicket") {
+    titleData.value = "Entranction";
+  } else if (data == "App\\Models\\AirportPickup") {
+    titleData.value = "Airport Pickup";
+  } else if (data == "App\\Models\\Hotel") {
+    titleData.value = "Hotel & Room";
+  } else if (data == "App\\Models\\PrivateVanTour") {
+    titleData.value = "Private Van Tour";
+  } else if (data == "App\\Models\\GroupTour") {
+    titleData.value = "Group Tour";
+  } else if (data == "App\\Models\\Inclusive") {
+    titleData.value = "Inclusive";
+  }
+};
+
 onMounted(async () => {
   await getDetail();
   changeName();
@@ -684,7 +702,7 @@ onMounted(async () => {
     <div>
       <div class="flex justify-between items-center pb-6">
         <p class="text-[#ff613c] font-semibold text-sm">
-          Reservation : Car Rental
+          Reservation : {{ titleData }}
         </p>
         <p
           class="px-4 py-2 border border-[#ff613c] text-[#ff613c] text-xs"
@@ -841,16 +859,19 @@ onMounted(async () => {
             >
               Ticket Information
             </p>
-            <p
+            <p v-if="formData.product_type == 'App\\Models\\Hotel'" class="">
+              Hotel Information
+            </p>
+            <!-- <p
               v-if="formData.product_type == 'App\\Models\\AirportPickup'"
               class=""
             >
               Assign Driver
-            </p>
+            </p> -->
             <p
               v-if="
                 formData.product_type != 'App\\Models\\EntranceTicket' &&
-                formData.product_type != 'App\\Models\\AirportPickup'
+                formData.product_type != 'App\\Models\\Hotel'
               "
               class=""
             >
@@ -1064,6 +1085,9 @@ onMounted(async () => {
             <i class="fa-solid fa-angle-down"></i>
             <p v-if="formData.product_type == 'App\\Models\\EntranceTicket'">
               Supplier Information
+            </p>
+            <p v-if="formData.product_type == 'App\\Models\\AirportPickup'">
+              Assign Information
             </p>
             <p v-else>Car Information</p>
           </div>

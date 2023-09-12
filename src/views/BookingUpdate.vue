@@ -623,7 +623,7 @@ const chooseCar = async (id) => {
     console.log(res);
   } else if (formitem.value.product_type == "4") {
     const res = await entranceStore.getDetailAction(id);
-    formitem.value.comment = res.result.description;
+    // formitem.value.comment = res.result.description;
     console.log(res, "choose");
     carType.value = res.result.variations;
     console.log(res.result.variations[0].price);
@@ -633,7 +633,7 @@ const chooseCar = async (id) => {
     formitem.value.selling_price = res.result.price;
   } else if (formitem.value.product_type == "6") {
     const res = await hotelStore.getDetailAction(id);
-    formitem.value.comment = res.result.description;
+    // formitem.value.comment = res.result.description;
     carType.value = res.result.rooms;
   }
 };
@@ -675,6 +675,7 @@ const chooseCarPrice = async (type, productId, id) => {
     for (let i = 0; i < res.result.variations.length; i++) {
       if (res.result.variations[i].id == id) {
         formitem.value.selling_price = res.result.variations[i].price;
+        formitem.value.comment = res.result.variations[i].description;
         console.log(res.result.variations[i].price);
       }
     }
@@ -686,6 +687,7 @@ const chooseCarPrice = async (type, productId, id) => {
     formitem.value.room = room;
     formitem.value.selling_price = room.room_price;
     formitem.value.extra_price = room.extra_price;
+    formitem.value.comment = room.description;
     console.log(formitem.value.room);
   }
 };
@@ -929,11 +931,14 @@ const allowCreate = computed(() => {
 });
 
 const depositStoreValue = ref("");
+const allowImage = ref(true);
 const allowDeposite = computed(() => {
   if (formData.value.deposit == depositStoreValue.value) {
     console.log("this is true");
+    allowImage.value = false;
     return true;
   } else {
+    allowImage.value = true;
     return false;
   }
 });
@@ -2095,7 +2100,7 @@ onMounted(async () => {
 
                       <div
                         class="grid grid-cols-2 gap-4"
-                        v-if="formData.deposit > 0"
+                        v-if="formData.deposit > 0 && allowImage"
                       >
                         <div class="relative">
                           <p

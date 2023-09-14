@@ -201,6 +201,7 @@ import {
   AdjustmentsHorizontalIcon,
 } from "@heroicons/vue/24/outline";
 import Pagination from "../components/Pagination.vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import { storeToRefs } from "pinia";

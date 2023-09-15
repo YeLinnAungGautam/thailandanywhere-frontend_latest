@@ -50,6 +50,7 @@ const chooseType = () => {
 };
 
 const search = ref("");
+const searchId = ref("");
 const seen = ref(true);
 const seenClick = () => {
   seen.value = !seen.value;
@@ -68,6 +69,10 @@ watch(search, async (newValue) => {
   await reservationStore.getListAction({ product_type: search.value });
   console.log(reservations.value.data.length, "this is reservations");
 });
+watch(searchId, async (newValue) => {
+  await reservationStore.getListAction({ crm_id: searchId.value });
+  console.log(reservations.value.data.length, "this is reservations");
+});
 </script>
 
 <template>
@@ -78,16 +83,6 @@ watch(search, async (newValue) => {
     <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
       <!-- search input sort filter -->
       <div class="flex items-center justify-between mb-5">
-        <!-- <v-select
-          v-model="search"
-          class="style-chooser text-xs py-2 w-[350px]"
-          :options="product_type"
-          label="name"
-          :clearable="false"
-          :reduce="(d) => d.type"
-          @option:selected="chooseType"
-          placeholder="please choose product type"
-        ></v-select> -->
         <div class="space-x-2 flex justify-start items-center gap-2">
           <p
             class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
@@ -162,17 +157,12 @@ watch(search, async (newValue) => {
           </p>
         </div>
         <div>
-          <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>
-          <select
-            class="border-2 p-2 rounded-md w-16 focus:outline-none focus:ring-0"
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="30">30</option>
-            <option value="40">40</option>
-            <option value="50">50</option>
-          </select>
-          <p class="inline-block ml-2 text-gray-500 font-medium">entries</p>
+          <input
+            v-model="searchId"
+            type="text"
+            class="w-3/5 sm:w-3/5 md:w-[200px] border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+            placeholder="Search "
+          />
         </div>
       </div>
       <div class="overflow-auto rounded-lg shadow mb-5">

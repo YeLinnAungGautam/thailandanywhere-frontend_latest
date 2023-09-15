@@ -2,7 +2,7 @@
 import Layout from "./Layout.vue";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
 import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
@@ -47,10 +47,15 @@ const payment = [
   { id: "1", name: "K + " },
   { id: "2", name: "SCB " },
   { id: "3", name: "Bangkok Bank" },
+  { id: "4", name: "Other Bank " },
 ];
-// K +
-// SCB
-// Bangkok Bank
+const paymentArray = [
+  // Bank Transfer, International Remittance, Cash, etc
+  { id: "1", name: "Bank Transfer" },
+  { id: "2", name: "International Remittance" },
+  { id: "3", name: "Cash" },
+  { id: "4", name: "Other ..." },
+];
 const payment_status = [
   { id: "1", name: "fully_paid" },
   { id: "2", name: "not_paid" },
@@ -72,18 +77,24 @@ const formItemType = [
 
 const formData = ref({
   comment: "",
+  pickup_time: "",
   confirmation_letter: "",
   cost_price: "",
   duration: "",
   exchange_rate: "",
   payment_method: "",
+  bank_name: "",
+  bank_account_number: "",
+  cost: "",
+  paid_slip: "",
   payment_status: "",
   product_id: "",
   product_type: "",
   quantity: "",
   car_id: "",
   car_name: "",
-  receipt_image: "",
+  variation_name: "",
+  hotel_name: "",
   reservation_status: "",
   selling_price: "",
   service_date: "",
@@ -92,21 +103,30 @@ const formData = ref({
   cus_contact: "",
   cus_passport: "",
   cus_email: "",
+  receipt_images: [],
+  receipt_image: "",
+  customer_attachment: "",
 });
+
+const expense_amount_upload = ref(null);
+const expense_amount = ref(0);
 
 const secForm = ref({
   customer_feedback: "",
   customer_score: "",
+  driver_score: "",
+  product_score: "",
   special_request: "",
   other_info: "",
+  pickup_location: "",
+  dropoff_location: "",
+  route_plan: "",
   supplier_name: "",
   driver_name: "",
   driver_contact: "",
   car_number: "",
   car_photo: "",
-  pickup_location: "",
-  dropoff_location: "",
-  route_plan: "",
+  ref_number: "",
 });
 
 const fileInput = ref(null);
@@ -127,6 +147,37 @@ const handleFileChange = (e) => {
 const removeSelectedImage = () => {
   secForm.value.car_photo = null;
   previewImage.value = null;
+};
+
+const expPreviewImage = ref(null);
+
+const exphandleFileChange = (e) => {
+  let selectedFile = e.target.files[0];
+  if (selectedFile) {
+    formData.value.paid_slip = e.target.files[0];
+    expPreviewImage.value = URL.createObjectURL(selectedFile);
+  }
+};
+
+const expremoveSelectedImage = () => {
+  formData.value.paid_slip = null;
+  expPreviewImage.value = null;
+};
+
+const uploadRecePreview = ref("");
+
+const recehandleFileChange = (e) => {
+  let selectedFile = e.target.files[0];
+  console.log(selectedFile);
+  if (selectedFile) {
+    formData.value.receipt_image = e.target.files[0];
+    uploadRecePreview.value = URL.createObjectURL(selectedFile);
+  }
+};
+
+const receremoveSelectedImage = () => {
+  formData.value.receipt_image = "";
+  uploadRecePreview.value = null;
 };
 
 const productList = ref([]);
@@ -169,17 +220,24 @@ const handlerConfirmFileChange = (e) => {
 const onSubmitHandler = async () => {
   const frmData = new FormData();
   frmData.append("_method", "PUT");
-  frmData.append("duration", formData.value.duration);
+  if (formData.value.duration) {
+    frmData.append("duration", formData.value.duration);
+  }
   frmData.append("payment_method", formData.value.payment_method);
+  // frmData.append("bank_name", formData.value.bank_name);
+  // frmData.append("bank_account_number", formData.value.bank_account_number);
+  // frmData.append("cost", formData.value.cost);
+
   frmData.append("payment_status", formData.value.payment_status);
-  // frmData.append("product_id", formData.value.comment);
+
   frmData.append("product_type", formData.value.product_type);
   frmData.append("quantity", formData.value.quantity);
-  frmData.append("receipt_image", formData.value.receipt_image);
+  // frmData.append("receipt_image", formData.value.receipt_image);
   frmData.append("reservation_status", formData.value.reservation_status);
   frmData.append("selling_price", formData.value.selling_price);
   frmData.append("service_date", formData.value.service_date);
   frmData.append("car_id", formData.value.car_id);
+  // frmData.append("paid_slip", formData.value.paid_slip);
 
   try {
     const response = await reservationStore.updateAction(
@@ -189,15 +247,79 @@ const onSubmitHandler = async () => {
     if (response.status) {
       const secfrm = new FormData();
       secfrm.append("_method", "PUT");
-      secfrm.append("customer_feedback", secForm.value.customer_feedback);
-      secfrm.append("customer_score", secForm.value.customer_score);
+      if (secForm.value.customer_feedback) {
+        secfrm.append("customer_feedback", secForm.value.customer_feedback);
+      }
+      if (formData.value.bank_name) {
+        secfrm.append("bank_name", formData.value.bank_name);
+      }
+      if (formData.value.bank_account_number) {
+        secfrm.append(
+          "bank_account_number",
+          formData.value.bank_account_number
+        );
+      }
+
+      secfrm.append("expense_amount", expense_amount.value);
+
+      if (formData.value.receipt_image) {
+        secfrm.append("receipt_image", formData.value.receipt_image);
+      }
+      if (formData.value.paid_slip) {
+        secfrm.append("paid_slip", formData.value.paid_slip);
+      }
+      if (formData.value.cost) {
+        secfrm.append("cost", formData.value.cost);
+      }
+      if (secForm.value.customer_score) {
+        secfrm.append("customer_score", secForm.value.customer_score);
+      }
+      if (secForm.value.driver_score) {
+        secfrm.append("driver_score", secForm.value.driver_score);
+      }
+      if (secForm.value.product_score) {
+        secfrm.append("product_score", secForm.value.product_score);
+      }
+      if (secForm.value.ref_number) {
+        secfrm.append("ref_number", secForm.value.ref_number);
+      }
+
       secfrm.append("special_request", secForm.value.special_request);
-      secfrm.append("other_info", secForm.value.other_info);
-      secfrm.append("supplier_name", secForm.value.supplier_name);
-      secfrm.append("driver_name", secForm.value.driver_name);
-      secfrm.append("driver_contact", secForm.value.driver_contact);
-      secfrm.append("car_number", secForm.value.car_number);
-      secfrm.append("car_photo", secForm.value.car_photo);
+
+      if (secForm.value.other_info) {
+        secfrm.append("other_info", secForm.value.other_info);
+      }
+      if (secForm.value.pickup_location) {
+        secfrm.append("pickup_location", secForm.value.pickup_location);
+      }
+      if (secForm.value.dropoff_location) {
+        secfrm.append("dropoff_location", secForm.value.dropoff_location);
+      }
+      if (secForm.value.route_plan) {
+        secfrm.append("route_plan", secForm.value.route_plan);
+      }
+      if (secForm.value.supplier_name) {
+        secfrm.append("supplier_name", secForm.value.supplier_name);
+      }
+      if (secForm.value.driver_name) {
+        secfrm.append("driver_name", secForm.value.driver_name);
+      }
+      if (secForm.value.driver_contact) {
+        secfrm.append("driver_contact", secForm.value.driver_contact);
+      }
+      if (secForm.value.car_number) {
+        secfrm.append("car_number", secForm.value.car_number);
+      }
+      if (secForm.value.car_photo) {
+        if (
+          formData.value.product_type == "App\\Models\\EntranceTicket" ||
+          formData.value.product_type == "App\\Models\\Hotel"
+        ) {
+          secfrm.append("booking_confirm_letter", secForm.value.car_photo);
+        } else {
+          secfrm.append("car_photo", secForm.value.car_photo);
+        }
+      }
       await reservationStore.updateInfoAction(secfrm, route.params.id);
     }
     formData.value = {
@@ -207,13 +329,16 @@ const onSubmitHandler = async () => {
       duration: "",
       exchange_rate: "",
       payment_method: "",
+      bank_name: "",
+      bank_account_number: "",
+      paid_slip: "",
+      cost: "",
       payment_status: "",
       product_id: "",
       product_type: "",
       quantity: "",
       car_id: "",
       car_name: "",
-      variation_name: "",
       receipt_image: "",
       reservation_status: "",
       selling_price: "",
@@ -223,19 +348,21 @@ const onSubmitHandler = async () => {
       cus_contact: "",
       cus_passport: "",
       cus_email: "",
-      receipt_images: [],
     };
     secForm.value = {
       customer_feedback: "",
       customer_score: "",
+      driver_score: "",
+      product_score: "",
       special_request: "",
       other_info: "",
+      pickup_location: "",
+      dropoff_location: "",
       supplier_name: "",
       driver_name: "",
       driver_contact: "",
-      pickup_location: "",
-      route_plan: "",
       car_number: "",
+      route_plan: "",
       car_photo: "",
     };
 
@@ -257,12 +384,30 @@ const onSubmitHandler = async () => {
 const route_plan = ref("");
 const dropoff_location = ref("");
 const booking_status = ref("");
+const booking_confirm_letters = ref("");
+const booking_receipt = ref("");
 
 const getDetail = async () => {
   try {
     const response = await reservationStore.getDetailAction(route.params.id);
     console.log(response, "this is response");
+    titleDataChanges(response.result.product_type);
+    if (response.result.customer_attachment != null) {
+      formData.customer_attachment = response.result.customer_attachment;
+    }
+    if (response.result.receipt_images) {
+      booking_receipt.value = response.result.receipt_images;
+    }
+    if (response.result.pickup_time) {
+      formData.value.pickup_time = response.result.pickup_time;
+    } else {
+      formData.value.pickup_time = "-";
+    }
+    if (response.result.booking_confirm_letters) {
+      booking_confirm_letters.value = response.result.booking_confirm_letters;
+    }
     booking_status.value = response.result.booking;
+    formData.value = response.result;
     formData.value.duration = response.result.duration;
     if (response.result.reservation_info) {
       if (response.result.reservation_info.special_request != null) {
@@ -287,6 +432,11 @@ const getDetail = async () => {
     formData.value.cus_contact = response.result.customer_info.phone_number;
     formData.value.cus_passport = response.result.customer_info.nrc_number;
     formData.value.cus_email = response.result.customer_info.email;
+    // if (response.result.route_plan) {
+    //   secForm.value.route_plan = response.result.route_plan;
+    // } else if (response.result.product_type === "App\\Models\\PrivateVanTour") {
+    //   secForm.value.route_plan = response.result.product.description;
+    // }
     if (response.result.route_plan) {
       secForm.value.route_plan = response.result.route_plan;
       updateArray();
@@ -298,19 +448,31 @@ const getDetail = async () => {
     secForm.value.dropoff_location = response.result.dropoff_location;
     console.log(secForm.value.pickup_location, "this is pickup");
     if (response.result.reservation_info != null) {
+      expense_amount.value = response.result.reservation_info.expense_amount;
+      expense_amount_upload.value =
+        response.result.reservation_info.expense_amount;
       secForm.value.customer_feedback =
         response.result.reservation_info.customer_feedback;
+      updateArray();
       secForm.value.customer_score =
         response.result.reservation_info.customer_score;
+      formData.value.bank_name = response.result.reservation_info.bank_name;
+      formData.value.bank_account_number =
+        response.result.reservation_info.bank_account_number;
+      formData.value.cost = response.result.reservation_info.cost;
+      secForm.value.driver_score =
+        response.result.reservation_info.driver_score;
+      secForm.value.product_score =
+        response.result.reservation_info.product_score;
       secForm.value.route_plan = response.result.reservation_info.route_plan;
-      updateArray();
       secForm.value.other_info = response.result.reservation_info.other_info;
       secForm.value.pickup_location =
         response.result.reservation_info.pickup_location;
     } else {
       secForm.value.customer_feedback = "";
       secForm.value.customer_score = "";
-
+      secForm.value.driver_score = "";
+      secForm.value.product_score = "";
       secForm.value.other_info = "";
     }
 
@@ -321,6 +483,7 @@ const getDetail = async () => {
         response.result.reservation_car_info.driver_name;
       secForm.value.driver_contact =
         response.result.reservation_car_info.driver_contact;
+
       secForm.value.car_number =
         response.result.reservation_car_info.car_number;
       previewImage.value = response.result.reservation_car_info.car_photo;
@@ -336,6 +499,27 @@ const getDetail = async () => {
       formData.value.payment_method = "";
     } else {
       formData.value.payment_method = response.result.payment_method;
+    }
+    if (response.result.reservation_info?.paid_slip != null) {
+      expPreviewImage.value =
+        "https://api-blog.thanywhere.com/storage/images/" +
+        response.result.reservation_info.paid_slip;
+    }
+    if (response.result.bank_name == "null") {
+      formData.value.bank_name = "";
+    } else {
+      formData.value.bank_name = response.result.bank_name;
+    }
+    if (response.result.bank_account_number == "null") {
+      formData.value.bank_account_number = "";
+    } else {
+      formData.value.bank_account_number = response.result.bank_account_number;
+    }
+    if (response.result.cost == null) {
+      formData.value.cost =
+        formData.value.quantity * formData.value.selling_price;
+    } else {
+      formData.value.cost = response.result.cost;
     }
 
     if (response.result.payment_status == "null") {
@@ -378,6 +562,11 @@ const getDetail = async () => {
     } else if (response.result.variation != null) {
       formData.value.variation_name = response.result.variation.name;
     }
+    if (response.result.room == null) {
+      formData.value.hotel_name = "";
+    } else if (response.result.room != null) {
+      formData.value.hotel_name = response.result.room.name;
+    }
     if (response.result.comment == "null") {
       formData.value.comment = "";
     } else {
@@ -387,11 +576,10 @@ const getDetail = async () => {
     formData.value.product_id = response.result.product_id;
     formData.value.product_type = response.result.product_type;
     formData.value.quantity = response.result.quantity;
-    // showImage.value.receipt_image = response.result.receipt_image;
-    // formData.value.reservation_status = response.result.reservation_status;
     formData.value.selling_price = response.result.selling_price;
     formData.value.service_date = response.result.service_date;
-
+    secForm.value.ref_number =
+      response.result.reservation_supplier_info?.ref_number;
     console.log(formData.value, "first");
     console.log(secForm.value, "sec");
   } catch (error) {
@@ -426,6 +614,7 @@ const feedback_part = ref(true);
 const feedbackHandle = () => {
   feedback_part.value = !feedback_part.value;
 };
+
 const receipt_part = ref(true);
 const receiptHandle = () => {
   receipt_part.value = !receipt_part.value;
@@ -441,14 +630,14 @@ const routePlanHandle = () => {
   route_plan_part.value = !route_plan_part.value;
 };
 
-const reser_plan_part = ref(true);
-const reserPlanHandle = () => {
-  reser_plan_part.value = !reser_plan_part.value;
-};
-
 const other_info_part = ref(true);
 const otherInfoHandle = () => {
   other_info_part.value = !other_info_part.value;
+};
+
+const reservation_info_part = ref(true);
+const reservationInfoHandle = () => {
+  reservation_info_part.value = !reservation_info_part.value;
 };
 
 const car_info_sec = ref(true);
@@ -456,24 +645,74 @@ const carInfoSecHandle = () => {
   car_info_sec.value = !car_info_sec.value;
 };
 
+const action = ref("");
+const crm = ref("");
+
 const routeArray = ref([]);
 const updateArray = () => {
   routeArray.value = secForm.value.route_plan
-    ?.split(",")
+    .split(",")
     .map((item) => item.trim());
   console.log(routeArray.value, "this is array");
 };
 
-const action = ref("");
-const crm = ref("");
+const changeName = () => {
+  if (formData.value.product_type == "App\\Models\\EntranceTicket") {
+    secForm.value.supplier_name = formData.value.product_name;
+  }
+};
+
+const allowUpdate = computed(() => {
+  if (expense_amount.value == 0) {
+    console.log(expense_amount.value, formData.value.receipt_image, "one");
+    return true;
+  } else if (expense_amount.value == expense_amount_upload.value) {
+    console.log(expense_amount.value, formData.value.receipt_image, "three");
+    return true;
+  } else if (
+    expense_amount.value != 0 &&
+    (formData.value.receipt_image == undefined ||
+      formData.value.receipt_image == "")
+  ) {
+    console.log(expense_amount.value, formData.value.receipt_image, "two");
+    return false;
+  } else if (
+    expense_amount.value != expense_amount_upload.value &&
+    (formData.value.receipt_image != undefined ||
+      formData.value.receipt_image != "")
+  ) {
+    console.log(expense_amount.value, formData.value.receipt_image, "four");
+    return true;
+  }
+});
+
+const titleData = ref("");
+const titleDataChanges = (data) => {
+  if (data == "App\\Models\\EntranceTicket") {
+    titleData.value = "Attractions";
+  } else if (data == "App\\Models\\AirportPickup") {
+    titleData.value = "Airport Pickup";
+  } else if (data == "App\\Models\\Hotel") {
+    titleData.value = "Hotel & Room";
+  } else if (data == "App\\Models\\PrivateVanTour") {
+    titleData.value = "Private Van Tour";
+  } else if (data == "App\\Models\\GroupTour") {
+    titleData.value = "Group Tour";
+  } else if (data == "App\\Models\\Inclusive") {
+    titleData.value = "Inclusive";
+  }
+};
+
 onMounted(async () => {
   await getDetail();
+  changeName();
   await vantourStore.getSimpleListAction();
   await grouptourStore.getSimpleListAction();
   await airportStore.getSimpleListAction();
   await entranceStore.getSimpleListAction();
   await customerStore.getSimpleListAction();
   await inclusiveStore.getSimpleListAction();
+  console.log(booking_confirm_letters.value, "this is something");
   action.value = route.params.action;
   crm.value = route.params.crm;
 });
@@ -483,17 +722,17 @@ onMounted(async () => {
   <Layout>
     <div>
       <div class="flex justify-between items-center pb-6">
-        <p class="text-blue-500 font-semibold text-sm">
-          Reservation : Car Rental
+        <p class="text-[#ff613c] font-semibold text-sm">
+          Reservation : {{ titleData }}
         </p>
         <p
-          class="px-4 py-2 border border-blue-500 text-blue-500 text-xs"
+          class="px-4 py-2 border border-[#ff613c] text-[#ff613c] text-xs"
           v-if="formData.reservation_status == 'reserved'"
         >
           Complete Booking
         </p>
         <p
-          class="px-4 py-2 border border-blue-500 text-blue-500 text-xs"
+          class="px-4 py-2 border border-[#ff613c] text-[#ff613c] text-xs"
           v-if="formData.reservation_status != 'reserved'"
         >
           Pending Booking
@@ -502,10 +741,10 @@ onMounted(async () => {
       <div class="grid grid-cols-3 gap-8">
         <div class="col-span-2">
           <div
-            class="flex justify-start items-center text-xs bg-blue-500 text-white font-semibold px-4 py-2"
+            class="flex justify-start items-center text-xs bg-[#ff613c] text-white font-semibold px-4 py-2"
           >
             <p>Reservation Code :</p>
-            <p class="ml-2">{{ crm }}</p>
+            <p class="ml-2 text-white">{{ crm }}</p>
           </div>
 
           <div
@@ -520,6 +759,12 @@ onMounted(async () => {
             v-if="payment_part"
           >
             <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Total Amount</p>
+              <p class="font-semibold text-xs py-1.5">
+                {{ formData.selling_price * formData.quantity }}
+              </p>
+            </div>
+            <div class="pl-10 space-y-2">
               <p class="text-gray-400 text-xs">Payment Currency</p>
               <p class="font-semibold text-xs py-1.5">
                 {{ booking_status.payment_currency }}
@@ -527,7 +772,6 @@ onMounted(async () => {
             </div>
             <div class="pl-10 pr-10 space-y-2">
               <p class="text-gray-400 text-xs">Payment Method:</p>
-              <!-- <p class="font-semibold text-xs">Collect</p> -->
               <p class="font-semibold text-xs py-1.5">
                 {{ booking_status.payment_method }}
               </p>
@@ -537,27 +781,82 @@ onMounted(async () => {
               <p class="font-semibold text-xs py-1.5">
                 {{ booking_status.payment_status }}
               </p>
-              <!-- <v-select
-                v-model="formData.payment_status"
-                class="style-chooser font-semibold text-xs py-1.5"
-                :options="payment_status"
-                label="name"
-                :clearable="false"
-                :reduce="(d) => d.name"
-                placeholder=""
-              ></v-select> -->
             </div>
 
             <div class="pl-10 pr-10 space-y-2">
               <p class="text-gray-400 text-xs">Payment Due:</p>
-              <p class="font-semibold text-xs">{{ formData.service_date }}</p>
-              <!-- <input
+              <!-- <p class="font-semibold text-xs">09/08/2023</p> -->
+              <input
                 v-model="formData.service_date"
                 type="date"
                 id="title"
-                class="h-8 font-semibold w-full bg-transparent py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
-              /> -->
+                class="h-8 font-semibold w-full bg-white px-4 py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
+              />
             </div>
+            <div class="pl-10 pr-10 space-y-2">
+              <p class="text-gray-400 text-xs">Service Date:</p>
+              <!-- <p class="font-semibold text-xs">09/08/2023</p> -->
+              <input
+                v-model="formData.service_date"
+                type="date"
+                id="title"
+                class="h-8 font-semibold w-full bg-white px-4 py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
+              />
+            </div>
+          </div>
+
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            @click="receiptHandle"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+            <p>Receipt Images</p>
+          </div>
+          <div
+            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
+            v-if="receipt_part"
+          >
+            <div v-for="(image, index) in formData.receipt_images" :key="index">
+              <p class="text-xs mb-2 mt-2">Receipt Image {{ index + 1 }}</p>
+              <a :href="image.image" target="_blink">
+                <img :src="image.image" alt="" />
+              </a>
+            </div>
+          </div>
+          <div
+            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
+            v-if="receipt_part && booking_confirm_letters.length != 0"
+          >
+            <div v-for="(image, index) in booking_confirm_letters" :key="index">
+              <p class="text-xs mb-2 mt-2">
+                Booking Confirm Letter {{ index + 1 }}
+              </p>
+              <a :href="image.file" target="_blink">
+                <img :src="image.file" alt="" />
+              </a>
+            </div>
+          </div>
+          <div
+            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
+            v-if="receipt_part && booking_receipt.length != 0"
+          >
+            <div v-for="(image, index) in booking_receipt" :key="index">
+              <p class="text-xs mb-2 mt-2">
+                Upload Payment Receipt {{ index + 1 }}
+              </p>
+              <a :href="image.file" target="_blink">
+                <img :src="image.file" alt="" />
+              </a>
+            </div>
+          </div>
+          <div
+            class="px-6 py-5 bg-gray-200/50 flex justify-start items-center space-x-4"
+            v-if="receipt_part && formData.customer_attachment"
+          >
+            <p class="text-xs mb-2 mt-2">Customer Attachment File --</p>
+            <p class="text-sm font-semibold text-blue-500">
+              <a :href="formData.customer_attachment" target="_blink">Link</a>
+            </p>
           </div>
 
           <div
@@ -600,8 +899,20 @@ onMounted(async () => {
             >
               Ticket Information
             </p>
+            <p v-if="formData.product_type == 'App\\Models\\Hotel'" class="">
+              Hotel Information
+            </p>
+            <!-- <p
+              v-if="formData.product_type == 'App\\Models\\AirportPickup'"
+              class=""
+            >
+              Assign Driver
+            </p> -->
             <p
-              v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
               class=""
             >
               Car Information
@@ -619,7 +930,16 @@ onMounted(async () => {
                 Variation Type
               </p>
               <p
-                v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+                v-if="formData.product_type == 'App\\Models\\Hotel'"
+                class="text-gray-400 text-xs"
+              >
+                Hotel Type
+              </p>
+              <p
+                v-if="
+                  formData.product_type != 'App\\Models\\EntranceTicket' &&
+                  formData.product_type != 'App\\Models\\Hotel'
+                "
                 class="text-gray-400 text-xs"
               >
                 Car Type
@@ -632,7 +952,16 @@ onMounted(async () => {
               </p>
               <p
                 class="font-semibold text-xs"
-                v-if="formData.product_type != 'App\\Models\\EntranceTicket'"
+                v-if="formData.product_type == 'App\\Models\\Hotel'"
+              >
+                <!-- {{ formData.hotel_name }} -->
+              </p>
+              <p
+                class="font-semibold text-xs"
+                v-if="
+                  formData.product_type != 'App\\Models\\EntranceTicket' &&
+                  formData.product_type != 'App\\Models\\Hotel'
+                "
               >
                 {{ formData.car_name }}
               </p>
@@ -641,17 +970,29 @@ onMounted(async () => {
               <p class="text-gray-400 text-xs">Product</p>
               <p class="font-semibold text-xs">{{ formData.product_name }}</p>
             </div>
-            <div class="pl-10 space-y-2">
+            <div
+              class="pl-10 space-y-2"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
+            >
               <p class="text-gray-400 text-xs">Pickup Time</p>
-              <p class="font-semibold text-xs">08:00 am</p>
+              <p class="font-semibold text-xs">{{ formData.pickup_time }}</p>
             </div>
-            <div class="pl-10 pr-10 space-y-2">
+            <div
+              class="pl-10 pr-10 space-y-2"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
+            >
               <p class="text-gray-400 text-xs">Durations</p>
               <input
                 v-model="formData.duration"
                 type="text"
                 id="title"
-                class="h-8 w-full bg-transparent font-semibold py-2 text-gray-900 focus:outline-none text-xs"
+                class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
               />
             </div>
           </div>
@@ -668,61 +1009,82 @@ onMounted(async () => {
               <p class="text-gray-400 text-xs font">Feedback</p>
 
               <textarea
-                class="w-full bg-transparent font-semibold py-2 text-gray-900 focus:outline-none text-xs"
+                class="w-full bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 font-semibold text-xs"
                 cols="4"
                 v-model="secForm.customer_feedback"
               ></textarea>
             </div>
-            <div class="pl-10 pr-10 pb-8 space-y-2">
-              <p class="text-gray-400 text-xs font">Score</p>
-              <input
-                v-model="secForm.customer_score"
-                type="text"
-                id="title"
-                class="h-8 w-full bg-transparent font-semibold py-2 text-gray-900 focus:outline-none text-xs"
-              />
-            </div>
-          </div>
-          <div
-            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
-            @click="receiptHandle"
-          >
-            <i class="fa-solid fa-angle-down"></i>
-            <p>Receipt Images</p>
-          </div>
-          <div
-            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
-            v-if="receipt_part"
-          >
-            <div v-for="(image, index) in formData.receipt_images" :key="index">
-              <p class="text-xs mb-2 mt-2">Receipt Image {{ index + 1 }}</p>
-              <a :href="image.image" target="_blink">
-                <img :src="image.image" alt="" />
-              </a>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs font">Customer Score</p>
+                <input
+                  v-model="secForm.customer_score"
+                  type="number"
+                  id="title"
+                  class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
+              </div>
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs font">Driver Score</p>
+                <input
+                  v-model="secForm.driver_score"
+                  type="number"
+                  id="title"
+                  class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
+              </div>
+              <div class="pl-10 pr-10 pb-8 space-y-2">
+                <p class="text-gray-400 text-xs font">Product Score</p>
+                <input
+                  v-model="secForm.product_score"
+                  type="number"
+                  id="title"
+                  class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
+              </div>
             </div>
           </div>
         </div>
 
         <div class=" ">
           <div
-            class="flex justify-start items-center text-xs bg-blue-500 text-white font-semibold px-4 py-2"
+            class="flex justify-start items-center text-xs bg-[#ff613c] text-white font-semibold px-4 py-2"
           >
             <p>Add Reservation Detail</p>
           </div>
           <div
             class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            v-if="
+              formData.product_type != 'App\\Models\\EntranceTicket' &&
+              formData.product_type != 'App\\Models\\Hotel'
+            "
             @click="routePlanHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
             <p>Route Plan</p>
           </div>
-          <div class="bg-gray-200/50 p-6" v-if="route_plan_part">
+          <div
+            class="bg-gray-200/50 p-6"
+            v-if="
+              route_plan_part &&
+              formData.product_type != 'App\\Models\\EntranceTicket' &&
+              formData.product_type != 'App\\Models\\Hotel'
+            "
+          >
             <div class="pl-4 space-y-2 border border-gray-200 p-4 bg-white">
-              <ol v-for="r in routeArray" :key="r">
-                <li class="text-xs font-semibold">
-                  <i class="fa-solid fa-map-pin mr-2"></i>{{ r }}
-                </li>
-              </ol>
+              <!-- <textarea
+                class="w-full bg-transparent font-semibold shadow-sm px-4 py-2 text-gray-900 focus:outline-none text-xs border border-gray-300"
+                placeholder="enter like one, two, three"
+                cols="4"
+                v-model="secForm.route_plan"
+              ></textarea> -->
+              <div class="pl-4 space-y-2 border border-gray-200 p-4 bg-white">
+                <ol v-for="r in routeArray" :key="r">
+                  <li class="text-xs font-semibold">
+                    <i class="fa-solid fa-map-pin mr-2"></i>{{ r }}
+                  </li>
+                </ol>
+              </div>
             </div>
           </div>
 
@@ -737,33 +1099,51 @@ onMounted(async () => {
             class="bg-gray-200/50 px-3 py-5 space-y-2"
             v-if="other_info_part"
           >
-            <div class="px-4 space-y-2">
+            <div class="px-6 space-y-2">
               <p class="text-gray-400 text-xs">Special Requests</p>
               <textarea
-                class="w-full bg-transparent border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                class="w-full bg-white border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
                 cols="4"
-                :class="secForm.special_request != '' ? 'bg-white' : ''"
                 v-model="secForm.special_request"
               ></textarea>
             </div>
-            <!-- <div class="px-6 space-y-2">
-              <p class="text-gray-400 text-xs">Other Information</p>
-              <textarea
-                class="w-full bg-transparent border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                cols="4"
-                :class="secForm.other_info != '' ? 'bg-white' : ''"
-                v-model="secForm.other_info"
-              ></textarea>
-            </div> -->
-            <div class="space-y-2 px-4">
-              <p class="text-gray-400 text-xs">Pickup Location Information</p>
+
+            <div
+              class="px-6 space-y-2"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
+            >
+              <p class="text-gray-400 text-xs">Pickup Location</p>
               <div class="mapouter">
                 <div class="gmap_canvas">
                   <iframe
-                    class="w-full h-[400px]"
+                    class="w-full h-[200px]"
                     :src="
                       'https://maps.google.com/maps?q=' +
                       secForm.pickup_location +
+                      '&hl=es;z=14&amp;output=embed'
+                    "
+                  ></iframe>
+                </div>
+              </div>
+            </div>
+            <div
+              class="px-6 space-y-2"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
+            >
+              <p class="text-gray-400 text-xs">Dropoff Location</p>
+              <div class="mapouter">
+                <div class="gmap_canvas">
+                  <iframe
+                    class="w-full h-[200px]"
+                    :src="
+                      'https://maps.google.com/maps?q=' +
+                      secForm.dropoff_location +
                       '&hl=es;z=14&amp;output=embed'
                     "
                   ></iframe>
@@ -777,7 +1157,26 @@ onMounted(async () => {
             @click="carInfoSecHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
-            <p>Car Information</p>
+            <p
+              v-if="
+                formData.product_type == 'App\\Models\\EntranceTicket' ||
+                formData.product_type == 'App\\Models\\Hotel'
+              "
+            >
+              Supplier Information
+            </p>
+            <p v-if="formData.product_type == 'App\\Models\\AirportPickup'">
+              Assign Driver
+            </p>
+            <p
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel' &&
+                formData.product_type != 'App\\Models\\AirportPickup'
+              "
+            >
+              Car Information
+            </p>
           </div>
           <div class="bg-gray-200/50 px-3 py-5 space-y-2" v-if="car_info_sec">
             <div class="px-6 space-y-2">
@@ -789,7 +1188,13 @@ onMounted(async () => {
                 class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
               />
             </div>
-            <div class="px-6 space-y-2">
+            <div
+              class="px-6 space-y-2"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
+            >
               <p class="text-gray-400 text-xs">Driver Name</p>
               <input
                 v-model="secForm.driver_name"
@@ -798,7 +1203,13 @@ onMounted(async () => {
                 class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
               />
             </div>
-            <div class="px-6 space-y-2">
+            <div
+              class="px-6 space-y-2"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
+            >
               <p class="text-gray-400 text-xs">Driver Contact</p>
               <input
                 v-model="secForm.driver_contact"
@@ -807,8 +1218,30 @@ onMounted(async () => {
                 class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
               />
             </div>
-            <div class="px-6 space-y-2">
+            <div
+              class="px-6 space-y-2"
+              v-if="
+                formData.product_type == 'App\\Models\\EntranceTicket' ||
+                formData.product_type == 'App\\Models\\Hotel'
+              "
+            >
+              <p class="text-gray-400 text-xs">Reference Number</p>
+              <input
+                v-model="secForm.ref_number"
+                type="text"
+                id="title"
+                class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+              />
+            </div>
+            <div
+              class="px-6 space-y-2"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel'
+              "
+            >
               <p class="text-gray-400 text-xs">Car Number</p>
+
               <input
                 v-model="secForm.car_number"
                 type="text"
@@ -817,7 +1250,16 @@ onMounted(async () => {
               />
             </div>
             <div class="px-6 space-y-2">
-              <p class="text-gray-400 text-xs">Car Photos</p>
+              <p
+                class="text-gray-400 text-xs"
+                v-if="
+                  formData.product_type == 'App\\Models\\EntranceTicket' ||
+                  formData.product_type == 'App\\Models\\Hotel'
+                "
+              >
+                Booking Confirmation Letter
+              </p>
+              <p class="text-gray-400 text-xs" v-else>Car Photos</p>
               <!-- <p
                 class="font-semibold py-4 px-4 flex justify-center items-center text-xs border border-gray-400 border-dashed"
               >
@@ -858,64 +1300,173 @@ onMounted(async () => {
               </div>
             </div>
           </div>
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            @click="reservationInfoHandle"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+
+            <p>Reservation Information</p>
+          </div>
+          <div
+            class="bg-gray-200/50 py-5 space-y-2"
+            v-if="reservation_info_part"
+          >
+            <div class="space-y-2">
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs">Payment Method:</p>
+                <!-- <p class="font-semibold text-xs">Collect</p> -->
+                <v-select
+                  v-model="formData.payment_method"
+                  class="style-chooser font-semibold text-xs rounded-lg bg-white"
+                  :options="paymentArray"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.name"
+                  placeholder=""
+                ></v-select>
+              </div>
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs">Bank Name:</p>
+                <!-- <p class="font-semibold text-xs">Collect</p> -->
+                <v-select
+                  v-model="formData.bank_name"
+                  class="style-chooser font-semibold text-xs rounded-lg bg-white"
+                  :options="payment"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.name"
+                  placeholder=""
+                ></v-select>
+              </div>
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs">Payment Status</p>
+                <v-select
+                  v-model="formData.payment_status"
+                  class="style-chooser font-semibold text-xs rounded-lg bg-white"
+                  :options="payment_status"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.name"
+                  placeholder=""
+                ></v-select>
+              </div>
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs">Reservation Status</p>
+                <v-select
+                  v-model="formData.reservation_status"
+                  class="style-chooser font-semibold text-xs rounded-lg bg-white"
+                  :options="reservation_status"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.name"
+                  placeholder=""
+                ></v-select>
+              </div>
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs">Bank Account Number</p>
+                <input
+                  v-model="formData.bank_account_number"
+                  type="number"
+                  id="title"
+                  class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
+              </div>
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs">Cost</p>
+                <input
+                  v-model="formData.cost"
+                  type="number"
+                  id="title"
+                  class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
+              </div>
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs">Expensive Paid Slip</p>
+                <div class="space-y-1 mb-2">
+                  <label for="image" class="text-gray-800 text-sm relative">
+                    <span
+                      v-if="expPreviewImage"
+                      @click.prevent="expremoveSelectedImage"
+                      class="text-red-400 text-xs cursor-pointer font-semibold underline absolute top-0 left-0"
+                      ><i class="fa-solid fa-circle-minus text-3xl"></i></span
+                  ></label>
+                  <input
+                    type="file"
+                    id="image"
+                    class=""
+                    v-if="!expPreviewImage"
+                    @change="exphandleFileChange"
+                    accept="image/*"
+                  />
+                  <div v-if="expPreviewImage" class="w-full h-auto">
+                    <img
+                      :src="expPreviewImage"
+                      alt="Image preview"
+                      class="rounded w-full h-auto"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div
             class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
-            @click="reserPlanHandle"
+            v-if="
+              formData.product_type == 'App\\Models\\EntranceTicket' ||
+              formData.product_type == 'App\\Models\\Hotel'
+            "
           >
             <i class="fa-solid fa-angle-down"></i>
-            <p>Reservation Information</p>
+
+            <p>Expense Information</p>
           </div>
-          <div class="bg-gray-200/50 py-5 space-y-3" v-if="reser_plan_part">
-            <div class="pl-10 space-y-2">
-              <p class="text-gray-400 text-xs">Payment Currency</p>
-              <p class="font-semibold text-xs py-1.5">THB</p>
-            </div>
-            <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Payment Method:</p>
-              <!-- <p class="font-semibold text-xs">Collect</p> -->
-              <p class="font-semibold text-xs py-1.5">
-                {{ formData.payment_method }}
-              </p>
-              <!-- <v-select
-                v-model="formData.payment_method"
-                class="style-chooser font-semibold text-xs py-1.5"
-                :options="payment"
-                label="name"
-                :clearable="false"
-                :reduce="(d) => d.name"
-                placeholder=""
-              ></v-select> -->
-            </div>
-            <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Payment Status</p>
-              <p class="font-semibold text-xs py-1.5">
-                {{ formData.payment_status }}
-              </p>
-              <!-- <v-select
-                v-model="formData.payment_status"
-                class="style-chooser font-semibold text-xs py-1.5"
-                :options="payment_status"
-                label="name"
-                :clearable="false"
-                :reduce="(d) => d.name"
-                placeholder=""
-              ></v-select> -->
-            </div>
-            <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Reservation Status</p>
-              <p class="font-semibold text-xs py-1.5">
-                {{ formData.reservation_status }}
-              </p>
-              <!-- <v-select
-                v-model="formData.reservation_status"
-                class="style-chooser font-semibold text-xs py-1.5"
-                :options="reservation_status"
-                label="name"
-                :clearable="false"
-                :reduce="(d) => d.name"
-                placeholder=""
-              ></v-select> -->
+
+          <div
+            class="bg-gray-200/50 py-5 space-y-2"
+            v-if="
+              formData.product_type == 'App\\Models\\EntranceTicket' ||
+              formData.product_type == 'App\\Models\\Hotel'
+            "
+          >
+            <div class="space-y-2">
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs">Expense Amount</p>
+                <input
+                  v-model="expense_amount"
+                  type="number"
+                  class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
+              </div>
+
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs">Upload Payment Receipt</p>
+                <div class="space-y-1 mb-2">
+                  <label for="image" class="text-gray-800 text-sm relative">
+                    <span
+                      v-if="uploadRecePreview"
+                      @click.prevent="receremoveSelectedImage"
+                      class="text-red-400 text-xs cursor-pointer font-semibold underline absolute top-0 left-0"
+                      ><i class="fa-solid fa-circle-minus text-3xl"></i></span
+                  ></label>
+                  <input
+                    type="file"
+                    id="image"
+                    class=""
+                    v-if="!uploadRecePreview"
+                    @change="recehandleFileChange"
+                    accept="image/*"
+                  />
+                  <div v-if="uploadRecePreview" class="w-full h-auto">
+                    <img
+                      :src="uploadRecePreview"
+                      alt="Image preview"
+                      class="rounded w-full h-auto"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -955,22 +1506,5 @@ onMounted(async () => {
 /* Hide scrollbar for Firefox */
 .scrollbar-hide {
   scrollbar-width: none;
-}
-
-.mapouter {
-  position: relative;
-  text-align: right;
-  width: 100%;
-  height: 400px;
-}
-.gmap_canvas {
-  overflow: hidden;
-  background: none !important;
-  width: 100%;
-  height: 400px;
-}
-.gmap_iframe {
-  width: 100% !important;
-  height: 400px !important;
 }
 </style>

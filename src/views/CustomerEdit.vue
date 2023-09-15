@@ -213,7 +213,7 @@ onMounted(async () => {
               </p>
             </div>
             <div class="">
-              <p class="text-gray-800 text-sm mb-2">NRC Number</p>
+              <p class="text-gray-800 text-sm mb-2">Passport Number</p>
               <input
                 v-model="formData.nrc_number"
                 type="text"
@@ -264,7 +264,7 @@ onMounted(async () => {
       </div>
       <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
         <div class="flex items-center justify-between gap-3 mb-3">
-          <p>Profile Image</p>
+          <p>Passport Label Name</p>
           <input
             type="file"
             ref="featureImageInput"

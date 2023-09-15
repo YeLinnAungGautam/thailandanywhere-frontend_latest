@@ -182,6 +182,7 @@ import {
   UsersIcon,
   AdjustmentsHorizontalIcon,
 } from "@heroicons/vue/24/outline";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import Pagination from "../components/Pagination.vue";
 import { onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";

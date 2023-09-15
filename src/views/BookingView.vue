@@ -77,7 +77,7 @@ onMounted(async () => {
 });
 
 watch(search, async (newValue) => {
-  await bookingStore.getListAction({ search: search.value });
+  await bookingStore.getListAction({ crm_id: search.value });
 });
 </script>
 
@@ -330,6 +330,19 @@ watch(search, async (newValue) => {
                     class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
                   >
                     {{ d.service_date }}
+                  </div>
+                  <div
+                    class="p-3 col-span-2 text-sm text-center text-gray-700 whitespace-nowrap"
+                  >
+                    <router-link
+                      :to="'/reservation/view/' + d.id + '/' + d.crm_id"
+                    >
+                      <button
+                        class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
+                      >
+                        <EyeIcon class="w-5 h-5" />
+                      </button>
+                    </router-link>
                   </div>
                   <div
                     class="py-3 pl-10 col-span-2 text-sm text-gray-700 whitespace-nowrap"

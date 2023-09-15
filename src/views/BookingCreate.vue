@@ -2,6 +2,7 @@
 import Layout from "./Layout.vue";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
 import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";

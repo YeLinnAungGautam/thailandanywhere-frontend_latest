@@ -508,8 +508,9 @@ const getDetail = async () => {
     } else {
       formData.value.bank_account_number = response.result.bank_account_number;
     }
-    if (response.result.cost == "null") {
-      formData.value.cost = "";
+    if (response.result.cost == null) {
+      formData.value.cost =
+        formData.value.quantity * formData.value.selling_price;
     } else {
       formData.value.cost = response.result.cost;
     }
@@ -785,6 +786,16 @@ onMounted(async () => {
                 class="h-8 font-semibold w-full bg-white px-4 py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
               />
             </div>
+            <div class="pl-10 pr-10 space-y-2">
+              <p class="text-gray-400 text-xs">Service Date:</p>
+              <!-- <p class="font-semibold text-xs">09/08/2023</p> -->
+              <input
+                v-model="formData.service_date"
+                type="date"
+                id="title"
+                class="h-8 font-semibold w-full bg-white px-4 py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
+              />
+            </div>
           </div>
 
           <div
@@ -936,7 +947,7 @@ onMounted(async () => {
                 class="font-semibold text-xs"
                 v-if="formData.product_type == 'App\\Models\\Hotel'"
               >
-                {{ formData.hotel_name }}
+                <!-- {{ formData.hotel_name }} -->
               </p>
               <p
                 class="font-semibold text-xs"
@@ -1152,13 +1163,13 @@ onMounted(async () => {
               Supplier Information
             </p>
             <p v-if="formData.product_type == 'App\\Models\\AirportPickup'">
-              Assign Information
+              Assign Driver
             </p>
             <p
               v-if="
                 formData.product_type != 'App\\Models\\EntranceTicket' &&
                 formData.product_type != 'App\\Models\\Hotel' &&
-                formData.product_type == 'App\\Models\\AirportPickup'
+                formData.product_type != 'App\\Models\\AirportPickup'
               "
             >
               Car Information

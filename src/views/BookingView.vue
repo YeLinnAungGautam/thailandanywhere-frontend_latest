@@ -77,7 +77,7 @@ onMounted(async () => {
 });
 
 watch(search, async (newValue) => {
-  await bookingStore.getListAction({ search: search.value });
+  await bookingStore.getListAction({ crm_id: search.value });
 });
 </script>
 

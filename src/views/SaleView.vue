@@ -4,6 +4,7 @@ import { ref } from "vue";
 import Button from "../components/Button.vue";
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@headlessui/vue";
 import Pagination from "../components/Pagination.vue";
+import { useAuthStore } from "../stores/auth";
 import {
   PencilSquareIcon,
   TrashIcon,
@@ -88,55 +89,57 @@ const data = ref([
     sku: "KOH-004",
   },
 ]);
+
+const authStore = useAuthStore();
 </script>
 
 <template>
   <Layout>
     <div class="">
       <div class="flex items-center justify-between gap-3 mb-3">
-        <div class="bg-white/60 p-6 rounded-lg shadow-sm w-full">
+        <div class="w-full p-6 rounded-lg shadow-sm bg-white/60">
           <div>
-            <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
+            <h3 class="mb-1 text-xl font-medium tracking-wide text-gray-600">
               Sales
             </h3>
             <p
-              class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
+              class="text-3xl font-medium tracking-wide text-blue-500 font-roboto"
             >
               35
             </p>
           </div>
         </div>
-        <div class="bg-white/60 p-6 rounded-lg shadow-sm w-full">
+        <div class="w-full p-6 rounded-lg shadow-sm bg-white/60">
           <div>
-            <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
+            <h3 class="mb-1 text-xl font-medium tracking-wide text-gray-600">
               Enquires
             </h3>
             <p
-              class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
+              class="text-3xl font-medium tracking-wide text-blue-500 font-roboto"
             >
               350
             </p>
           </div>
         </div>
-        <div class="bg-white/60 p-6 rounded-lg shadow-sm w-full">
+        <div class="w-full p-6 rounded-lg shadow-sm bg-white/60">
           <div>
-            <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
+            <h3 class="mb-1 text-xl font-medium tracking-wide text-gray-600">
               SE Ratio
             </h3>
             <p
-              class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
+              class="text-3xl font-medium tracking-wide text-blue-500 font-roboto"
             >
               0.1
             </p>
           </div>
         </div>
-        <div class="bg-white/60 p-6 rounded-lg shadow-sm w-full">
+        <div class="w-full p-6 rounded-lg shadow-sm bg-white/60">
           <div>
-            <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
+            <h3 class="mb-1 text-xl font-medium tracking-wide text-gray-600">
               Bonus
             </h3>
             <p
-              class="text-blue-500 text-3xl font-medium tracking-wide font-roboto"
+              class="text-3xl font-medium tracking-wide text-blue-500 font-roboto"
             >
               15.0k
             </p>
@@ -144,7 +147,7 @@ const data = ref([
         </div>
       </div>
       <div
-        class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 md:col-span-3 hidden md:block"
+        class="hidden p-6 mb-5 rounded-lg shadow-sm bg-white/60 md:col-span-3 md:block"
       >
         <!-- search input sort filter -->
         <div class="flex items-center justify-between mb-8">
@@ -156,14 +159,14 @@ const data = ref([
             />
             <input
               type="text"
-              class="mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+              class="px-4 py-2 mr-3 text-gray-500 border rounded-md shadow-sm focus:ring-0 focus:outline-none"
             />
             <input
               type="text"
-              class="mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+              class="px-4 py-2 mr-3 text-gray-500 border rounded-md shadow-sm focus:ring-0 focus:outline-none"
             />
             <AdjustmentsHorizontalIcon
-              class="w-6 text-gray-600 h-6 inline-block mx-2 cursor-pointer"
+              class="inline-block w-6 h-6 mx-2 text-gray-600 cursor-pointer"
             />
           </div>
           <div class="space-x-3">
@@ -171,9 +174,9 @@ const data = ref([
             <Button :leftIcon="PlusIcon"> Create Sale </Button>
           </div>
         </div>
-        <div class="overflow-auto rounded-lg shadow mb-5">
+        <div class="mb-5 overflow-auto rounded-lg shadow">
           <table class="w-full">
-            <thead class="bg-gray-50 border-b-2 border-gray-200">
+            <thead class="border-b-2 border-gray-200 bg-gray-50">
               <tr>
                 <th
                   class="w-20 p-3 text-sm font-medium tracking-wide text-left"
@@ -190,7 +193,7 @@ const data = ref([
                   SKU
                 </th>
                 <th
-                  class="w-30 p-3 text-sm font-medium tracking-wide text-left"
+                  class="p-3 text-sm font-medium tracking-wide text-left w-30"
                 >
                   Actions
                 </th>
@@ -217,17 +220,18 @@ const data = ref([
                 <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                   <div class="flex items-center gap-2">
                     <button
-                      class="hover:bg-blue-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                      class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
                     >
                       <EyeIcon class="w-5 h-5" />
                     </button>
                     <button
-                      class="hover:bg-yellow-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                      class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                     >
                       <PencilSquareIcon class="w-5 h-5" />
                     </button>
                     <button
-                      class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                      v-if="authStore.isSuperAdmin"
+                      class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
                     >
                       <TrashIcon class="w-5 h-5" />
                     </button>

@@ -6,6 +6,7 @@ import BookingView from "../views/BookingView.vue";
 import BookingCreateView from "../views/BookingCreate.vue";
 import NewBookingView from "../views/NewBookingView.vue";
 import CustomerView from "../views/CustomerView.vue";
+import AdminView from "../views/AdminView.vue";
 import EditBookingView from "../views/EditBookingView.vue";
 import LoginView from "../views/LoginView.vue";
 import CalendarView from "../views/CalendarView.vue";
@@ -230,6 +231,11 @@ const routes = [
     path: "/inclusive/view/:id/:action",
     name: "inclusive-view",
     component: InclusiveDetailView,
+  },
+  {
+    path: "/admins",
+    name: "admins",
+    component: AdminView,
   },
 ];
 

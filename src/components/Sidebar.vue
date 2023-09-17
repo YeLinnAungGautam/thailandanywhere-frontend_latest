@@ -92,6 +92,14 @@
               :activePaths="['customers', 'customerscreate', 'customersupdate']"
             />
 
+            <SidebarItem
+              v-if="authStore.user.is_super"
+              name="Admins"
+              :icon="UserCircleIcon"
+              to="/admins"
+              :activePaths="['admins']"
+            />
+
             <!-- <SidebarItem
               name="Setting"
               :icon="Cog6ToothIcon"
@@ -158,6 +166,7 @@ import { useSidebarStore } from "../stores/sidebar";
 
 import {
   Squares2X2Icon,
+  UserCircleIcon,
   XMarkIcon,
   ArchiveBoxIcon,
   CalendarDaysIcon,

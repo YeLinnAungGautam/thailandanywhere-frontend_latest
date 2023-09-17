@@ -1,8 +1,8 @@
 <template>
   <div
-    class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 md:col-span-3 hidden md:block"
+    class="hidden p-6 mb-5 rounded-lg shadow-sm bg-white/60 md:col-span-3 md:block"
   >
-    <h3 class="text-xl font-medium text-gray-600 tracking-wide mb-3">
+    <h3 class="mb-3 text-xl font-medium tracking-wide text-gray-600">
       Product Category
     </h3>
     <!-- search input sort filter -->
@@ -15,7 +15,7 @@
         </Button>
       </div>
     </div>
-    <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
+    <div class="p-6 mb-5 rounded-lg shadow-sm bg-white/60">
       <!-- search input sort filter -->
       <div class="flex items-center justify-between mb-5">
         <div class="">
@@ -27,10 +27,10 @@
           />
         </div>
         <div>
-          <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>
+          <p class="inline-block mr-2 font-medium text-gray-500">Show</p>
           <select
             v-model="showEntries"
-            class="border-2 p-2 rounded-md w-16 focus:outline-none focus:ring-0"
+            class="w-16 p-2 border-2 rounded-md focus:outline-none focus:ring-0"
           >
             <option value="10">10</option>
             <option value="20">20</option>
@@ -39,12 +39,12 @@
             <option value="50">50</option>
             <option value="100">100</option>
           </select>
-          <p class="inline-block ml-2 text-gray-500 font-medium">entries</p>
+          <p class="inline-block ml-2 font-medium text-gray-500">entries</p>
         </div>
       </div>
-      <div class="overflow-auto rounded-lg shadow mb-5" v-if="!loading">
+      <div class="mb-5 overflow-auto rounded-lg shadow" v-if="!loading">
         <table class="w-full">
-          <thead class="bg-gray-50 border-b-2 border-gray-200">
+          <thead class="border-b-2 border-gray-200 bg-gray-50">
             <tr>
               <th class="p-4 text-sm font-medium tracking-wide text-left">
                 No.
@@ -79,13 +79,13 @@
                 <div class="flex items-center gap-2">
                   <button
                     @click.prevent="editModalOpenHandler(product)"
-                    class="hover:bg-yellow-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                    class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                   >
                     <PencilSquareIcon class="w-5 h-5" />
                   </button>
                   <button
                     @click.prevent="onDeleteHandler(product.id)"
-                    class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                    class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
                   >
                     <TrashIcon class="w-5 h-5" />
                   </button>
@@ -101,35 +101,35 @@
     <!-- modal -->
     <Modal :isOpen="categoryModalOpen" @closeModal="categoryModalOpen = false">
       <DialogPanel
-        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-md p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
       >
         <DialogTitle
           as="h3"
-          class="text-lg font-medium leading-6 text-gray-900 mb-5"
+          class="mb-5 text-lg font-medium leading-6 text-gray-900"
         >
           {{ formData.id ? "Edit Product Category" : "Add Product Category" }}
         </DialogTitle>
         <form @submit.prevent="onSubmitHandler" class="mt-2">
-          <div class="space-y-1 mb-2">
-            <label for="name" class="text-gray-800 text-sm">Name</label>
+          <div class="mb-2 space-y-1">
+            <label for="name" class="text-sm text-gray-800">Name</label>
             <input
               type="text"
               v-model="formData.name"
               id="name"
-              class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
             <p v-if="errors?.name" class="mt-1 text-sm text-red-600">
               {{ errors.name[0] }}
             </p>
           </div>
-          <div class="space-y-1 mb-2">
-            <label for="image" class="text-gray-800 text-sm relative"
+          <div class="mb-2 space-y-1">
+            <label for="image" class="relative text-sm text-gray-800"
               >Image
               <span
                 v-if="previewImage"
                 @click.prevent="removeSelectedImage"
                 class="text-red-400 text-xs cursor-pointer font-semibold underline absolute top-[10px] left-[391px]"
-                ><i class="fa-solid fa-circle-minus text-3xl"></i></span
+                ><i class="text-3xl fa-solid fa-circle-minus"></i></span
             ></label>
             <input
               type="file"
@@ -143,7 +143,7 @@
               <img
                 :src="previewImage"
                 alt="Image preview"
-                class="rounded w-full h-auto"
+                class="w-full h-auto rounded"
               />
             </div>
             <div

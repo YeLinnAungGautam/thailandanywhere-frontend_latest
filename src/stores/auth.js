@@ -3,7 +3,11 @@ import axios from "axios";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({ token: null, user: null }),
-  getters: {},
+  getters: {
+    isSuperAdmin: (state) => {
+      return state.user.is_super;
+    },
+  },
   actions: {
     async login(data) {
       try {

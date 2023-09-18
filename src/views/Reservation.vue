@@ -251,10 +251,27 @@ watch(searchId, async (newValue) => {
                   {{ d.payment_status }}
                 </p>
               </div>
-              <div
-                class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"
-              >
-                <p>{{ d.reservation_status }}</p>
+              <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                <p v-if="!d.reservation_status">-</p>
+
+                <p
+                  v-if="d.reservation_status == 'confirmed'"
+                  class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full shadow"
+                >
+                  {{ d.reservation_status }}
+                </p>
+                <p
+                  v-if="d.reservation_status == 'declined'"
+                  class="inline-block px-3 py-1 text-xs text-white bg-red-500 rounded-full shadow"
+                >
+                  {{ d.reservation_status }}
+                </p>
+                <p
+                  v-if="d.reservation_status == 'awaiting'"
+                  class="inline-block px-3 py-1 text-xs text-white bg-yellow-500 rounded-full shadow"
+                >
+                  {{ d.reservation_status }}
+                </p>
               </div>
               <!-- <div
                 class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"

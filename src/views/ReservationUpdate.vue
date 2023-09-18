@@ -782,8 +782,9 @@ onMounted(async () => {
               <input
                 v-model="formData.service_date"
                 type="date"
+                disabled
                 id="title"
-                class="h-8 font-semibold w-full bg-white px-4 py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
+                class="h-8 font-semibold w-full py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
               />
             </div>
             <div class="pl-10 pr-10 space-y-2">
@@ -793,7 +794,8 @@ onMounted(async () => {
                 v-model="formData.service_date"
                 type="date"
                 id="title"
-                class="h-8 font-semibold w-full bg-white px-4 py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
+                disabled
+                class="h-8 font-semibold w-full py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
               />
             </div>
           </div>

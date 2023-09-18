@@ -67,10 +67,15 @@ onMounted(async () => {
 
 watch(search, async (newValue) => {
   await reservationStore.getListAction({ product_type: search.value });
+  searchId.value = "";
   console.log(reservations.value.data.length, "this is reservations");
 });
 watch(searchId, async (newValue) => {
-  await reservationStore.getListAction({ crm_id: searchId.value });
+  console.log(search.value, "this is serarch");
+  await reservationStore.getListAction({
+    product_type: search.value,
+    crm_id: searchId.value,
+  });
   console.log(reservations.value.data.length, "this is reservations");
 });
 </script>

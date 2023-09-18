@@ -438,7 +438,7 @@ const onSubmitHandler = async () => {
   frmData.append("payment_status", formData.value.payment_status);
   frmData.append("booking_date", formData.value.booking_date);
   frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
-  frmData.append("crm_id", formData.value.crm_id);
+  // frmData.append("crm_id", formData.value.crm_id);
 
   frmData.append("discount", formData.value.discount);
   frmData.append("comment", formData.value.comment);
@@ -823,7 +823,7 @@ onMounted(async () => {
                   :reduce="(d) => d.name"
                 ></v-select>
               </div>
-              <div>
+              <!-- <div>
                 <p class="mb-2 text-xs text-[#ff613c]">CRMID</p>
 
                 <input
@@ -835,7 +835,7 @@ onMounted(async () => {
                 <p v-if="errors?.crm_id" class="mt-1 text-sm text-red-600">
                   {{ errors.crm_id[0] }}
                 </p>
-              </div>
+              </div> -->
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>

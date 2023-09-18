@@ -437,7 +437,11 @@ const onSubmitHandler = async () => {
 
   frmData.append("payment_status", formData.value.payment_status);
   frmData.append("booking_date", formData.value.booking_date);
-  frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
+  if (formData.value.money_exchange_rate) {
+    frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
+  } else {
+    frmData.append("money_exchange_rate", 0);
+  }
   // frmData.append("crm_id", formData.value.crm_id);
 
   frmData.append("discount", formData.value.discount);
@@ -813,7 +817,7 @@ onMounted(async () => {
               </div>
               <div>
                 <p class="mb-2 text-xs text-[#ff613c]">Payment Status</p>
-                <v-select
+                <!-- <v-select
                   v-model="formData.payment_status"
                   class="style-chooser bg-white rounded-lg"
                   :options="payment_status"
@@ -821,7 +825,17 @@ onMounted(async () => {
                   label="name"
                   :clearable="false"
                   :reduce="(d) => d.name"
-                ></v-select>
+                ></v-select> -->
+                <input
+                  v-model="formData.payment_status"
+                  :class="{
+                    'bg-white rounded-lg': formData.payment_status !== '',
+                  }"
+                  type="text"
+                  disabled
+                  id="title"
+                  class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                />
               </div>
               <!-- <div>
                 <p class="mb-2 text-xs text-[#ff613c]">CRMID</p>

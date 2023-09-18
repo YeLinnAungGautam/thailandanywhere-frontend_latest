@@ -338,6 +338,7 @@ const onSubmitHandler = async () => {
   frmData.append("payment_status", formData.value.payment_status);
   frmData.append("booking_date", formData.value.booking_date);
   frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
+  console.log(formData.value.money_exchange_rate, "this is ex money");
   // frmData.append("crm_id", formData.value.crm_id);
 
   frmData.append("discount", formData.value.discount);
@@ -347,7 +348,11 @@ const onSubmitHandler = async () => {
   frmData.append("grand_total", grand_total.value);
   frmData.append("deposit", formData.value.deposit);
   frmData.append("payment_currency", formData.value.payment_currency);
-  frmData.append("balance_due", balance_due.value);
+  if (balance_due.value) {
+    frmData.append("balance_due", balance_due.value);
+  } else {
+    frmData.append("balance_due", 0);
+  }
   frmData.append("balance_due_date", formData.value.balance_due_date);
 
   if (formData.value.confirmation_letter.length > 0) {

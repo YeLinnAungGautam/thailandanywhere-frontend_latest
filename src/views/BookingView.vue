@@ -319,7 +319,7 @@ watch(search, async (newValue) => {
                       {{ d.reservation_status }}
                     </p>
                     <p
-                      v-if="d.reservation_status == 'awaiting_payment'"
+                      v-if="d.reservation_status == 'awaiting'"
                       class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
                     >
                       {{ d.reservation_status }}

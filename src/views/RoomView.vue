@@ -40,20 +40,7 @@
               placeholder="Choose Hotel"
             ></v-select>
           </div>
-          <div class="mb-2 space-y-1">
-            <label for="extra_price" class="text-sm text-gray-800"
-              >Extra Bed Price</label
-            >
-            <input
-              type="text"
-              v-model="formData.extra_price"
-              id="extra_price"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.extra_price" class="mt-1 text-sm text-red-600">
-              {{ errors.extra_price[0] }}
-            </p>
-          </div>
+
           <div class="mb-2 space-y-1">
             <label for="room_price" class="text-sm text-gray-800"
               >Room Price</label
@@ -262,7 +249,7 @@ const addNewHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("hotel_id", formData.value.hotel_id);
   frmData.append("description", formData.value.description);
-  frmData.append("extra_price", formData.value.extra_price);
+
   frmData.append("room_price", formData.value.room_price);
   frmData.append("cost", formData.value.cost);
 
@@ -294,7 +281,7 @@ const updateHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("hotel_id", formData.value.hotel_id);
   frmData.append("description", formData.value.description);
-  frmData.append("extra_price", formData.value.extra_price);
+
   frmData.append("room_price", formData.value.room_price);
   frmData.append("cost", formData.value.cost);
 
@@ -334,7 +321,7 @@ const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
   formData.value.hotel_id = data.hotel.id;
-  formData.value.extra_price = data.extra_price;
+
   formData.value.room_price = data.room_price;
   formData.value.description = data.description;
   formData.value.cost = data.cost;

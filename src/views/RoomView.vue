@@ -135,9 +135,7 @@
             <th class="p-3 text-sm font-medium tracking-wide text-left">
               Room Price
             </th>
-            <th class="p-3 text-sm font-medium tracking-wide text-left">
-              Extra Bed Price
-            </th>
+
             <th class="p-3 text-sm font-medium tracking-wide text-left w-30">
               Actions
             </th>
@@ -164,9 +162,7 @@
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               {{ r.room_price }}
             </td>
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-              {{ r.extra_price }}
-            </td>
+
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">
                 <button
@@ -239,7 +235,7 @@ const formData = ref({
   name: "",
   hotel_id: null,
   description: "",
-  extra_price: "",
+
   room_price: "",
   cost: "",
 });
@@ -260,7 +256,7 @@ const addNewHandler = async () => {
       name: "",
       hotel_id: null,
       description: "",
-      extra_price: "",
+
       room_price: "",
       cost: "",
     };
@@ -293,7 +289,7 @@ const updateHandler = async () => {
       name: "",
       hotel_id: null,
       description: "",
-      extra_price: "",
+
       room_price: "",
       cost: "",
     };

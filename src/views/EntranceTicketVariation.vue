@@ -28,20 +28,7 @@
               {{ errors.name[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1">
-            <label for="extra_price" class="text-sm text-gray-800"
-              >AGE GROUP</label
-            >
-            <input
-              type="text"
-              v-model="formData.age_group"
-              id="age_group"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.age_group" class="mt-1 text-sm text-red-600">
-              {{ errors.age_group[0] }}
-            </p>
-          </div>
+
           <div class="mb-2 space-y-1">
             <label for="price" class="text-sm text-gray-800">Price</label>
             <input
@@ -113,9 +100,7 @@
             <th class="p-3 text-sm font-medium tracking-wide text-left">
               Name
             </th>
-            <th class="p-3 text-sm font-medium tracking-wide text-left">
-              Age Group
-            </th>
+
             <th class="p-3 text-sm font-medium tracking-wide text-left">
               Price
             </th>
@@ -136,9 +121,7 @@
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               {{ r.name }}
             </td>
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-              {{ r.age_group }}
-            </td>
+
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               {{ r.price }}
             </td>
@@ -207,7 +190,7 @@ const openModal = () => {
   formData.value = {
     id: "",
     name: "",
-    age_group: "",
+
     price: "",
     description: "",
   };
@@ -216,7 +199,7 @@ const openModal = () => {
 const formData = ref({
   id: "",
   name: "",
-  age_group: "",
+
   price: "",
   description: "",
 });
@@ -224,7 +207,7 @@ const formData = ref({
 const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
-  frmData.append("age_group", formData.value.age_group);
+
   frmData.append("description", formData.value.description);
   frmData.append("price", formData.value.price);
 
@@ -233,7 +216,7 @@ const addNewHandler = async () => {
     formData.value = {
       id: "",
       name: "",
-      age_group: "",
+
       price: "",
       description: "",
     };
@@ -252,7 +235,7 @@ const addNewHandler = async () => {
 const updateHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
-  frmData.append("age_group", formData.value.age_group);
+
   frmData.append("description", formData.value.description);
   frmData.append("price", formData.value.price);
 
@@ -265,7 +248,7 @@ const updateHandler = async () => {
     formData.value = {
       id: "",
       name: "",
-      age_group: "",
+
       price: "",
       description: "",
     };
@@ -292,7 +275,7 @@ const onSubmitHandler = async () => {
 const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
-  formData.value.age_group = data.age_group;
+
   formData.value.price = data.price;
   formData.value.description = data.description;
   createModalOpen.value = true;

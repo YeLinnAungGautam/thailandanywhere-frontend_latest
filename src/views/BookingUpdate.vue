@@ -1148,7 +1148,7 @@ onMounted(async () => {
                 </div>
                 <div>
                   <p class="text-[#ff613c] text-xs mb-2">Payment Status</p>
-                  <v-select
+                  <!-- <v-select
                     v-model="formData.payment_status"
                     class="style-chooser"
                     :class="{
@@ -1159,7 +1159,17 @@ onMounted(async () => {
                     label="name"
                     :clearable="false"
                     :reduce="(d) => d.name"
-                  ></v-select>
+                  ></v-select> -->
+                  <input
+                    v-model="formData.payment_status"
+                    :class="{
+                      'bg-white rounded-lg': formData.payment_status !== '',
+                    }"
+                    type="text"
+                    disabled
+                    id="title"
+                    class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
                 </div>
                 <div>
                   <p class="text-[#ff613c] text-xs mb-2">CRMID</p>
@@ -1168,14 +1178,9 @@ onMounted(async () => {
                     v-model="formData.crm_id"
                     type="text"
                     id="title"
-                    :class="
-                      formData.crm_id != '' ? 'bg-white' : ' bg-transparent'
-                    "
-                    class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                    disabled
+                    class="w-full h-10 px-4 py-2 text-xs bg-transparent text-gray-900 rounded-lg focus:outline-none"
                   />
-                  <p v-if="errors?.crm_id" class="mt-1 text-sm text-red-600">
-                    {{ errors.crm_id[0] }}
-                  </p>
                 </div>
               </div>
               <div class="grid grid-cols-2 gap-4">

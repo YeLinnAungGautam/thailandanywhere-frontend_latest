@@ -82,13 +82,13 @@ watch(searchId, async (newValue) => {
 
 <template>
   <Layout>
-    <div class="mb-5 flex items-center justify-between">
+    <div class="flex items-center justify-between mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Reservation Lists</h3>
     </div>
-    <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
+    <div class="p-6 mb-5 rounded-lg shadow-sm bg-white/60">
       <!-- search input sort filter -->
       <div class="flex items-center justify-between mb-5">
-        <div class="space-x-2 flex justify-start items-center gap-2">
+        <div class="flex items-center justify-start gap-2 space-x-2">
           <p
             class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('')"
@@ -170,44 +170,44 @@ watch(searchId, async (newValue) => {
           />
         </div>
       </div>
-      <div class="overflow-auto rounded-lg shadow mb-5">
-        <div class="grid grid-cols-6 gap-2 bg-gray-200 py-2">
-          <div class="text-center text-sm font-medium tracking-wide py-2">
+      <div class="mb-5 overflow-auto rounded-lg shadow">
+        <div class="grid grid-cols-6 gap-2 py-2 bg-gray-200">
+          <div class="py-2 text-sm font-medium tracking-wide text-center">
             CRM ID
           </div>
-          <div class="text-center text-sm font-medium tracking-wide py-2">
+          <div class="py-2 text-sm font-medium tracking-wide text-center">
             Product Type
           </div>
-          <div class="text-center text-sm font-medium tracking-wide py-2">
+          <div class="py-2 text-sm font-medium tracking-wide text-center">
             Payment Status
           </div>
-          <div class="text-center text-sm font-medium tracking-wide py-2">
+          <div class="py-2 text-sm font-medium tracking-wide text-center">
             Reservation Status
           </div>
-          <div class="text-center text-sm font-medium tracking-wide py-2">
+          <div class="py-2 text-sm font-medium tracking-wide text-center">
             Service Date
           </div>
-          <div class="text-center text-sm font-medium tracking-wide py-2"></div>
+          <div class="py-2 text-sm font-medium tracking-wide text-center"></div>
         </div>
         <div
           v-show="!loading"
-          class="group relative"
+          class="relative group"
           v-for="r in reservations?.data"
           :key="r.id"
         >
           <div class="">
             <div
-              class="grid grid-cols-6 col-span-6 divide-y divide-gray-100 bg-white"
+              class="grid grid-cols-6 col-span-6 bg-white divide-y divide-gray-100"
               v-for="d in r.items"
               :key="d.id"
             >
               <div
-                class="p-3 text-sm mt-2 text-center text-gray-700 whitespace-nowrap"
+                class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"
               >
                 {{ d.crm_id }}
               </div>
               <div
-                class="p-3 text-sm mt-2 text-center text-gray-700 whitespace-nowrap"
+                class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"
               >
                 <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
                   PrivateVanTour
@@ -229,30 +229,35 @@ watch(searchId, async (newValue) => {
                 </p>
               </div>
               <div
-                class="p-3 text-sm mt-2 text-center text-gray-700 whitespace-nowrap"
+                class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"
               >
                 <p v-if="!d.payment_status || d.payment_status == 'null'">-</p>
                 <p
                   v-if="d.payment_status == 'fully_paid'"
-                  class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                  class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full shadow"
                 >
                   {{ d.payment_status }}
                 </p>
                 <p
                   v-if="d.payment_status == 'not_paid'"
-                  class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                  class="inline-block px-3 py-1 text-xs text-white bg-red-500 rounded-full shadow"
                 >
                   {{ d.payment_status }}
                 </p>
                 <p
                   v-if="d.payment_status == 'partially_paid'"
-                  class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                  class="inline-block px-3 py-1 text-xs text-white bg-yellow-500 rounded-full shadow"
                 >
                   {{ d.payment_status }}
                 </p>
               </div>
               <div
-                class="p-3 text-sm mt-2 text-center text-gray-700 whitespace-nowrap"
+                class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"
+              >
+                <p>{{ d.reservation_status }}</p>
+              </div>
+              <!-- <div
+                class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"
               >
                 <p
                   v-if="!d.reservation_status || d.reservation_status == 'null'"
@@ -261,26 +266,26 @@ watch(searchId, async (newValue) => {
                 </p>
                 <p
                   v-if="d.reservation_status == 'reserved'"
-                  class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                  class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full shadow"
                 >
                   {{ d.reservation_status }}
                 </p>
                 <p
                   v-if="d.reservation_status == 'declined'"
-                  class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                  class="inline-block px-3 py-1 text-xs text-white bg-red-500 rounded-full shadow"
                 >
                   {{ d.reservation_status }}
                 </p>
                 <p
                   v-if="d.reservation_status == 'awaiting_payment'"
-                  class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                  class="inline-block px-3 py-1 text-xs text-white bg-yellow-500 rounded-full shadow"
                 >
                   {{ d.reservation_status }}
                 </p>
-              </div>
+              </div> -->
 
               <div
-                class="p-3 text-sm mt-2 text-center text-gray-700 whitespace-nowrap"
+                class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"
               >
                 {{ d.service_date }}
               </div>
@@ -311,11 +316,11 @@ watch(searchId, async (newValue) => {
         </div>
         <div
           v-if="reservations?.data.length == 0"
-          class="flex justify-center items-center py-20"
+          class="flex items-center justify-center py-20"
         >
           Data Empty ...
         </div>
-        <div v-if="loading" class="flex justify-center items-center py-20">
+        <div v-if="loading" class="flex items-center justify-center py-20">
           <div
             class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] mr-4"
             role="status"

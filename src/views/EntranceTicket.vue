@@ -129,7 +129,7 @@
                 class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
               />
             </div>
-            <div class="mb-2 space-y-2">
+            <!-- <div class="mb-2 space-y-2">
               <label for="name" class="text-sm text-gray-800"
                 >Contract Due Date</label
               >
@@ -138,7 +138,6 @@
                 type="date"
                 class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
               />
-              <!-- <p>{{ formData.contract_due }}</p> -->
             </div>
             <div class="mb-2 space-y-1">
               <label for="name" class="text-sm text-gray-800">Contracts</label>
@@ -159,7 +158,7 @@
                   >link</a
                 >
               </p>
-            </div>
+            </div> -->
             <div class="col-span-2">
               <p class="text-gray-800 text-sm mb-2">Description</p>
               <textarea
@@ -584,15 +583,9 @@ const onSubmitHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
-  frmData.append("contract_due", formData.value.contract_due);
+
   console.log(formData.value.contracts);
-  if (formData.value.contracts) {
-    // frmData.append("contracts", formData.value.contracts);
-    for (let i = 0; i < formData.value.contracts.length; i++) {
-      let file = formData.value.contracts[i];
-      frmData.append("contracts[" + i + "]", file);
-    }
-  }
+
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -625,8 +618,6 @@ const onSubmitHandler = async () => {
       account_name: "",
       place: "",
       legal_name: "",
-      contract_due: "",
-      contracts: [],
     };
     errors.value = null;
     toast.success(response.message);
@@ -669,8 +660,7 @@ const editModalOpenHandler = async (id) => {
     formData.value.description = response.result.description;
 
     editData.value.cover_image = response.result.cover_image;
-    formData.value.provider = response.result.provider;
-    editData.value.tag = response.result.tags;
+
     editData.value.city_id = response.result.cities;
     editData.value.category = response.result.categories;
     formData.value.images = response.result.images;

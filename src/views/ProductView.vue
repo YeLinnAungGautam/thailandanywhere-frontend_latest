@@ -5,6 +5,8 @@ import Button from "../components/Button.vue";
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@headlessui/vue";
 import VanTour from "../views/VanTour.vue";
 import GroupTour from "../views/Grouptour.vue";
+import Airline from "../views/Airline.vue";
+import AirlineTicket from "../views/AirlineTicket.vue";
 import Airport from "../views/AirportTicket.vue";
 import Entrance from "../views/EntranceTicket.vue";
 import EntranceVariation from "../views/EntranceTicketVariation.vue";
@@ -145,6 +147,28 @@ onMounted(() => {
               Rooms
             </button>
           </Tab>
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(8)">
+            <button
+              :class="{
+                'bg-[#ff613c] text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+            >
+              AirLine
+            </button>
+          </Tab>
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(9)">
+            <button
+              :class="{
+                'bg-[#ff613c] text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[150px]"
+            >
+              AirLine Ticket
+            </button>
+          </Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -170,6 +194,12 @@ onMounted(() => {
           </TabPanel>
           <TabPanel>
             <Room />
+          </TabPanel>
+          <TabPanel>
+            <Airline />
+          </TabPanel>
+          <TabPanel>
+            <AirlineTicket />
           </TabPanel>
         </TabPanels>
       </TabGroup>

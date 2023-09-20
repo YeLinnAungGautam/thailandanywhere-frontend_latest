@@ -3,7 +3,7 @@
     class="hidden p-6 mb-5 rounded-lg shadow-sm bg-white/60 md:col-span-3 md:block"
   >
     <h3 class="mb-3 text-xl font-medium tracking-wide text-gray-600">
-      Entrance Ticket
+      Airline Ticket
     </h3>
 
     <!-- modal -->
@@ -19,70 +19,44 @@
         </DialogTitle>
         <form @submit.prevent="onSubmitHandler" class="mt-2">
           <div class="mb-2 space-y-1">
-            <label for="name" class="text-sm text-gray-800"
-              >Entrance Ticket</label
-            >
+            <label for="name" class="text-sm text-gray-800">Airline Name</label>
             <v-select
-              v-model="formData.entrance_ticket_id"
+              v-model="formData.airline_name"
               class="style-chooser"
-              :options="bankName ?? []"
+              :options="paymentMethod ?? []"
               label="name"
               :clearable="false"
-              :reduce="(bank) => bank.name"
-              placeholder="Choose Bank"
+              :reduce="(airline) => airline.name"
+              placeholder="Choose Payment"
             ></v-select>
           </div>
+
           <div class="mb-2 space-y-1">
-            <label for="price" class="text-sm text-gray-800">Price Name</label>
+            <label for="price" class="text-sm text-gray-800"
+              >Ticket Price</label
+            >
             <input
               type="text"
-              v-model="formData.price_name"
-              id="price"
+              v-model="formData.ticket_price"
+              id="ticket_price"
               class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
-            <p v-if="errors?.price" class="mt-1 text-sm text-red-600">
-              {{ errors.price[0] }}
+            <p v-if="errors?.ticket_price" class="mt-1 text-sm text-red-600">
+              {{ errors.ticket_price[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1">
-            <label for="price" class="text-sm text-gray-800">Price</label>
-            <input
-              type="number"
-              v-model="formData.price"
-              id="price"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.price" class="mt-1 text-sm text-red-600">
-              {{ errors.price[0] }}
-            </p>
-          </div>
-          <div class="mb-2 space-y-1">
-            <label for="price" class="text-sm text-gray-800">Cost Price</label>
-            <input
-              type="number"
-              v-model="formData.cost_price"
-              id="cost_price"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.cost_price" class="mt-1 text-sm text-red-600">
-              {{ errors.cost_price[0] }}
-            </p>
-          </div>
-          <div class="mb-2 space-y-1">
-            <label for="description" class="text-sm text-gray-800"
-              >Description</label
-            >
+          <div class="col-span-2">
+            <p class="text-gray-800 text-sm mb-2">Description</p>
             <textarea
               v-model="formData.description"
               rows="3"
-              id="description"
-              class="w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              id="title"
+              class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
             />
             <p v-if="errors?.description" class="mt-1 text-sm text-red-600">
               {{ errors.description[0] }}
             </p>
           </div>
-
           <div class="text-end flex justify-end items-center">
             <p
               class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
@@ -216,40 +190,32 @@ const openModal = () => {
   createModalOpen.value = true;
   formData.value = {
     id: "",
-    entrance_ticket_id: "",
-    price: "",
-    price_name: "",
-    cost_price: "",
+    airline_name: "",
+    ticket_price: "",
     description: "",
   };
 };
 
 const formData = ref({
   id: "",
-  entrance_ticket_id: "",
-  cost_price: "",
-  price_name: "",
-  price: "",
+  airline_name: "",
+  ticket_price: "",
   description: "",
 });
 
 const addNewHandler = async () => {
   const frmData = new FormData();
-  frmData.append("entrance_ticket_id", formData.value.entrance_ticket_id);
 
+  frmData.append("airline_name", formData.value.airline_name);
+  frmData.append("ticket_price", formData.value.ticket_price);
   frmData.append("description", formData.value.description);
-  frmData.append("price", formData.value.price);
-  frmData.append("cost_price", formData.value.cost_price);
-  frmData.append("price_name", formData.value.price_name);
 
   try {
     const response = await variationStore.addNewAction(frmData);
     formData.value = {
       id: "",
-      entrance_ticket_id: "",
-      cost_price: "",
-      price_name: "",
-      price: "",
+      airline_name: "",
+      ticket_price: "",
       description: "",
     };
     errors.value = null;
@@ -266,11 +232,9 @@ const addNewHandler = async () => {
 
 const updateHandler = async () => {
   const frmData = new FormData();
-  frmData.append("entrance_ticket_id", formData.value.entrance_ticket_id);
+  frmData.append("airline_name", formData.value.airline_name);
+  frmData.append("ticket_price", formData.value.ticket_price);
   frmData.append("description", formData.value.description);
-  frmData.append("price", formData.value.price);
-  frmData.append("cost_price", formData.value.cost_price);
-  frmData.append("price_name", formData.value.price_name);
 
   frmData.append("_method", "PUT");
   try {
@@ -280,10 +244,8 @@ const updateHandler = async () => {
     );
     formData.value = {
       id: "",
-      entrance_ticket_id: "",
-      cost_price: "",
-      price_name: "",
-      price: "",
+      airline_name: "",
+      ticket_price: "",
       description: "",
     };
     errors.value = null;
@@ -307,12 +269,10 @@ const onSubmitHandler = async () => {
 };
 
 const editModalOpenHandler = (data) => {
-  formData.value.id = data.id;
-  formData.value.entrance_ticket_id = data.entrance_ticket_id;
-  formData.value.cost_price = data.cost_price;
-  formData.value.price_name = data.price_name;
-  formData.value.price = data.price;
-  formData.value.description = data.description;
+  formData.airline_name = data.airline_name;
+  formData.ticket_price = data.ticket_price;
+  formData.description = data.description;
+
   createModalOpen.value = true;
 };
 

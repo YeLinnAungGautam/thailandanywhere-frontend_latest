@@ -100,6 +100,16 @@
               class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
             />
           </div>
+          <div class="mb-2 mt-2 space-y-1">
+            <label for="name" class="text-sm text-gray-800">
+              Account Name</label
+            >
+            <input
+              v-model="formData.account_name"
+              type="text"
+              class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+            />
+          </div>
           <div class="mb-2 space-y-1">
             <label for="name" class="text-sm text-gray-800"
               >Contract Due Date</label
@@ -124,6 +134,13 @@
               {{ errors.contracts[0] }}
             </p>
           </div>
+          <div class="mb-2 space-y-1" v-if="linkContract.length != 0">
+            <p v-for="(a, index) in linkContract.contacts" :key="index">
+              <a :href="a.file" target="_blink" class="text-sm text-red-500"
+                >link</a
+              >
+            </p>
+          </div>
           <div class="text-end flex justify-end items-center">
             <p
               class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
@@ -131,7 +148,10 @@
             >
               close
             </p>
-            <Button type="submit"> Submit </Button>
+            <Button type="submit" v-if="!loading"> Submit </Button>
+            <Button type="button" class="bg-gray-300" v-if="loading">
+              Submit
+            </Button>
           </div>
         </form>
       </DialogPanel>
@@ -153,7 +173,7 @@
       </div>
       <div class="space-x-3">
         <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
-        <Button :leftIcon="PlusIcon" @click.prevent="createModalOpen = true">
+        <Button :leftIcon="PlusIcon" @click.prevent="openCreate()">
           Create
         </Button>
       </div>
@@ -281,6 +301,7 @@ const formData = ref({
   payment_method: "",
   bank_name: "",
   bank_account_number: "",
+  account_name: "",
   place: "",
   legal_name: "",
   contract_due: "",
@@ -288,9 +309,11 @@ const formData = ref({
 });
 
 const addNewHandler = async () => {
+  console.log(loading.value);
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("city_id", formData.value.city_id);
+  frmData.append("account_name", formData.value.account_name);
   frmData.append("place", formData.value.place);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
@@ -308,11 +331,13 @@ const addNewHandler = async () => {
 
   try {
     const response = await hotelStore.addNewAction(frmData);
+    console.log(loading.value);
     formData.value = {
       name: "",
       city_id: null,
       payment_method: "",
       bank_name: "",
+      account_name: "",
       bank_account_number: "",
       place: "",
       legal_name: "",
@@ -327,8 +352,28 @@ const addNewHandler = async () => {
     if (error.response.data.errors) {
       errors.value = error.response.data.errors;
     }
-    toast.error(error.response.data.message);
+    toast.error(error.response.data.message, {
+      maxToasts: 1,
+    });
+    setTimeout(async () => {
+      await hotelStore.toggleLoading();
+    }, 5000);
   }
+};
+
+const openCreate = () => {
+  formData.value.name = "";
+  formData.value.city_id = null;
+  formData.value.payment_method = "";
+  formData.value.bank_name = "";
+  formData.value.account_name = "";
+  formData.value.bank_account_number = "";
+  formData.value.place = "";
+  formData.value.legal_name = "";
+  formData.value.contract_due = "";
+  formData.value.contracts = [];
+  linkContract.value = {};
+  createModalOpen.value = true;
 };
 
 const contract_file = (e) => {
@@ -351,6 +396,7 @@ const updateHandler = async () => {
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
+  frmData.append("account_name", formData.value.account_name);
   frmData.append("legal_name", formData.value.legal_name);
   frmData.append("contract_due", formData.value.contract_due);
   if (formData.value.contracts) {
@@ -372,6 +418,7 @@ const updateHandler = async () => {
       payment_method: "",
       bank_name: "",
       bank_account_number: "",
+      account_name: "",
       legal_name: "",
       contract_due: "",
       contracts: "",
@@ -385,6 +432,9 @@ const updateHandler = async () => {
       errors.value = error.response.data.errors;
     }
     toast.error(error.response.data.message);
+    setTimeout(async () => {
+      await hotelStore.toggleLoading();
+    }, 5000);
   }
 };
 
@@ -396,6 +446,7 @@ const onSubmitHandler = async () => {
   }
 };
 
+const linkContract = ref({});
 const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
@@ -404,10 +455,13 @@ const editModalOpenHandler = (data) => {
   formData.value.legal_name = data.legal_name;
   formData.value.contract_due = data.contract_due;
   formData.value.bank_account_number = data.bank_account_number;
+  formData.value.account_name = data.account_name;
   formData.value.payment_method = data.payment_method;
   formData.value.bank_name = data.bank_name;
   formData.value.contracts = [];
   console.log(formData.value.contract_due);
+  linkContract.value = data;
+  console.log(data, "this is file");
   createModalOpen.value = true;
 };
 

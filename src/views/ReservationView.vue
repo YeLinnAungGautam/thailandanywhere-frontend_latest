@@ -504,8 +504,8 @@ const getDetail = async () => {
       previewImage.value = "";
     }
 
-    if (response.result.payment_method == "null") {
-      formData.value.payment_method = "";
+    if (response.result.payment_method == null) {
+      formData.value.payment_method = response.result.product.payment_method;
     } else {
       formData.value.payment_method = response.result.payment_method;
     }
@@ -514,13 +514,14 @@ const getDetail = async () => {
         "https://api-blog.thanywhere.com/storage/images/" +
         response.result.reservation_info.paid_slip;
     }
-    if (response.result.bank_name == "null") {
-      formData.value.bank_name = "";
+    if (response.result.bank_name == null) {
+      formData.value.bank_name = response.result.product.bank_name;
     } else {
       formData.value.bank_name = response.result.bank_name;
     }
-    if (response.result.bank_account_number == "null") {
-      formData.value.bank_account_number = "";
+    if (response.result.bank_account_number == null) {
+      formData.value.bank_account_number =
+        response.result.product.bank_account_number;
     } else {
       formData.value.bank_account_number = response.result.bank_account_number;
     }

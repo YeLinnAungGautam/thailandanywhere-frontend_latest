@@ -998,7 +998,12 @@ const allowCreate = computed(() => {
 const depositStoreValue = ref("");
 const allowImage = ref(true);
 const allowDeposite = computed(() => {
-  if (formData.value.deposit == depositStoreValue.value) {
+  if (formData.value.deposit == 0) {
+    return false;
+  } else if (
+    formData.value.deposit == depositStoreValue.value &&
+    formData.value.deposit != 0
+  ) {
     console.log("this is true");
     allowImage.value = false;
     return true;

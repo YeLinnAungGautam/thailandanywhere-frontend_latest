@@ -89,10 +89,6 @@ const removeImageSelectImage = (index) => {
 };
 
 const onSubmitHandler = async () => {
-  // console.log(formData.value.tag, "tag");
-  // console.log(formData.value.city_id, "city");
-  // console.log(formData.value.destination, "description");
-
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("provider", formData.value.provider);

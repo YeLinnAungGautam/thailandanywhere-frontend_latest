@@ -42,6 +42,18 @@
             </p>
           </div>
           <div class="mb-2 space-y-1">
+            <label for="price" class="text-sm text-gray-800">Cost Price</label>
+            <input
+              type="text"
+              v-model="formData.cost_price"
+              id="cost_price"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.cost_price" class="mt-1 text-sm text-red-600">
+              {{ errors.cost_price[0] }}
+            </p>
+          </div>
+          <div class="mb-2 space-y-1">
             <label for="description" class="text-sm text-gray-800"
               >Description</label
             >
@@ -189,34 +201,35 @@ const openModal = () => {
   createModalOpen.value = true;
   formData.value = {
     id: "",
-    name: "",
-
+    ticket_id: "",
     price: "",
+    cost_price: "",
     description: "",
   };
 };
 
 const formData = ref({
   id: "",
-  name: "",
-
+  ticket_id: "",
+  cost_price: "",
   price: "",
   description: "",
 });
 
 const addNewHandler = async () => {
   const frmData = new FormData();
-  frmData.append("name", formData.value.name);
+  frmData.append("ticket_id", formData.value.ticket_id);
 
   frmData.append("description", formData.value.description);
   frmData.append("price", formData.value.price);
+  frmData.append("cost_price", formData.value.cost_price);
 
   try {
     const response = await variationStore.addNewAction(frmData);
     formData.value = {
       id: "",
-      name: "",
-
+      ticket_id: "",
+      cost_price: "",
       price: "",
       description: "",
     };
@@ -234,10 +247,10 @@ const addNewHandler = async () => {
 
 const updateHandler = async () => {
   const frmData = new FormData();
-  frmData.append("name", formData.value.name);
-
+  frmData.append("ticket_id", formData.value.ticket_id);
   frmData.append("description", formData.value.description);
   frmData.append("price", formData.value.price);
+  frmData.append("cost_price", formData.value.cost_price);
 
   frmData.append("_method", "PUT");
   try {
@@ -247,8 +260,8 @@ const updateHandler = async () => {
     );
     formData.value = {
       id: "",
-      name: "",
-
+      ticket_id: "",
+      cost_price: "",
       price: "",
       description: "",
     };
@@ -274,8 +287,8 @@ const onSubmitHandler = async () => {
 
 const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
-  formData.value.name = data.name;
-
+  formData.value.ticket_id = data.ticket_id;
+  formData.value.cost_price = data.cost_price;
   formData.value.price = data.price;
   formData.value.description = data.description;
   createModalOpen.value = true;

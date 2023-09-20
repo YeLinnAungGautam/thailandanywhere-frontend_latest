@@ -157,7 +157,7 @@
               {{ r.description }}
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-              {{ r.hotel.name }}
+              {{ r.hotel?.name }}
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               {{ r.room_price }}

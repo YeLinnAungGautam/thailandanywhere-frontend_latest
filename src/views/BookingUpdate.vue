@@ -218,6 +218,8 @@ const formitem = ref({
   duration: "",
   selling_price: "",
   pickup_location: "",
+  checkin_date: "",
+  checkout_date: "",
   pickup_time: "",
   customer_attachment: "",
   dropoff_location: "",
@@ -294,9 +296,29 @@ const addNewitem = () => {
     exchange_rate: "",
     cost_price: "",
     total_amount: "",
+    checkin_date: "",
+    checkout_date: "",
   };
   todayVali.value = false;
   addToggle();
+};
+
+const calculateRateRoom = () => {
+  if (formitem.value.checkin_date && formitem.value.checkout_date) {
+    calculateDaysBetween();
+  }
+  closedes();
+};
+const calculateDaysBetween = () => {
+  if (formitem.value.checkin_date && formitem.value.checkout_date) {
+    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    const startDateTimestamp = new Date(formitem.value.checkin_date).getTime();
+    const endDateTimestamp = new Date(formitem.value.checkout_date).getTime();
+    let result = Math.abs(
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+    );
+    formitem.value.quantity = result + 1;
+  }
 };
 
 const removeFromitem = (index) => {
@@ -475,83 +497,92 @@ const onSubmitHandler = async () => {
     );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][pickup_location]",
-      formData.value.items[x].pickup_location != "" ||
-        formData.value.items[x].pickup_location != null ||
-        formData.value.items[x].pickup_location != "undefined"
-        ? formData.value.items[x].pickup_location
-        : ""
-    );
+    formData.value.items[x].pickup_location
+      ? frmData.append(
+          "items[" + x + "][pickup_location]",
+          formData.value.items[x].pickup_location
+        )
+      : "";
   }
   for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][pickup_time]",
-      formData.value.items[x].pickup_time != "" ||
-        formData.value.items[x].pickup_time != null ||
-        formData.value.items[x].pickup_time != "undefined"
-        ? formData.value.items[x].pickup_time
-        : ""
-    );
+    formData.value.items[x].checkin_date
+      ? frmData.append(
+          "items[" + x + "][checkin_date]",
+          formData.value.items[x].checkin_date
+        )
+      : "";
+  }
+  for (var x = 0; x < formData.value.items.length; x++) {
+    formData.value.items[x].checkout_date
+      ? frmData.append(
+          "items[" + x + "][checkout_date]",
+          formData.value.items[x].checkout_date
+        )
+      : "";
+  }
+  for (var x = 0; x < formData.value.items.length; x++) {
+    formData.value.items[x].pickup_time
+      ? frmData.append(
+          "items[" + x + "][pickup_time]",
+          formData.value.items[x].pickup_time
+        )
+      : "";
     if (formData.value.items[x].customer_attachment) {
       frmData.append(
         "items[" + x + "][customer_attachment]",
         formData.value.items[x].customer_attachment
       );
     }
+    formData.value.items[x].dropoff_location
+      ? frmData.append(
+          "items[" + x + "][dropoff_location]",
+          formData.value.items[x].dropoff_location
+        )
+      : "";
+    formData.value.items[x].route_plan
+      ? frmData.append(
+          "items[" + x + "][route_plan]",
+          formData.value.items[x].route_plan
+        )
+      : "";
+    formData.value.items[x].duration
+      ? frmData.append(
+          "items[" + x + "][duration]",
+          formData.value.items[x].duration
+        )
+      : "";
+    formData.value.items[x].special_request
+      ? frmData.append(
+          "items[" + x + "][special_request]",
+          formData.value.items[x].special_request
+        )
+      : "";
+    formData.value.items[x].comment
+      ? frmData.append(
+          "items[" + x + "][comment]",
+          formData.value.items[x].comment
+        )
+      : "";
+    formData.value.items[x].selling_price
+      ? frmData.append(
+          "items[" + x + "][selling_price]",
+          formData.value.items[x].selling_price
+        )
+      : "";
+    formData.value.items[x].exchange_rate
+      ? frmData.append(
+          "items[" + x + "][exchange_rate]",
+          formData.value.items[x].exchange_rate
+        )
+      : "";
+    formData.value.items[x].cost_price
+      ? frmData.append(
+          "items[" + x + "][cost_price]",
+          formData.value.items[x].cost_price
+        )
+      : "";
   }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][dropoff_location]",
-      formData.value.items[x].dropoff_location != "" ||
-        formData.value.items[x].dropoff_location != null ||
-        formData.value.items[x].dropoff_location != "undefined"
-        ? formData.value.items[x].dropoff_location
-        : ""
-    );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][route_plan]",
-      formData.value.items[x].route_plan != "" ||
-        formData.value.items[x].route_plan != null ||
-        formData.value.items[x].route_plan != "undefined"
-        ? formData.value.items[x].route_plan
-        : ""
-    );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][duration]",
-      formData.value.items[x].duration
-    );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][special_request]",
-      formData.value.items[x].special_request != "" ||
-        formData.value.items[x].special_request != null ||
-        formData.value.items[x].special_request != "undefined"
-        ? formData.value.items[x].special_request
-        : ""
-    );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][selling_price]",
-      formData.value.items[x].selling_price
-    );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][comment]",
-      formData.value.items[x].comment != "" ||
-        formData.value.items[x].comment != null ||
-        formData.value.items[x].comment != "undefined"
-        ? formData.value.items[x].comment
-        : ""
-    );
-  }
+
   for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][reservation_status]",
@@ -568,18 +599,6 @@ const onSubmitHandler = async () => {
     frmData.append(
       "items[" + x + "][payment_status]",
       formData.value.items[x].payment_status
-    );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][exchange_rate]",
-      formData.value.items[x].exchange_rate
-    );
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][cost_price]",
-      formData.value.items[x].cost_price
     );
   }
 
@@ -807,6 +826,12 @@ const getDetail = async () => {
           ? response.result.items[x].room.id
           : "",
         variation_type: checkType(response.result.items[x].product),
+        checkin_date: response.result.items[x].checkin_date
+          ? response.result.items[x].checkin_date
+          : "",
+        checkout_date: response.result.items[x].checkout_date
+          ? response.result.items[x].checkout_date
+          : "",
       };
       formData.value.items.push(itemData);
     }
@@ -864,7 +889,7 @@ const closedes = () => {
 };
 const clickdetaildes = ref(false);
 const itemDes = ref();
-const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s) => {
+const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s, i, o) => {
   console.log(a, b, index);
   clickdetaildes.value = true;
   itemDes.value = a;
@@ -876,6 +901,9 @@ const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s) => {
   indexValue.value = index;
   itemType.value = t;
   itemRoutePlan.value = r;
+  itemCheckIn.value = i;
+  itemCheckOut.value = o;
+  console.log(itemCheckIn.value, itemCheckOut.value);
 };
 const itemType = ref("");
 const itemRoutePlan = ref("");
@@ -884,6 +912,8 @@ const indexValue = ref("");
 const itemPickup = ref("");
 const itemDropoff = ref("");
 const itemPickupTime = ref("");
+const itemCheckIn = ref("");
+const itemCheckOut = ref("");
 
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
@@ -891,8 +921,19 @@ const clickdetaildesUpdate = (x) => {
   formData.value.items[x].service_date = itemServiceDate.value;
   formData.value.items[x].pickup_location = itemPickup.value;
   formData.value.items[x].pickup_time = itemPickupTime.value;
+  formData.value.items[x].checkin_date = itemCheckIn.value;
+  formData.value.items[x].checkout_date = itemCheckOut.value;
   formData.value.items[x].dropoff_location = itemDropoff.value;
   formData.value.items[x].route_plan = itemRoutePlan.value;
+  if (itemCheckIn.value && itemCheckOut.value) {
+    let oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    let startDateTimestamp = new Date(itemCheckIn.value).getTime();
+    let endDateTimestamp = new Date(itemCheckOut.value).getTime();
+    let result = Math.abs(
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+    );
+    formData.value.items[x].quantity = result + 1;
+  }
   clickdetaildes.value = false;
 };
 
@@ -907,6 +948,8 @@ const clickdetaildesClose = () => {
   itemPickup.value = "";
   itemDropoff.value = "";
   itemPickupTime.value = "";
+  itemCheckIn.value = "";
+  itemCheckOut.value = "";
 };
 
 const customerOpen = ref(false);
@@ -955,7 +998,12 @@ const allowCreate = computed(() => {
 const depositStoreValue = ref("");
 const allowImage = ref(true);
 const allowDeposite = computed(() => {
-  if (formData.value.deposit == depositStoreValue.value) {
+  if (formData.value.deposit == 0) {
+    return false;
+  } else if (
+    formData.value.deposit == depositStoreValue.value &&
+    formData.value.deposit != 0
+  ) {
     console.log("this is true");
     allowImage.value = false;
     return true;
@@ -1153,18 +1201,7 @@ onMounted(async () => {
                 </div>
                 <div>
                   <p class="text-[#ff613c] text-xs mb-2">Payment Status</p>
-                  <!-- <v-select
-                    v-model="formData.payment_status"
-                    class="style-chooser"
-                    :class="{
-                      'bg-white rounded-lg': formData.payment_status !== '',
-                    }"
-                    :options="payment_status"
-                    disabled
-                    label="name"
-                    :clearable="false"
-                    :reduce="(d) => d.name"
-                  ></v-select> -->
+
                   <input
                     v-model="formData.payment_status"
                     :class="{
@@ -1386,10 +1423,40 @@ onMounted(async () => {
                           id=""
                         />
                       </div>
+                      <div
+                        class="grid grid-cols-1 space-y-2"
+                        v-if="
+                          formitem.product_type == '6' ||
+                          formitem.product_type == 'App\\Models\\Hotel'
+                        "
+                      >
+                        <p class="text-xs">Checkin Date</p>
+                        <input
+                          type="date"
+                          class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
+                          id=""
+                          v-model="formitem.checkin_date"
+                        />
+                      </div>
+                      <div
+                        class="grid grid-cols-1 space-y-2"
+                        v-if="
+                          formitem.product_type == '6' ||
+                          formitem.product_type == 'App\\Models\\Hotel'
+                        "
+                      >
+                        <p class="text-xs">Checkout Date</p>
+                        <input
+                          type="date"
+                          class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
+                          id=""
+                          v-model="formitem.checkout_date"
+                        />
+                      </div>
                       <div class="flex items-center justify-between">
                         <button @click="closedes" class="text-sm">close</button>
                         <button
-                          @click="closedes"
+                          @click="calculateRateRoom"
                           class="text-sm px-2 py-1 bg-[#ff613c] text-white rounded"
                         >
                           + add
@@ -1523,6 +1590,34 @@ onMounted(async () => {
                           rows="1"
                           v-model="itemRoutePlan"
                         ></textarea>
+                      </div>
+                      <div
+                        class="grid grid-cols-1 space-y-2"
+                        v-if="
+                          itemType == '6' || itemType == 'App\\Models\\Hotel'
+                        "
+                      >
+                        <p class="text-sm">Checkin Date</p>
+                        <input
+                          type="date"
+                          class="p-2 border border-gray-300 focus:outline-none rounded-sm text-xs"
+                          v-model="itemCheckIn"
+                          id=""
+                        />
+                      </div>
+                      <div
+                        class="grid grid-cols-1 space-y-2"
+                        v-if="
+                          itemType == '6' || itemType == 'App\\Models\\Hotel'
+                        "
+                      >
+                        <p class="text-sm">Checkout Date</p>
+                        <input
+                          type="date"
+                          class="p-2 border border-gray-300 focus:outline-none rounded-sm text-xs"
+                          v-model="itemCheckOut"
+                          id=""
+                        />
                       </div>
                       <div class="flex items-center justify-between">
                         <button @click="clickdetaildesClose" class="text-sm">
@@ -2033,7 +2128,9 @@ onMounted(async () => {
                                   index,
                                   item.product_type,
                                   item.route_plan,
-                                  item.service_date
+                                  item.service_date,
+                                  item.checkin_date,
+                                  item.checkout_date
                                 )
                               "
                             >

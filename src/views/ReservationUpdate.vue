@@ -62,8 +62,8 @@ const payment_status = [
   { id: "3", name: "partially_paid" },
 ];
 const reservation_status = [
-  { id: "1", name: "reserved" },
-  { id: "2", name: "awaiting_payment" },
+  { id: "1", name: "confirmed" },
+  { id: "2", name: "awaiting" },
   { id: "3", name: "declined" },
 ];
 
@@ -122,6 +122,7 @@ const secForm = ref({
   dropoff_location: "",
   route_plan: "",
   supplier_name: "",
+  account_holder_name: "",
   driver_name: "",
   driver_contact: "",
   car_number: "",
@@ -301,6 +302,9 @@ const onSubmitHandler = async () => {
       if (secForm.value.supplier_name) {
         secfrm.append("supplier_name", secForm.value.supplier_name);
       }
+      if (secForm.value.account_holder_name) {
+        secfrm.append("account_holder_name", secForm.value.account_holder_name);
+      }
       if (secForm.value.driver_name) {
         secfrm.append("driver_name", secForm.value.driver_name);
       }
@@ -359,6 +363,7 @@ const onSubmitHandler = async () => {
       pickup_location: "",
       dropoff_location: "",
       supplier_name: "",
+      account_holder_name: "",
       driver_name: "",
       driver_contact: "",
       car_number: "",
@@ -386,12 +391,20 @@ const dropoff_location = ref("");
 const booking_status = ref("");
 const booking_confirm_letters = ref("");
 const booking_receipt = ref("");
+const checkin_date = ref("");
+const checkout_date = ref("");
 
 const getDetail = async () => {
   try {
     const response = await reservationStore.getDetailAction(route.params.id);
     console.log(response, "this is response");
     titleDataChanges(response.result.product_type);
+    checkin_date.value = response.result.checkin_date
+      ? response.result.checkin_date
+      : "";
+    checkout_date.value = response.result.checkout_date
+      ? response.result.checkout_date
+      : "";
     if (response.result.customer_attachment != null) {
       formData.customer_attachment = response.result.customer_attachment;
     }
@@ -472,6 +485,8 @@ const getDetail = async () => {
     if (response.result.reservation_car_info != null) {
       secForm.value.supplier_name =
         response.result.reservation_car_info.supplier_name;
+      secForm.value.account_holder_name =
+        response.result.reservation_car_info.account_holder_name;
       secForm.value.driver_name =
         response.result.reservation_car_info.driver_name;
       secForm.value.driver_contact =
@@ -482,14 +497,15 @@ const getDetail = async () => {
       previewImage.value = response.result.reservation_car_info.car_photo;
     } else {
       secForm.value.supplier_name = "";
-      secForm.value.driver_name = "";
+      (secForm.value.account_holder_name = ""),
+        (secForm.value.driver_name = "");
       secForm.value.driver_contact = "";
       secForm.value.car_number = "";
       previewImage.value = "";
     }
 
-    if (response.result.payment_method == "null") {
-      formData.value.payment_method = "";
+    if (response.result.payment_method == null) {
+      formData.value.payment_method = response.result.product.payment_method;
     } else {
       formData.value.payment_method = response.result.payment_method;
     }
@@ -498,13 +514,14 @@ const getDetail = async () => {
         "https://api-blog.thanywhere.com/storage/images/" +
         response.result.reservation_info.paid_slip;
     }
-    if (response.result.bank_name == "null") {
-      formData.value.bank_name = "";
+    if (response.result.bank_name == null) {
+      formData.value.bank_name = response.result.product.bank_name;
     } else {
       formData.value.bank_name = response.result.bank_name;
     }
-    if (response.result.bank_account_number == "null") {
-      formData.value.bank_account_number = "";
+    if (response.result.bank_account_number == null) {
+      formData.value.bank_account_number =
+        response.result.product.bank_account_number;
     } else {
       formData.value.bank_account_number = response.result.bank_account_number;
     }
@@ -631,6 +648,10 @@ const otherInfoHandle = () => {
 const reservation_info_part = ref(true);
 const reservationInfoHandle = () => {
   reservation_info_part.value = !reservation_info_part.value;
+};
+const expen_info_part = ref(true);
+const expenInfoHandle = () => {
+  expen_info_part.value = !expen_info_part.value;
 };
 
 const car_info_sec = ref(true);
@@ -990,6 +1011,32 @@ onMounted(async () => {
                 class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
               />
             </div>
+            <div
+              class="pl-10 pr-10 space-y-2"
+              v-if="formData.product_type == 'App\\Models\\Hotel'"
+            >
+              <p class="text-gray-400 text-xs">Checkin Date</p>
+              <input
+                v-model="checkin_date"
+                type="date"
+                disabled
+                id="title"
+                class="h-8 font-semibold w-full bg-transparent text-xs"
+              />
+            </div>
+            <div
+              class="pl-10 pr-10 space-y-2"
+              v-if="formData.product_type == 'App\\Models\\Hotel'"
+            >
+              <p class="text-gray-400 text-xs">Checkout Date</p>
+              <input
+                v-model="checkout_date"
+                type="date"
+                disabled
+                id="title"
+                class="h-8 font-semibold w-full bg-transparent text-xs"
+              />
+            </div>
           </div>
 
           <div
@@ -1178,6 +1225,22 @@ onMounted(async () => {
             </p>
           </div>
           <div class="bg-gray-200/50 px-3 py-5 space-y-2" v-if="car_info_sec">
+            <div
+              class="px-6 space-y-2"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel' &&
+                formData.product_type != 'App\\Models\\AirportPickup'
+              "
+            >
+              <p class="text-gray-400 text-xs">Account Holder Name</p>
+              <input
+                v-model="secForm.account_holder_name"
+                type="text"
+                id="title"
+                class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+              />
+            </div>
             <div class="px-6 space-y-2">
               <p class="text-gray-400 text-xs">Supplier Name</p>
               <input
@@ -1313,32 +1376,6 @@ onMounted(async () => {
           >
             <div class="space-y-2">
               <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs">Payment Method:</p>
-                <!-- <p class="font-semibold text-xs">Collect</p> -->
-                <v-select
-                  v-model="formData.payment_method"
-                  class="style-chooser font-semibold text-xs rounded-lg bg-white"
-                  :options="paymentArray"
-                  label="name"
-                  :clearable="false"
-                  :reduce="(d) => d.name"
-                  placeholder=""
-                ></v-select>
-              </div>
-              <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs">Bank Name:</p>
-                <!-- <p class="font-semibold text-xs">Collect</p> -->
-                <v-select
-                  v-model="formData.bank_name"
-                  class="style-chooser font-semibold text-xs rounded-lg bg-white"
-                  :options="payment"
-                  label="name"
-                  :clearable="false"
-                  :reduce="(d) => d.name"
-                  placeholder=""
-                ></v-select>
-              </div>
-              <div class="pl-10 pr-10 space-y-2">
                 <p class="text-gray-400 text-xs">Payment Status</p>
                 <v-select
                   v-model="formData.payment_status"
@@ -1362,26 +1399,15 @@ onMounted(async () => {
                   placeholder=""
                 ></v-select>
               </div>
+
               <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs">Bank Account Number</p>
-                <input
-                  v-model="formData.bank_account_number"
-                  type="number"
-                  id="title"
-                  class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                />
-              </div>
-              <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs">Cost</p>
-                <input
-                  v-model="formData.cost"
-                  type="number"
-                  id="title"
-                  class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                />
-              </div>
-              <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs">Expensive Paid Slip</p>
+                <p
+                  class="text-gray-400 text-xs"
+                  v-if="formData.product_type == 'App\\Models\\Hotel'"
+                >
+                  Hotel Confirmation Receipt
+                </p>
+                <p class="text-gray-400 text-xs" v-else>Expensive Paid Slip</p>
                 <div class="space-y-1 mb-2">
                   <label for="image" class="text-gray-800 text-sm relative">
                     <span
@@ -1412,24 +1438,65 @@ onMounted(async () => {
 
           <div
             class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
-            v-if="
-              formData.product_type == 'App\\Models\\EntranceTicket' ||
-              formData.product_type == 'App\\Models\\Hotel'
-            "
+            @click="expenInfoHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
 
             <p>Expense Information</p>
           </div>
 
-          <div
-            class="bg-gray-200/50 py-5 space-y-2"
-            v-if="
-              formData.product_type == 'App\\Models\\EntranceTicket' ||
-              formData.product_type == 'App\\Models\\Hotel'
-            "
-          >
-            <div class="space-y-2">
+          <div class="bg-gray-200/50 py-5 space-y-2" v-if="expen_info_part">
+            <div class="pl-10 pr-10 space-y-2">
+              <p class="text-gray-400 text-xs">Payment Method:</p>
+
+              <v-select
+                v-model="formData.payment_method"
+                class="style-chooser font-semibold text-xs rounded-lg bg-white"
+                :options="paymentArray"
+                label="name"
+                :clearable="false"
+                :reduce="(d) => d.name"
+                placeholder=""
+              ></v-select>
+            </div>
+            <div class="pl-10 pr-10 space-y-2">
+              <p class="text-gray-400 text-xs">Bank Name:</p>
+
+              <v-select
+                v-model="formData.bank_name"
+                class="style-chooser font-semibold text-xs rounded-lg bg-white"
+                :options="payment"
+                label="name"
+                :clearable="false"
+                :reduce="(d) => d.name"
+                placeholder=""
+              ></v-select>
+            </div>
+            <div class="pl-10 pr-10 space-y-2">
+              <p class="text-gray-400 text-xs">Bank Account Number</p>
+              <input
+                v-model="formData.bank_account_number"
+                type="number"
+                id="title"
+                class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+              />
+            </div>
+            <div class="pl-10 pr-10 space-y-2">
+              <p class="text-gray-400 text-xs">Cost</p>
+              <input
+                v-model="formData.cost"
+                type="number"
+                id="title"
+                class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+              />
+            </div>
+            <div
+              class="space-y-2"
+              v-if="
+                formData.product_type == 'App\\Models\\EntranceTicket' ||
+                formData.product_type == 'App\\Models\\Hotel'
+              "
+            >
               <div class="pl-10 pr-10 space-y-2">
                 <p class="text-gray-400 text-xs">Expense Amount</p>
                 <input
@@ -1439,7 +1506,13 @@ onMounted(async () => {
                 />
               </div>
 
-              <div class="pl-10 pr-10 space-y-2">
+              <div
+                class="pl-10 pr-10 space-y-2"
+                v-if="
+                  formData.product_type == 'App\\Models\\EntranceTicket' ||
+                  formData.product_type == 'App\\Models\\Hotel'
+                "
+              >
                 <p class="text-gray-400 text-xs">Upload Payment Receipt</p>
                 <div class="space-y-1 mb-2">
                   <label for="image" class="text-gray-800 text-sm relative">

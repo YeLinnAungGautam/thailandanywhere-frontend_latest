@@ -64,6 +64,42 @@
               {{ errors.legal_name[0] }}
             </p>
           </div>
+          <div>
+            <p class="mb-2 text-sm text-gray-800 space-y-1">Bank Name</p>
+            <v-select
+              v-model="formData.bank_name"
+              class="style-chooser"
+              :options="bankName ?? []"
+              label="name"
+              :clearable="false"
+              :reduce="(bank) => bank.name"
+              placeholder="Choose Bank"
+            ></v-select>
+          </div>
+          <div>
+            <p class="mb-2 mt-2 text-sm text-gray-800 space-y-1">
+              Payment Method
+            </p>
+            <v-select
+              v-model="formData.payment_method"
+              class="style-chooser"
+              :options="paymentMethod ?? []"
+              label="name"
+              :clearable="false"
+              :reduce="(payment) => payment.name"
+              placeholder="Choose Payment"
+            ></v-select>
+          </div>
+          <div class="mb-2 mt-2 space-y-1">
+            <label for="name" class="text-sm text-gray-800"
+              >Bank Account Number</label
+            >
+            <input
+              v-model="formData.bank_account_number"
+              type="number"
+              class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+            />
+          </div>
           <div class="mb-2 space-y-1">
             <label for="name" class="text-sm text-gray-800"
               >Contract Due Date</label
@@ -222,6 +258,19 @@ const { hotels, loading } = storeToRefs(hotelStore);
 const search = ref("");
 const errors = ref([]);
 
+const bankName = [
+  { id: "1", name: "K + " },
+  { id: "2", name: "SCB " },
+  { id: "3", name: "Bangkok Bank" },
+  { id: "4", name: "Other Bank " },
+];
+const paymentMethod = [
+  { id: "1", name: "Bank Transfer" },
+  { id: "2", name: "International Remittance" },
+  { id: "3", name: "Cash" },
+  { id: "4", name: "Other ..." },
+];
+
 const { cities } = storeToRefs(cityStore);
 const citylist = ref([]);
 
@@ -229,6 +278,9 @@ const formData = ref({
   id: "",
   name: "",
   city_id: null,
+  payment_method: "",
+  bank_name: "",
+  bank_account_number: "",
   place: "",
   legal_name: "",
   contract_due: "",
@@ -240,6 +292,9 @@ const addNewHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("city_id", formData.value.city_id);
   frmData.append("place", formData.value.place);
+  frmData.append("payment_method", formData.value.payment_method);
+  frmData.append("bank_name", formData.value.bank_name);
+  frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
   frmData.append("contract_due", formData.value.contract_due);
   console.log(formData.value.contracts);
@@ -256,6 +311,9 @@ const addNewHandler = async () => {
     formData.value = {
       name: "",
       city_id: null,
+      payment_method: "",
+      bank_name: "",
+      bank_account_number: "",
       place: "",
       legal_name: "",
       contract_due: "",
@@ -290,6 +348,9 @@ const updateHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("place", formData.value.place);
   frmData.append("city_id", formData.value.city_id);
+  frmData.append("payment_method", formData.value.payment_method);
+  frmData.append("bank_name", formData.value.bank_name);
+  frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
   frmData.append("contract_due", formData.value.contract_due);
   if (formData.value.contracts) {
@@ -308,6 +369,9 @@ const updateHandler = async () => {
       city_id: null,
       place: "",
       id: "",
+      payment_method: "",
+      bank_name: "",
+      bank_account_number: "",
       legal_name: "",
       contract_due: "",
       contracts: "",
@@ -339,6 +403,9 @@ const editModalOpenHandler = (data) => {
   formData.value.place = data.place;
   formData.value.legal_name = data.legal_name;
   formData.value.contract_due = data.contract_due;
+  formData.value.bank_account_number = data.bank_account_number;
+  formData.value.payment_method = data.payment_method;
+  formData.value.bank_name = data.bank_name;
   formData.value.contracts = [];
   console.log(formData.value.contract_due);
   createModalOpen.value = true;

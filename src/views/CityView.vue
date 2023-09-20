@@ -70,8 +70,17 @@
               <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
                 {{ city.name }}
               </td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td
+                class="p-4 text-sm text-gray-700 whitespace-nowrap"
+                v-if="city.image"
+              >
                 <img class="rounded w-14 h-14" :src="city.image" alt="" />
+              </td>
+              <td
+                class="p-4 text-sm text-gray-700 whitespace-nowrap"
+                v-if="!city.image"
+              >
+                -
               </td>
               <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">

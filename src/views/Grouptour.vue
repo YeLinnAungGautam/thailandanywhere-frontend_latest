@@ -54,8 +54,17 @@
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               {{ r.id }}
             </td>
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td
+              class="p-3 text-sm text-gray-700 whitespace-nowrap"
+              v-if="r.cover_image"
+            >
               <img :src="r.cover_image" class="w-14 h-12 rounded-lg" alt="" />
+            </td>
+            <td
+              class="p-3 text-sm text-gray-700 whitespace-nowrap"
+              v-if="!r.cover_image"
+            >
+              -
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               {{ r.name }}

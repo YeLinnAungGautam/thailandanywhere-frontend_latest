@@ -225,12 +225,14 @@ const formitem = ref({
   payment_status: "",
   exchange_rate: "",
   cost_price: "",
-  special_request: "-",
+  special_request: "",
   total_amount: "",
-  pickup_location: "-",
+  pickup_location: "",
   pickup_time: "",
-  dropoff_location: "-",
-  route_plan: "-",
+  dropoff_location: "",
+  route_plan: "",
+  checkin_date: "",
+  checkout_date: "",
   customer_attachment: "",
 });
 const productList = ref([]);
@@ -373,16 +375,36 @@ const addNewitem = () => {
     payment_status: "",
     exchange_rate: "",
     cost_price: "",
-    special_request: "-",
+    special_request: "",
     total_amount: "",
-    route_plan: "-",
-    pickup_location: "-",
+    route_plan: "",
+    pickup_location: "",
     pickup_time: "",
     customer_attachment: "",
-    dropoff_location: "-",
+    dropoff_location: "",
+    checkin_date: "",
+    checkout_date: "",
   };
   todayVali.value = false;
   addToggle();
+};
+
+const calculateRateRoom = () => {
+  if (formitem.value.checkin_date && formitem.value.checkout_date) {
+    calculateDaysBetween();
+  }
+  closedes();
+};
+const calculateDaysBetween = () => {
+  if (formitem.value.checkin_date && formitem.value.checkout_date) {
+    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    const startDateTimestamp = new Date(formitem.value.checkin_date).getTime();
+    const endDateTimestamp = new Date(formitem.value.checkout_date).getTime();
+    let result = Math.abs(
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+    );
+    formitem.value.quantity = result + 1;
+  }
 };
 
 const removeFromitem = (index) => {
@@ -410,7 +432,6 @@ const customerFile = (e) => {
   let selectedFile = e.target.files[0];
   if (selectedFile) {
     formitem.value.customer_attachment = e.target.files[0];
-    // featureImagePreview.value = URL.createObjectURL(selectedFile);
   }
 };
 
@@ -442,10 +463,9 @@ const onSubmitHandler = async () => {
   } else {
     frmData.append("money_exchange_rate", 0);
   }
-  // frmData.append("crm_id", formData.value.crm_id);
 
   frmData.append("discount", formData.value.discount);
-  frmData.append("comment", formData.value.comment);
+  // frmData.append("comment", formData.value.comment);
   frmData.append("sub_total", sub_total.value);
   frmData.append("grand_total", grand_total.value);
   frmData.append("deposit", formData.value.deposit);
@@ -490,32 +510,61 @@ const onSubmitHandler = async () => {
       frmData.append("items[" + x + "][product_type]", `App\\Models\\Hotel`);
     }
   }
+
   for (var x = 0; x < formData.value.items.length; x++) {
     frmData.append(
       "items[" + x + "][product_id]",
       formData.value.items[x].product_id
     );
-    frmData.append(
-      "items[" + x + "][pickup_location]",
-      formData.value.items[x].pickup_location
-    );
-    frmData.append(
-      "items[" + x + "][pickup_time]",
-      formData.value.items[x].pickup_time
-    );
-    frmData.append(
-      "items[" + x + "][customer_attachment]",
-      formData.value.items[x].customer_attachment
-    );
-    frmData.append(
-      "items[" + x + "][dropoff_location]",
-      formData.value.items[x].dropoff_location
-    );
-    frmData.append(
-      "items[" + x + "][route_plan]",
-      formData.value.items[x].route_plan
-    );
-    if (formData.value.items[x].product_type === "6") {
+
+    formData.value.items[x].pickup_location
+      ? frmData.append(
+          "items[" + x + "][pickup_location]",
+          formData.value.items[x].pickup_location
+        )
+      : "";
+
+    if (formData.value.items[x].pickup_time) {
+      frmData.append(
+        "items[" + x + "][pickup_time]",
+        formData.value.items[x].pickup_time
+      );
+    }
+    if (formData.value.items[x].customer_attachment) {
+      frmData.append(
+        "items[" + x + "][customer_attachment]",
+        formData.value.items[x].customer_attachment
+      );
+    }
+
+    if (formData.value.items[x].dropoff_location) {
+      frmData.append(
+        "items[" + x + "][dropoff_location]",
+        formData.value.items[x].dropoff_location
+      );
+    }
+    if (formData.value.items[x].checkin_date) {
+      frmData.append(
+        "items[" + x + "][checkin_date]",
+        formData.value.items[x].checkin_date
+      );
+    }
+    if (formData.value.items[x].checkout_date) {
+      frmData.append(
+        "items[" + x + "][checkout_date]",
+        formData.value.items[x].checkout_date
+      );
+    }
+    if (formData.value.items[x].route_plan) {
+      frmData.append(
+        "items[" + x + "][route_plan]",
+        formData.value.items[x].route_plan
+      );
+    }
+    if (
+      formData.value.items[x].product_type === "6" &&
+      formData.value.items[x].room_id
+    ) {
       frmData.append(
         "items[" + x + "][room_id]",
         formData.value.items[x].room_id
@@ -540,22 +589,29 @@ const onSubmitHandler = async () => {
       "items[" + x + "][quantity]",
       formData.value.items[x].quantity
     );
-    frmData.append(
-      "items[" + x + "][duration]",
-      formData.value.items[x].duration
-    );
-    frmData.append(
-      "items[" + x + "][special_request]",
-      formData.value.items[x].special_request
-    );
+    if (formData.value.items[x].duration) {
+      frmData.append(
+        "items[" + x + "][duration]",
+        formData.value.items[x].duration
+      );
+    }
+    if (formData.value.items[x].special_request) {
+      frmData.append(
+        "items[" + x + "][special_request]",
+        formData.value.items[x].special_request
+      );
+    }
     frmData.append(
       "items[" + x + "][selling_price]",
       formData.value.items[x].selling_price
     );
-    frmData.append(
-      "items[" + x + "][comment]",
-      formData.value.items[x].comment
-    );
+    if (formData.value.items[x].comment) {
+      frmData.append(
+        "items[" + x + "][comment]",
+        formData.value.items[x].comment
+      );
+    }
+    // console.log(formData.value.items[x].comment, "this is comment");
     frmData.append(
       "items[" + x + "][reservation_status]",
       formData.value.items[x].reservation_status
@@ -564,18 +620,22 @@ const onSubmitHandler = async () => {
       "items[" + x + "][payment_method]",
       formData.value.items[x].payment_method
     );
-    frmData.append(
-      "items[" + x + "][payment_status]",
-      formData.value.items[x].payment_status
-    );
-    frmData.append(
-      "items[" + x + "][exchange_rate]",
-      formData.value.items[x].exchange_rate
-    );
-    frmData.append(
-      "items[" + x + "][cost_price]",
-      formData.value.items[x].cost_price
-    );
+    formData.value.items[x].payment_status
+      ? frmData.append(
+          "items[" + x + "][payment_status]",
+          formData.value.items[x].payment_status
+        )
+      : "";
+    // frmData.append(
+    //   "items[" + x + "][exchange_rate]",
+    //   formData.value.items[x].exchange_rate
+    // );
+    formData.value.items[x].exchange_rate
+      ? frmData.append(
+          "items[" + x + "][exchange_rate]",
+          formData.value.items[x].exchange_rate
+        )
+      : "";
   }
 
   try {
@@ -644,7 +704,7 @@ const closedes = () => {
 };
 const clickdetaildes = ref(false);
 const itemDes = ref();
-const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s, file) => {
+const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s, file, i, o) => {
   console.log(a, b, index);
   clickdetaildes.value = true;
   itemDes.value = a;
@@ -657,6 +717,8 @@ const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s, file) => {
   itemType.value = t;
   itemRoutePlan.value = r;
   itemFile.value = file;
+  itemCheckIn.value = i;
+  itemCheckOut.value = o;
 };
 const itemType = ref("");
 const itemRoutePlan = ref("");
@@ -665,6 +727,8 @@ const indexValue = ref("");
 const itemPickup = ref("");
 const itemDropoff = ref("");
 const itemPickupTime = ref("");
+const itemCheckIn = ref("");
+const itemCheckOut = ref("");
 
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
@@ -672,8 +736,20 @@ const clickdetaildesUpdate = (x) => {
   formData.value.items[x].service_date = itemServiceDate.value;
   formData.value.items[x].pickup_location = itemPickup.value;
   formData.value.items[x].customer_attachment = itemFile;
+  formData.value.items[x].checkin_date = itemCheckIn.value;
+  formData.value.items[x].checkout_date = itemCheckOut.value;
+
   formData.value.items[x].dropoff_location = itemDropoff.value;
   formData.value.items[x].route_plan = itemRoutePlan.value;
+  if (itemCheckIn.value && itemCheckOut.value) {
+    let oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    let startDateTimestamp = new Date(itemCheckIn.value).getTime();
+    let endDateTimestamp = new Date(itemCheckOut.value).getTime();
+    let result = Math.abs(
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+    );
+    formData.value.items[x].quantity = result + 1;
+  }
   clickdetaildes.value = false;
 };
 
@@ -688,6 +764,8 @@ const clickdetaildesClose = () => {
   itemPickup.value = "";
   itemPickupTime.value = "";
   itemDropoff.value = "";
+  itemCheckIn.value = "";
+  itemCheckOut.value = "";
 };
 
 const customerOpen = ref(false);
@@ -817,15 +895,7 @@ onMounted(async () => {
               </div>
               <div>
                 <p class="mb-2 text-xs text-[#ff613c]">Payment Status</p>
-                <!-- <v-select
-                  v-model="formData.payment_status"
-                  class="style-chooser bg-white rounded-lg"
-                  :options="payment_status"
-                  disabled
-                  label="name"
-                  :clearable="false"
-                  :reduce="(d) => d.name"
-                ></v-select> -->
+
                 <input
                   v-model="formData.payment_status"
                   :class="{
@@ -837,19 +907,6 @@ onMounted(async () => {
                   class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
-              <!-- <div>
-                <p class="mb-2 text-xs text-[#ff613c]">CRMID</p>
-
-                <input
-                  v-model="formData.crm_id"
-                  type="text"
-                  id="title"
-                  class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300 bg-white"
-                />
-                <p v-if="errors?.crm_id" class="mt-1 text-sm text-red-600">
-                  {{ errors.crm_id[0] }}
-                </p>
-              </div> -->
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
@@ -1022,10 +1079,34 @@ onMounted(async () => {
                       <p class="text-xs">Customer Attachment</p>
                       <input type="file" name="" @change="customerFile" id="" />
                     </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="formitem.product_type == '6'"
+                    >
+                      <p class="text-xs">Checkin Date</p>
+                      <input
+                        type="date"
+                        class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
+                        id=""
+                        v-model="formitem.checkin_date"
+                      />
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="formitem.product_type == '6'"
+                    >
+                      <p class="text-xs">Checkout Date</p>
+                      <input
+                        type="date"
+                        class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
+                        id=""
+                        v-model="formitem.checkout_date"
+                      />
+                    </div>
                     <div class="flex items-center justify-between">
                       <button @click="closedes" class="text-sm">close</button>
                       <button
-                        @click="closedes"
+                        @click="calculateRateRoom"
                         class="px-2 py-1 text-sm text-white bg-[#ff613c] rounded"
                       >
                         + add
@@ -1145,6 +1226,30 @@ onMounted(async () => {
                     >
                       <p class="text-sm">customer_attachment</p>
                       <p>...</p>
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="itemType == '6'"
+                    >
+                      <p class="text-sm">Checkin Date</p>
+                      <input
+                        type="date"
+                        class="p-2 border border-gray-300 focus:outline-none rounded-sm text-xs"
+                        v-model="itemCheckIn"
+                        id=""
+                      />
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="itemType == '6'"
+                    >
+                      <p class="text-sm">Checkout Date</p>
+                      <input
+                        type="date"
+                        class="p-2 border border-gray-300 focus:outline-none rounded-sm text-xs"
+                        v-model="itemCheckOut"
+                        id=""
+                      />
                     </div>
                     <div class="flex items-center justify-between">
                       <button @click="clickdetaildesClose" class="text-sm">
@@ -1542,7 +1647,9 @@ onMounted(async () => {
                                 item.product_type,
                                 item.route_plan,
                                 item.service_date,
-                                item.customer_attachment
+                                item.customer_attachment,
+                                item.checkin_date,
+                                item.checkout_date
                               )
                             "
                           >

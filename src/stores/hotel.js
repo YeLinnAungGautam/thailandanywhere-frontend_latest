@@ -14,7 +14,7 @@ export const useHotelStore = defineStore("hotel", {
         console.log(response);
         return response.data;
       } catch (error) {
-        this.loading = false;
+        this.loading = true;
         throw error;
       }
     },
@@ -36,7 +36,7 @@ export const useHotelStore = defineStore("hotel", {
         console.log(response);
         return response.data;
       } catch (error) {
-        this.loading = false;
+        this.loading = true;
         throw error;
       }
     },
@@ -53,6 +53,7 @@ export const useHotelStore = defineStore("hotel", {
         const response = await axios.post("/hotels/" + id, data);
         return response.data;
       } catch (error) {
+        this.loading = true;
         throw error;
       }
     },
@@ -71,6 +72,9 @@ export const useHotelStore = defineStore("hotel", {
       } catch (error) {
         throw error;
       }
+    },
+    async toggleLoading() {
+      this.loading = !this.loading;
     },
   },
 });

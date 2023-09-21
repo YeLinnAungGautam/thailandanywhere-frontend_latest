@@ -22,6 +22,7 @@ import { useInclusiveStore } from "../stores/inclusion";
 import { useRoomStore } from "../stores/room";
 import { useHotelStore } from "../stores/hotel";
 import { useAirLineStore } from "../stores/airline";
+import { useAuthStore } from "../stores/auth";
 
 const enabled = ref(false);
 
@@ -39,6 +40,7 @@ const hotelStore = useHotelStore();
 const sidebar = useSidebarStore();
 const roomStore = useRoomStore();
 const airlineStore = useAirLineStore();
+const authStore = useAuthStore();
 
 const { customer, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);

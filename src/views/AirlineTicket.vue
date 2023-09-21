@@ -33,7 +33,7 @@
 
           <div class="mb-2 space-y-1">
             <label for="price" class="text-sm text-gray-800"
-              >Ticket Price</label
+              >AirTicket Field</label
             >
             <input
               type="text"
@@ -103,7 +103,7 @@
             </th>
 
             <th class="p-3 text-sm font-medium tracking-wide text-left">
-              Price
+              AirTicket Field
             </th>
             <th class="p-3 text-sm font-medium tracking-wide text-left w-30">
               Actions

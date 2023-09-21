@@ -613,51 +613,51 @@ const changeType = (a) => {
   }
 };
 
-const payment_part = ref(true);
+const payment_part = ref(false);
 const paymentHandle = () => {
   payment_part.value = !payment_part.value;
 };
 
-const customer_info_part = ref(true);
+const customer_info_part = ref(false);
 const customerHandle = () => {
   customer_info_part.value = !customer_info_part.value;
 };
 
-const feedback_part = ref(true);
+const feedback_part = ref(false);
 const feedbackHandle = () => {
   feedback_part.value = !feedback_part.value;
 };
 
-const receipt_part = ref(true);
+const receipt_part = ref(false);
 const receiptHandle = () => {
   receipt_part.value = !receipt_part.value;
 };
 
-const carInfo_part = ref(true);
+const carInfo_part = ref(false);
 const carInfoPartHandle = () => {
   carInfo_part.value = !carInfo_part.value;
 };
 
-const route_plan_part = ref(true);
+const route_plan_part = ref(false);
 const routePlanHandle = () => {
   route_plan_part.value = !route_plan_part.value;
 };
 
-const other_info_part = ref(true);
+const other_info_part = ref(false);
 const otherInfoHandle = () => {
   other_info_part.value = !other_info_part.value;
 };
 
-const reservation_info_part = ref(true);
+const reservation_info_part = ref(false);
 const reservationInfoHandle = () => {
   reservation_info_part.value = !reservation_info_part.value;
 };
-const expen_info_part = ref(true);
+const expen_info_part = ref(false);
 const expenInfoHandle = () => {
   expen_info_part.value = !expen_info_part.value;
 };
 
-const car_info_sec = ref(true);
+const car_info_sec = ref(false);
 const carInfoSecHandle = () => {
   car_info_sec.value = !car_info_sec.value;
 };

@@ -419,13 +419,7 @@ onMounted(async () => {
               @change="handlerFeatureFileChange"
               accept="image/*"
             />
-            <!-- <button
-              v-if="!featureImagePreview"
-              @click.prevent="openFileFeaturePicker"
-              class="text-sm text-blue-500"
-            >
-              + Upload
-            </button> -->
+
             <button
               class="text-sm text-red-600"
               v-if="!featureImagePreview"

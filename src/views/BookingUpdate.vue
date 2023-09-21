@@ -20,6 +20,7 @@ import { useSidebarStore } from "../stores/sidebar";
 import { useInclusiveStore } from "../stores/inclusion";
 import { useRoomStore } from "../stores/room";
 import { useHotelStore } from "../stores/hotel";
+import { useAirLineStore } from "../stores/airline";
 
 const enabled = ref(false);
 
@@ -36,6 +37,7 @@ const bookingStore = useBookingStore();
 const hotelStore = useHotelStore();
 const inclusiveStore = useInclusiveStore();
 const roomStore = useRoomStore();
+const airlineStore = useAirLineStore();
 
 const { customer, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
@@ -45,6 +47,7 @@ const { entrances } = storeToRefs(entranceStore);
 const { inclusives } = storeToRefs(inclusiveStore);
 const { rooms } = storeToRefs(roomStore);
 const { hotels } = storeToRefs(hotelStore);
+const { airlines } = storeToRefs(airlineStore);
 const { isOpenCustomerCreate } = storeToRefs(sidebar);
 
 const soldFrom = [
@@ -135,6 +138,7 @@ const formItemType = [
   { id: "4", name: "Entrance Ticket" },
   { id: "5", name: "Inclusive" },
   { id: "6", name: "Hotel Room" },
+  { id: "7", name: "AirLine" },
 ];
 
 const formData = ref({
@@ -260,6 +264,10 @@ const chooseType = async () => {
     await hotelStore.getSimpleListAction();
     productList.value = hotels.value.data;
     console.log(productList.value);
+  } else if (formitem.value.product_type == "7") {
+    await airlineStore.getSimpleListAction();
+    productList.value = airlines.value.data;
+    console.log(productList.value, "this is air");
   }
 };
 
@@ -429,6 +437,11 @@ const onSubmitHandler = async () => {
       formData.value.items[x].product_type == "App\\Models\\Hotel"
     ) {
       frmData.append("items[" + x + "][product_type]", `App\\Models\\Hotel`);
+    } else if (
+      formData.value.items[x].product_type == "7" ||
+      formData.value.items[x].product_type == "App\\Models\\Airline"
+    ) {
+      frmData.append("items[" + x + "][product_type]", `App\\Models\\Airline`);
     }
   }
   for (var x = 0; x < formData.value.items.length; x++) {
@@ -439,6 +452,14 @@ const onSubmitHandler = async () => {
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     if (
+      formData.value.items[x].product_type == "7" &&
+      !formData.value.items[x].ticket_id
+    ) {
+      frmData.append(
+        "items[" + x + "][ticket_id]",
+        formData.value.items[x].car_id
+      );
+    } else if (
       formData.value.items[x].product_type == "6" &&
       !formData.value.items[x].room_id
     ) {
@@ -676,6 +697,10 @@ const chooseCar = async (id) => {
     const res = await hotelStore.getDetailAction(id);
     // formitem.value.comment = res.result.description;
     carType.value = res.result.rooms;
+  } else if (formitem.value.product_type == "7") {
+    const res = await airlineStore.getDetailAction(id);
+    // formitem.value.comment = res.result.description;
+    carType.value = res.result.tickets;
   }
 };
 const chooseCarPrice = async (type, productId, id) => {
@@ -730,6 +755,18 @@ const chooseCarPrice = async (type, productId, id) => {
     formitem.value.extra_price = room.extra_price;
     formitem.value.comment = room.description;
     console.log(formitem.value.room);
+  } else if (type == "7") {
+    const res = await airlineStore.getDetailAction(productId);
+    formitem.value.car_list = res.result.tickets;
+    console.log(formitem.value.car_list);
+    for (let i = 0; i < res.result.tickets.length; i++) {
+      if (res.result.tickets[i].id == id) {
+        formitem.value.selling_price = res.result.tickets[i].price;
+        formitem.value.comment = res.result.tickets[i].description;
+        console.log(res.result.tickets[i].description);
+      }
+    }
+    console.log(res);
   }
 };
 
@@ -742,6 +779,9 @@ const checkType = (product) => {
   }
   if (product.rooms) {
     return product.rooms;
+  }
+  if (product.tickets) {
+    return product.tickets;
   }
 };
 
@@ -825,6 +865,9 @@ const getDetail = async () => {
         room_id: response.result.items[x].room
           ? response.result.items[x].room.id
           : "",
+        ticket_id: response.result.items[x].product.tickets
+          ? response.result.items[x].product.tickets[0].id
+          : "",
         variation_type: checkType(response.result.items[x].product),
         checkin_date: response.result.items[x].checkin_date
           ? response.result.items[x].checkin_date
@@ -834,6 +877,7 @@ const getDetail = async () => {
           : "",
       };
       formData.value.items.push(itemData);
+      console.log(itemData.ticket_id, "this is id");
     }
     choosePaymentBank();
     console.log(formData.value.items, "this is formData");
@@ -1037,6 +1081,7 @@ onMounted(async () => {
   await airportStore.getSimpleListAction();
   await entranceStore.getSimpleListAction();
   await inclusiveStore.getSimpleListAction();
+  await airlineStore.getSimpleListAction();
   await customerStore.getSimpleListAction();
   await hotelStore.getSimpleListAction();
   url.value =
@@ -1758,6 +1803,23 @@ onMounted(async () => {
                                 "
                               ></v-select>
                             </div>
+                            <div class="" v-if="formitem.product_type == '7'">
+                              <v-select
+                                v-model="formitem.car_id"
+                                class="style-chooser"
+                                :options="carType"
+                                label="price"
+                                :clearable="false"
+                                :reduce="(d) => d.id"
+                                @option:selected="
+                                  chooseCarPrice(
+                                    formitem.product_type,
+                                    formitem.product_id,
+                                    formitem.car_id
+                                  )
+                                "
+                              ></v-select>
+                            </div>
                           </td>
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -1918,6 +1980,15 @@ onMounted(async () => {
                               >
                                 <p class="inline-block text-sm">Hotel room</p>
                               </div>
+                              <div
+                                class="py-2 text-gray-600 text-md text-bold"
+                                v-if="
+                                  item.product_type == 'App\\Models\\Airline' ||
+                                  item.product_type == '7'
+                                "
+                              >
+                                <p class="inline-block text-sm">Airline</p>
+                              </div>
                             </div>
                           </td>
                           <td
@@ -2005,16 +2076,54 @@ onMounted(async () => {
                               :reduce="(d) => d.id"
                               placeholder="Choose product type"
                             ></v-select>
+                            <v-select
+                              v-if="
+                                item.product_type == 'App\\Models\\Airline' ||
+                                item.product_type == '7'
+                              "
+                              v-model="item.product_id"
+                              class="style-chooser"
+                              :options="airlines?.data"
+                              label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              placeholder="Choose product type"
+                            ></v-select>
                           </td>
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
                             <v-select
-                              v-if="item.car_id && !item.car_name"
+                              v-if="
+                                item.car_id &&
+                                !item.car_name &&
+                                item.product_type != '7'
+                              "
                               v-model="item.car_id"
                               class="style-chooser"
                               :options="item.car_list"
                               label="name"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              @option:selected="
+                                chooseSellingPrice(
+                                  item.car_id,
+                                  item.car_list,
+                                  index
+                                )
+                              "
+                              placeholder="Choose product type"
+                            ></v-select>
+                            <v-select
+                              v-if="
+                                item.car_id &&
+                                !item.car_name &&
+                                item.product_type == '7'
+                              "
+                              v-model="item.car_id"
+                              class="style-chooser"
+                              :options="item.car_list"
+                              label="price"
                               :clearable="false"
                               :reduce="(d) => d.id"
                               @option:selected="
@@ -2077,12 +2186,29 @@ onMounted(async () => {
                               "
                               placeholder="Choose product type"
                             ></v-select>
-
+                            <v-select
+                              v-if="item.ticket_id"
+                              v-model="item.ticket_id"
+                              class="style-chooser"
+                              :options="item.variation_type"
+                              label="price"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              @option:selected="
+                                chooseSellingPrice(
+                                  item.ticket_id,
+                                  item.variation_type,
+                                  index
+                                )
+                              "
+                              placeholder="Choose product type"
+                            ></v-select>
                             <p
                               v-if="
                                 !item.car_id &&
                                 !item.variation_name &&
-                                !item.room_name
+                                !item.room_name &&
+                                !item.ticket_id
                               "
                             >
                               -

@@ -22,7 +22,7 @@
             <label for="name" class="text-sm text-gray-800">Airline Name</label>
             <input
               type="text"
-              v-model="formData.airline_name"
+              v-model="formData.name"
               id="price"
               class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
@@ -66,6 +66,11 @@
               class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
           </div>
+          <div class="mb-2 space-y-1">
+            <p class="text-sm text-blue-600" v-if="link">
+              <a :href="link" target="_blink">link</a>
+            </p>
+          </div>
           <div class="text-end flex justify-end items-center">
             <p
               class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
@@ -86,7 +91,7 @@
           type="text"
           v-model="search"
           class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
-          placeholder="Search variations..."
+          placeholder="Search airlines..."
         />
 
         <AdjustmentsHorizontalIcon
@@ -108,11 +113,14 @@
               No.
             </th>
             <th class="p-3 text-sm font-medium tracking-wide text-left">
-              Name
+              Airline Name
+            </th>
+            <th class="p-3 text-sm font-medium tracking-wide text-left">
+              Legal Name
             </th>
 
             <th class="p-3 text-sm font-medium tracking-wide text-left">
-              Price
+              Starting Balance
             </th>
             <th class="p-3 text-sm font-medium tracking-wide text-left w-30">
               Actions
@@ -122,18 +130,21 @@
         <tbody class="divide-y divide-gray-100">
           <tr
             class="bg-white even:bg-gray-50 hover:bg-gray-50"
-            v-for="(r, index) in variations?.data"
+            v-for="(r, index) in airlines?.data"
             :key="index"
           >
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               {{ r.id }}
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-              {{ r.ticket?.name }}
+              {{ r.name }}
+            </td>
+            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+              {{ r.legal_name }}
             </td>
 
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-              {{ r.price }}
+              {{ r.starting_balance }}
             </td>
 
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
@@ -158,7 +169,7 @@
       </table>
     </div>
     <!-- pagination -->
-    <Pagination v-if="!loading" :data="variations" @change-page="changePage" />
+    <Pagination v-if="!loading" :data="airlines" @change-page="changePage" />
   </div>
 </template>
 
@@ -184,13 +195,13 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import Modal from "../components/Modal.vue";
-import { useVariationStore } from "../stores/variations";
+import { useAirLineStore } from "../stores/airline";
 
 const createModalOpen = ref(false);
 const toast = useToast();
-const variationStore = useVariationStore();
+const airlineStore = useAirLineStore();
 
-const { variations, loading } = storeToRefs(variationStore);
+const { airlines, loading } = storeToRefs(airlineStore);
 
 const search = ref("");
 const errors = ref([]);
@@ -199,16 +210,17 @@ const openModal = () => {
   createModalOpen.value = true;
   formData.value = {
     id: "",
-    airline_name: "",
+    name: "",
     contract: null,
     starting_balance: "",
     legal_name: "",
   };
+  link.value = "";
 };
 
 const formData = ref({
   id: "",
-  airline_name: "",
+  name: "",
   contract: null,
   starting_balance: "",
   legal_name: "",
@@ -216,25 +228,25 @@ const formData = ref({
 
 const addNewHandler = async () => {
   const frmData = new FormData();
-  frmData.append("airline_name", formData.value.airline_name);
+  frmData.append("name", formData.value.name);
   formData.value.contract
-    ? frmData.append("airline_name", formData.value.airline_name)
+    ? frmData.append("contract", formData.value.contract)
     : "";
   frmData.append("starting_balance", formData.value.starting_balance);
   frmData.append("legal_name", formData.value.legal_name);
 
   try {
-    const response = await variationStore.addNewAction(frmData);
+    const response = await airlineStore.addNewAction(frmData);
     formData.value = {
       id: "",
-      airline_name: "",
+      name: "",
       contract: null,
       starting_balance: "",
       legal_name: "",
     };
     errors.value = null;
     createModalOpen.value = false;
-    await variationStore.getListAction();
+    await airlineStore.getListAction();
     toast.success(response.message);
   } catch (error) {
     if (error.response.data.errors) {
@@ -246,29 +258,29 @@ const addNewHandler = async () => {
 
 const updateHandler = async () => {
   const frmData = new FormData();
-  frmData.append("airline_name", formData.value.airline_name);
+  frmData.append("name", formData.value.name);
   formData.value.contract
-    ? frmData.append("airline_name", formData.value.airline_name)
+    ? frmData.append("contract", formData.value.contract)
     : "";
   frmData.append("starting_balance", formData.value.starting_balance);
   frmData.append("legal_name", formData.value.legal_name);
 
   frmData.append("_method", "PUT");
   try {
-    const response = await variationStore.updateAction(
+    const response = await airlineStore.updateAction(
       frmData,
       formData.value.id
     );
     formData.value = {
       id: "",
-      airline_name: "",
+      name: "",
       contract: null,
       starting_balance: "",
       legal_name: "",
     };
     errors.value = null;
     createModalOpen.value = false;
-    await variationStore.getListAction();
+    await airlineStore.getListAction();
     toast.success(response.message);
   } catch (error) {
     if (error.response.data.errors) {
@@ -286,17 +298,20 @@ const onSubmitHandler = async () => {
   }
 };
 
+const link = ref("");
 const editModalOpenHandler = (data) => {
-  formData.airline_name = data.airline_name;
-  formData.starting_balance = data.starting_balance;
-  formData.legal_name = data.legal_name;
-
+  console.log(data);
+  formData.value.id = data.id;
+  formData.value.starting_balance = data.starting_balance;
+  formData.value.legal_name = data.legal_name;
+  formData.value.name = data.name;
+  link.value = data.contract;
   createModalOpen.value = true;
 };
 
 const changePage = async (url) => {
   console.log(url);
-  await variationStore.getChangePage(url);
+  await airlineStore.getChangePage(url);
 };
 
 const getFile = (e) => {
@@ -315,7 +330,7 @@ const onDeleteHandler = async (id) => {
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
-        const response = await variationStore.deleteAction(id);
+        const response = await airlineStore.deleteAction(id);
         toast.success(response.message);
       } catch (error) {
         if (error.response.data.errors) {
@@ -323,16 +338,16 @@ const onDeleteHandler = async (id) => {
         }
         toast.error(error.response.data.message);
       }
-      await variationStore.getListAction();
+      await airlineStore.getListAction();
     }
   });
 };
 
 onMounted(async () => {
-  await variationStore.getListAction();
+  await airlineStore.getListAction();
 });
 
 watch(search, async (newValue) => {
-  await variationStore.getListAction({ search: search.value });
+  await airlineStore.getListAction({ search: search.value });
 });
 </script>

@@ -25,11 +25,11 @@
             <v-select
               v-model="formData.entrance_ticket_id"
               class="style-chooser"
-              :options="bankName ?? []"
+              :options="entList ?? []"
               label="name"
               :clearable="false"
-              :reduce="(bank) => bank.name"
-              placeholder="Choose Bank"
+              :reduce="(entrance) => entrance.id"
+              placeholder="Choose entrance"
             ></v-select>
           </div>
           <div class="mb-2 space-y-1">
@@ -125,11 +125,14 @@
               No.
             </th>
             <th class="p-3 text-sm font-medium tracking-wide text-left">
-              Name
+              Price Name
             </th>
 
             <th class="p-3 text-sm font-medium tracking-wide text-left">
               Price
+            </th>
+            <th class="p-3 text-sm font-medium tracking-wide text-left">
+              Cost Price
             </th>
             <th class="p-3 text-sm font-medium tracking-wide text-left w-30">
               Actions
@@ -146,13 +149,15 @@
               {{ r.id }}
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-              {{ r.ticket?.name }}
+              {{ r.name }}
             </td>
 
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               {{ r.price }}
             </td>
-
+            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+              {{ r.cost_price }}
+            </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">
                 <button
@@ -201,12 +206,15 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import Modal from "../components/Modal.vue";
+import { useEntranceStore } from "../stores/entrance";
 import { useVariationStore } from "../stores/variations";
 
 const createModalOpen = ref(false);
 const toast = useToast();
+const entranceStore = useEntranceStore();
 const variationStore = useVariationStore();
 
+const { entrances } = storeToRefs(entranceStore);
 const { variations, loading } = storeToRefs(variationStore);
 
 const search = ref("");
@@ -240,7 +248,7 @@ const addNewHandler = async () => {
   frmData.append("description", formData.value.description);
   frmData.append("price", formData.value.price);
   frmData.append("cost_price", formData.value.cost_price);
-  frmData.append("price_name", formData.value.price_name);
+  frmData.append("name", formData.value.price_name);
 
   try {
     const response = await variationStore.addNewAction(frmData);
@@ -270,7 +278,7 @@ const updateHandler = async () => {
   frmData.append("description", formData.value.description);
   frmData.append("price", formData.value.price);
   frmData.append("cost_price", formData.value.cost_price);
-  frmData.append("price_name", formData.value.price_name);
+  frmData.append("name", formData.value.price_name);
 
   frmData.append("_method", "PUT");
   try {
@@ -308,9 +316,9 @@ const onSubmitHandler = async () => {
 
 const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
-  formData.value.entrance_ticket_id = data.entrance_ticket_id;
+  formData.value.entrance_ticket_id = data.entrance_ticket.id;
   formData.value.cost_price = data.cost_price;
-  formData.value.price_name = data.price_name;
+  formData.value.price_name = data.name;
   formData.value.price = data.price;
   formData.value.description = data.description;
   createModalOpen.value = true;
@@ -346,8 +354,11 @@ const onDeleteHandler = async (id) => {
   });
 };
 
+const entList = ref({});
 onMounted(async () => {
   await variationStore.getListAction();
+  await entranceStore.getSimpleListAction();
+  entList.value = entrances.value.data;
 });
 
 watch(search, async (newValue) => {

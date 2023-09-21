@@ -976,7 +976,7 @@ const clickdetaildesUpdate = (x) => {
     let result = Math.abs(
       Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
     );
-    formData.value.items[x].quantity = result + 1;
+    formData.value.items[x].quantity = result;
   }
   clickdetaildes.value = false;
 };

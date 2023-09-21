@@ -427,7 +427,7 @@ const calculateDaysBetween = () => {
     let result = Math.abs(
       Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
     );
-    formitem.value.quantity = result + 1;
+    formitem.value.quantity = result;
   }
 };
 

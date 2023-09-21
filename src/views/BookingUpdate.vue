@@ -21,6 +21,7 @@ import { useInclusiveStore } from "../stores/inclusion";
 import { useRoomStore } from "../stores/room";
 import { useHotelStore } from "../stores/hotel";
 import { useAirLineStore } from "../stores/airline";
+import { useAuthStore } from "../stores/auth";
 
 const enabled = ref(false);
 
@@ -38,6 +39,7 @@ const hotelStore = useHotelStore();
 const inclusiveStore = useInclusiveStore();
 const roomStore = useRoomStore();
 const airlineStore = useAirLineStore();
+const authStore = useAuthStore();
 
 const { customer, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
@@ -2266,6 +2268,7 @@ onMounted(async () => {
                               ></i>
                             </button>
                             <button
+                              v-if="authStore.user.is_super"
                               class="text-sm text-red-600"
                               @click.prevent="removeFromitem(index)"
                             >

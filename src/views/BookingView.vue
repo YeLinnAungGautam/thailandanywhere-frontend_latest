@@ -24,10 +24,12 @@ import Button from "../components/Button.vue";
 import { useRouter } from "vue-router";
 import { useBookingStore } from "../stores/booking";
 import { storeToRefs } from "pinia";
+import { useAuthStore } from "../stores/auth";
 
 const router = useRouter();
 const toast = useToast();
 const bookingStore = useBookingStore();
+const authStore = useAuthStore();
 
 const { bookings, loading } = storeToRefs(bookingStore);
 
@@ -223,6 +225,7 @@ watch(search, async (newValue) => {
                     </button>
                   </router-link>
                   <button
+                    v-if="authStore.user.is_super"
                     @click.prevent="onDeleteHandler(r.id)"
                     class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
                   >

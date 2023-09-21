@@ -21,6 +21,7 @@ import { useSidebarStore } from "../stores/sidebar";
 import { useInclusiveStore } from "../stores/inclusion";
 import { useRoomStore } from "../stores/room";
 import { useHotelStore } from "../stores/hotel";
+import { useAirLineStore } from "../stores/airline";
 
 const enabled = ref(false);
 
@@ -37,6 +38,7 @@ const inclusiveStore = useInclusiveStore();
 const hotelStore = useHotelStore();
 const sidebar = useSidebarStore();
 const roomStore = useRoomStore();
+const airlineStore = useAirLineStore();
 
 const { customer, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
@@ -44,6 +46,7 @@ const { grouptours } = storeToRefs(grouptourStore);
 const { airports } = storeToRefs(airportStore);
 const { inclusives } = storeToRefs(inclusiveStore);
 const { entrances } = storeToRefs(entranceStore);
+const { airlines } = storeToRefs(airlineStore);
 const { rooms } = storeToRefs(roomStore);
 const { hotels } = storeToRefs(hotelStore);
 const { isOpenCustomerCreate } = storeToRefs(sidebar);
@@ -126,6 +129,7 @@ const formItemType = [
   { id: "4", name: "Entrance Ticket", data: "AppModelsEntranceTicket" },
   { id: "5", name: "Inclusive", data: "AppModelsInclusive" },
   { id: "6", name: "Hotel Room", data: "AppModelsRoom" },
+  { id: "7", name: "AirLine", data: "AppModelsAirline" },
 ];
 
 const paymentArray = [
@@ -263,6 +267,10 @@ const chooseType = async () => {
     await hotelStore.getSimpleListAction();
     productList.value = hotels.value.data;
     console.log(productList.value);
+  } else if (formitem.value.product_type == "7") {
+    await airlineStore.getSimpleListAction();
+    productList.value = airlines.value.data;
+    console.log(productList.value, "this is air");
   }
 };
 const carType = ref([]);
@@ -290,7 +298,7 @@ const chooseCar = async (id) => {
     // formitem.value.comment = res.result.description;
     console.log(res, "choose");
     carType.value = res.result.variations;
-    console.log(res.result.variations[0].price);
+    // console.log(res.result.variations[0].price);
   } else if (formitem.value.product_type == "5") {
     const res = await inclusiveStore.getDetailAction(id);
     console.log(res);
@@ -300,6 +308,10 @@ const chooseCar = async (id) => {
     const res = await hotelStore.getDetailAction(id);
     // formitem.value.comment = res.result.description;
     roomType.value = res.result.rooms;
+  } else if (formitem.value.product_type == "7") {
+    const res = await airlineStore.getDetailAction(id);
+    console.log(res.result.tickets, "this is ");
+    carType.value = res.result.tickets;
   }
 };
 const chooseCarPrice = async (type, productId, id) => {
@@ -354,6 +366,18 @@ const chooseCarPrice = async (type, productId, id) => {
     formitem.value.extra_price = room.extra_price;
     formitem.value.comment = room.description;
     console.log(room);
+  } else if (type == "7") {
+    const res = await airlineStore.getDetailAction(productId);
+    formitem.value.car_list = res.result.tickets;
+    console.log(formitem.value.car_list);
+    for (let i = 0; i < res.result.tickets.length; i++) {
+      if (res.result.tickets[i].id == id) {
+        formitem.value.selling_price = res.result.tickets[i].price;
+        formitem.value.comment = res.result.tickets[i].description;
+        console.log(res.result.tickets[i].description);
+      }
+    }
+    console.log(res);
   }
 };
 const addNewitem = () => {
@@ -508,6 +532,8 @@ const onSubmitHandler = async () => {
       );
     } else if (formData.value.items[x].product_type == "6") {
       frmData.append("items[" + x + "][product_type]", `App\\Models\\Hotel`);
+    } else if (formData.value.items[x].product_type == "7") {
+      frmData.append("items[" + x + "][product_type]", `App\\Models\\Airline`);
     }
   }
 
@@ -570,14 +596,22 @@ const onSubmitHandler = async () => {
         formData.value.items[x].room_id
       );
     }
-    if (formData.value.items[x].product_type != "4") {
+    if (
+      formData.value.items[x].product_type != "4" &&
+      formData.value.items[x].product_type != "7"
+    ) {
       frmData.append(
         "items[" + x + "][car_id]",
         formData.value.items[x].car_id
       );
-    } else {
+    } else if (formData.value.items[x].product_type == "4") {
       frmData.append(
         "items[" + x + "][variation_id]",
+        formData.value.items[x].car_id
+      );
+    } else if (formData.value.items[x].product_type == "7") {
+      frmData.append(
+        "items[" + x + "][ticket_id]",
         formData.value.items[x].car_id
       );
     }
@@ -1385,6 +1419,23 @@ onMounted(async () => {
                               "
                             ></v-select>
                           </div>
+                          <div class="" v-if="formitem.product_type == '7'">
+                            <v-select
+                              v-model="formitem.car_id"
+                              class="style-chooser"
+                              :options="carType"
+                              label="price"
+                              :clearable="false"
+                              :reduce="(d) => d.id"
+                              @option:selected="
+                                chooseCarPrice(
+                                  formitem.product_type,
+                                  formitem.product_id,
+                                  formitem.car_id
+                                )
+                              "
+                            ></v-select>
+                          </div>
                           <div class="" v-if="formitem.product_type == '6'">
                             <v-select
                               v-model="formitem.room_id"
@@ -1511,7 +1562,8 @@ onMounted(async () => {
                           <p v-if="item.product_type == '3'">Airport</p>
                           <p v-if="item.product_type == '4'">Entrance</p>
                           <p v-if="item.product_type == '5'">Inclusive</p>
-                          <p v-if="item.product_type == '6'">Hotel / Room</p>
+                          <p v-if="item.product_type == '6'">Hotel</p>
+                          <p v-if="item.product_type == '7'">AirLine</p>
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -1578,17 +1630,39 @@ onMounted(async () => {
                             :reduce="(d) => d.id"
                             placeholder="Choose product type"
                           ></v-select>
+                          <v-select
+                            v-if="item.product_type == '7'"
+                            v-model="item.product_id"
+                            class="style-chooser"
+                            :options="airlines?.data"
+                            label="name"
+                            disabled
+                            :clearable="false"
+                            :reduce="(d) => d.id"
+                            placeholder="Choose product type"
+                          ></v-select>
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <v-select
-                            v-if="item.car_id"
+                            v-if="item.car_id && item.product_type != '7'"
                             v-model="item.car_id"
                             class="style-chooser"
                             disabled
                             :options="item.car_list"
                             label="name"
+                            :clearable="false"
+                            :reduce="(d) => d.id"
+                            placeholder="Choose product type"
+                          ></v-select>
+                          <v-select
+                            v-if="item.car_id && item.product_type == '7'"
+                            v-model="item.car_id"
+                            class="style-chooser"
+                            disabled
+                            :options="item.car_list"
+                            label="price"
                             :clearable="false"
                             :reduce="(d) => d.id"
                             placeholder="Choose product type"

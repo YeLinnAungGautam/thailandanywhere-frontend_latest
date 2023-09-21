@@ -129,7 +129,7 @@
                 class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
               />
             </div>
-            <div class="mb-2 space-y-2">
+            <!-- <div class="mb-2 space-y-2">
               <label for="name" class="text-sm text-gray-800"
                 >Contract Due Date</label
               >
@@ -138,7 +138,6 @@
                 type="date"
                 class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
               />
-              <!-- <p>{{ formData.contract_due }}</p> -->
             </div>
             <div class="mb-2 space-y-1">
               <label for="name" class="text-sm text-gray-800">Contracts</label>
@@ -159,7 +158,7 @@
                   >link</a
                 >
               </p>
-            </div>
+            </div> -->
             <div class="col-span-2">
               <p class="text-gray-800 text-sm mb-2">Description</p>
               <textarea
@@ -172,7 +171,7 @@
                 {{ errors.description[0] }}
               </p>
             </div>
-            <div class="col-span-2">
+            <div class="col-span-2" v-if="!formData.id">
               <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
                 <div class="flex items-center justify-start gap-3 mb-3">
                   <p>Images</p>
@@ -292,6 +291,116 @@
                 </p>
               </div>
             </div>
+            <div class="col-span-2" v-if="formData.id">
+              <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
+                <div class="flex items-center justify-between gap-3 mb-3">
+                  <p>Images</p>
+
+                  <div>
+                    <button
+                      class="text-sm text-blue-600"
+                      @click.prevent="openFileImagePicker"
+                    >
+                      <i
+                        class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
+                      ></i>
+                    </button>
+                  </div>
+                  <input
+                    multiple
+                    type="file"
+                    ref="imagesInput"
+                    class="hidden"
+                    @change="handlerImagesFileChange"
+                    accept="image/*"
+                  />
+                </div>
+                <div
+                  class="grid grid-cols-3 gap-2"
+                  v-if="imagesPreview.length != 0"
+                >
+                  <div
+                    class="relative"
+                    v-for="(image, index) in imagesPreview"
+                    :key="index"
+                  >
+                    <button
+                      @click.prevent="removeImageSelectImage(index)"
+                      class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                    >
+                      <XCircleIcon class="w-8 h-8 font-semibold" />
+                    </button>
+
+                    <img class="h-auto w-full rounded" :src="image" alt="" />
+                  </div>
+                </div>
+                <div
+                  class="grid grid-cols-3 gap-2 mb-6 bg-white rounded-md shadow"
+                  v-if="imagesPreview.length == 0"
+                >
+                  <div
+                    class="relative"
+                    v-for="(image, index) in formData.images"
+                    :key="index"
+                  >
+                    <img
+                      class="h-auto w-full rounded"
+                      :src="image.image"
+                      alt=""
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
+                <div class="flex items-center justify-between gap-3 mb-3">
+                  <p>Feature Image</p>
+                  <input
+                    type="file"
+                    ref="featureImageInput"
+                    class="hidden"
+                    @change="handlerFeatureFileChange"
+                    accept="image/*"
+                  />
+
+                  <button
+                    class="text-sm text-red-600"
+                    v-if="!featureImagePreview"
+                    @click.prevent="openFileFeaturePicker"
+                  >
+                    <i
+                      class="fa-solid fa-minus text-sm font-semibold px-2 py-1 bg-red-500 rounded-full shadow text-white"
+                    ></i>
+                  </button>
+                  <button
+                    v-else
+                    @click.prevent="removeFeatureSelectImage"
+                    class="text-sm text-red-500"
+                  >
+                    <i
+                      class="fa-solid fa-minus text-sm font-semibold px-2 py-1 bg-red-500 rounded-full shadow text-white"
+                    ></i>
+                  </button>
+                </div>
+
+                <div v-if="featureImagePreview" class="">
+                  <img
+                    v-if="featureImagePreview || !formData.cover_image"
+                    class="h-auto w-full rounded"
+                    :src="featureImagePreview"
+                    alt=""
+                  />
+                </div>
+                <div
+                  v-if="!featureImagePreview"
+                  class="p-2 bg-white rounded-md shadow"
+                >
+                  <img :src="editData.cover_image" alt="" class="w-full" />
+                </div>
+                <p v-if="errors?.image" class="mt-1 text-sm text-red-600">
+                  {{ errors.image[0] }}
+                </p>
+              </div>
+            </div>
           </div>
           <div class="text-end flex justify-end items-center">
             <p
@@ -340,7 +449,12 @@
             <th class="p-3 text-sm font-medium tracking-wide text-left">
               Ticket Name
             </th>
-
+            <th class="p-3 text-sm font-medium tracking-wide text-left">
+              Legal Name
+            </th>
+            <th class="p-3 text-sm font-medium tracking-wide text-left">
+              Place
+            </th>
             <th class="w-30 p-3 text-sm font-medium tracking-wide text-left">
               Actions
             </th>
@@ -370,7 +484,12 @@
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               {{ r.name }}
             </td>
-
+            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+              {{ r.legal_name }}
+            </td>
+            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+              {{ r.place }}
+            </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">
                 <button
@@ -575,6 +694,16 @@ const onDeleteHandler = async (id) => {
 };
 
 const onSubmitHandler = async () => {
+  if (formData.value.id) {
+    updateHandler();
+    console.log("update", formData.value.id);
+  } else {
+    addNewHandler();
+    console.log("doing add");
+  }
+};
+
+const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("description", formData.value.description);
@@ -584,15 +713,9 @@ const onSubmitHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
-  frmData.append("contract_due", formData.value.contract_due);
+
   console.log(formData.value.contracts);
-  if (formData.value.contracts) {
-    // frmData.append("contracts", formData.value.contracts);
-    for (let i = 0; i < formData.value.contracts.length; i++) {
-      let file = formData.value.contracts[i];
-      frmData.append("contracts[" + i + "]", file);
-    }
-  }
+
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -625,11 +748,79 @@ const onSubmitHandler = async () => {
       account_name: "",
       place: "",
       legal_name: "",
-      contract_due: "",
-      contracts: [],
     };
     errors.value = null;
     toast.success(response.message);
+    createModalOpen.value = false;
+    await entranceStore.getListAction();
+  } catch (error) {
+    console.log(
+      "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
+      error
+    );
+    if (error.response.data.errors) {
+      errors.value = error.response.data.errors;
+    }
+    toast.error(error.response.data.message);
+  }
+};
+
+const updateHandler = async () => {
+  const frmData = new FormData();
+  frmData.append("name", formData.value.name);
+  frmData.append("_method", "PUT");
+
+  frmData.append("description", formData.value.description);
+  frmData.append("account_name", formData.value.account_name);
+  frmData.append("place", formData.value.place);
+  frmData.append("payment_method", formData.value.payment_method);
+  frmData.append("bank_name", formData.value.bank_name);
+  frmData.append("bank_account_number", formData.value.bank_account_number);
+  frmData.append("legal_name", formData.value.legal_name);
+
+  console.log(formData.value.contracts);
+
+  if (formData.value.images.length > 0) {
+    for (let i = 0; i < formData.value.images.length; i++) {
+      let file = formData.value.images[i];
+      frmData.append("images[" + i + "]", file);
+    }
+  }
+  frmData.append("cover_image", formData.value.cover_image);
+  for (var x = 0; x < formData.value.city_id.length; x++) {
+    frmData.append("city_ids[" + x + "]", formData.value.city_id[x]);
+  }
+
+  for (var x = 0; x < formData.value.category.length; x++) {
+    frmData.append("category_ids[" + x + "]", formData.value.category[x]);
+  }
+
+  try {
+    const response = await entranceStore.updateAction(
+      frmData,
+      formData.value.id
+    );
+    formData.value = {
+      id: "",
+      name: "",
+      description: "",
+      cover_image: "",
+      city_id: [],
+      category: [],
+      images: [],
+      feature_image: "",
+      id: "",
+      payment_method: "",
+      bank_name: "",
+      bank_account_number: "",
+      account_name: "",
+      place: "",
+      legal_name: "",
+    };
+    errors.value = null;
+    toast.success(response.message);
+    createModalOpen.value = false;
+    await entranceStore.getListAction();
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
@@ -664,13 +855,21 @@ const updateEditCategoryData = () => {
 };
 const editModalOpenHandler = async (id) => {
   try {
-    const response = await vantourStore.getDetailAction(id);
+    const response = await entranceStore.getDetailAction(id);
+    console.log(response, "this is entrance");
     formData.value.name = response.result.name;
+    formData.value.id = id;
+
     formData.value.description = response.result.description;
+    formData.value.account_name = response.result.account_name;
+    formData.value.payment_method = response.result.payment_method;
+    formData.value.bank_name = response.result.bank_name;
+    formData.value.bank_account_number = response.result.bank_account_number;
+    formData.value.place = response.result.place;
+    formData.value.legal_name = response.result.legal_name;
 
     editData.value.cover_image = response.result.cover_image;
-    formData.value.provider = response.result.provider;
-    editData.value.tag = response.result.tags;
+
     editData.value.city_id = response.result.cities;
     editData.value.category = response.result.categories;
     formData.value.images = response.result.images;
@@ -681,6 +880,7 @@ const editModalOpenHandler = async (id) => {
     updateEditCityData();
 
     updateEditCategoryData();
+    createModalOpen.value = true;
   } catch (error) {
     console.log(error);
   }

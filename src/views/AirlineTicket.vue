@@ -3,7 +3,7 @@
     class="hidden p-6 mb-5 rounded-lg shadow-sm bg-white/60 md:col-span-3 md:block"
   >
     <h3 class="mb-3 text-xl font-medium tracking-wide text-gray-600">
-      Entrance Ticket
+      Airline Ticket
     </h3>
 
     <!-- modal -->
@@ -19,35 +19,24 @@
         </DialogTitle>
         <form @submit.prevent="onSubmitHandler" class="mt-2">
           <div class="mb-2 space-y-1">
-            <label for="name" class="text-sm text-gray-800"
-              >Entrance Ticket</label
-            >
+            <label for="name" class="text-sm text-gray-800">Airline Name</label>
             <v-select
-              v-model="formData.entrance_ticket_id"
+              v-model="formData.airline_id"
               class="style-chooser"
-              :options="entList ?? []"
+              :options="airList ?? []"
               label="name"
               :clearable="false"
-              :reduce="(entrance) => entrance.id"
-              placeholder="Choose entrance"
+              :reduce="(airline) => airline.id"
+              placeholder="Choose Airline"
             ></v-select>
           </div>
+
           <div class="mb-2 space-y-1">
-            <label for="price" class="text-sm text-gray-800">Price Name</label>
+            <label for="price" class="text-sm text-gray-800"
+              >Ticket Price</label
+            >
             <input
               type="text"
-              v-model="formData.price_name"
-              id="price"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.price" class="mt-1 text-sm text-red-600">
-              {{ errors.price[0] }}
-            </p>
-          </div>
-          <div class="mb-2 space-y-1">
-            <label for="price" class="text-sm text-gray-800">Price</label>
-            <input
-              type="number"
               v-model="formData.price"
               id="price"
               class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
@@ -56,33 +45,18 @@
               {{ errors.price[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1">
-            <label for="price" class="text-sm text-gray-800">Cost Price</label>
-            <input
-              type="number"
-              v-model="formData.cost_price"
-              id="cost_price"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.cost_price" class="mt-1 text-sm text-red-600">
-              {{ errors.cost_price[0] }}
-            </p>
-          </div>
-          <div class="mb-2 space-y-1">
-            <label for="description" class="text-sm text-gray-800"
-              >Description</label
-            >
+          <div class="col-span-2">
+            <p class="text-gray-800 text-sm mb-2">Description</p>
             <textarea
               v-model="formData.description"
               rows="3"
-              id="description"
-              class="w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              id="title"
+              class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
             />
             <p v-if="errors?.description" class="mt-1 text-sm text-red-600">
               {{ errors.description[0] }}
             </p>
           </div>
-
           <div class="text-end flex justify-end items-center">
             <p
               class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
@@ -103,7 +77,7 @@
           type="text"
           v-model="search"
           class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
-          placeholder="Search variations..."
+          placeholder="Search airtickets..."
         />
 
         <AdjustmentsHorizontalIcon
@@ -125,14 +99,11 @@
               No.
             </th>
             <th class="p-3 text-sm font-medium tracking-wide text-left">
-              Price Name
+              AirLine Name
             </th>
 
             <th class="p-3 text-sm font-medium tracking-wide text-left">
               Price
-            </th>
-            <th class="p-3 text-sm font-medium tracking-wide text-left">
-              Cost Price
             </th>
             <th class="p-3 text-sm font-medium tracking-wide text-left w-30">
               Actions
@@ -142,22 +113,20 @@
         <tbody class="divide-y divide-gray-100">
           <tr
             class="bg-white even:bg-gray-50 hover:bg-gray-50"
-            v-for="(r, index) in variations?.data"
+            v-for="(r, index) in airtickets?.data"
             :key="index"
           >
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               {{ r.id }}
             </td>
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-              {{ r.name }}
+              {{ r.airline?.name }}
             </td>
 
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               {{ r.price }}
             </td>
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-              {{ r.cost_price }}
-            </td>
+
             <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">
                 <button
@@ -180,7 +149,7 @@
       </table>
     </div>
     <!-- pagination -->
-    <Pagination v-if="!loading" :data="variations" @change-page="changePage" />
+    <Pagination v-if="!loading" :data="airtickets" @change-page="changePage" />
   </div>
 </template>
 
@@ -206,16 +175,16 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import Modal from "../components/Modal.vue";
-import { useEntranceStore } from "../stores/entrance";
-import { useVariationStore } from "../stores/variations";
+import { useAirTicketStore } from "../stores/airticket";
+import { useAirLineStore } from "../stores/airline";
 
 const createModalOpen = ref(false);
 const toast = useToast();
-const entranceStore = useEntranceStore();
-const variationStore = useVariationStore();
+const airticketStore = useAirTicketStore();
+const airlineStore = useAirLineStore();
 
-const { entrances } = storeToRefs(entranceStore);
-const { variations, loading } = storeToRefs(variationStore);
+const { airtickets, loading } = storeToRefs(airticketStore);
+const { airlines } = storeToRefs(airlineStore);
 
 const search = ref("");
 const errors = ref([]);
@@ -224,45 +193,37 @@ const openModal = () => {
   createModalOpen.value = true;
   formData.value = {
     id: "",
-    entrance_ticket_id: "",
+    airline_id: "",
     price: "",
-    price_name: "",
-    cost_price: "",
     description: "",
   };
 };
 
 const formData = ref({
   id: "",
-  entrance_ticket_id: "",
-  cost_price: "",
-  price_name: "",
+  airline_id: "",
   price: "",
   description: "",
 });
 
 const addNewHandler = async () => {
   const frmData = new FormData();
-  frmData.append("entrance_ticket_id", formData.value.entrance_ticket_id);
 
-  frmData.append("description", formData.value.description);
+  frmData.append("airline_id", formData.value.airline_id);
   frmData.append("price", formData.value.price);
-  frmData.append("cost_price", formData.value.cost_price);
-  frmData.append("name", formData.value.price_name);
+  frmData.append("description", formData.value.description);
 
   try {
-    const response = await variationStore.addNewAction(frmData);
+    const response = await airticketStore.addNewAction(frmData);
     formData.value = {
       id: "",
-      entrance_ticket_id: "",
-      cost_price: "",
-      price_name: "",
+      airline_id: "",
       price: "",
       description: "",
     };
     errors.value = null;
     createModalOpen.value = false;
-    await variationStore.getListAction();
+    await airticketStore.getListAction();
     toast.success(response.message);
   } catch (error) {
     if (error.response.data.errors) {
@@ -274,29 +235,25 @@ const addNewHandler = async () => {
 
 const updateHandler = async () => {
   const frmData = new FormData();
-  frmData.append("entrance_ticket_id", formData.value.entrance_ticket_id);
-  frmData.append("description", formData.value.description);
+  frmData.append("airline_id", formData.value.airline_id);
   frmData.append("price", formData.value.price);
-  frmData.append("cost_price", formData.value.cost_price);
-  frmData.append("name", formData.value.price_name);
+  frmData.append("description", formData.value.description);
 
   frmData.append("_method", "PUT");
   try {
-    const response = await variationStore.updateAction(
+    const response = await airticketStore.updateAction(
       frmData,
       formData.value.id
     );
     formData.value = {
       id: "",
-      entrance_ticket_id: "",
-      cost_price: "",
-      price_name: "",
+      airline_id: "",
       price: "",
       description: "",
     };
     errors.value = null;
     createModalOpen.value = false;
-    await variationStore.getListAction();
+    await airticketStore.getListAction();
     toast.success(response.message);
   } catch (error) {
     if (error.response.data.errors) {
@@ -315,18 +272,16 @@ const onSubmitHandler = async () => {
 };
 
 const editModalOpenHandler = (data) => {
-  formData.value.id = data.id;
-  formData.value.entrance_ticket_id = data.entrance_ticket.id;
-  formData.value.cost_price = data.cost_price;
-  formData.value.price_name = data.name;
+  formData.value.airline_id = data.airline.id;
   formData.value.price = data.price;
   formData.value.description = data.description;
+  formData.value.id = data.id;
   createModalOpen.value = true;
 };
 
 const changePage = async (url) => {
   console.log(url);
-  await variationStore.getChangePage(url);
+  await airticketStore.getChangePage(url);
 };
 
 const onDeleteHandler = async (id) => {
@@ -341,7 +296,7 @@ const onDeleteHandler = async (id) => {
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
-        const response = await variationStore.deleteAction(id);
+        const response = await airticketStore.deleteAction(id);
         toast.success(response.message);
       } catch (error) {
         if (error.response.data.errors) {
@@ -349,19 +304,19 @@ const onDeleteHandler = async (id) => {
         }
         toast.error(error.response.data.message);
       }
-      await variationStore.getListAction();
+      await airticketStore.getListAction();
     }
   });
 };
 
-const entList = ref({});
+const airList = ref({});
 onMounted(async () => {
-  await variationStore.getListAction();
-  await entranceStore.getSimpleListAction();
-  entList.value = entrances.value.data;
+  await airticketStore.getListAction();
+  await airlineStore.getSimpleListAction();
+  airList.value = airlines.value.data;
 });
 
 watch(search, async (newValue) => {
-  await variationStore.getListAction({ search: search.value });
+  await airticketStore.getListAction({ search: search.value });
 });
 </script>

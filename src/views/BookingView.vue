@@ -148,6 +148,7 @@ watch(search, async (newValue) => {
                 <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
                   {{ r.customer.name }}
                 </div>
+
                 <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
                   {{ r.crm_id }}
                 </div>
@@ -269,6 +270,9 @@ watch(search, async (newValue) => {
                     </p>
                     <p v-if="d.product_type == 'App\\Models\\Hotel'">
                       Hotel / Roam
+                    </p>
+                    <p v-if="d.product_type == 'App\\Models\\Airline'">
+                      Airline
                     </p>
                   </div>
                   <div

@@ -42,6 +42,7 @@ const product_type = [
   { id: "3", name: "Private Van Tour", type: "App\\Models\\PrivateVanTour" },
   { id: "4", name: "Group Tour", type: "App\\Models\\GroupTour" },
   { id: "5", name: "Airport Pickup", type: "App\\Models\\AirportPickup" },
+
   { id: "6", name: "ALL", type: "" },
 ];
 
@@ -160,6 +161,15 @@ watch(searchId, async (newValue) => {
           >
             Hotel
           </p>
+          <p
+            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            @click="searchValue('App\\Models\\Airline')"
+            :class="
+              search == 'App\\Models\\Airline' ? 'bg-[#ff613c] text-white' : ''
+            "
+          >
+            Airline
+          </p>
         </div>
         <div>
           <input
@@ -226,6 +236,9 @@ watch(searchId, async (newValue) => {
                 </p>
                 <p v-if="d.product_type == 'App\\Models\\Hotel'">
                   Hotel & Room
+                </p>
+                <p v-if="d.product_type == 'App\\Models\\Airline'">
+                  Airline
                 </p>
               </div>
               <div

@@ -165,20 +165,25 @@ const formData = ref({
 const sub_total = computed(() => {
   let totalsub = 0;
   for (let i = 0; i < formData.value.items.length; i++) {
-    totalsub =
-      totalsub +
-      formData.value.items[i].selling_price *
-        formData.value.items[i].quantity *
-        1;
+    totalsub = totalsub + formData.value.items[i].total_amount;
   }
   return totalsub;
 });
 
 const sub_qty_total = computed(() => {
   let totalsub = 0;
-  totalsub = formitem.value.quantity * formitem.value.selling_price;
-  formitem.value.total_amount = totalsub;
-  return totalsub;
+  if (formitem.value.days) {
+    totalsub =
+      formitem.value.quantity *
+      formitem.value.selling_price *
+      formitem.value.days;
+    formitem.value.total_amount = totalsub;
+    return totalsub;
+  } else {
+    totalsub = formitem.value.quantity * formitem.value.selling_price;
+    formitem.value.total_amount = totalsub;
+    return totalsub;
+  }
 });
 
 const grand_total = computed(() => {
@@ -223,6 +228,7 @@ const formitem = ref({
   room: null,
   service_date: "",
   quantity: "1",
+  days: "",
   duration: "",
   selling_price: "",
   comment: "",
@@ -374,7 +380,7 @@ const chooseCarPrice = async (type, productId, id) => {
     console.log(formitem.value.car_list);
     for (let i = 0; i < res.result.tickets.length; i++) {
       if (res.result.tickets[i].id == id) {
-        formitem.value.selling_price = res.result.tickets[i].price;
+        // formitem.value.selling_price = res.result.tickets[i].price;
         formitem.value.comment = res.result.tickets[i].description;
         console.log(res.result.tickets[i].description);
       }
@@ -392,6 +398,7 @@ const addNewitem = () => {
     car_id: "",
     car_list: [],
     quantity: "1",
+    days: "",
     room_id: "",
     duration: "",
     selling_price: "",
@@ -429,7 +436,7 @@ const calculateDaysBetween = () => {
     let result = Math.abs(
       Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
     );
-    formitem.value.quantity = result;
+    formitem.value.days = result;
   }
 };
 
@@ -625,6 +632,9 @@ const onSubmitHandler = async () => {
       "items[" + x + "][quantity]",
       formData.value.items[x].quantity
     );
+    formData.value.days
+      ? frmData.append("items[" + x + "][days]", formData.value.items[x].days)
+      : "";
     if (formData.value.items[x].duration) {
       frmData.append(
         "items[" + x + "][duration]",
@@ -740,7 +750,21 @@ const closedes = () => {
 };
 const clickdetaildes = ref(false);
 const itemDes = ref();
-const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s, file, i, o) => {
+const clickdetaildesToggle = (
+  a,
+  b,
+  c,
+  x,
+  d,
+  index,
+  t,
+  r,
+  s,
+  file,
+  i,
+  o,
+  days
+) => {
   console.log(a, b, index);
   clickdetaildes.value = true;
   itemDes.value = a;
@@ -755,6 +779,7 @@ const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s, file, i, o) => {
   itemFile.value = file;
   itemCheckIn.value = i;
   itemCheckOut.value = o;
+  itemDays.value = days;
 };
 const itemType = ref("");
 const itemRoutePlan = ref("");
@@ -765,6 +790,7 @@ const itemDropoff = ref("");
 const itemPickupTime = ref("");
 const itemCheckIn = ref("");
 const itemCheckOut = ref("");
+const itemDays = ref("");
 
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
@@ -784,7 +810,7 @@ const clickdetaildesUpdate = (x) => {
     let result = Math.abs(
       Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
     );
-    formData.value.items[x].quantity = result + 1;
+    formData.value.items[x].days = result;
   }
   clickdetaildes.value = false;
 };
@@ -1139,6 +1165,19 @@ onMounted(async () => {
                         v-model="formitem.checkout_date"
                       />
                     </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="formitem.product_type == '6'"
+                    >
+                      <p class="text-xs">Days</p>
+                      <input
+                        type="number"
+                        disabled
+                        class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
+                        id=""
+                        v-model="formitem.days"
+                      />
+                    </div>
                     <div class="flex items-center justify-between">
                       <button @click="closedes" class="text-sm">close</button>
                       <button
@@ -1285,6 +1324,19 @@ onMounted(async () => {
                         class="p-2 border border-gray-300 focus:outline-none rounded-sm text-xs"
                         v-model="itemCheckOut"
                         id=""
+                      />
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="itemType == '6'"
+                    >
+                      <p class="text-xs">Days</p>
+                      <input
+                        type="number"
+                        disabled
+                        class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
+                        id=""
+                        v-model="itemDays"
                       />
                     </div>
                     <div class="flex items-center justify-between">
@@ -1478,7 +1530,15 @@ onMounted(async () => {
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <p>{{ formitem.selling_price }}</p>
+                          <p v-if="formitem.product_type != '7'">
+                            {{ formitem.selling_price }}
+                          </p>
+                          <input
+                            v-if="formitem.product_type == '7'"
+                            type="number"
+                            v-model="formitem.selling_price"
+                            class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
+                          />
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -1489,6 +1549,7 @@ onMounted(async () => {
                             class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
                           />
                         </td>
+
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
@@ -1694,7 +1755,9 @@ onMounted(async () => {
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <p>{{ item.selling_price }}</p>
+                          <p>
+                            {{ item.selling_price }}
+                          </p>
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -1704,7 +1767,12 @@ onMounted(async () => {
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <p>{{ item.selling_price * item.quantity }}</p>
+                          <p v-if="item.product_type != '6'">
+                            {{ item.selling_price * item.quantity }}
+                          </p>
+                          <p v-if="item.product_type == '6'">
+                            {{ item.selling_price * item.quantity * item.days }}
+                          </p>
                         </td>
 
                         <td
@@ -1725,7 +1793,8 @@ onMounted(async () => {
                                 item.service_date,
                                 item.customer_attachment,
                                 item.checkin_date,
-                                item.checkout_date
+                                item.checkout_date,
+                                item.days
                               )
                             "
                           >

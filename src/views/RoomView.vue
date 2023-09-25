@@ -185,7 +185,7 @@
       </table>
     </div>
     <!-- pagination -->
-    <Pagination v-if="!loading" :data="hotels" @change-page="changePage" />
+    <Pagination v-if="!loading" :data="rooms" @change-page="changePage" />
   </div>
 </template>
 

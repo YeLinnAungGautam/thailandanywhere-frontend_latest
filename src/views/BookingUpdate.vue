@@ -186,14 +186,16 @@ const sub_total = computed(() => {
 
 const grand_total = computed(() => {
   // console.log(sub_total.value, formData.value.discount);
-  if (formData.value.discount.trim().endsWith("%")) {
-    let remove = parseFloat(formData.value.discount);
-    let calculate = (sub_total.value * remove) / 100;
-    let final = sub_total.value - calculate;
-    return final;
-  } else {
-    let final = sub_total.value - formData.value.discount;
-    return final;
+  if (formData.value.discount != "" || formData.value.discount != null) {
+    if (formData.value.discount.trim().endsWith("%")) {
+      let remove = parseFloat(formData.value.discount);
+      let calculate = (sub_total.value * remove) / 100;
+      let final = sub_total.value - calculate;
+      return final;
+    } else {
+      let final = sub_total.value - formData.value.discount;
+      return final;
+    }
   }
 });
 
@@ -849,7 +851,11 @@ const getDetail = async () => {
     formData.value.comment = response.result.comment;
     formData.value.special_request = response.result.special_request;
     depositStoreValue.value = response.result.deposit;
-    formData.value.discount = response.result.discount;
+    if (formData.value.discount != "" || formData.value.discount != null) {
+      formData.value.discount = response.result.discount;
+    } else {
+      formData.value.discount = 0;
+    }
     formData.value.balance_due_date = response.result.balance_due_date;
     formData.value.deposit = response.result.deposit;
     formData.value.receipt_images = response.result.receipts;

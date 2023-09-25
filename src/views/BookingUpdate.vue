@@ -164,14 +164,22 @@ const formData = ref({
   special_request: "",
 });
 
+// const sub_total = computed(() => {
+//   let totalsub = 0;
+//   for (let i = 0; i < formData.value.items.length; i++) {
+//     totalsub =
+//       totalsub +
+//       formData.value.items[i].selling_price *
+//         formData.value.items[i].quantity *
+//         1;
+//   }
+//   return totalsub;
+// });
+
 const sub_total = computed(() => {
   let totalsub = 0;
   for (let i = 0; i < formData.value.items.length; i++) {
-    totalsub =
-      totalsub +
-      formData.value.items[i].selling_price *
-        formData.value.items[i].quantity *
-        1;
+    totalsub = totalsub + formData.value.items[i].total_amount;
   }
   return totalsub;
 });
@@ -209,11 +217,28 @@ const balance_due = computed(() => {
   }
 });
 
+// const sub_qty_total = computed(() => {
+//   let totalsub = 0;
+//   totalsub = formitem.value.quantity * formitem.value.selling_price;
+//   formitem.value.total_amount = totalsub;
+//   return totalsub;
+// });
+
 const sub_qty_total = computed(() => {
   let totalsub = 0;
-  totalsub = formitem.value.quantity * formitem.value.selling_price;
-  formitem.value.total_amount = totalsub;
-  return totalsub;
+  if (formitem.value.days) {
+    totalsub =
+      formitem.value.quantity *
+      formitem.value.selling_price *
+      formitem.value.days;
+    formitem.value.total_amount = totalsub;
+    console.log(formitem.value.total_amount, "this is total amount");
+    return totalsub;
+  } else {
+    totalsub = formitem.value.quantity * formitem.value.selling_price;
+    formitem.value.total_amount = totalsub;
+    return totalsub;
+  }
 });
 
 const formitem = ref({
@@ -221,6 +246,7 @@ const formitem = ref({
   product_id: "",
   service_date: "",
   quantity: "",
+  days: "",
   duration: "",
   selling_price: "",
   pickup_location: "",
@@ -289,6 +315,7 @@ const addNewitem = () => {
     product_id: "",
     service_date: "",
     quantity: "1",
+    days: "",
     duration: "",
     selling_price: "",
     car_id: "",
@@ -327,7 +354,20 @@ const calculateDaysBetween = () => {
     let result = Math.abs(
       Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
     );
-    formitem.value.quantity = result + 1;
+    formitem.value.days = result;
+  }
+};
+const daysBetween = (a, b) => {
+  console.log(a, b);
+  if (a && b) {
+    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    const startDateTimestamp = new Date(a).getTime();
+    const endDateTimestamp = new Date(b).getTime();
+    let result = Math.abs(
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+    );
+    console.log(formData.value.checkin_date, result, "this is result");
+    return result;
   }
 };
 
@@ -518,6 +558,9 @@ const onSubmitHandler = async () => {
       "items[" + x + "][quantity]",
       formData.value.items[x].quantity
     );
+  }
+  for (var x = 0; x < formData.value.items.length; x++) {
+    frmData.append("items[" + x + "][days]", formData.value.items[x].days);
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     formData.value.items[x].pickup_location
@@ -763,7 +806,7 @@ const chooseCarPrice = async (type, productId, id) => {
     console.log(formitem.value.car_list);
     for (let i = 0; i < res.result.tickets.length; i++) {
       if (res.result.tickets[i].id == id) {
-        formitem.value.selling_price = res.result.tickets[i].price;
+        // formitem.value.selling_price = res.result.tickets[i].price;
         formitem.value.comment = res.result.tickets[i].description;
         console.log(res.result.tickets[i].description);
       }
@@ -818,6 +861,9 @@ const getDetail = async () => {
         product_id: response.result.items[x].product_id,
         service_date: response.result.items[x].service_date,
         quantity: response.result.items[x].quantity,
+        days: response.result.items[x].days
+          ? response.result.items[x].days
+          : "",
         duration: response.result.items[x].duration,
         selling_price: response.result.items[x].selling_price,
         comment:
@@ -877,6 +923,20 @@ const getDetail = async () => {
         checkout_date: response.result.items[x].checkout_date
           ? response.result.items[x].checkout_date
           : "",
+        days: daysBetween(
+          response.result.items[x].checkin_date,
+          response.result.items[x].checkout_date
+        ),
+        total_amount: response.result.items[x].checkin_date
+          ? totalAmountCheck(
+              response.result.items[x].quantity,
+              response.result.items[x].selling_price,
+              daysBetween(
+                response.result.items[x].checkin_date,
+                response.result.items[x].checkout_date
+              )
+            )
+          : response.result.sub_total * 1,
       };
       formData.value.items.push(itemData);
       console.log(itemData.ticket_id, "this is id");
@@ -900,6 +960,13 @@ const changeType = (a) => {
   } else if (a == "App\\Models\\Inclusive") {
     return (a.value = "5");
   }
+};
+
+const totalAmountCheck = (q, s, d) => {
+  let totalsub = 0;
+  totalsub = q * s * d;
+  console.log(q, s, d, "this is total amount");
+  return totalsub;
 };
 
 const todayVali = ref("");
@@ -935,7 +1002,7 @@ const closedes = () => {
 };
 const clickdetaildes = ref(false);
 const itemDes = ref();
-const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s, i, o) => {
+const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s, i, o, days) => {
   console.log(a, b, index);
   clickdetaildes.value = true;
   itemDes.value = a;
@@ -949,11 +1016,12 @@ const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s, i, o) => {
   itemRoutePlan.value = r;
   itemCheckIn.value = i;
   itemCheckOut.value = o;
+  itemDays.value = days;
   console.log(itemCheckIn.value, itemCheckOut.value);
 };
 const itemType = ref("");
 const itemRoutePlan = ref("");
-
+const itemDays = ref("");
 const indexValue = ref("");
 const itemPickup = ref("");
 const itemDropoff = ref("");
@@ -978,7 +1046,7 @@ const clickdetaildesUpdate = (x) => {
     let result = Math.abs(
       Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
     );
-    formData.value.items[x].quantity = result;
+    formData.value.items[x].days = result;
   }
   clickdetaildes.value = false;
 };
@@ -1500,6 +1568,22 @@ onMounted(async () => {
                           v-model="formitem.checkout_date"
                         />
                       </div>
+                      <div
+                        class="grid grid-cols-1 space-y-2"
+                        v-if="
+                          formitem.product_type == '6' ||
+                          formitem.product_type == 'App\\Models\\Hotel'
+                        "
+                      >
+                        <p class="text-xs">Days</p>
+                        <input
+                          type="number"
+                          disabled
+                          class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
+                          id=""
+                          v-model="formitem.days"
+                        />
+                      </div>
                       <div class="flex items-center justify-between">
                         <button @click="closedes" class="text-sm">close</button>
                         <button
@@ -1664,6 +1748,21 @@ onMounted(async () => {
                           class="p-2 border border-gray-300 focus:outline-none rounded-sm text-xs"
                           v-model="itemCheckOut"
                           id=""
+                        />
+                      </div>
+                      <div
+                        class="grid grid-cols-1 space-y-2"
+                        v-if="
+                          itemType == '6' || itemType == 'App\\Models\\Hotel'
+                        "
+                      >
+                        <p class="text-xs">Days</p>
+                        <input
+                          type="number"
+                          disabled
+                          class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
+                          id=""
+                          v-model="itemDays"
                         />
                       </div>
                       <div class="flex items-center justify-between">
@@ -1845,7 +1944,15 @@ onMounted(async () => {
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
-                            <p>{{ formitem.selling_price }}</p>
+                            <p v-if="formitem.product_type != '7'">
+                              {{ formitem.selling_price }}
+                            </p>
+                            <input
+                              v-if="formitem.product_type == '7'"
+                              type="number"
+                              v-model="formitem.selling_price"
+                              class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
+                            />
                           </td>
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -2238,7 +2345,24 @@ onMounted(async () => {
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
-                            <p>{{ item.selling_price * item.quantity }}</p>
+                            <p
+                              v-if="
+                                item.product_type != 'App\\Models\\Hotel' &&
+                                item.product_type != '6'
+                              "
+                            >
+                              {{ item.selling_price * item.quantity }}
+                            </p>
+                            <p
+                              v-if="
+                                item.product_type == '6' ||
+                                item.product_type == 'App\\Models\\Hotel'
+                              "
+                            >
+                              {{
+                                item.selling_price * item.quantity * item.days
+                              }}
+                            </p>
                           </td>
 
                           <td
@@ -2258,7 +2382,8 @@ onMounted(async () => {
                                   item.route_plan,
                                   item.service_date,
                                   item.checkin_date,
-                                  item.checkout_date
+                                  item.checkout_date,
+                                  item.days
                                 )
                               "
                             >

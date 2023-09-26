@@ -509,7 +509,7 @@ const onSubmitHandler = async () => {
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
 
-  if (enabled == true) {
+  if (enabled) {
     frmData.append("is_past_info", "1");
     frmData.append("past_user_id", formData.value.past_user_id);
     frmData.append("past_crm_id", formData.value.past_crm_id);

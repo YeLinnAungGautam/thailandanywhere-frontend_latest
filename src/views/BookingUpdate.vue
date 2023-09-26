@@ -22,6 +22,7 @@ import { useRoomStore } from "../stores/room";
 import { useHotelStore } from "../stores/hotel";
 import { useAirLineStore } from "../stores/airline";
 import { useAuthStore } from "../stores/auth";
+import { useAdminStore } from "../stores/admin";
 
 const enabled = ref(false);
 
@@ -40,6 +41,7 @@ const inclusiveStore = useInclusiveStore();
 const roomStore = useRoomStore();
 const airlineStore = useAirLineStore();
 const authStore = useAuthStore();
+const adminStore = useAdminStore();
 
 const { customer, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
@@ -51,6 +53,7 @@ const { rooms } = storeToRefs(roomStore);
 const { hotels } = storeToRefs(hotelStore);
 const { airlines } = storeToRefs(airlineStore);
 const { isOpenCustomerCreate } = storeToRefs(sidebar);
+const { admin } = storeToRefs(adminStore);
 
 const soldFrom = [
   { id: "1", name: "Facebook" },
@@ -162,6 +165,9 @@ const formData = ref({
   balance_due_date: "",
   receipt_images: [],
   special_request: "",
+  past_user_id: "",
+  is_past_info: "",
+  past_crm_id: "",
 });
 
 // const sub_total = computed(() => {
@@ -253,6 +259,7 @@ const formitem = ref({
   selling_price: "",
   pickup_location: "",
   checkin_date: "",
+  room_number: "",
   checkout_date: "",
   pickup_time: "",
   customer_attachment: "",
@@ -336,6 +343,7 @@ const addNewitem = () => {
     cost_price: "",
     total_amount: "",
     checkin_date: "",
+    room_number: "",
     checkout_date: "",
   };
   todayVali.value = false;
@@ -408,6 +416,10 @@ const onSubmitHandler = async () => {
   frmData.append("sold_from", formData.value.sold_from);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
+
+  frmData.append("past_user_id", formData.value.past_user_id);
+  frmData.append("is_past_info", "1");
+  frmData.append("past_crm_id", formData.value.past_crm_id);
 
   frmData.append("payment_status", formData.value.payment_status);
   frmData.append("booking_date", formData.value.booking_date);
@@ -579,6 +591,12 @@ const onSubmitHandler = async () => {
           formData.value.items[x].checkin_date
         )
       : "";
+    formData.value.items[x].room_number
+      ? frmData.append(
+          "items[" + x + "][room_number]",
+          formData.value.items[x].room_number
+        )
+      : "";
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     formData.value.items[x].checkout_date
@@ -691,6 +709,9 @@ const onSubmitHandler = async () => {
       deposit: 0,
       balance_due_date: "",
       special_request: "",
+      past_user_id: "",
+      is_past_info: "",
+      past_crm_id: "",
     };
     balance_due.value = "";
     featureImagePreview.value = "";
@@ -849,6 +870,15 @@ const getDetail = async () => {
     formData.value.money_exchange_rate = response.result.money_exchange_rate;
     formData.value.crm_id = response.result.crm_id;
     formData.value.comment = response.result.comment;
+    formData.value.past_user_id = response.result.past_user_id
+      ? response.result.past_user_id
+      : "";
+    formData.value.past_crm_id = response.result.past_crm_id
+      ? response.result.past_crm_id
+      : "";
+    formData.value.is_past_info = response.result.is_past_info
+      ? response.result.is_past_info
+      : "";
     formData.value.special_request = response.result.special_request;
     depositStoreValue.value = response.result.deposit;
     if (formData.value.discount != "" || formData.value.discount != null) {
@@ -919,12 +949,15 @@ const getDetail = async () => {
         room_id: response.result.items[x].room
           ? response.result.items[x].room.id
           : "",
-        ticket_id: response.result.items[x].product.tickets
+        ticket_id: response.result.items[x].product?.tickets
           ? response.result.items[x].product.tickets[0].id
           : "",
         variation_type: checkType(response.result.items[x].product),
         checkin_date: response.result.items[x].checkin_date
           ? response.result.items[x].checkin_date
+          : "",
+        room_number: response.result.items[x].room_number
+          ? response.result.items[x].room_number
           : "",
         checkout_date: response.result.items[x].checkout_date
           ? response.result.items[x].checkout_date
@@ -1008,7 +1041,21 @@ const closedes = () => {
 };
 const clickdetaildes = ref(false);
 const itemDes = ref();
-const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s, i, o, days) => {
+const clickdetaildesToggle = (
+  a,
+  b,
+  c,
+  x,
+  d,
+  index,
+  t,
+  r,
+  s,
+  i,
+  o,
+  days,
+  room
+) => {
   console.log(a, b, index);
   clickdetaildes.value = true;
   itemDes.value = a;
@@ -1023,6 +1070,7 @@ const clickdetaildesToggle = (a, b, c, x, d, index, t, r, s, i, o, days) => {
   itemCheckIn.value = i;
   itemCheckOut.value = o;
   itemDays.value = days;
+  itemRoom.value = room;
   console.log(itemCheckIn.value, itemCheckOut.value);
 };
 const itemType = ref("");
@@ -1034,6 +1082,7 @@ const itemDropoff = ref("");
 const itemPickupTime = ref("");
 const itemCheckIn = ref("");
 const itemCheckOut = ref("");
+const itemRoom = ref("");
 
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
@@ -1042,6 +1091,7 @@ const clickdetaildesUpdate = (x) => {
   formData.value.items[x].pickup_location = itemPickup.value;
   formData.value.items[x].pickup_time = itemPickupTime.value;
   formData.value.items[x].checkin_date = itemCheckIn.value;
+  formData.value.items[x].room_number = itemRoom.value;
   formData.value.items[x].checkout_date = itemCheckOut.value;
   formData.value.items[x].dropoff_location = itemDropoff.value;
   formData.value.items[x].route_plan = itemRoutePlan.value;
@@ -1151,7 +1201,7 @@ const chooseSellingPrice = (id, arr, index) => {
 onMounted(async () => {
   loadingState.value = true;
   await getDetail();
-
+  await adminStore.getSimpleListAction();
   await vantourStore.getSimpleListAction();
   await grouptourStore.getSimpleListAction();
   await airportStore.getSimpleListAction();
@@ -1391,6 +1441,28 @@ onMounted(async () => {
                     {{ errors.money_exchange_rate[0] }}
                   </p>
                 </div>
+                <div v-if="authStore.isCashier">
+                  <p class="mb-2 text-xs text-[#ff613c]">Past User ID</p>
+
+                  <v-select
+                    v-model="formData.past_user_id"
+                    class="style-chooser bg-white rounded-lg"
+                    :options="admin?.data"
+                    label="name"
+                    :clearable="false"
+                    :reduce="(d) => d.id"
+                  ></v-select>
+                </div>
+                <div v-if="authStore.isCashier">
+                  <p class="mb-2 text-xs text-[#ff613c]">Past CRM ID</p>
+
+                  <input
+                    v-model="formData.past_crm_id"
+                    type="text"
+                    id="title"
+                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
               </div>
             </div>
             <div class="col-span-1 space-y-4 text-end">
@@ -1449,7 +1521,23 @@ onMounted(async () => {
                           v-model="formitem.special_request"
                         ></textarea>
                       </div>
-
+                      <div
+                        class="grid grid-cols-1 space-y-2"
+                        v-if="
+                          formitem.product_type == '6' ||
+                          formitem.product_type == 'App\\Models\\Hotel'
+                        "
+                      >
+                        <p class="text-xs">Rooms Number</p>
+                        <input
+                          type="text"
+                          v-model="formitem.room_number"
+                          name=""
+                          class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                          id=""
+                          placeholder="xxx , xxx , xxx"
+                        />
+                      </div>
                       <div
                         class="grid grid-cols-1 space-y-2"
                         v-if="
@@ -1651,7 +1739,22 @@ onMounted(async () => {
                           v-model="itemSpecial"
                         ></textarea>
                       </div>
-
+                      <div
+                        class="grid grid-cols-1 space-y-2"
+                        v-if="
+                          itemType == '6' || itemType == 'App\\Models\\Hotel'
+                        "
+                      >
+                        <p class="text-xs">Rooms Number</p>
+                        <input
+                          type="text"
+                          v-model="itemRoom"
+                          name=""
+                          class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                          id=""
+                          placeholder="xxx , xxx , xxx"
+                        />
+                      </div>
                       <div
                         class="grid grid-cols-1 space-y-2"
                         v-if="
@@ -2389,7 +2492,8 @@ onMounted(async () => {
                                   item.service_date,
                                   item.checkin_date,
                                   item.checkout_date,
-                                  item.days
+                                  item.days,
+                                  item.room_number
                                 )
                               "
                             >
@@ -2399,7 +2503,7 @@ onMounted(async () => {
                               ></i>
                             </button>
                             <button
-                              v-if="authStore.user.is_super"
+                              v-if="authStore.isSuperAdmin"
                               class="text-sm text-red-600"
                               @click.prevent="removeFromitem(index)"
                             >

@@ -225,7 +225,7 @@ watch(search, async (newValue) => {
                     </button>
                   </router-link>
                   <button
-                    v-if="authStore.user.is_super"
+                    v-if="authStore.isSuperAdmin"
                     @click.prevent="onDeleteHandler(r.id)"
                     class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
                   >

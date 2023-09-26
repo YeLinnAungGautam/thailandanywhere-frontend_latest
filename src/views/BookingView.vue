@@ -69,6 +69,13 @@ const onDeleteHandler = async (id) => {
 
 const search = ref("");
 
+const searchA = ref("");
+const searchArray = [
+  { id: 1, name: "all" },
+  { id: 2, name: "current" },
+  { id: 3, name: "past" },
+];
+
 const strippedNumber = (text) => {
   // Split the string by "_", and get the second part (index 1)
   return text.split("_")[1];
@@ -80,6 +87,9 @@ onMounted(async () => {
 
 watch(search, async (newValue) => {
   await bookingStore.getListAction({ crm_id: search.value });
+});
+watch(searchA, async (newValue) => {
+  await bookingStore.getListAction({ filter: searchA.value });
 });
 </script>
 
@@ -96,14 +106,26 @@ watch(search, async (newValue) => {
     <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
       <!-- search input sort filter -->
       <div class="flex items-center justify-between mb-5">
-        <div class="">
+        <div class="flex justify-start items-center">
           <input
             v-model="search"
             type="text"
             class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
             placeholder="Search for bookings.."
           />
+          <div class="">
+            <v-select
+              v-model="searchA"
+              class="style-chooser placeholder-sm bg-white rounded-lg w-[200px] text-gray-400"
+              :options="searchArray"
+              label="name"
+              :clearable="false"
+              :reduce="(d) => d.name"
+              placeholder="choose Filter ..."
+            ></v-select>
+          </div>
         </div>
+
         <div>
           <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>
           <select

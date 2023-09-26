@@ -7,6 +7,7 @@ import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import Modal from "../components/Modal.vue";
 import CustomerCreate from "../components/CustomerCreate.vue";
+import { Switch } from "@headlessui/vue";
 import { useToast } from "vue-toastification";
 import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
@@ -23,8 +24,6 @@ import { useHotelStore } from "../stores/hotel";
 import { useAirLineStore } from "../stores/airline";
 import { useAuthStore } from "../stores/auth";
 import { useAdminStore } from "../stores/admin";
-
-const enabled = ref(false);
 
 const toast = useToast();
 const sidebar = useSidebarStore();
@@ -232,6 +231,8 @@ const balance_due = computed(() => {
 //   return totalsub;
 // });
 
+const enabled = ref(false);
+
 const sub_qty_total = computed(() => {
   let totalsub = 0;
   if (formitem.value.days) {
@@ -409,6 +410,14 @@ const removeFeatureSelectImage = () => {
 
 const nullData = ref(" ");
 
+const statePast = computed(() => {
+  if (enabled.value == true) {
+    return true;
+  } else {
+    return false;
+  }
+});
+
 const onSubmitHandler = async () => {
   const frmData = new FormData();
   frmData.append("_method", "PUT");
@@ -416,10 +425,14 @@ const onSubmitHandler = async () => {
   frmData.append("sold_from", formData.value.sold_from);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
-
-  frmData.append("past_user_id", formData.value.past_user_id);
-  frmData.append("is_past_info", "1");
-  frmData.append("past_crm_id", formData.value.past_crm_id);
+  console.log(enabled, "this is status");
+  if (enabled == true) {
+    frmData.append("is_past_info", "1");
+    frmData.append("past_user_id", formData.value.past_user_id);
+    frmData.append("past_crm_id", formData.value.past_crm_id);
+  } else {
+    frmData.append("is_past_info", "0");
+  }
 
   frmData.append("payment_status", formData.value.payment_status);
   frmData.append("booking_date", formData.value.booking_date);
@@ -879,6 +892,7 @@ const getDetail = async () => {
     formData.value.is_past_info = response.result.is_past_info
       ? response.result.is_past_info
       : "";
+    enabled.value = response.result.is_past_info == "1" ? true : false;
     formData.value.special_request = response.result.special_request;
     depositStoreValue.value = response.result.deposit;
     if (formData.value.discount != "" || formData.value.discount != null) {
@@ -1054,7 +1068,8 @@ const clickdetaildesToggle = (
   i,
   o,
   days,
-  room
+  room,
+  quantity
 ) => {
   console.log(a, b, index);
   clickdetaildes.value = true;
@@ -1071,6 +1086,7 @@ const clickdetaildesToggle = (
   itemCheckOut.value = o;
   itemDays.value = days;
   itemRoom.value = room;
+  itemQ.value = quantity;
   console.log(itemCheckIn.value, itemCheckOut.value);
 };
 const itemType = ref("");
@@ -1083,6 +1099,7 @@ const itemPickupTime = ref("");
 const itemCheckIn = ref("");
 const itemCheckOut = ref("");
 const itemRoom = ref("");
+const itemQ = ref("");
 
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
@@ -1092,6 +1109,8 @@ const clickdetaildesUpdate = (x) => {
   formData.value.items[x].pickup_time = itemPickupTime.value;
   formData.value.items[x].checkin_date = itemCheckIn.value;
   formData.value.items[x].room_number = itemRoom.value;
+  formData.value.items[x].quantity = itemQ.value;
+
   formData.value.items[x].checkout_date = itemCheckOut.value;
   formData.value.items[x].dropoff_location = itemDropoff.value;
   formData.value.items[x].route_plan = itemRoutePlan.value;
@@ -1104,6 +1123,11 @@ const clickdetaildesUpdate = (x) => {
     );
     formData.value.items[x].days = result;
   }
+  let totalsub =
+    formData.value.items[x].quantity *
+    formData.value.items[x].selling_price *
+    formData.value.items[x].days;
+  formData.value.items[x].total_amount = totalsub;
   clickdetaildes.value = false;
 };
 
@@ -1441,19 +1465,19 @@ onMounted(async () => {
                     {{ errors.money_exchange_rate[0] }}
                   </p>
                 </div>
-                <div v-if="authStore.isCashier">
+                <div v-if="authStore.isCashier && statePast">
                   <p class="mb-2 text-xs text-[#ff613c]">Past User ID</p>
 
                   <v-select
                     v-model="formData.past_user_id"
-                    class="style-chooser bg-white rounded-lg"
+                    class="style-chooser bg-white rounded-lg text-xs"
                     :options="admin?.data"
                     label="name"
                     :clearable="false"
                     :reduce="(d) => d.id"
                   ></v-select>
                 </div>
-                <div v-if="authStore.isCashier">
+                <div v-if="authStore.isCashier && statePast">
                   <p class="mb-2 text-xs text-[#ff613c]">Past CRM ID</p>
 
                   <input
@@ -1463,6 +1487,25 @@ onMounted(async () => {
                     class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                   />
                 </div>
+              </div>
+              <div class="relative" v-if="authStore.isCashier">
+                <p class="mb-3 text-xs text-[#ff613c]">Is Past Info</p>
+
+                <Switch
+                  v-model="enabled"
+                  :class="enabled ? ' bg-orange-600' : 'bg-gray-500'"
+                  class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                >
+                  <span class="sr-only">Use setting</span>
+                  <span
+                    aria-hidden="true"
+                    :class="enabled ? 'translate-x-9' : 'translate-x-0'"
+                    class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                  />
+                </Switch>
+                <p class="text-xs text-gray-500 mt-3" v-if="!statePast">
+                  When it is current , you can't change past
+                </p>
               </div>
             </div>
             <div class="col-span-1 space-y-4 text-end">
@@ -1528,10 +1571,10 @@ onMounted(async () => {
                           formitem.product_type == 'App\\Models\\Hotel'
                         "
                       >
-                        <p class="text-xs">Rooms Number</p>
+                        <p class="text-xs">Total Number of Room</p>
                         <input
                           type="text"
-                          v-model="formitem.room_number"
+                          v-model="formitem.quantity"
                           name=""
                           class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                           id=""
@@ -1745,10 +1788,10 @@ onMounted(async () => {
                           itemType == '6' || itemType == 'App\\Models\\Hotel'
                         "
                       >
-                        <p class="text-xs">Rooms Number</p>
+                        <p class="text-xs">Total Number of Room</p>
                         <input
                           type="text"
-                          v-model="itemRoom"
+                          v-model="itemQ"
                           name=""
                           class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                           id=""
@@ -2493,7 +2536,8 @@ onMounted(async () => {
                                   item.checkin_date,
                                   item.checkout_date,
                                   item.days,
-                                  item.room_number
+                                  item.room_number,
+                                  item.quantity
                                 )
                               "
                             >

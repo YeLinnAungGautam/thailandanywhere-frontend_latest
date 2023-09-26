@@ -1503,6 +1503,9 @@ onMounted(async () => {
                     class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
                   />
                 </Switch>
+                <p class="text-xs text-gray-500 mt-3" v-if="!statePast">
+                  When it is current , you can't change past
+                </p>
               </div>
             </div>
             <div class="col-span-1 space-y-4 text-end">

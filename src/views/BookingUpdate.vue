@@ -181,13 +181,24 @@ const formData = ref({
 //   return totalsub;
 // });
 
-const sub_total = computed(() => {
-  let totalsub = 0;
+// const sub_total = computed(() => {
+//   let totalsub = 0;
+//   let total_sub = 0;
+//   for (let i = 0; i < formData.value.items.length; i++) {
+//     total_sub = totalsub + formData.value.items[i].total_amount;
+//   }
+//   console.log(total_sub, "this is total sub");
+//   return total_sub;
+// });
+
+const sub_total = ref("");
+const getSubTotal = () => {
+  let data = 0;
   for (let i = 0; i < formData.value.items.length; i++) {
-    totalsub = totalsub + formData.value.items[i].total_amount;
+    data = data + formData.value.items[i].total_amount;
   }
-  return totalsub;
-});
+  sub_total.value = data;
+};
 
 const grand_total = computed(() => {
   // console.log(sub_total.value, formData.value.discount);
@@ -980,6 +991,7 @@ const getDetail = async () => {
           response.result.items[x].checkin_date,
           response.result.items[x].checkout_date
         ),
+
         total_amount: response.result.items[x].checkin_date
           ? totalAmountCheck(
               response.result.items[x].quantity,
@@ -989,9 +1001,11 @@ const getDetail = async () => {
                 response.result.items[x].checkout_date
               )
             )
-          : response.result.sub_total * 1,
+          : response.result.items[x].selling_price *
+            response.result.items[x].quantity,
       };
       formData.value.items.push(itemData);
+      getSubTotal();
       console.log(itemData.ticket_id, "this is id");
     }
     choosePaymentBank();
@@ -2727,10 +2741,7 @@ onMounted(async () => {
                           click want update when deposit not change
                         </p>
                       </div>
-                      <div
-                        class="mt-6 mb-3 text-end"
-                        v-if="allowCreate && action == 'edit'"
-                      >
+                      <div class="mt-6 mb-3 text-end" v-if="allowCreate">
                         <Button
                           @click.prevent="onSubmitHandler"
                           class="py-2 px-14"
@@ -2738,10 +2749,7 @@ onMounted(async () => {
                           Update
                         </Button>
                       </div>
-                      <div
-                        class="mt-6 mb-3 text-end"
-                        v-if="!allowCreate && action == 'edit'"
-                      >
+                      <div class="mt-6 mb-3 text-end" v-if="!allowCreate">
                         <Button class="py-2 bg-gray-300 px-14"> Update </Button>
                       </div>
                     </div>

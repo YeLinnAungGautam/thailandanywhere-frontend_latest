@@ -6,6 +6,7 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
+import { Switch } from "@headlessui/vue";
 import CustomerCreate from "../components/CustomerCreate.vue";
 import Modal from "../components/Modal.vue";
 import { useToast } from "vue-toastification";
@@ -25,7 +26,7 @@ import { useAirLineStore } from "../stores/airline";
 import { useAuthStore } from "../stores/auth";
 import { useAdminStore } from "../stores/admin";
 
-const enabled = ref(false);
+// const enabled = ref(false);
 
 const toast = useToast();
 const router = useRouter();
@@ -491,15 +492,30 @@ const addToggle = () => {
   }
 };
 
+const enabled = ref(false);
+
+const statePast = computed(() => {
+  if (enabled.value == true) {
+    return true;
+  } else {
+    return false;
+  }
+});
+
 const onSubmitHandler = async () => {
   const frmData = new FormData();
   frmData.append("customer_id", formData.value.customer_id);
   frmData.append("sold_from", formData.value.sold_from);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
-  frmData.append("past_user_id", formData.value.past_user_id);
-  frmData.append("is_past_info", "1");
-  frmData.append("past_crm_id", formData.value.past_crm_id);
+
+  if (enabled == true) {
+    frmData.append("is_past_info", "1");
+    frmData.append("past_user_id", formData.value.past_user_id);
+    frmData.append("past_crm_id", formData.value.past_crm_id);
+  } else {
+    frmData.append("is_past_info", "0");
+  }
 
   frmData.append("payment_status", formData.value.payment_status);
   frmData.append("booking_date", formData.value.booking_date);
@@ -509,7 +525,10 @@ const onSubmitHandler = async () => {
     frmData.append("money_exchange_rate", 0);
   }
 
-  frmData.append("discount", formData.value.discount);
+  frmData.append(
+    "discount",
+    formData.value.discount == "" ? 0 : formData.value.discount
+  );
   // frmData.append("comment", formData.value.comment);
   frmData.append("sub_total", sub_total.value);
   frmData.append("grand_total", grand_total.value);
@@ -785,7 +804,8 @@ const clickdetaildesToggle = (
   i,
   o,
   days,
-  room
+  room,
+  quantity
 ) => {
   console.log(a, b, index);
   clickdetaildes.value = true;
@@ -803,6 +823,7 @@ const clickdetaildesToggle = (
   itemCheckOut.value = o;
   itemDays.value = days;
   itemRoom.value = room;
+  itemQ.value = quantity;
 };
 const itemType = ref("");
 const itemRoutePlan = ref("");
@@ -815,6 +836,7 @@ const itemCheckIn = ref("");
 const itemCheckOut = ref("");
 const itemDays = ref("");
 const itemRoom = ref("");
+const itemQ = ref("");
 
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
@@ -825,7 +847,7 @@ const clickdetaildesUpdate = (x) => {
   formData.value.items[x].checkin_date = itemCheckIn.value;
   formData.value.items[x].room_number = itemRoom.value;
   formData.value.items[x].checkout_date = itemCheckOut.value;
-
+  formData.value.items[x].quantity = itemQ.value;
   formData.value.items[x].dropoff_location = itemDropoff.value;
   formData.value.items[x].route_plan = itemRoutePlan.value;
   if (itemCheckIn.value && itemCheckOut.value) {
@@ -837,6 +859,11 @@ const clickdetaildesUpdate = (x) => {
     );
     formData.value.items[x].days = result;
   }
+  let totalsub =
+    formData.value.items[x].quantity *
+    formData.value.items[x].selling_price *
+    formData.value.items[x].days;
+  formData.value.items[x].total_amount = totalsub;
   clickdetaildes.value = false;
 };
 
@@ -996,17 +1023,21 @@ onMounted(async () => {
                   class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
-              <div v-if="authStore.isCashier">
-                <p class="mb-2 text-xs text-[#ff613c]">Past User ID</p>
+              <div class="relative" v-if="authStore.isCashier">
+                <p class="mb-3 text-xs text-[#ff613c]">Is Past Info</p>
 
-                <v-select
-                  v-model="formData.past_user_id"
-                  class="style-chooser bg-white rounded-lg"
-                  :options="admin?.data"
-                  label="name"
-                  :clearable="false"
-                  :reduce="(d) => d.id"
-                ></v-select>
+                <Switch
+                  v-model="enabled"
+                  :class="enabled ? ' bg-orange-600' : 'bg-gray-500'"
+                  class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                >
+                  <span class="sr-only">Use setting</span>
+                  <span
+                    aria-hidden="true"
+                    :class="enabled ? 'translate-x-9' : 'translate-x-0'"
+                    class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                  />
+                </Switch>
               </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
@@ -1050,7 +1081,19 @@ onMounted(async () => {
                   {{ errors.money_exchange_rate[0] }}
                 </p>
               </div>
-              <div v-if="authStore.isCashier">
+              <div v-if="authStore.isCashier && statePast">
+                <p class="mb-2 text-xs text-[#ff613c]">Past User ID</p>
+
+                <v-select
+                  v-model="formData.past_user_id"
+                  class="style-chooser bg-white rounded-lg"
+                  :options="admin?.data"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.id"
+                ></v-select>
+              </div>
+              <div v-if="authStore.isCashier && statePast">
                 <p class="mb-2 text-xs text-[#ff613c]">Past CRM ID</p>
 
                 <input
@@ -1058,18 +1101,6 @@ onMounted(async () => {
                   type="text"
                   id="title"
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
-                />
-              </div>
-              <div class="relative" v-if="authStore.isCashier">
-                <p class="mb-2 text-xs text-[#ff613c]">Is Past Info</p>
-
-                <input
-                  class="mr-2 mt-3 h-3.5 w-8 appearance-none rounded-[0.4375rem] bg-orange-300 before:pointer-events-none before:absolute before:h-3.5 before:w-3.5 before:rounded-full before:bg-transparent before:content-[''] after:absolute after:z-[2] after:-mt-[0.1875rem] after:h-5 after:w-5 after:rounded-full after:border-none after:bg-orange-100 after:shadow-[0_0px_3px_0_rgb(0_0_0_/_7%),_0_2px_2px_0_rgb(0_0_0_/_4%)] after:transition-[background-color_0.2s,transform_0.2s] after:content-[''] checked:bg-primary checked:after:absolute checked:after:z-[2] checked:after:-mt-[3px] checked:after:ml-[1.0625rem] checked:after:h-5 checked:after:w-5 checked:after:rounded-full checked:after:border-none checked:after:bg-primary checked:after:shadow-[0_3px_1px_-2px_rgba(0,0,0,0.2),_0_2px_2px_0_rgba(0,0,0,0.14),_0_1px_5px_0_rgba(0,0,0,0.12)] checked:after:transition-[background-color_0.2s,transform_0.2s] checked:after:content-[''] hover:cursor-pointer focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[3px_-1px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-5 focus:after:w-5 focus:after:rounded-full focus:after:content-[''] checked:focus:border-primary checked:focus:bg-primary checked:focus:before:ml-[1.0625rem] checked:focus:before:scale-100 checked:focus:before:shadow-[3px_-1px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] disabled:cursor-default disabled:opacity-60 dark:bg-orange-600 dark:after:bg-orange-400 dark:checked:bg-primary dark:checked:after:bg-primary dark:focus:before:shadow-[3px_-1px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:before:shadow-[3px_-1px_0px_13px_#3b71ca]"
-                  type="checkbox"
-                  role="switch"
-                  id="flexSwitchCheckCheckedDisabled"
-                  checked
-                  disabled
                 />
               </div>
             </div>
@@ -1132,10 +1163,10 @@ onMounted(async () => {
                       class="grid grid-cols-1 space-y-2"
                       v-if="formitem.product_type == '6'"
                     >
-                      <p class="text-xs">Rooms Number</p>
+                      <p class="text-xs">Total Number of Rooms</p>
                       <input
                         type="text"
-                        v-model="formitem.room_number"
+                        v-model="formitem.quantity"
                         name=""
                         class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         id=""
@@ -1318,9 +1349,9 @@ onMounted(async () => {
                       class="grid grid-cols-1 space-y-2"
                       v-if="itemType == '6'"
                     >
-                      <p class="text-xs">Rooms Number</p>
+                      <p class="text-xs">Total Number of Room</p>
                       <input
-                        v-model="itemRoom"
+                        v-model="itemQ"
                         type="text"
                         name=""
                         class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
@@ -1632,6 +1663,14 @@ onMounted(async () => {
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <input
+                            v-if="formitem.product_type == '6'"
+                            type="number"
+                            disabled
+                            v-model="formitem.quantity"
+                            class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
+                          />
+                          <input
+                            v-else
                             type="number"
                             v-model="formitem.quantity"
                             class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
@@ -1883,7 +1922,8 @@ onMounted(async () => {
                                 item.checkin_date,
                                 item.checkout_date,
                                 item.days,
-                                item.room_number
+                                item.room_number,
+                                item.quantity
                               )
                             "
                           >

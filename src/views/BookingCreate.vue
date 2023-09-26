@@ -509,13 +509,20 @@ const onSubmitHandler = async () => {
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
 
-  if (enabled) {
-    frmData.append("is_past_info", "1");
-    frmData.append("past_user_id", formData.value.past_user_id);
-    frmData.append("past_crm_id", formData.value.past_crm_id);
-  } else {
-    frmData.append("is_past_info", "0");
-  }
+  // if (enabled.value = true) {
+  //   frmData.append("is_past_info", "1");
+  //   frmData.append("past_user_id", formData.value.past_user_id);
+  //   frmData.append("past_crm_id", formData.value.past_crm_id);
+  // } else {
+  //   frmData.append("is_past_info", "0");
+  // }
+  frmData.append("is_past_info", enabled.value ? "1" : "0");
+  formData.value.past_crm_id
+    ? frmData.append("past_crm_id", formData.value.past_crm_id)
+    : "";
+  formData.value.past_user_id
+    ? frmData.append("past_user_id", formData.value.past_user_id)
+    : "";
 
   frmData.append("payment_status", formData.value.payment_status);
   frmData.append("booking_date", formData.value.booking_date);

@@ -37,13 +37,18 @@ const changePage = async (url) => {
   await adminStore.getChangePage(url);
 };
 
+const roleList = [
+  { id: "1", name: "Admin", value: "admin" },
+  { id: "2", name: "Super Admin", value: "super_admin" },
+  { id: "3", name: "Cashier", value: "cashier" },
+];
 const errors = ref([]);
 
 const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
   formData.value.email = data.email;
-  formData.value.is_super = data.is_super;
+  formData.value.role = data.role;
   adminModalOpen.value = true;
 };
 
@@ -80,7 +85,7 @@ const formData = ref({
   email: "",
   password: "",
   password_confirmation: "",
-  is_super: false,
+  role: "",
 });
 
 const addNewHandler = async () => {
@@ -89,11 +94,7 @@ const addNewHandler = async () => {
   frmData.append("email", formData.value.email);
   frmData.append("password", formData.value.password);
   frmData.append("password_confirmation", formData.value.password_confirmation);
-  let isSuperValue = 0;
-  if (formData.value.is_super) {
-    isSuperValue = 1;
-  }
-  frmData.append("is_super", isSuperValue);
+  frmData.append("role", formData.value.role);
   try {
     const response = await adminStore.addNewAction(frmData);
     formData.value = {
@@ -101,7 +102,7 @@ const addNewHandler = async () => {
       email: "",
       password: "",
       password_confirmation: "",
-      is_super: false,
+      role: "",
     };
     errors.value = null;
     adminModalOpen.value = false;
@@ -119,6 +120,7 @@ const updateHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("email", formData.value.email);
+  frmData.append("role", formData.value.role);
   if (formData.value.password && formData.value.password_confirmation) {
     frmData.append("password", formData.value.password);
     frmData.append(
@@ -169,7 +171,7 @@ watch(search, async (newValue) => {
   <Layout>
     <Modal :isOpen="adminModalOpen" @closeModal="adminModalOpen = false">
       <DialogPanel
-        class="w-full max-w-md p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
+        class="w-full max-w-md p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
       >
         <DialogTitle
           as="h3"
@@ -232,18 +234,17 @@ watch(search, async (newValue) => {
             </p>
           </div>
           <div class="mb-2 space-y-1">
-            <input
-              type="checkbox"
-              v-model="formData.is_super"
-              id="is_super"
-              class="w-4 h-4 px-4 py-2 mr-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-            <label for="is_super" class="text-sm text-gray-800"
-              >Is Super Admin</label
+            <label for="password_confirmation" class="text-sm text-gray-800"
+              >Role</label
             >
-            <p v-if="errors?.is_super" class="mt-1 text-sm text-red-600">
-              {{ errors.is_super[0] }}
-            </p>
+            <v-select
+              v-model="formData.role"
+              class="style-chooser placeholder-sm bg-white rounded-lg"
+              :options="roleList"
+              label="name"
+              :clearable="false"
+              :reduce="(d) => d.value"
+            ></v-select>
           </div>
           <div class="text-end">
             <Button type="submit"> Submit </Button>
@@ -299,7 +300,7 @@ watch(search, async (newValue) => {
                 Email
               </th>
               <th class="p-3 text-sm font-medium tracking-wide text-left">
-                Is Super Admin
+                Role
               </th>
               <th class="p-3 text-sm font-medium tracking-wide text-left">
                 Created At
@@ -328,7 +329,7 @@ watch(search, async (newValue) => {
                 {{ r.email }}
               </td>
               <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                {{ r.is_super }}
+                {{ r.role }}
               </td>
               <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
                 {{ r.created_at }}

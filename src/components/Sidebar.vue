@@ -93,7 +93,7 @@
             />
 
             <SidebarItem
-              v-if="authStore.user.is_super"
+              v-if="authStore.isSuperAdmin"
               name="Admins"
               :icon="UserCircleIcon"
               to="/admins"
@@ -210,6 +210,7 @@ onMounted(() => {
   if (window.innerWidth < 991) {
     sidebarStore.customSideBar();
   }
+  console.log(authStore.isAdmin);
 });
 </script>
 

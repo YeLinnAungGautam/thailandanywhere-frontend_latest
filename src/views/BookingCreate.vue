@@ -23,6 +23,7 @@ import { useRoomStore } from "../stores/room";
 import { useHotelStore } from "../stores/hotel";
 import { useAirLineStore } from "../stores/airline";
 import { useAuthStore } from "../stores/auth";
+import { useAdminStore } from "../stores/admin";
 
 const enabled = ref(false);
 
@@ -41,6 +42,7 @@ const sidebar = useSidebarStore();
 const roomStore = useRoomStore();
 const airlineStore = useAirLineStore();
 const authStore = useAuthStore();
+const adminStore = useAdminStore();
 
 const { customer, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
@@ -52,6 +54,7 @@ const { airlines } = storeToRefs(airlineStore);
 const { rooms } = storeToRefs(roomStore);
 const { hotels } = storeToRefs(hotelStore);
 const { isOpenCustomerCreate } = storeToRefs(sidebar);
+const { admin } = storeToRefs(adminStore);
 
 const soldFrom = [
   { id: "1", name: "Facebook" },
@@ -160,6 +163,9 @@ const formData = ref({
   due_date: "",
   deposit: 0,
   balance_due_date: "",
+  past_user_id: "",
+  is_past_info: "",
+  past_crm_id: "",
 });
 
 const sub_total = computed(() => {
@@ -235,6 +241,7 @@ const formitem = ref({
   reservation_status: "",
   payment_method: "",
   payment_status: "",
+
   exchange_rate: "",
   cost_price: "",
   special_request: "",
@@ -244,6 +251,7 @@ const formitem = ref({
   dropoff_location: "",
   route_plan: "",
   checkin_date: "",
+  room_number: "",
   checkout_date: "",
   customer_attachment: "",
 });
@@ -417,6 +425,7 @@ const addNewitem = () => {
     dropoff_location: "",
     checkin_date: "",
     checkout_date: "",
+    room_number: "",
   };
   todayVali.value = false;
   addToggle();
@@ -488,6 +497,9 @@ const onSubmitHandler = async () => {
   frmData.append("sold_from", formData.value.sold_from);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
+  frmData.append("past_user_id", formData.value.past_user_id);
+  frmData.append("is_past_info", "1");
+  frmData.append("past_crm_id", formData.value.past_crm_id);
 
   frmData.append("payment_status", formData.value.payment_status);
   frmData.append("booking_date", formData.value.booking_date);
@@ -582,6 +594,12 @@ const onSubmitHandler = async () => {
       frmData.append(
         "items[" + x + "][checkin_date]",
         formData.value.items[x].checkin_date
+      );
+    }
+    if (formData.value.items[x].room_number) {
+      frmData.append(
+        "items[" + x + "][room_number]",
+        formData.value.items[x].room_number
       );
     }
     if (formData.value.items[x].checkout_date) {
@@ -700,6 +718,9 @@ const onSubmitHandler = async () => {
       crm_id: "",
       discount: "",
       comment: "",
+      past_user_id: "",
+      is_past_info: "",
+      past_crm_id: "",
     };
     enabled.value = false;
     errors.value = null;
@@ -763,7 +784,8 @@ const clickdetaildesToggle = (
   file,
   i,
   o,
-  days
+  days,
+  room
 ) => {
   console.log(a, b, index);
   clickdetaildes.value = true;
@@ -780,6 +802,7 @@ const clickdetaildesToggle = (
   itemCheckIn.value = i;
   itemCheckOut.value = o;
   itemDays.value = days;
+  itemRoom.value = room;
 };
 const itemType = ref("");
 const itemRoutePlan = ref("");
@@ -791,6 +814,7 @@ const itemPickupTime = ref("");
 const itemCheckIn = ref("");
 const itemCheckOut = ref("");
 const itemDays = ref("");
+const itemRoom = ref("");
 
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
@@ -799,6 +823,7 @@ const clickdetaildesUpdate = (x) => {
   formData.value.items[x].pickup_location = itemPickup.value;
   formData.value.items[x].customer_attachment = itemFile;
   formData.value.items[x].checkin_date = itemCheckIn.value;
+  formData.value.items[x].room_number = itemRoom.value;
   formData.value.items[x].checkout_date = itemCheckOut.value;
 
   formData.value.items[x].dropoff_location = itemDropoff.value;
@@ -855,6 +880,8 @@ const allowCreate = computed(() => {
 
 onMounted(async () => {
   await customerStore.getSimpleListAction();
+  await adminStore.getSimpleListAction();
+  console.log(admin, "this is admin");
   getTodayDate();
 });
 </script>
@@ -969,6 +996,18 @@ onMounted(async () => {
                   class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
+              <div v-if="authStore.isCashier">
+                <p class="mb-2 text-xs text-[#ff613c]">Past User ID</p>
+
+                <v-select
+                  v-model="formData.past_user_id"
+                  class="style-chooser bg-white rounded-lg"
+                  :options="admin?.data"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.id"
+                ></v-select>
+              </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
@@ -1010,6 +1049,28 @@ onMounted(async () => {
                 >
                   {{ errors.money_exchange_rate[0] }}
                 </p>
+              </div>
+              <div v-if="authStore.isCashier">
+                <p class="mb-2 text-xs text-[#ff613c]">Past CRM ID</p>
+
+                <input
+                  v-model="formData.past_crm_id"
+                  type="text"
+                  id="title"
+                  class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                />
+              </div>
+              <div class="relative" v-if="authStore.isCashier">
+                <p class="mb-2 text-xs text-[#ff613c]">Is Past Info</p>
+
+                <input
+                  class="mr-2 mt-3 h-3.5 w-8 appearance-none rounded-[0.4375rem] bg-orange-300 before:pointer-events-none before:absolute before:h-3.5 before:w-3.5 before:rounded-full before:bg-transparent before:content-[''] after:absolute after:z-[2] after:-mt-[0.1875rem] after:h-5 after:w-5 after:rounded-full after:border-none after:bg-orange-100 after:shadow-[0_0px_3px_0_rgb(0_0_0_/_7%),_0_2px_2px_0_rgb(0_0_0_/_4%)] after:transition-[background-color_0.2s,transform_0.2s] after:content-[''] checked:bg-primary checked:after:absolute checked:after:z-[2] checked:after:-mt-[3px] checked:after:ml-[1.0625rem] checked:after:h-5 checked:after:w-5 checked:after:rounded-full checked:after:border-none checked:after:bg-primary checked:after:shadow-[0_3px_1px_-2px_rgba(0,0,0,0.2),_0_2px_2px_0_rgba(0,0,0,0.14),_0_1px_5px_0_rgba(0,0,0,0.12)] checked:after:transition-[background-color_0.2s,transform_0.2s] checked:after:content-[''] hover:cursor-pointer focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[3px_-1px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-5 focus:after:w-5 focus:after:rounded-full focus:after:content-[''] checked:focus:border-primary checked:focus:bg-primary checked:focus:before:ml-[1.0625rem] checked:focus:before:scale-100 checked:focus:before:shadow-[3px_-1px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] disabled:cursor-default disabled:opacity-60 dark:bg-orange-600 dark:after:bg-orange-400 dark:checked:bg-primary dark:checked:after:bg-primary dark:focus:before:shadow-[3px_-1px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:before:shadow-[3px_-1px_0px_13px_#3b71ca]"
+                  type="checkbox"
+                  role="switch"
+                  id="flexSwitchCheckCheckedDisabled"
+                  checked
+                  disabled
+                />
               </div>
             </div>
           </div>
@@ -1055,6 +1116,7 @@ onMounted(async () => {
                         v-model="formitem.comment"
                       ></textarea>
                     </div>
+
                     <div class="grid grid-cols-1 space-y-2">
                       <p class="text-xs">Special request</p>
                       <textarea
@@ -1066,7 +1128,20 @@ onMounted(async () => {
                         v-model="formitem.special_request"
                       ></textarea>
                     </div>
-
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="formitem.product_type == '6'"
+                    >
+                      <p class="text-xs">Rooms Number</p>
+                      <input
+                        type="text"
+                        v-model="formitem.room_number"
+                        name=""
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                        id=""
+                        placeholder="xxx , xxx , xxx"
+                      />
+                    </div>
                     <div
                       class="grid grid-cols-1 space-y-2"
                       v-if="
@@ -1239,7 +1314,20 @@ onMounted(async () => {
                         v-model="itemSpecial"
                       ></textarea>
                     </div>
-
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="itemType == '6'"
+                    >
+                      <p class="text-xs">Rooms Number</p>
+                      <input
+                        v-model="itemRoom"
+                        type="text"
+                        name=""
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                        id=""
+                        placeholder="xxx , xxx , xxx"
+                      />
+                    </div>
                     <div
                       class="grid grid-cols-1 space-y-2"
                       v-if="itemType == '1' || itemType == '3'"
@@ -1794,7 +1882,8 @@ onMounted(async () => {
                                 item.customer_attachment,
                                 item.checkin_date,
                                 item.checkout_date,
-                                item.days
+                                item.days,
+                                item.room_number
                               )
                             "
                           >

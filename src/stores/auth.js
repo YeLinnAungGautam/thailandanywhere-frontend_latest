@@ -4,8 +4,14 @@ import axios from "axios";
 export const useAuthStore = defineStore("auth", {
   state: () => ({ token: null, user: null }),
   getters: {
+    isCashier: (state) => {
+      return state.user.role === "cashier";
+    },
+    isAdmin: (state) => {
+      return state.user.role === "admin";
+    },
     isSuperAdmin: (state) => {
-      return state.user.is_super;
+      return state.user.role === "super_admin";
     },
   },
   actions: {
@@ -14,6 +20,7 @@ export const useAuthStore = defineStore("auth", {
         const response = await axios.post("/login", data);
         this.token = response.data.result.token;
         this.user = response.data.result.user;
+        console.log(this.user, "this is user");
         axios.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
         localStorage.setItem("token", this.token);
         return response.data;

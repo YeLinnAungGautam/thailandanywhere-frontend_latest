@@ -396,6 +396,7 @@ const booking_confirm_letters = ref("");
 const booking_receipt = ref("");
 const checkin_date = ref("");
 const checkout_date = ref("");
+const roomName = ref("");
 
 const getDetail = async () => {
   try {
@@ -419,6 +420,8 @@ const getDetail = async () => {
     } else {
       formData.value.pickup_time = "-";
     }
+    roomName.value = response.result.room.name ? response.result.room.name : "";
+    console.log(roomName.value, "this is room name");
     if (response.result.booking_confirm_letters) {
       booking_confirm_letters.value = response.result.booking_confirm_letters;
     }
@@ -743,7 +746,10 @@ onMounted(async () => {
     <div>
       <div class="flex justify-between items-center pb-6">
         <p class="text-[#ff613c] font-semibold text-sm">
-          Reservation : {{ titleData }}
+          Reservation : {{ titleData }} / {{ formData.product_name }} /
+          {{ formData.variation_name }}
+          {{ formData.car_name }}
+          {{ roomName }}
         </p>
         <p
           class="px-4 py-2 border border-[#ff613c] text-[#ff613c] text-xs"

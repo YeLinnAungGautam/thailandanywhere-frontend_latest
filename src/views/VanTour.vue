@@ -115,6 +115,7 @@
                   </button>
                 </router-link>
                 <button
+                  v-if="authStore.isSuperAdmin"
                   @click.prevent="onDeleteHandler(r.id)"
                   class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
                 >
@@ -152,10 +153,12 @@ import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
+import { useAuthStore } from "../stores/auth";
 
 const router = useRouter();
 const toast = useToast();
 const vantourStore = useVantourStore();
+const authStore = useAuthStore();
 const { vantours, loading } = storeToRefs(vantourStore);
 
 const search = ref("");

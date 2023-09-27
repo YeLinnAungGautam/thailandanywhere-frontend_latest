@@ -21,6 +21,7 @@ import { onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import { useRouter } from "vue-router";
 import { useCustomerStore } from "../stores/customer";
+import { useAuthStore } from "../stores/auth";
 import { storeToRefs } from "pinia";
 
 const router = useRouter();
@@ -28,6 +29,7 @@ const toast = useToast();
 const customerStore = useCustomerStore();
 
 const { customer, loading } = storeToRefs(customerStore);
+const authStore = useAuthStore();
 
 const changePage = async (url) => {
   console.log(url);
@@ -171,6 +173,7 @@ watch(search, async (newValue) => {
                     </button>
                   </router-link>
                   <button
+                    v-if="authStore.isSuperAdmin"
                     @click.prevent="onDeleteHandler(r.id)"
                     class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
                   >

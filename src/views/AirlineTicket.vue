@@ -137,6 +137,7 @@
                 </button>
 
                 <button
+                  v-if="authStore.isSuperAdmin"
                   @click.prevent="onDeleteHandler(r.id)"
                   class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
                 >
@@ -177,11 +178,13 @@ import { useToast } from "vue-toastification";
 import Modal from "../components/Modal.vue";
 import { useAirTicketStore } from "../stores/airticket";
 import { useAirLineStore } from "../stores/airline";
+import { useAuthStore } from "../stores/auth";
 
 const createModalOpen = ref(false);
 const toast = useToast();
 const airticketStore = useAirTicketStore();
 const airlineStore = useAirLineStore();
+const authStore = useAuthStore();
 
 const { airtickets, loading } = storeToRefs(airticketStore);
 const { airlines } = storeToRefs(airlineStore);

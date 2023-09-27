@@ -272,10 +272,13 @@ watch(searchA, async (newValue) => {
             >
               <DisclosurePanel class="text-gray-500 w-full">
                 <div
-                  class="grid grid-cols-7 gap-2 bg-gray-100"
+                  class="grid grid-cols-8 gap-2 bg-gray-100"
                   v-for="d in r.items"
                   :key="d.id"
                 >
+                  <div
+                    class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
+                  ></div>
                   <div
                     class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
                   >

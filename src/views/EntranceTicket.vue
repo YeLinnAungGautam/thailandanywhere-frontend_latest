@@ -507,6 +507,7 @@
                 </button>
 
                 <button
+                  v-if="authStore.isSuperAdmin"
                   @click.prevent="onDeleteHandler(r.id)"
                   class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
                 >
@@ -549,11 +550,13 @@ import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import { useCityStore } from "../stores/city";
 import { useProductStore } from "../stores/product";
+import { useAuthStore } from "../stores/auth";
 
 const router = useRouter();
 const cityStore = useCityStore();
 const productStore = useProductStore();
 const toast = useToast();
+const authStore = useAuthStore();
 
 const entranceStore = useEntranceStore();
 const { entrances, loading } = storeToRefs(entranceStore);

@@ -208,7 +208,7 @@ watch(searchId, async (newValue) => {
           <div
             class="grid grid-cols-6 col-span-6 bg-white divide-y divide-gray-100"
           >
-            <div
+            <!-- <div
               class="px-3 py-1 mt-2 text-sm text-center col-span-6 text-gray-700 whitespace-nowrap bg-gray-300"
               v-if="r.past_crm_id"
             >
@@ -219,7 +219,7 @@ watch(searchId, async (newValue) => {
               v-else
             >
               Current Reservation
-            </div>
+            </div> -->
             <div
               class="grid grid-cols-6 col-span-6 bg-white divide-y divide-gray-100"
               v-for="d in r.items"

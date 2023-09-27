@@ -194,11 +194,14 @@ const sub_qty_total = computed(() => {
   }
 });
 
+const percentageValue = ref("");
+
 const grand_total = computed(() => {
   // console.log(sub_total.value, formData.value.discount);
   if (formData.value.discount.trim().endsWith("%")) {
     let remove = parseFloat(formData.value.discount);
     let calculate = (sub_total.value * remove) / 100;
+    percentageValue.value = calculate;
     let final = sub_total.value - calculate;
     return final;
   } else {
@@ -536,7 +539,7 @@ const onSubmitHandler = async () => {
 
   frmData.append(
     "discount",
-    formData.value.discount == "" ? 0 : formData.value.discount
+    formData.value.discount == "" ? 0 : percentageValue.value
   );
   // frmData.append("comment", formData.value.comment);
   frmData.append("sub_total", sub_total.value);

@@ -57,9 +57,24 @@ const seenClick = () => {
   seen.value = !seen.value;
 };
 
+const limitedText = (text) => {
+  if (text.length <= 10) {
+    return text;
+  } else {
+    return text.slice(0, 10) + "...";
+  }
+};
+
 const searchValue = (val) => {
   search.value = val;
 };
+
+const searchA = ref("");
+const searchArray = [
+  { id: 1, name: "all" },
+  { id: 2, name: "current" },
+  { id: 3, name: "past" },
+];
 
 onMounted(async () => {
   await reservationStore.getListAction();
@@ -77,6 +92,11 @@ watch(searchId, async (newValue) => {
     product_type: search.value,
     crm_id: searchId.value,
   });
+  console.log(reservations.value.data.length, "this is reservations");
+});
+watch(searchA, async (newValue) => {
+  await reservationStore.getListAction({ filter: searchA.value });
+
   console.log(reservations.value.data.length, "this is reservations");
 });
 </script>
@@ -171,6 +191,8 @@ watch(searchId, async (newValue) => {
             Airline
           </p>
         </div>
+      </div>
+      <div class="mb-5 flex justify-start items-center space-x-3">
         <div>
           <input
             v-model="searchId"
@@ -179,14 +201,31 @@ watch(searchId, async (newValue) => {
             placeholder="Search "
           />
         </div>
+        <div class="">
+          <v-select
+            v-model="searchA"
+            class="style-chooser placeholder-sm bg-white rounded-lg w-[200px] text-gray-400"
+            :options="searchArray"
+            label="name"
+            :clearable="false"
+            :reduce="(d) => d.name"
+            placeholder="choose Filter ..."
+          ></v-select>
+        </div>
       </div>
       <div class="mb-5 overflow-auto rounded-lg shadow">
-        <div class="grid grid-cols-6 gap-2 py-2 bg-gray-200">
+        <div class="grid grid-cols-8 gap-2 py-2 bg-gray-200">
           <div class="py-2 text-sm font-medium tracking-wide text-center">
             CRM ID
           </div>
           <div class="py-2 text-sm font-medium tracking-wide text-center">
             Product Type
+          </div>
+          <div class="py-2 text-sm font-medium tracking-wide text-center">
+            Product Name
+          </div>
+          <div class="py-2 text-sm font-medium tracking-wide text-center">
+            Variation Name
           </div>
           <div class="py-2 text-sm font-medium tracking-wide text-center">
             Payment Status
@@ -206,7 +245,7 @@ watch(searchId, async (newValue) => {
           :key="r.id"
         >
           <div
-            class="grid grid-cols-6 col-span-6 bg-white divide-y divide-gray-100"
+            class="grid grid-cols-8 col-span-8 bg-white divide-y divide-gray-100"
           >
             <!-- <div
               class="px-3 py-1 mt-2 text-sm text-center col-span-6 text-gray-700 whitespace-nowrap bg-gray-300"
@@ -221,7 +260,7 @@ watch(searchId, async (newValue) => {
               Current Reservation
             </div> -->
             <div
-              class="grid grid-cols-6 col-span-6 bg-white divide-y divide-gray-100"
+              class="grid grid-cols-8 col-span-8 bg-white divide-y divide-gray-100"
               v-for="d in r.items"
               :key="d.id"
             >
@@ -252,6 +291,18 @@ watch(searchId, async (newValue) => {
                   Hotel & Room
                 </p>
                 <p v-if="d.product_type == 'App\\Models\\Airline'">Airline</p>
+              </div>
+              <div
+                class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"
+              >
+                {{ limitedText(d.product.name) }}
+              </div>
+              <div
+                class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap overflow-hidden"
+              >
+                <p v-if="d.car?.name">{{ d.car?.name }}</p>
+                <p v-if="d.variation?.name">{{ d.variation?.name }}</p>
+                <p v-if="d.room?.name">{{ d.room?.name }}</p>
               </div>
               <div
                 class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"

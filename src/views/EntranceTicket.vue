@@ -46,7 +46,7 @@
                 placeholder="Choose City"
               ></v-select>
             </div>
-            <div>
+            <!-- <div>
               <p class="text-gray-800 text-sm mb-2">Category</p>
               <v-select
                 v-model="formData.category"
@@ -58,8 +58,8 @@
                 :reduce="(category) => category.id"
                 placeholder="Choose category"
               ></v-select>
-            </div>
-            <div class="mb-2 space-y-1">
+            </div> -->
+            <!-- <div class="mb-2 space-y-1">
               <label for="name" class="text-sm text-gray-800">Place</label>
               <input
                 type="text"
@@ -70,7 +70,7 @@
               <p v-if="errors?.name" class="mt-1 text-sm text-red-600">
                 {{ errors.place[0] }}
               </p>
-            </div>
+            </div> -->
             <div class="mb-2 space-y-1">
               <label for="name" class="text-sm text-gray-800">Legal Name</label>
               <input
@@ -507,6 +507,7 @@
                 </button>
 
                 <button
+                  v-if="authStore.isSuperAdmin"
                   @click.prevent="onDeleteHandler(r.id)"
                   class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
                 >
@@ -549,11 +550,13 @@ import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import { useCityStore } from "../stores/city";
 import { useProductStore } from "../stores/product";
+import { useAuthStore } from "../stores/auth";
 
 const router = useRouter();
 const cityStore = useCityStore();
 const productStore = useProductStore();
 const toast = useToast();
+const authStore = useAuthStore();
 
 const entranceStore = useEntranceStore();
 const { entrances, loading } = storeToRefs(entranceStore);
@@ -708,7 +711,7 @@ const addNewHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("description", formData.value.description);
   frmData.append("account_name", formData.value.account_name);
-  frmData.append("place", formData.value.place);
+  // frmData.append("place", formData.value.place);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
@@ -727,9 +730,9 @@ const addNewHandler = async () => {
     frmData.append("city_ids[" + x + "]", formData.value.city_id[x]);
   }
 
-  for (var x = 0; x < formData.value.category.length; x++) {
-    frmData.append("category_ids[" + x + "]", formData.value.category[x]);
-  }
+  // for (var x = 0; x < formData.value.category.length; x++) {
+  //   frmData.append("category_ids[" + x + "]", formData.value.category[x]);
+  // }
 
   try {
     const response = await entranceStore.addNewAction(frmData);
@@ -772,7 +775,7 @@ const updateHandler = async () => {
 
   frmData.append("description", formData.value.description);
   frmData.append("account_name", formData.value.account_name);
-  frmData.append("place", formData.value.place);
+  // frmData.append("place", formData.value.place);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
@@ -791,9 +794,9 @@ const updateHandler = async () => {
     frmData.append("city_ids[" + x + "]", formData.value.city_id[x]);
   }
 
-  for (var x = 0; x < formData.value.category.length; x++) {
-    frmData.append("category_ids[" + x + "]", formData.value.category[x]);
-  }
+  // for (var x = 0; x < formData.value.category.length; x++) {
+  //   frmData.append("category_ids[" + x + "]", formData.value.category[x]);
+  // }
 
   try {
     const response = await entranceStore.updateAction(
@@ -865,13 +868,13 @@ const editModalOpenHandler = async (id) => {
     formData.value.payment_method = response.result.payment_method;
     formData.value.bank_name = response.result.bank_name;
     formData.value.bank_account_number = response.result.bank_account_number;
-    formData.value.place = response.result.place;
+    // formData.value.place = response.result.place;
     formData.value.legal_name = response.result.legal_name;
 
     editData.value.cover_image = response.result.cover_image;
 
     editData.value.city_id = response.result.cities;
-    editData.value.category = response.result.categories;
+    // editData.value.category = response.result.categories;
     formData.value.images = response.result.images;
     editData.value.variations = response.result.variations;
     console.log(response.result.tags);

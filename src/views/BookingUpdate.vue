@@ -201,12 +201,15 @@ const getSubTotal = () => {
   sub_total.value = data;
 };
 
+const percentageValue = ref("");
+
 const grand_total = computed(() => {
   // console.log(sub_total.value, formData.value.discount);
   if (formData.value.discount != "" || formData.value.discount != null) {
     if (formData.value.discount.trim().endsWith("%")) {
       let remove = parseFloat(formData.value.discount);
       let calculate = (sub_total.value * remove) / 100;
+      percentageValue.value = calculate;
       let final = sub_total.value - calculate;
       return final;
     } else {
@@ -452,7 +455,10 @@ const onSubmitHandler = async () => {
   console.log(formData.value.money_exchange_rate, "this is ex money");
   // frmData.append("crm_id", formData.value.crm_id);
 
-  frmData.append("discount", formData.value.discount);
+  frmData.append(
+    "discount",
+    formData.value.discount == "" ? 0 : percentageValue.value
+  );
   frmData.append("comment", formData.value.comment);
   frmData.append("receipt_image", formData.value.receipt_image);
   frmData.append("sub_total", sub_total.value);

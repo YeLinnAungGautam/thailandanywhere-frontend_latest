@@ -168,6 +168,7 @@
                 </button>
 
                 <button
+                  v-if="authStore.isSuperAdmin"
                   @click.prevent="onDeleteHandler(r.id)"
                   class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
                 >
@@ -208,11 +209,13 @@ import { useToast } from "vue-toastification";
 import Modal from "../components/Modal.vue";
 import { useEntranceStore } from "../stores/entrance";
 import { useVariationStore } from "../stores/variations";
+import { useAuthStore } from "../stores/auth";
 
 const createModalOpen = ref(false);
 const toast = useToast();
 const entranceStore = useEntranceStore();
 const variationStore = useVariationStore();
+const authStore = useAuthStore();
 
 const { entrances } = storeToRefs(entranceStore);
 const { variations, loading } = storeToRefs(variationStore);

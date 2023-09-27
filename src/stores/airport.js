@@ -8,7 +8,7 @@ export const useAirportStore = defineStore("airport", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/airport-pickups");
+        const response = await axios.get("/airport-pickups?limit=1000&page=1");
         this.airports = response.data.result;
         this.loading = false;
 

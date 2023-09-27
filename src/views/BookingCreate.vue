@@ -243,7 +243,7 @@ const formitem = ref({
   reservation_status: "",
   payment_method: "",
   payment_status: "",
-
+  amount: "",
   exchange_rate: "",
   cost_price: "",
   special_request: "",
@@ -423,6 +423,7 @@ const addNewitem = () => {
     route_plan: "",
     pickup_location: "",
     pickup_time: "",
+    amount: "",
     customer_attachment: "",
     dropoff_location: "",
     checkin_date: "",
@@ -590,6 +591,20 @@ const onSubmitHandler = async () => {
       "items[" + x + "][product_id]",
       formData.value.items[x].product_id
     );
+
+    if (formData.value.items[x].product_type != "6") {
+      frmData.append(
+        "items[" + x + "][amount]",
+        formData.value.items[x].selling_price * formData.value.items[x].quantity
+      );
+    } else if (formData.value.items[x].product_type == "6") {
+      frmData.append(
+        "items[" + x + "][amount]",
+        formData.value.items[x].selling_price *
+          formData.value.items[x].quantity *
+          formData.value.items[x].days
+      );
+    }
 
     formData.value.items[x].pickup_location
       ? frmData.append(

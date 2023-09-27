@@ -1053,10 +1053,20 @@ const isAfterToday = (date) => {
   return new Date(date) > today;
 };
 
+// const todayCheck = () => {
+//   console.log(formitem.value.service_date);
+//   todayVali.value = isAfterToday(formitem.value.service_date);
+//   console.log(todayVali.value, "this is value");
+// };
+
 const todayCheck = () => {
-  console.log(formitem.value.service_date);
-  todayVali.value = isAfterToday(formitem.value.service_date);
-  console.log(todayVali.value, "this is value");
+  if (enabled.value) {
+    todayVali.value = true;
+  } else {
+    console.log(formitem.value.service_date);
+    todayVali.value = isAfterToday(formitem.value.service_date);
+    console.log(todayVali.value, "this is value");
+  }
 };
 
 const desopen = ref(false);

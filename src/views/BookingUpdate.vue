@@ -61,6 +61,7 @@ const soldFrom = [
   { id: "4", name: "Twitter" },
   { id: "5", name: "Viber" },
   { id: "6", name: "Phone" },
+  { id: "7", name: "Office" },
 ];
 const payment_mm = [
   { id: "1", name: "KPAY" },

@@ -147,6 +147,9 @@ watch(searchA, async (newValue) => {
             Customer
           </div>
           <div class="text-center text-sm font-medium tracking-wide py-2">
+            Past CRM ID
+          </div>
+          <div class="text-center text-sm font-medium tracking-wide py-2">
             CRM ID
           </div>
           <div class="text-center text-sm font-medium tracking-wide py-2">
@@ -168,13 +171,16 @@ watch(searchA, async (newValue) => {
         >
           <Disclosure>
             <DisclosureButton class="py-2 w-full">
-              <div class="grid grid-cols-7 gap-2 bg-white">
+              <div class="grid grid-cols-8 gap-2 bg-white">
                 <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
                   {{ r.customer.name }}
                 </div>
-
+                <!-- r.past_crm_id ? r.past_crm_id :  -->
                 <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                  {{ r.past_crm_id ? r.past_crm_id : r.crm_id }}
+                  {{ r.past_crm_id ? r.past_crm_id : "-" }}
+                </div>
+                <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                  {{ r.crm_id }}
                 </div>
                 <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
                   <p v-if="!r.payment_status">-</p>

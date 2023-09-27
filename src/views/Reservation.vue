@@ -205,7 +205,21 @@ watch(searchId, async (newValue) => {
           v-for="r in reservations?.data"
           :key="r.id"
         >
-          <div class="">
+          <div
+            class="grid grid-cols-6 col-span-6 bg-white divide-y divide-gray-100"
+          >
+            <div
+              class="px-3 py-1 mt-2 text-sm text-center col-span-6 text-gray-700 whitespace-nowrap bg-gray-300"
+              v-if="r.past_crm_id"
+            >
+              Cashiers CRM ID - {{ r.past_crm_id }}
+            </div>
+            <div
+              class="px-3 py-1 mt-2 text-sm text-center col-span-6 text-gray-700 whitespace-nowrap bg-gray-300"
+              v-else
+            >
+              Current Reservation
+            </div>
             <div
               class="grid grid-cols-6 col-span-6 bg-white divide-y divide-gray-100"
               v-for="d in r.items"
@@ -237,9 +251,7 @@ watch(searchId, async (newValue) => {
                 <p v-if="d.product_type == 'App\\Models\\Hotel'">
                   Hotel & Room
                 </p>
-                <p v-if="d.product_type == 'App\\Models\\Airline'">
-                  Airline
-                </p>
+                <p v-if="d.product_type == 'App\\Models\\Airline'">Airline</p>
               </div>
               <div
                 class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"

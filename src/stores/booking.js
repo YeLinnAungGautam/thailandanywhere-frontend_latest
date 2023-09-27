@@ -31,7 +31,7 @@ export const useBookingStore = defineStore("booking", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/bookings", {
+        const response = await axios.get("/bookings?filter=all", {
           params: params,
         });
         this.bookings = response.data.result;

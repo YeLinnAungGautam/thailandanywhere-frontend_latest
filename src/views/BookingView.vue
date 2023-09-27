@@ -174,7 +174,7 @@ watch(searchA, async (newValue) => {
                 </div>
 
                 <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                  {{ r.crm_id }}
+                  {{ r.past_crm_id ? r.past_crm_id : r.crm_id }}
                 </div>
                 <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
                   <p v-if="!r.payment_status">-</p>

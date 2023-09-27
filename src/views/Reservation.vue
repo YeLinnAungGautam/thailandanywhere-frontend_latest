@@ -181,10 +181,7 @@ watch(searchId, async (newValue) => {
         </div>
       </div>
       <div class="mb-5 overflow-auto rounded-lg shadow">
-        <div class="grid grid-cols-7 gap-2 py-2 bg-gray-200">
-          <div class="py-2 text-sm font-medium tracking-wide text-center">
-            Cashiers ID
-          </div>
+        <div class="grid grid-cols-6 gap-2 py-2 bg-gray-200">
           <div class="py-2 text-sm font-medium tracking-wide text-center">
             CRM ID
           </div>
@@ -209,12 +206,19 @@ watch(searchId, async (newValue) => {
           :key="r.id"
         >
           <div
-            class="grid grid-cols-7 col-span-7 bg-white divide-y divide-gray-100"
+            class="grid grid-cols-6 col-span-6 bg-white divide-y divide-gray-100"
           >
             <div
-              class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"
+              class="px-3 py-1 mt-2 text-sm text-center col-span-6 text-gray-700 whitespace-nowrap bg-gray-300"
+              v-if="r.past_crm_id"
             >
-              {{ r.past_crm_id }}
+              Cashiers CRM ID - {{ r.past_crm_id }}
+            </div>
+            <div
+              class="px-3 py-1 mt-2 text-sm text-center col-span-6 text-gray-700 whitespace-nowrap bg-gray-300"
+              v-else
+            >
+              Current Reservation
             </div>
             <div
               class="grid grid-cols-6 col-span-6 bg-white divide-y divide-gray-100"

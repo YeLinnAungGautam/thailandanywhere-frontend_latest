@@ -8,7 +8,9 @@ export const useVantourStore = defineStore("vantour", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/private-van-tours");
+        const response = await axios.get(
+          "/private-van-tours?limit=1000&page=1"
+        );
         this.vantours = response.data.result;
         this.loading = false;
 

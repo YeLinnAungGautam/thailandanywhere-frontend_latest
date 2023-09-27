@@ -8,7 +8,7 @@ export const useGrouptourStore = defineStore("grouptour", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/group-tours");
+        const response = await axios.get("/group-tours?limit=1000&page=1");
         this.grouptours = response.data.result;
         this.loading = false;
 

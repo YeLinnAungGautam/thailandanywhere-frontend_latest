@@ -530,6 +530,25 @@ const onSubmitHandler = async () => {
       "items[" + x + "][product_id]",
       formData.value.items[x].product_id
     );
+    if (
+      !formData.value.items[x].days ||
+      formData.value.items[x].days == undefined
+    ) {
+      frmData.append(
+        "items[" + x + "][amount]",
+        formData.value.items[x].selling_price * formData.value.items[x].quantity
+      );
+    } else if (
+      formData.value.items[x].days ||
+      formData.value.items[x].days != undefined
+    ) {
+      frmData.append(
+        "items[" + x + "][amount]",
+        formData.value.items[x].selling_price *
+          formData.value.items[x].quantity *
+          formData.value.items[x].days
+      );
+    }
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     if (

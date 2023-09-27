@@ -359,6 +359,7 @@ onMounted(async () => {
   await variationStore.getListAction();
   await entranceStore.getSimpleListAction();
   entList.value = entrances.value.data;
+  console.log(entList.value);
 });
 
 watch(search, async (newValue) => {

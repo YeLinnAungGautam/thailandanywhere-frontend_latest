@@ -8,7 +8,7 @@ export const useCategoryStore = defineStore("category", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/categories-list");
+        const response = await axios.get("/categories-list?limit=1000&page=1");
         this.categories = response.data.result;
         this.loading = false;
         return response.data;

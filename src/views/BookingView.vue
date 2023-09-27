@@ -142,7 +142,7 @@ watch(searchA, async (newValue) => {
       </div>
 
       <div class="overflow-auto rounded-lg shadow mb-5">
-        <div class="grid grid-cols-7 gap-2 bg-gray-100">
+        <div class="grid grid-cols-8 gap-2 bg-gray-100">
           <div class="text-center text-sm font-medium tracking-wide py-2">
             Customer
           </div>

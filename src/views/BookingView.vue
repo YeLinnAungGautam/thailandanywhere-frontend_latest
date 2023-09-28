@@ -75,6 +75,13 @@ const searchArray = [
   { id: 2, name: "current" },
   { id: 3, name: "past" },
 ];
+const searchP = ref("");
+const searchPayment = [
+  { id: 1, name: "", value: "All" },
+  { id: 2, name: "not_paid", value: "Not Paid" },
+  { id: 3, name: "partially_paid", value: "Partially Paid" },
+  { id: 4, name: "fully_paid", value: "Fully Paid" },
+];
 
 const strippedNumber = (text) => {
   // Split the string by "_", and get the second part (index 1)
@@ -91,6 +98,9 @@ watch(search, async (newValue) => {
 watch(searchA, async (newValue) => {
   await bookingStore.getListAction({ filter: searchA.value });
 });
+watch(searchP, async (newValue) => {
+  await bookingStore.getListAction({ status: searchP.value });
+});
 </script>
 
 <template>
@@ -106,13 +116,15 @@ watch(searchA, async (newValue) => {
     <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
       <!-- search input sort filter -->
       <div class="flex items-center justify-between mb-5">
-        <div class="flex justify-start items-center">
-          <input
-            v-model="search"
-            type="text"
-            class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
-            placeholder="Search for bookings.."
-          />
+        <div class="flex justify-start items-center space-x-2">
+          <div>
+            <input
+              v-model="search"
+              type="text"
+              class="w-3/5 sm:w-3/5 h-9 md:w-[300px] border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+              placeholder="Search for bookings.."
+            />
+          </div>
           <div class="">
             <v-select
               v-model="searchA"
@@ -122,6 +134,17 @@ watch(searchA, async (newValue) => {
               :clearable="false"
               :reduce="(d) => d.name"
               placeholder="choose Filter ..."
+            ></v-select>
+          </div>
+          <div class="">
+            <v-select
+              v-model="searchP"
+              class="style-chooser placeholder-sm bg-white rounded-lg w-[200px] text-gray-400"
+              :options="searchPayment"
+              label="value"
+              :clearable="false"
+              :reduce="(d) => d.name"
+              placeholder="choose status ..."
             ></v-select>
           </div>
         </div>

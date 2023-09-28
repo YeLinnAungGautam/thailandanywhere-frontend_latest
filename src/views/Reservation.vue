@@ -57,13 +57,15 @@ const seenClick = () => {
   seen.value = !seen.value;
 };
 
-const limitedText = (text) => {
-  if (text.length <= 10) {
-    return text;
-  } else {
-    return text.slice(0, 10) + "...";
-  }
-};
+// const limitedText = (text) => {
+//   if (text != "") {
+//     if (text.length <= 10) {
+//       return text;
+//     } else {
+//       return text.slice(0, 10) + "...";
+//     }
+//   }
+// };
 
 const searchValue = (val) => {
   search.value = val;
@@ -111,14 +113,14 @@ watch(searchA, async (newValue) => {
       <div class="flex items-center justify-between mb-5">
         <div class="flex items-center justify-start gap-2 space-x-2">
           <p
-            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('')"
             :class="search == '' ? 'bg-[#ff613c] text-white' : ''"
           >
             All
           </p>
           <p
-            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\PrivateVanTour')"
             :class="
               search == 'App\\Models\\PrivateVanTour'
@@ -129,7 +131,7 @@ watch(searchA, async (newValue) => {
             Private Van tour
           </p>
           <p
-            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\GroupTour')"
             :class="
               search == 'App\\Models\\GroupTour'
@@ -140,7 +142,7 @@ watch(searchA, async (newValue) => {
             Group Tour
           </p>
           <p
-            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\EntranceTicket')"
             :class="
               search == 'App\\Models\\EntranceTicket'
@@ -151,7 +153,7 @@ watch(searchA, async (newValue) => {
             Entrance Ticket
           </p>
           <p
-            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\AirportPickup')"
             :class="
               search == 'App\\Models\\AirportPickup'
@@ -162,7 +164,7 @@ watch(searchA, async (newValue) => {
             Airport Pickup
           </p>
           <p
-            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\Inclusive')"
             :class="
               search == 'App\\Models\\Inclusive'
@@ -173,7 +175,7 @@ watch(searchA, async (newValue) => {
             Inclusive
           </p>
           <p
-            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\Hotel')"
             :class="
               search == 'App\\Models\\Hotel' ? 'bg-[#ff613c] text-white' : ''
@@ -182,7 +184,7 @@ watch(searchA, async (newValue) => {
             Hotel
           </p>
           <p
-            class="text-sm px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\Airline')"
             :class="
               search == 'App\\Models\\Airline' ? 'bg-[#ff613c] text-white' : ''
@@ -215,28 +217,28 @@ watch(searchA, async (newValue) => {
       </div>
       <div class="mb-5 overflow-auto rounded-lg shadow">
         <div class="grid grid-cols-8 gap-2 py-2 bg-gray-200">
-          <div class="py-2 text-sm font-medium tracking-wide text-center">
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
             CRM ID
           </div>
-          <div class="py-2 text-sm font-medium tracking-wide text-center">
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
             Product Type
           </div>
-          <div class="py-2 text-sm font-medium tracking-wide text-center">
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
             Product Name
           </div>
-          <div class="py-2 text-sm font-medium tracking-wide text-center">
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
             Variation Name
           </div>
-          <div class="py-2 text-sm font-medium tracking-wide text-center">
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
             Payment Status
           </div>
-          <div class="py-2 text-sm font-medium tracking-wide text-center">
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
             Reservation Status
           </div>
-          <div class="py-2 text-sm font-medium tracking-wide text-center">
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
             Service Date
           </div>
-          <div class="py-2 text-sm font-medium tracking-wide text-center"></div>
+          <div class="py-2 text-xs font-medium tracking-wide text-center"></div>
         </div>
         <div
           v-show="!loading"
@@ -248,13 +250,13 @@ watch(searchA, async (newValue) => {
             class="grid grid-cols-8 col-span-8 bg-white divide-y divide-gray-100"
           >
             <!-- <div
-              class="px-3 py-1 mt-2 text-sm text-center col-span-6 text-gray-700 whitespace-nowrap bg-gray-300"
+              class="px-3 py-1 mt-2 text-xs text-center col-span-6 text-gray-700 whitespace-nowrap bg-gray-300"
               v-if="r.past_crm_id"
             >
               Cashiers CRM ID - {{ r.past_crm_id }}
             </div>
             <div
-              class="px-3 py-1 mt-2 text-sm text-center col-span-6 text-gray-700 whitespace-nowrap bg-gray-300"
+              class="px-3 py-1 mt-2 text-xs text-center col-span-6 text-gray-700 whitespace-nowrap bg-gray-300"
               v-else
             >
               Current Reservation
@@ -265,12 +267,12 @@ watch(searchA, async (newValue) => {
               :key="d.id"
             >
               <div
-                class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"
+                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap"
               >
                 {{ d.crm_id }}
               </div>
               <div
-                class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"
+                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap"
               >
                 <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
                   PrivateVanTour
@@ -293,19 +295,20 @@ watch(searchA, async (newValue) => {
                 <p v-if="d.product_type == 'App\\Models\\Airline'">Airline</p>
               </div>
               <div
-                class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"
+                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap overflow-hidden"
               >
-                {{ limitedText(d.product.name) }}
+                <!-- {{ limitedText(d.product?.name) }} -->
+                {{ d.product?.name }}
               </div>
               <div
-                class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap overflow-hidden"
+                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap overflow-hidden"
               >
                 <p v-if="d.car?.name">{{ d.car?.name }}</p>
                 <p v-if="d.variation?.name">{{ d.variation?.name }}</p>
                 <p v-if="d.room?.name">{{ d.room?.name }}</p>
               </div>
               <div
-                class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"
+                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap"
               >
                 <p v-if="!d.payment_status || d.payment_status == 'null'">-</p>
                 <p
@@ -327,7 +330,7 @@ watch(searchA, async (newValue) => {
                   {{ d.payment_status }}
                 </p>
               </div>
-              <div class="p-3 mt-2 text-sm text-gray-700 whitespace-nowrap">
+              <div class="p-3 mt-2 text-xs text-gray-700 whitespace-nowrap">
                 <p v-if="!d.reservation_status">-</p>
 
                 <p
@@ -351,11 +354,11 @@ watch(searchA, async (newValue) => {
               </div>
 
               <div
-                class="p-3 mt-2 text-sm text-center text-gray-700 whitespace-nowrap"
+                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap"
               >
                 {{ d.service_date }}
               </div>
-              <div class="py-3 pl-10 text-sm text-gray-700 whitespace-nowrap">
+              <div class="py-3 pl-10 text-xs text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
                   <!-- <router-link
                     :to="'/reservation/view/' + d.id + '/' + d.crm_id"

@@ -420,7 +420,9 @@ const getDetail = async () => {
     } else {
       formData.value.pickup_time = "-";
     }
-    roomName.value = response.result.room.name ? response.result.room.name : "";
+    roomName.value = response.result.room?.name
+      ? response.result.room.name
+      : "";
     console.log(roomName.value, "this is room name");
     if (response.result.booking_confirm_letters) {
       booking_confirm_letters.value = response.result.booking_confirm_letters;
@@ -771,6 +773,112 @@ onMounted(async () => {
           >
             <p>Reservation Code :</p>
             <p class="ml-2 text-white">{{ crm }}</p>
+          </div>
+
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+            <p>Payment Summary</p>
+          </div>
+          <div class="grid grid-cols-2 gap-4 bg-gray-200/50 py-4">
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Customer Name</p>
+              <p class="font-semibold text-xs py-1.5">
+                {{ formData.cus_name }}
+              </p>
+            </div>
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Customer Contact</p>
+              <p class="font-semibold text-xs py-1.5">
+                {{ formData.cus_contact }}
+              </p>
+            </div>
+            <div class="pl-10 pr-10 space-y-2">
+              <p class="text-gray-400 text-xs">Product Name</p>
+              <p class="font-semibold text-xs py-1.5">
+                {{ formData.product_name }}
+              </p>
+            </div>
+            <div class="pl-10 pr-10 space-y-2">
+              <p class="text-gray-400 text-xs">Product Variation</p>
+              <p class="font-semibold text-xs py-1.5">
+                {{ formData.variation_name }}
+                {{ formData.car_name }}
+                {{ roomName }}
+              </p>
+            </div>
+
+            <div class="pl-10 pr-10 space-y-2">
+              <p class="text-gray-400 text-xs">Quantity</p>
+              <p class="font-semibold text-xs py-1.5">
+                {{ formData.quantity }}
+              </p>
+            </div>
+            <div class="pl-10 pr-10 space-y-2">
+              <p
+                class="text-gray-400 text-xs"
+                v-if="formData.product_type != 'App\\Models\\Hotel'"
+              >
+                Service Date:
+              </p>
+              <p
+                class="text-gray-400 text-xs"
+                v-if="formData.product_type == 'App\\Models\\Hotel'"
+              >
+                Check in - Check out
+              </p>
+
+              <input
+                v-if="formData.product_type != 'App\\Models\\Hotel'"
+                v-model="formData.service_date"
+                type="date"
+                id="title"
+                disabled
+                class="h-8 font-semibold w-full py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
+              />
+              <div
+                class="flex justify-start items-center space-x-2"
+                v-if="formData.product_type == 'App\\Models\\Hotel'"
+              >
+                <p class="font-semibold text-xs py-1.5">
+                  {{ checkin_date }}
+                </p>
+                <p>-</p>
+                <p class="font-semibold text-xs py-1.5">
+                  {{ checkout_date }}
+                </p>
+              </div>
+            </div>
+            <div class="pl-10 pr-10 space-y-2">
+              <p class="text-gray-400 text-xs">Payment Method:</p>
+              <p class="font-semibold text-xs py-1.5">
+                {{ booking_status.payment_method }}
+              </p>
+            </div>
+            <div class="pl-10 pr-10 space-y-2">
+              <p class="text-gray-400 text-xs">Payment Status</p>
+              <p class="font-semibold text-xs py-1.5">
+                {{ booking_status.payment_status }}
+              </p>
+            </div>
+            <div
+              class="pl-10 space-y-2"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel' &&
+                formData.product_type != 'App\\Models\\Airline'
+              "
+            >
+              <p class="text-gray-400 text-xs">Pickup Time</p>
+              <p class="font-semibold text-xs">{{ formData.pickup_time }}</p>
+            </div>
+            <div class="pl-10 space-y-2">
+              <p class="text-gray-400 text-xs">Price</p>
+              <p class="font-semibold text-xs py-1.5">
+                {{ formData.selling_price * formData.quantity }}
+              </p>
+            </div>
           </div>
 
           <div

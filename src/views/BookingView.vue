@@ -96,10 +96,16 @@ watch(search, async (newValue) => {
   await bookingStore.getListAction({ crm_id: search.value });
 });
 watch(searchA, async (newValue) => {
-  await bookingStore.getListAction({ filter: searchA.value });
+  await bookingStore.getListAction({
+    filter: searchA.value,
+    status: searchP.value,
+  });
 });
 watch(searchP, async (newValue) => {
-  await bookingStore.getListAction({ status: searchP.value });
+  await bookingStore.getListAction({
+    status: searchP.value,
+    filter: searchA.value,
+  });
 });
 </script>
 

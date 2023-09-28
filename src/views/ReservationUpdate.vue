@@ -779,7 +779,7 @@ onMounted(async () => {
             class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
           >
             <i class="fa-solid fa-angle-down"></i>
-            <p>Payment Summary</p>
+            <p>Booking Summary</p>
           </div>
           <div class="grid grid-cols-2 gap-4 bg-gray-200/50 py-4">
             <div class="pl-10 space-y-2">
@@ -1063,12 +1063,12 @@ onMounted(async () => {
               >
                 Variation Type
               </p>
-              <p
+              <!-- <p
                 v-if="formData.product_type == 'App\\Models\\Hotel'"
                 class="text-gray-400 text-xs"
               >
                 Hotel Type
-              </p>
+              </p> -->
               <p
                 v-if="formData.product_type == 'App\\Models\\Airline'"
                 class="text-gray-400 text-xs"

@@ -109,20 +109,20 @@
       <table class="w-full">
         <thead class="border-b-2 border-gray-200 bg-gray-50">
           <tr>
-            <th class="w-20 p-3 text-sm font-medium tracking-wide text-left">
+            <th class="w-20 p-3 text-xs font-medium tracking-wide text-left">
               No.
             </th>
-            <th class="p-3 text-sm font-medium tracking-wide text-left">
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
               Airline Name
             </th>
-            <th class="p-3 text-sm font-medium tracking-wide text-left">
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
               Legal Name
             </th>
 
-            <th class="p-3 text-sm font-medium tracking-wide text-left">
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
               Starting Balance
             </th>
-            <th class="p-3 text-sm font-medium tracking-wide text-left w-30">
+            <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
               Actions
             </th>
           </tr>
@@ -133,21 +133,21 @@
             v-for="(r, index) in airlines?.data"
             :key="index"
           >
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.id }}
             </td>
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.name }}
             </td>
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.legal_name }}
             </td>
 
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.starting_balance }}
             </td>
 
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">
                 <button
                   @click.prevent="editModalOpenHandler(r)"

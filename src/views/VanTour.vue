@@ -28,25 +28,25 @@
       <table class="w-full">
         <thead class="bg-gray-50 border-b-2 border-gray-200">
           <tr>
-            <th class="w-20 p-3 text-sm font-medium tracking-wide text-left">
+            <th class="w-20 p-3 text-xs font-medium tracking-wide text-left">
               No.
             </th>
-            <th class="w-30 p-3 text-sm font-medium tracking-wide text-left">
+            <th class="w-30 p-3 text-xs font-medium tracking-wide text-left">
               Image
             </th>
-            <th class="p-3 text-sm font-medium tracking-wide text-left">
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
               Name
             </th>
-            <th class="p-3 text-sm font-medium tracking-wide text-left">
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
               Prices
             </th>
-            <th class="p-3 text-sm font-medium tracking-wide text-left">
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
               Prices ( Agent )
             </th>
-            <th class="p-3 text-sm font-medium tracking-wide text-left">
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
               Destination Count
             </th>
-            <th class="w-30 p-3 text-sm font-medium tracking-wide text-left">
+            <th class="w-30 p-3 text-xs font-medium tracking-wide text-left">
               Actions
             </th>
           </tr>
@@ -57,40 +57,40 @@
             v-for="(r, index) in vantours?.data"
             :key="index"
           >
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.id }}
             </td>
             <td
-              class="p-3 text-sm text-gray-700 whitespace-nowrap"
+              class="p-3 text-xs text-gray-700 whitespace-nowrap"
               v-if="r.cover_image"
             >
               <img :src="r.cover_image" class="w-14 h-12 rounded-lg" alt="" />
             </td>
             <td
-              class="p-3 text-sm text-gray-700 whitespace-nowrap"
+              class="p-3 text-xs text-gray-700 whitespace-nowrap"
               v-if="!r.cover_image"
             >
               -
             </td>
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.name }}
             </td>
 
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <div class="block space-y-1 text-start">
                 <p v-for="(p, index) in r.cars" :key="index" class="">
                   {{ p.name }} - {{ p.price }}B
                 </p>
               </div>
             </td>
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <div class="block space-y-1 text-start">
                 <p v-for="(p, index) in r.cars" :key="index">
                   {{ p.agent_price }} B
                 </p>
               </div>
             </td>
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <div class="flex space-x-2 items-center">
                 <!-- <p v-for="(e, index) in r.destinations" :key="index">
                   {{ e.entry_fee }}/
@@ -98,7 +98,7 @@
                 <p>{{ r.destinations.length }}</p>
               </div>
             </td>
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">
                 <router-link :to="'/vantour/view/' + r.id + '/view'">
                   <button

@@ -29,11 +29,16 @@ export const useBookingStore = defineStore("booking", {
       return response.data;
     },
     async getListAction(params) {
+      console.log(params.limit, "this is params");
+
       try {
         this.loading = true;
-        const response = await axios.get("/bookings?filter=all", {
-          params: params,
-        });
+        const response = await axios.get(
+          `/bookings?limit=${params.limit}&filter=all`,
+          {
+            params: params,
+          }
+        );
         this.bookings = response.data.result;
 
         this.loading = false;

@@ -153,7 +153,7 @@ const removeSelectedImage = () => {
   previewImage.value = null;
 };
 
-const expPreviewImage = ref(null);
+const expPreviewImage = ref("");
 
 const exphandleFileChange = (e) => {
   let selectedFile = e.target.files[0];
@@ -653,6 +653,11 @@ const otherInfoHandle = () => {
   other_info_part.value = !other_info_part.value;
 };
 
+const booking_summmary_part = ref(true);
+const bookingSummaryHandle = () => {
+  booking_summmary_part.value = !booking_summmary_part.value;
+};
+
 const reservation_info_part = ref(false);
 const reservationInfoHandle = () => {
   reservation_info_part.value = !reservation_info_part.value;
@@ -777,11 +782,15 @@ onMounted(async () => {
 
           <div
             class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            @click="bookingSummaryHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
             <p>Booking Summary</p>
           </div>
-          <div class="grid grid-cols-2 gap-4 bg-gray-200/50 py-4">
+          <div
+            class="grid grid-cols-2 gap-4 bg-gray-200/50 py-4"
+            v-if="booking_summmary_part"
+          >
             <div class="pl-10 space-y-2">
               <p class="text-gray-400 text-xs">Customer Name</p>
               <p class="font-semibold text-xs py-1.5">

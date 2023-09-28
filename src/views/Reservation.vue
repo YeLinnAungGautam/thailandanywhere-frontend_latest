@@ -72,6 +72,7 @@ const searchValue = (val) => {
 };
 
 const searchA = ref("");
+const limit = ref(10);
 const searchArray = [
   { id: 1, name: "all" },
   { id: 2, name: "current" },
@@ -79,25 +80,36 @@ const searchArray = [
 ];
 
 onMounted(async () => {
-  await reservationStore.getListAction();
+  await reservationStore.getListAction({ limit: limit.value });
   console.log(reservations.value.data.length, "this is reservations");
 });
 
 watch(search, async (newValue) => {
-  await reservationStore.getListAction({ product_type: search.value });
-  searchId.value = "";
-  console.log(reservations.value.data.length, "this is reservations");
+  await reservationStore.getListAction({
+    product_type: search.value,
+    limit: limit.value,
+  });
+});
+watch(limit, async (newValue) => {
+  await reservationStore.getListAction({
+    product_type: search.value,
+    limit: limit.value,
+  });
 });
 watch(searchId, async (newValue) => {
   console.log(search.value, "this is serarch");
   await reservationStore.getListAction({
     product_type: search.value,
     crm_id: searchId.value,
+    limit: limit.value,
   });
   console.log(reservations.value.data.length, "this is reservations");
 });
 watch(searchA, async (newValue) => {
-  await reservationStore.getListAction({ filter: searchA.value });
+  await reservationStore.getListAction({
+    filter: searchA.value,
+    limit: limit.value,
+  });
 
   console.log(reservations.value.data.length, "this is reservations");
 });
@@ -213,6 +225,24 @@ watch(searchA, async (newValue) => {
             :reduce="(d) => d.name"
             placeholder="choose Filter ..."
           ></v-select>
+        </div>
+        <div>
+          <p class="inline-block mr-2 text-gray-500 text-xs font-medium">
+            Show
+          </p>
+          <select
+            v-model="limit"
+            class="border-2 p-2 rounded-md w-16 focus:outline-none text-xs focus:ring-0"
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+            <option value="50">50</option>
+          </select>
+          <p class="inline-block ml-2 text-gray-500 text-xs font-medium">
+            entries
+          </p>
         </div>
       </div>
       <div class="mb-5 overflow-auto rounded-lg shadow">

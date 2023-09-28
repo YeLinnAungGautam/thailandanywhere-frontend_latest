@@ -129,16 +129,6 @@
                 class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
               />
             </div>
-            <!-- <div class="mb-2 space-y-2">
-              <label for="name" class="text-sm text-gray-800"
-                >Contract Due Date</label
-              >
-              <input
-                v-model="formData.contract_due"
-                type="date"
-                class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
-              />
-            </div>
             <div class="mb-2 space-y-1">
               <label for="name" class="text-sm text-gray-800">Contracts</label>
               <input
@@ -152,13 +142,24 @@
                 {{ errors.contracts[0] }}
               </p>
             </div>
+            <!-- <div class="mb-2 space-y-2">
+              <label for="name" class="text-sm text-gray-800"
+                >Contract Due Date</label
+              >
+              <input
+                v-model="formData.contract_due"
+                type="date"
+                class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+              />
+            </div> -->
+
             <div class="mb-2 space-y-1" v-if="linkContract.length != 0">
               <p v-for="(a, index) in linkContract.contacts" :key="index">
                 <a :href="a.file" target="_blink" class="text-sm text-red-500"
                   >link</a
                 >
               </p>
-            </div> -->
+            </div>
             <div class="col-span-2">
               <p class="text-gray-800 text-sm mb-2">Description</p>
               <textarea
@@ -733,6 +734,13 @@ const addNewHandler = async () => {
   // for (var x = 0; x < formData.value.category.length; x++) {
   //   frmData.append("category_ids[" + x + "]", formData.value.category[x]);
   // }
+  if (formData.value.contracts) {
+    // frmData.append("contracts", formData.value.contracts);
+    for (let i = 0; i < formData.value.contracts.length; i++) {
+      let file = formData.value.contracts[i];
+      frmData.append("contracts[" + i + "]", file);
+    }
+  }
 
   try {
     const response = await entranceStore.addNewAction(frmData);
@@ -750,6 +758,7 @@ const addNewHandler = async () => {
       bank_account_number: "",
       account_name: "",
       place: "",
+      contracts: [],
       legal_name: "",
     };
     errors.value = null;
@@ -765,6 +774,18 @@ const addNewHandler = async () => {
       errors.value = error.response.data.errors;
     }
     toast.error(error.response.data.message);
+  }
+};
+
+const contract_file = (e) => {
+  let selectedFile = e.target.files;
+  if (selectedFile) {
+    for (let index = 0; index < selectedFile.length; index++) {
+      // formData.value.contracts.push(selectedFile[index]);
+      let file = selectedFile[index];
+      formData.value.contracts.push(file);
+    }
+    console.log(formData.value.contracts, "this is contracts");
   }
 };
 
@@ -792,6 +813,13 @@ const updateHandler = async () => {
   frmData.append("cover_image", formData.value.cover_image);
   for (var x = 0; x < formData.value.city_id.length; x++) {
     frmData.append("city_ids[" + x + "]", formData.value.city_id[x]);
+  }
+  if (formData.value.contracts) {
+    // frmData.append("contracts", formData.value.contracts);
+    for (let i = 0; i < formData.value.contracts.length; i++) {
+      let file = formData.value.contracts[i];
+      frmData.append("contracts[" + i + "]", file);
+    }
   }
 
   // for (var x = 0; x < formData.value.category.length; x++) {
@@ -856,6 +884,8 @@ const updateEditCategoryData = () => {
   }
   console.log(formData.value.category, "form category");
 };
+
+// const linkContract = ref({});
 const editModalOpenHandler = async (id) => {
   try {
     const response = await entranceStore.getDetailAction(id);
@@ -872,7 +902,7 @@ const editModalOpenHandler = async (id) => {
     formData.value.legal_name = response.result.legal_name;
 
     editData.value.cover_image = response.result.cover_image;
-
+    linkContract.value = response.result;
     editData.value.city_id = response.result.cities;
     // editData.value.category = response.result.categories;
     formData.value.images = response.result.images;

@@ -54,7 +54,7 @@ onMounted(() => {
     <div class="mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Products</h3>
     </div>
-    <div class="w-[calc(90%)]">
+    <div class="w-full">
       <TabGroup :selectedIndex="selectedTab">
         <TabList
           class="flex p-6 mb-5 space-x-2 rounded-lg shadow-sm bg-white/60 overflow-x-scroll"

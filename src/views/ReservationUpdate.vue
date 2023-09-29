@@ -757,6 +757,8 @@ const titleDataChanges = (data) => {
   }
 };
 
+const old = ref("");
+
 onMounted(async () => {
   await getDetail();
   console.log(formData.value.receipt_image, "this is rece");
@@ -771,6 +773,7 @@ onMounted(async () => {
   console.log(booking_confirm_letters.value, "this is something");
   action.value = route.params.action;
   crm.value = route.params.crm;
+  old.value = route.params.old;
 });
 </script>
 
@@ -800,10 +803,19 @@ onMounted(async () => {
       <div class="grid grid-cols-3 gap-8">
         <div class="col-span-2">
           <div
-            class="flex justify-start items-center text-xs bg-[#ff613c] text-white font-semibold px-4 py-2"
+            class="flex justify-between items-center text-xs bg-[#ff613c] text-white font-semibold px-4 py-2"
           >
-            <p>Reservation Code :</p>
-            <p class="ml-2 text-white">{{ crm }}</p>
+            <div class="flex justify-start items-center gap-2">
+              <p>Reservation Code :</p>
+              <p class="ml-2 text-white">{{ crm }}</p>
+            </div>
+            <div
+              class="flex justify-end items-center gap-2"
+              v-if="old != 'null'"
+            >
+              <p>Old Crm ID :</p>
+              <p class="ml-2 text-white">{{ old }}</p>
+            </div>
           </div>
 
           <div
@@ -1012,11 +1024,15 @@ onMounted(async () => {
             v-if="receipt_part && booking_receipt.length != 0"
           >
             <div v-for="(image, index) in booking_receipt" :key="index">
-              <p class="text-xs mb-2 mt-2">
+              <!-- <p class="text-xs mb-2 mt-2">
                 Upload Payment Receipt {{ index + 1 }}
-              </p>
-              <a :href="image.file" target="_blink">
-                <img :src="image.file" alt="" />
+              </p> -->
+              <a
+                :href="image.file"
+                target="_blink"
+                class="text-xs text-blue-700 cursor-pointer"
+              >
+                Upload Payment Receipt Link {{ index + 1 }}
               </a>
             </div>
           </div>
@@ -1029,17 +1045,29 @@ onMounted(async () => {
                 class="text-xs mb-2 mt-2"
                 v-if="formData.product_type == 'App\\Models\\Hotel'"
               >
-                Hotel Confirmation Receipt {{ index + 1 }}
+                <a
+                  :href="image.file"
+                  target="_blink"
+                  class="text-xs text-blue-700 cursor-pointer"
+                >
+                  Hotel Confirmation Receipt Link {{ index + 1 }}
+                </a>
               </p>
               <p
                 class="text-xs mb-2 mt-2"
                 v-if="formData.product_type != 'App\\Models\\Hotel'"
               >
-                Expensive Paid Slip {{ index + 1 }}
+                <a
+                  :href="image.file"
+                  target="_blink"
+                  class="text-xs text-blue-700 cursor-pointer"
+                >
+                  Expensive Paid Slip link {{ index + 1 }}
+                </a>
               </p>
-              <a :href="image.file" target="_blink">
+              <!-- <a :href="image.file" target="_blink">
                 <img :src="image.file" alt="" />
-              </a>
+              </a> -->
             </div>
           </div>
           <div
@@ -1616,7 +1644,6 @@ onMounted(async () => {
                     multiple
                     class=""
                     @change="exphandleFileChange"
-                    accept="image/*"
                   />
                   <div v-if="expPreviewImage" class="w-full h-auto">
                     <img
@@ -1722,7 +1749,6 @@ onMounted(async () => {
                     multiple
                     class=""
                     @change="recehandleFileChange"
-                    accept="image/*"
                   />
                   <div v-if="uploadRecePreview" class="w-full h-auto">
                     <img

@@ -204,17 +204,22 @@ const getSubTotal = () => {
 const percentageValue = ref("");
 
 const grand_total = computed(() => {
-  // console.log(sub_total.value, formData.value.discount);
-  if (formData.value.discount != "" || formData.value.discount != null) {
-    if (formData.value.discount.trim().endsWith("%")) {
-      let remove = parseFloat(formData.value.discount);
-      let calculate = (sub_total.value * remove) / 100;
-      percentageValue.value = calculate;
-      let final = sub_total.value - calculate;
-      return final;
-    } else {
-      let final = sub_total.value - formData.value.discount;
-      return final;
+  console.log(sub_total.value, formData.value.discount);
+  if (formData.value.discount == null) {
+    formData.value.discount = 0;
+  } else {
+    if (formData.value.discount != "" || formData.value.discount != null) {
+      if (formData.value.discount.trim().endsWith("%")) {
+        let remove = parseFloat(formData.value.discount);
+        let calculate = (sub_total.value * remove) / 100;
+        percentageValue.value = calculate;
+        let final = sub_total.value - calculate;
+        return final;
+      } else {
+        let final = sub_total.value - formData.value.discount;
+        percentageValue.value = formData.value.discount;
+        return final;
+      }
     }
   }
 });
@@ -455,10 +460,11 @@ const onSubmitHandler = async () => {
   console.log(formData.value.money_exchange_rate, "this is ex money");
   // frmData.append("crm_id", formData.value.crm_id);
 
-  frmData.append(
-    "discount",
-    formData.value.discount == "" ? 0 : percentageValue.value
-  );
+  if (formData.value.discount == "" || formData.value.discount == 0) {
+    frmData.append("discount", 0);
+  } else {
+    frmData.append("discount", percentageValue.value);
+  }
   frmData.append("comment", formData.value.comment);
   frmData.append("receipt_image", formData.value.receipt_image);
   frmData.append("sub_total", sub_total.value);
@@ -929,7 +935,8 @@ const getDetail = async () => {
     formData.value.is_past_info = response.result.is_past_info
       ? response.result.is_past_info
       : "";
-    enabled.value = response.result.is_past_info == "1" ? true : false;
+    enabled.value = response.result.is_past_info == 1 ? true : false;
+    console.log(enabled.value, formData.value.is_past_info, "this is shit");
     formData.value.special_request = response.result.special_request;
     depositStoreValue.value = response.result.deposit;
     if (formData.value.discount != "" || formData.value.discount != null) {
@@ -1515,30 +1522,32 @@ onMounted(async () => {
                     {{ errors.money_exchange_rate[0] }}
                   </p>
                 </div>
-                <div v-if="authStore.isCashier && statePast">
+                <div v-if="statePast">
                   <p class="mb-2 text-xs text-[#ff613c]">Past User ID</p>
 
                   <v-select
                     v-model="formData.past_user_id"
                     class="style-chooser bg-white rounded-lg text-xs"
                     :options="admin?.data"
+                    disabled
                     label="name"
                     :clearable="false"
                     :reduce="(d) => d.id"
                   ></v-select>
                 </div>
-                <div v-if="authStore.isCashier && statePast">
+                <div v-if="statePast">
                   <p class="mb-2 text-xs text-[#ff613c]">Past CRM ID</p>
 
                   <input
                     v-model="formData.past_crm_id"
+                    disabled
                     type="text"
                     id="title"
                     class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                   />
                 </div>
               </div>
-              <div class="relative" v-if="authStore.isCashier">
+              <div class="relative">
                 <p class="mb-3 text-xs text-[#ff613c]">Is Past Info</p>
 
                 <Switch

@@ -41,8 +41,8 @@ const router = useRouter();
 const authStore = useAuthStore();
 
 const formData = ref({
-  email: "admin@gmail.com",
-  password: "password",
+  email: "",
+  password: "",
 });
 
 const loginHandler = async () => {

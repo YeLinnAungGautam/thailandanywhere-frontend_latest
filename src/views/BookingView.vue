@@ -90,6 +90,16 @@ const strippedNumber = (text) => {
 
 const limit = ref(10);
 
+const limitedText = (text) => {
+  if (text != "") {
+    if (text.length <= 10) {
+      return text;
+    } else {
+      return text.slice(0, 10);
+    }
+  }
+};
+
 onMounted(async () => {
   await bookingStore.getListAction({}, limit.value);
 });
@@ -200,14 +210,15 @@ watch(limit, async (newValue) => {
             CRM ID
           </div>
           <div class="text-center text-xs font-medium tracking-wide py-2">
+            Service Date
+          </div>
+          <div class="text-center text-xs font-medium tracking-wide py-2">
             Payment Status
           </div>
           <div class="text-center text-xs font-medium tracking-wide py-2">
             Reservation Status
           </div>
-          <div class="text-center text-xs font-medium tracking-wide py-2">
-            Service Date
-          </div>
+
           <div class="text-center text-xs font-medium tracking-wide py-2"></div>
         </div>
         <div
@@ -228,6 +239,9 @@ watch(limit, async (newValue) => {
                 </div>
                 <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
                   {{ r.crm_id }}
+                </div>
+                <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
+                  {{ r.booking_date }}
                 </div>
                 <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
                   <p v-if="!r.payment_status">-</p>
@@ -273,11 +287,8 @@ watch(limit, async (newValue) => {
                   </p>
                 </div>
 
-                <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
-                  {{ r.booking_date }}
-                </div>
                 <div
-                  class="p-3 text-xs space-x-2 col-span-2 flex justify-center items-center text-gray-700 whitespace-nowrap"
+                  class="p-3 text-xs space-x-2 col-span-2 flex justify-end items-center text-gray-700 whitespace-nowrap"
                   @click="seenClick"
                 >
                   <p
@@ -318,14 +329,49 @@ watch(limit, async (newValue) => {
               leave-to-class="transform scale-95 opacity-0"
             >
               <DisclosurePanel class="text-gray-500 w-full">
+                <div class="grid grid-cols-8 gap-2 bg-gray-300">
+                  <div
+                    class="text-center text-xs font-medium tracking-wide py-2"
+                  >
+                    Sale No.
+                  </div>
+                  <div
+                    class="text-center text-xs font-medium tracking-wide py-2"
+                  >
+                    Product Type
+                  </div>
+                  <div
+                    class="text-center text-xs font-medium tracking-wide py-2"
+                  >
+                    Product Name
+                  </div>
+                  <div
+                    class="text-center text-xs font-medium tracking-wide py-2"
+                  >
+                    Variation Name
+                  </div>
+                  <div
+                    class="text-center text-xs font-medium tracking-wide py-2"
+                  >
+                    Payment Status
+                  </div>
+                  <div
+                    class="text-center text-xs font-medium tracking-wide py-2"
+                  >
+                    Reservation Status
+                  </div>
+
+                  <div
+                    class="text-center text-xs font-medium tracking-wide py-2"
+                  >
+                    Service Date
+                  </div>
+                </div>
                 <div
-                  class="grid grid-cols-8 gap-2 bg-gray-100"
+                  class="grid grid-cols-8 gap-2 bg-gray-100 w-full"
                   v-for="d in r.items"
                   :key="d.id"
                 >
-                  <div
-                    class="p-3 text-xs text-center text-gray-700 whitespace-nowrap"
-                  ></div>
                   <div
                     class="p-3 text-xs text-center text-gray-700 whitespace-nowrap"
                   >
@@ -355,6 +401,20 @@ watch(limit, async (newValue) => {
                     <p v-if="d.product_type == 'App\\Models\\Airline'">
                       Airline
                     </p>
+                  </div>
+                  <div
+                    class="p-3 text-xs text-center text-gray-700 whitespace-nowrap"
+                  >
+                    <p>{{ limitedText(d.product.name) }}</p>
+                  </div>
+                  <div
+                    class="p-3 text-xs text-center text-gray-700 whitespace-nowrap"
+                  >
+                    <p v-if="d.car?.name">{{ limitedText(d.car?.name) }}</p>
+                    <p v-if="d.variation?.name">
+                      {{ limitedText(d.variation?.name) }}
+                    </p>
+                    <p v-if="d.room?.name">{{ limitedText(d.room?.name) }}</p>
                   </div>
                   <div
                     class="p-3 text-xs text-center text-gray-700 whitespace-nowrap"
@@ -417,7 +477,7 @@ watch(limit, async (newValue) => {
                     {{ d.service_date }}
                   </div>
                   <div
-                    class="p-3 col-span-2 text-xs text-center text-gray-700 whitespace-nowrap"
+                    class="p-3 col-span-1 text-xs text-center text-gray-700 whitespace-nowrap"
                   >
                     <router-link
                       :to="'/reservation/view/' + d.id + '/' + d.crm_id"

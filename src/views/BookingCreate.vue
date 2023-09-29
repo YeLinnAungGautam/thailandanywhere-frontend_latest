@@ -206,6 +206,7 @@ const grand_total = computed(() => {
     return final;
   } else {
     let final = sub_total.value - formData.value.discount;
+    percentageValue.value = formData.value.discount;
     return final;
   }
 });
@@ -537,10 +538,16 @@ const onSubmitHandler = async () => {
     frmData.append("money_exchange_rate", 0);
   }
 
-  frmData.append(
-    "discount",
-    formData.value.discount == "" ? 0 : percentageValue.value
-  );
+  if (formData.value.discount == "" || formData.value.discount == 0) {
+    frmData.append("discount", 0);
+  } else {
+    frmData.append("discount", percentageValue.value);
+  }
+
+  // frmData.append(
+  //   "discount",
+  //   formData.value.discount == "" ? 0 : percentageValue.value
+  // );
   // frmData.append("comment", formData.value.comment);
   frmData.append("sub_total", sub_total.value);
   frmData.append("grand_total", grand_total.value);

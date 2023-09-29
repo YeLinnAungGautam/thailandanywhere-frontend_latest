@@ -57,15 +57,15 @@ const seenClick = () => {
   seen.value = !seen.value;
 };
 
-// const limitedText = (text) => {
-//   if (text != "") {
-//     if (text.length <= 10) {
-//       return text;
-//     } else {
-//       return text.slice(0, 10) + "...";
-//     }
-//   }
-// };
+const limitedText = (text) => {
+  if (text != "") {
+    if (text.length <= 10) {
+      return text;
+    } else {
+      return text.slice(0, 10);
+    }
+  }
+};
 
 const searchValue = (val) => {
   search.value = val;
@@ -245,30 +245,51 @@ watch(searchA, async (newValue) => {
           </p>
         </div>
       </div>
-      <div class="mb-5 overflow-auto rounded-lg shadow">
-        <div class="grid grid-cols-8 gap-2 py-2 bg-gray-200">
-          <div class="py-2 text-xs font-medium tracking-wide text-center">
+      <div class="mb-5 rounded-lg shadow w-auto overflow-scroll bg-white">
+        <div class="grid grid-cols-8 gap-2 py-2">
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
             CRM ID
           </div>
-          <div class="py-2 text-xs font-medium tracking-wide text-center">
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
+            PAST CRM ID
+          </div>
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
             Product Type
           </div>
-          <div class="py-2 text-xs font-medium tracking-wide text-center">
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
             Product Name
           </div>
-          <div class="py-2 text-xs font-medium tracking-wide text-center">
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
             Variation Name
           </div>
-          <div class="py-2 text-xs font-medium tracking-wide text-center">
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
             Payment Status
           </div>
-          <div class="py-2 text-xs font-medium tracking-wide text-center">
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
             Reservation Status
           </div>
-          <div class="py-2 text-xs font-medium tracking-wide text-center">
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
             Service Date
           </div>
-          <div class="py-2 text-xs font-medium tracking-wide text-center"></div>
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          ></div>
         </div>
         <div
           v-show="!loading"
@@ -277,7 +298,7 @@ watch(searchA, async (newValue) => {
           :key="r.id"
         >
           <div
-            class="grid grid-cols-8 col-span-8 bg-white divide-y divide-gray-100"
+            class="grid grid-cols-8 col-span-8 bg-white w-auto divide-y divide-gray-100"
           >
             <!-- <div
               class="px-3 py-1 mt-2 text-xs text-center col-span-6 text-gray-700 whitespace-nowrap bg-gray-300"
@@ -297,12 +318,18 @@ watch(searchA, async (newValue) => {
               :key="d.id"
             >
               <div
-                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap"
+                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
               >
                 {{ d.crm_id }}
               </div>
               <div
-                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap"
+                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              >
+                <p v-if="r.past_crm_id">{{ r.past_crm_id }}</p>
+                <p v-if="!r.past_crm_id">-</p>
+              </div>
+              <div
+                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
               >
                 <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
                   PrivateVanTour
@@ -325,20 +352,22 @@ watch(searchA, async (newValue) => {
                 <p v-if="d.product_type == 'App\\Models\\Airline'">Airline</p>
               </div>
               <div
-                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap overflow-hidden"
+                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
               >
                 <!-- {{ limitedText(d.product?.name) }} -->
-                {{ d.product?.name }}
+                {{ limitedText(d.product?.name) }}
               </div>
               <div
-                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap overflow-hidden"
+                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
               >
-                <p v-if="d.car?.name">{{ d.car?.name }}</p>
-                <p v-if="d.variation?.name">{{ d.variation?.name }}</p>
-                <p v-if="d.room?.name">{{ d.room?.name }}</p>
+                <p v-if="d.car?.name">{{ limitedText(d.car?.name) }}</p>
+                <p v-if="d.variation?.name">
+                  {{ limitedText(d.variation?.name) }}
+                </p>
+                <p v-if="d.room?.name">{{ limitedText(d.room?.name) }}</p>
               </div>
               <div
-                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap"
+                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
               >
                 <p v-if="!d.payment_status || d.payment_status == 'null'">-</p>
                 <p
@@ -360,7 +389,9 @@ watch(searchA, async (newValue) => {
                   {{ d.payment_status }}
                 </p>
               </div>
-              <div class="p-3 mt-2 text-xs text-gray-700 whitespace-nowrap">
+              <div
+                class="p-3 mt-2 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap min-w-[200px] overflow-hidden"
+              >
                 <p v-if="!d.reservation_status">-</p>
 
                 <p
@@ -384,13 +415,31 @@ watch(searchA, async (newValue) => {
               </div>
 
               <div
-                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap"
+                class="p-3 mt-2 text-xs text-center bg-white divide-y divide-gray-100 text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden flex justify-end items-center"
               >
-                {{ d.service_date }}
+                <p class="mr-6">{{ d.service_date }}</p>
+                <router-link
+                  :to="
+                    '/reservation/update/' +
+                    d.id +
+                    '/' +
+                    d.crm_id +
+                    '/' +
+                    r.past_crm_id
+                  "
+                >
+                  <button
+                    class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
+                  >
+                    <PencilSquareIcon class="w-5 h-5" />
+                  </button>
+                </router-link>
               </div>
-              <div class="py-3 pl-10 text-xs text-gray-700 whitespace-nowrap">
-                <div class="flex items-center gap-2">
-                  <!-- <router-link
+              <!-- <div
+                class="py-3 pl-10 text-xs text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              >
+                <div class="flex items-center gap-2"> -->
+              <!-- <router-link
                     :to="'/reservation/view/' + d.id + '/' + d.crm_id"
                   >
                     <button
@@ -399,17 +448,9 @@ watch(searchA, async (newValue) => {
                       <EyeIcon class="w-5 h-5" />
                     </button>
                   </router-link> -->
-                  <router-link
-                    :to="'/reservation/update/' + d.id + '/' + d.crm_id"
-                  >
-                    <button
-                      class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
-                    >
-                      <PencilSquareIcon class="w-5 h-5" />
-                    </button>
-                  </router-link>
-                </div>
-              </div>
+
+              <!-- </div>
+              </div> -->
             </div>
           </div>
         </div>

@@ -208,12 +208,12 @@ const routes = [
     component: ReservationView,
   },
   {
-    path: "/reservation/update/:id/:crm",
+    path: "/reservation/update/:id/:crm/:old",
     name: "reservation-update",
     component: ReservationUpdate,
   },
   {
-    path: "/reservation/view/:id/:crm",
+    path: "/reservation/view/:id/:crm/:old",
     name: "reservation-view",
     component: ReservationViewView,
   },

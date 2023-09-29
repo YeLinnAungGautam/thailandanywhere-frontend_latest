@@ -35,7 +35,7 @@ const { bookings, loading } = storeToRefs(bookingStore);
 
 const changePage = async (url) => {
   console.log(url);
-  await bookingStore.getChangePage(url);
+  await bookingStore.getChangePage(url, limit.value);
 };
 const errors = ref([]);
 const onDeleteHandler = async (id) => {
@@ -91,32 +91,38 @@ const strippedNumber = (text) => {
 const limit = ref(10);
 
 onMounted(async () => {
-  await bookingStore.getListAction({ limit: limit.value });
+  await bookingStore.getListAction({}, limit.value);
 });
 
 watch(search, async (newValue) => {
-  await bookingStore.getListAction({ crm_id: search.value });
+  await bookingStore.getListAction({ crm_id: search.value }, limit.value);
 });
 watch(searchA, async (newValue) => {
-  await bookingStore.getListAction({
-    status: searchP.value,
-    filter: searchA.value,
-    limit: limit.value,
-  });
+  await bookingStore.getListAction(
+    {
+      status: searchP.value,
+      filter: searchA.value,
+    },
+    limit.value
+  );
 });
 watch(searchP, async (newValue) => {
-  await bookingStore.getListAction({
-    status: searchP.value,
-    filter: searchA.value,
-    limit: limit.value,
-  });
+  await bookingStore.getListAction(
+    {
+      status: searchP.value,
+      filter: searchA.value,
+    },
+    limit.value
+  );
 });
 watch(limit, async (newValue) => {
-  await bookingStore.getListAction({
-    status: searchP.value,
-    filter: searchA.value,
-    limit: limit.value,
-  });
+  await bookingStore.getListAction(
+    {
+      status: searchP.value,
+      filter: searchA.value,
+    },
+    limit.value
+  );
 });
 </script>
 

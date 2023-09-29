@@ -97,7 +97,7 @@ watch(search, async (newValue) => {
             placeholder="Search for customers.."
           />
         </div>
-        <div>
+        <!-- <div>
           <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>
           <select
             class="border-2 p-2 rounded-md w-16 focus:outline-none focus:ring-0"
@@ -109,28 +109,28 @@ watch(search, async (newValue) => {
             <option value="50">50</option>
           </select>
           <p class="inline-block ml-2 text-gray-500 font-medium">entries</p>
-        </div>
+        </div> -->
       </div>
       <div class="overflow-auto rounded-lg shadow mb-5">
         <table class="w-full">
           <thead class="bg-gray-50 border-b-2 border-gray-200">
             <tr>
-              <th class="w-20 p-3 text-sm font-medium tracking-wide text-left">
+              <th class="w-20 p-3 text-xs font-medium tracking-wide text-left">
                 No.
               </th>
-              <th class="w-30 p-3 text-sm font-medium tracking-wide text-left">
+              <th class="w-30 p-3 text-xs font-medium tracking-wide text-left">
                 Name
               </th>
-              <th class="p-3 text-sm font-medium tracking-wide text-left">
+              <th class="p-3 text-xs font-medium tracking-wide text-left">
                 Email
               </th>
-              <th class="p-3 text-sm font-medium tracking-wide text-left">
+              <th class="p-3 text-xs font-medium tracking-wide text-left">
                 Phone
               </th>
-              <th class="p-3 text-sm font-medium tracking-wide text-left">
+              <th class="p-3 text-xs font-medium tracking-wide text-left">
                 Address
               </th>
-              <th class="w-30 p-3 text-sm font-medium tracking-wide text-left">
+              <th class="w-30 p-3 text-xs font-medium tracking-wide text-left">
                 Actions
               </th>
             </tr>
@@ -141,22 +141,22 @@ watch(search, async (newValue) => {
               :key="r.id"
               class="bg-white even:bg-gray-50 hover:bg-gray-50"
             >
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
                 {{ r.id }}
               </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
                 {{ r.name }}
               </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
                 {{ r.email }}
               </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
                 {{ r.phone_number }}
               </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
                 {{ r.company_name }}
               </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
                   <router-link :to="'/customers/update/' + r.id">
                     <button

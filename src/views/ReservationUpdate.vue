@@ -89,7 +89,7 @@ const formData = ref({
   bank_name: "",
   bank_account_number: "",
   cost: "",
-  paid_slip: "",
+  paid_slip: [],
   payment_status: "",
   product_id: "",
   product_type: "",
@@ -107,7 +107,7 @@ const formData = ref({
   cus_passport: "",
   cus_email: "",
   receipt_images: [],
-  receipt_image: "",
+  receipt_image: [],
   customer_attachment: "",
 });
 
@@ -153,14 +153,22 @@ const removeSelectedImage = () => {
   previewImage.value = null;
 };
 
-const expPreviewImage = ref(null);
+const expPreviewImage = ref("");
 
 const exphandleFileChange = (e) => {
-  let selectedFile = e.target.files[0];
+  // let selectedFile = e.target.files[0];
+  // if (selectedFile) {
+  //   formData.value.paid_slip = e.target.files[0];
+  //   expPreviewImage.value = URL.createObjectURL(selectedFile);
+  // }
+  console.log(e.target.files);
+  let selectedFile = e.target.files;
   if (selectedFile) {
-    formData.value.paid_slip = e.target.files[0];
-    expPreviewImage.value = URL.createObjectURL(selectedFile);
+    for (let index = 0; index < selectedFile.length; index++) {
+      formData.value.paid_slip.push(selectedFile[index]);
+    }
   }
+  console.log(formData.value.paid_slip, "this is paid slip");
 };
 
 const expremoveSelectedImage = () => {
@@ -171,17 +179,20 @@ const expremoveSelectedImage = () => {
 const uploadRecePreview = ref("");
 
 const recehandleFileChange = (e) => {
-  let selectedFile = e.target.files[0];
-  console.log(selectedFile);
+  // let selectedFile = e.target.files[0];
+  // console.log(selectedFile);
+  // if (selectedFile) {
+  //   formData.value.receipt_image = e.target.files[0];
+  //   uploadRecePreview.value = URL.createObjectURL(selectedFile);
+  // }
+  // console.log(e.target.files);
+  let selectedFile = e.target.files;
   if (selectedFile) {
-    formData.value.receipt_image = e.target.files[0];
-    uploadRecePreview.value = URL.createObjectURL(selectedFile);
+    for (let index = 0; index < selectedFile.length; index++) {
+      formData.value.receipt_image.push(selectedFile[index]);
+    }
   }
-};
-
-const receremoveSelectedImage = () => {
-  formData.value.receipt_image = "";
-  uploadRecePreview.value = null;
+  console.log(formData.value.receipt_image, "receipt");
 };
 
 const productList = ref([]);
@@ -211,10 +222,10 @@ const chooseType = async () => {
 
 const errors = ref(null);
 
-const handlerFeatureFileChange = (e) => {
-  let selectedFile = e.target.files[0];
-  formData.value.receipt_image = selectedFile;
-};
+// const handlerFeatureFileChange = (e) => {
+//   let selectedFile = e.target.files[0];
+//   formData.value.receipt_image = selectedFile;
+// };
 const handlerConfirmFileChange = (e) => {
   let selectedFileCon = e.target.files[0];
 
@@ -266,11 +277,24 @@ const onSubmitHandler = async () => {
 
       secfrm.append("expense_amount", expense_amount.value);
 
-      if (formData.value.receipt_image) {
-        secfrm.append("receipt_image", formData.value.receipt_image);
+      // if (formData.value.receipt_image) {
+      //   secfrm.append("receipt_image", formData.value.receipt_image);
+      // }
+      if (formData.value.receipt_image.length != 0) {
+        if (formData.value.receipt_image.length > 0) {
+          for (let i = 0; i < formData.value.receipt_image.length; i++) {
+            let file = formData.value.receipt_image[i];
+            secfrm.append("receipt_image[" + i + "]", file);
+          }
+        }
       }
-      if (formData.value.paid_slip) {
-        secfrm.append("paid_slip", formData.value.paid_slip);
+      if (formData.value.paid_slip.length != 0) {
+        if (formData.value.paid_slip.length > 0) {
+          for (let i = 0; i < formData.value.paid_slip.length; i++) {
+            let file = formData.value.paid_slip[i];
+            secfrm.append("paid_slip[" + i + "]", file);
+          }
+        }
       }
       if (formData.value.cost) {
         secfrm.append("cost", formData.value.cost);
@@ -338,7 +362,7 @@ const onSubmitHandler = async () => {
       payment_method: "",
       bank_name: "",
       bank_account_number: "",
-      paid_slip: "",
+      paid_slip: [],
       cost: "",
       payment_status: "",
       product_id: "",
@@ -346,7 +370,7 @@ const onSubmitHandler = async () => {
       quantity: "",
       car_id: "",
       car_name: "",
-      receipt_image: "",
+      receipt_image: [],
       reservation_status: "",
       selling_price: "",
       service_date: "",
@@ -397,6 +421,7 @@ const booking_receipt = ref("");
 const checkin_date = ref("");
 const checkout_date = ref("");
 const roomName = ref("");
+const paid_slip_image = ref([]);
 
 const getDetail = async () => {
   try {
@@ -517,11 +542,13 @@ const getDetail = async () => {
     } else {
       formData.value.payment_method = response.result.payment_method;
     }
-    if (response.result.reservation_info?.paid_slip != null) {
-      expPreviewImage.value =
-        "https://api-blog.thanywhere.com/storage/images/" +
-        response.result.reservation_info.paid_slip;
+    if (response.result.paid_slip.length != 0) {
+      paid_slip_image.value = response.result.paid_slip;
+      console.log(paid_slip_image.value, "this is paid");
+      formData.value.paid_slip = [];
+      console.log(formData.value.paid_slip);
     }
+    formData.value.receipt_image = [];
     if (response.result.bank_name == null) {
       formData.value.bank_name = response.result.product.bank_name;
     } else {
@@ -653,6 +680,11 @@ const otherInfoHandle = () => {
   other_info_part.value = !other_info_part.value;
 };
 
+const booking_summmary_part = ref(true);
+const bookingSummaryHandle = () => {
+  booking_summmary_part.value = !booking_summmary_part.value;
+};
+
 const reservation_info_part = ref(false);
 const reservationInfoHandle = () => {
   reservation_info_part.value = !reservation_info_part.value;
@@ -693,15 +725,13 @@ const allowUpdate = computed(() => {
     return true;
   } else if (
     expense_amount.value != 0 &&
-    (formData.value.receipt_image == undefined ||
-      formData.value.receipt_image == "")
+    formData.value.receipt_image.length == 0
   ) {
     console.log(expense_amount.value, formData.value.receipt_image, "two");
     return false;
   } else if (
     expense_amount.value != expense_amount_upload.value &&
-    (formData.value.receipt_image != undefined ||
-      formData.value.receipt_image != "")
+    formData.value.receipt_image.length > 0
   ) {
     console.log(expense_amount.value, formData.value.receipt_image, "four");
     return true;
@@ -729,6 +759,7 @@ const titleDataChanges = (data) => {
 
 onMounted(async () => {
   await getDetail();
+  console.log(formData.value.receipt_image, "this is rece");
   changeName();
   await vantourStore.getSimpleListAction();
   await grouptourStore.getSimpleListAction();
@@ -777,11 +808,15 @@ onMounted(async () => {
 
           <div
             class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            @click="bookingSummaryHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
             <p>Booking Summary</p>
           </div>
-          <div class="grid grid-cols-2 gap-4 bg-gray-200/50 py-4">
+          <div
+            class="grid grid-cols-2 gap-4 bg-gray-200/50 py-4"
+            v-if="booking_summmary_part"
+          >
             <div class="pl-10 space-y-2">
               <p class="text-gray-400 text-xs">Customer Name</p>
               <p class="font-semibold text-xs py-1.5">
@@ -979,6 +1014,28 @@ onMounted(async () => {
             <div v-for="(image, index) in booking_receipt" :key="index">
               <p class="text-xs mb-2 mt-2">
                 Upload Payment Receipt {{ index + 1 }}
+              </p>
+              <a :href="image.file" target="_blink">
+                <img :src="image.file" alt="" />
+              </a>
+            </div>
+          </div>
+          <div
+            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
+            v-if="receipt_part && paid_slip_image.length != 0"
+          >
+            <div v-for="(image, index) in paid_slip_image" :key="index">
+              <p
+                class="text-xs mb-2 mt-2"
+                v-if="formData.product_type == 'App\\Models\\Hotel'"
+              >
+                Hotel Confirmation Receipt {{ index + 1 }}
+              </p>
+              <p
+                class="text-xs mb-2 mt-2"
+                v-if="formData.product_type != 'App\\Models\\Hotel'"
+              >
+                Expensive Paid Slip {{ index + 1 }}
               </p>
               <a :href="image.file" target="_blink">
                 <img :src="image.file" alt="" />
@@ -1556,8 +1613,8 @@ onMounted(async () => {
                   <input
                     type="file"
                     id="image"
+                    multiple
                     class=""
-                    v-if="!expPreviewImage"
                     @change="exphandleFileChange"
                     accept="image/*"
                   />
@@ -1662,8 +1719,8 @@ onMounted(async () => {
                   <input
                     type="file"
                     id="image"
+                    multiple
                     class=""
-                    v-if="!uploadRecePreview"
                     @change="recehandleFileChange"
                     accept="image/*"
                   />

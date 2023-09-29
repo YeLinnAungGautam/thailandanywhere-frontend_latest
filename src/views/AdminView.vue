@@ -150,6 +150,11 @@ const updateHandler = async () => {
   }
 };
 
+const formatDate = (dateInput) => {
+  const date = new Date(dateInput);
+  return date.toISOString().split("T")[0];
+};
+
 const onSubmitHandler = async () => {
   if (formData.value.id) {
     updateHandler();
@@ -272,7 +277,7 @@ watch(search, async (newValue) => {
             placeholder="Search for admins.."
           />
         </div>
-        <div>
+        <!-- <div>
           <p class="inline-block mr-2 font-medium text-gray-500">Show</p>
           <select
             class="w-16 p-2 border-2 rounded-md focus:outline-none focus:ring-0"
@@ -284,31 +289,31 @@ watch(search, async (newValue) => {
             <option value="50">50</option>
           </select>
           <p class="inline-block ml-2 font-medium text-gray-500">entries</p>
-        </div>
+        </div> -->
       </div>
       <div class="mb-5 overflow-auto rounded-lg shadow">
         <table class="w-full">
           <thead class="border-b-2 border-gray-200 bg-gray-50">
             <tr>
-              <th class="w-20 p-3 text-sm font-medium tracking-wide text-left">
+              <th class="w-20 p-3 text-xs font-medium tracking-wide text-left">
                 No.
               </th>
-              <th class="p-3 text-sm font-medium tracking-wide text-left w-30">
+              <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
                 Name
               </th>
-              <th class="p-3 text-sm font-medium tracking-wide text-left">
+              <th class="p-3 text-xs font-medium tracking-wide text-left">
                 Email
               </th>
-              <th class="p-3 text-sm font-medium tracking-wide text-left">
+              <th class="p-3 text-xs font-medium tracking-wide text-left">
                 Role
               </th>
-              <th class="p-3 text-sm font-medium tracking-wide text-left">
+              <th class="p-3 text-xs font-medium tracking-wide text-left">
                 Created At
               </th>
-              <th class="p-3 text-sm font-medium tracking-wide text-left">
+              <th class="p-3 text-xs font-medium tracking-wide text-left">
                 Updated At
               </th>
-              <th class="p-3 text-sm font-medium tracking-wide text-left w-30">
+              <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
                 Actions
               </th>
             </tr>
@@ -319,26 +324,26 @@ watch(search, async (newValue) => {
               :key="r.id"
               class="bg-white even:bg-gray-50 hover:bg-gray-50"
             >
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
                 {{ r.id }}
               </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
                 {{ r.name }}
               </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
                 {{ r.email }}
               </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
                 {{ r.role }}
               </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                {{ r.created_at }}
+              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+                {{ formatDate(r.created_at) }}
               </td>
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-                {{ r.updated_at }}
+              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+                {{ formatDate(r.updated_at) }}
               </td>
 
-              <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
                   <button
                     @click.prevent="editModalOpenHandler(r)"

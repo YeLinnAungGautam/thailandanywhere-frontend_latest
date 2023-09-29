@@ -35,7 +35,7 @@ const { bookings, loading } = storeToRefs(bookingStore);
 
 const changePage = async (url) => {
   console.log(url);
-  await bookingStore.getChangePage(url);
+  await bookingStore.getChangePage(url, limit.value);
 };
 const errors = ref([]);
 const onDeleteHandler = async (id) => {
@@ -62,7 +62,7 @@ const onDeleteHandler = async (id) => {
         }
         toast.error(error.response.data.message);
       }
-      await bookingStore.getListAction();
+      await bookingStore.getListAction({ limit: limit.value });
     }
   });
 };
@@ -88,24 +88,41 @@ const strippedNumber = (text) => {
   return text.split("_")[1];
 };
 
+const limit = ref(10);
+
 onMounted(async () => {
-  await bookingStore.getListAction();
+  await bookingStore.getListAction({}, limit.value);
 });
 
 watch(search, async (newValue) => {
-  await bookingStore.getListAction({ crm_id: search.value });
+  await bookingStore.getListAction({ crm_id: search.value }, limit.value);
 });
 watch(searchA, async (newValue) => {
-  await bookingStore.getListAction({
-    filter: searchA.value,
-    status: searchP.value,
-  });
+  await bookingStore.getListAction(
+    {
+      status: searchP.value,
+      filter: searchA.value,
+    },
+    limit.value
+  );
 });
 watch(searchP, async (newValue) => {
-  await bookingStore.getListAction({
-    status: searchP.value,
-    filter: searchA.value,
-  });
+  await bookingStore.getListAction(
+    {
+      status: searchP.value,
+      filter: searchA.value,
+    },
+    limit.value
+  );
+});
+watch(limit, async (newValue) => {
+  await bookingStore.getListAction(
+    {
+      status: searchP.value,
+      filter: searchA.value,
+    },
+    limit.value
+  );
 });
 </script>
 
@@ -158,6 +175,7 @@ watch(searchP, async (newValue) => {
         <div>
           <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>
           <select
+            v-model="limit"
             class="border-2 p-2 rounded-md w-16 focus:outline-none focus:ring-0"
           >
             <option value="10">10</option>
@@ -172,25 +190,25 @@ watch(searchP, async (newValue) => {
 
       <div class="overflow-auto rounded-lg shadow mb-5">
         <div class="grid grid-cols-8 gap-2 bg-gray-100">
-          <div class="text-center text-sm font-medium tracking-wide py-2">
+          <div class="text-center text-xs font-medium tracking-wide py-2">
             Customer
           </div>
-          <div class="text-center text-sm font-medium tracking-wide py-2">
+          <div class="text-center text-xs font-medium tracking-wide py-2">
             Past CRM ID
           </div>
-          <div class="text-center text-sm font-medium tracking-wide py-2">
+          <div class="text-center text-xs font-medium tracking-wide py-2">
             CRM ID
           </div>
-          <div class="text-center text-sm font-medium tracking-wide py-2">
+          <div class="text-center text-xs font-medium tracking-wide py-2">
             Payment Status
           </div>
-          <div class="text-center text-sm font-medium tracking-wide py-2">
+          <div class="text-center text-xs font-medium tracking-wide py-2">
             Reservation Status
           </div>
-          <div class="text-center text-sm font-medium tracking-wide py-2">
+          <div class="text-center text-xs font-medium tracking-wide py-2">
             Service Date
           </div>
-          <div class="text-center text-sm font-medium tracking-wide py-2"></div>
+          <div class="text-center text-xs font-medium tracking-wide py-2"></div>
         </div>
         <div
           v-show="!loading"
@@ -201,17 +219,17 @@ watch(searchP, async (newValue) => {
           <Disclosure>
             <DisclosureButton class="py-2 w-full">
               <div class="grid grid-cols-8 gap-2 bg-white">
-                <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
                   {{ r.customer.name }}
                 </div>
                 <!-- r.past_crm_id ? r.past_crm_id :  -->
-                <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
                   {{ r.past_crm_id ? r.past_crm_id : "-" }}
                 </div>
-                <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
                   {{ r.crm_id }}
                 </div>
-                <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
                   <p v-if="!r.payment_status">-</p>
                   <p
                     v-if="r.payment_status == 'fully_paid'"
@@ -232,7 +250,7 @@ watch(searchP, async (newValue) => {
                     {{ r.payment_status }}
                   </p>
                 </div>
-                <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
                   <p v-if="!r.reservation_status">-</p>
 
                   <p
@@ -255,11 +273,11 @@ watch(searchP, async (newValue) => {
                   </p>
                 </div>
 
-                <div class="p-3 text-sm text-gray-700 whitespace-nowrap">
+                <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
                   {{ r.booking_date }}
                 </div>
                 <div
-                  class="p-3 text-sm space-x-2 col-span-2 flex justify-center items-center text-gray-700 whitespace-nowrap"
+                  class="p-3 text-xs space-x-2 col-span-2 flex justify-center items-center text-gray-700 whitespace-nowrap"
                   @click="seenClick"
                 >
                   <p
@@ -306,15 +324,15 @@ watch(searchP, async (newValue) => {
                   :key="d.id"
                 >
                   <div
-                    class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
+                    class="p-3 text-xs text-center text-gray-700 whitespace-nowrap"
                   ></div>
                   <div
-                    class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
+                    class="p-3 text-xs text-center text-gray-700 whitespace-nowrap"
                   >
                     {{ strippedNumber(d.crm_id) }}
                   </div>
                   <div
-                    class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
+                    class="p-3 text-xs text-center text-gray-700 whitespace-nowrap"
                   >
                     <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
                       PrivateVanTour
@@ -339,7 +357,7 @@ watch(searchP, async (newValue) => {
                     </p>
                   </div>
                   <div
-                    class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
+                    class="p-3 text-xs text-center text-gray-700 whitespace-nowrap"
                   >
                     <p v-if="!d.payment_status || d.payment_status == 'null'">
                       -
@@ -364,7 +382,7 @@ watch(searchP, async (newValue) => {
                     </p>
                   </div>
                   <div
-                    class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
+                    class="p-3 text-xs text-center text-gray-700 whitespace-nowrap"
                   >
                     <p
                       v-if="
@@ -394,12 +412,12 @@ watch(searchP, async (newValue) => {
                   </div>
 
                   <div
-                    class="p-3 text-sm text-center text-gray-700 whitespace-nowrap"
+                    class="p-3 text-xs text-center text-gray-700 whitespace-nowrap"
                   >
                     {{ d.service_date }}
                   </div>
                   <div
-                    class="p-3 col-span-2 text-sm text-center text-gray-700 whitespace-nowrap"
+                    class="p-3 col-span-2 text-xs text-center text-gray-700 whitespace-nowrap"
                   >
                     <router-link
                       :to="'/reservation/view/' + d.id + '/' + d.crm_id"
@@ -412,7 +430,7 @@ watch(searchP, async (newValue) => {
                     </router-link>
                   </div>
                   <div
-                    class="py-3 pl-10 col-span-2 text-sm text-gray-700 whitespace-nowrap"
+                    class="py-3 pl-10 col-span-2 text-xs text-gray-700 whitespace-nowrap"
                   ></div>
                 </div>
               </DisclosurePanel>

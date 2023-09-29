@@ -18,7 +18,7 @@
     <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
       <!-- search input sort filter -->
       <div class="flex items-center justify-between mb-5">
-        <div>
+        <!-- <div>
           <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>
           <select
             v-model="showEntries"
@@ -32,7 +32,7 @@
             <option value="100">100</option>
           </select>
           <p class="inline-block ml-2 text-gray-500 font-medium">entries</p>
-        </div>
+        </div> -->
         <div class="">
           <input
             v-model="search"
@@ -46,19 +46,19 @@
         <table class="w-full">
           <thead class="bg-gray-50 border-b-2 border-gray-200">
             <tr>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Name
               </th>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Category
               </th>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Description
               </th>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Entry_fee
               </th>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Actions
               </th>
             </tr>
@@ -69,22 +69,22 @@
               :key="des.id"
               class="bg-white even:bg-gray-50 hover:bg-gray-50"
             >
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 {{ des.name }}
               </td>
               <td
-                class="p-4 text-sm text-gray-700 whitespace-nowrap"
+                class="p-4 text-xs text-gray-700 whitespace-nowrap"
                 v-if="des.category.name"
               >
                 {{ des.category.name }}
               </td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 {{ des.description }}
               </td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 {{ des.entry_fee }}
               </td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
                   <button
                     @click.prevent="editModalOpenHandler(des)"

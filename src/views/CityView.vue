@@ -24,7 +24,7 @@
             placeholder="Search for cities.."
           />
         </div>
-        <div>
+        <!-- <div>
           <p class="inline-block mr-2 font-medium text-gray-500">Show</p>
           <select
             v-model="showEntries"
@@ -38,22 +38,22 @@
             <option value="100">100</option>
           </select>
           <p class="inline-block ml-2 font-medium text-gray-500">entries</p>
-        </div>
+        </div> -->
       </div>
       <div class="mb-5 overflow-auto rounded-lg shadow" v-if="!loading">
         <table class="w-full">
           <thead class="border-b-2 border-gray-200 bg-gray-50">
             <tr>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 No.
               </th>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Name
               </th>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Image
               </th>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Actions
               </th>
             </tr>
@@ -64,25 +64,25 @@
               :key="city.id"
               class="bg-white even:bg-gray-50 hover:bg-gray-50"
             >
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 {{ city.id }}
               </td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 {{ city.name }}
               </td>
               <td
-                class="p-4 text-sm text-gray-700 whitespace-nowrap"
+                class="p-4 text-xs text-gray-700 whitespace-nowrap"
                 v-if="city.image"
               >
                 <img class="rounded w-14 h-14" :src="city.image" alt="" />
               </td>
               <td
-                class="p-4 text-sm text-gray-700 whitespace-nowrap"
+                class="p-4 text-xs text-gray-700 whitespace-nowrap"
                 v-if="!city.image"
               >
                 -
               </td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
                   <button
                     @click.prevent="editModalOpenHandler(city)"

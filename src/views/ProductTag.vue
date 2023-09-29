@@ -26,7 +26,7 @@
             placeholder="Search for product tags.."
           />
         </div>
-        <div>
+        <!-- <div>
           <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>
           <select
             v-model="showEntries"
@@ -40,19 +40,19 @@
             <option value="100">100</option>
           </select>
           <p class="inline-block ml-2 text-gray-500 font-medium">entries</p>
-        </div>
+        </div> -->
       </div>
       <div class="overflow-auto rounded-lg shadow mb-5" v-if="!loading">
         <table class="w-full">
           <thead class="bg-gray-50 border-b-2 border-gray-200">
             <tr>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 No.
               </th>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Name
               </th>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Actions
               </th>
             </tr>
@@ -63,13 +63,13 @@
               :key="tag.id"
               class="bg-white even:bg-gray-50 hover:bg-gray-50"
             >
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 {{ tag.id }}
               </td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 {{ tag.name }}
               </td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
                   <button
                     @click.prevent="editModalOpenHandler(tag)"

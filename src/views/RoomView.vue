@@ -120,23 +120,23 @@
       <table class="w-full">
         <thead class="border-b-2 border-gray-200 bg-gray-50">
           <tr>
-            <th class="w-20 p-3 text-sm font-medium tracking-wide text-left">
+            <th class="w-20 p-3 text-xs font-medium tracking-wide text-left">
               No.
             </th>
-            <th class="p-3 text-sm font-medium tracking-wide text-left">
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
               Name
             </th>
-            <th class="p-3 text-sm font-medium tracking-wide text-left">
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
               Description
             </th>
-            <th class="p-3 text-sm font-medium tracking-wide text-left">
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
               Hotel
             </th>
-            <th class="p-3 text-sm font-medium tracking-wide text-left">
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
               Room Price
             </th>
 
-            <th class="p-3 text-sm font-medium tracking-wide text-left w-30">
+            <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
               Actions
             </th>
           </tr>
@@ -147,23 +147,23 @@
             v-for="(r, index) in rooms?.data"
             :key="index"
           >
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.id }}
             </td>
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.name }}
             </td>
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
-              {{ r.description }}
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              {{ limitedText(r.description) }}
             </td>
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.hotel?.name }}
             </td>
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.room_price }}
             </td>
 
-            <td class="p-3 text-sm text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">
                 <button
                   @click.prevent="editModalOpenHandler(r)"
@@ -242,6 +242,16 @@ const formData = ref({
   room_price: "",
   cost: "",
 });
+
+const limitedText = (text) => {
+  if (text != "") {
+    if (text.length <= 30) {
+      return text;
+    } else {
+      return text.slice(0, 30) + "...";
+    }
+  }
+};
 
 const addNewHandler = async () => {
   const frmData = new FormData();

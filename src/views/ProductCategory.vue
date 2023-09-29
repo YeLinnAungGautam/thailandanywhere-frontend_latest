@@ -26,7 +26,7 @@
             placeholder="Search for categories.."
           />
         </div>
-        <div>
+        <!-- <div>
           <p class="inline-block mr-2 font-medium text-gray-500">Show</p>
           <select
             v-model="showEntries"
@@ -40,22 +40,22 @@
             <option value="100">100</option>
           </select>
           <p class="inline-block ml-2 font-medium text-gray-500">entries</p>
-        </div>
+        </div> -->
       </div>
       <div class="mb-5 overflow-auto rounded-lg shadow" v-if="!loading">
         <table class="w-full">
           <thead class="border-b-2 border-gray-200 bg-gray-50">
             <tr>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 No.
               </th>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Name
               </th>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Image
               </th>
-              <th class="p-4 text-sm font-medium tracking-wide text-left">
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Actions
               </th>
             </tr>
@@ -66,16 +66,16 @@
               :key="product.id"
               class="bg-white even:bg-gray-50 hover:bg-gray-50"
             >
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 {{ product.id }}
               </td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 {{ product.name }}
               </td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 <img class="rounded w-14 h-14" :src="product.icon" alt="" />
               </td>
-              <td class="p-4 text-sm text-gray-700 whitespace-nowrap">
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
                   <button
                     @click.prevent="editModalOpenHandler(product)"

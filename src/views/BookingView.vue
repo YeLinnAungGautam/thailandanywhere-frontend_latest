@@ -480,7 +480,14 @@ watch(limit, async (newValue) => {
                     class="p-3 col-span-1 text-xs text-center text-gray-700 whitespace-nowrap"
                   >
                     <router-link
-                      :to="'/reservation/view/' + d.id + '/' + d.crm_id"
+                      :to="
+                        '/reservation/update/' +
+                        d.id +
+                        '/' +
+                        d.crm_id +
+                        '/' +
+                        r.past_crm_id
+                      "
                     >
                       <button
                         class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"

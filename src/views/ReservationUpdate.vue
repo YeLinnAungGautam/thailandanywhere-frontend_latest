@@ -416,7 +416,10 @@ const onSubmitHandler = async () => {
     expPreviewImage.value = [];
     uploadRecePreview.value = [];
     toast.success(response.message);
-    router.push("/reservation");
+    router.push(
+      `/reservation/update/${route.params.id}/${crm.value}/${old.value}`
+    );
+    window.location.reload();
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
@@ -778,6 +781,13 @@ const old = ref("");
 const deleteImage = async (id) => {
   console.log(id, "this is delete id");
   await reservationStore.deleteResImage(id);
+  toast.success("success delete receipt");
+  await getDetail();
+};
+const deleteImagePaid = async (id) => {
+  console.log(id, "this is delete id");
+  await reservationStore.deletePaidImage(id);
+  toast.success("success delete receipt paid slip");
   await getDetail();
 };
 
@@ -1650,7 +1660,7 @@ onMounted(async () => {
                         <span v-if="authStore.isSuperAdmin"
                           ><i
                             class="fa-solid fa-trash-can text-lg text-red-500"
-                            @click="deleteImage(image.id)"
+                            @click="deleteImagePaid(image.id)"
                           ></i
                         ></span>
                         <a

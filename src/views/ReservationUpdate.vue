@@ -17,6 +17,7 @@ import { useEntranceStore } from "../stores/entrance";
 import { useReservationStore } from "../stores/reservation";
 import { useInclusiveStore } from "../stores/inclusion";
 import { useAirLineStore } from "../stores/airline";
+import { useAuthStore } from "../stores/auth";
 
 const enabled = ref(false);
 
@@ -31,6 +32,7 @@ const entranceStore = useEntranceStore();
 const reservationStore = useReservationStore();
 const inclusiveStore = useInclusiveStore();
 const airlineStore = useAirLineStore();
+const authStore = useAuthStore();
 
 const { customer, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
@@ -153,7 +155,7 @@ const removeSelectedImage = () => {
   previewImage.value = null;
 };
 
-const expPreviewImage = ref("");
+const expPreviewImage = ref([]);
 
 const exphandleFileChange = (e) => {
   // let selectedFile = e.target.files[0];
@@ -166,17 +168,28 @@ const exphandleFileChange = (e) => {
   if (selectedFile) {
     for (let index = 0; index < selectedFile.length; index++) {
       formData.value.paid_slip.push(selectedFile[index]);
+      expPreviewImage.value.push(URL.createObjectURL(selectedFile[index]));
     }
   }
   console.log(formData.value.paid_slip, "this is paid slip");
 };
 
-const expremoveSelectedImage = () => {
-  formData.value.paid_slip = null;
-  expPreviewImage.value = null;
+const expremoveSelectedImage = (index) => {
+  // formData.value.paid_slip = null;
+  // expPreviewImage.value = [];
+  formData.value.paid_slip.splice(index, 1);
+  expPreviewImage.value.splice(index, 1);
+  console.log(formData.value.paid_slip, "this is remove");
+};
+const expremoveSecSelectedImage = (index) => {
+  // formData.value.paid_slip = null;
+  // expPreviewImage.value = [];
+  formData.value.receipt_image.splice(index, 1);
+  uploadRecePreview.value.splice(index, 1);
+  console.log(formData.value.receipt_image, "this is remove");
 };
 
-const uploadRecePreview = ref("");
+const uploadRecePreview = ref([]);
 
 const recehandleFileChange = (e) => {
   // let selectedFile = e.target.files[0];
@@ -190,6 +203,7 @@ const recehandleFileChange = (e) => {
   if (selectedFile) {
     for (let index = 0; index < selectedFile.length; index++) {
       formData.value.receipt_image.push(selectedFile[index]);
+      uploadRecePreview.value.push(URL.createObjectURL(selectedFile[index]));
     }
   }
   console.log(formData.value.receipt_image, "receipt");
@@ -399,6 +413,8 @@ const onSubmitHandler = async () => {
     };
 
     errors.value = null;
+    expPreviewImage.value = [];
+    uploadRecePreview.value = [];
     toast.success(response.message);
     router.push("/reservation");
   } catch (error) {
@@ -759,6 +775,12 @@ const titleDataChanges = (data) => {
 
 const old = ref("");
 
+const deleteImage = async (id) => {
+  console.log(id, "this is delete id");
+  await reservationStore.deleteResImage(id);
+  await getDetail();
+};
+
 onMounted(async () => {
   await getDetail();
   console.log(formData.value.receipt_image, "this is rece");
@@ -1019,57 +1041,7 @@ onMounted(async () => {
               </a>
             </div>
           </div>
-          <div
-            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
-            v-if="receipt_part && booking_receipt.length != 0"
-          >
-            <div v-for="(image, index) in booking_receipt" :key="index">
-              <!-- <p class="text-xs mb-2 mt-2">
-                Upload Payment Receipt {{ index + 1 }}
-              </p> -->
-              <a
-                :href="image.file"
-                target="_blink"
-                class="text-xs text-blue-700 cursor-pointer"
-              >
-                Upload Payment Receipt Link {{ index + 1 }}
-              </a>
-            </div>
-          </div>
-          <div
-            class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"
-            v-if="receipt_part && paid_slip_image.length != 0"
-          >
-            <div v-for="(image, index) in paid_slip_image" :key="index">
-              <p
-                class="text-xs mb-2 mt-2"
-                v-if="formData.product_type == 'App\\Models\\Hotel'"
-              >
-                <a
-                  :href="image.file"
-                  target="_blink"
-                  class="text-xs text-blue-700 cursor-pointer"
-                >
-                  Hotel Confirmation Receipt Link {{ index + 1 }}
-                </a>
-              </p>
-              <p
-                class="text-xs mb-2 mt-2"
-                v-if="formData.product_type != 'App\\Models\\Hotel'"
-              >
-                <a
-                  :href="image.file"
-                  target="_blink"
-                  class="text-xs text-blue-700 cursor-pointer"
-                >
-                  Expensive Paid Slip link {{ index + 1 }}
-                </a>
-              </p>
-              <!-- <a :href="image.file" target="_blink">
-                <img :src="image.file" alt="" />
-              </a> -->
-            </div>
-          </div>
+
           <div
             class="px-6 py-5 bg-gray-200/50 flex justify-start items-center space-x-4"
             v-if="receipt_part && formData.customer_attachment"
@@ -1631,26 +1603,65 @@ onMounted(async () => {
                 </p>
                 <p class="text-gray-400 text-xs" v-else>Expensive Paid Slip</p>
                 <div class="space-y-1 mb-2">
-                  <label for="image" class="text-gray-800 text-sm relative">
+                  <!-- <label for="image" class="text-gray-800 text-sm relative">
                     <span
-                      v-if="expPreviewImage"
+                      v-if="expPreviewImage.length != 0"
                       @click.prevent="expremoveSelectedImage"
                       class="text-red-400 text-xs cursor-pointer font-semibold underline absolute top-0 left-0"
                       ><i class="fa-solid fa-circle-minus text-3xl"></i></span
-                  ></label>
+                  ></label> -->
                   <input
                     type="file"
                     id="image"
                     multiple
-                    class=""
+                    class="mb-3"
                     @change="exphandleFileChange"
+                    accept="image/*"
                   />
-                  <div v-if="expPreviewImage" class="w-full h-auto">
+                  <!-- <div v-if="expPreviewImage.length != 0" class="w-full h-auto">
                     <img
                       :src="expPreviewImage"
                       alt="Image preview"
                       class="rounded w-full h-auto"
                     />
+                  </div> -->
+                  <div class="grid grid-cols-3 gap-3 mt-4">
+                    <div
+                      class="relative"
+                      v-for="(image, index) in expPreviewImage"
+                      :key="index"
+                    >
+                      <button
+                        @click.prevent="expremoveSelectedImage(index)"
+                        class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                      >
+                        <XCircleIcon class="w-8 h-8 font-semibold" />
+                      </button>
+
+                      <img class="h-auto w-full rounded" :src="image" alt="" />
+                    </div>
+                  </div>
+                  <div
+                    class="grid grid-cols-2 gap-4 bg-gray-200/50"
+                    v-if="paid_slip_image.length != 0"
+                  >
+                    <div v-for="(image, index) in paid_slip_image" :key="index">
+                      <p class="text-xs mb-2 mt-2">
+                        <span v-if="authStore.isSuperAdmin"
+                          ><i
+                            class="fa-solid fa-trash-can text-lg text-red-500"
+                            @click="deleteImage(image.id)"
+                          ></i
+                        ></span>
+                        <a
+                          :href="image.file"
+                          target="_blink"
+                          class="text-xs text-blue-700 cursor-pointer"
+                        >
+                          <img :src="image.file" alt="" />
+                        </a>
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1734,28 +1745,72 @@ onMounted(async () => {
                   formData.product_type == 'App\\Models\\Hotel'
                 "
               >
-                <p class="text-gray-400 text-xs">Upload Payment Receipt</p>
+                <p class="text-gray-400 text-xs">Receipt</p>
                 <div class="space-y-1 mb-2">
-                  <label for="image" class="text-gray-800 text-sm relative">
-                    <span
+                  <!-- <label for="image" class="text-gray-800 text-sm relative"> -->
+                  <!-- <span
                       v-if="uploadRecePreview"
                       @click.prevent="receremoveSelectedImage"
                       class="text-red-400 text-xs cursor-pointer font-semibold underline absolute top-0 left-0"
                       ><i class="fa-solid fa-circle-minus text-3xl"></i></span
-                  ></label>
+                  ></label> -->
                   <input
                     type="file"
                     id="image"
                     multiple
-                    class=""
+                    class="mb-3"
                     @change="recehandleFileChange"
+                    accept="image/*"
                   />
-                  <div v-if="uploadRecePreview" class="w-full h-auto">
+                  <!-- <div v-if="uploadRecePreview" class="w-full h-auto">
                     <img
                       :src="uploadRecePreview"
                       alt="Image preview"
                       class="rounded w-full h-auto"
                     />
+                  </div> -->
+                  <div class="grid grid-cols-3 gap-3 mt-4">
+                    <div
+                      class="relative"
+                      v-for="(image, index) in uploadRecePreview"
+                      :key="index"
+                    >
+                      <button
+                        @click.prevent="expremoveSecSelectedImage(index)"
+                        class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                      >
+                        <XCircleIcon class="w-8 h-8 font-semibold" />
+                      </button>
+
+                      <img class="h-auto w-full rounded" :src="image" alt="" />
+                    </div>
+                  </div>
+
+                  <div
+                    class="grid grid-cols-2 gap-4 bg-gray-200/50"
+                    v-if="booking_receipt.length != 0"
+                  >
+                    <div v-for="(image, index) in booking_receipt" :key="index">
+                      <!-- <p class="text-xs mb-2 mt-2">
+                        Upload Payment Receipt {{ index + 1 }}
+                      </p> -->
+                      <!-- <a
+                        :href="image.file"
+                        target="_blink"
+                        class="text-xs text-blue-700 cursor-pointer"
+                      >
+                        Upload Payment Receipt Link {{ index + 1 }}
+                      </a> -->
+                      <span v-if="authStore.isSuperAdmin"
+                        ><i
+                          class="fa-solid fa-trash-can text-lg text-red-500"
+                          @click="deleteImage(image.id)"
+                        ></i
+                      ></span>
+                      <a :href="image.file" target="_blink">
+                        <img :src="image.file" alt="" />
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>

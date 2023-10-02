@@ -87,5 +87,14 @@ export const useBookingStore = defineStore("booking", {
         throw error;
       }
     },
+    async deleteBookingImage(id) {
+      try {
+        const response = await axios.delete("/booking-receipt/" + id);
+        console.log(response.data);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

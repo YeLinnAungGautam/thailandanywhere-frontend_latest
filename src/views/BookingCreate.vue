@@ -160,7 +160,7 @@ const formData = ref({
   crm_id: "",
   discount: "0",
   comment: "",
-  receipt_image: "",
+  receipt_image: [],
   confirmation_letter: [],
   due_date: "",
   deposit: 0,
@@ -463,17 +463,21 @@ const removeFromitem = (index) => {
 const errors = ref(null);
 
 const featureImageInput = ref(null);
-const featureImagePreview = ref(null);
+const featureImagePreview = ref([]);
 
 const openFileFeaturePicker = () => {
   featureImageInput.value.click();
 };
 
 const handlerFeatureFileChange = (e) => {
-  let selectedFile = e.target.files[0];
-  if (selectedFile) {
-    formData.value.receipt_image = e.target.files[0];
-    featureImagePreview.value = URL.createObjectURL(selectedFile);
+  let selectedFile = e.target.files;
+  // if (selectedFile) {
+  //   formData.value.receipt_image = e.target.files[0];
+  //   featureImagePreview.value = URL.createObjectURL(selectedFile);
+  // }
+  for (let index = 0; index < selectedFile.length; index++) {
+    formData.value.receipt_image.push(selectedFile[index]);
+    featureImagePreview.value.push(URL.createObjectURL(selectedFile[index]));
   }
 };
 
@@ -484,9 +488,12 @@ const customerFile = (e) => {
   }
 };
 
-const removeFeatureSelectImage = () => {
-  formData.value.receipt_image = "";
-  featureImagePreview.value = null;
+const removeFeatureSelectImage = (index) => {
+  // formData.value.receipt_image = "";
+  // featureImagePreview.value = null;
+  formData.value.receipt_image.splice(index, 1);
+  featureImagePreview.value.splice(index, 1);
+  console.log(formData.value.receipt_image, "this is remove");
 };
 
 const addComment = ref(false);
@@ -556,7 +563,7 @@ const onSubmitHandler = async () => {
   frmData.append("balance_due", balance_due.value);
   frmData.append("balance_due_date", formData.value.balance_due_date);
 
-  frmData.append("receipt_image", formData.value.receipt_image);
+  // frmData.append("receipt_image", formData.value.receipt_image);
   if (formData.value.confirmation_letter.length > 0) {
     for (let i = 0; i < formData.value.confirmation_letter.length; i++) {
       let file = formData.value.confirmation_letter[i];
@@ -593,6 +600,15 @@ const onSubmitHandler = async () => {
       frmData.append("items[" + x + "][product_type]", `App\\Models\\Hotel`);
     } else if (formData.value.items[x].product_type == "7") {
       frmData.append("items[" + x + "][product_type]", `App\\Models\\Airline`);
+    }
+  }
+
+  if (formData.value.receipt_image.length != 0) {
+    for (let x = 0; x < formData.value.receipt_image.length; x++) {
+      frmData.append(
+        "receipt_image[" + x + "]",
+        formData.value.receipt_image[x]
+      );
     }
   }
 
@@ -666,6 +682,7 @@ const onSubmitHandler = async () => {
         formData.value.items[x].route_plan
       );
     }
+
     if (
       formData.value.items[x].product_type === "6" &&
       formData.value.items[x].room_id
@@ -777,6 +794,7 @@ const onSubmitHandler = async () => {
     enabled.value = false;
     errors.value = null;
     toast.success(response.message);
+    featureImagePreview.value = [];
     router.push("/bookings/update/" + response.result.id + "/edit");
     // bookings/update/65/edit
   } catch (error) {
@@ -932,7 +950,7 @@ const allowCreate = computed(() => {
   if (
     formData.value.items.length != 0 &&
     formData.value.deposit != 0 &&
-    formData.value.receipt_image != ""
+    formData.value.receipt_image.length != 0
   ) {
     return true;
   } else if (formData.value.items.length != 0 && formData.value.deposit == 0) {
@@ -941,6 +959,13 @@ const allowCreate = computed(() => {
     return false;
   }
 });
+
+const hotelQ = (t, d, q) => {
+  let data = 0;
+  if (t == 6 || t == "App\\Models\\Hotel") {
+    return (data = d * q);
+  }
+};
 
 onMounted(async () => {
   await customerStore.getSimpleListAction();
@@ -1697,17 +1722,24 @@ onMounted(async () => {
                           />
                         </td>
                         <td
+                          v-if="formitem.product_type == '6'"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
+                        >
+                          <p>
+                            {{
+                              hotelQ(
+                                formitem.product_type,
+                                formitem.days,
+                                formitem.quantity
+                              )
+                            }}
+                          </p>
+                        </td>
+                        <td
+                          v-if="formitem.product_type != '6'"
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <input
-                            v-if="formitem.product_type == '6'"
-                            type="number"
-                            disabled
-                            v-model="formitem.quantity"
-                            class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
-                          />
-                          <input
-                            v-else
                             type="number"
                             v-model="formitem.quantity"
                             class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
@@ -1924,6 +1956,21 @@ onMounted(async () => {
                           </p>
                         </td>
                         <td
+                          v-if="item.product_type == '6'"
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
+                        >
+                          <p>
+                            {{
+                              hotelQ(
+                                item.product_type,
+                                item.days,
+                                item.quantity
+                              )
+                            }}
+                          </p>
+                        </td>
+                        <td
+                          v-if="item.product_type != '6'"
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <p>{{ item.quantity }}</p>
@@ -2073,25 +2120,24 @@ onMounted(async () => {
                         <input
                           type="file"
                           ref="featureImageInput"
+                          multiple
                           class="hidden"
                           @change="handlerFeatureFileChange"
                           accept="image/*"
                         />
                         <button
-                          v-if="!featureImagePreview"
                           @click.prevent="openFileFeaturePicker"
                           class="text-sm text-[#ff613c]"
                         ></button>
-                        <button
+                        <!-- <button
                           v-else
                           @click.prevent="removeFeatureSelectImage"
                           class="rounded-full text-sm text-red-600 absolute top-[4px] right-[-33px]"
                         >
                           <XCircleIcon class="w-8 h-8 font-semibold" />
-                        </button>
+                        </button> -->
                       </div>
                       <div
-                        v-if="!featureImagePreview"
                         @click.prevent="openFileFeaturePicker"
                         class="cursor-pointer mt-2 w-full h-[100px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
                       >
@@ -2101,12 +2147,45 @@ onMounted(async () => {
                           ></i
                         ></span>
                       </div>
-                      <div v-if="featureImagePreview" class="">
+                      <!-- <div v-if="featureImagePreview" class="">
                         <img
                           class="w-full h-auto mt-2 rounded"
                           :src="featureImagePreview"
                           alt=""
                         />
+                      </div> -->
+                      <!-- <div
+                        class="grid grid-cols-2 col-span-2 gap-4 bg-gray-200/50"
+                        v-if="featureImagePreview.length != 0"
+                      >
+                        <div
+                          v-for="(image, index) in featureImagePreview"
+                          :key="index"
+                        >
+                          <a :href="image" target="_blink">
+                            <img :src="image" alt="" />
+                          </a>
+                        </div>
+                      </div> -->
+                      <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
+                        <div
+                          class="relative"
+                          v-for="(image, index) in featureImagePreview"
+                          :key="index"
+                        >
+                          <button
+                            @click.prevent="removeFeatureSelectImage(index)"
+                            class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                          >
+                            <XCircleIcon class="w-8 h-8 font-semibold" />
+                          </button>
+
+                          <img
+                            class="h-auto w-full rounded"
+                            :src="image"
+                            alt=""
+                          />
+                        </div>
                       </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">

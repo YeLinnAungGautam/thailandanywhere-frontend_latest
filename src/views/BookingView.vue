@@ -492,7 +492,7 @@ watch(limit, async (newValue) => {
                       <button
                         class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
                       >
-                        <EyeIcon class="w-5 h-5" />
+                        <PencilSquareIcon class="w-5 h-5" />
                       </button>
                     </router-link>
                   </div>

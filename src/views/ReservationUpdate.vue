@@ -458,6 +458,11 @@ const getDetail = async () => {
     }
     if (response.result.receipt_images) {
       booking_receipt.value = response.result.receipt_images;
+      console.log(
+        booking_receipt.value,
+        response.result.receipt_images,
+        "this is receipt image"
+      );
     }
     if (response.result.pickup_time) {
       formData.value.pickup_time = response.result.pickup_time;
@@ -646,6 +651,7 @@ const getDetail = async () => {
       response.result.reservation_supplier_info?.ref_number;
     console.log(formData.value, "first");
     console.log(secForm.value, "sec");
+    console.log(formData.value.product_type, "this is product type");
   } catch (error) {
     console.log(error);
   }
@@ -1285,7 +1291,10 @@ onMounted(async () => {
             <button
               v-if="
                 (formData.product_type == 'App\\Models\\EntranceTicket' ||
-                  formData.product_type == 'App\\Models\\Hotel') &&
+                  formData.product_type == 'App\\Models\\Hotel' ||
+                  formData.product_type == 'App\\Models\\PrivateVanTour' ||
+                  formData.product_type == 'App\\Models\\GroupTour' ||
+                  formData.product_type == 'App\\Models\\Airline') &&
                 allowUpdate
               "
               @click.prevent="onSubmitHandler"
@@ -1297,7 +1306,10 @@ onMounted(async () => {
             <button
               v-if="
                 formData.product_type != 'App\\Models\\EntranceTicket' &&
-                formData.product_type != 'App\\Models\\Hotel'
+                formData.product_type != 'App\\Models\\Hotel' &&
+                formData.product_type != 'App\\Models\\PrivateVanTour' &&
+                formData.product_type != 'App\\Models\\GroupTour' &&
+                formData.product_type != 'App\\Models\\Airline'
               "
               @click.prevent="onSubmitHandler"
               class="my-10 px-4 py-2 bg-[#ff613c] text-white hover:bg-blue-600 shadow"
@@ -1736,7 +1748,10 @@ onMounted(async () => {
               class="space-y-2"
               v-if="
                 formData.product_type == 'App\\Models\\EntranceTicket' ||
-                formData.product_type == 'App\\Models\\Hotel'
+                formData.product_type == 'App\\Models\\Hotel' ||
+                formData.product_type == 'App\\Models\\PrivateVanTour' ||
+                formData.product_type == 'App\\Models\\GroupTour' ||
+                formData.product_type == 'App\\Models\\Airline'
               "
             >
               <div class="pl-10 pr-10 space-y-2">
@@ -1748,13 +1763,7 @@ onMounted(async () => {
                 />
               </div>
 
-              <div
-                class="pl-10 pr-10 space-y-2"
-                v-if="
-                  formData.product_type == 'App\\Models\\EntranceTicket' ||
-                  formData.product_type == 'App\\Models\\Hotel'
-                "
-              >
+              <div class="pl-10 pr-10 space-y-2">
                 <p class="text-gray-400 text-xs">Receipt</p>
                 <div class="space-y-1 mb-2">
                   <!-- <label for="image" class="text-gray-800 text-sm relative"> -->

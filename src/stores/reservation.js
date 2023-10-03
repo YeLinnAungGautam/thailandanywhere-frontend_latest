@@ -100,5 +100,14 @@ export const useReservationStore = defineStore("reservation", {
         throw error;
       }
     },
+    async deletePaidImage(id) {
+      try {
+        const response = await axios.delete("/confirmation-receipt/" + id);
+        console.log(response.data);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

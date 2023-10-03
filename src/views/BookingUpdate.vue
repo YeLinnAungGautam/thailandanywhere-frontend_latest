@@ -910,16 +910,16 @@ const chooseCarPrice = async (type, productId, id) => {
 };
 
 const checkType = (product) => {
-  if (product.cars) {
+  if (product?.cars) {
     return product.cars;
   }
-  if (product.variations) {
+  if (product?.variations) {
     return product.variations;
   }
-  if (product.rooms) {
+  if (product?.rooms) {
     return product.rooms;
   }
-  if (product.tickets) {
+  if (product?.tickets) {
     return product.tickets;
   }
 };

@@ -1297,6 +1297,7 @@ const chooseSellingPrice = (id, arr, index) => {
 const deleteImage = async (id) => {
   await bookingStore.deleteBookingImage(id);
   toast.success("success delete sale Image");
+  window.location.reload();
   await getDetail();
 };
 

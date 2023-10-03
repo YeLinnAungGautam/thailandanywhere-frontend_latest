@@ -1609,20 +1609,20 @@ onMounted(async () => {
                 </p>
               </div>
             </div>
-            <div class="col-span-1 space-y-4 text-end">
+            <a :href="urlPaid" target="_blink" class="col-span-1 space-y-4 text-end">
               <p class="text-[#ff613c] text-xs">Balance Due</p>
               <p class="text-[#ff613c] font-bold text-4xl tracking-wide">
                 {{ balance_due }} thb
               </p>
 
-              <a
-                :href="urlPaid"
-                target="_blink"
+              <h2
+                
+                
                 class="border border-[#ff613c] inline-block py-2 px-4"
               >
                 <p class="text-[#ff613c] text-sm">Receive Payment</p>
-              </a>
-            </div>
+              </h2>
+            </a>
 
             <div class="grid-cols-1 col-span-3 pt-10 gird">
               <div

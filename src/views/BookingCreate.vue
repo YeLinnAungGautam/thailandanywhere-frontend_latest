@@ -816,13 +816,27 @@ const getTodayDate = () => {
   const day = String(now.getDate()).padStart(2, "0");
   formData.value.booking_date = `${year}-${month}-${day}`;
 };
+
+const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 const isBeforeToday = (date) => {
   const today = new Date();
-  return new Date(date) < today;
+  let selectDate = new Date(date);
+  // console.log(formatDate(today) == formatDate(selectDate), "this is date ");
+
+  return formatDate(selectDate) <= formatDate(today);
 };
 const isAfterToday = (date) => {
   const today = new Date();
-  return new Date(date) > today;
+  let selectDate = new Date(date);
+  // console.log(formatDate(today) == formatDate(selectDate), "this is date ");
+
+  return formatDate(selectDate) >= formatDate(today);
 };
 
 const todayCheck = () => {

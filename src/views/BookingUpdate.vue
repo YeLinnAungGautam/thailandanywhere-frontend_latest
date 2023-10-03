@@ -1092,13 +1092,26 @@ const getTodayDate = () => {
   const day = String(now.getDate()).padStart(2, "0");
   formData.value.booking_date = `${year}-${month}-${day}`;
 };
+const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 const isBeforeToday = (date) => {
   const today = new Date();
-  return new Date(date) < today;
+  let selectDate = new Date(date);
+  // console.log(formatDate(today) == formatDate(selectDate), "this is date ");
+
+  return formatDate(selectDate) <= formatDate(today);
 };
 const isAfterToday = (date) => {
   const today = new Date();
-  return new Date(date) > today;
+  let selectDate = new Date(date);
+  // console.log(formatDate(today) == formatDate(selectDate), "this is date ");
+
+  return formatDate(selectDate) >= formatDate(today);
 };
 
 // const todayCheck = () => {
@@ -1596,20 +1609,20 @@ onMounted(async () => {
                 </p>
               </div>
             </div>
-            <div class="col-span-1 space-y-4 text-end">
+            <a :href="urlPaid" target="_blink" class="col-span-1 space-y-4 text-end">
               <p class="text-[#ff613c] text-xs">Balance Due</p>
               <p class="text-[#ff613c] font-bold text-4xl tracking-wide">
                 {{ balance_due }} thb
               </p>
 
-              <a
-                :href="urlPaid"
-                target="_blink"
+              <h2
+                
+                
                 class="border border-[#ff613c] inline-block py-2 px-4"
               >
                 <p class="text-[#ff613c] text-sm">Receive Payment</p>
-              </a>
-            </div>
+              </h2>
+            </a>
 
             <div class="grid-cols-1 col-span-3 pt-10 gird">
               <div

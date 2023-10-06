@@ -1142,7 +1142,7 @@ onMounted(async () => {
               <p class="text-gray-400 text-xs">Email:</p>
               <p class="font-semibold text-xs">{{ formData.cus_email }}</p>
             </div>
-            <!-- <div
+            <div
               class="col-span-2 grid grid-cols-2 gap-4"
               v-if="
                 formData.product_type == 'App\\Models\\EntranceTicket' ||
@@ -1170,9 +1170,9 @@ onMounted(async () => {
                   Add New Customer Passport
                 </p>
               </div>
-              <div class="px-4 space-y-2 col-span-2">
+              <div class="px-10 space-y-2 col-span-2">
                 <p
-                  class="pl-6 text-gray-400 text-xs"
+                  class="text-gray-400 text-xs"
                   v-if="featureCusPassPreview.length > 0"
                 >
                   Preview Images for Customer Passport
@@ -1198,7 +1198,7 @@ onMounted(async () => {
                   </div>
                 </div>
                 <p
-                  class="pl-6 text-gray-400 text-xs"
+                  class="text-gray-400 text-xs"
                   v-if="customer_passport_data.length > 0"
                 >
                   Customer Passports
@@ -1226,7 +1226,7 @@ onMounted(async () => {
                   </div>
                 </div>
               </div>
-            </div> -->
+            </div>
           </div>
 
           <div

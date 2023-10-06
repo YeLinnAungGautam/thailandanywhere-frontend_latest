@@ -15,13 +15,13 @@
           as="h3"
           class="mb-5 text-lg font-medium leading-6 text-gray-900"
         >
-          {{ formData.id ? "Edit Attraction" : "Add New Attraction" }}
+          {{ formData.id ? "Edit Attraction" : "Create Attraction" }}
         </DialogTitle>
         <form @submit.prevent="onSubmitHandler" class="mt-2">
           <div class="grid grid-cols-2 gap-4">
             <div class="mb-2 space-y-1">
               <label for="name" class="text-sm text-gray-800"
-                >Ticket Name</label
+                >Attraction Name</label
               >
               <input
                 type="text"
@@ -115,7 +115,7 @@
               >
               <input
                 v-model="formData.bank_account_number"
-                type="number"
+                type="text"
                 class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
               />
             </div>

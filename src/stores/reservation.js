@@ -91,6 +91,15 @@ export const useReservationStore = defineStore("reservation", {
         throw error;
       }
     },
+    async deleteCustomerPassportAction(id) {
+      try {
+        const response = await axios.delete("/customer-passport/" + id);
+        console.log(response.data);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
     async deleteResImage(id) {
       try {
         const response = await axios.delete("/reservation-receipt/" + id);

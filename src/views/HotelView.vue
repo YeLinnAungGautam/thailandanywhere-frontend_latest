@@ -96,7 +96,7 @@
             >
             <input
               v-model="formData.bank_account_number"
-              type="number"
+              type="text"
               class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
             />
           </div>
@@ -225,7 +225,7 @@
                 >
                   <PencilSquareIcon class="w-5 h-5" />
                 </button>
-
+                <!-- v-if="authStore.isSuperAdmin" -->
                 <button
                   v-if="authStore.isSuperAdmin"
                   @click.prevent="onDeleteHandler(r.id)"
@@ -331,6 +331,11 @@ const addNewHandler = async () => {
       frmData.append("contracts[" + i + "]", file);
     }
   }
+
+  console.log(
+    formData.value.bank_account_number,
+    "this is bank account number"
+  );
 
   try {
     const response = await hotelStore.addNewAction(frmData);

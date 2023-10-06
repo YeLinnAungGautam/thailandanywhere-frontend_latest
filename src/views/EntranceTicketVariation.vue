@@ -20,7 +20,7 @@
         <form @submit.prevent="onSubmitHandler" class="mt-2">
           <div class="mb-2 space-y-1">
             <label for="name" class="text-sm text-gray-800"
-              >Entrance Ticket</label
+              >Attraction Name</label
             >
             <v-select
               v-model="formData.entrance_ticket_id"
@@ -33,7 +33,7 @@
             ></v-select>
           </div>
           <div class="mb-2 space-y-1">
-            <label for="price" class="text-sm text-gray-800">Price Name</label>
+            <label for="price" class="text-sm text-gray-800">Ticket Name</label>
             <input
               type="text"
               v-model="formData.price_name"

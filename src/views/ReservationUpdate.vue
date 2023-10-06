@@ -266,7 +266,14 @@ const onSubmitHandler = async () => {
   frmData.append("selling_price", formData.value.selling_price);
   frmData.append("service_date", formData.value.service_date);
   frmData.append("car_id", formData.value.car_id);
-  // frmData.append("paid_slip", formData.value.paid_slip);
+  if (customer_passport.value.length != 0) {
+    if (customer_passport.value.length > 0) {
+      for (let i = 0; i < customer_passport.value.length; i++) {
+        let file = customer_passport.value[i];
+        frmData.append("customer_passport[" + i + "]", file);
+      }
+    }
+  }
 
   try {
     const response = await reservationStore.updateAction(
@@ -464,6 +471,13 @@ const getDetail = async () => {
         "this is receipt image"
       );
     }
+    if (response.result.customer_passports.length > 0) {
+      customer_passport_data.value = response.result.customer_passports;
+      console.log(
+        customer_passport_data.value,
+        "this is customer passport image"
+      );
+    }
     if (response.result.pickup_time) {
       formData.value.pickup_time = response.result.pickup_time;
     } else {
@@ -590,6 +604,7 @@ const getDetail = async () => {
     } else {
       formData.value.cost = response.result.cost;
     }
+    // formData.value.cost = response.result.cost;
 
     if (response.result.payment_status == "null") {
       formData.value.payment_status = "";
@@ -794,6 +809,38 @@ const deleteImagePaid = async (id) => {
   console.log(id, "this is delete id");
   await reservationStore.deletePaidImage(id);
   toast.success("success delete receipt paid slip");
+  await getDetail();
+};
+
+const featureImageInput = ref(null);
+const featureCusPassPreview = ref([]);
+const customer_passport = ref([]);
+const customer_passport_data = ref([]);
+
+const openFileFeaturePicker = () => {
+  featureImageInput.value.click();
+};
+
+const handlerCustomerPassport = (e) => {
+  let selectedFile = e.target.files;
+
+  for (let index = 0; index < selectedFile.length; index++) {
+    customer_passport.value.push(selectedFile[index]);
+    featureCusPassPreview.value.push(URL.createObjectURL(selectedFile[index]));
+    console.log(customer_passport.value, "this is customer passport array");
+  }
+};
+
+const removeCustomerPassportImage = (index) => {
+  customer_passport.value.splice(index, 1);
+  featureCusPassPreview.value.splice(index, 1);
+  console.log(customer_passport.value, "this is remove");
+};
+
+const deleteCustomerPassport = async (id) => {
+  const res = await reservationStore.deleteCustomerPassportAction(id);
+  toast.success("success delete customer passport");
+  window.location.reload();
   await getDetail();
 };
 
@@ -1095,6 +1142,91 @@ onMounted(async () => {
               <p class="text-gray-400 text-xs">Email:</p>
               <p class="font-semibold text-xs">{{ formData.cus_email }}</p>
             </div>
+            <div
+              class="col-span-2 grid grid-cols-2 gap-4"
+              v-if="
+                formData.product_type == 'App\\Models\\EntranceTicket' ||
+                formData.product_type == 'App\\Models\\Hotel' ||
+                formData.product_type == 'App\\Models\\Airline'
+              "
+            >
+              <div class="pl-10 space-y-2">
+                <p></p>
+                <p class="text-gray-400 text-xs">Customer Passport Multiple</p>
+              </div>
+              <div class="pl-10 space-y-2">
+                <input
+                  type="file"
+                  ref="featureImageInput"
+                  multiple
+                  class="hidden"
+                  @change="handlerCustomerPassport"
+                  accept="image/*"
+                />
+                <p
+                  class="text-white text-xs inline-block cursor-pointer bg-[#ff613c] rounded-sm px-2 py-1"
+                  @click.prevent="openFileFeaturePicker"
+                >
+                  Add New Customer Passport
+                </p>
+              </div>
+              <div class="px-4 space-y-2 col-span-2">
+                <p
+                  class="pl-6 text-gray-400 text-xs"
+                  v-if="featureCusPassPreview.length > 0"
+                >
+                  Preview Images for Customer Passport
+                </p>
+                <div
+                  v-if="featureCusPassPreview.length > 0"
+                  class="grid grid-cols-3 gap-4"
+                >
+                  <div
+                    v-for="(img, index) in featureCusPassPreview"
+                    :key="index"
+                    class="relative"
+                  >
+                    <img :src="img" alt="" />
+                    <span
+                      class="absolute top-[-10px] right-0"
+                      @click="removeCustomerPassportImage(index)"
+                    >
+                      <i
+                        class="fa-solid fa-circle-minus text-red-600 text-lg"
+                      ></i>
+                    </span>
+                  </div>
+                </div>
+                <p
+                  class="pl-6 text-gray-400 text-xs"
+                  v-if="customer_passport_data.length > 0"
+                >
+                  Customer Passports
+                </p>
+                <div
+                  v-if="customer_passport_data.length > 0"
+                  class="grid grid-cols-3 gap-4"
+                >
+                  <div
+                    v-for="(img, index) in customer_passport_data"
+                    :key="index"
+                    class="relative"
+                  >
+                    <a :href="img.file">
+                      <img :src="img.file" alt="" />
+                    </a>
+                    <span
+                      class="absolute top-[-10px] right-0"
+                      @click="deleteCustomerPassport(img.id)"
+                    >
+                      <i
+                        class="fa-solid fa-circle-minus text-red-600 text-lg"
+                      ></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div
@@ -1136,12 +1268,7 @@ onMounted(async () => {
               >
                 Variation Type
               </p>
-              <!-- <p
-                v-if="formData.product_type == 'App\\Models\\Hotel'"
-                class="text-gray-400 text-xs"
-              >
-                Hotel Type
-              </p> -->
+
               <p
                 v-if="formData.product_type == 'App\\Models\\Airline'"
                 class="text-gray-400 text-xs"
@@ -1167,9 +1294,7 @@ onMounted(async () => {
               <p
                 class="font-semibold text-xs"
                 v-if="formData.product_type == 'App\\Models\\Hotel'"
-              >
-                <!-- {{ formData.hotel_name }} -->
-              </p>
+              ></p>
               <p
                 class="font-semibold text-xs"
                 v-if="
@@ -1538,11 +1663,7 @@ onMounted(async () => {
                 Booking Confirmation Letter
               </p>
               <p class="text-gray-400 text-xs" v-else>Car Photos</p>
-              <!-- <p
-                class="font-semibold py-4 px-4 flex justify-center items-center text-xs border border-gray-400 border-dashed"
-              >
-                <i class="fa-solid fa-plus text-2xl text-gray-400"></i>
-              </p> -->
+
               <div class="space-y-1 mb-2">
                 <label for="image" class="text-gray-800 text-sm relative">
                   <span
@@ -1625,13 +1746,6 @@ onMounted(async () => {
                 </p>
                 <p class="text-gray-400 text-xs" v-else>Expensive Paid Slip</p>
                 <div class="space-y-1 mb-2">
-                  <!-- <label for="image" class="text-gray-800 text-sm relative">
-                    <span
-                      v-if="expPreviewImage.length != 0"
-                      @click.prevent="expremoveSelectedImage"
-                      class="text-red-400 text-xs cursor-pointer font-semibold underline absolute top-0 left-0"
-                      ><i class="fa-solid fa-circle-minus text-3xl"></i></span
-                  ></label> -->
                   <input
                     type="file"
                     id="image"
@@ -1640,13 +1754,7 @@ onMounted(async () => {
                     @change="exphandleFileChange"
                     accept="image/*"
                   />
-                  <!-- <div v-if="expPreviewImage.length != 0" class="w-full h-auto">
-                    <img
-                      :src="expPreviewImage"
-                      alt="Image preview"
-                      class="rounded w-full h-auto"
-                    />
-                  </div> -->
+
                   <div class="grid grid-cols-3 gap-3 mt-4">
                     <div
                       class="relative"
@@ -1766,13 +1874,6 @@ onMounted(async () => {
               <div class="pl-10 pr-10 space-y-2">
                 <p class="text-gray-400 text-xs">Receipt</p>
                 <div class="space-y-1 mb-2">
-                  <!-- <label for="image" class="text-gray-800 text-sm relative"> -->
-                  <!-- <span
-                      v-if="uploadRecePreview"
-                      @click.prevent="receremoveSelectedImage"
-                      class="text-red-400 text-xs cursor-pointer font-semibold underline absolute top-0 left-0"
-                      ><i class="fa-solid fa-circle-minus text-3xl"></i></span
-                  ></label> -->
                   <input
                     type="file"
                     id="image"
@@ -1781,13 +1882,7 @@ onMounted(async () => {
                     @change="recehandleFileChange"
                     accept="image/*"
                   />
-                  <!-- <div v-if="uploadRecePreview" class="w-full h-auto">
-                    <img
-                      :src="uploadRecePreview"
-                      alt="Image preview"
-                      class="rounded w-full h-auto"
-                    />
-                  </div> -->
+
                   <div class="grid grid-cols-3 gap-3 mt-4">
                     <div
                       class="relative"
@@ -1810,16 +1905,6 @@ onMounted(async () => {
                     v-if="booking_receipt.length != 0"
                   >
                     <div v-for="(image, index) in booking_receipt" :key="index">
-                      <!-- <p class="text-xs mb-2 mt-2">
-                        Upload Payment Receipt {{ index + 1 }}
-                      </p> -->
-                      <!-- <a
-                        :href="image.file"
-                        target="_blink"
-                        class="text-xs text-blue-700 cursor-pointer"
-                      >
-                        Upload Payment Receipt Link {{ index + 1 }}
-                      </a> -->
                       <span v-if="authStore.isSuperAdmin"
                         ><i
                           class="fa-solid fa-trash-can text-lg text-red-500"

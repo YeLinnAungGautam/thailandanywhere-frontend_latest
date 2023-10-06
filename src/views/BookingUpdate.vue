@@ -1215,6 +1215,7 @@ const clickdetaildesUpdate = (x) => {
     formData.value.items[x].days;
   formData.value.items[x].total_amount = totalsub;
   clickdetaildes.value = false;
+  getSubTotal();
 };
 
 const itemSpecial = ref("");

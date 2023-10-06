@@ -75,6 +75,7 @@ const formitem = ref({
   room_id: "",
   room: null,
   service_date: "",
+  cost_price: "",
   quantity: "1",
   days: "",
   duration: "",
@@ -170,6 +171,7 @@ const chooseCarPrice = async (type, productId, id) => {
       formitem.value.car_list = res.result.cars;
       if (res.result.cars[i].id == id) {
         formitem.value.selling_price = res.result.cars[i].price;
+        formitem.value.cost_price = res.result.cars[i].agent_price;
         console.log(res.result.cars[i]);
       }
     }
@@ -189,6 +191,7 @@ const chooseCarPrice = async (type, productId, id) => {
     for (let i = 0; i < res.result.cars.length; i++) {
       if (res.result.cars[i].id == id) {
         formitem.value.selling_price = res.result.cars[i].price;
+        formitem.value.cost_price = res.result.cars[i].agent_price;
         console.log(res.result.cars[i].price);
       }
     }
@@ -200,6 +203,7 @@ const chooseCarPrice = async (type, productId, id) => {
     for (let i = 0; i < res.result.variations.length; i++) {
       if (res.result.variations[i].id == id) {
         formitem.value.selling_price = res.result.variations[i].price;
+        formitem.value.cost_price = res.result.variations[i].cost_price;
         formitem.value.comment = res.result.variations[i].description;
         console.log(res.result.variations[i].description);
       }
@@ -211,6 +215,7 @@ const chooseCarPrice = async (type, productId, id) => {
     const room = res.result.rooms.filter((r) => r.id === id)[0];
     formitem.value.room = room;
     formitem.value.selling_price = room.room_price;
+    formitem.value.cost_price = room.cost == null ? "" : room.cost;
     formitem.value.extra_price = room.extra_price;
     formitem.value.comment = room.description;
     console.log(room);
@@ -368,6 +373,7 @@ const addNewitem = () => {
     car_list: [],
     room_id: "",
     room: null,
+    cost_price: "",
     service_date: "",
     quantity: "1",
     days: "",
@@ -1129,7 +1135,7 @@ onMounted(async () => {});
                         <th
                           class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
                         >
-                          Service Date
+                          Cost Price
                         </th>
                         <th
                           class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
@@ -1261,11 +1267,22 @@ onMounted(async () => {});
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <input
-                            type="date"
-                            v-model="formitem.service_date"
+                          <!-- <input
+                            type="text"
+                            disabled
+                            v-model="formitem.cost_price"
                             id="title"
                             class="px-1 py-1.5 focus:outline-none text-xs rounded"
+                          /> -->
+                          <!-- <p>{{ formitem.cost_price }}</p> -->
+                          <p v-if="formitem.product_type != '6'">
+                            {{ formitem.cost_price }}
+                          </p>
+                          <input
+                            v-if="formitem.product_type == '6'"
+                            type="number"
+                            v-model="formitem.cost_price"
+                            class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
                           />
                         </td>
                         <td
@@ -1356,26 +1373,10 @@ onMounted(async () => {});
                           <i
                             class="text-lg text-green-600 fa-solid fa-circle-check"
                           ></i>
-                          <!-- <i
-                            class="text-lg text-yellow-500 fa-solid fa-circle-exclamation"
-                          ></i> -->
-                          <!-- <i
-                            class="text-lg text-red-600 fa-solid fa-circle-xmark"
-                          ></i> -->
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <!-- <v-select
-                            v-model="item.product_type"
-                            class="style-chooser"
-                            :options="formItemType"
-                            label="name"
-                            disabled
-                            :clearable="false"
-                            :reduce="(d) => d.id"
-                            placeholder="Choose product type"
-                          ></v-select> -->
                           <p v-if="item.product_type == '1'">Vantour</p>
                           <p v-if="item.product_type == '2'">Group</p>
                           <p v-if="item.product_type == '3'">Airport</p>
@@ -1491,11 +1492,14 @@ onMounted(async () => {});
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <input
+                          <!-- <input
                             type="date"
                             v-model="item.service_date"
                             class="text-xs focus:outline-none"
-                          />
+                          /> -->
+                          <p>
+                            {{ item.cost_price }}
+                          </p>
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -1605,57 +1609,7 @@ onMounted(async () => {});
                         class="w-full h-8 px-4 py-2 mt-2 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300"
                       />
                     </div>
-                    <!-- <div class="grid grid-cols-2 gap-4">
-                      <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
-                        Discount
-                      </p>
-                      <input
-                        v-model="formData.discount"
-                        type="text"
-                        id="title"
-                        class="w-full h-8 px-4 py-2 mt-2 text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-                      />
-                      <p
-                        v-if="errors?.discount"
-                        class="mt-1 text-sm text-red-600"
-                      >
-                        {{ errors.discount[0] }}
-                      </p>
-                    </div> -->
-                    <!-- <div class="grid grid-cols-2 gap-4">
-                      <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
-                        Total:
-                      </p>
-                      <input
-                        v-model="grand_total"
-                        disabled
-                        type="text"
-                        id="title"
-                        class="w-full h-8 px-4 py-2 mt-2 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300"
-                      />
-                    </div> -->
-                    <!-- <div class="grid grid-cols-2 gap-4">
-                      <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
-                        Deposit:
-                      </p>
-                      <input
-                        type="text"
-                        v-model="formData.deposit"
-                        id="title"
-                        class="w-full h-8 px-4 py-2 mt-2 text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-                      />
-                    </div> -->
-                    <!-- <div class="grid grid-cols-2 gap-4">
-                      <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
-                        Reciept Image
-                      </p>
-                      <input
-                        @change="handlerFeatureFileChange"
-                        type="file"
-                        id="title"
-                        class="w-full h-12 px-4 py-2 text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-                      />
-                    </div> -->
+
                     <div
                       class="grid grid-cols-2 gap-4"
                       v-if="formData.deposit > 0"
@@ -1696,70 +1650,8 @@ onMounted(async () => {});
                           ></i
                         ></span>
                       </div>
-                      <!-- <div v-if="featureImagePreview" class="">
-                        <img
-                          class="w-full h-auto mt-2 rounded"
-                          :src="featureImagePreview"
-                          alt=""
-                        />
-                      </div> -->
-                      <!-- <div
-                        class="grid grid-cols-2 col-span-2 gap-4 bg-gray-200/50"
-                        v-if="featureImagePreview.length != 0"
-                      >
-                        <div
-                          v-for="(image, index) in featureImagePreview"
-                          :key="index"
-                        >
-                          <a :href="image" target="_blink">
-                            <img :src="image" alt="" />
-                          </a>
-                        </div>
-                      </div> -->
-                      <!-- <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
-                        <div
-                          class="relative"
-                          v-for="(image, index) in featureImagePreview"
-                          :key="index"
-                        >
-                          <button
-                            @click.prevent="removeFeatureSelectImage(index)"
-                            class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
-                          >
-                            <XCircleIcon class="w-8 h-8 font-semibold" />
-                          </button>
-
-                          <img
-                            class="h-auto w-full rounded"
-                            :src="image"
-                            alt=""
-                          />
-                        </div>
-                      </div> -->
                     </div>
-                    <!-- <div class="grid grid-cols-2 gap-4">
-                      <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
-                        Balance Due:
-                      </p>
-                      <input
-                        type="text"
-                        disabled
-                        v-model="balance_due"
-                        id="title"
-                        class="w-full h-8 px-4 py-2 mt-2 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300"
-                      />
-                    </div> -->
-                    <!-- <div class="grid grid-cols-2 gap-4">
-                      <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
-                        Due Date:
-                      </p>
-                      <input
-                        type="date"
-                        v-model="formData.balance_due_date"
-                        id="title"
-                        class="w-full h-8 px-4 py-2 mt-2 text-sm text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-                      />
-                    </div> -->
+
                     <div class="mt-6 mb-3 text-end" v-show="allowCreate">
                       <Button
                         @click.prevent="onSubmitHandler"

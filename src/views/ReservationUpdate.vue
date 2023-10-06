@@ -1142,7 +1142,7 @@ onMounted(async () => {
               <p class="text-gray-400 text-xs">Email:</p>
               <p class="font-semibold text-xs">{{ formData.cus_email }}</p>
             </div>
-            <div
+            <!-- <div
               class="col-span-2 grid grid-cols-2 gap-4"
               v-if="
                 formData.product_type == 'App\\Models\\EntranceTicket' ||
@@ -1226,7 +1226,7 @@ onMounted(async () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
 
           <div
@@ -1844,7 +1844,7 @@ onMounted(async () => {
               />
             </div>
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Cost</p>
+              <p class="text-gray-400 text-xs">Unit Cost</p>
               <input
                 v-model="formData.cost"
                 type="number"
@@ -1863,7 +1863,7 @@ onMounted(async () => {
               "
             >
               <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs">Expense Amount</p>
+                <p class="text-gray-400 text-xs">Total Cost</p>
                 <input
                   v-model="expense_amount"
                   type="number"

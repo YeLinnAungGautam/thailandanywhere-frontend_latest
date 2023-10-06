@@ -368,6 +368,7 @@ const addNewitem = () => {
     checkout_date: "",
   };
   todayVali.value = false;
+  getSubTotal();
   addToggle();
 };
 
@@ -1214,6 +1215,7 @@ const clickdetaildesUpdate = (x) => {
     formData.value.items[x].days;
   formData.value.items[x].total_amount = totalsub;
   clickdetaildes.value = false;
+  getSubTotal();
 };
 
 const itemSpecial = ref("");
@@ -1609,17 +1611,17 @@ onMounted(async () => {
                 </p>
               </div>
             </div>
-            <a :href="urlPaid" target="_blink" class="col-span-1 space-y-4 text-end">
+            <a
+              :href="urlPaid"
+              target="_blink"
+              class="col-span-1 space-y-4 text-end"
+            >
               <p class="text-[#ff613c] text-xs">Balance Due</p>
               <p class="text-[#ff613c] font-bold text-4xl tracking-wide">
                 {{ balance_due }} thb
               </p>
 
-              <h2
-                
-                
-                class="border border-[#ff613c] inline-block py-2 px-4"
-              >
+              <h2 class="border border-[#ff613c] inline-block py-2 px-4">
                 <p class="text-[#ff613c] text-sm">Receive Payment</p>
               </h2>
             </a>

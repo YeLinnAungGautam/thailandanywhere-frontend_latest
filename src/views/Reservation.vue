@@ -206,7 +206,7 @@ watch(searchA, async (newValue) => {
           </p>
         </div>
       </div>
-      <div class="mb-5 flex justify-start items-center space-x-3">
+      <div class="flex items-center justify-start mb-5 space-x-3">
         <div>
           <input
             v-model="searchId"
@@ -227,12 +227,12 @@ watch(searchA, async (newValue) => {
           ></v-select>
         </div>
         <div>
-          <p class="inline-block mr-2 text-gray-500 text-xs font-medium">
+          <p class="inline-block mr-2 text-xs font-medium text-gray-500">
             Show
           </p>
           <select
             v-model="limit"
-            class="border-2 p-2 rounded-md w-16 focus:outline-none text-xs focus:ring-0"
+            class="w-16 p-2 text-xs border-2 rounded-md focus:outline-none focus:ring-0"
           >
             <option value="10">10</option>
             <option value="20">20</option>
@@ -240,12 +240,12 @@ watch(searchA, async (newValue) => {
             <option value="40">40</option>
             <option value="50">50</option>
           </select>
-          <p class="inline-block ml-2 text-gray-500 text-xs font-medium">
+          <p class="inline-block ml-2 text-xs font-medium text-gray-500">
             entries
           </p>
         </div>
       </div>
-      <div class="mb-5 rounded-lg shadow w-auto overflow-scroll bg-white">
+      <div class="w-auto mb-5 overflow-scroll bg-white rounded-lg shadow">
         <div class="grid grid-cols-8 gap-2 py-2">
           <div
             class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
@@ -298,16 +298,16 @@ watch(searchA, async (newValue) => {
           :key="r.id"
         >
           <div
-            class="grid grid-cols-8 col-span-8 bg-white w-auto divide-y divide-gray-100"
+            class="grid w-auto grid-cols-8 col-span-8 bg-white divide-y divide-gray-100"
           >
             <!-- <div
-              class="px-3 py-1 mt-2 text-xs text-center col-span-6 text-gray-700 whitespace-nowrap bg-gray-300"
+              class="col-span-6 px-3 py-1 mt-2 text-xs text-center text-gray-700 bg-gray-300 whitespace-nowrap"
               v-if="r.past_crm_id"
             >
               Cashiers CRM ID - {{ r.past_crm_id }}
             </div>
             <div
-              class="px-3 py-1 mt-2 text-xs text-center col-span-6 text-gray-700 whitespace-nowrap bg-gray-300"
+              class="col-span-6 px-3 py-1 mt-2 text-xs text-center text-gray-700 bg-gray-300 whitespace-nowrap"
               v-else
             >
               Current Reservation

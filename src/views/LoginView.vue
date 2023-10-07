@@ -51,8 +51,11 @@ const loginHandler = async () => {
     toast.success(response.message);
     router.push({ name: "home" });
   } catch (error) {
+    console.log("🚀 ~ file: LoginView.vue:54 ~ loginHandler ~ error:", error);
     formData.value = { email: "", password: "" };
-    toast.error(error.response.data.message);
+    if (error.response) {
+      toast.error(error.response.data.message);
+    }
   }
 };
 </script>

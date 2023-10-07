@@ -136,10 +136,18 @@ const secForm = ref({
 });
 
 const fileInput = ref(null);
+const fileInputTwo = ref(null);
+const fileInputThree = ref(null);
 const previewImage = ref(null);
 
 const openFilePicker = () => {
   fileInput.value.click();
+};
+const openFilePickerTwo = () => {
+  fileInputTwo.value.click();
+};
+const openFilePickerThree = () => {
+  fileInputThree.value.click();
 };
 
 const handleFileChange = (e) => {
@@ -631,7 +639,8 @@ const getDetail = async () => {
     if (response.result.cost_price == "null") {
       formData.value.cost_price = "";
     } else {
-      formData.value.cost_price = response.result.cost_price;
+      formData.value.cost_price =
+        response.result.cost_price * response.result.quantity;
     }
     if (response.result.car == null) {
       formData.value.car_id = "";
@@ -1745,15 +1754,32 @@ onMounted(async () => {
                   Hotel Confirmation Receipt
                 </p>
                 <p class="text-gray-400 text-xs" v-else>Expensive Paid Slip</p>
-                <div class="space-y-1 mb-2">
-                  <input
+                <div class="space-y-4 mb-2">
+                  <!-- <input
                     type="file"
                     id="image"
                     multiple
                     class="mb-3"
                     @change="exphandleFileChange"
                     accept="image/*"
+                  /> -->
+                  <input
+                    type="file"
+                    id="image"
+                    ref="fileInputTwo"
+                    multiple
+                    class="hidden"
+                    @change="exphandleFileChange"
+                    accept="image/*"
                   />
+                  <div
+                    @click.prevent="openFilePickerTwo"
+                    class="font-semibold py-4 px-4 flex justify-center items-center text-xs border border-gray-400 border-dashed"
+                  >
+                    <span class="text-xs"
+                      ><i class="fa-solid fa-plus text-2xl text-gray-400"></i
+                    ></span>
+                  </div>
 
                   <div class="grid grid-cols-3 gap-3 mt-4">
                     <div
@@ -1846,7 +1872,7 @@ onMounted(async () => {
             <div class="pl-10 pr-10 space-y-2">
               <p class="text-gray-400 text-xs">Unit Cost</p>
               <input
-                v-model="formData.cost"
+                v-model="formData.cost_price"
                 type="number"
                 id="title"
                 class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
@@ -1873,15 +1899,32 @@ onMounted(async () => {
 
               <div class="pl-10 pr-10 space-y-2">
                 <p class="text-gray-400 text-xs">Receipt</p>
-                <div class="space-y-1 mb-2">
-                  <input
+                <div class="space-y-4 mb-2">
+                  <!-- <input
                     type="file"
                     id="image"
                     multiple
                     class="mb-3"
                     @change="recehandleFileChange"
                     accept="image/*"
+                  /> -->
+                  <input
+                    type="file"
+                    id="image"
+                    ref="fileInputThree"
+                    multiple
+                    class="hidden"
+                    @change="recehandleFileChange"
+                    accept="image/*"
                   />
+                  <div
+                    @click.prevent="openFilePickerThree"
+                    class="font-semibold py-4 px-4 flex justify-center items-center text-xs border border-gray-400 border-dashed"
+                  >
+                    <span class="text-xs"
+                      ><i class="fa-solid fa-plus text-2xl text-gray-400"></i
+                    ></span>
+                  </div>
 
                   <div class="grid grid-cols-3 gap-3 mt-4">
                     <div

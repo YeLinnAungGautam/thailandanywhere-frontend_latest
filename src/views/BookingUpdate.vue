@@ -644,6 +644,12 @@ const onSubmitHandler = async () => {
       "items[" + x + "][quantity]",
       formData.value.items[x].quantity
     );
+    formData.value.items[x].cost_price
+      ? frmData.append(
+          "items[" + x + "][cost_price]",
+          formData.value.items[x].cost_price
+        )
+      : "";
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     formData.value.items[x].days
@@ -883,6 +889,7 @@ const chooseCarPrice = async (type, productId, id) => {
     for (let i = 0; i < res.result.variations.length; i++) {
       if (res.result.variations[i].id == id) {
         formitem.value.selling_price = res.result.variations[i].price;
+        formitem.value.cost_price = res.result.variations[i].cost_price;
         formitem.value.comment = res.result.variations[i].description;
         console.log(res.result.variations[i].price);
       }
@@ -895,6 +902,7 @@ const chooseCarPrice = async (type, productId, id) => {
     formitem.value.room = room;
     formitem.value.selling_price = room.room_price;
     formitem.value.extra_price = room.extra_price;
+    formitem.value.cost_price = room.cost;
     formitem.value.comment = room.description;
     console.log(formitem.value.room);
   } else if (type == "7") {

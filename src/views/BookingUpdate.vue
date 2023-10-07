@@ -646,7 +646,9 @@ const onSubmitHandler = async () => {
     );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append("items[" + x + "][days]", formData.value.items[x].days);
+    formData.value.items[x].days
+      ? frmData.append("items[" + x + "][days]", formData.value.items[x].days)
+      : "";
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     formData.value.items[x].pickup_location

@@ -374,8 +374,9 @@ const chooseCarPrice = async (type, productId, id) => {
     for (let i = 0; i < res.result.variations.length; i++) {
       if (res.result.variations[i].id == id) {
         formitem.value.selling_price = res.result.variations[i].price;
+        formitem.value.cost_price = res.result.variations[i].cost_price;
         formitem.value.comment = res.result.variations[i].description;
-        console.log(res.result.variations[i].description);
+        console.log(formitem.value.cost_price, "this is cost price detail");
       }
     }
     console.log(res);
@@ -385,6 +386,8 @@ const chooseCarPrice = async (type, productId, id) => {
     const room = res.result.rooms.filter((r) => r.id === id)[0];
     formitem.value.room = room;
     formitem.value.selling_price = room.room_price;
+    formitem.value.cost_price = room.cost;
+    console.log(formitem.value.cost_price, "this is room cost");
     formitem.value.extra_price = room.extra_price;
     formitem.value.comment = room.description;
     console.log(room);
@@ -636,6 +639,13 @@ const onSubmitHandler = async () => {
       ? frmData.append(
           "items[" + x + "][pickup_location]",
           formData.value.items[x].pickup_location
+        )
+      : "";
+
+    formData.value.items[x].cost_price
+      ? frmData.append(
+          "items[" + x + "][cost_price]",
+          formData.value.items[x].cost_price
         )
       : "";
 

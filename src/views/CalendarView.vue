@@ -44,7 +44,7 @@ const { reservations, loading } = storeToRefs(reservationStore);
 
 const fetchData = async (service_date) => {
   await reservationStore.getListAction({
-    calender_filter: 1,
+    calender_filter: true,
     service_date: service_date ?? null,
     limit: 10,
   });

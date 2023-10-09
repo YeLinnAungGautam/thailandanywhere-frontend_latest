@@ -9,7 +9,7 @@ export const useAdminStore = defineStore("admin", {
       try {
         this.loading = true;
         const response = await axios.get("/admins");
-        this.admin = response.data.result;
+        this.admin = response.data.result.data;
         this.loading = false;
 
         return response.data;

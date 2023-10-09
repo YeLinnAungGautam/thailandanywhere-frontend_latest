@@ -30,6 +30,7 @@
             <SidebarItem name="Dashboard" :icon="Squares2X2Icon" to="/" />
             <SidebarItem
               name="Sales"
+              v-if="authStore.isSuperAdmin || authStore.isCashier || authStore.isAdmin"
               :icon="CalendarIcon"
               to="/bookings"
               :activePaths="[
@@ -49,7 +50,6 @@
                 'customersupdate',
               ]"
             />
-
             <SidebarItem
               name="Products"
               :icon="ArchiveBoxIcon"
@@ -71,27 +71,23 @@
               ]"
               to="/products/page"
             />
-
             <SidebarItem
               name="Database"
               :icon="CircleStackIcon"
               to="/database"
             />
-
             <SidebarItem
               name="Blogs"
               :icon="DocumentTextIcon"
               to="/blogs"
               :activePaths="['new_blog']"
             />
-
             <SidebarItem
               name="Customers"
               :icon="UsersIcon"
               to="/customers"
               :activePaths="['customers', 'customerscreate', 'customersupdate']"
             />
-
             <SidebarItem
               v-if="authStore.isSuperAdmin"
               name="Admins"

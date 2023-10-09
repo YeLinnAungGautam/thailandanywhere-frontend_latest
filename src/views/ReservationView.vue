@@ -12,6 +12,7 @@ import { storeToRefs } from "pinia";
 import { useCustomerStore } from "../stores/customer";
 import { useVantourStore } from "../stores/vantour";
 import { useGrouptourStore } from "../stores/grouptour";
+import { useAdminStore } from "../stores/admin";
 import { useAirportStore } from "../stores/airport";
 import { useEntranceStore } from "../stores/entrance";
 import { useReservationStore } from "../stores/reservation";
@@ -31,6 +32,7 @@ const entranceStore = useEntranceStore();
 const reservationStore = useReservationStore();
 const inclusiveStore = useInclusiveStore();
 const airlineStore = useAirLineStore();
+const adminStore = useAdminStore();
 
 const { customer, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
@@ -39,6 +41,7 @@ const { airports } = storeToRefs(airportStore);
 const { entrances } = storeToRefs(entranceStore);
 const { inclusives } = storeToRefs(inclusiveStore);
 const { airlines } = storeToRefs(airlineStore);
+const { admins } = storeToRefs(adminStore);
 
 const soldFrom = [
   { id: "1", name: "Facebook" },
@@ -751,7 +754,7 @@ onMounted(async () => {
 <template>
   <Layout>
     <div>
-      <div class="flex justify-between items-center pb-6">
+      <div class="flex items-center justify-between pb-6">
         <p class="text-[#ff613c] font-semibold text-sm">
           Reservation : {{ titleData }} / {{ formData.product_name }} /
           {{ formData.variation_name }}
@@ -781,36 +784,36 @@ onMounted(async () => {
           </div>
 
           <div
-            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            class="flex items-center justify-start px-4 py-2 space-x-4 text-xs bg-white border-b border-gray-300 shadow cursor-pointer"
             @click="bookingSummaryHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
             <p>Booking Summary</p>
           </div>
           <div
-            class="grid grid-cols-2 gap-4 bg-gray-200/50 py-4"
+            class="grid grid-cols-2 gap-4 py-4 bg-gray-200/50"
             v-if="booking_summmary_part"
           >
             <div class="pl-10 space-y-2">
-              <p class="text-gray-400 text-xs">Customer Name</p>
+              <p class="text-xs text-gray-400">Customer Name</p>
               <p class="font-semibold text-xs py-1.5">
                 {{ formData.cus_name }}
               </p>
             </div>
             <div class="pl-10 space-y-2">
-              <p class="text-gray-400 text-xs">Customer Contact</p>
+              <p class="text-xs text-gray-400">Customer Contact</p>
               <p class="font-semibold text-xs py-1.5">
                 {{ formData.cus_contact }}
               </p>
             </div>
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Product Name</p>
+              <p class="text-xs text-gray-400">Product Name</p>
               <p class="font-semibold text-xs py-1.5">
                 {{ formData.product_name }}
               </p>
             </div>
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Product Variation</p>
+              <p class="text-xs text-gray-400">Product Variation</p>
               <p class="font-semibold text-xs py-1.5">
                 {{ formData.variation_name }}
                 {{ formData.car_name }}
@@ -819,20 +822,20 @@ onMounted(async () => {
             </div>
 
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Quantity</p>
+              <p class="text-xs text-gray-400">Quantity</p>
               <p class="font-semibold text-xs py-1.5">
                 {{ formData.quantity }}
               </p>
             </div>
             <div class="pl-10 pr-10 space-y-2">
               <p
-                class="text-gray-400 text-xs"
+                class="text-xs text-gray-400"
                 v-if="formData.product_type != 'App\\Models\\Hotel'"
               >
                 Service Date:
               </p>
               <p
-                class="text-gray-400 text-xs"
+                class="text-xs text-gray-400"
                 v-if="formData.product_type == 'App\\Models\\Hotel'"
               >
                 Check in - Check out
@@ -844,10 +847,10 @@ onMounted(async () => {
                 type="date"
                 id="title"
                 disabled
-                class="h-8 font-semibold w-full py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
+                class="w-full h-8 py-0 text-xs font-semibold text-gray-900 focus:outline-none focus:border-0"
               />
               <div
-                class="flex justify-start items-center space-x-2"
+                class="flex items-center justify-start space-x-2"
                 v-if="formData.product_type == 'App\\Models\\Hotel'"
               >
                 <p class="font-semibold text-xs py-1.5">
@@ -860,13 +863,13 @@ onMounted(async () => {
               </div>
             </div>
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Payment Method:</p>
+              <p class="text-xs text-gray-400">Payment Method:</p>
               <p class="font-semibold text-xs py-1.5">
                 {{ booking_status.payment_method }}
               </p>
             </div>
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Payment Status</p>
+              <p class="text-xs text-gray-400">Payment Status</p>
               <p class="font-semibold text-xs py-1.5">
                 {{ booking_status.payment_status }}
               </p>
@@ -879,11 +882,11 @@ onMounted(async () => {
                 formData.product_type != 'App\\Models\\Airline'
               "
             >
-              <p class="text-gray-400 text-xs">Pickup Time</p>
-              <p class="font-semibold text-xs">{{ formData.pickup_time }}</p>
+              <p class="text-xs text-gray-400">Pickup Time</p>
+              <p class="text-xs font-semibold">{{ formData.pickup_time }}</p>
             </div>
             <div class="pl-10 space-y-2">
-              <p class="text-gray-400 text-xs">Price</p>
+              <p class="text-xs text-gray-400">Price</p>
               <p class="font-semibold text-xs py-1.5">
                 {{ formData.selling_price * formData.quantity }}
               </p>
@@ -891,67 +894,67 @@ onMounted(async () => {
           </div>
 
           <div
-            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            class="flex items-center justify-start px-4 py-2 space-x-4 text-xs bg-white border-b border-gray-300 shadow cursor-pointer"
             @click="paymentHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
             <p>Payment status</p>
           </div>
           <div
-            class="grid grid-cols-2 gap-4 bg-gray-200/50 py-4"
+            class="grid grid-cols-2 gap-4 py-4 bg-gray-200/50"
             v-if="payment_part"
           >
             <div class="pl-10 space-y-2">
-              <p class="text-gray-400 text-xs">Total Amount</p>
+              <p class="text-xs text-gray-400">Total Amount</p>
               <p class="font-semibold text-xs py-1.5">
                 {{ formData.selling_price * formData.quantity }}
               </p>
             </div>
             <div class="pl-10 space-y-2">
-              <p class="text-gray-400 text-xs">Payment Currency</p>
+              <p class="text-xs text-gray-400">Payment Currency</p>
               <p class="font-semibold text-xs py-1.5">
                 {{ booking_status.payment_currency }}
               </p>
             </div>
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Payment Method:</p>
+              <p class="text-xs text-gray-400">Payment Method:</p>
               <p class="font-semibold text-xs py-1.5">
                 {{ booking_status.payment_method }}
               </p>
             </div>
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Payment Status</p>
+              <p class="text-xs text-gray-400">Payment Status</p>
               <p class="font-semibold text-xs py-1.5">
                 {{ booking_status.payment_status }}
               </p>
             </div>
 
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Payment Due:</p>
-              <!-- <p class="font-semibold text-xs">09/08/2023</p> -->
+              <p class="text-xs text-gray-400">Payment Due:</p>
+              <!-- <p class="text-xs font-semibold">09/08/2023</p> -->
               <input
                 v-model="formData.service_date"
                 type="date"
                 disabled
                 id="title"
-                class="h-8 font-semibold w-full py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
+                class="w-full h-8 py-0 text-xs font-semibold text-gray-900 focus:outline-none focus:border-0"
               />
             </div>
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Service Date:</p>
-              <!-- <p class="font-semibold text-xs">09/08/2023</p> -->
+              <p class="text-xs text-gray-400">Service Date:</p>
+              <!-- <p class="text-xs font-semibold">09/08/2023</p> -->
               <input
                 v-model="formData.service_date"
                 type="date"
                 id="title"
                 disabled
-                class="h-8 font-semibold w-full py-0 text-gray-900 focus:outline-none focus:border-0 text-xs"
+                class="w-full h-8 py-0 text-xs font-semibold text-gray-900 focus:outline-none focus:border-0"
               />
             </div>
           </div>
 
           <div
-            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            class="flex items-center justify-start px-4 py-2 space-x-4 text-xs bg-white border-b border-gray-300 shadow cursor-pointer"
             @click="receiptHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
@@ -962,7 +965,7 @@ onMounted(async () => {
             v-if="receipt_part"
           >
             <div v-for="(image, index) in formData.receipt_images" :key="index">
-              <p class="text-xs mb-2 mt-2">Receipt Image {{ index + 1 }}</p>
+              <p class="mt-2 mb-2 text-xs">Receipt Image {{ index + 1 }}</p>
               <a :href="image.image" target="_blink">
                 <img :src="image.image" alt="" />
               </a>
@@ -973,7 +976,7 @@ onMounted(async () => {
             v-if="receipt_part && booking_confirm_letters.length != 0"
           >
             <div v-for="(image, index) in booking_confirm_letters" :key="index">
-              <p class="text-xs mb-2 mt-2">
+              <p class="mt-2 mb-2 text-xs">
                 Booking Confirm Letter {{ index + 1 }}
               </p>
               <a :href="image.file" target="_blink">
@@ -986,7 +989,7 @@ onMounted(async () => {
             v-if="receipt_part && booking_receipt.length != 0"
           >
             <div v-for="(image, index) in booking_receipt" :key="index">
-              <p class="text-xs mb-2 mt-2">
+              <p class="mt-2 mb-2 text-xs">
                 Upload Payment Receipt {{ index + 1 }}
               </p>
               <a :href="image.file" target="_blink">
@@ -995,46 +998,46 @@ onMounted(async () => {
             </div>
           </div>
           <div
-            class="px-6 py-5 bg-gray-200/50 flex justify-start items-center space-x-4"
+            class="flex items-center justify-start px-6 py-5 space-x-4 bg-gray-200/50"
             v-if="receipt_part && formData.customer_attachment"
           >
-            <p class="text-xs mb-2 mt-2">Customer Attachment File --</p>
+            <p class="mt-2 mb-2 text-xs">Customer Attachment File --</p>
             <p class="text-sm font-semibold text-blue-500">
               <a :href="formData.customer_attachment" target="_blink">Link</a>
             </p>
           </div>
 
           <div
-            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            class="flex items-center justify-start px-4 py-2 space-x-4 text-xs bg-white border-b border-gray-300 shadow cursor-pointer"
             @click="customerHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
             <p>Customer Infomation</p>
           </div>
           <div
-            class="grid grid-cols-2 gap-4 bg-gray-200/50 py-4"
+            class="grid grid-cols-2 gap-4 py-4 bg-gray-200/50"
             v-if="customer_info_part"
           >
             <div class="pl-10 space-y-2">
-              <p class="text-gray-400 text-xs">Name</p>
-              <p class="font-semibold text-xs">{{ formData.cus_name }}</p>
+              <p class="text-xs text-gray-400">Name</p>
+              <p class="text-xs font-semibold">{{ formData.cus_name }}</p>
             </div>
             <div class="pl-10 space-y-2">
-              <p class="text-gray-400 text-xs">Contact</p>
-              <p class="font-semibold text-xs">{{ formData.cus_contact }}</p>
+              <p class="text-xs text-gray-400">Contact</p>
+              <p class="text-xs font-semibold">{{ formData.cus_contact }}</p>
             </div>
             <div class="pl-10 space-y-2">
-              <p class="text-gray-400 text-xs">Passport Number</p>
-              <p class="font-semibold text-xs">{{ formData.cus_passport }}</p>
+              <p class="text-xs text-gray-400">Passport Number</p>
+              <p class="text-xs font-semibold">{{ formData.cus_passport }}</p>
             </div>
             <div class="pl-10 space-y-2">
-              <p class="text-gray-400 text-xs">Email:</p>
-              <p class="font-semibold text-xs">{{ formData.cus_email }}</p>
+              <p class="text-xs text-gray-400">Email:</p>
+              <p class="text-xs font-semibold">{{ formData.cus_email }}</p>
             </div>
           </div>
 
           <div
-            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            class="flex items-center justify-start px-4 py-2 space-x-4 text-xs bg-white border-b border-gray-300 shadow cursor-pointer"
             @click="carInfoPartHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
@@ -1062,25 +1065,25 @@ onMounted(async () => {
             </p>
           </div>
           <div
-            class="grid grid-cols-2 gap-4 bg-gray-200/50 py-4"
+            class="grid grid-cols-2 gap-4 py-4 bg-gray-200/50"
             v-if="carInfo_part"
           >
             <div class="pl-10 space-y-2">
               <p
                 v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
-                class="text-gray-400 text-xs"
+                class="text-xs text-gray-400"
               >
                 Variation Type
               </p>
               <!-- <p
                 v-if="formData.product_type == 'App\\Models\\Hotel'"
-                class="text-gray-400 text-xs"
+                class="text-xs text-gray-400"
               >
                 Hotel Type
               </p> -->
               <p
                 v-if="formData.product_type == 'App\\Models\\Airline'"
-                class="text-gray-400 text-xs"
+                class="text-xs text-gray-400"
               >
                 Ticket Type
               </p>
@@ -1090,24 +1093,24 @@ onMounted(async () => {
                   formData.product_type != 'App\\Models\\Hotel' &&
                   formData.product_type != 'App\\Models\\Airline'
                 "
-                class="text-gray-400 text-xs"
+                class="text-xs text-gray-400"
               >
                 Car Type
               </p>
               <p
-                class="font-semibold text-xs"
+                class="text-xs font-semibold"
                 v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
               >
                 {{ formData.variation_name }}
               </p>
               <p
-                class="font-semibold text-xs"
+                class="text-xs font-semibold"
                 v-if="formData.product_type == 'App\\Models\\Hotel'"
               >
                 <!-- {{ formData.hotel_name }} -->
               </p>
               <p
-                class="font-semibold text-xs"
+                class="text-xs font-semibold"
                 v-if="
                   formData.product_type != 'App\\Models\\EntranceTicket' &&
                   formData.product_type != 'App\\Models\\Hotel'
@@ -1117,8 +1120,8 @@ onMounted(async () => {
               </p>
             </div>
             <div class="pl-10 space-y-2">
-              <p class="text-gray-400 text-xs">Product</p>
-              <p class="font-semibold text-xs">{{ formData.product_name }}</p>
+              <p class="text-xs text-gray-400">Product</p>
+              <p class="text-xs font-semibold">{{ formData.product_name }}</p>
             </div>
             <div
               class="pl-10 space-y-2"
@@ -1128,8 +1131,8 @@ onMounted(async () => {
                 formData.product_type != 'App\\Models\\Airline'
               "
             >
-              <p class="text-gray-400 text-xs">Pickup Time</p>
-              <p class="font-semibold text-xs">{{ formData.pickup_time }}</p>
+              <p class="text-xs text-gray-400">Pickup Time</p>
+              <p class="text-xs font-semibold">{{ formData.pickup_time }}</p>
             </div>
             <div
               class="pl-10 pr-10 space-y-2"
@@ -1139,99 +1142,99 @@ onMounted(async () => {
                 formData.product_type != 'App\\Models\\Airline'
               "
             >
-              <p class="text-gray-400 text-xs">Durations</p>
+              <p class="text-xs text-gray-400">Durations</p>
               <input
                 v-model="formData.duration"
                 type="text"
                 id="title"
-                class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                class="w-full h-8 px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
               />
             </div>
             <div
               class="pl-10 pr-10 space-y-2"
               v-if="formData.product_type == 'App\\Models\\Hotel'"
             >
-              <p class="text-gray-400 text-xs">Checkin Date</p>
+              <p class="text-xs text-gray-400">Checkin Date</p>
               <input
                 v-model="checkin_date"
                 type="date"
                 disabled
                 id="title"
-                class="h-8 font-semibold w-full bg-transparent text-xs"
+                class="w-full h-8 text-xs font-semibold bg-transparent"
               />
             </div>
             <div
               class="pl-10 pr-10 space-y-2"
               v-if="formData.product_type == 'App\\Models\\Hotel'"
             >
-              <p class="text-gray-400 text-xs">Checkout Date</p>
+              <p class="text-xs text-gray-400">Checkout Date</p>
               <input
                 v-model="checkout_date"
                 type="date"
                 disabled
                 id="title"
-                class="h-8 font-semibold w-full bg-transparent text-xs"
+                class="w-full h-8 text-xs font-semibold bg-transparent"
               />
             </div>
           </div>
 
           <div
-            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            class="flex items-center justify-start px-4 py-2 space-x-4 text-xs bg-white border-b border-gray-300 shadow cursor-pointer"
             @click="feedbackHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
             <p>Customer Reviews</p>
           </div>
-          <div class="bg-gray-200/50 py-4 space-y-2" v-if="feedback_part">
+          <div class="py-4 space-y-2 bg-gray-200/50" v-if="feedback_part">
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs font">Feedback</p>
+              <p class="text-xs text-gray-400 font">Feedback</p>
 
               <textarea
-                class="w-full bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 font-semibold text-xs"
+                class="w-full px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
                 cols="4"
                 v-model="secForm.customer_feedback"
               ></textarea>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs font">Customer Score</p>
+                <p class="text-xs text-gray-400 font">Customer Score</p>
                 <input
                   v-model="secForm.customer_score"
                   type="number"
                   id="title"
-                  class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  class="w-full h-8 px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
               <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs font">Driver Score</p>
+                <p class="text-xs text-gray-400 font">Driver Score</p>
                 <input
                   v-model="secForm.driver_score"
                   type="number"
                   id="title"
-                  class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  class="w-full h-8 px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
-              <div class="pl-10 pr-10 pb-8 space-y-2">
-                <p class="text-gray-400 text-xs font">Product Score</p>
+              <div class="pb-8 pl-10 pr-10 space-y-2">
+                <p class="text-xs text-gray-400 font">Product Score</p>
                 <input
                   v-model="secForm.product_score"
                   type="number"
                   id="title"
-                  class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  class="w-full h-8 px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
             </div>
           </div>
         </div>
 
-        <div class=" ">
+        <div class="">
           <div
             class="flex justify-start items-center text-xs bg-[#ff613c] text-white font-semibold px-4 py-2"
           >
             <p>Add Reservation Detail</p>
           </div>
           <div
-            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            class="flex items-center justify-start px-4 py-2 space-x-4 text-xs bg-white border-b border-gray-300 shadow cursor-pointer"
             v-if="
               formData.product_type != 'App\\Models\\EntranceTicket' &&
               formData.product_type != 'App\\Models\\Hotel' &&
@@ -1243,7 +1246,7 @@ onMounted(async () => {
             <p>Route Plan</p>
           </div>
           <div
-            class="bg-gray-200/50 p-6"
+            class="p-6 bg-gray-200/50"
             v-if="
               route_plan_part &&
               formData.product_type != 'App\\Models\\EntranceTicket' &&
@@ -1251,9 +1254,9 @@ onMounted(async () => {
               formData.product_type != 'App\\Models\\Airline'
             "
           >
-            <div class="pl-4 space-y-2 border border-gray-200 p-4 bg-white">
+            <div class="p-4 pl-4 space-y-2 bg-white border border-gray-200">
               <textarea
-                class="w-full bg-transparent font-semibold shadow-sm px-4 py-2 text-gray-900 focus:outline-none text-xs border border-gray-300"
+                class="w-full px-4 py-2 text-xs font-semibold text-gray-900 bg-transparent border border-gray-300 shadow-sm focus:outline-none"
                 placeholder="enter like one, two, three"
                 cols="4"
                 v-model="secForm.route_plan"
@@ -1262,20 +1265,20 @@ onMounted(async () => {
           </div>
 
           <div
-            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            class="flex items-center justify-start px-4 py-2 space-x-4 text-xs bg-white border-b border-gray-300 shadow cursor-pointer"
             @click="otherInfoHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
             <p>Other Information</p>
           </div>
           <div
-            class="bg-gray-200/50 px-3 py-5 space-y-2"
+            class="px-3 py-5 space-y-2 bg-gray-200/50"
             v-if="other_info_part"
           >
             <div class="px-6 space-y-2">
-              <p class="text-gray-400 text-xs">Special Requests</p>
+              <p class="text-xs text-gray-400">Special Requests</p>
               <textarea
-                class="w-full bg-white border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                class="w-full px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
                 cols="4"
                 v-model="secForm.special_request"
               ></textarea>
@@ -1289,9 +1292,9 @@ onMounted(async () => {
                 formData.product_type != 'App\\Models\\Airline'
               "
             >
-              <p class="text-gray-400 text-xs">Pickup Location</p>
+              <p class="text-xs text-gray-400">Pickup Location</p>
               <textarea
-                class="w-full bg-white border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                class="w-full px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
                 cols="4"
                 v-model="secForm.pickup_location"
               ></textarea>
@@ -1304,9 +1307,9 @@ onMounted(async () => {
                 formData.product_type != 'App\\Models\\Airline'
               "
             >
-              <p class="text-gray-400 text-xs">Dropoff Location</p>
+              <p class="text-xs text-gray-400">Dropoff Location</p>
               <textarea
-                class="w-full bg-white border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                class="w-full px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
                 cols="4"
                 v-model="secForm.dropoff_location"
               ></textarea>
@@ -1315,7 +1318,7 @@ onMounted(async () => {
 
           <div
             v-if="formData.product_type != 'App\\Models\\Airline'"
-            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            class="flex items-center justify-start px-4 py-2 space-x-4 text-xs bg-white border-b border-gray-300 shadow cursor-pointer"
             @click="carInfoSecHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
@@ -1341,7 +1344,7 @@ onMounted(async () => {
             </p>
           </div>
           <div
-            class="bg-gray-200/50 px-3 py-5 space-y-2"
+            class="px-3 py-5 space-y-2 bg-gray-200/50"
             v-if="
               car_info_sec && formData.product_type != 'App\\Models\\Airline'
             "
@@ -1354,21 +1357,21 @@ onMounted(async () => {
                 formData.product_type != 'App\\Models\\AirportPickup'
               "
             >
-              <p class="text-gray-400 text-xs">Account Holder Name</p>
+              <p class="text-xs text-gray-400">Account Holder Name</p>
               <input
                 v-model="secForm.account_holder_name"
                 type="text"
                 id="title"
-                class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                class="w-full h-8 px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
               />
             </div>
             <div class="px-6 space-y-2">
-              <p class="text-gray-400 text-xs">Supplier Name</p>
+              <p class="text-xs text-gray-400">Supplier Name</p>
               <input
                 v-model="secForm.supplier_name"
                 type="text"
                 id="title"
-                class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                class="w-full h-8 px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
               />
             </div>
             <div
@@ -1378,12 +1381,12 @@ onMounted(async () => {
                 formData.product_type != 'App\\Models\\Hotel'
               "
             >
-              <p class="text-gray-400 text-xs">Driver Name</p>
+              <p class="text-xs text-gray-400">Driver Name</p>
               <input
                 v-model="secForm.driver_name"
                 type="text"
                 id="title"
-                class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                class="w-full h-8 px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
               />
             </div>
             <div
@@ -1393,12 +1396,12 @@ onMounted(async () => {
                 formData.product_type != 'App\\Models\\Hotel'
               "
             >
-              <p class="text-gray-400 text-xs">Driver Contact</p>
+              <p class="text-xs text-gray-400">Driver Contact</p>
               <input
                 v-model="secForm.driver_contact"
                 type="text"
                 id="title"
-                class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                class="w-full h-8 px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
               />
             </div>
             <div
@@ -1408,12 +1411,12 @@ onMounted(async () => {
                 formData.product_type == 'App\\Models\\Hotel'
               "
             >
-              <p class="text-gray-400 text-xs">Reference Number</p>
+              <p class="text-xs text-gray-400">Reference Number</p>
               <input
                 v-model="secForm.ref_number"
                 type="text"
                 id="title"
-                class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                class="w-full h-8 px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
               />
             </div>
             <div
@@ -1423,18 +1426,18 @@ onMounted(async () => {
                 formData.product_type != 'App\\Models\\Hotel'
               "
             >
-              <p class="text-gray-400 text-xs">Car Number</p>
+              <p class="text-xs text-gray-400">Car Number</p>
 
               <input
                 v-model="secForm.car_number"
                 type="text"
                 id="title"
-                class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                class="w-full h-8 px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
               />
             </div>
             <div class="px-6 space-y-2">
               <p
-                class="text-gray-400 text-xs"
+                class="text-xs text-gray-400"
                 v-if="
                   formData.product_type == 'App\\Models\\EntranceTicket' ||
                   formData.product_type == 'App\\Models\\Hotel'
@@ -1442,19 +1445,19 @@ onMounted(async () => {
               >
                 Booking Confirmation Letter
               </p>
-              <p class="text-gray-400 text-xs" v-else>Car Photos</p>
+              <p class="text-xs text-gray-400" v-else>Car Photos</p>
               <!-- <p
-                class="font-semibold py-4 px-4 flex justify-center items-center text-xs border border-gray-400 border-dashed"
+                class="flex items-center justify-center px-4 py-4 text-xs font-semibold border border-gray-400 border-dashed"
               >
-                <i class="fa-solid fa-plus text-2xl text-gray-400"></i>
+                <i class="text-2xl text-gray-400 fa-solid fa-plus"></i>
               </p> -->
-              <div class="space-y-1 mb-2">
-                <label for="image" class="text-gray-800 text-sm relative">
+              <div class="mb-2 space-y-1">
+                <label for="image" class="relative text-sm text-gray-800">
                   <span
                     v-if="previewImage"
                     @click.prevent="removeSelectedImage"
-                    class="text-red-400 text-xs cursor-pointer font-semibold underline absolute top-0 left-0"
-                    ><i class="fa-solid fa-circle-minus text-3xl"></i></span
+                    class="absolute top-0 left-0 text-xs font-semibold text-red-400 underline cursor-pointer"
+                    ><i class="text-3xl fa-solid fa-circle-minus"></i></span
                 ></label>
                 <input
                   type="file"
@@ -1468,23 +1471,23 @@ onMounted(async () => {
                   <img
                     :src="previewImage"
                     alt="Image preview"
-                    class="rounded w-full h-auto"
+                    class="w-full h-auto rounded"
                   />
                 </div>
                 <div
                   v-else
                   @click.prevent="openFilePicker"
-                  class="font-semibold py-4 px-4 flex justify-center items-center text-xs border border-gray-400 border-dashed"
+                  class="flex items-center justify-center px-4 py-4 text-xs font-semibold border border-gray-400 border-dashed"
                 >
                   <span class="text-xs"
-                    ><i class="fa-solid fa-plus text-2xl text-gray-400"></i
+                    ><i class="text-2xl text-gray-400 fa-solid fa-plus"></i
                   ></span>
                 </div>
               </div>
             </div>
           </div>
           <div
-            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            class="flex items-center justify-start px-4 py-2 space-x-4 text-xs bg-white border-b border-gray-300 shadow cursor-pointer"
             @click="reservationInfoHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
@@ -1492,15 +1495,15 @@ onMounted(async () => {
             <p>Reservation Information</p>
           </div>
           <div
-            class="bg-gray-200/50 py-5 space-y-2"
+            class="py-5 space-y-2 bg-gray-200/50"
             v-if="reservation_info_part"
           >
             <div class="space-y-2">
               <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs">Payment Status</p>
+                <p class="text-xs text-gray-400">Payment Status</p>
                 <v-select
                   v-model="formData.payment_status"
-                  class="style-chooser font-semibold text-xs rounded-lg bg-white"
+                  class="text-xs font-semibold bg-white rounded-lg style-chooser"
                   :options="payment_status"
                   label="name"
                   :clearable="false"
@@ -1509,10 +1512,10 @@ onMounted(async () => {
                 ></v-select>
               </div>
               <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs">Reservation Status</p>
+                <p class="text-xs text-gray-400">Reservation Status</p>
                 <v-select
                   v-model="formData.reservation_status"
-                  class="style-chooser font-semibold text-xs rounded-lg bg-white"
+                  class="text-xs font-semibold bg-white rounded-lg style-chooser"
                   :options="reservation_status"
                   label="name"
                   :clearable="false"
@@ -1523,19 +1526,19 @@ onMounted(async () => {
 
               <div class="pl-10 pr-10 space-y-2">
                 <p
-                  class="text-gray-400 text-xs"
+                  class="text-xs text-gray-400"
                   v-if="formData.product_type == 'App\\Models\\Hotel'"
                 >
                   Hotel Confirmation Receipt
                 </p>
-                <p class="text-gray-400 text-xs" v-else>Expensive Paid Slip</p>
-                <div class="space-y-1 mb-2">
-                  <label for="image" class="text-gray-800 text-sm relative">
+                <p class="text-xs text-gray-400" v-else>Expensive Paid Slip</p>
+                <div class="mb-2 space-y-1">
+                  <label for="image" class="relative text-sm text-gray-800">
                     <span
                       v-if="expPreviewImage"
                       @click.prevent="expremoveSelectedImage"
-                      class="text-red-400 text-xs cursor-pointer font-semibold underline absolute top-0 left-0"
-                      ><i class="fa-solid fa-circle-minus text-3xl"></i></span
+                      class="absolute top-0 left-0 text-xs font-semibold text-red-400 underline cursor-pointer"
+                      ><i class="text-3xl fa-solid fa-circle-minus"></i></span
                   ></label>
                   <input
                     type="file"
@@ -1549,7 +1552,7 @@ onMounted(async () => {
                     <img
                       :src="expPreviewImage"
                       alt="Image preview"
-                      class="rounded w-full h-auto"
+                      class="w-full h-auto rounded"
                     />
                   </div>
                 </div>
@@ -1558,7 +1561,7 @@ onMounted(async () => {
           </div>
 
           <div
-            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            class="flex items-center justify-start px-4 py-2 space-x-4 text-xs bg-white border-b border-gray-300 shadow cursor-pointer"
             @click="expenInfoHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
@@ -1566,13 +1569,13 @@ onMounted(async () => {
             <p>Expense Information</p>
           </div>
 
-          <div class="bg-gray-200/50 py-5 space-y-2" v-if="expen_info_part">
+          <div class="py-5 space-y-2 bg-gray-200/50" v-if="expen_info_part">
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Payment Method:</p>
+              <p class="text-xs text-gray-400">Payment Method:</p>
 
               <v-select
                 v-model="formData.payment_method"
-                class="style-chooser font-semibold text-xs rounded-lg bg-white"
+                class="text-xs font-semibold bg-white rounded-lg style-chooser"
                 :options="paymentArray"
                 label="name"
                 :clearable="false"
@@ -1581,11 +1584,11 @@ onMounted(async () => {
               ></v-select>
             </div>
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Bank Name:</p>
+              <p class="text-xs text-gray-400">Bank Name:</p>
 
               <v-select
                 v-model="formData.bank_name"
-                class="style-chooser font-semibold text-xs rounded-lg bg-white"
+                class="text-xs font-semibold bg-white rounded-lg style-chooser"
                 :options="payment"
                 label="name"
                 :clearable="false"
@@ -1594,21 +1597,21 @@ onMounted(async () => {
               ></v-select>
             </div>
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Bank Account Number</p>
+              <p class="text-xs text-gray-400">Bank Account Number</p>
               <input
                 v-model="formData.bank_account_number"
                 type="number"
                 id="title"
-                class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                class="w-full h-8 px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
               />
             </div>
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Cost</p>
+              <p class="text-xs text-gray-400">Cost</p>
               <input
                 v-model="formData.cost"
                 type="number"
                 id="title"
-                class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                class="w-full h-8 px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
               />
             </div>
             <div
@@ -1619,11 +1622,11 @@ onMounted(async () => {
               "
             >
               <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs">Expense Amount</p>
+                <p class="text-xs text-gray-400">Expense Amount</p>
                 <input
                   v-model="expense_amount"
                   type="number"
-                  class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  class="w-full h-8 px-4 py-2 text-xs font-semibold text-gray-900 bg-white border border-gray-300 shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
 
@@ -1634,14 +1637,14 @@ onMounted(async () => {
                   formData.product_type == 'App\\Models\\Hotel'
                 "
               >
-                <p class="text-gray-400 text-xs">Upload Payment Receipt</p>
-                <div class="space-y-1 mb-2">
-                  <label for="image" class="text-gray-800 text-sm relative">
+                <p class="text-xs text-gray-400">Upload Payment Receipt</p>
+                <div class="mb-2 space-y-1">
+                  <label for="image" class="relative text-sm text-gray-800">
                     <span
                       v-if="uploadRecePreview"
                       @click.prevent="receremoveSelectedImage"
-                      class="text-red-400 text-xs cursor-pointer font-semibold underline absolute top-0 left-0"
-                      ><i class="fa-solid fa-circle-minus text-3xl"></i></span
+                      class="absolute top-0 left-0 text-xs font-semibold text-red-400 underline cursor-pointer"
+                      ><i class="text-3xl fa-solid fa-circle-minus"></i></span
                   ></label>
                   <input
                     type="file"
@@ -1655,7 +1658,7 @@ onMounted(async () => {
                     <img
                       :src="uploadRecePreview"
                       alt="Image preview"
-                      class="rounded w-full h-auto"
+                      class="w-full h-auto rounded"
                     />
                   </div>
                 </div>

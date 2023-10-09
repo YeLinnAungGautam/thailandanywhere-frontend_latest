@@ -22,13 +22,16 @@ import { onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import { useRouter } from "vue-router";
 import { useReservationStore } from "../stores/reservation";
+import { useAdminStore } from "../stores/admin";
 import { storeToRefs } from "pinia";
 
 const router = useRouter();
 const toast = useToast();
 const reservationStore = useReservationStore();
+const adminStore = useAdminStore();
 
 const { reservations, loading } = storeToRefs(reservationStore);
+const { admin } = storeToRefs(adminStore);
 
 const changePage = async (url) => {
   console.log(url);
@@ -72,6 +75,7 @@ const searchValue = (val) => {
 };
 
 const searchA = ref("");
+const userFilter = ref(null);
 const limit = ref(10);
 const searchArray = [
   { id: 1, name: "all" },
@@ -81,7 +85,7 @@ const searchArray = [
 
 onMounted(async () => {
   await reservationStore.getListAction({ limit: limit.value });
-  console.log(reservations.value.data.length, "this is reservations");
+  await adminStore.getSimpleListAction();
 });
 
 watch(search, async (newValue) => {
@@ -111,6 +115,14 @@ watch(searchA, async (newValue) => {
     limit: limit.value,
   });
 
+  console.log(reservations.value.data.length, "this is reservations");
+});
+
+watch(userFilter, async (newValue) => {
+  await reservationStore.getListAction({
+    user_id: userFilter.value,
+    limit: limit.value,
+  });
   console.log(reservations.value.data.length, "this is reservations");
 });
 </script>
@@ -224,6 +236,18 @@ watch(searchA, async (newValue) => {
             :clearable="false"
             :reduce="(d) => d.name"
             placeholder="choose Filter ..."
+          ></v-select>
+        </div>
+        <div class="">
+          <v-select
+            v-if="admin"
+            v-model="userFilter"
+            class="style-chooser placeholder-sm bg-white rounded-lg w-[200px] text-gray-400"
+            :options="admin"
+            label="name"
+            :clearable="false"
+            :reduce="(d) => d.id"
+            placeholder="Filter by User"
           ></v-select>
         </div>
         <div>

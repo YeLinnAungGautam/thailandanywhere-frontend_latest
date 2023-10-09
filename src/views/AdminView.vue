@@ -41,6 +41,7 @@ const roleList = [
   { id: "1", name: "Admin", value: "admin" },
   { id: "2", name: "Super Admin", value: "super_admin" },
   { id: "3", name: "Cashier", value: "cashier" },
+  { id: "4", name: "Reservation", value: "reservation" },
 ];
 const errors = ref([]);
 
@@ -244,7 +245,7 @@ watch(search, async (newValue) => {
             >
             <v-select
               v-model="formData.role"
-              class="style-chooser placeholder-sm bg-white rounded-lg"
+              class="bg-white rounded-lg style-chooser placeholder-sm"
               :options="roleList"
               label="name"
               :clearable="false"

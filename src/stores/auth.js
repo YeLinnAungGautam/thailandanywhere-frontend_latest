@@ -13,6 +13,9 @@ export const useAuthStore = defineStore("auth", {
     isSuperAdmin: (state) => {
       return state.user.role === "super_admin";
     },
+    isReservation: (state) => {
+      return state.user.role === "reservation";
+    },
   },
   actions: {
     async login(data) {

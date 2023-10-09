@@ -1721,7 +1721,7 @@ onMounted(async () => {
             v-if="reservation_info_part"
           >
             <div class="space-y-2">
-              <div class="pl-10 pr-10 space-y-2">
+              <!-- <div class="pl-10 pr-10 space-y-2">
                 <p class="text-gray-400 text-xs">Payment Status</p>
                 <v-select
                   v-model="formData.payment_status"
@@ -1732,7 +1732,7 @@ onMounted(async () => {
                   :reduce="(d) => d.name"
                   placeholder=""
                 ></v-select>
-              </div>
+              </div> -->
               <div class="pl-10 pr-10 space-y-2">
                 <p class="text-gray-400 text-xs">Reservation Status</p>
                 <v-select
@@ -1753,7 +1753,7 @@ onMounted(async () => {
                 >
                   Hotel Confirmation Receipt
                 </p>
-                <p class="text-gray-400 text-xs" v-else>Expensive Paid Slip</p>
+                <p class="text-gray-400 text-xs" v-else>Reservation Slip</p>
                 <div class="space-y-4 mb-2">
                   <!-- <input
                     type="file"
@@ -1854,6 +1854,18 @@ onMounted(async () => {
                 v-model="formData.bank_name"
                 class="style-chooser font-semibold text-xs rounded-lg bg-white"
                 :options="payment"
+                label="name"
+                :clearable="false"
+                :reduce="(d) => d.name"
+                placeholder=""
+              ></v-select>
+            </div>
+            <div class="pl-10 pr-10 space-y-2">
+              <p class="text-gray-400 text-xs">Payment Status</p>
+              <v-select
+                v-model="formData.payment_status"
+                class="style-chooser font-semibold text-xs rounded-lg bg-white"
+                :options="payment_status"
                 label="name"
                 :clearable="false"
                 :reduce="(d) => d.name"

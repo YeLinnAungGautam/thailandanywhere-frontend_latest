@@ -59,10 +59,10 @@ const seenClick = () => {
 
 const limitedText = (text) => {
   if (text != "") {
-    if (text.length <= 10) {
+    if (text?.length <= 10) {
       return text;
     } else {
-      return text.slice(0, 10);
+      return text?.slice(0, 10);
     }
   }
 };

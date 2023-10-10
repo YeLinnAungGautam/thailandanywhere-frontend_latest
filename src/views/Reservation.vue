@@ -24,18 +24,20 @@ import { useRouter } from "vue-router";
 import { useReservationStore } from "../stores/reservation";
 import { useAdminStore } from "../stores/admin";
 import { storeToRefs } from "pinia";
+import { useAuthStore } from "../stores/auth";
 
 const router = useRouter();
 const toast = useToast();
 const reservationStore = useReservationStore();
 const adminStore = useAdminStore();
+const authStore = useAuthStore();
 
 const { reservations, loading } = storeToRefs(reservationStore);
 const { admin } = storeToRefs(adminStore);
 
 const changePage = async (url) => {
   console.log(url);
-  await reservationStore.getChangePage(url);
+  await reservationStore.getChangePage(url, userFilter.value);
 };
 const errors = ref([]);
 
@@ -238,7 +240,7 @@ watch(userFilter, async (newValue) => {
             placeholder="choose Filter ..."
           ></v-select>
         </div>
-        <div class="">
+        <div class="" v-if="authStore.isSuperAdmin || authStore.isReservation">
           <v-select
             v-if="admin"
             v-model="userFilter"

@@ -18,12 +18,12 @@ export const useReservationStore = defineStore("reservation", {
         throw error;
       }
     },
-    async getChangePage(url) {
+    async getChangePage(url, userFilter) {
       this.loading = true;
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
       const response = await axios.get(
-        "/reservations?limit=10&page=" + pageValue
+        "/reservations?limit=10&page=" + pageValue + "&user_id=" + userFilter
       );
       this.reservations = response.data.result;
       console.log(response.data.result, "pagi");

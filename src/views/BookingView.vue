@@ -69,15 +69,15 @@ const onDeleteHandler = async (id) => {
 
 const search = ref("");
 
-const searchA = ref("");
+const searchA = ref("all");
 const searchArray = [
   { id: 1, name: "all" },
   { id: 2, name: "current" },
   { id: 3, name: "past" },
 ];
-const searchP = ref("");
+const searchP = ref("all");
 const searchPayment = [
-  { id: 1, name: "", value: "All" },
+  { id: 1, name: "all", value: "All" },
   { id: 2, name: "not_paid", value: "Not Paid" },
   { id: 3, name: "partially_paid", value: "Partially Paid" },
   { id: 4, name: "fully_paid", value: "Fully Paid" },
@@ -138,7 +138,7 @@ watch(limit, async (newValue) => {
 
 <template>
   <Layout>
-    <div class="mb-5 flex items-center justify-between">
+    <div class="flex items-center justify-between mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Sales List</h3>
       <div class="space-x-3">
         <router-link to="/bookings/create">
@@ -146,10 +146,10 @@ watch(limit, async (newValue) => {
         </router-link>
       </div>
     </div>
-    <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
+    <div class="p-6 mb-5 rounded-lg shadow-sm bg-white/60">
       <!-- search input sort filter -->
       <div class="flex items-center justify-between mb-5">
-        <div class="flex justify-start items-center space-x-2">
+        <div class="flex items-center justify-start space-x-2">
           <div>
             <input
               v-model="search"
@@ -183,10 +183,10 @@ watch(limit, async (newValue) => {
         </div>
 
         <div>
-          <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>
+          <p class="inline-block mr-2 font-medium text-gray-500">Show</p>
           <select
             v-model="limit"
-            class="border-2 p-2 rounded-md w-16 focus:outline-none focus:ring-0"
+            class="w-16 p-2 border-2 rounded-md focus:outline-none focus:ring-0"
           >
             <option value="10">10</option>
             <option value="20">20</option>
@@ -194,41 +194,41 @@ watch(limit, async (newValue) => {
             <option value="40">40</option>
             <option value="50">50</option>
           </select>
-          <p class="inline-block ml-2 text-gray-500 font-medium">entries</p>
+          <p class="inline-block ml-2 font-medium text-gray-500">entries</p>
         </div>
       </div>
 
-      <div class="overflow-auto rounded-lg shadow mb-5">
+      <div class="mb-5 overflow-auto rounded-lg shadow">
         <div class="grid grid-cols-8 gap-2 bg-gray-100">
-          <div class="text-center text-xs font-medium tracking-wide py-2">
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
             Customer
           </div>
-          <div class="text-center text-xs font-medium tracking-wide py-2">
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
             Past CRM ID
           </div>
-          <div class="text-center text-xs font-medium tracking-wide py-2">
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
             CRM ID
           </div>
-          <div class="text-center text-xs font-medium tracking-wide py-2">
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
             Service Date
           </div>
-          <div class="text-center text-xs font-medium tracking-wide py-2">
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
             Expenses Status
           </div>
-          <div class="text-center text-xs font-medium tracking-wide py-2">
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
             Reservation Status
           </div>
 
-          <div class="text-center text-xs font-medium tracking-wide py-2"></div>
+          <div class="py-2 text-xs font-medium tracking-wide text-center"></div>
         </div>
         <div
           v-show="!loading"
-          class="divide-y divide-gray-200 group relative"
+          class="relative divide-y divide-gray-200 group"
           v-for="r in bookings?.data"
           :key="r.id"
         >
           <Disclosure>
-            <DisclosureButton class="py-2 w-full">
+            <DisclosureButton class="w-full py-2">
               <div class="grid grid-cols-8 gap-2 bg-white">
                 <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
                   {{ r.customer.name }}
@@ -247,19 +247,19 @@ watch(limit, async (newValue) => {
                   <p v-if="!r.payment_status">-</p>
                   <p
                     v-if="r.payment_status == 'fully_paid'"
-                    class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                    class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full shadow"
                   >
                     {{ r.payment_status }}
                   </p>
                   <p
                     v-if="r.payment_status == 'not_paid'"
-                    class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                    class="inline-block px-3 py-1 text-xs text-white bg-red-500 rounded-full shadow"
                   >
                     {{ r.payment_status }}
                   </p>
                   <p
                     v-if="r.payment_status == 'partially_paid'"
-                    class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                    class="inline-block px-3 py-1 text-xs text-white bg-yellow-500 rounded-full shadow"
                   >
                     {{ r.payment_status }}
                   </p>
@@ -269,30 +269,30 @@ watch(limit, async (newValue) => {
 
                   <p
                     v-if="r.reservation_status == 'confirmed'"
-                    class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                    class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full shadow"
                   >
                     {{ r.reservation_status }}
                   </p>
                   <p
                     v-if="r.reservation_status == 'declined'"
-                    class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                    class="inline-block px-3 py-1 text-xs text-white bg-red-500 rounded-full shadow"
                   >
                     {{ r.reservation_status }}
                   </p>
                   <p
                     v-if="r.reservation_status == 'awaiting'"
-                    class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                    class="inline-block px-3 py-1 text-xs text-white bg-yellow-500 rounded-full shadow"
                   >
                     {{ r.reservation_status }}
                   </p>
                 </div>
 
                 <div
-                  class="p-3 text-xs space-x-2 col-span-2 flex justify-end items-center text-gray-700 whitespace-nowrap"
+                  class="flex items-center justify-end col-span-2 p-3 space-x-2 text-xs text-gray-700 whitespace-nowrap"
                   @click="seenClick"
                 >
                   <p
-                    class="py-2 px-3 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white inline-block"
+                    class="inline-block px-3 py-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
                   >
                     <i class="fa-solid fa-chevron-down"></i>
                   </p>
@@ -313,7 +313,7 @@ watch(limit, async (newValue) => {
                   <button
                     v-if="authStore.isSuperAdmin"
                     @click.prevent="onDeleteHandler(r.id)"
-                    class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                    class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
                   >
                     <TrashIcon class="w-5 h-5" />
                   </button>
@@ -328,47 +328,47 @@ watch(limit, async (newValue) => {
               leave-from-class="transform scale-100 opacity-100"
               leave-to-class="transform scale-95 opacity-0"
             >
-              <DisclosurePanel class="text-gray-500 w-full">
+              <DisclosurePanel class="w-full text-gray-500">
                 <div class="grid grid-cols-8 gap-2 bg-gray-300">
                   <div
-                    class="text-center text-xs font-medium tracking-wide py-2"
+                    class="py-2 text-xs font-medium tracking-wide text-center"
                   >
                     Sale No.
                   </div>
                   <div
-                    class="text-center text-xs font-medium tracking-wide py-2"
+                    class="py-2 text-xs font-medium tracking-wide text-center"
                   >
                     Product Type
                   </div>
                   <div
-                    class="text-center text-xs font-medium tracking-wide py-2"
+                    class="py-2 text-xs font-medium tracking-wide text-center"
                   >
                     Product Name
                   </div>
                   <div
-                    class="text-center text-xs font-medium tracking-wide py-2"
+                    class="py-2 text-xs font-medium tracking-wide text-center"
                   >
                     Variation Name
                   </div>
                   <div
-                    class="text-center text-xs font-medium tracking-wide py-2"
+                    class="py-2 text-xs font-medium tracking-wide text-center"
                   >
                     Payment Status
                   </div>
                   <div
-                    class="text-center text-xs font-medium tracking-wide py-2"
+                    class="py-2 text-xs font-medium tracking-wide text-center"
                   >
                     Reservation Status
                   </div>
 
                   <div
-                    class="text-center text-xs font-medium tracking-wide py-2"
+                    class="py-2 text-xs font-medium tracking-wide text-center"
                   >
                     Service Date
                   </div>
                 </div>
                 <div
-                  class="grid grid-cols-8 gap-2 bg-gray-100 w-full"
+                  class="grid w-full grid-cols-8 gap-2 bg-gray-100"
                   v-for="d in r.items"
                   :key="d.id"
                 >
@@ -424,19 +424,19 @@ watch(limit, async (newValue) => {
                     </p>
                     <p
                       v-if="d.payment_status == 'fully_paid'"
-                      class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                      class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full shadow"
                     >
                       {{ d.payment_status }}
                     </p>
                     <p
                       v-if="d.payment_status == 'not_paid'"
-                      class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                      class="inline-block px-3 py-1 text-xs text-white bg-red-500 rounded-full shadow"
                     >
                       {{ d.payment_status }}
                     </p>
                     <p
                       v-if="d.payment_status == 'partially_paid'"
-                      class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                      class="inline-block px-3 py-1 text-xs text-white bg-yellow-500 rounded-full shadow"
                     >
                       {{ d.payment_status }}
                     </p>
@@ -454,19 +454,19 @@ watch(limit, async (newValue) => {
 
                     <p
                       v-if="d.reservation_status == 'confirmed'"
-                      class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                      class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full shadow"
                     >
                       {{ d.reservation_status }}
                     </p>
                     <p
                       v-if="d.reservation_status == 'declined'"
-                      class="bg-red-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                      class="inline-block px-3 py-1 text-xs text-white bg-red-500 rounded-full shadow"
                     >
                       {{ d.reservation_status }}
                     </p>
                     <p
                       v-if="d.reservation_status == 'awaiting'"
-                      class="bg-yellow-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
+                      class="inline-block px-3 py-1 text-xs text-white bg-yellow-500 rounded-full shadow"
                     >
                       {{ d.reservation_status }}
                     </p>
@@ -478,7 +478,7 @@ watch(limit, async (newValue) => {
                     {{ d.service_date }}
                   </div>
                   <div
-                    class="p-3 col-span-1 text-xs text-center text-gray-700 whitespace-nowrap"
+                    class="col-span-1 p-3 text-xs text-center text-gray-700 whitespace-nowrap"
                   >
                     <router-link
                       :to="
@@ -498,14 +498,14 @@ watch(limit, async (newValue) => {
                     </router-link>
                   </div>
                   <div
-                    class="py-3 pl-10 col-span-2 text-xs text-gray-700 whitespace-nowrap"
+                    class="col-span-2 py-3 pl-10 text-xs text-gray-700 whitespace-nowrap"
                   ></div>
                 </div>
               </DisclosurePanel>
             </transition>
           </Disclosure>
         </div>
-        <div v-if="loading" class="flex justify-center items-center py-20">
+        <div v-if="loading" class="flex items-center justify-center py-20">
           <div
             class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] mr-4"
             role="status"

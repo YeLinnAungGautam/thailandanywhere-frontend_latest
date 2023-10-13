@@ -34,7 +34,7 @@ export const useReservationStore = defineStore("reservation", {
       try {
         this.loading = true;
         const response = await axios.get(
-          `/reservations?limit=${params.limit}`,
+          `/reservations?limit=${params.limit}&user_id=${params.user_id}`,
           {
             params,
           }

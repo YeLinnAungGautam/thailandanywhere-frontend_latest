@@ -36,8 +36,10 @@ const { reservations, loading } = storeToRefs(reservationStore);
 const { admin } = storeToRefs(adminStore);
 
 const changePage = async (url) => {
-  console.log(url);
-  await reservationStore.getChangePage(url, userFilter.value);
+  await reservationStore.getChangePage(
+    url,
+    authStore.isSuperAdmin ? userFilter.value : authStore.user.id
+  );
 };
 const errors = ref([]);
 
@@ -86,7 +88,10 @@ const searchArray = [
 ];
 
 onMounted(async () => {
-  await reservationStore.getListAction({ limit: limit.value });
+  await reservationStore.getListAction({
+    limit: limit.value,
+    user_id: authStore.user.id,
+  });
   await adminStore.getSimpleListAction();
 });
 

@@ -166,6 +166,7 @@ const onSubmitHandler = async () => {
 
 onMounted(async () => {
   await adminStore.getListAction();
+  console.log(admin.value, "this is admin");
 });
 
 watch(search, async (newValue) => {

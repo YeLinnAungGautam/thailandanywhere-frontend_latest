@@ -18,7 +18,7 @@ import {
 
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import { useRouter } from "vue-router";
 import { useReservationStore } from "../stores/reservation";
@@ -36,10 +36,7 @@ const { reservations, loading } = storeToRefs(reservationStore);
 const { admin } = storeToRefs(adminStore);
 
 const changePage = async (url) => {
-  await reservationStore.getChangePage(
-    url,
-    authStore.isSuperAdmin ? userFilter.value : authStore.user.id
-  );
+  await reservationStore.getChangePage(url, watchSystem.value);
 };
 const errors = ref([]);
 
@@ -56,7 +53,7 @@ const product_type = [
 const chooseType = () => {
   console.log(search.value);
 };
-
+// these are search function part
 const search = ref("");
 const searchId = ref("");
 const seen = ref(true);
@@ -88,49 +85,48 @@ const searchArray = [
 ];
 
 onMounted(async () => {
-  await reservationStore.getListAction({
-    limit: limit.value,
-    user_id: authStore.user.id,
-  });
+  await reservationStore.getListAction(watchSystem.value);
   await adminStore.getSimpleListAction();
 });
 
+const watchSystem = computed(() => {
+  const result = {};
+
+  if (limit.value != "" && limit.value != undefined) {
+    result.limit = limit.value;
+  }
+  result.user_id = authStore.user.id;
+  if (search.value != "" && search.value != undefined) {
+    result.product_type = search.value;
+  }
+  if (searchId.value != "" && searchId.value != undefined) {
+    result.crm_id = searchId.value;
+  }
+  if (searchA.value != "" && searchA.value != undefined) {
+    result.filter = searchA.value;
+  }
+  if (userFilter.value != "" && userFilter.value != undefined) {
+    result.user_id = userFilter.value;
+  }
+
+  console.log(result);
+  return result;
+});
+
 watch(search, async (newValue) => {
-  await reservationStore.getListAction({
-    product_type: search.value,
-    limit: limit.value,
-  });
+  await reservationStore.getListAction(watchSystem.value);
 });
 watch(limit, async (newValue) => {
-  await reservationStore.getListAction({
-    product_type: search.value,
-    limit: limit.value,
-  });
+  await reservationStore.getListAction(watchSystem.value);
 });
 watch(searchId, async (newValue) => {
-  console.log(search.value, "this is serarch");
-  await reservationStore.getListAction({
-    product_type: search.value,
-    crm_id: searchId.value,
-    limit: limit.value,
-  });
-  console.log(reservations.value.data.length, "this is reservations");
+  await reservationStore.getListAction(watchSystem.value);
 });
 watch(searchA, async (newValue) => {
-  await reservationStore.getListAction({
-    filter: searchA.value,
-    limit: limit.value,
-  });
-
-  console.log(reservations.value.data.length, "this is reservations");
+  await reservationStore.getListAction(watchSystem.value);
 });
-
 watch(userFilter, async (newValue) => {
-  await reservationStore.getListAction({
-    user_id: userFilter.value,
-    limit: limit.value,
-  });
-  console.log(reservations.value.data.length, "this is reservations");
+  await reservationStore.getListAction(watchSystem.value);
 });
 </script>
 

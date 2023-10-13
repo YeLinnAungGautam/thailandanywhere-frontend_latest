@@ -18,13 +18,14 @@ export const useReservationStore = defineStore("reservation", {
         throw error;
       }
     },
-    async getChangePage(url, userFilter) {
+    async getChangePage(url, params) {
+      console.log(params, "this is pagi params");
       this.loading = true;
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
-      const response = await axios.get(
-        "/reservations?limit=10&page=" + pageValue + "&user_id=" + userFilter
-      );
+      const response = await axios.get("/reservations?page=" + pageValue, {
+        params: params,
+      });
       this.reservations = response.data.result;
       console.log(response.data.result, "pagi");
       this.loading = false;
@@ -34,7 +35,7 @@ export const useReservationStore = defineStore("reservation", {
       try {
         this.loading = true;
         const response = await axios.get(
-          `/reservations?limit=${params.limit}&user_id=${params.user_id}`,
+          `/reservations?user_id=${params.user_id}`,
           {
             params,
           }

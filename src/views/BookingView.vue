@@ -92,10 +92,10 @@ const limit = ref(10);
 
 const limitedText = (text) => {
   if (text != "") {
-    if (text.length <= 10) {
+    if (text?.length <= 10) {
       return text;
     } else {
-      return text.slice(0, 10);
+      return text?.slice(0, 10);
     }
   }
 };
@@ -213,7 +213,7 @@ watch(limit, async (newValue) => {
             Service Date
           </div>
           <div class="text-center text-xs font-medium tracking-wide py-2">
-            Payment Status
+            Expenses Status
           </div>
           <div class="text-center text-xs font-medium tracking-wide py-2">
             Reservation Status
@@ -405,7 +405,7 @@ watch(limit, async (newValue) => {
                   <div
                     class="p-3 text-xs text-center text-gray-700 whitespace-nowrap"
                   >
-                    <p>{{ limitedText(d.product.name) }}</p>
+                    <p>{{ limitedText(d.product?.name) }}</p>
                   </div>
                   <div
                     class="p-3 text-xs text-center text-gray-700 whitespace-nowrap"
@@ -451,8 +451,9 @@ watch(limit, async (newValue) => {
                     >
                       -
                     </p>
+
                     <p
-                      v-if="d.reservation_status == 'reserved'"
+                      v-if="d.reservation_status == 'confirmed'"
                       class="bg-green-500 rounded-full px-3 py-1 inline-block text-white shadow text-xs"
                     >
                       {{ d.reservation_status }}

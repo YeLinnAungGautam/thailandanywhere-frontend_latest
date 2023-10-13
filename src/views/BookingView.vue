@@ -19,7 +19,7 @@ import {
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import { useRouter } from "vue-router";
 import { useBookingStore } from "../stores/booking";
@@ -35,7 +35,7 @@ const { bookings, loading } = storeToRefs(bookingStore);
 
 const changePage = async (url) => {
   console.log(url);
-  await bookingStore.getChangePage(url, limit.value);
+  await bookingStore.getChangePage(url, watchSystem.value);
 };
 const errors = ref([]);
 const onDeleteHandler = async (id) => {
@@ -62,7 +62,7 @@ const onDeleteHandler = async (id) => {
         }
         toast.error(error.response.data.message);
       }
-      await bookingStore.getListAction({ limit: limit.value });
+      await bookingStore.getListAction(watchSystem.value);
     }
   });
 };
@@ -101,38 +101,41 @@ const limitedText = (text) => {
 };
 
 onMounted(async () => {
-  await bookingStore.getListAction({}, limit.value);
+  await bookingStore.getListAction(watchSystem.value);
+});
+
+// const searchParam = ref({});
+const watchSystem = computed(() => {
+  const result = {};
+
+  if (limit.value != "" && limit.value != undefined) {
+    result.limit = limit.value;
+  }
+  if (search.value != "" && search.value != undefined) {
+    result.crm_id = search.value;
+  }
+  if (searchA.value != "" && searchA.value != undefined) {
+    result.filter = searchA.value;
+  }
+  if (searchP.value != "" && searchP.value != undefined) {
+    result.status = searchP.value;
+  }
+
+  console.log(result);
+  return result;
 });
 
 watch(search, async (newValue) => {
-  await bookingStore.getListAction({ crm_id: search.value }, limit.value);
+  await bookingStore.getListAction(watchSystem.value);
 });
 watch(searchA, async (newValue) => {
-  await bookingStore.getListAction(
-    {
-      status: searchP.value,
-      filter: searchA.value,
-    },
-    limit.value
-  );
+  await bookingStore.getListAction(watchSystem.value);
 });
 watch(searchP, async (newValue) => {
-  await bookingStore.getListAction(
-    {
-      status: searchP.value,
-      filter: searchA.value,
-    },
-    limit.value
-  );
+  await bookingStore.getListAction(watchSystem.value);
 });
 watch(limit, async (newValue) => {
-  await bookingStore.getListAction(
-    {
-      status: searchP.value,
-      filter: searchA.value,
-    },
-    limit.value
-  );
+  await bookingStore.getListAction(watchSystem.value);
 });
 </script>
 

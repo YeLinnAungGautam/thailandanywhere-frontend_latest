@@ -18,30 +18,28 @@ export const useBookingStore = defineStore("booking", {
         throw error;
       }
     },
-    async getChangePage(url, limit) {
+    async getChangePage(url, params) {
+      console.log(params, "this is params pagi");
       this.loading = true;
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
-      const response = await axios.get(
-        `/bookings?limit=${limit}&page=${pageValue}`
-      );
+      const response = await axios.get(`/bookings?page=${pageValue}`, {
+        params: params,
+      });
       this.bookings = response.data.result;
       console.log(response.data.result, "pagi");
       this.loading = false;
       return response.data;
     },
-    async getListAction(params, limit) {
-      console.log(limit, "this is params limit");
+    async getListAction(params) {
+      console.log(params, "this is params");
 
       try {
         this.loading = true;
 
-        const response = await axios.get(
-          `/bookings?limit=${limit}&filter=all`,
-          {
-            params: params,
-          }
-        );
+        const response = await axios.get(`/bookings`, {
+          params: params,
+        });
         this.bookings = response.data.result;
 
         this.loading = false;

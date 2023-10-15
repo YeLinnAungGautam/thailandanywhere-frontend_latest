@@ -77,7 +77,7 @@ const formitem = ref({
   service_date: "",
   cost_price: "",
   quantity: "1",
-  days: "",
+  days: "1",
   duration: "",
   selling_price: "",
   comment: "",
@@ -139,6 +139,7 @@ const chooseCar = async (id) => {
     const res = await grouptourStore.getDetailAction(id);
     formitem.value.comment = res.result.description;
     formitem.value.selling_price = res.result.price;
+    formitem.value.cost_price = res.result.price;
     carType.value = res.result.cars;
     console.log(res);
   } else if (formitem.value.product_type == "3") {
@@ -171,7 +172,9 @@ const chooseCarPrice = async (type, productId, id) => {
       formitem.value.car_list = res.result.cars;
       if (res.result.cars[i].id == id) {
         formitem.value.selling_price = res.result.cars[i].price;
-        formitem.value.cost_price = res.result.cars[i].agent_price;
+        formitem.value.cost_price = res.result.cars[i].cost_price
+          ? res.result.cars[i].cost_price
+          : res.result.cars[i].price;
         console.log(res.result.cars[i]);
       }
     }
@@ -181,6 +184,7 @@ const chooseCarPrice = async (type, productId, id) => {
     for (let i = 0; i < res.result.cars.length; i++) {
       if (res.result.cars[i].id == id) {
         formitem.value.selling_price = res.result.cars[i].price;
+
         console.log(res.result.cars[i].price);
       }
     }
@@ -191,7 +195,9 @@ const chooseCarPrice = async (type, productId, id) => {
     for (let i = 0; i < res.result.cars.length; i++) {
       if (res.result.cars[i].id == id) {
         formitem.value.selling_price = res.result.cars[i].price;
-        formitem.value.cost_price = res.result.cars[i].agent_price;
+        formitem.value.cost_price = res.result.cars[i].cost_price
+          ? res.result.cars[i].cost_price
+          : res.result.cars[i].price;
         console.log(res.result.cars[i].price);
       }
     }
@@ -215,10 +221,10 @@ const chooseCarPrice = async (type, productId, id) => {
     const room = res.result.rooms.filter((r) => r.id === id)[0];
     formitem.value.room = room;
     formitem.value.selling_price = room.room_price;
-    formitem.value.cost_price = room.cost == null ? "" : room.cost;
+    formitem.value.cost_price = room.cost ? room.room_price : room.cost;
     formitem.value.extra_price = room.extra_price;
     formitem.value.comment = room.description;
-    console.log(room);
+    console.log(room.room_price);
   } else if (type == "6") {
     const res = await airlineStore.getDetailAction(productId);
     formitem.value.car_list = res.result.tickets;
@@ -336,13 +342,11 @@ const sub_qty_total = computed(() => {
   let totalsub = 0;
   if (formitem.value.days) {
     totalsub =
-      formitem.value.quantity *
-      formitem.value.selling_price *
-      formitem.value.days;
+      formitem.value.quantity * formitem.value.cost_price * formitem.value.days;
     formitem.value.total_amount = totalsub;
     return totalsub;
   } else {
-    totalsub = formitem.value.quantity * formitem.value.selling_price;
+    totalsub = formitem.value.quantity * formitem.value.cost_price;
     formitem.value.total_amount = totalsub;
     return totalsub;
   }
@@ -1532,10 +1536,10 @@ onMounted(async () => {});
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <p v-if="item.product_type != '5'">
-                            {{ item.selling_price * item.quantity }}
+                            {{ item.cost_price * item.quantity }}
                           </p>
                           <p v-if="item.product_type == '5'">
-                            {{ item.selling_price * item.quantity * item.days }}
+                            {{ item.cost_price * item.quantity * item.days }}
                           </p>
                         </td>
 

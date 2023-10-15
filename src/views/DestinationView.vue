@@ -81,8 +81,17 @@
               <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 {{ des.description }}
               </td>
-              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
+              <td
+                class="p-4 text-xs text-gray-700 whitespace-nowrap"
+                v-if="des.entry_fee"
+              >
                 {{ des.entry_fee }}
+              </td>
+              <td
+                class="p-4 text-xs text-gray-700 whitespace-nowrap"
+                v-if="!des.entry_fee"
+              >
+                -
               </td>
               <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
@@ -295,6 +304,7 @@ const onSubmitHandler = async () => {
 };
 
 const editModalOpenHandler = (data) => {
+  formData.value.id = data.id;
   formData.value.name = data.name;
   formData.value.category_id = data.category.id;
   formData.value.description = data.description;

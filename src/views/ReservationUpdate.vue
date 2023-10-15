@@ -447,6 +447,20 @@ const onSubmitHandler = async () => {
   }
 };
 
+const daysBetween = (a, b) => {
+  console.log(a, b);
+  if (a && b) {
+    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    const startDateTimestamp = new Date(a).getTime();
+    const endDateTimestamp = new Date(b).getTime();
+    let result = Math.abs(
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+    );
+    console.log(formData.value.checkin_date, result, "this is result");
+    return result;
+  }
+};
+
 const route_plan = ref("");
 const dropoff_location = ref("");
 const booking_status = ref("");
@@ -461,6 +475,26 @@ const getDetail = async () => {
   try {
     const response = await reservationStore.getDetailAction(route.params.id);
     console.log(response, "this is response");
+    if (response.result.cost_price == null) {
+      // formData.value.cost_price = "";
+      if (response.result.room) {
+        formData.value.cost_price = response.result.room?.cost;
+      }
+      if (response.result.variation) {
+        formData.value.cost_price = response.result.variation?.cost_price;
+      }
+      if (
+        response.result.car ||
+        response.result.product_type == "App\\Models\\GroupTour" ||
+        response.result.product_type == "App\\Models\\Airline"
+      ) {
+        formData.value.cost_price = response.result.selling_price;
+      }
+      console.log(formData.value.cost_price, "this is cost");
+    } else {
+      formData.value.cost_price = response.result.cost_price;
+    }
+
     titleDataChanges(response.result.product_type);
     checkin_date.value = response.result.checkin_date
       ? response.result.checkin_date
@@ -514,8 +548,8 @@ const getDetail = async () => {
     }
     // console.log(secForm.value.special_request, "this is special");
     if (response.result.product_type != "App\\Models\\Inclusive") {
-      if (response.result.product.name != null) {
-        formData.value.product_name = response.result.product.name;
+      if (response.result.product?.name != null) {
+        formData.value.product_name = response.result.product?.name;
       }
     } else {
       formData.value.product_name = "inclusive";
@@ -636,12 +670,7 @@ const getDetail = async () => {
     } else {
       formData.value.reservation_status = response.result.reservation_status;
     }
-    if (response.result.cost_price == "null") {
-      formData.value.cost_price = "";
-    } else {
-      formData.value.cost_price =
-        response.result.cost_price * response.result.quantity;
-    }
+
     if (response.result.car == null) {
       formData.value.car_id = "";
       formData.value.car_name = "-";
@@ -668,14 +697,38 @@ const getDetail = async () => {
     formData.value.receipt_images = response.result.booking?.receipts;
     formData.value.product_id = response.result.product_id;
     formData.value.product_type = response.result.product_type;
-    formData.value.quantity = response.result.quantity;
+    if (formData.value.checkin_date && formData.value.checkout_date) {
+      formData.value.quantity =
+        response.result.quantity *
+        daysBetween(formData.value.checkin_date, formData.value.checkout_date);
+    }
     formData.value.selling_price = response.result.selling_price;
     formData.value.service_date = response.result.service_date;
     secForm.value.ref_number =
       response.result.reservation_supplier_info?.ref_number;
-    console.log(formData.value, "first");
-    console.log(secForm.value, "sec");
-    console.log(formData.value.product_type, "this is product type");
+    // console.log(formData.value, "first");
+    // console.log(secForm.value, "sec");
+    // console.log(formData.value.product_type, "this is product type");
+
+    if (response.result.cost_price == null) {
+      // formData.value.cost_price = "";
+      if (response.result.room) {
+        formData.value.cost_price = response.result.room?.cost;
+      }
+      if (response.result.variation) {
+        formData.value.cost_price = response.result.variation?.cost_price;
+      }
+      if (
+        response.result.car ||
+        response.result.product_type == "App\\Models\\GroupTour" ||
+        response.result.product_type == "App\\Models\\Airline"
+      ) {
+        formData.value.cost_price = response.result.selling_price;
+      }
+      console.log(formData.value.cost_price, "this is cost");
+    } else {
+      formData.value.cost_price = response.result.cost_price;
+    }
   } catch (error) {
     console.log(error);
   }
@@ -1902,11 +1955,17 @@ onMounted(async () => {
             >
               <div class="pl-10 pr-10 space-y-2">
                 <p class="text-gray-400 text-xs">Total Cost</p>
-                <input
-                  v-model="expense_amount"
-                  type="number"
+                <p
                   class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                />
+                >
+                  {{ formData.cost_price * formData.quantity }}
+                </p>
+                <!-- <input
+                  v-model="formData.cost_price * formData.quantity"
+                  type="number"
+                  id="title"
+                  class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                /> -->
               </div>
 
               <div class="pl-10 pr-10 space-y-2">

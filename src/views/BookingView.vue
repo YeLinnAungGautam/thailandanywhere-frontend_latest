@@ -216,7 +216,7 @@ watch(limit, async (newValue) => {
             Service Date
           </div>
           <div class="py-2 text-xs font-medium tracking-wide text-center">
-            Expenses Status
+            Payment
           </div>
           <div class="py-2 text-xs font-medium tracking-wide text-center">
             Reservation Status
@@ -356,7 +356,7 @@ watch(limit, async (newValue) => {
                   <div
                     class="py-2 text-xs font-medium tracking-wide text-center"
                   >
-                    Payment Status
+                    Expense Status
                   </div>
                   <div
                     class="py-2 text-xs font-medium tracking-wide text-center"

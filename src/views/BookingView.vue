@@ -153,13 +153,16 @@ watch(limit, async (newValue) => {
       <!-- search input sort filter -->
       <div class="flex items-center justify-between mb-5">
         <div class="flex items-center justify-start space-x-2">
-          <div>
-            <input
-              v-model="search"
-              type="text"
-              class="w-3/5 sm:w-3/5 h-9 md:w-[300px] border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
-              placeholder="Search for bookings.."
-            />
+          <div class="">
+            <v-select
+              v-model="searchP"
+              class="style-chooser placeholder-sm bg-white rounded-lg w-[200px] text-gray-400"
+              :options="searchPayment"
+              label="value"
+              :clearable="false"
+              :reduce="(d) => d.name"
+              placeholder="choose status ..."
+            ></v-select>
           </div>
           <div class="">
             <v-select
@@ -172,16 +175,13 @@ watch(limit, async (newValue) => {
               placeholder="choose Filter ..."
             ></v-select>
           </div>
-          <div class="">
-            <v-select
-              v-model="searchP"
-              class="style-chooser placeholder-sm bg-white rounded-lg w-[200px] text-gray-400"
-              :options="searchPayment"
-              label="value"
-              :clearable="false"
-              :reduce="(d) => d.name"
-              placeholder="choose status ..."
-            ></v-select>
+          <div>
+            <input
+              v-model="search"
+              type="text"
+              class="w-3/5 sm:w-3/5 h-9 md:w-[300px] border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+              placeholder="Search for bookings.."
+            />
           </div>
         </div>
 

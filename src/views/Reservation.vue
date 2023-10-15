@@ -222,36 +222,7 @@ watch(userFilter, async (newValue) => {
         </div>
       </div>
       <div class="flex items-center justify-start mb-5 space-x-3">
-        <div>
-          <input
-            v-model="searchId"
-            type="text"
-            class="w-3/5 sm:w-3/5 md:w-[200px] border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
-            placeholder="Search "
-          />
-        </div>
-        <div class="">
-          <v-select
-            v-model="searchA"
-            class="style-chooser placeholder-sm bg-white rounded-lg w-[200px] text-gray-400"
-            :options="searchArray"
-            label="name"
-            :clearable="false"
-            :reduce="(d) => d.name"
-            placeholder="choose Filter ..."
-          ></v-select>
-        </div>
         <div class="" v-if="authStore.isSuperAdmin || authStore.isReservation">
-          <!-- <v-select
-            v-if="admin"
-            v-model="userFilter"
-            class="style-chooser placeholder-sm bg-white rounded-lg w-[200px] text-gray-400"
-            :options="admin"
-            label="name"
-            :clearable="false"
-            :reduce="(d) => d.id"
-            placeholder="Filter by User"
-          ></v-select> -->
           <select
             name=""
             id=""
@@ -272,6 +243,25 @@ watch(userFilter, async (newValue) => {
               {{ key.name }}
             </option>
           </select>
+        </div>
+        <div class="">
+          <v-select
+            v-model="searchA"
+            class="style-chooser placeholder-sm bg-white rounded-lg w-[200px] text-gray-400"
+            :options="searchArray"
+            label="name"
+            :clearable="false"
+            :reduce="(d) => d.name"
+            placeholder="choose Filter ..."
+          ></v-select>
+        </div>
+        <div>
+          <input
+            v-model="searchId"
+            type="text"
+            class="w-3/5 sm:w-3/5 md:w-[200px] border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+            placeholder="Search "
+          />
         </div>
         <div>
           <p class="inline-block mr-2 text-xs font-medium text-gray-500">

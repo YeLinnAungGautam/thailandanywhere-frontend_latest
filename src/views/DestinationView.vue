@@ -74,9 +74,9 @@
               </td>
               <td
                 class="p-4 text-xs text-gray-700 whitespace-nowrap"
-                v-if="des.category.name"
+                v-if="des.category?.name"
               >
-                {{ des.category.name }}
+                {{ des.category?.name }}
               </td>
               <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 {{ des.description }}

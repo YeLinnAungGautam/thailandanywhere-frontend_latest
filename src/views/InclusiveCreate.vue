@@ -589,7 +589,7 @@ onMounted(async () => {});
                   </p>
                 </div>
                 <div class="">
-                  <p class="text-gray-800 text-xs mb-2">Price</p>
+                  <p class="text-gray-800 text-xs mb-2">Price Per Person</p>
                   <input
                     v-model="formData.price"
                     type="text"

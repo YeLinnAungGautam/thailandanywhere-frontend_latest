@@ -1803,7 +1803,7 @@ onMounted(async () => {
                   >
                     <div v-for="(image, index) in paid_slip_image" :key="index">
                       <p class="text-xs mb-2 mt-2">
-                        <span v-if="authStore.isSuperAdmin"
+                        <span
                           ><i
                             class="fa-solid fa-trash-can text-lg text-red-500"
                             @click="deleteImagePaid(image.id)"
@@ -1960,7 +1960,7 @@ onMounted(async () => {
                     v-if="booking_receipt.length != 0"
                   >
                     <div v-for="(image, index) in booking_receipt" :key="index">
-                      <span v-if="authStore.isSuperAdmin"
+                      <span
                         ><i
                           class="fa-solid fa-trash-can text-lg text-red-500"
                           @click="deleteImage(image.id)"

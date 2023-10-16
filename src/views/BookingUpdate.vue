@@ -644,12 +644,12 @@ const onSubmitHandler = async () => {
       "items[" + x + "][quantity]",
       formData.value.items[x].quantity
     );
-    formData.value.items[x].cost_price
-      ? frmData.append(
-          "items[" + x + "][cost_price]",
-          formData.value.items[x].cost_price
-        )
-      : "";
+    // formData.value.items[x].cost_price
+    //   ? frmData.append(
+    //       "items[" + x + "][cost_price]",
+    //       formData.value.items[x].cost_price
+    //     )
+    //   : "";
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     formData.value.items[x].days

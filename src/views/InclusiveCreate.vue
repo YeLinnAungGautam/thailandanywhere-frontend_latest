@@ -248,41 +248,25 @@ const closedes = () => {
   desopen.value = false;
 };
 const clickdetaildes = ref(false);
-const clickdetaildesToggle = (
-  a,
-  b,
-  c,
-  x,
-  d,
-  index,
-  t,
-  r,
-  s,
-  file,
-  i,
-  o,
-  days,
-  room,
-  quantity
-) => {
-  console.log(a, b, index);
+const clickdetaildesToggle = (item, index) => {
   clickdetaildes.value = true;
-  itemDes.value = a;
-  itemSpecial.value = b;
-  itemServiceDate.value = s;
-  itemPickup.value = c;
-  itemPickupTime.value = x;
-  itemDropoff.value = d;
+  itemDes.value = item.comment;
+  itemSpecial.value = item.special_request;
+  itemServiceDate.value = item.service_date;
+  itemPickup.value = item.pickup_location;
+  itemPickupTime.value = item.pickup_time;
+  itemDropoff.value = item.dropoff_location;
   indexValue.value = index;
-  itemType.value = t;
-  itemRoutePlan.value = r;
-  itemFile.value = file;
-  itemCheckIn.value = i;
-  itemCheckOut.value = o;
-  itemDays.value = days;
-  itemRoom.value = room;
-  itemQ.value = quantity;
+  itemType.value = item.product_type;
+  itemRoutePlan.value = item.route_plan;
+  itemFile.value = item.customer_attachment;
+  itemCheckIn.value = item.checkin_date;
+  itemCheckOut.value = item.checkout_date;
+  itemDays.value = item.days;
+  itemRoom.value = item.room_number;
+  itemQ.value = item.quantity;
 };
+
 const itemType = ref("");
 const itemRoutePlan = ref("");
 const itemFile = ref("");
@@ -510,6 +494,10 @@ const onSubmitHandler = async () => {
       frmData.append("products[" + x + "][product_type]", `airport_pickup`);
     } else if (formData.value.items[x].product_type == "4") {
       frmData.append("products[" + x + "][product_type]", `entrance_ticket`);
+    } else if (formData.value.items[x].product_type == "5") {
+      frmData.append("products[" + x + "][product_type]", `hotel`);
+    } else if (formData.value.items[x].product_type == "6") {
+      frmData.append("products[" + x + "][product_type]", `airline_ticket`);
     }
   }
   for (var x = 0; x < formData.value.items.length; x++) {
@@ -517,12 +505,59 @@ const onSubmitHandler = async () => {
       "products[" + x + "][product_id]",
       formData.value.items[x].product_id
     );
+    frmData.append(
+      "products[" + x + "][cost_price]",
+      formData.value.items[x].cost_price
+    );
+    frmData.append(
+      "products[" + x + "][selling_price]",
+      formData.value.items[x].selling_price
+    );
+    frmData.append(
+      "products[" + x + "][description]",
+      formData.value.items[x].comment
+    );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "products[" + x + "][car_id]",
-      formData.value.items[x].car_id
-    );
+    formData.value.items[x].product_type == "1" ||
+    formData.value.items[x].product_type == "3"
+      ? frmData.append(
+          "products[" + x + "][car_id]",
+          formData.value.items[x].car_id
+        )
+      : "";
+    formData.value.items[x].product_type == "4"
+      ? frmData.append(
+          "products[" + x + "][variation_id]",
+          formData.value.items[x].car_id
+        )
+      : "";
+    formData.value.items[x].product_type == "5"
+      ? frmData.append(
+          "products[" + x + "][room_id]",
+          formData.value.items[x].room_id
+        )
+      : "";
+    formData.value.items[x].product_type == "5" &&
+    formData.value.items[x].checkin_date
+      ? frmData.append(
+          "products[" + x + "][checkin_data]",
+          formData.value.items[x].checkin_date
+        )
+      : "";
+    formData.value.items[x].product_type == "5" &&
+    formData.value.items[x].checkout_date
+      ? frmData.append(
+          "products[" + x + "][checkout_date]",
+          formData.value.items[x].checkout_date
+        )
+      : "";
+    formData.value.items[x].product_type == "6"
+      ? frmData.append(
+          "products[" + x + "][ticket_id]",
+          formData.value.items[x].car_id
+        )
+      : "";
   }
   frmData.append("cover_image", formData.value.cover_image);
 
@@ -953,7 +988,7 @@ onMounted(async () => {});
                 </Modal>
                 <Modal
                   :isOpen="clickdetaildes"
-                  @closeModal="clickdetaildesToggle = false"
+                  @closeModal="clickdetaildes = false"
                 >
                   <DialogPanel
                     class="w-full max-w-md p-4 space-y-2 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
@@ -1548,25 +1583,7 @@ onMounted(async () => {});
                         >
                           <button
                             class="mr-4 text-sm text-blue-600"
-                            @click="
-                              clickdetaildesToggle(
-                                item.comment,
-                                item.special_request,
-                                item.pickup_location,
-                                item.pickup_time,
-                                item.dropoff_location,
-                                index,
-                                item.product_type,
-                                item.route_plan,
-                                item.service_date,
-                                item.customer_attachment,
-                                item.checkin_date,
-                                item.checkout_date,
-                                item.days,
-                                item.room_number,
-                                item.quantity
-                              )
-                            "
+                            @click="clickdetaildesToggle(item, index)"
                           >
                             <i
                               class="fa-solid fa-ellipsis text-xs font-semibold px-1 py-[1.5px] bg-blue-500 rounded-full shadow text-white"

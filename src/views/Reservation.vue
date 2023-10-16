@@ -336,8 +336,8 @@ watch(userFilter, async (newValue) => {
         <div
           v-show="!loading"
           class="relative group"
-          v-for="r in reservations?.data"
-          :key="r.id"
+          v-for="d in reservations?.data"
+          :key="d.id"
         >
           <div
             class="grid w-auto grid-cols-8 col-span-8 bg-white divide-y divide-gray-100"
@@ -354,134 +354,124 @@ watch(userFilter, async (newValue) => {
             >
               Current Reservation
             </div> -->
+
             <div
-              class="grid grid-cols-8 col-span-8 bg-white divide-y divide-gray-100"
-              v-for="d in r.items"
-              :key="d.id"
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
             >
-              <div
-                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              {{ d.crm_id }}
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+            >
+              <p v-if="d.booking?.past_crm_id">{{ d.booking?.past_crm_id }}</p>
+              <p v-if="!d.booking?.past_crm_id">-</p>
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+            >
+              <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
+                PrivateVanTour
+              </p>
+              <p v-if="d.product_type == 'App\\Models\\GroupTour'">GroupTour</p>
+              <p v-if="d.product_type == 'App\\Models\\AirportPickup'">
+                Airpot Pickup
+              </p>
+              <p v-if="d.product_type == 'App\\Models\\EntranceTicket'">
+                Entrance Ticket
+              </p>
+              <p v-if="d.product_type == 'App\\Models\\Inclusive'">Inclusive</p>
+              <p v-if="d.product_type == 'App\\Models\\Hotel'">Hotel & Room</p>
+              <p v-if="d.product_type == 'App\\Models\\Airline'">Airline</p>
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+            >
+              <!-- {{ limitedText(d.product?.name) }} -->
+              {{ limitedText(d.product?.name) }}
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+            >
+              <p v-if="d.car?.name">{{ limitedText(d.car?.name) }}</p>
+              <p v-if="d.variation?.name">
+                {{ limitedText(d.variation?.name) }}
+              </p>
+              <p v-if="d.room?.name">{{ limitedText(d.room?.name) }}</p>
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+            >
+              <p v-if="!d.payment_status || d.payment_status == 'null'">-</p>
+              <p
+                v-if="d.payment_status == 'fully_paid'"
+                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
               >
-                {{ d.crm_id }}
-              </div>
-              <div
-                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+                {{ d.payment_status }}
+              </p>
+              <p
+                v-if="d.payment_status == 'not_paid'"
+                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
               >
-                <p v-if="r.past_crm_id">{{ r.past_crm_id }}</p>
-                <p v-if="!r.past_crm_id">-</p>
-              </div>
-              <div
-                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+                {{ d.payment_status }}
+              </p>
+              <p
+                v-if="d.payment_status == 'partially_paid'"
+                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
               >
-                <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
-                  PrivateVanTour
-                </p>
-                <p v-if="d.product_type == 'App\\Models\\GroupTour'">
-                  GroupTour
-                </p>
-                <p v-if="d.product_type == 'App\\Models\\AirportPickup'">
-                  Airpot Pickup
-                </p>
-                <p v-if="d.product_type == 'App\\Models\\EntranceTicket'">
-                  Entrance Ticket
-                </p>
-                <p v-if="d.product_type == 'App\\Models\\Inclusive'">
-                  Inclusive
-                </p>
-                <p v-if="d.product_type == 'App\\Models\\Hotel'">
-                  Hotel & Room
-                </p>
-                <p v-if="d.product_type == 'App\\Models\\Airline'">Airline</p>
-              </div>
-              <div
-                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
-              >
-                <!-- {{ limitedText(d.product?.name) }} -->
-                {{ limitedText(d.product?.name) }}
-              </div>
-              <div
-                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
-              >
-                <p v-if="d.car?.name">{{ limitedText(d.car?.name) }}</p>
-                <p v-if="d.variation?.name">
-                  {{ limitedText(d.variation?.name) }}
-                </p>
-                <p v-if="d.room?.name">{{ limitedText(d.room?.name) }}</p>
-              </div>
-              <div
-                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
-              >
-                <p v-if="!d.payment_status || d.payment_status == 'null'">-</p>
-                <p
-                  v-if="d.payment_status == 'fully_paid'"
-                  class="inline-block px-3 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
-                >
-                  {{ d.payment_status }}
-                </p>
-                <p
-                  v-if="d.payment_status == 'not_paid'"
-                  class="inline-block px-3 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
-                >
-                  {{ d.payment_status }}
-                </p>
-                <p
-                  v-if="d.payment_status == 'partially_paid'"
-                  class="inline-block px-3 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
-                >
-                  {{ d.payment_status }}
-                </p>
-              </div>
-              <div
-                class="p-3 mt-2 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap min-w-[200px] overflow-hidden"
-              >
-                <p v-if="!d.reservation_status">-</p>
+                {{ d.payment_status }}
+              </p>
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap min-w-[200px] overflow-hidden"
+            >
+              <p v-if="!d.reservation_status">-</p>
 
-                <p
-                  v-if="d.reservation_status == 'confirmed'"
-                  class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full shadow"
-                >
-                  {{ d.reservation_status }}
-                </p>
-                <p
-                  v-if="d.reservation_status == 'declined'"
-                  class="inline-block px-3 py-1 text-xs text-white bg-red-500 rounded-full shadow"
-                >
-                  {{ d.reservation_status }}
-                </p>
-                <p
-                  v-if="d.reservation_status == 'awaiting'"
-                  class="inline-block px-3 py-1 text-xs text-white bg-yellow-500 rounded-full shadow"
-                >
-                  {{ d.reservation_status }}
-                </p>
-              </div>
-
-              <div
-                class="p-3 mt-2 text-xs text-center bg-white divide-y divide-gray-100 text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden flex justify-end items-center"
+              <p
+                v-if="d.reservation_status == 'confirmed'"
+                class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full shadow"
               >
-                <p class="mr-6">{{ d.service_date }}</p>
-                <router-link
-                  :to="
-                    '/reservation/update/' +
-                    d.id +
-                    '/' +
-                    d.crm_id +
-                    '/' +
-                    r.past_crm_id
-                  "
+                {{ d.reservation_status }}
+              </p>
+              <p
+                v-if="d.reservation_status == 'declined'"
+                class="inline-block px-3 py-1 text-xs text-white bg-red-500 rounded-full shadow"
+              >
+                {{ d.reservation_status }}
+              </p>
+              <p
+                v-if="d.reservation_status == 'awaiting'"
+                class="inline-block px-3 py-1 text-xs text-white bg-yellow-500 rounded-full shadow"
+              >
+                {{ d.reservation_status }}
+              </p>
+            </div>
+
+            <div
+              class="p-3 mt-2 text-xs text-center bg-white divide-y divide-gray-100 text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden flex justify-end items-center"
+            >
+              <p class="mr-6">{{ d.service_date }}</p>
+              <router-link
+                :to="
+                  '/reservation/update/' +
+                  d.id +
+                  '/' +
+                  d.crm_id +
+                  '/' +
+                  d.booking?.past_crm_id
+                "
+              >
+                <button
+                  class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                 >
-                  <button
-                    class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
-                  >
-                    <PencilSquareIcon class="w-5 h-5" />
-                  </button>
-                </router-link>
-              </div>
-              <!-- <div
+                  <PencilSquareIcon class="w-5 h-5" />
+                </button>
+              </router-link>
+            </div>
+            <!-- <div
                 class="py-3 pl-10 text-xs text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
               >
                 <div class="flex items-center gap-2"> -->
-              <!-- <router-link
+            <!-- <router-link
                     :to="'/reservation/view/' + d.id + '/' + d.crm_id"
                   >
                     <button
@@ -491,9 +481,8 @@ watch(userFilter, async (newValue) => {
                     </button>
                   </router-link> -->
 
-              <!-- </div>
+            <!-- </div>
               </div> -->
-            </div>
           </div>
         </div>
         <div

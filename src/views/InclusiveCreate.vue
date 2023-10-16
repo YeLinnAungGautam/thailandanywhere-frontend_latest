@@ -517,6 +517,10 @@ const onSubmitHandler = async () => {
       "products[" + x + "][description]",
       formData.value.items[x].comment
     );
+    frmData.append(
+      "products[" + x + "][quantity]",
+      formData.value.items[x].quantity
+    );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     formData.value.items[x].product_type == "1" ||

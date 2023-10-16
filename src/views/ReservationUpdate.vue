@@ -217,30 +217,30 @@ const recehandleFileChange = (e) => {
   console.log(formData.value.receipt_image, "receipt");
 };
 
-const productList = ref([]);
-const chooseType = async () => {
-  if (formitem.value.product_type == "1") {
-    await vantourStore.getSimpleListAction();
-    productList.value = vantours.value.data;
-    console.log(productList.value);
-  } else if (formitem.value.product_type == "2") {
-    await grouptourStore.getSimpleListAction();
-    productList.value = grouptours.value.data;
-    console.log(productList.value);
-  } else if (formitem.value.product_type == "3") {
-    await airportStore.getSimpleListAction();
-    productList.value = airports.value.data;
-    console.log(productList.value);
-  } else if (formitem.value.product_type == "4") {
-    await entranceStore.getSimpleListAction();
-    productList.value = entrances.value.data;
-    console.log(productList.value);
-  } else if (formitem.value.product_type == "5") {
-    await inclusiveStore.getSimpleListAction();
-    productList.value = inclusives.value.data;
-    console.log(productList.value);
-  }
-};
+// const productList = ref([]);
+// const chooseType = async () => {
+//   if (formitem.value.product_type == "1") {
+//     await vantourStore.getSimpleListAction();
+//     productList.value = vantours.value.data;
+//     console.log(productList.value);
+//   } else if (formitem.value.product_type == "2") {
+//     await grouptourStore.getSimpleListAction();
+//     productList.value = grouptours.value.data;
+//     console.log(productList.value);
+//   } else if (formitem.value.product_type == "3") {
+//     await airportStore.getSimpleListAction();
+//     productList.value = airports.value.data;
+//     console.log(productList.value);
+//   } else if (formitem.value.product_type == "4") {
+//     await entranceStore.getSimpleListAction();
+//     productList.value = entrances.value.data;
+//     console.log(productList.value);
+//   } else if (formitem.value.product_type == "5") {
+//     await inclusiveStore.getSimpleListAction();
+//     productList.value = inclusives.value.data;
+//     console.log(productList.value);
+//   }
+// };
 
 const errors = ref(null);
 
@@ -916,17 +916,18 @@ onMounted(async () => {
   await getDetail();
   console.log(formData.value.receipt_image, "this is rece");
   changeName();
-  await vantourStore.getSimpleListAction();
-  await grouptourStore.getSimpleListAction();
-  await airportStore.getSimpleListAction();
-  await entranceStore.getSimpleListAction();
-  await customerStore.getSimpleListAction();
-  await inclusiveStore.getSimpleListAction();
-  await airlineStore.getSimpleListAction();
+  // await vantourStore.getSimpleListAction();
+  // await grouptourStore.getSimpleListAction();
+  // await airportStore.getSimpleListAction();
+  // await entranceStore.getSimpleListAction();
+  // await customerStore.getSimpleListAction();
+  // await inclusiveStore.getListAction();
+  // await airlineStore.getSimpleListAction();
   console.log(booking_confirm_letters.value, "this is something");
   action.value = route.params.action;
   crm.value = route.params.crm;
   old.value = route.params.old;
+  console.log(crm.value, old.value, "this is something wrong");
 });
 </script>
 

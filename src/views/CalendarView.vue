@@ -18,7 +18,7 @@ const fetchData = async (service_date) => {
   await reservationStore.getListAction({
     calender_filter: true,
     service_date: service_date ?? null,
-    limit: 10,
+    limit: 100,
   });
 };
 
@@ -39,11 +39,7 @@ const events = computed(() => {
     const resultItems = [];
 
     reservations.value.data.forEach((entry) => {
-      if (entry.items && Array.isArray(entry.items)) {
-        entry.items.forEach((item) => {
-          resultItems.push(item);
-        });
-      }
+      resultItems.push(entry);
     });
 
     return resultItems.map((r) => {

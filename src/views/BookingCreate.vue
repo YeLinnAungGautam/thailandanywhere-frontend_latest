@@ -642,12 +642,12 @@ const onSubmitHandler = async () => {
         )
       : "";
 
-    formData.value.items[x].cost_price
-      ? frmData.append(
-          "items[" + x + "][cost_price]",
-          formData.value.items[x].cost_price
-        )
-      : "";
+    // formData.value.items[x].cost_price
+    //   ? frmData.append(
+    //       "items[" + x + "][cost_price]",
+    //       formData.value.items[x].cost_price
+    //     )
+    //   : "";
 
     if (formData.value.items[x].pickup_time) {
       frmData.append(

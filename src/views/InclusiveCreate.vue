@@ -517,6 +517,10 @@ const onSubmitHandler = async () => {
       "products[" + x + "][description]",
       formData.value.items[x].comment
     );
+    frmData.append(
+      "products[" + x + "][quantity]",
+      formData.value.items[x].quantity
+    );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     formData.value.items[x].product_type == "1" ||
@@ -1673,7 +1677,7 @@ onMounted(async () => {});
                       </div>
                     </div>
 
-                    <div class="mt-6 mb-3 text-end" v-show="allowCreate">
+                    <!-- <div class="mt-6 mb-3 text-end" v-show="allowCreate">
                       <Button
                         @click.prevent="onSubmitHandler"
                         class="py-2 px-14"
@@ -1683,7 +1687,7 @@ onMounted(async () => {});
                     </div>
                     <div class="mt-6 mb-3 text-end" v-show="!allowCreate">
                       <Button class="py-2 bg-gray-400 px-14"> Create </Button>
-                    </div>
+                    </div> -->
                   </div>
                 </div>
               </div>

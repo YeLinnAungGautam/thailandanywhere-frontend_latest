@@ -1677,7 +1677,7 @@ onMounted(async () => {});
                       </div>
                     </div>
 
-                    <div class="mt-6 mb-3 text-end" v-show="allowCreate">
+                    <!-- <div class="mt-6 mb-3 text-end" v-show="allowCreate">
                       <Button
                         @click.prevent="onSubmitHandler"
                         class="py-2 px-14"
@@ -1687,7 +1687,7 @@ onMounted(async () => {});
                     </div>
                     <div class="mt-6 mb-3 text-end" v-show="!allowCreate">
                       <Button class="py-2 bg-gray-400 px-14"> Create </Button>
-                    </div>
+                    </div> -->
                   </div>
                 </div>
               </div>

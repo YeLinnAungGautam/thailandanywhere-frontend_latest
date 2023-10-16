@@ -95,7 +95,12 @@ const watchSystem = computed(() => {
   if (limit.value != "" && limit.value != undefined) {
     result.limit = limit.value;
   }
-  result.user_id = authStore.user.id;
+
+  if (authStore.isSuperAdmin || authStore.isReservation) {
+    result.user_id = "";
+  } else {
+    result.user_id = authStore.user.id;
+  }
   if (search.value != "" && search.value != undefined) {
     result.product_type = search.value;
   }
@@ -230,7 +235,7 @@ watch(userFilter, async (newValue) => {
             v-if="admin"
             class="px-2 py-2 focus:border-gray-300 border border-gray-300 placeholder-sm bg-white rounded-lg w-[200px] text-gray-400 space-y-2"
           >
-            <option :value="null" disabled selected class="bg-gray-200 text-sm">
+            <option :value="null" disabled class="bg-gray-200 text-sm">
               Filter By User
             </option>
             <option value="" class="text-sm">All User</option>

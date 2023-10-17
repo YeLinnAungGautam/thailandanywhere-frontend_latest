@@ -1693,7 +1693,7 @@ onMounted(async () => {});
               </div>
             </div>
           </div>
-          <!-- <div class="text-end">
+          <div class="text-end">
             <Button
               class="bg-gray-300"
               v-if="
@@ -1718,7 +1718,7 @@ onMounted(async () => {});
             >
               Create
             </Button>
-          </div> -->
+          </div>
         </div>
       </div>
       <!--  -->

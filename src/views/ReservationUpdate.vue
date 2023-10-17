@@ -96,6 +96,7 @@ const formData = ref({
   product_id: "",
   product_type: "",
   quantity: "",
+  hotalQuantity: "",
   car_id: "",
   car_name: "",
   variation_name: "",
@@ -699,10 +700,11 @@ const getDetail = async () => {
     formData.value.product_id = response.result.product_id;
     formData.value.product_type = response.result.product_type;
     if (formData.value.checkin_date && formData.value.checkout_date) {
-      formData.value.quantity =
+      formData.value.hotalQuantity =
         response.result.quantity *
         daysBetween(formData.value.checkin_date, formData.value.checkout_date);
     }
+    console.log(formData.value.hotalQuantity, "this is hotal Quantity");
     formData.value.selling_price = response.result.selling_price;
     formData.value.service_date = response.result.service_date;
     secForm.value.ref_number =
@@ -1012,10 +1014,20 @@ onMounted(async () => {
 
             <div class="pl-10 pr-10 space-y-2">
               <p class="text-gray-400 text-xs">Quantity</p>
-              <p class="font-semibold text-xs py-1.5">
+              <p
+                class="font-semibold text-xs py-1.5"
+                v-if="!formData.checkin_date"
+              >
                 {{ formData.quantity }}
               </p>
+              <p
+                class="font-semibold text-xs py-1.5"
+                v-if="formData.checkin_date"
+              >
+                {{ formData.hotalQuantity }}
+              </p>
             </div>
+
             <div class="pl-10 pr-10 space-y-2">
               <p
                 class="text-gray-400 text-xs"
@@ -1076,8 +1088,17 @@ onMounted(async () => {
             </div>
             <div class="pl-10 space-y-2">
               <p class="text-gray-400 text-xs">Price</p>
-              <p class="font-semibold text-xs py-1.5">
+              <p
+                class="font-semibold text-xs py-1.5"
+                v-if="!formData.checkin_date"
+              >
                 {{ formData.selling_price * formData.quantity }}
+              </p>
+              <p
+                class="font-semibold text-xs py-1.5"
+                v-if="formData.checkin_date"
+              >
+                {{ formData.selling_price * formData.hotalQuantity }}
               </p>
             </div>
           </div>
@@ -1095,8 +1116,17 @@ onMounted(async () => {
           >
             <div class="pl-10 space-y-2">
               <p class="text-gray-400 text-xs">Total Amount</p>
-              <p class="font-semibold text-xs py-1.5">
+              <p
+                class="font-semibold text-xs py-1.5"
+                v-if="!formData.checkin_date"
+              >
                 {{ formData.selling_price * formData.quantity }}
+              </p>
+              <p
+                class="font-semibold text-xs py-1.5"
+                v-if="formData.checkin_date"
+              >
+                {{ formData.selling_price * formData.hotalQuantity }}
               </p>
             </div>
             <div class="pl-10 space-y-2">
@@ -1964,8 +1994,15 @@ onMounted(async () => {
                 <p class="text-gray-400 text-xs">Total Cost</p>
                 <p
                   class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  v-if="!formData.checkin_date"
                 >
                   {{ formData.cost_price * formData.quantity }}
+                </p>
+                <p
+                  class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  v-if="formData.checkin_date"
+                >
+                  {{ formData.cost_price * formData.hotalQuantity }}
                 </p>
                 <!-- <input
                   v-model="formData.cost_price * formData.quantity"

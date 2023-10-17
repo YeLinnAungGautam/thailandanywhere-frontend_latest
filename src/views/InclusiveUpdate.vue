@@ -579,6 +579,11 @@ const getDetail = async () => {
           car_list: response.result.airport_pickups[x].product
             ? response.result.airport_pickups[x].product.cars
             : "",
+          cost_price: response.result.airport_pickups[x].cost_price
+            ? response.result.airport_pickups[x].cost_price
+            : response.result.airport_pickups[x].selling_price,
+          selling_price: response.result.airport_pickups[x].selling_price,
+          quantity: response.result.airport_pickups[x].quantity,
         };
         formData.value.items.push(itemData);
       }
@@ -587,16 +592,68 @@ const getDetail = async () => {
       for (const x in response.result.entrance_tickets) {
         const itemData = {
           product_type: "4",
-          product_id: response.result.entrance_tickets[x].product.id,
-          car_id: response.result.entrance_tickets[x].product
-            ? response.result.entrance_tickets[x].product.id
+          product_id: response.result.entrance_tickets[x].product?.id,
+          car_id: response.result.entrance_tickets[x].variation
+            ? response.result.entrance_tickets[x].variation.id
             : "",
-          car_name: response.result.entrance_tickets[x].product
-            ? response.result.entrance_tickets[x].product.name
+          car_name: response.result.entrance_tickets[x].variation
+            ? response.result.entrance_tickets[x].variation.name
             : "",
           car_list: response.result.entrance_tickets[x].product
             ? response.result.entrance_tickets[x].product.variations
             : "",
+          cost_price: response.result.entrance_tickets[x].cost_price
+            ? response.result.entrance_tickets[x].cost_price
+            : response.result.entrance_tickets[x].selling_price,
+          selling_price: response.result.entrance_tickets[x].selling_price,
+          quantity: response.result.entrance_tickets[x].quantity,
+        };
+        formData.value.items.push(itemData);
+      }
+    }
+    if (response.result.hotels.length != 0) {
+      for (const x in response.result.hotels) {
+        const itemData = {
+          product_type: "5",
+          product_id: response.result.hotels[x].product?.id,
+          car_id: response.result.hotels[x].room
+            ? response.result.hotels[x].room.id
+            : "",
+          car_name: response.result.hotels[x].room
+            ? response.result.hotels[x].room.name
+            : "",
+          car_list: response.result.hotels[x].product
+            ? response.result.hotels[x].product.rooms
+            : "",
+          cost_price: response.result.hotels[x].cost_price
+            ? response.result.hotels[x].cost_price
+            : response.result.hotels[x].selling_price,
+          selling_price: response.result.hotels[x].selling_price,
+          quantity: response.result.hotels[x].quantity,
+          days: 1,
+        };
+        formData.value.items.push(itemData);
+      }
+    }
+    if (response.result.airline_tickets.length != 0) {
+      for (const x in response.result.airline_tickets) {
+        const itemData = {
+          product_type: "6",
+          product_id: response.result.airline_tickets[x].product?.id,
+          car_id: response.result.airline_tickets[x].ticket
+            ? response.result.airline_tickets[x].ticket.id
+            : "",
+          car_name: response.result.airline_tickets[x].ticket
+            ? response.result.airline_tickets[x].ticket.name
+            : "",
+          car_list: response.result.airline_tickets[x].product
+            ? response.result.airline_tickets[x].product.tickets
+            : "",
+          cost_price: response.result.airline_tickets[x].cost_price
+            ? response.result.airline_tickets[x].cost_price
+            : response.result.airline_tickets[x].selling_price,
+          selling_price: response.result.airline_tickets[x].selling_price,
+          quantity: response.result.airline_tickets[x].quantity,
         };
         formData.value.items.push(itemData);
       }
@@ -612,6 +669,11 @@ const getDetail = async () => {
           car_name: response.result.group_tours[x].car
             ? response.result.group_tours[x].car.name
             : "",
+          cost_price: response.result.group_tours[x].cost_price
+            ? response.result.group_tours[x].cost_price
+            : response.result.group_tours[x].selling_price,
+          selling_price: response.result.group_tours[x].selling_price,
+          quantity: response.result.group_tours[x].quantity,
         };
         formData.value.items.push(itemData);
       }
@@ -630,6 +692,11 @@ const getDetail = async () => {
           car_list: response.result.private_van_tours[x].product
             ? response.result.private_van_tours[x].product.cars
             : "",
+          cost_price: response.result.private_van_tours[x].cost_price
+            ? response.result.private_van_tours[x].cost_price
+            : response.result.private_van_tours[x].selling_price,
+          selling_price: response.result.private_van_tours[x].selling_price,
+          quantity: response.result.private_van_tours[x].quantity,
         };
         formData.value.items.push(itemData);
       }

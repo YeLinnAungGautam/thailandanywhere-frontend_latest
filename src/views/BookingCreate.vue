@@ -994,7 +994,7 @@ const hotelQ = (t, d, q) => {
 onMounted(async () => {
   await customerStore.getSimpleListAction();
   await adminStore.getSimpleListAction();
-  console.log(admin, "this is admin");
+  console.log(admin.value, "this is admin");
   getTodayDate();
 });
 </script>

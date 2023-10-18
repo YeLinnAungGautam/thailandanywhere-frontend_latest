@@ -545,7 +545,7 @@ const onSubmitHandler = async () => {
     formData.value.items[x].product_type == "5" &&
     formData.value.items[x].checkin_date
       ? frmData.append(
-          "products[" + x + "][checkin_data]",
+          "products[" + x + "][checkin_date]",
           formData.value.items[x].checkin_date
         )
       : "";

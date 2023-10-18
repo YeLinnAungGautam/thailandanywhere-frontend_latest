@@ -14,6 +14,7 @@ import {
   UserGroupIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
+  FunnelIcon,
 } from "@heroicons/vue/24/outline";
 
 import Swal from "sweetalert2";
@@ -91,6 +92,20 @@ const searchResArray = [
 ];
 const searchTime = ref("");
 
+const showFilter = ref(false);
+const clearFilter = () => {
+  search.value = "";
+  searchId.value = "";
+  limit.value = 10;
+  searchA.value = "";
+  userFilter.value = "";
+  // user_id.value =
+  //   authStore.isSuperAdmin || authStore.isReservation ? "" : authStore.user.id;
+  searchReservation.value = "";
+  searchTime.value = "";
+  showFilter.value = false;
+};
+
 onMounted(async () => {
   await reservationStore.getListAction(watchSystem.value);
   await adminStore.getSimpleListAction();
@@ -132,24 +147,31 @@ const watchSystem = computed(() => {
 });
 
 watch(search, async (newValue) => {
+  showFilter.value = true;
   await reservationStore.getListAction(watchSystem.value);
 });
 watch(limit, async (newValue) => {
+  showFilter.value = true;
   await reservationStore.getListAction(watchSystem.value);
 });
 watch(searchId, async (newValue) => {
+  showFilter.value = true;
   await reservationStore.getListAction(watchSystem.value);
 });
 watch(searchA, async (newValue) => {
+  showFilter.value = true;
   await reservationStore.getListAction(watchSystem.value);
 });
 watch(userFilter, async (newValue) => {
+  showFilter.value = true;
   await reservationStore.getListAction(watchSystem.value);
 });
 watch(searchReservation, async (newValue) => {
+  showFilter.value = true;
   await reservationStore.getListAction(watchSystem.value);
 });
 watch(searchTime, async (newValue) => {
+  showFilter.value = true;
   await reservationStore.getListAction(watchSystem.value);
 });
 </script>
@@ -278,7 +300,7 @@ watch(searchTime, async (newValue) => {
             <option value="" class="text-sm">All User</option>
             <option
               :value="key.id"
-              v-for="(key, index) in admin"
+              v-for="(key, index) in admin?.data"
               :key="index"
               class="text-sm"
             >
@@ -323,6 +345,9 @@ watch(searchTime, async (newValue) => {
             class="w-3/5 sm:w-3/5 md:w-[200px] text-xs border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
             placeholder="Search Date"
           />
+        </div>
+        <div v-show="showFilter" @click="clearFilter">
+          <Button :leftIcon="FunnelIcon"> clear </Button>
         </div>
       </div>
       <div class="w-auto mb-5 overflow-scroll bg-white rounded-lg shadow">

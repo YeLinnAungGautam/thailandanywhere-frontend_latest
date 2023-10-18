@@ -336,13 +336,11 @@ const sub_qty_total = computed(() => {
   let totalsub = 0;
   if (formitem.value.days) {
     totalsub =
-      formitem.value.quantity *
-      formitem.value.selling_price *
-      formitem.value.days;
+      formitem.value.quantity * formitem.value.cost_price * formitem.value.days;
     formitem.value.total_amount = totalsub;
     return totalsub;
   } else {
-    totalsub = formitem.value.quantity * formitem.value.selling_price;
+    totalsub = formitem.value.quantity * formitem.value.cost_price;
     formitem.value.total_amount = totalsub;
     return totalsub;
   }
@@ -484,6 +482,7 @@ const removeImageSelectImage = (index) => {
 
 const onSubmitHandler = async () => {
   const frmData = new FormData();
+  frmData.append("_method", "PUT");
   frmData.append("name", formData.value.name);
   frmData.append("sku_code", formData.value.sku_code);
   frmData.append("description", formData.value.description);
@@ -506,6 +505,10 @@ const onSubmitHandler = async () => {
       frmData.append("products[" + x + "][product_type]", `airport_pickup`);
     } else if (formData.value.items[x].product_type == "4") {
       frmData.append("products[" + x + "][product_type]", `entrance_ticket`);
+    } else if (formData.value.items[x].product_type == "5") {
+      frmData.append("products[" + x + "][product_type]", `hotel`);
+    } else if (formData.value.items[x].product_type == "6") {
+      frmData.append("products[" + x + "][product_type]", `airline_ticket`);
     }
   }
   for (var x = 0; x < formData.value.items.length; x++) {
@@ -513,17 +516,71 @@ const onSubmitHandler = async () => {
       "products[" + x + "][product_id]",
       formData.value.items[x].product_id
     );
+    frmData.append(
+      "products[" + x + "][cost_price]",
+      formData.value.items[x].cost_price
+    );
+    frmData.append(
+      "products[" + x + "][selling_price]",
+      formData.value.items[x].selling_price
+    );
+    frmData.append(
+      "products[" + x + "][description]",
+      formData.value.items[x].comment
+    );
+    frmData.append(
+      "products[" + x + "][quantity]",
+      formData.value.items[x].quantity
+    );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "products[" + x + "][car_id]",
-      formData.value.items[x].car_id
-    );
+    formData.value.items[x].product_type == "1" ||
+    formData.value.items[x].product_type == "3"
+      ? frmData.append(
+          "products[" + x + "][car_id]",
+          formData.value.items[x].car_id
+        )
+      : "";
+    formData.value.items[x].product_type == "4"
+      ? frmData.append(
+          "products[" + x + "][variation_id]",
+          formData.value.items[x].car_id
+        )
+      : "";
+    formData.value.items[x].product_type == "5"
+      ? frmData.append(
+          "products[" + x + "][room_id]",
+          formData.value.items[x].room_id
+        )
+      : "";
+    formData.value.items[x].product_type == "5" &&
+    formData.value.items[x].checkin_date
+      ? frmData.append(
+          "products[" + x + "][checkin_date]",
+          formData.value.items[x].checkin_date
+        )
+      : "";
+    formData.value.items[x].product_type == "5" &&
+    formData.value.items[x].checkout_date
+      ? frmData.append(
+          "products[" + x + "][checkout_date]",
+          formData.value.items[x].checkout_date
+        )
+      : "";
+    formData.value.items[x].product_type == "6"
+      ? frmData.append(
+          "products[" + x + "][ticket_id]",
+          formData.value.items[x].car_id
+        )
+      : "";
   }
   frmData.append("cover_image", formData.value.cover_image);
 
   try {
-    const response = await inclusiveStore.addNewAction(frmData);
+    const response = await inclusiveStore.updateAction(
+      frmData,
+      route.params.id
+    );
     formData.value = {
       name: "",
       description: "",
@@ -553,6 +610,20 @@ const editData = ref({
   cover_image: "",
   images: [],
 });
+
+const daysBetween = (a, b) => {
+  console.log(a, b);
+  if (a && b) {
+    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    const startDateTimestamp = new Date(a).getTime();
+    const endDateTimestamp = new Date(b).getTime();
+    let result = Math.abs(
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+    );
+    console.log(formData.value.checkin_date, result, "this is result");
+    return result;
+  }
+};
 
 const getDetail = async () => {
   try {
@@ -584,6 +655,10 @@ const getDetail = async () => {
             : response.result.airport_pickups[x].selling_price,
           selling_price: response.result.airport_pickups[x].selling_price,
           quantity: response.result.airport_pickups[x].quantity,
+          total_amount:
+            response.result.airport_pickups[x].cost_price *
+            response.result.airport_pickups[x].quantity,
+          comment: response.result.airport_pickups[x].product.description,
         };
         formData.value.items.push(itemData);
       }
@@ -607,6 +682,12 @@ const getDetail = async () => {
             : response.result.entrance_tickets[x].selling_price,
           selling_price: response.result.entrance_tickets[x].selling_price,
           quantity: response.result.entrance_tickets[x].quantity,
+          total_amount:
+            response.result.entrance_tickets[x].cost_price *
+            response.result.entrance_tickets[x].quantity,
+          comment:
+            response.result.entrance_tickets[x].variation.entrance_ticket
+              .description,
         };
         formData.value.items.push(itemData);
       }
@@ -630,7 +711,16 @@ const getDetail = async () => {
             : response.result.hotels[x].selling_price,
           selling_price: response.result.hotels[x].selling_price,
           quantity: response.result.hotels[x].quantity,
-          days: 1,
+          checkin_date: response.result.hotels[x].checkin_date,
+          checkout_date: response.result.hotels[x].checkout_date,
+          days: daysBetween(
+            response.result.hotels[x].checkin_date,
+            response.result.hotels[x].checkout_date
+          ),
+          total_amount:
+            response.result.hotels[x].cost_price *
+            response.result.hotels[x].quantity,
+          comment: response.result.hotels[x].room.description,
         };
         formData.value.items.push(itemData);
       }
@@ -654,6 +744,10 @@ const getDetail = async () => {
             : response.result.airline_tickets[x].selling_price,
           selling_price: response.result.airline_tickets[x].selling_price,
           quantity: response.result.airline_tickets[x].quantity,
+          total_amount:
+            response.result.airline_tickets[x].cost_price *
+            response.result.airline_tickets[x].quantity,
+          comment: response.result.airline_tickets[x].ticket.description,
         };
         formData.value.items.push(itemData);
       }
@@ -674,6 +768,10 @@ const getDetail = async () => {
             : response.result.group_tours[x].selling_price,
           selling_price: response.result.group_tours[x].selling_price,
           quantity: response.result.group_tours[x].quantity,
+          total_amount:
+            response.result.group_tours[x].cost_price *
+            response.result.group_tours[x].quantity,
+          comment: response.result.group_tours[x].product.description,
         };
         formData.value.items.push(itemData);
       }
@@ -697,6 +795,11 @@ const getDetail = async () => {
             : response.result.private_van_tours[x].selling_price,
           selling_price: response.result.private_van_tours[x].selling_price,
           quantity: response.result.private_van_tours[x].quantity,
+          total_amount:
+            response.result.private_van_tours[x].cost_price *
+            response.result.private_van_tours[x].quantity,
+          comment:
+            response.result.private_van_tours[x].product.long_description,
         };
         formData.value.items.push(itemData);
       }
@@ -1699,10 +1802,10 @@ onMounted(async () => {
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <p v-if="item.product_type != '5'">
-                            {{ item.selling_price * item.quantity }}
+                            {{ item.cost_price * item.quantity }}
                           </p>
                           <p v-if="item.product_type == '5'">
-                            {{ item.selling_price * item.quantity * item.days }}
+                            {{ item.cost_price * item.quantity * item.days }}
                           </p>
                         </td>
 
@@ -1824,11 +1927,11 @@ onMounted(async () => {
                         @click.prevent="onSubmitHandler"
                         class="py-2 px-14"
                       >
-                        Create
+                        Update
                       </Button>
                     </div>
                     <div class="mt-6 mb-3 text-end" v-show="!allowCreate">
-                      <Button class="py-2 bg-gray-400 px-14"> Create </Button>
+                      <Button class="py-2 bg-gray-400 px-14"> Update </Button>
                     </div>
                   </div>
                 </div>

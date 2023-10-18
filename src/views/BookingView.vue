@@ -14,6 +14,7 @@ import {
   UserGroupIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
+  FunnelIcon,
 } from "@heroicons/vue/24/outline";
 
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
@@ -100,6 +101,19 @@ const limitedText = (text) => {
   }
 };
 
+const showFilter = ref(false);
+
+const clearFilter = () => {
+  showFilter.value = false;
+  if (!showFilter.value) {
+    limit.value = 10;
+    search.value = "";
+    searchA.value = "all";
+    searchP.value = "all";
+  }
+  console.log(showFilter.value, "this is showfilter");
+};
+
 onMounted(async () => {
   await bookingStore.getListAction(watchSystem.value);
 });
@@ -126,15 +140,19 @@ const watchSystem = computed(() => {
 });
 
 watch(search, async (newValue) => {
+  showFilter.value = true;
   await bookingStore.getListAction(watchSystem.value);
 });
 watch(searchA, async (newValue) => {
+  showFilter.value = true;
   await bookingStore.getListAction(watchSystem.value);
 });
 watch(searchP, async (newValue) => {
+  showFilter.value = true;
   await bookingStore.getListAction(watchSystem.value);
 });
 watch(limit, async (newValue) => {
+  showFilter.value = true;
   await bookingStore.getListAction(watchSystem.value);
 });
 </script>
@@ -182,6 +200,9 @@ watch(limit, async (newValue) => {
               class="w-3/5 sm:w-3/5 h-9 md:w-[300px] border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
               placeholder="Search for bookings.."
             />
+          </div>
+          <div v-show="showFilter" @click="clearFilter">
+            <Button :leftIcon="FunnelIcon"> Clear </Button>
           </div>
         </div>
 

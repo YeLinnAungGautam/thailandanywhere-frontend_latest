@@ -873,12 +873,14 @@ const deleteImage = async (id) => {
   console.log(id, "this is delete id");
   await reservationStore.deleteResImage(id);
   toast.success("success delete receipt");
+  window.location.reload();
   await getDetail();
 };
 const deleteImagePaid = async (id) => {
   console.log(id, "this is delete id");
   await reservationStore.deletePaidImage(id);
   toast.success("success delete receipt paid slip");
+  window.location.reload();
   await getDetail();
 };
 

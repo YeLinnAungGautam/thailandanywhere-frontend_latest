@@ -3,6 +3,8 @@ import Layout from "./Layout.vue";
 import Input from "../components/Input.vue";
 import InputField from "../components/InputField.vue";
 import Pagination from "../components/Pagination.vue";
+import Modal from "../components/Modal.vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import {
   PencilSquareIcon,
   TrashIcon,
@@ -90,11 +92,34 @@ const searchResArray = [
   { id: 2, name: "confirmed" },
   { id: 3, name: "declined" },
 ];
+const bookingStatusArr = [
+  { id: 1, name: "awaiting" },
+  { id: 2, name: "confirmed" },
+  { id: 3, name: "declined" },
+];
+const expenseStatusArr = [
+  { id: "1", name: "fully_paid" },
+  { id: "2", name: "not_paid" },
+  { id: "3", name: "partially_paid" },
+];
+const customerPaymentStatusArr = [
+  { id: "1", name: "fully_paid" },
+  { id: "2", name: "not_paid" },
+  { id: "3", name: "partially_paid" },
+];
 const searchTime = ref("");
+const oldCrmId = ref("");
+const bookingStatus = ref("");
+const expenseStatus = ref("");
+const customerPaymentStatus = ref("");
 
 const showFilter = ref(false);
 const clearFilter = () => {
   search.value = "";
+  oldCrmId.value = "";
+  bookingStatus.value = "";
+  expenseStatus.value = "";
+  customerPaymentStatus.value = "";
   searchId.value = "";
   limit.value = 10;
   searchA.value = "";
@@ -104,6 +129,13 @@ const clearFilter = () => {
   searchReservation.value = "";
   searchTime.value = "";
   showFilter.value = false;
+  toggleSearchHandler();
+};
+
+const isOpenSearch = ref(false);
+
+const toggleSearchHandler = () => {
+  isOpenSearch.value = !isOpenSearch.value;
 };
 
 onMounted(async () => {
@@ -129,6 +161,21 @@ const watchSystem = computed(() => {
   if (searchId.value != "" && searchId.value != undefined) {
     result.crm_id = searchId.value;
   }
+  if (oldCrmId.value != "" && oldCrmId.value != undefined) {
+    result.old_crm_id = oldCrmId.value;
+  }
+  if (bookingStatus.value != "" && bookingStatus.value != undefined) {
+    result.booking_status = bookingStatus.value;
+  }
+  if (expenseStatus.value != "" && expenseStatus.value != undefined) {
+    result.expense_status = expenseStatus.value;
+  }
+  if (
+    customerPaymentStatus.value != "" &&
+    customerPaymentStatus.value != undefined
+  ) {
+    result.customer_payment_status = customerPaymentStatus.value;
+  }
   if (searchA.value != "" && searchA.value != undefined) {
     result.filter = searchA.value;
   }
@@ -147,6 +194,22 @@ const watchSystem = computed(() => {
 });
 
 watch(search, async (newValue) => {
+  showFilter.value = true;
+  await reservationStore.getListAction(watchSystem.value);
+});
+watch(oldCrmId, async (newValue) => {
+  showFilter.value = true;
+  await reservationStore.getListAction(watchSystem.value);
+});
+watch(bookingStatus, async (newValue) => {
+  showFilter.value = true;
+  await reservationStore.getListAction(watchSystem.value);
+});
+watch(expenseStatus, async (newValue) => {
+  showFilter.value = true;
+  await reservationStore.getListAction(watchSystem.value);
+});
+watch(customerPaymentStatus, async (newValue) => {
   showFilter.value = true;
   await reservationStore.getListAction(watchSystem.value);
 });
@@ -265,6 +328,9 @@ watch(searchTime, async (newValue) => {
           >
             Airline
           </p>
+          <div @click="toggleSearchHandler" class="text-xs cursor-pointer">
+            <Button :leftIcon="FunnelIcon"> Search </Button>
+          </div>
           <div>
             <p class="inline-block mr-2 text-xs font-medium text-gray-500">
               Show
@@ -285,14 +351,15 @@ watch(searchTime, async (newValue) => {
           </div>
         </div>
       </div>
-      <div class="flex items-center justify-start mb-5 space-x-3">
+
+      <div class="flex justify-start items-center gap-2 mb-5 flex-wrap">
         <div class="" v-if="authStore.isSuperAdmin || authStore.isReservation">
           <select
             name=""
             id=""
             v-model="userFilter"
             v-if="admin"
-            class="px-2 py-2 focus:border-gray-300 border border-gray-300 placeholder-sm bg-white rounded-lg w-[200px] text-gray-400 space-y-2"
+            class="px-2 py-1 focus:border-gray-300 border border-gray-300 placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-[150px] text-gray-400 space-y-2 h-9"
           >
             <option :value="null" disabled class="bg-gray-200 text-sm">
               Filter By User
@@ -311,7 +378,7 @@ watch(searchTime, async (newValue) => {
         <div class="">
           <v-select
             v-model="searchA"
-            class="style-chooser placeholder-sm bg-white rounded-lg w-[200px] text-gray-400"
+            class="style-chooser placeholder-xs bg-white rounded-lg w-3/5 sm:w-3/5 md:w-[150px] text-gray-400"
             :options="searchArray"
             label="name"
             :clearable="false"
@@ -322,7 +389,7 @@ watch(searchTime, async (newValue) => {
         <div class="">
           <v-select
             v-model="searchReservation"
-            class="style-chooser placeholder-sm bg-white rounded-lg w-[200px] text-gray-400"
+            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-[150px] text-gray-400"
             :options="searchResArray"
             label="name"
             :clearable="false"
@@ -330,23 +397,65 @@ watch(searchTime, async (newValue) => {
             placeholder="reservation ..."
           ></v-select>
         </div>
-        <div>
-          <input
-            v-model="searchId"
-            type="text"
-            class="w-3/5 sm:w-3/5 md:w-[200px] border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
-            placeholder="Search CRM ID"
-          />
+        <div class="">
+          <v-select
+            v-model="bookingStatus"
+            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-[150px] text-gray-400"
+            :options="bookingStatusArr"
+            label="name"
+            :clearable="false"
+            :reduce="(d) => d.name"
+            placeholder="booking status ..."
+          ></v-select>
+        </div>
+        <div class="">
+          <v-select
+            v-model="expenseStatus"
+            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-[150px] text-gray-400"
+            :options="expenseStatusArr"
+            label="name"
+            :clearable="false"
+            :reduce="(d) => d.name"
+            placeholder="expense status ..."
+          ></v-select>
+        </div>
+        <div class="">
+          <v-select
+            v-model="customerPaymentStatus"
+            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-[150px] text-gray-400"
+            :options="customerPaymentStatusArr"
+            label="name"
+            :clearable="false"
+            :reduce="(d) => d.name"
+            placeholder="customer payment status ..."
+          ></v-select>
         </div>
         <div>
           <input
             v-model="searchTime"
             type="date"
-            class="w-3/5 sm:w-3/5 md:w-[200px] text-xs border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+            class="h-8 w-3/5 sm:w-3/5 md:w-full text-md border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
             placeholder="Search Date"
           />
         </div>
-        <div v-show="showFilter" @click="clearFilter">
+        <div>
+          <input
+            v-model="searchId"
+            type="text"
+            class="h-8 w-3/5 sm:w-3/5 md:w-full border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+            placeholder="Search CRM ID"
+          />
+        </div>
+        <div>
+          <input
+            v-model="oldCrmId"
+            type="text"
+            class="h-8 w-3/5 sm:w-3/5 md:w-full border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+            placeholder="Search Old CRM ID"
+          />
+        </div>
+
+        <div v-show="showFilter" @click="clearFilter" class="w-full">
           <Button :leftIcon="FunnelIcon"> clear </Button>
         </div>
       </div>
@@ -576,3 +685,9 @@ watch(searchTime, async (newValue) => {
     </div>
   </Layout>
 </template>
+
+<style>
+.style-chooser .v-select-placeholder {
+  font-size: 12px !important; /* Adjust the font size to your preference */
+}
+</style>

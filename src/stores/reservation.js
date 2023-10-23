@@ -2,7 +2,11 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 export const useReservationStore = defineStore("reservation", {
-  state: () => ({ reservations: null, loading: false }),
+  state: () => ({
+    reservations: null,
+    loading: false,
+    reservationCalendar: null,
+  }),
   getters: {},
   actions: {
     async getSimpleListAction(params) {
@@ -31,6 +35,19 @@ export const useReservationStore = defineStore("reservation", {
       this.loading = false;
       return response.data;
     },
+    async getChangeCalPage(url, params) {
+      console.log(params, "this is pagi params");
+      this.loading = true;
+      const urlSearchParams = new URLSearchParams(new URL(url).search);
+      const pageValue = urlSearchParams.get("page");
+      const response = await axios.get("/reservations?page=" + pageValue, {
+        params: params,
+      });
+      this.reservationCalendar = response;
+      console.log(response.data.result, "pagi");
+      this.loading = false;
+      return response.data.result;
+    },
     async getListAction(params) {
       try {
         this.loading = true;
@@ -45,6 +62,24 @@ export const useReservationStore = defineStore("reservation", {
         this.loading = false;
         console.log(response);
         return response.data;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
+    async getListCalendarAction(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get(
+          `/reservations?user_id=${params.user_id}`,
+          {
+            params,
+          }
+        );
+
+        this.loading = false;
+        this.reservationCalendar = response;
+        return response;
       } catch (error) {
         this.loading = false;
         throw error;

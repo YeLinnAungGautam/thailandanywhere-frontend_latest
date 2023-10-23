@@ -30,7 +30,11 @@
             <SidebarItem name="Dashboard" :icon="Squares2X2Icon" to="/" />
             <SidebarItem
               name="Sales"
-              v-if="authStore.isSuperAdmin || authStore.isCashier || authStore.isAdmin"
+              v-if="
+                authStore.isSuperAdmin ||
+                authStore.isCashier ||
+                authStore.isAdmin
+              "
               :icon="CalendarIcon"
               to="/bookings"
               :activePaths="[
@@ -132,11 +136,11 @@
                 to="/partners"
               />
               <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
-              <SidebarItem
+              <!-- <SidebarItem
                 name="Calendar"
                 :icon="CalendarDaysIcon"
                 to="/calendar"
-              />
+              /> -->
             </div>
           </div>
 

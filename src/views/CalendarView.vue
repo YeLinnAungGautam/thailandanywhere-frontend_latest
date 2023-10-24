@@ -25,24 +25,18 @@ const { reservations, loading, reservationCalendar, loadingCalendar } =
 const { admin } = storeToRefs(adminStore);
 const router = useRouter();
 
-// const fetchData = async (service_date) => {
-//   await reservationStore.getListAction({
-//     calender_filter: true,
-//     user_id: "",
-//     service_date: service_date ?? null,
-//     limit: limit.value,
-//   });
-// };
-
 const fetchData = async (service_date) => {
-  await reservationStore.getListAction({
+  const res = await reservationStore.getListAction({
     // calender_filter: true,
     user_id: "",
     // service_date: service_date ?? null,
     limit: limit.value,
   });
+  console.log(res, "this is calendar data show");
+  calendarAllData.value = res.result.meta.total;
 };
 
+const calendarAllData = ref(2000);
 const currentTime = ref(null);
 const currentDate = ref(null);
 const userId = ref("");
@@ -60,28 +54,6 @@ onMounted(async () => {
   await adminStore.getSimpleListAction();
   // console.log(reservationCalendar.value, "this is reservation cal");
 });
-
-// const events = computed(() => {
-//   if (!reservations.value) {
-//     return null;
-//   } else {
-//     const resultItems = [];
-
-//     reservations.value.data.forEach((entry) => {
-//       resultItems.push(entry);
-//     });
-
-//     return resultItems.map((r) => {
-//       return {
-//         title: r?.product?.name,
-//         start: new Date(r?.service_date).toISOString(),
-//         extendedProps: {
-//           data: r,
-//         },
-//       };
-//     });
-//   }
-// });
 
 const events = computed(() => {
   if (!reservations.value) {
@@ -136,59 +108,78 @@ const events = computed(() => {
     console.log(dateCounts, "this is dateCounts");
     const resultItems = [];
 
-    // Convert dateCounts into FullCalendar events
     for (const date in dateCounts) {
-      // const eventTitle = `
-      //   Private: ${dateCounts[date].private || 0} \n
-      //   Group: ${dateCounts[date].group || 0} \n
-      //   Airport: ${dateCounts[date].airport || 0} \n
-      //   Entrance: ${dateCounts[date].entrance || 0} \n
-      //   RoomBook : ${dateCounts[date].hotal || 0} \n
-      //   Airline : ${dateCounts[date].airline || 0}
-      // `;
+      if (dateCounts[date].private) {
+        let eventTitle = `Private: ${dateCounts[date].private}`;
 
-      const eventTitle = `
-        ${
-          dateCounts[date].private ? "Private: " + dateCounts[date].private : ""
-        } \n
-        ${dateCounts[date].group ? "Group: " + dateCounts[date].group : ""} \n
-        ${
-          dateCounts[date].airport ? "Airport: " + dateCounts[date].airport : ""
-        } \n
-        ${
-          dateCounts[date].entrance
-            ? "Entrance: " + dateCounts[date].entrance
-            : ""
-        } \n
-        ${
-          dateCounts[date].hotal ? "RoomBook: " + dateCounts[date].hotal : ""
-        } \n
-      ${
-        dateCounts[date].airline ? "Airline: " + dateCounts[date].airline : ""
-      } \n
-        
-      `;
+        resultItems.push({
+          title: eventTitle,
+          start: new Date(date),
+        });
+      }
+      if (dateCounts[date].group) {
+        let eventTitle = `Group: ${dateCounts[date].group}`;
 
-      resultItems.push({
-        title: eventTitle,
-        start: new Date(date),
-      });
+        resultItems.push({
+          title: eventTitle,
+          start: new Date(date),
+        });
+      }
+      if (dateCounts[date].entrance) {
+        let eventTitle = `Entrance: ${dateCounts[date].entrance}`;
+
+        resultItems.push({
+          title: eventTitle,
+          start: new Date(date),
+        });
+      }
+      if (dateCounts[date].airport) {
+        let eventTitle = `Airport: ${dateCounts[date].airport}`;
+
+        resultItems.push({
+          title: eventTitle,
+          start: new Date(date),
+        });
+      }
+      if (dateCounts[date].hotal) {
+        let eventTitle = `Hotal: ${dateCounts[date].hotal}`;
+
+        resultItems.push({
+          title: eventTitle,
+          start: new Date(date),
+        });
+      }
+      if (dateCounts[date].airline) {
+        let eventTitle = `Airline: ${dateCounts[date].airline}`;
+
+        resultItems.push({
+          title: eventTitle,
+          start: new Date(date),
+        });
+      }
+      // Add similar blocks for other properties.
     }
 
     console.log(resultItems, "this is result item");
-    return resultItems;
+    return resultItems.map((r) => {
+      return {
+        title: r.title,
+        start: r.start,
+        extendedProps: {
+          data: r,
+        },
+      };
+    });
   }
 });
 
+const userIdEvent = ref("");
 const calendarOptions = ref({
   plugins: [dayGridPlugin, interactionPlugin],
   displayEventTime: false,
   selectable: true,
   initialView: "dayGridMonth",
   headerToolbar: {
-    // left: "prev,next",
-    // center: "title",
-    // right: "dayGridMonth",
     left: "title",
     right: "prev,next",
   },
@@ -204,19 +195,19 @@ const calendarOptions = ref({
   events: events,
 
   eventClick: async function (info) {
-    // const d = info.event.extendedProps.data;
-    // console.log(info.event._instance.range.start);
-    // const date = formattedDate(info.event._instance.range.start);
-    // serviceDate.value = date;
+    // console.log(info);
+    const p = selectProductType(info.event._def.title);
+    const d = info.event.extendedProps.data;
+    console.log(info.event._instance.range.start);
+    const date = formattedDate(info.event._instance.range.start);
+    serviceDate.value = date;
+    productType.value = p;
+    byuser.value = userId.value;
+
     // console.log(date);
     // router.push("/reservation/update/" + d.id + "/" + d.crm_id + "/" + null);
-    // const res = await reservationStore.getListCalendarAction({
-    //   user_id: "",
-    //   service_date: date,
-    // });
-    // console.log(reservationCalendar.value, res, "this is value");
-    console.log(info.event._def.title);
-    eventTitle.value = info.event._def.title;
+    const res = await reservationStore.getListCalendarAction(watchSystem.value);
+    console.log(watchSystem.value, "this is value");
   },
 });
 
@@ -230,6 +221,27 @@ const limitedText = (text) => {
     } else {
       return text?.slice(0, 10);
     }
+  }
+};
+
+const selectProductType = (text) => {
+  if (text.includes("Private")) {
+    return "App\\Models\\PrivateVanTour";
+  }
+  if (text.includes("Group")) {
+    return "App\\Models\\GroupTour";
+  }
+  if (text.includes("Entrance")) {
+    return "App\\Models\\EntranceTicket";
+  }
+  if (text.includes("Airport")) {
+    return "App\\Models\\AirportPickup";
+  }
+  if (text.includes("Hotal")) {
+    return "App\\Models\\Hotel";
+  }
+  if (text.includes("Airline")) {
+    return "App\\Models\\Airline";
   }
 };
 
@@ -356,11 +368,11 @@ const handleSelect = (e) => {
     <div class="flex items-center justify-between mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Calendar</h3>
     </div>
-    <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-4 gap-4">
       <div class="col-span-1 bg-white">
         <div class="bg-white p-4 space-y-6">
           <p class="flex justify-start items-center">
-            <span>Filter Result for Calendar :</span>
+            <span>Calendar data :</span>
             <select
               v-model="limit"
               class="w-20 ml-4 p-2 text-xs border-2 rounded-md focus:outline-none focus:ring-0"
@@ -370,6 +382,7 @@ const handleSelect = (e) => {
               <option value="500">500</option>
               <option value="750">750</option>
               <option value="1000">1000</option>
+              <option :value="calendarAllData">All</option>
             </select>
           </p>
           <p class="">Filter For Reservation Table</p>
@@ -462,7 +475,7 @@ const handleSelect = (e) => {
           </div>
         </div>
       </div>
-      <div class="col-span-2 bg-white p-2" v-if="!loadingCalendar">
+      <div class="col-span-3 bg-white p-2" v-if="!loadingCalendar">
         <FullCalendar
           :options="calendarOptions"
           :selectable="true"
@@ -471,7 +484,7 @@ const handleSelect = (e) => {
         </FullCalendar>
       </div>
       <div
-        class="col-span-2 bg-white p-2 flex justify-center items-center"
+        class="col-span-3 bg-white p-2 flex justify-center items-center"
         v-if="loadingCalendar"
       >
         <div
@@ -561,7 +574,7 @@ const handleSelect = (e) => {
           >
         </div>
       </div>
-      <div class="col-span-3" v-if="reservationCalendar != null">
+      <div class="col-span-4" v-if="reservationCalendar != null && !loading">
         <div class="w-auto mb-5 overflow-scroll bg-white rounded-lg shadow">
           <div class="grid grid-cols-8 gap-2 py-2">
             <div
@@ -739,7 +752,98 @@ const handleSelect = (e) => {
           </div>
         </div>
       </div>
-      <div class="col-span-3">
+      <div
+        class="col-span-4 flex justify-center items-center py-10 bg-white"
+        v-if="loading"
+      >
+        <div
+          aria-label="Loading..."
+          role="status"
+          class="flex items-center space-x-2"
+        >
+          <svg
+            class="h-20 w-20 animate-spin stroke-gray-500"
+            viewBox="0 0 256 256"
+          >
+            <line
+              x1="128"
+              y1="32"
+              x2="128"
+              y2="64"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="24"
+            ></line>
+            <line
+              x1="195.9"
+              y1="60.1"
+              x2="173.3"
+              y2="82.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="24"
+            ></line>
+            <line
+              x1="224"
+              y1="128"
+              x2="192"
+              y2="128"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="24"
+            ></line>
+            <line
+              x1="195.9"
+              y1="195.9"
+              x2="173.3"
+              y2="173.3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="24"
+            ></line>
+            <line
+              x1="128"
+              y1="224"
+              x2="128"
+              y2="192"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="24"
+            ></line>
+            <line
+              x1="60.1"
+              y1="195.9"
+              x2="82.7"
+              y2="173.3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="24"
+            ></line>
+            <line
+              x1="32"
+              y1="128"
+              x2="64"
+              y2="128"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="24"
+            ></line>
+            <line
+              x1="60.1"
+              y1="60.1"
+              x2="82.7"
+              y2="82.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="24"
+            ></line>
+          </svg>
+          <span class="text-4xl font-medium text-gray-500"
+            >Loading List ...</span
+          >
+        </div>
+      </div>
+      <div class="col-span-4">
         <Pagination
           v-if="!loading"
           :data="reservationCalendar?.result"
@@ -784,12 +888,62 @@ const handleSelect = (e) => {
   width: 1em;
   font-family: fcicons !important;
 }
-.fc .fc-daygrid-event {
+.fc-daygrid-dot-event .fc-event-title {
+  flex-grow: 1;
+  flex-shrink: 1;
+  font-weight: 400 !important;
+  min-width: 0px;
+  overflow: hidden;
+}
+/* .fc .fc-daygrid-event {
   margin-top: 1px;
   z-index: 6;
   background-color: #ff9f89c2 !important;
-}
+} */
 .fc .fc-daygrid-day.fc-day-today {
-  background-color: #b0afafb4;
+  background-color: #bab9b96a;
+}
+.fc-daygrid-day-events .fc-daygrid-event-harness:nth-child(1n) {
+  background-color: #ff5e0193;
+  margin: 2px 2px 2px 2px;
+
+  font-weight: 300 !important;
+  border-radius: 10px;
+}
+.fc-daygrid-day-events .fc-daygrid-event-harness:nth-child(2n) {
+  background-color: #4b4efe6a;
+  margin: 2px 2px 2px 2px;
+
+  font-weight: 300 !important;
+  border-radius: 10px;
+}
+.fc-daygrid-day-events .fc-daygrid-event-harness:nth-child(3n) {
+  background-color: #ffb5477f;
+  margin: 2px 2px 2px 2px;
+
+  font-weight: 300 !important;
+  border-radius: 10px;
+}
+
+.fc-daygrid-day-events .fc-daygrid-event-harness:nth-child(4n) {
+  background-color: #f2ff00;
+  margin: 2px 2px 2px 2px;
+
+  font-weight: 300 !important;
+  border-radius: 10px;
+}
+.fc-daygrid-day-events .fc-daygrid-event-harness:nth-child(5n) {
+  background-color: #00eaff;
+  margin: 2px 2px 2px 2px;
+
+  font-weight: 300 !important;
+  border-radius: 10px;
+}
+.fc-daygrid-day-events .fc-daygrid-event-harness:nth-child(6n) {
+  background-color: #ea01ff81;
+  margin: 2px 2px 2px 2px;
+
+  font-weight: 300 !important;
+  border-radius: 10px;
 }
 </style>

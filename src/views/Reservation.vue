@@ -328,9 +328,7 @@ watch(searchTime, async (newValue) => {
           >
             Airline
           </p>
-          <div @click="toggleSearchHandler" class="text-xs cursor-pointer">
-            <Button :leftIcon="FunnelIcon"> Search </Button>
-          </div>
+
           <div>
             <p class="inline-block mr-2 text-xs font-medium text-gray-500">
               Show
@@ -352,14 +350,14 @@ watch(searchTime, async (newValue) => {
         </div>
       </div>
 
-      <div class="flex justify-start items-center gap-2 mb-5 flex-wrap">
+      <div class="grid grid-cols-4 gap-2 mb-5 flex-wrap">
         <div class="" v-if="authStore.isSuperAdmin || authStore.isReservation">
           <select
             name=""
             id=""
             v-model="userFilter"
             v-if="admin"
-            class="px-2 py-1 focus:border-gray-300 border border-gray-300 placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-[150px] text-gray-400 space-y-2 h-9"
+            class="px-2 py-1 focus:border-gray-300 border border-gray-300 placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400 space-y-2 h-9"
           >
             <option :value="null" disabled class="bg-gray-200 text-sm">
               Filter By User
@@ -378,7 +376,7 @@ watch(searchTime, async (newValue) => {
         <div class="">
           <v-select
             v-model="searchA"
-            class="style-chooser placeholder-xs bg-white rounded-lg w-3/5 sm:w-3/5 md:w-[150px] text-gray-400"
+            class="style-chooser placeholder-xs bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
             :options="searchArray"
             label="name"
             :clearable="false"
@@ -389,7 +387,7 @@ watch(searchTime, async (newValue) => {
         <div class="">
           <v-select
             v-model="searchReservation"
-            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-[150px] text-gray-400"
+            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
             :options="searchResArray"
             label="name"
             :clearable="false"
@@ -400,7 +398,7 @@ watch(searchTime, async (newValue) => {
         <div class="">
           <v-select
             v-model="bookingStatus"
-            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-[150px] text-gray-400"
+            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
             :options="bookingStatusArr"
             label="name"
             :clearable="false"
@@ -411,7 +409,7 @@ watch(searchTime, async (newValue) => {
         <div class="">
           <v-select
             v-model="expenseStatus"
-            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-[150px] text-gray-400"
+            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
             :options="expenseStatusArr"
             label="name"
             :clearable="false"
@@ -422,7 +420,7 @@ watch(searchTime, async (newValue) => {
         <div class="">
           <v-select
             v-model="customerPaymentStatus"
-            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-[150px] text-gray-400"
+            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
             :options="customerPaymentStatusArr"
             label="name"
             :clearable="false"

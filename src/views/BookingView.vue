@@ -208,13 +208,12 @@ watch(limit, async (newValue) => {
     </div>
     <div class="p-6 mb-5 rounded-lg shadow-sm bg-white/60">
       <!-- search input sort filter -->
-      <div class="flex items-center justify-start mb-5">
-        <div class="flex items-center justify-start gap-2 flex-wrap">
+      <div class="mb-5">
+        <div class="grid grid-cols-4 gap-2">
           <div class="">
-            <p class="text-xs mb-1">Payment status</p>
             <v-select
               v-model="searchP"
-              class="style-chooser placeholder-sm bg-white rounded-lg w-[150px] text-gray-400"
+              class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400"
               :options="searchPayment"
               label="value"
               :clearable="false"
@@ -223,10 +222,9 @@ watch(limit, async (newValue) => {
             ></v-select>
           </div>
           <div class="">
-            <p class="text-xs mb-1">current & pass</p>
             <v-select
               v-model="searchA"
-              class="style-chooser placeholder-sm bg-white rounded-lg w-[150px] text-gray-400"
+              class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400"
               :options="searchArray"
               label="name"
               :clearable="false"
@@ -235,10 +233,9 @@ watch(limit, async (newValue) => {
             ></v-select>
           </div>
           <div class="">
-            <p class="text-xs mb-1">booking status</p>
             <v-select
               v-model="bookingStatus"
-              class="style-chooser placeholder-sm bg-white rounded-lg w-[150px] text-gray-400"
+              class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400"
               :options="bookingStatusArr"
               label="name"
               :clearable="false"
@@ -247,42 +244,40 @@ watch(limit, async (newValue) => {
             ></v-select>
           </div>
           <div>
-            <p class="text-xs mb-1">booking id</p>
             <input
               v-model="search"
               type="text"
-              class="w-3/5 sm:w-3/5 h-9 md:w-[150px] border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+              class="w-3/5 sm:w-3/5 h-9 md:w-full border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
               placeholder="bookings id.."
             />
           </div>
           <div>
-            <p class="text-xs mb-1">customer name</p>
             <input
               v-model="customerName"
               type="text"
-              class="h-9 w-3/5 sm:w-3/5 md:w-[150px] border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+              class="h-9 w-3/5 sm:w-3/5 md:w-full border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
               placeholder="Customer Name"
             />
           </div>
           <div class="">
-            <p class="text-xs mb-1">balance due date</p>
             <input
               v-model="balanceDueDate"
               type="date"
-              class="h-9 w-3/5 sm:w-3/5 md:w-[200px] text-md border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+              class="h-9 w-3/5 sm:w-3/5 md:w-full text-md border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
               placeholder="Search Date"
+              title="service_date"
             />
           </div>
           <div>
-            <p class="text-xs mb-1">service date</p>
             <input
               v-model="saleDate"
               type="date"
-              class="h-9 w-3/5 sm:w-3/5 md:w-[200px] text-md border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+              class="h-9 w-3/5 sm:w-3/5 md:w-full text-md border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
               placeholder="Search Date"
+              title="sale_date"
             />
           </div>
-          <div class="mt-5">
+          <div>
             <p class="inline-block mr-2 font-medium text-gray-500">Show</p>
             <select
               v-model="limit"

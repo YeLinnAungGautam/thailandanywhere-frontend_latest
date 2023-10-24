@@ -25,12 +25,20 @@ const { reservations, loading, reservationCalendar } =
 const { admin } = storeToRefs(adminStore);
 const router = useRouter();
 
+// const fetchData = async (service_date) => {
+//   await reservationStore.getListAction({
+//     calender_filter: true,
+//     user_id: "",
+//     service_date: service_date ?? null,
+//     limit: limit.value,
+//   });
+// };
+
 const fetchData = async (service_date) => {
   await reservationStore.getListAction({
-    calender_filter: true,
+    // calender_filter: true,
     user_id: "",
     // service_date: service_date ?? null,
-    service_date: null,
     limit: limit.value,
   });
 };
@@ -84,15 +92,15 @@ const events = computed(() => {
     reservations.value.data.forEach((entry) => {
       const date = new Date(entry.service_date).toDateString(); // Get the date portion
 
+      console.log(entry.product_type, "this is product type");
+
       if (entry.product_type === "App\\Models\\PrivateVanTour") {
-        // Increment the "private" count for the date
         dateCounts[date] = {
           ...dateCounts[date],
           private: (dateCounts[date]?.private || 0) + 1,
         };
       }
       if (entry.product_type === "App\\Models\\EntranceTicket") {
-        // Increment the "private" count for the date
         dateCounts[date] = {
           ...dateCounts[date],
           entrance: (dateCounts[date]?.entrance || 0) + 1,
@@ -100,31 +108,69 @@ const events = computed(() => {
       }
 
       if (entry.product_type === "App\\Models\\GroupTour") {
-        // Increment the "group" count for the date
         dateCounts[date] = {
           ...dateCounts[date],
           group: (dateCounts[date]?.group || 0) + 1,
         };
       }
       if (entry.product_type === "App\\Models\\AirportPickup") {
-        // Increment the "group" count for the date
         dateCounts[date] = {
           ...dateCounts[date],
           airport: (dateCounts[date]?.airport || 0) + 1,
         };
       }
+      if (entry.product_type === "App\\Models\\Hotel") {
+        dateCounts[date] = {
+          ...dateCounts[date],
+          hotal: (dateCounts[date]?.hotal || 0) + 1,
+        };
+      }
+      if (entry.product_type === "App\\Models\\Airline") {
+        dateCounts[date] = {
+          ...dateCounts[date],
+          airline: (dateCounts[date]?.airline || 0) + 1,
+        };
+      }
     });
 
+    console.log(dateCounts, "this is dateCounts");
     const resultItems = [];
 
     // Convert dateCounts into FullCalendar events
     for (const date in dateCounts) {
+      // const eventTitle = `
+      //   Private: ${dateCounts[date].private || 0} \n
+      //   Group: ${dateCounts[date].group || 0} \n
+      //   Airport: ${dateCounts[date].airport || 0} \n
+      //   Entrance: ${dateCounts[date].entrance || 0} \n
+      //   RoomBook : ${dateCounts[date].hotal || 0} \n
+      //   Airline : ${dateCounts[date].airline || 0}
+      // `;
+
+      const eventTitle = `
+        ${
+          dateCounts[date].private ? "Private: " + dateCounts[date].private : ""
+        } \n
+        ${dateCounts[date].group ? "Group: " + dateCounts[date].group : ""} \n
+        ${
+          dateCounts[date].airport ? "Airport: " + dateCounts[date].airport : ""
+        } \n
+        ${
+          dateCounts[date].entrance
+            ? "Entrance: " + dateCounts[date].entrance
+            : ""
+        } \n
+        ${
+          dateCounts[date].hotal ? "RoomBook: " + dateCounts[date].hotal : ""
+        } \n
+      ${
+        dateCounts[date].airline ? "Airline: " + dateCounts[date].airline : ""
+      } \n
+        
+      `;
+
       resultItems.push({
-        title: `Private: ${dateCounts[date].private || 0}, Group: ${
-          dateCounts[date].group || 0
-        }, Airport : ${dateCounts[date].airport || 0}, Entrance : ${
-          dateCounts[date].entrance || 0
-        }`,
+        title: eventTitle,
         start: new Date(date),
       });
     }
@@ -140,9 +186,11 @@ const calendarOptions = ref({
   selectable: true,
   initialView: "dayGridMonth",
   headerToolbar: {
-    left: "prev,next",
-    center: "title",
-    right: "dayGridMonth", // user can switch between the two
+    // left: "prev,next",
+    // center: "title",
+    // right: "dayGridMonth",
+    left: "title",
+    right: "prev,next",
   },
   dateClick: async function (info) {
     const res = await reservationStore.getListCalendarAction({
@@ -305,7 +353,6 @@ const handleSelect = (e) => {
     </pre> -->
     <div class="flex items-center justify-between mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Calendar</h3>
-      <p>{{ eventTitle }}</p>
     </div>
     <div class="grid grid-cols-3 gap-4">
       <div class="col-span-1 bg-white">
@@ -323,6 +370,7 @@ const handleSelect = (e) => {
               <option value="1000">1000</option>
             </select>
           </p>
+          <p class="">Filter For Reservation Table</p>
           <div class="space-y-4">
             <p>Filter By Sale Team</p>
             <div class="">
@@ -412,7 +460,7 @@ const handleSelect = (e) => {
           </div>
         </div>
       </div>
-      <div class="col-span-2">
+      <div class="col-span-2 bg-white p-2">
         <FullCalendar
           :options="calendarOptions"
           :selectable="true"
@@ -609,4 +657,46 @@ const handleSelect = (e) => {
   </Layout>
 </template>
 
-<style></style>
+<style>
+.fc-daygrid-event {
+  white-space: normal !important;
+  align-items: normal !important;
+}
+.fc-daygrid-event-dot {
+  border: none !important;
+  border-radius: calc(var(--fc-daygrid-event-dot-width) / 2);
+  box-sizing: content-box;
+  height: 0px;
+  margin: 0px 4px;
+  width: 0px;
+}
+.fc .fc-button-primary {
+  background-color: white !important;
+  border-color: var(--fc-button-border-color);
+  color: var(--fc-button-text-color);
+}
+.fc-icon {
+  color: black !important;
+
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 400;
+  height: 1em;
+  line-height: 1;
+  text-align: center;
+  text-transform: none;
+  user-select: none;
+  width: 1em;
+  font-family: fcicons !important;
+}
+.fc .fc-daygrid-event {
+  margin-top: 1px;
+  z-index: 6;
+  background-color: #ff9f89c2 !important;
+}
+.fc .fc-daygrid-day.fc-day-today {
+  background-color: #f0b2a4;
+}
+</style>

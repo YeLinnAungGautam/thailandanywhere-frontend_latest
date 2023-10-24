@@ -43,10 +43,10 @@ export const useReservationStore = defineStore("reservation", {
       const response = await axios.get("/reservations?page=" + pageValue, {
         params: params,
       });
-      this.reservationCalendar = response;
+      this.reservationCalendar = response.data;
       console.log(response.data.result, "pagi");
       this.loading = false;
-      return response.data.result;
+      return response.data;
     },
     async getListAction(params) {
       try {
@@ -70,16 +70,13 @@ export const useReservationStore = defineStore("reservation", {
     async getListCalendarAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get(
-          `/reservations?user_id=${params.user_id}`,
-          {
-            params,
-          }
-        );
+        const response = await axios.get(`/reservations`, {
+          params,
+        });
 
         this.loading = false;
-        this.reservationCalendar = response;
-        return response;
+        this.reservationCalendar = response.data;
+        return response.data;
       } catch (error) {
         this.loading = false;
         throw error;

@@ -14,6 +14,7 @@ import { useAuthStore } from "../stores/auth";
 import { PencilSquareIcon } from "@heroicons/vue/24/outline";
 import { useAdminStore } from "../stores/admin";
 import Pagination from "../components/Pagination.vue";
+import Button from "../components/Button.vue";
 
 const reservationStore = useReservationStore();
 const authStore = useAuthStore();
@@ -28,8 +29,9 @@ const fetchData = async (service_date) => {
   await reservationStore.getListAction({
     calender_filter: true,
     user_id: "",
-    service_date: service_date ?? null,
-    limit: 100,
+    // service_date: service_date ?? null,
+    service_date: null,
+    limit: limit.value,
   });
 };
 
@@ -48,39 +50,92 @@ onMounted(async () => {
   // currentDate.value = "2023-08-02";
   await fetchData(currentDate.value);
   await adminStore.getSimpleListAction();
+  // console.log(reservationCalendar.value, "this is reservation cal");
 });
+
+// const events = computed(() => {
+//   if (!reservations.value) {
+//     return null;
+//   } else {
+//     const resultItems = [];
+
+//     reservations.value.data.forEach((entry) => {
+//       resultItems.push(entry);
+//     });
+
+//     return resultItems.map((r) => {
+//       return {
+//         title: r?.product?.name,
+//         start: new Date(r?.service_date).toISOString(),
+//         extendedProps: {
+//           data: r,
+//         },
+//       };
+//     });
+//   }
+// });
 
 const events = computed(() => {
   if (!reservations.value) {
     return null;
   } else {
-    const resultItems = [];
+    const dateCounts = {}; // Object to store event counts by date
 
     reservations.value.data.forEach((entry) => {
-      resultItems.push(entry);
+      const date = new Date(entry.service_date).toDateString(); // Get the date portion
+
+      if (entry.product_type === "App\\Models\\PrivateVanTour") {
+        // Increment the "private" count for the date
+        dateCounts[date] = {
+          ...dateCounts[date],
+          private: (dateCounts[date]?.private || 0) + 1,
+        };
+      }
+      if (entry.product_type === "App\\Models\\EntranceTicket") {
+        // Increment the "private" count for the date
+        dateCounts[date] = {
+          ...dateCounts[date],
+          entrance: (dateCounts[date]?.entrance || 0) + 1,
+        };
+      }
+
+      if (entry.product_type === "App\\Models\\GroupTour") {
+        // Increment the "group" count for the date
+        dateCounts[date] = {
+          ...dateCounts[date],
+          group: (dateCounts[date]?.group || 0) + 1,
+        };
+      }
+      if (entry.product_type === "App\\Models\\AirportPickup") {
+        // Increment the "group" count for the date
+        dateCounts[date] = {
+          ...dateCounts[date],
+          airport: (dateCounts[date]?.airport || 0) + 1,
+        };
+      }
     });
 
-    return resultItems.map((r) => {
-      return {
-        title: r?.product?.name,
-        start: new Date(r?.service_date).toISOString(),
-        extendedProps: {
-          data: r,
-        },
-      };
-    });
+    const resultItems = [];
+
+    // Convert dateCounts into FullCalendar events
+    for (const date in dateCounts) {
+      resultItems.push({
+        title: `Private: ${dateCounts[date].private || 0}, Group: ${
+          dateCounts[date].group || 0
+        }, Airport : ${dateCounts[date].airport || 0}, Entrance : ${
+          dateCounts[date].entrance || 0
+        }`,
+        start: new Date(date),
+      });
+    }
+
+    console.log(resultItems, "this is result item");
+    return resultItems;
   }
 });
 
-const handleDateClick = (info) => {
-  // info.date contains the clicked date
-  const clickedDate = info.date;
-  // You can perform any actions with the clickedDate here
-  console.log("Clicked date:", clickedDate);
-};
-
 const calendarOptions = ref({
-  plugins: [dayGridPlugin],
+  plugins: [dayGridPlugin, interactionPlugin],
   displayEventTime: false,
   selectable: true,
   initialView: "dayGridMonth",
@@ -89,25 +144,35 @@ const calendarOptions = ref({
     center: "title",
     right: "dayGridMonth", // user can switch between the two
   },
+  dateClick: async function (info) {
+    const res = await reservationStore.getListCalendarAction({
+      user_id: "",
+      service_date: info.dateStr,
+      limit: 10,
+    });
+    reservationList.value = true;
+    serviceDate.value = info.dateStr;
+  },
   events: events,
 
   eventClick: async function (info) {
-    const d = info.event.extendedProps.data;
-    console.log(info.event._instance.range.start);
-    const date = formattedDate(info.event._instance.range.start);
+    // const d = info.event.extendedProps.data;
+    // console.log(info.event._instance.range.start);
+    // const date = formattedDate(info.event._instance.range.start);
     // serviceDate.value = date;
-    console.log(date);
+    // console.log(date);
     // router.push("/reservation/update/" + d.id + "/" + d.crm_id + "/" + null);
-    const res = await reservationStore.getListCalendarAction({
-      user_id: "",
-      service_date: date,
-    });
+    // const res = await reservationStore.getListCalendarAction({
+    //   user_id: "",
+    //   service_date: date,
+    // });
     // console.log(reservationCalendar.value, res, "this is value");
-    reservationList.value = reservationCalendar.value.data.result;
-    console.log(reservationList.value, "this is value");
+    console.log(info.event._def.title);
+    eventTitle.value = info.event._def.title;
   },
 });
 
+const eventTitle = ref("");
 const reservationList = ref(null);
 
 const limitedText = (text) => {
@@ -141,6 +206,16 @@ const bookingList = [
   { id: 2, name: "confirmed" },
   { id: 3, name: "declined" },
 ];
+const expenseStatusArr = [
+  { id: "1", name: "fully_paid" },
+  { id: "2", name: "not_paid" },
+  { id: "3", name: "partially_paid" },
+];
+const customerPaymentStatusArr = [
+  { id: "1", name: "fully_paid" },
+  { id: "2", name: "not_paid" },
+  { id: "3", name: "partially_paid" },
+];
 
 const byuser = ref("");
 const productType = ref("");
@@ -150,37 +225,41 @@ const expenseStatus = ref("");
 const paymentStatus = ref("");
 const limit = ref(100);
 
+const clearFilter = () => {
+  byuser.value = "";
+  productType.value = "";
+  serviceDate.value = "";
+  bookingStatus.value = "";
+  expenseStatus.value = "";
+  paymentStatus.value = "";
+};
+
 watch(byuser, async (newValue) => {
   await reservationStore.getListCalendarAction(watchSystem.value);
-  reservationList.value = reservationCalendar.value.data.result;
 });
 watch(paymentStatus, async (newValue) => {
   await reservationStore.getListCalendarAction(watchSystem.value);
-  reservationList.value = reservationCalendar.value.data.result;
 });
 watch(expenseStatus, async (newValue) => {
   await reservationStore.getListCalendarAction(watchSystem.value);
-  reservationList.value = reservationCalendar.value.data.result;
 });
 watch(productType, async (newValue) => {
   await reservationStore.getListCalendarAction(watchSystem.value);
-  reservationList.value = reservationCalendar.value.data.result;
 });
 watch(serviceDate, async (newValue) => {
   await reservationStore.getListCalendarAction(watchSystem.value);
-  reservationList.value = reservationCalendar.value.data.result;
 });
 watch(bookingStatus, async (newValue) => {
   await reservationStore.getListCalendarAction(watchSystem.value);
-  reservationList.value = reservationCalendar.value.data.result;
+});
+watch(limit, async (newValue) => {
+  await fetchData();
 });
 
 const watchSystem = computed(() => {
   const result = {};
 
-  if (limit.value != "" && limit.value != undefined) {
-    result.limit = limit.value;
-  }
+  result.limit = 10;
 
   if (authStore.isSuperAdmin || authStore.isReservation) {
     result.user_id = "";
@@ -198,7 +277,7 @@ const watchSystem = computed(() => {
     result.expense_status = expenseStatus.value;
   }
   if (paymentStatus.value != "" && paymentStatus.value != undefined) {
-    result.payment_status = paymentStatus.value;
+    result.customer_payment_status = paymentStatus.value;
   }
   if (serviceDate.value != "" && serviceDate.value != undefined) {
     result.service_date = serviceDate.value;
@@ -226,11 +305,24 @@ const handleSelect = (e) => {
     </pre> -->
     <div class="flex items-center justify-between mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Calendar</h3>
+      <p>{{ eventTitle }}</p>
     </div>
     <div class="grid grid-cols-3 gap-4">
       <div class="col-span-1 bg-white">
         <div class="bg-white p-4 space-y-6">
-          <p>Filter Result By :</p>
+          <p class="flex justify-start items-center">
+            <span>Filter Result for Calendar :</span>
+            <select
+              v-model="limit"
+              class="w-20 ml-4 p-2 text-xs border-2 rounded-md focus:outline-none focus:ring-0"
+            >
+              <option value="100">100</option>
+              <option value="250">250</option>
+              <option value="500">500</option>
+              <option value="750">750</option>
+              <option value="1000">1000</option>
+            </select>
+          </p>
           <div class="space-y-4">
             <p>Filter By Sale Team</p>
             <div class="">
@@ -295,7 +387,7 @@ const handleSelect = (e) => {
               <v-select
                 v-model="expenseStatus"
                 class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400"
-                :options="bookingList"
+                :options="expenseStatusArr"
                 label="name"
                 :clearable="false"
                 :reduce="(d) => d.name"
@@ -307,12 +399,15 @@ const handleSelect = (e) => {
               <v-select
                 v-model="paymentStatus"
                 class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400"
-                :options="bookingList"
+                :options="customerPaymentStatusArr"
                 label="name"
                 :clearable="false"
                 :reduce="(d) => d.name"
                 placeholder="status ..."
               ></v-select>
+            </div>
+            <div @click="clearFilter" class="w-full">
+              <Button :leftIcon="FunnelIcon"> clear </Button>
             </div>
           </div>
         </div>
@@ -325,7 +420,7 @@ const handleSelect = (e) => {
         >
         </FullCalendar>
       </div>
-      <div class="col-span-3" v-if="reservationList">
+      <div class="col-span-3" v-if="reservationCalendar != null">
         <div class="w-auto mb-5 overflow-scroll bg-white rounded-lg shadow">
           <div class="grid grid-cols-8 gap-2 py-2">
             <div
@@ -374,7 +469,7 @@ const handleSelect = (e) => {
           </div>
           <div
             class="relative group"
-            v-for="d in reservationList?.data"
+            v-for="d in reservationCalendar.result?.data"
             :key="d.id"
           >
             <div
@@ -419,7 +514,6 @@ const handleSelect = (e) => {
               <div
                 class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
               >
-                <!-- {{ limitedText(d.product?.name) }} -->
                 {{ limitedText(d.product?.name) }}
               </div>
               <div
@@ -504,13 +598,13 @@ const handleSelect = (e) => {
           </div>
         </div>
       </div>
-      <!-- <div class="col-span-3">
+      <div class="col-span-3">
         <Pagination
           v-if="!loading"
-          :data="reservationList"
+          :data="reservationCalendar?.result"
           @change-page="changePage"
         />
-      </div> -->
+      </div>
     </div>
   </Layout>
 </template>

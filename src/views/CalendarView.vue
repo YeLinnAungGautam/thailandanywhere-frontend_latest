@@ -280,7 +280,7 @@ const clearFilter = () => {
   bookingStatus.value = "";
   expenseStatus.value = "";
   paymentStatus.value = "";
-  // reservationCalendar.value = null;
+  reservationCalendar.value = null;
 };
 
 watch(byuser, async (newValue) => {

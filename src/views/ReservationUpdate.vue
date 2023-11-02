@@ -826,6 +826,15 @@ const changeName = () => {
   }
 };
 
+const printReservation = () => {
+  window.open(
+    "https://api-blog.thanywhere.com/admin/reservations/" +
+      route.params.id +
+      "/receipt"
+  );
+};
+// reservations/{same id from url}/receipt
+
 const allowUpdate = computed(() => {
   if (expense_amount.value == 0) {
     console.log(expense_amount.value, formData.value.receipt_image, "one");
@@ -960,6 +969,7 @@ onMounted(async () => {
           </p>
           <p
             class="px-4 py-2 border border-[#ff613c] text-white bg-[#ff613c] text-xs cursor-pointer hover:bg-transparent hover:text-[#ff613c]"
+            @click="printReservation"
             v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
           >
             Print

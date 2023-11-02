@@ -945,18 +945,26 @@ onMounted(async () => {
           {{ formData.car_name }}
           {{ roomName }}
         </p>
-        <p
-          class="px-4 py-2 border border-[#ff613c] text-[#ff613c] text-xs"
-          v-if="formData.reservation_status == 'reserved'"
-        >
-          Complete Booking
-        </p>
-        <p
-          class="px-4 py-2 border border-[#ff613c] text-[#ff613c] text-xs"
-          v-if="formData.reservation_status != 'reserved'"
-        >
-          Pending Booking
-        </p>
+        <div class="flex justify-end items-center space-x-4">
+          <p
+            class="px-4 py-2 border border-[#ff613c] text-[#ff613c] text-xs"
+            v-if="formData.reservation_status == 'reserved'"
+          >
+            Complete Booking
+          </p>
+          <p
+            class="px-4 py-2 border border-[#ff613c] text-[#ff613c] text-xs"
+            v-if="formData.reservation_status != 'reserved'"
+          >
+            Pending Booking
+          </p>
+          <p
+            class="px-4 py-2 border border-[#ff613c] text-white bg-[#ff613c] text-xs cursor-pointer hover:bg-transparent hover:text-[#ff613c]"
+            v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+          >
+            Print
+          </p>
+        </div>
       </div>
       <div class="grid grid-cols-3 gap-8">
         <div class="col-span-2">

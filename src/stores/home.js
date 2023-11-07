@@ -169,6 +169,7 @@ export const useHomeStore = defineStore("home", {
 
           this.bookingsCount =
             response.data.result.bookings.original.result.bookings;
+          this.totalBookings = 0;
           for (let x = 0; x < this.bookingsCount.length; x++) {
             this.totalBookings += this.bookingsCount[x];
           }
@@ -179,13 +180,16 @@ export const useHomeStore = defineStore("home", {
             response.data.result.reservations.original.result.amount;
           this.reservationCount =
             response.data.result.reservations.original.result.prices;
+          this.totalReservationCount = 0;
           for (let x = 0; x < this.reservationAmount.length; x++) {
             this.totalReservationCount += this.reservationAmount[x];
           }
+          this.totalReservationPrice = 0;
           for (let x = 0; x < this.reservationCount.length; x++) {
             this.totalReservationPrice += this.reservationCount[x];
           }
           // sale Count
+          this.totalSales = 0;
           this.salesAmount = response.data.result.sales.original.result.amount;
           for (let x = 0; x < this.salesAmount.length; x++) {
             this.totalSales += this.salesAmount[x];
@@ -193,6 +197,7 @@ export const useHomeStore = defineStore("home", {
           // sale price
           this.salesCount =
             response.data.result.sales_count.original.result.amount;
+          this.totalSalesPrice = 0;
           for (let x = 0; x < this.salesCount.length; x++) {
             this.totalSalesPrice += this.salesCount[x];
           }

@@ -12,6 +12,8 @@ axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 import vSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import VTooltip from "v-tooltip";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 
 const token = localStorage.getItem("token");
 if (token) {
@@ -27,6 +29,7 @@ const options = {
 app.use(Toast, options);
 
 app.component("v-select", vSelect);
+app.component("VueDatePicker", VueDatePicker);
 app.use(createPinia());
 app.use(VTooltip);
 app.use(router);

@@ -1729,7 +1729,7 @@ onMounted(async () => {
                             "
                           />
                           <p class="text-xs text-red-400" v-if="!todayVali">
-                            fill after today
+                            after & today
                           </p>
                         </td>
                         <td

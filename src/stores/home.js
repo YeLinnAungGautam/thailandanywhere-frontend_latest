@@ -102,112 +102,64 @@ export const useHomeStore = defineStore("home", {
       }
     },
     async getTimeFilter(params) {
-      console.log(params.endDate);
-      if (params.startDate && params.endDate != "") {
-        try {
-          this.loading = true;
-          const response = await axios.get(
-            `/reports?start_date=${params.startDate}&end_date=${params.endDate}`
-          );
-          console.log(response, "se");
-          // bookings
-          this.bookings = response.data.result.bookings.original.result;
+      try {
+        this.loading = true;
+        const response = await axios.get(`/get-reports/${params.startDate}`);
+        console.log(response, "one day filter");
 
-          this.bookingsCount =
-            response.data.result.bookings.original.result.bookings;
-          this.totalBookings = 0;
+        // bookings
+        this.bookings = response.data.result.bookings.original.result;
+        this.bookingsCount =
+          response.data.result.bookings.original.result.bookings;
+        this.totalBookings = 0;
+        if (this.bookingsCount != null) {
           for (let x = 0; x < this.bookingsCount.length; x++) {
             this.totalBookings += this.bookingsCount[x];
           }
-          // reservation
-          this.reservationsHome =
-            response.data.result.reservations.original.result;
-          this.reservationAmount =
-            response.data.result.reservations.original.result.amount;
-          this.reservationCount =
-            response.data.result.reservations.original.result.prices;
-          this.totalReservationCount = 0;
+        }
+        // reservation
+        this.reservationsHome =
+          response.data.result.reservations.original.result;
+        this.reservationAmount =
+          response.data.result.reservations.original.result.amount;
+        this.reservationCount =
+          response.data.result.reservations.original.result.prices;
+        this.totalReservationCount = 0;
+        if (this.reservationAmount != null) {
           for (let x = 0; x < this.reservationAmount.length; x++) {
             this.totalReservationCount += this.reservationAmount[x];
           }
-          this.totalReservationPrice = 0;
+        }
+        this.totalReservationPrice = 0;
+        if (this.reservationCount != null) {
           for (let x = 0; x < this.reservationCount.length; x++) {
             this.totalReservationPrice += this.reservationCount[x];
           }
-          // sale Count
-          this.salesAmount = response.data.result.sales.original.result.amount;
-          this.totalSales = 0;
+        }
+        // sale Count
+        this.sales = response.data.result.sales.original.result;
+        this.totalSales = 0;
+        this.salesAmount = response.data.result.sales.original.result.amount;
+        if (this.salesAmount != null) {
           for (let x = 0; x < this.salesAmount.length; x++) {
             this.totalSales += this.salesAmount[x];
           }
-          // sale price
-          this.salesCount =
-            response.data.result.sales_count.original.result.amount;
-          this.totalSalesPrice = 0;
+        }
+        // sale price
+        this.salesCount =
+          response.data.result.sales_count.original.result.amount;
+        this.totalSalesPrice = 0;
+        if (this.salesCount != null) {
           for (let x = 0; x < this.salesCount.length; x++) {
             this.totalSalesPrice += this.salesCount[x];
           }
-
-          this.loading = false;
-          return response.data;
-        } catch (error) {
-          this.loading = false;
-          throw error;
         }
-      } else if (
-        params.endDate == "" ||
-        !params.endDate ||
-        params.endDate == null
-      ) {
-        try {
-          this.loading = true;
-          const response = await axios.get(`/get-reports/${params.startDate}`);
-          console.log(response, "one day filter");
 
-          // bookings
-          this.bookings = response.data.result.bookings.original.result;
-
-          this.bookingsCount =
-            response.data.result.bookings.original.result.bookings;
-          this.totalBookings = 0;
-          for (let x = 0; x < this.bookingsCount.length; x++) {
-            this.totalBookings += this.bookingsCount[x];
-          }
-          // reservation
-          this.reservationsHome =
-            response.data.result.reservations.original.result;
-          this.reservationAmount =
-            response.data.result.reservations.original.result.amount;
-          this.reservationCount =
-            response.data.result.reservations.original.result.prices;
-          this.totalReservationCount = 0;
-          for (let x = 0; x < this.reservationAmount.length; x++) {
-            this.totalReservationCount += this.reservationAmount[x];
-          }
-          this.totalReservationPrice = 0;
-          for (let x = 0; x < this.reservationCount.length; x++) {
-            this.totalReservationPrice += this.reservationCount[x];
-          }
-          // sale Count
-          this.totalSales = 0;
-          this.salesAmount = response.data.result.sales.original.result.amount;
-          for (let x = 0; x < this.salesAmount.length; x++) {
-            this.totalSales += this.salesAmount[x];
-          }
-          // sale price
-          this.salesCount =
-            response.data.result.sales_count.original.result.amount;
-          this.totalSalesPrice = 0;
-          for (let x = 0; x < this.salesCount.length; x++) {
-            this.totalSalesPrice += this.salesCount[x];
-          }
-
-          this.loading = false;
-          return response.data;
-        } catch (error) {
-          this.loading = false;
-          throw error;
-        }
+        this.loading = false;
+        return response.data;
+      } catch (error) {
+        this.loading = false;
+        throw error;
       }
     },
   },

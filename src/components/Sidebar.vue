@@ -27,7 +27,12 @@
           class="flex flex-col justify-between space-y-3 mt-5 px-[14px] h-full overflow-y-auto no-scrollbar"
         >
           <div>
-            <SidebarItem name="Dashboard" :icon="Squares2X2Icon" to="/" />
+            <SidebarItem
+              name="Dashboard"
+              :icon="Squares2X2Icon"
+              to="/"
+              v-show="authStore.isSuperAdmin"
+            />
             <SidebarItem
               name="Sales"
               v-if="

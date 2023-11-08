@@ -101,11 +101,10 @@ const dateFun = async () => {
     await getReservationCount();
     await getBookingCount();
   } else {
-    startDate.value = dateFormat(date.value[0]);
-    endDate.value = date.value[1] != null ? dateFormat(date.value[1]) : "";
+    startDate.value = dateFormat(date.value);
+    // endDate.value = date.value[1] != null ? dateFormat(date.value[1]) : "";
     let data = {
       startDate: startDate.value,
-      endDate: endDate.value,
     };
     console.log(data);
     const res = await homeStore.getTimeFilter(data);
@@ -113,10 +112,14 @@ const dateFun = async () => {
 };
 
 onMounted(async () => {
-  await getSaleCountHandle();
-  await getfun();
-  await getReservationCount();
-  await getBookingCount();
+  // await getSaleCountHandle();
+  // await getfun();
+  // await getReservationCount();
+  // await getBookingCount();
+  date.value = new Date();
+  if (date.value) {
+    await dateFun();
+  }
 });
 </script>
 
@@ -131,7 +134,6 @@ onMounted(async () => {
 
           <VueDatePicker
             v-model="date"
-            range
             multi-calendars
             class="w-40"
             type="date"

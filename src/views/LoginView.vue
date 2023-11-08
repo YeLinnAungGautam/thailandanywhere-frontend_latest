@@ -35,6 +35,7 @@ import { useAuthStore } from "../stores/auth";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
+
 const toast = useToast();
 
 const router = useRouter();
@@ -49,7 +50,11 @@ const loginHandler = async () => {
   try {
     const response = await authStore.login(formData.value);
     toast.success(response.message);
-    router.push({ name: "home" });
+    if (authStore.isSuperAdmin) {
+      router.push({ name: "home" });
+    } else {
+      router.push({ name: "bookings" });
+    }
   } catch (error) {
     console.log("🚀 ~ file: LoginView.vue:54 ~ loginHandler ~ error:", error);
     formData.value = { email: "", password: "" };

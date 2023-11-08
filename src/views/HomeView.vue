@@ -94,13 +94,16 @@ const dateFormat = (inputDateString) => {
 const dateFun = async () => {
   console.log(date.value);
 
-  if (date.value == null) {
+  if (!date.value) {
     // window.location.reload();
+    date.value = dateFormat(date.value);
+    console.log(date.value);
     await getSaleCountHandle();
     await getfun();
     await getReservationCount();
     await getBookingCount();
   } else {
+    console.log(date.value);
     startDate.value = dateFormat(date.value);
     // endDate.value = date.value[1] != null ? dateFormat(date.value[1]) : "";
     let data = {
@@ -116,7 +119,7 @@ onMounted(async () => {
   // await getfun();
   // await getReservationCount();
   // await getBookingCount();
-  date.value = new Date();
+  date.value = dateFormat(new Date());
   if (date.value) {
     await dateFun();
   }
@@ -132,16 +135,26 @@ onMounted(async () => {
         >
           <p class="text-lg font-semibold tracking-wider mr-4">Filter:</p>
 
-          <VueDatePicker
+          <!-- <VueDatePicker
             v-model="date"
             multi-calendars
             class="w-40"
             type="date"
             @update:model-value="dateFun"
+          /> -->
+          <input
+            type="date"
+            v-model="date"
+            @change="dateFun"
+            name=""
+            class="bg-white text-sm w-[200px] px-2 py-2"
+            id=""
           />
         </div>
         <div class="grid grid-cols-3 gap-4">
-          <div class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4">
+          <div
+            class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4 hidden"
+          >
             <div class="flex justify-between items-center">
               <p>Total Reservations</p>
               <label class="relative inline-flex items-center cursor-pointer">
@@ -177,7 +190,9 @@ onMounted(async () => {
               </p>
             </div>
           </div>
-          <div class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4">
+          <div
+            class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4 hidden"
+          >
             <div class="flex justify-between items-center">
               <p>Total Bookings</p>
             </div>
@@ -280,6 +295,7 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+      <!-- <div class="bg-white/60 rounded-md shadow-sm p-4 w-full h-full"></div> -->
     </div>
   </Layout>
 </template>

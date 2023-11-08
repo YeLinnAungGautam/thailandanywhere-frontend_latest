@@ -17,16 +17,9 @@ import { useAirportStore } from "../stores/airport";
 import { useEntranceStore } from "../stores/entrance";
 import { useBookingStore } from "../stores/booking";
 import { storeToRefs } from "pinia";
-import { onMounted } from "vue";
-
-// import { Chart, registerables } from "chart.js";
-// import {
-//   ArchiveBoxIcon,
-//   CalendarIcon,
-//   UsersIcon,
-// } from "@heroicons/vue/24/outline";
-
-// Chart.register(...registerables);
+import { onMounted, ref } from "vue";
+import { useHomeStore } from "../stores/home";
+import axios from "axios";
 
 const authStore = useAuthStore();
 const vantourStore = useVantourStore();
@@ -34,54 +27,102 @@ const grouptourStore = useGrouptourStore();
 const airportStore = useAirportStore();
 const entranceStore = useEntranceStore();
 const bookingStore = useBookingStore();
+const homeStore = useHomeStore();
 
-const { vantours, loading } = storeToRefs(vantourStore);
-const { grouptours } = storeToRefs(grouptourStore);
-const { airports } = storeToRefs(airportStore);
-const { entrances } = storeToRefs(entranceStore);
-const { bookings } = storeToRefs(bookingStore);
+const {
+  sales,
+  salesAmount,
+  salesCount,
+  totalSales,
+  totalSalesPrice,
+  bookings,
+  bookingsCount,
+  totalBookings,
+  reservationsHome,
+  reservationAmount,
+  reservationCount,
+  totalReservationCount,
+  totalReservationPrice,
+} = storeToRefs(homeStore);
 
-// const saleData = {
-//   labels: [
-//     "Jan",
-//     "Feb",
-//     "Mar",
-//     "Apr",
-//     "May",
-//     "Jun",
-//     "Jul",
-//     "Aug",
-//     "Sep",
-//     "Oct",
-//     "Nov",
-//     "Dec",
-//   ],
-//   datasets: [
-//     {
-//       label: "Sales",
-//       data: [
-//         1000, 1200, 900, 1500, 1800, 1300, 2000, 2200, 1700, 1900, 2300, 2100,
-//       ],
-//       backgroundColor: ["#2563EB"],
-//     },
-//   ],
-//   options: {
-//     responsive: true,
-//     maintainAspectRatio: false,
-//     scales: {
-//       y: {
-//         beginAtZero: true,
-//       },
-//     },
-//   },
-// };
+const getfun = async () => {
+  const res = await homeStore.getSaleAgent();
+  console.log(sales.value, salesAmount.value);
+};
+
+const getBookingCount = async () => {
+  const res = await homeStore.getBookingCount();
+};
+const getSaleCountHandle = async () => {
+  const res = await homeStore.getSaleCount();
+};
+
+const getReservationCount = async () => {
+  const res = await homeStore.getReservationCount();
+};
+const date = ref("");
+const startDate = ref("");
+const endDate = ref("");
+const priceReservation = ref(false);
+const togglePrice = () => {
+  priceReservation.value = !priceReservation.value;
+  console.log(priceReservation.value);
+};
+const priceSales = ref(true);
+const togglePriceSales = async () => {
+  priceSales.value = !priceSales.value;
+  console.log(priceSales.value);
+};
+
+const dateFormat = (inputDateString) => {
+  if (inputDateString != null) {
+    const inputDate = new Date(inputDateString);
+
+    // Get the year, month, and day components
+    const year = inputDate.getFullYear();
+    const month = String(inputDate.getMonth() + 1).padStart(2, "0"); // Adding 1 because months are zero-based
+    const day = String(inputDate.getDate()).padStart(2, "0");
+
+    // Format the date in "YYYY-MM-DD" format
+    const formattedDate = `${year}-${month}-${day}`;
+    return formattedDate;
+  } else {
+    return null;
+  }
+};
+
+const dateFun = async () => {
+  console.log(date.value);
+
+  if (!date.value) {
+    // window.location.reload();
+    date.value = dateFormat(date.value);
+    console.log(date.value);
+    await getSaleCountHandle();
+    await getfun();
+    await getReservationCount();
+    await getBookingCount();
+  } else {
+    console.log(date.value);
+    startDate.value = dateFormat(date.value);
+    // endDate.value = date.value[1] != null ? dateFormat(date.value[1]) : "";
+    let data = {
+      startDate: startDate.value,
+    };
+    console.log(data);
+    const res = await homeStore.getTimeFilter(data);
+  }
+};
+
 onMounted(async () => {
-  await vantourStore.getSimpleListAction();
-  await grouptourStore.getSimpleListAction();
-  await airportStore.getSimpleListAction();
-  await entranceStore.getSimpleListAction();
-  await bookingStore.getSimpleListAction();
-  console.log(vantours.value);
+  // await getSaleCountHandle();
+  // await getfun();
+  // await getReservationCount();
+  // await getBookingCount();
+  date.value = dateFormat(new Date());
+  if (date.value) {
+    await dateFun();
+  }
 });
 </script>
 
@@ -90,263 +131,171 @@ onMounted(async () => {
     <div class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 mb-3">
       <div class="col-span-2">
         <div
-          class="flex items-center justify-between py-3 bg-white/60 rounded-md shadow-sm p-4 mb-4"
+          class="flex items-center justify-between py-5 bg-white/60 rounded-md shadow-sm p-4 mb-4"
         >
-          <p class="text-gray-600 font-medium tracking-wider">Filter by:</p>
-          <div>
-            <select
-              class="border-2 p-2 rounded-md focus:outline-none focus:ring-0"
+          <p class="text-lg font-semibold tracking-wider mr-4">Filter:</p>
+
+          <!-- <VueDatePicker
+            v-model="date"
+            multi-calendars
+            class="w-40"
+            type="date"
+            @update:model-value="dateFun"
+          /> -->
+          <input
+            type="date"
+            v-model="date"
+            @change="dateFun"
+            name=""
+            class="bg-white text-sm w-[200px] px-2 py-2"
+            id=""
+          />
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div
+            class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4 hidden"
+          >
+            <div class="flex justify-between items-center">
+              <p>Total Reservations</p>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  v-model="priceReservation"
+                  @click="togglePrice()"
+                  value=""
+                  class="sr-only peer"
+                />
+                <div
+                  class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
+                ></div>
+              </label>
+            </div>
+            <p class="text-4xl text-[#FF5B00]" v-if="!priceReservation">
+              {{ totalReservationCount }}
+            </p>
+            <p class="text-4xl text-[#FF5B00]" v-if="priceReservation">
+              {{ totalReservationPrice }}
+            </p>
+            <div
+              class="text-sm flex justify-between items-center"
+              v-for="(r, index) in reservationsHome?.agents"
+              :key="index"
             >
-              <option value="10">Last 30 Days</option>
-            </select>
+              <p class="text-sm">{{ r }}</p>
+              <p class="text-[#FF5B00] text-sm" v-if="!priceReservation">
+                {{ reservationAmount[index] }}
+              </p>
+              <p class="text-[#FF5B00] text-sm" v-if="priceReservation">
+                {{ reservationCount[index] }}
+              </p>
+            </div>
+          </div>
+          <div
+            class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4 hidden"
+          >
+            <div class="flex justify-between items-center">
+              <p>Total Bookings</p>
+            </div>
+            <p class="text-4xl text-[#FF5B00]">{{ totalBookings }}</p>
+            <div
+              class="text-sm flex justify-between items-center"
+              v-for="(b, index) in bookings?.agents"
+              :key="index"
+            >
+              <p class="text-sm">{{ b }}</p>
+              <p class="text-[#FF5B00] text-sm">
+                {{ bookingsCount[index] }}
+              </p>
+            </div>
+          </div>
+          <div class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4">
+            <div class="flex justify-between items-center">
+              <p>Sales by Agent</p>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  @click="togglePriceSales"
+                  value=""
+                  class="sr-only peer"
+                />
+                <div
+                  class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
+                ></div>
+              </label>
+            </div>
+            <p class="text-4xl text-[#FF5B00]" v-if="!priceSales">
+              {{ totalSales }}
+            </p>
+            <p class="text-4xl text-[#FF5B00]" v-if="priceSales">
+              {{ totalSalesPrice }}
+            </p>
+            <div
+              class="text-sm flex justify-between items-center"
+              v-for="(s, index) in sales?.agents"
+              :key="index"
+            >
+              <p class="text-sm">{{ s }}</p>
+              <p class="text-[#FF5B00] text-sm" v-if="!priceSales">
+                {{ salesAmount[index] }}
+              </p>
+              <p class="text-[#FF5B00] text-sm" v-if="priceSales">
+                {{ salesCount[index] }}
+              </p>
+            </div>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="bg-white/60 p-6 rounded-lg shadow-sm w-full">
-            <router-link to="/products/0">
-              <div>
-                <h3
-                  class="text-gray-600 text-xl font-medium tracking-wide mb-1"
-                >
-                  Van Tour
-                </h3>
-                <p
-                  class="text-[#ff613c] text-3xl font-medium tracking-wide font-roboto"
-                >
-                  {{ vantours?.data.length }}
-                </p>
-              </div>
-            </router-link>
-          </div>
-          <div class="bg-white/60 p-6 rounded-lg shadow-sm w-full">
-            <router-link to="products/3">
-              <div>
-                <h3
-                  class="text-gray-600 text-xl font-medium tracking-wide mb-1"
-                >
-                  Group Tour
-                </h3>
-                <p
-                  class="text-[#ff613c] text-3xl font-medium tracking-wide font-roboto"
-                >
-                  {{ grouptours?.data.length }}
-                </p>
-              </div>
-            </router-link>
-          </div>
-          <div class="bg-white/60 p-6 rounded-lg shadow-sm w-full">
-            <router-link to="/products/1">
-              <div>
-                <h3
-                  class="text-gray-600 text-xl font-medium tracking-wide mb-1"
-                >
-                  Airport pickup
-                </h3>
-                <p
-                  class="text-[#ff613c] text-3xl font-medium tracking-wide font-roboto"
-                >
-                  {{ airports?.data.length }}
-                </p>
-              </div>
-            </router-link>
-          </div>
-          <div class="bg-white/60 p-6 rounded-lg shadow-sm w-full">
-            <router-link to="/products/2">
-              <div>
-                <h3
-                  class="text-gray-600 text-xl font-medium tracking-wide mb-1"
-                >
-                  Entrance Ticket
-                </h3>
-                <p
-                  class="text-[#ff613c] text-3xl font-medium tracking-wide font-roboto"
-                >
-                  {{ entrances?.data.length }}
-                </p>
-              </div>
-            </router-link>
-          </div>
-          <div class="bg-white/60 p-6 rounded-lg shadow-sm w-full col-span-2">
-            <router-link to="bookings">
-              <div class="">
-                <h3
-                  class="text-gray-600 text-xl font-medium tracking-wide mb-1"
-                >
-                  Booking List Count
-                </h3>
-                <p
-                  class="text-[#ff613c] text-3xl font-medium tracking-wide font-roboto"
-                >
-                  {{ bookings?.data.length }}
-                </p>
-              </div>
-            </router-link>
-          </div>
-        </div>
-        <!-- <div class="grid grid-cols-1 md:grid-cols-2 gap-1 md:gap-4 mb-3">
-          <div
-            class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
-          >
-            <p class="text-gray-600 mb-3 font-medium tracking-wide">Sales</p>
-            <BarChart :chartData="saleData" />
-          </div>
-          <div
-            class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
-          >
-            <p class="text-gray-600 mb-3 font-medium tracking-wide">Expenses</p>
-            <BarChart :chartData="saleData" />
-          </div>
-          <div
-            class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
-          >
-            <p class="text-gray-600 mb-3 font-medium tracking-wide">
-              Payable & Recievables
-            </p>
-            <BarChart :chartData="saleData" />
-          </div>
-          <div
-            class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
-          >
-            <p class="text-gray-600 mb-3 font-medium tracking-wide">
-              Booking Share
-            </p>
-            <DoughnutChart :chartData="saleData" />
-          </div>
-        </div> -->
       </div>
       <div class="bg-white/60 rounded-md shadow-sm p-4">
-        <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center justify-between mb-3">
           <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
-            Operations
+            Reservations
           </h3>
-          <p class="text-gray-400 text-base font-medium tracking-wide mb-1">
-            Sales
-          </p>
+        </div>
+        <div class="flex justify-start items-center gap-4 mb-3">
+          <div class="space-y-1">
+            <p class="text-xs">Payment Status</p>
+            <select
+              name=""
+              id=""
+              class="bg-white border border-gray-100 rounded-sm w-40 px-2 py-1 text-xs"
+            >
+              <option value="">confirm</option>
+            </select>
+          </div>
+          <div class="space-y-1">
+            <p class="text-xs">Reservation Status</p>
+            <select
+              name=""
+              id=""
+              class="bg-white border border-gray-100 rounded-sm w-40 px-2 py-1 text-xs"
+            >
+              <option value="">confirm</option>
+            </select>
+          </div>
         </div>
         <div class="space-y-3">
           <div
             class="bg-white/60 p-4 shadow-sm rounded-lg flex items-center justify-between"
+            v-for="(l, index) in reservationsHome?.agents"
+            :key="index"
           >
             <div class="">
-              <p class="text-gray-500 text-sm font-medium tracking-wide">
-                1 - Van - Pattaya
-              </p>
+              <!-- <p class="text-gray-500 text-sm font-medium tracking-wide">
+                Van Tour
+              </p> -->
               <p class="text-gray-600 text-lg tracking-wide font-medium">
-                Victor
+                {{ l }}
               </p>
             </div>
             <div>
-              <p class="text-2xl font-medium text-gray-600 tracking-wide">
-                4500 THB
-              </p>
-            </div>
-          </div>
-          <div
-            class="bg-white/60 p-4 shadow-sm rounded-lg flex items-center justify-between"
-          >
-            <div class="">
-              <p class="text-gray-500 text-sm font-medium tracking-wide">
-                4 rooms - Double Bed
-              </p>
-              <p class="text-gray-600 text-lg tracking-wide font-medium">
-                Chatrium Hotel
-              </p>
-            </div>
-            <div>
-              <p class="text-2xl font-medium text-gray-600 tracking-wide">
-                20K THB
-              </p>
-            </div>
-          </div>
-          <div
-            class="bg-white/60 p-4 shadow-sm rounded-lg flex items-center justify-between"
-          >
-            <div class="">
-              <p class="text-gray-500 text-sm font-medium tracking-wide">
-                1 pax - Group Tour
-              </p>
-              <p class="text-gray-600 text-lg tracking-wide font-medium">
-                Pattaya
-              </p>
-            </div>
-            <div>
-              <p class="text-2xl font-medium text-gray-600 tracking-wide">
-                1950 THB
+              <p class="text-2xl font-medium text-[#ff613c] tracking-wide">
+                {{ reservationCount[index] }} thb
               </p>
             </div>
           </div>
         </div>
       </div>
+      <!-- <div class="bg-white/60 rounded-md shadow-sm p-4 w-full h-full"></div> -->
     </div>
-    <!-- <div class="grid grid-cols-1 md:grid-cols-4 gap-1 md:gap-4 mb-5">
-      <div
-        class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 flex justify-start gap-5"
-      >
-        <div class="text-gray-500 shadow-lg p-4 rounded-lg">
-          <ArchiveBoxIcon class="w-10 h-10" />
-        </div>
-        <div>
-          <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
-            Total Products
-          </h3>
-          <p
-            class="text-blue-500 text-2xl font-medium tracking-wide font-roboto"
-          >
-            +138
-          </p>
-        </div>
-      </div>
-      <div
-        class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 flex justify-start gap-5"
-      >
-        <div class="text-gray-500 shadow-lg p-4 rounded-lg">
-          <CalendarIcon class="w-10 h-10" />
-        </div>
-        <div>
-          <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
-            Total Booking
-          </h3>
-          <p
-            class="text-blue-500 text-2xl font-medium tracking-wide font-roboto"
-          >
-            +19
-          </p>
-        </div>
-      </div>
-      <div
-        class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 flex justify-start gap-5"
-      >
-        <div class="text-gray-500 shadow-lg p-4 rounded-lg">
-          <UsersIcon class="w-10 h-10" />
-        </div>
-        <div>
-          <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
-            Total Customers
-          </h3>
-          <p
-            class="text-blue-500 text-2xl font-medium tracking-wide font-roboto"
-          >
-            +1400
-          </p>
-        </div>
-      </div>
-      <div
-        class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 flex justify-start gap-5"
-      >
-        <div class="text-gray-500 shadow-lg p-4 rounded-lg">
-          <ArchiveBoxIcon class="w-10 h-10" />
-        </div>
-        <div>
-          <h3 class="text-gray-600 text-xl font-medium tracking-wide mb-1">
-            Total Expenses
-          </h3>
-          <p
-            class="text-blue-500 text-2xl font-medium tracking-wide font-roboto"
-          >
-            +132
-          </p>
-        </div>
-      </div>
-    </div> -->
   </Layout>
 </template>

@@ -17,7 +17,7 @@ import { useAirportStore } from "../stores/airport";
 import { useEntranceStore } from "../stores/entrance";
 import { useBookingStore } from "../stores/booking";
 import { storeToRefs } from "pinia";
-import { onMounted, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { useHomeStore } from "../stores/home";
 import axios from "axios";
 
@@ -52,37 +52,43 @@ const {
   reservationCount,
   totalReservationCount,
   totalReservationPrice,
+  loading,
 } = storeToRefs(homeStore);
 
+const dataTest = reactive({ items: [] });
+const dataAmount = reactive({ items: [] });
+
 const saleData = {
-  labels: [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ],
+  labels: dataTest.items,
   datasets: [
     {
       label: "Sales",
-      data: [
-        1000, 1200, 900, 1500, 1800, 1300, 2000, 2200, 1700, 1900, 2300, 2100,
-      ],
+      data: dataAmount.items,
       backgroundColor: ["#FF0000"],
     },
+  ],
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  },
+};
+
+const isError = ref(false);
+const dataRes = reactive({ items: [] });
+const dataAmountRes = reactive({ items: [] });
+
+const saleDataRes = {
+  labels: dataRes.items,
+  datasets: [
     {
-      label: "Reservation",
-      data: [
-        1100, 1300, 1000, 1000, 1500, 1000, 2500, 2000, 1500, 1500, 2000, 2200,
-      ],
-      backgroundColor: ["#FF5B00"],
+      label: "Reservations",
+      data: dataAmountRes.items,
+      backgroundColor: ["#FF0000"],
     },
   ],
   options: {
@@ -162,6 +168,50 @@ const dateFun = async () => {
     };
     console.log(data);
     const res = await homeStore.getTimeFilter(data);
+    console.log(loading.value, res, "this is res");
+    // isError.value = loading.value;
+    changeLabel();
+  }
+};
+
+const change = (a) => {
+  let rate = `${sales.value.agents[Object.keys(sales.value.agents)[a]]}`;
+  return rate;
+};
+const changeValue = (a) => {
+  let ratev = `${sales.value.amount[Object.keys(sales.value.amount)[a]]}`;
+  return ratev;
+};
+const changer = (a) => {
+  let rate = `${
+    reservationsHome.value.agents[Object.keys(reservationsHome.value.agents)[a]]
+  }`;
+  return rate;
+};
+const changeValuer = (a) => {
+  let ratev = `${
+    reservationsHome.value.prices[Object.keys(reservationsHome.value.prices)[a]]
+  }`;
+  return ratev;
+};
+
+const changeLabel = () => {
+  dataTest.items.splice(0);
+  dataAmount.items.splice(0);
+  dataRes.items.splice(0);
+  dataAmountRes.items.splice(0);
+  for (let x = 0; x < sales.value.agents.length; x++) {
+    let data = change(x);
+    let value = changeValue(x);
+    dataTest.items.push(data);
+    dataAmount.items.push(value);
+  }
+  console.log(reservationsHome.value);
+  for (let x = 0; x < reservationsHome.value.agents.length; x++) {
+    let data = changer(x);
+    let value = changeValuer(x);
+    dataRes.items.push(data);
+    dataAmountRes.items.push(value);
   }
 };
 
@@ -170,6 +220,7 @@ onMounted(async () => {
   // await getfun();
   // await getReservationCount();
   // await getBookingCount();
+
   date.value = dateFormat(new Date());
   if (date.value) {
     await dateFun();
@@ -202,7 +253,7 @@ onMounted(async () => {
             id=""
           />
         </div>
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-3 gap-4" v-if="!loading">
           <div class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4">
             <div class="flex justify-between items-center">
               <p>Total Reservations</p>
@@ -291,14 +342,33 @@ onMounted(async () => {
             </div>
           </div>
         </div>
-        <div class="py-5 bg-white/60 rounded-md shadow-sm p-4 mt-4">
+        <div class="grid grid-cols-1 gap-4" v-if="loading">
+          <div
+            class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4 h-[500px] flex justify-center items-center"
+          >
+            There isn't Data
+          </div>
+        </div>
+        <div
+          class="py-5 bg-white/60 rounded-md shadow-sm p-4 mt-4"
+          v-if="!loading"
+        >
           <div class="grid grid-cols-1 md:grid-cols-1 gap-1 md:gap-4 mb-3">
             <div
-              class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
+              class="bg-white/60 col-span-3 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
             >
               <p class="text-gray-600 mb-3 font-medium tracking-wide">Sales</p>
               <LineChart :chartData="saleData" />
             </div>
+            <div
+              class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
+            >
+              <p class="text-gray-600 mb-3 font-medium tracking-wide">
+                Reservation
+              </p>
+              <BarChart :chartData="saleDataRes" />
+            </div>
+
             <!-- <div
               class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
             >
@@ -307,14 +377,7 @@ onMounted(async () => {
               </p>
               <PieChart :chartData="saleData" />
             </div>
-            <div
-              class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
-            >
-              <p class="text-gray-600 mb-3 font-medium tracking-wide">
-                Payable & Recievables
-              </p>
-              <BarChart :chartData="saleData" />
-            </div>
+            
             <div
               class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
             >

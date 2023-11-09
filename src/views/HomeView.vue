@@ -21,6 +21,15 @@ import { onMounted, ref } from "vue";
 import { useHomeStore } from "../stores/home";
 import axios from "axios";
 
+import { Chart, registerables } from "chart.js";
+import {
+  ArchiveBoxIcon,
+  CalendarIcon,
+  UsersIcon,
+} from "@heroicons/vue/24/outline";
+
+Chart.register(...registerables);
+
 const authStore = useAuthStore();
 const vantourStore = useVantourStore();
 const grouptourStore = useGrouptourStore();
@@ -44,6 +53,48 @@ const {
   totalReservationCount,
   totalReservationPrice,
 } = storeToRefs(homeStore);
+
+const saleData = {
+  labels: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ],
+  datasets: [
+    {
+      label: "Sales",
+      data: [
+        1000, 1200, 900, 1500, 1800, 1300, 2000, 2200, 1700, 1900, 2300, 2100,
+      ],
+      backgroundColor: ["#FF0000"],
+    },
+    {
+      label: "Reservation",
+      data: [
+        1100, 1300, 1000, 1000, 1500, 1000, 2500, 2000, 1500, 1500, 2000, 2200,
+      ],
+      backgroundColor: ["#FF5B00"],
+    },
+  ],
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  },
+};
 
 const getfun = async () => {
   const res = await homeStore.getSaleAgent();
@@ -152,9 +203,7 @@ onMounted(async () => {
           />
         </div>
         <div class="grid grid-cols-3 gap-4">
-          <div
-            class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4 hidden"
-          >
+          <div class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4">
             <div class="flex justify-between items-center">
               <p>Total Reservations</p>
               <label class="relative inline-flex items-center cursor-pointer">
@@ -190,9 +239,7 @@ onMounted(async () => {
               </p>
             </div>
           </div>
-          <div
-            class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4 hidden"
-          >
+          <div class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4">
             <div class="flex justify-between items-center">
               <p>Total Bookings</p>
             </div>
@@ -242,6 +289,40 @@ onMounted(async () => {
                 {{ salesCount[index] }}
               </p>
             </div>
+          </div>
+        </div>
+        <div class="py-5 bg-white/60 rounded-md shadow-sm p-4 mt-4">
+          <div class="grid grid-cols-1 md:grid-cols-1 gap-1 md:gap-4 mb-3">
+            <div
+              class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
+            >
+              <p class="text-gray-600 mb-3 font-medium tracking-wide">Sales</p>
+              <LineChart :chartData="saleData" />
+            </div>
+            <!-- <div
+              class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
+            >
+              <p class="text-gray-600 mb-3 font-medium tracking-wide">
+                Expenses
+              </p>
+              <PieChart :chartData="saleData" />
+            </div>
+            <div
+              class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
+            >
+              <p class="text-gray-600 mb-3 font-medium tracking-wide">
+                Payable & Recievables
+              </p>
+              <BarChart :chartData="saleData" />
+            </div>
+            <div
+              class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
+            >
+              <p class="text-gray-600 mb-3 font-medium tracking-wide">
+                Booking Share
+              </p>
+              <DoughnutChart :chartData="saleData" />
+            </div> -->
           </div>
         </div>
       </div>

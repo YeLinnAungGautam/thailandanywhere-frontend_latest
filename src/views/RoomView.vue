@@ -97,14 +97,21 @@
 
     <!-- search input sort filter -->
     <div class="flex items-center justify-between mb-8">
-      <div class="">
+      <div class="flex justify-start items-center space-x-2">
         <input
           type="text"
           v-model="search"
-          class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+          class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
           placeholder="Search Rooms..."
         />
-
+        <v-select
+          class="style-chooser min-w-[250px] bg-white"
+          :options="hotelList ?? []"
+          label="name"
+          :clearable="false"
+          :reduce="(hotel) => hotel.id"
+          placeholder="Choose Hotel"
+        ></v-select>
         <AdjustmentsHorizontalIcon
           class="inline-block w-6 h-6 mx-2 text-gray-600 cursor-pointer"
         />

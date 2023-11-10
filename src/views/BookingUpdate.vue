@@ -1335,7 +1335,11 @@ const hotelQ = (t, d, q) => {
 
 const openPaid = () => {
   window.open(
-    "https://api-blog.thanywhere.com/admin/bookings/" +
+    // "https://api-blog.thanywhere.com/admin/bookings/" +
+    //   route.params.id +
+    //   "/receipt?paid=1"
+    import.meta.env.VITE_API_URL +
+      "/bookings/" +
       route.params.id +
       "/receipt?paid=1"
   );

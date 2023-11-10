@@ -98,18 +98,26 @@
 
     <!-- search input sort filter -->
     <div class="flex items-center justify-between mb-8">
-      <div class="">
+      <div class="space-x-2 flex justify-start items-center">
         <input
           type="text"
           v-model="search"
           class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
           placeholder="Search variations..."
         />
-
+        <v-select
+          class="style-chooser bg-white min-w-[250px]"
+          :options="entrances?.data"
+          label="name"
+          :clearable="false"
+          :reduce="(entrance) => entrance.id"
+          placeholder="Choose entrance"
+        ></v-select>
         <AdjustmentsHorizontalIcon
           class="inline-block w-6 h-6 mx-2 text-gray-600 cursor-pointer"
         />
       </div>
+
       <div class="space-x-3">
         <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
         <Button :leftIcon="PlusIcon" @click.prevent="openModal()">
@@ -362,7 +370,7 @@ onMounted(async () => {
   await variationStore.getListAction();
   await entranceStore.getSimpleListAction();
   entList.value = entrances.value.data;
-  console.log(entList.value);
+  console.log(entList.value, "this is res arr");
 });
 
 watch(search, async (newValue) => {

@@ -828,7 +828,8 @@ const changeName = () => {
 
 const printReservation = () => {
   window.open(
-    "https://api-blog.thanywhere.com/admin/reservations/" +
+    import.meta.env.VITE_API_URL +
+      "/reservations/" +
       route.params.id +
       "/receipt"
   );

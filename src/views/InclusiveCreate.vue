@@ -579,7 +579,7 @@ const onSubmitHandler = async () => {
     };
     errors.value = null;
     toast.success(response.message);
-    router.push("/products/5");
+    router.push("/products/3");
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",

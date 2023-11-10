@@ -165,7 +165,6 @@ export const useHomeStore = defineStore("home", {
     },
     async getTimeFilterArray(params) {
       try {
-        this.loading = false;
         const response = await axios.get(`/get-reports/${params.startDate}`);
         // console.log(response, "one day filter");
 

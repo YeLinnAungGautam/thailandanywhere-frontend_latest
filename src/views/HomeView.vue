@@ -83,7 +83,7 @@ const dataRes = reactive({ items: [] });
 const dataAmountRes = reactive({ items: [] });
 
 const saleDataRes = {
-  labels: dataRes.items,
+  labels: dataTest.items,
   datasets: [
     {
       label: "Reservations",
@@ -153,7 +153,7 @@ const dateFun = async () => {
 
   if (!date.value) {
     // window.location.reload();
-    generateDateArray();
+
     date.value = dateFormat(date.value);
 
     console.log(date.value);
@@ -163,7 +163,6 @@ const dateFun = async () => {
     await getBookingCount();
   } else {
     console.log(date.value);
-    generateDateArray();
     startDate.value = dateFormat(date.value);
     // endDate.value = date.value[1] != null ? dateFormat(date.value[1]) : "";
     let data = {
@@ -236,6 +235,7 @@ const generateDateArray = async () => {
   }
   dataTest.items.splice(0);
   dataAmount.items.splice(0);
+  dataAmountRes.items.splice(0);
   // loop get Data
 
   for (let x = 0; x < dateArrFromSelect.value.length; x++) {
@@ -254,9 +254,20 @@ const generateDateArray = async () => {
         dataArr += res.result.sales.original.result.amount[x];
       }
       dataAmount.items.push(dataArr);
+
+      let dataRes = 0;
+      for (
+        let x = 0;
+        x < res.result.reservations.original.result.prices.length;
+        x++
+      ) {
+        dataRes += res.result.reservations.original.result.prices[x];
+      }
+      dataAmountRes.items.push(dataRes);
     } else {
       console.log("it not");
       dataAmount.items.push(0);
+      dataAmountRes.items.push(0);
     }
   }
 
@@ -268,7 +279,7 @@ onMounted(async () => {
   // await getfun();
   // await getReservationCount();
   // await getBookingCount();
-
+  generateDateArray();
   date.value = dateFormat(new Date());
   if (date.value) {
     await dateFun();
@@ -399,45 +410,6 @@ onMounted(async () => {
             There isn't Data
           </div>
         </div>
-        <div
-          class="py-5 bg-white/60 rounded-md shadow-sm p-4 mt-4"
-          v-if="!loading"
-        >
-          <div class="grid grid-cols-1 md:grid-cols-1 gap-1 md:gap-4 mb-3">
-            <div
-              class="bg-white/60 col-span-3 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
-            >
-              <p class="text-gray-600 mb-3 font-medium tracking-wide">Sales</p>
-              <LineChart :chartData="saleData" />
-            </div>
-            <!-- <div
-              class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
-            >
-              <p class="text-gray-600 mb-3 font-medium tracking-wide">
-                Reservation
-              </p>
-              <BarChart :chartData="saleDataRes" />
-            </div> -->
-
-            <!-- <div
-              class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
-            >
-              <p class="text-gray-600 mb-3 font-medium tracking-wide">
-                Expenses
-              </p>
-              <PieChart :chartData="saleData" />
-            </div>
-            
-            <div
-              class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
-            >
-              <p class="text-gray-600 mb-3 font-medium tracking-wide">
-                Booking Share
-              </p>
-              <DoughnutChart :chartData="saleData" />
-            </div> -->
-          </div>
-        </div>
       </div>
       <div class="bg-white/60 rounded-md shadow-sm p-4">
         <div class="flex items-center justify-between mb-3">
@@ -486,6 +458,24 @@ onMounted(async () => {
                 {{ reservationCount[index] }} thb
               </p>
             </div>
+          </div>
+        </div>
+      </div>
+      <div class="py-5 col-span-4 mt-4">
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mb-3">
+          <div
+            class="bg-white/60 col-span-3 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
+          >
+            <p class="text-gray-600 mb-3 font-medium tracking-wide">Sales</p>
+            <LineChart :chartData="saleData" />
+          </div>
+          <div
+            class="bg-white/60 col-span-3 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
+          >
+            <p class="text-gray-600 mb-3 font-medium tracking-wide">
+              Reservation
+            </p>
+            <BarChart :chartData="saleDataRes" />
           </div>
         </div>
       </div>

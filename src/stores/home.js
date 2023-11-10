@@ -163,5 +163,18 @@ export const useHomeStore = defineStore("home", {
         return error;
       }
     },
+    async getTimeFilterArray(params) {
+      try {
+        this.loading = false;
+        const response = await axios.get(`/get-reports/${params.startDate}`);
+        // console.log(response, "one day filter");
+
+        // bookings
+        return response.data;
+      } catch (error) {
+        // console.log(error, "this is error");
+        return error;
+      }
+    },
   },
 });

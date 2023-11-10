@@ -149,11 +149,13 @@ const dateFormat = (inputDateString) => {
 };
 
 const dateFun = async () => {
-  console.log(date.value);
+  // console.log(date.value);
 
   if (!date.value) {
     // window.location.reload();
+    generateDateArray();
     date.value = dateFormat(date.value);
+
     console.log(date.value);
     await getSaleCountHandle();
     await getfun();
@@ -161,6 +163,7 @@ const dateFun = async () => {
     await getBookingCount();
   } else {
     console.log(date.value);
+    generateDateArray();
     startDate.value = dateFormat(date.value);
     // endDate.value = date.value[1] != null ? dateFormat(date.value[1]) : "";
     let data = {
@@ -170,7 +173,7 @@ const dateFun = async () => {
     const res = await homeStore.getTimeFilter(data);
     console.log(loading.value, res, "this is res");
     // isError.value = loading.value;
-    changeLabel();
+    // changeLabel();
   }
 };
 
@@ -195,24 +198,69 @@ const changeValuer = (a) => {
   return ratev;
 };
 
-const changeLabel = () => {
+// const changeLabel = () => {
+//   dataTest.items.splice(0);
+//   dataAmount.items.splice(0);
+//   dataRes.items.splice(0);
+//   dataAmountRes.items.splice(0);
+//   for (let x = 0; x < sales.value.agents.length; x++) {
+//     let data = change(x);
+//     let value = changeValue(x);
+//     dataTest.items.push(data);
+//     dataAmount.items.push(value);
+//   }
+//   console.log(reservationsHome.value);
+//   for (let x = 0; x < reservationsHome.value.agents.length; x++) {
+//     let data = changer(x);
+//     let value = changeValuer(x);
+//     dataRes.items.push(data);
+//     dataAmountRes.items.push(value);
+//   }
+// };
+
+const dateArrFromSelect = ref([]);
+const loopData = ref([]);
+
+const generateDateArray = async () => {
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  // Set the date to the first day of the month
+  currentDate.setDate(1);
+
+  // Iterate through the days of the month
+  while (currentDate.getMonth() === month) {
+    dateArrFromSelect.value.push(dateFormat(new Date(currentDate)));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
   dataTest.items.splice(0);
   dataAmount.items.splice(0);
-  dataRes.items.splice(0);
-  dataAmountRes.items.splice(0);
-  for (let x = 0; x < sales.value.agents.length; x++) {
-    let data = change(x);
-    let value = changeValue(x);
-    dataTest.items.push(data);
-    dataAmount.items.push(value);
+  // loop get Data
+
+  for (let x = 0; x < dateArrFromSelect.value.length; x++) {
+    const date = dateArrFromSelect.value[x];
+    console.log(date);
+    dataTest.items.push(date);
+    let data = {
+      startDate: date,
+    };
+    const res = await homeStore.getTimeFilterArray(data);
+    // console.log(res, "this is loop data");
+    if (res.status == "Request was successful.") {
+      console.log("it ok");
+      let dataArr = 0;
+      for (let x = 0; x < res.result.sales.original.result.amount.length; x++) {
+        dataArr += res.result.sales.original.result.amount[x];
+      }
+      dataAmount.items.push(dataArr);
+    } else {
+      console.log("it not");
+      dataAmount.items.push(0);
+    }
   }
-  console.log(reservationsHome.value);
-  for (let x = 0; x < reservationsHome.value.agents.length; x++) {
-    let data = changer(x);
-    let value = changeValuer(x);
-    dataRes.items.push(data);
-    dataAmountRes.items.push(value);
-  }
+
+  console.log(dateArrFromSelect.value, "this is date");
 };
 
 onMounted(async () => {
@@ -290,7 +338,9 @@ onMounted(async () => {
               </p>
             </div>
           </div>
-          <div class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4">
+          <div
+            class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4 hidden"
+          >
             <div class="flex justify-between items-center">
               <p>Total Bookings</p>
             </div>
@@ -360,14 +410,14 @@ onMounted(async () => {
               <p class="text-gray-600 mb-3 font-medium tracking-wide">Sales</p>
               <LineChart :chartData="saleData" />
             </div>
-            <div
+            <!-- <div
               class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
             >
               <p class="text-gray-600 mb-3 font-medium tracking-wide">
                 Reservation
               </p>
               <BarChart :chartData="saleDataRes" />
-            </div>
+            </div> -->
 
             <!-- <div
               class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"

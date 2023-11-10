@@ -298,6 +298,102 @@ const chooseType = async () => {
 const carType = ref([]);
 const roomType = ref([]);
 
+const addArrayToList = (arr) => {
+  console.log(arr, "this is array");
+  if (arr.private_van_tours.length > 0) {
+    for (let x = 0; x < arr.private_van_tours.length; x++) {
+      let data = {};
+      data.product_type = "1";
+      data.product_id = arr.private_van_tours[x].product.id;
+      data.car_id = arr.private_van_tours[x].car.id;
+      data.car_list = arr.private_van_tours[x].product.cars;
+      data.service_date = "";
+      data.selling_price = arr.private_van_tours[x].selling_price;
+      data.quantity = arr.private_van_tours[x].quantity;
+      data.description = "";
+      data.total_amount = 0;
+      formData.value.items.push(data);
+    }
+  }
+  if (arr.group_tours.length > 0) {
+    for (let x = 0; x < arr.group_tours.length; x++) {
+      let data = {};
+      data.product_type = "2";
+      data.product_id = arr.group_tours[x].product.id;
+      data.service_date = "";
+      data.selling_price = arr.group_tours[x].selling_price;
+      data.quantity = arr.group_tours[x].quantity;
+      data.description = "";
+      data.total_amount = 0;
+      formData.value.items.push(data);
+    }
+  }
+  if (arr.airport_pickups.length > 0) {
+    for (let x = 0; x < arr.airport_pickups.length; x++) {
+      let data = {};
+      data.product_type = "3";
+      data.product_id = arr.airport_pickups[x].product.id;
+      data.car_id = arr.airport_pickups[x].car.id;
+      data.car_list = arr.airport_pickups[x].product.cars;
+      data.service_date = "";
+      data.selling_price = arr.airport_pickups[x].selling_price;
+      data.quantity = arr.airport_pickups[x].quantity;
+      data.description = "";
+      data.total_amount = 0;
+      formData.value.items.push(data);
+    }
+  }
+  if (arr.entrance_tickets.length > 0) {
+    for (let x = 0; x < arr.entrance_tickets.length; x++) {
+      let data = {};
+      data.product_type = "4";
+      data.product_id = arr.entrance_tickets[x].product.id;
+      data.car_id = arr.entrance_tickets[x].variation.id;
+      data.car_list =
+        arr.entrance_tickets[x].variation.entrance_ticket.variations;
+      data.service_date = "";
+      data.selling_price = arr.entrance_tickets[x].selling_price;
+      data.quantity = arr.entrance_tickets[x].quantity;
+      data.description = "";
+      data.total_amount = 0;
+      formData.value.items.push(data);
+    }
+  }
+  if (arr.hotels.length > 0) {
+    for (let x = 0; x < arr.hotels.length; x++) {
+      let data = {};
+      data.product_type = "6";
+      data.product_id = arr.hotels[x].product.id;
+      data.car_id = arr.hotels[x].room.id;
+      data.car_list = arr.hotels[x].room.hotel.rooms;
+      data.service_date = "";
+      data.selling_price = arr.hotels[x].selling_price;
+      data.checkin_date = arr.hotels[x].checkin_date;
+      data.checkout_date = arr.hotels[x].checkout_date;
+      data.days = calculateDaysBetween(data.checkin_date, data.checkout_date);
+      data.quantity = arr.hotels[x].quantity;
+      data.description = "";
+      data.total_amount = 0;
+      formData.value.items.push(data);
+    }
+  }
+  if (arr.airline_tickets.length > 0) {
+    for (let x = 0; x < arr.airline_tickets.length; x++) {
+      let data = {};
+      data.product_type = "7";
+      data.product_id = arr.airline_tickets[x].product.id;
+      data.car_id = arr.airline_tickets[x].ticket.airline.id;
+      data.car_list = arr.airline_tickets[x].ticket.airline.tickets;
+      data.service_date = "";
+      data.selling_price = arr.airline_tickets[x].selling_price;
+      data.quantity = arr.airline_tickets[x].quantity;
+      data.description = "";
+      data.total_amount = 0;
+      formData.value.items.push(data);
+    }
+  }
+};
+
 const chooseCar = async (id) => {
   if (formitem.value.product_type == "1" && id) {
     const res = await vantourStore.getDetailAction(id);
@@ -326,6 +422,7 @@ const chooseCar = async (id) => {
     console.log(res);
     formitem.value.comment = res.result.description;
     formitem.value.selling_price = res.result.price;
+    addArrayToList(res.result);
   } else if (formitem.value.product_type == "6") {
     const res = await hotelStore.getDetailAction(id);
     // formitem.value.comment = res.result.description;
@@ -443,19 +540,23 @@ const addNewitem = () => {
 
 const calculateRateRoom = () => {
   if (formitem.value.checkin_date && formitem.value.checkout_date) {
-    calculateDaysBetween();
+    formitem.value.days = calculateDaysBetween(
+      formitem.value.checkin_date,
+      formitem.value.checkout_date
+    );
   }
   closedes();
 };
-const calculateDaysBetween = () => {
-  if (formitem.value.checkin_date && formitem.value.checkout_date) {
+const calculateDaysBetween = (a, b) => {
+  if (a && b) {
     const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
-    const startDateTimestamp = new Date(formitem.value.checkin_date).getTime();
-    const endDateTimestamp = new Date(formitem.value.checkout_date).getTime();
+    const startDateTimestamp = new Date(a).getTime();
+    const endDateTimestamp = new Date(b).getTime();
     let result = Math.abs(
       Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
     );
-    formitem.value.days = result;
+    // formitem.value.days = result;
+    return result;
   }
 };
 
@@ -993,7 +1094,14 @@ const hotelQ = (t, d, q) => {
 
 onMounted(async () => {
   await customerStore.getSimpleListAction();
+
   await adminStore.getSimpleListAction();
+  await vantourStore.getSimpleListAction();
+  await grouptourStore.getSimpleListAction();
+  await entranceStore.getSimpleListAction();
+  await airportStore.getSimpleListAction();
+  await airlineStore.getSimpleListAction();
+  await hotelStore.getSimpleListAction();
   console.log(admin.value, "this is admin");
   getTodayDate();
 });
@@ -1813,6 +1921,7 @@ onMounted(async () => {
                         class="border-b border-gray-300"
                         v-for="(item, index) in formData.items"
                         :key="index"
+                        :class="item.total_amount == 0 ? 'bg-gray-100' : ''"
                       >
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"

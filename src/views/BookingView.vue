@@ -298,7 +298,7 @@ watch(limit, async (newValue) => {
       </div>
 
       <div class="mb-5 overflow-auto rounded-lg shadow">
-        <div class="grid grid-cols-8 gap-2 bg-gray-100">
+        <div class="grid grid-cols-9 gap-2 bg-gray-100">
           <div class="py-2 text-xs font-medium tracking-wide text-center">
             Customer
           </div>
@@ -309,13 +309,16 @@ watch(limit, async (newValue) => {
             CRM ID
           </div>
           <div class="py-2 text-xs font-medium tracking-wide text-center">
-            Service Date
+            Sale Date
           </div>
           <div class="py-2 text-xs font-medium tracking-wide text-center">
             Payment
           </div>
           <div class="py-2 text-xs font-medium tracking-wide text-center">
             Reservation Status
+          </div>
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
+            Total Sale Amount
           </div>
 
           <div class="py-2 text-xs font-medium tracking-wide text-center"></div>
@@ -328,7 +331,7 @@ watch(limit, async (newValue) => {
         >
           <Disclosure>
             <DisclosureButton class="w-full py-2">
-              <div class="grid grid-cols-8 gap-2 bg-white">
+              <div class="grid grid-cols-9 gap-2 bg-white">
                 <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
                   {{ r.customer.name }}
                 </div>
@@ -385,7 +388,9 @@ watch(limit, async (newValue) => {
                     {{ r.reservation_status }}
                   </p>
                 </div>
-
+                <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
+                  {{ r.sub_total }}
+                </div>
                 <div
                   class="flex items-center justify-end col-span-2 p-3 space-x-2 text-xs text-gray-700 whitespace-nowrap"
                   @click="seenClick"
@@ -428,7 +433,7 @@ watch(limit, async (newValue) => {
               leave-to-class="transform scale-95 opacity-0"
             >
               <DisclosurePanel class="w-full text-gray-500">
-                <div class="grid grid-cols-8 gap-2 bg-gray-300">
+                <div class="grid grid-cols-9 gap-2 bg-gray-300">
                   <div
                     class="py-2 text-xs font-medium tracking-wide text-center"
                   >
@@ -467,7 +472,7 @@ watch(limit, async (newValue) => {
                   </div>
                 </div>
                 <div
-                  class="grid w-full grid-cols-8 gap-2 bg-gray-100"
+                  class="grid w-full grid-cols-9 gap-2 bg-gray-100"
                   v-for="d in r.items"
                   :key="d.id"
                 >
@@ -576,6 +581,7 @@ watch(limit, async (newValue) => {
                   >
                     {{ d.service_date }}
                   </div>
+                  <div></div>
                   <div
                     class="col-span-1 p-3 text-xs text-center text-gray-700 whitespace-nowrap"
                   >

@@ -17,9 +17,18 @@ import { useAirportStore } from "../stores/airport";
 import { useEntranceStore } from "../stores/entrance";
 import { useBookingStore } from "../stores/booking";
 import { storeToRefs } from "pinia";
-import { onMounted, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { useHomeStore } from "../stores/home";
 import axios from "axios";
+
+import { Chart, registerables } from "chart.js";
+import {
+  ArchiveBoxIcon,
+  CalendarIcon,
+  UsersIcon,
+} from "@heroicons/vue/24/outline";
+
+Chart.register(...registerables);
 
 const authStore = useAuthStore();
 const vantourStore = useVantourStore();
@@ -43,7 +52,55 @@ const {
   reservationCount,
   totalReservationCount,
   totalReservationPrice,
+  loading,
 } = storeToRefs(homeStore);
+
+const dataTest = reactive({ items: [] });
+const dataAmount = reactive({ items: [] });
+
+const saleData = {
+  labels: dataTest.items,
+  datasets: [
+    {
+      label: "Sales",
+      data: dataAmount.items,
+      backgroundColor: ["#FF0000"],
+    },
+  ],
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  },
+};
+
+const isError = ref(false);
+const dataRes = reactive({ items: [] });
+const dataAmountRes = reactive({ items: [] });
+
+const saleDataRes = {
+  labels: dataRes.items,
+  datasets: [
+    {
+      label: "Reservations",
+      data: dataAmountRes.items,
+      backgroundColor: ["#FF0000"],
+    },
+  ],
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  },
+};
 
 const getfun = async () => {
   const res = await homeStore.getSaleAgent();
@@ -92,11 +149,13 @@ const dateFormat = (inputDateString) => {
 };
 
 const dateFun = async () => {
-  console.log(date.value);
+  // console.log(date.value);
 
   if (!date.value) {
     // window.location.reload();
+    generateDateArray();
     date.value = dateFormat(date.value);
+
     console.log(date.value);
     await getSaleCountHandle();
     await getfun();
@@ -104,6 +163,7 @@ const dateFun = async () => {
     await getBookingCount();
   } else {
     console.log(date.value);
+    generateDateArray();
     startDate.value = dateFormat(date.value);
     // endDate.value = date.value[1] != null ? dateFormat(date.value[1]) : "";
     let data = {
@@ -111,7 +171,96 @@ const dateFun = async () => {
     };
     console.log(data);
     const res = await homeStore.getTimeFilter(data);
+    console.log(loading.value, res, "this is res");
+    // isError.value = loading.value;
+    // changeLabel();
   }
+};
+
+const change = (a) => {
+  let rate = `${sales.value.agents[Object.keys(sales.value.agents)[a]]}`;
+  return rate;
+};
+const changeValue = (a) => {
+  let ratev = `${sales.value.amount[Object.keys(sales.value.amount)[a]]}`;
+  return ratev;
+};
+const changer = (a) => {
+  let rate = `${
+    reservationsHome.value.agents[Object.keys(reservationsHome.value.agents)[a]]
+  }`;
+  return rate;
+};
+const changeValuer = (a) => {
+  let ratev = `${
+    reservationsHome.value.prices[Object.keys(reservationsHome.value.prices)[a]]
+  }`;
+  return ratev;
+};
+
+// const changeLabel = () => {
+//   dataTest.items.splice(0);
+//   dataAmount.items.splice(0);
+//   dataRes.items.splice(0);
+//   dataAmountRes.items.splice(0);
+//   for (let x = 0; x < sales.value.agents.length; x++) {
+//     let data = change(x);
+//     let value = changeValue(x);
+//     dataTest.items.push(data);
+//     dataAmount.items.push(value);
+//   }
+//   console.log(reservationsHome.value);
+//   for (let x = 0; x < reservationsHome.value.agents.length; x++) {
+//     let data = changer(x);
+//     let value = changeValuer(x);
+//     dataRes.items.push(data);
+//     dataAmountRes.items.push(value);
+//   }
+// };
+
+const dateArrFromSelect = ref([]);
+const loopData = ref([]);
+
+const generateDateArray = async () => {
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  // Set the date to the first day of the month
+  currentDate.setDate(1);
+
+  // Iterate through the days of the month
+  while (currentDate.getMonth() === month) {
+    dateArrFromSelect.value.push(dateFormat(new Date(currentDate)));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  dataTest.items.splice(0);
+  dataAmount.items.splice(0);
+  // loop get Data
+
+  for (let x = 0; x < dateArrFromSelect.value.length; x++) {
+    const date = dateArrFromSelect.value[x];
+    console.log(date);
+    dataTest.items.push(date);
+    let data = {
+      startDate: date,
+    };
+    const res = await homeStore.getTimeFilterArray(data);
+    // console.log(res, "this is loop data");
+    if (res.status == "Request was successful.") {
+      console.log("it ok");
+      let dataArr = 0;
+      for (let x = 0; x < res.result.sales.original.result.amount.length; x++) {
+        dataArr += res.result.sales.original.result.amount[x];
+      }
+      dataAmount.items.push(dataArr);
+    } else {
+      console.log("it not");
+      dataAmount.items.push(0);
+    }
+  }
+
+  console.log(dateArrFromSelect.value, "this is date");
 };
 
 onMounted(async () => {
@@ -119,6 +268,7 @@ onMounted(async () => {
   // await getfun();
   // await getReservationCount();
   // await getBookingCount();
+
   date.value = dateFormat(new Date());
   if (date.value) {
     await dateFun();
@@ -151,10 +301,8 @@ onMounted(async () => {
             id=""
           />
         </div>
-        <div class="grid grid-cols-3 gap-4">
-          <div
-            class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4 hidden"
-          >
+        <div class="grid grid-cols-3 gap-4" v-if="!loading">
+          <div class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4">
             <div class="flex justify-between items-center">
               <p>Total Reservations</p>
               <label class="relative inline-flex items-center cursor-pointer">
@@ -242,6 +390,52 @@ onMounted(async () => {
                 {{ salesCount[index] }}
               </p>
             </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-4" v-if="loading">
+          <div
+            class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4 h-[500px] flex justify-center items-center"
+          >
+            There isn't Data
+          </div>
+        </div>
+        <div
+          class="py-5 bg-white/60 rounded-md shadow-sm p-4 mt-4"
+          v-if="!loading"
+        >
+          <div class="grid grid-cols-1 md:grid-cols-1 gap-1 md:gap-4 mb-3">
+            <div
+              class="bg-white/60 col-span-3 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
+            >
+              <p class="text-gray-600 mb-3 font-medium tracking-wide">Sales</p>
+              <LineChart :chartData="saleData" />
+            </div>
+            <!-- <div
+              class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
+            >
+              <p class="text-gray-600 mb-3 font-medium tracking-wide">
+                Reservation
+              </p>
+              <BarChart :chartData="saleDataRes" />
+            </div> -->
+
+            <!-- <div
+              class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
+            >
+              <p class="text-gray-600 mb-3 font-medium tracking-wide">
+                Expenses
+              </p>
+              <PieChart :chartData="saleData" />
+            </div>
+            
+            <div
+              class="bg-white/60 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
+            >
+              <p class="text-gray-600 mb-3 font-medium tracking-wide">
+                Booking Share
+              </p>
+              <DoughnutChart :chartData="saleData" />
+            </div> -->
           </div>
         </div>
       </div>

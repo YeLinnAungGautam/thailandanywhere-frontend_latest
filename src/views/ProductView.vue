@@ -14,6 +14,7 @@ import Inclusive from "../views/InclusiveView.vue";
 import Hotel from "../views/HotelView.vue";
 import Room from "../views/RoomView.vue";
 import { useRouter, useRoute } from "vue-router";
+import { useAuthStore } from "../stores/auth";
 import {
   PencilSquareIcon,
   TrashIcon,
@@ -29,6 +30,7 @@ import {
 
 const router = useRouter();
 const route = useRoute();
+const authStore = useAuthStore();
 
 const selectedTab = ref(0);
 
@@ -81,29 +83,8 @@ onMounted(() => {
               Airport Pickup
             </button>
           </Tab>
+
           <Tab as="template" v-slot="{ selected }" @click="changeTab(2)">
-            <button
-              :class="{
-                'bg-[#ff613c] text-white': selected,
-                'bg-white text-black': !selected,
-              }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
-            >
-              Attractions
-            </button>
-          </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(3)">
-            <button
-              :class="{
-                'bg-[#ff613c] text-white': selected,
-                'bg-white text-black': !selected,
-              }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[250px] text-center"
-            >
-              Entrance Tickets Variation
-            </button>
-          </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(4)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -114,7 +95,7 @@ onMounted(() => {
               Group Tours
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(5)">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(3)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -125,7 +106,7 @@ onMounted(() => {
               Inclusive
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(6)">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(4)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -136,7 +117,7 @@ onMounted(() => {
               Hotels
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(7)">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(5)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -147,7 +128,7 @@ onMounted(() => {
               Rooms
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(8)">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(6)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -158,7 +139,7 @@ onMounted(() => {
               AirLine
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(9)">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(7)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -169,6 +150,38 @@ onMounted(() => {
               AirLine Ticket
             </button>
           </Tab>
+          <Tab
+            as="template"
+            v-slot="{ selected }"
+            @click="changeTab(8)"
+            v-if="!authStore.isAdmin"
+          >
+            <button
+              :class="{
+                'bg-[#ff613c] text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+            >
+              Attractions
+            </button>
+          </Tab>
+          <Tab
+            as="template"
+            v-slot="{ selected }"
+            @click="changeTab(9)"
+            v-if="!authStore.isAdmin"
+          >
+            <button
+              :class="{
+                'bg-[#ff613c] text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[250px] text-center"
+            >
+              Entrance Tickets Variation
+            </button>
+          </Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -177,12 +190,7 @@ onMounted(() => {
           <TabPanel>
             <Airport />
           </TabPanel>
-          <TabPanel>
-            <Entrance />
-          </TabPanel>
-          <TabPanel>
-            <EntranceVariation />
-          </TabPanel>
+
           <TabPanel>
             <GroupTour />
           </TabPanel>
@@ -200,6 +208,12 @@ onMounted(() => {
           </TabPanel>
           <TabPanel>
             <AirlineTicket />
+          </TabPanel>
+          <TabPanel v-if="!authStore.isAdmin">
+            <Entrance />
+          </TabPanel>
+          <TabPanel v-if="!authStore.isAdmin">
+            <EntranceVariation />
           </TabPanel>
         </TabPanels>
       </TabGroup>

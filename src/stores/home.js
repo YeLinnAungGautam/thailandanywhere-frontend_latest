@@ -158,8 +158,22 @@ export const useHomeStore = defineStore("home", {
         this.loading = false;
         return response.data;
       } catch (error) {
+        this.loading = true;
+        // console.log(error, "this is error");
+        return error;
+      }
+    },
+    async getTimeFilterArray(params) {
+      try {
         this.loading = false;
-        throw error;
+        const response = await axios.get(`/get-reports/${params.startDate}`);
+        // console.log(response, "one day filter");
+
+        // bookings
+        return response.data;
+      } catch (error) {
+        // console.log(error, "this is error");
+        return error;
       }
     },
   },

@@ -475,7 +475,10 @@ const editModalOpenHandler = (data) => {
 
 const changePage = async (url) => {
   console.log(url);
-  await hotelStore.getChangePage(url);
+  let data = {
+    search: search.value,
+  };
+  await hotelStore.getChangePage(url, data);
 };
 
 const onDeleteHandler = async (id) => {

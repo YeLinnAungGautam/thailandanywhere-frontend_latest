@@ -170,7 +170,10 @@ const VantourCreate = () => {
 
 const changePage = async (url) => {
   console.log(url);
-  await vantourStore.getChangePage(url);
+  let data = {
+    search: search.value,
+  };
+  await vantourStore.getChangePage(url, data);
 };
 
 const onDeleteHandler = async (id) => {

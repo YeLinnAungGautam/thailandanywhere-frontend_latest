@@ -18,12 +18,16 @@ export const useAirportStore = defineStore("airport", {
         throw error;
       }
     },
-    async getChangePage(url) {
+    async getChangePage(url, params) {
+      console.log(params, "this is params ");
       this.loading = true;
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
       const response = await axios.get(
-        "/airport-pickups?limit=10&page=" + pageValue
+        `/airport-pickups?limit=10&page=${pageValue}`,
+        {
+          params: params,
+        }
       );
       this.airports = response.data.result;
       this.loading = false;

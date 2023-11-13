@@ -18,12 +18,15 @@ export const useEntranceStore = defineStore("entrance", {
         throw error;
       }
     },
-    async getChangePage(url) {
+    async getChangePage(url, params) {
       this.loading = true;
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
       const response = await axios.get(
-        "/entrance-tickets?limit=10&page=" + pageValue
+        "/entrance-tickets?limit=10&page=" + pageValue,
+        {
+          params: params,
+        }
       );
       this.entrances = response.data.result;
       this.loading = false;

@@ -18,11 +18,16 @@ export const useInclusiveStore = defineStore("inclusive", {
         throw error;
       }
     },
-    async getChangePage(url) {
+    async getChangePage(url, params) {
       this.loading = true;
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
-      const response = await axios.get("/inclusive?limit=10&page=" + pageValue);
+      const response = await axios.get(
+        "/inclusive?limit=10&page=" + pageValue,
+        {
+          params: params,
+        }
+      );
       this.inclusives = response.data.result;
       console.log(response.data.result, "pagi");
       this.loading = false;

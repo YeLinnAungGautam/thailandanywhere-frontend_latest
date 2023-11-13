@@ -314,7 +314,10 @@ const editModalOpenHandler = (data) => {
 
 const changePage = async (url) => {
   console.log(url);
-  await airlineStore.getChangePage(url);
+  let data = {
+    search: search.value,
+  };
+  await airlineStore.getChangePage(url, data);
 };
 
 const getFile = (e) => {

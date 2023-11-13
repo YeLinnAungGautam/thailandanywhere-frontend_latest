@@ -152,7 +152,10 @@ const inclusiveHandling = () => {
 
 const changePage = async (url) => {
   console.log(url);
-  await inclusiveStore.getChangePage(url);
+  let data = {
+    search: search.value,
+  };
+  await inclusiveStore.getChangePage(url, data);
 };
 
 const onDeleteHandler = async (id) => {

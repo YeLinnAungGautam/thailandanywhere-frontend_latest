@@ -346,7 +346,10 @@ const editModalOpenHandler = (data) => {
 
 const changePage = async (url) => {
   console.log(url);
-  await roomStore.getChangePage(url);
+  let data = {
+    search: search.value,
+  };
+  await roomStore.getChangePage(url, data);
 };
 
 const onDeleteHandler = async (id) => {

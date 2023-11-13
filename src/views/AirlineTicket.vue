@@ -284,7 +284,10 @@ const editModalOpenHandler = (data) => {
 
 const changePage = async (url) => {
   console.log(url);
-  await airticketStore.getChangePage(url);
+  let data = {
+    search: search.value,
+  };
+  await airticketStore.getChangePage(url, data);
 };
 
 const onDeleteHandler = async (id) => {

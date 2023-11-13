@@ -18,12 +18,15 @@ export const useGrouptourStore = defineStore("grouptour", {
         throw error;
       }
     },
-    async getChangePage(url) {
+    async getChangePage(url, params) {
       this.loading = true;
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
       const response = await axios.get(
-        "/group-tours?limit=10&page=" + pageValue
+        "/group-tours?limit=10&page=" + pageValue,
+        {
+          params: params,
+        }
       );
       this.grouptours = response.data.result;
       this.loading = false;

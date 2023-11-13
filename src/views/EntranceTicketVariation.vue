@@ -337,7 +337,10 @@ const editModalOpenHandler = (data) => {
 
 const changePage = async (url) => {
   console.log(url);
-  await variationStore.getChangePage(url);
+  let data = {
+    search: search.value,
+  };
+  await variationStore.getChangePage(url, data);
 };
 
 const onDeleteHandler = async (id) => {

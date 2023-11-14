@@ -20,12 +20,15 @@ export const useVantourStore = defineStore("vantour", {
         throw error;
       }
     },
-    async getChangePage(url) {
+    async getChangePage(url, params) {
       this.loading = true;
       const urlSearchParams = new URLSearchParams(new URL(url).search);
       const pageValue = urlSearchParams.get("page");
       const response = await axios.get(
-        "/private-van-tours?limit=10&page=" + pageValue
+        `/private-van-tours?limit=10&page=${pageValue}`,
+        {
+          params: params,
+        }
       );
       this.vantours = response.data.result;
       console.log(response.data.result, "pagi");

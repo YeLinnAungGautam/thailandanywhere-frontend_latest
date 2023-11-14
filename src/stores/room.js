@@ -18,9 +18,11 @@ export const useRoomStore = defineStore("room", {
         throw error;
       }
     },
-    async getChangePage(url) {
+    async getChangePage(url, params) {
       this.loading = true;
-      const response = await axios.get(url);
+      const response = await axios.get(url, {
+        params: params,
+      });
       this.rooms = response.data.result;
       this.loading = false;
       return response.data;

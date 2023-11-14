@@ -665,7 +665,10 @@ const removeImageSelectImage = (index) => {
 
 const changePage = async (url) => {
   console.log(url);
-  await entranceStore.getChangePage(url);
+  let data = {
+    search: search.value,
+  };
+  await entranceStore.getChangePage(url, data);
 };
 
 const onDeleteHandler = async (id) => {

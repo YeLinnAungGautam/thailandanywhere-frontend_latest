@@ -144,7 +144,10 @@ const GrouptourCreate = () => {
 
 const changePage = async (url) => {
   console.log(url);
-  await grouptourStore.getChangePage(url);
+  let data = {
+    search: search.value,
+  };
+  await grouptourStore.getChangePage(url, data);
 };
 
 const onDeleteHandler = async (id) => {

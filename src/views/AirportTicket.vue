@@ -169,7 +169,10 @@ const AirportCreate = () => {
 
 const changePage = async (url) => {
   console.log(url);
-  await airportStore.getChangePage(url);
+  let data = {
+    search: search.value,
+  };
+  await airportStore.getChangePage(url, data);
 };
 
 const onDeleteHandler = async (id) => {

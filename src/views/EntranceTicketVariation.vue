@@ -108,6 +108,7 @@
         <v-select
           class="style-chooser bg-white min-w-[250px]"
           :options="entrances?.data"
+          v-model="entrance_ticket_id"
           label="name"
           :clearable="false"
           :reduce="(entrance) => entrance.id"
@@ -339,6 +340,7 @@ const changePage = async (url) => {
   console.log(url);
   let data = {
     search: search.value,
+    entrance_ticket_id: entrance_ticket_id.value,
   };
   await variationStore.getChangePage(url, data);
 };
@@ -369,6 +371,7 @@ const onDeleteHandler = async (id) => {
 };
 
 const entList = ref({});
+const entrance_ticket_id = ref("");
 onMounted(async () => {
   await variationStore.getListAction();
   await entranceStore.getSimpleListAction();
@@ -377,6 +380,15 @@ onMounted(async () => {
 });
 
 watch(search, async (newValue) => {
-  await variationStore.getListAction({ search: search.value });
+  await variationStore.getListAction({
+    search: search.value,
+    entrance_ticket_id: entrance_ticket_id.value,
+  });
+});
+watch(entrance_ticket_id, async (newValue) => {
+  await variationStore.getListAction({
+    search: search.value,
+    entrance_ticket_id: entrance_ticket_id.value,
+  });
 });
 </script>

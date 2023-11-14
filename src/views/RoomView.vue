@@ -107,6 +107,7 @@
         <v-select
           class="style-chooser min-w-[250px] bg-white"
           :options="hotelList ?? []"
+          v-model="hotel_id"
           label="name"
           :clearable="false"
           :reduce="(hotel) => hotel.id"
@@ -348,6 +349,7 @@ const changePage = async (url) => {
   console.log(url);
   let data = {
     search: search.value,
+    hotel_id: hotel_id.value,
   };
   await roomStore.getChangePage(url, data);
 };
@@ -383,7 +385,18 @@ onMounted(async () => {
   hotelList.value = hotels.value.data;
 });
 
+const hotel_id = ref("");
+
 watch(search, async (newValue) => {
-  await roomStore.getListAction({ search: search.value });
+  await roomStore.getListAction({
+    search: search.value,
+    hotel_id: hotel_id.value,
+  });
+});
+watch(hotel_id, async (newValue) => {
+  await roomStore.getListAction({
+    hotel_id: hotel_id.value,
+    search: search.value,
+  });
 });
 </script>

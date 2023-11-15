@@ -37,6 +37,7 @@ import ExpensesView from "../views/Expenses.vue";
 import InclusiveView from "../views/InclusiveCreate.vue";
 import InclusiveDetailView from "../views/InclusiveUpdate.vue";
 import ReservationViewView from "../views/ReservationView.vue";
+import DashboardView from "../views/UserDashboard.vue";
 
 const routes = [
   {
@@ -51,6 +52,11 @@ const routes = [
     path: "/",
     name: "home",
     component: HomeView,
+  },
+  {
+    path: "/user_dashboard",
+    name: "dashboard",
+    component: DashboardView,
   },
   {
     path: "/components",

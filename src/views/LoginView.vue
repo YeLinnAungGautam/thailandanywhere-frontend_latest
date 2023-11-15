@@ -53,7 +53,7 @@ const loginHandler = async () => {
     if (authStore.isSuperAdmin) {
       router.push({ name: "home" });
     } else {
-      router.push({ name: "bookings" });
+      router.push({ name: "dashboard" });
     }
   } catch (error) {
     console.log("🚀 ~ file: LoginView.vue:54 ~ loginHandler ~ error:", error);

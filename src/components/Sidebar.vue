@@ -34,6 +34,12 @@
               v-show="authStore.isSuperAdmin"
             />
             <SidebarItem
+              name="Dashboard"
+              :icon="Squares2X2Icon"
+              to="/user_dashboard"
+              v-show="!authStore.isSuperAdmin"
+            />
+            <SidebarItem
               name="Sales"
               v-if="
                 authStore.isSuperAdmin ||

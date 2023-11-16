@@ -792,7 +792,6 @@ onMounted(async () => {});
                     ref="featureImageInput"
                     class="hidden"
                     @change="handlerFeatureFileChange"
-                    accept="image/*"
                   />
                   <button
                     v-if="!featureImagePreview"

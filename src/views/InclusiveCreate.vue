@@ -48,6 +48,8 @@ const route = useRoute();
 
 const formData = ref({
   name: "",
+  day: 1,
+  night: "",
   description: "",
   cover_image: "",
   sku_code: "",
@@ -85,6 +87,7 @@ const formitem = ref({
   payment_method: "",
   payment_status: "",
   amount: "",
+  day: 1,
   exchange_rate: "",
   cost_price: "",
   special_request: "",
@@ -359,6 +362,7 @@ const addNewitem = () => {
     product_id: "",
     car_id: "",
     car_list: [],
+    day: 1,
     room_id: "",
     room: null,
     cost_price: "",
@@ -474,6 +478,8 @@ const onSubmitHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("sku_code", formData.value.sku_code);
+  frmData.append("day", formData.value.day);
+  frmData.append("night", formData.value.night);
   frmData.append("description", formData.value.description);
   frmData.append("price", formData.value.price);
   frmData.append("agent_price", formData.value.agent_price);
@@ -505,6 +511,7 @@ const onSubmitHandler = async () => {
       "products[" + x + "][product_id]",
       formData.value.items[x].product_id
     );
+    frmData.append("products[" + x + "][day]", formData.value.items[x].days);
     frmData.append(
       "products[" + x + "][cost_price]",
       formData.value.items[x].cost_price
@@ -603,10 +610,10 @@ onMounted(async () => {});
     </div>
     <div class="grid grid-cols-1 gap-3">
       <div class="bg-white/60 col-span-2 p-6 rounded-lg shadow-sm mb-5">
-        <div class="space-y-4">
+        <div class="space-y-2">
           <div class="grid grid-cols-2 gap-6">
             <div>
-              <div class="grid grid-cols-2 gap-8">
+              <div class="grid grid-cols-2 gap-4">
                 <div class="">
                   <p class="text-gray-800 text-xs mb-2">Name</p>
                   <input
@@ -658,13 +665,41 @@ onMounted(async () => {});
                     {{ errors.agent_price[0] }}
                   </p>
                 </div>
+                <div class="">
+                  <p class="text-gray-800 text-xs mb-2">
+                    Days <small class="text-[#ff613c]">(only number)</small>
+                  </p>
+                  <input
+                    v-model="formData.day"
+                    type="number"
+                    id="title"
+                    class="h-8 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                  />
+                  <p v-if="errors?.day" class="mt-1 text-xs text-red-600">
+                    {{ errors.day[0] }}
+                  </p>
+                </div>
+                <div class="">
+                  <p class="text-gray-800 text-xs mb-2">
+                    Nights <small class="text-[#ff613c]">(only number)</small>
+                  </p>
+                  <input
+                    v-model="formData.night"
+                    type="number"
+                    id="title"
+                    class="h-8 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                  />
+                  <p v-if="errors?.night" class="mt-1 text-xs text-red-600">
+                    {{ errors.night[0] }}
+                  </p>
+                </div>
                 <div class="col-span-2">
                   <p class="text-gray-800 text-xs mb-2">Description</p>
                   <textarea
                     v-model="formData.description"
                     rows="3"
                     id="title"
-                    class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 h-[300px]"
+                    class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 h-[250px]"
                   />
                   <p
                     v-if="errors?.description"
@@ -1193,6 +1228,11 @@ onMounted(async () => {});
                         <th
                           class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
                         >
+                          Days
+                        </th>
+                        <th
+                          class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
+                        >
                           Amount
                         </th>
                         <th
@@ -1362,6 +1402,15 @@ onMounted(async () => {});
                           <input
                             type="number"
                             v-model="formitem.quantity"
+                            class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
+                          />
+                        </td>
+                        <td
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
+                        >
+                          <input
+                            type="number"
+                            v-model="formitem.days"
                             class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
                           />
                         </td>
@@ -1574,10 +1623,15 @@ onMounted(async () => {});
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <p v-if="item.product_type != '5'">
+                          <p>{{ item.days }}</p>
+                        </td>
+                        <td
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
+                        >
+                          <!-- <p v-if="item.product_type != '5'">
                             {{ item.cost_price * item.quantity }}
-                          </p>
-                          <p v-if="item.product_type == '5'">
+                          </p> -->
+                          <p>
                             {{ item.cost_price * item.quantity * item.days }}
                           </p>
                         </td>

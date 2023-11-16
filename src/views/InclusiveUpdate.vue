@@ -50,6 +50,8 @@ const formData = ref({
   name: "",
   description: "",
   cover_image: "",
+  day: 1,
+  night: "",
   sku_code: "",
   images: [],
   price: "",
@@ -312,12 +314,12 @@ const clickdetaildesUpdate = (x) => {
     let result = Math.abs(
       Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
     );
-    formData.value.items[x].days = result;
+    formData.value.items[x].day = result;
   }
   let totalsub =
     formData.value.items[x].quantity *
     formData.value.items[x].selling_price *
-    formData.value.items[x].days;
+    formData.value.items[x].day;
   formData.value.items[x].total_amount = totalsub;
   clickdetaildes.value = false;
 };
@@ -484,6 +486,8 @@ const onSubmitHandler = async () => {
   const frmData = new FormData();
   frmData.append("_method", "PUT");
   frmData.append("name", formData.value.name);
+  frmData.append("day", formData.value.day);
+  frmData.append("night", formData.value.night);
   frmData.append("sku_code", formData.value.sku_code);
   frmData.append("description", formData.value.description);
   frmData.append("price", formData.value.price);
@@ -516,6 +520,7 @@ const onSubmitHandler = async () => {
       "products[" + x + "][product_id]",
       formData.value.items[x].product_id
     );
+    frmData.append("products[" + x + "][day]", formData.value.items[x].days);
     frmData.append(
       "products[" + x + "][cost_price]",
       formData.value.items[x].cost_price
@@ -631,6 +636,8 @@ const getDetail = async () => {
     console.log(response, "this is response");
     formData.value.name = response.result.name;
     formData.value.description = response.result.description;
+    formData.value.day = response.result.day;
+    formData.value.night = response.result.night;
     formData.value.price = response.result.price;
     formData.value.agent_price = response.result.agent_price;
     editData.value.cover_image = response.result.cover_image;
@@ -655,6 +662,7 @@ const getDetail = async () => {
             : response.result.airport_pickups[x].selling_price,
           selling_price: response.result.airport_pickups[x].selling_price,
           quantity: response.result.airport_pickups[x].quantity,
+          days: response.result.airport_pickups[x].day,
           total_amount:
             response.result.airport_pickups[x].cost_price *
             response.result.airport_pickups[x].quantity,
@@ -682,6 +690,7 @@ const getDetail = async () => {
             : response.result.entrance_tickets[x].selling_price,
           selling_price: response.result.entrance_tickets[x].selling_price,
           quantity: response.result.entrance_tickets[x].quantity,
+          days: response.result.entrance_tickets[x].day,
           total_amount:
             response.result.entrance_tickets[x].cost_price *
             response.result.entrance_tickets[x].quantity,
@@ -744,6 +753,7 @@ const getDetail = async () => {
             : response.result.airline_tickets[x].selling_price,
           selling_price: response.result.airline_tickets[x].selling_price,
           quantity: response.result.airline_tickets[x].quantity,
+          days: response.result.airline_tickets[x].day,
           total_amount:
             response.result.airline_tickets[x].cost_price *
             response.result.airline_tickets[x].quantity,
@@ -768,6 +778,7 @@ const getDetail = async () => {
             : response.result.group_tours[x].selling_price,
           selling_price: response.result.group_tours[x].selling_price,
           quantity: response.result.group_tours[x].quantity,
+          days: response.result.group_tours[x].day,
           total_amount:
             response.result.group_tours[x].cost_price *
             response.result.group_tours[x].quantity,
@@ -795,6 +806,7 @@ const getDetail = async () => {
             : response.result.private_van_tours[x].selling_price,
           selling_price: response.result.private_van_tours[x].selling_price,
           quantity: response.result.private_van_tours[x].quantity,
+          days: response.result.private_van_tours[x].day,
           total_amount:
             response.result.private_van_tours[x].cost_price *
             response.result.private_van_tours[x].quantity,
@@ -835,7 +847,7 @@ onMounted(async () => {
         <div class="space-y-4">
           <div class="grid grid-cols-2 gap-6">
             <div>
-              <div class="grid grid-cols-2 gap-8">
+              <div class="grid grid-cols-2 gap-4">
                 <div class="">
                   <p class="text-gray-800 text-xs mb-2">Name</p>
                   <input
@@ -887,13 +899,41 @@ onMounted(async () => {
                     {{ errors.agent_price[0] }}
                   </p>
                 </div>
+                <div class="">
+                  <p class="text-gray-800 text-xs mb-2">
+                    Days <small class="text-[#ff613c]">(only number)</small>
+                  </p>
+                  <input
+                    v-model="formData.day"
+                    type="number"
+                    id="title"
+                    class="h-8 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                  />
+                  <p v-if="errors?.day" class="mt-1 text-xs text-red-600">
+                    {{ errors.day[0] }}
+                  </p>
+                </div>
+                <div class="">
+                  <p class="text-gray-800 text-xs mb-2">
+                    Nights <small class="text-[#ff613c]">(only number)</small>
+                  </p>
+                  <input
+                    v-model="formData.night"
+                    type="number"
+                    id="title"
+                    class="h-8 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                  />
+                  <p v-if="errors?.night" class="mt-1 text-xs text-red-600">
+                    {{ errors.night[0] }}
+                  </p>
+                </div>
                 <div class="col-span-2">
                   <p class="text-gray-800 text-xs mb-2">Description</p>
                   <textarea
                     v-model="formData.description"
                     rows="3"
                     id="title"
-                    class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 h-[300px]"
+                    class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 h-[250px]"
                   />
                   <p
                     v-if="errors?.description"
@@ -1420,6 +1460,11 @@ onMounted(async () => {
                         <th
                           class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
                         >
+                          Days
+                        </th>
+                        <th
+                          class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
+                        >
                           Amount
                         </th>
                         <th
@@ -1592,7 +1637,15 @@ onMounted(async () => {
                             class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
                           />
                         </td>
-
+                        <td
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
+                        >
+                          <input
+                            type="number"
+                            v-model="formitem.days"
+                            class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
+                          />
+                        </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
@@ -1801,10 +1854,19 @@ onMounted(async () => {
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <p v-if="item.product_type != '5'">
+                          <input
+                            type="number"
+                            v-model="item.days"
+                            class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
+                          />
+                        </td>
+                        <td
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
+                        >
+                          <!-- <p v-if="item.product_type != '5'">
                             {{ item.cost_price * item.quantity }}
-                          </p>
-                          <p v-if="item.product_type == '5'">
+                          </p> -->
+                          <p>
                             {{ item.cost_price * item.quantity * item.days }}
                           </p>
                         </td>

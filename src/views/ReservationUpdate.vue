@@ -477,25 +477,6 @@ const getDetail = async () => {
   try {
     const response = await reservationStore.getDetailAction(route.params.id);
     console.log(response, "this is response");
-    // if (response.result.cost_price == null) {
-
-    //   if (response.result.room) {
-    //     formData.value.cost_price = response.result.room?.cost;
-    //   }
-    //   if (response.result.variation) {
-    //     formData.value.cost_price = response.result.variation?.cost_price;
-    //   }
-    //   if (
-    //     response.result.car ||
-    //     response.result.product_type == "App\\Models\\GroupTour" ||
-    //     response.result.product_type == "App\\Models\\Airline"
-    //   ) {
-    //     formData.value.cost_price = response.result.selling_price;
-    //   }
-    //   console.log(formData.value.cost_price, "this is cost");
-    // } else {
-    //   formData.value.cost_price = response.result.cost_price;
-    // }
 
     titleDataChanges(response.result.product_type);
     checkin_date.value = response.result.checkin_date
@@ -713,30 +694,30 @@ const getDetail = async () => {
     // console.log(secForm.value, "sec");
     // console.log(formData.value.product_type, "this is product type");
 
-    if (response.result.cost_price == null) {
-      formData.value.cost_price = 0;
-    } else {
-      formData.value.cost_price = response.result.cost_price;
-    }
     // if (response.result.cost_price == null) {
-
-    //   if (response.result.room) {
-    //     formData.value.cost_price = response.result.room?.cost;
-    //   }
-    //   if (response.result.variation) {
-    //     formData.value.cost_price = response.result.variation?.cost_price;
-    //   }
-    //   if (
-    //     response.result.car ||
-    //     response.result.product_type == "App\\Models\\GroupTour" ||
-    //     response.result.product_type == "App\\Models\\Airline"
-    //   ) {
-    //     formData.value.cost_price = response.result.selling_price;
-    //   }
-    //   console.log(formData.value.cost_price, "this is cost");
+    //   formData.value.cost_price = 0;
     // } else {
     //   formData.value.cost_price = response.result.cost_price;
     // }
+    if (response.result.cost_price == null || response.result.cost_price == 0) {
+      if (response.result.room) {
+        formData.value.cost_price = response.result.room?.cost;
+      }
+      if (response.result.variation) {
+        formData.value.cost_price = response.result.variation?.cost_price;
+      }
+      if (
+        response.result.car ||
+        response.result.product_type == "App\\Models\\GroupTour" ||
+        response.result.product_type == "App\\Models\\Airline"
+      ) {
+        formData.value.cost_price = 0;
+      }
+      console.log(formData.value.cost_price, "this is cost");
+    } else {
+      formData.value.cost_price = response.result.cost_price;
+      console.log(formData.value.cost_price, "this is final cost");
+    }
   } catch (error) {
     console.log(error);
   }

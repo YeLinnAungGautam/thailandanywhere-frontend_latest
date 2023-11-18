@@ -78,8 +78,8 @@ const formitem = ref({
   room: null,
   service_date: "",
   cost_price: "",
-  quantity: "1",
-  days: "1",
+  quantity: 1,
+  days: "",
   duration: "",
   selling_price: "",
   comment: "",
@@ -327,16 +327,14 @@ const clickdetaildesClose = () => {
 };
 const sub_qty_total = computed(() => {
   let totalsub = 0;
-  if (formitem.value.days) {
-    totalsub =
-      formitem.value.quantity * formitem.value.cost_price * formitem.value.days;
-    formitem.value.total_amount = totalsub;
-    return totalsub;
-  } else {
+
+  if (formitem.value.cost_price) {
     totalsub = formitem.value.quantity * formitem.value.cost_price;
-    formitem.value.total_amount = totalsub;
-    return totalsub;
+  } else {
+    totalsub = formitem.value.quantity * formitem.value.selling_price;
   }
+  formitem.value.total_amount = totalsub;
+  return totalsub;
 });
 const sub_total = computed(() => {
   let totalsub = 0;
@@ -367,7 +365,7 @@ const addNewitem = () => {
     room: null,
     cost_price: "",
     service_date: "",
-    quantity: "1",
+    quantity: 1,
     days: "",
     duration: "",
     selling_price: "",
@@ -442,7 +440,6 @@ const handlerFeatureFileChange = (e) => {
   let selectedFile = e.target.files[0];
   if (selectedFile) {
     formData.value.cover_image = e.target.files[0];
-    featureImagePreview.value = URL.createObjectURL(selectedFile);
   }
 };
 
@@ -512,17 +509,18 @@ const onSubmitHandler = async () => {
       formData.value.items[x].product_id
     );
     frmData.append("products[" + x + "][day]", formData.value.items[x].days);
-    frmData.append(
-      "products[" + x + "][cost_price]",
-      formData.value.items[x].cost_price
-    );
+    formData.value.items[x].cost_price
+      ? frmData.append(
+          "products[" + x + "][cost_price]",
+          formData.value.items[x].cost_price
+        )
+      : frmData.append(
+          "products[" + x + "][cost_price]",
+          formData.value.items[x].selling_price
+        );
     frmData.append(
       "products[" + x + "][selling_price]",
       formData.value.items[x].selling_price
-    );
-    frmData.append(
-      "products[" + x + "][description]",
-      formData.value.items[x].comment
     );
     frmData.append(
       "products[" + x + "][quantity]",
@@ -549,20 +547,7 @@ const onSubmitHandler = async () => {
           formData.value.items[x].room_id
         )
       : "";
-    formData.value.items[x].product_type == "5" &&
-    formData.value.items[x].checkin_date
-      ? frmData.append(
-          "products[" + x + "][checkin_date]",
-          formData.value.items[x].checkin_date
-        )
-      : "";
-    formData.value.items[x].product_type == "5" &&
-    formData.value.items[x].checkout_date
-      ? frmData.append(
-          "products[" + x + "][checkout_date]",
-          formData.value.items[x].checkout_date
-        )
-      : "";
+
     formData.value.items[x].product_type == "6"
       ? frmData.append(
           "products[" + x + "][ticket_id]",
@@ -579,6 +564,8 @@ const onSubmitHandler = async () => {
       description: "",
       cover_image: "",
       sku_code: "",
+      day: "",
+      night: "",
       images: [],
       items: [],
       price: "",
@@ -673,6 +660,7 @@ onMounted(async () => {});
                     v-model="formData.day"
                     type="number"
                     id="title"
+                    disabled
                     class="h-8 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                   />
                   <p v-if="errors?.day" class="mt-1 text-xs text-red-600">
@@ -699,7 +687,7 @@ onMounted(async () => {});
                     v-model="formData.description"
                     rows="3"
                     id="title"
-                    class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 h-[250px]"
+                    class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                   />
                   <p
                     v-if="errors?.description"
@@ -785,45 +773,16 @@ onMounted(async () => {});
                 </div>
               </div>
               <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
-                <div class="flex items-center justify-between gap-3 mb-3">
-                  <p class="text-xs">Feature Image</p>
+                <div class="flex items-center justify-between gap-3">
+                  <p class="text-xs">Feature Image (pdf file)</p>
                   <input
                     type="file"
                     ref="featureImageInput"
-                    class="hidden"
+                    class=""
                     @change="handlerFeatureFileChange"
                   />
-                  <button
-                    v-if="!featureImagePreview"
-                    @click.prevent="openFileFeaturePicker"
-                    class="text-xs text-[#ff613c]"
-                  ></button>
-                  <button
-                    v-else
-                    @click.prevent="removeFeatureSelectImage"
-                    class="rounded-full text-xs text-red-600 items-center justify-center flex"
-                  >
-                    <XCircleIcon class="w-8 h-8 font-semibold" />
-                  </button>
                 </div>
-                <div
-                  v-if="!featureImagePreview"
-                  @click.prevent="openFileFeaturePicker"
-                  class="cursor-pointer w-full h-[200px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
-                >
-                  <span class="text-xs"
-                    ><i
-                      class="fa-solid fa-plus text-lg font-semibold py-3 px-5 bg-[#ff613c] rounded-full shadow text-white"
-                    ></i
-                  ></span>
-                </div>
-                <div v-if="featureImagePreview" class="">
-                  <img
-                    class="h-auto w-full rounded"
-                    :src="featureImagePreview"
-                    alt=""
-                  />
-                </div>
+
                 <p v-if="errors?.image" class="mt-1 text-xs text-red-600">
                   {{ errors.image[0] }}
                 </p>
@@ -840,351 +799,6 @@ onMounted(async () => {});
             </div>
             <div class="col-span-1 p-3 bg-white rounded">
               <div class="col-span-1">
-                <Modal :isOpen="desopen" @closeModal="desopen = false">
-                  <DialogPanel
-                    class="w-full max-w-md p-4 space-y-2 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
-                  >
-                    <DialogTitle
-                      as="h3"
-                      class="mb-5 font-medium leading-6 text-gray-900 text-md"
-                    >
-                      Description & Special Request
-                    </DialogTitle>
-                    <div class="grid grid-cols-1 space-y-2">
-                      <p class="text-xs">Description</p>
-                      <textarea
-                        name=""
-                        id=""
-                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                        cols="30"
-                        rows="3"
-                        v-model="formitem.comment"
-                      ></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-1 space-y-2">
-                      <p class="text-xs">Special request</p>
-                      <textarea
-                        name=""
-                        id=""
-                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                        cols="30"
-                        rows="3"
-                        v-model="formitem.special_request"
-                      ></textarea>
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="formitem.product_type == '5'"
-                    >
-                      <p class="text-xs">Total Number of Rooms</p>
-                      <input
-                        type="text"
-                        v-model="formitem.quantity"
-                        name=""
-                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                        id=""
-                        placeholder="xxx , xxx , xxx"
-                      />
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="
-                        formitem.product_type == '1' ||
-                        formitem.product_type == '3'
-                      "
-                    >
-                      <p class="text-xs">Pickup Location</p>
-                      <textarea
-                        name=""
-                        id=""
-                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                        cols="30"
-                        rows="1"
-                        v-model="formitem.pickup_location"
-                      ></textarea>
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="
-                        formitem.product_type == '1' ||
-                        formitem.product_type == '3'
-                      "
-                    >
-                      <p class="text-xs">Pickup Time</p>
-                      <input
-                        type="time"
-                        name=""
-                        v-model="formitem.pickup_time"
-                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                        id=""
-                      />
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="
-                        formitem.product_type == '1' ||
-                        formitem.product_type == '3'
-                      "
-                    >
-                      <p class="text-xs">Dropoff Location</p>
-                      <textarea
-                        name=""
-                        id=""
-                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                        cols="30"
-                        rows="1"
-                        v-model="formitem.dropoff_location"
-                      ></textarea>
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="
-                        formitem.product_type == '1' ||
-                        formitem.product_type == '3'
-                      "
-                    >
-                      <p class="text-xs">Route Plan</p>
-                      <textarea
-                        name=""
-                        id=""
-                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                        cols="30"
-                        rows="1"
-                        v-model="formitem.route_plan"
-                      ></textarea>
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="formitem.product_type == '3'"
-                    >
-                      <p class="text-xs">Customer Attachment</p>
-                      <input type="file" name="" @change="customerFile" id="" />
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="formitem.product_type == '5'"
-                    >
-                      <p class="text-xs">Checkin Date</p>
-                      <input
-                        type="date"
-                        class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
-                        id=""
-                        v-model="formitem.checkin_date"
-                      />
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="formitem.product_type == '5'"
-                    >
-                      <p class="text-xs">Checkout Date</p>
-                      <input
-                        type="date"
-                        class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
-                        id=""
-                        v-model="formitem.checkout_date"
-                      />
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="formitem.product_type == '5'"
-                    >
-                      <p class="text-xs">Days</p>
-                      <input
-                        type="number"
-                        disabled
-                        class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
-                        id=""
-                        v-model="formitem.days"
-                      />
-                    </div>
-                    <div class="flex items-center justify-between">
-                      <button @click="closedes" class="text-sm">close</button>
-                      <button
-                        @click="calculateRateRoom"
-                        class="px-2 py-1 text-sm text-white bg-[#ff613c] rounded"
-                      >
-                        + add
-                      </button>
-                    </div>
-                  </DialogPanel>
-                </Modal>
-                <Modal
-                  :isOpen="isOpenCustomerCreate"
-                  @closeModal="isOpenCustomerCreate = false"
-                >
-                  <DialogPanel
-                    class="w-full max-w-[800px] transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
-                  >
-                    <CustomerCreate action="sales" />
-                    <div class="flex items-center justify-end">
-                      <button @click="customerClose" class="text-sm">
-                        close
-                      </button>
-                    </div>
-                  </DialogPanel>
-                </Modal>
-                <Modal
-                  :isOpen="clickdetaildes"
-                  @closeModal="clickdetaildes = false"
-                >
-                  <DialogPanel
-                    class="w-full max-w-md p-4 space-y-2 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
-                  >
-                    <DialogTitle
-                      as="h3"
-                      class="mb-5 font-medium leading-6 text-gray-900 text-md"
-                    >
-                      Detail Description & Special Request
-                    </DialogTitle>
-                    <div class="grid grid-cols-1 space-y-2">
-                      <p class="text-sm">Description</p>
-                      <textarea
-                        name=""
-                        id=""
-                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                        cols="30"
-                        rows="5"
-                        v-model="itemDes"
-                      ></textarea>
-                    </div>
-                    <div class="grid grid-cols-1 space-y-2">
-                      <p class="text-sm">Special Request</p>
-                      <textarea
-                        name=""
-                        id=""
-                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                        cols="30"
-                        rows="5"
-                        v-model="itemSpecial"
-                      ></textarea>
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="itemType == '5'"
-                    >
-                      <p class="text-xs">Total Number of Room</p>
-                      <input
-                        v-model="itemQ"
-                        type="text"
-                        name=""
-                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                        id=""
-                        placeholder="xxx , xxx , xxx"
-                      />
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="itemType == '1' || itemType == '3'"
-                    >
-                      <p class="text-sm">Pickup Location</p>
-                      <textarea
-                        name=""
-                        id=""
-                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                        cols="30"
-                        rows="1"
-                        v-model="itemPickup"
-                      ></textarea>
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="itemType == '1' || itemType == '3'"
-                    >
-                      <p class="text-sm">Pickup Time</p>
-                      <input
-                        type="time"
-                        name=""
-                        v-model="itemPickupTime"
-                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                        id=""
-                      />
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="itemType == '1' || itemType == '3'"
-                    >
-                      <p class="text-sm">Dropoff Location</p>
-                      <textarea
-                        name=""
-                        id=""
-                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                        cols="30"
-                        rows="1"
-                        v-model="itemDropoff"
-                      ></textarea>
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="itemType == '1' || itemType == '3'"
-                    >
-                      <p class="text-sm">Route Plan</p>
-                      <textarea
-                        name=""
-                        id=""
-                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                        cols="30"
-                        rows="1"
-                        v-model="itemRoutePlan"
-                      ></textarea>
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="itemType == '3'"
-                    >
-                      <p class="text-sm">customer_attachment</p>
-                      <p>...</p>
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="itemType == '5'"
-                    >
-                      <p class="text-sm">Checkin Date</p>
-                      <input
-                        type="date"
-                        class="p-2 border border-gray-300 focus:outline-none rounded-sm text-xs"
-                        v-model="itemCheckIn"
-                        id=""
-                      />
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="itemType == '5'"
-                    >
-                      <p class="text-sm">Checkout Date</p>
-                      <input
-                        type="date"
-                        class="p-2 border border-gray-300 focus:outline-none rounded-sm text-xs"
-                        v-model="itemCheckOut"
-                        id=""
-                      />
-                    </div>
-                    <div
-                      class="grid grid-cols-1 space-y-2"
-                      v-if="itemType == '5'"
-                    >
-                      <p class="text-xs">Days</p>
-                      <input
-                        type="number"
-                        disabled
-                        class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
-                        id=""
-                        v-model="itemDays"
-                      />
-                    </div>
-                    <div class="flex items-center justify-between">
-                      <button @click="clickdetaildesClose" class="text-sm">
-                        close
-                      </button>
-                      <button
-                        @click="clickdetaildesUpdate(indexValue)"
-                        class="px-2 py-1 text-sm text-white bg-[#ff613c] rounded"
-                      >
-                        update
-                      </button>
-                    </div>
-                  </DialogPanel>
-                </Modal>
                 <div class="px-6 pt-3">
                   <table class="w-full">
                     <thead>
@@ -1380,7 +994,7 @@ onMounted(async () => {});
                             class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
                           />
                         </td>
-                        <td
+                        <!-- <td
                           v-if="formitem.product_type == '5'"
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
@@ -1393,13 +1007,13 @@ onMounted(async () => {});
                               )
                             }}
                           </p>
-                        </td>
+                        </td> -->
                         <td
-                          v-if="formitem.product_type != '5'"
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <input
                             type="number"
+                            disabled
                             v-model="formitem.quantity"
                             class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
                           />
@@ -1407,11 +1021,25 @@ onMounted(async () => {});
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <input
+                          <!-- <input
                             type="number"
                             v-model="formitem.days"
                             class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
-                          />
+                          /> -->
+                          <select
+                            name="days"
+                            id=""
+                            class="border border-gray-400 rounded px-2 py-2"
+                            v-model="formitem.days"
+                          >
+                            <option
+                              :value="d"
+                              v-for="d in formData.night"
+                              :key="d"
+                            >
+                              {{ d }}
+                            </option>
+                          </select>
                         </td>
 
                         <td
@@ -1424,7 +1052,7 @@ onMounted(async () => {});
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <button
+                          <!-- <button
                             class="mr-4 text-sm text-blue-600"
                             @click="clickdes"
                           >
@@ -1432,7 +1060,7 @@ onMounted(async () => {});
                               class="fa-solid fa-ellipsis text-xs font-semibold px-1 py-[1.5px] bg-blue-500 rounded-full shadow text-white"
                               title="add description"
                             ></i>
-                          </button>
+                          </button> -->
                           <button
                             @click.prevent="addNewitem"
                             class="flex-1"
@@ -1630,15 +1258,18 @@ onMounted(async () => {});
                           <!-- <p v-if="item.product_type != '5'">
                             {{ item.cost_price * item.quantity }}
                           </p> -->
-                          <p>
-                            {{ item.cost_price * item.quantity * item.days }}
+                          <p v-if="item.cost_price">
+                            {{ item.cost_price * item.quantity }}
+                          </p>
+                          <p v-if="!item.cost_price">
+                            {{ item.selling_price * item.quantity }}
                           </p>
                         </td>
 
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <button
+                          <!-- <button
                             class="mr-4 text-sm text-blue-600"
                             @click="clickdetaildesToggle(item, index)"
                           >
@@ -1646,7 +1277,7 @@ onMounted(async () => {});
                               class="fa-solid fa-ellipsis text-xs font-semibold px-1 py-[1.5px] bg-blue-500 rounded-full shadow text-white"
                               title="add description"
                             ></i>
-                          </button>
+                          </button> -->
                           <button
                             class="text-sm text-red-600"
                             @click.prevent="removeFromitem(index)"
@@ -1751,8 +1382,6 @@ onMounted(async () => {});
               class="bg-gray-300"
               v-if="
                 formData.items.length == 0 ||
-                formData.images.length == 0 ||
-                formData.cover_image == '' ||
                 formData.name == '' ||
                 formData.description == ''
               "
@@ -1763,8 +1392,6 @@ onMounted(async () => {});
               @click.prevent="onSubmitHandler"
               v-if="
                 formData.items.length != 0 &&
-                formData.images.length != 0 &&
-                formData.cover_image != '' &&
                 formData.name != '' &&
                 formData.description != ''
               "

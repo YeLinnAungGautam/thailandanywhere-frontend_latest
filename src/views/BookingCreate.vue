@@ -25,6 +25,7 @@ import { useHotelStore } from "../stores/hotel";
 import { useAirLineStore } from "../stores/airline";
 import { useAuthStore } from "../stores/auth";
 import { useAdminStore } from "../stores/admin";
+import { addDays } from "date-fns";
 
 // const enabled = ref(false);
 
@@ -173,7 +174,9 @@ const formData = ref({
 const sub_total = computed(() => {
   let totalsub = 0;
   for (let i = 0; i < formData.value.items.length; i++) {
-    totalsub = totalsub + formData.value.items[i].total_amount;
+    if (!formData.value.items[i].from) {
+      totalsub = totalsub + formData.value.items[i].total_amount;
+    }
   }
   return totalsub;
 });
@@ -298,7 +301,18 @@ const chooseType = async () => {
 const carType = ref([]);
 const roomType = ref([]);
 
-const addArrayToList = (arr) => {
+const addArrayToListPush = async (d) => {
+  const res = await inclusiveStore.getDetailAction(d.product_id);
+  console.log(d.quantity, "this is array result");
+  addArrayToList(res.result, d.service_date, d.quantity);
+};
+const serviceDateCal = (dateCurrent, day) => {
+  console.log(dateCurrent, day);
+  let dayChoose = day - 1;
+  return addDays(new Date(dateCurrent), dayChoose).toISOString().split("T")[0];
+};
+
+const addArrayToList = (arr, date, qty) => {
   console.log(arr, "this is array");
   if (arr.private_van_tours.length > 0) {
     for (let x = 0; x < arr.private_van_tours.length; x++) {
@@ -307,11 +321,12 @@ const addArrayToList = (arr) => {
       data.product_id = arr.private_van_tours[x].product.id;
       data.car_id = arr.private_van_tours[x].car.id;
       data.car_list = arr.private_van_tours[x].product.cars;
-      data.service_date = "";
+      data.service_date = serviceDateCal(date, arr.private_van_tours[x].day);
       data.selling_price = arr.private_van_tours[x].selling_price;
-      data.quantity = arr.private_van_tours[x].quantity;
+      data.quantity = qty;
       data.description = "";
-      data.total_amount = 0;
+      data.total_amount = data.selling_price * data.quantity;
+      data.from = "in";
       formData.value.items.push(data);
     }
   }
@@ -320,11 +335,12 @@ const addArrayToList = (arr) => {
       let data = {};
       data.product_type = "2";
       data.product_id = arr.group_tours[x].product.id;
-      data.service_date = "";
+      data.service_date = serviceDateCal(date, arr.group_tours[x].day);
       data.selling_price = arr.group_tours[x].selling_price;
-      data.quantity = arr.group_tours[x].quantity;
+      data.quantity = qty;
       data.description = "";
-      data.total_amount = 0;
+      data.total_amount = data.selling_price * data.quantity;
+      data.from = "in";
       formData.value.items.push(data);
     }
   }
@@ -335,11 +351,12 @@ const addArrayToList = (arr) => {
       data.product_id = arr.airport_pickups[x].product.id;
       data.car_id = arr.airport_pickups[x].car.id;
       data.car_list = arr.airport_pickups[x].product.cars;
-      data.service_date = "";
+      data.service_date = serviceDateCal(date, arr.airport_pickups[x].day);
       data.selling_price = arr.airport_pickups[x].selling_price;
-      data.quantity = arr.airport_pickups[x].quantity;
+      data.quantity = qty;
       data.description = "";
-      data.total_amount = 0;
+      data.total_amount = data.selling_price * data.quantity;
+      data.from = "in";
       formData.value.items.push(data);
     }
   }
@@ -351,11 +368,12 @@ const addArrayToList = (arr) => {
       data.car_id = arr.entrance_tickets[x].variation.id;
       data.car_list =
         arr.entrance_tickets[x].variation.entrance_ticket.variations;
-      data.service_date = "";
+      data.service_date = serviceDateCal(date, arr.entrance_tickets[x].day);
       data.selling_price = arr.entrance_tickets[x].selling_price;
-      data.quantity = arr.entrance_tickets[x].quantity;
+      data.quantity = qty;
       data.description = "";
-      data.total_amount = 0;
+      data.total_amount = data.selling_price * data.quantity;
+      data.from = "in";
       formData.value.items.push(data);
     }
   }
@@ -366,14 +384,15 @@ const addArrayToList = (arr) => {
       data.product_id = arr.hotels[x].product.id;
       data.car_id = arr.hotels[x].room.id;
       data.car_list = arr.hotels[x].room.hotel.rooms;
-      data.service_date = "";
+      data.service_date = serviceDateCal(date, arr.hotels[x].day);
       data.selling_price = arr.hotels[x].selling_price;
-      data.checkin_date = arr.hotels[x].checkin_date;
-      data.checkout_date = arr.hotels[x].checkout_date;
-      data.days = calculateDaysBetween(data.checkin_date, data.checkout_date);
-      data.quantity = arr.hotels[x].quantity;
+      data.checkin_date = date;
+      data.checkout_date = serviceDateCal(date, arr.night);
+      data.days = arr.hotels[x].day;
+      data.quantity = Math.ceil(qty / 2);
       data.description = "";
-      data.total_amount = 0;
+      data.total_amount = data.selling_price * data.quantity;
+      data.from = "in";
       formData.value.items.push(data);
     }
   }
@@ -384,11 +403,12 @@ const addArrayToList = (arr) => {
       data.product_id = arr.airline_tickets[x].product.id;
       data.car_id = arr.airline_tickets[x].ticket.airline.id;
       data.car_list = arr.airline_tickets[x].ticket.airline.tickets;
-      data.service_date = "";
+      data.service_date = serviceDateCal(date, arr.airline_tickets[x].day);
       data.selling_price = arr.airline_tickets[x].selling_price;
-      data.quantity = arr.airline_tickets[x].quantity;
+      data.quantity = qty;
       data.description = "";
-      data.total_amount = 0;
+      data.total_amount = data.selling_price * data.quantity;
+      data.from = "in";
       formData.value.items.push(data);
     }
   }
@@ -422,7 +442,7 @@ const chooseCar = async (id) => {
     console.log(res);
     formitem.value.comment = res.result.description;
     formitem.value.selling_price = res.result.price;
-    addArrayToList(res.result);
+    // addArrayToList(res.result);
   } else if (formitem.value.product_type == "6") {
     const res = await hotelStore.getDetailAction(id);
     // formitem.value.comment = res.result.description;
@@ -504,7 +524,10 @@ const chooseCarPrice = async (type, productId, id) => {
 };
 const addNewitem = () => {
   formData.value.items.push(formitem.value);
-  console.log(formData.value.items);
+  if (formitem.value.product_type == "5") {
+    addArrayToListPush(formitem.value);
+  }
+  console.log(formData.value.items, "this is items");
   formitem.value = {
     product_type: "",
     product_id: "",
@@ -535,6 +558,7 @@ const addNewitem = () => {
     room_number: "",
   };
   todayVali.value = false;
+
   addToggle();
 };
 
@@ -721,6 +745,9 @@ const onSubmitHandler = async () => {
       "items[" + x + "][product_id]",
       formData.value.items[x].product_id
     );
+    if (formData.value.items[x].from) {
+      frmData.append("items[" + x + "][from]", formData.value.items[x].from);
+    }
 
     if (formData.value.items[x].product_type != "6") {
       frmData.append(
@@ -807,10 +834,12 @@ const onSubmitHandler = async () => {
       formData.value.items[x].product_type != "4" &&
       formData.value.items[x].product_type != "7"
     ) {
-      frmData.append(
-        "items[" + x + "][car_id]",
-        formData.value.items[x].car_id
-      );
+      if (formData.value.items[x].car_id) {
+        frmData.append(
+          "items[" + x + "][car_id]",
+          formData.value.items[x].car_id
+        );
+      }
     } else if (formData.value.items[x].product_type == "4") {
       frmData.append(
         "items[" + x + "][variation_id]",
@@ -1933,7 +1962,12 @@ onMounted(async () => {
                             class="text-lg text-yellow-500 fa-solid fa-circle-exclamation"
                           ></i> -->
                           <i
+                            v-if="!item.from"
                             class="text-lg text-red-600 fa-solid fa-circle-xmark"
+                          ></i>
+                          <i
+                            v-if="item.from"
+                            class="text-lg text-orange-600 fa-solid fa-circle-info"
                           ></i>
                         </td>
                         <td
@@ -2092,7 +2126,7 @@ onMounted(async () => {
                           v-if="item.product_type == '6'"
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <p>
+                          <p v-if="!item.from">
                             {{
                               hotelQ(
                                 item.product_type,
@@ -2101,6 +2135,7 @@ onMounted(async () => {
                               )
                             }}
                           </p>
+                          <p v-if="item.from">{{ item.quantity }}</p>
                         </td>
                         <td
                           v-if="item.product_type != '6'"
@@ -2150,6 +2185,7 @@ onMounted(async () => {
                             ></i>
                           </button>
                           <button
+                            v-if="!item.from"
                             class="text-sm text-red-600"
                             @click.prevent="removeFromitem(index)"
                           >

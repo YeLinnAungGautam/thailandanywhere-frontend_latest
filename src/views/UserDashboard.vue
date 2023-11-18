@@ -18,9 +18,11 @@ const { dashboard, loading, monthlyData } = storeToRefs(dashboardStore);
 
 const checkIndex = ref("");
 const check = (arr) => {
-  checkIndex.value = Object.keys(arr).findIndex(
-    (key) => arr[key] === authStore.user.name
-  );
+  if (arr != null) {
+    checkIndex.value = Object.keys(arr).findIndex(
+      (key) => arr[key] === authStore.user.name
+    );
+  }
 };
 const checkMonthIndex = ref("");
 const checkIndexMonth = (arr) => {
@@ -56,16 +58,19 @@ const isCurrentMonth = (date) => {
   // Extract the current year and month
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
+  const preMonth = currentDate.getMonth();
 
   // Extract the selected year and month
   const [selectedYear, selectedMonth] = date.split("-").map(Number);
 
   if (selectedYear === currentYear && selectedMonth === currentMonth) {
     isCurrent.value = "current";
+  } else if (selectedYear === currentYear && selectedMonth === preMonth) {
+    isCurrent.value = "pre";
   } else if (selectedYear === currentYear && selectedMonth > currentMonth) {
     isCurrent.value = "next";
   } else if (selectedYear === currentYear && selectedMonth < currentMonth) {
-    isCurrent.value = "pre";
+    isCurrent.value = "prenoshow";
   }
   console.log(isCurrent.value);
 };
@@ -106,11 +111,13 @@ const getCurrent = () => {
   selectMonth.value = data;
 };
 
+// const isPreMonth = ref(false);
+
 onMounted(async () => {
-  await dashboardStore.getAction();
+  // await dashboardStore.getAction();
   getCurrent();
-  console.log(dashboard.value.agents, "this is dash");
-  check(dashboard.value.agents);
+  console.log(dashboard.value?.agents, "this is dash");
+  check(dashboard.value?.agents);
 });
 
 watch(selectMonth, async (newValue) => {
@@ -149,8 +156,40 @@ watch(selectMonth, async (newValue) => {
               >
                 This month , isn't sales
               </p>
-              <p class="text-base text-[#FF5B00]" v-if="isCurrent == 'pre'">
-                commission already receipt
+              <p
+                class="text-base text-[#FF5B00]"
+                v-if="
+                  (checkMonthIndex == -1 || checkMonthIndex == '') &&
+                  isCurrent == 'pre'
+                "
+              >
+                This month , isn't sales
+              </p>
+              <p
+                class="text-base text-[#FF5B00]"
+                v-if="isCurrent == 'prenoshow'"
+              >
+                This month , commission already receipt
+              </p>
+              <p
+                class="text-base"
+                v-if="
+                  checkMonthIndex != -1 &&
+                  checkMonthIndex != '' &&
+                  isCurrent == 'pre'
+                "
+              >
+                {{ monthlyData?.agents[checkMonthIndex] }}
+              </p>
+              <p
+                class="text-[#FF5B00] text-base"
+                v-if="
+                  checkMonthIndex != -1 &&
+                  checkMonthIndex != '' &&
+                  isCurrent == 'pre'
+                "
+              >
+                {{ monthlyData?.amount[checkMonthIndex] }}
               </p>
               <p class="text-base text-[#FF5B00]" v-if="isCurrent == 'next'">
                 no record found
@@ -179,7 +218,7 @@ watch(selectMonth, async (newValue) => {
           </div>
           <div class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4">
             <div class="flex justify-between items-center">
-              <p>Commission Price</p>
+              <p>Commission Price by Month</p>
             </div>
             <div class="text-base flex justify-between items-center">
               <p
@@ -191,11 +230,40 @@ watch(selectMonth, async (newValue) => {
               >
                 This month , isn't sales
               </p>
-              <p class="text-base text-[#FF5B00]" v-if="isCurrent == 'pre'">
+              <p
+                class="text-base text-[#FF5B00]"
+                v-if="isCurrent == 'prenoshow'"
+              >
+                This month , commission already receipt
+              </p>
+              <p
+                class="text-base text-[#FF5B00]"
+                v-if="isCurrent == 'pre' && checkMonthIndex == -1"
+              >
                 commission already receipt
               </p>
               <p class="text-base text-[#FF5B00]" v-if="isCurrent == 'next'">
                 no record found
+              </p>
+              <p
+                class="text-base"
+                v-if="
+                  checkMonthIndex != -1 &&
+                  checkMonthIndex != '' &&
+                  isCurrent == 'pre'
+                "
+              >
+                {{ monthlyData?.agents[checkMonthIndex] }}'s commissions :
+              </p>
+              <p
+                class="text-[#FF5B00] text-base"
+                v-if="
+                  checkMonthIndex != -1 &&
+                  checkMonthIndex != '' &&
+                  isCurrent == 'pre'
+                "
+              >
+                {{ monthlyData?.amount[checkMonthIndex] * 1000 }}
               </p>
               <p
                 class="text-base"

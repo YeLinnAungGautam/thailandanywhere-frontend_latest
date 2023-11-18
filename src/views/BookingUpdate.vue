@@ -24,6 +24,7 @@ import { useHotelStore } from "../stores/hotel";
 import { useAirLineStore } from "../stores/airline";
 import { useAuthStore } from "../stores/auth";
 import { useAdminStore } from "../stores/admin";
+import { addDays } from "date-fns";
 
 const toast = useToast();
 const sidebar = useSidebarStore();
@@ -192,11 +193,128 @@ const formData = ref({
 //   return total_sub;
 // });
 
+const addArrayToListPush = async (d) => {
+  const res = await inclusiveStore.getDetailAction(d.product_id);
+  console.log(d.quantity, "this is array result");
+  addArrayToList(res.result, d.service_date, d.quantity);
+};
+const serviceDateCal = (dateCurrent, day) => {
+  console.log(dateCurrent, day);
+  let dayChoose = day - 1;
+  return addDays(new Date(dateCurrent), dayChoose).toISOString().split("T")[0];
+};
+
+const addArrayToList = (arr, date, qty) => {
+  console.log(arr, "this is array");
+  if (arr.private_van_tours.length > 0) {
+    for (let x = 0; x < arr.private_van_tours.length; x++) {
+      let data = {};
+      data.product_type = "1";
+      data.product_id = arr.private_van_tours[x].product.id;
+      data.car_id = arr.private_van_tours[x].car.id;
+      data.car_list = arr.private_van_tours[x].product.cars;
+      data.service_date = serviceDateCal(date, arr.private_van_tours[x].day);
+      data.selling_price = arr.private_van_tours[x].selling_price;
+      data.quantity = qty;
+      data.description = "";
+      data.total_amount = data.selling_price * data.quantity;
+      data.from = "in";
+      formData.value.items.push(data);
+    }
+  }
+  if (arr.group_tours.length > 0) {
+    for (let x = 0; x < arr.group_tours.length; x++) {
+      let data = {};
+      data.product_type = "2";
+      data.product_id = arr.group_tours[x].product.id;
+      data.service_date = serviceDateCal(date, arr.group_tours[x].day);
+      data.selling_price = arr.group_tours[x].selling_price;
+      data.quantity = qty;
+      data.car_id = "";
+      data.description = "";
+      data.total_amount = data.selling_price * data.quantity;
+      data.from = "in";
+      formData.value.items.push(data);
+    }
+  }
+  if (arr.airport_pickups.length > 0) {
+    for (let x = 0; x < arr.airport_pickups.length; x++) {
+      let data = {};
+      data.product_type = "3";
+      data.product_id = arr.airport_pickups[x].product.id;
+      data.car_id = arr.airport_pickups[x].car.id;
+      data.car_list = arr.airport_pickups[x].product.cars;
+      data.service_date = serviceDateCal(date, arr.airport_pickups[x].day);
+      data.selling_price = arr.airport_pickups[x].selling_price;
+      data.quantity = qty;
+      data.description = "";
+      data.total_amount = data.selling_price * data.quantity;
+      data.from = "in";
+      formData.value.items.push(data);
+    }
+  }
+  if (arr.entrance_tickets.length > 0) {
+    for (let x = 0; x < arr.entrance_tickets.length; x++) {
+      let data = {};
+      data.product_type = "4";
+      data.product_id = arr.entrance_tickets[x].product.id;
+      data.car_id = arr.entrance_tickets[x].variation.id;
+      data.car_list =
+        arr.entrance_tickets[x].variation.entrance_ticket.variations;
+      data.service_date = serviceDateCal(date, arr.entrance_tickets[x].day);
+      data.selling_price = arr.entrance_tickets[x].selling_price;
+      data.quantity = qty;
+      data.description = "";
+      data.total_amount = data.selling_price * data.quantity;
+      data.from = "in";
+      formData.value.items.push(data);
+    }
+  }
+  if (arr.hotels.length > 0) {
+    for (let x = 0; x < arr.hotels.length; x++) {
+      let data = {};
+      data.product_type = "6";
+      data.product_id = arr.hotels[x].product.id;
+      data.car_id = arr.hotels[x].room.id;
+      data.car_list = arr.hotels[x].room.hotel.rooms;
+      data.service_date = serviceDateCal(date, arr.hotels[x].day);
+      data.selling_price = arr.hotels[x].selling_price;
+      data.checkin_date = date;
+      data.checkout_date = serviceDateCal(date, arr.night);
+      data.days = arr.hotels[x].day;
+      data.quantity = Math.ceil(qty / 2);
+      data.description = "";
+      data.total_amount = data.selling_price * data.quantity;
+      data.from = "in";
+      formData.value.items.push(data);
+    }
+  }
+  if (arr.airline_tickets.length > 0) {
+    for (let x = 0; x < arr.airline_tickets.length; x++) {
+      let data = {};
+      data.product_type = "7";
+      data.product_id = arr.airline_tickets[x].product.id;
+      data.car_id = arr.airline_tickets[x].ticket.airline.id;
+      data.car_list = arr.airline_tickets[x].ticket.airline.tickets;
+      data.service_date = serviceDateCal(date, arr.airline_tickets[x].day);
+      data.selling_price = arr.airline_tickets[x].selling_price;
+      data.quantity = qty;
+      data.description = "";
+      data.total_amount = data.selling_price * data.quantity;
+      data.from = "in";
+      formData.value.items.push(data);
+    }
+  }
+};
+
 const sub_total = ref("");
 const getSubTotal = () => {
   let data = 0;
   for (let i = 0; i < formData.value.items.length; i++) {
-    data = data + formData.value.items[i].total_amount;
+    // data = data + formData.value.items[i].total_amount;
+    if (!formData.value.items[i].from) {
+      data = data + formData.value.items[i].total_amount;
+    }
   }
   sub_total.value = data;
 };
@@ -339,6 +457,10 @@ const customerFile = (e) => {
 
 const addNewitem = () => {
   formData.value.items.push(formitem.value);
+  if (formitem.value.product_type == "5") {
+    addArrayToListPush(formitem.value);
+    getSubTotal();
+  }
   console.log(formData.value.items);
   formitem.value = {
     product_type: "",
@@ -617,9 +739,22 @@ const onSubmitHandler = async () => {
         formData.value.items[x].car_id
       );
     } else if (formData.value.items[x].product_type == "5") {
-      frmData.append("items[" + x + "][car_id]", "0");
+      // frmData.append("items[" + x + "][car_id]", "0");
+      if (formData.value.items[x].car_id) {
+        frmData.append(
+          "items[" + x + "][car_id]",
+          formData.value.items[x].car_id
+        );
+      }
     } else if (formData.value.items[x].product_type == "2") {
-      frmData.append("items[" + x + "][car_id]", "0");
+      if (formData.value.items[x].car_id) {
+        frmData.append(
+          "items[" + x + "][car_id]",
+          formData.value.items[x].car_id
+        );
+      } else {
+        frmData.append("items[" + x + "][car_id]", 0);
+      }
     } else if (formData.value.items[x].product_type == "4") {
       frmData.append(
         "items[" + x + "][variation_id]",
@@ -2314,10 +2449,19 @@ onMounted(async () => {
                             {{ strippedNumber(item.crm_id) }}
                           </td>
                           <td
-                            v-if="!item.crm_id"
+                            v-if="!item.crm_id && !item.from"
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
                             -
+                          </td>
+                          <td
+                            v-if="!item.crm_id && item.from"
+                            class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
+                          >
+                            <i
+                              v-if="item.from"
+                              class="text-lg text-orange-600 fa-solid fa-circle-info"
+                            ></i>
                           </td>
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -2643,7 +2787,7 @@ onMounted(async () => {
                             "
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
-                            <p>
+                            <p v-if="!item.from">
                               {{
                                 hotelQ(
                                   item.product_type,
@@ -2652,6 +2796,7 @@ onMounted(async () => {
                                 )
                               }}
                             </p>
+                            <p v-if="item.from">{{ item.quantity }}</p>
                           </td>
                           <td
                             v-if="
@@ -2715,7 +2860,7 @@ onMounted(async () => {
                               ></i>
                             </button>
                             <button
-                              v-if="authStore.isSuperAdmin"
+                              v-if="authStore.isSuperAdmin && !item.from"
                               class="text-sm text-red-600"
                               @click.prevent="removeFromitem(index)"
                             >

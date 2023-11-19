@@ -1039,6 +1039,7 @@ onMounted(async () => {});
                             >
                               {{ d }}
                             </option>
+                            <option class="text-xs" :value="100">all</option>
                           </select>
                         </td>
 
@@ -1250,7 +1251,8 @@ onMounted(async () => {});
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <p>{{ item.days }}</p>
+                          <p v-if="item.days != 100">{{ item.days }} days</p>
+                          <p v-if="item.days == 100">all days</p>
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"

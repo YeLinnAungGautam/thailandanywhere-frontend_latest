@@ -213,12 +213,17 @@ const addArrayToList = (arr, date, qty) => {
       data.product_id = arr.private_van_tours[x].product.id;
       data.car_id = arr.private_van_tours[x].car.id;
       data.car_list = arr.private_van_tours[x].product.cars;
-      data.service_date = serviceDateCal(date, arr.private_van_tours[x].day);
+      // data.service_date = serviceDateCal(date, arr.private_van_tours[x].day);
+      if (arr.private_van_tours[x].day != 100) {
+        data.service_date = serviceDateCal(date, arr.private_van_tours[x].day);
+      } else {
+        data.service_date = date;
+      }
       data.selling_price = arr.private_van_tours[x].selling_price;
       data.quantity = qty;
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
-      data.from = "in";
+      data.is_inclusive = 1;
       formData.value.items.push(data);
     }
   }
@@ -227,13 +232,16 @@ const addArrayToList = (arr, date, qty) => {
       let data = {};
       data.product_type = "2";
       data.product_id = arr.group_tours[x].product.id;
-      data.service_date = serviceDateCal(date, arr.group_tours[x].day);
+      if (arr.group_tours[x].day != 100) {
+        data.service_date = serviceDateCal(date, arr.group_tours[x].day);
+      } else {
+        data.service_date = date;
+      }
       data.selling_price = arr.group_tours[x].selling_price;
       data.quantity = qty;
-      data.car_id = "";
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
-      data.from = "in";
+      data.is_inclusive = 1;
       formData.value.items.push(data);
     }
   }
@@ -244,12 +252,17 @@ const addArrayToList = (arr, date, qty) => {
       data.product_id = arr.airport_pickups[x].product.id;
       data.car_id = arr.airport_pickups[x].car.id;
       data.car_list = arr.airport_pickups[x].product.cars;
-      data.service_date = serviceDateCal(date, arr.airport_pickups[x].day);
+      // data.service_date = serviceDateCal(date, arr.airport_pickups[x].day);
+      if (arr.airport_pickups[x].day != 100) {
+        data.service_date = serviceDateCal(date, arr.airport_pickups[x].day);
+      } else {
+        data.service_date = date;
+      }
       data.selling_price = arr.airport_pickups[x].selling_price;
       data.quantity = qty;
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
-      data.from = "in";
+      data.is_inclusive = 1;
       formData.value.items.push(data);
     }
   }
@@ -261,12 +274,17 @@ const addArrayToList = (arr, date, qty) => {
       data.car_id = arr.entrance_tickets[x].variation.id;
       data.car_list =
         arr.entrance_tickets[x].variation.entrance_ticket.variations;
-      data.service_date = serviceDateCal(date, arr.entrance_tickets[x].day);
+      // data.service_date = serviceDateCal(date, arr.entrance_tickets[x].day);
+      if (arr.entrance_tickets[x].day != 100) {
+        data.service_date = serviceDateCal(date, arr.entrance_tickets[x].day);
+      } else {
+        data.service_date = date;
+      }
       data.selling_price = arr.entrance_tickets[x].selling_price;
       data.quantity = qty;
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
-      data.from = "in";
+      data.is_inclusive = 1;
       formData.value.items.push(data);
     }
   }
@@ -277,15 +295,22 @@ const addArrayToList = (arr, date, qty) => {
       data.product_id = arr.hotels[x].product.id;
       data.car_id = arr.hotels[x].room.id;
       data.car_list = arr.hotels[x].room.hotel.rooms;
-      data.service_date = serviceDateCal(date, arr.hotels[x].day);
+      if (arr.hotels[x].day != 100) {
+        data.service_date = serviceDateCal(date, arr.hotels[x].day);
+        data.checkin_date = date;
+        data.checkout_date = serviceDateCal(date, arr.night);
+        data.days = arr.hotels[x].day;
+      } else {
+        data.service_date = date;
+        data.checkin_date = date;
+        data.checkout_date = serviceDateCal(date, arr.night + 1);
+        data.days = arr.night;
+      }
       data.selling_price = arr.hotels[x].selling_price;
-      data.checkin_date = date;
-      data.checkout_date = serviceDateCal(date, arr.night);
-      data.days = arr.hotels[x].day;
       data.quantity = Math.ceil(qty / 2);
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
-      data.from = "in";
+      data.is_inclusive = 1;
       formData.value.items.push(data);
     }
   }
@@ -296,12 +321,17 @@ const addArrayToList = (arr, date, qty) => {
       data.product_id = arr.airline_tickets[x].product.id;
       data.car_id = arr.airline_tickets[x].ticket.airline.id;
       data.car_list = arr.airline_tickets[x].ticket.airline.tickets;
-      data.service_date = serviceDateCal(date, arr.airline_tickets[x].day);
+      // data.service_date = serviceDateCal(date, arr.airline_tickets[x].day);
+      if (arr.airline_tickets[x].day != 100) {
+        data.service_date = serviceDateCal(date, arr.airline_tickets[x].day);
+      } else {
+        data.service_date = date;
+      }
       data.selling_price = arr.airline_tickets[x].selling_price;
       data.quantity = qty;
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
-      data.from = "in";
+      data.is_inclusive = 1;
       formData.value.items.push(data);
     }
   }
@@ -312,7 +342,7 @@ const getSubTotal = () => {
   let data = 0;
   for (let i = 0; i < formData.value.items.length; i++) {
     // data = data + formData.value.items[i].total_amount;
-    if (!formData.value.items[i].from) {
+    if (formData.value.items[i].is_inclusive != 1) {
       data = data + formData.value.items[i].total_amount;
     }
   }
@@ -834,6 +864,12 @@ const onSubmitHandler = async () => {
         formData.value.items[x].customer_attachment
       );
     }
+    if (formData.value.items[x].is_inclusive) {
+      frmData.append(
+        "items[" + x + "][is_inclusive]",
+        formData.value.items[x].is_inclusive
+      );
+    }
     formData.value.items[x].dropoff_location
       ? frmData.append(
           "items[" + x + "][dropoff_location]",
@@ -1115,6 +1151,7 @@ const getDetail = async () => {
         crm_id: response.result.items[x].crm_id,
         product_id: response.result.items[x].product_id,
         service_date: response.result.items[x].service_date,
+        is_inclusive: response.result.items[x].is_inclusive,
         quantity: response.result.items[x].quantity,
         days: response.result.items[x].days
           ? response.result.items[x].days
@@ -2446,20 +2483,28 @@ onMounted(async () => {
                             v-if="item.crm_id"
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
-                            {{ strippedNumber(item.crm_id) }}
+                            <p v-if="item.is_inclusive == 0">
+                              {{ strippedNumber(item.crm_id) }}
+                            </p>
+                            <p
+                              v-if="item.is_inclusive == 1"
+                              class="bg-orange-400"
+                            >
+                              {{ strippedNumber(item.crm_id) }}
+                            </p>
                           </td>
                           <td
-                            v-if="!item.crm_id && !item.from"
+                            v-if="!item.crm_id && !item.is_inclusive"
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
                             -
                           </td>
                           <td
-                            v-if="!item.crm_id && item.from"
+                            v-if="!item.crm_id && item.is_inclusive == 1"
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
                             <i
-                              v-if="item.from"
+                              v-if="item.is_inclusive == 1"
                               class="text-lg text-orange-600 fa-solid fa-circle-info"
                             ></i>
                           </td>
@@ -2787,7 +2832,7 @@ onMounted(async () => {
                             "
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
-                            <p v-if="!item.from">
+                            <p v-if="item.is_inclusive == 0">
                               {{
                                 hotelQ(
                                   item.product_type,
@@ -2796,7 +2841,9 @@ onMounted(async () => {
                                 )
                               }}
                             </p>
-                            <p v-if="item.from">{{ item.quantity }}</p>
+                            <p v-if="item.is_inclusive == 1">
+                              {{ item.quantity }}
+                            </p>
                           </td>
                           <td
                             v-if="
@@ -2860,7 +2907,9 @@ onMounted(async () => {
                               ></i>
                             </button>
                             <button
-                              v-if="authStore.isSuperAdmin && !item.from"
+                              v-if="
+                                authStore.isSuperAdmin && item.is_inclusive == 0
+                              "
                               class="text-sm text-red-600"
                               @click.prevent="removeFromitem(index)"
                             >

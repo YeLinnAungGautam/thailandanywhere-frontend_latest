@@ -29,6 +29,7 @@ import { useAdminStore } from "../stores/admin";
 import { storeToRefs } from "pinia";
 import { useAuthStore } from "../stores/auth";
 import { useHotelStore } from "../stores/hotel";
+import { useEntranceStore } from "../stores/entrance";
 
 const router = useRouter();
 const toast = useToast();
@@ -36,8 +37,11 @@ const reservationStore = useReservationStore();
 const adminStore = useAdminStore();
 const hotelStore = useHotelStore();
 const authStore = useAuthStore();
+const entranceStore = useEntranceStore();
 
 const { reservations, loading } = storeToRefs(reservationStore);
+const { hotels } = storeToRefs(hotelStore);
+const { entrances } = storeToRefs(entranceStore);
 
 const { admin } = storeToRefs(adminStore);
 
@@ -115,6 +119,8 @@ const oldCrmId = ref("");
 const bookingStatus = ref("");
 const expenseStatus = ref("");
 const customerPaymentStatus = ref("");
+const hotel_name = ref("");
+const attraction_name = ref("");
 
 const showFilter = ref(false);
 const clearFilter = () => {
@@ -124,9 +130,11 @@ const clearFilter = () => {
   expenseStatus.value = "";
   customerPaymentStatus.value = "";
   searchId.value = "";
+  hotel_name.value = "";
   limit.value = 10;
   searchA.value = "";
   userFilter.value = "";
+  attraction_name.value = "";
   // user_id.value =
   //   authStore.isSuperAdmin || authStore.isReservation ? "" : authStore.user.id;
   searchReservation.value = "";
@@ -144,6 +152,9 @@ const toggleSearchHandler = () => {
 onMounted(async () => {
   await reservationStore.getListAction(watchSystem.value);
   await adminStore.getSimpleListAction();
+  await hotelStore.getSimpleListAction();
+  await entranceStore.getSimpleListAction();
+  console.log(entrances.value, "this is hotel list");
 });
 
 const watchSystem = computed(() => {
@@ -173,6 +184,12 @@ const watchSystem = computed(() => {
   if (expenseStatus.value != "" && expenseStatus.value != undefined) {
     result.expense_status = expenseStatus.value;
   }
+  if (hotel_name.value != "" && hotel_name.value != undefined) {
+    result.hotel_name = hotel_name.value;
+  }
+  if (attraction_name.value != "" && attraction_name.value != undefined) {
+    result.attraction_name = attraction_name.value;
+  }
   if (
     customerPaymentStatus.value != "" &&
     customerPaymentStatus.value != undefined
@@ -197,6 +214,14 @@ const watchSystem = computed(() => {
 });
 
 watch(search, async (newValue) => {
+  showFilter.value = true;
+  await reservationStore.getListAction(watchSystem.value);
+});
+watch(hotel_name, async (newValue) => {
+  showFilter.value = true;
+  await reservationStore.getListAction(watchSystem.value);
+});
+watch(attraction_name, async (newValue) => {
   showFilter.value = true;
   await reservationStore.getListAction(watchSystem.value);
 });
@@ -455,7 +480,28 @@ watch(searchTime, async (newValue) => {
             placeholder="Search Old CRM ID"
           />
         </div>
-
+        <div class="">
+          <v-select
+            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
+            v-model="hotel_name"
+            :options="hotels?.data"
+            label="name"
+            :clearable="false"
+            :reduce="(d) => d.name"
+            placeholder="hotels name ..."
+          ></v-select>
+        </div>
+        <div class="">
+          <v-select
+            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
+            v-model="attraction_name"
+            :options="entrances?.data"
+            label="name"
+            :clearable="false"
+            :reduce="(d) => d.name"
+            placeholder="attraction name ..."
+          ></v-select>
+        </div>
         <div v-show="showFilter" @click="clearFilter" class="w-full">
           <Button :leftIcon="FunnelIcon"> clear </Button>
         </div>

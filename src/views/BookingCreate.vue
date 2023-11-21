@@ -328,7 +328,7 @@ const addArrayToList = (arr, date, qty) => {
         data.service_date = date;
       }
       data.selling_price = arr.private_van_tours[x].selling_price;
-      data.quantity = qty;
+      data.quantity = arr.private_van_tours[x].quantity;
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
       data.is_inclusive = 1;
@@ -346,7 +346,7 @@ const addArrayToList = (arr, date, qty) => {
         data.service_date = date;
       }
       data.selling_price = arr.group_tours[x].selling_price;
-      data.quantity = qty;
+      data.quantity = arr.group_tours[x].quantity;
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
       data.is_inclusive = 1;
@@ -367,7 +367,7 @@ const addArrayToList = (arr, date, qty) => {
         data.service_date = date;
       }
       data.selling_price = arr.airport_pickups[x].selling_price;
-      data.quantity = qty;
+      data.quantity = arr.airport_pickups[x].quantity;
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
       data.is_inclusive = 1;
@@ -389,7 +389,7 @@ const addArrayToList = (arr, date, qty) => {
         data.service_date = date;
       }
       data.selling_price = arr.entrance_tickets[x].selling_price;
-      data.quantity = qty;
+      data.quantity = arr.entrance_ticket[x].quantity;
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
       data.is_inclusive = 1;
@@ -411,7 +411,7 @@ const addArrayToList = (arr, date, qty) => {
       } else {
         data.service_date = date;
         data.checkin_date = date;
-        data.checkout_date = serviceDateCal(date, arr.night+1);
+        data.checkout_date = serviceDateCal(date, arr.night + 1);
         data.days = arr.night;
       }
       data.selling_price = arr.hotels[x].selling_price;
@@ -436,7 +436,7 @@ const addArrayToList = (arr, date, qty) => {
         data.service_date = date;
       }
       data.selling_price = arr.airline_tickets[x].selling_price;
-      data.quantity = qty;
+      data.quantity = arr.airline_tickets[x].quantity;
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
       data.is_inclusive = 1;
@@ -1048,9 +1048,10 @@ const clickdetaildesToggle = (
   o,
   days,
   room,
-  quantity
+  quantity,
+  is_inclusive
 ) => {
-  console.log(a, b, index);
+  console.log(a, b, index, is_inclusive);
   clickdetaildes.value = true;
   itemDes.value = a;
   itemSpecial.value = b;
@@ -1067,6 +1068,8 @@ const clickdetaildesToggle = (
   itemDays.value = days;
   itemRoom.value = room;
   itemQ.value = quantity;
+  itemIs.value = is_inclusive != undefined ? is_inclusive : 0;
+  console.log(itemIs.value, "this is item is");
 };
 const itemType = ref("");
 const itemRoutePlan = ref("");
@@ -1080,6 +1083,7 @@ const itemCheckOut = ref("");
 const itemDays = ref("");
 const itemRoom = ref("");
 const itemQ = ref("");
+const itemIs = ref("");
 
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
@@ -1416,6 +1420,7 @@ onMounted(async () => {
                         v-model="formitem.special_request"
                       ></textarea>
                     </div>
+
                     <div
                       class="grid grid-cols-1 space-y-2"
                       v-if="formitem.product_type == '6'"
@@ -1713,6 +1718,17 @@ onMounted(async () => {
                         class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
                         id=""
                         v-model="itemDays"
+                      />
+                    </div>
+                    <div class="grid grid-cols-1 space-y-2" v-if="itemIs == 1">
+                      <p class="text-xs">Change Quantity</p>
+                      <input
+                        type="number"
+                        v-model="itemQ"
+                        name=""
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                        id=""
+                        placeholder="xx"
                       />
                     </div>
                     <div class="flex items-center justify-between">
@@ -2144,10 +2160,12 @@ onMounted(async () => {
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <input
+                            v-if="!item.is_inclusive"
                             type="date"
                             v-model="item.service_date"
                             class="text-xs focus:outline-none"
                           />
+                          <p class=" text-xs" v-if="item.is_inclusive == 1">{{ item.service_date }}</p>
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -2209,7 +2227,8 @@ onMounted(async () => {
                                 item.checkout_date,
                                 item.days,
                                 item.room_number,
-                                item.quantity
+                                item.quantity,
+                                item.is_inclusive
                               )
                             "
                           >

@@ -2860,9 +2860,15 @@ onMounted(async () => {
                                 )
                               }}
                             </p>
-                            <p v-if="item.is_inclusive == 1">
-                              {{ item.quantity }}
-                            </p>
+                            <input
+                              v-if="item.is_inclusive == 1"
+                              type="number"
+                              v-model="item.quantity"
+                              name=""
+                              class="px-4 py-4 text-sm border border-gray-300 rounded-sm w-[50px] focus:outline-none"
+                              id=""
+                              placeholder="xx"
+                            />
                           </td>
                           <td
                             v-if="
@@ -2871,7 +2877,16 @@ onMounted(async () => {
                             "
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
-                            <p>{{ item.quantity }}</p>
+                            <p v-if="item.is_inclusive == 0">{{ item.quantity }}</p>
+                            <input
+                              v-if="item.is_inclusive == 1"
+                              type="number"
+                              v-model="item.quantity"
+                              name=""
+                              class="px-4 py-4 text-sm border border-gray-300 rounded-sm w-[50px] focus:outline-none"
+                              id=""
+                              placeholder="xx"
+                            />
                           </td>
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"

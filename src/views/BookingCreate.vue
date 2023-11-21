@@ -389,7 +389,7 @@ const addArrayToList = (arr, date, qty) => {
         data.service_date = date;
       }
       data.selling_price = arr.entrance_tickets[x].selling_price;
-      data.quantity = arr.entrance_ticket[x].quantity;
+      data.quantity = arr.entrance_tickets[x].quantity;
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
       data.is_inclusive = 1;
@@ -2165,7 +2165,9 @@ onMounted(async () => {
                             v-model="item.service_date"
                             class="text-xs focus:outline-none"
                           />
-                          <p class=" text-xs" v-if="item.is_inclusive == 1">{{ item.service_date }}</p>
+                          <p class="text-xs" v-if="item.is_inclusive == 1">
+                            {{ item.service_date }}
+                          </p>
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -2187,13 +2189,31 @@ onMounted(async () => {
                               )
                             }}
                           </p>
-                          <p v-if="item.is_inclusive">{{ item.quantity }}</p>
+
+                          <input
+                            v-if="item.is_inclusive == 1"
+                            type="number"
+                            v-model="item.quantity"
+                            name=""
+                            class="px-4 py-4 text-sm border border-gray-300 rounded-sm w-[50px] focus:outline-none"
+                            id=""
+                            placeholder="xx"
+                          />
                         </td>
                         <td
                           v-if="item.product_type != '6'"
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <p>{{ item.quantity }}</p>
+                          <p v-if="!item.is_inclusive">{{ item.quantity }}</p>
+                          <input
+                            v-if="item.is_inclusive == 1"
+                            type="number"
+                            v-model="item.quantity"
+                            name=""
+                            class="px-4 py-4 text-sm border border-gray-300 rounded-sm w-[50px] focus:outline-none"
+                            id=""
+                            placeholder="xx"
+                          />
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"

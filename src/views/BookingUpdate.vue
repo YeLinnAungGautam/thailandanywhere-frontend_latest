@@ -2091,8 +2091,19 @@ onMounted(async () => {
                       >
                         <p class="text-xs">Total Number of Room</p>
                         <input
-                          type="text"
+                          v-if="itemIs == 0"
                           v-model="itemQ"
+                          type="text"
+                          name=""
+                          class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                          id=""
+                          placeholder="xxx , xxx , xxx"
+                        />
+                        <input
+                          v-if="itemIs == 1"
+                          v-model="itemQ"
+                          disabled
+                          type="text"
                           name=""
                           class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                           id=""
@@ -2218,7 +2229,7 @@ onMounted(async () => {
                           v-model="itemDays"
                         />
                       </div>
-                      <div
+                      <!-- <div
                         class="grid grid-cols-1 space-y-2"
                         v-if="itemIs == 1"
                       >
@@ -2231,7 +2242,7 @@ onMounted(async () => {
                           id=""
                           placeholder="xx"
                         />
-                      </div>
+                      </div> -->
                       <div class="flex items-center justify-between">
                         <button @click="clickdetaildesClose" class="text-sm">
                           close
@@ -2837,7 +2848,9 @@ onMounted(async () => {
                               v-model="item.service_date"
                               class="text-xs focus:outline-none"
                             />
-                            <p class=" text-xs" v-if="item.is_inclusive == 1">{{ item.service_date }}</p>
+                            <p class="text-xs" v-if="item.is_inclusive == 1">
+                              {{ item.service_date }}
+                            </p>
                           </td>
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -2860,15 +2873,9 @@ onMounted(async () => {
                                 )
                               }}
                             </p>
-                            <input
-                              v-if="item.is_inclusive == 1"
-                              type="number"
-                              v-model="item.quantity"
-                              name=""
-                              class="px-4 py-4 text-sm border border-gray-300 rounded-sm w-[50px] focus:outline-none"
-                              id=""
-                              placeholder="xx"
-                            />
+                            <p v-if="item.is_inclusive == 1">
+                              {{ item.quantity }}
+                            </p>
                           </td>
                           <td
                             v-if="
@@ -2877,13 +2884,15 @@ onMounted(async () => {
                             "
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
-                            <p v-if="item.is_inclusive == 0">{{ item.quantity }}</p>
+                            <p v-if="item.is_inclusive == 0">
+                              {{ item.quantity }}
+                            </p>
                             <input
                               v-if="item.is_inclusive == 1"
                               type="number"
                               v-model="item.quantity"
                               name=""
-                              class="px-4 py-4 text-sm border border-gray-300 rounded-sm w-[50px] focus:outline-none"
+                              class="px-4 py-4 text-sm border border-gray-300 rounded-sm w-[65px] focus:outline-none"
                               id=""
                               placeholder="xx"
                             />

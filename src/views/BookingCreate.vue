@@ -1612,8 +1612,17 @@ onMounted(async () => {
                       v-if="itemType == '6'"
                     >
                       <p class="text-xs">Total Number of Room</p>
-                      <input
+                      <input v-if="itemIs == 0"
                         v-model="itemQ"
+                        type="text"
+                        name=""
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                        id=""
+                        placeholder="xxx , xxx , xxx"
+                      />
+                      <input v-if="itemIs == 1"
+                        v-model="itemQ"
+                        disabled
                         type="text"
                         name=""
                         class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
@@ -1712,15 +1721,16 @@ onMounted(async () => {
                       v-if="itemType == '6'"
                     >
                       <p class="text-xs">Days</p>
-                      <input
+                      <input 
                         type="number"
                         disabled
                         class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
                         id=""
                         v-model="itemDays"
                       />
+                      
                     </div>
-                    <div class="grid grid-cols-1 space-y-2" v-if="itemIs == 1">
+                    <!-- <div class="grid grid-cols-1 space-y-2" v-if="itemIs == 1">
                       <p class="text-xs">Change Quantity</p>
                       <input
                         type="number"
@@ -1730,7 +1740,7 @@ onMounted(async () => {
                         id=""
                         placeholder="xx"
                       />
-                    </div>
+                    </div> -->
                     <div class="flex items-center justify-between">
                       <button @click="clickdetaildesClose" class="text-sm">
                         close
@@ -2190,15 +2200,9 @@ onMounted(async () => {
                             }}
                           </p>
 
-                          <input
-                            v-if="item.is_inclusive == 1"
-                            type="number"
-                            v-model="item.quantity"
-                            name=""
-                            class="px-4 py-4 text-sm border border-gray-300 rounded-sm w-[50px] focus:outline-none"
-                            id=""
-                            placeholder="xx"
-                          />
+                          <p v-if="item.is_inclusive == 1">
+                            {{ item.quantity }}
+                          </p>
                         </td>
                         <td
                           v-if="item.product_type != '6'"
@@ -2210,7 +2214,7 @@ onMounted(async () => {
                             type="number"
                             v-model="item.quantity"
                             name=""
-                            class="px-4 py-4 text-sm border border-gray-300 rounded-sm w-[50px] focus:outline-none"
+                            class="px-4 py-4 text-sm border border-gray-300 rounded-sm w-[65px] focus:outline-none"
                             id=""
                             placeholder="xx"
                           />

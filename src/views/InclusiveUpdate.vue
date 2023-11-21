@@ -1233,6 +1233,13 @@ onMounted(async () => {
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <input
+                            v-if="formitem.product_type == '1'"
+                            type="number"
+                            v-model="formitem.quantity"
+                            class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
+                          />
+                          <input
+                            v-if="formitem.product_type != '1'"
                             type="number"
                             disabled
                             v-model="formitem.quantity"
@@ -1260,6 +1267,7 @@ onMounted(async () => {
                             >
                               {{ d }}
                             </option>
+                            <option class="text-xs" :value="100">all</option>
                           </select>
                         </td>
 
@@ -1448,7 +1456,7 @@ onMounted(async () => {
                             {{ item.selling_price }}
                           </p>
                         </td>
-                        <td
+                        <!-- <td
                           v-if="item.product_type == '5'"
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
@@ -1461,17 +1469,18 @@ onMounted(async () => {
                               )
                             }}
                           </p>
-                        </td>
+                        </td> -->
                         <td
-                          v-if="item.product_type != '5'"
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <p>{{ item.quantity }}</p>
+                          <!-- <p v-if="item.days == 100">all</p> -->
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <p>{{ item.days }}</p>
+                          <p v-if="item.days != 100">{{ item.days }} days</p>
+                          <p v-if="item.days == 100">all days</p>
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"

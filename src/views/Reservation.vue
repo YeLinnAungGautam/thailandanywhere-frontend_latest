@@ -28,14 +28,17 @@ import { useReservationStore } from "../stores/reservation";
 import { useAdminStore } from "../stores/admin";
 import { storeToRefs } from "pinia";
 import { useAuthStore } from "../stores/auth";
+import { useHotelStore } from "../stores/hotel";
 
 const router = useRouter();
 const toast = useToast();
 const reservationStore = useReservationStore();
 const adminStore = useAdminStore();
+const hotelStore = useHotelStore();
 const authStore = useAuthStore();
 
 const { reservations, loading } = storeToRefs(reservationStore);
+
 const { admin } = storeToRefs(adminStore);
 
 const changePage = async (url) => {

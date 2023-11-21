@@ -2010,7 +2010,7 @@ onMounted(async () => {
                         class="border-b border-gray-300"
                         v-for="(item, index) in formData.items"
                         :key="index"
-                        :class="item.total_amount == 0 ? 'bg-gray-100' : ''"
+                        :class="item.is_inclusive == 1 ? 'bg-gray-100' : ''"
                       >
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"

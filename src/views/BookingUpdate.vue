@@ -2506,6 +2506,7 @@ onMounted(async () => {
                           class="border-b border-gray-300"
                           v-for="(item, index) in formData.items"
                           :key="index"
+                          :class="item.is_inclusive == 1 ? 'bg-gray-100' : ''"
                         >
                           <td
                             v-if="item.crm_id"

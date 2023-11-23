@@ -2888,8 +2888,21 @@ onMounted(async () => {
                             <p v-if="item.is_inclusive == 0">
                               {{ item.quantity }}
                             </p>
+                            <p
+                              v-if="
+                                item.is_inclusive == 1 &&
+                                item.product_type ==
+                                  'App\\Models\\PrivateVanTour'
+                              "
+                            >
+                              {{ item.quantity }}
+                            </p>
                             <input
-                              v-if="item.is_inclusive == 1"
+                              v-if="
+                                item.is_inclusive == 1 &&
+                                item.product_type !=
+                                  'App\\Models\\PrivateVanTour'
+                              "
                               type="number"
                               v-model="item.quantity"
                               name=""

@@ -346,6 +346,7 @@ const addArrayToList = (arr, date, qty) => {
         data.service_date = date;
       }
       data.selling_price = arr.group_tours[x].selling_price;
+      data.limit = qty;
       data.quantity = arr.group_tours[x].quantity;
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
@@ -367,6 +368,7 @@ const addArrayToList = (arr, date, qty) => {
         data.service_date = date;
       }
       data.selling_price = arr.airport_pickups[x].selling_price;
+      data.limit = qty;
       data.quantity = arr.airport_pickups[x].quantity;
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
@@ -389,6 +391,7 @@ const addArrayToList = (arr, date, qty) => {
         data.service_date = date;
       }
       data.selling_price = arr.entrance_tickets[x].selling_price;
+      data.limit = qty;
       data.quantity = arr.entrance_tickets[x].quantity;
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
@@ -415,7 +418,9 @@ const addArrayToList = (arr, date, qty) => {
         data.days = arr.night;
       }
       data.selling_price = arr.hotels[x].selling_price;
+
       data.quantity = Math.ceil(qty / 2);
+      data.limit = data.quantity;
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
       data.is_inclusive = 1;
@@ -436,6 +441,7 @@ const addArrayToList = (arr, date, qty) => {
         data.service_date = date;
       }
       data.selling_price = arr.airline_tickets[x].selling_price;
+      data.limit = qty;
       data.quantity = arr.airline_tickets[x].quantity;
       data.description = "";
       data.total_amount = data.selling_price * data.quantity;
@@ -1049,7 +1055,8 @@ const clickdetaildesToggle = (
   days,
   room,
   quantity,
-  is_inclusive
+  is_inclusive,
+  limit
 ) => {
   console.log(a, b, index, is_inclusive);
   clickdetaildes.value = true;
@@ -1068,6 +1075,7 @@ const clickdetaildesToggle = (
   itemDays.value = days;
   itemRoom.value = room;
   itemQ.value = quantity;
+  itemLimit.value = limit;
   itemIs.value = is_inclusive != undefined ? is_inclusive : 0;
   console.log(itemIs.value, "this is item is");
 };
@@ -1084,6 +1092,7 @@ const itemDays = ref("");
 const itemRoom = ref("");
 const itemQ = ref("");
 const itemIs = ref("");
+const itemLimit = ref("");
 
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
@@ -1612,22 +1621,24 @@ onMounted(async () => {
                       v-if="itemType == '6'"
                     >
                       <p class="text-xs">Total Number of Room</p>
-                      <input v-if="itemIs == 0"
+                      <input
+                        v-if="itemIs == 0"
                         v-model="itemQ"
-                        type="text"
+                        type="number"
                         name=""
                         class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         id=""
-                        placeholder="xxx , xxx , xxx"
+                        placeholder="xx"
                       />
-                      <input v-if="itemIs == 1"
+                      <input
+                        v-if="itemIs == 1"
                         v-model="itemQ"
-                        disabled
-                        type="text"
+                        :max="itemLimit"
+                        type="number"
                         name=""
                         class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         id=""
-                        placeholder="xxx , xxx , xxx"
+                        placeholder="xx"
                       />
                     </div>
                     <div
@@ -1721,14 +1732,13 @@ onMounted(async () => {
                       v-if="itemType == '6'"
                     >
                       <p class="text-xs">Days</p>
-                      <input 
+                      <input
                         type="number"
                         disabled
                         class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
                         id=""
                         v-model="itemDays"
                       />
-                      
                     </div>
                     <!-- <div class="grid grid-cols-1 space-y-2" v-if="itemIs == 1">
                       <p class="text-xs">Change Quantity</p>
@@ -2209,10 +2219,18 @@ onMounted(async () => {
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <p v-if="!item.is_inclusive">{{ item.quantity }}</p>
+                          <p
+                            v-if="item.is_inclusive && item.product_type == '1'"
+                          >
+                            {{ item.quantity }}
+                          </p>
                           <input
-                            v-if="item.is_inclusive == 1"
+                            v-if="
+                              item.is_inclusive == 1 && item.product_type != '1'
+                            "
                             type="number"
                             v-model="item.quantity"
+                            :max="item.limit"
                             name=""
                             class="px-4 py-4 text-sm border border-gray-300 rounded-sm w-[65px] focus:outline-none"
                             id=""
@@ -2252,7 +2270,8 @@ onMounted(async () => {
                                 item.days,
                                 item.room_number,
                                 item.quantity,
-                                item.is_inclusive
+                                item.is_inclusive,
+                                item.limit
                               )
                             "
                           >

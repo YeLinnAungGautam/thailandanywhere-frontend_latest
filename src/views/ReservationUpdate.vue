@@ -1465,54 +1465,6 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div
-            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
-            @click="feedbackHandle"
-          >
-            <i class="fa-solid fa-angle-down"></i>
-            <p>Customer Reviews</p>
-          </div>
-          <div class="bg-gray-200/50 py-4 space-y-2" v-if="feedback_part">
-            <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs font">Feedback</p>
-
-              <textarea
-                class="w-full bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 font-semibold text-xs"
-                cols="4"
-                v-model="secForm.customer_feedback"
-              ></textarea>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs font">Customer Score</p>
-                <input
-                  v-model="secForm.customer_score"
-                  type="number"
-                  id="title"
-                  class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                />
-              </div>
-              <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs font">Driver Score</p>
-                <input
-                  v-model="secForm.driver_score"
-                  type="number"
-                  id="title"
-                  class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                />
-              </div>
-              <div class="pl-10 pr-10 pb-8 space-y-2">
-                <p class="text-gray-400 text-xs font">Product Score</p>
-                <input
-                  v-model="secForm.product_score"
-                  type="number"
-                  id="title"
-                  class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                />
-              </div>
-            </div>
-          </div>
-
           <div class="flex justify-end items-center">
             <button
               v-if="
@@ -2076,10 +2028,66 @@ onMounted(async () => {
                       </a>
                     </div>
                   </div>
+                  <div class="space-y-2">
+                    <p class="text-gray-400 text-xs font">Expense Comment</p>
+
+                    <textarea
+                      class="w-full bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 font-semibold text-xs"
+                      cols="4"
+                      v-model="secForm.customer_feedback"
+                    ></textarea>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          <!-- <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            @click="feedbackHandle"
+          >
+            <i class="fa-solid fa-angle-down"></i>
+            <p>Customer Reviews</p>
+          </div>
+          <div class="bg-gray-200/50 py-4 space-y-2" v-if="feedback_part">
+            <div class="pl-10 pr-10 space-y-2">
+              <p class="text-gray-400 text-xs font">Reviews</p>
+
+              <textarea
+                class="w-full bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 font-semibold text-xs"
+                cols="4"
+                v-model="secForm.customer_feedback"
+              ></textarea>
+            </div>
+            <div class="hidden">
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs font">Customer Score</p>
+                <input
+                  v-model="secForm.customer_score"
+                  type="number"
+                  id="title"
+                  class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
+              </div>
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs font">Driver Score</p>
+                <input
+                  v-model="secForm.driver_score"
+                  type="number"
+                  id="title"
+                  class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
+              </div>
+              <div class="pl-10 pr-10 pb-8 space-y-2">
+                <p class="text-gray-400 text-xs font">Product Score</p>
+                <input
+                  v-model="secForm.product_score"
+                  type="number"
+                  id="title"
+                  class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
+              </div>
+            </div>
+          </div> -->
         </div>
       </div>
     </div>

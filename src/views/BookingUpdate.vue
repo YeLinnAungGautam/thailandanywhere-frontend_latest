@@ -555,14 +555,10 @@ const daysBetween = (a, b) => {
   }
 };
 
-// const removeFromitem = (index) => {
-//   formData.value.items.splice(index, 1);
-// };
-
 const removeFromitem = (indexGet, item, type) => {
   console.log(type, "this is type");
 
-  if (type == "5" || type == 'App\\Models\\Inclusive') {
+  if (type == "5" || type == "App\\Models\\Inclusive") {
     formData.value.items.splice(indexGet, 1);
     for (let i = 0; i < formData.value.items.length; i++) {
       if (formData.value.items[i].is_inclusive == 1) {

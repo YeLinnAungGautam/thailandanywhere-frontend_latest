@@ -50,7 +50,7 @@ const formData = ref({
   name: "",
   description: "",
   cover_image: "",
-  day: 1,
+  day: "",
   night: "",
   sku_code: "",
   images: [],
@@ -58,6 +58,10 @@ const formData = ref({
   items: [],
   agent_price: "",
   feature_image: "",
+});
+
+formData.value.day = computed(() => {
+  return formData.value.night + 1;
 });
 
 const formItemType = [
@@ -623,7 +627,7 @@ const getDetail = async () => {
     console.log(response, "this is response");
     formData.value.name = response.result.name;
     formData.value.description = response.result.description;
-    formData.value.day = response.result.day;
+    // formData.value.day = response.result.day;
     formData.value.night = response.result.night;
     formData.value.price = response.result.price;
     formData.value.agent_price = response.result.agent_price;
@@ -1262,7 +1266,7 @@ onMounted(async () => {
                           >
                             <option
                               :value="d"
-                              v-for="d in formData.night"
+                              v-for="d in formData.day"
                               :key="d"
                             >
                               {{ d }}

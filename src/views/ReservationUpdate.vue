@@ -956,6 +956,17 @@ onMounted(async () => {
           >
             Print
           </p>
+          <p
+            class="px-4 py-2 border border-[#ff613c] text-white bg-[#ff613c] text-xs cursor-pointer hover:bg-transparent hover:text-[#ff613c]"
+            @click="printReservation"
+            v-if="
+              formData.product_type == 'App\\Models\\Hotel' &&
+              (booking_status.payment_status == 'fully_paid' ||
+                booking_status.payment_status == 'partially_paid')
+            "
+          >
+            Print
+          </p>
         </div>
       </div>
       <div class="grid grid-cols-3 gap-8">

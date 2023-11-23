@@ -621,8 +621,41 @@ const calculateDaysBetween = (a, b) => {
   }
 };
 
-const removeFromitem = (index) => {
-  formData.value.items.splice(index, 1);
+// const removeFromitem = (indexGet, item, type) => {
+//   console.log(type, "this is type");
+
+//   if (type == "5") {
+//     formData.value.items.splice(indexGet, 1);
+//     for (let i = 0; i < formData.value.items.length; i++) {
+//       if (formData.value.items[i].is_inclusive == 1) {
+//         console.log(formData.value.items[i]);
+//         let index = formData.value.items[i].indexOf(i);
+//         formData.value.items.splice(index, 1);
+//       }
+//     }
+//   } else {
+//     formData.value.items.splice(indexGet, 1);
+//   }
+//   console.log(formData.value.items);
+// };
+
+const removeFromitem = (indexGet, item, type) => {
+  console.log(type, "this is type");
+
+  if (type == "5") {
+    formData.value.items.splice(indexGet, 1);
+    for (let i = 0; i < formData.value.items.length; i++) {
+      if (formData.value.items[i].is_inclusive == 1) {
+        console.log(formData.value.items[i]);
+        let index = formData.value.items.indexOf(item);
+        formData.value.items.splice(index, 1);
+        i--; // Decrement i to account for the removed item
+      }
+    }
+  } else {
+    formData.value.items.splice(indexGet, 1);
+  }
+  console.log(formData.value.items);
 };
 
 const errors = ref(null);
@@ -2283,7 +2316,9 @@ onMounted(async () => {
                           <button
                             v-if="!item.is_inclusive"
                             class="text-sm text-red-600"
-                            @click.prevent="removeFromitem(index)"
+                            @click.prevent="
+                              removeFromitem(index, item, item.product_type)
+                            "
                           >
                             <i
                               class="fa-solid fa-minus text-xs font-semibold px-1 py-[1.5px] bg-red-500 rounded-full shadow text-white"

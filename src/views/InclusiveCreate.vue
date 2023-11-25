@@ -48,7 +48,7 @@ const route = useRoute();
 
 const formData = ref({
   name: "",
-  day: 1,
+  day: "",
   night: "",
   description: "",
   cover_image: "",
@@ -58,6 +58,10 @@ const formData = ref({
   items: [],
   agent_price: "",
   feature_image: "",
+});
+
+formData.value.day = computed(() => {
+  return formData.value.night + 1;
 });
 
 const formItemType = [
@@ -1041,7 +1045,7 @@ onMounted(async () => {});
                           >
                             <option
                               :value="d"
-                              v-for="d in formData.night"
+                              v-for="d in formData.day"
                               :key="d"
                             >
                               {{ d }}

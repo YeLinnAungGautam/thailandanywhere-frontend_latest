@@ -815,6 +815,16 @@ const printReservation = () => {
       "/receipt"
   );
 };
+
+const printHotelConfirm = () => {
+  window.open(
+    import.meta.env.VITE_API_URL +
+      "/hotel-reservation/" +
+      route.params.id +
+      "/receipt"
+  );
+};
+
 // reservations/{same id from url}/receipt
 
 const allowUpdate = computed(() => {
@@ -952,13 +962,17 @@ onMounted(async () => {
           <p
             class="px-4 py-2 border border-[#ff613c] text-white bg-[#ff613c] text-xs cursor-pointer hover:bg-transparent hover:text-[#ff613c]"
             @click="printReservation"
-            v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+            v-if="
+              formData.product_type == 'App\\Models\\EntranceTicket' &&
+              (booking_status.payment_status == 'fully_paid' ||
+                booking_status.payment_status == 'partially_paid')
+            "
           >
             Print
           </p>
           <p
             class="px-4 py-2 border border-[#ff613c] text-white bg-[#ff613c] text-xs cursor-pointer hover:bg-transparent hover:text-[#ff613c]"
-            @click="printReservation"
+            @click="printHotelConfirm"
             v-if="
               formData.product_type == 'App\\Models\\Hotel' &&
               (booking_status.payment_status == 'fully_paid' ||

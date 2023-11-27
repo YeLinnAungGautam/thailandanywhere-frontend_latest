@@ -1158,7 +1158,17 @@ const getDetail = async () => {
     }
     formData.value.balance_due_date = response.result.balance_due_date;
     formData.value.deposit = response.result.deposit;
-    formData.value.receipt_images = response.result.receipts;
+    // formData.value.receipt_images = response.result.receipts;
+    // console.log(formData.value.receipt_images, "this is image");
+    for (let i = 0; i < response.result.receipts.length; i++) {
+      let data = {
+        id: response.result.receipts[i].id,
+        image:
+          import.meta.env.VITE_API_URL_IMAGE +
+          response.result.receipts[i].image,
+      };
+      formData.value.receipt_images.push(data);
+    }
     console.log(formData.value.receipt_images, "this is image");
     for (const x in response.result.items) {
       const itemData = {

@@ -678,6 +678,16 @@ const getDetail = async () => {
       formData.value.comment = response.result.comment;
     }
     formData.value.receipt_images = response.result.booking?.receipts;
+    // for (let i = 0; i < response.result.booking?.receipts.length; i++) {
+    //   let data = {
+    //     id: response.result.booking?.receipts[i].id,
+    //     image:
+    //       import.meta.env.VITE_API_URL_IMAGE +
+    //       response.result.booking?.receipts[i].image,
+    //   };
+    //   formData.value.receipt_images.push(data);
+    // }
+    console.log(formData.value.receipt_images, "this is receipt image");
     formData.value.product_id = response.result.product_id;
     formData.value.product_type = response.result.product_type;
     if (formData.value.checkin_date && formData.value.checkout_date) {
@@ -1212,8 +1222,14 @@ onMounted(async () => {
           >
             <div v-for="(image, index) in formData.receipt_images" :key="index">
               <p class="text-xs mb-2 mt-2">Receipt Image {{ index + 1 }}</p>
-              <a :href="image.image" target="_blink">
-                <img :src="image.image" alt="" />
+              <a
+                :href="'https://api-blog.thanywhere.com' + image.image"
+                target="_blink"
+              >
+                <img
+                  :src="'https://api-blog.thanywhere.com' + image.image"
+                  alt=""
+                />
               </a>
             </div>
           </div>

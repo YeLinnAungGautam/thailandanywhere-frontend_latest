@@ -62,8 +62,45 @@ const saleData = {
   labels: dataTest.items,
   datasets: [
     {
-      label: "Sales",
+      label: "General Sales",
       data: dataAmount.items,
+      backgroundColor: ["#FF0000"],
+    },
+  ],
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  },
+};
+
+const saleValueAgent = reactive({ items: [] });
+const saleValueAmount = reactive({ items: [] });
+
+const getSaleAgentData = () => {
+  console.log(sales.value, "get sales agent");
+  if (sales.value != null) {
+    saleValueAgent.items.splice(0);
+    for (let x = 0; x < sales.value.agents.length; x++) {
+      saleValueAgent.items.push(sales.value.agents[x]);
+    }
+    saleValueAmount.items.splice(0);
+    for (let x = 0; x < sales.value.amount.length; x++) {
+      saleValueAmount.items.push(sales.value.amount[x]);
+    }
+  }
+  console.log(saleValueAgent.value, saleValueAmount.value, "get sales");
+};
+const saleDataAgent = {
+  labels: saleValueAgent.items,
+  datasets: [
+    {
+      label: "Sale by Employee",
+      data: saleValueAmount.items,
       backgroundColor: ["#FF0000"],
     },
   ],
@@ -112,6 +149,7 @@ const getBookingCount = async () => {
 };
 const getSaleCountHandle = async () => {
   const res = await homeStore.getSaleCount();
+  console.log(res, "this is get sales");
 };
 
 const getReservationCount = async () => {
@@ -129,6 +167,11 @@ const priceSales = ref(true);
 const togglePriceSales = async () => {
   priceSales.value = !priceSales.value;
   console.log(priceSales.value);
+};
+
+const priceSalesGraph = ref(true);
+const togglePriceSalesGraph = async () => {
+  priceSalesGraph.value = !priceSalesGraph.value;
 };
 
 const dateFormat = (inputDateString) => {
@@ -162,7 +205,6 @@ const dateFun = async () => {
     await getReservationCount();
     await getBookingCount();
   } else {
-    console.log(date.value);
     startDate.value = dateFormat(date.value);
     // endDate.value = date.value[1] != null ? dateFormat(date.value[1]) : "";
     let data = {
@@ -173,6 +215,7 @@ const dateFun = async () => {
     console.log(loading.value, res, "this is res");
     // isError.value = loading.value;
     // changeLabel();
+    getSaleAgentData();
   }
 };
 
@@ -196,26 +239,6 @@ const changeValuer = (a) => {
   }`;
   return ratev;
 };
-
-// const changeLabel = () => {
-//   dataTest.items.splice(0);
-//   dataAmount.items.splice(0);
-//   dataRes.items.splice(0);
-//   dataAmountRes.items.splice(0);
-//   for (let x = 0; x < sales.value.agents.length; x++) {
-//     let data = change(x);
-//     let value = changeValue(x);
-//     dataTest.items.push(data);
-//     dataAmount.items.push(value);
-//   }
-//   console.log(reservationsHome.value);
-//   for (let x = 0; x < reservationsHome.value.agents.length; x++) {
-//     let data = changer(x);
-//     let value = changeValuer(x);
-//     dataRes.items.push(data);
-//     dataAmountRes.items.push(value);
-//   }
-// };
 
 const dateArrFromSelect = ref([]);
 const loopData = ref([]);
@@ -284,6 +307,7 @@ onMounted(async () => {
   if (date.value) {
     await dateFun();
   }
+  getSaleAgentData();
 });
 </script>
 
@@ -466,8 +490,37 @@ onMounted(async () => {
           <div
             class="bg-white/60 col-span-3 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
           >
-            <p class="text-gray-600 mb-3 font-medium tracking-wide">Sales</p>
-            <LineChart :chartData="saleData" />
+            <div class="flex justify-between items-center">
+              <div>
+                <p
+                  class="text-gray-600 mb-3 font-medium tracking-wide"
+                  v-if="priceSalesGraph"
+                >
+                  General Sales
+                </p>
+                <p
+                  class="text-gray-600 mb-3 font-medium tracking-wide"
+                  v-if="!priceSalesGraph"
+                >
+                  Sale by Employee
+                </p>
+              </div>
+              <div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    @click="togglePriceSalesGraph"
+                    value=""
+                    class="sr-only peer"
+                  />
+                  <div
+                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
+                  ></div>
+                </label>
+              </div>
+            </div>
+            <LineChart :chartData="saleData" v-if="priceSalesGraph" />
+            <LineChart :chartData="saleDataAgent" v-if="!priceSalesGraph" />
           </div>
           <div
             class="bg-white/60 col-span-3 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"

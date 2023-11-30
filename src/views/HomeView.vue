@@ -297,54 +297,32 @@ const generateDateArray = async () => {
       dataAmountRes.items.push(dataRes);
 
       let eimyatData = [];
+      let konaymyo = [];
+      let chitSu = [];
+      let eiMyat = [];
+      let chaw = [];
       for (let s = 0; s < res.result.sales.original.result.agents.length; s++) {
         if (res.result.sales.original.result.agents[s] == "Hnin N") {
           eimyatData.push(res.result.sales.original.result.amount[s]);
-        } else {
-          eimyatData.push(0);
         }
-      }
-      saleValueAgent.items.push(eimyatData);
-
-      let konaymyo = [];
-      for (let s = 0; s < res.result.sales.original.result.agents.length; s++) {
         if (res.result.sales.original.result.agents[s] == "Ko Nay Myo") {
           konaymyo.push(res.result.sales.original.result.amount[s]);
-        } else {
-          konaymyo.push(0);
         }
-      }
-      saleValueKoNayMyo.items.push(konaymyo);
-
-      let chitSu = [];
-      for (let s = 0; s < res.result.sales.original.result.agents.length; s++) {
         if (res.result.sales.original.result.agents[s] == "Chit Su") {
           chitSu.push(res.result.sales.original.result.amount[s]);
-        } else {
-          chitSu.push(0);
         }
-      }
-      saleValueChitSu.items.push(chitSu);
-
-      let eiMyat = [];
-      for (let s = 0; s < res.result.sales.original.result.agents.length; s++) {
         if (res.result.sales.original.result.agents[s] == "Ei Myat") {
           eiMyat.push(res.result.sales.original.result.amount[s]);
-        } else {
-          eiMyat.push(0);
         }
-      }
-      saleValueEiMyat.items.push(eiMyat);
-
-      let chaw = [];
-      for (let s = 0; s < res.result.sales.original.result.agents.length; s++) {
         if (res.result.sales.original.result.agents[s] == "Chaw Kalayar") {
           chaw.push(res.result.sales.original.result.amount[s]);
-        } else {
-          chaw.push(0);
         }
       }
-      saleValueChaw.items.push(chaw);
+      saleValueAgent.items.push(eimyatData[0]);
+      saleValueKoNayMyo.items.push(konaymyo[0]);
+      saleValueChitSu.items.push(chitSu[0]);
+      saleValueEiMyat.items.push(eiMyat[0]);
+      saleValueChaw.items.push(chaw[0]);
     } else {
       dataAmount.items.push(0);
       dataAmountRes.items.push(0);

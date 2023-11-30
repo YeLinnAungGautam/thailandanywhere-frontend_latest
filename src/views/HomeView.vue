@@ -79,29 +79,38 @@ const saleData = {
 };
 
 const saleValueAgent = reactive({ items: [] });
-const saleValueAmount = reactive({ items: [] });
+const saleValueKoNayMyo = reactive({ items: [] });
+const saleValueChitSu = reactive({ items: [] });
+const saleValueEiMyat = reactive({ items: [] });
+const saleValueChaw = reactive({ items: [] });
 
-const getSaleAgentData = () => {
-  console.log(sales.value, "get sales agent");
-  if (sales.value != null) {
-    saleValueAgent.items.splice(0);
-    for (let x = 0; x < sales.value.agents.length; x++) {
-      saleValueAgent.items.push(sales.value.agents[x]);
-    }
-    saleValueAmount.items.splice(0);
-    for (let x = 0; x < sales.value.amount.length; x++) {
-      saleValueAmount.items.push(sales.value.amount[x]);
-    }
-  }
-  console.log(saleValueAgent.value, saleValueAmount.value, "get sales");
-};
 const saleDataAgent = {
-  labels: saleValueAgent.items,
+  labels: dataTest.items,
   datasets: [
     {
-      label: "Sale by Employee",
-      data: saleValueAmount.items,
+      label: "Hnin N",
+      data: saleValueAgent.items,
       backgroundColor: ["#FF0000"],
+    },
+    {
+      label: "Ko Nay Myo",
+      data: saleValueKoNayMyo.items,
+      backgroundColor: ["#0032FF"],
+    },
+    {
+      label: "Chit Su",
+      data: saleValueChitSu.items,
+      backgroundColor: ["#FF00B2"],
+    },
+    {
+      label: "Ei Myat",
+      data: saleValueEiMyat.items,
+      backgroundColor: ["#00FFF7"],
+    },
+    {
+      label: "Chaw Kalayar",
+      data: saleValueChaw.items,
+      backgroundColor: ["#FFE400"],
     },
   ],
   options: {
@@ -210,12 +219,12 @@ const dateFun = async () => {
     let data = {
       startDate: startDate.value,
     };
-    console.log(data);
+
     const res = await homeStore.getTimeFilter(data);
     console.log(loading.value, res, "this is res");
     // isError.value = loading.value;
     // changeLabel();
-    getSaleAgentData();
+    // getSaleAgentData();
   }
 };
 
@@ -269,9 +278,8 @@ const generateDateArray = async () => {
       startDate: date,
     };
     const res = await homeStore.getTimeFilterArray(data);
-    // console.log(res, "this is loop data");
+    console.log(res, "this is loop data");
     if (res.status == "Request was successful.") {
-      console.log("it ok");
       let dataArr = 0;
       for (let x = 0; x < res.result.sales.original.result.amount.length; x++) {
         dataArr += res.result.sales.original.result.amount[x];
@@ -287,14 +295,61 @@ const generateDateArray = async () => {
         dataRes += res.result.reservations.original.result.prices[x];
       }
       dataAmountRes.items.push(dataRes);
+
+      let eimyatData = [];
+      for (let s = 0; s < res.result.sales.original.result.agents.length; s++) {
+        if (res.result.sales.original.result.agents[s] == "Hnin N") {
+          eimyatData.push(res.result.sales.original.result.amount[s]);
+        } else {
+          eimyatData.push(0);
+        }
+      }
+      saleValueAgent.items.push(eimyatData);
+
+      let konaymyo = [];
+      for (let s = 0; s < res.result.sales.original.result.agents.length; s++) {
+        if (res.result.sales.original.result.agents[s] == "Ko Nay Myo") {
+          konaymyo.push(res.result.sales.original.result.amount[s]);
+        } else {
+          konaymyo.push(0);
+        }
+      }
+      saleValueKoNayMyo.items.push(konaymyo);
+
+      let chitSu = [];
+      for (let s = 0; s < res.result.sales.original.result.agents.length; s++) {
+        if (res.result.sales.original.result.agents[s] == "Chit Su") {
+          chitSu.push(res.result.sales.original.result.amount[s]);
+        } else {
+          chitSu.push(0);
+        }
+      }
+      saleValueChitSu.items.push(chitSu);
+
+      let eiMyat = [];
+      for (let s = 0; s < res.result.sales.original.result.agents.length; s++) {
+        if (res.result.sales.original.result.agents[s] == "Ei Myat") {
+          eiMyat.push(res.result.sales.original.result.amount[s]);
+        } else {
+          eiMyat.push(0);
+        }
+      }
+      saleValueEiMyat.items.push(eiMyat);
+
+      let chaw = [];
+      for (let s = 0; s < res.result.sales.original.result.agents.length; s++) {
+        if (res.result.sales.original.result.agents[s] == "Chaw Kalayar") {
+          chaw.push(res.result.sales.original.result.amount[s]);
+        } else {
+          chaw.push(0);
+        }
+      }
+      saleValueChaw.items.push(chaw);
     } else {
-      console.log("it not");
       dataAmount.items.push(0);
       dataAmountRes.items.push(0);
     }
   }
-
-  console.log(dateArrFromSelect.value, "this is date");
 };
 
 onMounted(async () => {
@@ -307,7 +362,7 @@ onMounted(async () => {
   if (date.value) {
     await dateFun();
   }
-  getSaleAgentData();
+  // getSaleAgentData();
 });
 </script>
 

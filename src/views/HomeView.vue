@@ -17,7 +17,7 @@ import { useAirportStore } from "../stores/airport";
 import { useEntranceStore } from "../stores/entrance";
 import { useBookingStore } from "../stores/booking";
 import { storeToRefs } from "pinia";
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import { useHomeStore } from "../stores/home";
 import axios from "axios";
 
@@ -127,9 +127,10 @@ const saleDataAgent = {
 const isError = ref(false);
 const dataRes = reactive({ items: [] });
 const dataAmountRes = reactive({ items: [] });
+const dateRes = reactive({ items: [] });
 
 const saleDataRes = {
-  labels: dataTest.items,
+  labels: dateRes.items,
   datasets: [
     {
       label: "Reservations",
@@ -251,6 +252,7 @@ const changeValuer = (a) => {
 
 const dateArrFromSelect = ref([]);
 const loopData = ref([]);
+const monthForGraph = ref("");
 
 const generateDateArray = async () => {
   const currentDate = new Date();
@@ -265,14 +267,67 @@ const generateDateArray = async () => {
     dateArrFromSelect.value.push(dateFormat(new Date(currentDate)));
     currentDate.setDate(currentDate.getDate() + 1);
   }
-  dataTest.items.splice(0);
-  dataAmount.items.splice(0);
+
+  dateRes.items.splice(0);
   dataAmountRes.items.splice(0);
   // loop get Data
 
   for (let x = 0; x < dateArrFromSelect.value.length; x++) {
     const date = dateArrFromSelect.value[x];
-    console.log(date);
+    dateRes.items.push(date);
+    let data = {
+      startDate: date,
+    };
+    const res = await homeStore.getTimeFilterArray(data);
+    console.log(res, "this is loop data");
+    if (res.status == "Request was successful.") {
+      let dataRes = 0;
+      for (
+        let x = 0;
+        x < res.result.reservations.original.result.prices.length;
+        x++
+      ) {
+        dataRes += res.result.reservations.original.result.prices[x];
+      }
+      dataAmountRes.items.push(dataRes);
+    } else {
+      dataAmountRes.items.push(0);
+    }
+  }
+};
+
+const currentMonth = () => {
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+
+  monthForGraph.value = `${year}-${month}`;
+};
+
+const getAllDays = async (monthGet) => {
+  const [year, month] = monthGet.split("-").map(Number);
+  const firstDateOfMonth = new Date(year, month - 1, 1);
+
+  let date = firstDateOfMonth;
+  const days = [];
+
+  // Loop through each day and add it to the array
+  while (date.getMonth() === month - 1) {
+    date.setDate(date.getDate() + 1);
+    days.push(date.toISOString().split("T")[0]);
+  }
+
+  console.log(days, "this is ");
+
+  dataAmount.items.splice(0);
+  saleValueAgent.items.splice(0);
+  saleValueKoNayMyo.items.splice(0);
+  saleValueChitSu.items.splice(0);
+  saleValueEiMyat.items.splice(0);
+  saleValueChaw.items.splice(0);
+  dataTest.items.splice(0);
+  for (let x = 0; x < days.length; x++) {
+    const date = days[x];
     dataTest.items.push(date);
     let data = {
       startDate: date,
@@ -285,16 +340,6 @@ const generateDateArray = async () => {
         dataArr += res.result.sales.original.result.amount[x];
       }
       dataAmount.items.push(dataArr);
-
-      let dataRes = 0;
-      for (
-        let x = 0;
-        x < res.result.reservations.original.result.prices.length;
-        x++
-      ) {
-        dataRes += res.result.reservations.original.result.prices[x];
-      }
-      dataAmountRes.items.push(dataRes);
 
       let eimyatData = [];
       let konaymyo = [];
@@ -325,22 +370,22 @@ const generateDateArray = async () => {
       saleValueChaw.items.push(chaw[0]);
     } else {
       dataAmount.items.push(0);
-      dataAmountRes.items.push(0);
     }
   }
 };
 
 onMounted(async () => {
-  // await getSaleCountHandle();
-  // await getfun();
-  // await getReservationCount();
-  // await getBookingCount();
   generateDateArray();
   date.value = dateFormat(new Date());
   if (date.value) {
     await dateFun();
   }
   // getSaleAgentData();
+  currentMonth();
+});
+
+watch(monthForGraph, async (newValue) => {
+  getAllDays(monthForGraph.value);
 });
 </script>
 
@@ -538,7 +583,14 @@ onMounted(async () => {
                   Sale by Employee
                 </p>
               </div>
-              <div>
+              <div class="flex justify-end items-center gap-3">
+                <input
+                  type="month"
+                  name=""
+                  v-model="monthForGraph"
+                  class="bg-white text-sm w-[200px] px-2 py-2"
+                  id=""
+                />
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"

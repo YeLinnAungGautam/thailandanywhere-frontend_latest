@@ -332,50 +332,62 @@ const getAllDays = async (monthGet) => {
     let data = {
       startDate: date,
     };
-    const res = await homeStore.getTimeFilterArray(data);
-    console.log(res, "this is loop data");
-    if (res.status == "Request was successful.") {
-      let dataArr = 0;
-      for (let x = 0; x < res.result.sales.original.result.amount.length; x++) {
-        dataArr += res.result.sales.original.result.amount[x];
-      }
-      dataAmount.items.push(dataArr);
+    let currentDate = new Date();
+    let currentDateNew = currentDate.toISOString().split("T")[0];
+    if (currentDateNew > date || currentDateNew == date) {
+      const res = await homeStore.getTimeFilterArray(data);
+      console.log(res, "this is loop data");
+      if (res.status == "Request was successful.") {
+        let dataArr = 0;
+        for (
+          let x = 0;
+          x < res.result.sales.original.result.amount.length;
+          x++
+        ) {
+          dataArr += res.result.sales.original.result.amount[x];
+        }
+        dataAmount.items.push(dataArr);
 
-      let eimyatData = [];
-      let konaymyo = [];
-      let chitSu = [];
-      let eiMyat = [];
-      let chaw = [];
-      for (let s = 0; s < res.result.sales.original.result.agents.length; s++) {
-        if (res.result.sales.original.result.agents[s] == "Hnin N") {
-          eimyatData.push(res.result.sales.original.result.amount[s]);
+        let eimyatData = [];
+        let konaymyo = [];
+        let chitSu = [];
+        let eiMyat = [];
+        let chaw = [];
+        for (
+          let s = 0;
+          s < res.result.sales.original.result.agents.length;
+          s++
+        ) {
+          if (res.result.sales.original.result.agents[s] == "Hnin N") {
+            eimyatData.push(res.result.sales.original.result.amount[s]);
+          }
+          if (res.result.sales.original.result.agents[s] == "Ko Nay Myo") {
+            konaymyo.push(res.result.sales.original.result.amount[s]);
+          }
+          if (res.result.sales.original.result.agents[s] == "Chit Su") {
+            chitSu.push(res.result.sales.original.result.amount[s]);
+          }
+          if (res.result.sales.original.result.agents[s] == "Ei Myat") {
+            eiMyat.push(res.result.sales.original.result.amount[s]);
+          }
+          if (res.result.sales.original.result.agents[s] == "Chaw Kalayar") {
+            chaw.push(res.result.sales.original.result.amount[s]);
+          }
         }
-        if (res.result.sales.original.result.agents[s] == "Ko Nay Myo") {
-          konaymyo.push(res.result.sales.original.result.amount[s]);
-        }
-        if (res.result.sales.original.result.agents[s] == "Chit Su") {
-          chitSu.push(res.result.sales.original.result.amount[s]);
-        }
-        if (res.result.sales.original.result.agents[s] == "Ei Myat") {
-          eiMyat.push(res.result.sales.original.result.amount[s]);
-        }
-        if (res.result.sales.original.result.agents[s] == "Chaw Kalayar") {
-          chaw.push(res.result.sales.original.result.amount[s]);
-        }
+        saleValueAgent.items.push(eimyatData[0]);
+        saleValueKoNayMyo.items.push(konaymyo[0]);
+        saleValueChitSu.items.push(chitSu[0]);
+        saleValueEiMyat.items.push(eiMyat[0]);
+        saleValueChaw.items.push(chaw[0]);
+      } else {
+        dataAmount.items.push(0);
       }
-      saleValueAgent.items.push(eimyatData[0]);
-      saleValueKoNayMyo.items.push(konaymyo[0]);
-      saleValueChitSu.items.push(chitSu[0]);
-      saleValueEiMyat.items.push(eiMyat[0]);
-      saleValueChaw.items.push(chaw[0]);
-    } else {
-      dataAmount.items.push(0);
     }
   }
 };
 
 onMounted(async () => {
-  generateDateArray();
+  // generateDateArray();
   date.value = dateFormat(new Date());
   if (date.value) {
     await dateFun();
@@ -385,7 +397,17 @@ onMounted(async () => {
 });
 
 watch(monthForGraph, async (newValue) => {
-  getAllDays(monthForGraph.value);
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return function (...args) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func.apply(this, args);
+      }, delay);
+    };
+  };
+
+  const debouncedGetAllDays = debounce(getAllDays(monthForGraph.value), 1000);
 });
 </script>
 
@@ -607,14 +629,14 @@ watch(monthForGraph, async (newValue) => {
             <LineChart :chartData="saleData" v-if="priceSalesGraph" />
             <LineChart :chartData="saleDataAgent" v-if="!priceSalesGraph" />
           </div>
-          <div
+          <!-- <div
             class="bg-white/60 col-span-3 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
           >
             <p class="text-gray-600 mb-3 font-medium tracking-wide">
               Reservation
             </p>
             <BarChart :chartData="saleDataRes" />
-          </div>
+          </div> -->
         </div>
       </div>
       <!-- <div class="bg-white/60 rounded-md shadow-sm p-4 w-full h-full"></div> -->

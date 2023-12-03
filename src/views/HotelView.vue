@@ -119,7 +119,7 @@
               type="date"
               class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
             />
-            <p>{{ formData.contract_due }}</p>
+            <!-- <p>{{ formData.contract_due }}</p> -->
           </div>
           <div class="mb-2 space-y-1">
             <label for="name" class="text-sm text-gray-800">Contracts</label>
@@ -141,10 +141,65 @@
               >
             </p>
           </div>
+
+          <div class="mb-2 space-y-1">
+            <label for="description" class="text-sm text-gray-800"
+              >Images</label
+            >
+            <input
+              multiple
+              type="file"
+              name=""
+              ref="imagesInput"
+              id=""
+              @change="handlerImagesFileChange"
+              class="hidden w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              accept="image/*"
+            />
+            <button
+              class="text-sm text-blue-600 ml-4"
+              @click.prevent="openFileImagePicker"
+            >
+              <i
+                class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
+              ></i>
+            </button>
+            <div
+              class="grid grid-cols-3 gap-2"
+              v-if="imagesPreview.length != 0"
+            >
+              <div
+                class="relative"
+                v-for="(image, index) in imagesPreview"
+                :key="index"
+              >
+                <button
+                  @click.prevent="removeImageSelectImage(index)"
+                  class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                >
+                  <XCircleIcon class="w-8 h-8 font-semibold" />
+                </button>
+
+                <img class="h-auto w-full rounded" :src="image" alt="" />
+              </div>
+            </div>
+            <div
+              class="grid grid-cols-3 gap-2"
+              v-if="editImagesPreview.length != 0 && imagesPreview.length == 0"
+            >
+              <div
+                class="relative"
+                v-for="(image, index) in editImagesPreview"
+                :key="index"
+              >
+                <img class="h-auto w-full rounded" :src="image" alt="" />
+              </div>
+            </div>
+          </div>
           <div class="text-end flex justify-end items-center">
             <p
               class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
-              @click="createModalOpen = false"
+              @click="closeModal"
             >
               close
             </p>
@@ -254,6 +309,7 @@ import {
   BuildingOfficeIcon,
   PlusIcon,
   UserGroupIcon,
+  XCircleIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
 } from "@heroicons/vue/24/outline";
@@ -309,7 +365,54 @@ const formData = ref({
   legal_name: "",
   contract_due: "",
   contracts: [],
+  images: [],
 });
+
+const editImagesPreview = ref([]);
+const imagesPreview = ref([]);
+const imagesInput = ref(null);
+
+const openFileImagePicker = () => {
+  imagesInput.value.click();
+};
+
+const handlerImagesFileChange = (e) => {
+  console.log(e.target.files);
+  let selectedFile = e.target.files;
+  if (selectedFile) {
+    for (let index = 0; index < selectedFile.length; index++) {
+      formData.value.images.push(selectedFile[index]);
+      imagesPreview.value.push(URL.createObjectURL(selectedFile[index]));
+    }
+  }
+};
+
+const removeImageSelectImage = (index) => {
+  formData.value.images.splice(index, 1);
+  imagesPreview.value.splice(index, 1);
+  console.log(imagesPreview.value);
+};
+
+const closeModal = () => {
+  formData.value = {
+    id: "",
+    name: "",
+    city_id: null,
+    payment_method: "",
+    bank_name: "",
+    bank_account_number: "",
+    account_name: "",
+    place: "",
+    legal_name: "",
+    contract_due: "",
+    contracts: [],
+    images: [],
+  };
+
+  editImagesPreview.value = [];
+  imagesPreview.value = [];
+  createModalOpen.value = false;
+};
 
 const addNewHandler = async () => {
   console.log(loading.value);
@@ -323,6 +426,12 @@ const addNewHandler = async () => {
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
   frmData.append("contract_due", formData.value.contract_due);
+  if (formData.value.images.length > 0) {
+    for (let i = 0; i < formData.value.images.length; i++) {
+      let file = formData.value.images[i];
+      frmData.append("images[" + i + "]", file);
+    }
+  }
   console.log(formData.value.contracts);
   if (formData.value.contracts) {
     // frmData.append("contracts", formData.value.contracts);
@@ -350,9 +459,12 @@ const addNewHandler = async () => {
       place: "",
       legal_name: "",
       contract_due: "",
+      images: [],
       contracts: [],
     };
     errors.value = null;
+    imagesPreview.value = [];
+    editImagesPreview.value = [];
     createModalOpen.value = false;
     await hotelStore.getListAction();
     toast.success(response.message);
@@ -381,6 +493,8 @@ const openCreate = () => {
   formData.value.contract_due = "";
   formData.value.contracts = [];
   linkContract.value = {};
+  imagesPreview.value = [];
+  editImagesPreview.value = [];
   createModalOpen.value = true;
 };
 
@@ -414,6 +528,12 @@ const updateHandler = async () => {
       frmData.append("contracts[" + i + "]", file);
     }
   }
+  if (formData.value.images.length > 0) {
+    for (let i = 0; i < formData.value.images.length; i++) {
+      let file = formData.value.images[i];
+      frmData.append("images[" + i + "]", file);
+    }
+  }
 
   frmData.append("_method", "PUT");
   try {
@@ -429,9 +549,12 @@ const updateHandler = async () => {
       account_name: "",
       legal_name: "",
       contract_due: "",
-      contracts: "",
+      contracts: [],
+      images: [],
     };
     errors.value = null;
+    imagesPreview.value = [];
+    editImagesPreview.value = [];
     createModalOpen.value = false;
     await hotelStore.getListAction();
     toast.success(response.message);
@@ -454,6 +577,11 @@ const onSubmitHandler = async () => {
   }
 };
 
+const formatDate = (getDate) => {
+  const dateParts = getDate.split(" ");
+  return dateParts[0];
+};
+
 const linkContract = ref({});
 const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
@@ -461,7 +589,7 @@ const editModalOpenHandler = (data) => {
   formData.value.city_id = data.city.id;
   formData.value.place = data.place;
   formData.value.legal_name = data.legal_name;
-  formData.value.contract_due = data.contract_due;
+  formData.value.contract_due = formatDate(data.contract_due);
   formData.value.bank_account_number = data.bank_account_number;
   formData.value.account_name = data.account_name;
   formData.value.payment_method = data.payment_method;
@@ -470,6 +598,11 @@ const editModalOpenHandler = (data) => {
   console.log(formData.value.contract_due);
   linkContract.value = data;
   console.log(data, "this is file");
+  if (data.images.length > 0) {
+    for (let i = 0; i < data.images.length; i++) {
+      editImagesPreview.value.push(data.images[i].image);
+    }
+  }
   createModalOpen.value = true;
 };
 

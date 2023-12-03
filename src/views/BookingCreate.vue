@@ -149,6 +149,7 @@ const paymentArray = [
 ];
 
 const formData = ref({
+  payment_notes: "",
   customer_id: "",
   sold_from: "",
   payment_method: "",
@@ -716,6 +717,7 @@ const statePast = computed(() => {
 const onSubmitHandler = async () => {
   const frmData = new FormData();
   frmData.append("customer_id", formData.value.customer_id);
+  frmData.append("payment_notes", formData.value.payment_notes);
   frmData.append("sold_from", formData.value.sold_from);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
@@ -1326,6 +1328,7 @@ onMounted(async () => {
                   class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
+
               <div class="relative" v-if="authStore.isCashier">
                 <p class="mb-3 text-xs text-[#ff613c]">Is Past Info</p>
 
@@ -1406,6 +1409,15 @@ onMounted(async () => {
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
+            </div>
+            <div colspan="2">
+              <p class="mb-2 text-xs text-[#ff613c]">Payment Notes</p>
+
+              <textarea
+                v-model="formData.payment_notes"
+                id="title"
+                class="w-full px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+              ></textarea>
             </div>
           </div>
           <div class="col-span-1 space-y-4 text-end">

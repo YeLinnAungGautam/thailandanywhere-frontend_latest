@@ -5,6 +5,7 @@ import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
+import { Switch } from "@headlessui/vue";
 
 import { useToast } from "vue-toastification";
 import { useRouter, useRoute } from "vue-router";
@@ -81,6 +82,7 @@ const formItemType = [
 ];
 
 const formData = ref({
+  slip_code: "",
   comment: "",
   pickup_time: "",
   confirmation_letter: "",
@@ -134,6 +136,10 @@ const secForm = ref({
   car_number: "",
   car_photo: "",
   ref_number: "",
+  is_associated: "",
+  customer_name: "",
+  customer_phone: "",
+  customer_passport_number: "",
 });
 
 const fileInput = ref(null);
@@ -270,12 +276,15 @@ const onSubmitHandler = async () => {
 
   frmData.append("product_type", formData.value.product_type);
   frmData.append("cost_price", formData.value.cost_price);
+
   frmData.append("quantity", formData.value.quantity);
   // frmData.append("receipt_image", formData.value.receipt_image);
   frmData.append("reservation_status", formData.value.reservation_status);
   frmData.append("selling_price", formData.value.selling_price);
   frmData.append("service_date", formData.value.service_date);
   frmData.append("car_id", formData.value.car_id);
+  frmData.append("slip_code", formData.value.slip_code);
+
   if (customer_passport.value.length != 0) {
     if (customer_passport.value.length > 0) {
       for (let i = 0; i < customer_passport.value.length; i++) {
@@ -296,6 +305,7 @@ const onSubmitHandler = async () => {
       if (secForm.value.customer_feedback) {
         secfrm.append("customer_feedback", secForm.value.customer_feedback);
       }
+
       if (formData.value.bank_name) {
         secfrm.append("bank_name", formData.value.bank_name);
       }
@@ -304,6 +314,23 @@ const onSubmitHandler = async () => {
           "bank_account_number",
           formData.value.bank_account_number
         );
+      }
+      if (secForm.value.customer_name) {
+        secfrm.append("customer_name", secForm.value.customer_name);
+      }
+      if (secForm.value.customer_phone) {
+        secfrm.append("customer_phone", secForm.value.customer_phone);
+      }
+      if (secForm.value.customer_passport_number) {
+        secfrm.append(
+          "customer_passport_number",
+          secForm.value.customer_passport_number
+        );
+      }
+      if (enabled.value == true) {
+        secfrm.append("is_associated", 1);
+      } else {
+        secfrm.append("is_associated", 0);
       }
 
       secfrm.append("expense_amount", expense_amount.value);
@@ -342,7 +369,6 @@ const onSubmitHandler = async () => {
       if (secForm.value.ref_number) {
         secfrm.append("ref_number", secForm.value.ref_number);
       }
-
       secfrm.append("special_request", secForm.value.special_request);
 
       if (secForm.value.other_info) {
@@ -508,6 +534,11 @@ const getDetail = async () => {
     } else {
       formData.value.pickup_time = "-";
     }
+    if (response.result.slip_code) {
+      formData.value.slip_code = response.result.slip_code;
+    } else {
+      formData.value.slip_code = "-";
+    }
     roomName.value = response.result.room?.name
       ? response.result.room.name
       : "";
@@ -576,6 +607,14 @@ const getDetail = async () => {
       secForm.value.driver_score = "";
       secForm.value.product_score = "";
       secForm.value.other_info = "";
+    }
+    if(response.result.is_associated == 1){
+      enabled.value = true;
+      if(response.result.associated_customer != null){
+        secForm.value.customer_name = response.result.associated_customer[0].name;
+        secForm.value.customer_phone = response.result.associated_customer[0].phone;
+        secForm.value.customer_passport_number = response.result.associated_customer[0].passport;
+      }
     }
 
     if (response.result.reservation_car_info != null) {
@@ -1293,9 +1332,55 @@ onMounted(async () => {
               "
             >
               <div class="pl-10 space-y-2">
-                <p></p>
-                <p class="text-gray-400 text-xs">Customer Passport Multiple</p>
+                <p class="text-xs text-gray-400">Is Associated ?</p>
+                <p class="text-gray-400 text-xs">
+                  <Switch
+                    v-model="enabled"
+                    :class="enabled ? ' bg-orange-600' : 'bg-gray-500'"
+                    class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                  >
+                    <span class="sr-only">Use setting</span>
+                    <span
+                      aria-hidden="true"
+                      :class="enabled ? 'translate-x-9' : 'translate-x-0'"
+                      class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                    />
+                  </Switch>
+                </p>
               </div>
+              <div class="pl-10 pr-4 space-y-2" v-if="enabled">
+                <p class="text-xs text-gray-400">Associated Customer Name</p>
+                <input
+                  type="text"
+                  name=""
+                  v-model="secForm.customer_name"
+                  class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  id=""
+                />
+              </div>
+              <div class="pl-10 space-y-2" v-if="enabled">
+                <p class="text-xs text-gray-400">Associated Customer Phone</p>
+                <input
+                  type="number"
+                  v-model="secForm.customer_phone"
+                  name=""
+                  class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  id=""
+                />
+              </div>
+              <div class="pl-10 pr-4 space-y-2" v-if="enabled">
+                <p class="text-xs text-gray-400">
+                  Associated Customer Passport
+                </p>
+                <input
+                  type="text"
+                  v-model="secForm.customer_passport_number"
+                  name=""
+                  class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  id=""
+                />
+              </div>
+
               <div class="pl-10 space-y-2">
                 <input
                   type="file"
@@ -1309,7 +1394,7 @@ onMounted(async () => {
                   class="text-white text-xs inline-block cursor-pointer bg-[#ff613c] rounded-sm px-2 py-1"
                   @click.prevent="openFileFeaturePicker"
                 >
-                  Add New Customer Passport
+                  Add New Customer Passport multiple
                 </p>
               </div>
               <div class="px-10 space-y-2 col-span-2">
@@ -1829,6 +1914,15 @@ onMounted(async () => {
                   :reduce="(d) => d.name"
                   placeholder=""
                 ></v-select>
+              </div>
+              <div class="pl-10 pr-10 space-y-2">
+                <p class="text-gray-400 text-xs">Reservation Slip Code</p>
+                <input
+                  v-model="formData.slip_code"
+                  type="title"
+                  id="title"
+                  class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                />
               </div>
 
               <div class="pl-10 pr-10 space-y-2">

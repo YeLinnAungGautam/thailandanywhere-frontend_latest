@@ -148,6 +148,7 @@ const formItemType = [
 ];
 
 const formData = ref({
+  payment_notes: "",
   customer_id: "",
   sold_from: "",
   payment_method: "",
@@ -616,6 +617,7 @@ const statePast = computed(() => {
 const onSubmitHandler = async () => {
   const frmData = new FormData();
   frmData.append("_method", "PUT");
+  frmData.append("payment_notes", formData.value.payment_notes);
   frmData.append("customer_id", formData.value.customer_id);
   frmData.append("sold_from", formData.value.sold_from);
   frmData.append("payment_method", formData.value.payment_method);
@@ -1127,6 +1129,7 @@ const getDetail = async () => {
     const response = await bookingStore.getDetailAction(route.params.id);
     console.log(response, "this is response get");
     formData.value.customer_id = response.result.customer.id;
+    formData.value.payment_notes = response.result.payment_notes;
     formData.value.sold_from = response.result.sold_from;
     formData.value.payment_method = response.result.payment_method;
     formData.value.bank_name = response.result.bank_name;
@@ -1831,6 +1834,15 @@ onMounted(async () => {
                 <p class="text-xs text-gray-500 mt-3" v-if="!statePast">
                   When it is current , you can't change past
                 </p>
+              </div>
+              <div colspan="2">
+                <p class="mb-2 text-xs text-[#ff613c]">Payment Notes</p>
+
+                <textarea
+                  v-model="formData.payment_notes"
+                  id="title"
+                  class="w-full px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                ></textarea>
               </div>
             </div>
             <div class="col-span-1 space-y-4 text-end">

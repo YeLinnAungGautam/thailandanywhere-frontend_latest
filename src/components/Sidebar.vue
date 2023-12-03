@@ -147,11 +147,11 @@
                 to="/partners"
               />
               <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
-              <!-- <SidebarItem
+              <SidebarItem
                 name="Calendar"
                 :icon="CalendarDaysIcon"
                 to="/calendar"
-              /> -->
+              />
             </div>
           </div>
 

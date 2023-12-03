@@ -56,6 +56,20 @@
             </p>
           </div>
           <div class="mb-2 space-y-1">
+            <label for="room_price" class="text-sm text-gray-800"
+              >Max Preson</label
+            >
+            <input
+              type="text"
+              v-model="formData.max_person"
+              id="max_person"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.max_person" class="mt-1 text-sm text-red-600">
+              {{ errors.max_person[0] }}
+            </p>
+          </div>
+          <div class="mb-2 space-y-1">
             <label for="room_price" class="text-sm text-gray-800">Cost</label>
             <input
               type="number"
@@ -81,11 +95,65 @@
               {{ errors.description[0] }}
             </p>
           </div>
+          <div class="mb-2 space-y-1">
+            <label for="description" class="text-sm text-gray-800"
+              >Images</label
+            >
+            <input
+              multiple
+              type="file"
+              name=""
+              ref="imagesInput"
+              id=""
+              @change="handlerImagesFileChange"
+              class="hidden w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              accept="image/*"
+            />
+            <button
+              class="text-sm text-blue-600 ml-4"
+              @click.prevent="openFileImagePicker"
+            >
+              <i
+                class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
+              ></i>
+            </button>
+            <div
+              class="grid grid-cols-3 gap-2"
+              v-if="imagesPreview.length != 0"
+            >
+              <div
+                class="relative"
+                v-for="(image, index) in imagesPreview"
+                :key="index"
+              >
+                <button
+                  @click.prevent="removeImageSelectImage(index)"
+                  class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                >
+                  <XCircleIcon class="w-8 h-8 font-semibold" />
+                </button>
+
+                <img class="h-auto w-full rounded" :src="image" alt="" />
+              </div>
+            </div>
+            <div
+              class="grid grid-cols-3 gap-2"
+              v-if="editImagesPreview.length != 0 && imagesPreview.length == 0"
+            >
+              <div
+                class="relative"
+                v-for="(image, index) in editImagesPreview"
+                :key="index"
+              >
+                <img class="h-auto w-full rounded" :src="image" alt="" />
+              </div>
+            </div>
+          </div>
 
           <div class="text-end flex justify-end items-center">
             <p
               class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
-              @click="createModalOpen = false"
+              @click="closeModal"
             >
               close
             </p>
@@ -224,6 +292,7 @@ import { useCityStore } from "../stores/city";
 import { useHotelStore } from "../stores/hotel";
 import { useRoomStore } from "../stores/room";
 import { useAuthStore } from "../stores/auth";
+import { XCircleIcon } from "@heroicons/vue/24/outline";
 
 const createModalOpen = ref(false);
 const toast = useToast();
@@ -246,10 +315,29 @@ const formData = ref({
   name: "",
   hotel_id: null,
   description: "",
-
+  max_person: "",
+  images: [],
   room_price: "",
   cost: "",
 });
+const editImagesPreview = ref([]);
+
+const closeModal = () => {
+  formData.value = {
+    id: "",
+    name: "",
+    hotel_id: null,
+    description: "",
+    max_person: "",
+    images: [],
+    room_price: "",
+    cost: "",
+  };
+  errors.value = null;
+  createModalOpen.value = false;
+  imagesPreview.value = [];
+  editImagesPreview.value = [];
+};
 
 const limitedText = (text) => {
   if (text != "") {
@@ -266,9 +354,15 @@ const addNewHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("hotel_id", formData.value.hotel_id);
   frmData.append("description", formData.value.description);
-
+  frmData.append("max_person", formData.value.max_person);
   frmData.append("room_price", formData.value.room_price);
   frmData.append("cost", formData.value.cost);
+  if (formData.value.images.length > 0) {
+    for (let i = 0; i < formData.value.images.length; i++) {
+      let file = formData.value.images[i];
+      frmData.append("images[" + i + "]", file);
+    }
+  }
 
   try {
     const response = await roomStore.addNewAction(frmData);
@@ -277,12 +371,15 @@ const addNewHandler = async () => {
       name: "",
       hotel_id: null,
       description: "",
-
+      max_person: "",
+      images: [],
       room_price: "",
       cost: "",
     };
     errors.value = null;
     createModalOpen.value = false;
+    imagesPreview.value = [];
+    editImagesPreview.value = [];
     await roomStore.getListAction();
     toast.success(response.message);
   } catch (error) {
@@ -298,7 +395,13 @@ const updateHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("hotel_id", formData.value.hotel_id);
   frmData.append("description", formData.value.description);
-
+  frmData.append("max_person", formData.value.max_person);
+  if (formData.value.images.length > 0) {
+    for (let i = 0; i < formData.value.images.length; i++) {
+      let file = formData.value.images[i];
+      frmData.append("images[" + i + "]", file);
+    }
+  }
   frmData.append("room_price", formData.value.room_price);
   frmData.append("cost", formData.value.cost);
 
@@ -310,10 +413,13 @@ const updateHandler = async () => {
       name: "",
       hotel_id: null,
       description: "",
-
+      max_person: "",
+      images: [],
       room_price: "",
       cost: "",
     };
+    imagesPreview.value = [];
+    editImagesPreview.value = [];
     errors.value = null;
     createModalOpen.value = false;
     await roomStore.getListAction();
@@ -334,15 +440,49 @@ const onSubmitHandler = async () => {
   }
 };
 
+const imagesPreview = ref([]);
+const imagesInput = ref(null);
+const openFileImagePicker = () => {
+  imagesInput.value.click();
+};
+
+const handlerImagesFileChange = (e) => {
+  console.log(e.target.files);
+  let selectedFile = e.target.files;
+  if (selectedFile) {
+    for (let index = 0; index < selectedFile.length; index++) {
+      formData.value.images.push(selectedFile[index]);
+      imagesPreview.value.push(URL.createObjectURL(selectedFile[index]));
+    }
+  }
+};
+
+const removeImageSelectImage = (index) => {
+  formData.value.images.splice(index, 1);
+  imagesPreview.value.splice(index, 1);
+  console.log(imagesPreview.value);
+};
+const removeEditImageSelectImage = (index) => {
+  formData.value.images.splice(index, 1);
+  editImagesPreview.value.splice(index, 1);
+  console.log(editImagesPreview.value);
+};
+
 const editModalOpenHandler = (data) => {
+  console.log(data);
   formData.value.id = data.id;
   formData.value.name = data.name;
   formData.value.hotel_id = data.hotel.id;
-
+  formData.value.max_person = data.max_person;
   formData.value.room_price = data.room_price;
   formData.value.description = data.description;
   formData.value.cost = data.cost;
   createModalOpen.value = true;
+  if (data.images.length > 0) {
+    for (let i = 0; i < data.images.length; i++) {
+      editImagesPreview.value.push(data.images[i].image);
+    }
+  }
 };
 
 const changePage = async (url) => {

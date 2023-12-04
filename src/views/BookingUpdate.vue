@@ -1835,15 +1835,6 @@ onMounted(async () => {
                   When it is current , you can't change past
                 </p>
               </div>
-              <div colspan="2">
-                <p class="mb-2 text-xs text-[#ff613c]">Payment Notes</p>
-
-                <textarea
-                  v-model="formData.payment_notes"
-                  id="title"
-                  class="w-full px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
-                ></textarea>
-              </div>
             </div>
             <div class="col-span-1 space-y-4 text-end">
               <p class="text-[#ff613c] text-xs">Balance Due</p>
@@ -3175,6 +3166,14 @@ onMounted(async () => {
                           disabled
                           class="w-full h-8 px-4 py-2 mt-2 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300"
                         />
+                      </div>
+                      <div class="mt-3">
+                        <textarea
+                          v-model="formData.payment_notes"
+                          id="title"
+                          class="w-full px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                          placeholder="Payment Notes"
+                        ></textarea>
                       </div>
 
                       <div

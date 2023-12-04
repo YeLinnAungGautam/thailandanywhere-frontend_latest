@@ -1410,15 +1410,6 @@ onMounted(async () => {
                 />
               </div>
             </div>
-            <div colspan="2">
-              <p class="mb-2 text-xs text-[#ff613c]">Payment Notes</p>
-
-              <textarea
-                v-model="formData.payment_notes"
-                id="title"
-                class="w-full px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
-              ></textarea>
-            </div>
           </div>
           <div class="col-span-1 space-y-4 text-end">
             <p class="text-xs text-[#ff613c]">Balance Due</p>
@@ -2512,6 +2503,7 @@ onMounted(async () => {
                         class="w-full h-8 px-4 py-2 mt-2 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300"
                       />
                     </div>
+
                     <!-- <div class="grid grid-cols-2 gap-4">
                       <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
                         Due Date:
@@ -2523,6 +2515,14 @@ onMounted(async () => {
                         class="w-full h-8 px-4 py-2 mt-2 text-sm text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
                       />
                     </div> -->
+                    <div class="mt-3">
+                      <textarea
+                        v-model="formData.payment_notes"
+                        id="title"
+                        class="w-full px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                        placeholder="Payment Notes"
+                      ></textarea>
+                    </div>
                     <div class="mt-6 mb-3 text-end" v-show="allowCreate">
                       <Button
                         @click.prevent="onSubmitHandler"

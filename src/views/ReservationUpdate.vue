@@ -608,12 +608,15 @@ const getDetail = async () => {
       secForm.value.product_score = "";
       secForm.value.other_info = "";
     }
-    if(response.result.is_associated == 1){
+    if (response.result.is_associated == 1) {
       enabled.value = true;
-      if(response.result.associated_customer != null){
-        secForm.value.customer_name = response.result.associated_customer[0].name;
-        secForm.value.customer_phone = response.result.associated_customer[0].phone;
-        secForm.value.customer_passport_number = response.result.associated_customer[0].passport;
+      if (response.result.associated_customer != null) {
+        secForm.value.customer_name =
+          response.result.associated_customer[0].name;
+        secForm.value.customer_phone =
+          response.result.associated_customer[0].phone;
+        secForm.value.customer_passport_number =
+          response.result.associated_customer[0].passport;
       }
     }
 
@@ -864,6 +867,14 @@ const printReservation = () => {
       "/receipt"
   );
 };
+const printPrivateVanTour = () => {
+  window.open(
+    import.meta.env.VITE_API_URL +
+      "/vantour-reservation/" +
+      route.params.id +
+      "/receipt"
+  );
+};
 
 const printHotelConfirm = () => {
   window.open(
@@ -1013,6 +1024,17 @@ onMounted(async () => {
             @click="printReservation"
             v-if="
               formData.product_type == 'App\\Models\\EntranceTicket' &&
+              (booking_status.payment_status == 'fully_paid' ||
+                booking_status.payment_status == 'partially_paid')
+            "
+          >
+            Print
+          </p>
+          <p
+            class="px-4 py-2 border border-[#ff613c] text-white bg-[#ff613c] text-xs cursor-pointer hover:bg-transparent hover:text-[#ff613c]"
+            @click="printPrivateVanTour"
+            v-if="
+              formData.product_type == 'App\\Models\\PrivateVanTour' &&
               (booking_status.payment_status == 'fully_paid' ||
                 booking_status.payment_status == 'partially_paid')
             "
@@ -1223,10 +1245,8 @@ onMounted(async () => {
                 {{ booking_status.payment_status }}
               </p>
             </div>
-
             <div class="pl-10 pr-10 space-y-2">
               <p class="text-gray-400 text-xs">Payment Due:</p>
-              <!-- <p class="font-semibold text-xs">09/08/2023</p> -->
               <input
                 v-model="formData.service_date"
                 type="date"
@@ -1237,7 +1257,6 @@ onMounted(async () => {
             </div>
             <div class="pl-10 pr-10 space-y-2">
               <p class="text-gray-400 text-xs">Service Date:</p>
-              <!-- <p class="font-semibold text-xs">09/08/2023</p> -->
               <input
                 v-model="formData.service_date"
                 type="date"

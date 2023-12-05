@@ -5,7 +5,7 @@
     <h3 class="mb-3 text-xl font-medium tracking-wide text-gray-600">Hotels</h3>
 
     <!-- modal -->
-    <Modal :isOpen="createModalOpen" @closeModal="createModalOpen = false">
+    <Modal :isOpen="createModalOpen" @closeModal="closeModal">
       <DialogPanel
         class="max-w-xl p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
       >

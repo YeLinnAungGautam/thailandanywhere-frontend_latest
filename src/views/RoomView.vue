@@ -81,6 +81,23 @@
               {{ errors.cost[0] }}
             </p>
           </div>
+          <div class="mb-2 space-y-1 flex justify-start items-center gap-3">
+            <label for="room_price" class="text-sm text-gray-800"
+              >Is Extra ?</label
+            >
+            <Switch
+              v-model="enabled"
+              :class="enabled ? ' bg-orange-600' : 'bg-gray-500'"
+              class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+            >
+              <span class="sr-only">Use setting</span>
+              <span
+                aria-hidden="true"
+                :class="enabled ? 'translate-x-9' : 'translate-x-0'"
+                class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+              />
+            </Switch>
+          </div>
           <div class="mb-2 space-y-1">
             <label for="description" class="text-sm text-gray-800"
               >Description</label
@@ -293,6 +310,7 @@ import { useHotelStore } from "../stores/hotel";
 import { useRoomStore } from "../stores/room";
 import { useAuthStore } from "../stores/auth";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
+import { Switch } from "@headlessui/vue";
 
 const createModalOpen = ref(false);
 const toast = useToast();
@@ -309,6 +327,7 @@ const errors = ref([]);
 const { hotels } = storeToRefs(hotelStore);
 
 const hotelList = ref([]);
+const enabled = ref(false);
 
 const formData = ref({
   id: "",
@@ -316,6 +335,7 @@ const formData = ref({
   hotel_id: null,
   description: "",
   max_person: "",
+  is_extra: 0,
   images: [],
   room_price: "",
   cost: "",
@@ -327,6 +347,7 @@ const closeModal = () => {
     id: "",
     name: "",
     hotel_id: null,
+    is_extra: 0,
     description: "",
     max_person: "",
     images: [],
@@ -334,6 +355,7 @@ const closeModal = () => {
     cost: "",
   };
   errors.value = null;
+  enabled.value = false;
   createModalOpen.value = false;
   imagesPreview.value = [];
   editImagesPreview.value = [];
@@ -357,6 +379,7 @@ const addNewHandler = async () => {
   frmData.append("max_person", formData.value.max_person);
   frmData.append("room_price", formData.value.room_price);
   frmData.append("cost", formData.value.cost);
+  frmData.append("is_extra", enabled.value ? 1 : 0);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -373,9 +396,11 @@ const addNewHandler = async () => {
       description: "",
       max_person: "",
       images: [],
+      is_extra: 0,
       room_price: "",
       cost: "",
     };
+    enabled.value = false;
     errors.value = null;
     createModalOpen.value = false;
     imagesPreview.value = [];
@@ -396,6 +421,7 @@ const updateHandler = async () => {
   frmData.append("hotel_id", formData.value.hotel_id);
   frmData.append("description", formData.value.description);
   frmData.append("max_person", formData.value.max_person);
+  frmData.append("is_extra", enabled.value ? 1 : 0);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -414,10 +440,12 @@ const updateHandler = async () => {
       hotel_id: null,
       description: "",
       max_person: "",
+      is_extra: 0,
       images: [],
       room_price: "",
       cost: "",
     };
+    enabled.value = false;
     imagesPreview.value = [];
     editImagesPreview.value = [];
     errors.value = null;
@@ -473,6 +501,7 @@ const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
   formData.value.hotel_id = data.hotel.id;
+  enabled.value = data.is_extra == 1 ? true : false;
   formData.value.max_person = data.max_person;
   formData.value.room_price = data.room_price;
   formData.value.description = data.description;

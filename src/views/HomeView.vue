@@ -254,48 +254,6 @@ const dateArrFromSelect = ref([]);
 const loopData = ref([]);
 const monthForGraph = ref("");
 
-const generateDateArray = async () => {
-  const currentDate = new Date();
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-
-  // Set the date to the first day of the month
-  currentDate.setDate(1);
-
-  // Iterate through the days of the month
-  while (currentDate.getMonth() === month) {
-    dateArrFromSelect.value.push(dateFormat(new Date(currentDate)));
-    currentDate.setDate(currentDate.getDate() + 1);
-  }
-
-  dateRes.items.splice(0);
-  dataAmountRes.items.splice(0);
-  // loop get Data
-
-  for (let x = 0; x < dateArrFromSelect.value.length; x++) {
-    const date = dateArrFromSelect.value[x];
-    dateRes.items.push(date);
-    let data = {
-      startDate: date,
-    };
-    const res = await homeStore.getTimeFilterArray(data);
-    console.log(res, "this is loop data");
-    if (res.status == "Request was successful.") {
-      let dataRes = 0;
-      for (
-        let x = 0;
-        x < res.result.reservations.original.result.prices.length;
-        x++
-      ) {
-        dataRes += res.result.reservations.original.result.prices[x];
-      }
-      dataAmountRes.items.push(dataRes);
-    } else {
-      dataAmountRes.items.push(0);
-    }
-  }
-};
-
 const currentMonth = () => {
   const currentDate = new Date();
   const year = currentDate.getFullYear();
@@ -305,19 +263,9 @@ const currentMonth = () => {
 };
 
 const getAllDays = async (monthGet) => {
-  const [year, month] = monthGet.split("-").map(Number);
-  const firstDateOfMonth = new Date(year, month - 1, 1);
-
-  let date = firstDateOfMonth;
-  const days = [];
-
-  // Loop through each day and add it to the array
-  while (date.getMonth() === month - 1) {
-    date.setDate(date.getDate() + 1);
-    days.push(date.toISOString().split("T")[0]);
-  }
-
-  console.log(days, "this is ");
+  console.log(monthGet, "this is month");
+  const res = await homeStore.getTimeFilterArray(monthGet);
+  console.log(res, "this is for graph");
 
   dataAmount.items.splice(0);
   saleValueAgent.items.splice(0);
@@ -326,64 +274,63 @@ const getAllDays = async (monthGet) => {
   saleValueEiMyat.items.splice(0);
   saleValueChaw.items.splice(0);
   dataTest.items.splice(0);
-  for (let x = 0; x < days.length; x++) {
-    const date = days[x];
-    dataTest.items.push(date);
-    let data = {
-      startDate: date,
-    };
-    let currentDate = new Date();
-    let currentDateNew = currentDate.toISOString().split("T")[0];
-    if (currentDateNew > date || currentDateNew == date) {
-      const res = await homeStore.getTimeFilterArray(data);
-      console.log(res, "this is loop data");
-      if (res.status == "Request was successful.") {
-        let dataArr = 0;
-        for (
-          let x = 0;
-          x < res.result.sales.original.result.amount.length;
-          x++
-        ) {
-          dataArr += res.result.sales.original.result.amount[x];
-        }
-        dataAmount.items.push(dataArr);
+  // let eimyatData = [];
+  // let konaymyo = [];
+  // let chitSu = [];
+  // let eiMyat = [];
+  // let chaw = [];
+  for (let x = 0; x < res.result.sales.length; x++) {
+    let dataArr = 0;
 
-        let eimyatData = [];
-        let konaymyo = [];
-        let chitSu = [];
-        let eiMyat = [];
-        let chaw = [];
-        for (
-          let s = 0;
-          s < res.result.sales.original.result.agents.length;
-          s++
-        ) {
-          if (res.result.sales.original.result.agents[s] == "Hnin N") {
-            eimyatData.push(res.result.sales.original.result.amount[s]);
-          }
-          if (res.result.sales.original.result.agents[s] == "Ko Nay Myo") {
-            konaymyo.push(res.result.sales.original.result.amount[s]);
-          }
-          if (res.result.sales.original.result.agents[s] == "Chit Su") {
-            chitSu.push(res.result.sales.original.result.amount[s]);
-          }
-          if (res.result.sales.original.result.agents[s] == "Ei Myat") {
-            eiMyat.push(res.result.sales.original.result.amount[s]);
-          }
-          if (res.result.sales.original.result.agents[s] == "Chaw Kalayar") {
-            chaw.push(res.result.sales.original.result.amount[s]);
-          }
-        }
-        saleValueAgent.items.push(eimyatData[0]);
-        saleValueKoNayMyo.items.push(konaymyo[0]);
-        saleValueChitSu.items.push(chitSu[0]);
-        saleValueEiMyat.items.push(eiMyat[0]);
-        saleValueChaw.items.push(chaw[0]);
-      } else {
-        dataAmount.items.push(0);
+    for (let i = 0; i < res.result.sales[x].agents.length; i++) {
+      dataArr += res.result.sales[x].agents[i].total;
+      if (res.result.sales[x].agents[i].name == "Hnin N") {
+        // eimyatData.push(res.result.sales[x].agents[i].total);
+        saleValueAgent.items.push(res.result.sales[x].agents[i].total);
       }
+      if (res.result.sales[x].agents[i].name == "Ko Nay Myo") {
+        saleValueKoNayMyo.items.push(res.result.sales[x].agents[i].total);
+      }
+      if (res.result.sales[x].agents[i].name == "Chit Su") {
+        saleValueChitSu.items.push(res.result.sales[x].agents[i].total);
+      }
+      if (res.result.sales[x].agents[i].name == "Ei Myat") {
+        saleValueEiMyat.items.push(res.result.sales[x].agents[i].total);
+      }
+      if (res.result.sales[x].agents[i].name == "Chaw Kalayar") {
+        saleValueChaw.items.push(res.result.sales[x].agents[i].total);
+      }
+      // saleValueAgent.items.push(eimyatData);
+      // saleValueKoNayMyo.items.push(konaymyo);
+      // saleValueChitSu.items.push(chitSu);
+      // saleValueEiMyat.items.push(eiMyat);
+      // saleValueChaw.items.push(chaw);
     }
+    dataAmount.items.push(dataArr);
+    dataTest.items.push(res.result.sales[x].date);
+    console.log(saleValueKoNayMyo.items, "this is test konaymyo");
   }
+  // for (
+  //   let s = 0;
+  //   s < res.result.sales.original.result.agents.length;
+  //   s++
+  // ) {
+  //   if (res.result.sales.original.result.agents[s] == "Hnin N") {
+  //     eimyatData.push(res.result.sales.original.result.amount[s]);
+  //   }
+  //   if (res.result.sales.original.result.agents[s] == "Ko Nay Myo") {
+  //     konaymyo.push(res.result.sales.original.result.amount[s]);
+  //   }
+  //   if (res.result.sales.original.result.agents[s] == "Chit Su") {
+  //     chitSu.push(res.result.sales.original.result.amount[s]);
+  //   }
+  //   if (res.result.sales.original.result.agents[s] == "Ei Myat") {
+  //     eiMyat.push(res.result.sales.original.result.amount[s]);
+  //   }
+  //   if (res.result.sales.original.result.agents[s] == "Chaw Kalayar") {
+  //     chaw.push(res.result.sales.original.result.amount[s]);
+  //   }
+  // }
 };
 
 onMounted(async () => {
@@ -397,17 +344,7 @@ onMounted(async () => {
 });
 
 watch(monthForGraph, async (newValue) => {
-  const debounce = (func, delay) => {
-    let timeoutId;
-    return function (...args) {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        func.apply(this, args);
-      }, delay);
-    };
-  };
-
-  const debouncedGetAllDays = debounce(getAllDays(monthForGraph.value), 1000);
+  getAllDays(monthForGraph.value);
 });
 </script>
 

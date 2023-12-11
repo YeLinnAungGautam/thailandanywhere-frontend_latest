@@ -100,7 +100,7 @@ const saleDataAgent = {
     {
       label: "Chit Su",
       data: saleValueChitSu.items,
-      backgroundColor: ["#FF00B2"],
+      backgroundColor: ["#04FF00"],
     },
     {
       label: "Ei Myat",

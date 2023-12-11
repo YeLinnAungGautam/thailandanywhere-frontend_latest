@@ -764,6 +764,8 @@ const addNewHandler = async () => {
       contracts: [],
       legal_name: "",
     };
+    imagesPreview.value = [];
+    featureImagePreview.value = null;
     errors.value = null;
     toast.success(response.message);
     createModalOpen.value = false;
@@ -851,6 +853,8 @@ const updateHandler = async () => {
       place: "",
       legal_name: "",
     };
+    imagesPreview.value = [];
+    featureImagePreview.value = null;
     errors.value = null;
     toast.success(response.message);
     createModalOpen.value = false;

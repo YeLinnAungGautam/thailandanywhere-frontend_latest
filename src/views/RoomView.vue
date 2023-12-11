@@ -162,7 +162,13 @@
                 v-for="(image, index) in editImagesPreview"
                 :key="index"
               >
-                <img class="h-auto w-full rounded" :src="image" alt="" />
+                <button
+                  @click.prevent="removeImageUpdateImage(formData.id, image.id)"
+                  class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                >
+                  <XCircleIcon class="w-8 h-8 font-semibold" />
+                </button>
+                <img class="h-auto w-full rounded" :src="image.image" alt="" />
               </div>
             </div>
           </div>
@@ -509,7 +515,7 @@ const editModalOpenHandler = (data) => {
   createModalOpen.value = true;
   if (data.images.length > 0) {
     for (let i = 0; i < data.images.length; i++) {
-      editImagesPreview.value.push(data.images[i].image);
+      editImagesPreview.value.push(data.images[i]);
     }
   }
 };
@@ -546,6 +552,14 @@ const onDeleteHandler = async (id) => {
       await roomStore.getListAction();
     }
   });
+};
+
+const removeImageUpdateImage = async (id, imageID) => {
+  const res = roomStore.deleteImageAction(id, imageID);
+  console.log(res, "delete image res");
+  closeModal();
+  toast.success("deleted image");
+  await roomStore.getListAction();
 };
 
 onMounted(async () => {

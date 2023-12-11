@@ -150,12 +150,7 @@ onMounted(() => {
               AirLine Ticket
             </button>
           </Tab>
-          <Tab
-            as="template"
-            v-slot="{ selected }"
-            @click="changeTab(8)"
-            v-if="!authStore.isAdmin"
-          >
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(8)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -166,12 +161,7 @@ onMounted(() => {
               Attractions
             </button>
           </Tab>
-          <Tab
-            as="template"
-            v-slot="{ selected }"
-            @click="changeTab(9)"
-            v-if="!authStore.isAdmin"
-          >
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(9)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -209,10 +199,10 @@ onMounted(() => {
           <TabPanel>
             <AirlineTicket />
           </TabPanel>
-          <TabPanel v-if="!authStore.isAdmin">
+          <TabPanel>
             <Entrance />
           </TabPanel>
-          <TabPanel v-if="!authStore.isAdmin">
+          <TabPanel>
             <EntranceVariation />
           </TabPanel>
         </TabPanels>

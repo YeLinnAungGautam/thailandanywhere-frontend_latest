@@ -1,5 +1,6 @@
 <script setup>
 import Layout from "./Layout.vue";
+import { useRouter } from "vue-router";
 import {
   DoughnutChart,
   BarChart,
@@ -37,6 +38,7 @@ const airportStore = useAirportStore();
 const entranceStore = useEntranceStore();
 const bookingStore = useBookingStore();
 const homeStore = useHomeStore();
+const router = useRouter();
 
 const {
   sales,
@@ -334,6 +336,10 @@ const getAllDays = async (monthGet) => {
 };
 
 onMounted(async () => {
+  // console.log(authStore.isSuperAdmin, "hello");
+  if (!authStore.isSuperAdmin) {
+    router.push({ name: "dashboard" });
+  }
   // generateDateArray();
   date.value = dateFormat(new Date());
   if (date.value) {

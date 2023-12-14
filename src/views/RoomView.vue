@@ -7,7 +7,7 @@
     <!-- modal -->
     <Modal :isOpen="createModalOpen" @closeModal="closeModal">
       <DialogPanel
-        class="w-full max-w-md p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
+        class="w-full max-w-5xl p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
       >
         <DialogTitle
           as="h3"
@@ -15,7 +15,10 @@
         >
           {{ formData.id ? "Edit Room" : "Add New Room" }}
         </DialogTitle>
-        <form @submit.prevent="onSubmitHandler" class="mt-2">
+        <form
+          @submit.prevent="onSubmitHandler"
+          class="mt-2 grid grid-cols-2 gap-2"
+        >
           <div class="mb-2 space-y-1">
             <label for="name" class="text-sm text-gray-800">Name</label>
             <input
@@ -98,6 +101,132 @@
               />
             </Switch>
           </div>
+          <div class="col-span-2">
+            <div class="">
+              <div class="flex items-center justify-start mb-2">
+                <label class="text-sm block text-red-500 mr-3" for="">
+                  Period (don't forget to click add button)</label
+                >
+              </div>
+              <div class="flex items-center justify-between gap-3 mb-3">
+                <div class="flex-1">
+                  <input
+                    v-model="formPeriod.period_name"
+                    type="text"
+                    id="title"
+                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    placeholder="enter name"
+                  />
+                </div>
+                <div class="flex-1">
+                  <input
+                    v-model="formPeriod.start_date"
+                    type="date"
+                    id="title"
+                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    placeholder="enter prices"
+                    title="start date"
+                  />
+                </div>
+                <div class="flex-1">
+                  <input
+                    v-model="formPeriod.end_date"
+                    type="date"
+                    id="title"
+                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    title="end date"
+                  />
+                </div>
+                <div class="flex-1">
+                  <input
+                    v-model="formPeriod.sale_price"
+                    type="number"
+                    id="title"
+                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    placeholder="sale price"
+                  />
+                </div>
+                <div class="flex-1">
+                  <input
+                    v-model="formPeriod.cost_price"
+                    type="number"
+                    id="title"
+                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    placeholder="cost price"
+                  />
+                </div>
+                <div>
+                  <button @click.prevent="addNewPerid" class="">
+                    <i
+                      class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
+                    ></i>
+                  </button>
+                </div>
+              </div>
+              <div
+                v-for="(p, index) in formData.period"
+                :key="index"
+                class="flex items-center justify-between gap-3 mb-3"
+              >
+                <div class="flex-1">
+                  <input
+                    v-model="p.period_name"
+                    type="text"
+                    id="title"
+                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    placeholder="enter name"
+                  />
+                </div>
+                <div class="flex-1">
+                  <input
+                    v-model="p.start_date"
+                    type="date"
+                    id="title"
+                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    placeholder="enter prices"
+                    title="start date"
+                  />
+                </div>
+                <div class="flex-1">
+                  <input
+                    v-model="p.end_date"
+                    type="date"
+                    id="title"
+                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    title="end date"
+                  />
+                </div>
+                <div class="flex-1">
+                  <input
+                    v-model="p.sale_price"
+                    type="number"
+                    id="title"
+                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    placeholder="sale price"
+                  />
+                </div>
+                <div class="flex-1">
+                  <input
+                    v-model="p.cost_price"
+                    type="number"
+                    id="title"
+                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    placeholder="cost price"
+                  />
+                </div>
+                <div>
+                  <button
+                    class="text-sm text-red-600"
+                    @click.prevent="removeFromPerid(index)"
+                  >
+                    <i
+                      class="fa-solid fa-minus text-sm font-semibold px-2 py-1 bg-red-500 rounded-full shadow text-white"
+                    ></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="mb-2 space-y-1">
             <label for="description" class="text-sm text-gray-800"
               >Description</label
@@ -173,7 +302,7 @@
             </div>
           </div>
 
-          <div class="text-end flex justify-end items-center">
+          <div class="text-end flex justify-end items-center col-span-2">
             <p
               class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
               @click="closeModal"
@@ -192,11 +321,11 @@
         <input
           type="text"
           v-model="search"
-          class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+          class="w-3/5 sm:w-3/5 md:w-[200px] border px-4 py-1.5 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
           placeholder="Search Rooms..."
         />
         <v-select
-          class="style-chooser min-w-[250px] bg-white"
+          class="style-chooser min-w-[200px] bg-white"
           :options="hotelList ?? []"
           v-model="hotel_id"
           label="name"
@@ -204,9 +333,35 @@
           :reduce="(hotel) => hotel.id"
           placeholder="Choose Hotel"
         ></v-select>
-        <AdjustmentsHorizontalIcon
+        <!-- <AdjustmentsHorizontalIcon
           class="inline-block w-6 h-6 mx-2 text-gray-600 cursor-pointer"
+        /> -->
+        <input
+          type="date"
+          v-model="start_date"
+          class="w-3/5 sm:w-3/5 md:w-[200px] border px-4 py-1.5 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+          title="start date"
         />
+        <input
+          type="date"
+          v-model="end_date"
+          class="w-3/5 sm:w-3/5 md:w-[200px] border px-4 py-1.5 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+          title="end date"
+        />
+        <button
+          class="px-2 py-1.5 bg-[#ff613c] rounded-md text-white"
+          @click="searchFunction"
+          v-if="start_date && end_date"
+        >
+          search
+        </button>
+        <button
+          class="px-2 py-1.5 bg-[#ff613c] rounded-md text-white"
+          @click="clearFunction"
+          v-if="start_date || end_date || search || hotel_id"
+        >
+          clear
+        </button>
       </div>
       <div class="space-x-3">
         <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
@@ -342,6 +497,7 @@ const formData = ref({
   description: "",
   max_person: "",
   is_extra: 0,
+  period: [],
   images: [],
   room_price: "",
   cost: "",
@@ -354,6 +510,7 @@ const closeModal = () => {
     name: "",
     hotel_id: null,
     is_extra: 0,
+    period: [],
     description: "",
     max_person: "",
     images: [],
@@ -392,6 +549,30 @@ const addNewHandler = async () => {
       frmData.append("images[" + i + "]", file);
     }
   }
+  if (formData.value.period.length > 0) {
+    for (let x = 0; x < formData.value.period.length; x++) {
+      frmData.append(
+        "periods[" + x + "][period_name]",
+        formData.value.period[x].period_name
+      );
+      frmData.append(
+        "periods[" + x + "][start_date]",
+        formData.value.period[x].start_date
+      );
+      frmData.append(
+        "periods[" + x + "][end_date]",
+        formData.value.period[x].end_date
+      );
+      frmData.append(
+        "periods[" + x + "][sale_price]",
+        formData.value.period[x].sale_price
+      );
+      frmData.append(
+        "periods[" + x + "][cost_price]",
+        formData.value.period[x].cost_price
+      );
+    }
+  }
 
   try {
     const response = await roomStore.addNewAction(frmData);
@@ -401,6 +582,7 @@ const addNewHandler = async () => {
       hotel_id: null,
       description: "",
       max_person: "",
+      period: [],
       images: [],
       is_extra: 0,
       room_price: "",
@@ -434,6 +616,30 @@ const updateHandler = async () => {
       frmData.append("images[" + i + "]", file);
     }
   }
+  if (formData.value.period.length > 0) {
+    for (let x = 0; x < formData.value.period.length; x++) {
+      frmData.append(
+        "periods[" + x + "][period_name]",
+        formData.value.period[x].period_name
+      );
+      frmData.append(
+        "periods[" + x + "][start_date]",
+        formData.value.period[x].start_date
+      );
+      frmData.append(
+        "periods[" + x + "][end_date]",
+        formData.value.period[x].end_date
+      );
+      frmData.append(
+        "periods[" + x + "][sale_price]",
+        formData.value.period[x].sale_price
+      );
+      frmData.append(
+        "periods[" + x + "][cost_price]",
+        formData.value.period[x].cost_price
+      );
+    }
+  }
   frmData.append("room_price", formData.value.room_price);
   frmData.append("cost", formData.value.cost);
 
@@ -446,6 +652,7 @@ const updateHandler = async () => {
       hotel_id: null,
       description: "",
       max_person: "",
+      period: [],
       is_extra: 0,
       images: [],
       room_price: "",
@@ -518,6 +725,19 @@ const editModalOpenHandler = (data) => {
       editImagesPreview.value.push(data.images[i]);
     }
   }
+  if (data.room_periods.length > 0) {
+    for (let i = 0; i < data.room_periods.length; i++) {
+      // editImagesPreview.value.push(data.images[i]);
+      let dataArray = {
+        period_name: data.room_periods[i].period_name,
+        start_date: data.room_periods[i].start_date,
+        end_date: data.room_periods[i].end_date,
+        sale_price: data.room_periods[i].sale_price,
+        cost_price: data.room_periods[i].cost_price,
+      };
+      formData.value.period.push(dataArray);
+    }
+  }
 };
 
 const changePage = async (url) => {
@@ -525,6 +745,7 @@ const changePage = async (url) => {
   let data = {
     search: search.value,
     hotel_id: hotel_id.value,
+    period: periodAjj.value,
   };
   await roomStore.getChangePage(url, data);
 };
@@ -562,6 +783,29 @@ const removeImageUpdateImage = async (id, imageID) => {
   await roomStore.getListAction();
 };
 
+const formPeriod = ref({
+  period_name: "",
+  start_date: "",
+  end_date: "",
+  sale_price: "",
+  cost_price: "",
+});
+
+const addNewPerid = () => {
+  formData.value.period.push(formPeriod.value);
+  formPeriod.value = {
+    period_name: "",
+    start_date: "",
+    end_date: "",
+    sale_price: "",
+    cost_price: "",
+  };
+};
+
+const removeFromPerid = (index) => {
+  formData.value.period.splice(index, 1);
+};
+
 onMounted(async () => {
   await hotelStore.getSimpleListAction();
   await roomStore.getListAction();
@@ -569,17 +813,50 @@ onMounted(async () => {
 });
 
 const hotel_id = ref("");
+const start_date = ref("");
+const end_date = ref("");
+const periodAjj = ref("");
+
+const searchFunction = async () => {
+  if (start_date.value && end_date.value) {
+    periodAjj.value = `${start_date.value} , ${end_date.value}`;
+
+    // await roomStore.getListAction({
+    //   search: search.value,
+    //   hotel_id: hotel_id.value,
+    //   period: periodAjj.value,
+    // });
+    // console.log(periodAjj);
+  }
+};
+
+const clearFunction = () => {
+  hotel_id.value = "";
+  start_date.value = "";
+  end_date.value = "";
+  search.value = "";
+  periodAjj.value = "";
+};
 
 watch(search, async (newValue) => {
   await roomStore.getListAction({
     search: search.value,
     hotel_id: hotel_id.value,
+    period: periodAjj.value,
   });
 });
 watch(hotel_id, async (newValue) => {
   await roomStore.getListAction({
     hotel_id: hotel_id.value,
     search: search.value,
+    period: periodAjj.value,
+  });
+});
+watch(periodAjj, async (newValue) => {
+  await roomStore.getListAction({
+    hotel_id: hotel_id.value,
+    search: search.value,
+    period: periodAjj.value,
   });
 });
 </script>

@@ -155,5 +155,14 @@ export const useReservationStore = defineStore("reservation", {
         throw error;
       }
     },
+    async copyReservationDetail(id) {
+      try {
+        const response = await axios.get("/reservations/" + id + "/copy");
+        console.log(response.data);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

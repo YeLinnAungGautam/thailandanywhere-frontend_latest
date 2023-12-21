@@ -72,8 +72,6 @@ const events = computed(() => {
     reservations.value.data.forEach((entry) => {
       const date = new Date(entry.service_date).toDateString(); // Get the date portion
 
-      console.log(entry.product_type, "this is product type");
-
       if (entry.product_type === "App\\Models\\PrivateVanTour") {
         dateCounts[date] = {
           ...dateCounts[date],
@@ -113,7 +111,6 @@ const events = computed(() => {
       }
     });
 
-    console.log(dateCounts, "this is dateCounts");
     const resultItems = [];
 
     for (const date in dateCounts) {
@@ -168,7 +165,6 @@ const events = computed(() => {
       // Add similar blocks for other properties.
     }
 
-    console.log(resultItems, "this is result item");
     return resultItems.map((r) => {
       return {
         title: r.title,
@@ -206,7 +202,7 @@ const calendarOptions = ref({
     // console.log(info);
     const p = selectProductType(info.event._def.title);
     const d = info.event.extendedProps.data;
-    console.log(info.event._instance.range.start);
+    // console.log(info.event._instance.range.start);
     const date = formattedDate(info.event._instance.range.start);
     serviceDate.value = date;
     productType.value = p;
@@ -217,10 +213,10 @@ const calendarOptions = ref({
     const res = await reservationStore.getListCalendarTableAction(
       watchSystem.value
     );
-    console.log(watchSystem.value, "this is value");
+    // console.log(watchSystem.value, "this is value");
   },
   datesSet: async function (info) {
-    console.log("Dates set:", info);
+    // console.log("Dates set:", info);
     let monthChange = serviceDateCal(info.startStr, 10);
     let finalMonth = monthSetup(monthChange);
 
@@ -338,10 +334,17 @@ const clearFilter = () => {
   reservationCalendar.value = null;
 };
 
+const monthlyDate = ref("");
+
 watch(byuser, async (newValue) => {
   await reservationStore.getListCalendarTableAction(watchSystem.value);
 });
-
+watch(monthlyDate, async (newValue) => {
+  await reservationStore.getListCalendarAction({
+    date: monthlyDate.value,
+    limit: 2000,
+  });
+});
 watch(paymentStatus, async (newValue) => {
   await reservationStore.getListCalendarTableAction(watchSystem.value);
 });
@@ -414,7 +417,7 @@ const handleSelect = (e) => {
     </div>
     <div class="grid grid-cols-4 gap-4">
       <div class="col-span-1 bg-white">
-        <div class="bg-white p-4 space-y-6">
+        <div class="bg-white p-4 space-y-3">
           <p class="flex justify-start items-center">
             <span>Calendar data :</span>
             <select
@@ -429,6 +432,16 @@ const handleSelect = (e) => {
               <option :value="calendarAllData">All</option>
             </select>
           </p>
+          <div class="space-y-3">
+            <p>Calendar data Monthly :</p>
+            <input
+              type="month"
+              class="border border-gray-300 px-4 py-2 w-full rounded-md"
+              name=""
+              v-model="monthlyDate"
+              id=""
+            />
+          </div>
           <p class="">Filter For Reservation Table</p>
           <div class="space-y-4">
             <p>Filter By Sale Team</p>

@@ -923,20 +923,24 @@ const copyReservation = async () => {
   }
 
   // Create a textarea element to temporarily hold the string
-  const textarea = document.createElement("textarea");
-  textarea.value = formattedOutput;
+  // const textarea = document.createElement("textarea");
+  // textarea.value = formattedOutput;
 
   // Append the textarea to the document
-  document.body.appendChild(textarea);
+  // document.body.appendChild(textarea);
 
   // Select the text inside the textarea
-  textarea.select();
+  // textarea.select();
 
   // Execute the copy command using the Clipboard API
-  document.execCommand("copy");
+  // document.execCommand("copy");
 
   // Remove the textarea from the document
-  document.body.removeChild(textarea);
+  // document.body.removeChild(textarea);
+  setTimeout(() => {
+    navigator.clipboard.writeText(formattedOutput);
+  }, 0);
+
   toast.success("success copy reservation");
 };
 const printPrivateVanTour = () => {

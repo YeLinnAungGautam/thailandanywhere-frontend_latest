@@ -73,6 +73,26 @@ export const useReservationStore = defineStore("reservation", {
     async getListCalendarAction(params) {
       try {
         this.loading = true;
+        this.loadingCalendar = true;
+        const response = await axios.get(`calendar/reservations`, {
+          params,
+        });
+
+        this.loading = false;
+        this.loadingCalendar = false;
+        this.reservations = response.data.result;
+        // this.reservationCalendar = response.data;
+        console.log(response.data);
+        return response.data;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
+    async getListCalendarTableAction(params) {
+      try {
+        this.loading = true;
+
         const response = await axios.get(`/reservations`, {
           params,
         });

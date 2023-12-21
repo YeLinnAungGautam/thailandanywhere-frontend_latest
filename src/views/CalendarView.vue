@@ -15,6 +15,7 @@ import { PencilSquareIcon } from "@heroicons/vue/24/outline";
 import { useAdminStore } from "../stores/admin";
 import Pagination from "../components/Pagination.vue";
 import Button from "../components/Button.vue";
+import { addDays } from "date-fns";
 
 const reservationStore = useReservationStore();
 const authStore = useAuthStore();
@@ -25,11 +26,9 @@ const { reservations, loading, reservationCalendar, loadingCalendar } =
 const { admin } = storeToRefs(adminStore);
 const router = useRouter();
 
-const fetchData = async (service_date) => {
-  const res = await reservationStore.getListAction({
-    // calender_filter: true,
-    user_id: "",
-    // service_date: service_date ?? null,
+const fetchData = async (month) => {
+  const res = await reservationStore.getListCalendarAction({
+    // date: month ? month : "",
     limit: limit.value,
   });
   console.log(res, "this is calendar data show");
@@ -39,7 +38,15 @@ const fetchData = async (service_date) => {
 const calendarAllData = ref(2000);
 const currentTime = ref(null);
 const currentDate = ref(null);
+const currentMonth = ref(null);
 const userId = ref("");
+
+const getMonth = () => {
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+  currentMonth.value = `${year}-${month}`;
+};
 
 onMounted(async () => {
   if (authStore.isSuperAdmin || authStore.isReservation) {
@@ -49,8 +56,9 @@ onMounted(async () => {
   }
   currentTime.value = new Date().toISOString();
   currentDate.value = currentTime.value.split("T")[0];
+  getMonth();
   // currentDate.value = "2023-08-02";
-  await fetchData(currentDate.value);
+  await fetchData(currentMonth.value);
   await adminStore.getSimpleListAction();
   // console.log(reservationCalendar.value, "this is reservation cal");
 });
@@ -184,7 +192,7 @@ const calendarOptions = ref({
     right: "prev,next",
   },
   dateClick: async function (info) {
-    const res = await reservationStore.getListCalendarAction({
+    const res = await reservationStore.getListCalendarTableAction({
       user_id: "",
       service_date: info.dateStr,
       limit: 10,
@@ -206,10 +214,45 @@ const calendarOptions = ref({
 
     // console.log(date);
     // router.push("/reservation/update/" + d.id + "/" + d.crm_id + "/" + null);
-    const res = await reservationStore.getListCalendarAction(watchSystem.value);
+    const res = await reservationStore.getListCalendarTableAction(
+      watchSystem.value
+    );
     console.log(watchSystem.value, "this is value");
   },
+  datesSet: async function (info) {
+    console.log("Dates set:", info);
+    let monthChange = serviceDateCal(info.startStr, 10);
+    let finalMonth = monthSetup(monthChange);
+
+    // console.log(monthChange, currentMonth.value);
+    // // await fetchData(monthChange);
+    if (finalMonth == currentMonth.value) {
+      console.log("true");
+    } else {
+      console.log(finalMonth);
+      // reservations.value = "";
+      // await fetchData(finalMonth);
+      console.log("false");
+    }
+  },
 });
+
+const serviceDateCal = (dateCurrent, day) => {
+  console.log(dateCurrent, day);
+  let dayChoose = day;
+  return addDays(new Date(dateCurrent), dayChoose).toISOString().split("T")[0];
+};
+
+const monthSetup = (text) => {
+  console.log(text);
+  const dateString = text;
+  const dateObject = new Date(dateString);
+
+  const year = dateObject.getFullYear();
+  let month = dateObject.getMonth() + 1;
+
+  return `${year}-${month}`;
+};
 
 const eventTitle = ref("");
 const reservationList = ref(null);
@@ -296,22 +339,23 @@ const clearFilter = () => {
 };
 
 watch(byuser, async (newValue) => {
-  await reservationStore.getListCalendarAction(watchSystem.value);
+  await reservationStore.getListCalendarTableAction(watchSystem.value);
 });
+
 watch(paymentStatus, async (newValue) => {
-  await reservationStore.getListCalendarAction(watchSystem.value);
+  await reservationStore.getListCalendarTableAction(watchSystem.value);
 });
 watch(expenseStatus, async (newValue) => {
-  await reservationStore.getListCalendarAction(watchSystem.value);
+  await reservationStore.getListCalendarTableAction(watchSystem.value);
 });
 watch(productType, async (newValue) => {
-  await reservationStore.getListCalendarAction(watchSystem.value);
+  await reservationStore.getListCalendarTableAction(watchSystem.value);
 });
 watch(serviceDate, async (newValue) => {
-  await reservationStore.getListCalendarAction(watchSystem.value);
+  await reservationStore.getListCalendarTableAction(watchSystem.value);
 });
 watch(bookingStatus, async (newValue) => {
-  await reservationStore.getListCalendarAction(watchSystem.value);
+  await reservationStore.getListCalendarTableAction(watchSystem.value);
 });
 watch(limit, async (newValue) => {
   await fetchData();

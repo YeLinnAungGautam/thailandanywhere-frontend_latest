@@ -7,7 +7,7 @@ import listPlugin from "@fullcalendar/list";
 import Layout from "./Layout.vue";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onBeforeMount, onMounted, ref, watch } from "vue";
 import { useReservationStore } from "../stores/reservation";
 import { storeToRefs } from "pinia";
 import { useAuthStore } from "../stores/auth";
@@ -28,7 +28,7 @@ const router = useRouter();
 
 const fetchData = async (month) => {
   const res = await reservationStore.getListCalendarAction({
-    // date: month ? month : "",
+    date: month,
     limit: limit.value,
   });
   console.log(res, "this is calendar data show");
@@ -48,6 +48,7 @@ const getMonth = () => {
   currentMonth.value = `${year}-${month}`;
 };
 
+const changeDate = ref("");
 onMounted(async () => {
   if (authStore.isSuperAdmin || authStore.isReservation) {
     userId.value = "";
@@ -56,6 +57,7 @@ onMounted(async () => {
   }
   currentTime.value = new Date().toISOString();
   currentDate.value = currentTime.value.split("T")[0];
+  changeDate.value = currentDate.value;
   getMonth();
   // currentDate.value = "2023-08-02";
   await fetchData(currentMonth.value);
@@ -178,6 +180,7 @@ const events = computed(() => {
 });
 
 const userIdEvent = ref("");
+const calendarRef = ref(null);
 const calendarOptions = ref({
   plugins: [dayGridPlugin, interactionPlugin],
   displayEventTime: false,
@@ -187,6 +190,7 @@ const calendarOptions = ref({
     left: "title",
     right: "prev,next",
   },
+  initialDate: null,
   dateClick: async function (info) {
     const res = await reservationStore.getListCalendarTableAction({
       user_id: "",
@@ -216,22 +220,22 @@ const calendarOptions = ref({
     // console.log(watchSystem.value, "this is value");
   },
   datesSet: async function (info) {
-    // console.log("Dates set:", info);
+    console.log("Dates set:", info);
     let monthChange = serviceDateCal(info.startStr, 10);
-    let finalMonth = monthSetup(monthChange);
-
-    // console.log(monthChange, currentMonth.value);
-    // // await fetchData(monthChange);
-    if (finalMonth == currentMonth.value) {
-      console.log("true");
-    } else {
-      console.log(finalMonth);
-      // reservations.value = "";
-      // await fetchData(finalMonth);
-      console.log("false");
-    }
+    lastMonth.value = monthSetup(monthChange);
+    changeMonth.value = monthChange;
+    calendarOptions.value.initialDate = changeMonth.value;
   },
 });
+
+const lastMonth = ref("");
+const changeMonth = ref("");
+const getThisMonth = async () => {
+  console.log(lastMonth.value);
+  await fetchData(lastMonth.value);
+
+  console.log(calendarOptions.value.initialDate, "date");
+};
 
 const serviceDateCal = (dateCurrent, day) => {
   console.log(dateCurrent, day);
@@ -322,7 +326,7 @@ const serviceDate = ref("");
 const bookingStatus = ref("");
 const expenseStatus = ref("");
 const paymentStatus = ref("");
-const limit = ref(100);
+const limit = ref(5000);
 
 const clearFilter = () => {
   byuser.value = "";
@@ -342,7 +346,7 @@ watch(byuser, async (newValue) => {
 watch(monthlyDate, async (newValue) => {
   await reservationStore.getListCalendarAction({
     date: monthlyDate.value,
-    limit: 2000,
+    limit: limit.value,
   });
 });
 watch(paymentStatus, async (newValue) => {
@@ -418,7 +422,15 @@ const handleSelect = (e) => {
     <div class="grid grid-cols-4 gap-4">
       <div class="col-span-1 bg-white">
         <div class="bg-white p-4 space-y-3">
-          <p class="flex justify-start items-center">
+          <div class="space-y-3 cursor-pointer">
+            <p
+              @click="getThisMonth"
+              class="bg-[#ff613c] px-4 py-2 text-white rounded text-sm"
+            >
+              Calendar data Monthly :
+            </p>
+          </div>
+          <!-- <p class="flex justify-start items-center">
             <span>Calendar data :</span>
             <select
               v-model="limit"
@@ -431,17 +443,8 @@ const handleSelect = (e) => {
               <option value="1000">1000</option>
               <option :value="calendarAllData">All</option>
             </select>
-          </p>
-          <div class="space-y-3">
-            <p>Calendar data Monthly :</p>
-            <input
-              type="month"
-              class="border border-gray-300 px-4 py-2 w-full rounded-md"
-              name=""
-              v-model="monthlyDate"
-              id=""
-            />
-          </div>
+          </p> -->
+
           <p class="">Filter For Reservation Table</p>
           <div class="space-y-4">
             <p>Filter By Sale Team</p>
@@ -536,7 +539,7 @@ const handleSelect = (e) => {
         <FullCalendar
           :options="calendarOptions"
           :selectable="true"
-          @dateClick="handleDateClick"
+          ref="calendarRef"
         >
         </FullCalendar>
       </div>

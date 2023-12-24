@@ -410,6 +410,17 @@ const changePage = async (url) => {
 const handleSelect = (e) => {
   console.log(e);
 };
+
+watch(
+  () => calendarOptions.value.initialDate,
+  async (newInitialDate, oldInitialDate) => {
+    // Run the getThisMonth function whenever initialDate changes
+    console.log(
+      `Initial date changed from ${oldInitialDate} to ${newInitialDate}`
+    );
+    await getThisMonth();
+  }
+);
 </script>
 <template>
   <Layout>
@@ -422,14 +433,14 @@ const handleSelect = (e) => {
     <div class="grid grid-cols-4 gap-4">
       <div class="col-span-1 bg-white">
         <div class="bg-white p-4 space-y-3">
-          <div class="space-y-3 cursor-pointer">
+          <!-- <div class="space-y-3 cursor-pointer">
             <p
               @click="getThisMonth"
               class="bg-[#ff613c] px-4 py-2 text-white rounded text-sm"
             >
               Calendar data Monthly :
             </p>
-          </div>
+          </div> -->
           <!-- <p class="flex justify-start items-center">
             <span>Calendar data :</span>
             <select
@@ -445,7 +456,7 @@ const handleSelect = (e) => {
             </select>
           </p> -->
 
-          <p class="">Filter For Reservation Table</p>
+          <!-- <p class="">Filter For Reservation Table</p> -->
           <div class="space-y-4">
             <p>Filter By Sale Team</p>
             <div class="">

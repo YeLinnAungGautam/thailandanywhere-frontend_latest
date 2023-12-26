@@ -431,7 +431,15 @@ watch(
       <h3 class="text-2xl font-medium text-gray-600">Calendar</h3>
     </div>
     <div class="grid grid-cols-4 gap-4">
-      <div class="col-span-1 bg-white">
+      <div class="col-span-4 bg-white p-2" v-if="!loadingCalendar">
+        <FullCalendar
+          :options="calendarOptions"
+          :selectable="true"
+          ref="calendarRef"
+        >
+        </FullCalendar>
+      </div>
+      <div class="col-span-4 bg-white">
         <div class="bg-white p-4 space-y-3">
           <!-- <div class="space-y-3 cursor-pointer">
             <p
@@ -457,15 +465,15 @@ watch(
           </p> -->
 
           <!-- <p class="">Filter For Reservation Table</p> -->
-          <div class="space-y-4">
-            <p>Filter By Sale Team</p>
-            <div class="">
+          <div class="gap-4 flex justify-start items-center flex-wrap">
+            <div class="space-y-1">
+              <p>Filter By Sale Team</p>
               <select
                 v-model="byuser"
                 name=""
                 id=""
                 v-if="admin"
-                class="px-2 py-2 focus:border-gray-300 border border-gray-300 placeholder-sm bg-white rounded-lg w-full text-gray-400 space-y-2"
+                class="px-2 py-1.5 focus:border-gray-300 border border-gray-300 placeholder-sm bg-white rounded-lg w-[200px] text-gray-400 space-y-2"
               >
                 <option :value="null" disabled class="bg-gray-200 text-sm">
                   Filter By User
@@ -482,11 +490,11 @@ watch(
               </select>
             </div>
 
-            <p>By Product</p>
-            <div class="">
+            <div class="space-y-1 text-sm">
+              <p>By Product</p>
               <v-select
                 v-model="productType"
-                class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400"
+                class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400 min-w-[200px]"
                 :options="productList"
                 label="name"
                 :clearable="false"
@@ -494,21 +502,23 @@ watch(
                 placeholder="product type ..."
               ></v-select>
             </div>
-            <p>Service Date</p>
-            <div class="">
+
+            <div class="space-y-1 text-sm">
+              <p>Service Date</p>
               <input
                 type="date"
                 v-model="serviceDate"
                 name=""
-                class="w-full px-2 py-2 focus:border-gray-300 border border-gray-300 placeholder-sm text-sm bg-white rounded-lg text-gray-400 space-y-2"
+                class="px-2 py-1.5 w-[200px] focus:border-gray-300 border border-gray-300 placeholder-sm text-sm bg-white rounded-lg text-gray-400 space-y-2"
                 id=""
               />
             </div>
-            <p>Booking Status</p>
-            <div>
+
+            <div class="space-y-1 text-sm">
+              <p>Booking Status</p>
               <v-select
                 v-model="bookingStatus"
-                class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400"
+                class="style-chooser placeholder-sm bg-white rounded-lg text-gray-400 w-[200px]"
                 :options="bookingList"
                 label="name"
                 :clearable="false"
@@ -516,11 +526,12 @@ watch(
                 placeholder="status ..."
               ></v-select>
             </div>
-            <p>By Expense Status</p>
-            <div>
+
+            <div class="space-y-1 text-sm">
+              <p>By Expense Status</p>
               <v-select
                 v-model="expenseStatus"
-                class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400"
+                class="style-chooser placeholder-sm bg-white rounded-lg w-[200px] text-gray-400"
                 :options="expenseStatusArr"
                 label="name"
                 :clearable="false"
@@ -528,11 +539,12 @@ watch(
                 placeholder="status ..."
               ></v-select>
             </div>
-            <p>By Customer Payment Status</p>
-            <div>
+
+            <div class="space-y-1 text-sm">
+              <p>By Customer Payment Status</p>
               <v-select
                 v-model="paymentStatus"
-                class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400"
+                class="style-chooser placeholder-sm bg-white rounded-lg w-[200px] text-gray-400"
                 :options="customerPaymentStatusArr"
                 label="name"
                 :clearable="false"
@@ -540,22 +552,14 @@ watch(
                 placeholder="status ..."
               ></v-select>
             </div>
-            <div @click="clearFilter" class="w-full">
+            <div @click="clearFilter" class="w-auto pt-[1.75rem]">
               <Button :leftIcon="FunnelIcon"> clear </Button>
             </div>
           </div>
         </div>
       </div>
-      <div class="col-span-3 bg-white p-2" v-if="!loadingCalendar">
-        <FullCalendar
-          :options="calendarOptions"
-          :selectable="true"
-          ref="calendarRef"
-        >
-        </FullCalendar>
-      </div>
       <div
-        class="col-span-3 bg-white p-2 flex justify-center items-center"
+        class="col-span-4 bg-white p-2 flex justify-center items-center"
         v-if="loadingCalendar"
       >
         <div
@@ -647,7 +651,7 @@ watch(
       </div>
       <div class="col-span-4" v-if="reservationCalendar != null && !loading">
         <div class="w-auto mb-5 overflow-scroll bg-white rounded-lg shadow">
-          <div class="grid grid-cols-8 gap-2 py-2">
+          <div class="grid grid-cols-9 gap-2 py-2">
             <div
               class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
             >
@@ -676,6 +680,11 @@ watch(
             <div
               class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
             >
+              Payment Status
+            </div>
+            <div
+              class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            >
               Expense Status
             </div>
             <div
@@ -698,7 +707,7 @@ watch(
             :key="d.id"
           >
             <div
-              class="grid w-auto grid-cols-8 col-span-8 bg-white divide-y divide-gray-100"
+              class="grid w-auto grid-cols-9 col-span-9 bg-white divide-y divide-gray-100"
             >
               <div
                 class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
@@ -751,48 +760,78 @@ watch(
                 <p v-if="d.room?.name">{{ limitedText(d.room?.name) }}</p>
               </div>
               <div
-                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+                class="p-3 mt-3 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap w-full"
+              >
+                <p
+                  v-if="
+                    !d.booking?.payment_status ||
+                    d.booking?.payment_status == 'null'
+                  "
+                >
+                  -
+                </p>
+                <p
+                  v-if="d.booking?.payment_status == 'fully_paid'"
+                  class="inline-block px-2 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
+                >
+                  {{ d.booking?.payment_status }}
+                </p>
+                <p
+                  v-if="d.booking?.payment_status == 'not_paid'"
+                  class="inline-block px-2 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
+                >
+                  {{ d.booking?.payment_status }}
+                </p>
+                <p
+                  v-if="d.booking?.payment_status == 'partially_paid'"
+                  class="inline-block px-2 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
+                >
+                  {{ d.booking?.payment_status }}
+                </p>
+              </div>
+              <div
+                class="p-3 mt-3 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap w-full"
               >
                 <p v-if="!d.payment_status || d.payment_status == 'null'">-</p>
                 <p
                   v-if="d.payment_status == 'fully_paid'"
-                  class="inline-block px-3 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
+                  class="inline-block px-2 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
                 >
                   {{ d.payment_status }}
                 </p>
                 <p
                   v-if="d.payment_status == 'not_paid'"
-                  class="inline-block px-3 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
+                  class="inline-block px-2 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
                 >
                   {{ d.payment_status }}
                 </p>
                 <p
                   v-if="d.payment_status == 'partially_paid'"
-                  class="inline-block px-3 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
+                  class="inline-block px-2 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
                 >
                   {{ d.payment_status }}
                 </p>
               </div>
               <div
-                class="p-3 mt-2 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap min-w-[200px] overflow-hidden"
+                class="p-3 mt-3 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap w-full"
               >
                 <p v-if="!d.reservation_status">-</p>
 
                 <p
                   v-if="d.reservation_status == 'confirmed'"
-                  class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full shadow"
+                  class="inline-block px-2 py-1 text-xs text-white bg-green-500 rounded-full shadow"
                 >
                   {{ d.reservation_status }}
                 </p>
                 <p
                   v-if="d.reservation_status == 'declined'"
-                  class="inline-block px-3 py-1 text-xs text-white bg-red-500 rounded-full shadow"
+                  class="inline-block px-2 py-1 text-xs text-white bg-red-500 rounded-full shadow"
                 >
                   {{ d.reservation_status }}
                 </p>
                 <p
                   v-if="d.reservation_status == 'awaiting'"
-                  class="inline-block px-3 py-1 text-xs text-white bg-yellow-500 rounded-full shadow"
+                  class="inline-block px-2 py-1 text-xs text-white bg-yellow-500 rounded-full shadow"
                 >
                   {{ d.reservation_status }}
                 </p>

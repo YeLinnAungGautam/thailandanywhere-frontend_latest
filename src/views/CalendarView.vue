@@ -676,7 +676,7 @@ watch(
             <div
               class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
             >
-              Payment Status
+              Expense Status
             </div>
             <div
               class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"

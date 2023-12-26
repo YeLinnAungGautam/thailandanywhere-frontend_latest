@@ -340,17 +340,17 @@
         />
         <v-select
           class="style-chooser min-w-[200px] bg-white"
-          :options="hotelList ?? []"
+          :options="restaurant?.data"
           v-model="restaurant_id"
           label="name"
           :clearable="false"
           :reduce="(hotel) => hotel.id"
-          placeholder="Choose Hotel"
+          placeholder="Choose Restaurant"
         ></v-select>
         <!-- <AdjustmentsHorizontalIcon
           class="inline-block w-6 h-6 mx-2 text-gray-600 cursor-pointer"
         /> -->
-        <input
+        <!-- <input
           type="date"
           v-model="start_date"
           class="w-3/5 sm:w-3/5 md:w-[200px] border px-4 py-1.5 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
@@ -361,7 +361,7 @@
           v-model="end_date"
           class="w-3/5 sm:w-3/5 md:w-[200px] border px-4 py-1.5 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
           title="end date"
-        />
+        /> -->
         <button
           class="px-2 py-1.5 bg-[#ff613c] rounded-md text-white"
           @click="searchFunction"

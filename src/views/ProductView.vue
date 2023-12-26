@@ -5,6 +5,7 @@ import Button from "../components/Button.vue";
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@headlessui/vue";
 import VanTour from "../views/VanTour.vue";
 import GroupTour from "../views/Grouptour.vue";
+import Restaurant from "../views/RestaurantsView.vue";
 import Airline from "../views/Airline.vue";
 import AirlineTicket from "../views/AirlineTicket.vue";
 import Airport from "../views/AirportTicket.vue";
@@ -13,6 +14,7 @@ import EntranceVariation from "../views/EntranceTicketVariation.vue";
 import Inclusive from "../views/InclusiveView.vue";
 import Hotel from "../views/HotelView.vue";
 import Room from "../views/RoomView.vue";
+import Meal from "../views/MealView.vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import {
@@ -167,9 +169,31 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[250px] text-center"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[240px] text-center"
             >
               Entrance Tickets Variation
+            </button>
+          </Tab>
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(10)">
+            <button
+              :class="{
+                'bg-[#ff613c] text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+            >
+              Restaurants
+            </button>
+          </Tab>
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(11)">
+            <button
+              :class="{
+                'bg-[#ff613c] text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+            >
+              Meals
             </button>
           </Tab>
         </TabList>
@@ -204,6 +228,12 @@ onMounted(() => {
           </TabPanel>
           <TabPanel>
             <EntranceVariation />
+          </TabPanel>
+          <TabPanel>
+            <Restaurant />
+          </TabPanel>
+          <TabPanel>
+            <Meal />
           </TabPanel>
         </TabPanels>
       </TabGroup>

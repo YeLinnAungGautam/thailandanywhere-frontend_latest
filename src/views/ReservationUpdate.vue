@@ -878,72 +878,69 @@ const copyReservation = async () => {
   let formattedOutput;
   if (res.result.checkin_date != undefined) {
     formattedOutput = `
-    💰 Total Cost: ${res.result.total_cost} THB
-    🏦 Bank Name: ${res.result.bank_name != "null" ? res.result.bank_name : "-"}
-    🔢 Bank Account Number: ${
+💰 Total Cost: ${res.result.total_cost} THB 🏦 Bank Name: ${
+      res.result.bank_name != "null" ? res.result.bank_name : "-"
+    }
+🔢 Bank Account Number: ${
       res.result.bank_account_number != "null"
-        ? addUnderline(res.result.bank_account_number)
+        ? `${res.result.bank_account_number}`
         : "-"
     }
-    🧑‍💼 Account Name: ${
+🧑‍💼 Account Name: ${
       res.result.account_name != "null" ? res.result.account_name : "-"
     }
-    #️⃣ CRM ID: ${res.result.crm_id}
-    #️⃣ Reservation Code: ${res.result.reservation_code}
-    🏨 Hotel Name: ${
-      res.result.hotel_name != "null" ? res.result.hotel_name : "-"
-    }
-    🛌 Total Rooms: ${
+#️⃣ CRM ID: ${res.result.crm_id}
+#️⃣ Reservation Code: ${res.result.reservation_code}
+🏨 Hotel Name: ${res.result.hotel_name != "null" ? res.result.hotel_name : "-"}
+🛌 Total Rooms: ${
       res.result.total_rooms != "null" ? res.result.total_rooms : "-"
     }
-    🌙 Total Nights: ${
+🌙 Total Nights: ${
       res.result.total_nights != "null" ? res.result.total_nights : "-"
     }
-    💵 Sale Price: ${res.result.sale_price} THB
-    📅 Check-in Date: ${
+💵 Sale Price: ${res.result.sale_price} THB
+📅 Check-in Date: ${
       res.result.checkin_date != "null" ? res.result.checkin_date : "-"
     }
-    📅 Checkout Date: ${
+📅 Checkout Date: ${
       res.result.checkout_date != "null" ? res.result.checkout_date : "-"
     }
     `;
   } else {
     formattedOutput = `
-    💰 Total Cost: ${res.result.total_cost} THB
-    🏦 Bank Name: ${res.result.bank_name != "null" ? res.result.bank_name : "-"}
-    🔢 Bank Account Number: ${
+💰 Total Cost: ${res.result.total_cost} THB
+🏦 Bank Name: ${res.result.bank_name != "null" ? res.result.bank_name : "-"}
+🔢 Bank Account Number: ${
       res.result.bank_account_number != "null"
-        ? addUnderline(res.result.bank_account_number)
+        ? `${res.result.bank_account_number}`
         : "-"
     }
-    🧑‍💼 Account Name: ${res.result.account_name}
-    #️⃣ CRM ID: ${res.result.crm_id}
-    #️⃣ Reservation Code: ${res.result.reservation_code}
-    🏨 Ticket Name: ${
-      res.result.hotel_name != "null" ? res.result.hotel_name : "-"
-    }
-    💵 Sale Price: ${res.result.sale_price} THB
+🧑‍💼 Account Name: ${res.result.account_name}
+#️⃣ CRM ID: ${res.result.crm_id}
+#️⃣ Reservation Code: ${res.result.reservation_code}
+🏨 Ticket Name: ${res.result.hotel_name != "null" ? res.result.hotel_name : "-"}
+💵 Sale Price: ${res.result.sale_price} THB
     `;
   }
 
   // Create a textarea element to temporarily hold the string
-  // const textarea = document.createElement("textarea");
-  // textarea.value = formattedOutput;
+  const textarea = document.createElement("textarea");
+  textarea.value = formattedOutput;
 
   // Append the textarea to the document
-  // document.body.appendChild(textarea);
+  document.body.appendChild(textarea);
 
   // Select the text inside the textarea
-  // textarea.select();
+  textarea.select();
 
   // Execute the copy command using the Clipboard API
-  // document.execCommand("copy");
+  document.execCommand("copy");
 
   // Remove the textarea from the document
-  // document.body.removeChild(textarea);
-  setTimeout(() => {
-    navigator.clipboard.writeText(formattedOutput);
-  }, 0);
+  document.body.removeChild(textarea);
+  // setTimeout(() => {
+  //   navigator.clipboard.writeText(formattedOutput);
+  // }, 0);
 
   toast.success("success copy reservation");
 };

@@ -760,7 +760,7 @@ watch(
                 <p v-if="d.room?.name">{{ limitedText(d.room?.name) }}</p>
               </div>
               <div
-                class="p-3 mt-3 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap w-full"
+                class="p-3 mt-3 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap min-w-[200px]"
               >
                 <p
                   v-if="
@@ -790,7 +790,7 @@ watch(
                 </p>
               </div>
               <div
-                class="p-3 mt-3 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap w-full"
+                class="p-3 mt-3 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap min-w-[200px]"
               >
                 <p v-if="!d.payment_status || d.payment_status == 'null'">-</p>
                 <p
@@ -813,7 +813,7 @@ watch(
                 </p>
               </div>
               <div
-                class="p-3 mt-3 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap w-full"
+                class="p-3 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap min-w-[200px]"
               >
                 <p v-if="!d.reservation_status">-</p>
 

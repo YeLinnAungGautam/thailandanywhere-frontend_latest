@@ -651,7 +651,7 @@ watch(
       </div>
       <div class="col-span-4" v-if="reservationCalendar != null && !loading">
         <div class="w-auto mb-5 overflow-scroll bg-white rounded-lg shadow">
-          <div class="grid grid-cols-9 gap-2 py-2">
+          <div class="grid grid-cols-10 gap-2 py-2">
             <div
               class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
             >
@@ -660,7 +660,7 @@ watch(
             <div
               class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
             >
-              PAST CRM ID
+              Customer Name
             </div>
             <div
               class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
@@ -676,6 +676,11 @@ watch(
               class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
             >
               Variation Name
+            </div>
+            <div
+              class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            >
+              Payment Method
             </div>
             <div
               class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
@@ -707,7 +712,7 @@ watch(
             :key="d.id"
           >
             <div
-              class="grid w-auto grid-cols-9 col-span-9 bg-white divide-y divide-gray-100"
+              class="grid w-auto grid-cols-10 col-span-10 bg-white divide-y divide-gray-100"
             >
               <div
                 class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
@@ -717,10 +722,9 @@ watch(
               <div
                 class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
               >
-                <p v-if="d.booking?.past_crm_id">
-                  {{ d.booking?.past_crm_id }}
+                <p v-if="d.customer_info?.name">
+                  {{ limitedText(d.customer_info?.name) }}
                 </p>
-                <p v-if="!d.booking?.past_crm_id">-</p>
               </div>
               <div
                 class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
@@ -758,6 +762,26 @@ watch(
                   {{ limitedText(d.variation?.name) }}
                 </p>
                 <p v-if="d.room?.name">{{ limitedText(d.room?.name) }}</p>
+              </div>
+              <div
+                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              >
+                <p
+                  v-if="
+                    d.payment_method != 'null' &&
+                    d.payment_method != 'undefined'
+                  "
+                >
+                  {{ d.payment_method }}
+                </p>
+                <p
+                  v-if="
+                    d.payment_method == 'null' ||
+                    d.payment_method == 'undefined'
+                  "
+                >
+                  -
+                </p>
               </div>
               <div
                 class="p-3 mt-3 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap min-w-[200px]"

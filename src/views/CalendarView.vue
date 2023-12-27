@@ -813,32 +813,32 @@ watch(
                 </p>
               </div>
               <div
-                class="p-3 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap min-w-[200px]"
+                class="p-3 text-xs text-gray-700 flex justify-center items-center mt-2 whitespace-nowrap min-w-[200px]"
               >
                 <p v-if="!d.reservation_status">-</p>
 
                 <p
                   v-if="d.reservation_status == 'confirmed'"
-                  class="inline-block px-2 py-1 text-xs text-white bg-green-500 rounded-full shadow"
+                  class="inline-block px-2 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
                 >
                   {{ d.reservation_status }}
                 </p>
                 <p
                   v-if="d.reservation_status == 'declined'"
-                  class="inline-block px-2 py-1 text-xs text-white bg-red-500 rounded-full shadow"
+                  class="inline-block px-2 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
                 >
                   {{ d.reservation_status }}
                 </p>
                 <p
                   v-if="d.reservation_status == 'awaiting'"
-                  class="inline-block px-2 py-1 text-xs text-white bg-yellow-500 rounded-full shadow"
+                  class="inline-block px-2 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
                 >
                   {{ d.reservation_status }}
                 </p>
               </div>
 
               <div
-                class="p-3 mt-2 text-xs text-center bg-white divide-y divide-gray-100 text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden flex justify-end items-center"
+                class="p-3 mt-2 text-xs text-center divide-y divide-gray-100 text-gray-700 whitespace-nowrap min-w-[200px] flex justify-end items-center"
               >
                 <p class="mr-6">{{ d.service_date }}</p>
                 <router-link

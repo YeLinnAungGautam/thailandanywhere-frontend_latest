@@ -83,6 +83,7 @@ const limitedText = (text) => {
 
 const searchValue = (val) => {
   search.value = val;
+  private_van_tour_show.value = false;
 };
 
 const searchA = ref("");
@@ -147,6 +148,13 @@ const isOpenSearch = ref(false);
 
 const toggleSearchHandler = () => {
   isOpenSearch.value = !isOpenSearch.value;
+};
+
+const private_van_tour_show = ref(false);
+const private_van_handle = () => {
+  // searchValue("App\\Models\\PrivateVanTour");
+  search.value = "App\\Models\\PrivateVanTour";
+  private_van_tour_show.value = true;
 };
 
 onMounted(async () => {
@@ -285,7 +293,7 @@ watch(searchTime, async (newValue) => {
           </p>
           <p
             class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
-            @click="searchValue('App\\Models\\PrivateVanTour')"
+            @click="private_van_handle"
             :class="
               search == 'App\\Models\\PrivateVanTour'
                 ? 'bg-[#ff613c] text-white'
@@ -506,7 +514,10 @@ watch(searchTime, async (newValue) => {
           <Button :leftIcon="FunnelIcon"> clear </Button>
         </div>
       </div>
-      <div class="w-auto mb-5 overflow-scroll bg-white rounded-lg shadow">
+      <div
+        class="w-auto mb-5 overflow-scroll bg-white rounded-lg shadow"
+        v-if="!private_van_tour_show"
+      >
         <div class="grid grid-cols-8 gap-2 py-2">
           <div
             class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
@@ -702,6 +713,249 @@ watch(searchTime, async (newValue) => {
 
             <!-- </div>
               </div> -->
+          </div>
+        </div>
+        <div
+          v-if="reservations?.data.length == 0"
+          class="flex items-center justify-center py-20"
+        >
+          Data Empty ...
+        </div>
+        <div v-if="loading" class="flex items-center justify-center py-20">
+          <div
+            class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] mr-4"
+            role="status"
+          >
+            <span
+              class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+              >Loading...</span
+            >
+          </div>
+          Loading ...
+        </div>
+      </div>
+      <div
+        class="w-auto mb-5 overflow-scroll bg-white rounded-lg shadow"
+        v-if="private_van_tour_show"
+      >
+        <div class="grid grid-cols-11 gap-2 py-2">
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
+            CRM ID
+          </div>
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
+            Customer
+          </div>
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
+            Supplier
+          </div>
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
+            Pickup Time
+          </div>
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
+            Product
+          </div>
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
+            Variation
+          </div>
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
+            Payment Method
+          </div>
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
+            Payment
+          </div>
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
+            Expense
+          </div>
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
+            Reservation
+          </div>
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
+            Service Date
+          </div>
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          ></div>
+        </div>
+        <div
+          v-show="!loading"
+          class="relative group"
+          v-for="d in reservations?.data"
+          :key="d.id"
+        >
+          <div
+            class="grid w-auto grid-cols-11 col-span-11 bg-white divide-y divide-gray-100"
+          >
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+            >
+              {{ d.crm_id }}
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+            >
+              {{ limitedText(d.customer_info.name) }}
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+            >
+              {{
+                d.reservation_car_info?.supplier_name
+                  ? limitedText(d.reservation_car_info?.supplier_name)
+                  : "-"
+              }}
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+            >
+              <!-- {{ limitedText(d.product?.name) }} -->
+              {{ d.pickup_time ? d.pickup_time : "-" }}
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+            >
+              <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
+                PrivateVanTour
+              </p>
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+            >
+              <p v-if="d.car?.name">{{ limitedText(d.car?.name) }}</p>
+              <p v-if="d.variation?.name">
+                {{ limitedText(d.variation?.name) }}
+              </p>
+              <p v-if="d.room?.name">{{ limitedText(d.room?.name) }}</p>
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+            >
+              {{
+                d.booking?.payment_method
+                  ? limitedText(d.booking?.payment_method)
+                  : "-"
+              }}
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px]"
+            >
+              <p
+                v-if="
+                  !d.booking?.payment_status ||
+                  d.booking?.payment_status == 'null'
+                "
+              >
+                -
+              </p>
+              <p
+                v-if="d.booking?.payment_status == 'fully_paid'"
+                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
+              >
+                {{ d.booking?.payment_status }}
+              </p>
+              <p
+                v-if="d.booking?.payment_status == 'not_paid'"
+                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
+              >
+                {{ d.booking?.payment_status }}
+              </p>
+              <p
+                v-if="d.booking?.payment_status == 'partially_paid'"
+                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
+              >
+                {{ d.booking?.payment_status }}
+              </p>
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px]"
+            >
+              <p v-if="!d.payment_status || d.payment_status == 'null'">-</p>
+              <p
+                v-if="d.payment_status == 'fully_paid'"
+                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
+              >
+                {{ d.payment_status }}
+              </p>
+              <p
+                v-if="d.payment_status == 'not_paid'"
+                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
+              >
+                {{ d.payment_status }}
+              </p>
+              <p
+                v-if="d.payment_status == 'partially_paid'"
+                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
+              >
+                {{ d.payment_status }}
+              </p>
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap min-w-[200px]"
+            >
+              <p v-if="!d.reservation_status">-</p>
+
+              <p
+                v-if="d.reservation_status == 'confirmed'"
+                class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full shadow"
+              >
+                {{ d.reservation_status }}
+              </p>
+              <p
+                v-if="d.reservation_status == 'declined'"
+                class="inline-block px-3 py-1 text-xs text-white bg-red-500 rounded-full shadow"
+              >
+                {{ d.reservation_status }}
+              </p>
+              <p
+                v-if="d.reservation_status == 'awaiting'"
+                class="inline-block px-3 py-1 text-xs text-white bg-yellow-500 rounded-full shadow"
+              >
+                {{ d.reservation_status }}
+              </p>
+            </div>
+
+            <div
+              class="p-3 mt-2 text-xs text-center divide-y divide-gray-100 text-gray-700 whitespace-nowrap min-w-[200px] flex justify-end items-center"
+            >
+              <p class="mr-6">{{ d.service_date }}</p>
+              <router-link
+                :to="
+                  '/reservation/update/' +
+                  d.id +
+                  '/' +
+                  d.crm_id +
+                  '/' +
+                  d.booking?.past_crm_id
+                "
+              >
+                <button
+                  class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
+                >
+                  <PencilSquareIcon class="w-5 h-5" />
+                </button>
+              </router-link>
+            </div>
           </div>
         </div>
         <div

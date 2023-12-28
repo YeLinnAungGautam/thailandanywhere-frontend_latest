@@ -16,7 +16,9 @@ import { useAdminStore } from "../stores/admin";
 import Pagination from "../components/Pagination.vue";
 import Button from "../components/Button.vue";
 import { addDays } from "date-fns";
+import { Switch } from "@headlessui/vue";
 
+const enabled = ref(false);
 const reservationStore = useReservationStore();
 const authStore = useAuthStore();
 const adminStore = useAdminStore();
@@ -27,10 +29,15 @@ const { admin } = storeToRefs(adminStore);
 const router = useRouter();
 
 const fetchData = async (month) => {
-  const res = await reservationStore.getListCalendarAction({
-    date: month,
+  let data = {
     limit: limit.value,
-  });
+  };
+  if (enabled.value) {
+    data.date = month;
+  } else {
+    data.sale_date = month;
+  }
+  const res = await reservationStore.getListCalendarAction(data);
   console.log(res, "this is calendar data show");
   calendarAllData.value = res.result.meta.total;
 };
@@ -364,9 +371,9 @@ watch(serviceDate, async (newValue) => {
 watch(bookingStatus, async (newValue) => {
   await reservationStore.getListCalendarTableAction(watchSystem.value);
 });
-watch(limit, async (newValue) => {
-  await fetchData();
-});
+// watch(limit, async (newValue) => {
+//   await fetchData();
+// });
 
 const watchSystem = computed(() => {
   const result = {};
@@ -421,6 +428,10 @@ watch(
     await getThisMonth();
   }
 );
+watch(enabled, async (newValue) => {
+  reservations.value = "";
+  fetchData(lastMonth.value);
+});
 </script>
 <template>
   <Layout>
@@ -428,7 +439,24 @@ watch(
       {{ events }}
     </pre> -->
     <div class="flex items-center justify-between mb-5">
-      <h3 class="text-2xl font-medium text-gray-600">Calendar</h3>
+      <div
+        class="text-2xl font-medium flex justify-start gap-4 items-center text-gray-600"
+      >
+        <p :class="!enabled ? '' : 'opacity-70'">Calendar By Service Date</p>
+        <Switch
+          v-model="enabled"
+          :class="enabled ? ' bg-orange-600' : 'bg-gray-500'"
+          class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+        >
+          <span class="sr-only">Use setting</span>
+          <span
+            aria-hidden="true"
+            :class="enabled ? 'translate-x-9' : 'translate-x-0'"
+            class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+          />
+        </Switch>
+        <p :class="enabled ? '' : 'opacity-70'">Calendar By Sale Date</p>
+      </div>
     </div>
     <div class="grid grid-cols-4 gap-4">
       <div class="col-span-4 bg-white p-2" v-if="!loadingCalendar">
@@ -764,20 +792,20 @@ watch(
                 <p v-if="d.room?.name">{{ limitedText(d.room?.name) }}</p>
               </div>
               <div
-                class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+                class="p-3 mt-3 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
               >
                 <p
                   v-if="
-                    d.payment_method != 'null' &&
-                    d.payment_method != 'undefined'
+                    d.booking?.payment_method != 'null' &&
+                    d.booking?.payment_method != 'undefined'
                   "
                 >
-                  {{ d.payment_method }}
+                  {{ d.booking?.payment_method }}
                 </p>
                 <p
                   v-if="
-                    d.payment_method == 'null' ||
-                    d.payment_method == 'undefined'
+                    d.booking?.payment_method == 'null' ||
+                    d.booking?.payment_method == 'undefined'
                   "
                 >
                   -

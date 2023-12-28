@@ -151,9 +151,34 @@ const saleDataRes = {
   },
 };
 
+const dataPie = reactive({ items: [] });
+const dataPieQ = reactive({ items: [] });
+const hotelPieData = {
+  labels: dataPie.items,
+  datasets: [
+    {
+      label: "Most Selling Hotels",
+      data: dataPieQ.items,
+      backgroundColor: [
+        "rgb(255, 99, 132)",
+        "rgb(54, 162, 235)",
+        "rgb(255, 205, 86)",
+        "rgb(255,0,0)",
+        "rgb(89, 245, 0 )",
+        "rgb(9, 244, 255)",
+        "rgb(4, 0, 255)",
+        "rgb(200, 41, 255)",
+        "rgb(255, 0, 224 )",
+        "rgb(255, 247, 0)",
+      ],
+      hoverOffset: 4,
+    },
+  ],
+};
+
 const getfun = async () => {
   const res = await homeStore.getSaleAgent();
-  console.log(sales.value, salesAmount.value);
+  // console.log(sales.value, salesAmount.value);
 };
 
 const getBookingCount = async () => {
@@ -161,7 +186,7 @@ const getBookingCount = async () => {
 };
 const getSaleCountHandle = async () => {
   const res = await homeStore.getSaleCount();
-  console.log(res, "this is get sales");
+  // console.log(res, "this is get sales");
 };
 
 const getReservationCount = async () => {
@@ -173,12 +198,12 @@ const endDate = ref("");
 const priceReservation = ref(false);
 const togglePrice = () => {
   priceReservation.value = !priceReservation.value;
-  console.log(priceReservation.value);
+  // console.log(priceReservation.value);
 };
 const priceSales = ref(true);
 const togglePriceSales = async () => {
   priceSales.value = !priceSales.value;
-  console.log(priceSales.value);
+  // console.log(priceSales.value);
 };
 
 const priceSalesGraph = ref(true);
@@ -211,7 +236,7 @@ const dateFun = async () => {
 
     date.value = dateFormat(date.value);
 
-    console.log(date.value);
+    // console.log(date.value);
     await getSaleCountHandle();
     await getfun();
     await getReservationCount();
@@ -224,10 +249,7 @@ const dateFun = async () => {
     };
 
     const res = await homeStore.getTimeFilter(data);
-    console.log(loading.value, res, "this is res");
-    // isError.value = loading.value;
-    // changeLabel();
-    // getSaleAgentData();
+    // console.log(loading.value, res, "this is res");
   }
 };
 
@@ -267,7 +289,7 @@ const currentMonth = () => {
 const getAllDays = async (monthGet) => {
   console.log(monthGet, "this is month");
   const res = await homeStore.getTimeFilterArray(monthGet);
-  console.log(res, "this is for graph");
+  // console.log(res, "this is for graph");
 
   dataAmount.items.splice(0);
   saleValueAgent.items.splice(0);
@@ -276,11 +298,6 @@ const getAllDays = async (monthGet) => {
   saleValueEiMyat.items.splice(0);
   saleValueChaw.items.splice(0);
   dataTest.items.splice(0);
-  // let eimyatData = [];
-  // let konaymyo = [];
-  // let chitSu = [];
-  // let eiMyat = [];
-  // let chaw = [];
   for (let x = 0; x < res.result.sales.length; x++) {
     let dataArr = 0;
 
@@ -302,37 +319,22 @@ const getAllDays = async (monthGet) => {
       if (res.result.sales[x].agents[i].name == "Chaw Kalayar") {
         saleValueChaw.items.push(res.result.sales[x].agents[i].total);
       }
-      // saleValueAgent.items.push(eimyatData);
-      // saleValueKoNayMyo.items.push(konaymyo);
-      // saleValueChitSu.items.push(chitSu);
-      // saleValueEiMyat.items.push(eiMyat);
-      // saleValueChaw.items.push(chaw);
     }
     dataAmount.items.push(dataArr);
     dataTest.items.push(res.result.sales[x].date);
-    console.log(saleValueKoNayMyo.items, "this is test konaymyo");
+    // console.log(saleValueKoNayMyo.items, "this is test konaymyo");
   }
-  // for (
-  //   let s = 0;
-  //   s < res.result.sales.original.result.agents.length;
-  //   s++
-  // ) {
-  //   if (res.result.sales.original.result.agents[s] == "Hnin N") {
-  //     eimyatData.push(res.result.sales.original.result.amount[s]);
-  //   }
-  //   if (res.result.sales.original.result.agents[s] == "Ko Nay Myo") {
-  //     konaymyo.push(res.result.sales.original.result.amount[s]);
-  //   }
-  //   if (res.result.sales.original.result.agents[s] == "Chit Su") {
-  //     chitSu.push(res.result.sales.original.result.amount[s]);
-  //   }
-  //   if (res.result.sales.original.result.agents[s] == "Ei Myat") {
-  //     eiMyat.push(res.result.sales.original.result.amount[s]);
-  //   }
-  //   if (res.result.sales.original.result.agents[s] == "Chaw Kalayar") {
-  //     chaw.push(res.result.sales.original.result.amount[s]);
-  //   }
-  // }
+};
+
+const getHotelMostSelling = async () => {
+  const res = await homeStore.getHotelMostSell();
+  console.log(res, "this is hotel");
+  dataPie.items.splice(0);
+  dataPieQ.items.splice(0);
+  for (let i = 0; i < res.result.length; i++) {
+    dataPie.items.push(res.result[i].hotel_name);
+    dataPieQ.items.push(res.result[i].total_bookings);
+  }
 };
 
 onMounted(async () => {
@@ -347,6 +349,7 @@ onMounted(async () => {
   }
   // getSaleAgentData();
   currentMonth();
+  getHotelMostSelling();
 });
 
 watch(monthForGraph, async (newValue) => {
@@ -572,14 +575,14 @@ watch(monthForGraph, async (newValue) => {
             <LineChart :chartData="saleData" v-if="priceSalesGraph" />
             <LineChart :chartData="saleDataAgent" v-if="!priceSalesGraph" />
           </div>
-          <!-- <div
+          <div
             class="bg-white/60 col-span-3 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
           >
             <p class="text-gray-600 mb-3 font-medium tracking-wide">
-              Reservation
+              Most selling Hotels
             </p>
-            <BarChart :chartData="saleDataRes" />
-          </div> -->
+            <PieChart :chartData="hotelPieData" />
+          </div>
         </div>
       </div>
       <!-- <div class="bg-white/60 rounded-md shadow-sm p-4 w-full h-full"></div> -->

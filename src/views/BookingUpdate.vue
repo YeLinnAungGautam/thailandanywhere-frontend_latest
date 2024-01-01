@@ -1166,9 +1166,7 @@ const getDetail = async () => {
     for (let i = 0; i < response.result.receipts.length; i++) {
       let data = {
         id: response.result.receipts[i].id,
-        image:
-          import.meta.env.VITE_API_URL_IMAGE +
-          response.result.receipts[i].image,
+        image: response.result.receipts[i].image,
       };
       formData.value.receipt_images.push(data);
     }
@@ -3222,6 +3220,8 @@ onMounted(async () => {
                   <a :href="image.image" target="_blink">
                     <img :src="image.image" alt="" />
                   </a>
+
+                  <!-- <p>{{ image.image }}</p> -->
                 </div>
               </div>
             </div>

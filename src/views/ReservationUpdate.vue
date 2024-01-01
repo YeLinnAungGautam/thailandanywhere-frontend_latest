@@ -1367,14 +1367,8 @@ onMounted(async () => {
           >
             <div v-for="(image, index) in formData.receipt_images" :key="index">
               <p class="text-xs mb-2 mt-2">Receipt Image {{ index + 1 }}</p>
-              <a
-                :href="'https://api-blog.thanywhere.com' + image.image"
-                target="_blink"
-              >
-                <img
-                  :src="'https://api-blog.thanywhere.com' + image.image"
-                  alt=""
-                />
+              <a :href="image.image" target="_blink">
+                <img :src="image.image" alt="" />
               </a>
             </div>
           </div>

@@ -184,5 +184,17 @@ export const useReservationStore = defineStore("reservation", {
         throw error;
       }
     },
+    async emailSendReservation(id, data) {
+      try {
+        const response = await axios.post(
+          "/reservations/" + id + "/send-notify-email",
+          data
+        );
+        console.log(response);
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

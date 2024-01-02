@@ -547,7 +547,8 @@ const getDetail = async () => {
     if (response.result.pickup_time) {
       formData.value.pickup_time = response.result.pickup_time;
     } else {
-      formData.value.pickup_time = response.result.reservation_info?.pickup_time;
+      formData.value.pickup_time =
+        response.result.reservation_info?.pickup_time;
     }
     if (response.result.slip_code) {
       formData.value.slip_code = response.result.slip_code;
@@ -1079,10 +1080,28 @@ const toggleModal = () => {
   createModalOpen.value = !createModalOpen.value;
 };
 
-const sendEmailFunction = () => {
-  toast.success("email send success");
+const sendEmailFunction = async () => {
+  console.log(emailData.value);
+  const res = await reservationStore.emailSendReservation(
+    route.params.id,
+    emailData.value
+  );
+  if (res.data.status) {
+    emailData.value = {
+      mail_subject: "",
+      mail_to: "",
+      send_to_default: false,
+    };
+    toast.success(res.data.message);
+  }
   toggleModal();
 };
+
+const emailData = ref({
+  mail_subject: "",
+  mail_to: "",
+  send_to_default: false,
+});
 
 onMounted(async () => {
   await getDetail();
@@ -1742,10 +1761,10 @@ onMounted(async () => {
             </p>
           </div>
           <div
-            class="grid grid-cols-1 gap-4 bg-gray-200/50 py-4"
+            class="grid grid-cols-1 gap-4 bg-gray-200/50 py-4 overflow-hidden"
             v-if="email_info_part"
           >
-            <div class="w-[500px] mx-auto flex justify-between items-center">
+            <div class="w-[90%] mx-auto flex justify-between items-center">
               <div class="flex justify-start items-center gap-3">
                 <img
                   src="../../public/logo.jpg"
@@ -1771,94 +1790,101 @@ onMounted(async () => {
               </div>
             </div>
             <div
-              class="w-[500px] shadow p-4 rounded mx-auto bg-white space-y-3 text-xs"
+              class="w-[90%] mx-auto shadow p-4 rounded bg-white mb-4 space-y-3 text-xs"
             >
-              <p>Dear Reservation Manager of {{ formData.product_name }}</p>
-              <p>Greetings from Thailand Anywhere travel and tour.</p>
-              <p>
-                We are pleased to book the tickets for our customers as per
-                following description ka.
-              </p>
-              <div
-                v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
-                class="space-y-1"
-              >
+              <img src="../../public/print.png" alt="" />
+              <div class="space-y-3 px-6 text-xs">
+                <p>Dear Reservation Manager of {{ formData.product_name }}</p>
+                <p>Greetings from Thailand Anywhere travel and tour.</p>
                 <p>
-                  Date :
-                  <span class="font-semibold">{{ formData.service_date }}</span>
+                  We are pleased to book the tickets for our customers as per
+                  following description ka.
+                </p>
+                <div
+                  v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+                  class="space-y-1"
+                >
+                  <p>
+                    Date :
+                    <span class="font-semibold">{{
+                      formData.service_date
+                    }}</span>
+                  </p>
+                  <p>
+                    Ticket :
+                    <span class="font-semibold"
+                      >{{ formData.variation_name }} {{ roomName }}</span
+                    >
+                  </p>
+                  <p>
+                    Total :
+                    <span class="font-semibold">{{ formData.quantity }}</span>
+                  </p>
+                  <p>
+                    Name :
+                    <span class="font-semibold">{{ formData.cus_name }}</span>
+                  </p>
+                </div>
+                <div
+                  v-if="formData.product_type == 'App\\Models\\Hotel'"
+                  class="space-y-1"
+                >
+                  <p>
+                    Check In :
+                    <span class="font-semibold">{{ checkin_date }}</span>
+                  </p>
+                  <p>
+                    Check Out :
+                    <span class="font-semibold">{{ checkout_date }}</span>
+                  </p>
+                  <p>
+                    Total :
+                    <span class="font-semibold"
+                      >{{ formData.quantity }} rooms &
+                      {{ daysBetween(checkin_date, checkout_date) }}
+                      nights</span
+                    >
+                  </p>
+                  <p>
+                    Name :
+                    <span class="font-semibold"
+                      >{{ formData.cus_name }} &
+                      {{ customer_passport_data.length }} passports</span
+                    >
+                  </p>
+                  <p>
+                    Room Type :
+                    <span class="font-semibold"
+                      >{{ formData.variation_name }} {{ roomName }}</span
+                    >
+                  </p>
+                  <p>
+                    Special Request :
+                    <span class="font-semibold">{{
+                      secForm.special_request
+                    }}</span>
+                  </p>
+                </div>
+                <p>Passport and payment slips are attached with this email .</p>
+                <p
+                  class="font-semibold italic"
+                  v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+                >
+                  Please kindly arrange and invoice & voucher for our clients
+                  accordingly .
+                </p>
+                <p
+                  class="font-semibold italic"
+                  v-if="formData.product_type == 'App\\Models\\Hotel'"
+                >
+                  Please arrange the invoice and confirmation letter ka.
                 </p>
                 <p>
-                  Ticket :
-                  <span class="font-semibold"
-                    >{{ formData.variation_name }} {{ roomName }}</span
-                  >
-                </p>
-                <p>
-                  Total :
-                  <span class="font-semibold">{{ formData.quantity }}</span>
-                </p>
-                <p>
-                  Name :
-                  <span class="font-semibold">{{ formData.cus_name }}</span>
+                  Should there be anything more required you can call us at
+                  +66983498197 and LINE ID 58858380 .
                 </p>
               </div>
-              <div
-                v-if="formData.product_type == 'App\\Models\\Hotel'"
-                class="space-y-1"
-              >
-                <p>
-                  Check In :
-                  <span class="font-semibold">{{ checkin_date }}</span>
-                </p>
-                <p>
-                  Check Out :
-                  <span class="font-semibold">{{ checkout_date }}</span>
-                </p>
-                <p>
-                  Total :
-                  <span class="font-semibold"
-                    >{{ formData.quantity }} rooms &
-                    {{ daysBetween(checkin_date, checkout_date) }} nights</span
-                  >
-                </p>
-                <p>
-                  Name :
-                  <span class="font-semibold"
-                    >{{ formData.cus_name }} &
-                    {{ customer_passport_data.length }} passports</span
-                  >
-                </p>
-                <p>
-                  Room Type :
-                  <span class="font-semibold"
-                    >{{ formData.variation_name }} {{ roomName }}</span
-                  >
-                </p>
-                <p>
-                  Special Request :
-                  <span class="font-semibold">{{
-                    secForm.special_request
-                  }}</span>
-                </p>
-              </div>
-              <p>Passport and payment slips are attached with this email .</p>
-              <p
-                class="font-semibold italic"
-                v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
-              >
-                Please kindly arrange and invoice & voucher for our clients
-                accordingly .
-              </p>
-              <p
-                class="font-semibold italic"
-                v-if="formData.product_type == 'App\\Models\\Hotel'"
-              >
-                Please arrange the invoice and confirmation letter ka.
-              </p>
-              <p>
-                Should there be anything more required you can call us at
-                +66983498197 and LINE ID 58858380 .
-              </p>
+              <img src="../../public/printf.png" alt="" />
             </div>
           </div>
 
@@ -2471,18 +2497,19 @@ onMounted(async () => {
           </div>
           <Modal :isOpen="createModalOpen" @closeModal="toggleModal">
             <DialogPanel
-              class="max-w-xl p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
+              class="max-w-lg p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
             >
               <DialogTitle
                 as="h3"
                 class="mb-5 text-sm font-medium leading-6 text-gray-900"
               >
-                Which email do you wanna send ?
+                Which email do you wanna send too?
               </DialogTitle>
               <div class="space-y-4">
                 <div>
                   <input
                     type="email"
+                    v-model="emailData.mail_to"
                     class="border-orange-600 px-4 py-2 border text-xs w-full"
                     placeholder="enter email"
                   />
@@ -2491,9 +2518,20 @@ onMounted(async () => {
                 <div>
                   <input
                     type="text"
+                    v-model="emailData.mail_subject"
                     class="border-orange-600 px-4 py-2 border text-xs w-full"
                     placeholder=" enter subject"
                   />
+                </div>
+                <div class="flex justify-start items-center gap-2">
+                  <input
+                    type="checkbox"
+                    v-model="emailData.send_to_default"
+                    name=""
+                    id=""
+                    class="border border-orange-600"
+                  />
+                  <p class="text-xs">default email send ?</p>
                 </div>
                 <div
                   class="flex justify-center border-orange-600 px-4 py-1 border text-xs w-full items-center gap-2 cursor-pointer"

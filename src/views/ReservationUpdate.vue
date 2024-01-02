@@ -547,7 +547,7 @@ const getDetail = async () => {
     if (response.result.pickup_time) {
       formData.value.pickup_time = response.result.pickup_time;
     } else {
-      formData.value.pickup_time = response.result.reservation_info.pickup_time;
+      formData.value.pickup_time = response.result.reservation_info?.pickup_time;
     }
     if (response.result.slip_code) {
       formData.value.slip_code = response.result.slip_code;

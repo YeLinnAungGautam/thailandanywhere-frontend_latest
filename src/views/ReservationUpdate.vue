@@ -1,7 +1,11 @@
 <script setup>
 import Layout from "./Layout.vue";
-import { XCircleIcon } from "@heroicons/vue/24/outline";
-import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
+import { AtSymbolIcon, XCircleIcon } from "@heroicons/vue/24/outline";
+import {
+  PlusIcon,
+  ListBulletIcon,
+  PaperAirplaneIcon,
+} from "@heroicons/vue/24/outline";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
@@ -19,6 +23,8 @@ import { useReservationStore } from "../stores/reservation";
 import { useInclusiveStore } from "../stores/inclusion";
 import { useAirLineStore } from "../stores/airline";
 import { useAuthStore } from "../stores/auth";
+import Modal from "../components/Modal.vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const enabled = ref(false);
 
@@ -284,6 +290,12 @@ const onSubmitHandler = async () => {
   frmData.append("service_date", formData.value.service_date);
   frmData.append("car_id", formData.value.car_id);
   frmData.append("slip_code", formData.value.slip_code);
+  if (secForm.value.dropoff_location) {
+    frmData.append("dropoff_location", secForm.value.dropoff_location);
+  }
+  if (formData.value.pickup_time) {
+    frmData.append("pickup_time", formData.value.pickup_time);
+  }
 
   if (customer_passport.value.length != 0) {
     if (customer_passport.value.length > 0) {
@@ -379,6 +391,9 @@ const onSubmitHandler = async () => {
       }
       if (secForm.value.dropoff_location) {
         secfrm.append("dropoff_location", secForm.value.dropoff_location);
+      }
+      if (formData.value.pickup_time) {
+        secfrm.append("pickup_time", formData.value.pickup_time);
       }
       if (secForm.value.route_plan) {
         secfrm.append("route_plan", secForm.value.route_plan);
@@ -532,7 +547,7 @@ const getDetail = async () => {
     if (response.result.pickup_time) {
       formData.value.pickup_time = response.result.pickup_time;
     } else {
-      formData.value.pickup_time = "-";
+      formData.value.pickup_time = response.result.reservation_info.pickup_time;
     }
     if (response.result.slip_code) {
       formData.value.slip_code = response.result.slip_code;
@@ -813,6 +828,11 @@ const carInfoPartHandle = () => {
   carInfo_part.value = !carInfo_part.value;
 };
 
+const email_info_part = ref(false);
+const emailInfoHandle = () => {
+  email_info_part.value = !email_info_part.value;
+};
+
 const route_plan_part = ref(false);
 const routePlanHandle = () => {
   route_plan_part.value = !route_plan_part.value;
@@ -1052,6 +1072,16 @@ const deleteCustomerPassport = async (id) => {
   toast.success("success delete customer passport");
   window.location.reload();
   await getDetail();
+};
+
+const createModalOpen = ref(false);
+const toggleModal = () => {
+  createModalOpen.value = !createModalOpen.value;
+};
+
+const sendEmailFunction = () => {
+  toast.success("email send success");
+  toggleModal();
 };
 
 onMounted(async () => {
@@ -1691,6 +1721,146 @@ onMounted(async () => {
             </div>
           </div>
 
+          <div
+            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
+            @click="emailInfoHandle"
+            v-if="
+              formData.product_type == 'App\\Models\\EntranceTicket' ||
+              formData.product_type == 'App\\Models\\Hotel'
+            "
+          >
+            <i class="fa-solid fa-angle-down"></i>
+            <p
+              v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+              class=""
+            >
+              Ticket Email Preview Information
+            </p>
+            <p v-if="formData.product_type == 'App\\Models\\Hotel'" class="">
+              Hotel Email Preview Information
+            </p>
+          </div>
+          <div
+            class="grid grid-cols-1 gap-4 bg-gray-200/50 py-4"
+            v-if="email_info_part"
+          >
+            <div class="w-[500px] mx-auto flex justify-between items-center">
+              <div class="flex justify-start items-center gap-3">
+                <img
+                  src="../../public/logo.jpg"
+                  class="w-10 h-10 rounded-full"
+                  alt=""
+                />
+                <p>Email Preview</p>
+              </div>
+              <div>
+                <button
+                  v-if="formData.payment_status == 'fully_paid'"
+                  class="text-xs px-4 py-2 border border-orange-600 bg-white"
+                  @click="toggleModal"
+                >
+                  Send Email
+                </button>
+                <button
+                  v-if="formData.payment_status != 'fully_paid'"
+                  class="text-xs px-4 py-2 border border-orange-600 bg-gray-300"
+                >
+                  Send Email
+                </button>
+              </div>
+            </div>
+            <div
+              class="w-[500px] shadow p-4 rounded mx-auto bg-white space-y-3 text-xs"
+            >
+              <p>Dear Reservation Manager of {{ formData.product_name }}</p>
+              <p>Greetings from Thailand Anywhere travel and tour.</p>
+              <p>
+                We are pleased to book the tickets for our customers as per
+                following description ka.
+              </p>
+              <div
+                v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+                class="space-y-1"
+              >
+                <p>
+                  Date :
+                  <span class="font-semibold">{{ formData.service_date }}</span>
+                </p>
+                <p>
+                  Ticket :
+                  <span class="font-semibold"
+                    >{{ formData.variation_name }} {{ roomName }}</span
+                  >
+                </p>
+                <p>
+                  Total :
+                  <span class="font-semibold">{{ formData.quantity }}</span>
+                </p>
+                <p>
+                  Name :
+                  <span class="font-semibold">{{ formData.cus_name }}</span>
+                </p>
+              </div>
+              <div
+                v-if="formData.product_type == 'App\\Models\\Hotel'"
+                class="space-y-1"
+              >
+                <p>
+                  Check In :
+                  <span class="font-semibold">{{ checkin_date }}</span>
+                </p>
+                <p>
+                  Check Out :
+                  <span class="font-semibold">{{ checkout_date }}</span>
+                </p>
+                <p>
+                  Total :
+                  <span class="font-semibold"
+                    >{{ formData.quantity }} rooms &
+                    {{ daysBetween(checkin_date, checkout_date) }} nights</span
+                  >
+                </p>
+                <p>
+                  Name :
+                  <span class="font-semibold"
+                    >{{ formData.cus_name }} &
+                    {{ customer_passport_data.length }} passports</span
+                  >
+                </p>
+                <p>
+                  Room Type :
+                  <span class="font-semibold"
+                    >{{ formData.variation_name }} {{ roomName }}</span
+                  >
+                </p>
+                <p>
+                  Special Request :
+                  <span class="font-semibold">{{
+                    secForm.special_request
+                  }}</span>
+                </p>
+              </div>
+              <p>Passport and payment slips are attached with this email .</p>
+              <p
+                class="font-semibold italic"
+                v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
+              >
+                Please kindly arrange and invoice & voucher for our clients
+                accordingly .
+              </p>
+              <p
+                class="font-semibold italic"
+                v-if="formData.product_type == 'App\\Models\\Hotel'"
+              >
+                Please arrange the invoice and confirmation letter ka.
+              </p>
+              <p>
+                Should there be anything more required you can call us at
+                +66983498197 and LINE ID 58858380 .
+              </p>
+            </div>
+          </div>
+
           <div class="flex justify-end items-center">
             <button
               v-if="
@@ -1809,6 +1979,28 @@ onMounted(async () => {
                 cols="4"
                 v-model="secForm.dropoff_location"
               ></textarea>
+            </div>
+            <div
+              class="px-6 space-y-2"
+              v-if="
+                formData.product_type != 'App\\Models\\EntranceTicket' &&
+                formData.product_type != 'App\\Models\\Hotel' &&
+                formData.product_type != 'App\\Models\\Airline'
+              "
+            >
+              <p class="text-gray-400 text-xs">Pickup Time</p>
+              <!-- <textarea
+                class="w-full bg-white border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                cols="4"
+                v-model="secForm.dropoff_location"
+              ></textarea> -->
+              <input
+                type="time"
+                name=""
+                v-model="formData.pickup_time"
+                class="w-full bg-white border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                id=""
+              />
             </div>
           </div>
 
@@ -2276,6 +2468,28 @@ onMounted(async () => {
               </div>
             </div>
           </div>
+          <Modal :isOpen="createModalOpen" @closeModal="toggleModal">
+            <DialogPanel
+              class="max-w-xl p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
+            >
+              <DialogTitle
+                as="h3"
+                class="mb-5 text-sm font-medium leading-6 text-gray-900"
+              >
+                Which email do you wanna send ?
+              </DialogTitle>
+              <div class="flex justify-start items-center gap-2">
+                <input
+                  type="email"
+                  class="border-orange-600 px-4 py-1 border"
+                />
+                <AtSymbolIcon
+                  class="w-8 h-8 text-orange-600 transform rotate-2"
+                  @click="sendEmailFunction"
+                />
+              </div>
+            </DialogPanel>
+          </Modal>
           <!-- <div
             class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
             @click="feedbackHandle"

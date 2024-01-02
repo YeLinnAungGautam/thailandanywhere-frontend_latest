@@ -1153,7 +1153,8 @@ onMounted(async () => {
             v-if="
               formData.product_type == 'App\\Models\\PrivateVanTour' &&
               (booking_status.payment_status == 'fully_paid' ||
-                booking_status.payment_status == 'partially_paid')
+                booking_status.payment_status == 'partially_paid' ||
+                formData.payment_method == 'Cash')
             "
           >
             Print
@@ -2478,15 +2479,31 @@ onMounted(async () => {
               >
                 Which email do you wanna send ?
               </DialogTitle>
-              <div class="flex justify-start items-center gap-2">
-                <input
-                  type="email"
-                  class="border-orange-600 px-4 py-1 border"
-                />
-                <AtSymbolIcon
-                  class="w-8 h-8 text-orange-600 transform rotate-2"
+              <div class="space-y-4">
+                <div>
+                  <input
+                    type="email"
+                    class="border-orange-600 px-4 py-2 border text-xs w-full"
+                    placeholder="enter email"
+                  />
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    class="border-orange-600 px-4 py-2 border text-xs w-full"
+                    placeholder=" enter subject"
+                  />
+                </div>
+                <div
+                  class="flex justify-center border-orange-600 px-4 py-1 border text-xs w-full items-center gap-2 cursor-pointer"
                   @click="sendEmailFunction"
-                />
+                >
+                  <AtSymbolIcon
+                    class="w-6 h-6 text-orange-600 transform rotate-2"
+                  />
+                  <span class="text-xs">Send Email</span>
+                </div>
               </div>
             </DialogPanel>
           </Modal>

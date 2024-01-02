@@ -815,7 +815,7 @@ watch(searchTime, async (newValue) => {
             <div
               class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
             >
-              {{ limitedText(d.customer_info.name) }}
+              {{ limitedText(d.customer_info?.name) }}
             </div>
             <div
               class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"

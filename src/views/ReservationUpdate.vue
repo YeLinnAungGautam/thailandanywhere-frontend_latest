@@ -25,6 +25,8 @@ import { useAirLineStore } from "../stores/airline";
 import { useAuthStore } from "../stores/auth";
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import { QuillEditor } from "@vueup/vue-quill";
+import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
 const enabled = ref(false);
 
@@ -1091,7 +1093,6 @@ const sendEmailFunction = async () => {
       mail_subject: "",
       mail_to: "",
       send_to_default: false,
-      mail_body: "",
     };
     toast.success(res.data.message);
   }
@@ -1105,22 +1106,50 @@ const emailData = ref({
   mail_body: "",
 });
 
+const editorOptions = {
+  placeholder: "Write an awesome mail here ...",
+};
+
+const mailBodyChange = () => {
+  if (formData.value.product_type == "App\\Models\\EntranceTicket") {
+    emailData.value.mail_body = `<p>Dear Reservation Manager<b> of ${formData.value.product_name}</b>,</p><p>Greetings from Thailand Anywhere travel and tour.</p><p>We are pleased to book the tickets for our customers as per following description ka.</p>
+    <p>Date :<b>${formData.value.service_date}</b></p><p>Ticket :<b>${formData.value.variation_name}</b></p><p>Total :<b>${formData.value.quantity}</b></p><p>Name :<b>${formData.value.cus_name}</b></p>
+    <p>Passport and payment slips are attached with this email .</p><b><em>Please kindly arrange and invoice & voucher for our clients accordingly .</em></b><p>Should there be anything more required you can call us at +66983498197 and LINE ID 58858380 .</p>`;
+  } else if (formData.value.product_type == "App\\Models\\Hotel") {
+    emailData.value.mail_body = `<p>Dear Reservation Manager<b> of ${
+      formData.value.product_name
+    }</b>,</p><p>Greetings from Thailand Anywhere travel and tour. Good day to you ka.</p><p>We are pleased to book the room for our customers as per following description checks availability by phone.</p>
+    <p>Check In :<strong>${
+      checkin_date.value
+    }</strong></p><p>Check Out :<strong>${
+      checkout_date.value
+    }</strong></p><p>Total :<strong>${
+      formData.value.quantity
+    } rooms & ${daysBetween(
+      checkin_date.value,
+      checkout_date.value
+    )} nights</strong></p><p>Name :<strong>${formData.value.cus_name} & ${
+      customer_passport_data.value.length
+    } passports</strong></p><p>Room Type :<strong>${
+      roomName.value
+    }</strong></p><p>Special Request :<strong>${
+      secForm.value.special_request
+    }</strong></p>
+    <p>Passport and payment slips are attached with this email .</p><b><em>Please arrange the invoice and confirmation letter ka.</em></b><p>Should there be anything more required you can call us at +66983498197 and LINE ID 58858380 .</p>`;
+  }
+};
+
 onMounted(async () => {
   await getDetail();
   console.log(formData.value.receipt_image, "this is rece");
   changeName();
-  // await vantourStore.getSimpleListAction();
-  // await grouptourStore.getSimpleListAction();
-  // await airportStore.getSimpleListAction();
-  // await entranceStore.getSimpleListAction();
-  // await customerStore.getSimpleListAction();
-  // await inclusiveStore.getListAction();
-  // await airlineStore.getSimpleListAction();
   console.log(booking_confirm_letters.value, "this is something");
   action.value = route.params.action;
   crm.value = route.params.crm;
   old.value = route.params.old;
   console.log(crm.value, old.value, "this is something wrong");
+  // emailData.value.mail_body = "<h1>Hello world</h1>";
+  mailBodyChange();
 });
 </script>
 
@@ -1795,7 +1824,7 @@ onMounted(async () => {
               class="w-[90%] mx-auto shadow p-4 rounded bg-white mb-4 space-y-3 text-xs"
             >
               <img src="../../public/print.png" alt="" />
-              <div class="space-y-3 px-6 text-xs">
+              <!-- <div class="space-y-3 px-6 text-xs">
                 <p>Dear Reservation Manager of {{ formData.product_name }}</p>
                 <p>Greetings from Thailand Anywhere travel and tour.</p>
                 <p>
@@ -1885,7 +1914,16 @@ onMounted(async () => {
                   Should there be anything more required you can call us at
                   +66983498197 and LINE ID 58858380 .
                 </p>
-              </div>
+              </div> -->
+              <QuillEditor
+                ref="textEditor"
+                :options="editorOptions"
+                theme="snow"
+                class="!bg-white/50 !border-1 !border-gray-300 !rounded-bl-md !rounded-br-md !shadow-sm !text-base !text-gray-900 !h-96"
+                toolbar="essential"
+                contentType="html"
+                v-model:content="emailData.mail_body"
+              />
               <img src="../../public/printf.png" alt="" />
             </div>
           </div>

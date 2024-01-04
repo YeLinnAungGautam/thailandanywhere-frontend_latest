@@ -1091,6 +1091,7 @@ const sendEmailFunction = async () => {
       mail_subject: "",
       mail_to: "",
       send_to_default: false,
+      mail_body: "",
     };
     toast.success(res.data.message);
   }
@@ -1101,6 +1102,7 @@ const emailData = ref({
   mail_subject: "",
   mail_to: "",
   send_to_default: false,
+  mail_body: "",
 });
 
 onMounted(async () => {

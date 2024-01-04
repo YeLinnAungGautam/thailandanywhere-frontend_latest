@@ -333,7 +333,7 @@ watch(limit, async (newValue) => {
             <DisclosureButton class="w-full py-2">
               <div class="grid grid-cols-9 gap-2 bg-white">
                 <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
-                  {{ r.customer.name }}
+                  {{ r.customer?.name }}
                 </div>
                 <!-- r.past_crm_id ? r.past_crm_id :  -->
                 <div class="p-3 text-xs text-gray-700 whitespace-nowrap">

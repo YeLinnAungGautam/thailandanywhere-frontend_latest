@@ -264,6 +264,7 @@ const formitem = ref({
   room_number: "",
   checkout_date: "",
   customer_attachment: "",
+  total_guest: "",
 });
 const productList = ref([]);
 
@@ -594,6 +595,7 @@ const addNewitem = () => {
     checkin_date: "",
     checkout_date: "",
     room_number: "",
+    total_guest: "",
   };
   todayVali.value = false;
 
@@ -889,6 +891,12 @@ const onSubmitHandler = async () => {
         formData.value.items[x].checkout_date
       );
     }
+    if (formData.value.items[x].total_guest) {
+      frmData.append(
+        "items[" + x + "][total_guest]",
+        formData.value.items[x].total_guest
+      );
+    }
     if (formData.value.items[x].route_plan) {
       frmData.append(
         "items[" + x + "][route_plan]",
@@ -1091,9 +1099,9 @@ const clickdetaildesToggle = (
   room,
   quantity,
   is_inclusive,
-  limit
+  limit,
+  guest
 ) => {
-  console.log(a, b, index, is_inclusive);
   clickdetaildes.value = true;
   itemDes.value = a;
   itemSpecial.value = b;
@@ -1111,6 +1119,7 @@ const clickdetaildesToggle = (
   itemRoom.value = room;
   itemQ.value = quantity;
   itemLimit.value = limit;
+  itemGuest.value = guest;
   itemIs.value = is_inclusive != undefined ? is_inclusive : 0;
   console.log(itemIs.value, "this is item is");
 };
@@ -1128,12 +1137,14 @@ const itemRoom = ref("");
 const itemQ = ref("");
 const itemIs = ref("");
 const itemLimit = ref("");
+const itemGuest = ref("");
 
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
   formData.value.items[x].special_request = itemSpecial.value;
   formData.value.items[x].service_date = itemServiceDate.value;
   formData.value.items[x].pickup_location = itemPickup.value;
+  formData.value.items[x].total_guest = itemGuest.value;
   formData.value.items[x].customer_attachment = itemFile;
   formData.value.items[x].checkin_date = itemCheckIn.value;
   formData.value.items[x].room_number = itemRoom.value;
@@ -1475,9 +1486,22 @@ onMounted(async () => {
                         type="text"
                         v-model="formitem.quantity"
                         name=""
-                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                        class="px-4 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         id=""
                         placeholder="xxx , xxx , xxx"
+                      />
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="formitem.product_type == '6'"
+                    >
+                      <p class="text-xs">Number of Guest</p>
+                      <input
+                        type="number"
+                        v-model="formitem.total_guest"
+                        name=""
+                        class="px-4 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                        id=""
                       />
                     </div>
                     <div
@@ -1675,6 +1699,19 @@ onMounted(async () => {
                         class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         id=""
                         placeholder="xx"
+                      />
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="itemType == '6'"
+                    >
+                      <p class="text-xs">Number of Guest</p>
+                      <input
+                        type="text"
+                        v-model="itemGuest"
+                        name=""
+                        class="px-4 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                        id=""
                       />
                     </div>
                     <div
@@ -2307,7 +2344,8 @@ onMounted(async () => {
                                 item.room_number,
                                 item.quantity,
                                 item.is_inclusive,
-                                item.limit
+                                item.limit,
+                                item.total_guest
                               )
                             "
                           >

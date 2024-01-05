@@ -444,6 +444,7 @@ const formitem = ref({
   exchange_rate: "",
   cost_price: "",
   total_amount: "",
+  total_guest: "",
 });
 const productList = ref([]);
 const chooseType = async () => {
@@ -859,6 +860,12 @@ const onSubmitHandler = async () => {
           formData.value.items[x].room_number
         )
       : "";
+    formData.value.items[x].total_guest
+      ? frmData.append(
+          "items[" + x + "][total_guest]",
+          formData.value.items[x].total_guest
+        )
+      : "";
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     formData.value.items[x].checkout_date
@@ -1179,6 +1186,7 @@ const getDetail = async () => {
         service_date: response.result.items[x].service_date,
         is_inclusive: response.result.items[x].is_inclusive,
         quantity: response.result.items[x].quantity,
+        total_guest: response.result.items[x].total_guest,
         days: response.result.items[x].days
           ? response.result.items[x].days
           : "",
@@ -1364,7 +1372,8 @@ const clickdetaildesToggle = (
   days,
   room,
   quantity,
-  is_inclusive
+  is_inclusive,
+  guest
 ) => {
   console.log(a, b, index);
   clickdetaildes.value = true;
@@ -1383,6 +1392,7 @@ const clickdetaildesToggle = (
   itemRoom.value = room;
   itemQ.value = quantity;
   itemIs.value = is_inclusive != undefined ? is_inclusive : 0;
+  itemGuest.value = guest;
   console.log(itemCheckIn.value, itemCheckOut.value);
 };
 const itemType = ref("");
@@ -1397,6 +1407,7 @@ const itemCheckOut = ref("");
 const itemRoom = ref("");
 const itemQ = ref("");
 const itemIs = ref("");
+const itemGuest = ref("");
 
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
@@ -1407,7 +1418,7 @@ const clickdetaildesUpdate = (x) => {
   formData.value.items[x].checkin_date = itemCheckIn.value;
   formData.value.items[x].room_number = itemRoom.value;
   formData.value.items[x].quantity = itemQ.value;
-
+  formData.value.items[x].total_guest = itemGuest.value;
   formData.value.items[x].checkout_date = itemCheckOut.value;
   formData.value.items[x].dropoff_location = itemDropoff.value;
   formData.value.items[x].route_plan = itemRoutePlan.value;
@@ -1903,9 +1914,25 @@ onMounted(async () => {
                           type="text"
                           v-model="formitem.quantity"
                           name=""
-                          class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                          class="px-4 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none"
                           id=""
                           placeholder="xxx , xxx , xxx"
+                        />
+                      </div>
+                      <div
+                        class="grid grid-cols-1 space-y-2"
+                        v-if="
+                          formitem.product_type == '6' ||
+                          formitem.product_type == 'App\\Models\\Hotel'
+                        "
+                      >
+                        <p class="text-xs">Number of Guest</p>
+                        <input
+                          type="text"
+                          v-model="formitem.total_guest"
+                          name=""
+                          class="px-4 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                          id=""
                         />
                       </div>
                       <div
@@ -2121,7 +2148,7 @@ onMounted(async () => {
                           v-model="itemQ"
                           type="text"
                           name=""
-                          class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                          class="px-4 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none"
                           id=""
                           placeholder="xxx , xxx , xxx"
                         />
@@ -2131,9 +2158,24 @@ onMounted(async () => {
                           disabled
                           type="text"
                           name=""
-                          class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                          class="px-4 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none"
                           id=""
                           placeholder="xxx , xxx , xxx"
+                        />
+                      </div>
+                      <div
+                        class="grid grid-cols-1 space-y-2"
+                        v-if="
+                          itemType == '6' || itemType == 'App\\Models\\Hotel'
+                        "
+                      >
+                        <p class="text-xs">Number of Guest</p>
+                        <input
+                          v-model="itemGuest"
+                          type="text"
+                          name=""
+                          class="px-4 py-2 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                          id=""
                         />
                       </div>
                       <div
@@ -2981,7 +3023,8 @@ onMounted(async () => {
                                   item.days,
                                   item.room_number,
                                   item.quantity,
-                                  item.is_inclusive
+                                  item.is_inclusive,
+                                  item.total_guest
                                 )
                               "
                             >

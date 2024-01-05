@@ -23,10 +23,9 @@ import { useReservationStore } from "../stores/reservation";
 import { useInclusiveStore } from "../stores/inclusion";
 import { useAirLineStore } from "../stores/airline";
 import { useAuthStore } from "../stores/auth";
-import Modal from "../components/Modal.vue";
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
+import Swal from "sweetalert2";
 
 const enabled = ref(false);
 
@@ -1077,11 +1076,6 @@ const deleteCustomerPassport = async (id) => {
   await getDetail();
 };
 
-const createModalOpen = ref(false);
-const toggleModal = () => {
-  createModalOpen.value = !createModalOpen.value;
-};
-
 const cancelEmailFunction = () => {
   emailData.value = {
     mail_subject: "",
@@ -1089,24 +1083,35 @@ const cancelEmailFunction = () => {
     send_to_default: false,
     attachments: [],
   };
-  createModalOpen.value = false;
 };
 
 const sendEmailFunction = async () => {
-  console.log(emailData.value);
-  const res = await reservationStore.emailSendReservation(
-    route.params.id,
-    emailData.value
-  );
-  if (res.data.status) {
-    emailData.value = {
-      mail_subject: "",
-      mail_to: "",
-      send_to_default: false,
-    };
-    toast.success(res.data.message);
-  }
-  toggleModal();
+  Swal.fire({
+    title: "Are you sure ?",
+    text: `Send email to ${emailData.value.mail_to} `,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "#FF6300",
+    cancelButtonColor: "#C69B92",
+    confirmButtonText: "Send",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      console.log(emailData.value);
+      const res = await reservationStore.emailSendReservation(
+        route.params.id,
+        emailData.value
+      );
+      if (res.data.status) {
+        emailData.value = {
+          mail_subject: "",
+          mail_to: "",
+          send_to_default: false,
+          attachments: [],
+        };
+        toast.success(res.data.message);
+      }
+    }
+  });
 };
 
 const emailData = ref({
@@ -1535,7 +1540,7 @@ onMounted(async () => {
                 <p class="text-gray-400 text-xs">
                   <Switch
                     v-model="enabled"
-                    :class="enabled ? ' bg-orange-600' : 'bg-gray-500'"
+                    :class="enabled ? ' bg-[#FF6300]' : 'bg-gray-500'"
                     class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
                   >
                     <span class="sr-only">Use setting</span>
@@ -1813,7 +1818,7 @@ onMounted(async () => {
             class="grid grid-cols-1 gap-4 bg-gray-200/50 py-4 overflow-hidden"
             v-if="email_info_part"
           >
-            <div class="w-[90%] mx-auto flex justify-between items-center">
+            <div class="w-[95%] mx-auto flex justify-between items-center">
               <div class="flex justify-start items-center gap-3">
                 <img
                   src="../../public/logo.jpg"
@@ -1822,127 +1827,83 @@ onMounted(async () => {
                 />
                 <p>Email Preview</p>
               </div>
-              <div>
+              <div class="space-x-2">
+                <button
+                  class="text-xs px-4 py-2 border border-[#FF6300] bg-[#FF6300] text-white"
+                  @click="cancelEmailFunction"
+                >
+                  Clear Email
+                </button>
                 <button
                   v-if="formData.payment_status == 'fully_paid'"
-                  class="text-xs px-4 py-2 border border-orange-600 bg-white"
-                  @click="toggleModal"
+                  class="text-xs px-4 py-2 border border-[#FF6300] bg-white"
+                  @click="sendEmailFunction"
                 >
                   Send Email
                 </button>
                 <button
                   v-if="formData.payment_status != 'fully_paid'"
-                  class="text-xs px-4 py-2 border border-orange-600 bg-gray-300"
+                  class="text-xs px-4 py-2 border border-[#FF6300] bg-gray-300"
                 >
                   Send Email
                 </button>
               </div>
             </div>
             <div
-              class="w-[90%] mx-auto shadow p-4 rounded bg-white mb-4 space-y-3 text-xs"
+              class="w-[95%] mx-auto shadow p-4 rounded bg-white mb-4 space-y-3 text-xs"
             >
-              <img src="../../public/print.png" alt="" />
-              <!-- <div class="space-y-3 px-6 text-xs">
-                <p>Dear Reservation Manager of {{ formData.product_name }}</p>
-                <p>Greetings from Thailand Anywhere travel and tour.</p>
-                <p>
-                  We are pleased to book the tickets for our customers as per
-                  following description ka.
-                </p>
-                <div
-                  v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
-                  class="space-y-1"
-                >
-                  <p>
-                    Date :
-                    <span class="font-semibold">{{
-                      formData.service_date
-                    }}</span>
-                  </p>
-                  <p>
-                    Ticket :
-                    <span class="font-semibold"
-                      >{{ formData.variation_name }} {{ roomName }}</span
-                    >
-                  </p>
-                  <p>
-                    Total :
-                    <span class="font-semibold">{{ formData.quantity }}</span>
-                  </p>
-                  <p>
-                    Name :
-                    <span class="font-semibold">{{ formData.cus_name }}</span>
-                  </p>
+              <div class="space-y-4">
+                <div>
+                  <input
+                    type="email"
+                    v-model="emailData.mail_to"
+                    class="border-[#FF6300] px-4 py-2 border text-xs w-full"
+                    placeholder="Sender Email"
+                  />
                 </div>
-                <div
-                  v-if="formData.product_type == 'App\\Models\\Hotel'"
-                  class="space-y-1"
-                >
-                  <p>
-                    Check In :
-                    <span class="font-semibold">{{ checkin_date }}</span>
-                  </p>
-                  <p>
-                    Check Out :
-                    <span class="font-semibold">{{ checkout_date }}</span>
-                  </p>
-                  <p>
-                    Total :
-                    <span class="font-semibold"
-                      >{{ formData.quantity }} rooms &
-                      {{ daysBetween(checkin_date, checkout_date) }}
-                      nights</span
-                    >
-                  </p>
-                  <p>
-                    Name :
-                    <span class="font-semibold"
-                      >{{ formData.cus_name }} &
-                      {{ customer_passport_data.length }} passports</span
-                    >
-                  </p>
-                  <p>
-                    Room Type :
-                    <span class="font-semibold"
-                      >{{ formData.variation_name }} {{ roomName }}</span
-                    >
-                  </p>
-                  <p>
-                    Special Request :
-                    <span class="font-semibold">{{
-                      secForm.special_request
-                    }}</span>
-                  </p>
+
+                <div>
+                  <input
+                    type="text"
+                    v-model="emailData.mail_subject"
+                    class="border-[#FF6300] px-4 py-2 border text-xs w-full"
+                    placeholder="Subject"
+                  />
                 </div>
-                <p>Passport and payment slips are attached with this email .</p>
-                <p
-                  class="font-semibold italic"
-                  v-if="formData.product_type == 'App\\Models\\EntranceTicket'"
-                >
-                  Please kindly arrange and invoice & voucher for our clients
-                  accordingly .
-                </p>
-                <p
-                  class="font-semibold italic"
-                  v-if="formData.product_type == 'App\\Models\\Hotel'"
-                >
-                  Please arrange the invoice and confirmation letter ka.
-                </p>
-                <p>
-                  Should there be anything more required you can call us at
-                  +66983498197 and LINE ID 58858380 .
-                </p>
-              </div> -->
-              <QuillEditor
-                ref="textEditor"
-                :options="editorOptions"
-                theme="snow"
-                class="!bg-white/50 !border-1 !border-gray-300 !rounded-bl-md !rounded-br-md !shadow-sm !text-base !text-gray-900 !h-96"
-                toolbar="essential"
-                contentType="html"
-                v-model:content="emailData.mail_body"
-              />
-              <img src="../../public/printf.png" alt="" />
+
+                <div class="flex justify-start items-center gap-2">
+                  <input
+                    type="checkbox"
+                    v-model="emailData.send_to_default"
+                    name=""
+                    id=""
+                    class="w-6 h-6 border border-[#FF6300]"
+                  />
+                  <p class="text-xs">default email send ?</p>
+                </div>
+                <div class="">
+                  <QuillEditor
+                    ref="textEditor"
+                    :options="editorOptions"
+                    theme="snow"
+                    class="!bg-white/50 !border-1 !border-[#FF6300] !rounded-bl-md !rounded-br-md !shadow-sm !text-xs !text-gray-900 !h-[350px]"
+                    toolbar="essential"
+                    contentType="html"
+                    v-model:content="emailData.mail_body"
+                  />
+                </div>
+                <div class="space-y-2">
+                  <p class="text-xs text-[#FF6300]">
+                    Attachment Files must be under 25mb .
+                  </p>
+                  <input
+                    type="file"
+                    multiple
+                    @change="addAttracted"
+                    class="border-[#FF6300] px-4 py-2 border text-xs w-full"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -2553,7 +2514,7 @@ onMounted(async () => {
               </div>
             </div>
           </div>
-          <Modal
+          <!-- <Modal
             :isOpen="createModalOpen"
             @closeModal="createModalOpen = false"
           >
@@ -2571,7 +2532,7 @@ onMounted(async () => {
                   <input
                     type="email"
                     v-model="emailData.mail_to"
-                    class="border-orange-600 px-4 py-2 border text-xs w-full"
+                    class="border-[#FF6300] px-4 py-2 border text-xs w-full"
                     placeholder="enter email"
                   />
                 </div>
@@ -2580,7 +2541,7 @@ onMounted(async () => {
                   <input
                     type="text"
                     v-model="emailData.mail_subject"
-                    class="border-orange-600 px-4 py-2 border text-xs w-full"
+                    class="border-[#FF6300] px-4 py-2 border text-xs w-full"
                     placeholder=" enter subject"
                   />
                 </div>
@@ -2590,7 +2551,7 @@ onMounted(async () => {
                     type="file"
                     multiple
                     @change="addAttracted"
-                    class="border-orange-600 px-4 py-2 border text-xs w-full"
+                    class="border-[#FF6300] px-4 py-2 border text-xs w-full"
                   />
                 </div>
                 <div class="flex justify-start items-center gap-2">
@@ -2599,75 +2560,28 @@ onMounted(async () => {
                     v-model="emailData.send_to_default"
                     name=""
                     id=""
-                    class="border border-orange-600"
+                    class="border border-[#FF6300]"
                   />
                   <p class="text-xs">default email send ?</p>
                 </div>
                 <div
-                  class="flex justify-center border-orange-600 text-white bg-orange-600 px-4 py-2 rounded border text-xs w-full items-center gap-2 cursor-pointer"
+                  class="flex justify-center border-[#FF6300] text-white bg-[#FF6300] px-4 py-2 rounded border text-xs w-full items-center gap-2 cursor-pointer"
                   @click="cancelEmailFunction"
                 >
                   <span class="text-xs">Cancel Send Email</span>
                 </div>
                 <div
-                  class="flex justify-center border-orange-600 px-4 py-1 border text-xs w-full items-center gap-2 cursor-pointer"
+                  class="flex justify-center border-[#FF6300] px-4 py-1 border text-xs w-full items-center gap-2 cursor-pointer"
                   @click="sendEmailFunction"
                 >
                   <AtSymbolIcon
-                    class="w-6 h-6 text-orange-600 transform rotate-2"
+                    class="w-6 h-6 text-[#FF6300] transform rotate-2"
                   />
                   <span class="text-xs">Send Email</span>
                 </div>
               </div>
             </DialogPanel>
-          </Modal>
-          <!-- <div
-            class="flex justify-start items-center px-4 py-2 shadow bg-white space-x-4 text-xs border-b border-gray-300 cursor-pointer"
-            @click="feedbackHandle"
-          >
-            <i class="fa-solid fa-angle-down"></i>
-            <p>Customer Reviews</p>
-          </div>
-          <div class="bg-gray-200/50 py-4 space-y-2" v-if="feedback_part">
-            <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs font">Reviews</p>
-
-              <textarea
-                class="w-full bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 font-semibold text-xs"
-                cols="4"
-                v-model="secForm.customer_feedback"
-              ></textarea>
-            </div>
-            <div class="hidden">
-              <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs font">Customer Score</p>
-                <input
-                  v-model="secForm.customer_score"
-                  type="number"
-                  id="title"
-                  class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                />
-              </div>
-              <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs font">Driver Score</p>
-                <input
-                  v-model="secForm.driver_score"
-                  type="number"
-                  id="title"
-                  class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                />
-              </div>
-              <div class="pl-10 pr-10 pb-8 space-y-2">
-                <p class="text-gray-400 text-xs font">Product Score</p>
-                <input
-                  v-model="secForm.product_score"
-                  type="number"
-                  id="title"
-                  class="h-8 w-full bg-white font-semibold border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                />
-              </div>
-            </div>
-          </div> -->
+          </Modal> -->
         </div>
       </div>
     </div>
@@ -2705,5 +2619,12 @@ onMounted(async () => {
 /* Hide scrollbar for Firefox */
 .scrollbar-hide {
   scrollbar-width: none;
+}
+
+.ql-toolbar.ql-snow {
+  border: 1px solid #ff6300 !important;
+  box-sizing: border-box;
+  font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  padding: 8px;
 }
 </style>

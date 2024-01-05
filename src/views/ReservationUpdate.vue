@@ -1082,6 +1082,16 @@ const toggleModal = () => {
   createModalOpen.value = !createModalOpen.value;
 };
 
+const cancelEmailFunction = () => {
+  emailData.value = {
+    mail_subject: "",
+    mail_to: "",
+    send_to_default: false,
+    attachments: [],
+  };
+  createModalOpen.value = false;
+};
+
 const sendEmailFunction = async () => {
   console.log(emailData.value);
   const res = await reservationStore.emailSendReservation(
@@ -1104,7 +1114,15 @@ const emailData = ref({
   mail_to: "",
   send_to_default: false,
   mail_body: "",
+  attachments: [],
 });
+
+const addAttracted = (e) => {
+  for (let i = 0; i < e.target.files.length; i++) {
+    emailData.value.attachments.push(e.target.files[i]);
+    console.log(e.target.files[i], "this is att");
+  }
+};
 
 const editorOptions = {
   placeholder: "Write an awesome mail here ...",
@@ -2535,7 +2553,10 @@ onMounted(async () => {
               </div>
             </div>
           </div>
-          <Modal :isOpen="createModalOpen" @closeModal="toggleModal">
+          <Modal
+            :isOpen="createModalOpen"
+            @closeModal="createModalOpen = false"
+          >
             <DialogPanel
               class="max-w-lg p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
             >
@@ -2543,7 +2564,7 @@ onMounted(async () => {
                 as="h3"
                 class="mb-5 text-sm font-medium leading-6 text-gray-900"
               >
-                Which email do you wanna send too?
+                Which email do you wanna send ?
               </DialogTitle>
               <div class="space-y-4">
                 <div>
@@ -2563,6 +2584,15 @@ onMounted(async () => {
                     placeholder=" enter subject"
                   />
                 </div>
+                <div class="space-y-2">
+                  <p class="text-xs">Attachment Files must be under 25mb .</p>
+                  <input
+                    type="file"
+                    multiple
+                    @change="addAttracted"
+                    class="border-orange-600 px-4 py-2 border text-xs w-full"
+                  />
+                </div>
                 <div class="flex justify-start items-center gap-2">
                   <input
                     type="checkbox"
@@ -2572,6 +2602,12 @@ onMounted(async () => {
                     class="border border-orange-600"
                   />
                   <p class="text-xs">default email send ?</p>
+                </div>
+                <div
+                  class="flex justify-center border-orange-600 text-white bg-orange-600 px-4 py-2 rounded border text-xs w-full items-center gap-2 cursor-pointer"
+                  @click="cancelEmailFunction"
+                >
+                  <span class="text-xs">Cancel Send Email</span>
                 </div>
                 <div
                   class="flex justify-center border-orange-600 px-4 py-1 border text-xs w-full items-center gap-2 cursor-pointer"

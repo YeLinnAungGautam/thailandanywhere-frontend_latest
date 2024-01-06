@@ -979,6 +979,7 @@ const onSubmitHandler = async () => {
       discount: "",
       comment: "",
       receipt_image: [],
+      receipt_images: [],
       confirmation_letter: [],
       due_date: "",
       deposit: 0,
@@ -1170,7 +1171,7 @@ const getDetail = async () => {
     formData.value.deposit = response.result.deposit;
     // formData.value.receipt_images = response.result.receipts;
     // console.log(formData.value.receipt_images, "this is image");
-    for (let i = 0; i < response.result.receipts.length; i++) {
+    for (let i = 0; i < response.result.receipts?.length; i++) {
       let data = {
         id: response.result.receipts[i].id,
         image: response.result.receipts[i].image,
@@ -1409,6 +1410,13 @@ const itemQ = ref("");
 const itemIs = ref("");
 const itemGuest = ref("");
 
+const itemCheckoutCheck = () => {
+  if (!itemCheckOut.value || itemCheckOut.value < itemCheckIn.value) {
+    itemCheckOut.value = "";
+    console.log("this is vali");
+  }
+};
+
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
   formData.value.items[x].special_request = itemSpecial.value;
@@ -1555,6 +1563,16 @@ const openPaid = () => {
       route.params.id +
       "/receipt?paid=1"
   );
+};
+
+const checkCheckout = () => {
+  if (
+    !formitem.value.checkout_date ||
+    formitem.value.checkout_date < formitem.value.checkin_date
+  ) {
+    formitem.value.checkout_date = "";
+    console.log("this is vali");
+  }
 };
 
 onMounted(async () => {
@@ -2057,6 +2075,7 @@ onMounted(async () => {
                           class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
                           id=""
                           v-model="formitem.checkout_date"
+                          @change="checkCheckout"
                         />
                       </div>
                       <div
@@ -2279,6 +2298,7 @@ onMounted(async () => {
                           type="date"
                           class="p-2 border border-gray-300 focus:outline-none rounded-sm text-xs"
                           v-model="itemCheckOut"
+                          @change="itemCheckoutCheck"
                           id=""
                         />
                       </div>

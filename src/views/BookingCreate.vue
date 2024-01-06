@@ -3,7 +3,7 @@ import Layout from "./Layout.vue";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
 import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import { Switch } from "@headlessui/vue";
@@ -1139,6 +1139,13 @@ const itemIs = ref("");
 const itemLimit = ref("");
 const itemGuest = ref("");
 
+const itemCheckoutCheck = () => {
+  if (!itemCheckOut.value || itemCheckOut.value < itemCheckIn.value) {
+    itemCheckOut.value = "";
+    console.log("this is vali");
+  }
+};
+
 const clickdetaildesUpdate = (x) => {
   formData.value.items[x].comment = itemDes.value;
   formData.value.items[x].special_request = itemSpecial.value;
@@ -1213,6 +1220,24 @@ const hotelQ = (t, d, q) => {
     return (data = d * q);
   }
 };
+
+const minCheckoutDate = () => {
+  return formitem.value.checkin_date;
+};
+
+const checkCheckout = () => {
+  if (
+    !formitem.value.checkout_date ||
+    formitem.value.checkout_date < formitem.value.checkin_date
+  ) {
+    formitem.value.checkout_date = "";
+    console.log("this is vali");
+  }
+};
+
+// watch(showEntries, async (newValue) => {
+//   await cityStore.getListAction({ limit: showEntries.value });
+// });
 
 onMounted(async () => {
   await customerStore.getSimpleListAction();
@@ -1600,6 +1625,8 @@ onMounted(async () => {
                         class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
                         id=""
                         v-model="formitem.checkout_date"
+                        @change="checkCheckout"
+                        :min="minCheckoutDate"
                       />
                     </div>
                     <div
@@ -1797,6 +1824,7 @@ onMounted(async () => {
                         type="date"
                         class="p-2 border border-gray-300 focus:outline-none rounded-sm text-xs"
                         v-model="itemCheckOut"
+                        @change="itemCheckoutCheck"
                         id=""
                       />
                     </div>

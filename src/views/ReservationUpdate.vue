@@ -1103,9 +1103,9 @@ const sendEmailFunction = async () => {
       frmData.append("mail_body", emailData.value.mail_body);
       frmData.append("send_to_default", emailData.value.send_to_default);
       // frmData.append("attachments", emailData.value.attachments);
-      if (formData.value.attachments.length > 0) {
-        for (let i = 0; i < formData.value.attachments.length; i++) {
-          let file = formData.value.attachments[i];
+      if (emailData.value.attachments.length > 0) {
+        for (let i = 0; i < emailData.value.attachments.length; i++) {
+          let file = emailData.value.attachments[i];
           frmData.append("attachments[" + i + "]", file);
         }
       }

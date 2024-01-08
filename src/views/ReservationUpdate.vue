@@ -1085,6 +1085,7 @@ const cancelEmailFunction = () => {
   };
 };
 
+const emailLoading = ref(false);
 const sendEmailFunction = async () => {
   Swal.fire({
     title: "Are you sure ?",
@@ -1096,31 +1097,38 @@ const sendEmailFunction = async () => {
     confirmButtonText: "Send",
   }).then(async (result) => {
     if (result.isConfirmed) {
-      console.log(emailData.value);
-      const frmData = new FormData();
-      frmData.append("mail_to", emailData.value.mail_to);
-      frmData.append("mail_subject", emailData.value.mail_subject);
-      frmData.append("mail_body", emailData.value.mail_body);
-      frmData.append("send_to_default", emailData.value.send_to_default);
-      // frmData.append("attachments", emailData.value.attachments);
-      if (emailData.value.attachments.length > 0) {
-        for (let i = 0; i < emailData.value.attachments.length; i++) {
-          let file = emailData.value.attachments[i];
-          frmData.append("attachments[" + i + "]", file);
+      try {
+        emailLoading.value = true;
+        console.log(emailData.value);
+        const frmData = new FormData();
+        frmData.append("mail_to", emailData.value.mail_to);
+        frmData.append("mail_subject", emailData.value.mail_subject);
+        frmData.append("mail_body", emailData.value.mail_body);
+        frmData.append("send_to_default", emailData.value.send_to_default);
+        // frmData.append("attachments", emailData.value.attachments);
+        if (emailData.value.attachments.length > 0) {
+          for (let i = 0; i < emailData.value.attachments.length; i++) {
+            let file = emailData.value.attachments[i];
+            frmData.append("attachments[" + i + "]", file);
+          }
         }
-      }
-      const res = await reservationStore.emailSendReservation(
-        route.params.id,
-        frmData
-      );
-      if (res.data.status) {
-        emailData.value = {
-          mail_subject: "",
-          mail_to: "",
-          send_to_default: false,
-          attachments: [],
-        };
-        toast.success(res.data.message);
+        const res = await reservationStore.emailSendReservation(
+          route.params.id,
+          frmData
+        );
+        if (res.data.status) {
+          emailLoading.value = false;
+          emailData.value = {
+            mail_subject: "",
+            mail_to: "",
+            send_to_default: false,
+            attachments: [],
+          };
+          toast.success(res.data.message);
+        }
+      } catch (error) {
+        emailLoading.value = false;
+        toast.error(error.response.data.message);
       }
     }
   });
@@ -1861,6 +1869,7 @@ onMounted(async () => {
                 </button>
               </div>
             </div>
+            <div class="text-center" v-if="emailLoading">Email sending , Please wait loading .....</div>
             <div
               class="w-[95%] mx-auto shadow p-4 rounded bg-white mb-4 space-y-3 text-xs"
             >

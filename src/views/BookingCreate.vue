@@ -707,9 +707,18 @@ const addToggle = () => {
 };
 
 const enabled = ref(false);
+const enabledIn = ref(false);
 
 const statePast = computed(() => {
   if (enabled.value == true) {
+    return true;
+  } else {
+    return false;
+  }
+});
+
+const stateInclusive = computed(() => {
+  if (enabledIn.value == true) {
     return true;
   } else {
     return false;
@@ -1381,6 +1390,22 @@ onMounted(async () => {
                   />
                 </Switch>
               </div>
+              <div class="relative">
+                <p class="mb-3 text-xs text-[#ff613c]">Is Inclusive</p>
+
+                <Switch
+                  v-model="enabledIn"
+                  :class="enabledIn ? ' bg-orange-600' : 'bg-gray-500'"
+                  class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                >
+                  <span class="sr-only">Use setting</span>
+                  <span
+                    aria-hidden="true"
+                    :class="enabledIn ? 'translate-x-9' : 'translate-x-0'"
+                    class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                  />
+                </Switch>
+              </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
@@ -1441,6 +1466,50 @@ onMounted(async () => {
                 <input
                   v-model="formData.past_crm_id"
                   type="text"
+                  id="title"
+                  class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                />
+              </div>
+              <div v-if="stateInclusive">
+                <p class="mb-2 text-xs text-[#ff613c]">Inclusive Name</p>
+
+                <input
+                  type="text"
+                  id="title"
+                  class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                />
+              </div>
+              <div v-if="stateInclusive">
+                <p class="mb-2 text-xs text-[#ff613c]">Quantity Inclusive</p>
+                <input
+                  type="number"
+                  id="title"
+                  class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                />
+              </div>
+              <div v-if="stateInclusive">
+                <p class="mb-2 text-xs text-[#ff613c]">Rate Per Person</p>
+
+                <input
+                  type="number"
+                  id="title"
+                  class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                />
+              </div>
+              <div v-if="stateInclusive">
+                <p class="mb-2 text-xs text-[#ff613c]">Service Date (start)</p>
+
+                <input
+                  type="date"
+                  id="title"
+                  class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                />
+              </div>
+              <div v-if="stateInclusive">
+                <p class="mb-2 text-xs text-[#ff613c]">Service Date (end)</p>
+
+                <input
+                  type="date"
                   id="title"
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />

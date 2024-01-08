@@ -1097,9 +1097,15 @@ const sendEmailFunction = async () => {
   }).then(async (result) => {
     if (result.isConfirmed) {
       console.log(emailData.value);
+      const frmData = new FormData();
+      frmData.append("mail_to", emailData.value.mail_to);
+      frmData.append("mail_subject", emailData.value.mail_subject);
+      frmData.append('mail_body',emailData.value.mail_body)
+      frmData.append("send_to_default", emailData.value.send_to_default);
+      frmData.append("attachments", emailData.value.attachments);
       const res = await reservationStore.emailSendReservation(
         route.params.id,
-        emailData.value
+        frmData
       );
       if (res.data.status) {
         emailData.value = {

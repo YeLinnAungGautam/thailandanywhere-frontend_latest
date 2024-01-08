@@ -42,6 +42,7 @@ const roleList = [
   { id: "2", name: "Super Admin", value: "super_admin" },
   { id: "3", name: "Cashier", value: "cashier" },
   { id: "4", name: "Reservation", value: "reservation" },
+  { id: "5", name: "Agent", value: "agent" },
 ];
 const errors = ref([]);
 

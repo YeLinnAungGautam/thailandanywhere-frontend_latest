@@ -170,16 +170,26 @@ const formData = ref({
   past_user_id: "",
   is_past_info: "",
   past_crm_id: "",
+  is_inclusive: "",
+  inclusive_name: "",
+  quantity_inclusive: "",
+  rate_per_person: "",
+  start_date: "",
+  end_date: "",
 });
 
 const sub_total = computed(() => {
-  let totalsub = 0;
-  for (let i = 0; i < formData.value.items.length; i++) {
-    if (!formData.value.items[i].is_inclusive) {
-      totalsub = totalsub + formData.value.items[i].total_amount;
+  if (enabledIn.value == false) {
+    let totalsub = 0;
+    for (let i = 0; i < formData.value.items.length; i++) {
+      if (!formData.value.items[i].is_inclusive) {
+        totalsub = totalsub + formData.value.items[i].total_amount;
+      }
     }
+    return totalsub;
+  } else {
+    return formData.value.rate_per_person * formData.value.quantity_inclusive;
   }
-  return totalsub;
 });
 
 const sub_qty_total = computed(() => {
@@ -303,156 +313,6 @@ const chooseType = async () => {
 const carType = ref([]);
 const roomType = ref([]);
 
-const addArrayToListPush = async (d) => {
-  const res = await inclusiveStore.getDetailAction(d.product_id);
-  console.log(d.quantity, "this is array result");
-  addArrayToList(res.result, d.service_date, d.quantity);
-};
-const serviceDateCal = (dateCurrent, day) => {
-  console.log(dateCurrent, day);
-  let dayChoose = day - 1;
-  return addDays(new Date(dateCurrent), dayChoose).toISOString().split("T")[0];
-};
-
-const addArrayToList = (arr, date, qty) => {
-  console.log(arr, "this is array");
-  if (arr.private_van_tours.length > 0) {
-    for (let x = 0; x < arr.private_van_tours.length; x++) {
-      let data = {};
-      data.product_type = "1";
-      data.product_id = arr.private_van_tours[x].product.id;
-      data.car_id = arr.private_van_tours[x].car.id;
-      data.car_list = arr.private_van_tours[x].product.cars;
-      // data.service_date = serviceDateCal(date, arr.private_van_tours[x].day);
-      if (arr.private_van_tours[x].day != 100) {
-        data.service_date = serviceDateCal(date, arr.private_van_tours[x].day);
-      } else {
-        data.service_date = date;
-      }
-      data.selling_price = arr.private_van_tours[x].selling_price;
-      data.quantity = arr.private_van_tours[x].quantity;
-      data.description = "";
-      data.total_amount = data.selling_price * data.quantity;
-      data.is_inclusive = 1;
-      formData.value.items.push(data);
-    }
-  }
-  if (arr.group_tours.length > 0) {
-    for (let x = 0; x < arr.group_tours.length; x++) {
-      let data = {};
-      data.product_type = "2";
-      data.product_id = arr.group_tours[x].product.id;
-      if (arr.group_tours[x].day != 100) {
-        data.service_date = serviceDateCal(date, arr.group_tours[x].day);
-      } else {
-        data.service_date = date;
-      }
-      data.selling_price = arr.group_tours[x].selling_price;
-      data.limit = qty;
-      data.quantity = arr.group_tours[x].quantity;
-      data.description = "";
-      data.total_amount = data.selling_price * data.quantity;
-      data.is_inclusive = 1;
-      formData.value.items.push(data);
-    }
-  }
-  if (arr.airport_pickups.length > 0) {
-    for (let x = 0; x < arr.airport_pickups.length; x++) {
-      let data = {};
-      data.product_type = "3";
-      data.product_id = arr.airport_pickups[x].product.id;
-      data.car_id = arr.airport_pickups[x].car.id;
-      data.car_list = arr.airport_pickups[x].product.cars;
-      // data.service_date = serviceDateCal(date, arr.airport_pickups[x].day);
-      if (arr.airport_pickups[x].day != 100) {
-        data.service_date = serviceDateCal(date, arr.airport_pickups[x].day);
-      } else {
-        data.service_date = date;
-      }
-      data.selling_price = arr.airport_pickups[x].selling_price;
-      data.limit = qty;
-      data.quantity = arr.airport_pickups[x].quantity;
-      data.description = "";
-      data.total_amount = data.selling_price * data.quantity;
-      data.is_inclusive = 1;
-      formData.value.items.push(data);
-    }
-  }
-  if (arr.entrance_tickets.length > 0) {
-    for (let x = 0; x < arr.entrance_tickets.length; x++) {
-      let data = {};
-      data.product_type = "4";
-      data.product_id = arr.entrance_tickets[x].product.id;
-      data.car_id = arr.entrance_tickets[x].variation.id;
-      data.car_list =
-        arr.entrance_tickets[x].variation.entrance_ticket.variations;
-      // data.service_date = serviceDateCal(date, arr.entrance_tickets[x].day);
-      if (arr.entrance_tickets[x].day != 100) {
-        data.service_date = serviceDateCal(date, arr.entrance_tickets[x].day);
-      } else {
-        data.service_date = date;
-      }
-      data.selling_price = arr.entrance_tickets[x].selling_price;
-      data.limit = qty;
-      data.quantity = arr.entrance_tickets[x].quantity;
-      data.description = "";
-      data.total_amount = data.selling_price * data.quantity;
-      data.is_inclusive = 1;
-      formData.value.items.push(data);
-    }
-  }
-  if (arr.hotels.length > 0) {
-    for (let x = 0; x < arr.hotels.length; x++) {
-      let data = {};
-      data.product_type = "6";
-      data.product_id = arr.hotels[x].product.id;
-      data.car_id = arr.hotels[x].room.id;
-      data.car_list = arr.hotels[x].room.hotel.rooms;
-      if (arr.hotels[x].day != 100) {
-        data.service_date = serviceDateCal(date, arr.hotels[x].day);
-        data.checkin_date = date;
-        data.checkout_date = serviceDateCal(date, arr.night);
-        data.days = arr.hotels[x].day;
-      } else {
-        data.service_date = date;
-        data.checkin_date = date;
-        data.checkout_date = serviceDateCal(date, arr.night + 1);
-        data.days = arr.night;
-      }
-      data.selling_price = arr.hotels[x].selling_price;
-
-      data.quantity = Math.ceil(qty / 2);
-      data.limit = data.quantity;
-      data.description = "";
-      data.total_amount = data.selling_price * data.quantity;
-      data.is_inclusive = 1;
-      formData.value.items.push(data);
-    }
-  }
-  if (arr.airline_tickets.length > 0) {
-    for (let x = 0; x < arr.airline_tickets.length; x++) {
-      let data = {};
-      data.product_type = "7";
-      data.product_id = arr.airline_tickets[x].product.id;
-      data.car_id = arr.airline_tickets[x].ticket.airline.id;
-      data.car_list = arr.airline_tickets[x].ticket.airline.tickets;
-      // data.service_date = serviceDateCal(date, arr.airline_tickets[x].day);
-      if (arr.airline_tickets[x].day != 100) {
-        data.service_date = serviceDateCal(date, arr.airline_tickets[x].day);
-      } else {
-        data.service_date = date;
-      }
-      data.selling_price = arr.airline_tickets[x].selling_price;
-      data.limit = qty;
-      data.quantity = arr.airline_tickets[x].quantity;
-      data.description = "";
-      data.total_amount = data.selling_price * data.quantity;
-      data.is_inclusive = 1;
-      formData.value.items.push(data);
-    }
-  }
-};
-
 const chooseCar = async (id) => {
   if (formitem.value.product_type == "1" && id) {
     const res = await vantourStore.getDetailAction(id);
@@ -562,10 +422,13 @@ const chooseCarPrice = async (type, productId, id) => {
   }
 };
 const addNewitem = () => {
-  formData.value.items.push(formitem.value);
-  if (formitem.value.product_type == "5") {
-    addArrayToListPush(formitem.value);
+  if (enabledIn.value == true) {
+    formitem.value.is_inclusive = 1;
   }
+  formData.value.items.push(formitem.value);
+  // if (formitem.value.product_type == "5") {
+  //   addArrayToListPush(formitem.value);
+  // }
   console.log(formData.value.items, "this is items");
   formitem.value = {
     product_type: "",
@@ -596,6 +459,7 @@ const addNewitem = () => {
     checkout_date: "",
     room_number: "",
     total_guest: "",
+    is_inclusive: "",
   };
   todayVali.value = false;
 
@@ -623,24 +487,6 @@ const calculateDaysBetween = (a, b) => {
     return result;
   }
 };
-
-// const removeFromitem = (indexGet, item, type) => {
-//   console.log(type, "this is type");
-
-//   if (type == "5") {
-//     formData.value.items.splice(indexGet, 1);
-//     for (let i = 0; i < formData.value.items.length; i++) {
-//       if (formData.value.items[i].is_inclusive == 1) {
-//         console.log(formData.value.items[i]);
-//         let index = formData.value.items[i].indexOf(i);
-//         formData.value.items.splice(index, 1);
-//       }
-//     }
-//   } else {
-//     formData.value.items.splice(indexGet, 1);
-//   }
-//   console.log(formData.value.items);
-// };
 
 const removeFromitem = (indexGet, item, type) => {
   console.log(type, "this is type");
@@ -1107,7 +953,6 @@ const clickdetaildesToggle = (
   days,
   room,
   quantity,
-  is_inclusive,
   limit,
   guest
 ) => {
@@ -1129,7 +974,6 @@ const clickdetaildesToggle = (
   itemQ.value = quantity;
   itemLimit.value = limit;
   itemGuest.value = guest;
-  itemIs.value = is_inclusive != undefined ? is_inclusive : 0;
   console.log(itemIs.value, "this is item is");
 };
 const itemType = ref("");
@@ -1373,7 +1217,7 @@ onMounted(async () => {
                   class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
-
+              <div></div>
               <div class="relative" v-if="authStore.isCashier">
                 <p class="mb-3 text-xs text-[#ff613c]">Is Past Info</p>
 
@@ -1475,6 +1319,7 @@ onMounted(async () => {
 
                 <input
                   type="text"
+                  v-model="formData.inclusive_name"
                   id="title"
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
@@ -1483,6 +1328,7 @@ onMounted(async () => {
                 <p class="mb-2 text-xs text-[#ff613c]">Quantity Inclusive</p>
                 <input
                   type="number"
+                  v-model="formData.quantity_inclusive"
                   id="title"
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
@@ -1492,6 +1338,7 @@ onMounted(async () => {
 
                 <input
                   type="number"
+                  v-model="formData.rate_per_person"
                   id="title"
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
@@ -1501,6 +1348,7 @@ onMounted(async () => {
 
                 <input
                   type="date"
+                  v-model="formData.start_date"
                   id="title"
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
@@ -1510,6 +1358,7 @@ onMounted(async () => {
 
                 <input
                   type="date"
+                  v-model="formData.end_date"
                   id="title"
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
@@ -2187,10 +2036,9 @@ onMounted(async () => {
                         </td>
                       </tr>
                       <tr
-                        class="border-b border-gray-300"
+                        class="border-b border-gray-300 bg-white"
                         v-for="(item, index) in formData.items"
                         :key="index"
-                        :class="item.is_inclusive == 1 ? 'bg-gray-100' : ''"
                       >
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -2213,16 +2061,6 @@ onMounted(async () => {
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <!-- <v-select
-                            v-model="item.product_type"
-                            class="style-chooser"
-                            :options="formItemType"
-                            label="name"
-                            disabled
-                            :clearable="false"
-                            :reduce="(d) => d.id"
-                            placeholder="Choose product type"
-                          ></v-select> -->
                           <p v-if="item.product_type == '1'">Vantour</p>
                           <p v-if="item.product_type == '2'">Group</p>
                           <p v-if="item.product_type == '3'">Airport</p>
@@ -2350,14 +2188,10 @@ onMounted(async () => {
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <input
-                            v-if="!item.is_inclusive"
                             type="date"
                             v-model="item.service_date"
                             class="text-xs focus:outline-none"
                           />
-                          <p class="text-xs" v-if="item.is_inclusive == 1">
-                            {{ item.service_date }}
-                          </p>
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -2370,7 +2204,7 @@ onMounted(async () => {
                           v-if="item.product_type == '6'"
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <p v-if="!item.is_inclusive">
+                          <p>
                             {{
                               hotelQ(
                                 item.product_type,
@@ -2379,25 +2213,16 @@ onMounted(async () => {
                               )
                             }}
                           </p>
-
-                          <p v-if="item.is_inclusive == 1">
-                            {{ item.quantity }}
-                          </p>
                         </td>
                         <td
                           v-if="item.product_type != '6'"
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <p v-if="!item.is_inclusive">{{ item.quantity }}</p>
-                          <p
-                            v-if="item.is_inclusive && item.product_type == '1'"
-                          >
+                          <p v-if="item.product_type == '1'">
                             {{ item.quantity }}
                           </p>
                           <input
-                            v-if="
-                              item.is_inclusive == 1 && item.product_type != '1'
-                            "
+                            v-if="item.product_type != '1'"
                             type="number"
                             v-model="item.quantity"
                             :max="item.limit"
@@ -2440,7 +2265,6 @@ onMounted(async () => {
                                 item.days,
                                 item.room_number,
                                 item.quantity,
-                                item.is_inclusive,
                                 item.limit,
                                 item.total_guest
                               )
@@ -2452,7 +2276,6 @@ onMounted(async () => {
                             ></i>
                           </button>
                           <button
-                            v-if="!item.is_inclusive"
                             class="text-sm text-red-600"
                             @click.prevent="
                               removeFromitem(index, item, item.product_type)

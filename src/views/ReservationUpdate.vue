@@ -1247,7 +1247,7 @@ onMounted(async () => {
               formData.product_type == 'App\\Models\\PrivateVanTour' &&
               (booking_status.payment_status == 'fully_paid' ||
                 booking_status.payment_status == 'partially_paid' ||
-                formData.payment_method == 'Cash')
+                booking_status.payment_method == 'Cash')
             "
           >
             Print
@@ -1869,7 +1869,9 @@ onMounted(async () => {
                 </button>
               </div>
             </div>
-            <div class="text-center" v-if="emailLoading">Email sending , Please wait loading .....</div>
+            <div class="text-center" v-if="emailLoading">
+              Email sending , Please wait loading .....
+            </div>
             <div
               class="w-[95%] mx-auto shadow p-4 rounded bg-white mb-4 space-y-3 text-xs"
             >
@@ -2373,7 +2375,7 @@ onMounted(async () => {
 
           <div class="bg-gray-200/50 py-5 space-y-2" v-if="expen_info_part">
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Payment Method:</p>
+              <p class="text-gray-400 text-xs">Expense Method:</p>
 
               <v-select
                 v-model="formData.payment_method"
@@ -2399,7 +2401,7 @@ onMounted(async () => {
               ></v-select>
             </div>
             <div class="pl-10 pr-10 space-y-2">
-              <p class="text-gray-400 text-xs">Payment Status</p>
+              <p class="text-gray-400 text-xs">Expense Status</p>
               <v-select
                 v-model="formData.payment_status"
                 class="style-chooser font-semibold text-xs rounded-lg bg-white"

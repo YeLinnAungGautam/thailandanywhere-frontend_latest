@@ -140,9 +140,9 @@ const reservation_status = [
 const formItemType = [
   { id: "1", name: "Van Tour" },
   { id: "2", name: "Group Tour" },
-  { id: "3", name: "Airport Pickup" },
+  { id: "3", name: "---" },
   { id: "4", name: "Entrance Ticket" },
-  { id: "5", name: "Inclusive" },
+  { id: "5", name: "---" },
   { id: "6", name: "Hotel Room" },
   { id: "7", name: "AirLine" },
 ];
@@ -310,17 +310,9 @@ const chooseType = async () => {
     await grouptourStore.getSimpleListAction();
     productList.value = grouptours.value.data;
     console.log(productList.value);
-  } else if (formitem.value.product_type == "3") {
-    await airportStore.getSimpleListAction();
-    productList.value = airports.value.data;
-    console.log(productList.value);
   } else if (formitem.value.product_type == "4") {
     await entranceStore.getSimpleListAction();
     productList.value = entrances.value.data;
-    console.log(productList.value);
-  } else if (formitem.value.product_type == "5") {
-    await inclusiveStore.getSimpleListAction();
-    productList.value = inclusives.value.data;
     console.log(productList.value);
   } else if (formitem.value.product_type == "6") {
     await hotelStore.getSimpleListAction();
@@ -892,21 +884,12 @@ const chooseCar = async (id) => {
     formitem.value.selling_price = res.result.price;
     carType.value = res.result.cars;
     console.log(res);
-  } else if (formitem.value.product_type == "3") {
-    const res = await airportStore.getDetailAction(id);
-    formitem.value.comment = res.result.description;
-    carType.value = res.result.cars;
-    console.log(res);
   } else if (formitem.value.product_type == "4") {
     const res = await entranceStore.getDetailAction(id);
     // formitem.value.comment = res.result.description;
     console.log(res, "choose");
     carType.value = res.result.variations;
     console.log(res.result.variations[0].price);
-  } else if (formitem.value.product_type == "5") {
-    const res = await inclusiveStore.getDetailAction(id);
-    formitem.value.comment = res.result.description;
-    formitem.value.selling_price = res.result.price;
   } else if (formitem.value.product_type == "6") {
     const res = await hotelStore.getDetailAction(id);
     // formitem.value.comment = res.result.description;
@@ -930,16 +913,6 @@ const chooseCarPrice = async (type, productId, id) => {
     }
   } else if (type == "2") {
     const res = await grouptourStore.getDetailAction(productId);
-    formitem.value.car_list = res.result.cars;
-    for (let i = 0; i < res.result.cars.length; i++) {
-      if (res.result.cars[i].id == id) {
-        formitem.value.selling_price = res.result.cars[i].price;
-        console.log(res.result.cars[i].price);
-      }
-    }
-    console.log(res);
-  } else if (type == "3") {
-    const res = await airportStore.getDetailAction(productId);
     formitem.value.car_list = res.result.cars;
     for (let i = 0; i < res.result.cars.length; i++) {
       if (res.result.cars[i].id == id) {

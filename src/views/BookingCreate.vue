@@ -1296,6 +1296,24 @@ onMounted(async () => {
                   {{ errors.money_exchange_rate[0] }}
                 </p>
               </div>
+            </div>
+          </div>
+          <div class="col-span-1 space-y-4 text-end">
+            <p class="text-xs text-[#ff613c]">Balance Due</p>
+            <p class="text-4xl font-bold tracking-wide text-[#ff613c]">
+              {{ balance_due }} thb
+            </p>
+            <p
+              class="inline-block px-4 py-2 text-sm text-[#ff613c] border border-[#ff613c]"
+            >
+              Receive Payment
+            </p>
+          </div>
+          <div
+            class="col-span-3"
+            :class="statePast || stateInclusive ? 'pt-4' : ''"
+          >
+            <div class="grid grid-cols-6 gap-4">
               <div v-if="authStore.isCashier && statePast">
                 <p class="mb-2 text-xs text-[#ff613c]">Past User ID</p>
 
@@ -1318,7 +1336,7 @@ onMounted(async () => {
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
-              <div v-if="stateInclusive">
+              <div v-if="stateInclusive" class="col-span-1">
                 <p class="mb-2 text-xs text-[#ff613c]">Inclusive Name</p>
 
                 <input
@@ -1328,7 +1346,7 @@ onMounted(async () => {
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
-              <div v-if="stateInclusive">
+              <div v-if="stateInclusive" class="col-span-1">
                 <p class="mb-2 text-xs text-[#ff613c]">Quantity Inclusive</p>
                 <input
                   type="number"
@@ -1337,7 +1355,7 @@ onMounted(async () => {
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
-              <div v-if="stateInclusive">
+              <div v-if="stateInclusive" class="col-span-1">
                 <p class="mb-2 text-xs text-[#ff613c]">Rate Per Person</p>
 
                 <input
@@ -1347,7 +1365,7 @@ onMounted(async () => {
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
-              <div v-if="stateInclusive">
+              <div v-if="stateInclusive" class="col-span-1">
                 <p class="mb-2 text-xs text-[#ff613c]">Service Date (start)</p>
 
                 <input
@@ -1357,7 +1375,7 @@ onMounted(async () => {
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
-              <div v-if="stateInclusive">
+              <div v-if="stateInclusive" class="col-span-1">
                 <p class="mb-2 text-xs text-[#ff613c]">Service Date (end)</p>
 
                 <input
@@ -1369,18 +1387,6 @@ onMounted(async () => {
               </div>
             </div>
           </div>
-          <div class="col-span-1 space-y-4 text-end">
-            <p class="text-xs text-[#ff613c]">Balance Due</p>
-            <p class="text-4xl font-bold tracking-wide text-[#ff613c]">
-              {{ balance_due }} thb
-            </p>
-            <p
-              class="inline-block px-4 py-2 text-sm text-[#ff613c] border border-[#ff613c]"
-            >
-              Receive Payment
-            </p>
-          </div>
-
           <div class="grid-cols-1 col-span-3 pt-10 gird">
             <div
               class="flex justify-end mb-3 text-sm font-semibold cursor-pointer"

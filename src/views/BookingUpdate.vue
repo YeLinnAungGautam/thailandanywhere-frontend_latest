@@ -1638,8 +1638,8 @@ onMounted(async () => {
                       class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
                     />
                   </Switch>
-                  <p class="text-xs text-gray-500 mt-3" v-if="!statePast">
-                    When it is current , you can't change past
+                  <p class="text-xs text-red-600 mt-3" v-if="!statePast">
+                    # When it is current , you can't change past
                   </p>
                 </div>
                 <div class="relative">
@@ -1659,8 +1659,8 @@ onMounted(async () => {
                   </Switch>
                 </div>
                 <p class="col-span-2 text-red-600 text-xs">
-                  noted : if this sale is inclusive , first switch is_inclusive
-                  and add items krup.
+                  # noted : if this sale is inclusive , first switch
+                  is_inclusive and add items krup.
                 </p>
               </div>
               <div class="grid grid-cols-2 gap-4">
@@ -1708,93 +1708,6 @@ onMounted(async () => {
                     {{ errors.money_exchange_rate[0] }}
                   </p>
                 </div>
-                <div v-if="statePast">
-                  <p class="mb-2 text-xs text-[#ff613c]">Past User ID</p>
-
-                  <v-select
-                    v-model="formData.past_user_id"
-                    class="style-chooser bg-white rounded-lg text-xs"
-                    :options="admin?.data"
-                    disabled
-                    label="name"
-                    :clearable="false"
-                    :reduce="(d) => d.id"
-                  ></v-select>
-                </div>
-                <div v-if="statePast">
-                  <p class="mb-2 text-xs text-[#ff613c]">Past CRM ID</p>
-
-                  <input
-                    v-model="formData.past_crm_id"
-                    disabled
-                    type="text"
-                    id="title"
-                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
-                  />
-                </div>
-                <div v-if="authStore.isCashier && statePast">
-                  <p class="mb-2 text-xs text-[#ff613c]">Past CRM ID</p>
-
-                  <input
-                    v-model="formData.past_crm_id"
-                    type="text"
-                    id="title"
-                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
-                  />
-                </div>
-                <div v-if="stateInclusive">
-                  <p class="mb-2 text-xs text-[#ff613c]">Inclusive Name</p>
-
-                  <input
-                    type="text"
-                    v-model="formData.inclusive_name"
-                    id="title"
-                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
-                  />
-                </div>
-                <div v-if="stateInclusive">
-                  <p class="mb-2 text-xs text-[#ff613c]">Quantity Inclusive</p>
-                  <input
-                    type="number"
-                    v-model="formData.inclusive_quantity"
-                    @change="getSubTotal()"
-                    id="title"
-                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
-                  />
-                </div>
-                <div v-if="stateInclusive">
-                  <p class="mb-2 text-xs text-[#ff613c]">Rate Per Person</p>
-
-                  <input
-                    type="number"
-                    v-model="formData.inclusive_rate"
-                    @change="getSubTotal()"
-                    id="title"
-                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
-                  />
-                </div>
-                <div v-if="stateInclusive">
-                  <p class="mb-2 text-xs text-[#ff613c]">
-                    Service Date (start)
-                  </p>
-
-                  <input
-                    type="date"
-                    v-model="formData.inclusive_start_date"
-                    id="title"
-                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
-                  />
-                </div>
-                <div v-if="stateInclusive">
-                  <p class="mb-2 text-xs text-[#ff613c]">Service Date (end)</p>
-
-                  <input
-                    type="date"
-                    v-model="formData.inclusive_end_date"
-                    id="title"
-                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
-                  />
-                </div>
               </div>
             </div>
             <div class="col-span-1 space-y-4 text-end">
@@ -1812,7 +1725,86 @@ onMounted(async () => {
               </h2>
               <!-- </a> -->
             </div>
+            <div
+              class="col-span-3"
+              :class="statePast || stateInclusive ? 'pt-4' : ''"
+            >
+              <div class="grid grid-cols-6 gap-4">
+                <div v-if="authStore.isCashier && statePast">
+                  <p class="mb-2 text-xs text-[#ff613c]">Past User ID</p>
 
+                  <v-select
+                    v-model="formData.past_user_id"
+                    class="style-chooser bg-white rounded-lg"
+                    :options="admin?.data"
+                    label="name"
+                    :clearable="false"
+                    :reduce="(d) => d.id"
+                  ></v-select>
+                </div>
+                <div v-if="authStore.isCashier && statePast">
+                  <p class="mb-2 text-xs text-[#ff613c]">Past CRM ID</p>
+
+                  <input
+                    v-model="formData.past_crm_id"
+                    type="text"
+                    id="title"
+                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+                <div v-if="stateInclusive" class="col-span-1">
+                  <p class="mb-2 text-xs text-[#ff613c]">Inclusive Name</p>
+
+                  <input
+                    type="text"
+                    v-model="formData.inclusive_name"
+                    id="title"
+                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+                <div v-if="stateInclusive" class="col-span-1">
+                  <p class="mb-2 text-xs text-[#ff613c]">Quantity Inclusive</p>
+                  <input
+                    type="number"
+                    v-model="formData.inclusive_quantity"
+                    id="title"
+                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+                <div v-if="stateInclusive" class="col-span-1">
+                  <p class="mb-2 text-xs text-[#ff613c]">Rate Per Person</p>
+
+                  <input
+                    type="number"
+                    v-model="formData.inclusive_rate"
+                    id="title"
+                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+                <div v-if="stateInclusive" class="col-span-1">
+                  <p class="mb-2 text-xs text-[#ff613c]">
+                    Service Date (start)
+                  </p>
+
+                  <input
+                    type="date"
+                    v-model="formData.inclusive_start_date"
+                    id="title"
+                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+                <div v-if="stateInclusive" class="col-span-1">
+                  <p class="mb-2 text-xs text-[#ff613c]">Service Date (end)</p>
+
+                  <input
+                    type="date"
+                    v-model="formData.inclusive_end_date"
+                    id="title"
+                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+              </div>
+            </div>
             <div class="grid-cols-1 col-span-3 pt-10 gird">
               <div
                 class="flex justify-end mb-3 text-sm font-semibold cursor-pointer"

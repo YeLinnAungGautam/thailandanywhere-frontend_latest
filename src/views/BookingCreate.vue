@@ -172,10 +172,10 @@ const formData = ref({
   past_crm_id: "",
   is_inclusive: "",
   inclusive_name: "",
-  quantity_inclusive: "",
-  rate_per_person: "",
-  start_date: "",
-  end_date: "",
+  inclusive_quantity: "",
+  inclusive_rate: "",
+  inclusive_start_date: "",
+  inclusive_end_date: "",
 });
 
 const sub_total = computed(() => {
@@ -188,7 +188,7 @@ const sub_total = computed(() => {
     }
     return totalsub;
   } else {
-    return formData.value.rate_per_person * formData.value.quantity_inclusive;
+    return formData.value.inclusive_rate * formData.value.inclusive_quantity;
   }
 });
 
@@ -579,6 +579,28 @@ const onSubmitHandler = async () => {
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
 
+  if (enabledIn.value) {
+    frmData.append("is_inclusive", enabledIn.value ? "1" : "0");
+    formData.value.inclusive_name
+      ? frmData.append("inclusive_name", formData.value.inclusive_name)
+      : "";
+    formData.value.inclusive_quantity
+      ? frmData.append("inclusive_quantity", formData.value.inclusive_quantity)
+      : "";
+    formData.value.inclusive_rate
+      ? frmData.append("inclusive_rate", formData.value.inclusive_rate)
+      : "";
+    formData.value.inclusive_start_date
+      ? frmData.append(
+          "inclusive_start_date",
+          formData.value.inclusive_start_date
+        )
+      : "";
+    formData.value.inclusive_end_date
+      ? frmData.append("inclusive_end_date", formData.value.inclusive_end_date)
+      : "";
+  }
+
   // if (enabled.value = true) {
   //   frmData.append("is_past_info", "1");
   //   frmData.append("past_user_id", formData.value.past_user_id);
@@ -868,8 +890,15 @@ const onSubmitHandler = async () => {
       past_user_id: "",
       is_past_info: "",
       past_crm_id: "",
+      is_inclusive: "",
+      inclusive_name: "",
+      inclusive_quantity: "",
+      inclusive_rate: "",
+      inclusive_start_date: "",
+      inclusive_end_date: "",
     };
     enabled.value = false;
+    enabledIn.value = false;
     errors.value = null;
     toast.success(response.message);
     featureImagePreview.value = [];
@@ -1250,6 +1279,10 @@ onMounted(async () => {
                   />
                 </Switch>
               </div>
+              <p class="col-span-2 text-red-600 text-xs">
+                noted : if this sale is inclusive , first switch is_inclusive
+                and add items krup.
+              </p>
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
@@ -1328,7 +1361,7 @@ onMounted(async () => {
                 <p class="mb-2 text-xs text-[#ff613c]">Quantity Inclusive</p>
                 <input
                   type="number"
-                  v-model="formData.quantity_inclusive"
+                  v-model="formData.inclusive_quantity"
                   id="title"
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
@@ -1338,7 +1371,7 @@ onMounted(async () => {
 
                 <input
                   type="number"
-                  v-model="formData.rate_per_person"
+                  v-model="formData.inclusive_rate"
                   id="title"
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
@@ -1348,7 +1381,7 @@ onMounted(async () => {
 
                 <input
                   type="date"
-                  v-model="formData.start_date"
+                  v-model="formData.inclusive_start_date"
                   id="title"
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
@@ -1358,7 +1391,7 @@ onMounted(async () => {
 
                 <input
                   type="date"
-                  v-model="formData.end_date"
+                  v-model="formData.inclusive_end_date"
                   id="title"
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />

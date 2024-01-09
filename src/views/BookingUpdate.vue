@@ -2,7 +2,7 @@
 import Layout from "./Layout.vue";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
 import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import Modal from "../components/Modal.vue";
@@ -170,182 +170,36 @@ const formData = ref({
   past_user_id: "",
   is_past_info: "",
   past_crm_id: "",
+  is_inclusive: "",
+  inclusive_name: "",
+  inclusive_quantity: "",
+  inclusive_rate: "",
+  inclusive_start_date: "",
+  inclusive_end_date: "",
 });
 
-// const sub_total = computed(() => {
-//   let totalsub = 0;
-//   for (let i = 0; i < formData.value.items.length; i++) {
-//     totalsub =
-//       totalsub +
-//       formData.value.items[i].selling_price *
-//         formData.value.items[i].quantity *
-//         1;
-//   }
-//   return totalsub;
-// });
+const enabledIn = ref(false);
 
-// const sub_total = computed(() => {
-//   let totalsub = 0;
-//   let total_sub = 0;
-//   for (let i = 0; i < formData.value.items.length; i++) {
-//     total_sub = totalsub + formData.value.items[i].total_amount;
-//   }
-//   console.log(total_sub, "this is total sub");
-//   return total_sub;
-// });
-
-const addArrayToListPush = async (d) => {
-  const res = await inclusiveStore.getDetailAction(d.product_id);
-  console.log(d.quantity, "this is array result");
-  addArrayToList(res.result, d.service_date, d.quantity);
-};
-const serviceDateCal = (dateCurrent, day) => {
-  console.log(dateCurrent, day);
-  let dayChoose = day - 1;
-  return addDays(new Date(dateCurrent), dayChoose).toISOString().split("T")[0];
-};
-
-const addArrayToList = (arr, date, qty) => {
-  console.log(arr, "this is array");
-  if (arr.private_van_tours.length > 0) {
-    for (let x = 0; x < arr.private_van_tours.length; x++) {
-      let data = {};
-      data.product_type = "1";
-      data.product_id = arr.private_van_tours[x].product.id;
-      data.car_id = arr.private_van_tours[x].car.id;
-      data.car_list = arr.private_van_tours[x].product.cars;
-      // data.service_date = serviceDateCal(date, arr.private_van_tours[x].day);
-      if (arr.private_van_tours[x].day != 100) {
-        data.service_date = serviceDateCal(date, arr.private_van_tours[x].day);
-      } else {
-        data.service_date = date;
-      }
-      data.selling_price = arr.private_van_tours[x].selling_price;
-      data.quantity = arr.private_van_tours[x].quantity;
-      data.description = "";
-      data.total_amount = data.selling_price * data.quantity;
-      data.is_inclusive = 1;
-      formData.value.items.push(data);
-    }
+const stateInclusive = computed(() => {
+  if (enabledIn.value == true) {
+    return true;
+  } else {
+    return false;
   }
-  if (arr.group_tours.length > 0) {
-    for (let x = 0; x < arr.group_tours.length; x++) {
-      let data = {};
-      data.product_type = "2";
-      data.product_id = arr.group_tours[x].product.id;
-      if (arr.group_tours[x].day != 100) {
-        data.service_date = serviceDateCal(date, arr.group_tours[x].day);
-      } else {
-        data.service_date = date;
-      }
-      data.selling_price = arr.group_tours[x].selling_price;
-      data.quantity = arr.group_tours[x].quantity;
-      data.description = "";
-      data.total_amount = data.selling_price * data.quantity;
-      data.is_inclusive = 1;
-      formData.value.items.push(data);
-    }
-  }
-  if (arr.airport_pickups.length > 0) {
-    for (let x = 0; x < arr.airport_pickups.length; x++) {
-      let data = {};
-      data.product_type = "3";
-      data.product_id = arr.airport_pickups[x].product.id;
-      data.car_id = arr.airport_pickups[x].car.id;
-      data.car_list = arr.airport_pickups[x].product.cars;
-      // data.service_date = serviceDateCal(date, arr.airport_pickups[x].day);
-      if (arr.airport_pickups[x].day != 100) {
-        data.service_date = serviceDateCal(date, arr.airport_pickups[x].day);
-      } else {
-        data.service_date = date;
-      }
-      data.selling_price = arr.airport_pickups[x].selling_price;
-      data.quantity = arr.airport_pickups[x].quantity;
-      data.description = "";
-      data.total_amount = data.selling_price * data.quantity;
-      data.is_inclusive = 1;
-      formData.value.items.push(data);
-    }
-  }
-  if (arr.entrance_tickets.length > 0) {
-    for (let x = 0; x < arr.entrance_tickets.length; x++) {
-      let data = {};
-      data.product_type = "4";
-      data.product_id = arr.entrance_tickets[x].product.id;
-      data.car_id = arr.entrance_tickets[x].variation.id;
-      data.car_list =
-        arr.entrance_tickets[x].variation.entrance_ticket.variations;
-      // data.service_date = serviceDateCal(date, arr.entrance_tickets[x].day);
-      if (arr.entrance_tickets[x].day != 100) {
-        data.service_date = serviceDateCal(date, arr.entrance_tickets[x].day);
-      } else {
-        data.service_date = date;
-      }
-      data.selling_price = arr.entrance_tickets[x].selling_price;
-      data.quantity = arr.entrance_tickets[x].quantity;
-      data.description = "";
-      data.total_amount = data.selling_price * data.quantity;
-      data.is_inclusive = 1;
-      formData.value.items.push(data);
-    }
-  }
-  if (arr.hotels.length > 0) {
-    for (let x = 0; x < arr.hotels.length; x++) {
-      let data = {};
-      data.product_type = "6";
-      data.product_id = arr.hotels[x].product.id;
-      data.car_id = arr.hotels[x].room.id;
-      data.car_list = arr.hotels[x].room.hotel.rooms;
-      if (arr.hotels[x].day != 100) {
-        data.service_date = serviceDateCal(date, arr.hotels[x].day);
-        data.checkin_date = date;
-        data.checkout_date = serviceDateCal(date, arr.night);
-        data.days = arr.hotels[x].day;
-      } else {
-        data.service_date = date;
-        data.checkin_date = date;
-        data.checkout_date = serviceDateCal(date, arr.night + 1);
-        data.days = arr.night;
-      }
-      data.selling_price = arr.hotels[x].selling_price;
-      data.quantity = Math.ceil(qty / 2);
-      data.description = "";
-      data.total_amount = data.selling_price * data.quantity;
-      data.is_inclusive = 1;
-      formData.value.items.push(data);
-    }
-  }
-  if (arr.airline_tickets.length > 0) {
-    for (let x = 0; x < arr.airline_tickets.length; x++) {
-      let data = {};
-      data.product_type = "7";
-      data.product_id = arr.airline_tickets[x].product.id;
-      data.car_id = arr.airline_tickets[x].ticket.airline.id;
-      data.car_list = arr.airline_tickets[x].ticket.airline.tickets;
-      // data.service_date = serviceDateCal(date, arr.airline_tickets[x].day);
-      if (arr.airline_tickets[x].day != 100) {
-        data.service_date = serviceDateCal(date, arr.airline_tickets[x].day);
-      } else {
-        data.service_date = date;
-      }
-      data.selling_price = arr.airline_tickets[x].selling_price;
-      data.quantity = arr.airline_tickets[x].quantity;
-      data.description = "";
-      data.total_amount = data.selling_price * data.quantity;
-      data.is_inclusive = 1;
-      formData.value.items.push(data);
-    }
-  }
-};
+});
 
 const sub_total = ref("");
 const getSubTotal = () => {
   let data = 0;
-  for (let i = 0; i < formData.value.items.length; i++) {
-    // data = data + formData.value.items[i].total_amount;
-    if (formData.value.items[i].is_inclusive != 1) {
-      data = data + formData.value.items[i].total_amount;
+  if (enabledIn.value == false) {
+    for (let i = 0; i < formData.value.items.length; i++) {
+      // data = data + formData.value.items[i].total_amount;
+      if (formData.value.items[i].is_inclusive != 1) {
+        data = data + formData.value.items[i].total_amount;
+      }
     }
+  } else {
+    data = formData.value.inclusive_rate * formData.value.inclusive_quantity;
   }
   sub_total.value = data;
 };
@@ -488,11 +342,11 @@ const customerFile = (e) => {
 };
 
 const addNewitem = () => {
-  formData.value.items.push(formitem.value);
-  if (formitem.value.product_type == "5") {
-    addArrayToListPush(formitem.value);
-    getSubTotal();
+  if (enabledIn.value == true) {
+    formitem.value.is_inclusive = 1;
   }
+  formData.value.items.push(formitem.value);
+
   console.log(formData.value.items);
   formitem.value = {
     product_type: "",
@@ -560,19 +414,8 @@ const daysBetween = (a, b) => {
 const removeFromitem = (indexGet, item, type) => {
   console.log(type, "this is type");
 
-  if (type == "5" || type == "App\\Models\\Inclusive") {
-    formData.value.items.splice(indexGet, 1);
-    for (let i = 0; i < formData.value.items.length; i++) {
-      if (formData.value.items[i].is_inclusive == 1) {
-        console.log(formData.value.items[i]);
-        let index = formData.value.items.indexOf(item);
-        formData.value.items.splice(index, 1);
-        i--; // Decrement i to account for the removed item
-      }
-    }
-  } else {
-    formData.value.items.splice(indexGet, 1);
-  }
+  formData.value.items.splice(indexGet, 1);
+
   console.log(formData.value.items);
 };
 
@@ -631,6 +474,27 @@ const onSubmitHandler = async () => {
   // } else {
   //   frmData.append("is_past_info", "0");
   // }
+  if (enabledIn.value) {
+    frmData.append("is_inclusive", enabledIn.value ? "1" : "0");
+    formData.value.inclusive_name
+      ? frmData.append("inclusive_name", formData.value.inclusive_name)
+      : "";
+    formData.value.inclusive_quantity
+      ? frmData.append("inclusive_quantity", formData.value.inclusive_quantity)
+      : "";
+    formData.value.inclusive_rate
+      ? frmData.append("inclusive_rate", formData.value.inclusive_rate)
+      : "";
+    formData.value.inclusive_start_date
+      ? frmData.append(
+          "inclusive_start_date",
+          formData.value.inclusive_start_date
+        )
+      : "";
+    formData.value.inclusive_end_date
+      ? frmData.append("inclusive_end_date", formData.value.inclusive_end_date)
+      : "";
+  }
 
   frmData.append("payment_status", formData.value.payment_status);
   frmData.append("booking_date", formData.value.booking_date);
@@ -988,10 +852,16 @@ const onSubmitHandler = async () => {
       past_user_id: "",
       is_past_info: "",
       past_crm_id: "",
+      is_inclusive: "",
+      inclusive_name: "",
+      inclusive_quantity: "",
+      inclusive_rate: "",
+      inclusive_start_date: "",
+      inclusive_end_date: "",
     };
     balance_due.value = "";
     featureImagePreview.value = [];
-
+    enabledIn.value = false;
     errors.value = null;
     toast.success(response.message);
     // router.push("/bookings/update/" + route.params.id);
@@ -1137,6 +1007,16 @@ const getDetail = async () => {
     const response = await bookingStore.getDetailAction(route.params.id);
     console.log(response, "this is response get");
     formData.value.customer_id = response.result.customer.id;
+    if (response.result.is_inclusive == 1) {
+      formData.value.is_inclusive = response.result.is_inclusive;
+      enabledIn.value = true;
+      formData.value.inclusive_name = response.result.inclusive_name;
+      formData.value.inclusive_quantity = response.result.inclusive_quantity;
+      formData.value.inclusive_rate = response.result.inclusive_rate;
+      formData.value.inclusive_start_date =
+        response.result.inclusive_start_date;
+      formData.value.inclusive_end_date = response.result.inclusive_end_date;
+    }
     formData.value.payment_notes = response.result.payment_notes;
     formData.value.sold_from = response.result.sold_from;
     formData.value.payment_method = response.result.payment_method;
@@ -1185,7 +1065,7 @@ const getDetail = async () => {
         crm_id: response.result.items[x].crm_id,
         product_id: response.result.items[x].product_id,
         service_date: response.result.items[x].service_date,
-        is_inclusive: response.result.items[x].is_inclusive,
+        is_inclusive: response.result.is_inclusive == 1 ? 1 : 0,
         quantity: response.result.items[x].quantity,
         total_guest: response.result.items[x].total_guest,
         days: response.result.items[x].days
@@ -1373,7 +1253,6 @@ const clickdetaildesToggle = (
   days,
   room,
   quantity,
-  is_inclusive,
   guest
 ) => {
   console.log(a, b, index);
@@ -1392,7 +1271,6 @@ const clickdetaildesToggle = (
   itemDays.value = days;
   itemRoom.value = room;
   itemQ.value = quantity;
-  itemIs.value = is_inclusive != undefined ? is_inclusive : 0;
   itemGuest.value = guest;
   console.log(itemCheckIn.value, itemCheckOut.value);
 };
@@ -1772,6 +1650,45 @@ onMounted(async () => {
                     class="w-full h-10 px-4 py-2 text-xs bg-transparent text-gray-900 rounded-lg focus:outline-none"
                   />
                 </div>
+                <div class="relative">
+                  <p class="mb-3 text-xs text-[#ff613c]">Is Past Info</p>
+
+                  <Switch
+                    v-model="enabled"
+                    :class="enabled ? ' bg-orange-600' : 'bg-gray-500'"
+                    class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                  >
+                    <span class="sr-only">Use setting</span>
+                    <span
+                      aria-hidden="true"
+                      :class="enabled ? 'translate-x-9' : 'translate-x-0'"
+                      class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                    />
+                  </Switch>
+                  <p class="text-xs text-gray-500 mt-3" v-if="!statePast">
+                    When it is current , you can't change past
+                  </p>
+                </div>
+                <div class="relative">
+                  <p class="mb-3 text-xs text-[#ff613c]">Is Inclusive</p>
+
+                  <Switch
+                    v-model="enabledIn"
+                    :class="enabledIn ? ' bg-orange-600' : 'bg-gray-500'"
+                    class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                  >
+                    <span class="sr-only">Use setting</span>
+                    <span
+                      aria-hidden="true"
+                      :class="enabledIn ? 'translate-x-9' : 'translate-x-0'"
+                      class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                    />
+                  </Switch>
+                </div>
+                <p class="col-span-2 text-red-600 text-xs">
+                  noted : if this sale is inclusive , first switch is_inclusive
+                  and add items krup.
+                </p>
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -1842,25 +1759,69 @@ onMounted(async () => {
                     class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                   />
                 </div>
-              </div>
-              <div class="relative">
-                <p class="mb-3 text-xs text-[#ff613c]">Is Past Info</p>
+                <div v-if="authStore.isCashier && statePast">
+                  <p class="mb-2 text-xs text-[#ff613c]">Past CRM ID</p>
 
-                <Switch
-                  v-model="enabled"
-                  :class="enabled ? ' bg-orange-600' : 'bg-gray-500'"
-                  class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-                >
-                  <span class="sr-only">Use setting</span>
-                  <span
-                    aria-hidden="true"
-                    :class="enabled ? 'translate-x-9' : 'translate-x-0'"
-                    class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                  <input
+                    v-model="formData.past_crm_id"
+                    type="text"
+                    id="title"
+                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                   />
-                </Switch>
-                <p class="text-xs text-gray-500 mt-3" v-if="!statePast">
-                  When it is current , you can't change past
-                </p>
+                </div>
+                <div v-if="stateInclusive">
+                  <p class="mb-2 text-xs text-[#ff613c]">Inclusive Name</p>
+
+                  <input
+                    type="text"
+                    v-model="formData.inclusive_name"
+                    id="title"
+                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+                <div v-if="stateInclusive">
+                  <p class="mb-2 text-xs text-[#ff613c]">Quantity Inclusive</p>
+                  <input
+                    type="number"
+                    v-model="formData.inclusive_quantity"
+                    @change="getSubTotal()"
+                    id="title"
+                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+                <div v-if="stateInclusive">
+                  <p class="mb-2 text-xs text-[#ff613c]">Rate Per Person</p>
+
+                  <input
+                    type="number"
+                    v-model="formData.inclusive_rate"
+                    @change="getSubTotal()"
+                    id="title"
+                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+                <div v-if="stateInclusive">
+                  <p class="mb-2 text-xs text-[#ff613c]">
+                    Service Date (start)
+                  </p>
+
+                  <input
+                    type="date"
+                    v-model="formData.inclusive_start_date"
+                    id="title"
+                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+                <div v-if="stateInclusive">
+                  <p class="mb-2 text-xs text-[#ff613c]">Service Date (end)</p>
+
+                  <input
+                    type="date"
+                    v-model="formData.inclusive_end_date"
+                    id="title"
+                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
               </div>
             </div>
             <div class="col-span-1 space-y-4 text-end">
@@ -2594,7 +2555,6 @@ onMounted(async () => {
                           class="border-b border-gray-300"
                           v-for="(item, index) in formData.items"
                           :key="index"
-                          :class="item.is_inclusive == 1 ? 'bg-gray-100' : ''"
                         >
                           <td
                             v-if="item.crm_id"
@@ -2605,7 +2565,7 @@ onMounted(async () => {
                             </p>
                             <p
                               v-if="item.is_inclusive == 1"
-                              class="bg-orange-400"
+                              class="bg-orange-400 p-1 rounded"
                             >
                               {{ strippedNumber(item.crm_id) }}
                             </p>
@@ -2932,14 +2892,10 @@ onMounted(async () => {
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
                             <input
-                              v-if="!item.is_inclusive"
                               type="date"
                               v-model="item.service_date"
                               class="text-xs focus:outline-none"
                             />
-                            <p class="text-xs" v-if="item.is_inclusive == 1">
-                              {{ item.service_date }}
-                            </p>
                           </td>
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -2953,7 +2909,7 @@ onMounted(async () => {
                             "
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
-                            <p v-if="item.is_inclusive == 0">
+                            <p>
                               {{
                                 hotelQ(
                                   item.product_type,
@@ -2961,9 +2917,6 @@ onMounted(async () => {
                                   item.quantity
                                 )
                               }}
-                            </p>
-                            <p v-if="item.is_inclusive == 1">
-                              {{ item.quantity }}
                             </p>
                           </td>
                           <td
@@ -2973,7 +2926,7 @@ onMounted(async () => {
                             "
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
-                            <p v-if="item.is_inclusive == 0">
+                            <p v-if="item.is_inclusive != 1">
                               {{ item.quantity }}
                             </p>
                             <p
@@ -3043,7 +2996,6 @@ onMounted(async () => {
                                   item.days,
                                   item.room_number,
                                   item.quantity,
-                                  item.is_inclusive,
                                   item.total_guest
                                 )
                               "

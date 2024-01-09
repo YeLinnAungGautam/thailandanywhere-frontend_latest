@@ -1638,9 +1638,9 @@ onMounted(async () => {
                       class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
                     />
                   </Switch>
-                  <p class="text-xs text-red-600 mt-3" v-if="!statePast">
+                  <!-- <p class="text-xs text-red-600 mt-3" v-if="!statePast">
                     # When it is current , you can't change past
-                  </p>
+                  </p> -->
                 </div>
                 <div class="relative">
                   <p class="mb-3 text-xs text-[#ff613c]">Is Inclusive</p>

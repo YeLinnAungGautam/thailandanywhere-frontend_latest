@@ -274,6 +274,7 @@ const sub_qty_total = computed(() => {
 });
 
 const formitem = ref({
+  reservation_id: "",
   product_type: "",
   product_id: "",
   service_date: "",
@@ -710,6 +711,12 @@ const onSubmitHandler = async () => {
           formData.value.items[x].checkin_date
         )
       : "";
+    formData.value.items[x].reservation_id != ""
+      ? frmData.append(
+          "items[" + x + "][reservation_id]",
+          formData.value.items[x].reservation_id
+        )
+      : frmData.append("items[" + x + "][reservation_id]", null);
     formData.value.items[x].room_number
       ? frmData.append(
           "items[" + x + "][room_number]",
@@ -1034,6 +1041,7 @@ const getDetail = async () => {
     console.log(formData.value.receipt_images, "this is image");
     for (const x in response.result.items) {
       const itemData = {
+        reservation_id: response.result.items[x].id,
         product_type: response.result.items[x].product_type,
         crm_id: response.result.items[x].crm_id,
         product_id: response.result.items[x].product_id,

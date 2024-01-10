@@ -1483,7 +1483,7 @@ onMounted(async () => {
             @click="receiptHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
-            <p>Receipt Images</p>
+            <p>Receipt Images : {{crm}} </p>
           </div>
           <div
             class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"

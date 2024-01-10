@@ -584,8 +584,10 @@ const onSubmitHandler = async () => {
 };
 
 const formatDate = (getDate) => {
-  const dateParts = getDate.split(" ");
-  return dateParts[0];
+  if (getDate != null) {
+    const dateParts = getDate.split(" ");
+    return dateParts[0];
+  }
 };
 
 const linkContract = ref({});

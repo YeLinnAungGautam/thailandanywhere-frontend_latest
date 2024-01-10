@@ -1298,12 +1298,26 @@ const clickdetaildesUpdate = (x) => {
     );
     formData.value.items[x].days = result;
   }
-  let totalsub =
-    formData.value.items[x].quantity *
-    formData.value.items[x].selling_price *
-    formData.value.items[x].days;
+  let totalsub;
+  if (formData.value.items[x].days) {
+    totalsub =
+      formData.value.items[x].quantity *
+      formData.value.items[x].selling_price *
+      formData.value.items[x].days;
+  } else {
+    totalsub =
+      formData.value.items[x].quantity * formData.value.items[x].selling_price;
+  }
   formData.value.items[x].total_amount = totalsub;
   clickdetaildes.value = false;
+  console.log(
+    formData.value.items[x].total_amount,
+    formData.value.items[x].quantity,
+    formData.value.items[x].selling_price,
+    formData.value.items[x].days,
+    
+    "this is total amount"
+  );
   getSubTotal();
 };
 

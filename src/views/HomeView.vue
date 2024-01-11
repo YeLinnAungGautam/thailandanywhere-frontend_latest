@@ -86,35 +86,61 @@ const saleValueChitSu = reactive({ items: [] });
 const saleValueEiMyat = reactive({ items: [] });
 const saleValueChaw = reactive({ items: [] });
 
+const agentColors = [
+  "#FF0000",
+  "#0032FF",
+  "#04FF00",
+  "#00FFF7",
+  "#FFE400",
+  "#0027FF",
+  "#C500FF",
+  "#FF00A2",
+  "#00BDFF",
+];
+
+// const saleDataAgent = {
+//   labels: dataTest.items,
+//   datasets: [
+//     {
+//       label: "Hnin N",
+//       data: saleValueAgent.items,
+//       backgroundColor: ["#FF0000"],
+//     },
+//     {
+//       label: "Ko Nay Myo",
+//       data: saleValueKoNayMyo.items,
+//       backgroundColor: ["#0032FF"],
+//     },
+//     {
+//       label: "Chit Su",
+//       data: saleValueChitSu.items,
+//       backgroundColor: ["#04FF00"],
+//     },
+//     {
+//       label: "Ei Myat",
+//       data: saleValueEiMyat.items,
+//       backgroundColor: ["#00FFF7"],
+//     },
+//     {
+//       label: "Chaw Kalayar",
+//       data: saleValueChaw.items,
+//       backgroundColor: ["#FFE400"],
+//     },
+//   ],
+//   options: {
+//     responsive: true,
+//     maintainAspectRatio: false,
+//     scales: {
+//       y: {
+//         beginAtZero: true,
+//       },
+//     },
+//   },
+// };
+
 const saleDataAgent = {
-  labels: dataTest.items,
-  datasets: [
-    {
-      label: "Hnin N",
-      data: saleValueAgent.items,
-      backgroundColor: ["#FF0000"],
-    },
-    {
-      label: "Ko Nay Myo",
-      data: saleValueKoNayMyo.items,
-      backgroundColor: ["#0032FF"],
-    },
-    {
-      label: "Chit Su",
-      data: saleValueChitSu.items,
-      backgroundColor: ["#04FF00"],
-    },
-    {
-      label: "Ei Myat",
-      data: saleValueEiMyat.items,
-      backgroundColor: ["#00FFF7"],
-    },
-    {
-      label: "Chaw Kalayar",
-      data: saleValueChaw.items,
-      backgroundColor: ["#FFE400"],
-    },
-  ],
+  labels: [],
+  datasets: [],
   options: {
     responsive: true,
     maintainAspectRatio: false,
@@ -124,6 +150,48 @@ const saleDataAgent = {
       },
     },
   },
+};
+
+const getAllDays = async (monthGet) => {
+  console.log(monthGet, "this is month");
+  const res = await homeStore.getTimeFilterArray(monthGet);
+  console.log(res, "this is for graph");
+
+  dataAmount.items.splice(0);
+  saleValueAgent.items.splice(0);
+  saleValueKoNayMyo.items.splice(0);
+  saleValueChitSu.items.splice(0);
+  saleValueEiMyat.items.splice(0);
+  saleValueChaw.items.splice(0);
+  dataTest.items.splice(0);
+  for (let x = 0; x < res.result.sales.length; x++) {
+    let dataArr = 0;
+
+    for (let i = 0; i < res.result.sales[x].agents.length; i++) {
+      dataArr += res.result.sales[x].agents[i].total;
+    }
+    dataAmount.items.push(dataArr);
+    dataTest.items.push(res.result.sales[x].date);
+  }
+  res.result.sales.forEach((sale) => {
+    saleDataAgent.labels.push(sale.date);
+    sale.agents.forEach((agent, index) => {
+      const existingDataset = saleDataAgent.datasets.find(
+        (dataset) => dataset.label === agent.name
+      );
+
+      if (existingDataset) {
+        existingDataset.data.push(agent.total);
+      } else {
+        saleDataAgent.datasets.push({
+          label: agent.name,
+          data: [agent.total],
+          backgroundColor: [agentColors[index]],
+        });
+      }
+    });
+  });
+  console.log(saleDataAgent);
 };
 
 const isError = ref(false);
@@ -284,46 +352,6 @@ const currentMonth = () => {
   const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
 
   monthForGraph.value = `${year}-${month}`;
-};
-
-const getAllDays = async (monthGet) => {
-  console.log(monthGet, "this is month");
-  const res = await homeStore.getTimeFilterArray(monthGet);
-  // console.log(res, "this is for graph");
-
-  dataAmount.items.splice(0);
-  saleValueAgent.items.splice(0);
-  saleValueKoNayMyo.items.splice(0);
-  saleValueChitSu.items.splice(0);
-  saleValueEiMyat.items.splice(0);
-  saleValueChaw.items.splice(0);
-  dataTest.items.splice(0);
-  for (let x = 0; x < res.result.sales.length; x++) {
-    let dataArr = 0;
-
-    for (let i = 0; i < res.result.sales[x].agents.length; i++) {
-      dataArr += res.result.sales[x].agents[i].total;
-      if (res.result.sales[x].agents[i].name == "Hnin N") {
-        // eimyatData.push(res.result.sales[x].agents[i].total);
-        saleValueAgent.items.push(res.result.sales[x].agents[i].total);
-      }
-      if (res.result.sales[x].agents[i].name == "Ko Nay Myo") {
-        saleValueKoNayMyo.items.push(res.result.sales[x].agents[i].total);
-      }
-      if (res.result.sales[x].agents[i].name == "Chit Su") {
-        saleValueChitSu.items.push(res.result.sales[x].agents[i].total);
-      }
-      if (res.result.sales[x].agents[i].name == "Ei Myat") {
-        saleValueEiMyat.items.push(res.result.sales[x].agents[i].total);
-      }
-      if (res.result.sales[x].agents[i].name == "Chaw Kalayar") {
-        saleValueChaw.items.push(res.result.sales[x].agents[i].total);
-      }
-    }
-    dataAmount.items.push(dataArr);
-    dataTest.items.push(res.result.sales[x].date);
-    // console.log(saleValueKoNayMyo.items, "this is test konaymyo");
-  }
 };
 
 const getHotelMostSelling = async () => {

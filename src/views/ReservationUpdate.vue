@@ -274,7 +274,9 @@ const onSubmitHandler = async () => {
   if (formData.value.duration) {
     frmData.append("duration", formData.value.duration);
   }
-  frmData.append("payment_method", formData.value.payment_method);
+  if(formData.value.payment_method){
+    frmData.append("payment_method", formData.value.payment_method);
+  }
   // frmData.append("bank_name", formData.value.bank_name);
   // frmData.append("bank_account_number", formData.value.bank_account_number);
   // frmData.append("cost", formData.value.cost);
@@ -282,7 +284,9 @@ const onSubmitHandler = async () => {
   frmData.append("payment_status", formData.value.payment_status);
 
   frmData.append("product_type", formData.value.product_type);
-  frmData.append("cost_price", formData.value.cost_price);
+  if(formData.value.cost_price){
+    frmData.append("cost_price", formData.value.cost_price);
+  }
 
   frmData.append("quantity", formData.value.quantity);
   // frmData.append("receipt_image", formData.value.receipt_image);

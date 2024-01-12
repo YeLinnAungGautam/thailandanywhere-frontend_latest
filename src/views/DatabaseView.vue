@@ -4,8 +4,10 @@ import Productcategory from "../views/ProductCategory.vue";
 import CityView from "../views/CityView.vue";
 import CarView from "../views/CarView.vue";
 import ProductTag from "../views/ProductTag.vue";
+import SupplierView from "../views/SupplierView.vue";
 import ProductSubCategory from "../views/ProductSubCategory.vue";
 import DestinationView from "../views/DestinationView.vue";
+import DriverView from "../views/DriverView.vue";
 import { ref } from "vue";
 import Button from "../components/Button.vue";
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@headlessui/vue";
@@ -100,6 +102,28 @@ import {
               Car
             </button>
           </Tab>
+          <Tab as="template" v-slot="{ selected }">
+            <button
+              :class="{
+                'bg-[#ff613c] text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+            >
+              Driver
+            </button>
+          </Tab>
+          <Tab as="template" v-slot="{ selected }">
+            <button
+              :class="{
+                'bg-[#ff613c] text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+            >
+              Supplier
+            </button>
+          </Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -117,9 +141,14 @@ import {
           <TabPanel>
             <CityView />
           </TabPanel>
-
           <TabPanel>
             <CarView />
+          </TabPanel>
+          <TabPanel>
+            <DriverView />
+          </TabPanel>
+          <TabPanel>
+            <SupplierView />
           </TabPanel>
         </TabPanels>
       </TabGroup>

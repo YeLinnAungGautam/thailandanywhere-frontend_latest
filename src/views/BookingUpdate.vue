@@ -1315,7 +1315,7 @@ const clickdetaildesUpdate = (x) => {
     formData.value.items[x].quantity,
     formData.value.items[x].selling_price,
     formData.value.items[x].days,
-    
+
     "this is total amount"
   );
   getSubTotal();
@@ -2993,9 +2993,7 @@ onMounted(async () => {
                               ></i>
                             </button>
                             <button
-                              v-if="
-                                authStore.isSuperAdmin && item.is_inclusive == 0
-                              "
+                              v-if="authStore.isSuperAdmin"
                               class="text-sm text-red-600"
                               @click.prevent="
                                 removeFromitem(index, item, item.product_type)

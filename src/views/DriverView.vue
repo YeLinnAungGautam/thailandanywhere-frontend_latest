@@ -41,7 +41,7 @@
                 Contact
               </th>
               <th class="p-4 text-xs font-medium tracking-wide text-left">
-                Vendor Name
+                Supplier Name
               </th>
               <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Profile
@@ -70,7 +70,7 @@
                 {{ driver.contact }}
               </td>
               <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
-                {{ driver.vendor_name }}
+                {{ driver.supplier?.name }}
               </td>
               <td
                 class="p-4 text-xs text-gray-700 whitespace-nowrap"
@@ -155,17 +155,18 @@
               {{ errors.contact[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1">
-            <label for="name" class="text-sm text-gray-800">Vendor Name</label>
-            <input
-              type="text"
-              v-model="formData.vendor_name"
-              id="name"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.vendor_name" class="mt-1 text-sm text-red-600">
-              {{ errors.vendor_name[0] }}
-            </p>
+
+          <div class="space-y-1 mb-4">
+            <p class="text-gray-800 text-sm mb-2">Choose Supplier</p>
+            <v-select
+              v-model="formData.supplier_id"
+              class="style-chooser"
+              :options="suppliers.data ?? []"
+              label="name"
+              :clearable="false"
+              :reduce="(product) => product.id"
+              placeholder="Choose Driver"
+            ></v-select>
           </div>
           <div class="mb-2 space-y-1">
             <label for="image" class="relative text-sm text-gray-800"
@@ -279,8 +280,12 @@ import axios from "axios";
 import { useToast } from "vue-toastification";
 import Swal from "sweetalert2";
 import { useDriverStore } from "../stores/driver";
+import { useSupplierStore } from "../stores/supplier";
 
 const driverStore = useDriverStore();
+const supplierStore = useSupplierStore();
+const { suppliers } = storeToRefs(supplierStore);
+const { drivers, loading } = storeToRefs(driverStore);
 const toast = useToast();
 
 const cityModalOpen = ref(false);
@@ -295,11 +300,11 @@ const formData = ref({
   vendor_name: "",
   id: "",
   car_photo: null,
+  supplier_id: "",
 });
 const showEntries = ref(10);
 const errors = ref(null);
 const search = ref("");
-const { drivers, loading } = storeToRefs(driverStore);
 
 const closeMethod = () => {
   formData.value = {
@@ -309,6 +314,7 @@ const closeMethod = () => {
     vendor_name: "",
     id: "",
     car_photo: null,
+    supplier_id: "",
   };
   previewImage.value = null;
   previewCarImage.value = null;
@@ -354,9 +360,11 @@ const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("contact", formData.value.contact);
-  frmData.append("vendor_name", formData.value.vendor_name);
+
   frmData.append("car_photo", formData.value.car_photo);
   frmData.append("profile", formData.value.profile);
+  frmData.append("supplier_id", formData.value.supplier_id);
+
   try {
     const response = await driverStore.addNewAction(frmData);
     formData.value = {
@@ -366,6 +374,7 @@ const addNewHandler = async () => {
       vendor_name: "",
       id: "",
       car_photo: null,
+      supplier_id: "",
     };
     previewImage.value = null;
     previewCarImage.value = null;
@@ -385,7 +394,9 @@ const updateHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("contact", formData.value.contact);
-  frmData.append("vendor_name", formData.value.vendor_name);
+
+  frmData.append("supplier_id", formData.value.supplier_id);
+
   if (formData.value.car_photo) {
     frmData.append("car_photo", formData.value.car_photo);
   }
@@ -402,6 +413,7 @@ const updateHandler = async () => {
       vendor_name: "",
       id: "",
       car_photo: null,
+      supplier_id: "",
     };
     previewImage.value = null;
     previewCarImage.value = null;
@@ -429,7 +441,8 @@ const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
   formData.value.contact = data.contact;
-  formData.value.vendor_name = data.vendor_name;
+
+  formData.value.supplier_id = data.supplier?.id;
   previewImage.value = data.profile;
   previewCarImage.value = data.car_photo;
   cityModalOpen.value = true;
@@ -462,6 +475,7 @@ const onDeleteHandler = async (id) => {
 
 onMounted(async () => {
   await driverStore.getListAction();
+  await supplierStore.getSimpleListAction();
   console.log(drivers.value, "this is driver");
 });
 

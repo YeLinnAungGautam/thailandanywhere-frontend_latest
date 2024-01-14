@@ -119,7 +119,7 @@ const routes = [
     component: BlogCategoryView,
   },
   {
-    path: "/bookings",
+    path: "/bookings/:crm_id/:customer_name/:sale_date",
     name: "bookings",
     component: BookingView,
   },
@@ -209,12 +209,12 @@ const routes = [
     component: EntranceUpdateView,
   },
   {
-    path: "/reservation",
+    path: "/reservation/:product_type/:crm_id/:service_date",
     name: "reservation",
     component: ReservationView,
   },
   {
-    path: "/reservation/update/:id/:crm/:old",
+    path: "/reservation/update/:id/:crm",
     name: "reservation-update",
     component: ReservationUpdate,
   },

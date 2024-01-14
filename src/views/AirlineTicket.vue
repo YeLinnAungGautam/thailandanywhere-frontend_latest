@@ -19,19 +19,6 @@
         </DialogTitle>
         <form @submit.prevent="onSubmitHandler" class="mt-2">
           <div class="mb-2 space-y-1">
-            <label for="name" class="text-sm text-gray-800">Airline Name</label>
-            <v-select
-              v-model="formData.airline_id"
-              class="style-chooser"
-              :options="airList ?? []"
-              label="name"
-              :clearable="false"
-              :reduce="(airline) => airline.id"
-              placeholder="Choose Airline"
-            ></v-select>
-          </div>
-
-          <div class="mb-2 space-y-1">
             <label for="price" class="text-sm text-gray-800"
               >AirTicket Field</label
             >
@@ -44,6 +31,18 @@
             <p v-if="errors?.price" class="mt-1 text-sm text-red-600">
               {{ errors.price[0] }}
             </p>
+          </div>
+          <div class="mb-2 space-y-1">
+            <label for="name" class="text-sm text-gray-800">Airline Name</label>
+            <v-select
+              v-model="formData.airline_id"
+              class="style-chooser"
+              :options="airList ?? []"
+              label="name"
+              :clearable="false"
+              :reduce="(airline) => airline.id"
+              placeholder="Choose Airline"
+            ></v-select>
           </div>
           <div class="col-span-2">
             <p class="text-gray-800 text-sm mb-2">Description</p>
@@ -86,7 +85,11 @@
       </div>
       <div class="space-x-3">
         <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
-        <Button :leftIcon="PlusIcon" @click.prevent="openModal()">
+        <Button
+          :leftIcon="PlusIcon"
+          @click.prevent="openModal()"
+          v-if="!authStore.isAgent"
+        >
           Create
         </Button>
       </div>
@@ -133,7 +136,8 @@
                   @click.prevent="editModalOpenHandler(r)"
                   class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                 >
-                  <PencilSquareIcon class="w-5 h-5" />
+                  <PencilSquareIcon class="w-5 h-5" v-if="!authStore.isAgent" />
+                  <EyeIcon class="w-5 h-5" v-if="authStore.isAgent" />
                 </button>
 
                 <button

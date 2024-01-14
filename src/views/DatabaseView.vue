@@ -12,6 +12,7 @@ import { ref } from "vue";
 import Button from "../components/Button.vue";
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@headlessui/vue";
 import Pagination from "../components/Pagination.vue";
+import { useSidebarStore } from "../stores/sidebar";
 import {
   PencilSquareIcon,
   TrashIcon,
@@ -24,6 +25,8 @@ import {
   UsersIcon,
   AdjustmentsHorizontalIcon,
 } from "@heroicons/vue/24/outline";
+
+const sidebarStore = useSidebarStore();
 </script>
 
 <template>
@@ -31,7 +34,7 @@ import {
     <div class="mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Database</h3>
     </div>
-    <div class="">
+    <div :class="sidebarStore.isShowSidebar ? 'w-[80vw]' : 'w-[96vw]'">
       <TabGroup>
         <TabList
           class="space-x-2 bg-white/60 p-6 rounded-lg shadow-sm mb-5 flex"

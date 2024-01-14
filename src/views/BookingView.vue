@@ -22,12 +22,13 @@ import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import { computed, onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useBookingStore } from "../stores/booking";
 import { storeToRefs } from "pinia";
 import { useAuthStore } from "../stores/auth";
 
 const router = useRouter();
+const route = useRoute();
 const toast = useToast();
 const bookingStore = useBookingStore();
 const authStore = useAuthStore();
@@ -84,6 +85,7 @@ const searchPayment = [
 ];
 const showFilter = ref(false);
 const customerName = ref("");
+const sale_date_order_by = ref("desc");
 const balanceDueDate = ref("");
 const bookingStatus = ref("");
 const saleDate = ref("");
@@ -121,12 +123,29 @@ const clearFilter = () => {
     balanceDueDate.value = "";
     bookingStatus.value = "";
     saleDate.value = "";
+    sale_date_order_by = "desc";
   }
   console.log(showFilter.value, "this is showfilter");
 };
 
+const SearchFunction = () => {
+  router.push({
+    name: `bookings`,
+    params: {
+      crm_id: search.value ? search.value : "%",
+      customer_name: customerName.value ? customerName.value : "%",
+      sale_date: saleDate.value ? saleDate.value : "%",
+    },
+  });
+};
+
 onMounted(async () => {
   await bookingStore.getListAction(watchSystem.value);
+  // console.log(route.params);
+  search.value = route.params.crm_id == "%" ? "" : route.params.crm_id;
+  customerName.value =
+    route.params.customer_name == "%" ? "" : route.params.customer_name;
+  saleDate.value = route.params.sale_date == "%" ? "" : route.params.sale_date;
 });
 
 // const searchParam = ref({});
@@ -157,6 +176,9 @@ const watchSystem = computed(() => {
   if (searchP.value != "" && searchP.value != undefined) {
     result.status = searchP.value;
   }
+  if (sale_date_order_by.value) {
+    result.sale_date_order_by = sale_date_order_by.value;
+  }
 
   console.log(result);
   return result;
@@ -164,13 +186,19 @@ const watchSystem = computed(() => {
 
 watch(search, async (newValue) => {
   showFilter.value = true;
+  SearchFunction();
   await bookingStore.getListAction(watchSystem.value);
 });
 watch(searchA, async (newValue) => {
   showFilter.value = true;
   await bookingStore.getListAction(watchSystem.value);
 });
+watch(sale_date_order_by, async (newValue) => {
+  showFilter.value = true;
+  await bookingStore.getListAction(watchSystem.value);
+});
 watch(customerName, async (newValue) => {
+  SearchFunction();
   showFilter.value = true;
   await bookingStore.getListAction(watchSystem.value);
 });
@@ -183,6 +211,7 @@ watch(bookingStatus, async (newValue) => {
   await bookingStore.getListAction(watchSystem.value);
 });
 watch(saleDate, async (newValue) => {
+  SearchFunction();
   showFilter.value = true;
   await bookingStore.getListAction(watchSystem.value);
 });
@@ -199,10 +228,26 @@ watch(limit, async (newValue) => {
 <template>
   <Layout>
     <div class="flex items-center justify-between mb-5">
-      <h3 class="text-2xl font-medium text-gray-600">Sales List</h3>
+      <div class="flex justify-start items-center gap-4">
+        <h3 class="text-2xl font-medium text-gray-600">Sales List</h3>
+        <div class="bg-white px-2 rounded border-2">
+          <p class="inline-block mr-2 font-medium text-gray-500">Show</p>
+          <select
+            v-model="limit"
+            class="w-16 h-9 rounded-md focus:outline-none focus:ring-0"
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+            <option value="50">50</option>
+          </select>
+          <p class="inline-block ml-2 font-medium text-gray-500">entries</p>
+        </div>
+      </div>
       <div class="space-x-3">
         <router-link to="/bookings/create">
-          <Button :leftIcon="PlusIcon" @click="CustomerCreate"> Create </Button>
+          <Button :leftIcon="PlusIcon"> Create </Button>
         </router-link>
       </div>
     </div>
@@ -277,19 +322,15 @@ watch(limit, async (newValue) => {
               title="sale_date"
             />
           </div>
-          <div>
-            <p class="inline-block mr-2 font-medium text-gray-500">Show</p>
+          <div class="flex justify-start items-center w-full">
+            <p class="inline-block mr-2 font-medium text-gray-500">Sorting</p>
             <select
-              v-model="limit"
-              class="w-16 h-9 p-2 border-2 rounded-md focus:outline-none focus:ring-0"
+              class="w-full h-9 border-2 rounded-md focus:outline-none focus:ring-0"
+              v-model="sale_date_order_by"
             >
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="30">30</option>
-              <option value="40">40</option>
-              <option value="50">50</option>
+              <option value="desc">Latest to First</option>
+              <option value="asc">First to Latest</option>
             </select>
-            <p class="inline-block ml-2 font-medium text-gray-500">entries</p>
           </div>
           <div v-show="showFilter" @click="clearFilter">
             <Button :leftIcon="FunnelIcon"> Clear </Button>
@@ -586,14 +627,7 @@ watch(limit, async (newValue) => {
                     class="col-span-1 p-3 text-xs text-center text-gray-700 whitespace-nowrap"
                   >
                     <router-link
-                      :to="
-                        '/reservation/update/' +
-                        d.id +
-                        '/' +
-                        d.crm_id +
-                        '/' +
-                        r.past_crm_id
-                      "
+                      :to="'/reservation/update/' + d.id + '/' + d.crm_id"
                     >
                       <button
                         class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"

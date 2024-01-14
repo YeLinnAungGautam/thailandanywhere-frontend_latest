@@ -21,7 +21,13 @@
       </div>
       <div class="space-x-3">
         <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
-        <Button :leftIcon="PlusIcon" @click="GrouptourCreate"> Create </Button>
+        <Button
+          :leftIcon="PlusIcon"
+          @click="GrouptourCreate"
+          v-if="!authStore.isAgent"
+        >
+          Create
+        </Button>
       </div>
     </div>
     <div class="overflow-auto rounded-lg shadow mb-5">
@@ -81,7 +87,10 @@
                     <EyeIcon class="w-5 h-5" />
                   </button>
                 </router-link>
-                <router-link :to="'/grouptour/view/' + r.id + '/edit'">
+                <router-link
+                  :to="'/grouptour/view/' + r.id + '/edit'"
+                  v-if="!authStore.isAgent"
+                >
                   <button
                     class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                   >

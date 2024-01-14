@@ -17,6 +17,7 @@ import Room from "../views/RoomView.vue";
 import Meal from "../views/MealView.vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "../stores/auth";
+import { useSidebarStore } from "../stores/sidebar";
 import {
   PencilSquareIcon,
   TrashIcon,
@@ -33,11 +34,18 @@ import {
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+const sidebarStore = useSidebarStore();
 
 const selectedTab = ref(0);
 
 const changeTab = (index) => {
   selectedTab.value = index;
+  router.push({
+    name: "products",
+    params: {
+      id: index,
+    },
+  });
 };
 
 const changeUseRouter = () => {
@@ -55,13 +63,13 @@ onMounted(() => {
 
 <template>
   <Layout>
-    <div class="mb-5">
+    <div class="mb-5 w-[90%]">
       <h3 class="text-2xl font-medium text-gray-600">Products</h3>
     </div>
-    <div class="w-full">
+    <div :class="sidebarStore.isShowSidebar ? 'w-[80vw]' : 'w-[96vw]'">
       <TabGroup :selectedIndex="selectedTab">
         <TabList
-          class="flex p-6 mb-5 space-x-2 rounded-lg shadow-sm bg-white/60 overflow-x-scroll"
+          class="flex w-full p-6 mb-5 space-x-2 rounded-lg shadow-sm bg-white/60 overflow-x-scroll"
         >
           <Tab as="template" v-slot="{ selected }" @click="changeTab(0)">
             <button
@@ -80,35 +88,13 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[150px] text-center flex-nowrap"
-            >
-              Airport Pickup
-            </button>
-          </Tab>
-
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(2)">
-            <button
-              :class="{
-                'bg-[#ff613c] text-white': selected,
-                'bg-white text-black': !selected,
-              }"
               class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[150px] text-center"
             >
               Group Tours
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(3)">
-            <button
-              :class="{
-                'bg-[#ff613c] text-white': selected,
-                'bg-white text-black': !selected,
-              }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
-            >
-              Inclusive
-            </button>
-          </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(4)">
+
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(2)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -119,7 +105,7 @@ onMounted(() => {
               Hotels
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(5)">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(3)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -130,7 +116,7 @@ onMounted(() => {
               Rooms
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(6)">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(4)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -141,7 +127,7 @@ onMounted(() => {
               AirLine
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(7)">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(5)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -152,7 +138,7 @@ onMounted(() => {
               AirLine Ticket
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(8)">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(6)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -163,7 +149,7 @@ onMounted(() => {
               Attractions
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(9)">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(7)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -174,7 +160,7 @@ onMounted(() => {
               Entrance Tickets Variation
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(10)">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(8)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -185,7 +171,7 @@ onMounted(() => {
               Restaurants
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }" @click="changeTab(11)">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(9)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -202,14 +188,7 @@ onMounted(() => {
             <VanTour />
           </TabPanel>
           <TabPanel>
-            <Airport />
-          </TabPanel>
-
-          <TabPanel>
             <GroupTour />
-          </TabPanel>
-          <TabPanel>
-            <Inclusive />
           </TabPanel>
           <TabPanel>
             <Hotel />

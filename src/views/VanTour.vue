@@ -21,7 +21,13 @@
       </div>
       <div class="space-x-3">
         <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
-        <Button :leftIcon="PlusIcon" @click="VantourCreate"> Create </Button>
+        <Button
+          :leftIcon="PlusIcon"
+          @click="VantourCreate"
+          v-if="!authStore.isAgent"
+        >
+          Create
+        </Button>
       </div>
     </div>
     <div class="overflow-auto rounded-lg shadow mb-5">
@@ -38,7 +44,8 @@
               Name
             </th>
             <th class="p-3 text-xs font-medium tracking-wide text-left">
-              Prices
+              <p v-if="authStore.isAgent">Car</p>
+              <p v-if="!authStore.isAgent">Prices</p>
             </th>
             <th class="p-3 text-xs font-medium tracking-wide text-left">
               Prices ( Agent )
@@ -79,7 +86,8 @@
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <div class="block space-y-1 text-start">
                 <p v-for="(p, index) in r.cars" :key="index" class="">
-                  {{ p.name }} - {{ p.price }}B
+                  {{ p.name }} -
+                  <span v-if="!authStore.isAgent">{{ p.price }} B</span>
                 </p>
               </div>
             </td>
@@ -107,7 +115,10 @@
                     <EyeIcon class="w-5 h-5" />
                   </button>
                 </router-link>
-                <router-link :to="'/vantour/view/' + r.id + '/edit'">
+                <router-link
+                  :to="'/vantour/view/' + r.id + '/edit'"
+                  v-if="!authStore.isAgent"
+                >
                   <button
                     class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                   >

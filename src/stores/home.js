@@ -177,7 +177,7 @@ export const useHomeStore = defineStore("home", {
     },
     async getHotelMostSell(params) {
       try {
-        const response = await axios.get(`/reports/hotels`);
+        const response = await axios.get(`/reports/hotels`, { params });
         // console.log(response, "one day filter");
 
         // bookings

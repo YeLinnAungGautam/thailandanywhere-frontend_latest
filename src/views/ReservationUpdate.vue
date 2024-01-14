@@ -274,7 +274,7 @@ const onSubmitHandler = async () => {
   if (formData.value.duration) {
     frmData.append("duration", formData.value.duration);
   }
-  if(formData.value.payment_method){
+  if (formData.value.payment_method) {
     frmData.append("payment_method", formData.value.payment_method);
   }
   // frmData.append("bank_name", formData.value.bank_name);
@@ -284,7 +284,7 @@ const onSubmitHandler = async () => {
   frmData.append("payment_status", formData.value.payment_status);
 
   frmData.append("product_type", formData.value.product_type);
-  if(formData.value.cost_price){
+  if (formData.value.cost_price) {
     frmData.append("cost_price", formData.value.cost_price);
   }
 
@@ -479,9 +479,7 @@ const onSubmitHandler = async () => {
     expPreviewImage.value = [];
     uploadRecePreview.value = [];
     toast.success(response.message);
-    router.push(
-      `/reservation/update/${route.params.id}/${crm.value}/${old.value}`
-    );
+    router.push(`/reservation/update/${route.params.id}/${crm.value}`);
     window.location.reload();
   } catch (error) {
     console.log(
@@ -523,7 +521,9 @@ const getDetail = async () => {
   try {
     const response = await reservationStore.getDetailAction(route.params.id);
     console.log(response, "this is response");
-
+    old.value = response.result.booking?.past_crm_id
+      ? response.result.booking?.past_crm_id
+      : "";
     titleDataChanges(response.result.product_type);
     checkin_date.value = response.result.checkin_date
       ? response.result.checkin_date
@@ -1193,7 +1193,6 @@ onMounted(async () => {
   console.log(booking_confirm_letters.value, "this is something");
   action.value = route.params.action;
   crm.value = route.params.crm;
-  old.value = route.params.old;
   console.log(crm.value, old.value, "this is something wrong");
   // emailData.value.mail_body = "<h1>Hello world</h1>";
   mailBodyChange();
@@ -1487,7 +1486,7 @@ onMounted(async () => {
             @click="receiptHandle"
           >
             <i class="fa-solid fa-angle-down"></i>
-            <p>Receipt Images : {{crm}} </p>
+            <p>Receipt Images : {{ crm }}</p>
           </div>
           <div
             class="grid grid-cols-3 gap-4 px-6 py-5 bg-gray-200/50"

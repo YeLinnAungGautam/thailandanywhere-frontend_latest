@@ -130,18 +130,7 @@
               {{ errors.name[0] }}
             </p>
           </div>
-          <div class="space-y-1 mb-4">
-            <p class="text-gray-800 text-sm mb-2">Driver</p>
-            <v-select
-              v-model="formData.driver_id"
-              class="style-chooser"
-              :options="drivers.data ?? []"
-              label="name"
-              :clearable="false"
-              :reduce="(product) => product.id"
-              placeholder="Choose Driver"
-            ></v-select>
-          </div>
+
           <div class="mb-2 space-y-1">
             <label for="name" class="text-sm text-gray-800">Contact</label>
             <input
@@ -196,6 +185,43 @@
             >
               {{ errors.bank_account_name[0] }}
             </p>
+          </div>
+          <div class="mb-2 space-y-1" v-if="formData.id">
+            <label for="name" class="text-sm text-gray-800"
+              >Relative Driver</label
+            >
+            <table class="w-full border border-gray-200">
+              <thead class="border-b-2 border-gray-200 bg-gray-50">
+                <tr>
+                  <th class="p-4 text-xs font-medium tracking-wide text-left">
+                    No.
+                  </th>
+                  <th class="p-4 text-xs font-medium tracking-wide text-left">
+                    Name
+                  </th>
+                  <th class="p-4 text-xs font-medium tracking-wide text-left">
+                    Contact
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <tr
+                  v-for="dri in drivers?.data"
+                  :key="dri.id"
+                  class="bg-white even:bg-gray-50 hover:bg-gray-50"
+                >
+                  <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
+                    {{ dri.id }}
+                  </td>
+                  <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
+                    {{ dri.name }}
+                  </td>
+                  <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
+                    {{ dri.contact }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
           <div class="mb-2 space-y-1">
             <label for="image" class="relative text-sm text-gray-800"
@@ -288,7 +314,6 @@ const formData = ref({
   bank_name: "",
   bank_account_no: "",
   bank_account_name: "",
-  driver_id: "",
   id: "",
 });
 const showEntries = ref(10);
@@ -305,7 +330,6 @@ const closeMethod = () => {
     bank_name: "",
     bank_account_no: "",
     bank_account_name: "",
-    driver_id: "",
     id: "",
   };
   previewImage.value = null;
@@ -337,7 +361,7 @@ const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("contact", formData.value.contact);
-  frmData.append("driver_id", formData.value.driver_id);
+
   frmData.append("logo", formData.value.logo);
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_no", formData.value.bank_account_no);
@@ -352,7 +376,7 @@ const addNewHandler = async () => {
       bank_name: "",
       bank_account_no: "",
       bank_account_name: "",
-      driver_id: "",
+
       id: "",
     };
     previewImage.value = null;
@@ -372,7 +396,7 @@ const updateHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("contact", formData.value.contact);
-  frmData.append("driver_id", formData.value.driver_id);
+
   if (formData.value.logo) {
     frmData.append("logo", formData.value.logo);
   }
@@ -392,7 +416,7 @@ const updateHandler = async () => {
       bank_name: "",
       bank_account_no: "",
       bank_account_name: "",
-      driver_id: "",
+
       id: "",
     };
     previewImage.value = null;
@@ -421,7 +445,7 @@ const editModalOpenHandler = (data) => {
   formData.value.name = data.name;
   formData.value.contact = data.contact;
   formData.value.bank_name = data.bank_name;
-  formData.value.driver_id = data.driver?.id;
+
   formData.value.bank_account_name = data.bank_account_name;
   formData.value.bank_account_no = data.bank_account_no;
   previewImage.value = data.logo;

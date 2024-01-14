@@ -44,7 +44,7 @@
             ></v-select>
           </div>
 
-          <div class="mb-2 space-y-1">
+          <div class="mb-2 space-y-1" v-if="!authStore.isAgent">
             <label for="room_price" class="text-sm text-gray-800"
               >Room Price</label
             >
@@ -72,7 +72,7 @@
               {{ errors.max_person[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1">
+          <div class="mb-2 space-y-1" v-if="!authStore.isAgent">
             <label for="room_price" class="text-sm text-gray-800">Cost</label>
             <input
               type="number"
@@ -82,6 +82,20 @@
             />
             <p v-if="errors?.cost" class="mt-1 text-sm text-red-600">
               {{ errors.cost[0] }}
+            </p>
+          </div>
+          <div class="mb-2 space-y-1">
+            <label for="room_price" class="text-sm text-gray-800"
+              >Agent Price</label
+            >
+            <input
+              type="number"
+              v-model="formData.agent_price"
+              id="agent_price"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.agent_price" class="mt-1 text-sm text-red-600">
+              {{ errors.agent_price[0] }}
             </p>
           </div>
           <div class="mb-2 space-y-1 flex justify-start items-center gap-3">
@@ -137,7 +151,7 @@
                     title="end date"
                   />
                 </div>
-                <div class="flex-1">
+                <div class="flex-1" v-if="!authStore.isAgent">
                   <input
                     v-model="formPeriod.sale_price"
                     type="number"
@@ -146,13 +160,22 @@
                     placeholder="sale price"
                   />
                 </div>
-                <div class="flex-1">
+                <div class="flex-1" v-if="!authStore.isAgent">
                   <input
                     v-model="formPeriod.cost_price"
                     type="number"
                     id="title"
                     class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="cost price"
+                  />
+                </div>
+                <div class="flex-1">
+                  <input
+                    v-model="formPeriod.agent_price"
+                    type="number"
+                    id="title"
+                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    placeholder="agent price"
                   />
                 </div>
                 <div>
@@ -196,7 +219,7 @@
                     title="end date"
                   />
                 </div>
-                <div class="flex-1">
+                <div class="flex-1" v-if="!authStore.isAgent">
                   <input
                     v-model="p.sale_price"
                     type="number"
@@ -205,13 +228,22 @@
                     placeholder="sale price"
                   />
                 </div>
-                <div class="flex-1">
+                <div class="flex-1" v-if="!authStore.isAgent">
                   <input
                     v-model="p.cost_price"
                     type="number"
                     id="title"
                     class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="cost price"
+                  />
+                </div>
+                <div class="flex-1">
+                  <input
+                    v-model="p.agent_price"
+                    type="number"
+                    id="title"
+                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    placeholder="agent price"
                   />
                 </div>
                 <div>
@@ -309,7 +341,7 @@
             >
               close
             </p>
-            <Button type="submit"> Submit </Button>
+            <Button type="submit" v-if="!authStore.isAgent"> Submit </Button>
           </div>
         </form>
       </DialogPanel>
@@ -365,7 +397,11 @@
       </div>
       <div class="space-x-3">
         <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
-        <Button :leftIcon="PlusIcon" @click.prevent="createModalOpen = true">
+        <Button
+          :leftIcon="PlusIcon"
+          @click.prevent="createModalOpen = true"
+          v-if="!authStore.isAgent"
+        >
           Create
         </Button>
       </div>
@@ -414,7 +450,8 @@
               {{ r.hotel?.name }}
             </td>
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-              {{ r.room_price }}
+              <p v-if="!authStore.isAgent">{{ r.room_price }}</p>
+              <p v-if="authStore.isAgent">{{ r.agent_price }}</p>
             </td>
 
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
@@ -423,7 +460,8 @@
                   @click.prevent="editModalOpenHandler(r)"
                   class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                 >
-                  <PencilSquareIcon class="w-5 h-5" />
+                  <PencilSquareIcon class="w-5 h-5" v-if="!authStore.isAgent" />
+                  <EyeIcon class="w-5 h-5" v-if="authStore.isAgent" />
                 </button>
 
                 <button
@@ -501,6 +539,7 @@ const formData = ref({
   images: [],
   room_price: "",
   cost: "",
+  agent_price: "",
 });
 const editImagesPreview = ref([]);
 
@@ -516,6 +555,7 @@ const closeModal = () => {
     images: [],
     room_price: "",
     cost: "",
+    agent_price: "",
   };
   errors.value = null;
   enabled.value = false;
@@ -542,6 +582,7 @@ const addNewHandler = async () => {
   frmData.append("max_person", formData.value.max_person);
   frmData.append("room_price", formData.value.room_price);
   frmData.append("cost", formData.value.cost);
+  frmData.append("agent_price", formData.value.agent_price);
   frmData.append("is_extra", enabled.value ? 1 : 0);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
@@ -571,6 +612,10 @@ const addNewHandler = async () => {
         "periods[" + x + "][cost_price]",
         formData.value.period[x].cost_price
       );
+      frmData.append(
+        "periods[" + x + "][agent_price]",
+        formData.value.period[x].agent_price
+      );
     }
   }
 
@@ -587,6 +632,7 @@ const addNewHandler = async () => {
       is_extra: 0,
       room_price: "",
       cost: "",
+      agent_price: "",
     };
     enabled.value = false;
     errors.value = null;
@@ -638,10 +684,15 @@ const updateHandler = async () => {
         "periods[" + x + "][cost_price]",
         formData.value.period[x].cost_price
       );
+      frmData.append(
+        "periods[" + x + "][agent_price]",
+        formData.value.period[x].agent_price
+      );
     }
   }
   frmData.append("room_price", formData.value.room_price);
   frmData.append("cost", formData.value.cost);
+  frmData.append("agent_price", formData.value.agent_price);
 
   frmData.append("_method", "PUT");
   try {
@@ -657,6 +708,7 @@ const updateHandler = async () => {
       images: [],
       room_price: "",
       cost: "",
+      agent_price: "",
     };
     enabled.value = false;
     imagesPreview.value = [];
@@ -719,6 +771,7 @@ const editModalOpenHandler = (data) => {
   formData.value.room_price = data.room_price;
   formData.value.description = data.description;
   formData.value.cost = data.cost;
+  formData.value.agent_price = data.agent_price;
   createModalOpen.value = true;
   if (data.images.length > 0) {
     for (let i = 0; i < data.images.length; i++) {
@@ -734,6 +787,7 @@ const editModalOpenHandler = (data) => {
         end_date: data.room_periods[i].end_date,
         sale_price: data.room_periods[i].sale_price,
         cost_price: data.room_periods[i].cost_price,
+        agent_price: data.room_periods[i].agent_price,
       };
       formData.value.period.push(dataArray);
     }
@@ -789,6 +843,7 @@ const formPeriod = ref({
   end_date: "",
   sale_price: "",
   cost_price: "",
+  agent_price: "",
 });
 
 const addNewPerid = () => {
@@ -799,6 +854,7 @@ const addNewPerid = () => {
     end_date: "",
     sale_price: "",
     cost_price: "",
+    agent_price: "",
   };
 };
 

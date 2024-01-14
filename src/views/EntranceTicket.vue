@@ -410,7 +410,9 @@
             >
               close
             </p>
-            <Button type="submit" v-if="!loading"> Submit </Button>
+            <Button type="submit" v-if="!loading && !authStore.isAgent">
+              Submit
+            </Button>
             <Button type="button" class="bg-gray-300" v-if="loading">
               Submit
             </Button>
@@ -434,7 +436,13 @@
       </div>
       <div class="space-x-3">
         <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
-        <Button :leftIcon="PlusIcon" @click="VantourCreate"> Create </Button>
+        <Button
+          :leftIcon="PlusIcon"
+          @click="VantourCreate"
+          v-if="!authStore.isAgent"
+        >
+          Create
+        </Button>
       </div>
     </div>
     <div class="overflow-auto rounded-lg shadow mb-5">
@@ -453,9 +461,7 @@
             <th class="p-3 text-xs font-medium tracking-wide text-left">
               Legal Name
             </th>
-            <th class="p-3 text-xs font-medium tracking-wide text-left">
-              Place
-            </th>
+
             <th class="w-30 p-3 text-xs font-medium tracking-wide text-left">
               Actions
             </th>
@@ -488,9 +494,7 @@
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.legal_name }}
             </td>
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-              {{ r.place }}
-            </td>
+
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">
                 <button
@@ -502,6 +506,7 @@
 
                 <button
                   @click="editModalOpenHandler(r.id)"
+                  v-if="!authStore.isAgent"
                   class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                 >
                   <PencilSquareIcon class="w-5 h-5" />

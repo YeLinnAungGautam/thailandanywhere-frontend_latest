@@ -44,10 +44,11 @@
               v-if="
                 authStore.isSuperAdmin ||
                 authStore.isCashier ||
-                authStore.isAdmin
+                authStore.isAdmin ||
+                authStore.isAgent
               "
               :icon="CalendarIcon"
-              to="/bookings"
+              to="/bookings/%25/%25/%25"
               :activePaths="[
                 'bookings',
                 'bookings_create',
@@ -58,7 +59,7 @@
             <SidebarItem
               name="Reservation"
               :icon="DocumentCheckIcon"
-              to="/reservation"
+              to="/reservation/%25/%25/%25"
               :activePaths="[
                 'reservation',
                 'reservationupdate',
@@ -87,18 +88,21 @@
               to="/products/page"
             />
             <SidebarItem
+              v-if="!authStore.isAgent"
               name="Database"
               :icon="CircleStackIcon"
               to="/database"
             />
             <SidebarItem
               name="Blogs"
+              v-if="!authStore.isAgent"
               :icon="DocumentTextIcon"
               to="/blogs"
               :activePaths="['new_blog']"
             />
             <SidebarItem
               name="Customers"
+              v-if="!authStore.isAgent"
               :icon="UsersIcon"
               to="/customers"
               :activePaths="['customers', 'customerscreate', 'customersupdate']"
@@ -143,10 +147,16 @@
             >
               <SidebarItem
                 name="Partners"
+                v-if="!authStore.isAgent"
                 :icon="UserGroupIcon"
                 to="/partners"
               />
-              <SidebarItem name="Expenses" :icon="WalletIcon" to="/expenses" />
+              <SidebarItem
+                name="Expenses"
+                v-if="!authStore.isAgent"
+                :icon="WalletIcon"
+                to="/expenses"
+              />
               <SidebarItem
                 name="Calendar"
                 :icon="CalendarDaysIcon"

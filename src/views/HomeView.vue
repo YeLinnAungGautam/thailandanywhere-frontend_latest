@@ -348,15 +348,19 @@ const monthForGraph = ref("");
 
 const currentMonth = () => {
   const currentDate = new Date();
+  hotelSaleDate.value = dateFormat(currentDate);
   const year = currentDate.getFullYear();
   const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
 
   monthForGraph.value = `${year}-${month}`;
 };
 
-const getHotelMostSelling = async () => {
-  const res = await homeStore.getHotelMostSell();
+const hotelSaleDate = ref("");
+const hotelCondition = ref(false);
+const getHotelMostSelling = async (a) => {
+  const res = await homeStore.getHotelMostSell({ service_date: a });
   console.log(res, "this is hotel");
+  hotelCondition.value = res.result.length == 0 ? true : false;
   dataPie.items.splice(0);
   dataPieQ.items.splice(0);
   for (let i = 0; i < res.result.length; i++) {
@@ -377,11 +381,15 @@ onMounted(async () => {
   }
   // getSaleAgentData();
   currentMonth();
-  getHotelMostSelling();
+  // console.log(hotelSaleDate.value, "this is current date");
+  getHotelMostSelling(hotelSaleDate.value);
 });
 
 watch(monthForGraph, async (newValue) => {
   getAllDays(monthForGraph.value);
+});
+watch(hotelSaleDate, async (newValue) => {
+  getHotelMostSelling(hotelSaleDate.value);
 });
 </script>
 
@@ -515,13 +523,13 @@ watch(monthForGraph, async (newValue) => {
             Reservations
           </h3>
         </div>
-        <div class="flex justify-start items-center gap-4 mb-3">
+        <div class="grid grid-cols-2 gap-4 mb-3">
           <div class="space-y-1">
             <p class="text-xs">Payment Status</p>
             <select
               name=""
               id=""
-              class="bg-white border border-gray-100 rounded-sm w-40 px-2 py-1 text-xs"
+              class="bg-white border border-gray-100 rounded-sm w-full px-2 py-1 text-xs"
             >
               <option value="">confirm</option>
             </select>
@@ -531,7 +539,7 @@ watch(monthForGraph, async (newValue) => {
             <select
               name=""
               id=""
-              class="bg-white border border-gray-100 rounded-sm w-40 px-2 py-1 text-xs"
+              class="bg-white border border-gray-100 rounded-sm w-full px-2 py-1 text-xs"
             >
               <option value="">confirm</option>
             </select>
@@ -603,13 +611,41 @@ watch(monthForGraph, async (newValue) => {
             <LineChart :chartData="saleData" v-if="priceSalesGraph" />
             <LineChart :chartData="saleDataAgent" v-if="!priceSalesGraph" />
           </div>
-          <div
-            class="bg-white/60 col-span-3 px-6 py-4 rounded-md shadow-lg backdrop-blur-lg backdrop-filter"
-          >
-            <p class="text-gray-600 mb-3 font-medium tracking-wide">
-              Most selling Hotels
-            </p>
-            <PieChart :chartData="hotelPieData" />
+          <div class="bg-white/10 col-span-3">
+            <div class="grid grid-cols-2 gap-6">
+              <div
+                class="py-6 rounded-md shadow-lg backdrop-blur-lg backdrop-filter px-3 bg-white/60"
+              >
+                <div class="flex justify-between items-center">
+                  <p class="text-gray-600 mb-3 font-medium tracking-wide">
+                    Most selling Hotels
+                  </p>
+                  <input
+                    type="date"
+                    v-model="hotelSaleDate"
+                    name=""
+                    class="bg-white text-sm w-[200px] px-2 py-2"
+                    id=""
+                  />
+                </div>
+                <PieChart :chartData="hotelPieData" v-if="!hotelCondition" />
+                <div v-if="hotelCondition" class="">
+                  <p
+                    class="w-full text-red-600 h-72 flex justify-center items-center"
+                  >
+                    Empty hotel booking
+                  </p>
+                </div>
+              </div>
+              <!-- <div
+                class="py-6 rounded-md shadow-lg backdrop-blur-lg backdrop-filter px-3 bg-white/60"
+              >
+                <p class="text-gray-600 mb-3 font-medium tracking-wide">
+                  Most selling Hotels
+                </p>
+                <PieChart :chartData="hotelPieData" />
+              </div> -->
+            </div>
           </div>
         </div>
       </div>

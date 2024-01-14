@@ -19,6 +19,18 @@
         </DialogTitle>
         <form @submit.prevent="onSubmitHandler" class="mt-2">
           <div class="mb-2 space-y-1">
+            <label for="price" class="text-sm text-gray-800">Ticket Name</label>
+            <input
+              type="text"
+              v-model="formData.price_name"
+              id="price"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.price" class="mt-1 text-sm text-red-600">
+              {{ errors.price[0] }}
+            </p>
+          </div>
+          <div class="mb-2 space-y-1">
             <label for="name" class="text-sm text-gray-800"
               >Attraction Name</label
             >
@@ -31,18 +43,6 @@
               :reduce="(entrance) => entrance.id"
               placeholder="Choose entrance"
             ></v-select>
-          </div>
-          <div class="mb-2 space-y-1">
-            <label for="price" class="text-sm text-gray-800">Ticket Name</label>
-            <input
-              type="text"
-              v-model="formData.price_name"
-              id="price"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.price" class="mt-1 text-sm text-red-600">
-              {{ errors.price[0] }}
-            </p>
           </div>
           <div class="mb-2 space-y-1">
             <label for="price" class="text-sm text-gray-800">Price</label>
@@ -69,6 +69,18 @@
             </p>
           </div>
           <div class="mb-2 space-y-1">
+            <label for="price" class="text-sm text-gray-800">Agent Price</label>
+            <input
+              type="number"
+              v-model="formData.agent_price"
+              id="agent_price"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.agent_price" class="mt-1 text-sm text-red-600">
+              {{ errors.agent_price[0] }}
+            </p>
+          </div>
+          <div class="mb-2 space-y-1">
             <label for="description" class="text-sm text-gray-800"
               >Description</label
             >
@@ -90,7 +102,7 @@
             >
               close
             </p>
-            <Button type="submit"> Submit </Button>
+            <Button type="submit" v-if="!authStore.isAgent"> Submit </Button>
           </div>
         </form>
       </DialogPanel>
@@ -121,7 +133,11 @@
 
       <div class="space-x-3">
         <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
-        <Button :leftIcon="PlusIcon" @click.prevent="openModal()">
+        <Button
+          :leftIcon="PlusIcon"
+          @click.prevent="openModal()"
+          v-if="!authStore.isAgent"
+        >
           Create
         </Button>
       </div>
@@ -137,11 +153,20 @@
               Price Name
             </th>
 
-            <th class="p-3 text-xs font-medium tracking-wide text-left">
+            <th
+              class="p-3 text-xs font-medium tracking-wide text-left"
+              v-if="!authStore.isAgent"
+            >
               Price
             </th>
-            <th class="p-3 text-xs font-medium tracking-wide text-left">
+            <th
+              class="p-3 text-xs font-medium tracking-wide text-left"
+              v-if="!authStore.isAgent"
+            >
               Cost Price
+            </th>
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
+              Agent Price
             </th>
             <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
               Actions
@@ -161,11 +186,20 @@
               {{ r.name }}
             </td>
 
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+            <td
+              class="p-3 text-xs text-gray-700 whitespace-nowrap"
+              v-if="!authStore.isAgent"
+            >
               {{ r.price }}
             </td>
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+            <td
+              class="p-3 text-xs text-gray-700 whitespace-nowrap"
+              v-if="!authStore.isAgent"
+            >
               {{ r.cost_price }}
+            </td>
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              {{ r.agent_price }}
             </td>
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">
@@ -173,7 +207,8 @@
                   @click.prevent="editModalOpenHandler(r)"
                   class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                 >
-                  <PencilSquareIcon class="w-5 h-5" />
+                  <PencilSquareIcon class="w-5 h-5" v-if="!authStore.isAgent" />
+                  <EyeIcon class="w-5 h-5" v-if="authStore.isAgent" />
                 </button>
 
                 <button
@@ -240,6 +275,7 @@ const openModal = () => {
     price: "",
     price_name: "",
     cost_price: "",
+    agent_price: "",
     description: "",
   };
 };
@@ -248,6 +284,7 @@ const formData = ref({
   id: "",
   entrance_ticket_id: "",
   cost_price: "",
+  agent_price: "",
   price_name: "",
   price: "",
   description: "",
@@ -260,6 +297,7 @@ const addNewHandler = async () => {
   frmData.append("description", formData.value.description);
   frmData.append("price", formData.value.price);
   frmData.append("cost_price", formData.value.cost_price);
+  frmData.append("agent_price", formData.value.agent_price);
   frmData.append("name", formData.value.price_name);
 
   try {
@@ -268,13 +306,17 @@ const addNewHandler = async () => {
       id: "",
       entrance_ticket_id: "",
       cost_price: "",
+      agent_price: "",
       price_name: "",
       price: "",
       description: "",
     };
     errors.value = null;
     createModalOpen.value = false;
-    await variationStore.getListAction();
+    await variationStore.getListAction({
+      search: search.value,
+      entrance_ticket_id: entrance_ticket_id.value,
+    });
     toast.success(response.message);
   } catch (error) {
     if (error.response.data.errors) {
@@ -290,6 +332,7 @@ const updateHandler = async () => {
   frmData.append("description", formData.value.description);
   frmData.append("price", formData.value.price);
   frmData.append("cost_price", formData.value.cost_price);
+  frmData.append("agent_price", formData.value.agent_price);
   frmData.append("name", formData.value.price_name);
 
   frmData.append("_method", "PUT");
@@ -302,13 +345,17 @@ const updateHandler = async () => {
       id: "",
       entrance_ticket_id: "",
       cost_price: "",
+      agent_price: "",
       price_name: "",
       price: "",
       description: "",
     };
     errors.value = null;
     createModalOpen.value = false;
-    await variationStore.getListAction();
+    await variationStore.getListAction({
+      search: search.value,
+      entrance_ticket_id: entrance_ticket_id.value,
+    });
     toast.success(response.message);
   } catch (error) {
     if (error.response.data.errors) {
@@ -330,6 +377,7 @@ const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.entrance_ticket_id = data.entrance_ticket.id;
   formData.value.cost_price = data.cost_price;
+  formData.value.agent_price = data.agent_price;
   formData.value.price_name = data.name;
   formData.value.price = data.price;
   formData.value.description = data.description;
@@ -373,7 +421,10 @@ const onDeleteHandler = async (id) => {
 const entList = ref({});
 const entrance_ticket_id = ref("");
 onMounted(async () => {
-  await variationStore.getListAction();
+  await variationStore.getListAction({
+    search: search.value,
+    entrance_ticket_id: entrance_ticket_id.value,
+  });
   await entranceStore.getSimpleListAction();
   entList.value = entrances.value.data;
   console.log(entList.value, "this is res arr");

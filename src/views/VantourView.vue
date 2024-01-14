@@ -14,6 +14,7 @@ import { useProductStore } from "../stores/product";
 import { useDestinationStore } from "../stores/destination";
 import { useCarStore } from "../stores/car";
 import { useVantourStore } from "../stores/vantour";
+import { useAuthStore } from "../stores/auth";
 
 const toast = useToast();
 const router = useRouter();
@@ -23,6 +24,7 @@ const productStore = useProductStore();
 const destinationStore = useDestinationStore();
 const carStore = useCarStore();
 const vantourStore = useVantourStore();
+const authStore = useAuthStore();
 
 const { cities } = storeToRefs(cityStore);
 const { tags } = storeToRefs(productStore);
@@ -368,7 +370,7 @@ onMounted(async () => {
                     placeholder="Choose car type"
                   ></v-select>
                 </div>
-                <div class="flex-1">
+                <div class="flex-1" v-if="!authStore.isAgent">
                   <input
                     v-model="formPrice.price"
                     type="text"
@@ -412,7 +414,7 @@ onMounted(async () => {
                     placeholder="Choose car type"
                   ></v-select>
                 </div>
-                <div class="flex-1">
+                <div class="flex-1" v-if="!authStore.isAgent">
                   <input
                     v-model="price.price"
                     type="text"

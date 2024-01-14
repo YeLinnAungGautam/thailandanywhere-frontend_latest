@@ -209,7 +209,9 @@
             >
               close
             </p>
-            <Button type="submit" v-if="!loading"> Submit </Button>
+            <Button type="submit" v-if="!loading && !authStore.isAgent">
+              Submit
+            </Button>
             <Button type="button" class="bg-gray-300" v-if="loading">
               Submit
             </Button>
@@ -234,7 +236,11 @@
       </div>
       <div class="space-x-3">
         <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
-        <Button :leftIcon="PlusIcon" @click.prevent="openCreate()">
+        <Button
+          :leftIcon="PlusIcon"
+          @click.prevent="openCreate()"
+          v-if="!authStore.isAgent"
+        >
           Create
         </Button>
       </div>
@@ -284,7 +290,8 @@
                   @click.prevent="editModalOpenHandler(r)"
                   class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                 >
-                  <PencilSquareIcon class="w-5 h-5" />
+                  <PencilSquareIcon class="w-5 h-5" v-if="!authStore.isAgent" />
+                  <EyeIcon class="w-5 h-5" v-if="authStore.isAgent" />
                 </button>
                 <!-- v-if="authStore.isSuperAdmin" -->
                 <button

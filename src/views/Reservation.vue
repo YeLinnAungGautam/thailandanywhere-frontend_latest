@@ -23,7 +23,7 @@ import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import { computed, onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useReservationStore } from "../stores/reservation";
 import { useAdminStore } from "../stores/admin";
 import { storeToRefs } from "pinia";
@@ -32,6 +32,7 @@ import { useHotelStore } from "../stores/hotel";
 import { useEntranceStore } from "../stores/entrance";
 
 const router = useRouter();
+const route = useRoute();
 const toast = useToast();
 const reservationStore = useReservationStore();
 const adminStore = useAdminStore();
@@ -157,12 +158,28 @@ const private_van_handle = () => {
   private_van_tour_show.value = true;
 };
 
+const searchFunction = () => {
+  router.push({
+    name: `reservation`,
+    params: {
+      crm_id: searchId.value ? searchId.value : "%",
+      product_type: search.value ? search.value : "%",
+      service_date: searchTime.value ? searchTime.value : "%",
+    },
+  });
+};
+
 onMounted(async () => {
+  console.log(entrances.value, "this is hotel list");
+  searchId.value = route.params.crm_id == "%" ? "" : route.params.crm_id;
+  search.value =
+    route.params.product_type == "%" ? "" : route.params.product_type;
+  searchTime.value =
+    route.params.service_date == "%" ? "" : route.params.service_date;
   await reservationStore.getListAction(watchSystem.value);
   await adminStore.getSimpleListAction();
   await hotelStore.getSimpleListAction();
   await entranceStore.getSimpleListAction();
-  console.log(entrances.value, "this is hotel list");
 });
 
 const watchSystem = computed(() => {
@@ -223,6 +240,7 @@ const watchSystem = computed(() => {
 
 watch(search, async (newValue) => {
   showFilter.value = true;
+  searchFunction();
   await reservationStore.getListAction(watchSystem.value);
 });
 watch(hotel_name, async (newValue) => {
@@ -255,6 +273,7 @@ watch(limit, async (newValue) => {
 });
 watch(searchId, async (newValue) => {
   showFilter.value = true;
+  searchFunction();
   await reservationStore.getListAction(watchSystem.value);
 });
 watch(searchA, async (newValue) => {
@@ -271,6 +290,7 @@ watch(searchReservation, async (newValue) => {
 });
 watch(searchTime, async (newValue) => {
   showFilter.value = true;
+  searchFunction();
   await reservationStore.getListAction(watchSystem.value);
 });
 </script>
@@ -680,16 +700,7 @@ watch(searchTime, async (newValue) => {
               class="p-3 mt-2 text-xs text-center bg-white divide-y divide-gray-100 text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden flex justify-end items-center"
             >
               <p class="mr-6">{{ d.service_date }}</p>
-              <router-link
-                :to="
-                  '/reservation/update/' +
-                  d.id +
-                  '/' +
-                  d.crm_id +
-                  '/' +
-                  d.booking?.past_crm_id
-                "
-              >
+              <router-link :to="'/reservation/update/' + d.id + '/' + d.crm_id">
                 <button
                   class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                 >

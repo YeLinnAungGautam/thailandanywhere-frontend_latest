@@ -32,8 +32,6 @@ export const useBookingStore = defineStore("booking", {
       return response.data;
     },
     async getListAction(params) {
-      console.log(params, "this is params");
-
       try {
         this.loading = true;
 

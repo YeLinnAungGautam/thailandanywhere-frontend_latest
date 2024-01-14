@@ -552,40 +552,26 @@ const onSubmitHandler = async () => {
 
   if (enabledIn.value) {
     frmData.append("is_inclusive", enabledIn.value ? "1" : "0");
-    formData.value.inclusive_name
-      ? frmData.append("inclusive_name", formData.value.inclusive_name)
-      : "";
-    formData.value.inclusive_quantity
-      ? frmData.append("inclusive_quantity", formData.value.inclusive_quantity)
-      : "";
-    formData.value.inclusive_rate
-      ? frmData.append("inclusive_rate", formData.value.inclusive_rate)
-      : "";
-    formData.value.inclusive_start_date
-      ? frmData.append(
-          "inclusive_start_date",
-          formData.value.inclusive_start_date
-        )
-      : "";
-    formData.value.inclusive_end_date
-      ? frmData.append("inclusive_end_date", formData.value.inclusive_end_date)
-      : "";
+    formData.value.inclusive_name &&
+      frmData.append("inclusive_name", formData.value.inclusive_name);
+    formData.value.inclusive_quantity &&
+      frmData.append("inclusive_quantity", formData.value.inclusive_quantity);
+    formData.value.inclusive_rate &&
+      frmData.append("inclusive_rate", formData.value.inclusive_rate);
+    formData.value.inclusive_start_date &&
+      frmData.append(
+        "inclusive_start_date",
+        formData.value.inclusive_start_date
+      );
+    formData.value.inclusive_end_date &&
+      frmData.append("inclusive_end_date", formData.value.inclusive_end_date);
   }
 
-  // if (enabled.value = true) {
-  //   frmData.append("is_past_info", "1");
-  //   frmData.append("past_user_id", formData.value.past_user_id);
-  //   frmData.append("past_crm_id", formData.value.past_crm_id);
-  // } else {
-  //   frmData.append("is_past_info", "0");
-  // }
   frmData.append("is_past_info", enabled.value ? "1" : "0");
-  formData.value.past_crm_id
-    ? frmData.append("past_crm_id", formData.value.past_crm_id)
-    : "";
-  formData.value.past_user_id
-    ? frmData.append("past_user_id", formData.value.past_user_id)
-    : "";
+  formData.value.past_crm_id &&
+    frmData.append("past_crm_id", formData.value.past_crm_id);
+  formData.value.past_user_id &&
+    frmData.append("past_user_id", formData.value.past_user_id);
 
   frmData.append("payment_status", formData.value.payment_status);
   frmData.append("booking_date", formData.value.booking_date);
@@ -601,11 +587,6 @@ const onSubmitHandler = async () => {
     frmData.append("discount", percentageValue.value);
   }
 
-  // frmData.append(
-  //   "discount",
-  //   formData.value.discount == "" ? 0 : percentageValue.value
-  // );
-  // frmData.append("comment", formData.value.comment);
   frmData.append("sub_total", sub_total.value);
   frmData.append("grand_total", grand_total.value);
   frmData.append("deposit", formData.value.deposit);
@@ -613,7 +594,6 @@ const onSubmitHandler = async () => {
   frmData.append("balance_due", balance_due.value);
   frmData.append("balance_due_date", formData.value.balance_due_date);
 
-  // frmData.append("receipt_image", formData.value.receipt_image);
   if (formData.value.confirmation_letter.length > 0) {
     for (let i = 0; i < formData.value.confirmation_letter.length; i++) {
       let file = formData.value.confirmation_letter[i];
@@ -688,19 +668,11 @@ const onSubmitHandler = async () => {
       );
     }
 
-    formData.value.items[x].pickup_location
-      ? frmData.append(
-          "items[" + x + "][pickup_location]",
-          formData.value.items[x].pickup_location
-        )
-      : "";
-
-    // formData.value.items[x].cost_price
-    //   ? frmData.append(
-    //       "items[" + x + "][cost_price]",
-    //       formData.value.items[x].cost_price
-    //     )
-    //   : "";
+    formData.value.items[x].pickup_location &&
+      frmData.append(
+        "items[" + x + "][pickup_location]",
+        formData.value.items[x].pickup_location
+      );
 
     if (formData.value.items[x].pickup_time) {
       frmData.append(
@@ -790,9 +762,8 @@ const onSubmitHandler = async () => {
       "items[" + x + "][quantity]",
       formData.value.items[x].quantity
     );
-    formData.value.days
-      ? frmData.append("items[" + x + "][days]", formData.value.items[x].days)
-      : "";
+    formData.value.days &&
+      frmData.append("items[" + x + "][days]", formData.value.items[x].days);
     if (formData.value.items[x].duration) {
       frmData.append(
         "items[" + x + "][duration]",
@@ -805,41 +776,44 @@ const onSubmitHandler = async () => {
         formData.value.items[x].special_request
       );
     }
-    frmData.append(
-      "items[" + x + "][selling_price]",
-      formData.value.items[x].selling_price
-    );
+    if (formData.value.items[x].selling_price) {
+      frmData.append(
+        "items[" + x + "][selling_price]",
+        formData.value.items[x].selling_price
+      );
+    }
     if (formData.value.items[x].comment) {
       frmData.append(
         "items[" + x + "][comment]",
         formData.value.items[x].comment
       );
     }
-    // console.log(formData.value.items[x].comment, "this is comment");
-    frmData.append(
-      "items[" + x + "][reservation_status]",
-      formData.value.items[x].reservation_status
+
+    formData.value.items[x].reservation_status ?
+      frmData.append(
+        "items[" + x + "][reservation_status]",
+        formData.value.items[x].reservation_status
+      ) : frmData.append(
+      "items[" + x + "][reservation_status]", null
     );
     frmData.append(
       "items[" + x + "][payment_method]",
       formData.value.items[x].payment_method
     );
-    formData.value.items[x].payment_status
-      ? frmData.append(
-          "items[" + x + "][payment_status]",
-          formData.value.items[x].payment_status
-        )
-      : "";
+    formData.value.items[x].payment_status &&
+      frmData.append(
+        "items[" + x + "][payment_status]",
+        formData.value.items[x].payment_status
+      );
     // frmData.append(
     //   "items[" + x + "][exchange_rate]",
     //   formData.value.items[x].exchange_rate
     // );
-    formData.value.items[x].exchange_rate
-      ? frmData.append(
-          "items[" + x + "][exchange_rate]",
-          formData.value.items[x].exchange_rate
-        )
-      : "";
+    formData.value.items[x].exchange_rate &&
+      frmData.append(
+        "items[" + x + "][exchange_rate]",
+        formData.value.items[x].exchange_rate
+      );
   }
 
   try {

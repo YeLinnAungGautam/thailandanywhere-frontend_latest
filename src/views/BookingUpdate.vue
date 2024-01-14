@@ -469,24 +469,19 @@ const onSubmitHandler = async () => {
   // }
   if (enabledIn.value) {
     frmData.append("is_inclusive", enabledIn.value ? "1" : "0");
-    formData.value.inclusive_name
-      ? frmData.append("inclusive_name", formData.value.inclusive_name)
-      : "";
-    formData.value.inclusive_quantity
-      ? frmData.append("inclusive_quantity", formData.value.inclusive_quantity)
-      : "";
-    formData.value.inclusive_rate
-      ? frmData.append("inclusive_rate", formData.value.inclusive_rate)
-      : "";
-    formData.value.inclusive_start_date
-      ? frmData.append(
-          "inclusive_start_date",
-          formData.value.inclusive_start_date
-        )
-      : "";
-    formData.value.inclusive_end_date
-      ? frmData.append("inclusive_end_date", formData.value.inclusive_end_date)
-      : "";
+    formData.value.inclusive_name &&
+      frmData.append("inclusive_name", formData.value.inclusive_name);
+    formData.value.inclusive_quantity &&
+      frmData.append("inclusive_quantity", formData.value.inclusive_quantity);
+    formData.value.inclusive_rate &&
+      frmData.append("inclusive_rate", formData.value.inclusive_rate);
+    formData.value.inclusive_start_date &&
+      frmData.append(
+        "inclusive_start_date",
+        formData.value.inclusive_start_date
+      );
+    formData.value.inclusive_end_date &&
+      frmData.append("inclusive_end_date", formData.value.inclusive_end_date);
   }
 
   frmData.append("payment_status", formData.value.payment_status);
@@ -500,7 +495,7 @@ const onSubmitHandler = async () => {
   } else {
     frmData.append("discount", percentageValue.value);
   }
-  frmData.append("comment", formData.value.comment);
+  formData.value.comment && frmData.append("comment", formData.value.comment);
   // frmData.append("receipt_image", formData.value.receipt_image);
   frmData.append("sub_total", sub_total.value);
   frmData.append("grand_total", grand_total.value);
@@ -607,69 +602,76 @@ const onSubmitHandler = async () => {
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     if (
-      formData.value.items[x].product_type == "7" &&
-      !formData.value.items[x].ticket_id
+      formData.value.items[x].product_type == "7" ||
+      formData.value.items[x].product_type == "App\\Models\\Airline"
     ) {
-      frmData.append(
-        "items[" + x + "][ticket_id]",
-        formData.value.items[x].car_id
-      );
+      if (
+        !formData.value.items[x].ticket_id ||
+        formData.value.items[x].ticket_id == ""
+      ) {
+        frmData.append(
+          "items[" + x + "][ticket_id]",
+          formData.value.items[x].car_id
+        );
+      } else {
+        frmData.append(
+          "items[" + x + "][ticket_id]",
+          formData.value.items[x].ticket_id
+        );
+      }
     } else if (
-      formData.value.items[x].product_type == "6" &&
-      !formData.value.items[x].room_id
+      formData.value.items[x].product_type == "6" ||
+      formData.value.items[x].product_type == "App\\Models\\Hotel"
     ) {
-      frmData.append(
-        "items[" + x + "][room_id]",
-        formData.value.items[x].car_id
-      );
+      if (!formData.value.items[x].room_id) {
+        frmData.append(
+          "items[" + x + "][room_id]",
+          formData.value.items[x].car_id
+        );
+      } else {
+        frmData.append(
+          "items[" + x + "][room_id]",
+          formData.value.items[x].room_id
+        );
+      }
     } else if (
-      formData.value.items[x].room_id != "" &&
-      formData.value.items[x].room_name != "" &&
-      formData.value.items[x].product_type != "5" &&
-      formData.value.items[x].product_type != "4" &&
-      formData.value.items[x].product_type != "3" &&
-      formData.value.items[x].product_type != "2" &&
-      formData.value.items[x].product_type != "1"
+      formData.value.items[x].product_type == "4" ||
+      formData.value.items[x].product_type == "App\\Models\\EntranceTicket"
     ) {
-      frmData.append(
-        "items[" + x + "][room_id]",
-        formData.value.items[x].room_id
-      );
+      if (!formData.value.items[x].variation_id) {
+        frmData.append(
+          "items[" + x + "][variation_id]",
+          formData.value.items[x].car_id
+        );
+      } else {
+        frmData.append(
+          "items[" + x + "][variation_id]",
+          formData.value.items[x].car_id
+        );
+      }
     } else if (
-      formData.value.items[x].product_type != "4" &&
-      !formData.value.items[x].variation_id
+      formData.value.items[x].product_type == "2" ||
+      formData.value.items[x].product_type == "App\\Models\\GroupTour"
     ) {
       frmData.append(
         "items[" + x + "][car_id]",
         formData.value.items[x].car_id
       );
-    } else if (formData.value.items[x].product_type == "5") {
-      // frmData.append("items[" + x + "][car_id]", "0");
-      if (formData.value.items[x].car_id) {
-        frmData.append(
-          "items[" + x + "][car_id]",
-          formData.value.items[x].car_id
-        );
-      }
-    } else if (formData.value.items[x].product_type == "2") {
-      if (formData.value.items[x].car_id) {
+    } else if (
+      formData.value.items[x].product_type == "1" ||
+      formData.value.items[x].product_type == "App\\Models\\PrivateVanTour"
+    ) {
+      if (!formData.value.items[x].car_id) {
         frmData.append(
           "items[" + x + "][car_id]",
           formData.value.items[x].car_id
         );
       } else {
-        frmData.append("items[" + x + "][car_id]", 0);
+        frmData.append(
+          "items[" + x + "][car_id]",
+          formData.value.items[x].car_id
+        );
       }
-    } else if (formData.value.items[x].product_type == "4") {
-      frmData.append(
-        "items[" + x + "][variation_id]",
-        formData.value.items[x].car_id
-      );
-    } else if (formData.value.items[x].variation_id != "") {
-      frmData.append(
-        "items[" + x + "][variation_id]",
-        formData.value.items[x].variation_id
-      );
     }
   }
 
@@ -684,67 +686,54 @@ const onSubmitHandler = async () => {
       "items[" + x + "][quantity]",
       formData.value.items[x].quantity
     );
-    // formData.value.items[x].cost_price
-    //   ? frmData.append(
-    //       "items[" + x + "][cost_price]",
-    //       formData.value.items[x].cost_price
-    //     )
-    //   : "";
   }
   for (var x = 0; x < formData.value.items.length; x++) {
-    formData.value.items[x].days
-      ? frmData.append("items[" + x + "][days]", formData.value.items[x].days)
-      : "";
+    formData.value.items[x].days &&
+      frmData.append("items[" + x + "][days]", formData.value.items[x].days);
   }
   for (var x = 0; x < formData.value.items.length; x++) {
-    formData.value.items[x].pickup_location
-      ? frmData.append(
-          "items[" + x + "][pickup_location]",
-          formData.value.items[x].pickup_location
-        )
-      : "";
+    formData.value.items[x].pickup_location &&
+      frmData.append(
+        "items[" + x + "][pickup_location]",
+        formData.value.items[x].pickup_location
+      );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
-    formData.value.items[x].checkin_date
-      ? frmData.append(
-          "items[" + x + "][checkin_date]",
-          formData.value.items[x].checkin_date
-        )
-      : "";
+    formData.value.items[x].checkin_date &&
+      frmData.append(
+        "items[" + x + "][checkin_date]",
+        formData.value.items[x].checkin_date
+      );
     formData.value.items[x].reservation_id != ""
       ? frmData.append(
           "items[" + x + "][reservation_id]",
           formData.value.items[x].reservation_id
         )
       : frmData.append("items[" + x + "][reservation_id]", null);
-    formData.value.items[x].room_number
-      ? frmData.append(
-          "items[" + x + "][room_number]",
-          formData.value.items[x].room_number
-        )
-      : "";
-    formData.value.items[x].total_guest
-      ? frmData.append(
-          "items[" + x + "][total_guest]",
-          formData.value.items[x].total_guest
-        )
-      : "";
+    formData.value.items[x].room_number &&
+      frmData.append(
+        "items[" + x + "][room_number]",
+        formData.value.items[x].room_number
+      );
+    formData.value.items[x].total_guest &&
+      frmData.append(
+        "items[" + x + "][total_guest]",
+        formData.value.items[x].total_guest
+      );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
-    formData.value.items[x].checkout_date
-      ? frmData.append(
-          "items[" + x + "][checkout_date]",
-          formData.value.items[x].checkout_date
-        )
-      : "";
+    formData.value.items[x].checkout_date &&
+      frmData.append(
+        "items[" + x + "][checkout_date]",
+        formData.value.items[x].checkout_date
+      );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
-    formData.value.items[x].pickup_time
-      ? frmData.append(
-          "items[" + x + "][pickup_time]",
-          formData.value.items[x].pickup_time
-        )
-      : "";
+    formData.value.items[x].pickup_time &&
+      frmData.append(
+        "items[" + x + "][pickup_time]",
+        formData.value.items[x].pickup_time
+      );
     if (formData.value.items[x].customer_attachment) {
       frmData.append(
         "items[" + x + "][customer_attachment]",
@@ -757,73 +746,69 @@ const onSubmitHandler = async () => {
         formData.value.items[x].is_inclusive
       );
     }
-    formData.value.items[x].dropoff_location
-      ? frmData.append(
-          "items[" + x + "][dropoff_location]",
-          formData.value.items[x].dropoff_location
-        )
-      : "";
-    formData.value.items[x].route_plan
-      ? frmData.append(
-          "items[" + x + "][route_plan]",
-          formData.value.items[x].route_plan
-        )
-      : "";
-    formData.value.items[x].duration
-      ? frmData.append(
-          "items[" + x + "][duration]",
-          formData.value.items[x].duration
-        )
-      : "";
-    formData.value.items[x].special_request
-      ? frmData.append(
-          "items[" + x + "][special_request]",
-          formData.value.items[x].special_request
-        )
-      : "";
-    formData.value.items[x].comment
-      ? frmData.append(
-          "items[" + x + "][comment]",
-          formData.value.items[x].comment
-        )
-      : "";
-    formData.value.items[x].selling_price
-      ? frmData.append(
-          "items[" + x + "][selling_price]",
-          formData.value.items[x].selling_price
-        )
-      : "";
-    formData.value.items[x].exchange_rate
-      ? frmData.append(
-          "items[" + x + "][exchange_rate]",
-          formData.value.items[x].exchange_rate
-        )
-      : "";
-    formData.value.items[x].cost_price
-      ? frmData.append(
-          "items[" + x + "][cost_price]",
-          formData.value.items[x].cost_price
-        )
-      : "";
+    formData.value.items[x].dropoff_location &&
+      frmData.append(
+        "items[" + x + "][dropoff_location]",
+        formData.value.items[x].dropoff_location
+      );
+    formData.value.items[x].route_plan &&
+      frmData.append(
+        "items[" + x + "][route_plan]",
+        formData.value.items[x].route_plan
+      );
+    formData.value.items[x].duration &&
+      frmData.append(
+        "items[" + x + "][duration]",
+        formData.value.items[x].duration
+      );
+    formData.value.items[x].special_request &&
+      frmData.append(
+        "items[" + x + "][special_request]",
+        formData.value.items[x].special_request
+      );
+    formData.value.items[x].comment &&
+      frmData.append(
+        "items[" + x + "][comment]",
+        formData.value.items[x].comment
+      );
+    formData.value.items[x].selling_price &&
+      frmData.append(
+        "items[" + x + "][selling_price]",
+        formData.value.items[x].selling_price
+      );
+    formData.value.items[x].exchange_rate &&
+      frmData.append(
+        "items[" + x + "][exchange_rate]",
+        formData.value.items[x].exchange_rate
+      );
+    formData.value.items[x].cost_price &&
+      frmData.append(
+        "items[" + x + "][cost_price]",
+        formData.value.items[x].cost_price
+      );
   }
 
   for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][reservation_status]",
-      formData.value.items[x].reservation_status
-    );
+    formData.value.items[x].reservation_status
+      ? frmData.append(
+          "items[" + x + "][reservation_status]",
+          formData.value.items[x].reservation_status
+        )
+      : frmData.append("items[" + x + "][reservation_status]", null);
   }
   for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][payment_method]",
-      formData.value.items[x].payment_method
-    );
+    formData.value.items[x].payment_method &&
+      frmData.append(
+        "items[" + x + "][payment_method]",
+        formData.value.items[x].payment_method
+      );
   }
   for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][payment_status]",
-      formData.value.items[x].payment_status
-    );
+    formData.value.items[x].payment_status &&
+      frmData.append(
+        "items[" + x + "][payment_status]",
+        formData.value.items[x].payment_status
+      );
   }
 
   try {
@@ -1101,9 +1086,13 @@ const getDetail = async () => {
         room_id: response.result.items[x].room
           ? response.result.items[x].room.id
           : "",
-        ticket_id: response.result.items[x].product?.tickets
-          ? response.result.items[x].product.tickets[0].id
-          : "",
+
+        ticket_id:
+          response.result.items[x].ticket == null &&
+          response.result.items[x].product_type == "App\\Models\\Airline"
+            ? response.result.items[x].product?.tickets[0]?.id
+            : response.result.items[x].ticket?.id || "",
+        //
         variation_type: checkType(response.result.items[x].product),
         checkin_date: response.result.items[x].checkin_date
           ? response.result.items[x].checkin_date
@@ -1406,8 +1395,13 @@ const chooseSellingPrice = (id, arr, index) => {
   console.log("this is selling price", id, arr, index);
   for (var i = 0; i < arr.length; i++) {
     if (arr[i].id == id) {
-      formData.value.items[index].selling_price = arr[i].price;
-      console.log("hello", formData.value.items[index].selling_price);
+      if (typeof formData.value.items[index].selling_price === "number") {
+        formData.value.items[index].selling_price = arr[i].price;
+      }
+      console.log(
+        typeof formData.value.items[index].selling_price,
+        "this is type"
+      );
     }
   }
 };
@@ -1450,7 +1444,6 @@ const checkCheckout = () => {
 
 onMounted(async () => {
   loadingState.value = true;
-  await getDetail();
   await adminStore.getSimpleListAction();
   await vantourStore.getSimpleListAction();
   await grouptourStore.getSimpleListAction();
@@ -1460,6 +1453,7 @@ onMounted(async () => {
   await airlineStore.getSimpleListAction();
   await customerStore.getSimpleListAction();
   await hotelStore.getSimpleListAction();
+  await getDetail();
   // url.value =
   //   "https://api-blog.thanywhere.com/admin/bookings/" +
   //   route.params.id +
@@ -2677,6 +2671,7 @@ onMounted(async () => {
                               "
                               v-model="item.product_id"
                               class="style-chooser"
+                              disabled
                               :options="grouptours?.data"
                               label="name"
                               :clearable="false"
@@ -2692,6 +2687,7 @@ onMounted(async () => {
                               v-model="item.product_id"
                               class="style-chooser"
                               :options="airports?.data"
+                              disabled
                               label="name"
                               :clearable="false"
                               :reduce="(d) => d.id"
@@ -2705,6 +2701,7 @@ onMounted(async () => {
                               "
                               v-model="item.product_id"
                               class="style-chooser"
+                              disabled
                               :options="entrances?.data"
                               label="name"
                               :clearable="false"
@@ -2718,6 +2715,7 @@ onMounted(async () => {
                               "
                               v-model="item.product_id"
                               class="style-chooser"
+                              disabled
                               :options="inclusives?.data"
                               label="name"
                               :clearable="false"
@@ -2731,6 +2729,7 @@ onMounted(async () => {
                               "
                               v-model="item.product_id"
                               class="style-chooser"
+                              disabled
                               :options="hotels?.data"
                               label="name"
                               :clearable="false"
@@ -2744,6 +2743,7 @@ onMounted(async () => {
                               "
                               v-model="item.product_id"
                               class="style-chooser"
+                              disabled
                               :options="airlines?.data"
                               label="name"
                               :clearable="false"
@@ -2762,17 +2762,11 @@ onMounted(async () => {
                               "
                               v-model="item.car_id"
                               class="style-chooser"
+                              disabled
                               :options="item.car_list"
                               label="name"
                               :clearable="false"
                               :reduce="(d) => d.id"
-                              @option:selected="
-                                chooseSellingPrice(
-                                  item.car_id,
-                                  item.car_list,
-                                  index
-                                )
-                              "
                               placeholder="Choose product type"
                             ></v-select>
                             <v-select
@@ -2783,68 +2777,44 @@ onMounted(async () => {
                               "
                               v-model="item.car_id"
                               class="style-chooser"
+                              disabled
                               :options="item.car_list"
                               label="price"
                               :clearable="false"
                               :reduce="(d) => d.id"
-                              @option:selected="
-                                chooseSellingPrice(
-                                  item.car_id,
-                                  item.car_list,
-                                  index
-                                )
-                              "
                               placeholder="Choose product type"
                             ></v-select>
                             <v-select
                               v-if="item.car_id && item.car_name"
                               v-model="item.car_id"
                               class="style-chooser"
+                              disabled
                               :options="item.variation_type"
                               label="name"
                               :clearable="false"
                               :reduce="(d) => d.id"
-                              @option:selected="
-                                chooseSellingPrice(
-                                  item.car_id,
-                                  item.variation_type,
-                                  index
-                                )
-                              "
                               placeholder="Choose product type"
                             ></v-select>
                             <v-select
                               v-if="item.variation_name"
                               v-model="item.variation_id"
                               class="style-chooser"
+                              disabled
                               :options="item.variation_type"
                               label="name"
                               :clearable="false"
                               :reduce="(d) => d.id"
-                              @option:selected="
-                                chooseSellingPrice(
-                                  item.variation_id,
-                                  item.variation_type,
-                                  index
-                                )
-                              "
                               placeholder="Choose product type"
                             ></v-select>
                             <v-select
                               v-if="item.room_name"
                               v-model="item.room_id"
                               class="style-chooser"
+                              disabled
                               :options="item.variation_type"
                               label="name"
                               :clearable="false"
                               :reduce="(d) => d.id"
-                              @option:selected="
-                                chooseSellingPrice(
-                                  item.room_id,
-                                  item.variation_type,
-                                  index
-                                )
-                              "
                               placeholder="Choose product type"
                             ></v-select>
                             <v-select
@@ -2855,13 +2825,6 @@ onMounted(async () => {
                               label="price"
                               :clearable="false"
                               :reduce="(d) => d.id"
-                              @option:selected="
-                                chooseSellingPrice(
-                                  item.ticket_id,
-                                  item.variation_type,
-                                  index
-                                )
-                              "
                               placeholder="Choose product type"
                             ></v-select>
                             <p

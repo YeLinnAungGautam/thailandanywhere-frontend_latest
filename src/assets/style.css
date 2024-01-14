@@ -15,5 +15,12 @@
       scrollbar-width: none;
       /* Firefox */
     }
+    .style-chooser .vs__dropdown-toggle .vs__selected-options .vs__selected {
+      padding: 4px 5px;
+      border: none;
+      overflow: hidden;
+      width: 120px !important;
+      white-space: nowrap !important;
+    }
   }
 }

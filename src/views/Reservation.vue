@@ -647,6 +647,7 @@ watch(searchTime, async (newValue) => {
                 {{ limitedText(d.variation?.name) }}
               </p>
               <p v-if="d.room?.name">{{ limitedText(d.room?.name) }}</p>
+              <p v-if="d.ticket?.price">{{ limitedText(d.ticket?.price) }}</p>
             </div>
             <div
               class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"

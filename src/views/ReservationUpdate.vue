@@ -447,6 +447,7 @@ const onSubmitHandler = async () => {
       quantity: "",
       car_id: "",
       car_name: "",
+      ticket_name: "",
       receipt_image: [],
       reservation_status: "",
       selling_price: "",
@@ -724,7 +725,13 @@ const getDetail = async () => {
       formData.value.car_id = response.result.car.id;
       formData.value.car_name = response.result.car.name;
     }
-    console.log(formData.value.car_name, "this is car name");
+    if (response.result.ticket == null) {
+      formData.value.ticket_id = "";
+      formData.value.ticket_name = "-";
+    } else if (response.result.ticket != null) {
+      formData.value.ticket_id = response.result.ticket.id;
+      formData.value.ticket_name = response.result.ticket.price;
+    }
     if (response.result.variation == null) {
       formData.value.variation_name = "";
     } else if (response.result.variation != null) {
@@ -1321,6 +1328,7 @@ onMounted(async () => {
                 {{ formData.variation_name }}
                 {{ formData.car_name }}
                 {{ roomName }}
+                {{ formData.ticket_name }}
               </p>
             </div>
 
@@ -1749,6 +1757,12 @@ onMounted(async () => {
                 class="font-semibold text-xs"
                 v-if="formData.product_type == 'App\\Models\\Hotel'"
               ></p>
+              <p
+                class="font-semibold text-xs"
+                v-if="formData.product_type == 'App\\Models\\Airline'"
+              >
+                {{ formData.ticket_name }}
+              </p>
               <p
                 class="font-semibold text-xs"
                 v-if="

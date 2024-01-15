@@ -175,6 +175,20 @@ export const useHomeStore = defineStore("home", {
         return error;
       }
     },
+    async getTimeFilterAdminArray(params) {
+      try {
+        const response = await axios.get(
+          `/general-reports/${params.date}?created_by=${params.created_by}`
+        );
+        // console.log(response, "one day filter");
+
+        // bookings
+        return response.data;
+      } catch (error) {
+        // console.log(error, "this is error");
+        return error;
+      }
+    },
     async getHotelMostSell(params) {
       try {
         const response = await axios.get(`/reports/hotels`, { params });

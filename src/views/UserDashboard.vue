@@ -2,17 +2,65 @@
 import Layout from "./Layout.vue";
 import { useAuthStore } from "../stores/auth";
 import { useDashboardStore } from "../stores/dashboard";
+import { useHomeStore } from "../stores/home";
+import { LineChart } from "vue-chart-3";
 
 import {
   ArchiveBoxIcon,
   CalendarIcon,
   UsersIcon,
 } from "@heroicons/vue/24/outline";
-import { onMounted, ref, watch } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 
 const authStore = useAuthStore();
 const dashboardStore = useDashboardStore();
+const homeStore = useHomeStore();
+
+const dataTest = reactive({ items: [] });
+const dataAmount = reactive({ items: [] });
+const dataAmountLimit = reactive({ items: [] });
+
+const saleData = {
+  labels: dataTest.items,
+  datasets: [
+    {
+      label: "Daily Sale",
+      data: dataAmount.items,
+      backgroundColor: ["#F9FFF6"],
+      borderColor: ["#FF0000"],
+    },
+    {
+      label: "Target",
+      data: dataAmountLimit.items,
+      backgroundColor: ["#F9FFF6"],
+      borderColor: ["#55FF00"],
+    },
+  ],
+};
+
+const chartOptions = {
+  responsive: true,
+  tension: 0.4,
+  maintainAspectRatio: false,
+  scales: {
+    y: {
+      display: false, // Hide y-axis
+    },
+  },
+  plugins: {
+    tooltip: {
+      mode: "index",
+      intersect: false,
+      enabled: false,
+    },
+  },
+  hover: {
+    mode: "index",
+    intersect: false,
+    mode: null,
+  },
+};
 
 const { dashboard, loading, monthlyData } = storeToRefs(dashboardStore);
 
@@ -111,12 +159,48 @@ const getCurrent = () => {
   selectMonth.value = data;
 };
 
+const currentMonth = () => {
+  const currentDate = new Date();
+
+  const year = currentDate.getFullYear();
+  const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+
+  monthForGraph.value = `${year}-${month}`;
+};
+
 // const isPreMonth = ref(false);
+const getAllDays = async (monthGet) => {
+  console.log(monthGet, "this is month");
+  let data = {
+    date: monthGet,
+    created_by: authStore.user.id,
+  };
+  const res = await homeStore.getTimeFilterAdminArray(data);
+  console.log(res, "this is for graph");
+
+  dataAmount.items.splice(0);
+  dataAmountLimit.items.splice(0);
+  dataTest.items.splice(0);
+  for (let x = 0; x < res.result.sales.length; x++) {
+    let dataArr = 0;
+
+    for (let i = 0; i < res.result.sales[x].agents.length; i++) {
+      dataArr += res.result.sales[x].agents[i].total;
+    }
+    dataAmount.items.push(dataArr);
+    dataAmountLimit.items.push(20000);
+    dataTest.items.push(res.result.sales[x].date);
+  }
+};
+
+const monthForGraph = ref("");
 
 onMounted(async () => {
   // await dashboardStore.getAction();
+  currentMonth();
   getCurrent();
   check(dashboard.value?.agents);
+  getAllDays(monthForGraph.value);
 });
 
 watch(selectMonth, async (newValue) => {
@@ -197,6 +281,9 @@ watch(selectMonth, async (newValue) => {
               </p>
             </div>
           </div>
+        </div>
+        <div class="bg-white/60 shadow rounded-md pt-2 pb-6 px-4 my-4">
+          <LineChart :chartData="saleData" :options="chartOptions" />
         </div>
         <div class="grid grid-cols-1 gap-4" v-if="loading">
           <div

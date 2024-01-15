@@ -85,7 +85,7 @@ const searchPayment = [
 ];
 const showFilter = ref(false);
 const customerName = ref("");
-const sale_date_order_by = ref("desc");
+const sale_date_order_by = ref("");
 const balanceDueDate = ref("");
 const bookingStatus = ref("");
 const saleDate = ref("");
@@ -146,6 +146,7 @@ onMounted(async () => {
   customerName.value =
     route.params.customer_name == "%" ? "" : route.params.customer_name;
   saleDate.value = route.params.sale_date == "%" ? "" : route.params.sale_date;
+  sale_date_order_by.value = "desc";
 });
 
 // const searchParam = ref({});

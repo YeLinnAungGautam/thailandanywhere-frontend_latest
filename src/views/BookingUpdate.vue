@@ -646,7 +646,7 @@ const onSubmitHandler = async () => {
       } else {
         frmData.append(
           "items[" + x + "][variation_id]",
-          formData.value.items[x].car_id
+          formData.value.items[x].variation_id
         );
       }
     } else if (
@@ -1077,9 +1077,11 @@ const getDetail = async () => {
         car_name: response.result.items[x].car
           ? response.result.items[x].car.name
           : "",
-        variation_name: response.result.items[x].variation
-          ? response.result.items[x].variation.name
-          : "",
+        variation_name:
+          response.result.items[x].variation &&
+          response.result.items[x].product_type == "App\\Models\\EntranceTicket"
+            ? response.result.items[x].variation.name
+            : "a",
         room_name: response.result.items[x].room
           ? response.result.items[x].room.name
           : "",
@@ -2796,10 +2798,13 @@ onMounted(async () => {
                               placeholder="Choose product type"
                             ></v-select>
                             <v-select
-                              v-if="item.variation_name"
+                              v-if="
+                                item.variation_name &&
+                                item.product_type ==
+                                  'App\\Models\\EntranceTicket'
+                              "
                               v-model="item.variation_id"
                               class="style-chooser"
-                              disabled
                               :options="item.variation_type"
                               label="name"
                               :clearable="false"

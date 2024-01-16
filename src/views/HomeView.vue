@@ -279,6 +279,21 @@ const togglePriceSalesGraph = async () => {
   priceSalesGraph.value = !priceSalesGraph.value;
 };
 
+const hotelPerDay = ref(true);
+const toggleHotalSales = () => {
+  hotelPerDay.value = !hotelPerDay.value;
+  if (hotelPerDay.value) {
+    getHotelMostSelling(hotelSaleDate.value);
+    console.log(hotelSaleDate.value, "this is date for hotel");
+  } else {
+    getHotelMostSelling(onlyMonth(hotelSaleDate.value));
+  }
+};
+
+const onlyMonth = (dateString) => {
+  return dateString.slice(0, 7); // Extracts the substring from index 0 to 6
+};
+
 const dateFormat = (inputDateString) => {
   if (inputDateString != null) {
     const inputDate = new Date(inputDateString);
@@ -382,14 +397,14 @@ onMounted(async () => {
   // getSaleAgentData();
   currentMonth();
   // console.log(hotelSaleDate.value, "this is current date");
-  getHotelMostSelling(hotelSaleDate.value);
+  toggleHotalSales();
 });
 
 watch(monthForGraph, async (newValue) => {
   getAllDays(monthForGraph.value);
 });
 watch(hotelSaleDate, async (newValue) => {
-  getHotelMostSelling(hotelSaleDate.value);
+  toggleHotalSales();
 });
 </script>
 
@@ -617,16 +632,52 @@ watch(hotelSaleDate, async (newValue) => {
                 class="py-6 rounded-md shadow-lg backdrop-blur-lg backdrop-filter px-3 bg-white/60"
               >
                 <div class="flex justify-between items-center">
-                  <p class="text-gray-600 mb-3 font-medium tracking-wide">
+                  <p class="text-gray-600 font-medium tracking-wide">
                     Most selling Hotels
                   </p>
-                  <input
-                    type="date"
-                    v-model="hotelSaleDate"
-                    name=""
-                    class="bg-white text-sm w-[200px] px-2 py-2"
-                    id=""
-                  />
+
+                  <div class="flex justify-center items-center gap-4">
+                    <p class="text-xs font-semibold">By day</p>
+                    <label
+                      v-if="hotelPerDay"
+                      class="relative inline-flex items-center cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        value=""
+                        class="sr-only peer"
+                        @click="toggleHotalSales"
+                      />
+                      <div
+                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
+                      ></div>
+                    </label>
+                    <label
+                      v-if="!hotelPerDay"
+                      class="relative inline-flex items-center cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        value=""
+                        checked
+                        class="sr-only peer"
+                        @click="toggleHotalSales"
+                      />
+                      <div
+                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
+                      ></div>
+                    </label>
+                    <p class="text-xs font-semibold">By Month</p>
+                  </div>
+                  <div class="">
+                    <input
+                      type="date"
+                      v-model="hotelSaleDate"
+                      name=""
+                      class="bg-white text-sm w-[200px] px-2 py-2"
+                      id=""
+                    />
+                  </div>
                 </div>
                 <PieChart :chartData="hotelPieData" v-if="!hotelCondition" />
                 <div v-if="hotelCondition" class="">

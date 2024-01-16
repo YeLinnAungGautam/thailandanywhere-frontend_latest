@@ -789,13 +789,12 @@ const onSubmitHandler = async () => {
       );
     }
 
-    formData.value.items[x].reservation_status ?
-      frmData.append(
-        "items[" + x + "][reservation_status]",
-        formData.value.items[x].reservation_status
-      ) : frmData.append(
-      "items[" + x + "][reservation_status]", null
-    );
+    formData.value.items[x].reservation_status
+      ? frmData.append(
+          "items[" + x + "][reservation_status]",
+          formData.value.items[x].reservation_status
+        )
+      : frmData.append("items[" + x + "][reservation_status]", null);
     frmData.append(
       "items[" + x + "][payment_method]",
       formData.value.items[x].payment_method
@@ -1062,9 +1061,19 @@ const checkCheckout = () => {
   }
 };
 
-// watch(showEntries, async (newValue) => {
-//   await cityStore.getListAction({ limit: showEntries.value });
-// });
+// const onOpenCustomer = async () => {
+//   console.log(customer.value);
+//   let limit = 20;
+//   if (customer.value.meta.total == customer.value.data.length) {
+//     console.log("this is limit");
+//   } else {
+//     console.log("still loading");
+//     limit = customer.value.meta.total;
+//     await customerStore.getSimpleListAction({
+//       limit: limit,
+//     });
+//   }
+// };
 
 onMounted(async () => {
   await customerStore.getSimpleListAction();

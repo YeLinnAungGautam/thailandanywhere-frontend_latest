@@ -174,6 +174,23 @@ const citylist = ref([]);
 const taglist = ref([]);
 const destlist = ref([]);
 const carList = ref([]);
+
+// const limit = ref(10);
+// const onOpen = async () => {
+//   console.log(cities.value);
+//   if (cities.value.meta.total == citylist.value.length) {
+//     console.log("this is limit");
+//   } else {
+//     console.log("still loading");
+//     limit.value = cities.value.meta.total;
+//     await cityStore.getSimpleListAction({
+//       limit: limit.value,
+//     });
+//     citylist.value = cities.value.data;
+//     console.log(citylist.value);
+//   }
+// };
+
 onMounted(async () => {
   await cityStore.getSimpleListAction();
   await productStore.getSimpleListTagAction();
@@ -187,6 +204,7 @@ onMounted(async () => {
   carList.value = cars.value.data;
   console.log(carList.value);
 });
+// @open="onOpen"
 </script>
 
 <template>

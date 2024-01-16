@@ -1444,6 +1444,20 @@ const checkCheckout = () => {
   }
 };
 
+// const onOpenCustomer = async () => {
+//   console.log(customer.value);
+//   let limit = 20;
+//   if (customer.value.meta.total == customer.value.data.length) {
+//     console.log("this is limit");
+//   } else {
+//     console.log("still loading");
+//     limit = customer.value.meta.total;
+//     await customerStore.getSimpleListAction({
+//       limit: limit,
+//     });
+//   }
+// };
+
 onMounted(async () => {
   loadingState.value = true;
   await adminStore.getSimpleListAction();
@@ -1453,7 +1467,7 @@ onMounted(async () => {
   await entranceStore.getSimpleListAction();
   await inclusiveStore.getSimpleListAction();
   await airlineStore.getSimpleListAction();
-  await customerStore.getSimpleListAction();
+  await customerStore.getSimpleListAction({ limit: 20 });
   await hotelStore.getSimpleListAction();
   await getDetail();
   // url.value =

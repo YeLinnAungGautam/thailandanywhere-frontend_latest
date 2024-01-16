@@ -8,7 +8,7 @@ export const useCityStore = defineStore("city", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/cities?limit=1000&page=1");
+        const response = await axios.get(`/cities?limit=1000&page=1`);
         this.cities = response.data.result;
         this.loading = false;
 

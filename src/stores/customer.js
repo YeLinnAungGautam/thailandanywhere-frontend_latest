@@ -8,7 +8,7 @@ export const useCustomerStore = defineStore("customer", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/customers?limit=1000&page=1");
+        const response = await axios.get("/customers?limit=2000&page=1");
         this.customer = response.data.result;
         this.loading = false;
 

@@ -98,46 +98,6 @@ const agentColors = [
   "#00BDFF",
 ];
 
-// const saleDataAgent = {
-//   labels: dataTest.items,
-//   datasets: [
-//     {
-//       label: "Hnin N",
-//       data: saleValueAgent.items,
-//       backgroundColor: ["#FF0000"],
-//     },
-//     {
-//       label: "Ko Nay Myo",
-//       data: saleValueKoNayMyo.items,
-//       backgroundColor: ["#0032FF"],
-//     },
-//     {
-//       label: "Chit Su",
-//       data: saleValueChitSu.items,
-//       backgroundColor: ["#04FF00"],
-//     },
-//     {
-//       label: "Ei Myat",
-//       data: saleValueEiMyat.items,
-//       backgroundColor: ["#00FFF7"],
-//     },
-//     {
-//       label: "Chaw Kalayar",
-//       data: saleValueChaw.items,
-//       backgroundColor: ["#FFE400"],
-//     },
-//   ],
-//   options: {
-//     responsive: true,
-//     maintainAspectRatio: false,
-//     scales: {
-//       y: {
-//         beginAtZero: true,
-//       },
-//     },
-//   },
-// };
-
 const saleDataAgent = {
   labels: [],
   datasets: [],
@@ -164,6 +124,7 @@ const getAllDays = async (monthGet) => {
   saleValueEiMyat.items.splice(0);
   saleValueChaw.items.splice(0);
   dataTest.items.splice(0);
+  priceSalesGraph.value = true;
   for (let x = 0; x < res.result.sales.length; x++) {
     let dataArr = 0;
 
@@ -173,6 +134,8 @@ const getAllDays = async (monthGet) => {
     dataAmount.items.push(dataArr);
     dataTest.items.push(res.result.sales[x].date);
   }
+  saleDataAgent.datasets = [];
+  saleDataAgent.labels = [];
   res.result.sales.forEach((sale) => {
     saleDataAgent.labels.push(sale.date);
     sale.agents.forEach((agent, index) => {

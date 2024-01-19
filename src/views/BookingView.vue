@@ -123,7 +123,7 @@ const clearFilter = () => {
     balanceDueDate.value = "";
     bookingStatus.value = "";
     saleDate.value = "";
-    sale_date_order_by = "desc";
+    sale_date_order_by = "";
   }
   console.log(showFilter.value, "this is showfilter");
 };
@@ -146,7 +146,6 @@ onMounted(async () => {
   customerName.value =
     route.params.customer_name == "%" ? "" : route.params.customer_name;
   saleDate.value = route.params.sale_date == "%" ? "" : route.params.sale_date;
-  sale_date_order_by.value = "desc";
 });
 
 // const searchParam = ref({});

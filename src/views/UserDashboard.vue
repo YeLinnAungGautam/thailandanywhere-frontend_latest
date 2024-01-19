@@ -4,7 +4,7 @@ import { useAuthStore } from "../stores/auth";
 import { useDashboardStore } from "../stores/dashboard";
 import { useHomeStore } from "../stores/home";
 import { LineChart } from "vue-chart-3";
-
+import { Chart, registerables } from "chart.js";
 import {
   ArchiveBoxIcon,
   CalendarIcon,
@@ -12,6 +12,8 @@ import {
 } from "@heroicons/vue/24/outline";
 import { onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
+
+Chart.register(...registerables);
 
 const authStore = useAuthStore();
 const dashboardStore = useDashboardStore();

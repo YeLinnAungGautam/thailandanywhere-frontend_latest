@@ -190,7 +190,7 @@ const getAllDays = async (monthGet) => {
       dataArr += res.result.sales[x].agents[i].total;
     }
     dataAmount.items.push(dataArr);
-    dataAmountLimit.items.push(20000);
+    dataAmountLimit.items.push(authStore.target);
     dataTest.items.push(res.result.sales[x].date);
   }
 };

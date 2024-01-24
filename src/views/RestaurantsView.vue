@@ -54,7 +54,19 @@
               {{ errors.place[0] }}
             </p>
           </div>
-
+          <div class="mb-2 space-y-1">
+            <label for="description" class="text-sm text-gray-800"
+              >Description</label
+            >
+            <textarea
+              v-model="formData.description"
+              id="description"
+              class="w-full h-20 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            ></textarea>
+            <p v-if="errors?.description" class="mt-1 text-sm text-red-600">
+              {{ errors.description[0] }}
+            </p>
+          </div>
           <div>
             <p class="mb-2 text-sm text-gray-800 space-y-1">Bank Name</p>
             <v-select
@@ -366,6 +378,7 @@ const formData = ref({
   bank_account_number: "",
   account_name: "",
   place: "",
+  description: "",
   contract_due: "",
   contracts: [],
   images: [],
@@ -406,6 +419,7 @@ const closeModal = () => {
     bank_account_number: "",
     account_name: "",
     place: "",
+    description: "",
     contract_due: "",
     contracts: [],
     images: [],
@@ -423,6 +437,7 @@ const addNewHandler = async () => {
   frmData.append("city_id", formData.value.city_id);
   frmData.append("account_name", formData.value.account_name);
   frmData.append("place", formData.value.place);
+  frmData.append("description", formData.value.description);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
@@ -458,6 +473,7 @@ const addNewHandler = async () => {
       account_name: "",
       bank_account_number: "",
       place: "",
+      description: "",
       contract_due: "",
       images: [],
       contracts: [],
@@ -489,6 +505,7 @@ const openCreate = () => {
   formData.value.account_name = "";
   formData.value.bank_account_number = "";
   formData.value.place = "";
+  formData.value.description = "";
   formData.value.contract_due = "";
   formData.value.contracts = [];
   linkContract.value = {};
@@ -513,6 +530,7 @@ const updateHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("place", formData.value.place);
+  frmData.append("description", formData.value.description);
   frmData.append("city_id", formData.value.city_id);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
@@ -543,6 +561,7 @@ const updateHandler = async () => {
       name: "",
       city_id: null,
       place: "",
+      description: "",
       id: "",
       payment_method: "",
       bank_name: "",
@@ -588,6 +607,7 @@ const editModalOpenHandler = (data) => {
   formData.value.name = data.name;
   formData.value.city_id = data.city.id;
   formData.value.place = data.place;
+  formData.value.description = data.description;
   formData.value.contract_due = formatDate(data.contract_due);
   formData.value.bank_account_number = data.bank_account_number;
   formData.value.account_name = data.account_name;

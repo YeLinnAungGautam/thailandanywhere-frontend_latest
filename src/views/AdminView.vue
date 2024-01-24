@@ -50,6 +50,7 @@ const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
   formData.value.email = data.email;
+  formData.value.target_amount = data.target_amount;
   formData.value.role = data.role;
   adminModalOpen.value = true;
 };
@@ -88,12 +89,14 @@ const formData = ref({
   password: "",
   password_confirmation: "",
   role: "",
+  target_amount: "",
 });
 
 const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("email", formData.value.email);
+  frmData.append("target_amount", formData.value.target_amount);
   frmData.append("password", formData.value.password);
   frmData.append("password_confirmation", formData.value.password_confirmation);
   frmData.append("role", formData.value.role);
@@ -105,6 +108,7 @@ const addNewHandler = async () => {
       password: "",
       password_confirmation: "",
       role: "",
+      target_amount: "",
     };
     errors.value = null;
     adminModalOpen.value = false;
@@ -122,6 +126,7 @@ const updateHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("email", formData.value.email);
+  frmData.append("target_amount", formData.value.target_amount);
   frmData.append("role", formData.value.role);
   if (formData.value.password && formData.value.password_confirmation) {
     frmData.append("password", formData.value.password);
@@ -136,6 +141,7 @@ const updateHandler = async () => {
     formData.value = {
       name: "",
       email: "",
+      target_amount: "",
       password: "",
       password_confirmation: "",
       id: "",
@@ -254,6 +260,20 @@ watch(search, async (newValue) => {
               :reduce="(d) => d.value"
             ></v-select>
           </div>
+          <div class="mb-2 space-y-1">
+            <label for="email" class="text-sm text-gray-800"
+              >Target Amount</label
+            >
+            <input
+              type="number"
+              v-model="formData.target_amount"
+              id="target_amount"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.target_amount" class="mt-1 text-sm text-red-600">
+              {{ errors.target_amount[0] }}
+            </p>
+          </div>
           <div class="text-end">
             <Button type="submit"> Submit </Button>
           </div>
@@ -314,7 +334,7 @@ watch(search, async (newValue) => {
                 Created At
               </th>
               <th class="p-3 text-xs font-medium tracking-wide text-left">
-                Updated At
+                Target Amount
               </th>
               <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
                 Actions
@@ -343,7 +363,7 @@ watch(search, async (newValue) => {
                 {{ formatDate(r.created_at) }}
               </td>
               <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-                {{ formatDate(r.updated_at) }}
+                {{ r.target_amount ? r.target_amount : "-" }}
               </td>
 
               <td class="p-3 text-xs text-gray-700 whitespace-nowrap">

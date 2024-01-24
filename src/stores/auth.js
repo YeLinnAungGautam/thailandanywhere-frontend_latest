@@ -19,6 +19,9 @@ export const useAuthStore = defineStore("auth", {
     isAgent: (state) => {
       return state.user.role === "agent";
     },
+    target: (state) => {
+      return state.user.target_amount;
+    },
   },
   actions: {
     async login(data) {

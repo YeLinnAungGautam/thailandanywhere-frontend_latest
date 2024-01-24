@@ -86,6 +86,7 @@ const searchPayment = [
 const showFilter = ref(false);
 const customerName = ref("");
 const sale_date_order_by = ref("");
+const inclusive_only = ref(false);
 const balanceDueDate = ref("");
 const bookingStatus = ref("");
 const saleDate = ref("");
@@ -123,7 +124,8 @@ const clearFilter = () => {
     balanceDueDate.value = "";
     bookingStatus.value = "";
     saleDate.value = "";
-    sale_date_order_by = "";
+    sale_date_order_by.value = "";
+    inclusive_only.value = false;
   }
   console.log(showFilter.value, "this is showfilter");
 };
@@ -141,8 +143,9 @@ const SearchFunction = () => {
 
 onMounted(async () => {
   await bookingStore.getListAction(watchSystem.value);
-  // console.log(route.params);
-  search.value = route.params.crm_id == "%" ? "" : route.params.crm_id;
+  (sale_date_order_by.value = "desc"),
+    // console.log(route.params);
+    (search.value = route.params.crm_id == "%" ? "" : route.params.crm_id);
   customerName.value =
     route.params.customer_name == "%" ? "" : route.params.customer_name;
   saleDate.value = route.params.sale_date == "%" ? "" : route.params.sale_date;
@@ -179,6 +182,9 @@ const watchSystem = computed(() => {
   if (sale_date_order_by.value) {
     result.sale_date_order_by = sale_date_order_by.value;
   }
+  if (inclusive_only.value) {
+    result.inclusive_only = inclusive_only.value;
+  }
 
   console.log(result);
   return result;
@@ -194,6 +200,10 @@ watch(searchA, async (newValue) => {
   await bookingStore.getListAction(watchSystem.value);
 });
 watch(sale_date_order_by, async (newValue) => {
+  showFilter.value = true;
+  await bookingStore.getListAction(watchSystem.value);
+});
+watch(inclusive_only, async (newValue) => {
   showFilter.value = true;
   await bookingStore.getListAction(watchSystem.value);
 });
@@ -331,6 +341,19 @@ watch(limit, async (newValue) => {
               <option value="desc">Latest to First</option>
               <option value="asc">First to Latest</option>
             </select>
+          </div>
+          <div class="flex justify-start items-center w-full">
+            <input
+              type="checkbox"
+              name=""
+              value=""
+              class="w-6 h-6 border-2 rounded-md focus:outline-none focus:ring-0"
+              v-model="inclusive_only"
+              id=""
+            />
+            <p class="inline-block ml-2 font-medium text-gray-500">
+              Only Inclusive ?
+            </p>
           </div>
           <div v-show="showFilter" @click="clearFilter">
             <Button :leftIcon="FunnelIcon"> Clear </Button>

@@ -172,6 +172,7 @@ const formData = ref({
   past_crm_id: "",
   is_inclusive: "",
   inclusive_name: "",
+  inclusive_description: "",
   inclusive_quantity: "",
   inclusive_rate: "",
   inclusive_start_date: "",
@@ -554,6 +555,11 @@ const onSubmitHandler = async () => {
     frmData.append("is_inclusive", enabledIn.value ? "1" : "0");
     formData.value.inclusive_name &&
       frmData.append("inclusive_name", formData.value.inclusive_name);
+    formData.value.inclusive_description &&
+      frmData.append(
+        "inclusive_description",
+        formData.value.inclusive_description
+      );
     formData.value.inclusive_quantity &&
       frmData.append("inclusive_quantity", formData.value.inclusive_quantity);
     formData.value.inclusive_rate &&
@@ -836,6 +842,7 @@ const onSubmitHandler = async () => {
       past_crm_id: "",
       is_inclusive: "",
       inclusive_name: "",
+      inclusive_description: "",
       inclusive_quantity: "",
       inclusive_rate: "",
       inclusive_start_date: "",
@@ -1296,7 +1303,7 @@ onMounted(async () => {
             class="col-span-3"
             :class="statePast || stateInclusive ? 'pt-4' : ''"
           >
-            <div class="grid grid-cols-6 gap-4">
+            <div class="grid grid-cols-8 gap-4">
               <div v-if="authStore.isCashier && statePast">
                 <p class="mb-2 text-xs text-[#ff613c]">Past User ID</p>
 
@@ -1367,6 +1374,15 @@ onMounted(async () => {
                   id="title"
                   class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
+              </div>
+              <div v-if="stateInclusive" class="col-span-3">
+                <p class="mb-2 text-xs text-[#ff613c]">Inclusive Description</p>
+
+                <textarea
+                  v-model="formData.inclusive_description"
+                  id="title"
+                  class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                ></textarea>
               </div>
             </div>
           </div>

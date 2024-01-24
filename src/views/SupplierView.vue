@@ -144,13 +144,18 @@
             </p>
           </div>
           <div class="mb-2 space-y-1">
-            <label for="name" class="text-sm text-gray-800">Bank Name</label>
-            <input
-              type="text"
-              v-model="formData.bank_name"
-              id="name"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
+            <div>
+              <p class="mb-2 text-sm text-gray-800 space-y-1">Bank Name</p>
+              <v-select
+                v-model="formData.bank_name"
+                class="style-chooser"
+                :options="bankName ?? []"
+                label="name"
+                :clearable="false"
+                :reduce="(bank) => bank.name"
+                placeholder="Choose Bank"
+              ></v-select>
+            </div>
             <p v-if="errors?.bank_name" class="mt-1 text-sm text-red-600">
               {{ errors.bank_name[0] }}
             </p>
@@ -335,6 +340,34 @@ const closeMethod = () => {
   previewImage.value = null;
   cityModalOpen.value = false;
 };
+const bankName = [
+  { id: "1", name: "K + " },
+  { id: "2", name: "SCB " },
+  { id: "3", name: "Bangkok Bank" },
+  { id: "4", name: "Other Bank " },
+  { id: "5", name: "CIMB Bank " },
+  { id: "6", name: "Krungsri " },
+  { id: "7", name: "Krungthai Bank " },
+  { id: "8", name: "Land and Houses Bank " },
+  { id: "9", name: "Standard Chartered Bank (Thai) " },
+  { id: "10", name: "TMBThanachart " },
+  { id: "11", name: "UOB " },
+  { id: "12", name: "Government Savings Bank " },
+  { id: "13", name: "Kiatnakin Phatra Bank " },
+  { id: "14", name: "Citibank" },
+  { id: "15", name: "Government Housing Bank " },
+  { id: "16", name: "Bank for Agriculture and Agricultural Cooperatives " },
+  { id: "17", name: "MHCB " },
+  { id: "18", name: "Islamic Bank of Thailand " },
+  { id: "19", name: "ICBC Thai" },
+  { id: "20", name: "Thai Credit " },
+  { id: "21", name: "SMBC " },
+  { id: "22", name: "HSBC " },
+  { id: "23", name: "BNPP " },
+  { id: "24", name: "DEUTSCHE BANK AG " },
+  { id: "25", name: "Bank of China " },
+  { id: "26", name: "Indian Overseas Bank " },
+];
 
 const changePage = async (url) => {
   await supplierStore.getChangePage(url);

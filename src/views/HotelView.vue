@@ -64,6 +64,17 @@
               {{ errors.legal_name[0] }}
             </p>
           </div>
+          <div class="mb-2 space-y-1">
+            <label for="name" class="text-sm text-gray-800">Description</label>
+            <textarea
+              v-model="formData.description"
+              id="description"
+              class="w-full h-20 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            ></textarea>
+            <p v-if="errors?.description" class="mt-1 text-sm text-red-600">
+              {{ errors.description[0] }}
+            </p>
+          </div>
           <div>
             <p class="mb-2 text-sm text-gray-800 space-y-1">Bank Name</p>
             <v-select
@@ -355,6 +366,28 @@ const bankName = [
   { id: "2", name: "SCB " },
   { id: "3", name: "Bangkok Bank" },
   { id: "4", name: "Other Bank " },
+  { id: "5", name: "CIMB Bank " },
+  { id: "6", name: "Krungsri " },
+  { id: "7", name: "Krungthai Bank " },
+  { id: "8", name: "Land and Houses Bank " },
+  { id: "9", name: "Standard Chartered Bank (Thai) " },
+  { id: "10", name: "TMBThanachart " },
+  { id: "11", name: "UOB " },
+  { id: "12", name: "Government Savings Bank " },
+  { id: "13", name: "Kiatnakin Phatra Bank " },
+  { id: "14", name: "Citibank" },
+  { id: "15", name: "Government Housing Bank " },
+  { id: "16", name: "Bank for Agriculture and Agricultural Cooperatives " },
+  { id: "17", name: "MHCB " },
+  { id: "18", name: "Islamic Bank of Thailand " },
+  { id: "19", name: "ICBC Thai" },
+  { id: "20", name: "Thai Credit " },
+  { id: "21", name: "SMBC " },
+  { id: "22", name: "HSBC " },
+  { id: "23", name: "BNPP " },
+  { id: "24", name: "DEUTSCHE BANK AG " },
+  { id: "25", name: "Bank of China " },
+  { id: "26", name: "Indian Overseas Bank " },
 ];
 const paymentMethod = [
   { id: "1", name: "Bank Transfer" },
@@ -376,6 +409,7 @@ const formData = ref({
   account_name: "",
   place: "",
   legal_name: "",
+  description: "",
   contract_due: "",
   contracts: [],
   images: [],
@@ -417,6 +451,7 @@ const closeModal = () => {
     account_name: "",
     place: "",
     legal_name: "",
+    description: "",
     contract_due: "",
     contracts: [],
     images: [],
@@ -438,6 +473,7 @@ const addNewHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
+  frmData.append("description", formData.value.description);
   frmData.append("contract_due", formData.value.contract_due);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
@@ -471,6 +507,7 @@ const addNewHandler = async () => {
       bank_account_number: "",
       place: "",
       legal_name: "",
+      description: "",
       contract_due: "",
       images: [],
       contracts: [],
@@ -503,6 +540,7 @@ const openCreate = () => {
   formData.value.bank_account_number = "";
   formData.value.place = "";
   formData.value.legal_name = "";
+  formData.value.description = "";
   formData.value.contract_due = "";
   formData.value.contracts = [];
   linkContract.value = {};
@@ -533,6 +571,7 @@ const updateHandler = async () => {
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("account_name", formData.value.account_name);
   frmData.append("legal_name", formData.value.legal_name);
+  frmData.append("description", formData.value.description);
   frmData.append("contract_due", formData.value.contract_due);
   if (formData.value.contracts) {
     // frmData.append("contracts", formData.value.contracts);
@@ -562,6 +601,7 @@ const updateHandler = async () => {
       account_name: "",
       legal_name: "",
       contract_due: "",
+      description: "",
       contracts: [],
       images: [],
     };
@@ -592,7 +632,7 @@ const onSubmitHandler = async () => {
 
 const formatDate = (getDate) => {
   if (getDate != null) {
-    const dateParts = getDate.split(" ");
+    const dateParts = getDate?.split(" ");
     return dateParts[0];
   }
 };
@@ -604,6 +644,7 @@ const editModalOpenHandler = (data) => {
   formData.value.city_id = data.city.id;
   formData.value.place = data.place;
   formData.value.legal_name = data.legal_name;
+  formData.value.description = data.description;
   formData.value.contract_due = formatDate(data.contract_due);
   formData.value.bank_account_number = data.bank_account_number;
   formData.value.account_name = data.account_name;

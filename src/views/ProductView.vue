@@ -12,6 +12,7 @@ import Airport from "../views/AirportTicket.vue";
 import Entrance from "../views/EntranceTicket.vue";
 import EntranceVariation from "../views/EntranceTicketVariation.vue";
 import Inclusive from "../views/InclusiveView.vue";
+import HotelRoomSwitch from "../views/HotelRoomSwitch.vue";
 import Hotel from "../views/HotelView.vue";
 import Room from "../views/RoomView.vue";
 import Meal from "../views/MealView.vue";
@@ -64,7 +65,7 @@ onMounted(() => {
 <template>
   <Layout>
     <div class="mb-5 w-[90%]">
-      <h3 class="text-2xl font-medium text-gray-600">Products</h3>
+      <!-- <h3 class="text-2xl font-medium text-gray-600">Products</h3> -->
     </div>
     <div :class="sidebarStore.isShowSidebar ? 'w-[80vw]' : 'w-[96vw]'">
       <TabGroup :selectedIndex="selectedTab">
@@ -77,9 +78,17 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-gray-600': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[150px] text-center"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[180px] text-center"
             >
-              Van Tours
+              <img
+                src="../../public/van-svgrepo-com.svg"
+                class="h-14 mx-auto"
+                alt=""
+              />
+              <div>
+                <p class="text-xs whitespace-nowrap">Van Tours</p>
+                <p class="text-xl font-semibold">125</p>
+              </div>
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(1)">
@@ -88,9 +97,17 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[150px] text-center"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[180px] text-center"
             >
-              Group Tours
+              <img
+                src="../../public/group-svgrepo-com.svg"
+                class="h-14 mx-auto"
+                alt=""
+              />
+              <div>
+                <p class="text-xs whitespace-nowrap">Group Tours</p>
+                <p class="text-xl font-semibold">125</p>
+              </div>
             </button>
           </Tab>
 
@@ -100,9 +117,17 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide min-w-[180px] text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
-              Hotels
+              <img
+                src="../../public/holiday-hotel-tourism-svgrepo-com.svg"
+                class="h-14 mx-auto"
+                alt=""
+              />
+              <div>
+                <p class="text-xs whitespace-nowrap">Hotels</p>
+                <p class="text-xl font-semibold">125</p>
+              </div>
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(3)">
@@ -122,9 +147,17 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-xs min-w-[180px] cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
-              AirLine
+              <img
+                src="../../public/airline-boarding-pass-flight-svgrepo-com.svg"
+                class="h-14 mx-auto"
+                alt=""
+              />
+              <div>
+                <p class="text-xs whitespace-nowrap">AirLines</p>
+                <p class="text-xl font-semibold">125</p>
+              </div>
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(5)">
@@ -144,9 +177,17 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer min-w-[180px] py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
-              Attractions
+              <img
+                src="../../public/favorite-place-svgrepo-com.svg"
+                class="h-14 mx-auto"
+                alt=""
+              />
+              <div>
+                <p class="text-xs whitespace-nowrap">Attractions</p>
+                <p class="text-xl font-semibold">125</p>
+              </div>
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(7)">
@@ -166,9 +207,17 @@ onMounted(() => {
                 'bg-[#ff613c] text-white': selected,
                 'bg-white text-black': !selected,
               }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer min-w-[180px] py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
-              Restaurants
+              <img
+                src="../../public/restaurant-svgrepo-com.svg"
+                class="h-14 mx-auto"
+                alt=""
+              />
+              <div>
+                <p class="text-xs whitespace-nowrap">Restaurants</p>
+                <p class="text-xl font-semibold">125</p>
+              </div>
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(9)">

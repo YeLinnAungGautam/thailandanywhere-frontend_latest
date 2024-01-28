@@ -19,14 +19,12 @@
           class="w-6 text-gray-600 h-6 inline-block mx-2 cursor-pointer"
         />
       </div>
-      <div class="space-x-3">
-        <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
+      <div class="">
         <Button
           :leftIcon="PlusIcon"
           @click="VantourCreate"
           v-if="!authStore.isAgent"
         >
-          Create
         </Button>
       </div>
     </div>

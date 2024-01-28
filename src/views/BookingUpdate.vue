@@ -1469,6 +1469,7 @@ const checkCheckout = () => {
 
 onMounted(async () => {
   loadingState.value = true;
+  await getDetail();
   await adminStore.getSimpleListAction();
   await vantourStore.getSimpleListAction();
   await grouptourStore.getSimpleListAction();
@@ -1476,9 +1477,9 @@ onMounted(async () => {
   await entranceStore.getSimpleListAction();
   await inclusiveStore.getSimpleListAction();
   await airlineStore.getSimpleListAction();
-  await customerStore.getSimpleListAction({ limit: 20 });
+  await customerStore.getSimpleListAction();
   await hotelStore.getSimpleListAction();
-  await getDetail();
+
   // url.value =
   //   "https://api-blog.thanywhere.com/admin/bookings/" +
   //   route.params.id +

@@ -1,6 +1,7 @@
 <script setup>
 import Layout from "./Layout.vue";
 import Input from "../components/Input.vue";
+import VselectVue from "../components/Vselect.vue";
 import InputField from "../components/InputField.vue";
 import Pagination from "../components/Pagination.vue";
 import {
@@ -28,7 +29,8 @@ const router = useRouter();
 const toast = useToast();
 const customerStore = useCustomerStore();
 
-const { customer, loading } = storeToRefs(customerStore);
+const { customer, loading, customers, customer_select } =
+  storeToRefs(customerStore);
 const authStore = useAuthStore();
 
 const changePage = async (url) => {
@@ -65,14 +67,24 @@ const onDeleteHandler = async (id) => {
   });
 };
 
+const handleChildData = (data) => {
+  page.value = data;
+};
+
 const search = ref("");
 
+const page = ref(1);
+
 onMounted(async () => {
+  await customerStore.getSimpleListAction({ limit: 20, page: page.value });
   await customerStore.getListAction();
 });
 
 watch(search, async (newValue) => {
   await customerStore.getListAction({ search: search.value });
+});
+watch(page, async (newValue) => {
+  await customerStore.getSimpleListAction({ limit: 20, page: page.value });
 });
 </script>
 
@@ -89,27 +101,20 @@ watch(search, async (newValue) => {
     <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
       <!-- search input sort filter -->
       <div class="flex items-center justify-between mb-5">
-        <div class="">
+        <div class="flex justify-start gap-4">
           <input
             v-model="search"
             type="text"
             class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
             placeholder="Search for customers.."
           />
+          <VselectVue
+            :data="customers"
+            :select="customer_select"
+            :isMult="false"
+            @childData="handleChildData"
+          />
         </div>
-        <!-- <div>
-          <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>
-          <select
-            class="border-2 p-2 rounded-md w-16 focus:outline-none focus:ring-0"
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="30">30</option>
-            <option value="40">40</option>
-            <option value="50">50</option>
-          </select>
-          <p class="inline-block ml-2 text-gray-500 font-medium">entries</p>
-        </div> -->
       </div>
       <div class="overflow-auto rounded-lg shadow mb-5">
         <table class="w-full">

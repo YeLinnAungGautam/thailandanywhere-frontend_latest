@@ -375,7 +375,7 @@ const onSubmitHandler = async () => {
 
 const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
-  formData.value.entrance_ticket_id = data.entrance_ticket.id;
+  formData.value.entrance_ticket_id = data.entrance_ticket?.id;
   formData.value.cost_price = data.cost_price;
   formData.value.agent_price = data.agent_price;
   formData.value.price_name = data.name;

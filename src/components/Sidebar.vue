@@ -60,11 +60,7 @@
               name="Reservation"
               :icon="DocumentCheckIcon"
               to="/reservation/%25/%25/%25"
-              :activePaths="[
-                'reservation',
-                'reservationupdate',
-                'customersupdate',
-              ]"
+              :activePaths="['reservation', 'reservation-update']"
             />
             <SidebarItem
               name="Products"

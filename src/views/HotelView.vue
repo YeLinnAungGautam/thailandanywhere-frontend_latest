@@ -112,6 +112,18 @@
           <div class="px-4">
             <form @submit.prevent="onSubmitHandler" class="mt-2">
               <div class="mb-2 space-y-1">
+                <p class="text-gray-800 text-sm mb-2">Type</p>
+                <v-select
+                  v-model="formData.type"
+                  class="style-chooser"
+                  :options="typeList ?? []"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.value"
+                  placeholder="Choose Type"
+                ></v-select>
+              </div>
+              <div class="mb-2 space-y-1">
                 <label for="name" class="text-sm text-gray-800">Name</label>
                 <input
                   type="text"
@@ -422,10 +434,16 @@ const paymentMethod = [
 const { cities } = storeToRefs(cityStore);
 const citylist = ref([]);
 
+const typeList = ref([
+  { id: 1, name: "Direct Booking", value: "direct_booking" },
+  { id: 2, name: "Other Booking", value: "other_booking" },
+]);
+
 const formData = ref({
   id: "",
   name: "",
   city_id: null,
+  type: "other_booking",
   payment_method: "",
   bank_name: "",
   bank_account_number: "",
@@ -468,6 +486,7 @@ const closeModal = () => {
     id: "",
     name: "",
     city_id: null,
+    type: "other_booking",
     payment_method: "",
     bank_name: "",
     bank_account_number: "",
@@ -490,6 +509,7 @@ const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("city_id", formData.value.city_id);
+  frmData.append("type", formData.value.type);
   frmData.append("account_name", formData.value.account_name);
   frmData.append("place", formData.value.place);
   frmData.append("payment_method", formData.value.payment_method);
@@ -524,6 +544,7 @@ const addNewHandler = async () => {
     formData.value = {
       name: "",
       city_id: null,
+      type: "other_booking",
       payment_method: "",
       bank_name: "",
       account_name: "",
@@ -557,6 +578,7 @@ const addNewHandler = async () => {
 const openCreate = () => {
   formData.value.name = "";
   formData.value.city_id = null;
+  formData.value.type = "other_booking";
   formData.value.payment_method = "";
   formData.value.bank_name = "";
   formData.value.account_name = "";
@@ -589,6 +611,7 @@ const updateHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("place", formData.value.place);
   frmData.append("city_id", formData.value.city_id);
+  frmData.append("type", formData.value.type);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
@@ -616,6 +639,7 @@ const updateHandler = async () => {
     formData.value = {
       name: "",
       city_id: null,
+      type: "other_booking",
       place: "",
       id: "",
       payment_method: "",
@@ -666,6 +690,7 @@ const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
   formData.value.city_id = data.city.id;
+  formData.value.type = data.type;
   formData.value.place = data.place;
   formData.value.legal_name = data.legal_name;
   formData.value.description = data.description;

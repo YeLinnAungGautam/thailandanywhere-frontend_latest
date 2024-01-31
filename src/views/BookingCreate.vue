@@ -1084,7 +1084,6 @@ const checkCheckout = () => {
 
 onMounted(async () => {
   await customerStore.getSimpleListAction();
-
   await adminStore.getSimpleListAction();
   await vantourStore.getSimpleListAction();
   await grouptourStore.getSimpleListAction();

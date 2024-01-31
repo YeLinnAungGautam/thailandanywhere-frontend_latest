@@ -3,6 +3,7 @@ import Layout from "./Layout.vue";
 import Input from "../components/Input.vue";
 import InputField from "../components/InputField.vue";
 import Pagination from "../components/Pagination.vue";
+
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import {
@@ -117,6 +118,8 @@ const customerPaymentStatusArr = [
   { id: "3", name: "partially_paid" },
 ];
 const searchTime = ref("");
+const dateRange = ref();
+const sale_daterange = ref(null);
 const oldCrmId = ref("");
 const bookingStatus = ref("");
 const expenseStatus = ref("");
@@ -128,6 +131,8 @@ const showFilter = ref(false);
 const clearFilter = () => {
   search.value = "";
   oldCrmId.value = "";
+  dateRange.value = "";
+  sale_daterange.value = "";
   bookingStatus.value = "";
   expenseStatus.value = "";
   customerPaymentStatus.value = "";
@@ -169,6 +174,13 @@ const searchFunction = () => {
   });
 };
 
+const openExport = async (date) => {
+  const res = await reservationStore.exportLink(date);
+  if ((res.statusText = "OK")) {
+    toast.success("export success");
+  }
+};
+
 onMounted(async () => {
   console.log(entrances.value, "this is hotel list");
   searchId.value = route.params.crm_id == "%" ? "" : route.params.crm_id;
@@ -180,6 +192,9 @@ onMounted(async () => {
   await adminStore.getSimpleListAction();
   await hotelStore.getSimpleListAction();
   await entranceStore.getSimpleListAction();
+  // const startDate = new Date();
+  // const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
+  // dateRange.value = [startDate, endDate];
 });
 
 const watchSystem = computed(() => {
@@ -233,6 +248,9 @@ const watchSystem = computed(() => {
   if (userFilter.value != undefined) {
     result.user_id = userFilter.value;
   }
+  if (sale_daterange.value != undefined) {
+    result.sale_daterange = sale_daterange.value;
+  }
 
   console.log(result);
   return result;
@@ -241,6 +259,35 @@ const watchSystem = computed(() => {
 watch(search, async (newValue) => {
   showFilter.value = true;
   searchFunction();
+  await reservationStore.getListAction(watchSystem.value);
+});
+watch(dateRange, async (newValue) => {
+  showFilter.value = true;
+  console.log(dateRange.value, "this is date");
+  if (dateRange.value != "" && dateRange.value != null) {
+    const options = { day: "2-digit", month: "2-digit", year: "numeric" };
+    const startDate = dateRange?.value[0]?.toLocaleDateString("en-GB", options);
+    const endDate = dateRange?.value[1]?.toLocaleDateString("en-GB", options);
+
+    // Custom function to format date as dd-MM-yyyy
+    const formatDateAsDDMMYYYY = (date) => {
+      if (date) {
+        const dd = String(date.getDate()).padStart(2, "0");
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const yyyy = date.getFullYear();
+        return `${yyyy}-${mm}-${dd}`;
+      }
+    };
+
+    // Format start and end dates
+    const formattedStartDate = formatDateAsDDMMYYYY(dateRange.value[0]);
+    const formattedEndDate = formatDateAsDDMMYYYY(dateRange.value[1]);
+
+    sale_daterange.value = `${formattedStartDate},${formattedEndDate}`;
+  } else {
+    sale_daterange.value = "";
+  }
+  // console.log(sale_daterange.value, "this is daterange");
   await reservationStore.getListAction(watchSystem.value);
 });
 watch(hotel_name, async (newValue) => {
@@ -404,6 +451,13 @@ watch(searchTime, async (newValue) => {
             </p>
           </div>
         </div>
+        <div
+          v-if="sale_daterange && dateRange"
+          @click="openExport(sale_daterange)"
+          class="text-xs px-4 cursor-pointer bg-[#ff613c] text-white shadow-md py-2 border border-gray-200 rounded"
+        >
+          Export
+        </div>
       </div>
 
       <div class="grid grid-cols-4 gap-2 mb-5 flex-wrap">
@@ -529,6 +583,13 @@ watch(searchTime, async (newValue) => {
             :reduce="(d) => d.name"
             placeholder="attraction name ..."
           ></v-select>
+        </div>
+        <div>
+          <VueDatePicker
+            v-model="dateRange"
+            range
+            placeholder="Export Sale Range"
+          />
         </div>
         <div v-show="showFilter" @click="clearFilter" class="w-full">
           <Button :leftIcon="FunnelIcon"> clear </Button>

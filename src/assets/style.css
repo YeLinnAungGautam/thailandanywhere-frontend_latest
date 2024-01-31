@@ -18,9 +18,10 @@
     .style-chooser .vs__dropdown-toggle .vs__selected-options .vs__selected {
       padding: 4px 5px;
       border: none;
-      overflow: hidden;
-      width: 120px !important;
-      white-space: nowrap !important;
+      /* overflow-x: scrollbar;
+      min-width: 100px !important;
+      max-width: 170px !important; */
+      /* white-space: nowrap !important; */
     }
   }
 }

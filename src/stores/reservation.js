@@ -53,12 +53,9 @@ export const useReservationStore = defineStore("reservation", {
       try {
         this.loading = true;
         this.loadingCalendar = true;
-        const response = await axios.get(
-          `/reservations?user_id=${params.user_id}`,
-          {
-            params,
-          }
-        );
+        const response = await axios.get(`/reservations`, {
+          params,
+        });
         this.reservations = response.data.result;
 
         this.loading = false;
@@ -189,6 +186,17 @@ export const useReservationStore = defineStore("reservation", {
         const response = await axios.post(
           "/reservations/" + id + "/send-notify-email",
           data
+        );
+        console.log(response);
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async exportLink(data) {
+      try {
+        const response = await axios.get(
+          "/reservations/report/export?sale_daterange=" + data
         );
         console.log(response);
         return response;

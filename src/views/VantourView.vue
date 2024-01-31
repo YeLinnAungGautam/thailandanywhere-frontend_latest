@@ -31,12 +31,18 @@ const { tags } = storeToRefs(productStore);
 const { dests } = storeToRefs(destinationStore);
 const { cars } = storeToRefs(carStore);
 
+const typeList = ref([
+  { id: 1, name: "Van Tour", value: "van_tour" },
+  { id: 2, name: "Car Rental", value: "car_rental" },
+]);
+
 const formData = ref({
   name: "",
   description: "",
   long_description: "",
   cover_image: "",
   sku_code: "",
+  type: "car_rental",
   tag: [],
   city_id: [],
   destination: [],
@@ -121,6 +127,7 @@ const onSubmitHandler = async () => {
   frmData.append("_method", "PUT");
   frmData.append("name", formData.value.name);
   frmData.append("sku_code", formData.value.sku_code);
+  frmData.append("type", formData.value.type);
   frmData.append("long_description", formData.value.long_description);
   frmData.append("description", formData.value.description);
 
@@ -162,6 +169,7 @@ const onSubmitHandler = async () => {
       long_description: "",
       cover_image: "",
       sku_code: "",
+      type: "car_rental",
       tag: [],
       city_id: [],
       destination: [],
@@ -217,6 +225,7 @@ const getDetail = async () => {
     formData.value.long_description = response.result.long_description;
     editData.value.cover_image = response.result.cover_image;
     formData.value.sku_code = response.result.sku_code;
+    formData.value.type = response.result.type;
     editData.value.tag = response.result.tags;
     editData.value.city_id = response.result.cities;
     editData.value.destination = response.result.destinations;
@@ -285,7 +294,7 @@ onMounted(async () => {
     <div class="grid grid-cols-3 gap-3">
       <div class="bg-white/60 col-span-2 p-6 rounded-lg shadow-sm mb-5">
         <div class="space-y-4">
-          <div class="grid grid-cols-2 gap-8">
+          <div class="grid grid-cols-3 gap-8">
             <div class="">
               <p class="text-gray-800 text-sm mb-2">Name</p>
               <input
@@ -309,6 +318,18 @@ onMounted(async () => {
               <p v-if="errors?.sku_code" class="mt-1 text-sm text-red-600">
                 {{ errors.sku_code[0] }}
               </p>
+            </div>
+            <div>
+              <p class="text-gray-800 text-sm mb-2">Type</p>
+              <v-select
+                v-model="formData.type"
+                class="style-chooser"
+                :options="typeList ?? []"
+                label="name"
+                :clearable="false"
+                :reduce="(d) => d.value"
+                placeholder="Choose Type"
+              ></v-select>
             </div>
           </div>
           <div>

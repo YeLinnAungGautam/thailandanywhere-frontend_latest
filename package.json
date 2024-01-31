@@ -16,7 +16,7 @@
     "@fullcalendar/vue3": "^6.1.9",
     "@headlessui/vue": "^1.7.14",
     "@heroicons/vue": "^2.0.18",
-    "@vuepic/vue-datepicker": "^7.2.2",
+    "@vuepic/vue-datepicker": "^7.4.1",
     "@vueup/vue-quill": "^1.2.0",
     "@vueuse/core": "^10.7.2",
     "axios": "^1.4.0",

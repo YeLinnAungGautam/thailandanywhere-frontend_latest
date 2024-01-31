@@ -894,14 +894,7 @@ watch(enabled, async (newValue) => {
               >
                 <p class="mr-6">{{ d.service_date }}</p>
                 <router-link
-                  :to="
-                    '/reservation/update/' +
-                    d.id +
-                    '/' +
-                    d.crm_id +
-                    '/' +
-                    d.booking?.past_crm_id
-                  "
+                  :to="'/reservation/update/' + d.id + '/' + d.crm_id"
                 >
                   <button
                     class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"

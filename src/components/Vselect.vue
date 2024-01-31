@@ -50,6 +50,7 @@ export default {
     },
   },
   mounted() {
+    console.log(this.data, "this is props data");
     if (this.data && this.data.data) {
       this.countries = this.data.data;
       console.log(this.countries, "this is data");
@@ -82,16 +83,16 @@ export default {
       }
     },
   },
-  watch: {
-    data(newValue, oldValue) {
-      if (oldValue && oldValue.data && newValue && newValue.data) {
-        this.countries = [...oldValue.data, ...newValue.data];
-      } else if (newValue && newValue.data) {
-        this.countries = [...oldValue.data, ...newValue.data];
-      }
-      console.log(this.countries, "this is new");
-    },
-  },
+  // watch: {
+  //   data(newValue, oldValue) {
+  //     if (oldValue && oldValue.data && newValue && newValue.data) {
+  //       this.countries = [...oldValue.data, ...newValue.data];
+  //     } else if (newValue && newValue.data) {
+  //       this.countries = [...oldValue.data, ...newValue.data];
+  //     }
+  //     console.log(this.countries, "this is new");
+  //   },
+  // },
 };
 </script>
 

@@ -174,11 +174,16 @@ const searchFunction = () => {
   });
 };
 
-const openExport = async (date) => {
-  const res = await reservationStore.exportLink(date);
-  if ((res.statusText = "OK")) {
-    toast.success("export success");
-  }
+const openExport = (date) => {
+  // const res = await reservationStore.exportLink(date);
+  // if ((res.statusText = "OK")) {
+  //   toast.success("export success");
+  // }
+  window.open(
+    import.meta.env.VITE_API_URL +
+      "/reservations/report/export?sale_daterange=" +
+      date
+  );
 };
 
 onMounted(async () => {

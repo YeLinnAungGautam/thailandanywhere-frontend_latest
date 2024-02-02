@@ -6,7 +6,7 @@ import { watch } from 'vue';
     class="min-w-[200px]"
     @open="onOpen"
     @close="onClose"
-    @search="(query) => (search = query)"
+    @search="onSearch"
     label="name"
     :multiple="isMult ? true : false"
     :clearable="false"
@@ -37,22 +37,34 @@ export default {
   },
   computed: {
     filtered() {
-      console.log(this.search);
+      // console.log(this.search);
 
-      return this.countries?.filter((country) =>
-        country.name.includes(this.search)
-      );
+      // return this.countries?.filter((country) =>
+      //   country.name.includes(this.search)
+      // );
+      // if (this.search) {
+      //   this.$emit("searchData", this.search);
+      //   return (this.countries = this.data.data);
+      // } else {
+      return this.countries;
+      // }
     },
 
     hasNextPage() {
-      console.log(this.data.meta.total_page > this.filtered.length);
-      return this.data.meta.total_page > this.filtered.length;
+      if (!this.search) {
+        return this.data?.meta.total > this.countries.length;
+      } else {
+        return false;
+      }
     },
   },
   mounted() {
     console.log(this.data, "this is props data");
     if (this.data && this.data.data) {
-      this.countries = this.data.data;
+      // this.countries = this.data.data;
+      for (let i = 0; i < this.data?.data.length; i++) {
+        this.countries.push(this.data?.data[i]);
+      }
       console.log(this.countries, "this is data");
     }
 
@@ -72,6 +84,10 @@ export default {
     onClose() {
       this.observer.disconnect();
     },
+    onSearch(query) {
+      this.search = query;
+      this.$emit("searchData", this.search);
+    },
     async infiniteScroll([{ isIntersecting, target }]) {
       if (isIntersecting) {
         this.page += 1;
@@ -83,16 +99,24 @@ export default {
       }
     },
   },
-  // watch: {
-  //   data(newValue, oldValue) {
-  //     if (oldValue && oldValue.data && newValue && newValue.data) {
-  //       this.countries = [...oldValue.data, ...newValue.data];
-  //     } else if (newValue && newValue.data) {
-  //       this.countries = [...oldValue.data, ...newValue.data];
-  //     }
-  //     console.log(this.countries, "this is new");
-  //   },
-  // },
+  watch: {
+    data(newValue, oldValue) {
+      if (oldValue && oldValue.data && newValue && newValue.data) {
+        if (!this.search || this.search == "") {
+          for (let i = 0; i < newValue.data.length; i++) {
+            this.countries.push(newValue.data[i]);
+            // console.log("new value", newValue);
+          }
+        } else {
+          this.countries = [];
+          for (let i = 0; i < newValue.data.length; i++) {
+            this.countries.push(newValue.data[i]);
+          }
+          console.log(newValue.data, "this is update");
+        }
+      }
+    },
+  },
 };
 </script>
 

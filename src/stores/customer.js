@@ -12,8 +12,10 @@ export const useCustomerStore = defineStore("customer", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get(`/customers?limit=1500&page=1`);
-        this.customer = response.data.result;
+        const response = await axios.get("/customers", {
+          params: params,
+        });
+        this.customers = response.data.result;
 
         this.loading = false;
 
@@ -43,7 +45,7 @@ export const useCustomerStore = defineStore("customer", {
 
         this.loading = false;
         console.log(response);
-        return response.data;
+        return response.data.result;
       } catch (error) {
         this.loading = false;
         throw error;

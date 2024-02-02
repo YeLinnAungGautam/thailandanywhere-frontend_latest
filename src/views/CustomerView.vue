@@ -1,7 +1,7 @@
 <script setup>
 import Layout from "./Layout.vue";
 import Input from "../components/Input.vue";
-// import VselectVue from "../components/Vselect.vue";
+import VselectVue from "../components/Vselect.vue";
 import InputField from "../components/InputField.vue";
 import Pagination from "../components/Pagination.vue";
 import {
@@ -70,21 +70,39 @@ const onDeleteHandler = async (id) => {
 const handleChildData = (data) => {
   page.value = data;
 };
+const searchData = async (data) => {
+  console.log(data);
+  if (data) {
+    const res = await customerStore.getSimpleListAction({
+      search: data,
+    });
+    customer_data.value = null;
+    customer_data.value = customers.value;
+  }
+};
 
 const search = ref("");
 
 const page = ref(1);
+const customer_data = ref(null);
 
 onMounted(async () => {
   await customerStore.getSimpleListAction({ limit: 20, page: page.value });
+  console.log(customers.value, "this is customer");
   await customerStore.getListAction();
+
+  customer_data.value = customers.value;
 });
 
 watch(search, async (newValue) => {
   await customerStore.getListAction({ search: search.value });
 });
 watch(page, async (newValue) => {
-  await customerStore.getSimpleListAction({ limit: 20, page: page.value });
+  const res = await customerStore.getSimpleListAction({
+    limit: 20,
+    page: page.value,
+  });
+  customer_data.value = customers.value;
 });
 </script>
 
@@ -108,12 +126,14 @@ watch(page, async (newValue) => {
             class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
             placeholder="Search for customers.."
           />
-          <!-- <VselectVue
-            :data="customers"
+          <VselectVue
+            v-if="customer_data"
+            :data="customer_data"
             :select="customer_select"
             :isMult="false"
             @childData="handleChildData"
-          /> -->
+            @searchData="searchData"
+          />
         </div>
       </div>
       <div class="overflow-auto rounded-lg shadow mb-5">

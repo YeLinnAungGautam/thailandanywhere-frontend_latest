@@ -339,7 +339,13 @@ onMounted(async () => {
                   />
                 </div>
                 <div>
-                  <button @click.prevent="addNewPrice" class="">
+                  <button
+                    @click.prevent="addNewPrice"
+                    class=""
+                    v-if="
+                      formPrice.car && formPrice.price && formPrice.agent_price
+                    "
+                  >
                     <i
                       class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
                     ></i>

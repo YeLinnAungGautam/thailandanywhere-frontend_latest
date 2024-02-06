@@ -6,7 +6,7 @@
     <div class="grid grid-cols-6 gap-4">
       <div class="col-span-4">
         <div class="flex items-center justify-between mb-4">
-          <div class="flex justify-start items-center gap-6 border">
+          <div class="flex justify-start items-center gap-6">
             <h3 class="text-lg font-medium tracking-wide text-gray-600">
               Hotels
             </h3>

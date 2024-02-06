@@ -7,11 +7,29 @@
     </h3>
     <!-- search input sort filter -->
     <div class="flex items-center justify-between mb-8">
-      <div class="">
+      <div class="flex justify-start items-center gap-4">
+        <div
+          class="flex justify-center items-center border-2 shadow-sm rounded-xl overflow-hidden"
+        >
+          <div
+            class="cursor-pointer px-3 py-2.5 text-xs"
+            :class="forSale ? 'bg-[#ff613c] text-white' : 'bg-white'"
+            @click="toggleSale"
+          >
+            for Sale Part
+          </div>
+          <div
+            class="cursor-pointer px-3 py-2.5 text-xs"
+            @click="toggleSale"
+            :class="!forSale ? 'bg-[#ff613c] text-white' : 'bg-white'"
+          >
+            for User Web
+          </div>
+        </div>
         <input
           type="text"
           v-model="search"
-          class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+          class="w-3/5 sm:w-3/5 md:w-[300px] text-sm mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
           placeholder="Search Van Tours..."
         />
 
@@ -19,7 +37,7 @@
           class="w-6 text-gray-600 h-6 inline-block mx-2 cursor-pointer"
         />
       </div>
-      <div class="">
+      <div class="flex justify-end items-center gap-4">
         <Button
           :leftIcon="PlusIcon"
           @click="VantourCreate"
@@ -214,11 +232,26 @@ const onDeleteHandler = async (id) => {
   });
 };
 
+const forSale = ref(true);
+
+const toggleSale = () => {
+  forSale.value = !forSale.value;
+};
+
 onMounted(async () => {
   await vantourStore.getListAction();
 });
 
 watch(search, async (newValue) => {
-  await vantourStore.getListAction({ search: search.value });
+  await vantourStore.getListAction({
+    search: search.value,
+    type: forSale.value ? "car_rental" : "van_tour",
+  });
+});
+watch(forSale, async (newValue) => {
+  await vantourStore.getListAction({
+    search: search.value,
+    type: forSale.value ? "car_rental" : "van_tour",
+  });
 });
 </script>

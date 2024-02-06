@@ -289,7 +289,10 @@ onMounted(async () => {
         Edit VanTour
       </h3>
 
-      <div class="space-x-3"></div>
+      <div class="space-x-3 text-sm">
+        Note : Type - Car Rental for Sale Part & Type - VanTour for User Website
+        Show Items
+      </div>
     </div>
     <div class="grid grid-cols-3 gap-3">
       <div class="bg-white/60 col-span-2 p-6 rounded-lg shadow-sm mb-5">

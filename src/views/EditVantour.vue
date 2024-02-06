@@ -219,7 +219,10 @@ onMounted(async () => {
   <Layout>
     <div class="mb-5 flex items-center justify-between">
       <h3 class="text-2xl font-medium text-gray-600">Create VanTour</h3>
-      <div class="space-x-3"></div>
+      <div class="space-x-3 text-sm">
+        Note : Type - Car Rental for Sale Part & Type - VanTour for User Website
+        Show Items
+      </div>
     </div>
     <div class="grid grid-cols-3 gap-3">
       <div class="bg-white/60 col-span-2 p-6 rounded-lg shadow-sm mb-5">

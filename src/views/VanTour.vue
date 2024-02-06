@@ -199,6 +199,7 @@ const changePage = async (url) => {
   console.log(url);
   let data = {
     search: search.value,
+    type: forSale.value ? "car_rental" : "van_tour",
   };
   await vantourStore.getChangePage(url, data);
 };
@@ -239,7 +240,10 @@ const toggleSale = () => {
 };
 
 onMounted(async () => {
-  await vantourStore.getListAction();
+  await vantourStore.getListAction({
+    search: search.value,
+    type: forSale.value ? "car_rental" : "van_tour",
+  });
 });
 
 watch(search, async (newValue) => {

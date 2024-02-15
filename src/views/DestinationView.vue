@@ -1,3 +1,278 @@
+<script setup>
+import Layout from "./Layout.vue";
+import Input from "../components/Input.vue";
+import Button from "../components/Button.vue";
+import Pagination from "../components/Pagination.vue";
+import {
+  PencilSquareIcon,
+  TrashIcon,
+  ShareIcon,
+  EyeIcon,
+  TicketIcon,
+  BuildingOfficeIcon,
+  PlusIcon,
+  UserGroupIcon,
+  XCircleIcon,
+  UsersIcon,
+  AdjustmentsHorizontalIcon,
+} from "@heroicons/vue/24/outline";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import { onMounted, ref, watch } from "vue";
+import Modal from "../components/Modal.vue";
+import { storeToRefs } from "pinia";
+import axios from "axios";
+import { useToast } from "vue-toastification";
+import Swal from "sweetalert2";
+import { useDestinationStore } from "../stores/destination";
+import { useProductStore } from "../stores/product";
+import { useCityStore } from "../stores/city";
+
+const destStore = useDestinationStore();
+const productStore = useProductStore();
+const toast = useToast();
+const cityStore = useCityStore();
+
+const carModalOpen = ref(false);
+
+const formData = ref({
+  id: "",
+  name: "",
+  category_id: "",
+  description: "",
+  entry_fee: "",
+  detail: "",
+  summary: "",
+  city_id: "",
+  place_id: "",
+  feature_img: "",
+  images: [],
+});
+const showEntries = ref(10);
+const errors = ref(null);
+const search = ref("");
+const { dests, loading } = storeToRefs(destStore);
+const { products } = storeToRefs(productStore);
+const { cities } = storeToRefs(cityStore);
+
+const changePage = async (url) => {
+  await destStore.getChangePage(url);
+};
+
+const addNewHandler = async () => {
+  const frmData = new FormData();
+  frmData.append("name", formData.value.name);
+  frmData.append("category_id", formData.value.category_id);
+  frmData.append("description", formData.value.description);
+  frmData.append("entry_fee", formData.value.entry_fee);
+  frmData.append("detail", formData.value.detail);
+  frmData.append("summary", formData.value.summary);
+  frmData.append("city_id", formData.value.city_id);
+  frmData.append("place_id", formData.value.place_id);
+  frmData.append("feature_img", formData.value.feature_img);
+  if (formData.value.images.length > 0) {
+    for (let i = 0; i < formData.value.images.length; i++) {
+      let file = formData.value.images[i];
+      frmData.append("images[" + i + "]", file);
+    }
+  }
+
+  try {
+    const response = await destStore.addNewAction(frmData);
+    formData.value = {
+      name: "",
+      category_id: "",
+      description: "",
+      entry_fee: "",
+      detail: "",
+      summary: "",
+      city_id: "",
+      place_id: "",
+      feature_img: "",
+      images: [],
+    };
+    errors.value = null;
+    // carModalOpen.value = false;
+    closeModal();
+    featureImagePreview.value = null;
+    imagesPreview.value = [];
+    await destStore.getListAction();
+    toast.success(response.message);
+  } catch (error) {
+    if (error.response.data.errors) {
+      errors.value = error.response.data.errors;
+    }
+    toast.error(error.response.data.message);
+  }
+};
+
+const updateHandler = async () => {
+  const frmData = new FormData();
+  frmData.append("name", formData.value.name);
+  frmData.append("category_id", formData.value.category_id);
+  frmData.append("description", formData.value.description);
+  frmData.append("entry_fee", formData.value.entry_fee);
+  frmData.append("detail", formData.value.detail);
+  frmData.append("summary", formData.value.summary);
+  frmData.append("city_id", formData.value.city_id);
+  frmData.append("place_id", formData.value.place_id);
+  frmData.append("feature_img", formData.value.feature_img);
+  if (formData.value.images.length > 0) {
+    for (let i = 0; i < formData.value.images.length; i++) {
+      let file = formData.value.images[i];
+      frmData.append("images[" + i + "]", file);
+    }
+  }
+  frmData.append("_method", "PUT");
+  try {
+    const response = await destStore.updateAction(frmData, formData.value.id);
+    formData.value = {
+      category_id: "",
+      description: "",
+      entry_fee: "",
+    };
+    errors.value = null;
+    // carModalOpen.value = false;
+    closeModal();
+    await destStore.getListAction();
+    toast.success(response.message);
+  } catch (error) {
+    if (error.response.data.errors) {
+      errors.value = error.response.data.errors;
+    }
+    toast.error(error.response.data.message);
+  }
+};
+
+const onSubmitHandler = async () => {
+  if (formData.value.id) {
+    updateHandler();
+  } else {
+    addNewHandler();
+  }
+};
+
+const imagesEdit = ref([]);
+const editModalOpenHandler = (data) => {
+  formData.value.id = data.id;
+  formData.value.name = data.name;
+  formData.value.category_id = data.category.id;
+  formData.value.description = data.description;
+  formData.value.entry_fee = data.entry_fee;
+  formData.value.city_id = data.city?.id;
+  formData.value.detail = data.detail;
+  formData.value.summary = data.summary;
+  formData.value.place_id = data.place_id;
+  featureImagePreview.value = data.feature_img;
+  imagesEdit.value = [];
+  for (let i = 0; i < data.images.length; i++) {
+    imagesEdit.value.push(data.images[i].image);
+  }
+  console.log(imagesEdit.value, "this is image");
+  carModalOpen.value = true;
+};
+
+const onDeleteHandler = async (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await destStore.deleteAction(id);
+        toast.success(response.message);
+      } catch (error) {
+        if (error.response.data.errors) {
+          errors.value = error.response.data.errors;
+        }
+        toast.error(error.response.data.message);
+      }
+      await destStore.getListAction();
+    }
+  });
+};
+
+const featureImageInput = ref(null);
+const featureImagePreview = ref(null);
+
+const openFileFeaturePicker = () => {
+  featureImageInput.value.click();
+};
+
+const handlerFeatureFileChange = (e) => {
+  let selectedFile = e.target.files[0];
+  if (selectedFile) {
+    formData.value.feature_img = e.target.files[0];
+    featureImagePreview.value = URL.createObjectURL(selectedFile);
+  }
+};
+
+const removeFeatureSelectImage = () => {
+  formData.value.feature_img = null;
+  featureImagePreview.value = null;
+};
+
+const imagesInput = ref(null);
+const imagesPreview = ref([]);
+
+const openFileImagePicker = () => {
+  imagesInput.value.click();
+};
+
+const handlerImagesFileChange = (e) => {
+  console.log(e.target.files);
+  let selectedFile = e.target.files;
+  if (selectedFile) {
+    for (let index = 0; index < selectedFile.length; index++) {
+      formData.value.images.push(selectedFile[index]);
+      imagesPreview.value.push(URL.createObjectURL(selectedFile[index]));
+    }
+  }
+};
+
+const removeImageSelectImage = (index) => {
+  formData.value.images.splice(index, 1);
+  imagesPreview.value.splice(index, 1);
+};
+
+const closeModal = () => {
+  formData.value = {
+    name: "",
+    category_id: "",
+    description: "",
+    entry_fee: "",
+    detail: "",
+    summary: "",
+    city_id: "",
+    place_id: "",
+    feature_img: "",
+    images: [],
+  };
+  imagesPreview.value = [];
+  imagesEdit.value = [];
+  carModalOpen.value = false;
+};
+
+onMounted(async () => {
+  await destStore.getListAction();
+  await productStore.getSimpleListAction();
+  await cityStore.getSimpleListAction();
+  console.log(cities.value, "pro");
+});
+
+watch(showEntries, async (newValue) => {
+  await destStore.getListAction({ limit: showEntries.value });
+});
+
+watch(search, async (newValue) => {
+  await destStore.getListAction({ search: search.value });
+});
+</script>
+
 <template>
   <div
     class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 md:col-span-3 hidden md:block"
@@ -78,7 +353,9 @@
               >
                 {{ des.category?.name }}
               </td>
-              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
+              <td
+                class="p-4 text-xs text-gray-700 whitespace-nowrap max-w-[200px] overflow-hidden"
+              >
                 {{ des.description }}
               </td>
               <td
@@ -117,9 +394,9 @@
       <Pagination v-if="!loading" :data="dests" @change-page="changePage" />
     </div>
     <!-- modal -->
-    <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
+    <Modal :isOpen="carModalOpen" @closeModal="closeModal">
       <DialogPanel
-        class="w-full max-w-md transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-[1000px] transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="h3"
@@ -127,64 +404,272 @@
         >
           {{ formData.id ? "Edit Destination" : "Add New Destination" }}
         </DialogTitle>
-        <form @submit.prevent="onSubmitHandler" class="mt-2">
-          <div class="space-y-1 mb-2">
-            <label for="name" class="text-gray-800 text-sm">Name</label>
-            <input
-              type="text"
-              v-model="formData.name"
-              id="name"
-              class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.name" class="mt-1 text-sm text-red-600">
-              {{ errors.name[0] }}
-            </p>
+        <form
+          @submit.prevent="onSubmitHandler"
+          class="mt-2 grid grid-cols-3 gap-4"
+        >
+          <div class="col-span-2 grid grid-cols-2 gap-4">
+            <div class="space-y-1 mb-2">
+              <label for="name" class="text-gray-800 text-sm">Name</label>
+              <input
+                type="text"
+                v-model="formData.name"
+                id="name"
+                class="h-10 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.name" class="mt-1 text-sm text-red-600">
+                {{ errors.name[0] }}
+              </p>
+            </div>
+            <div class="space-y-1 mb-4">
+              <p class="text-gray-800 text-sm mb-2">Category</p>
+              <v-select
+                v-model="formData.category_id"
+                class="style-chooser"
+                :options="products.data ?? []"
+                label="name"
+                :clearable="false"
+                :reduce="(product) => product.id"
+                placeholder="Choose category"
+              ></v-select>
+            </div>
+
+            <div class="space-y-1 mb-4">
+              <p class="text-gray-800 text-sm mb-2">City</p>
+              <v-select
+                v-model="formData.city_id"
+                class="style-chooser"
+                :options="cities?.data ?? []"
+                label="name"
+                :clearable="false"
+                :reduce="(product) => product.id"
+                placeholder="Choose city"
+              ></v-select>
+            </div>
+            <div class="space-y-1 mb-2">
+              <label for="name" class="text-gray-800 text-sm">Entry_fee</label>
+              <input
+                type="text"
+                v-model="formData.entry_fee"
+                id="name"
+                class="h-10 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.entry_fee" class="mt-1 text-sm text-red-600">
+                {{ errors.entry_fee[0] }}
+              </p>
+            </div>
+            <div class="space-y-1 mb-2">
+              <label for="name" class="text-gray-800 text-sm"
+                >Description</label
+              >
+              <textarea
+                class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                name=""
+                id=""
+                cols="30"
+                rows="5"
+                v-model="formData.description"
+              ></textarea>
+              <p v-if="errors?.description" class="mt-1 text-sm text-red-600">
+                {{ errors.description[0] }}
+              </p>
+            </div>
+            <div class="space-y-1 mb-2">
+              <label for="name" class="text-gray-800 text-sm">Detail</label>
+              <textarea
+                class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                name=""
+                id=""
+                cols="30"
+                rows="5"
+                v-model="formData.detail"
+              ></textarea>
+              <p v-if="errors?.detail" class="mt-1 text-sm text-red-600">
+                {{ errors.detail[0] }}
+              </p>
+            </div>
+            <div class="space-y-1 mb-2">
+              <label for="name" class="text-gray-800 text-sm">Summary</label>
+              <textarea
+                class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                name=""
+                id=""
+                cols="30"
+                rows="5"
+                v-model="formData.summary"
+              ></textarea>
+              <p v-if="errors?.summary" class="mt-1 text-sm text-red-600">
+                {{ errors.summary[0] }}
+              </p>
+            </div>
+            <div class="space-y-1 mb-2">
+              <label for="name" class="text-gray-800 text-sm">Place Id</label>
+              <textarea
+                class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                name=""
+                id=""
+                cols="30"
+                rows="5"
+                v-model="formData.place_id"
+              ></textarea>
+              <p v-if="errors?.place_id" class="mt-1 text-sm text-red-600">
+                {{ errors.place_id[0] }}
+              </p>
+            </div>
           </div>
-          <div class="space-y-1 mb-4">
-            <p class="text-gray-800 text-sm mb-2">Category</p>
-            <v-select
-              v-model="formData.category_id"
-              class="style-chooser"
-              :options="products.data ?? []"
-              label="name"
-              :clearable="false"
-              :reduce="(product) => product.id"
-              placeholder="Choose category"
-            ></v-select>
+          <div class="col-span-1">
+            <div class="bg-white/60 px-2 rounded-lg mb-5">
+              <div class="flex items-center justify-start gap-3 mb-3">
+                <p>Images</p>
+
+                <input
+                  multiple
+                  type="file"
+                  ref="imagesInput"
+                  class="hidden"
+                  @change="handlerImagesFileChange"
+                  accept="image/*"
+                />
+              </div>
+              <div
+                class="grid grid-cols-3 gap-2"
+                v-if="imagesPreview.length == 0 && imagesEdit.length == 0"
+                @click.prevent="openFileImagePicker"
+              >
+                <div
+                  class="cursor-pointer w-full h-[80px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
+                >
+                  <span class="text-xs"
+                    ><i
+                      class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-[#ff613c] rounded-full shadow text-white"
+                    ></i
+                  ></span>
+                </div>
+                <div
+                  class="cursor-pointer w-full h-[80px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
+                >
+                  <span class="text-xs"
+                    ><i
+                      class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-[#ff613c] rounded-full shadow text-white"
+                    ></i
+                  ></span>
+                </div>
+                <div
+                  class="cursor-pointer w-full h-[80px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
+                >
+                  <span class="text-xs"
+                    ><i
+                      class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-[#ff613c] rounded-full shadow text-white"
+                    ></i
+                  ></span>
+                </div>
+              </div>
+              <div
+                class="grid grid-cols-3 gap-2"
+                v-if="imagesPreview.length != 0"
+              >
+                <div
+                  class="relative"
+                  v-for="(image, index) in imagesPreview"
+                  :key="index"
+                >
+                  <button
+                    @click.prevent="removeImageSelectImage(index)"
+                    class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                  >
+                    <XCircleIcon class="w-8 h-8 font-semibold" />
+                  </button>
+                  <img class="h-auto w-full rounded" :src="image" alt="" />
+                </div>
+                <div
+                  v-if="imagesPreview.length != 0"
+                  @click.prevent="openFileImagePicker"
+                  class="cursor-pointer w-full h-[90px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center mt-2"
+                >
+                  <span class="text-xs"
+                    ><i
+                      class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-[#ff613c] rounded-full shadow text-white"
+                    ></i
+                  ></span>
+                </div>
+              </div>
+              <div
+                class="grid grid-cols-3 gap-2"
+                v-if="imagesEdit.length != 0 && imagesPreview.length == 0"
+              >
+                <div
+                  class="relative"
+                  v-for="(image, index) in imagesEdit"
+                  :key="index"
+                >
+                  <!-- <button
+                    @click.prevent="removeImageSelectImage(index)"
+                    class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                  >
+                    <XCircleIcon class="w-8 h-8 font-semibold" />
+                  </button> -->
+                  <img class="h-auto w-full rounded" :src="image" alt="" />
+                </div>
+                <div
+                  v-if="imagesEdit.length != 0"
+                  @click.prevent="openFileImagePicker"
+                  class="cursor-pointer w-full h-[90px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center mt-2"
+                >
+                  <span class="text-xs"
+                    ><i
+                      class="fa-solid fa-plus text-lg font-semibold py-1 px-3 bg-[#ff613c] rounded-full shadow text-white"
+                    ></i
+                  ></span>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white/60 px-2 pt-6 rounded-lg shadow-sm mb-5">
+              <div class="flex items-center justify-between gap-3 mb-3">
+                <p>Feature Image</p>
+                <input
+                  type="file"
+                  ref="featureImageInput"
+                  class="hidden"
+                  @change="handlerFeatureFileChange"
+                  accept="image/*"
+                />
+                <button
+                  v-if="!featureImagePreview"
+                  @click.prevent="openFileFeaturePicker"
+                  class="text-sm text-[#ff613c]"
+                ></button>
+                <button
+                  v-else
+                  @click.prevent="removeFeatureSelectImage"
+                  class="rounded-full text-sm text-red-600 items-center justify-center flex"
+                >
+                  <XCircleIcon class="w-8 h-8 font-semibold" />
+                </button>
+              </div>
+              <div
+                v-if="!featureImagePreview"
+                @click.prevent="openFileFeaturePicker"
+                class="cursor-pointer w-full h-[200px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
+              >
+                <span class="text-xs"
+                  ><i
+                    class="fa-solid fa-plus text-lg font-semibold py-3 px-5 bg-[#ff613c] rounded-full shadow text-white"
+                  ></i
+                ></span>
+              </div>
+              <div v-if="featureImagePreview" class="">
+                <img
+                  class="h-auto w-full rounded"
+                  :src="featureImagePreview"
+                  alt=""
+                />
+              </div>
+              <p v-if="errors?.image" class="mt-1 text-sm text-red-600">
+                {{ errors.image[0] }}
+              </p>
+            </div>
           </div>
-          <div class="space-y-1 mb-2">
-            <label for="name" class="text-gray-800 text-sm">Description</label>
-            <!-- <input
-              type="text"
-              v-model="formData.description"
-              id="name"
-              class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-            /> -->
-            <textarea
-              class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-              name=""
-              id=""
-              cols="30"
-              rows="5"
-              v-model="formData.description"
-            ></textarea>
-            <p v-if="errors?.description" class="mt-1 text-sm text-red-600">
-              {{ errors.description[0] }}
-            </p>
-          </div>
-          <div class="space-y-1 mb-2">
-            <label for="name" class="text-gray-800 text-sm">Entry_fee</label>
-            <input
-              type="text"
-              v-model="formData.entry_fee"
-              id="name"
-              class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.entry_fee" class="mt-1 text-sm text-red-600">
-              {{ errors.entry_fee[0] }}
-            </p>
-          </div>
-          <div class="text-end">
+          <div class="text-end col-span-2">
             <Button type="submit"> Submit </Button>
           </div>
         </form>
@@ -192,162 +677,3 @@
     </Modal>
   </div>
 </template>
-
-<script setup>
-import Layout from "./Layout.vue";
-import Input from "../components/Input.vue";
-import Button from "../components/Button.vue";
-import Pagination from "../components/Pagination.vue";
-import {
-  PencilSquareIcon,
-  TrashIcon,
-  ShareIcon,
-  EyeIcon,
-  TicketIcon,
-  BuildingOfficeIcon,
-  PlusIcon,
-  UserGroupIcon,
-  UsersIcon,
-  AdjustmentsHorizontalIcon,
-} from "@heroicons/vue/24/outline";
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import { onMounted, ref, watch } from "vue";
-import Modal from "../components/Modal.vue";
-import { storeToRefs } from "pinia";
-import axios from "axios";
-import { useToast } from "vue-toastification";
-import Swal from "sweetalert2";
-import { useDestinationStore } from "../stores/destination";
-import { useProductStore } from "../stores/product";
-
-const destStore = useDestinationStore();
-const productStore = useProductStore();
-const toast = useToast();
-
-const carModalOpen = ref(false);
-
-const formData = ref({
-  name: "",
-  category_id: "",
-  description: "",
-  entry_fee: "",
-});
-const showEntries = ref(10);
-const errors = ref(null);
-const search = ref("");
-const { dests, loading } = storeToRefs(destStore);
-const { products } = storeToRefs(productStore);
-
-const changePage = async (url) => {
-  await destStore.getChangePage(url);
-};
-
-const addNewHandler = async () => {
-  const frmData = new FormData();
-  frmData.append("name", formData.value.name);
-  frmData.append("category_id", formData.value.category_id);
-  frmData.append("description", formData.value.description);
-  frmData.append("entry_fee", formData.value.entry_fee);
-
-  try {
-    const response = await destStore.addNewAction(frmData);
-    formData.value = {
-      name: "",
-      category_id: "",
-      description: "",
-      entry_fee: "",
-    };
-    errors.value = null;
-    carModalOpen.value = false;
-    await destStore.getListAction();
-    toast.success(response.message);
-  } catch (error) {
-    if (error.response.data.errors) {
-      errors.value = error.response.data.errors;
-    }
-    toast.error(error.response.data.message);
-  }
-};
-
-const updateHandler = async () => {
-  const frmData = new FormData();
-  frmData.append("name", formData.value.name);
-  frmData.append("category_id", formData.value.category_id);
-  frmData.append("description", formData.value.description);
-  frmData.append("entry_fee", formData.value.entry_fee);
-  frmData.append("_method", "PUT");
-  try {
-    const response = await destStore.updateAction(frmData, formData.value.id);
-    formData.value = {
-      category_id: "",
-      description: "",
-      entry_fee: "",
-    };
-    errors.value = null;
-    carModalOpen.value = false;
-    await destStore.getListAction();
-    toast.success(response.message);
-  } catch (error) {
-    if (error.response.data.errors) {
-      errors.value = error.response.data.errors;
-    }
-    toast.error(error.response.data.message);
-  }
-};
-
-const onSubmitHandler = async () => {
-  if (formData.value.id) {
-    updateHandler();
-  } else {
-    addNewHandler();
-  }
-};
-
-const editModalOpenHandler = (data) => {
-  formData.value.id = data.id;
-  formData.value.name = data.name;
-  formData.value.category_id = data.category.id;
-  formData.value.description = data.description;
-  formData.value.entry_fee = data.entry_fee;
-  carModalOpen.value = true;
-};
-
-const onDeleteHandler = async (id) => {
-  Swal.fire({
-    title: "Are you sure?",
-    text: "You won't be able to revert this!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#2463EB",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, delete it!",
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        const response = await destStore.deleteAction(id);
-        toast.success(response.message);
-      } catch (error) {
-        if (error.response.data.errors) {
-          errors.value = error.response.data.errors;
-        }
-        toast.error(error.response.data.message);
-      }
-      await destStore.getListAction();
-    }
-  });
-};
-
-onMounted(async () => {
-  await destStore.getListAction();
-  await productStore.getSimpleListAction();
-  // console.log(dest.value, "pro");
-});
-
-watch(showEntries, async (newValue) => {
-  await destStore.getListAction({ limit: showEntries.value });
-});
-
-watch(search, async (newValue) => {
-  await destStore.getListAction({ search: search.value });
-});
-</script>

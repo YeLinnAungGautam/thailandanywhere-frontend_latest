@@ -26,6 +26,7 @@
               @click.prevent="openCreate()"
               v-if="!authStore.isAgent"
             >
+              Create
             </Button>
           </div>
         </div>
@@ -107,11 +108,17 @@
             class="flex px-4 justify-between items-center bg-[#ff613c] text-white py-2"
           >
             <h3>{{ formData.id ? "Edit Hotel" : "Create Hotel" }}</h3>
-            <p>quit & detail</p>
+            <p
+              class="cursor-pointer text-xs hover:bg-white hover:text-black px-2 py-2 rounded-lg"
+              :class="!quiteSwitch ? 'bg-white text-black' : ''"
+              @click="toggleQuiteSwitch"
+            >
+              quit / detail
+            </p>
           </div>
           <div class="px-4">
             <form @submit.prevent="onSubmitHandler" class="mt-2">
-              <div class="mb-2 space-y-1">
+              <div v-if="quiteSwitch" class="mb-2 space-y-1">
                 <p class="text-gray-800 text-sm mb-2">Type</p>
                 <v-select
                   v-model="formData.type"
@@ -123,7 +130,7 @@
                   placeholder="Choose Type"
                 ></v-select>
               </div>
-              <div class="mb-2 space-y-1">
+              <div v-if="quiteSwitch" class="mb-2 space-y-1">
                 <label for="name" class="text-sm text-gray-800">Name</label>
                 <input
                   type="text"
@@ -135,7 +142,7 @@
                   {{ errors.name[0] }}
                 </p>
               </div>
-              <div>
+              <div v-if="quiteSwitch">
                 <p class="mb-2 text-sm text-gray-800">Cities</p>
                 <v-select
                   v-model="formData.city_id"
@@ -147,7 +154,7 @@
                   placeholder="Choose City"
                 ></v-select>
               </div>
-              <div class="mb-2 space-y-1">
+              <div v-if="quiteSwitch" class="mb-2 space-y-1">
                 <label for="name" class="text-sm text-gray-800">Place</label>
                 <input
                   type="text"
@@ -159,7 +166,7 @@
                   {{ errors.place[0] }}
                 </p>
               </div>
-              <div class="mb-2 space-y-1">
+              <div v-if="quiteSwitch" class="mb-2 space-y-1">
                 <label for="name" class="text-sm text-gray-800"
                   >Legal Name</label
                 >
@@ -173,7 +180,7 @@
                   {{ errors.legal_name[0] }}
                 </p>
               </div>
-              <div class="mb-2 space-y-1">
+              <div v-if="quiteSwitch" class="mb-2 space-y-1">
                 <label for="name" class="text-sm text-gray-800"
                   >Description</label
                 >
@@ -186,7 +193,7 @@
                   {{ errors.description[0] }}
                 </p>
               </div>
-              <div>
+              <div v-if="quiteSwitch">
                 <p class="mb-2 text-sm text-gray-800 space-y-1">Bank Name</p>
                 <v-select
                   v-model="formData.bank_name"
@@ -198,7 +205,7 @@
                   placeholder="Choose Bank"
                 ></v-select>
               </div>
-              <div>
+              <div v-if="quiteSwitch">
                 <p class="mb-2 mt-2 text-sm text-gray-800 space-y-1">
                   Payment Method
                 </p>
@@ -212,7 +219,7 @@
                   placeholder="Choose Payment"
                 ></v-select>
               </div>
-              <div class="mb-2 mt-2 space-y-1">
+              <div v-if="quiteSwitch" class="mb-2 mt-2 space-y-1">
                 <label for="name" class="text-sm text-gray-800"
                   >Bank Account Number</label
                 >
@@ -222,7 +229,7 @@
                   class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
-              <div class="mb-2 mt-2 space-y-1">
+              <div v-if="quiteSwitch" class="mb-2 mt-2 space-y-1">
                 <label for="name" class="text-sm text-gray-800">
                   Account Name</label
                 >
@@ -232,7 +239,7 @@
                   class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
-              <div class="mb-2 space-y-1">
+              <div v-if="quiteSwitch" class="mb-2 space-y-1">
                 <label for="name" class="text-sm text-gray-800"
                   >Contract Due Date</label
                 >
@@ -243,7 +250,7 @@
                 />
                 <!-- <p>{{ formData.contract_due }}</p> -->
               </div>
-              <div class="mb-2 space-y-1">
+              <div v-if="quiteSwitch" class="mb-2 space-y-1">
                 <label for="name" class="text-sm text-gray-800"
                   >Contracts</label
                 >
@@ -258,7 +265,10 @@
                   {{ errors.contracts[0] }}
                 </p>
               </div>
-              <div class="mb-2 space-y-1" v-if="linkContract.length != 0">
+              <div
+                class="mb-2 space-y-1"
+                v-if="linkContract.length != 0 && quiteSwitch"
+              >
                 <p v-for="(a, index) in linkContract.contacts" :key="index">
                   <a :href="a.file" target="_blink" class="text-sm text-red-500"
                     >link</a
@@ -266,7 +276,7 @@
                 </p>
               </div>
 
-              <div class="mb-2 space-y-1">
+              <div v-if="quiteSwitch" class="mb-2 space-y-1">
                 <label for="description" class="text-sm text-gray-800"
                   >Images</label
                 >
@@ -334,6 +344,12 @@
                   </div>
                 </div>
               </div>
+              <div v-if="!quiteSwitch">
+                <FacilitoryStoreVue
+                  @Change="onGetArray"
+                  :data="formData.facilities"
+                />
+              </div>
               <div class="text-end flex justify-end items-center">
                 <p
                   class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
@@ -384,6 +400,7 @@ import Modal from "../components/Modal.vue";
 import { useCityStore } from "../stores/city";
 import { useHotelStore } from "../stores/hotel";
 import { useAuthStore } from "../stores/auth";
+import FacilitoryStoreVue from "../components/FacilitoryStore.vue";
 
 const createModalOpen = ref(false);
 const toast = useToast();
@@ -454,7 +471,16 @@ const formData = ref({
   contract_due: "",
   contracts: [],
   images: [],
+  facilities: [],
 });
+
+const onGetArray = (data) => {
+  formData.value.facilities = [];
+  for (let i = 0; i < data.length; i++) {
+    formData.value.facilities.push(data[i]);
+  }
+  console.log(formData.value.facilities, "this is on get data");
+};
 
 const editImagesPreview = ref([]);
 const imagesPreview = ref([]);
@@ -497,9 +523,11 @@ const closeModal = () => {
     contract_due: "",
     contracts: [],
     images: [],
+    facilities: [],
   };
   linkContract.value = {};
   editImagesPreview.value = [];
+  quiteSwitch.value = true;
   imagesPreview.value = [];
   createModalOpen.value = false;
 };
@@ -522,6 +550,11 @@ const addNewHandler = async () => {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
       frmData.append("images[" + i + "]", file);
+    }
+  }
+  if (formData.value.facilities.length > 0) {
+    for (let f = 0; f < formData.value.facilities.length; f++) {
+      frmData.append("facilities[" + f + "]", formData.value.facilities[f]);
     }
   }
   console.log(formData.value.contracts);
@@ -559,6 +592,7 @@ const addNewHandler = async () => {
     errors.value = null;
     imagesPreview.value = [];
     editImagesPreview.value = [];
+    closeModal();
     createModalOpen.value = false;
     await hotelStore.getListAction();
     toast.success(response.message);
@@ -626,6 +660,11 @@ const updateHandler = async () => {
       frmData.append("contracts[" + i + "]", file);
     }
   }
+  if (formData.value.facilities.length > 0) {
+    for (let f = 0; f < formData.value.facilities.length; f++) {
+      frmData.append("facilities[" + f + "]", formData.value.facilities[f]);
+    }
+  }
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -656,6 +695,7 @@ const updateHandler = async () => {
     imagesPreview.value = [];
     editImagesPreview.value = [];
     createModalOpen.value = false;
+    closeModal();
     await hotelStore.getListAction();
     toast.success(response.message);
   } catch (error) {
@@ -708,6 +748,13 @@ const editModalOpenHandler = (data) => {
       editImagesPreview.value.push(data.images[i]);
     }
   }
+  if (data.facilities.length > 0) {
+    formData.value.facilities = [];
+    for (let i = 0; i < data.facilities.length; i++) {
+      formData.value.facilities.push(data.facilities[i].id);
+    }
+  }
+  console.log(formData.value.facilities);
   createModalOpen.value = true;
 };
 
@@ -750,6 +797,11 @@ const removeImageUpdateImage = async (id, imageID) => {
   toast.success("delete image success");
   closeModal();
   await hotelStore.getListAction({ search: search.value });
+};
+
+const quiteSwitch = ref(true);
+const toggleQuiteSwitch = () => {
+  quiteSwitch.value = !quiteSwitch.value;
 };
 
 onMounted(async () => {

@@ -88,5 +88,13 @@ export const useRestaurantStore = defineStore("restaurant", {
     async toggleLoading() {
       this.loading = !this.loading;
     },
+    async downloadExport() {
+      try {
+        const res = await axios.get("/restaurants/export/csv");
+        return res.data;
+      } catch (err) {
+        throw err;
+      }
+    },
   },
 });

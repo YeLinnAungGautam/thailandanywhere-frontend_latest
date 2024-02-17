@@ -73,5 +73,13 @@ export const useVariationStore = defineStore("variation", {
         throw error;
       }
     },
+    async downloadExport() {
+      try {
+        const res = await axios.get("/entrance-tickets-variations/export/csv");
+        return res.data;
+      } catch (err) {
+        throw err;
+      }
+    },
   },
 });

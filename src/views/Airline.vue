@@ -99,7 +99,9 @@
         />
       </div>
       <div class="space-x-3">
-        <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
+        <Button :leftIcon="ShareIcon" intent="text" @click="exportAction">
+          Export
+        </Button>
         <Button
           :leftIcon="PlusIcon"
           @click.prevent="openModal()"
@@ -352,6 +354,13 @@ const onDeleteHandler = async (id) => {
       await airlineStore.getListAction();
     }
   });
+};
+
+const exportAction = async () => {
+  const res = await airlineStore.downloadExport();
+  if (res) {
+    window.open(res.result.download_link);
+  }
 };
 
 onMounted(async () => {

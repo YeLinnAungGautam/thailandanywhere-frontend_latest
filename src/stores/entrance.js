@@ -81,5 +81,13 @@ export const useEntranceStore = defineStore("entrance", {
         throw error;
       }
     },
+    async downloadExport() {
+      try {
+        const res = await axios.get("/entrance-tickets/export/csv");
+        return res.data;
+      } catch (err) {
+        throw err;
+      }
+    },
   },
 });

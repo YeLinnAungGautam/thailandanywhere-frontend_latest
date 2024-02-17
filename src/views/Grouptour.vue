@@ -20,7 +20,9 @@
         />
       </div>
       <div class="space-x-3">
-        <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
+        <Button :leftIcon="ShareIcon" intent="text" @click="exportAction">
+          Export
+        </Button>
         <Button
           :leftIcon="PlusIcon"
           @click="GrouptourCreate"
@@ -186,6 +188,13 @@ const onDeleteHandler = async (id) => {
       await grouptourStore.getListAction();
     }
   });
+};
+
+const exportAction = async () => {
+  const res = await grouptourStore.downloadExport();
+  if (res) {
+    window.open(res.result.download_link);
+  }
 };
 
 onMounted(async () => {

@@ -84,5 +84,13 @@ export const useMealStore = defineStore("meal", {
         throw error;
       }
     },
+    async downloadExport() {
+      try {
+        const res = await axios.get("/meals/export/csv");
+        return res.data;
+      } catch (err) {
+        throw err;
+      }
+    },
   },
 });

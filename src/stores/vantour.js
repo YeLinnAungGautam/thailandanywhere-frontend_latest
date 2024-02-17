@@ -84,5 +84,13 @@ export const useVantourStore = defineStore("vantour", {
         throw error;
       }
     },
+    async downloadExport() {
+      try {
+        const res = await axios.get("/private-van-tours/export/csv");
+        return res.data;
+      } catch (err) {
+        throw err;
+      }
+    },
   },
 });

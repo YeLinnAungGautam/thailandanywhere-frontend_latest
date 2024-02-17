@@ -76,5 +76,13 @@ export const useRoomStore = defineStore("room", {
         throw error;
       }
     },
+    async downloadExport() {
+      try {
+        const res = await axios.get("/rooms/export/csv");
+        return res.data;
+      } catch (err) {
+        throw err;
+      }
+    },
   },
 });

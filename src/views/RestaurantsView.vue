@@ -238,7 +238,9 @@
         />
       </div>
       <div class="space-x-3">
-        <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
+        <Button :leftIcon="ShareIcon" intent="text" @click="exportAction">
+          Export
+        </Button>
         <Button
           :leftIcon="PlusIcon"
           @click.prevent="openCreate()"
@@ -664,6 +666,13 @@ const removeImageUpdateImage = async (id, imageID) => {
   toast.success("delete image success");
   closeModal();
   await restaurantStore.getListAction({ search: search.value });
+};
+
+const exportAction = async () => {
+  const res = await restaurantStore.downloadExport();
+  if (res) {
+    window.open(res.result.download_link);
+  }
 };
 
 onMounted(async () => {

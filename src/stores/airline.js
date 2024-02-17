@@ -74,5 +74,13 @@ export const useAirLineStore = defineStore("airline", {
         throw error;
       }
     },
+    async downloadExport() {
+      try {
+        const res = await axios.get("/airlines/export/csv");
+        return res.data;
+      } catch (err) {
+        throw err;
+      }
+    },
   },
 });

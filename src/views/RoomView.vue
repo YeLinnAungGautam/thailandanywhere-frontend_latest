@@ -396,7 +396,9 @@
         </button>
       </div>
       <div class="space-x-3">
-        <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
+        <Button :leftIcon="ShareIcon" intent="text" @click="exportAction">
+          Export
+        </Button>
         <Button
           :leftIcon="PlusIcon"
           @click.prevent="createModalOpen = true"
@@ -860,6 +862,13 @@ const addNewPerid = () => {
 
 const removeFromPerid = (index) => {
   formData.value.period.splice(index, 1);
+};
+
+const exportAction = async () => {
+  const res = await roomStore.downloadExport();
+  if (res) {
+    window.open(res.result.download_link);
+  }
 };
 
 onMounted(async () => {

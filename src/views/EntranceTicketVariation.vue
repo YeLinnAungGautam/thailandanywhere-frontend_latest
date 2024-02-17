@@ -132,7 +132,9 @@
       </div>
 
       <div class="space-x-3">
-        <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
+        <Button :leftIcon="ShareIcon" intent="text" @click="exportAction">
+          Export
+        </Button>
         <Button
           :leftIcon="PlusIcon"
           @click.prevent="openModal()"
@@ -420,6 +422,14 @@ const onDeleteHandler = async (id) => {
 
 const entList = ref({});
 const entrance_ticket_id = ref("");
+
+const exportAction = async () => {
+  const res = await variationStore.downloadExport();
+  if (res) {
+    window.open(res.result.download_link);
+  }
+};
+
 onMounted(async () => {
   await variationStore.getListAction({
     search: search.value,

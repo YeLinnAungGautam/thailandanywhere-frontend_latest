@@ -38,6 +38,9 @@
         />
       </div>
       <div class="flex justify-end items-center gap-4">
+        <Button :leftIcon="ShareIcon" intent="text" @click="exportAction">
+          Export
+        </Button>
         <Button
           :leftIcon="PlusIcon"
           @click="VantourCreate"
@@ -237,6 +240,13 @@ const forSale = ref(true);
 
 const toggleSale = () => {
   forSale.value = !forSale.value;
+};
+
+const exportAction = async () => {
+  const res = await vantourStore.downloadExport();
+  if (res) {
+    window.open(res.result.download_link);
+  }
 };
 
 onMounted(async () => {

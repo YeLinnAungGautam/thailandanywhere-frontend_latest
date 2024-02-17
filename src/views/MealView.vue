@@ -378,7 +378,9 @@
         </button>
       </div>
       <div class="space-x-3">
-        <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
+        <Button :leftIcon="ShareIcon" intent="text" @click="exportAction">
+          Export
+        </Button>
         <Button
           :leftIcon="PlusIcon"
           @click.prevent="createModalOpen = true"
@@ -860,6 +862,13 @@ const clearFunction = () => {
   end_date.value = "";
   search.value = "";
   periodAjj.value = "";
+};
+
+const exportAction = async () => {
+  const res = await mealStore.downloadExport();
+  if (res) {
+    window.open(res.result.download_link);
+  }
 };
 
 watch(search, async (newValue) => {

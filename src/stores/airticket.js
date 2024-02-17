@@ -66,5 +66,13 @@ export const useAirTicketStore = defineStore("airticket", {
         throw error;
       }
     },
+    async downloadExport() {
+      try {
+        const res = await axios.get("/airline-tickets/export/csv");
+        return res.data;
+      } catch (err) {
+        throw err;
+      }
+    },
   },
 });

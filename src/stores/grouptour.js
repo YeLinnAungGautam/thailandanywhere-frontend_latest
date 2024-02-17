@@ -81,5 +81,13 @@ export const useGrouptourStore = defineStore("grouptour", {
         throw error;
       }
     },
+    async downloadExport() {
+      try {
+        const res = await axios.get("/group-tours/export/csv");
+        return res.data;
+      } catch (err) {
+        throw err;
+      }
+    },
   },
 });

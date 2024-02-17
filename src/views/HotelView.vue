@@ -21,6 +21,9 @@
                 placeholder="Search Hotels..."
               />
             </div>
+            <Button :leftIcon="ShareIcon" intent="text" @click="exportAction">
+              Export
+            </Button>
             <Button
               :leftIcon="PlusIcon"
               @click.prevent="openCreate()"
@@ -802,6 +805,13 @@ const removeImageUpdateImage = async (id, imageID) => {
 const quiteSwitch = ref(true);
 const toggleQuiteSwitch = () => {
   quiteSwitch.value = !quiteSwitch.value;
+};
+
+const exportAction = async () => {
+  const res = await hotelStore.downloadExport();
+  if (res) {
+    window.open(res.result.download_link);
+  }
 };
 
 onMounted(async () => {

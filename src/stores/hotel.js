@@ -89,5 +89,13 @@ export const useHotelStore = defineStore("hotel", {
     async toggleLoading() {
       this.loading = !this.loading;
     },
+    async downloadExport() {
+      try {
+        const res = await axios.get("/hotels/export/csv");
+        return res.data;
+      } catch (err) {
+        throw err;
+      }
+    },
   },
 });

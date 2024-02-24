@@ -9,7 +9,7 @@
     <div class="flex items-center justify-between mb-8">
       <div class="flex justify-start items-center gap-4">
         <div
-          class="flex justify-center items-center border-2 shadow-sm rounded-xl overflow-hidden"
+          class="flex justify-center items-center border-2 shadow-sm rounded-md overflow-hidden"
         >
           <div
             class="cursor-pointer px-3 py-2.5 text-xs"
@@ -98,7 +98,9 @@
             >
               -
             </td>
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+            <td
+              class="p-3 text-xs text-gray-700 max-w-[300px] overflow-hidden whitespace-nowrap"
+            >
               {{ r.name }}
             </td>
 

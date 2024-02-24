@@ -2,10 +2,10 @@
   <router-link
     :to="to"
     :class="{
-      'text-[#FF5B00] bg-[#FF5B00]/10': isActive(),
-      'text-gray-600 bg-white': !isActive(),
+      'text-white bg-[#FF5B00]': isActive(),
+      'text-gray-600 bg-gray-100': !isActive(),
     }"
-    class="inline-flex mb-1 shadow-sm text-[.75rem] rounded-md relative items-center py-[12px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[rgb(255, 91, 0, 0.1) transition duration-150"
+    class="inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[12px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
   >
     <component v-if="icon" :is="icon" class="w-4 h-4 mr-[1.2rem]"></component>
     {{ name }}

@@ -19,6 +19,7 @@ import Meal from "../views/MealView.vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { useSidebarStore } from "../stores/sidebar";
+
 import {
   PencilSquareIcon,
   TrashIcon,
@@ -74,161 +75,223 @@ onMounted(() => {
         >
           <Tab as="template" v-slot="{ selected }" @click="changeTab(0)">
             <button
-              :class="{
-                'bg-[#ff613c] text-white': selected,
-                'bg-white text-gray-600': !selected,
-              }"
+              :class="selected ? 'bg-[#FF5B00]' : 'bg-white'"
               class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[180px] text-center"
             >
               <img
                 src="../../public/van-svgrepo-com.svg"
-                class="h-14 mx-auto"
+                class="w-12 h-12 p-2 rounded-lg"
+                :class="
+                  selected ? 'bg-white' : 'bg-[#FF5B00]/30 text-[#FF5B00]'
+                "
                 alt=""
               />
-              <div>
-                <p class="text-xs whitespace-nowrap">Van Tours</p>
-                <p class="text-xl font-semibold">125</p>
+              <div
+                class="text-xs"
+                :class="selected ? 'text-white' : 'text-gray-900'"
+              >
+                <p class="font-semibold">124</p>
+                <p class="text-[10px]">Van Tours</p>
               </div>
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(1)">
             <button
-              :class="{
-                'bg-[#ff613c] text-white': selected,
-                'bg-white text-black': !selected,
-              }"
+              :class="selected ? 'bg-[#FF5B00]' : 'bg-white'"
               class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[180px] text-center"
             >
               <img
                 src="../../public/group-svgrepo-com.svg"
-                class="h-14 mx-auto"
+                class="w-12 h-12 p-2 rounded-lg"
+                :class="
+                  selected ? 'bg-white' : 'bg-[#FF5B00]/30 text-[#FF5B00]'
+                "
                 alt=""
               />
-              <div>
-                <p class="text-xs whitespace-nowrap">Group Tours</p>
-                <p class="text-xl font-semibold">125</p>
+              <div
+                class="text-xs"
+                :class="selected ? 'text-white' : 'text-gray-900'"
+              >
+                <p class="font-semibold">124</p>
+                <p class="text-[10px]">Group Tours</p>
               </div>
             </button>
           </Tab>
 
           <Tab as="template" v-slot="{ selected }" @click="changeTab(2)">
             <button
-              :class="{
-                'bg-[#ff613c] text-white': selected,
-                'bg-white text-black': !selected,
-              }"
-              class="flex items-center gap-3 tracking-wide min-w-[180px] text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              :class="selected ? 'bg-[#FF5B00]' : 'bg-white'"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[180px] text-center"
             >
               <img
                 src="../../public/holiday-hotel-tourism-svgrepo-com.svg"
-                class="h-14 mx-auto"
+                class="w-12 h-12 p-2 rounded-lg"
+                :class="
+                  selected ? 'bg-white' : 'bg-[#FF5B00]/30 text-[#FF5B00]'
+                "
                 alt=""
               />
-              <div>
-                <p class="text-xs whitespace-nowrap">Hotels</p>
-                <p class="text-xl font-semibold">125</p>
+              <div
+                class="text-xs"
+                :class="selected ? 'text-white' : 'text-gray-900'"
+              >
+                <p class="font-semibold">124</p>
+                <p class="text-[10px]">Hotels</p>
               </div>
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(3)">
             <button
-              :class="{
-                'bg-[#ff613c] text-white': selected,
-                'bg-white text-black': !selected,
-              }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              :class="selected ? 'bg-[#FF5B00]' : 'bg-white'"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[180px] text-center"
             >
-              Rooms
+              <img
+                src="../../public/holiday-hotel-tourism-svgrepo-com.svg"
+                class="w-12 h-12 p-2 rounded-lg"
+                :class="
+                  selected ? 'bg-white' : 'bg-[#FF5B00]/30 text-[#FF5B00]'
+                "
+                alt=""
+              />
+              <div
+                class="text-xs"
+                :class="selected ? 'text-white' : 'text-gray-900'"
+              >
+                <p class="font-semibold">124</p>
+                <p class="text-[10px]">Rooms</p>
+              </div>
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(4)">
             <button
-              :class="{
-                'bg-[#ff613c] text-white': selected,
-                'bg-white text-black': !selected,
-              }"
-              class="flex items-center gap-3 tracking-wide text-xs min-w-[180px] cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              :class="selected ? 'bg-[#FF5B00]' : 'bg-white'"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[180px] text-center"
             >
               <img
                 src="../../public/airline-boarding-pass-flight-svgrepo-com.svg"
-                class="h-14 mx-auto"
+                class="w-12 h-12 p-2 rounded-lg"
+                :class="
+                  selected ? 'bg-white' : 'bg-[#FF5B00]/30 text-[#FF5B00]'
+                "
                 alt=""
               />
-              <div>
-                <p class="text-xs whitespace-nowrap">AirLines</p>
-                <p class="text-xl font-semibold">125</p>
+              <div
+                class="text-xs"
+                :class="selected ? 'text-white' : 'text-gray-900'"
+              >
+                <p class="font-semibold">124</p>
+                <p class="text-[10px]">AirLines</p>
               </div>
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(5)">
             <button
-              :class="{
-                'bg-[#ff613c] text-white': selected,
-                'bg-white text-black': !selected,
-              }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[150px]"
+              :class="selected ? 'bg-[#FF5B00]' : 'bg-white'"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[180px] text-center"
             >
-              AirLine Ticket
+              <img
+                src="../../public/airline-boarding-pass-flight-svgrepo-com.svg"
+                class="w-12 h-12 p-2 rounded-lg"
+                :class="
+                  selected ? 'bg-white' : 'bg-[#FF5B00]/30 text-[#FF5B00]'
+                "
+                alt=""
+              />
+              <div
+                class="text-xs"
+                :class="selected ? 'text-white' : 'text-gray-900'"
+              >
+                <p class="font-semibold">124</p>
+                <p class="text-[10px]">AirLine Tickets</p>
+              </div>
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(6)">
             <button
-              :class="{
-                'bg-[#ff613c] text-white': selected,
-                'bg-white text-black': !selected,
-              }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer min-w-[180px] py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              :class="selected ? 'bg-[#FF5B00]' : 'bg-white'"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[180px] text-center"
             >
               <img
                 src="../../public/favorite-place-svgrepo-com.svg"
-                class="h-14 mx-auto"
+                class="w-12 h-12 p-2 rounded-lg"
+                :class="
+                  selected ? 'bg-white' : 'bg-[#FF5B00]/30 text-[#FF5B00]'
+                "
                 alt=""
               />
-              <div>
-                <p class="text-xs whitespace-nowrap">Attractions</p>
-                <p class="text-xl font-semibold">125</p>
+              <div
+                class="text-xs"
+                :class="selected ? 'text-white' : 'text-gray-900'"
+              >
+                <p class="font-semibold">124</p>
+                <p class="text-[10px]">Attractions</p>
               </div>
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(7)">
             <button
-              :class="{
-                'bg-[#ff613c] text-white': selected,
-                'bg-white text-black': !selected,
-              }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[240px] text-center"
+              :class="selected ? 'bg-[#FF5B00]' : 'bg-white'"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[200px] text-center"
             >
-              Entrance Tickets Variation
+              <img
+                src="../../public/favorite-place-svgrepo-com.svg"
+                class="w-12 h-12 p-2 rounded-lg"
+                :class="
+                  selected ? 'bg-white' : 'bg-[#FF5B00]/30 text-[#FF5B00]'
+                "
+                alt=""
+              />
+              <div
+                class="text-xs"
+                :class="selected ? 'text-white' : 'text-gray-900'"
+              >
+                <p class="font-semibold">124</p>
+                <p class="text-[10px]">Entrance Tickets</p>
+              </div>
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(8)">
             <button
-              :class="{
-                'bg-[#ff613c] text-white': selected,
-                'bg-white text-black': !selected,
-              }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer min-w-[180px] py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              :class="selected ? 'bg-[#FF5B00]' : 'bg-white'"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[180px] text-center"
             >
               <img
                 src="../../public/restaurant-svgrepo-com.svg"
-                class="h-14 mx-auto"
+                class="w-12 h-12 p-2 rounded-lg"
+                :class="
+                  selected ? 'bg-white' : 'bg-[#FF5B00]/30 text-[#FF5B00]'
+                "
                 alt=""
               />
-              <div>
-                <p class="text-xs whitespace-nowrap">Restaurants</p>
-                <p class="text-xl font-semibold">125</p>
+              <div
+                class="text-xs"
+                :class="selected ? 'text-white' : 'text-gray-900'"
+              >
+                <p class="font-semibold">124</p>
+                <p class="text-[10px]">Restaurants</p>
               </div>
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(9)">
             <button
-              :class="{
-                'bg-[#ff613c] text-white': selected,
-                'bg-white text-black': !selected,
-              }"
-              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+              :class="selected ? 'bg-[#FF5B00]' : 'bg-white'"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[180px] text-center"
             >
-              Meals
+              <img
+                src="../../public/restaurant-svgrepo-com.svg"
+                class="w-12 h-12 p-2 rounded-lg"
+                :class="
+                  selected ? 'bg-white' : 'bg-[#FF5B00]/30 text-[#FF5B00]'
+                "
+                alt=""
+              />
+              <div
+                class="text-xs"
+                :class="selected ? 'text-white' : 'text-gray-900'"
+              >
+                <p class="font-semibold">124</p>
+                <p class="text-[10px]">Meals</p>
+              </div>
             </button>
           </Tab>
         </TabList>

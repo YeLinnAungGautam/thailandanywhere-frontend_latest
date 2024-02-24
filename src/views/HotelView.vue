@@ -6,10 +6,23 @@
     <div class="grid grid-cols-6 gap-4">
       <div class="col-span-4">
         <div class="flex items-center justify-between mb-4">
-          <div class="flex justify-start items-center gap-6">
-            <h3 class="text-lg font-medium tracking-wide text-gray-600">
-              Hotels
-            </h3>
+          <div
+            class="flex justify-center items-center border-2 shadow-sm rounded-md overflow-hidden"
+          >
+            <div
+              class="cursor-pointer px-3 py-2.5 text-xs"
+              :class="forSale ? 'bg-[#ff613c] text-white' : 'bg-white'"
+              @click="toggleSale"
+            >
+              for Sale Part
+            </div>
+            <div
+              class="cursor-pointer px-3 py-2.5 text-xs"
+              @click="toggleSale"
+              :class="!forSale ? 'bg-[#ff613c] text-white' : 'bg-white'"
+            >
+              for User Web
+            </div>
           </div>
 
           <div class="space-x-3 flex justify-end items-center gap-2">
@@ -814,6 +827,11 @@ const exportAction = async () => {
   }
 };
 
+const forSale = ref(false);
+const toggleSale = () => {
+  forSale.value = !forSale.value;
+};
+
 onMounted(async () => {
   await hotelStore.getListAction();
   await cityStore.getSimpleListAction();
@@ -821,6 +839,16 @@ onMounted(async () => {
 });
 
 watch(search, async (newValue) => {
-  await hotelStore.getListAction({ search: search.value });
+  await hotelStore.getListAction({
+    search: search.value,
+    type: forSale.value ? "other_booking" : "direct_booking",
+  });
+});
+
+watch(forSale, async (newValue) => {
+  await hotelStore.getListAction({
+    search: search.value,
+    type: forSale.value ? "other_booking" : "direct_booking",
+  });
 });
 </script>

@@ -610,11 +610,7 @@ watch(searchTime, async (newValue) => {
           >
             CRM ID
           </div>
-          <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
-          >
-            PAST CRM ID
-          </div>
+
           <div
             class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
           >
@@ -639,6 +635,11 @@ watch(searchTime, async (newValue) => {
             class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
           >
             Reservation Status
+          </div>
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
+            Expense Status
           </div>
           <div
             class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
@@ -679,12 +680,6 @@ watch(searchTime, async (newValue) => {
             <div
               class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
             >
-              <p v-if="d.booking?.past_crm_id">{{ d.booking?.past_crm_id }}</p>
-              <p v-if="!d.booking?.past_crm_id">-</p>
-            </div>
-            <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
-            >
               <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
                 PrivateVanTour
               </p>
@@ -718,24 +713,31 @@ watch(searchTime, async (newValue) => {
             <div
               class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
             >
-              <p v-if="!d.payment_status || d.payment_status == 'null'">-</p>
               <p
-                v-if="d.payment_status == 'fully_paid'"
+                v-if="
+                  !d.booking?.payment_status ||
+                  d.booking?.payment_status == 'null'
+                "
+              >
+                -
+              </p>
+              <p
+                v-if="d.booking?.payment_status == 'fully_paid'"
                 class="inline-block px-3 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
               >
-                {{ d.payment_status }}
+                {{ d.booking?.payment_status }}
               </p>
               <p
-                v-if="d.payment_status == 'not_paid'"
+                v-if="d.booking?.payment_status == 'not_paid'"
                 class="inline-block px-3 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
               >
-                {{ d.payment_status }}
+                {{ d.booking?.payment_status }}
               </p>
               <p
-                v-if="d.payment_status == 'partially_paid'"
+                v-if="d.booking?.payment_status == 'partially_paid'"
                 class="inline-block px-3 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
               >
-                {{ d.payment_status }}
+                {{ d.booking?.payment_status }}
               </p>
             </div>
             <div
@@ -762,7 +764,29 @@ watch(searchTime, async (newValue) => {
                 {{ d.reservation_status }}
               </p>
             </div>
-
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+            >
+              <p v-if="!d?.payment_status || d?.payment_status == 'null'">-</p>
+              <p
+                v-if="d?.payment_status == 'fully_paid'"
+                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
+              >
+                {{ d?.payment_status }}
+              </p>
+              <p
+                v-if="d?.payment_status == 'not_paid'"
+                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
+              >
+                {{ d?.payment_status }}
+              </p>
+              <p
+                v-if="d?.payment_status == 'partially_paid'"
+                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
+              >
+                {{ d?.payment_status }}
+              </p>
+            </div>
             <div
               class="p-3 mt-2 text-xs text-center bg-white divide-y divide-gray-100 text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden flex justify-end items-center"
             >

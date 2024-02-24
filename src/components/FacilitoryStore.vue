@@ -22,8 +22,28 @@ const formData = ref({
   id: "",
   name: "",
   list: [],
+  image: "",
 });
 const errors = ref(null);
+const imagePreview = ref(null);
+const imageInput = ref(null);
+
+const openFilePicker = () => {
+  imageInput.value.click();
+};
+
+const handlerFileChange = (e) => {
+  let selectedFile = e.target.files[0];
+  if (selectedFile) {
+    formData.value.image = e.target.files[0];
+    imagePreview.value = URL.createObjectURL(selectedFile);
+  }
+};
+
+const removeSelectImage = () => {
+  formData.value.image = null;
+  imagePreview.value = null;
+};
 
 const chooseType = () => {
   // console.log(formData.value.list);
@@ -47,6 +67,7 @@ const editMood = (data) => {
     id: data.id,
     name: data.name,
   };
+  imagePreview.value = data.image;
 };
 const deleteMood = async (id) => {
   const res = await facilityStore.deleteAction(id);
@@ -57,12 +78,15 @@ const deleteMood = async (id) => {
 const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
+  frmData.append("image", formData.value.image);
   try {
     const response = await facilityStore.addNewAction(frmData);
     formData.value = {
       name: "",
+      image: "",
     };
     errors.value = null;
+    imagePreview.value = null;
     await facilityStore.getSimpleListAction();
     toast.success(response.message);
   } catch (error) {
@@ -76,6 +100,7 @@ const addNewHandler = async () => {
 const updateHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
+  frmData.append("image", formData.value.image);
   frmData.append("_method", "PUT");
   try {
     const response = await facilityStore.updateAction(
@@ -85,8 +110,10 @@ const updateHandler = async () => {
     formData.value = {
       name: "",
       id: "",
+      image: "",
     };
     errors.value = null;
+    imagePreview.value = null;
     await facilityStore.getSimpleListAction();
     toast.success(response.message);
   } catch (error) {
@@ -128,6 +155,30 @@ onMounted(async () => {
       @submit.prevent="actionHandler"
       class="flex justify-between items-center gap-4"
     >
+      <div class="flex items-center justify-between gap-3 mb-3">
+        <input
+          type="file"
+          ref="imageInput"
+          class="hidden"
+          @change="handlerFileChange"
+          accept="image/*"
+        />
+
+        <div class="w-12 h-12 overflow-hidden" v-if="imagePreview">
+          <img
+            v-if="imagePreview"
+            :src="imagePreview"
+            @click="removeSelectImage"
+            class="w-full h-full object-cover border border-dashed border-gray-900"
+          />
+        </div>
+        <div
+          @click.prevent="openFilePicker"
+          v-if="!imagePreview"
+          class="w-8 h-8 mt-3 border border-dashed border-gray-900"
+        ></div>
+      </div>
+
       <input
         type="text"
         name=""
@@ -148,6 +199,13 @@ onMounted(async () => {
       v-for="(i, index) in facilities?.data"
       :key="index"
     >
+      <div class="w-10 h-10 overflow-hidden" v-if="i.image">
+        <img
+          v-if="i.image"
+          :src="i.image"
+          class="w-full h-full object-cover border border-dashed border-gray-900"
+        />
+      </div>
       <p>{{ i.name }}</p>
       <div class="flex justify-end items-center gap-3">
         <PencilIcon class="w-4" @click="editMood(i)" />

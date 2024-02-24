@@ -21,17 +21,28 @@
       <div class="flex items-center justify-start space-x-6 cursor-pointer">
         <!-- drop down  -->
         <div class="relative">
-          <button
+          <div
+            class="flex justify-end items-center gap-4"
             @click="toggleTopbarHandler"
-            type="button"
-            class="flex text-sm bg-gray-800 rounded-full focus:ring-0 hover:shadow focus:ring-gray-300 dark:focus:ring-gray-600"
           >
-            <img
-              class="rounded-full shadow-lg w-9 h-9 md:w-10 md:h-10"
-              :src="`https://ui-avatars.com/api/?background=ff613c&color=fff&name=${authStore.user.name}&font-size=0.33`"
-              alt=""
-            />
-          </button>
+            <button
+              type="button"
+              class="flex text-sm bg-gray-800 rounded-full focus:ring-0 hover:shadow focus:ring-gray-300 dark:focus:ring-gray-600"
+            >
+              <img
+                class="rounded-full w-9 h-9 md:w-10 md:h-10"
+                :src="`https://ui-avatars.com/api/?background=ff613c&color=fff&name=${authStore.user.name}&font-size=0.33`"
+                alt=""
+              />
+            </button>
+            <div>
+              <p class="text-xs font-semibold">{{ authStore.user.name }}</p>
+              <p class="text-[12px]">{{ authStore.user.role }}</p>
+            </div>
+            <div>
+              <ChevronDownIcon class="w-5 h-5 text-[#FF5B00] font-bold" />
+            </div>
+          </div>
           <div
             v-if="isTopBarDropdownShow"
             class="z-50 my-4 w-[200px] text-base list-none divide-y divide-gray-100 rounded-md shadow absolute top-7 right-[0px] overflow-hidden"
@@ -83,6 +94,7 @@ import {
   // BellIcon,
   Bars3Icon,
   ArrowUturnLeftIcon,
+  ChevronDownIcon,
 } from "@heroicons/vue/24/outline";
 import { useSidebarStore } from "../stores/sidebar";
 import { useAuthStore } from "../stores/auth";

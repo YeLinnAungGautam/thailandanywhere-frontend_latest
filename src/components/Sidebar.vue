@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-[300px] bg-[#F9FBFC] text-white absolute md:relative shadow-sm transition duration-500 delay-100"
+    class="w-[260px] bg-gray-100 text-white absolute md:relative transition duration-500 delay-100"
     v-show="isShowSidebar"
   >
     <div class="h-[80px] w-full flex items-center">
@@ -9,8 +9,8 @@
           <h3 class="text-sm font-medium md:text-sm lg:text-base">
             <img src="../../public/logo.jpg" class="w-10 h-10 rounded" alt="" />
           </h3>
-          <p class="ml-2 font-medium tracking-wide text-gray-600 text-md">
-            Thailand Anywhere
+          <p class="ml-2 font-medium tracking-wide text-sm text-[#FF5B00]">
+            thanywhere
           </p>
         </div>
         <button
@@ -117,7 +117,7 @@
               @click="settingHandle"
             /> -->
             <div
-              class="inline-flex text-[.75rem] rounded-md relative items-center py-[12px] px-[10px] w-full text-sm font-roboto text-gray-600 bg-white mb-1 hover:text-[#FF5B00] hover:bg-[rgb(255, 91, 0, 0.1)] transition duration-150 hover:bg-[#FF5B00]/10"
+              class="inline-flex text-[.75rem] rounded-md relative items-center py-[12px] px-[10px] w-full text-sm font-roboto text-gray-600 bg-gray-100 mb-1 hover:text-[#FF5B00] hover:bg-[rgb(255, 91, 0, 0.1)] transition duration-150 hover:bg-[#FF5B00]/10"
               @click="toggleSidebarShowSetting"
             >
               <component
@@ -137,10 +137,7 @@
               ></component>
             </div>
 
-            <div
-              class="transition-all duration-150 shadow"
-              v-if="isShowSetting"
-            >
+            <div class="transition-all duration-150" v-if="isShowSetting">
               <SidebarItem
                 name="Partners"
                 v-if="!authStore.isAgent"

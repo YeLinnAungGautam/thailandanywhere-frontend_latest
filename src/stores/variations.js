@@ -2,7 +2,7 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 export const useVariationStore = defineStore("variation", {
-  state: () => ({ variations: null, loading: false }),
+  state: () => ({ variations: null, loading: false, importLoading: false }),
   getters: {},
   actions: {
     async getSimpleListAction(params) {
@@ -78,6 +78,22 @@ export const useVariationStore = defineStore("variation", {
         const res = await axios.get("/entrance-tickets-variations/export/csv");
         return res.data;
       } catch (err) {
+        throw err;
+      }
+    },
+    async importAction(data) {
+      try {
+        this.importLoading = true;
+        const res = await axios.post(
+          "/entrance-tickets-variations/import/csv",
+          data
+        );
+        if (res.status === 200) {
+          this.importLoading = false;
+        }
+        return res.data;
+      } catch (err) {
+        this.importLoading = false;
         throw err;
       }
     },

@@ -2,7 +2,7 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 export const useAirLineStore = defineStore("airline", {
-  state: () => ({ airlines: null, loading: false }),
+  state: () => ({ airlines: null, loading: false, importLoading: false }),
   getters: {},
   actions: {
     async getSimpleListAction(params) {
@@ -79,6 +79,19 @@ export const useAirLineStore = defineStore("airline", {
         const res = await axios.get("/airlines/export/csv");
         return res.data;
       } catch (err) {
+        throw err;
+      }
+    },
+    async importAction(data) {
+      try {
+        this.importLoading = true;
+        const res = await axios.post("/airlines/import/csv", data);
+        if (res.status === 200) {
+          this.importLoading = false;
+        }
+        return res.data;
+      } catch (err) {
+        this.importLoading = false;
         throw err;
       }
     },

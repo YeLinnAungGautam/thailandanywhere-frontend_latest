@@ -2,9 +2,12 @@
   <div
     class="hidden p-6 mb-5 rounded-lg shadow-sm bg-white/60 md:col-span-3 md:block"
   >
-    <h3 class="mb-3 text-xl font-medium tracking-wide text-gray-600">
-      Entrance Ticket
-    </h3>
+    <div class="flex justify-between items-center">
+      <h3 class="text-xl font-medium text-gray-600 tracking-wide mb-3">
+        EntranceTicket Variations
+      </h3>
+      <p v-if="importLoading">import process is doing ...</p>
+    </div>
 
     <!-- modal -->
     <Modal :isOpen="createModalOpen" @closeModal="createModalOpen = false">
@@ -132,6 +135,13 @@
       </div>
 
       <div class="space-x-3">
+        <Button
+          :leftIcon="DocumentPlusIcon"
+          intent="text"
+          @click="importHandler"
+        >
+          Import
+        </Button>
         <Button :leftIcon="ShareIcon" intent="text" @click="exportAction">
           Export
         </Button>
@@ -228,6 +238,42 @@
     </div>
     <!-- pagination -->
     <Pagination v-if="!loading" :data="variations" @change-page="changePage" />
+    <Modal :isOpen="importModal" @closeModal="importModal = false">
+      <DialogPanel
+        class="w-full max-w-lg transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-5"
+        >
+          Import Process
+        </DialogTitle>
+        <form
+          class="flex justify-between items-center"
+          @submit.prevent="importActionHandler"
+        >
+          <input type="file" name="" @change="importFileAction" id="" />
+          <button
+            class="border hover:shadow-md border-gray-400 px-4 py-2 rounded-md"
+          >
+            Import
+          </button>
+        </form>
+        <div class="mt-5 space-y-3 border border-gray-400 p-4 rounded-md">
+          <p class="font-semibold">notice</p>
+          <p class="text-xs">- file input must be CSV file .</p>
+          <p class="text-xs">- All table data must be have .</p>
+          <p class="text-xs">- Import process will take time may be longer</p>
+          <p class="text-xs">- Process is working behind .</p>
+          <p class="text-xs">
+            - When finish process , system will show noti message
+          </p>
+          <p class="text-xs">
+            - When fail the process , system will show noti message
+          </p>
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
@@ -236,6 +282,7 @@ import {
   PencilSquareIcon,
   TrashIcon,
   ShareIcon,
+  DocumentPlusIcon,
   EyeIcon,
   TicketIcon,
   BuildingOfficeIcon,
@@ -264,7 +311,7 @@ const variationStore = useVariationStore();
 const authStore = useAuthStore();
 
 const { entrances } = storeToRefs(entranceStore);
-const { variations, loading } = storeToRefs(variationStore);
+const { variations, loading, importLoading } = storeToRefs(variationStore);
 
 const search = ref("");
 const errors = ref([]);
@@ -427,6 +474,32 @@ const exportAction = async () => {
   const res = await variationStore.downloadExport();
   if (res) {
     window.open(res.result.download_link);
+  }
+};
+
+// import functions
+const importModal = ref(false);
+const importHandler = () => {
+  importModal.value = !importModal.value;
+};
+const fileImport = ref(null);
+const importFileAction = (e) => {
+  let file = e.target.files[0];
+  fileImport.value = file;
+};
+const importActionHandler = async () => {
+  const frmData = new FormData();
+  frmData.append("file", fileImport.value);
+  try {
+    importModal.value = false;
+    const res = await variationStore.importAction(frmData);
+    fileImport.value = null;
+    console.log(res);
+    toast.success(`entrance ticket variations ${res.message}`);
+  } catch (e) {
+    // errors.value = e.response.data.errors;
+    importModal.value = false;
+    toast.error(e.response.data.message);
   }
 };
 

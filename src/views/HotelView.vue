@@ -5,7 +5,11 @@
     <!-- search input sort filter -->
     <div class="grid grid-cols-6 gap-4">
       <div class="col-span-4">
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xl font-medium text-gray-600 tracking-wide mb-3">
+            Hotels
+          </h3>
+          <p v-if="importLoading">import process is doing ...</p>
           <div
             class="flex justify-center items-center border-2 shadow-sm rounded-md overflow-hidden"
           >
@@ -24,8 +28,9 @@
               for User Web
             </div>
           </div>
-
-          <div class="space-x-3 flex justify-end items-center gap-2">
+        </div>
+        <div class="mb-4 mt-2">
+          <div class="space-x-3 flex justify-between items-center gap-2">
             <div class="">
               <input
                 type="text"
@@ -34,16 +39,25 @@
                 placeholder="Search Hotels..."
               />
             </div>
-            <Button :leftIcon="ShareIcon" intent="text" @click="exportAction">
-              Export
-            </Button>
-            <Button
-              :leftIcon="PlusIcon"
-              @click.prevent="openCreate()"
-              v-if="!authStore.isAgent"
-            >
-              Create
-            </Button>
+            <div class="flex justify-end items-center gap-3">
+              <Button
+                :leftIcon="DocumentPlusIcon"
+                intent="text"
+                @click="importHandler"
+              >
+                Import
+              </Button>
+              <Button :leftIcon="ShareIcon" intent="text" @click="exportAction">
+                Export
+              </Button>
+              <Button
+                :leftIcon="PlusIcon"
+                @click.prevent="openCreate()"
+                v-if="!authStore.isAgent"
+              >
+                Create
+              </Button>
+            </div>
           </div>
         </div>
         <div class="mb-5 overflow-auto rounded-lg shadow">
@@ -117,7 +131,7 @@
         </div>
       </div>
       <div
-        class="h-[708px] shadow bg-white rounded-xl overflow-y-scroll col-span-2"
+        class="h-[755px] shadow bg-white rounded-xl overflow-y-scroll col-span-2"
       >
         <div class="h-auto pb-4">
           <div
@@ -387,6 +401,42 @@
     </div>
     <!-- pagination -->
     <Pagination v-if="!loading" :data="hotels" @change-page="changePage" />
+    <Modal :isOpen="importModal" @closeModal="importModal = false">
+      <DialogPanel
+        class="w-full max-w-lg transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-5"
+        >
+          Import Process
+        </DialogTitle>
+        <form
+          class="flex justify-between items-center"
+          @submit.prevent="importActionHandler"
+        >
+          <input type="file" name="" @change="importFileAction" id="" />
+          <button
+            class="border hover:shadow-md border-gray-400 px-4 py-2 rounded-md"
+          >
+            Import
+          </button>
+        </form>
+        <div class="mt-5 space-y-3 border border-gray-400 p-4 rounded-md">
+          <p class="font-semibold">notice</p>
+          <p class="text-xs">- file input must be CSV file .</p>
+          <p class="text-xs">- All table data must be have .</p>
+          <p class="text-xs">- Import process will take time may be longer</p>
+          <p class="text-xs">- Process is working behind .</p>
+          <p class="text-xs">
+            - When finish process , system will show noti message
+          </p>
+          <p class="text-xs">
+            - When fail the process , system will show noti message
+          </p>
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
@@ -399,6 +449,7 @@ import {
   TicketIcon,
   BuildingOfficeIcon,
   PlusIcon,
+  DocumentPlusIcon,
   UserGroupIcon,
   XCircleIcon,
   UsersIcon,
@@ -417,6 +468,7 @@ import { useCityStore } from "../stores/city";
 import { useHotelStore } from "../stores/hotel";
 import { useAuthStore } from "../stores/auth";
 import FacilitoryStoreVue from "../components/FacilitoryStore.vue";
+// import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const createModalOpen = ref(false);
 const toast = useToast();
@@ -424,7 +476,7 @@ const cityStore = useCityStore();
 const hotelStore = useHotelStore();
 const authStore = useAuthStore();
 
-const { hotels, loading } = storeToRefs(hotelStore);
+const { hotels, loading, importLoading } = storeToRefs(hotelStore);
 
 const search = ref("");
 const errors = ref([]);
@@ -830,6 +882,32 @@ const exportAction = async () => {
 const forSale = ref(false);
 const toggleSale = () => {
   forSale.value = !forSale.value;
+};
+
+// for import
+const importModal = ref(false);
+const importHandler = () => {
+  importModal.value = !importModal.value;
+};
+const fileImport = ref(null);
+const importFileAction = (e) => {
+  let file = e.target.files[0];
+  fileImport.value = file;
+};
+const importActionHandler = async () => {
+  const frmData = new FormData();
+  frmData.append("file", fileImport.value);
+  try {
+    importModal.value = false;
+    const res = await hotelStore.importAction(frmData);
+    fileImport.value = null;
+    console.log(res);
+    toast.success(`Hotel ${res.message}`);
+  } catch (e) {
+    // errors.value = e.response.data.errors;
+    importModal.value = false;
+    toast.error(e.response.data.message);
+  }
 };
 
 onMounted(async () => {

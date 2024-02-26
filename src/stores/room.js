@@ -2,7 +2,7 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 export const useRoomStore = defineStore("room", {
-  state: () => ({ rooms: null, loading: false }),
+  state: () => ({ rooms: null, loading: false, importLoading: false }),
   getters: {},
   actions: {
     async getSimpleListAction(params) {
@@ -81,6 +81,20 @@ export const useRoomStore = defineStore("room", {
         const res = await axios.get("/rooms/export/csv");
         return res.data;
       } catch (err) {
+        throw err;
+      }
+    },
+
+    async importAction(data) {
+      try {
+        this.importLoading = true;
+        const res = await axios.post("/rooms/import/csv", data);
+        if (res.status === 200) {
+          this.importLoading = false;
+        }
+        return res.data;
+      } catch (err) {
+        this.importLoading = false;
         throw err;
       }
     },

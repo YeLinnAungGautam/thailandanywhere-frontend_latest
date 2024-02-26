@@ -2,7 +2,7 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 export const useEntranceStore = defineStore("entrance", {
-  state: () => ({ entrances: null, loading: false }),
+  state: () => ({ entrances: null, loading: false, importLoading: false }),
   getters: {},
   actions: {
     async getSimpleListAction(params) {
@@ -86,6 +86,19 @@ export const useEntranceStore = defineStore("entrance", {
         const res = await axios.get("/entrance-tickets/export/csv");
         return res.data;
       } catch (err) {
+        throw err;
+      }
+    },
+    async importAction(data) {
+      try {
+        this.importLoading = true;
+        const res = await axios.post("/entrance-tickets/import/csv", data);
+        if (res.status === 200) {
+          this.importLoading = false;
+        }
+        return res.data;
+      } catch (err) {
+        this.importLoading = false;
         throw err;
       }
     },

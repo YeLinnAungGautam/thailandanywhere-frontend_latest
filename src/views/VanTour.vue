@@ -2,9 +2,12 @@
   <div
     class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 md:col-span-3 hidden md:block"
   >
-    <h3 class="text-xl font-medium text-gray-600 tracking-wide mb-3">
-      Van Tours
-    </h3>
+    <div class="flex justify-between items-center">
+      <h3 class="text-xl font-medium text-gray-600 tracking-wide mb-3">
+        Van Tours
+      </h3>
+      <p v-if="importLoading">import process is doing ...</p>
+    </div>
     <!-- search input sort filter -->
     <div class="flex items-center justify-between mb-8">
       <div class="flex justify-start items-center gap-4">
@@ -38,6 +41,13 @@
         />
       </div>
       <div class="flex justify-end items-center gap-4">
+        <Button
+          :leftIcon="DocumentPlusIcon"
+          intent="text"
+          @click="importHandler"
+        >
+          Import
+        </Button>
         <Button :leftIcon="ShareIcon" intent="text" @click="exportAction">
           Export
         </Button>
@@ -46,6 +56,7 @@
           @click="VantourCreate"
           v-if="!authStore.isAgent"
         >
+          Create
         </Button>
       </div>
     </div>
@@ -99,7 +110,7 @@
               -
             </td>
             <td
-              class="p-3 text-xs text-gray-700 max-w-[300px] overflow-hidden whitespace-nowrap"
+              class="p-3 text-xs text-gray-700 max-w-[300px] text-wrap overflow-hidden whitespace-nowrap"
             >
               {{ r.name }}
             </td>
@@ -161,6 +172,42 @@
     </div>
     <!-- pagination -->
     <Pagination v-if="!loading" :data="vantours" @change-page="changePage" />
+    <Modal :isOpen="importModal" @closeModal="importModal = false">
+      <DialogPanel
+        class="w-full max-w-lg transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-5"
+        >
+          Import Process
+        </DialogTitle>
+        <form
+          class="flex justify-between items-center"
+          @submit.prevent="importActionHandler"
+        >
+          <input type="file" name="" @change="importFileAction" id="" />
+          <button
+            class="border hover:shadow-md border-gray-400 px-4 py-2 rounded-md"
+          >
+            Import
+          </button>
+        </form>
+        <div class="mt-5 space-y-3 border border-gray-400 p-4 rounded-md">
+          <p class="font-semibold">notice</p>
+          <p class="text-xs">- file input must be CSV file .</p>
+          <p class="text-xs">- All table data must be have .</p>
+          <p class="text-xs">- Import process will take time may be longer</p>
+          <p class="text-xs">- Process is working behind .</p>
+          <p class="text-xs">
+            - When finish process , system will show noti message
+          </p>
+          <p class="text-xs">
+            - When fail the process , system will show noti message
+          </p>
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
@@ -173,6 +220,7 @@ import {
   TicketIcon,
   BuildingOfficeIcon,
   PlusIcon,
+  DocumentPlusIcon,
   UserGroupIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
@@ -186,15 +234,43 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import { useAuthStore } from "../stores/auth";
+import Modal from "../components/Modal.vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const router = useRouter();
 const toast = useToast();
 const vantourStore = useVantourStore();
 const authStore = useAuthStore();
-const { vantours, loading } = storeToRefs(vantourStore);
+const { vantours, loading, importLoading } = storeToRefs(vantourStore);
 
 const search = ref("");
 const errors = ref([]);
+
+// import functions
+const importModal = ref(false);
+const importHandler = () => {
+  importModal.value = !importModal.value;
+};
+const fileImport = ref(null);
+const importFileAction = (e) => {
+  let file = e.target.files[0];
+  fileImport.value = file;
+};
+const importActionHandler = async () => {
+  const frmData = new FormData();
+  frmData.append("file", fileImport.value);
+  try {
+    importModal.value = false;
+    const res = await vantourStore.importAction(frmData);
+    fileImport.value = null;
+    console.log(res);
+    toast.success(`private van tour ${res.message}`);
+  } catch (e) {
+    // errors.value = e.response.data.errors;
+    importModal.value = false;
+    toast.error(e.response.data.message);
+  }
+};
 
 const VantourCreate = () => {
   router.push("/vantour/edit");

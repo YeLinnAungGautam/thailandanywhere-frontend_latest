@@ -517,6 +517,120 @@ watch(hotelSaleDate, async (newValue) => {
           </p>
         </div>
       </div>
+      <div class="col-span-3">
+        <div
+          class="flex items-center justify-between py-3 bg-white rounded-md shadow-sm px-4 mb-4"
+        >
+          <p class="text-md font-semibold tracking-wider mr-4">Filter:</p>
+          <input
+            type="date"
+            v-model="date"
+            @change="dateFun"
+            name=""
+            class="bg-white text-sm w-[200px] px-2 py-2"
+            id=""
+          />
+        </div>
+        <div class="grid grid-cols-4 gap-4" v-if="!loading">
+          <div class="bg-white p-4 rounded-lg shadow-sm w-full space-y-4">
+            <div class="flex justify-between items-center">
+              <p>Total Reservations</p>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  v-model="priceReservation"
+                  @click="togglePrice()"
+                  value=""
+                  class="sr-only peer"
+                />
+                <div
+                  class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
+                ></div>
+              </label>
+            </div>
+            <p class="text-4xl text-[#FF5B00]" v-if="!priceReservation">
+              {{ totalReservationCount }}
+            </p>
+            <p class="text-4xl text-[#FF5B00]" v-if="priceReservation">
+              {{ totalReservationPrice }}
+            </p>
+            <div
+              class="text-sm flex justify-between items-center"
+              v-for="(r, index) in reservationsHome?.agents"
+              :key="index"
+            >
+              <p class="text-sm">{{ r }}</p>
+              <p class="text-[#FF5B00] text-sm" v-if="!priceReservation">
+                {{ reservationAmount[index] }}
+              </p>
+              <p class="text-[#FF5B00] text-sm" v-if="priceReservation">
+                {{ reservationCount[index] }}
+              </p>
+            </div>
+          </div>
+          <div
+            class="bg-white p-4 rounded-lg shadow-sm w-full space-y-4 hidden"
+          >
+            <div class="flex justify-between items-center">
+              <p>Total Bookings</p>
+            </div>
+            <p class="text-4xl text-[#FF5B00]">{{ totalBookings }}</p>
+            <div
+              class="text-sm flex justify-between items-center"
+              v-for="(b, index) in bookings?.agents"
+              :key="index"
+            >
+              <p class="text-sm">{{ b }}</p>
+              <p class="text-[#FF5B00] text-sm">
+                {{ bookingsCount[index] }}
+              </p>
+            </div>
+          </div>
+          <div class="bg-white p-4 rounded-lg shadow-sm w-full space-y-4">
+            <div class="flex justify-between items-center">
+              <p>Sales by Agent</p>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  @click="togglePriceSales"
+                  value=""
+                  class="sr-only peer"
+                />
+                <div
+                  class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
+                ></div>
+              </label>
+            </div>
+            <p class="text-4xl text-[#FF5B00]" v-if="!priceSales">
+              {{ totalSales }}
+            </p>
+            <p class="text-4xl text-[#FF5B00]" v-if="priceSales">
+              {{ totalSalesPrice }}
+            </p>
+            <div
+              class="text-sm flex justify-between items-center"
+              v-for="(s, index) in sales?.agents"
+              :key="index"
+            >
+              <p class="text-sm">{{ s }}</p>
+              <p class="text-[#FF5B00] text-sm" v-if="!priceSales">
+                {{ salesAmount[index] }}
+              </p>
+              <p class="text-[#FF5B00] text-sm" v-if="priceSales">
+                {{ salesCount[index] }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-4" v-if="loading">
+          <div
+            class="bg-white p-4 rounded-lg shadow-sm w-full space-y-4 h-[500px] flex justify-center items-center"
+          >
+            There isn't Data
+          </div>
+        </div>
+      </div>
+
       <div class="col-span-3 grid grid-cols-4 gap-4">
         <div
           class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter px-3 bg-white"

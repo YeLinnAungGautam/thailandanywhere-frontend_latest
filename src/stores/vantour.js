@@ -2,7 +2,7 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 export const useVantourStore = defineStore("vantour", {
-  state: () => ({ vantours: null, loading: false }),
+  state: () => ({ vantours: null, loading: false, importLoading: false }),
   getters: {},
   actions: {
     async getSimpleListAction(params) {
@@ -89,6 +89,19 @@ export const useVantourStore = defineStore("vantour", {
         const res = await axios.get("/private-van-tours/export/csv");
         return res.data;
       } catch (err) {
+        throw err;
+      }
+    },
+    async importAction(data) {
+      try {
+        this.importLoading = true;
+        const res = await axios.post("/private-van-tours/import/csv", data);
+        if (res.status === 200) {
+          this.importLoading = false;
+        }
+        return res.data;
+      } catch (err) {
+        this.importLoading = false;
         throw err;
       }
     },

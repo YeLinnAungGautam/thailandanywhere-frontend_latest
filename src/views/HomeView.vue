@@ -18,11 +18,18 @@ import { useAirportStore } from "../stores/airport";
 import { useEntranceStore } from "../stores/entrance";
 import { useBookingStore } from "../stores/booking";
 import { storeToRefs } from "pinia";
-import { onMounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useHomeStore } from "../stores/home";
 import HomeFirstPartVue from "../components/HomeFirstPart.vue";
 import HomeSecondPartVue from "../components/HomeSecondPart.vue";
 import axios from "axios";
+import {
+  endOfMonth,
+  endOfYear,
+  startOfMonth,
+  startOfYear,
+  subMonths,
+} from "date-fns";
 
 import { Chart, registerables } from "chart.js";
 
@@ -68,9 +75,16 @@ const dataAmount = reactive({ items: [] });
 const dataPaid = reactive({ items: [] });
 const dataNotPaid = reactive({ items: [] });
 
-const data1 = [30, 40, 60, 70, 5];
-const data2 = [20, 30, 40, 30, 3];
-const data3 = [10, 10, 20, 40, 2];
+const totalSaleForShow = computed(() => {
+  if (dataAmount.items.length > 0) {
+    let total = 0;
+    for (let i = 0; i < dataAmount.items.length; i++) {
+      total += dataAmount.items[i];
+    }
+    return total;
+  }
+  return 0;
+});
 
 const saleData = {
   labels: dataTest.items,
@@ -149,6 +163,8 @@ const getAllDays = async (monthGet) => {
   console.log(res, "this is for graph");
 
   dataAmount.items.splice(0);
+  dataPaid.items.splice(0);
+  dataNotPaid.items.splice(0);
   saleValueAgent.items.splice(0);
   saleValueKoNayMyo.items.splice(0);
   saleValueChitSu.items.splice(0);
@@ -242,6 +258,85 @@ const hotelPieData = {
         "rgb(200, 41, 255)",
         "rgb(255, 0, 224 )",
         "rgb(255, 247, 0)",
+      ],
+      hoverOffset: 4,
+    },
+  ],
+  options: {
+    indexAxis: "y", // Display labels on the y-axis
+    scales: {
+      x: {
+        position: "bottom", // Position x-axis at the bottom
+      },
+    },
+  },
+};
+
+const dataReportChannal = reactive({ items: [] });
+const dataReportChannalAmount = reactive({ items: [] });
+const reportChannalData = {
+  labels: dataReportChannal.items,
+  datasets: [
+    {
+      label: "Selling Channal",
+      data: dataReportChannalAmount.items,
+      backgroundColor: ["rgb(255, 105, 14)"],
+      hoverOffset: 4,
+    },
+  ],
+  options: {
+    indexAxis: "y", // Display labels on the y-axis
+    scales: {
+      x: {
+        beginAtZero: true,
+      },
+      y: {
+        position: "right",
+      },
+    },
+  },
+};
+
+const dataReportMethod = reactive({ items: [] });
+const dataReportMethodAmount = reactive({ items: [] });
+const reportMethodData = {
+  labels: dataReportMethod.items,
+  datasets: [
+    {
+      label: "Selling Method",
+      data: dataReportMethodAmount.items,
+      backgroundColor: [
+        "rgb(232, 88, 0)",
+        "rgb(255, 105, 14)",
+        "rgb(255, 142, 74)",
+        "rgb(255, 168, 115)",
+        "rgb(255, 203, 171)",
+      ],
+      hoverOffset: 4,
+    },
+  ],
+  options: {
+    indexAxis: "y", // Display labels on the y-axis
+    scales: {
+      x: {
+        position: "bottom", // Position x-axis at the bottom
+      },
+    },
+  },
+};
+
+const dataReportStatus = reactive({ items: [] });
+const dataReportStatusAmount = reactive({ items: [] });
+const reportStatusData = {
+  labels: dataReportStatus.items,
+  datasets: [
+    {
+      label: "Selling Status",
+      data: dataReportStatusAmount.items,
+      backgroundColor: [
+        "rgb(14, 232, 0)",
+        "rgb(232, 0, 0)",
+        "rgb(255, 126, 11)",
       ],
       hoverOffset: 4,
     },
@@ -388,6 +483,31 @@ const getHotelMostSelling = async (a) => {
   }
 };
 
+const dateFilterRange = ref("");
+const presetDates = ref([
+  { label: "Today", value: [new Date(), new Date()] },
+  {
+    label: "Today (Slot)",
+    value: [new Date(), new Date()],
+    slot: "preset-date-range-button",
+  },
+  {
+    label: "This month",
+    value: [startOfMonth(new Date()), endOfMonth(new Date())],
+  },
+  {
+    label: "Last month",
+    value: [
+      startOfMonth(subMonths(new Date(), 1)),
+      endOfMonth(subMonths(new Date(), 1)),
+    ],
+  },
+  {
+    label: "This year",
+    value: [startOfYear(new Date()), endOfYear(new Date())],
+  },
+]);
+
 onMounted(async () => {
   // console.log(authStore.isSuperAdmin, "hello");
   if (!authStore.isSuperAdmin) {
@@ -402,10 +522,58 @@ onMounted(async () => {
   currentMonth();
   // console.log(hotelSaleDate.value, "this is current date");
   toggleHotalSales();
+  dateFilterRange.value = [startOfMonth(new Date()), endOfMonth(new Date())];
+  // console.log(dateFilterRange.value, "this is date filter range");
 });
+
+const getDataRangeChangeFunction = async (date) => {
+  let first = date[0];
+  let second = date[1];
+  console.log(dateFormat(first), "this is date", dateFormat(second));
+  let data = {
+    first: dateFormat(first),
+    second: dateFormat(second),
+  };
+
+  // channel
+  const res = await homeStore.getReportByChannel(data);
+  // console.log(res, "this is channel report");
+  dataReportChannal.items.splice(0);
+  dataReportChannalAmount.items.splice(0);
+  for (let i = 0; i < res.result.length; i++) {
+    dataReportChannal.items.push(res.result[i].sold_from);
+    dataReportChannalAmount.items.push(res.result[i].total_amount);
+  }
+
+  // method
+  const resMethod = await homeStore.getReportByMethod(data);
+  // console.log(resMethod, "this is channel report");
+  dataReportMethod.items.splice(0);
+  dataReportMethodAmount.items.splice(0);
+  for (let i = 0; i < resMethod.result.length; i++) {
+    dataReportMethod.items.push(resMethod.result[i].payment_method);
+    dataReportMethodAmount.items.push(resMethod.result[i].total_amount);
+  }
+
+  // status
+  const resStatus = await homeStore.getReportByStatus(data);
+  console.log(resStatus, "this is channel report");
+  dataReportStatus.items.splice(0);
+  dataReportStatusAmount.items.splice(0);
+  for (let i = 0; i < resStatus.result.length; i++) {
+    dataReportStatus.items.push(resStatus.result[i].payment_status);
+    dataReportStatusAmount.items.push(resStatus.result[i].total_amount);
+  }
+};
 
 watch(monthForGraph, async (newValue) => {
   getAllDays(monthForGraph.value);
+});
+
+watch(dateFilterRange, async (newValue) => {
+  if (dateFilterRange.value != "" && dateFilterRange.value != null) {
+    await getDataRangeChangeFunction(dateFilterRange.value);
+  }
 });
 
 watch(hotelSaleDate, async (newValue) => {
@@ -427,14 +595,26 @@ watch(hotelSaleDate, async (newValue) => {
         class="flex col-span-3 items-center justify-between py-3 bg-white rounded-md shadow-sm px-4"
       >
         <p class="text-md font-semibold tracking-wider mr-4">Filter:</p>
-        <input
-          type="date"
-          v-model="date"
-          @change="dateFun"
-          name=""
-          class="bg-white text-sm w-[200px] px-2 py-2"
-          id=""
-        />
+        <div class="w-[30%]">
+          <VueDatePicker
+            v-model="dateFilterRange"
+            range
+            :preset-dates="presetDates"
+            placeholder="select date range"
+          >
+            <template #preset-date-range-button="{ label, value, presetDate }">
+              <span
+                role="button"
+                :tabindex="0"
+                @click="presetDate(value)"
+                @keyup.enter.prevent="presetDate(value)"
+                @keyup.space.prevent="presetDate(value)"
+              >
+                {{ label }}
+              </span>
+            </template>
+          </VueDatePicker>
+        </div>
       </div>
       <div class="flex justify-start items-center space-x-2 col-span-3">
         <HomeSecondPartVue
@@ -469,20 +649,25 @@ watch(hotelSaleDate, async (newValue) => {
         />
       </div>
 
-      <div class="col-span-2 bg-white p-4 rounded-lg h-[470px]">
+      <div class="col-span-2 bg-white p-4 rounded-lg h-[490px]">
         <div class="flex justify-between items-center">
           <div>
             <p
-              class="text-gray-600 mb-3 font-semibold tracking-wide text-xs"
+              class="mb-3 font-semibold tracking-wide text-sm"
               v-if="priceSalesGraph"
             >
-              General Sales
+              Overall Sales
             </p>
+
             <p
-              class="text-gray-600 mb-3 font-semibold tracking-wide text-xs"
+              class="mb-3 font-semibold tracking-wide text-sm"
               v-if="!priceSalesGraph"
             >
               Sale by Employee
+            </p>
+            <p class="text-sm font-semibold pb-3">
+              Total Sales :
+              <span class="text-[#FF5B00]">{{ totalSaleForShow }} thb</span>
             </p>
           </div>
           <div class="flex justify-end items-center gap-3">
@@ -510,17 +695,15 @@ watch(hotelSaleDate, async (newValue) => {
         <LineChart :chartData="saleDataAgent" v-if="!priceSalesGraph" />
       </div>
       <div
-        class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[470px] px-3 bg-white"
+        class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[490px] px-3 bg-white"
       >
         <div class="flex justify-between items-center">
           <!-- <p class="text-gray-600 text-xs font-semibold tracking-wide">
             Sale By Agent
           </p> -->
           <div class="bg-white px-4 w-full space-y-4">
-            <div
-              class="flex justify-between items-center text-gray-600 text-xs font-semibold tracking-wide"
-            >
-              <p>Sales by Agent</p>
+            <div class="flex justify-between items-center tracking-wide">
+              <p class="text-sm font-medium">Sales by Agent</p>
               <input
                 type="date"
                 v-model="date"
@@ -554,6 +737,21 @@ watch(hotelSaleDate, async (newValue) => {
             </div>
           </div>
         </div>
+      </div>
+      <div class="col-span-3 grid grid-cols-4 gap-4">
+        <div class="bg-white p-2">
+          <p class="text-sm font-semibold py-2">Channels Sold From</p>
+          <BarChart :chartData="reportChannalData" />
+        </div>
+        <div class="bg-white p-2">
+          <p class="text-sm font-semibold py-2">Method of Payment</p>
+          <DoughnutChart :chartData="reportMethodData" />
+        </div>
+        <div class="bg-white p-2">
+          <p class="text-sm font-semibold py-2">Payment Statuses</p>
+          <DoughnutChart :chartData="reportStatusData" />
+        </div>
+        <!-- <div class="bg-white p-2"></div> -->
       </div>
     </div>
   </Layout>

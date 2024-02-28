@@ -201,5 +201,38 @@ export const useHomeStore = defineStore("home", {
         return error;
       }
     },
+    async getReportByChannel(params) {
+      try {
+        const response = await axios.get(
+          `/report-by-channel?daterange=${params.first},${params.second}`
+        );
+        return response.data;
+      } catch (error) {
+        // console.log(error, "this is error");
+        return error;
+      }
+    },
+    async getReportByMethod(params) {
+      try {
+        const response = await axios.get(
+          `/report-by-payment-method?daterange=${params.first},${params.second}`
+        );
+        return response.data;
+      } catch (error) {
+        // console.log(error, "this is error");
+        return error;
+      }
+    },
+    async getReportByStatus(params) {
+      try {
+        const response = await axios.get(
+          `/report-by-payment-status?daterange=${params.first},${params.second}`
+        );
+        return response.data;
+      } catch (error) {
+        // console.log(error, "this is error");
+        return error;
+      }
+    },
   },
 });

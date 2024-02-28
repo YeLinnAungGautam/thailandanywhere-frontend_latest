@@ -65,14 +65,39 @@ const {
 
 const dataTest = reactive({ items: [] });
 const dataAmount = reactive({ items: [] });
+const dataPaid = reactive({ items: [] });
+const dataNotPaid = reactive({ items: [] });
+
+const data1 = [30, 40, 60, 70, 5];
+const data2 = [20, 30, 40, 30, 3];
+const data3 = [10, 10, 20, 40, 2];
 
 const saleData = {
   labels: dataTest.items,
   datasets: [
     {
-      label: "General Sales",
+      label: "Total Sales",
+      type: "line",
       data: dataAmount.items,
-      backgroundColor: ["#FF0000"],
+      backgroundColor: "rgb(255, 87, 51)", // Set background color for dataset 1
+      borderColor: "rgb(255, 87, 51)",
+      borderWidth: 1,
+    },
+    {
+      label: "Fully Paid",
+      type: "bar",
+      data: dataPaid.items,
+      backgroundColor: "rgb(17, 223, 0)", // Set background color for dataset 2
+      borderColor: "rgb(17, 223, 0)",
+      borderWidth: 1,
+    },
+    {
+      label: "Not Paid",
+      type: "bar",
+      data: dataNotPaid.items,
+      backgroundColor: "rgb(223, 0, 0 )", // Set background color for dataset 3
+      borderColor: "rgb(223, 0, 0 )",
+      borderWidth: 1,
     },
   ],
   options: {
@@ -133,11 +158,21 @@ const getAllDays = async (monthGet) => {
   priceSalesGraph.value = true;
   for (let x = 0; x < res.result.sales.length; x++) {
     let dataArr = 0;
+    let dataPaidArr = 0;
+    let dataNotPaidArr = 0;
 
     for (let i = 0; i < res.result.sales[x].agents.length; i++) {
       dataArr += res.result.sales[x].agents[i].total;
     }
+    for (let i = 0; i < res.result.sales[x].agents.length; i++) {
+      dataPaidArr += res.result.sales[x].agents[i].total_deposit;
+    }
+    for (let i = 0; i < res.result.sales[x].agents.length; i++) {
+      dataNotPaidArr += res.result.sales[x].agents[i].total_balance;
+    }
     dataAmount.items.push(dataArr);
+    dataPaid.items.push(dataPaidArr);
+    dataNotPaid.items.push(dataNotPaidArr);
     dataTest.items.push(res.result.sales[x].date);
   }
   saleDataAgent.datasets = [];
@@ -387,6 +422,20 @@ watch(hotelSaleDate, async (newValue) => {
         <HomeFirstPartVue :title="'Expenses'" :isActive="false" />
         <HomeFirstPartVue :title="'Products'" :isActive="false" />
       </div>
+      <!-- filter -->
+      <div
+        class="flex col-span-3 items-center justify-between py-3 bg-white rounded-md shadow-sm px-4"
+      >
+        <p class="text-md font-semibold tracking-wider mr-4">Filter:</p>
+        <input
+          type="date"
+          v-model="date"
+          @change="dateFun"
+          name=""
+          class="bg-white text-sm w-[200px] px-2 py-2"
+          id=""
+        />
+      </div>
       <div class="flex justify-start items-center space-x-2 col-span-3">
         <HomeSecondPartVue
           :icon="HeartIcon"
@@ -419,7 +468,8 @@ watch(hotelSaleDate, async (newValue) => {
           :isActive="false"
         />
       </div>
-      <div class="col-span-2 bg-white p-4 rounded-lg">
+
+      <div class="col-span-2 bg-white p-4 rounded-lg h-[470px]">
         <div class="flex justify-between items-center">
           <div>
             <p
@@ -460,244 +510,48 @@ watch(hotelSaleDate, async (newValue) => {
         <LineChart :chartData="saleDataAgent" v-if="!priceSalesGraph" />
       </div>
       <div
-        class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter px-3 bg-white"
+        class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[470px] px-3 bg-white"
       >
         <div class="flex justify-between items-center">
-          <p class="text-gray-600 text-xs font-semibold tracking-wide">
-            Most selling Hotels
-          </p>
-
-          <!-- <div class="flex justify-center items-center gap-4">
-            <p class="text-xs font-semibold">By day</p>
-            <label
-              v-if="hotelPerDay"
-              class="relative inline-flex items-center cursor-pointer"
-            >
-              <input
-                type="checkbox"
-                value=""
-                class="sr-only peer"
-                @click="toggleHotalSales"
-              />
-              <div
-                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
-              ></div>
-            </label>
-            <label
-              v-if="!hotelPerDay"
-              class="relative inline-flex items-center cursor-pointer"
-            >
-              <input
-                type="checkbox"
-                value=""
-                checked
-                class="sr-only peer"
-                @click="toggleHotalSales"
-              />
-              <div
-                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
-              ></div>
-            </label>
-            <p class="text-xs font-semibold">By Month</p>
-          </div>
-          <div class="">
-            <input
-              type="date"
-              v-model="hotelSaleDate"
-              name=""
-              class="bg-white text-sm w-[200px] px-2 py-2"
-              id=""
-            />
-          </div> -->
-        </div>
-        <DoughnutChart :chartData="hotelPieData" v-if="!hotelCondition" />
-        <div v-if="hotelCondition" class="">
-          <p class="w-full text-red-600 h-72 flex justify-center items-center">
-            Empty hotel booking
-          </p>
-        </div>
-      </div>
-      <div class="col-span-3">
-        <div
-          class="flex items-center justify-between py-3 bg-white rounded-md shadow-sm px-4 mb-4"
-        >
-          <p class="text-md font-semibold tracking-wider mr-4">Filter:</p>
-          <input
-            type="date"
-            v-model="date"
-            @change="dateFun"
-            name=""
-            class="bg-white text-sm w-[200px] px-2 py-2"
-            id=""
-          />
-        </div>
-        <div class="grid grid-cols-4 gap-4" v-if="!loading">
-          <div class="bg-white p-4 rounded-lg shadow-sm w-full space-y-4">
-            <div class="flex justify-between items-center">
-              <p>Total Reservations</p>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  v-model="priceReservation"
-                  @click="togglePrice()"
-                  value=""
-                  class="sr-only peer"
-                />
-                <div
-                  class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
-                ></div>
-              </label>
-            </div>
-            <p class="text-4xl text-[#FF5B00]" v-if="!priceReservation">
-              {{ totalReservationCount }}
-            </p>
-            <p class="text-4xl text-[#FF5B00]" v-if="priceReservation">
-              {{ totalReservationPrice }}
-            </p>
+          <!-- <p class="text-gray-600 text-xs font-semibold tracking-wide">
+            Sale By Agent
+          </p> -->
+          <div class="bg-white px-4 w-full space-y-4">
             <div
-              class="text-sm flex justify-between items-center"
-              v-for="(r, index) in reservationsHome?.agents"
-              :key="index"
+              class="flex justify-between items-center text-gray-600 text-xs font-semibold tracking-wide"
             >
-              <p class="text-sm">{{ r }}</p>
-              <p class="text-[#FF5B00] text-sm" v-if="!priceReservation">
-                {{ reservationAmount[index] }}
-              </p>
-              <p class="text-[#FF5B00] text-sm" v-if="priceReservation">
-                {{ reservationCount[index] }}
-              </p>
-            </div>
-          </div>
-          <div
-            class="bg-white p-4 rounded-lg shadow-sm w-full space-y-4 hidden"
-          >
-            <div class="flex justify-between items-center">
-              <p>Total Bookings</p>
-            </div>
-            <p class="text-4xl text-[#FF5B00]">{{ totalBookings }}</p>
-            <div
-              class="text-sm flex justify-between items-center"
-              v-for="(b, index) in bookings?.agents"
-              :key="index"
-            >
-              <p class="text-sm">{{ b }}</p>
-              <p class="text-[#FF5B00] text-sm">
-                {{ bookingsCount[index] }}
-              </p>
-            </div>
-          </div>
-          <div class="bg-white p-4 rounded-lg shadow-sm w-full space-y-4">
-            <div class="flex justify-between items-center">
               <p>Sales by Agent</p>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  @click="togglePriceSales"
-                  value=""
-                  class="sr-only peer"
-                />
-                <div
-                  class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
-                ></div>
-              </label>
+              <input
+                type="date"
+                v-model="date"
+                @change="dateFun"
+                name=""
+                class="bg-white text-sm font-normal text-black w-auto px-2 py-2"
+                id=""
+              />
             </div>
-            <p class="text-4xl text-[#FF5B00]" v-if="!priceSales">
-              {{ totalSales }}
-            </p>
-            <p class="text-4xl text-[#FF5B00]" v-if="priceSales">
-              {{ totalSalesPrice }}
-            </p>
+
             <div
-              class="text-sm flex justify-between items-center"
+              class="text-sm flex justify-between items-center py-2"
               v-for="(s, index) in sales?.agents"
               :key="index"
             >
-              <p class="text-sm">{{ s }}</p>
-              <p class="text-[#FF5B00] text-sm" v-if="!priceSales">
-                {{ salesAmount[index] }}
-              </p>
-              <p class="text-[#FF5B00] text-sm" v-if="priceSales">
-                {{ salesCount[index] }}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 gap-4" v-if="loading">
-          <div
-            class="bg-white p-4 rounded-lg shadow-sm w-full space-y-4 h-[500px] flex justify-center items-center"
-          >
-            There isn't Data
-          </div>
-        </div>
-      </div>
+              <div class="flex justify-start items-center gap-4">
+                <img
+                  src="https://img.freepik.com/free-psd/3d-illustration-person_23-2149436182.jpg?t=st=1709107594~exp=1709111194~hmac=719ca64b61d1a37f5d78b41a7b08ae7ebcc1a32aa8a5ca144d29b607535ab609&w=740"
+                  class="w-14 h-14 rounded-full"
+                  alt=""
+                />
+                <div>
+                  <p class="text-xs font-semibold">{{ s }}</p>
+                  <p class="text-[#8d8c8b] text-[10px]">
+                    {{ salesCount[index] }} Bookings
+                  </p>
+                </div>
+              </div>
 
-      <div class="col-span-3 grid grid-cols-4 gap-4">
-        <div
-          class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter px-3 bg-white"
-        >
-          <div class="flex justify-between items-center">
-            <p class="text-gray-600 text-xs font-semibold tracking-wide">
-              Most selling Hotels
-            </p>
-          </div>
-          <DoughnutChart :chartData="hotelPieData" v-if="!hotelCondition" />
-          <div v-if="hotelCondition" class="">
-            <p
-              class="w-full text-red-600 h-72 flex justify-center items-center"
-            >
-              Empty hotel booking
-            </p>
-          </div>
-        </div>
-        <div
-          class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter px-3 bg-white"
-        >
-          <div class="flex justify-between items-center">
-            <p class="text-gray-600 text-xs font-semibold tracking-wide">
-              Most selling Hotels
-            </p>
-          </div>
-          <DoughnutChart :chartData="hotelPieData" v-if="!hotelCondition" />
-          <div v-if="hotelCondition" class="">
-            <p
-              class="w-full text-red-600 h-72 flex justify-center items-center"
-            >
-              Empty hotel booking
-            </p>
-          </div>
-        </div>
-        <div
-          class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter px-3 bg-white"
-        >
-          <div class="flex justify-between items-center">
-            <p class="text-gray-600 text-xs font-semibold tracking-wide">
-              Most selling Hotels
-            </p>
-          </div>
-          <DoughnutChart :chartData="hotelPieData" v-if="!hotelCondition" />
-          <div v-if="hotelCondition" class="">
-            <p
-              class="w-full text-red-600 h-72 flex justify-center items-center"
-            >
-              Empty hotel booking
-            </p>
-          </div>
-        </div>
-        <div
-          class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter px-3 bg-white"
-        >
-          <div class="flex justify-between items-center">
-            <p class="text-gray-600 text-xs font-semibold tracking-wide">
-              Most selling Hotels
-            </p>
-          </div>
-          <DoughnutChart :chartData="hotelPieData" v-if="!hotelCondition" />
-          <div v-if="hotelCondition" class="">
-            <p
-              class="w-full text-red-600 h-72 flex justify-center items-center"
-            >
-              Empty hotel booking
-            </p>
+              <p class="text-[#FF5B00] text-sm">{{ salesAmount[index] }} thb</p>
+            </div>
           </div>
         </div>
       </div>

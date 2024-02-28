@@ -10,7 +10,7 @@ const props = defineProps({
 </script>
 <template>
   <div
-    class="flex justify-center items-center gap-4 cursor-pointer py-3 px-4 rounded-lg"
+    class="flex justify-center items-center gap-4 cursor-pointer py-5 pl-6 pr-16 rounded-lg"
     :class="isActive ? 'bg-[#FF5B00]' : 'bg-white'"
   >
     <!-- <HeartIcon class="w-8 h-8 p-2 bg-white rounded-lg" /> -->

@@ -20,6 +20,7 @@
     "@vueup/vue-quill": "^1.2.0",
     "@vueuse/core": "^10.7.2",
     "axios": "^1.4.0",
+    "chart.js": "^3.9.1",
     "class-variance-authority": "^0.6.0",
     "date-fns": "^2.30.0",
     "esbuild": "^0.19.11",

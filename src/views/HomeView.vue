@@ -373,10 +373,10 @@ const togglePriceSales = async () => {
   // console.log(priceSales.value);
 };
 
-const priceSalesGraph = ref(true);
-const togglePriceSalesGraph = async () => {
-  priceSalesGraph.value = !priceSalesGraph.value;
-};
+const priceSalesGraph = ref("1");
+// const togglePriceSalesGraph = async () => {
+//   priceSalesGraph.value = !priceSalesGraph.value;
+// };
 
 const hotelPerDay = ref(true);
 const toggleHotalSales = () => {
@@ -579,6 +579,9 @@ watch(dateFilterRange, async (newValue) => {
 watch(hotelSaleDate, async (newValue) => {
   toggleHotalSales();
 });
+watch(priceSalesGraph, async (newValue) => {
+  console.log(priceSalesGraph.value);
+});
 </script>
 
 <template>
@@ -671,6 +674,15 @@ watch(hotelSaleDate, async (newValue) => {
             </p>
           </div>
           <div class="flex justify-end items-center gap-3">
+            <select
+              name=""
+              id=""
+              v-model="priceSalesGraph"
+              class="px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none"
+            >
+              <option value="1" class="py-2">By Total Sales</option>
+              <option value="0" class="py-2">By Agent Sales</option>
+            </select>
             <input
               type="month"
               name=""
@@ -678,7 +690,7 @@ watch(hotelSaleDate, async (newValue) => {
               class="bg-white text-sm w-[200px] px-2 py-2"
               id=""
             />
-            <label class="relative inline-flex items-center cursor-pointer">
+            <!-- <label class="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 @click="togglePriceSalesGraph"
@@ -688,11 +700,11 @@ watch(hotelSaleDate, async (newValue) => {
               <div
                 class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
               ></div>
-            </label>
+            </label> -->
           </div>
         </div>
-        <LineChart :chartData="saleData" v-if="priceSalesGraph" />
-        <LineChart :chartData="saleDataAgent" v-if="!priceSalesGraph" />
+        <LineChart :chartData="saleData" v-if="priceSalesGraph == '1'" />
+        <LineChart :chartData="saleDataAgent" v-if="priceSalesGraph == '0'" />
       </div>
       <div
         class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[490px] px-3 bg-white"

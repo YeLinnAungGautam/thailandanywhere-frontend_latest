@@ -911,7 +911,10 @@ const importActionHandler = async () => {
 };
 
 onMounted(async () => {
-  await hotelStore.getListAction();
+  await hotelStore.getListAction({
+    search: search.value,
+    type: forSale.value ? "other_booking" : "direct_booking",
+  });
   await cityStore.getSimpleListAction();
   citylist.value = cities.value.data;
 });

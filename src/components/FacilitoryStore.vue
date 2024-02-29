@@ -128,8 +128,6 @@ onMounted(async () => {
   const res = await facilityStore.getSimpleListAction();
   formData.value.list = props.data;
   console.log(props.data, "this is data");
-  // console.log(facilities.value);
-  // typeList.value = facilities.value.data;
 });
 </script>
 
@@ -137,7 +135,7 @@ onMounted(async () => {
   <div class="pb-6 space-y-3 min-h-[550px]">
     <div class="space-y-3">
       <p class="text-sm">Select Facilities</p>
-      <v-select
+      <!-- <v-select
         v-model="formData.list"
         class="style-chooser"
         :options="facilities?.data ?? []"
@@ -148,7 +146,25 @@ onMounted(async () => {
         @option:selected="chooseType"
         @click="chooseType"
         placeholder="Choose Facility"
-      ></v-select>
+      ></v-select> -->
+      <v-select
+        class="style-chooser"
+        multiple
+        v-model="formData.list"
+        :options="facilities?.data ?? []"
+        :reduce="(a) => a.id"
+        @option:selected="chooseType"
+        @click="chooseType"
+        :get-option-label="(option) => option.name"
+        placeholder="Choose ..."
+      >
+        <template #option="{ image, name }">
+          <div class="flex items-center">
+            <img :src="image" alt="Category Image" class="w-8 mr-2" />
+            <span>{{ name }}</span>
+          </div>
+        </template>
+      </v-select>
     </div>
     <h3 class="text-sm pt-2">Facilities</h3>
     <form

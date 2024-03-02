@@ -604,13 +604,17 @@ watch(searchTime, async (newValue) => {
         class="w-auto mb-5 overflow-scroll bg-white rounded-lg shadow"
         v-if="!private_van_tour_show"
       >
-        <div class="grid grid-cols-8 gap-2 py-2">
+        <div class="grid grid-cols-9 gap-2 py-2">
           <div
             class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
           >
             CRM ID
           </div>
-
+          <div
+            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+          >
+            Customer
+          </div>
           <div
             class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
           >
@@ -657,7 +661,7 @@ watch(searchTime, async (newValue) => {
           :key="d.id"
         >
           <div
-            class="grid w-auto grid-cols-8 col-span-8 bg-white divide-y divide-gray-100"
+            class="grid w-auto grid-cols-9 col-span-8 bg-white divide-y divide-gray-100"
           >
             <!-- <div
               class="col-span-6 px-3 py-1 mt-2 text-xs text-center text-gray-700 bg-gray-300 whitespace-nowrap"
@@ -676,6 +680,11 @@ watch(searchTime, async (newValue) => {
               class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
             >
               {{ d.crm_id }}
+            </div>
+            <div
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+            >
+              {{ d.customer_info?.name }}
             </div>
             <div
               class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
@@ -711,7 +720,7 @@ watch(searchTime, async (newValue) => {
               <p v-if="d.ticket?.price">{{ limitedText(d.ticket?.price) }}</p>
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px]"
             >
               <p
                 v-if="
@@ -741,7 +750,7 @@ watch(searchTime, async (newValue) => {
               </p>
             </div>
             <div
-              class="p-3 mt-2 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap min-w-[200px] overflow-hidden"
+              class="py-3 mt-2 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap min-w-[200px]"
             >
               <p v-if="!d.reservation_status">-</p>
 
@@ -765,7 +774,7 @@ watch(searchTime, async (newValue) => {
               </p>
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              class="py-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap z-10 min-w-[200px]"
             >
               <p v-if="!d?.payment_status || d?.payment_status == 'null'">-</p>
               <p
@@ -788,9 +797,22 @@ watch(searchTime, async (newValue) => {
               </p>
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center bg-white divide-y divide-gray-100 text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden flex justify-end items-center"
+              class="py-3 mt-2 text-xs text-center bg-white divide-y divide-gray-100 text-gray-700 whitespace-nowrap min-w-[200px] flex justify-end items-center"
             >
               <p class="mr-6">{{ d.service_date }}</p>
+
+              <button
+                @click="
+                  router.push({
+                    name: 'update_bookings',
+                    params: { id: d.booking.id, action: 'edit' },
+                  })
+                "
+                class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
+              >
+                <EyeIcon class="w-5 h-5" />
+              </button>
+
               <router-link :to="'/reservation/update/' + d.id + '/' + d.crm_id">
                 <button
                   class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"

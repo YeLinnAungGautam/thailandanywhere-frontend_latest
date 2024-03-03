@@ -126,6 +126,12 @@ const expenseStatus = ref("");
 const customerPaymentStatus = ref("");
 const hotel_name = ref("");
 const attraction_name = ref("");
+const customer_name = ref("");
+const sortingArr = ref([
+  { id: 1, name: "latest", value: "desc" },
+  { id: 2, name: "oldest", value: "asc" },
+]);
+const sorting = ref("");
 
 const showFilter = ref(false);
 const clearFilter = () => {
@@ -147,6 +153,8 @@ const clearFilter = () => {
   searchReservation.value = "";
   searchTime.value = "";
   showFilter.value = false;
+  customer_name.value = "";
+  sorting.value = "";
   toggleSearchHandler();
 };
 
@@ -256,6 +264,12 @@ const watchSystem = computed(() => {
   if (sale_daterange.value != undefined) {
     result.sale_daterange = sale_daterange.value;
   }
+  if (customer_name.value != "") {
+    result.order_by = customer_name.value;
+  }
+  if (sorting.value != "") {
+    result.order_direction = sorting.value;
+  }
 
   console.log(result);
   return result;
@@ -341,6 +355,16 @@ watch(searchReservation, async (newValue) => {
   await reservationStore.getListAction(watchSystem.value);
 });
 watch(searchTime, async (newValue) => {
+  showFilter.value = true;
+  searchFunction();
+  await reservationStore.getListAction(watchSystem.value);
+});
+watch(customer_name, async (newValue) => {
+  showFilter.value = true;
+  searchFunction();
+  await reservationStore.getListAction(watchSystem.value);
+});
+watch(sorting, async (newValue) => {
   showFilter.value = true;
   searchFunction();
   await reservationStore.getListAction(watchSystem.value);
@@ -465,7 +489,7 @@ watch(searchTime, async (newValue) => {
         </div>
       </div>
 
-      <div class="grid grid-cols-4 gap-2 mb-5 flex-wrap">
+      <div class="grid grid-cols-5 gap-2 mb-5 flex-wrap">
         <div class="" v-if="authStore.isSuperAdmin || authStore.isReservation">
           <select
             name=""
@@ -595,6 +619,27 @@ watch(searchTime, async (newValue) => {
             range
             placeholder="Export Sale Range"
           />
+        </div>
+        <div>
+          <input
+            type="search"
+            v-model="customer_name"
+            name=""
+            placeholder="search customer ..."
+            class="h-9 px-2 border border-gray-300 focus:outline-none py-1 w-full shadow-sm text-sm rounded-md"
+            id=""
+          />
+        </div>
+        <div>
+          <v-select
+            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
+            v-model="sorting"
+            :options="sortingArr"
+            label="name"
+            :clearable="false"
+            :reduce="(d) => d.value"
+            placeholder="sorting ..."
+          ></v-select>
         </div>
         <div v-show="showFilter" @click="clearFilter" class="w-full">
           <Button :leftIcon="FunnelIcon"> clear </Button>

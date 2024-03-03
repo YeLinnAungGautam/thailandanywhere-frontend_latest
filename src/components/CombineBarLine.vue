@@ -1,64 +1,73 @@
 <template>
   <div>
-    <BarChart ref="barChartRef" :chartData="testData" :options="options" />
+    <VueApexCharts :options="chartOptions" :series="series" type="treemap" />
   </div>
 </template>
 
 <script setup>
-import { computed } from "vue";
-import { BarChart, LineChart } from "vue-chart-3";
+import { onMounted } from "vue";
+import VueApexCharts from "vue3-apexcharts";
 
-const data1 = [30, 40, 60, 70, 5];
-const data2 = [20, 30, 40, 30, 3];
-const data3 = [10, 10, 20, 40, 2];
-
-const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: "top",
-    },
-    title: {
-      display: true,
-      text: "Bar Chart with Multiple Datasets",
-    },
+const series = [
+  {
+    data: [
+      {
+        x: "INTC",
+        y: 1.2,
+      },
+      {
+        x: "GS",
+        y: 0.4,
+      },
+      {
+        x: "CVX",
+        y: -1.4,
+      },
+      {
+        x: "GE",
+        y: 2.7,
+      },
+      {
+        x: "CAT",
+        y: -0.3,
+      },
+      {
+        x: "RTX",
+        y: 5.1,
+      },
+    ],
   },
-  // Adjust the width and spacing of bars
-  scales: {
-    x: {
-      barPercentage: 0.3, // Adjust bar width
-      categoryPercentage: 0.7, // Adjust spacing between bars
+];
+
+const chartOptions = {
+  legend: { show: false },
+  chart: { height: 650 },
+  title: { text: "" },
+  // Define a color scale for the treemap segments
+  plotOptions: {
+    treemap: {
+      enableShades: true,
+      shadeIntensity: 0.5,
+      reverseNegativeShade: true,
+      colorScale: {
+        ranges: [
+          {
+            from: -6,
+            to: 0,
+            color: "#ff613c",
+          },
+          {
+            from: 0.001,
+            to: 6,
+            color: "#ff6000",
+          },
+        ],
+      },
     },
   },
 };
 
-const testData = computed(() => ({
-  labels: ["Paris", "Nîmes", "Toulon", "Perpignan", "Autre"],
-  datasets: [
-    {
-      label: "Dataset 1",
-      type: "line",
-      data: data1,
-      backgroundColor: "rgba(255, 99, 132, 0.2)", // Set background color for dataset 1
-      borderColor: "rgba(255, 99, 132, 1)",
-      borderWidth: 1,
-    },
-    {
-      label: "Dataset 2",
-      type: "bar",
-      data: data2,
-      backgroundColor: "rgba(54, 162, 235, 0.2)", // Set background color for dataset 2
-      borderColor: "rgba(54, 162, 235, 1)",
-      borderWidth: 1,
-    },
-    {
-      label: "Dataset 3",
-      type: "bar",
-      data: data3,
-      backgroundColor: "rgba(255, 206, 86, 0.2)", // Set background color for dataset 3
-      borderColor: "rgba(255, 206, 86, 1)",
-      borderWidth: 1,
-    },
-  ],
-}));
+onMounted(() => {
+  console.log("hello");
+});
 </script>

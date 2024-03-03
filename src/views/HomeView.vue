@@ -23,6 +23,9 @@ import { useHomeStore } from "../stores/home";
 import HomeFirstPartVue from "../components/HomeFirstPart.vue";
 import HomeSecondPartVue from "../components/HomeSecondPart.vue";
 import axios from "axios";
+// import CombineBarLineVue from "../components/CombineBarLine.vue";
+import VueApexCharts from "vue3-apexcharts";
+
 import {
   endOfMonth,
   endOfYear,
@@ -343,6 +346,40 @@ const reportStatusData = {
   ],
 };
 
+const series = ref([
+  {
+    data: [],
+  },
+]);
+
+const chartOptions = {
+  legend: { show: false },
+  chart: { height: 650 },
+  title: { text: "" },
+  // Define a color scale for the treemap segments
+  plotOptions: {
+    treemap: {
+      enableShades: true,
+      shadeIntensity: 0.5,
+      reverseNegativeShade: true,
+      colorScale: {
+        ranges: [
+          {
+            from: 1000,
+            to: 50000,
+            color: "#FF5B00",
+          },
+          {
+            from: 50000,
+            to: 1000000,
+            color: "#ff4B00",
+          },
+        ],
+      },
+    },
+  },
+};
+
 const getfun = async () => {
   const res = await homeStore.getSaleAgent();
   // console.log(sales.value, salesAmount.value);
@@ -557,12 +594,28 @@ const getDataRangeChangeFunction = async (date) => {
 
   // status
   const resStatus = await homeStore.getReportByStatus(data);
-  console.log(resStatus, "this is channel report");
+  // console.log(resStatus, "this is channel report");
   dataReportStatus.items.splice(0);
   dataReportStatusAmount.items.splice(0);
   for (let i = 0; i < resStatus.result.length; i++) {
     dataReportStatus.items.push(resStatus.result[i].payment_status);
     dataReportStatusAmount.items.push(resStatus.result[i].total_amount);
+  }
+
+  // sale method
+  // status
+  const resSaleMethod = await homeStore.getReportByPaymentMethod(data);
+  console.log(resSaleMethod, "this is channel report");
+  series.value[0].data = [];
+  for (let i = 0; i < resSaleMethod.result.length; i++) {
+    series.value[0].data.push({
+      x: `${resSaleMethod.result[i].payment_currency}-${resSaleMethod.result[
+        i
+      ].product_type
+        .split("\\")
+        .pop()}`,
+      y: resSaleMethod.result[i].total_selling_amount,
+    });
   }
 };
 
@@ -760,9 +813,20 @@ watch(priceSalesGraph, async (newValue) => {
           <DoughnutChart :chartData="reportMethodData" />
         </div>
         <div class="bg-white p-2">
+          <p class="text-sm font-semibold py-2">Payment Method</p>
+          <!-- <DoughnutChart :chartData="reportStatusData" /> -->
+          <!-- <CombineBarLineVue /> -->
+          <VueApexCharts
+            :options="chartOptions"
+            :series="series"
+            type="treemap"
+          />
+        </div>
+        <div class="bg-white p-2">
           <p class="text-sm font-semibold py-2">Payment Statuses</p>
           <DoughnutChart :chartData="reportStatusData" />
         </div>
+
         <!-- <div class="bg-white p-2"></div> -->
       </div>
     </div>

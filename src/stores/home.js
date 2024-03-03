@@ -234,5 +234,16 @@ export const useHomeStore = defineStore("home", {
         return error;
       }
     },
+    async getReportByPaymentMethod(params) {
+      try {
+        const response = await axios.get(
+          `/report-by-payment-and-product?daterange=${params.first},${params.second}`
+        );
+        return response.data;
+      } catch (error) {
+        // console.log(error, "this is error");
+        return error;
+      }
+    },
   },
 });

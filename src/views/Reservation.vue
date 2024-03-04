@@ -664,11 +664,24 @@ watch(sorting, async (newValue) => {
           >
             Customer
             <span
-              ><ChevronUpIcon class="w-4 cursor-pointer" @click="upFunction" />
+              ><ChevronUpIcon
+                class="w-4 cursor-pointer"
+                :class="
+                  customer_name && sorting == 'asc'
+                    ? 'text-gray-900'
+                    : 'text-gray-500'
+                "
+                @click="upFunction"
+              />
             </span>
             <span>
               <ChevronDownIcon
                 class="w-4 cursor-pointer"
+                :class="
+                  customer_name && sorting == 'desc'
+                    ? 'text-gray-900'
+                    : 'text-gray-500'
+                "
                 @click="downFunction"
               />
             </span>

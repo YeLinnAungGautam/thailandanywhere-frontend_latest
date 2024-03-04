@@ -17,6 +17,8 @@ import {
   UserGroupIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
   FunnelIcon,
 } from "@heroicons/vue/24/outline";
 
@@ -126,7 +128,7 @@ const expenseStatus = ref("");
 const customerPaymentStatus = ref("");
 const hotel_name = ref("");
 const attraction_name = ref("");
-const customer_name = ref("");
+const customer_name = ref(false);
 const sortingArr = ref([
   { id: 1, name: "latest", value: "desc" },
   { id: 2, name: "oldest", value: "asc" },
@@ -153,7 +155,7 @@ const clearFilter = () => {
   searchReservation.value = "";
   searchTime.value = "";
   showFilter.value = false;
-  customer_name.value = "";
+  customer_name.value = false;
   sorting.value = "";
   toggleSearchHandler();
 };
@@ -264,8 +266,10 @@ const watchSystem = computed(() => {
   if (sale_daterange.value != undefined) {
     result.sale_daterange = sale_daterange.value;
   }
-  if (customer_name.value != "") {
-    result.order_by = customer_name.value;
+  if (customer_name.value) {
+    result.order_by = "customer_name";
+  } else {
+    result.order_by = "";
   }
   if (sorting.value != "") {
     result.order_direction = sorting.value;
@@ -274,6 +278,16 @@ const watchSystem = computed(() => {
   console.log(result);
   return result;
 });
+
+const upFunction = () => {
+  customer_name.value = true;
+  sorting.value = "asc";
+};
+
+const downFunction = () => {
+  customer_name.value = true;
+  sorting.value = "desc";
+};
 
 watch(search, async (newValue) => {
   showFilter.value = true;
@@ -621,16 +635,6 @@ watch(sorting, async (newValue) => {
           />
         </div>
         <div>
-          <input
-            type="search"
-            v-model="customer_name"
-            name=""
-            placeholder="search customer ..."
-            class="h-9 px-2 border border-gray-300 focus:outline-none py-1 w-full shadow-sm text-sm rounded-md"
-            id=""
-          />
-        </div>
-        <div>
           <v-select
             class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
             v-model="sorting"
@@ -656,9 +660,18 @@ watch(sorting, async (newValue) => {
             CRM ID
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center min-w-[200px] z-10 overflow-hidden"
           >
             Customer
+            <span
+              ><ChevronUpIcon class="w-4 cursor-pointer" @click="upFunction" />
+            </span>
+            <span>
+              <ChevronDownIcon
+                class="w-4 cursor-pointer"
+                @click="downFunction"
+              />
+            </span>
           </div>
           <div
             class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"

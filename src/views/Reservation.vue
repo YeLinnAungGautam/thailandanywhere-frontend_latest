@@ -1134,16 +1134,7 @@ watch(sorting, async (newValue) => {
               class="p-3 mt-2 text-xs text-center divide-y divide-gray-100 text-gray-700 whitespace-nowrap min-w-[200px] flex justify-end items-center"
             >
               <p class="mr-6">{{ d.service_date }}</p>
-              <router-link
-                :to="
-                  '/reservation/update/' +
-                  d.id +
-                  '/' +
-                  d.crm_id +
-                  '/' +
-                  d.booking?.past_crm_id
-                "
-              >
+              <router-link :to="'/reservation/update/' + d.id + '/' + d.crm_id">
                 <button
                   class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                 >

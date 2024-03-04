@@ -15,6 +15,7 @@ import {
   BuildingOfficeIcon,
   PlusIcon,
   UserGroupIcon,
+  ClipboardDocumentListIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
   ChevronDownIcon,
@@ -881,7 +882,7 @@ watch(sorting, async (newValue) => {
                 "
                 class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
               >
-                <EyeIcon class="w-5 h-5" />
+                <ClipboardDocumentListIcon class="w-5 h-5" />
               </button>
 
               <router-link :to="'/reservation/update/' + d.id + '/' + d.crm_id">

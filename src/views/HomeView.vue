@@ -160,6 +160,49 @@ const saleDataAgent = {
   },
 };
 
+const totalByAgent = reactive({ items: [] });
+const paidByAgent = reactive({ items: [] });
+const notPaidAgent = reactive({ items: [] });
+const AgentName = ref([]);
+const saleDataByAgent = {
+  labels: [],
+  datasets: [
+    {
+      label: "Total Sales",
+      type: "line",
+      data: totalByAgent.items,
+      backgroundColor: "rgb(255, 87, 51)", // Set background color for dataset 1
+      borderColor: "rgb(255, 87, 51)",
+      borderWidth: 1,
+    },
+    {
+      label: "Fully Paid",
+      type: "bar",
+      data: paidByAgent.items,
+      backgroundColor: "rgb(17, 223, 0)", // Set background color for dataset 2
+      borderColor: "rgb(17, 223, 0)",
+      borderWidth: 1,
+    },
+    {
+      label: "Not Paid",
+      type: "bar",
+      data: notPaidAgent.items,
+      backgroundColor: "rgb(223, 0, 0 )", // Set background color for dataset 3
+      borderColor: "rgb(223, 0, 0 )",
+      borderWidth: 1,
+    },
+  ],
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  },
+};
+
 const getAllDays = async (monthGet) => {
   console.log(monthGet, "this is month");
   const res = await homeStore.getTimeFilterArray(monthGet);
@@ -174,7 +217,7 @@ const getAllDays = async (monthGet) => {
   saleValueEiMyat.items.splice(0);
   saleValueChaw.items.splice(0);
   dataTest.items.splice(0);
-  priceSalesGraph.value = true;
+
   for (let x = 0; x < res.result.sales.length; x++) {
     let dataArr = 0;
     let dataPaidArr = 0;
@@ -196,9 +239,23 @@ const getAllDays = async (monthGet) => {
   }
   saleDataAgent.datasets = [];
   saleDataAgent.labels = [];
+
+  saleDataByAgent.labels = [];
+  totalByAgent.items.splice(0);
+  paidByAgent.items.splice(0);
+  notPaidAgent.items.splice(0);
+
   res.result.sales.forEach((sale) => {
     saleDataAgent.labels.push(sale.date);
+    saleDataByAgent.labels.push(sale.date);
+
     sale.agents.forEach((agent, index) => {
+      // AgentName.value.push(agent.name);
+      const existingAgent = AgentName.value.find((a) => a === agent.name);
+      if (!existingAgent) {
+        AgentName.value.push(agent.name);
+      }
+
       const existingDataset = saleDataAgent.datasets.find(
         (dataset) => dataset.label === agent.name
       );
@@ -210,7 +267,16 @@ const getAllDays = async (monthGet) => {
           label: agent.name,
           data: [agent.total],
           backgroundColor: [agentColors[index]],
+          type: "line",
         });
+      }
+
+      if (priceSalesGraphAgent.value != "") {
+        if (agent.name == priceSalesGraphAgent.value) {
+          totalByAgent.items.push(agent.total);
+          paidByAgent.items.push(agent.total_deposit);
+          notPaidAgent.items.push(agent.total_balance);
+        }
       }
     });
   });
@@ -287,18 +353,66 @@ const reportChannalData = {
       hoverOffset: 4,
     },
   ],
-  options: {
-    indexAxis: "y", // Display labels on the y-axis
-    scales: {
-      x: {
-        beginAtZero: true,
+};
+
+const reportOptions = ref({
+  responsive: true,
+  indexAxis: "y", // Display labels on the y-axis
+  scales: {
+    y: {
+      ticks: {
+        display: true, // Display labels on the y-axis
       },
-      y: {
-        position: "right",
+    },
+    x: {
+      type: "linear", // Use linear scale for x-axis
+      position: "bottom",
+      ticks: {
+        stepSize: 1, // Set step size to 1 for numerical values
+        callback: function (value, index, values) {
+          return index; // Display numerical values (0, 1, 2, ...)
+        },
       },
     },
   },
-};
+  plugins: {
+    legend: {
+      position: "bottom",
+    },
+    title: {
+      display: false,
+    },
+  },
+});
+const methodOptions = ref({
+  responsive: true,
+  plugins: {
+    legend: {
+      position: "bottom",
+    },
+    title: {
+      display: false,
+    },
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          return context.parsed.y + " sales"; // Display sales amount in tooltip
+        },
+      },
+    },
+  },
+});
+const paymentOptions = ref({
+  responsive: true,
+  plugins: {
+    legend: {
+      position: "bottom",
+    },
+    title: {
+      display: false,
+    },
+  },
+});
 
 const dataReportMethod = reactive({ items: [] });
 const dataReportMethodAmount = reactive({ items: [] });
@@ -411,9 +525,15 @@ const togglePriceSales = async () => {
 };
 
 const priceSalesGraph = ref("1");
-// const togglePriceSalesGraph = async () => {
-//   priceSalesGraph.value = !priceSalesGraph.value;
-// };
+const togglePriceSalesGraph = async () => {
+  if (priceSalesGraph.value == 0) {
+    priceSalesGraph.value = 1;
+  } else {
+    priceSalesGraph.value = 0;
+  }
+};
+
+const priceSalesGraphAgent = ref("");
 
 const hotelPerDay = ref(true);
 const toggleHotalSales = () => {
@@ -598,8 +718,13 @@ const getDataRangeChangeFunction = async (date) => {
   dataReportStatus.items.splice(0);
   dataReportStatusAmount.items.splice(0);
   for (let i = 0; i < resStatus.result.length; i++) {
-    dataReportStatus.items.push(resStatus.result[i].payment_status);
-    dataReportStatusAmount.items.push(resStatus.result[i].total_amount);
+    if (
+      resStatus.result[i].payment_status == "fully_paid" ||
+      resStatus.result[i].payment_status == "not_paid"
+    ) {
+      dataReportStatus.items.push(resStatus.result[i].payment_status);
+      dataReportStatusAmount.items.push(resStatus.result[i].total_amount);
+    }
   }
 
   // sale method
@@ -620,6 +745,11 @@ const getDataRangeChangeFunction = async (date) => {
 };
 
 watch(monthForGraph, async (newValue) => {
+  getAllDays(monthForGraph.value);
+});
+
+watch(priceSalesGraphAgent, async (newValue) => {
+  priceSalesGraph.value = 0;
   getAllDays(monthForGraph.value);
 });
 
@@ -729,13 +859,23 @@ watch(priceSalesGraph, async (newValue) => {
           <div class="flex justify-end items-center gap-3">
             <select
               name=""
+              v-if="priceSalesGraph == 0"
               id=""
-              v-model="priceSalesGraph"
+              v-model="priceSalesGraphAgent"
               class="px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none"
             >
-              <option value="1" class="py-2">By Total Sales</option>
-              <option value="0" class="py-2">By Agent Sales</option>
+              <option value="" class="py-2">All</option>
+              <!-- AgentName -->
+              <option
+                :value="a"
+                class="py-2"
+                v-for="(a, index) in AgentName ?? []"
+                :key="index"
+              >
+                {{ a }}
+              </option>
             </select>
+
             <input
               type="month"
               name=""
@@ -743,7 +883,7 @@ watch(priceSalesGraph, async (newValue) => {
               class="bg-white text-sm w-[200px] px-2 py-2"
               id=""
             />
-            <!-- <label class="relative inline-flex items-center cursor-pointer">
+            <label class="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 @click="togglePriceSalesGraph"
@@ -753,11 +893,18 @@ watch(priceSalesGraph, async (newValue) => {
               <div
                 class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
               ></div>
-            </label> -->
+            </label>
           </div>
         </div>
         <LineChart :chartData="saleData" v-if="priceSalesGraph == '1'" />
-        <LineChart :chartData="saleDataAgent" v-if="priceSalesGraph == '0'" />
+        <LineChart
+          :chartData="saleDataAgent"
+          v-if="priceSalesGraph == '0' && priceSalesGraphAgent == ''"
+        />
+        <LineChart
+          :chartData="saleDataByAgent"
+          v-if="priceSalesGraph == '0' && priceSalesGraphAgent != ''"
+        />
       </div>
       <div
         class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[490px] px-3 bg-white"
@@ -806,11 +953,14 @@ watch(priceSalesGraph, async (newValue) => {
       <div class="col-span-3 grid grid-cols-4 gap-4">
         <div class="bg-white p-2">
           <p class="text-sm font-semibold py-2">Channels Sold From</p>
-          <BarChart :chartData="reportChannalData" />
+          <BarChart :chartData="reportChannalData" :options="reportOptions" />
         </div>
         <div class="bg-white p-2">
           <p class="text-sm font-semibold py-2">Method of Payment</p>
-          <DoughnutChart :chartData="reportMethodData" />
+          <DoughnutChart
+            :chartData="reportMethodData"
+            :options="methodOptions"
+          />
         </div>
         <div class="bg-white p-2">
           <p class="text-sm font-semibold py-2">Payment Method</p>
@@ -824,7 +974,10 @@ watch(priceSalesGraph, async (newValue) => {
         </div>
         <div class="bg-white p-2">
           <p class="text-sm font-semibold py-2">Payment Statuses</p>
-          <DoughnutChart :chartData="reportStatusData" />
+          <DoughnutChart
+            :chartData="reportStatusData"
+            :options="paymentOptions"
+          />
         </div>
 
         <!-- <div class="bg-white p-2"></div> -->

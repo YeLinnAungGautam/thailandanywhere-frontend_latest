@@ -25,6 +25,7 @@ import HomeSecondPartVue from "../components/HomeSecondPart.vue";
 import axios from "axios";
 // import CombineBarLineVue from "../components/CombineBarLine.vue";
 import VueApexCharts from "vue3-apexcharts";
+import SaleByAgent from "../components/SaleByAgent.vue";
 
 import {
   endOfMonth,
@@ -56,22 +57,7 @@ const bookingStore = useBookingStore();
 const homeStore = useHomeStore();
 const router = useRouter();
 
-const {
-  sales,
-  salesAmount,
-  salesCount,
-  totalSales,
-  totalSalesPrice,
-  bookings,
-  bookingsCount,
-  totalBookings,
-  reservationsHome,
-  reservationAmount,
-  reservationCount,
-  totalReservationCount,
-  totalReservationPrice,
-  loading,
-} = storeToRefs(homeStore);
+const { loading } = storeToRefs(homeStore);
 
 const dataTest = reactive({ items: [] });
 const dataAmount = reactive({ items: [] });
@@ -494,22 +480,6 @@ const chartOptions = {
   },
 };
 
-const getfun = async () => {
-  const res = await homeStore.getSaleAgent();
-  // console.log(sales.value, salesAmount.value);
-};
-
-const getBookingCount = async () => {
-  const res = await homeStore.getBookingCount();
-};
-const getSaleCountHandle = async () => {
-  const res = await homeStore.getSaleCount();
-  // console.log(res, "this is get sales");
-};
-
-const getReservationCount = async () => {
-  const res = await homeStore.getReservationCount();
-};
 const date = ref("");
 const startDate = ref("");
 const endDate = ref("");
@@ -564,31 +534,6 @@ const dateFormat = (inputDateString) => {
     return formattedDate;
   } else {
     return null;
-  }
-};
-
-const dateFun = async () => {
-  // console.log(date.value);
-
-  if (!date.value) {
-    // window.location.reload();
-
-    date.value = dateFormat(date.value);
-
-    // console.log(date.value);
-    await getSaleCountHandle();
-    await getfun();
-    await getReservationCount();
-    await getBookingCount();
-  } else {
-    startDate.value = dateFormat(date.value);
-    // endDate.value = date.value[1] != null ? dateFormat(date.value[1]) : "";
-    let data = {
-      startDate: startDate.value,
-    };
-
-    const res = await homeStore.getTimeFilter(data);
-    // console.log(loading.value, res, "this is res");
   }
 };
 
@@ -665,6 +610,8 @@ const presetDates = ref([
   },
 ]);
 
+const saleAgentDataRes = ref(null);
+
 onMounted(async () => {
   // console.log(authStore.isSuperAdmin, "hello");
   if (!authStore.isSuperAdmin) {
@@ -672,9 +619,9 @@ onMounted(async () => {
   }
   // generateDateArray();
   date.value = dateFormat(new Date());
-  if (date.value) {
-    await dateFun();
-  }
+  // if (date.value) {
+  //   await dateFun();
+  // }
   // getSaleAgentData();
   currentMonth();
   // console.log(hotelSaleDate.value, "this is current date");
@@ -711,6 +658,11 @@ const getDataRangeChangeFunction = async (date) => {
     dataReportMethod.items.push(resMethod.result[i].payment_method);
     dataReportMethodAmount.items.push(resMethod.result[i].total_amount);
   }
+
+  // sale agents
+  const resSaleAgent = await homeStore.getAgentSales(data);
+  console.log(resSaleAgent, "this is sale agent report");
+  saleAgentDataRes.value = resSaleAgent;
 
   // status
   const resStatus = await homeStore.getReportByStatus(data);
@@ -916,36 +868,14 @@ watch(priceSalesGraph, async (newValue) => {
           <div class="bg-white px-4 w-full space-y-4">
             <div class="flex justify-between items-center tracking-wide">
               <p class="text-sm font-medium">Sales by Agent</p>
-              <input
-                type="date"
-                v-model="date"
-                @change="dateFun"
-                name=""
-                class="bg-white text-sm font-normal text-black w-auto px-2 py-2"
-                id=""
-              />
             </div>
 
             <div
-              class="text-sm flex justify-between items-center py-2"
-              v-for="(s, index) in sales?.agents"
+              class=""
+              v-for="(s, index) in saleAgentDataRes?.result"
               :key="index"
             >
-              <div class="flex justify-start items-center gap-4">
-                <img
-                  src="https://img.freepik.com/free-psd/3d-illustration-person_23-2149436182.jpg?t=st=1709107594~exp=1709111194~hmac=719ca64b61d1a37f5d78b41a7b08ae7ebcc1a32aa8a5ca144d29b607535ab609&w=740"
-                  class="w-14 h-14 rounded-full"
-                  alt=""
-                />
-                <div>
-                  <p class="text-xs font-semibold">{{ s }}</p>
-                  <p class="text-[#8d8c8b] text-[10px]">
-                    {{ salesCount[index] }} Bookings
-                  </p>
-                </div>
-              </div>
-
-              <p class="text-[#FF5B00] text-sm">{{ salesAmount[index] }} thb</p>
+              <SaleByAgent :data="s" />
             </div>
           </div>
         </div>

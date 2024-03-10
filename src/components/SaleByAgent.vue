@@ -15,7 +15,17 @@
           <p class="text-xs text-gray-800">{{ data.total_booking }} Booking</p>
         </div>
       </div>
-      <p class="text-[#FF5B00] text-sm flex justify-end items-center gap-3">
+      <p
+        class="text-[#FF5B00] text-sm flex justify-end items-center gap-3"
+        v-if="data.total"
+      >
+        {{ data.total }} thb
+        <ChevronDownIcon class="w-4 h-4" />
+      </p>
+      <p
+        class="text-[#FF5B00] text-sm flex justify-end items-center gap-3"
+        v-if="data.total_balance"
+      >
         {{ data.total_balance }} thb
         <ChevronDownIcon class="w-4 h-4" />
       </p>
@@ -28,11 +38,10 @@
       <div
         v-for="(l, index) in list"
         :key="index"
+        @click="router.push('/bookings/update/' + l + '/edit')"
         class="cursor-pointer hover:text-orange-500 pt-2 text-xs flex justify-between items-center"
       >
-        <p @click="router.push('/bookings/update/' + l + '/edit')">
-          {{ index }} - Go to sale detail -- click
-        </p>
+        <p>{{ index + 1 }} - sale detail</p>
         <p>ids - {{ l }}</p>
       </div>
     </div>

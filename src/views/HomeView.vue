@@ -26,6 +26,7 @@ import axios from "axios";
 // import CombineBarLineVue from "../components/CombineBarLine.vue";
 import VueApexCharts from "vue3-apexcharts";
 import SaleByAgent from "../components/SaleByAgent.vue";
+import TopSellingProductVue from "../components/TopSellingProduct.vue";
 
 import {
   endOfMonth,
@@ -349,10 +350,16 @@ const reportOptions = ref({
       ticks: {
         display: true, // Display labels on the y-axis
       },
+      grid: {
+        display: false,
+      },
     },
     x: {
       type: "linear", // Use linear scale for x-axis
       position: "bottom",
+      grid: {
+        display: false,
+      },
       ticks: {
         stepSize: 1, // Set step size to 1 for numerical values
         callback: function (value, index, values) {
@@ -369,6 +376,8 @@ const reportOptions = ref({
       display: false,
     },
   },
+  borderRadius: 20,
+  barPercentage: 0.6,
 });
 const methodOptions = ref({
   responsive: true,
@@ -611,14 +620,18 @@ const presetDates = ref([
 ]);
 
 const saleAgentDataRes = ref(null);
+const allSaleList = ref(null);
 
 onMounted(async () => {
   // console.log(authStore.isSuperAdmin, "hello");
+
+  console.log(allSaleList.value, "this is sale");
   if (!authStore.isSuperAdmin) {
     router.push({ name: "dashboard" });
   }
   // generateDateArray();
-  date.value = dateFormat(new Date());
+  date.value = new Date();
+  console.log(date.value, "this is date format");
   // if (date.value) {
   //   await dateFun();
   // }
@@ -627,8 +640,22 @@ onMounted(async () => {
   // console.log(hotelSaleDate.value, "this is current date");
   toggleHotalSales();
   dateFilterRange.value = [startOfMonth(new Date()), endOfMonth(new Date())];
+  dateForUnpaid.value = [startOfMonth(new Date()), endOfMonth(new Date())];
   // console.log(dateFilterRange.value, "this is date filter range");
 });
+
+const unpaidDataList = ref(null);
+const getUnpaidHandler = async (date) => {
+  let first = date[0];
+  let second = date[1];
+  console.log(dateFormat(first), "this is date", dateFormat(second));
+  let data = {
+    first: dateFormat(first),
+    second: dateFormat(second),
+  };
+  unpaidDataList.value = await homeStore.getUnpaidSales(data);
+  console.log(res, "this is unpaid");
+};
 
 const getDataRangeChangeFunction = async (date) => {
   let first = date[0];
@@ -649,6 +676,8 @@ const getDataRangeChangeFunction = async (date) => {
     dataReportChannalAmount.items.push(res.result[i].total_amount);
   }
 
+  allSaleList.value = await homeStore.getSaleCount(data);
+
   // method
   const resMethod = await homeStore.getReportByMethod(data);
   // console.log(resMethod, "this is channel report");
@@ -658,11 +687,6 @@ const getDataRangeChangeFunction = async (date) => {
     dataReportMethod.items.push(resMethod.result[i].payment_method);
     dataReportMethodAmount.items.push(resMethod.result[i].total_amount);
   }
-
-  // sale agents
-  const resSaleAgent = await homeStore.getAgentSales(data);
-  console.log(resSaleAgent, "this is sale agent report");
-  saleAgentDataRes.value = resSaleAgent;
 
   // status
   const resStatus = await homeStore.getReportByStatus(data);
@@ -696,6 +720,21 @@ const getDataRangeChangeFunction = async (date) => {
   }
 };
 
+const getSaleAgentData = async (date) => {
+  // sale agents
+  let datePer = dateFormat(date);
+  console.log(datePer, "this is date pre");
+  const resSaleAgent = await homeStore.getAgentSales(datePer);
+  console.log(resSaleAgent, "this is sale agent report");
+  saleAgentDataRes.value = resSaleAgent;
+};
+
+const dateForUnpaid = ref("");
+
+watch(date, async (newValue) => {
+  await getSaleAgentData(date.value);
+});
+
 watch(monthForGraph, async (newValue) => {
   getAllDays(monthForGraph.value);
 });
@@ -708,6 +747,12 @@ watch(priceSalesGraphAgent, async (newValue) => {
 watch(dateFilterRange, async (newValue) => {
   if (dateFilterRange.value != "" && dateFilterRange.value != null) {
     await getDataRangeChangeFunction(dateFilterRange.value);
+  }
+});
+
+watch(dateForUnpaid, async (newValue) => {
+  if (dateForUnpaid.value != "" && dateForUnpaid.value != null) {
+    await getUnpaidHandler(dateForUnpaid.value);
   }
 });
 
@@ -758,31 +803,31 @@ watch(priceSalesGraph, async (newValue) => {
         <HomeSecondPartVue
           :icon="HeartIcon"
           :title="'Total Bookings'"
-          :amount="'178+'"
+          :amount="allSaleList?.result?.booking_count"
           :isActive="true"
         />
         <HomeSecondPartVue
           :icon="PuzzlePieceIcon"
           :title="'Van Tour Sales'"
-          :amount="'178+'"
+          :amount="allSaleList?.result?.van_tour_sale_count"
           :isActive="false"
         />
         <HomeSecondPartVue
           :icon="SquaresPlusIcon"
           :title="'Attraction Sales'"
-          :amount="'178+'"
+          :amount="allSaleList?.result?.attraction_sale_count"
           :isActive="false"
         />
         <HomeSecondPartVue
           :icon="SquaresPlusIcon"
           :title="'Hotels Sales'"
-          :amount="'178+'"
+          :amount="allSaleList?.result?.hotel_sale_count"
           :isActive="false"
         />
         <HomeSecondPartVue
           :icon="SquaresPlusIcon"
           :title="'Airticket Sales'"
-          :amount="'178+'"
+          :amount="allSaleList?.result?.air_ticket_sale_count"
           :isActive="false"
         />
       </div>
@@ -868,6 +913,13 @@ watch(priceSalesGraph, async (newValue) => {
           <div class="bg-white px-4 w-full space-y-4">
             <div class="flex justify-between items-center tracking-wide">
               <p class="text-sm font-medium">Sales by Agent</p>
+              <input
+                type="date"
+                name=""
+                class="border border-gray-300 text-xs py-2 px-4"
+                v-model="date"
+                id=""
+              />
             </div>
 
             <div
@@ -909,8 +961,55 @@ watch(priceSalesGraph, async (newValue) => {
             :options="paymentOptions"
           />
         </div>
+      </div>
+      <div class="col-span-3 grid grid-cols-6 gap-4">
+        <div class="col-span-4">
+          <TopSellingProductVue />
+        </div>
+        <div class="col-span-2 bg-white">
+          <div
+            class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[490px] px-3 bg-white"
+          >
+            <div class="flex justify-between items-center">
+              <!-- <p class="text-gray-600 text-xs font-semibold tracking-wide">
+                Sale By Agent
+              </p> -->
+              <div class="bg-white px-4 w-full space-y-4">
+                <div class="flex justify-between items-center tracking-wide">
+                  <p class="text-sm font-medium mr-2">Unpaid</p>
+                  <VueDatePicker
+                    v-model="dateForUnpaid"
+                    range
+                    :preset-dates="presetDates"
+                    placeholder="select date range"
+                  >
+                    <template
+                      #preset-date-range-button="{ label, value, presetDate }"
+                    >
+                      <span
+                        role="button"
+                        :tabindex="0"
+                        @click="presetDate(value)"
+                        @keyup.enter.prevent="presetDate(value)"
+                        @keyup.space.prevent="presetDate(value)"
+                      >
+                        {{ label }}
+                      </span>
+                    </template>
+                  </VueDatePicker>
+                </div>
 
-        <!-- <div class="bg-white p-2"></div> -->
+                <div
+                  class=""
+                  v-for="(s, index) in unpaidDataList?.result"
+                  :key="index"
+                >
+                  <SaleByAgent :data="s" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </Layout>

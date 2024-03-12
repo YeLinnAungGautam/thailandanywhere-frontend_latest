@@ -27,6 +27,7 @@ import axios from "axios";
 import VueApexCharts from "vue3-apexcharts";
 import SaleByAgent from "../components/SaleByAgent.vue";
 import TopSellingProductVue from "../components/TopSellingProduct.vue";
+import SaleAgentReportByDate from "../components/SaleAgentReportByDate.vue";
 
 import {
   endOfMonth,
@@ -654,7 +655,7 @@ const getUnpaidHandler = async (date) => {
     second: dateFormat(second),
   };
   unpaidDataList.value = await homeStore.getUnpaidSales(data);
-  console.log(res, "this is unpaid");
+  console.log(unpaidDataList.value, "this is unpaid");
 };
 
 const getDataRangeChangeFunction = async (date) => {
@@ -927,7 +928,7 @@ watch(priceSalesGraph, async (newValue) => {
               v-for="(s, index) in saleAgentDataRes?.result"
               :key="index"
             >
-              <SaleByAgent :data="s" />
+              <SaleAgentReportByDate :data="s" />
             </div>
           </div>
         </div>
@@ -936,13 +937,6 @@ watch(priceSalesGraph, async (newValue) => {
         <div class="bg-white p-2">
           <p class="text-sm font-semibold py-2">Channels Sold From</p>
           <BarChart :chartData="reportChannalData" :options="reportOptions" />
-        </div>
-        <div class="bg-white p-2">
-          <p class="text-sm font-semibold py-2">Method of Payment</p>
-          <DoughnutChart
-            :chartData="reportMethodData"
-            :options="methodOptions"
-          />
         </div>
         <div class="bg-white p-2">
           <p class="text-sm font-semibold py-2">Payment Method</p>
@@ -954,6 +948,14 @@ watch(priceSalesGraph, async (newValue) => {
             type="treemap"
           />
         </div>
+        <div class="bg-white p-2">
+          <p class="text-sm font-semibold py-2">Method of Payment</p>
+          <DoughnutChart
+            :chartData="reportMethodData"
+            :options="methodOptions"
+          />
+        </div>
+
         <div class="bg-white p-2">
           <p class="text-sm font-semibold py-2">Payment Statuses</p>
           <DoughnutChart

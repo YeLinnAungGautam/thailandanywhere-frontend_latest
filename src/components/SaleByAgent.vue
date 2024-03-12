@@ -11,19 +11,13 @@
           alt=""
         />
         <div>
-          <p class="text-xs font-semibold">{{ data.created_by?.name }}</p>
+          <p class="text-xs font-semibold">{{ data?.agent_name }}</p>
           <p class="text-xs text-gray-800">{{ data.total_booking }} Booking</p>
         </div>
       </div>
+
       <p
-        class="text-[#FF5B00] text-sm flex justify-end items-center gap-3"
-        v-if="data.total"
-      >
-        {{ data.total }} thb
-        <ChevronDownIcon class="w-4 h-4" />
-      </p>
-      <p
-        class="text-[#FF5B00] text-sm flex justify-end items-center gap-3"
+        class="text-[#FF5B00] text-sm flex justify-end font-semibold items-center gap-3"
         v-if="data.total_balance"
       >
         {{ data.total_balance }} thb
@@ -31,18 +25,21 @@
       </p>
     </div>
     <div
-      class="px-4 py-2 bg-gray-100 text-sm rounded-md space-y-2 divide-y-2 divide-y-gray-400"
+      class="px-4 py-2 bg-gray-50 text-sm rounded-md space-y-2 divide-y-2 divide-y-gray-400"
       v-if="show"
     >
       <p class="text-xs font-semibold text-center">Show Sale Not Fully Paid</p>
       <div
-        v-for="(l, index) in list"
+        v-for="(l, index) in data.booking_infos"
         :key="index"
         @click="router.push('/bookings/update/' + l + '/edit')"
-        class="cursor-pointer hover:text-orange-500 pt-2 text-xs flex justify-between items-center"
+        class="cursor-pointer hover:bg-orange-100/50 px-2 pt-2 text-xs flex justify-between items-center"
       >
-        <p>{{ index + 1 }} - sale detail</p>
-        <p>ids - {{ l }}</p>
+        <div class="space-y-1">
+          <p>{{ l.customer_name }}</p>
+          <p class="text-[10px] text-orange-500">{{ l.crm_id }}</p>
+        </div>
+        <p class="text-sm text-black font-semibold">{{ l.balance_due }} THB</p>
       </div>
     </div>
   </div>
@@ -60,12 +57,6 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-});
-
-const list = computed(() => {
-  let data = props.data?.booking_ids?.split(",");
-  data = data.map((item) => parseInt(item));
-  return data;
 });
 
 const show = ref(false);

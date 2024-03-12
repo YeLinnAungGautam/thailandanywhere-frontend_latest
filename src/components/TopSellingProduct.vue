@@ -81,10 +81,7 @@
               Variation
             </th>
 
-            <th class="p-3 text-xs font-medium tracking-wide text-left">
-              Price
-            </th>
-            <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
+            <th class="p-3 text-xs font-medium tracking-wide text-right w-30">
               Quantity
             </th>
             <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
@@ -111,10 +108,7 @@
               {{ t.variation_name }}
             </td>
 
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-              {{ t.selling_price }}
-            </td>
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+            <td class="p-3 text-xs text-gray-700 text-right whitespace-nowrap">
               {{ t.quantity }}
             </td>
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">

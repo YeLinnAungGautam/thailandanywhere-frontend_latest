@@ -32,7 +32,7 @@
       <div
         v-for="(l, index) in data.booking_infos"
         :key="index"
-        @click="router.push('/bookings/update/' + l + '/edit')"
+        @click="router.push('/bookings/update/' + l.id + '/edit')"
         class="cursor-pointer hover:bg-orange-100/50 px-2 pt-2 text-xs flex justify-between items-center"
       >
         <div class="space-y-1">

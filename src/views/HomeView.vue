@@ -642,6 +642,7 @@ onMounted(async () => {
   toggleHotalSales();
   dateFilterRange.value = [startOfMonth(new Date()), endOfMonth(new Date())];
   dateForUnpaid.value = [startOfMonth(new Date()), endOfMonth(new Date())];
+  dateForSaleAgent.value = [startOfMonth(new Date()), endOfMonth(new Date())];
   // console.log(dateFilterRange.value, "this is date filter range");
 });
 
@@ -722,19 +723,24 @@ const getDataRangeChangeFunction = async (date) => {
 };
 
 const getSaleAgentData = async (date) => {
-  // sale agents
-  let datePer = dateFormat(date);
-  console.log(datePer, "this is date pre");
-  const resSaleAgent = await homeStore.getAgentSales(datePer);
+  let first = date[0];
+  let second = date[1];
+  console.log(dateFormat(first), "this is date", dateFormat(second));
+  let data = {
+    first: dateFormat(first),
+    second: dateFormat(second),
+  };
+  const resSaleAgent = await homeStore.getAgentSales(data);
   console.log(resSaleAgent, "this is sale agent report");
   saleAgentDataRes.value = resSaleAgent;
 };
 
 const dateForUnpaid = ref("");
+const dateForSaleAgent = ref("");
 
-watch(date, async (newValue) => {
-  await getSaleAgentData(date.value);
-});
+// watch(date, async (newValue) => {
+//   await getSaleAgentData(date.value);
+// });
 
 watch(monthForGraph, async (newValue) => {
   getAllDays(monthForGraph.value);
@@ -754,6 +760,11 @@ watch(dateFilterRange, async (newValue) => {
 watch(dateForUnpaid, async (newValue) => {
   if (dateForUnpaid.value != "" && dateForUnpaid.value != null) {
     await getUnpaidHandler(dateForUnpaid.value);
+  }
+});
+watch(dateForSaleAgent, async (newValue) => {
+  if (dateForSaleAgent.value != "" && dateForSaleAgent.value != null) {
+    await getSaleAgentData(dateForSaleAgent.value);
   }
 });
 
@@ -913,14 +924,27 @@ watch(priceSalesGraph, async (newValue) => {
           </p> -->
           <div class="bg-white px-4 w-full space-y-4">
             <div class="flex justify-between items-center tracking-wide">
-              <p class="text-sm font-medium">Sales by Agent</p>
-              <input
-                type="date"
-                name=""
-                class="border border-gray-300 text-xs py-2 px-4"
-                v-model="date"
-                id=""
-              />
+              <p class="text-sm font-medium mr-2">AgentSales</p>
+              <VueDatePicker
+                v-model="dateForSaleAgent"
+                range
+                :preset-dates="presetDates"
+                placeholder="select date range"
+              >
+                <template
+                  #preset-date-range-button="{ label, value, presetDate }"
+                >
+                  <span
+                    role="button"
+                    :tabindex="0"
+                    @click="presetDate(value)"
+                    @keyup.enter.prevent="presetDate(value)"
+                    @keyup.space.prevent="presetDate(value)"
+                  >
+                    {{ label }}
+                  </span>
+                </template>
+              </VueDatePicker>
             </div>
 
             <div

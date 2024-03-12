@@ -3,6 +3,7 @@ import Layout from "./Layout.vue";
 import { useAuthStore } from "../stores/auth";
 import { useDashboardStore } from "../stores/dashboard";
 import { useHomeStore } from "../stores/home";
+import SaleByAgent from "../components/SaleByAgent.vue";
 import { LineChart } from "vue-chart-3";
 import { Chart, registerables } from "chart.js";
 import {
@@ -15,7 +16,16 @@ import { storeToRefs } from "pinia";
 
 Chart.register(...registerables);
 
+import {
+  endOfMonth,
+  endOfYear,
+  startOfMonth,
+  startOfYear,
+  subMonths,
+} from "date-fns";
+
 const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
 const dashboardStore = useDashboardStore();
 const homeStore = useHomeStore();
 
@@ -197,99 +207,87 @@ const getAllDays = async (monthGet) => {
 
 const monthForGraph = ref("");
 
+const dateForUnpaid = ref("");
+const unpaidDataList = ref(null);
+const presetDates = ref([
+  { label: "Today", value: [new Date(), new Date()] },
+  {
+    label: "Today (Slot)",
+    value: [new Date(), new Date()],
+    slot: "preset-date-range-button",
+  },
+  {
+    label: "This month",
+    value: [startOfMonth(new Date()), endOfMonth(new Date())],
+  },
+  {
+    label: "Last month",
+    value: [
+      startOfMonth(subMonths(new Date(), 1)),
+      endOfMonth(subMonths(new Date(), 1)),
+    ],
+  },
+  {
+    label: "This year",
+    value: [startOfYear(new Date()), endOfYear(new Date())],
+  },
+]);
+
+const getUnpaidHandler = async (date) => {
+  let first = date[0];
+  let second = date[1];
+  console.log(dateFormat(first), "this is date", dateFormat(second));
+  let data = {
+    first: dateFormat(first),
+    second: dateFormat(second),
+    agent_id: user.value.id,
+  };
+  unpaidDataList.value = await homeStore.unpaidAgentSales(data);
+  console.log(unpaidDataList.value, "this is unpaid");
+};
+
 onMounted(async () => {
   // await dashboardStore.getAction();
   currentMonth();
   getCurrent();
   check(dashboard.value?.agents);
   getAllDays(monthForGraph.value);
+
+  dateForUnpaid.value = [startOfMonth(new Date()), endOfMonth(new Date())];
 });
 
 watch(selectMonth, async (newValue) => {
-  updateStartAndEndDate();
+  console.log(selectMonth.value, "this is select month");
+  await updateStartAndEndDate();
+  await getAllDays(selectMonth.value);
+});
+
+watch(dateForUnpaid, async (newValue) => {
+  if (dateForUnpaid.value != "" && dateForUnpaid.value != null) {
+    await getUnpaidHandler(dateForUnpaid.value);
+  }
 });
 </script>
 
 <template>
   <Layout :title="`Welcome back, ${authStore.user.name.split(' ')[0]}!`">
-    <div class="grid grid-cols-1 gap-1 md:gap-4 mb-3">
+    <div class="grid grid-cols-3 gap-2">
+      <div
+        class="col-span-3 flex items-center justify-between py-5 bg-white/60 rounded-md shadow-sm p-4 mb-2"
+      >
+        <p class="text-lg font-semibold tracking-wider mr-4">Filter:</p>
+        <input
+          type="month"
+          id="monthInput"
+          class="bg-transparent focus:ring-0 focus:border-0"
+          v-model="selectMonth"
+          @input="handleMonthChange"
+        />
+      </div>
       <div class="col-span-2">
-        <div
-          class="flex items-center justify-between py-5 bg-white/60 rounded-md shadow-sm p-4 mb-4"
-        >
-          <p class="text-lg font-semibold tracking-wider mr-4">Filter:</p>
-          <input
-            type="month"
-            id="monthInput"
-            class="bg-transparent focus:ring-0 focus:border-0"
-            v-model="selectMonth"
-            @input="handleMonthChange"
-          />
-        </div>
-        <div class="grid grid-cols-3 gap-4" v-if="!loading">
-          <div class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4">
-            <div class="flex justify-between items-center">
-              <p>Filter with Month</p>
-            </div>
-            <div class="text-base flex justify-between items-center">
-              <p class="text-base text-[#FF5B00]" v-if="isCurrent == 'next'">
-                no record found
-              </p>
-              <p
-                class="text-base text-[#FF5B00]"
-                v-if="isCurrent == 'prenoshow'"
-              >
-                This month , commission already receipt
-              </p>
-              <p
-                class="text-base"
-                v-if="isCurrent == 'current' || isCurrent == 'pre'"
-              >
-                {{ monthlyData?.agents[checkMonthIndex] }}
-              </p>
-              <p
-                class="text-[#FF5B00] text-base"
-                v-if="isCurrent == 'current' || isCurrent == 'pre'"
-              >
-                {{ monthlyData?.amount[checkMonthIndex] }}
-              </p>
-            </div>
-          </div>
-          <div class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4">
-            <div class="flex justify-between items-center">
-              <p>Commission Price by Month</p>
-            </div>
-            <div class="text-base flex justify-between items-center">
-              <p class="text-base text-[#FF5B00]" v-if="isCurrent == 'next'">
-                no record found
-              </p>
-              <p
-                class="text-base text-[#FF5B00]"
-                v-if="isCurrent == 'prenoshow'"
-              >
-                This month , commission already receipt
-              </p>
-              <p
-                class="text-base"
-                v-if="isCurrent == 'pre' || isCurrent == 'current'"
-              >
-                {{ monthlyData?.agents[checkMonthIndex] }}'s commissions :
-              </p>
-              <p
-                class="text-[#FF5B00] text-base"
-                v-if="isCurrent == 'pre' || isCurrent == 'current'"
-              >
-                {{ monthlyData?.amount[checkMonthIndex] * 1000 }}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="bg-white/60 shadow rounded-md pt-2 pb-6 px-4 my-4">
-          <LineChart :chartData="saleData" :options="chartOptions" />
-        </div>
         <div class="grid grid-cols-1 gap-4" v-if="loading">
           <div
-            class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4 h-[500px] flex justify-center items-center"
+            class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4 h-[100px] flex justify-center items-center"
           >
             <div
               aria-label="Loading..."
@@ -374,9 +372,104 @@ watch(selectMonth, async (newValue) => {
                 ></line>
               </svg>
               <span class="text-lg font-medium text-gray-500"
-                >Loading Data ...</span
+                >Please wait , loading ...</span
               >
             </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4" v-if="!loading">
+          <div class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-2">
+            <div class="flex justify-between items-center">
+              <p class="text-xs font-semibold">Filter with Month</p>
+            </div>
+            <div class="text-sm flex justify-between items-center">
+              <p class="text-sm text-[#FF5B00]" v-if="isCurrent == 'next'">
+                no record found
+              </p>
+              <p class="text-sm text-[#FF5B00]" v-if="isCurrent == 'prenoshow'">
+                This month , commission already receipt
+              </p>
+              <p
+                class="text-sm"
+                v-if="isCurrent == 'current' || isCurrent == 'pre'"
+              >
+                {{ monthlyData?.agents[checkMonthIndex] }}
+              </p>
+              <p
+                class="text-[#FF5B00] text-base"
+                v-if="isCurrent == 'current' || isCurrent == 'pre'"
+              >
+                {{ monthlyData?.amount[checkMonthIndex] }}
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="bg-white/60 p-4 rounded-lg shadow-sm w-full col-span-2 space-y-2"
+          >
+            <div class="flex justify-between items-center">
+              <p class="text-xs font-semibold">Commission Price by Month</p>
+            </div>
+            <div class="text-sm flex justify-between items-center">
+              <p class="text-sm text-[#FF5B00]" v-if="isCurrent == 'next'">
+                no record found
+              </p>
+              <p class="text-sm text-[#FF5B00]" v-if="isCurrent == 'prenoshow'">
+                This month , commission already receipt
+              </p>
+              <p
+                class="text-sm"
+                v-if="isCurrent == 'pre' || isCurrent == 'current'"
+              >
+                {{ monthlyData?.agents[checkMonthIndex] }}'s commissions :
+              </p>
+              <p
+                class="text-[#FF5B00] text-base"
+                v-if="isCurrent == 'pre' || isCurrent == 'current'"
+              >
+                {{ monthlyData?.amount[checkMonthIndex] * 1000 }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white/60 shadow rounded-md pt-2 pb-6 px-4 my-4">
+          <LineChart :chartData="saleData" :options="chartOptions" />
+        </div>
+      </div>
+      <div class="pl-2 pb-4">
+        <div
+          class="bg-white/60 h-[530px] rounded-md shadow-sm p-3 space-y-4 overflow-y-scroll"
+        >
+          <div class="flex justify-between items-center tracking-wide">
+            <p class="text-sm font-medium mr-2">Unpaid</p>
+            <VueDatePicker
+              v-model="dateForUnpaid"
+              range
+              :preset-dates="presetDates"
+              placeholder="select date range"
+            >
+              <template
+                #preset-date-range-button="{ label, value, presetDate }"
+              >
+                <span
+                  role="button"
+                  :tabindex="0"
+                  @click="presetDate(value)"
+                  @keyup.enter.prevent="presetDate(value)"
+                  @keyup.space.prevent="presetDate(value)"
+                >
+                  {{ label }}
+                </span>
+              </template>
+            </VueDatePicker>
+          </div>
+
+          <div
+            class=""
+            v-for="(s, index) in unpaidDataList?.result"
+            :key="index"
+          >
+            <SaleByAgent :data="s" />
           </div>
         </div>
       </div>

@@ -104,9 +104,11 @@ export const useHomeStore = defineStore("home", {
         return error;
       }
     },
-    async getAgentSales(date) {
+    async getAgentSales(params) {
       try {
-        const response = await axios.get(`/sales-by-agent?date=${date}`);
+        const response = await axios.get(
+          `/sales-by-agent?daterange=${params.first},${params.second}`
+        );
         return response.data;
       } catch (error) {
         // console.log(error, "this is error");
@@ -124,10 +126,10 @@ export const useHomeStore = defineStore("home", {
         return error;
       }
     },
-    async unpaidBookingAction(params) {
+    async unpaidAgentSales(params) {
       try {
         const response = await axios.get(
-          `/unpaid-bookings?daterange=${params.first},${params.second}`
+          `/unpaid-bookings?daterange=${params.first},${params.second}&agent_id=${params.agent_id}`
         );
         return response.data;
       } catch (error) {

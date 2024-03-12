@@ -26,7 +26,7 @@
     </div>
     <div
       class="px-4 py-2 bg-gray-50 text-sm rounded-md space-y-2 divide-y-2 divide-y-gray-400"
-      v-if="show"
+      v-if="show || data.booking_infos.length < 2"
     >
       <p class="text-xs font-semibold text-center">Show Sale Not Fully Paid</p>
       <div

@@ -240,11 +240,11 @@ watch(limit, async (newValue) => {
     <div class="flex items-center justify-between mb-5">
       <div class="flex justify-start items-center gap-4">
         <h3 class="text-2xl font-medium text-gray-600">Sales List</h3>
-        <div class="bg-white px-2 rounded border-2">
+        <div class="bg-white/60 px-2 rounded border-2">
           <p class="inline-block mr-2 font-medium text-gray-500">Show</p>
           <select
             v-model="limit"
-            class="w-16 h-9 rounded-md focus:outline-none focus:ring-0"
+            class="w-16 h-9 rounded-md focus:outline-none bg-white/60 focus:ring-0"
           >
             <option value="10">10</option>
             <option value="20">20</option>
@@ -276,17 +276,7 @@ watch(limit, async (newValue) => {
               placeholder="payment ..."
             ></v-select>
           </div>
-          <div class="">
-            <v-select
-              v-model="searchA"
-              class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400"
-              :options="searchArray"
-              label="name"
-              :clearable="false"
-              :reduce="(d) => d.name"
-              placeholder="old pass ..."
-            ></v-select>
-          </div>
+
           <div class="">
             <v-select
               v-model="bookingStatus"
@@ -302,7 +292,7 @@ watch(limit, async (newValue) => {
             <input
               v-model="search"
               type="text"
-              class="w-3/5 sm:w-3/5 h-9 md:w-full border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+              class="w-3/5 sm:w-3/5 h-9 md:w-full border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
               placeholder="bookings id.."
             />
           </div>
@@ -310,7 +300,7 @@ watch(limit, async (newValue) => {
             <input
               v-model="customerName"
               type="text"
-              class="h-9 w-3/5 sm:w-3/5 md:w-full border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+              class="h-9 w-3/5 sm:w-3/5 md:w-full border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
               placeholder="Customer Name"
             />
           </div>
@@ -318,7 +308,7 @@ watch(limit, async (newValue) => {
             <input
               v-model="balanceDueDate"
               type="date"
-              class="h-9 w-3/5 sm:w-3/5 md:w-full text-md border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+              class="h-9 w-3/5 sm:w-3/5 md:w-full text-md border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
               placeholder="Search Date"
               title="service_date"
             />
@@ -327,7 +317,7 @@ watch(limit, async (newValue) => {
             <input
               v-model="saleDate"
               type="date"
-              class="h-9 w-3/5 sm:w-3/5 md:w-full text-md border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+              class="h-9 w-3/5 sm:w-3/5 md:w-full text-md border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
               placeholder="Search Date"
               title="sale_date"
             />
@@ -335,7 +325,7 @@ watch(limit, async (newValue) => {
           <div class="flex justify-start items-center w-full">
             <p class="inline-block mr-2 font-medium text-gray-500">Sorting</p>
             <select
-              class="w-full h-9 border-2 rounded-md focus:outline-none focus:ring-0"
+              class="w-full h-9 text-gray-500 border-2 rounded-md focus:outline-none focus:ring-0"
               v-model="sale_date_order_by"
             >
               <option value="desc">Latest to First</option>

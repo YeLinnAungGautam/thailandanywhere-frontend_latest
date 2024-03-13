@@ -137,12 +137,23 @@ const agentColors = [
 const saleDataAgent = {
   labels: [],
   datasets: [],
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
+};
+
+const saleDataAgentOption = {
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    y: {
+      beginAtZero: true,
+    },
+  },
+  plugins: {
+    tooltip: {
+      callbacks: {
+        footer: function (a) {
+          console.log(a, "this is a footer");
+          return `Booking - ${a[0].dataset.dataforFooter[a[0].dataIndex]}`;
+        },
       },
     },
   },
@@ -159,6 +170,7 @@ const saleDataByAgent = {
       label: "Total Sales",
       type: "line",
       data: totalByAgent.items,
+      footerForCount: [],
       backgroundColor: "rgb(255, 87, 51)", // Set background color for dataset 1
       borderColor: "rgb(255, 87, 51)",
       borderWidth: 1,
@@ -180,17 +192,28 @@ const saleDataByAgent = {
       borderWidth: 1,
     },
   ],
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
+};
+const saleDataByAgentOption = {
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    y: {
+      beginAtZero: true,
     },
   },
+  // plugins: {
+  //   tooltip: {
+  //     callbacks: {
+  //       footer: function (a) {
+  //         console.log(a, "this is a footer");
+  //         return `Booking - ${a[0].dataset.footerForCount[a[0].dataIndex]}`;
+  //       },
+  //     },
+  //   },
+  // },
 };
 
+const totalBookingsForShow = ref(0);
 const getAllDays = async (monthGet) => {
   console.log(monthGet, "this is month");
   const res = await homeStore.getTimeFilterArray(monthGet);
@@ -205,6 +228,7 @@ const getAllDays = async (monthGet) => {
   saleValueEiMyat.items.splice(0);
   saleValueChaw.items.splice(0);
   dataTest.items.splice(0);
+  totalBookingsForShow.value = 0;
 
   for (let x = 0; x < res.result.sales.length; x++) {
     let dataArr = 0;
@@ -232,12 +256,14 @@ const getAllDays = async (monthGet) => {
   totalByAgent.items.splice(0);
   paidByAgent.items.splice(0);
   notPaidAgent.items.splice(0);
+  saleDataByAgent.datasets.footerForCount = [];
 
   res.result.sales.forEach((sale) => {
     saleDataAgent.labels.push(sale.date);
     saleDataByAgent.labels.push(sale.date);
 
     sale.agents.forEach((agent, index) => {
+      totalBookingsForShow.value += agent.total_count;
       // AgentName.value.push(agent.name);
       const existingAgent = AgentName.value.find((a) => a === agent.name);
       if (!existingAgent) {
@@ -250,10 +276,12 @@ const getAllDays = async (monthGet) => {
 
       if (existingDataset) {
         existingDataset.data.push(agent.total);
+        existingDataset.dataforFooter.push(agent.total_count);
       } else {
         saleDataAgent.datasets.push({
           label: agent.name,
           data: [agent.total],
+          dataforFooter: [agent.total_count],
           backgroundColor: [agentColors[index]],
           type: "line",
         });
@@ -264,6 +292,8 @@ const getAllDays = async (monthGet) => {
           totalByAgent.items.push(agent.total);
           paidByAgent.items.push(agent.total_deposit);
           notPaidAgent.items.push(agent.total_balance);
+          saleDataByAgent.datasets[0].footerForCount.push(agent.total_count);
+          console.log(agent.total_count);
         }
       }
     });
@@ -844,8 +874,8 @@ watch(priceSalesGraph, async (newValue) => {
         />
       </div>
 
-      <div class="col-span-2 bg-white p-4 rounded-lg h-[490px]">
-        <div class="flex justify-between items-center">
+      <div class="col-span-2 bg-white p-4 rounded-lg h-[520px]">
+        <div class="flex justify-between items-start">
           <div>
             <p
               class="mb-3 font-semibold tracking-wide text-sm"
@@ -860,15 +890,20 @@ watch(priceSalesGraph, async (newValue) => {
             >
               Sale by Employee
             </p>
-            <p class="text-sm font-semibold pb-3">
+            <p class="text-sm pb-3">
               Total Sales :
               <span class="text-[#FF5B00]">{{ totalSaleForShow }} thb</span>
+            </p>
+            <p class="text-sm pb-3">
+              Total Bookings :
+              <span class="text-[#FF5B00]"
+                >{{ totalBookingsForShow }} Bookings</span
+              >
             </p>
           </div>
           <div class="flex justify-end items-center gap-3">
             <select
               name=""
-              v-if="priceSalesGraph == 0"
               id=""
               v-model="priceSalesGraphAgent"
               class="px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none"
@@ -908,15 +943,17 @@ watch(priceSalesGraph, async (newValue) => {
         <LineChart :chartData="saleData" v-if="priceSalesGraph == '1'" />
         <LineChart
           :chartData="saleDataAgent"
+          :options="saleDataAgentOption"
           v-if="priceSalesGraph == '0' && priceSalesGraphAgent == ''"
         />
         <LineChart
           :chartData="saleDataByAgent"
+          :options="saleDataByAgentOption"
           v-if="priceSalesGraph == '0' && priceSalesGraphAgent != ''"
         />
       </div>
       <div
-        class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[490px] px-3 bg-white"
+        class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[520px] px-3 bg-white"
       >
         <div class="flex justify-between items-center">
           <!-- <p class="text-gray-600 text-xs font-semibold tracking-wide">

@@ -45,8 +45,8 @@ export default {
     },
 
     hasNextPage() {
-      console.log(this.data.meta.total_page > this.filtered.length);
-      return this.data.meta.total_page > this.filtered.length;
+      console.log(this.data?.meta?.total_page > this.filtered.length);
+      return this.data?.meta?.total_page > this.filtered.length;
     },
   },
   mounted() {
@@ -83,16 +83,16 @@ export default {
       }
     },
   },
-  // watch: {
-  //   data(newValue, oldValue) {
-  //     if (oldValue && oldValue.data && newValue && newValue.data) {
-  //       this.countries = [...oldValue.data, ...newValue.data];
-  //     } else if (newValue && newValue.data) {
-  //       this.countries = [...oldValue.data, ...newValue.data];
-  //     }
-  //     console.log(this.countries, "this is new");
-  //   },
-  // },
+  watch: {
+    data(newValue, oldValue) {
+      if (oldValue && oldValue.data && newValue && newValue.data) {
+        this.countries = [...oldValue.data, ...newValue.data];
+      } else if (newValue && newValue.data) {
+        this.countries = [...oldValue.data, ...newValue.data];
+      }
+      console.log(this.countries, "this is new");
+    },
+  },
 };
 </script>
 

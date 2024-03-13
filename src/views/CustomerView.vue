@@ -1,7 +1,7 @@
 <script setup>
 import Layout from "./Layout.vue";
 import Input from "../components/Input.vue";
-// import VselectVue from "../components/Vselect.vue";
+import VselectVue from "../components/Vselect.vue";
 import InputField from "../components/InputField.vue";
 import Pagination from "../components/Pagination.vue";
 import {
@@ -78,6 +78,7 @@ const page = ref(1);
 onMounted(async () => {
   await customerStore.getSimpleListAction({ limit: 20, page: page.value });
   await customerStore.getListAction();
+  console.log(customers.value, "this is customer");
 });
 
 watch(search, async (newValue) => {
@@ -108,12 +109,12 @@ watch(page, async (newValue) => {
             class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
             placeholder="Search for customers.."
           />
-          <!-- <VselectVue
+          <VselectVue
             :data="customers"
             :select="customer_select"
             :isMult="false"
             @childData="handleChildData"
-          /> -->
+          />
         </div>
       </div>
       <div class="overflow-auto rounded-lg shadow mb-5">

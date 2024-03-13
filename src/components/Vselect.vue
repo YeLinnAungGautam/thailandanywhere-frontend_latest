@@ -3,10 +3,11 @@ import { watch } from 'vue';
   <v-select
     :options="filtered"
     :filterable="false"
-    class="min-w-[200px]"
+    class="w-full bg-white"
+    v-model="selectedData"
     @open="onOpen"
     @close="onClose"
-    @search="(query) => (search = query)"
+    @search="onSearch"
     label="name"
     :multiple="isMult ? true : false"
     :clearable="false"
@@ -30,6 +31,7 @@ export default {
     search: "",
     countries: [],
     page: 1,
+    selectedData: "",
   }),
   props: {
     data: Object,
@@ -37,24 +39,38 @@ export default {
   },
   computed: {
     filtered() {
-      console.log(this.search);
+      // console.log(this.search);
 
-      return this.countries?.filter((country) =>
-        country.name.includes(this.search)
-      );
+      // return this.countries?.filter((country) =>
+      //   country.name.includes(this.search)
+      // );
+      if (this.search) {
+        this.$emit("searchData", this.search);
+        return (this.countries = this.data.data);
+      } else {
+        return this.countries;
+      }
     },
 
     hasNextPage() {
-      console.log(this.data?.meta?.total_page > this.filtered.length);
-      return this.data?.meta?.total_page > this.filtered.length;
+      if (!this.search) {
+        return this.data?.meta.total > this.countries.length;
+      } else {
+        return false;
+      }
     },
   },
   mounted() {
     console.log(this.data, "this is props data");
     if (this.data && this.data.data) {
-      this.countries = this.data.data;
+      // this.countries = this.data.data;
+      for (let i = 0; i < this.data?.data.length; i++) {
+        this.countries.push(this.data?.data[i]);
+      }
       console.log(this.countries, "this is data");
     }
+
+    console.log(this.countries, "this is data");
 
     this.observer = new IntersectionObserver(this.infiniteScroll, {
       root: null,
@@ -72,6 +88,10 @@ export default {
     onClose() {
       this.observer.disconnect();
     },
+    onSearch(query) {
+      this.search = query;
+      this.$emit("searchData", this.search);
+    },
     async infiniteScroll([{ isIntersecting, target }]) {
       if (isIntersecting) {
         this.page += 1;
@@ -86,11 +106,22 @@ export default {
   watch: {
     data(newValue, oldValue) {
       if (oldValue && oldValue.data && newValue && newValue.data) {
-        this.countries = [...oldValue.data, ...newValue.data];
-      } else if (newValue && newValue.data) {
-        this.countries = [...oldValue.data, ...newValue.data];
+        if (!this.search || this.search == "") {
+          for (let i = 0; i < newValue.data.length; i++) {
+            this.countries.push(newValue.data[i]);
+          }
+        } else {
+          this.countries = [];
+          for (let i = 0; i < newValue.data.length; i++) {
+            this.countries.push(newValue.data[i]);
+          }
+          console.log(newValue.data, "this is update");
+        }
       }
-      console.log(this.countries, "this is new");
+    },
+    selectedData(newValue) {
+      this.$emit("selected", this.selectedData);
+      console.log(this.selectedData, "this is selected");
     },
   },
 };

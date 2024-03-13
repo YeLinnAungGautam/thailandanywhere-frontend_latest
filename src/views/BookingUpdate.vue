@@ -43,7 +43,7 @@ const airlineStore = useAirLineStore();
 const authStore = useAuthStore();
 const adminStore = useAdminStore();
 
-const { customer, loading } = storeToRefs(customerStore);
+const { customers, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
 const { grouptours } = storeToRefs(grouptourStore);
 const { airports } = storeToRefs(airportStore);
@@ -1559,7 +1559,7 @@ onMounted(async () => {
                     :class="{
                       'bg-white rounded-lg': formData.customer_id !== '',
                     }"
-                    :options="customer?.data"
+                    :options="customers?.data"
                     label="name"
                     :clearable="false"
                     :reduce="(d) => d.id"

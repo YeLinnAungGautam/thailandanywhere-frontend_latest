@@ -70,6 +70,14 @@ const onDeleteHandler = async (id) => {
 const handleChildData = (data) => {
   page.value = data;
 };
+const searchI = ref("");
+const handleSearchData = (data) => {
+  searchI.value = data;
+  console.log(data);
+};
+const handleSelected = (data) => {
+  console.log(data, "this is selected");
+};
 
 const search = ref("");
 
@@ -83,6 +91,9 @@ onMounted(async () => {
 
 watch(search, async (newValue) => {
   await customerStore.getListAction({ search: search.value });
+});
+watch(searchI, async (newValue) => {
+  await customerStore.getSimpleListAction({ search: searchI.value });
 });
 watch(page, async (newValue) => {
   await customerStore.getSimpleListAction({ limit: 20, page: page.value });
@@ -109,12 +120,14 @@ watch(page, async (newValue) => {
             class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
             placeholder="Search for customers.."
           />
-          <VselectVue
+          <!-- <VselectVue
             :data="customers"
             :select="customer_select"
             :isMult="false"
             @childData="handleChildData"
-          />
+            @searchData="handleSearchData"
+            @selected="handleSelected"
+          /> -->
         </div>
       </div>
       <div class="overflow-auto rounded-lg shadow mb-5">

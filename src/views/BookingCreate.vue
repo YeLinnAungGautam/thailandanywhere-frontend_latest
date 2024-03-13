@@ -26,6 +26,7 @@ import { useAirLineStore } from "../stores/airline";
 import { useAuthStore } from "../stores/auth";
 import { useAdminStore } from "../stores/admin";
 import { addDays } from "date-fns";
+import VselectVue from "../components/Vselect.vue";
 
 // const enabled = ref(false);
 
@@ -46,7 +47,7 @@ const airlineStore = useAirLineStore();
 const authStore = useAuthStore();
 const adminStore = useAdminStore();
 
-const { customer, loading } = storeToRefs(customerStore);
+const { customers, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
 const { grouptours } = storeToRefs(grouptourStore);
 const { airports } = storeToRefs(airportStore);
@@ -1082,8 +1083,22 @@ const checkCheckout = () => {
 //   }
 // };
 
+const page = ref(1);
+const handleChildData = (data) => {
+  page.value = data;
+};
+const searchI = ref("");
+const handleSearchData = (data) => {
+  searchI.value = data;
+  console.log(data);
+};
+const handleSelected = (data) => {
+  formData.value.customer_id = data;
+  console.log(data, "this is selected");
+};
+
 onMounted(async () => {
-  await customerStore.getSimpleListAction();
+  await customerStore.getSimpleListAction({ limit: 20, page: page.value });
   await adminStore.getSimpleListAction();
   await vantourStore.getSimpleListAction();
   await grouptourStore.getSimpleListAction();
@@ -1093,6 +1108,13 @@ onMounted(async () => {
   await hotelStore.getSimpleListAction();
   console.log(admin.value, "this is admin");
   getTodayDate();
+});
+
+watch(searchI, async (newValue) => {
+  await customerStore.getSimpleListAction({ search: searchI.value });
+});
+watch(page, async (newValue) => {
+  await customerStore.getSimpleListAction({ limit: 20, page: page.value });
 });
 </script>
 
@@ -1117,14 +1139,22 @@ onMounted(async () => {
               <div class="">
                 <p class="mb-2 text-xs text-[#ff613c]">Customer Name</p>
 
-                <v-select
+                <!-- <v-select
                   v-model="formData.customer_id"
                   class="style-chooser placeholder-sm bg-white rounded-lg"
-                  :options="customer?.data"
+                  :options="customers?.data"
                   label="name"
                   :clearable="false"
                   :reduce="(d) => d.id"
-                ></v-select>
+                ></v-select> -->
+                <VselectVue
+                  :data="customers"
+                  :select="customer_select"
+                  :isMult="false"
+                  @childData="handleChildData"
+                  @searchData="handleSearchData"
+                  @selected="handleSelected"
+                />
               </div>
               <div class="">
                 <p class="mb-2 text-xs text-[#ff613c]">Sale Date</p>

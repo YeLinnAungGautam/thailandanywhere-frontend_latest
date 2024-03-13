@@ -17,14 +17,14 @@ export const useCustomerStore = defineStore("customer", {
 
                 this.loading = true;
 
-                let limit = params.limit ? params.limit : 2000;
+                let limit = params.limit ? params.limit : 3000;
 
                 let page = params.page ? params.page : 1;
                 const response = await axios.get(
-                    `/customers?limit=${limit}&page=${page}`,
-                    params
+                    `/customers?limit=${limit}&page=${page}`, { params: params }
                 );
                 this.customers = response.data.result;
+                console.log(response.data, "this is customer search");
 
                 this.loading = false;
 

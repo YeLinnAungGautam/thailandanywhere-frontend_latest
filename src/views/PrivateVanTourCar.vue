@@ -110,7 +110,9 @@ onMounted(async () => {
 <template>
   <Layout>
     <div class="space-y-4">
-      <div class="flex px-4 py-1.5 mb-5 space-x-2 rounded-lg overflow-x-scroll">
+      <div
+        class="flex px-4 py-1.5 space-x-2 w-[500px] lg:w-[1000px] xl:w-[1250px] rounded-lg overflow-x-scroll"
+      >
         <div
           class="px-4 py-1 text-xs rounded-full cursor-pointer flex justify-start items-center gap-1.5"
           :class="part == 'unassigned' ? 'text-[#FF5B00]' : ''"
@@ -125,11 +127,14 @@ onMounted(async () => {
         <div
           v-for="s in suppliers?.data"
           :key="s.id"
-          class="px-4 py-1 text-xs rounded-full cursor-pointer flex justify-start items-center gap-1.5"
+          class="px-4 py-1 text-xs rounded-full cursor-pointer flex whitespace-nowrap justify-start items-center gap-1.5"
           :class="part == s.id ? 'text-[#FF5B00]' : ''"
           @click="goSupplier(s.id)"
         >
-          <p class="w-2 h-2 rounded-full bg-[#FF5B00]" v-if="part == s.id"></p>
+          <p
+            class="w-2 h-2 rounded-full bg-[#FF5B00] whitespace-nowrap"
+            v-if="part == s.id"
+          ></p>
           {{ s.name }}
         </div>
       </div>
@@ -167,10 +172,17 @@ onMounted(async () => {
           :loading="loading"
           :part="part"
           :daterange="dateFilterRange"
+          @change="changeFunction"
         />
       </div>
       <div v-if="part != 'unassigned'">
-        <SupplierCarVue :list="carbookings && carbookings" :loading="loading" />
+        <SupplierCarVue
+          :list="carbookings && carbookings"
+          :loading="loading"
+          :part="part"
+          :daterange="dateFilterRange"
+          @change="changeFunction"
+        />
       </div>
     </div>
   </Layout>

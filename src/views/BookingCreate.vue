@@ -730,6 +730,22 @@ const onSubmitHandler = async () => {
         formData.value.items[x].route_plan
       );
     }
+    // add new cost price & total_cost_price
+    if (formData.value.items[x].cost_price) {
+      frmData.append(
+        "items[" + x + "][cost_price]",
+        formData.value.items[x].cost_price
+      );
+    }
+    if (
+      formData.value.items[x].cost_price &&
+      formData.value.items[x].quantity
+    ) {
+      frmData.append(
+        "items[" + x + "][total_cost_price]",
+        formData.value.items[x].cost_price * formData.value.items[x].quantity
+      );
+    }
 
     if (
       formData.value.items[x].product_type === "6" &&

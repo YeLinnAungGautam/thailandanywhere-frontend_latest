@@ -16,11 +16,13 @@ import Button from "../Button.vue";
 import { useSupplierStore } from "../../stores/supplier";
 import { useDriverStore } from "../../stores/driver";
 import { storeToRefs } from "pinia";
+import { useToast } from "vue-toastification";
 
 const assignModalOpen = ref(false);
 const carBookingStore = useCarBookingStore();
 const supplierStore = useSupplierStore();
 const driverStore = useDriverStore();
+const toast = useToast();
 
 const { suppliers } = storeToRefs(supplierStore);
 const { drivers } = storeToRefs(driverStore);
@@ -130,6 +132,7 @@ const closeFunction = () => {
   assignModalOpen.value = false;
 };
 
+const emit = defineEmits();
 const onSubmitHandler = async () => {
   // console.log(formData.value.total_cost_price);
   try {
@@ -149,8 +152,13 @@ const onSubmitHandler = async () => {
     );
     console.log(res, "this is response");
     closeFunction();
+    if ((res.status = "Request was successful.")) {
+      toast.success(res.message);
+      emit("change", "updated");
+    }
   } catch (error) {
     console.log(error, "this is error");
+    toast.error(error.message);
   }
 };
 

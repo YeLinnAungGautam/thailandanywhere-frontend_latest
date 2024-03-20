@@ -287,6 +287,12 @@ const onSubmitHandler = async () => {
   if (formData.value.cost_price) {
     frmData.append("cost_price", formData.value.cost_price);
   }
+  if (formData.value.cost_price) {
+    frmData.append(
+      "total_cost_price",
+      formData.value.cost_price * formData.value.quantity
+    );
+  }
 
   frmData.append("quantity", formData.value.quantity);
   // frmData.append("receipt_image", formData.value.receipt_image);
@@ -774,30 +780,30 @@ const getDetail = async () => {
     // console.log(secForm.value, "sec");
     // console.log(formData.value.product_type, "this is product type");
 
-    // if (response.result.cost_price == null) {
-    //   formData.value.cost_price = 0;
-    // } else {
-    //   formData.value.cost_price = response.result.cost_price;
-    // }
-    if (response.result.cost_price == null || response.result.cost_price == 0) {
-      if (response.result.room) {
-        formData.value.cost_price = response.result.room?.cost;
-      }
-      if (response.result.variation) {
-        formData.value.cost_price = response.result.variation?.cost_price;
-      }
-      if (
-        response.result.car ||
-        response.result.product_type == "App\\Models\\GroupTour" ||
-        response.result.product_type == "App\\Models\\Airline"
-      ) {
-        formData.value.cost_price = 0;
-      }
-      console.log(formData.value.cost_price, "this is cost");
+    if (response.result.cost_price == null) {
+      formData.value.cost_price = 0;
     } else {
       formData.value.cost_price = response.result.cost_price;
-      console.log(formData.value.cost_price, "this is final cost");
     }
+    // if (response.result.cost_price == null || response.result.cost_price == 0) {
+    //   if (response.result.room) {
+    //     formData.value.cost_price = response.result.room?.cost;
+    //   }
+    //   if (response.result.variation) {
+    //     formData.value.cost_price = response.result.variation?.cost_price;
+    //   }
+    //   if (
+    //     response.result.car ||
+    //     response.result.product_type == "App\\Models\\GroupTour" ||
+    //     response.result.product_type == "App\\Models\\Airline"
+    //   ) {
+    //     formData.value.cost_price = 0;
+    //   }
+    //   console.log(formData.value.cost_price, "this is cost");
+    // } else {
+    //   formData.value.cost_price = response.result.cost_price;
+    //   console.log(formData.value.cost_price, "this is final cost");
+    // }
   } catch (error) {
     console.log(error);
   }

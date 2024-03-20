@@ -792,6 +792,15 @@ const onSubmitHandler = async () => {
         "items[" + x + "][cost_price]",
         formData.value.items[x].cost_price
       );
+    if (
+      formData.value.items[x].cost_price &&
+      formData.value.items[x].quantity
+    ) {
+      frmData.append(
+        "items[" + x + "][total_cost_price]",
+        formData.value.items[x].cost_price * formData.value.items[x].quantity
+      );
+    }
   }
 
   for (var x = 0; x < formData.value.items.length; x++) {

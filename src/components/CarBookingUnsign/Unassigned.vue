@@ -17,21 +17,25 @@ import { useSupplierStore } from "../../stores/supplier";
 import { useDriverStore } from "../../stores/driver";
 import { storeToRefs } from "pinia";
 import { useToast } from "vue-toastification";
+import { useAuthStore } from "../../stores/auth";
 
 const assignModalOpen = ref(false);
 const carBookingStore = useCarBookingStore();
 const supplierStore = useSupplierStore();
 const driverStore = useDriverStore();
+const authStore = useAuthStore();
 const toast = useToast();
 
 const { suppliers } = storeToRefs(supplierStore);
 const { drivers } = storeToRefs(driverStore);
+const { user } = storeToRefs(authStore);
 
 const props = defineProps({
   list: Object,
   loading: Boolean,
   part: String | Number,
   daterange: Array,
+  agent: Number,
 });
 
 const openModel = async (id) => {
@@ -103,7 +107,13 @@ const changePage = async (url) => {
     second: dateFormat(second),
     supplier_id: props?.part != "unassigned" ? props?.part : "",
   };
+  if (user.value.id != 1) {
+    data.agent_id = user.value.id;
+  } else {
+    data.agent_id = props?.agent;
+  }
   await carBookingStore.getChangePage(url, data);
+  console.log(data, "thsi is params");
 };
 
 const supplierAction = async () => {
@@ -162,8 +172,9 @@ const onSubmitHandler = async () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   console.log(props.list);
+  await authStore.getMe();
 });
 </script>
 
@@ -243,10 +254,14 @@ onMounted(() => {
             <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
               {{ l.customer_name }}
             </td>
-            <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
+            <td
+              class="p-4 text-xs max-w-[200px] overflow-hidden text-gray-700 whitespace-nowrap"
+            >
               {{ l.product_name }}
             </td>
-            <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
+            <td
+              class="p-4 text-xs max-w-[200px] overflow-hidden text-gray-700 whitespace-nowrap"
+            >
               {{ l.variation_name }}
             </td>
             <td class="p-4 text-xs text-gray-700 whitespace-nowrap">

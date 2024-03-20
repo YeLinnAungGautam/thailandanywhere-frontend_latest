@@ -25,6 +25,7 @@ export const useCarBookingStore = defineStore("carbooking", {
         params: {
           supplier_id: params.supplier_id,
           daterange: `${params.first},${params.second}`,
+          agent_id: params.agent_id,
         },
       });
       this.carbookings = response.data;

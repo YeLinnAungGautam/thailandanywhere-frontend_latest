@@ -8,11 +8,17 @@ import UnassignedVue from "../components/CarBookingUnsign/Unassigned.vue";
 import SupplierCarVue from "../components/CarBookingUnsign/SupplierCar.vue";
 import { useCarBookingStore } from "../stores/carbooking";
 import { useDriverStore } from "../stores/driver";
+import { useAuthStore } from "../stores/auth";
+import { useAdminStore } from "../stores/admin";
 
 const supplierStore = useSupplierStore();
 const { suppliers } = storeToRefs(supplierStore);
 const carBookingStore = useCarBookingStore();
 const { carbookings, loading } = storeToRefs(carBookingStore);
+const authStore = useAuthStore();
+const adminStore = useAdminStore();
+const { user } = storeToRefs(authStore);
+const { admin } = storeToRefs(adminStore);
 const driverStore = useDriverStore();
 const { drivers } = storeToRefs(driverStore);
 const route = useRoute();
@@ -74,6 +80,8 @@ const dateFormat = (inputDateString) => {
   }
 };
 
+const agent_id = ref("");
+
 const getWithDate = async (date) => {
   let first = date[0];
   let second = date[1];
@@ -82,7 +90,11 @@ const getWithDate = async (date) => {
     first: dateFormat(first),
     second: dateFormat(second),
     supplier_id: part.value != "unassigned" ? part.value : "",
+    agent_id: agent_id.value,
   };
+  if (user.value.id != 1) {
+    data.agent_id = user.value.id;
+  }
   const res = await carBookingStore.getListAction(data);
 };
 
@@ -98,7 +110,16 @@ watch(part, async (newValue) => {
   }
 });
 
+watch(agent_id, async (newValue) => {
+  if (dateFilterRange.value != null) {
+    getWithDate(dateFilterRange.value);
+  }
+});
+
 onMounted(async () => {
+  await authStore.getMe();
+  await adminStore.getSimpleListAction();
+  console.log(user.value, "this is user");
   dateFilterRange.value = [startOfMonth(new Date()), endOfMonth(new Date())];
   part.value = route.params.part;
   console.log(part.value);
@@ -143,25 +164,40 @@ onMounted(async () => {
         class="flex col-span-3 items-center justify-between py-3 bg-white rounded-md shadow-sm px-4"
       >
         <p class="text-md font-semibold tracking-wider mr-4">Filter:</p>
-        <div class="w-[30%]">
-          <VueDatePicker
-            v-model="dateFilterRange"
-            range
-            :preset-dates="presetDates"
-            placeholder="select date range"
-          >
-            <template #preset-date-range-button="{ label, value, presetDate }">
-              <span
-                role="button"
-                :tabindex="0"
-                @click="presetDate(value)"
-                @keyup.enter.prevent="presetDate(value)"
-                @keyup.space.prevent="presetDate(value)"
+        <div class="flex justify-end items-center gap-2">
+          <div v-if="authStore.isSuperAdmin">
+            <v-select
+              v-model="agent_id"
+              class="style-chooser bg-white rounded-lg w-[250px]"
+              :options="admin?.data"
+              label="name"
+              :clearable="false"
+              :reduce="(d) => d.id"
+              placeholder="choose agent name"
+            ></v-select>
+          </div>
+          <div class="">
+            <VueDatePicker
+              v-model="dateFilterRange"
+              range
+              :preset-dates="presetDates"
+              placeholder="select date range"
+            >
+              <template
+                #preset-date-range-button="{ label, value, presetDate }"
               >
-                {{ label }}
-              </span>
-            </template>
-          </VueDatePicker>
+                <span
+                  role="button"
+                  :tabindex="0"
+                  @click="presetDate(value)"
+                  @keyup.enter.prevent="presetDate(value)"
+                  @keyup.space.prevent="presetDate(value)"
+                >
+                  {{ label }}
+                </span>
+              </template>
+            </VueDatePicker>
+          </div>
         </div>
       </div>
 
@@ -171,6 +207,7 @@ onMounted(async () => {
           :list="carbookings && carbookings"
           :loading="loading"
           :part="part"
+          :agent="agent_id"
           :daterange="dateFilterRange"
           @change="changeFunction"
         />
@@ -180,6 +217,7 @@ onMounted(async () => {
           :list="carbookings && carbookings"
           :loading="loading"
           :part="part"
+          :agent="agent_id"
           :daterange="dateFilterRange"
           @change="changeFunction"
         />

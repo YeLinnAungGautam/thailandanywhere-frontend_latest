@@ -45,7 +45,7 @@
           </div>
           <div
             v-if="isTopBarDropdownShow"
-            class="z-50 my-4 w-[200px] text-base list-none divide-y divide-gray-100 rounded-md shadow absolute top-7 right-[0px] overflow-hidden"
+            class="z-50 my-4 w-[300px] text-base list-none divide-y divide-gray-100 rounded-md shadow absolute top-7 right-[0px] overflow-hidden"
           >
             <div class="px-4 py-3 bg-white" role="none">
               <p class="text-sm text-gray-700" role="none">

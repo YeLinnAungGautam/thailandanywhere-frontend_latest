@@ -17,15 +17,18 @@ import { useDriverStore } from "../../stores/driver";
 import { storeToRefs } from "pinia";
 import { useToast } from "vue-toastification";
 import Button from "../Button.vue";
+import { useAuthStore } from "../../stores/auth";
 
 const supplierStore = useSupplierStore();
 const driverStore = useDriverStore();
 const toast = useToast();
 const assignModalOpen = ref(false);
 const carBookingStore = useCarBookingStore();
+const authStore = useAuthStore();
 
 const { suppliers } = storeToRefs(supplierStore);
 const { drivers } = storeToRefs(driverStore);
+const { user } = storeToRefs(authStore);
 
 const formData = ref({
   id: "",
@@ -120,6 +123,11 @@ const changePage = async (url) => {
     second: dateFormat(second),
     supplier_id: props?.part != "unassigned" ? props?.part : "",
   };
+  if (user.value.id != 1) {
+    data.agent_id = user.value.id;
+  } else {
+    data.agent_id = props?.agent;
+  }
   await carBookingStore.getChangePage(url, data);
 };
 
@@ -158,9 +166,11 @@ const props = defineProps({
   loading: Boolean,
   part: String | Number,
   daterange: Array,
+  agent: Number,
 });
 
 onMounted(async () => {
+  await authStore.getMe();
   const supplier = await supplierStore.getSimpleListAction();
   const driver = await driverStore.getSimpleListAction();
 });
@@ -204,7 +214,9 @@ onMounted(async () => {
             <th class="px-4 py-2 text-xs font-medium tracking-wide text-left">
               Service Date
             </th>
-            <th class="px-4 py-2 text-xs font-medium tracking-wide text-left">
+            <th
+              class="px-4 py-2 text-xs font-medium w-[300px] overflow-hidden tracking-wide text-left"
+            >
               Product Name
             </th>
             <th class="px-4 py-2 text-xs font-medium tracking-wide text-left">
@@ -245,10 +257,14 @@ onMounted(async () => {
             <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
               {{ l.service_date }}
             </td>
-            <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
+            <td
+              class="p-4 text-xs text-gray-700 max-w-[200px] overflow-hidden whitespace-nowrap"
+            >
               {{ l.product_name }}
             </td>
-            <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
+            <td
+              class="p-4 text-xs text-gray-700 max-w-[200px] overflow-hidden whitespace-nowrap"
+            >
               {{ l.variation_name }}
             </td>
             <td class="p-4 text-xs text-gray-700 whitespace-nowrap">

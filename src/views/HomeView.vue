@@ -905,6 +905,7 @@ watch(priceSalesGraph, async (newValue) => {
             <select
               name=""
               id=""
+              v-if="!priceSalesGraph"
               v-model="priceSalesGraphAgent"
               class="px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none"
             >

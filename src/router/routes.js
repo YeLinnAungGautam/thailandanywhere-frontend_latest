@@ -38,6 +38,7 @@ import InclusiveView from "../views/InclusiveCreate.vue";
 import InclusiveDetailView from "../views/InclusiveUpdate.vue";
 import ReservationViewView from "../views/ReservationView.vue";
 import DashboardView from "../views/UserDashboard.vue";
+import CarBookingView from "../views/PrivateVanTourCar.vue";
 
 const routes = [
   {
@@ -242,6 +243,11 @@ const routes = [
     path: "/admins",
     name: "admins",
     component: AdminView,
+  },
+  {
+    path: "/car-bookings/:part",
+    name: "car-bookings",
+    component: CarBookingView,
   },
 ];
 

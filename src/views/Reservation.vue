@@ -259,7 +259,7 @@ const watchSystem = computed(() => {
     result.reservation_status = searchReservation.value;
   }
   if (searchTime.value != "" && searchTime.value != undefined) {
-    result.service_date = searchTime.value;
+    result.service_date = formatDate(searchTime.value);
   }
   if (userFilter.value != undefined) {
     result.user_id = userFilter.value;
@@ -290,11 +290,48 @@ const downFunction = () => {
   sorting.value = "desc";
 };
 
-watch(search, async (newValue) => {
-  showFilter.value = true;
-  searchFunction();
+const formatDate = (datePut) => {
+  const date = new Date(datePut);
+
+  // Get the year, month, and day
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Month starts from 0
+  const day = String(date.getDate()).padStart(2, "0");
+
+  // Form the formatted date string
+  let formattedDate = `${year}-${month}-${day}`;
+  return formattedDate;
+};
+
+const searchHandler = async () => {
   await reservationStore.getListAction(watchSystem.value);
-});
+};
+
+watch(
+  [
+    search,
+
+    hotel_name,
+    attraction_name,
+    oldCrmId,
+    bookingStatus,
+    expenseStatus,
+    customerPaymentStatus,
+    limit,
+    searchId,
+    searchA,
+    userFilter,
+    searchReservation,
+    searchTime,
+    customer_name,
+    sorting,
+  ],
+  async (newValue) => {
+    showFilter.value = true;
+    searchFunction();
+    // await reservationStore.getListAction(watchSystem.value);
+  }
+);
 watch(dateRange, async (newValue) => {
   showFilter.value = true;
   console.log(dateRange.value, "this is date");
@@ -324,86 +361,92 @@ watch(dateRange, async (newValue) => {
   // console.log(sale_daterange.value, "this is daterange");
   await reservationStore.getListAction(watchSystem.value);
 });
-watch(hotel_name, async (newValue) => {
-  showFilter.value = true;
-  await reservationStore.getListAction(watchSystem.value);
-});
-watch(attraction_name, async (newValue) => {
-  showFilter.value = true;
-  await reservationStore.getListAction(watchSystem.value);
-});
-watch(oldCrmId, async (newValue) => {
-  showFilter.value = true;
-  await reservationStore.getListAction(watchSystem.value);
-});
-watch(bookingStatus, async (newValue) => {
-  showFilter.value = true;
-  await reservationStore.getListAction(watchSystem.value);
-});
-watch(expenseStatus, async (newValue) => {
-  showFilter.value = true;
-  await reservationStore.getListAction(watchSystem.value);
-});
-watch(customerPaymentStatus, async (newValue) => {
-  showFilter.value = true;
-  await reservationStore.getListAction(watchSystem.value);
-});
-watch(limit, async (newValue) => {
-  showFilter.value = true;
-  await reservationStore.getListAction(watchSystem.value);
-});
-watch(searchId, async (newValue) => {
-  showFilter.value = true;
-  searchFunction();
-  await reservationStore.getListAction(watchSystem.value);
-});
-watch(searchA, async (newValue) => {
-  showFilter.value = true;
-  await reservationStore.getListAction(watchSystem.value);
-});
-watch(userFilter, async (newValue) => {
-  showFilter.value = true;
-  await reservationStore.getListAction(watchSystem.value);
-});
-watch(searchReservation, async (newValue) => {
-  showFilter.value = true;
-  await reservationStore.getListAction(watchSystem.value);
-});
-watch(searchTime, async (newValue) => {
-  showFilter.value = true;
-  searchFunction();
-  await reservationStore.getListAction(watchSystem.value);
-});
-watch(customer_name, async (newValue) => {
-  showFilter.value = true;
-  searchFunction();
-  await reservationStore.getListAction(watchSystem.value);
-});
-watch(sorting, async (newValue) => {
-  showFilter.value = true;
-  searchFunction();
-  await reservationStore.getListAction(watchSystem.value);
-});
+// watch(hotel_name, async (newValue) => {
+//   showFilter.value = true;
+//   await reservationStore.getListAction(watchSystem.value);
+// });
+// watch(attraction_name, async (newValue) => {
+//   showFilter.value = true;
+//   await reservationStore.getListAction(watchSystem.value);
+// });
+// watch(oldCrmId, async (newValue) => {
+//   showFilter.value = true;
+//   await reservationStore.getListAction(watchSystem.value);
+// });
+// watch(bookingStatus, async (newValue) => {
+//   showFilter.value = true;
+//   await reservationStore.getListAction(watchSystem.value);
+// });
+// watch(expenseStatus, async (newValue) => {
+//   showFilter.value = true;
+//   await reservationStore.getListAction(watchSystem.value);
+// });
+// watch(customerPaymentStatus, async (newValue) => {
+//   showFilter.value = true;
+//   await reservationStore.getListAction(watchSystem.value);
+// });
+// watch(limit, async (newValue) => {
+//   showFilter.value = true;
+//   await reservationStore.getListAction(watchSystem.value);
+// });
+// watch(searchId, async (newValue) => {
+//   showFilter.value = true;
+//   searchFunction();
+//   await reservationStore.getListAction(watchSystem.value);
+// });
+// watch(searchA, async (newValue) => {
+//   showFilter.value = true;
+//   await reservationStore.getListAction(watchSystem.value);
+// });
+// watch(userFilter, async (newValue) => {
+//   showFilter.value = true;
+//   await reservationStore.getListAction(watchSystem.value);
+// });
+// watch(searchReservation, async (newValue) => {
+//   showFilter.value = true;
+//   await reservationStore.getListAction(watchSystem.value);
+// });
+// watch(searchTime, async (newValue) => {
+//   showFilter.value = true;
+//   searchFunction();
+//   await reservationStore.getListAction(watchSystem.value);
+// });
+// watch(customer_name, async (newValue) => {
+//   showFilter.value = true;
+//   searchFunction();
+//   await reservationStore.getListAction(watchSystem.value);
+// });
+// watch(sorting, async (newValue) => {
+//   showFilter.value = true;
+//   searchFunction();
+//   await reservationStore.getListAction(watchSystem.value);
+// });
 </script>
 
 <template>
   <Layout>
     <div class="flex items-center justify-between mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Reservation Lists</h3>
+      <div class="space-x-2">
+        <Button :leftIcon="FunnelIcon" v-if="showFilter" @click="clearFilter">
+          Clear
+        </Button>
+        <Button :leftIcon="FunnelIcon" @click="searchHandler"> Search </Button>
+      </div>
     </div>
     <div class="p-6 mb-5 rounded-lg shadow-sm bg-white/60">
       <!-- search input sort filter -->
       <div class="flex items-center justify-between mb-5">
         <div class="flex items-center justify-start gap-2 space-x-2">
           <p
-            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('')"
             :class="search == '' ? 'bg-[#ff613c] text-white' : ''"
           >
             All
           </p>
           <p
-            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="private_van_handle"
             :class="
               search == 'App\\Models\\PrivateVanTour'
@@ -414,7 +457,7 @@ watch(sorting, async (newValue) => {
             Private Van tour
           </p>
           <p
-            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\GroupTour')"
             :class="
               search == 'App\\Models\\GroupTour'
@@ -425,7 +468,7 @@ watch(sorting, async (newValue) => {
             Group Tour
           </p>
           <p
-            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\EntranceTicket')"
             :class="
               search == 'App\\Models\\EntranceTicket'
@@ -436,7 +479,7 @@ watch(sorting, async (newValue) => {
             Entrance Ticket
           </p>
           <p
-            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\AirportPickup')"
             :class="
               search == 'App\\Models\\AirportPickup'
@@ -446,19 +489,9 @@ watch(sorting, async (newValue) => {
           >
             Airport Pickup
           </p>
-          <!-- <p
-            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
-            @click="searchValue('App\\Models\\Inclusive')"
-            :class="
-              search == 'App\\Models\\Inclusive'
-                ? 'bg-[#ff613c] text-white'
-                : ''
-            "
-          >
-            Inclusive
-          </p> -->
+
           <p
-            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\Hotel')"
             :class="
               search == 'App\\Models\\Hotel' ? 'bg-[#ff613c] text-white' : ''
@@ -467,7 +500,7 @@ watch(sorting, async (newValue) => {
             Hotel
           </p>
           <p
-            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white shadow-md py-2 border border-gray-200 rounded"
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\Airline')"
             :class="
               search == 'App\\Models\\Airline' ? 'bg-[#ff613c] text-white' : ''
@@ -475,25 +508,6 @@ watch(sorting, async (newValue) => {
           >
             Airline
           </p>
-
-          <div>
-            <p class="inline-block mr-2 text-xs font-medium text-gray-500">
-              Show
-            </p>
-            <select
-              v-model="limit"
-              class="w-16 p-2 text-xs border-2 rounded-md focus:outline-none focus:ring-0"
-            >
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="30">30</option>
-              <option value="40">40</option>
-              <option value="50">50</option>
-            </select>
-            <p class="inline-block ml-2 text-xs font-medium text-gray-500">
-              entries
-            </p>
-          </div>
         </div>
         <div
           v-if="sale_daterange && dateRange"
@@ -527,7 +541,7 @@ watch(sorting, async (newValue) => {
             </option>
           </select>
         </div>
-        <div class="">
+        <!-- <div class="">
           <v-select
             v-model="searchA"
             class="style-chooser placeholder-xs bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
@@ -537,7 +551,7 @@ watch(sorting, async (newValue) => {
             :reduce="(d) => d.name"
             placeholder="current & past ..."
           ></v-select>
-        </div>
+        </div> -->
         <div class="">
           <v-select
             v-model="searchReservation"
@@ -583,18 +597,23 @@ watch(sorting, async (newValue) => {
           ></v-select>
         </div>
         <div>
-          <input
+          <!-- <input
             v-model="searchTime"
             type="date"
             class="h-8 w-3/5 sm:w-3/5 md:w-full text-md border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
             placeholder="Search Date"
+          /> -->
+          <VueDatePicker
+            v-model="searchTime"
+            placeholder="Service Date"
+            text-input
           />
         </div>
         <div>
           <input
             v-model="searchId"
             type="text"
-            class="h-8 w-3/5 sm:w-3/5 md:w-full border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+            class="h-9 text-sm w-3/5 sm:w-3/5 md:w-full border px-4 py-2 rounded-md focus:ring-0 focus:outline-none text-gray-500"
             placeholder="Search CRM ID"
           />
         </div>
@@ -602,7 +621,7 @@ watch(sorting, async (newValue) => {
           <input
             v-model="oldCrmId"
             type="text"
-            class="h-8 w-3/5 sm:w-3/5 md:w-full border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+            class="h-9 text-sm w-3/5 sm:w-3/5 md:w-full border px-4 py-2 rounded-md focus:ring-0 focus:outline-none text-gray-500"
             placeholder="Search Old CRM ID"
           />
         </div>
@@ -646,8 +665,23 @@ watch(sorting, async (newValue) => {
             placeholder="sorting ..."
           ></v-select>
         </div>
-        <div v-show="showFilter" @click="clearFilter" class="w-full">
-          <Button :leftIcon="FunnelIcon"> clear </Button>
+        <div>
+          <p class="inline-block mr-2 text-sm font-medium text-gray-500">
+            Show
+          </p>
+          <select
+            v-model="limit"
+            class="w-16 p-2 text-xs border-2 rounded-md focus:outline-none focus:ring-0"
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+            <option value="50">50</option>
+          </select>
+          <p class="inline-block ml-2 text-sm font-medium text-gray-500">
+            entries
+          </p>
         </div>
       </div>
       <div

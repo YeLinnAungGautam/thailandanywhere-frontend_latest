@@ -8,10 +8,11 @@ export const useDriverStore = defineStore("driver", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/drivers?limit=1000&page=1");
+        const response = await axios.get("/drivers?limit=2000&page=1", {
+          params: params,
+        });
         this.drivers = response.data.result;
         this.loading = false;
-
         return response.data;
       } catch (error) {
         this.loading = false;
@@ -59,6 +60,14 @@ export const useDriverStore = defineStore("driver", {
     async deleteAction(id) {
       try {
         const response = await axios.delete("/drivers/" + id);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async getDetailAction(id) {
+      try {
+        const response = await axios.get("/drivers/" + id);
         return response.data;
       } catch (error) {
         throw error;

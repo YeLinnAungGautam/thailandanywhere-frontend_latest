@@ -156,6 +156,13 @@
                 to="/calendar"
               />
             </div>
+            <SidebarItem
+              v-if="!authStore.isAgent"
+              name="Car Bookings"
+              :icon="DocumentTextIcon"
+              to="/car-bookings/unassigned"
+              :activePaths="['car-bookings']"
+            />
           </div>
 
           <!-- <div>
@@ -198,6 +205,7 @@ import {
   PresentationChartBarIcon,
   ClockIcon,
   ChevronDownIcon,
+  NewspaperIcon,
   ChevronUpIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, ref } from "vue";

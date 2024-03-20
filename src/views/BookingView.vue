@@ -26,14 +26,17 @@ import { useRouter, useRoute } from "vue-router";
 import { useBookingStore } from "../stores/booking";
 import { storeToRefs } from "pinia";
 import { useAuthStore } from "../stores/auth";
+import { useAdminStore } from "../stores/admin";
 
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
 const bookingStore = useBookingStore();
 const authStore = useAuthStore();
+const adminStore = useAdminStore();
 
 const { bookings, loading } = storeToRefs(bookingStore);
+const { admin } = storeToRefs(adminStore);
 
 const changePage = async (url) => {
   console.log(url);
@@ -90,6 +93,7 @@ const inclusive_only = ref(false);
 const balanceDueDate = ref("");
 const bookingStatus = ref("");
 const saleDate = ref("");
+const createdBy = ref("");
 const bookingStatusArr = [
   { id: 1, name: "awaiting" },
   { id: 2, name: "confirmed" },
@@ -113,7 +117,7 @@ const limitedText = (text) => {
   }
 };
 
-const clearFilter = () => {
+const clearFilter = async () => {
   showFilter.value = false;
   if (!showFilter.value) {
     limit.value = 10;
@@ -122,12 +126,14 @@ const clearFilter = () => {
     searchP.value = "";
     customerName.value = "";
     balanceDueDate.value = "";
+    createdBy.value = "";
     bookingStatus.value = "";
     saleDate.value = "";
     sale_date_order_by.value = "";
     inclusive_only.value = false;
   }
   console.log(showFilter.value, "this is showfilter");
+  await bookingStore.getListAction(watchSystem.value);
 };
 
 const SearchFunction = () => {
@@ -149,7 +155,22 @@ onMounted(async () => {
   customerName.value =
     route.params.customer_name == "%" ? "" : route.params.customer_name;
   saleDate.value = route.params.sale_date == "%" ? "" : route.params.sale_date;
+  await adminStore.getSimpleListAction();
+  console.log(admin.value, "this is admin");
 });
+
+const formatDate = (datePut) => {
+  const date = new Date(datePut);
+
+  // Get the year, month, and day
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Month starts from 0
+  const day = String(date.getDate()).padStart(2, "0");
+
+  // Form the formatted date string
+  let formattedDate = `${year}-${month}-${day}`;
+  return formattedDate;
+};
 
 // const searchParam = ref({});
 const watchSystem = computed(() => {
@@ -161,17 +182,20 @@ const watchSystem = computed(() => {
   if (search.value != "" && search.value != undefined) {
     result.crm_id = search.value;
   }
+  if (createdBy.value != "" && createdBy.value != undefined) {
+    result.created_by = createdBy.value;
+  }
   if (customerName.value != "" && customerName.value != undefined) {
     result.customer_name = customerName.value;
   }
   if (balanceDueDate.value != "" && balanceDueDate.value != undefined) {
-    result.balance_due_date = balanceDueDate.value;
+    result.balance_due_date = formatDate(balanceDueDate.value);
   }
   if (bookingStatus.value != "" && bookingStatus.value != undefined) {
     result.booking_status = bookingStatus.value;
   }
   if (saleDate.value != "" && saleDate.value != undefined) {
-    result.sale_date = saleDate.value;
+    result.sale_date = formatDate(saleDate.value);
   }
   if (searchA.value != "" && searchA.value != undefined) {
     result.filter = searchA.value;
@@ -190,49 +214,29 @@ const watchSystem = computed(() => {
   return result;
 });
 
-watch(search, async (newValue) => {
+const searchHandler = async () => {
   showFilter.value = true;
   SearchFunction();
   await bookingStore.getListAction(watchSystem.value);
-});
-watch(searchA, async (newValue) => {
-  showFilter.value = true;
-  await bookingStore.getListAction(watchSystem.value);
-});
-watch(sale_date_order_by, async (newValue) => {
-  showFilter.value = true;
-  await bookingStore.getListAction(watchSystem.value);
-});
-watch(inclusive_only, async (newValue) => {
-  showFilter.value = true;
-  await bookingStore.getListAction(watchSystem.value);
-});
-watch(customerName, async (newValue) => {
-  SearchFunction();
-  showFilter.value = true;
-  await bookingStore.getListAction(watchSystem.value);
-});
-watch(balanceDueDate, async (newValue) => {
-  showFilter.value = true;
-  await bookingStore.getListAction(watchSystem.value);
-});
-watch(bookingStatus, async (newValue) => {
-  showFilter.value = true;
-  await bookingStore.getListAction(watchSystem.value);
-});
-watch(saleDate, async (newValue) => {
-  SearchFunction();
-  showFilter.value = true;
-  await bookingStore.getListAction(watchSystem.value);
-});
-watch(searchP, async (newValue) => {
-  showFilter.value = true;
-  await bookingStore.getListAction(watchSystem.value);
-});
-watch(limit, async (newValue) => {
-  showFilter.value = true;
-  await bookingStore.getListAction(watchSystem.value);
-});
+};
+
+watch(
+  [
+    search,
+    searchA,
+    sale_date_order_by,
+    inclusive_only,
+    customerName,
+    balanceDueDate,
+    bookingStatus,
+    saleDate,
+    searchP,
+    limit,
+  ],
+  () => {
+    showFilter.value = true;
+  }
+);
 </script>
 
 <template>
@@ -256,6 +260,11 @@ watch(limit, async (newValue) => {
         </div>
       </div>
       <div class="space-x-3">
+        <Button :leftIcon="FunnelIcon" @click="clearFilter" v-if="showFilter">
+          Clear
+        </Button>
+        <Button :leftIcon="FunnelIcon" @click="searchHandler"> Search </Button>
+
         <router-link to="/bookings/create">
           <Button :leftIcon="PlusIcon"> Create </Button>
         </router-link>
@@ -265,6 +274,17 @@ watch(limit, async (newValue) => {
       <!-- search input sort filter -->
       <div class="mb-5">
         <div class="grid grid-cols-4 gap-2">
+          <div v-if="authStore.isSuperAdmin">
+            <v-select
+              v-model="createdBy"
+              class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400"
+              :options="admin?.data"
+              label="name"
+              :clearable="false"
+              :reduce="(d) => d.id"
+              placeholder="agent ..."
+            ></v-select>
+          </div>
           <div class="">
             <v-select
               v-model="searchP"
@@ -277,22 +297,22 @@ watch(limit, async (newValue) => {
             ></v-select>
           </div>
 
-          <div class="">
+          <!-- <div class="">
             <v-select
               v-model="bookingStatus"
-              class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400"
+              class="style-chooser placeholder-sm text-sm bg-white rounded-lg w-full text-gray-400"
               :options="bookingStatusArr"
               label="name"
               :clearable="false"
               :reduce="(d) => d.name"
               placeholder="booking status ..."
             ></v-select>
-          </div>
+          </div> -->
           <div>
             <input
               v-model="search"
               type="text"
-              class="w-3/5 sm:w-3/5 h-9 md:w-full border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+              class="w-3/5 sm:w-3/5 h-9 text-sm md:w-full border px-4 py-2 rounded-md focus:ring-0 focus:outline-none text-gray-500"
               placeholder="bookings id.."
             />
           </div>
@@ -300,32 +320,42 @@ watch(limit, async (newValue) => {
             <input
               v-model="customerName"
               type="text"
-              class="h-9 w-3/5 sm:w-3/5 md:w-full border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+              class="h-9 w-3/5 sm:w-3/5 text-sm md:w-full border px-4 py-2 rounded-md focus:ring-0 focus:outline-none text-gray-500"
               placeholder="Customer Name"
             />
           </div>
           <div class="">
-            <input
+            <!-- <input
               v-model="balanceDueDate"
               type="date"
               class="h-9 w-3/5 sm:w-3/5 md:w-full text-md border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
               placeholder="Search Date"
               title="service_date"
+            /> -->
+            <VueDatePicker
+              v-model="balanceDueDate"
+              placeholder="Balance Due Date"
+              text-input
             />
           </div>
           <div>
-            <input
+            <!-- <input
               v-model="saleDate"
               type="date"
               class="h-9 w-3/5 sm:w-3/5 md:w-full text-md border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
               placeholder="Search Date"
               title="sale_date"
+            /> -->
+            <VueDatePicker
+              v-model="saleDate"
+              placeholder="Sale Date"
+              text-input
             />
           </div>
           <div class="flex justify-start items-center w-full">
             <p class="inline-block mr-2 font-medium text-gray-500">Sorting</p>
             <select
-              class="w-full h-9 text-gray-500 border-2 rounded-md focus:outline-none focus:ring-0"
+              class="w-full h-9 text-gray-500 border rounded-md focus:outline-none focus:ring-0"
               v-model="sale_date_order_by"
             >
               <option value="desc">Latest to First</option>
@@ -344,9 +374,6 @@ watch(limit, async (newValue) => {
             <p class="inline-block ml-2 font-medium text-gray-500">
               Only Inclusive ?
             </p>
-          </div>
-          <div v-show="showFilter" @click="clearFilter">
-            <Button :leftIcon="FunnelIcon"> Clear </Button>
           </div>
         </div>
       </div>

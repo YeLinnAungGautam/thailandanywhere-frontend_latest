@@ -7,7 +7,11 @@
       <div class="flex w-full items-center justify-between px-[20px]">
         <div class="flex items-center">
           <h3 class="text-sm font-medium md:text-sm lg:text-base">
-            <img src="../../public/logo.jpg" class="w-10 h-10 rounded" alt="" />
+            <img
+              src="../../public/web-logo.png"
+              class="w-10 h-10 rounded"
+              alt=""
+            />
           </h3>
           <p class="ml-2 font-medium tracking-wide text-sm text-[#FF5B00]">
             thanywhere

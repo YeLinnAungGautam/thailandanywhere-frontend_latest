@@ -4,11 +4,7 @@
       class="bg-white/60 w-[400px] px-6 py-4 rounded-md shadow-xl backdrop-blur-lg backdrop-filter"
     >
       <div class="flex flex-col items-center justify-start gap-3 mb-8">
-        <img
-          src="../../public/logo.jpg"
-          class="w-20 h-20 rounded shadow-md"
-          alt=""
-        />
+        <img src="../../public/web-logo.png" class="w-20 h-20" alt="" />
         <p class="text-lg font-medium tracking-wide text-gray-600 font-poppins">
           Welcome to Dashboard
         </p>

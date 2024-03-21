@@ -309,8 +309,6 @@ const searchHandler = async () => {
 
 watch(
   [
-    search,
-
     hotel_name,
     attraction_name,
     oldCrmId,
@@ -361,10 +359,10 @@ watch(dateRange, async (newValue) => {
   // console.log(sale_daterange.value, "this is daterange");
   await reservationStore.getListAction(watchSystem.value);
 });
-// watch(hotel_name, async (newValue) => {
-//   showFilter.value = true;
-//   await reservationStore.getListAction(watchSystem.value);
-// });
+watch(search, async (newValue) => {
+  showFilter.value = true;
+  await reservationStore.getListAction(watchSystem.value);
+});
 // watch(attraction_name, async (newValue) => {
 //   showFilter.value = true;
 //   await reservationStore.getListAction(watchSystem.value);

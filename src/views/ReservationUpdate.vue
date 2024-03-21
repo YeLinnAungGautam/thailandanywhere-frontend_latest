@@ -288,10 +288,17 @@ const onSubmitHandler = async () => {
     frmData.append("cost_price", formData.value.cost_price);
   }
   if (formData.value.cost_price) {
-    frmData.append(
-      "total_cost_price",
-      formData.value.cost_price * formData.value.quantity
-    );
+    if (!formData.value.hotalQuantity) {
+      frmData.append(
+        "total_cost_price",
+        formData.value.cost_price * formData.value.quantity
+      );
+    } else {
+      frmData.append(
+        "total_cost_price",
+        formData.value.cost_price * formData.value.hotalQuantity
+      );
+    }
   }
 
   frmData.append("quantity", formData.value.quantity);
@@ -771,7 +778,7 @@ const getDetail = async () => {
         response.result.quantity *
         daysBetween(formData.value.checkin_date, formData.value.checkout_date);
     }
-    console.log(formData.value.hotalQuantity, "this is hotal Quantity");
+    console.log(formData.value.cost_price, "this is hotal Quantity");
     formData.value.selling_price = response.result.selling_price;
     formData.value.service_date = response.result.service_date;
     secForm.value.ref_number =

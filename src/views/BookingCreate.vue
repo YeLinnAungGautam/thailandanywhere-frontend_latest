@@ -741,10 +741,17 @@ const onSubmitHandler = async () => {
       formData.value.items[x].cost_price &&
       formData.value.items[x].quantity
     ) {
-      frmData.append(
+      if (formData.value.items[x].product_type != "6") {
+        frmData.append(
+          "items[" + x + "][total_cost_price]",
+          formData.value.items[x].cost_price * formData.value.items[x].quantity
+        );
+      } else {
         "items[" + x + "][total_cost_price]",
-        formData.value.items[x].cost_price * formData.value.items[x].quantity
-      );
+          formData.value.items[x].cost_price *
+            formData.value.items[x].quantity *
+            formData.value.items[x].days;
+      }
     }
 
     if (
@@ -837,7 +844,13 @@ const onSubmitHandler = async () => {
         formData.value.items[x].exchange_rate
       );
   }
-
+  console.log(
+    frmData.total_cost_price,
+    frmData.cost_price,
+    frmData.quantity,
+    frmData.days,
+    "thi is testing"
+  );
   try {
     const response = await bookingStore.addNewAction(frmData);
     console.log(response, "create response");
@@ -1165,7 +1178,6 @@ watch(page, async (newValue) => {
                 ></v-select> -->
                 <VselectVue
                   :data="customers"
-                  :select="customer_select"
                   :isMult="false"
                   @childData="handleChildData"
                   @searchData="handleSearchData"

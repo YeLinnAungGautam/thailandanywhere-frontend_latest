@@ -238,6 +238,78 @@ const carNumberCreateHandler = async () => {
   }
 };
 
+const editCarNumber = (data) => {
+  createFormShow.value = true;
+  formCarData.value.id = data.id;
+  formCarData.value.car_number = data.car_number;
+  formCarData.value.is_default = data.is_default;
+  console.log(data);
+};
+
+const carNumberEditHandler = async () => {
+  const frmData = new FormData();
+  frmData.append("car_number", formCarData.value.car_number);
+  frmData.append("is_default", formCarData.value.is_default ? 1 : 0);
+  frmData.append("_method", "PUT");
+
+  try {
+    const response = await driverStore.updateCarAction(
+      frmData,
+      formData.value.id,
+      formCarData.value.id
+    );
+    formCarData.value = {
+      id: "",
+      car_number: "",
+      is_default: false,
+    };
+    toast.success(response.message);
+    errors.value = null;
+    await getCarList();
+  } catch (error) {
+    if (error.response.data.errors) {
+      errors.value = error.response.data.errors;
+    }
+    toast.error(error.response.data.message);
+  }
+};
+
+const deleteCarNumber = async (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await driverStore.deleteCarAction(
+          formData.value.id,
+          id
+        );
+        toast.success(response.message);
+      } catch (error) {
+        if (error.response.data.errors) {
+          errors.value = error.response.data.errors;
+        }
+        toast.error(error.response.data.message);
+      }
+      await getCarList();
+    }
+  });
+};
+
+const cancelHandler = () => {
+  formCarData.value = {
+    id: "",
+    car_number: "",
+    is_default: false,
+  };
+};
+
 const onDeleteHandler = async (id) => {
   Swal.fire({
     title: "Are you sure?",
@@ -514,6 +586,7 @@ watch(search, async (newValue) => {
                   <input
                     type="checkbox"
                     v-model="formCarData.is_default"
+                    :checked="formCarData.is_default == 1 ? true : false"
                     id="name"
                     class="h-8 w-8 px-4 py-2 text-gray-900 rounded-md shadow-sm bg-white/50"
                   />
@@ -525,10 +598,25 @@ watch(search, async (newValue) => {
               </div>
               <div class="mb-2">
                 <button
+                  v-if="!formCarData.id"
                   @click.prevent="carNumberCreateHandler"
                   class="bg-orange-500 text-white px-4 py-2 text-center rounded-md w-full"
                 >
                   Create Car Number
+                </button>
+                <button
+                  v-if="formCarData.id"
+                  @click.prevent="carNumberEditHandler"
+                  class="bg-orange-500 text-white px-4 py-2 text-center rounded-md w-full"
+                >
+                  Edit Car Number
+                </button>
+                <button
+                  v-if="formCarData.id"
+                  @click.prevent="cancelHandler"
+                  class="bg-white border border-orange-500 mt-2 px-4 py-2 text-center rounded-md w-full"
+                >
+                  Cancel
                 </button>
               </div>
             </div>
@@ -587,11 +675,13 @@ watch(search, async (newValue) => {
                     <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                       <div class="flex items-center gap-2">
                         <button
+                          @click.prevent="editCarNumber(c)"
                           class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                         >
                           <PencilSquareIcon class="w-5 h-5" />
                         </button>
                         <button
+                          @click.prevent="deleteCarNumber(c.id)"
                           class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
                         >
                           <TrashIcon class="w-5 h-5" />

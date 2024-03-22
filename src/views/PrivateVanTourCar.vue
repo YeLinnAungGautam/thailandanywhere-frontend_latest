@@ -92,7 +92,7 @@ const getWithDate = async (date) => {
     supplier_id: part.value != "unassigned" ? part.value : "",
     agent_id: agent_id.value,
   };
-  if (user.value.id != 1) {
+  if (user.value.role != "super_admin" || user.value.role != "reservation") {
     data.agent_id = user.value.id;
   }
   const res = await carBookingStore.getListAction(data);
@@ -165,7 +165,7 @@ onMounted(async () => {
       >
         <p class="text-md font-semibold tracking-wider mr-4">Filter:</p>
         <div class="flex justify-end items-center gap-2">
-          <div v-if="authStore.isSuperAdmin">
+          <div v-if="authStore.isSuperAdmin || authStore.isReservation">
             <v-select
               v-model="agent_id"
               class="style-chooser bg-white rounded-lg w-[250px]"

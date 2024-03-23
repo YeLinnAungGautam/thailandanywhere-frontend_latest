@@ -124,6 +124,23 @@ const supplierAction = async () => {
   console.log(drivers.value, "this is driver");
 };
 
+const driverCarNumberList = ref(null);
+const driverAction = async () => {
+  console.log(formData.value.driver_id);
+  const res = await driverStore.getDetailAction(formData.value.driver_id);
+  console.log(res, "this is driver detail action");
+  let data = res.result;
+  formData.value.driver_contact = data.contact;
+  driverCarNumberList.value = data.infos;
+  if (data.infos.length > 0) {
+    data.infos.forEach((num) => {
+      if (num.is_default == 1) {
+        formData.value.car_number = num.id;
+      }
+    });
+  }
+};
+
 const closeFunction = () => {
   formData.value = {
     id: "",
@@ -150,16 +167,13 @@ const onSubmitHandler = async () => {
     frmData.append("supplier_id", formData.value.supplier_id);
     frmData.append("driver_id", formData.value.driver_id);
     frmData.append("driver_contact", formData.value.driver_contact);
-    frmData.append("car_number", formData.value.car_number);
+    frmData.append("driver_info_id", formData.value.car_number);
     frmData.append("cost_price", formData.value.cost_price);
     frmData.append("total_cost_price", total_cost_price.value);
     frmData.append("extra_collect_amount", formData.value.extra_collect_amount);
     frmData.append("route_plan", formData.value.route_plan);
     frmData.append("special_request", formData.value.special_request);
-    const res = await carBookingStore.addNewAction(
-      formData.value,
-      formData.value.id
-    );
+    const res = await carBookingStore.addNewAction(frmData, formData.value.id);
     console.log(res, "this is response");
     closeFunction();
     if ((res.status = "Request was successful.")) {
@@ -328,6 +342,7 @@ onMounted(async () => {
           @submit.prevent="onSubmitHandler"
           class="mt-2 grid grid-cols-2 gap-4"
         >
+          <input type="tel" name="" class="hidden" id="" />
           <div class="space-y-1">
             <label for="name" class="text-gray-800 text-xs"
               >Supplier Name</label
@@ -344,12 +359,20 @@ onMounted(async () => {
           </div>
           <div class="space-y-1">
             <label for="name" class="text-gray-800 text-xs">Car Number</label>
-            <input
+            <!-- <input
               type="text"
               v-model="formData.car_number"
               id="name"
               class="h-9 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
-            />
+            /> -->
+            <v-select
+              v-model="formData.car_number"
+              class="style-chooser bg-white rounded-lg"
+              :options="driverCarNumberList ?? []"
+              label="car_number"
+              :clearable="false"
+              :reduce="(d) => d.id"
+            ></v-select>
           </div>
           <div class="space-y-1">
             <label for="name" class="text-gray-800 text-xs">Driver Name</label>
@@ -357,6 +380,7 @@ onMounted(async () => {
               v-model="formData.driver_id"
               class="style-chooser bg-white rounded-lg"
               :options="drivers?.data"
+              @option:selected="driverAction"
               label="name"
               :clearable="false"
               :reduce="(d) => d.id"

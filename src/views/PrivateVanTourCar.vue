@@ -90,11 +90,13 @@ const getWithDate = async (date) => {
     first: dateFormat(first),
     second: dateFormat(second),
     supplier_id: part.value != "unassigned" ? part.value : "",
-    agent_id: agent_id.value,
   };
-  if (user.value.role != "super_admin" || user.value.role != "reservation") {
+  if (user.value.role == "super_admin" || user.value.role == "reservation") {
+    data.agent_id = agent_id.value;
+  } else {
     data.agent_id = user.value.id;
   }
+  console.log(data, "this is data from car booking");
   const res = await carBookingStore.getListAction(data);
 };
 

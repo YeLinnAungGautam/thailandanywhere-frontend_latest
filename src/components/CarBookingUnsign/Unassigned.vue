@@ -107,10 +107,10 @@ const changePage = async (url) => {
     second: dateFormat(second),
     supplier_id: props?.part != "unassigned" ? props?.part : "",
   };
-  if (user.value.id != 1) {
-    data.agent_id = user.value.id;
-  } else {
+  if (user.value.role == "super_admin" || user.value.role == "reservation") {
     data.agent_id = props?.agent;
+  } else {
+    data.agent_id = user.value.id;
   }
   await carBookingStore.getChangePage(url, data);
   console.log(data, "thsi is params");

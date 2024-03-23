@@ -9,7 +9,7 @@ import {
 } from "@heroicons/vue/24/outline";
 import Modal from "../Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch, watchEffect } from "vue";
 import Pagination from "../Pagination.vue";
 import { useCarBookingStore } from "../../stores/carbooking";
 import Button from "../Button.vue";
@@ -156,18 +156,20 @@ const closeFunction = () => {
     driver_contact: "",
     car_photo: "",
   };
+  errors.value = null;
   assignModalOpen.value = false;
 };
 
+const errors = ref(null);
 const emit = defineEmits();
 const onSubmitHandler = async () => {
   // console.log(formData.value.total_cost_price);
   try {
     const frmData = new FormData();
-    frmData.append("supplier_id", formData.value.supplier_id);
-    frmData.append("driver_id", formData.value.driver_id);
-    frmData.append("driver_contact", formData.value.driver_contact);
-    frmData.append("driver_info_id", formData.value.car_number);
+    frmData.append("supplier_id", formData.value.supplier_id ?? "");
+    frmData.append("driver_id", formData.value.driver_id ?? "");
+    frmData.append("driver_contact", formData.value.driver_contact ?? "");
+    frmData.append("driver_info_id", formData.value.car_number ?? "");
     if (formData.value.cost_price != "" && formData.value.cost_price != null) {
       frmData.append("cost_price", formData.value.cost_price);
     }
@@ -178,7 +180,10 @@ const onSubmitHandler = async () => {
     ) {
       frmData.append("total_cost_price", total_cost_price.value);
     }
-    frmData.append("extra_collect_amount", formData.value.extra_collect_amount);
+    frmData.append(
+      "extra_collect_amount",
+      formData.value.extra_collect_amount ?? 0
+    );
     frmData.append("route_plan", formData.value.route_plan);
     frmData.append("special_request", formData.value.special_request);
     const res = await carBookingStore.addNewAction(frmData, formData.value.id);
@@ -186,10 +191,15 @@ const onSubmitHandler = async () => {
     closeFunction();
     if ((res.status = "Request was successful.")) {
       toast.success(res.message);
+      errors.value = null;
       emit("change", "updated");
     }
   } catch (error) {
     console.log(error, "this is error");
+    if (error.response.data.errors) {
+      errors.value = error.response.data.errors;
+      console.log(errors.value, "this is error");
+    }
     toast.error(error.message);
   }
 };
@@ -202,32 +212,6 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-4">
-    <div class="flex justify-start items-center space-x-3 col-span-3">
-      <HomeSecondPartVue
-        :icon="HeartIcon"
-        :title="'Total Bookings'"
-        :amount="list?.summary.total_booking"
-        :isActive="true"
-      />
-      <HomeSecondPartVue
-        :icon="PuzzlePieceIcon"
-        :title="'Total Sales'"
-        :amount="list?.summary?.total_sales"
-        :isActive="false"
-      />
-      <HomeSecondPartVue
-        :icon="BanknotesIcon"
-        :title="'Total Cost'"
-        :amount="list?.summary?.total_cost"
-        :isActive="false"
-      />
-      <HomeSecondPartVue
-        :icon="BriefcaseIcon"
-        :title="'Balance'"
-        :amount="list?.summary?.total_balance"
-        :isActive="false"
-      />
-    </div>
     <div class="overflow-auto rounded-lg shadow mb-5" v-if="!loading">
       <table class="w-full">
         <thead class="bg-gray-50 border-b-2 border-gray-200">
@@ -366,6 +350,9 @@ onMounted(async () => {
               :clearable="false"
               :reduce="(d) => d.id"
             ></v-select>
+            <p v-if="errors?.supplier_id" class="mt-1 text-sm text-red-600">
+              {{ errors.supplier_id[0] }}
+            </p>
           </div>
           <div class="space-y-1">
             <label for="name" class="text-gray-800 text-xs"
@@ -387,6 +374,9 @@ onMounted(async () => {
               :clearable="false"
               :reduce="(d) => d.id"
             ></v-select>
+            <p v-if="errors?.driver_info_id" class="mt-1 text-sm text-red-600">
+              {{ errors.driver_info_id[0] }}
+            </p>
           </div>
           <div class="space-y-1">
             <label for="name" class="text-gray-800 text-xs"
@@ -403,6 +393,9 @@ onMounted(async () => {
               :clearable="false"
               :reduce="(d) => d.id"
             ></v-select>
+            <p v-if="errors?.driver_id" class="mt-1 text-sm text-red-600">
+              {{ errors.driver_id[0] }}
+            </p>
           </div>
           <div class="space-y-1">
             <div class="flex justify-between items-center gap-2">
@@ -430,6 +423,9 @@ onMounted(async () => {
                 />
               </div>
             </div>
+            <p v-if="errors?.cost_price" class="mt-1 text-sm text-red-600">
+              {{ errors.cost_price[0] }}
+            </p>
           </div>
           <div class="space-y-1">
             <label for="name" class="text-gray-800 text-xs"
@@ -443,6 +439,9 @@ onMounted(async () => {
               id="name"
               class="h-9 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
             />
+            <p v-if="errors?.driver_contact" class="mt-1 text-sm text-red-600">
+              {{ errors.driver_contact[0] }}
+            </p>
           </div>
           <div class="space-y-1">
             <label for="name" class="text-gray-800 text-xs"
@@ -457,6 +456,12 @@ onMounted(async () => {
               id="name"
               class="h-9 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
             />
+            <p
+              v-if="errors?.total_cost_price"
+              class="mt-1 text-sm text-red-600"
+            >
+              {{ errors.total_cost_price[0] }}
+            </p>
           </div>
           <div class="col-span-2">
             <a

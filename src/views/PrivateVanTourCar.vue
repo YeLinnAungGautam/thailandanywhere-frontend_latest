@@ -10,6 +10,14 @@ import { useCarBookingStore } from "../stores/carbooking";
 import { useDriverStore } from "../stores/driver";
 import { useAuthStore } from "../stores/auth";
 import { useAdminStore } from "../stores/admin";
+import HomeSecondPartVue from "../components/HomeSecondPart.vue";
+import {
+  HeartIcon,
+  ExclamationCircleIcon,
+  PuzzlePieceIcon,
+  BanknotesIcon,
+  BriefcaseIcon,
+} from "@heroicons/vue/24/outline";
 
 const supplierStore = useSupplierStore();
 const { suppliers } = storeToRefs(supplierStore);
@@ -102,6 +110,8 @@ const getWithDate = async (date) => {
   }
   console.log(data, "this is data from car booking");
   const res = await carBookingStore.getListAction(data);
+
+  await getSummary(date);
 };
 
 const adminData = computed(() => {
@@ -115,6 +125,23 @@ const adminData = computed(() => {
   }
   return data;
 });
+
+const summaryData = ref(null);
+const getSummary = async (date) => {
+  let data = {
+    supplier_id: part.value != "unassigned" ? part.value : "",
+    daterange: `${dateFormat(date[0])},${dateFormat(date[1])}`,
+  };
+  if (user.value.role == "super_admin" || user.value.role == "reservation") {
+    data.agent_id = agent_id.value;
+  } else {
+    data.agent_id = user.value.id;
+  }
+  console.log(data, "this is summary");
+  const res = await carBookingStore.getCarBookingSummary(data);
+  console.log(res);
+  summaryData.value = res.result;
+};
 
 watch(dateFilterRange, (newValue) => {
   if (dateFilterRange.value != null) {
@@ -220,6 +247,33 @@ onMounted(async () => {
         </div>
       </div>
 
+      <!-- show data -->
+      <div class="flex justify-start items-center space-x-3 col-span-3 mb-4">
+        <HomeSecondPartVue
+          :icon="HeartIcon"
+          :title="'Total Bookings'"
+          :amount="summaryData?.total_booking"
+          :isActive="true"
+        />
+        <HomeSecondPartVue
+          :icon="PuzzlePieceIcon"
+          :title="'Total Sales'"
+          :amount="summaryData?.total_sales"
+          :isActive="false"
+        />
+        <HomeSecondPartVue
+          :icon="BanknotesIcon"
+          :title="'Total Cost'"
+          :amount="summaryData?.total_cost"
+          :isActive="false"
+        />
+        <HomeSecondPartVue
+          :icon="BriefcaseIcon"
+          :title="'Balance'"
+          :amount="summaryData?.total_balance"
+          :isActive="false"
+        />
+      </div>
       <!-- unsign or supplier -->
       <div v-if="part == 'unassigned'">
         <UnassignedVue

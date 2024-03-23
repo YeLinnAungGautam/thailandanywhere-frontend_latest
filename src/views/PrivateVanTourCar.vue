@@ -82,6 +82,10 @@ const dateFormat = (inputDateString) => {
 
 const agent_id = ref("");
 
+const changeFunction = (data) => {
+  getWithDate(dateFilterRange.value);
+};
+
 const getWithDate = async (date) => {
   let first = date[0];
   let second = date[1];

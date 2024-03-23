@@ -55,7 +55,7 @@ const openModel = async (id) => {
     driver_id: data.driver_id,
     driver_name: data.driver_name,
     driver_contact: data.driver_contact,
-    car_number: data.car_number,
+    car_number: data.driver_info_id,
     quantity: data.quantity,
     cost_price: data.cost_price,
     total_cost_price: data.quantity * data.cost_price,
@@ -112,11 +112,13 @@ const driverAction = async () => {
   formData.value.driver_contact = data.contact;
   driverCarNumberList.value = data.infos;
   if (data.infos.length > 0) {
-    data.infos.forEach((num) => {
-      if (num.is_default == 1) {
-        formData.value.car_number = num.id;
-      }
-    });
+    if (formData.value.car_number == "") {
+      data.infos.forEach((num) => {
+        if (num.is_default == 1) {
+          formData.value.car_number = num.id;
+        }
+      });
+    }
   }
 };
 

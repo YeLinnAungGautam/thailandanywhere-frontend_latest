@@ -825,6 +825,7 @@ watch(priceSalesGraph, async (newValue) => {
             v-model="dateFilterRange"
             range
             :preset-dates="presetDates"
+            :format="'yyyy-MM-dd'"
             placeholder="select date range"
           >
             <template #preset-date-range-button="{ label, value, presetDate }">
@@ -965,6 +966,7 @@ watch(priceSalesGraph, async (newValue) => {
               <p class="text-sm font-medium mr-2">AgentSales</p>
               <VueDatePicker
                 v-model="dateForSaleAgent"
+                :format="'yyyy-MM-dd'"
                 range
                 :preset-dates="presetDates"
                 placeholder="select date range"
@@ -1043,6 +1045,7 @@ watch(priceSalesGraph, async (newValue) => {
                   <p class="text-sm font-medium mr-2">Unpaid</p>
                   <VueDatePicker
                     v-model="dateForUnpaid"
+                    :format="'yyyy-MM-dd'"
                     range
                     :preset-dates="presetDates"
                     placeholder="select date range"

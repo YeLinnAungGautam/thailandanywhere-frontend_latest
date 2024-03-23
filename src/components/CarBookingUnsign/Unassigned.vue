@@ -168,8 +168,16 @@ const onSubmitHandler = async () => {
     frmData.append("driver_id", formData.value.driver_id);
     frmData.append("driver_contact", formData.value.driver_contact);
     frmData.append("driver_info_id", formData.value.car_number);
-    frmData.append("cost_price", formData.value.cost_price);
-    frmData.append("total_cost_price", total_cost_price.value);
+    if (formData.value.cost_price != "" && formData.value.cost_price != null) {
+      frmData.append("cost_price", formData.value.cost_price);
+    }
+    if (
+      total_cost_price.value != "" &&
+      total_cost_price.value != "NaN" &&
+      formData.value.cost_price != ""
+    ) {
+      frmData.append("total_cost_price", total_cost_price.value);
+    }
     frmData.append("extra_collect_amount", formData.value.extra_collect_amount);
     frmData.append("route_plan", formData.value.route_plan);
     frmData.append("special_request", formData.value.special_request);
@@ -268,14 +276,10 @@ onMounted(async () => {
             <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
               {{ l.customer_name }}
             </td>
-            <td
-              class="p-4 text-xs max-w-[200px] overflow-hidden text-gray-700 whitespace-nowrap"
-            >
+            <td class="p-4 text-xs max-w-[200px] overflow-hidden text-gray-700">
               {{ l.product_name }}
             </td>
-            <td
-              class="p-4 text-xs max-w-[200px] overflow-hidden text-gray-700 whitespace-nowrap"
-            >
+            <td class="p-4 text-xs max-w-[200px] overflow-hidden text-gray-700">
               {{ l.variation_name }}
             </td>
             <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
@@ -340,12 +344,18 @@ onMounted(async () => {
         </DialogTitle>
         <form
           @submit.prevent="onSubmitHandler"
-          class="mt-2 grid grid-cols-2 gap-4"
+          class="mt-2 grid grid-cols-2 gap-4 relative"
         >
-          <input type="tel" name="" class="hidden" id="" />
+          <input
+            type="text"
+            name=""
+            class="opacity-0 col-span-2 absolute top-0"
+            id=""
+          />
           <div class="space-y-1">
             <label for="name" class="text-gray-800 text-xs"
-              >Supplier Name</label
+              >Supplier Name
+              <span class="text-red-600 text-base pl-2">*</span></label
             >
             <v-select
               v-model="formData.supplier_id"
@@ -358,7 +368,11 @@ onMounted(async () => {
             ></v-select>
           </div>
           <div class="space-y-1">
-            <label for="name" class="text-gray-800 text-xs">Car Number</label>
+            <label for="name" class="text-gray-800 text-xs"
+              >Car Number<span class="text-red-600 text-base pl-2"
+                >*</span
+              ></label
+            >
             <!-- <input
               type="text"
               v-model="formData.car_number"
@@ -375,7 +389,11 @@ onMounted(async () => {
             ></v-select>
           </div>
           <div class="space-y-1">
-            <label for="name" class="text-gray-800 text-xs">Driver Name</label>
+            <label for="name" class="text-gray-800 text-xs"
+              >Driver Name<span class="text-red-600 text-base pl-2"
+                >*</span
+              ></label
+            >
             <v-select
               v-model="formData.driver_id"
               class="style-chooser bg-white rounded-lg"
@@ -387,28 +405,37 @@ onMounted(async () => {
             ></v-select>
           </div>
           <div class="space-y-1">
-            <label for="name" class="text-gray-800 text-xs"
-              >Cost Price & Quantity</label
-            >
             <div class="flex justify-between items-center gap-2">
-              <input
-                type="number"
-                v-model="formData.cost_price"
-                id="name"
-                class="h-9 col-span-2 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
-              />
-              <input
-                type="number"
-                v-model="formData.quantity"
-                id="name"
-                disabled
-                class="h-9 w-20 bg-gray-200 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
-              />
+              <div class="space-y-1">
+                <label for="name" class="text-gray-800 text-xs"
+                  >Cost Price<span class="text-red-600 text-base pl-2"
+                    >*</span
+                  ></label
+                >
+                <input
+                  type="number"
+                  v-model="formData.cost_price"
+                  id="name"
+                  class="h-9.5 col-span-2 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+                />
+              </div>
+              <div class="space-y-1">
+                <label for="name" class="text-gray-800 text-xs">Quantity</label>
+                <input
+                  type="number"
+                  v-model="formData.quantity"
+                  id="name"
+                  disabled
+                  class="h-9.5 w-20 bg-gray-200 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+                />
+              </div>
             </div>
           </div>
           <div class="space-y-1">
             <label for="name" class="text-gray-800 text-xs"
-              >Driver Contact</label
+              >Driver Contact<span class="text-red-600 text-base pl-2"
+                >*</span
+              ></label
             >
             <input
               type="text"
@@ -419,7 +446,9 @@ onMounted(async () => {
           </div>
           <div class="space-y-1">
             <label for="name" class="text-gray-800 text-xs"
-              >Total Cost Price</label
+              >Total Cost Price<span class="text-red-600 text-base pl-2"
+                >*</span
+              ></label
             >
             <input
               type="number"

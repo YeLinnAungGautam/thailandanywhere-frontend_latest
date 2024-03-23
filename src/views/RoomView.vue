@@ -633,7 +633,11 @@ const addNewHandler = async () => {
   frmData.append("description", formData.value.description);
   frmData.append("max_person", formData.value.max_person);
   frmData.append("room_price", formData.value.room_price);
-  frmData.append("cost", formData.value.cost);
+  if (formData.value.cost != "" && formData.value.cost != null) {
+    frmData.append("cost", formData.value.cost);
+  } else {
+    frmData.append("cost", 0);
+  }
   frmData.append("agent_price", formData.value.agent_price);
   frmData.append("is_extra", enabled.value ? 1 : 0);
   if (formData.value.images.length > 0) {
@@ -743,7 +747,11 @@ const updateHandler = async () => {
     }
   }
   frmData.append("room_price", formData.value.room_price);
-  frmData.append("cost", formData.value.cost);
+  if (formData.value.cost != "" && formData.value.cost != null) {
+    frmData.append("cost", formData.value.cost);
+  } else {
+    frmData.append("cost", 0);
+  }
   frmData.append("agent_price", formData.value.agent_price);
 
   frmData.append("_method", "PUT");

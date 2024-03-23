@@ -49,6 +49,7 @@
             v-model="dateFilterRange"
             range
             :preset-dates="presetDates"
+            :format="'yyyy-MM-dd'"
             placeholder="select date range"
           >
             <template #preset-date-range-button="{ label, value, presetDate }">

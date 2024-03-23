@@ -444,6 +444,7 @@ watch(dateForUnpaid, async (newValue) => {
             <p class="text-sm font-medium mr-2">Unpaid</p>
             <VueDatePicker
               v-model="dateForUnpaid"
+              :format="'yyyy-MM-dd'"
               range
               :preset-dates="presetDates"
               placeholder="select date range"

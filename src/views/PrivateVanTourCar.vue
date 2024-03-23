@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Layout from "../views/Layout.vue";
 import { useSupplierStore } from "../stores/supplier";
@@ -104,6 +104,18 @@ const getWithDate = async (date) => {
   const res = await carBookingStore.getListAction(data);
 };
 
+const adminData = computed(() => {
+  let data = [];
+  if (admin.value) {
+    data.push({ id: "", name: "all agents" });
+    for (let i = 0; i < admin?.value.data?.length; i++) {
+      data.push(admin.value.data[i]);
+    }
+    console.log(data, "this is agent array");
+  }
+  return data;
+});
+
 watch(dateFilterRange, (newValue) => {
   if (dateFilterRange.value != null) {
     getWithDate(dateFilterRange.value);
@@ -175,7 +187,7 @@ onMounted(async () => {
             <v-select
               v-model="agent_id"
               class="style-chooser bg-white rounded-lg w-[250px]"
-              :options="admin?.data"
+              :options="adminData ?? []"
               label="name"
               :clearable="false"
               :reduce="(d) => d.id"
@@ -187,6 +199,7 @@ onMounted(async () => {
               v-model="dateFilterRange"
               range
               :preset-dates="presetDates"
+              :format="'yyyy-MM-dd'"
               placeholder="select date range"
             >
               <template

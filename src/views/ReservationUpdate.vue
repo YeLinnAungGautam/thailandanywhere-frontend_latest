@@ -945,6 +945,7 @@ const copyReservation = async () => {
       res.result.total_nights != "null" ? res.result.total_nights : "-"
     }
 💵 Sale Price: ${res.result.sale_price} THB
+📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
 📅 Check-in Date: ${
       res.result.checkin_date != "null" ? res.result.checkin_date : "-"
     }

@@ -11,6 +11,7 @@ import { useDriverStore } from "../stores/driver";
 import { useAuthStore } from "../stores/auth";
 import { useAdminStore } from "../stores/admin";
 import HomeSecondPartVue from "../components/HomeSecondPart.vue";
+import ReservationTranVue from "../components/CarBookingUnsign/ReservationTran.vue";
 import {
   HeartIcon,
   ExclamationCircleIcon,
@@ -294,6 +295,11 @@ onMounted(async () => {
           :daterange="dateFilterRange"
           @change="changeFunction"
         />
+        <div>
+          <div>
+            <ReservationTranVue :vendor="part" />
+          </div>
+        </div>
       </div>
     </div>
   </Layout>

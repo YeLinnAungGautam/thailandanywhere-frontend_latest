@@ -57,6 +57,9 @@ const openModel = async (id) => {
         ? ""
         : data.route_plan,
     special_request: data.special_request,
+    pickup_location: data.pickup_location,
+    dropoff_location: data.dropoff_location,
+    pickup_time: data.pickup_time,
   };
   assignModalOpen.value = true;
   const supplier = await supplierStore.getSimpleListAction();
@@ -75,6 +78,9 @@ const formData = ref({
   special_request: "",
   driver_contact: "",
   car_photo: "",
+  pickup_location: "",
+  dropoff_location: "",
+  pickup_time: "",
 });
 
 const total_cost_price = computed(() => {
@@ -155,6 +161,9 @@ const closeFunction = () => {
     special_request: "",
     driver_contact: "",
     car_photo: "",
+    pickup_location: "",
+    dropoff_location: "",
+    pickup_time: "",
   };
   errors.value = null;
   assignModalOpen.value = false;
@@ -163,13 +172,16 @@ const closeFunction = () => {
 const errors = ref(null);
 const emit = defineEmits();
 const onSubmitHandler = async () => {
-  // console.log(formData.value.total_cost_price);
+  // console.log(formData.value.pickup_time);
   try {
     const frmData = new FormData();
     frmData.append("supplier_id", formData.value.supplier_id ?? "");
     frmData.append("driver_id", formData.value.driver_id ?? "");
     frmData.append("driver_contact", formData.value.driver_contact ?? "");
     frmData.append("driver_info_id", formData.value.car_number ?? "");
+    frmData.append("pickup_location", formData.value.pickup_location ?? "");
+    frmData.append("dropoff_location", formData.value.dropoff_location ?? "");
+    frmData.append("pickup_time", formData.value.pickup_time ?? "");
     if (formData.value.cost_price != "" && formData.value.cost_price != null) {
       frmData.append("cost_price", formData.value.cost_price);
     }
@@ -498,13 +510,49 @@ onMounted(async () => {
           </div>
           <div class="space-y-1 col-span-2">
             <label for="name" class="text-gray-800 text-xs"
+              >Pickup Location</label
+            >
+            <textarea
+              name=""
+              id=""
+              v-model="formData.pickup_location"
+              class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+              cols="30"
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="space-y-1 col-span-2">
+            <label for="name" class="text-gray-800 text-xs"
+              >Dropoff Location</label
+            >
+            <textarea
+              name=""
+              id=""
+              v-model="formData.dropoff_location"
+              class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+              cols="30"
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="space-y-1 col-span-2">
+            <label for="name" class="text-gray-800 text-xs">Pickup Time</label>
+            <input
+              type="time"
+              name=""
+              v-model="formData.pickup_time"
+              id=""
+              class="h-10 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+            />
+          </div>
+          <div class="space-y-1 col-span-2">
+            <label for="name" class="text-gray-800 text-xs"
               >Extra Collect</label
             >
             <input
               type="text"
               v-model="formData.extra_collect_amount"
               id="name"
-              class="h-9 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+              class="h-10 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
             />
           </div>
           <div class="text-end col-span-2">

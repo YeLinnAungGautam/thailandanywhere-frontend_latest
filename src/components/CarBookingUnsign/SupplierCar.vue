@@ -43,6 +43,9 @@ const formData = ref({
   special_request: "",
   driver_contact: "",
   car_photo: "",
+  pickup_location: "",
+  dropoff_location: "",
+  pickup_time: "",
 });
 
 const openModel = async (id) => {
@@ -65,6 +68,9 @@ const openModel = async (id) => {
         ? ""
         : data.route_plan,
     special_request: data.special_request,
+    pickup_location: data.pickup_location,
+    dropoff_location: data.dropoff_location,
+    pickup_time: data.pickup_time,
   };
   await supplierAction();
 
@@ -87,6 +93,9 @@ const closeFunction = () => {
     route_plan: "",
     special_request: "",
     driver_contact: "",
+    pickup_location: "",
+    dropoff_location: "",
+    pickup_time: "",
     car_photo: "",
   };
   assignModalOpen.value = false;
@@ -181,6 +190,9 @@ const onSubmitHandler = async () => {
     frmData.append("extra_collect_amount", formData.value.extra_collect_amount);
     frmData.append("route_plan", formData.value.route_plan);
     frmData.append("special_request", formData.value.special_request);
+    frmData.append("pickup_location", formData.value.pickup_location ?? "");
+    frmData.append("dropoff_location", formData.value.dropoff_location ?? "");
+    frmData.append("pickup_time", formData.value.pickup_time ?? "");
     const res = await carBookingStore.addNewAction(frmData, formData.value.id);
     console.log(res, "this is response");
     closeFunction();
@@ -498,6 +510,42 @@ onMounted(async () => {
               cols="30"
               rows="3"
             ></textarea>
+          </div>
+          <div class="space-y-1 col-span-2">
+            <label for="name" class="text-gray-800 text-xs"
+              >Pickup Location</label
+            >
+            <textarea
+              name=""
+              id=""
+              v-model="formData.pickup_location"
+              class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+              cols="30"
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="space-y-1 col-span-2">
+            <label for="name" class="text-gray-800 text-xs"
+              >Dropoff Location</label
+            >
+            <textarea
+              name=""
+              id=""
+              v-model="formData.dropoff_location"
+              class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+              cols="30"
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="space-y-1 col-span-2">
+            <label for="name" class="text-gray-800 text-xs">Pickup Time</label>
+            <input
+              type="time"
+              name=""
+              v-model="formData.pickup_time"
+              id=""
+              class="h-10 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+            />
           </div>
           <div class="space-y-1 col-span-2">
             <label for="name" class="text-gray-800 text-xs"

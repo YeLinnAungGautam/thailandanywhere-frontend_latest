@@ -180,11 +180,6 @@ const removeSelectedImage = () => {
 const expPreviewImage = ref([]);
 
 const exphandleFileChange = (e) => {
-  // let selectedFile = e.target.files[0];
-  // if (selectedFile) {
-  //   formData.value.paid_slip = e.target.files[0];
-  //   expPreviewImage.value = URL.createObjectURL(selectedFile);
-  // }
   console.log(e.target.files);
   let selectedFile = e.target.files;
   if (selectedFile) {
@@ -197,8 +192,6 @@ const exphandleFileChange = (e) => {
 };
 
 const expremoveSelectedImage = (index) => {
-  // formData.value.paid_slip = null;
-  // expPreviewImage.value = [];
   formData.value.paid_slip.splice(index, 1);
   expPreviewImage.value.splice(index, 1);
   console.log(formData.value.paid_slip, "this is remove");
@@ -214,13 +207,6 @@ const expremoveSecSelectedImage = (index) => {
 const uploadRecePreview = ref([]);
 
 const recehandleFileChange = (e) => {
-  // let selectedFile = e.target.files[0];
-  // console.log(selectedFile);
-  // if (selectedFile) {
-  //   formData.value.receipt_image = e.target.files[0];
-  //   uploadRecePreview.value = URL.createObjectURL(selectedFile);
-  // }
-  // console.log(e.target.files);
   let selectedFile = e.target.files;
   if (selectedFile) {
     for (let index = 0; index < selectedFile.length; index++) {
@@ -231,37 +217,8 @@ const recehandleFileChange = (e) => {
   console.log(formData.value.receipt_image, "receipt");
 };
 
-// const productList = ref([]);
-// const chooseType = async () => {
-//   if (formitem.value.product_type == "1") {
-//     await vantourStore.getSimpleListAction();
-//     productList.value = vantours.value.data;
-//     console.log(productList.value);
-//   } else if (formitem.value.product_type == "2") {
-//     await grouptourStore.getSimpleListAction();
-//     productList.value = grouptours.value.data;
-//     console.log(productList.value);
-//   } else if (formitem.value.product_type == "3") {
-//     await airportStore.getSimpleListAction();
-//     productList.value = airports.value.data;
-//     console.log(productList.value);
-//   } else if (formitem.value.product_type == "4") {
-//     await entranceStore.getSimpleListAction();
-//     productList.value = entrances.value.data;
-//     console.log(productList.value);
-//   } else if (formitem.value.product_type == "5") {
-//     await inclusiveStore.getSimpleListAction();
-//     productList.value = inclusives.value.data;
-//     console.log(productList.value);
-//   }
-// };
-
 const errors = ref(null);
 
-// const handlerFeatureFileChange = (e) => {
-//   let selectedFile = e.target.files[0];
-//   formData.value.receipt_image = selectedFile;
-// };
 const handlerConfirmFileChange = (e) => {
   let selectedFileCon = e.target.files[0];
 
@@ -277,9 +234,6 @@ const onSubmitHandler = async () => {
   if (formData.value.payment_method) {
     frmData.append("payment_method", formData.value.payment_method);
   }
-  // frmData.append("bank_name", formData.value.bank_name);
-  // frmData.append("bank_account_number", formData.value.bank_account_number);
-  // frmData.append("cost", formData.value.cost);
 
   frmData.append("payment_status", formData.value.payment_status);
 
@@ -302,17 +256,26 @@ const onSubmitHandler = async () => {
   }
 
   frmData.append("quantity", formData.value.quantity);
-  // frmData.append("receipt_image", formData.value.receipt_image);
+
   frmData.append("reservation_status", formData.value.reservation_status);
   frmData.append("selling_price", formData.value.selling_price);
   frmData.append("service_date", formData.value.service_date);
   frmData.append("car_id", formData.value.car_id);
   frmData.append("slip_code", formData.value.slip_code);
+  if (secForm.value.route_plan) {
+    frmData.append("route_plan", secForm.value.route_plan);
+  }
   if (secForm.value.dropoff_location) {
     frmData.append("dropoff_location", secForm.value.dropoff_location);
   }
   if (formData.value.pickup_time) {
     frmData.append("pickup_time", formData.value.pickup_time);
+  }
+  if (secForm.value.special_request) {
+    frmData.append("special_request", secForm.value.special_request);
+  }
+  if (secForm.value.pickup_location) {
+    frmData.append("pickup_location", secForm.value.pickup_location);
   }
 
   if (customer_passport.value.length != 0) {
@@ -365,9 +328,6 @@ const onSubmitHandler = async () => {
 
       secfrm.append("expense_amount", expense_amount.value);
 
-      // if (formData.value.receipt_image) {
-      //   secfrm.append("receipt_image", formData.value.receipt_image);
-      // }
       if (formData.value.receipt_image.length != 0) {
         if (formData.value.receipt_image.length > 0) {
           for (let i = 0; i < formData.value.receipt_image.length; i++) {
@@ -399,38 +359,26 @@ const onSubmitHandler = async () => {
       if (secForm.value.ref_number) {
         secfrm.append("ref_number", secForm.value.ref_number);
       }
-      secfrm.append("special_request", secForm.value.special_request);
 
       if (secForm.value.other_info) {
         secfrm.append("other_info", secForm.value.other_info);
       }
-      if (secForm.value.pickup_location) {
-        secfrm.append("pickup_location", secForm.value.pickup_location);
-      }
-      if (secForm.value.dropoff_location) {
-        secfrm.append("dropoff_location", secForm.value.dropoff_location);
-      }
-      if (formData.value.pickup_time) {
-        secfrm.append("pickup_time", formData.value.pickup_time);
-      }
-      if (secForm.value.route_plan) {
-        secfrm.append("route_plan", secForm.value.route_plan);
-      }
-      if (secForm.value.supplier_name) {
-        secfrm.append("supplier_name", secForm.value.supplier_name);
-      }
+
+      // if (secForm.value.supplier_name) {
+      //   secfrm.append("supplier_name", secForm.value.supplier_name);
+      // }
       if (secForm.value.account_holder_name) {
         secfrm.append("account_holder_name", secForm.value.account_holder_name);
       }
-      if (secForm.value.driver_name) {
-        secfrm.append("driver_name", secForm.value.driver_name);
-      }
-      if (secForm.value.driver_contact) {
-        secfrm.append("driver_contact", secForm.value.driver_contact);
-      }
-      if (secForm.value.car_number) {
-        secfrm.append("car_number", secForm.value.car_number);
-      }
+      // if (secForm.value.driver_name) {
+      //   secfrm.append("driver_name", secForm.value.driver_name);
+      // }
+      // if (secForm.value.driver_contact) {
+      //   secfrm.append("driver_contact", secForm.value.driver_contact);
+      // }
+      // if (secForm.value.car_number) {
+      //   secfrm.append("car_number", secForm.value.car_number);
+      // }
       if (secForm.value.car_photo) {
         if (
           formData.value.product_type == "App\\Models\\EntranceTicket" ||
@@ -584,17 +532,9 @@ const getDetail = async () => {
     booking_status.value = response.result.booking;
     formData.value = response.result;
     formData.value.duration = response.result.duration;
-    if (response.result.reservation_info) {
-      if (response.result.reservation_info.special_request != null) {
-        secForm.value.special_request =
-          response.result.reservation_info.special_request;
-      }
-    } else if (
-      response.result.special_request &&
-      !response.result.reservation_info
-    ) {
-      secForm.value.special_request = response.result.special_request;
-    }
+
+    secForm.value.special_request = response.result.special_request;
+
     // console.log(secForm.value.special_request, "this is special");
     if (response.result.product_type != "App\\Models\\Inclusive") {
       if (response.result.product?.name != null) {
@@ -607,11 +547,9 @@ const getDetail = async () => {
     formData.value.cus_contact = response.result.customer_info.phone_number;
     formData.value.cus_passport = response.result.customer_info.nrc_number;
     formData.value.cus_email = response.result.customer_info.email;
-    if (response.result.route_plan) {
-      secForm.value.route_plan = response.result.route_plan;
-    } else if (response.result.product_type === "App\\Models\\PrivateVanTour") {
-      secForm.value.route_plan = response.result.product.description;
-    }
+
+    secForm.value.route_plan = response.result.route_plan;
+
     secForm.value.pickup_location = response.result.pickup_location;
     secForm.value.dropoff_location = response.result.dropoff_location;
     console.log(secForm.value.pickup_location, "this is pickup");
@@ -632,10 +570,8 @@ const getDetail = async () => {
         response.result.reservation_info.driver_score;
       secForm.value.product_score =
         response.result.reservation_info.product_score;
-      secForm.value.route_plan = response.result.reservation_info.route_plan;
+
       secForm.value.other_info = response.result.reservation_info.other_info;
-      secForm.value.pickup_location =
-        response.result.reservation_info.pickup_location;
     } else {
       secForm.value.customer_feedback = "";
       secForm.value.customer_score = "";
@@ -761,15 +697,7 @@ const getDetail = async () => {
       formData.value.comment = response.result.comment;
     }
     formData.value.receipt_images = response.result.booking?.receipts;
-    // for (let i = 0; i < response.result.booking?.receipts.length; i++) {
-    //   let data = {
-    //     id: response.result.booking?.receipts[i].id,
-    //     image:
-    //       import.meta.env.VITE_API_URL_IMAGE +
-    //       response.result.booking?.receipts[i].image,
-    //   };
-    //   formData.value.receipt_images.push(data);
-    // }
+
     console.log(formData.value.receipt_images, "this is receipt image");
     formData.value.product_id = response.result.product_id;
     formData.value.product_type = response.result.product_type;
@@ -783,34 +711,12 @@ const getDetail = async () => {
     formData.value.service_date = response.result.service_date;
     secForm.value.ref_number =
       response.result.reservation_supplier_info?.ref_number;
-    // console.log(formData.value, "first");
-    // console.log(secForm.value, "sec");
-    // console.log(formData.value.product_type, "this is product type");
 
     if (response.result.cost_price == null) {
       formData.value.cost_price = 0;
     } else {
       formData.value.cost_price = response.result.cost_price;
     }
-    // if (response.result.cost_price == null || response.result.cost_price == 0) {
-    //   if (response.result.room) {
-    //     formData.value.cost_price = response.result.room?.cost;
-    //   }
-    //   if (response.result.variation) {
-    //     formData.value.cost_price = response.result.variation?.cost_price;
-    //   }
-    //   if (
-    //     response.result.car ||
-    //     response.result.product_type == "App\\Models\\GroupTour" ||
-    //     response.result.product_type == "App\\Models\\Airline"
-    //   ) {
-    //     formData.value.cost_price = 0;
-    //   }
-    //   console.log(formData.value.cost_price, "this is cost");
-    // } else {
-    //   formData.value.cost_price = response.result.cost_price;
-    //   console.log(formData.value.cost_price, "this is final cost");
-    // }
   } catch (error) {
     console.log(error);
   }
@@ -893,7 +799,7 @@ const crm = ref("");
 
 const routeArray = ref([]);
 const updateArray = () => {
-  routeArray.value = secForm.value.route_plan.value
+  routeArray.value = secForm.value.route_plan
     .split(",")
     .map((item) => item.trim());
   console.log(routeArray.value, "this is array");
@@ -970,21 +876,6 @@ const copyReservation = async () => {
     `;
   }
 
-  // Create a textarea element to temporarily hold the string
-  // const textarea = document.createElement("textarea");
-  // textarea.value = formattedOutput;
-
-  // // Append the textarea to the document
-  // document.body.appendChild(textarea);
-
-  // // Select the text inside the textarea
-  // textarea.select();
-
-  // // Execute the copy command using the Clipboard API
-  // document.execCommand("copy");
-
-  // // Remove the textarea from the document
-  // document.body.removeChild(textarea);
   setTimeout(() => {
     navigator.clipboard.writeText(formattedOutput);
   }, 0);
@@ -2089,11 +1980,7 @@ onMounted(async () => {
               "
             >
               <p class="text-gray-400 text-xs">Pickup Time</p>
-              <!-- <textarea
-                class="w-full bg-white border font-semibold border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                cols="4"
-                v-model="secForm.dropoff_location"
-              ></textarea> -->
+
               <input
                 type="time"
                 name=""
@@ -2159,6 +2046,7 @@ onMounted(async () => {
                 v-model="secForm.supplier_name"
                 type="text"
                 id="title"
+                disabled
                 class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
               />
             </div>
@@ -2173,6 +2061,7 @@ onMounted(async () => {
               <input
                 v-model="secForm.driver_name"
                 type="text"
+                disabled
                 id="title"
                 class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
               />
@@ -2188,6 +2077,7 @@ onMounted(async () => {
               <input
                 v-model="secForm.driver_contact"
                 type="text"
+                disabled
                 id="title"
                 class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
               />
@@ -2219,6 +2109,7 @@ onMounted(async () => {
               <input
                 v-model="secForm.car_number"
                 type="text"
+                disabled
                 id="title"
                 class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
               />
@@ -2283,18 +2174,6 @@ onMounted(async () => {
             v-if="reservation_info_part"
           >
             <div class="space-y-2">
-              <!-- <div class="pl-10 pr-10 space-y-2">
-                <p class="text-gray-400 text-xs">Payment Status</p>
-                <v-select
-                  v-model="formData.payment_status"
-                  class="style-chooser font-semibold text-xs rounded-lg bg-white"
-                  :options="payment_status"
-                  label="name"
-                  :clearable="false"
-                  :reduce="(d) => d.name"
-                  placeholder=""
-                ></v-select>
-              </div> -->
               <div class="pl-10 pr-10 space-y-2">
                 <p class="text-gray-400 text-xs">Reservation Status</p>
                 <v-select
@@ -2326,14 +2205,6 @@ onMounted(async () => {
                 </p>
                 <p class="text-gray-400 text-xs" v-else>Reservation Slip</p>
                 <div class="space-y-4 mb-2">
-                  <!-- <input
-                    type="file"
-                    id="image"
-                    multiple
-                    class="mb-3"
-                    @change="exphandleFileChange"
-                    accept="image/*"
-                  /> -->
                   <input
                     type="file"
                     id="image"
@@ -2485,25 +2356,11 @@ onMounted(async () => {
                 >
                   {{ formData.cost_price * formData.hotalQuantity }}
                 </p>
-                <!-- <input
-                  v-model="formData.cost_price * formData.quantity"
-                  type="number"
-                  id="title"
-                  class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-                /> -->
               </div>
 
               <div class="pl-10 pr-10 space-y-2">
                 <p class="text-gray-400 text-xs">Receipt</p>
                 <div class="space-y-4 mb-2">
-                  <!-- <input
-                    type="file"
-                    id="image"
-                    multiple
-                    class="mb-3"
-                    @change="recehandleFileChange"
-                    accept="image/*"
-                  /> -->
                   <input
                     type="file"
                     id="image"
@@ -2568,74 +2425,6 @@ onMounted(async () => {
               </div>
             </div>
           </div>
-          <!-- <Modal
-            :isOpen="createModalOpen"
-            @closeModal="createModalOpen = false"
-          >
-            <DialogPanel
-              class="max-w-lg p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
-            >
-              <DialogTitle
-                as="h3"
-                class="mb-5 text-sm font-medium leading-6 text-gray-900"
-              >
-                Which email do you wanna send ?
-              </DialogTitle>
-              <div class="space-y-4">
-                <div>
-                  <input
-                    type="email"
-                    v-model="emailData.mail_to"
-                    class="border-[#FF6300] px-4 py-2 border text-xs w-full"
-                    placeholder="enter email"
-                  />
-                </div>
-
-                <div>
-                  <input
-                    type="text"
-                    v-model="emailData.mail_subject"
-                    class="border-[#FF6300] px-4 py-2 border text-xs w-full"
-                    placeholder=" enter subject"
-                  />
-                </div>
-                <div class="space-y-2">
-                  <p class="text-xs">Attachment Files must be under 25mb .</p>
-                  <input
-                    type="file"
-                    multiple
-                    @change="addAttracted"
-                    class="border-[#FF6300] px-4 py-2 border text-xs w-full"
-                  />
-                </div>
-                <div class="flex justify-start items-center gap-2">
-                  <input
-                    type="checkbox"
-                    v-model="emailData.send_to_default"
-                    name=""
-                    id=""
-                    class="border border-[#FF6300]"
-                  />
-                  <p class="text-xs">default email send ?</p>
-                </div>
-                <div
-                  class="flex justify-center border-[#FF6300] text-white bg-[#FF6300] px-4 py-2 rounded border text-xs w-full items-center gap-2 cursor-pointer"
-                  @click="cancelEmailFunction"
-                >
-                  <span class="text-xs">Cancel Send Email</span>
-                </div>
-                <div
-                  class="flex justify-center border-[#FF6300] px-4 py-1 border text-xs w-full items-center gap-2 cursor-pointer"
-                  @click="sendEmailFunction"
-                >
-                  <AtSymbolIcon
-                    class="w-6 h-6 text-[#FF6300] transform rotate-2"
-                  />
-                  <span class="text-xs">Send Email</span>
-                </div>
-              </div>
-            </DialogPanel>
-          </Modal> -->
         </div>
       </div>
     </div>

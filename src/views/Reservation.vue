@@ -139,6 +139,7 @@ const sorting = ref("");
 const showFilter = ref(false);
 const clearFilter = () => {
   search.value = "";
+  changeDate.value = "";
   oldCrmId.value = "";
   dateRange.value = "";
   sale_daterange.value = "";
@@ -320,7 +321,7 @@ watch(
     searchA,
     userFilter,
     searchReservation,
-    searchTime,
+
     customer_name,
     sorting,
   ],
@@ -330,6 +331,11 @@ watch(
     // await reservationStore.getListAction(watchSystem.value);
   }
 );
+watch(searchTime, async () => {
+  showFilter.value = true;
+  searchFunction();
+  await reservationStore.getListAction(watchSystem.value);
+});
 watch(dateRange, async (newValue) => {
   showFilter.value = true;
   console.log(dateRange.value, "this is date");
@@ -363,6 +369,23 @@ watch(search, async (newValue) => {
   showFilter.value = true;
   await reservationStore.getListAction(watchSystem.value);
 });
+const changeDate = ref("");
+const changeServiceDate = (data) => {
+  console.log(data);
+  changeDate.value = data;
+  if (data == "today") {
+    searchTime.value = new Date();
+  } else if (data == "tomorrow") {
+    let date = new Date();
+    searchTime.value = date.setDate(date.getDate() - 1);
+  } else if (data == "7day") {
+    let date = new Date();
+    searchTime.value = date.setDate(date.getDate() + 7);
+  } else if (data == "30day") {
+    let date = new Date();
+    searchTime.value = date.setDate(date.getDate() + 30);
+  }
+};
 // watch(attraction_name, async (newValue) => {
 //   showFilter.value = true;
 //   await reservationStore.getListAction(watchSystem.value);
@@ -443,7 +466,7 @@ watch(search, async (newValue) => {
           >
             All
           </p>
-          <p
+          <!-- <p
             class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="private_van_handle"
             :class="
@@ -453,7 +476,8 @@ watch(search, async (newValue) => {
             "
           >
             Private Van tour
-          </p>
+          </p> -->
+
           <p
             class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\GroupTour')"
@@ -615,14 +639,14 @@ watch(search, async (newValue) => {
             placeholder="Search CRM ID"
           />
         </div>
-        <div>
+        <!-- <div>
           <input
             v-model="oldCrmId"
             type="text"
             class="h-9 text-sm w-3/5 sm:w-3/5 md:w-full border px-4 py-2 rounded-md focus:ring-0 focus:outline-none text-gray-500"
             placeholder="Search Old CRM ID"
           />
-        </div>
+        </div> -->
         <div class="">
           <v-select
             class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
@@ -680,6 +704,56 @@ watch(search, async (newValue) => {
           <p class="inline-block ml-2 text-sm font-medium text-gray-500">
             entries
           </p>
+        </div>
+        <div class="col-span-3">
+          <div class="flex w-full text-xs pt-4 justify-end items-center gap-4">
+            <p
+              @click="changeServiceDate('today')"
+              class="flex gap-2 justify-start items-center cursor-pointer"
+              :class="changeDate == 'today' ? ' text-[#FF5B00]' : 'text-black'"
+            >
+              <span
+                class="w-2 h-2 rounded-full bg-[#FF5B00]"
+                v-if="changeDate == 'today'"
+              ></span
+              >Today
+            </p>
+            <p
+              @click="changeServiceDate('tomorrow')"
+              class="flex gap-2 justify-start items-center cursor-pointer"
+              :class="
+                changeDate == 'tomorrow' ? ' text-[#FF5B00]' : 'text-black'
+              "
+            >
+              <span
+                class="w-2 h-2 rounded-full bg-[#FF5B00]"
+                v-if="changeDate == 'tomorrow'"
+              ></span
+              >Tomorrow
+            </p>
+            <p
+              @click="changeServiceDate('7day')"
+              class="flex gap-2 justify-start items-center cursor-pointer"
+              :class="changeDate == '7day' ? ' text-[#FF5B00]' : 'text-black'"
+            >
+              <span
+                class="w-2 h-2 rounded-full bg-[#FF5B00]"
+                v-if="changeDate == '7day'"
+              ></span
+              >Next 7 Days
+            </p>
+            <p
+              @click="changeServiceDate('30day')"
+              class="flex gap-2 justify-start items-center cursor-pointer"
+              :class="changeDate == '30day' ? ' text-[#FF5B00]' : 'text-black'"
+            >
+              <span
+                class="w-2 h-2 rounded-full bg-[#FF5B00]"
+                v-if="changeDate == '30day'"
+              ></span
+              >Next 30 Days
+            </p>
+          </div>
         </div>
       </div>
       <div
@@ -962,7 +1036,7 @@ watch(search, async (newValue) => {
           Loading ...
         </div>
       </div>
-      <div
+      <!-- <div
         class="w-auto mb-5 overflow-scroll bg-white rounded-lg shadow"
         v-if="private_van_tour_show"
       >
@@ -1057,7 +1131,6 @@ watch(search, async (newValue) => {
             <div
               class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
             >
-              <!-- {{ limitedText(d.product?.name) }} -->
               {{ d.pickup_time ? d.pickup_time : "-" }}
             </div>
             <div
@@ -1195,7 +1268,7 @@ watch(search, async (newValue) => {
           </div>
           Loading ...
         </div>
-      </div>
+      </div> -->
       <!-- pagination -->
       <Pagination
         v-if="!loading"

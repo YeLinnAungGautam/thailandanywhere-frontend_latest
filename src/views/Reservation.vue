@@ -88,7 +88,6 @@ const limitedText = (text) => {
 
 const searchValue = (val) => {
   search.value = val;
-  private_van_tour_show.value = false;
 };
 
 const searchA = ref("");
@@ -228,6 +227,9 @@ const watchSystem = computed(() => {
   }
   if (search.value != "" && search.value != undefined) {
     result.product_type = search.value;
+  } else {
+    search.value = "App\\Models\\Hotel";
+    result.product_type = "App\\Models\\Hotel";
   }
   if (searchId.value != "" && searchId.value != undefined) {
     result.crm_id = searchId.value;
@@ -321,7 +323,6 @@ watch(
     searchA,
     userFilter,
     searchReservation,
-
     customer_name,
     sorting,
   ],
@@ -386,62 +387,6 @@ const changeServiceDate = (data) => {
     searchTime.value = date.setDate(date.getDate() + 30);
   }
 };
-// watch(attraction_name, async (newValue) => {
-//   showFilter.value = true;
-//   await reservationStore.getListAction(watchSystem.value);
-// });
-// watch(oldCrmId, async (newValue) => {
-//   showFilter.value = true;
-//   await reservationStore.getListAction(watchSystem.value);
-// });
-// watch(bookingStatus, async (newValue) => {
-//   showFilter.value = true;
-//   await reservationStore.getListAction(watchSystem.value);
-// });
-// watch(expenseStatus, async (newValue) => {
-//   showFilter.value = true;
-//   await reservationStore.getListAction(watchSystem.value);
-// });
-// watch(customerPaymentStatus, async (newValue) => {
-//   showFilter.value = true;
-//   await reservationStore.getListAction(watchSystem.value);
-// });
-// watch(limit, async (newValue) => {
-//   showFilter.value = true;
-//   await reservationStore.getListAction(watchSystem.value);
-// });
-// watch(searchId, async (newValue) => {
-//   showFilter.value = true;
-//   searchFunction();
-//   await reservationStore.getListAction(watchSystem.value);
-// });
-// watch(searchA, async (newValue) => {
-//   showFilter.value = true;
-//   await reservationStore.getListAction(watchSystem.value);
-// });
-// watch(userFilter, async (newValue) => {
-//   showFilter.value = true;
-//   await reservationStore.getListAction(watchSystem.value);
-// });
-// watch(searchReservation, async (newValue) => {
-//   showFilter.value = true;
-//   await reservationStore.getListAction(watchSystem.value);
-// });
-// watch(searchTime, async (newValue) => {
-//   showFilter.value = true;
-//   searchFunction();
-//   await reservationStore.getListAction(watchSystem.value);
-// });
-// watch(customer_name, async (newValue) => {
-//   showFilter.value = true;
-//   searchFunction();
-//   await reservationStore.getListAction(watchSystem.value);
-// });
-// watch(sorting, async (newValue) => {
-//   showFilter.value = true;
-//   searchFunction();
-//   await reservationStore.getListAction(watchSystem.value);
-// });
 </script>
 
 <template>
@@ -459,13 +404,13 @@ const changeServiceDate = (data) => {
       <!-- search input sort filter -->
       <div class="flex items-center justify-between mb-5">
         <div class="flex items-center justify-start gap-2 space-x-2">
-          <p
+          <!-- <p
             class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('')"
             :class="search == '' ? 'bg-[#ff613c] text-white' : ''"
           >
             All
-          </p>
+          </p> -->
           <!-- <p
             class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="private_van_handle"

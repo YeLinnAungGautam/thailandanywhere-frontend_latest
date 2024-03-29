@@ -370,21 +370,36 @@ watch(search, async (newValue) => {
   showFilter.value = true;
   await reservationStore.getListAction(watchSystem.value);
 });
+watch(sale_daterange, async (newValue) => {
+  showFilter.value = true;
+  await reservationStore.getListAction(watchSystem.value);
+});
 const changeDate = ref("");
 const changeServiceDate = (data) => {
   console.log(data);
   changeDate.value = data;
   if (data == "today") {
-    searchTime.value = new Date();
+    let startDate = formatDate(new Date());
+    let endDate = formatDate(new Date());
+    sale_daterange.value = `${startDate},${endDate}`;
   } else if (data == "tomorrow") {
-    let date = new Date();
-    searchTime.value = date.setDate(date.getDate() - 1);
+    let tomorrowDate = new Date();
+    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+    let startDate = formatDate(tomorrowDate);
+    let endDate = formatDate(tomorrowDate);
+    sale_daterange.value = `${startDate},${endDate}`;
   } else if (data == "7day") {
-    let date = new Date();
-    searchTime.value = date.setDate(date.getDate() + 7);
+    let startDate = formatDate(new Date());
+    let endDate = formatDate(
+      new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+    );
+    sale_daterange.value = `${startDate},${endDate}`;
   } else if (data == "30day") {
-    let date = new Date();
-    searchTime.value = date.setDate(date.getDate() + 30);
+    let startDate = formatDate(new Date());
+    let endDate = formatDate(
+      new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
+    );
+    sale_daterange.value = `${startDate},${endDate}`;
   }
 };
 </script>

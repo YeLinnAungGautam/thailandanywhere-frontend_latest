@@ -438,7 +438,7 @@ const changeServiceDate = (data) => {
             Private Van tour
           </p> -->
 
-          <p
+          <!-- <p
             class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\GroupTour')"
             :class="
@@ -448,6 +448,15 @@ const changeServiceDate = (data) => {
             "
           >
             Group Tour
+          </p> -->
+          <p
+            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
+            @click="searchValue('App\\Models\\Hotel')"
+            :class="
+              search == 'App\\Models\\Hotel' ? 'bg-[#ff613c] text-white' : ''
+            "
+          >
+            Hotel
           </p>
           <p
             class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
@@ -460,7 +469,7 @@ const changeServiceDate = (data) => {
           >
             Entrance Ticket
           </p>
-          <p
+          <!-- <p
             class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\AirportPickup')"
             :class="
@@ -470,17 +479,8 @@ const changeServiceDate = (data) => {
             "
           >
             Airport Pickup
-          </p>
+          </p> -->
 
-          <p
-            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
-            @click="searchValue('App\\Models\\Hotel')"
-            :class="
-              search == 'App\\Models\\Hotel' ? 'bg-[#ff613c] text-white' : ''
-            "
-          >
-            Hotel
-          </p>
           <p
             class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\Airline')"

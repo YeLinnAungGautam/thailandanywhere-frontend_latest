@@ -18,6 +18,7 @@ import { storeToRefs } from "pinia";
 import { useToast } from "vue-toastification";
 import Button from "../Button.vue";
 import { useAuthStore } from "../../stores/auth";
+import { Switch } from "@headlessui/vue";
 
 const supplierStore = useSupplierStore();
 const driverStore = useDriverStore();
@@ -39,6 +40,7 @@ const formData = ref({
   car_number: "",
   cost_price: "",
   extra_collect_amount: "",
+  is_driver_collect: false,
   route_plan: "",
   special_request: "",
   driver_contact: "",
@@ -70,6 +72,7 @@ const openModel = async (id) => {
     special_request: data.special_request,
     pickup_location: data.pickup_location,
     dropoff_location: data.dropoff_location,
+    is_driver_collect: data.is_driver_collect == 0 ? false : true,
     pickup_time: data.pickup_time,
   };
   await supplierAction();
@@ -89,6 +92,7 @@ const closeFunction = () => {
     car_number: "",
     cost_price: "",
     total_cost_price: "",
+    is_driver_collect: false,
     extra_collect_amount: "",
     route_plan: "",
     special_request: "",
@@ -187,7 +191,15 @@ const onSubmitHandler = async () => {
     ) {
       frmData.append("total_cost_price", total_cost_price.value);
     }
-    frmData.append("extra_collect_amount", formData.value.extra_collect_amount);
+    if (formData.value.is_driver_collect) {
+      frmData.append("is_driver_collect", true);
+      frmData.append(
+        "extra_collect_amount",
+        formData.value.extra_collect_amount ?? 0
+      );
+    } else {
+      frmData.append("is_driver_collect", false);
+    }
     frmData.append("route_plan", formData.value.route_plan);
     frmData.append("special_request", formData.value.special_request);
     frmData.append("pickup_location", formData.value.pickup_location ?? "");
@@ -547,7 +559,31 @@ onMounted(async () => {
               class="h-10 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
             />
           </div>
-          <div class="space-y-1 col-span-2">
+          <div class="space-y-1 col-span-1">
+            <label for="name" class="text-gray-800 text-xs"
+              >Is Driver Collect ?</label
+            >
+            <div class="pt-2">
+              <Switch
+                v-model="formData.is_driver_collect"
+                :class="
+                  formData.is_driver_collect ? 'bg-orange-600' : 'bg-gray-200'
+                "
+                class="relative inline-flex h-6 w-11 items-center rounded-full"
+              >
+                <span class="sr-only">Enable notifications</span>
+                <span
+                  :class="
+                    formData.is_driver_collect
+                      ? 'translate-x-6'
+                      : 'translate-x-1'
+                  "
+                  class="inline-block h-4 w-4 transform rounded-full bg-white transition"
+                />
+              </Switch>
+            </div>
+          </div>
+          <div class="space-y-1 col-span-1" v-if="formData.is_driver_collect">
             <label for="name" class="text-gray-800 text-xs"
               >Extra Collect</label
             >
@@ -555,7 +591,7 @@ onMounted(async () => {
               type="text"
               v-model="formData.extra_collect_amount"
               id="name"
-              class="h-9 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+              class="h-10 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
             />
           </div>
           <div class="text-end col-span-2">

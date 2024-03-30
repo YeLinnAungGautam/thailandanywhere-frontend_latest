@@ -128,7 +128,7 @@ const expenseStatus = ref("");
 const customerPaymentStatus = ref("");
 const hotel_name = ref("");
 const attraction_name = ref("");
-const customer_name = ref(false);
+const customer_name = ref("");
 const sortingArr = ref([
   { id: 1, name: "latest", value: "desc" },
   { id: 2, name: "oldest", value: "asc" },
@@ -156,7 +156,7 @@ const clearFilter = () => {
   searchReservation.value = "";
   searchTime.value = "";
   showFilter.value = false;
-  customer_name.value = false;
+  customer_name.value = "";
   sorting.value = "";
   toggleSearchHandler();
 };
@@ -270,8 +270,8 @@ const watchSystem = computed(() => {
   if (sale_daterange.value != undefined) {
     result.sale_daterange = sale_daterange.value;
   }
-  if (customer_name.value) {
-    result.order_by = "customer_name";
+  if (customer_name.value != "" && customer_name.value != null) {
+    result.order_by = customer_name.value;
   } else {
     result.order_by = "";
   }
@@ -283,13 +283,13 @@ const watchSystem = computed(() => {
   return result;
 });
 
-const upFunction = () => {
-  customer_name.value = true;
+const upFunction = (data) => {
+  customer_name.value = data;
   sorting.value = "asc";
 };
 
-const downFunction = () => {
-  customer_name.value = true;
+const downFunction = (data) => {
+  customer_name.value = data;
   sorting.value = "desc";
 };
 
@@ -323,7 +323,7 @@ watch(
     searchA,
     userFilter,
     searchReservation,
-    customer_name,
+
     sorting,
   ],
   async (newValue) => {
@@ -332,11 +332,16 @@ watch(
     // await reservationStore.getListAction(watchSystem.value);
   }
 );
-watch(searchTime, async () => {
+watch([searchTime, customer_name, sorting], async () => {
   showFilter.value = true;
   searchFunction();
   await reservationStore.getListAction(watchSystem.value);
 });
+// watch(customer_name, async () => {
+//   showFilter.value = true;
+//   searchFunction();
+//   await reservationStore.getListAction(watchSystem.value);
+// });
 watch(dateRange, async (newValue) => {
   showFilter.value = true;
   console.log(dateRange.value, "this is date");
@@ -717,80 +722,224 @@ const changeServiceDate = (data) => {
         </div>
       </div>
       <div
-        class="w-auto mb-5 overflow-scroll bg-white rounded-lg shadow"
+        class="w-full mb-5 overflow-scroll bg-white rounded-lg shadow"
         v-if="!private_van_tour_show"
       >
-        <div class="grid grid-cols-9 gap-2 py-2">
+        <div class="grid grid-cols-10 gap-2 py-2">
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
           >
-            CRM ID
+            Crm ID
+            <div>
+              <span
+                ><ChevronUpIcon
+                  class="w-4 cursor-pointer"
+                  :class="
+                    customer_name == 'crm_id' && sorting == 'asc'
+                      ? 'text-gray-900'
+                      : 'text-gray-500'
+                  "
+                  @click="upFunction(`crm_id`)"
+                />
+              </span>
+              <span>
+                <ChevronDownIcon
+                  class="w-4 cursor-pointer"
+                  :class="
+                    customer_name == 'crm_id' && sorting == 'desc'
+                      ? 'text-gray-900'
+                      : 'text-gray-500'
+                  "
+                  @click="downFunction(`crm_id`)"
+                />
+              </span>
+            </div>
           </div>
           <div
-            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center min-w-[200px] z-10 overflow-hidden"
+            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
           >
             Customer
-            <span
-              ><ChevronUpIcon
-                class="w-4 cursor-pointer"
-                :class="
-                  customer_name && sorting == 'asc'
-                    ? 'text-gray-900'
-                    : 'text-gray-500'
-                "
-                @click="upFunction"
-              />
-            </span>
-            <span>
-              <ChevronDownIcon
-                class="w-4 cursor-pointer"
-                :class="
-                  customer_name && sorting == 'desc'
-                    ? 'text-gray-900'
-                    : 'text-gray-500'
-                "
-                @click="downFunction"
-              />
-            </span>
+            <div>
+              <span
+                ><ChevronUpIcon
+                  class="w-4 cursor-pointer"
+                  :class="
+                    customer_name == 'customer_name' && sorting == 'asc'
+                      ? 'text-gray-900'
+                      : 'text-gray-500'
+                  "
+                  @click="upFunction(`customer_name`)"
+                />
+              </span>
+              <span>
+                <ChevronDownIcon
+                  class="w-4 cursor-pointer"
+                  :class="
+                    customer_name == 'customer_name' && sorting == 'desc'
+                      ? 'text-gray-900'
+                      : 'text-gray-500'
+                  "
+                  @click="downFunction(`customer_name`)"
+                />
+              </span>
+            </div>
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
           >
-            Product Type
+            Type
+            <div>
+              <span
+                ><ChevronUpIcon
+                  class="w-4 cursor-pointer"
+                  :class="
+                    customer_name == 'product_type' && sorting == 'asc'
+                      ? 'text-gray-900'
+                      : 'text-gray-500'
+                  "
+                  @click="upFunction(`product_type`)"
+                />
+              </span>
+              <span>
+                <ChevronDownIcon
+                  class="w-4 cursor-pointer"
+                  :class="
+                    customer_name == 'product_type' && sorting == 'desc'
+                      ? 'text-gray-900'
+                      : 'text-gray-500'
+                  "
+                  @click="downFunction(`product_type`)"
+                />
+              </span>
+            </div>
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="flex justify-center items-center text-xs font-medium tracking-wide text-center"
           >
             Product Name
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="flex justify-center items-center text-xs font-medium tracking-wide text-center"
           >
             Variation Name
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
           >
-            Payment Status
+            Pay Status
+            <div>
+              <span
+                ><ChevronUpIcon
+                  class="w-4 cursor-pointer"
+                  :class="
+                    customer_name == 'payment_status' && sorting == 'asc'
+                      ? 'text-gray-900'
+                      : 'text-gray-500'
+                  "
+                  @click="upFunction(`payment_status`)"
+                />
+              </span>
+              <span>
+                <ChevronDownIcon
+                  class="w-4 cursor-pointer"
+                  :class="
+                    customer_name == 'payment_status' && sorting == 'desc'
+                      ? 'text-gray-900'
+                      : 'text-gray-500'
+                  "
+                  @click="downFunction(`payment_status`)"
+                />
+              </span>
+            </div>
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
           >
-            Reservation Status
+            Res Status
+            <div>
+              <span
+                ><ChevronUpIcon
+                  class="w-4 cursor-pointer"
+                  :class="
+                    customer_name == 'reservation_status' && sorting == 'asc'
+                      ? 'text-gray-900'
+                      : 'text-gray-500'
+                  "
+                  @click="upFunction(`reservation_status`)"
+                />
+              </span>
+              <span>
+                <ChevronDownIcon
+                  class="w-4 cursor-pointer"
+                  :class="
+                    customer_name == 'reservation_status' && sorting == 'desc'
+                      ? 'text-gray-900'
+                      : 'text-gray-500'
+                  "
+                  @click="downFunction(`reservation_status`)"
+                />
+              </span>
+            </div>
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
           >
-            Expense Status
+            Exp Status
+            <div>
+              <span
+                ><ChevronUpIcon
+                  class="w-4 cursor-pointer"
+                  :class="
+                    customer_name == 'expense_status' && sorting == 'asc'
+                      ? 'text-gray-900'
+                      : 'text-gray-500'
+                  "
+                  @click="upFunction(`expense_status`)"
+                />
+              </span>
+              <span>
+                <ChevronDownIcon
+                  class="w-4 cursor-pointer"
+                  :class="
+                    customer_name == 'expense_status' && sorting == 'desc'
+                      ? 'text-gray-900'
+                      : 'text-gray-500'
+                  "
+                  @click="downFunction(`expense_status`)"
+                />
+              </span>
+            </div>
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
           >
             Service Date
+            <div>
+              <span
+                ><ChevronUpIcon
+                  class="w-4 cursor-pointer"
+                  :class="
+                    customer_name == 'service_date' && sorting == 'asc'
+                      ? 'text-gray-900'
+                      : 'text-gray-500'
+                  "
+                  @click="upFunction(`service_date`)"
+                />
+              </span>
+              <span>
+                <ChevronDownIcon
+                  class="w-4 cursor-pointer"
+                  :class="
+                    customer_name == 'service_date' && sorting == 'desc'
+                      ? 'text-gray-900'
+                      : 'text-gray-500'
+                  "
+                  @click="downFunction(`service_date`)"
+                />
+              </span>
+            </div>
           </div>
-          <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
-          ></div>
+          <div class="py-2 text-xs font-medium tracking-wide text-center"></div>
         </div>
         <div
           v-show="!loading"
@@ -799,56 +948,43 @@ const changeServiceDate = (data) => {
           :key="d.id"
         >
           <div
-            class="grid w-auto grid-cols-9 col-span-8 bg-white divide-y divide-gray-100"
+            class="grid w-auto grid-cols-10 col-span-8 bg-white divide-y divide-gray-100"
           >
-            <!-- <div
-              class="col-span-6 px-3 py-1 mt-2 text-xs text-center text-gray-700 bg-gray-300 whitespace-nowrap"
-              v-if="r.past_crm_id"
-            >
-              Cashiers CRM ID - {{ r.past_crm_id }}
-            </div>
             <div
-              class="col-span-6 px-3 py-1 mt-2 text-xs text-center text-gray-700 bg-gray-300 whitespace-nowrap"
-              v-else
-            >
-              Current Reservation
-            </div> -->
-
-            <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 whitespace-nowrap"
             >
               {{ d.crm_id }}
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 whitespace-nowrap overflow-hidden"
             >
               {{ d.customer_info?.name }}
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 whitespace-nowrap"
             >
-              <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
+              <!-- <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
                 PrivateVanTour
-              </p>
+              </p> -->
               <p v-if="d.product_type == 'App\\Models\\GroupTour'">GroupTour</p>
               <p v-if="d.product_type == 'App\\Models\\AirportPickup'">
-                Airpot Pickup
+                Airpot
               </p>
               <p v-if="d.product_type == 'App\\Models\\EntranceTicket'">
-                Entrance Ticket
+                Entrance
               </p>
               <p v-if="d.product_type == 'App\\Models\\Inclusive'">Inclusive</p>
-              <p v-if="d.product_type == 'App\\Models\\Hotel'">Hotel & Room</p>
+              <p v-if="d.product_type == 'App\\Models\\Hotel'">Hotel</p>
               <p v-if="d.product_type == 'App\\Models\\Airline'">Airline</p>
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700"
             >
               <!-- {{ limitedText(d.product?.name) }} -->
               {{ limitedText(d.product?.name) }}
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700"
             >
               <p v-if="d.car?.name">{{ limitedText(d.car?.name) }}</p>
               <p v-if="d.variation?.name">
@@ -858,7 +994,7 @@ const changeServiceDate = (data) => {
               <p v-if="d.ticket?.price">{{ limitedText(d.ticket?.price) }}</p>
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px]"
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap"
             >
               <p
                 v-if="
@@ -888,31 +1024,31 @@ const changeServiceDate = (data) => {
               </p>
             </div>
             <div
-              class="py-3 mt-2 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap min-w-[200px]"
+              class="py-3 mt-2 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap"
             >
               <p v-if="!d.reservation_status">-</p>
 
               <p
                 v-if="d.reservation_status == 'confirmed'"
-                class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full shadow"
+                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
               >
                 {{ d.reservation_status }}
               </p>
               <p
                 v-if="d.reservation_status == 'declined'"
-                class="inline-block px-3 py-1 text-xs text-white bg-red-500 rounded-full shadow"
+                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
               >
                 {{ d.reservation_status }}
               </p>
               <p
                 v-if="d.reservation_status == 'awaiting'"
-                class="inline-block px-3 py-1 text-xs text-white bg-yellow-500 rounded-full shadow"
+                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
               >
                 {{ d.reservation_status }}
               </p>
             </div>
             <div
-              class="py-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap z-10 min-w-[200px]"
+              class="py-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap z-10"
             >
               <p v-if="!d?.payment_status || d?.payment_status == 'null'">-</p>
               <p
@@ -935,10 +1071,13 @@ const changeServiceDate = (data) => {
               </p>
             </div>
             <div
-              class="py-3 mt-2 text-xs text-center bg-white divide-y divide-gray-100 text-gray-700 whitespace-nowrap min-w-[200px] flex justify-end items-center"
+              class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700"
             >
-              <p class="mr-6">{{ d.service_date }}</p>
-
+              <p class="mr-6 whitespace-nowrap">{{ d.service_date }}</p>
+            </div>
+            <div
+              class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 space-x-2"
+            >
               <button
                 @click="
                   router.push({
@@ -946,35 +1085,19 @@ const changeServiceDate = (data) => {
                     params: { id: d.booking.id, action: 'edit' },
                   })
                 "
-                class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
+                class="p-1 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
               >
                 <ClipboardDocumentListIcon class="w-5 h-5" />
               </button>
 
               <router-link :to="'/reservation/update/' + d.id + '/' + d.crm_id">
                 <button
-                  class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
+                  class="p-1 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                 >
                   <PencilSquareIcon class="w-5 h-5" />
                 </button>
               </router-link>
             </div>
-            <!-- <div
-                class="py-3 pl-10 text-xs text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
-              >
-                <div class="flex items-center gap-2"> -->
-            <!-- <router-link
-                    :to="'/reservation/view/' + d.id + '/' + d.crm_id"
-                  >
-                    <button
-                      class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
-                    >
-                      <EyeIcon class="w-5 h-5" />
-                    </button>
-                  </router-link> -->
-
-            <!-- </div>
-              </div> -->
           </div>
         </div>
         <div
@@ -1002,62 +1125,62 @@ const changeServiceDate = (data) => {
       >
         <div class="grid grid-cols-11 gap-2 py-2">
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium tracking-wide text-center "
           >
             CRM ID
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium tracking-wide text-center "
           >
             Customer
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium tracking-wide text-center "
           >
             Supplier
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium tracking-wide text-center "
           >
             Pickup Time
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium tracking-wide text-center "
           >
             Product
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium tracking-wide text-center "
           >
             Variation
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium tracking-wide text-center "
           >
             Payment Method
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium tracking-wide text-center "
           >
             Payment
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium tracking-wide text-center "
           >
             Expense
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium tracking-wide text-center "
           >
             Reservation
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium tracking-wide text-center "
           >
             Service Date
           </div>
           <div
-            class="py-2 text-xs font-medium tracking-wide text-center min-w-[200px] overflow-hidden"
+            class="py-2 text-xs font-medium tracking-wide text-center "
           ></div>
         </div>
         <div
@@ -1070,17 +1193,17 @@ const changeServiceDate = (data) => {
             class="grid w-auto grid-cols-11 col-span-11 bg-white divide-y divide-gray-100"
           >
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
             >
               {{ d.crm_id }}
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
             >
               {{ limitedText(d.customer_info?.name) }}
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
             >
               {{
                 d.reservation_car_info?.supplier_name
@@ -1089,19 +1212,19 @@ const changeServiceDate = (data) => {
               }}
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
             >
               {{ d.pickup_time ? d.pickup_time : "-" }}
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
             >
               <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
                 PrivateVanTour
               </p>
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
             >
               <p v-if="d.car?.name">{{ limitedText(d.car?.name) }}</p>
               <p v-if="d.variation?.name">
@@ -1110,7 +1233,7 @@ const changeServiceDate = (data) => {
               <p v-if="d.room?.name">{{ limitedText(d.room?.name) }}</p>
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px] overflow-hidden"
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
             >
               {{
                 d.booking?.payment_method
@@ -1119,7 +1242,7 @@ const changeServiceDate = (data) => {
               }}
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px]"
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
             >
               <p
                 v-if="
@@ -1149,7 +1272,7 @@ const changeServiceDate = (data) => {
               </p>
             </div>
             <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap min-w-[200px]"
+              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
             >
               <p v-if="!d.payment_status || d.payment_status == 'null'">-</p>
               <p
@@ -1172,7 +1295,7 @@ const changeServiceDate = (data) => {
               </p>
             </div>
             <div
-              class="p-3 mt-2 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap min-w-[200px]"
+              class="p-3 mt-2 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap "
             >
               <p v-if="!d.reservation_status">-</p>
 
@@ -1197,7 +1320,7 @@ const changeServiceDate = (data) => {
             </div>
 
             <div
-              class="p-3 mt-2 text-xs text-center divide-y divide-gray-100 text-gray-700 whitespace-nowrap min-w-[200px] flex justify-end items-center"
+              class="p-3 mt-2 text-xs text-center divide-y divide-gray-100 text-gray-700 whitespace-nowrap  flex justify-end items-center"
             >
               <p class="mr-6">{{ d.service_date }}</p>
               <router-link :to="'/reservation/update/' + d.id + '/' + d.crm_id">

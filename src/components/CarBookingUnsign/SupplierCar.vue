@@ -6,6 +6,7 @@ import {
   PuzzlePieceIcon,
   BanknotesIcon,
   BriefcaseIcon,
+  CheckBadgeIcon,
 } from "@heroicons/vue/24/outline";
 import { useCarBookingStore } from "../../stores/carbooking";
 import { computed, onMounted, ref } from "vue";
@@ -248,7 +249,7 @@ onMounted(async () => {
               CRM.ID
             </th>
             <th class="px-4 py-2 text-xs font-medium tracking-wide text-left">
-              Service Date
+              Ser_Date
             </th>
             <th
               class="px-4 py-2 text-xs font-medium w-[300px] overflow-hidden tracking-wide text-left"
@@ -262,11 +263,15 @@ onMounted(async () => {
               Payment
             </th>
             <th class="px-4 py-2 text-xs font-medium tracking-wide text-left">
-              Payment Method
+              Pay_Method
+            </th>
+            <th class="px-4 py-2 text-xs font-medium tracking-wide text-left">
+              Dri_Collect
             </th>
             <th class="px-4 py-2 text-xs font-medium tracking-wide text-left">
               Price
             </th>
+
             <th class="px-4 py-2 text-xs font-medium tracking-wide text-left">
               Extras
             </th>
@@ -304,6 +309,11 @@ onMounted(async () => {
             </td>
             <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
               {{ l.payment_method }}
+            </td>
+            <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
+              <!-- {{ l.is_driver_collect == 1 ? "true" : "false" }} -->
+              <CheckBadgeIcon class="w-6 h-6" v-if="l.is_driver_collect == 1" />
+              <p v-else>-</p>
             </td>
             <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
               {{ l.selling_price }}

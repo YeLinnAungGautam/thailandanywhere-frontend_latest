@@ -16,6 +16,7 @@ import {
   PlusIcon,
   UserGroupIcon,
   ClipboardDocumentListIcon,
+  DocumentDuplicateIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
   ChevronDownIcon,
@@ -308,6 +309,65 @@ const formatDate = (datePut) => {
 
 const searchHandler = async () => {
   await reservationStore.getListAction(watchSystem.value);
+};
+
+const copyReservation = async (id) => {
+  const res = await reservationStore.copyReservationDetail(id);
+  console.log(res);
+  let formattedOutput;
+  if (res.result.checkin_date != undefined) {
+    formattedOutput = `
+💰 Total Cost: ${res.result.total_cost} THB 🏦 Bank Name: ${
+      res.result.bank_name != "null" ? res.result.bank_name : "-"
+    }
+🔢 Bank Account Number: ${
+      res.result.bank_account_number != "null"
+        ? `➖${res.result.bank_account_number}`
+        : "-"
+    }
+🧑‍💼 Account Name: ${
+      res.result.account_name != "null" ? res.result.account_name : "-"
+    }
+#️⃣ CRM ID: ${res.result.crm_id}
+#️⃣ Reservation Code: ${res.result.reservation_code}
+🏨 Hotel Name: ${res.result.hotel_name != "null" ? res.result.hotel_name : "-"}
+🛌 Total Rooms: ${
+      res.result.total_rooms != "null" ? res.result.total_rooms : "-"
+    }
+🌙 Total Nights: ${
+      res.result.total_nights != "null" ? res.result.total_nights : "-"
+    }
+💵 Sale Price: ${res.result.sale_price} THB
+📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
+📅 Check-in Date: ${
+      res.result.checkin_date != "null" ? res.result.checkin_date : "-"
+    }
+📅 Checkout Date: ${
+      res.result.checkout_date != "null" ? res.result.checkout_date : "-"
+    }
+    `;
+  } else {
+    formattedOutput = `
+💰 Total Cost: ${res.result.total_cost} THB
+🏦 Bank Name: ${res.result.bank_name != "null" ? res.result.bank_name : "-"}
+🔢 Bank Account Number: ${
+      res.result.bank_account_number != "null"
+        ? `➖${res.result.bank_account_number}`
+        : "-"
+    }
+🧑‍💼 Account Name: ${res.result.account_name}
+#️⃣ CRM ID: ${res.result.crm_id}
+#️⃣ Reservation Code: ${res.result.reservation_code}
+🏨 Ticket Name: ${res.result.hotel_name != "null" ? res.result.hotel_name : "-"}
+💵 Sale Price: ${res.result.sale_price} THB
+    `;
+  }
+
+  setTimeout(() => {
+    navigator.clipboard.writeText(formattedOutput);
+  }, 0);
+
+  toast.success("success copy reservation");
 };
 
 watch(
@@ -1078,6 +1138,16 @@ const changeServiceDate = (data) => {
             <div
               class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 space-x-2"
             >
+              <button
+                v-if="
+                  d.product_type == 'App\\Models\\Hotel' ||
+                  d.product_type == 'App\\Models\\EntranceTicket'
+                "
+                @click="copyReservation(d.id)"
+                class="p-1 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
+              >
+                <DocumentDuplicateIcon class="w-5 h-5" />
+              </button>
               <button
                 @click="
                   router.push({

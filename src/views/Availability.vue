@@ -329,13 +329,14 @@ const closeSearchAction = () => {
   searchModal.value = false;
 };
 
-const openSearchModal = () => {
-  product_type.value = "";
-  product_id.value = "";
-  variation_id.value = "";
-  daterange.value = "";
-  date.value = "";
+const openSearchModal = async () => {
+  //product_type.value = "";
+  //product_id.value = "";
+  //variation_id.value = "";
+  //daterange.value = "";
+  //date.value = "";
   searchModal.value = true;
+  await chooseTypeAction();
 };
 
 const searchActionHandler = async () => {

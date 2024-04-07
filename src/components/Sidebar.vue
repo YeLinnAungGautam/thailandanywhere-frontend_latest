@@ -167,18 +167,14 @@
               to="/car-bookings/unassigned"
               :activePaths="['car-bookings']"
             />
+            <SidebarItem
+              v-if="!authStore.isAgent"
+              name="Availabilities"
+              :icon="CheckBadgeIcon"
+              to="/availabilities"
+              :activePaths="['availabilities']"
+            />
           </div>
-
-          <!-- <div>
-            <SidebarItem name="Setting" :icon="Cog6ToothIcon" to="/setting" />
-            <button
-              @click.prevent="logoutHandler"
-              class="inline-flex rounded-md relative items-center py-[12px] px-[10px] w-full text-sm text-gray-600 tracking-wider hover:shadow-md transition duration-150"
-            >
-              <ArrowLeftOnRectangleIcon class="w-6 h-6 mr-2" />
-              Logout
-            </button>
-          </div> -->
         </div>
       </div>
     </div>
@@ -198,7 +194,6 @@ import {
   UsersIcon,
   DocumentTextIcon,
   WalletIcon,
-  ArrowLeftOnRectangleIcon,
   Cog6ToothIcon,
   CalendarIcon,
   UserGroupIcon,
@@ -210,6 +205,7 @@ import {
   ClockIcon,
   ChevronDownIcon,
   NewspaperIcon,
+  CheckBadgeIcon,
   ChevronUpIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, ref } from "vue";

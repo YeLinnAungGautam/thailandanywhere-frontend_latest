@@ -42,6 +42,7 @@ import { useAvailableStore } from "../stores/available";
 const router = useRouter();
 const hotelStore = useHotelStore();
 const entranceStore = useEntranceStore();
+const authStore = useAuthStore();
 const roomStore = useRoomStore();
 const variationStore = useVariationStore();
 const availableStore = useAvailableStore();
@@ -420,7 +421,11 @@ onMounted(async () => {
               >
                 Product Name
               </th>
-
+              <th
+                class="p-3 text-xs font-medium tracking-wide text-left max-w-[300px]"
+              >
+                Variation Name
+              </th>
               <th class="p-3 text-xs font-medium tracking-wide text-left">
                 Quantity
               </th>
@@ -455,6 +460,9 @@ onMounted(async () => {
                     ? "Hotel"
                     : "Entrance Ticket"
                 }}
+              </td>
+              <td class="p-3 text-xs text-gray-700 whitespace-wrap">
+                {{ r.ownerable?.name }}
               </td>
               <td class="p-3 text-xs text-gray-700 whitespace-wrap">
                 {{ r.variable?.name }}
@@ -492,18 +500,21 @@ onMounted(async () => {
               <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
                   <button
+                    v-if="authStore.isReservation || authStore.isSuperAdmin"
                     @click.prevent="updateAction('pending', r.id, r.quantity)"
                     class="hover:bg-yellow-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
                   >
                     <ExclamationTriangleIcon class="w-5 h-5" />
                   </button>
                   <button
+                    v-if="authStore.isReservation || authStore.isSuperAdmin"
                     @click.prevent="updateAction('available', r.id, r.quantity)"
                     class="hover:bg-green-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
                   >
                     <CheckIcon class="w-5 h-5" />
                   </button>
                   <button
+                    v-if="authStore.isReservation || authStore.isSuperAdmin"
                     @click.prevent="
                       updateAction('unavailable', r.id, r.quantity)
                     "
@@ -512,6 +523,13 @@ onMounted(async () => {
                     <XMarkIcon class="w-5 h-5" />
                   </button>
                   <button
+                    v-if="!authStore.isReservation && !authStore.isSuperAdmin"
+                    class="flex justify-center items-center p-2 text-red-500 transition shadow rounded"
+                  >
+                    <XMarkIcon class="w-5 h-5 mr-2" /> No Permission
+                  </button>
+                  <button
+                    v-if="authStore.isSuperAdmin"
                     @click.prevent="deleteAction(r.id)"
                     class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
                   >

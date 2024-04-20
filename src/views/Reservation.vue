@@ -313,7 +313,7 @@ const searchHandler = async () => {
 
 const copyReservation = async (id) => {
   const res = await reservationStore.copyReservationDetail(id);
-  console.log(res);
+  console.log(res, "this is cpy reservation");
   let formattedOutput;
   if (res.result.checkin_date != undefined) {
     formattedOutput = `
@@ -360,6 +360,7 @@ const copyReservation = async (id) => {
 #️⃣ Reservation Code: ${res.result.reservation_code}
 🏨 Ticket Name: ${res.result.hotel_name != "null" ? res.result.hotel_name : "-"}
 💵 Sale Price: ${res.result.sale_price} THB
+📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
     `;
   }
 

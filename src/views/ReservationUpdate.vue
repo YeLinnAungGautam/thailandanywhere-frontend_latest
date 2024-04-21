@@ -874,6 +874,9 @@ const copyReservation = async () => {
 🏨 Ticket Name: ${res.result.hotel_name != "null" ? res.result.hotel_name : "-"}
 💵 Sale Price: ${res.result.sale_price} THB
 📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
+🗓️Service Date: ${
+      res.result.service_date != "null" ? res.result.service_date : "-"
+    }
     `;
   }
 

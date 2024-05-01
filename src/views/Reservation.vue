@@ -345,6 +345,7 @@ const copyReservation = async (id) => {
 📅 Checkout Date: ${
       res.result.checkout_date != "null" ? res.result.checkout_date : "-"
     }
+🤑 Score : ${res.result.score}
     `;
   } else {
     formattedOutput = `

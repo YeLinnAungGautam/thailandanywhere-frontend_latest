@@ -96,12 +96,20 @@ const changeFunction = (data) => {
 };
 
 const getWithDate = async (date) => {
-  let first = date[0];
-  let second = date[1];
-  console.log(dateFormat(first), "this is date", dateFormat(second));
+  console.log(date, "this is date data for function");
+  let first;
+  let second;
+  if (Array.isArray(date) && date.length >= 2) {
+    first = dateFormat(date[0]);
+    second = dateFormat(date[1]);
+  } else if (typeof date == "string" && date.includes(",")) {
+    first = date.split(",")[0];
+    second = date.split(",")[1];
+  }
+  // console.log(dateFormat(first), "this is date", dateFormat(second));
   let data = {
-    first: dateFormat(first),
-    second: dateFormat(second),
+    first: first,
+    second: second,
     supplier_id: part.value != "unassigned" ? part.value : "",
   };
   if (user.value.role == "super_admin" || user.value.role == "reservation") {
@@ -142,6 +150,52 @@ const getSummary = async (date) => {
   const res = await carBookingStore.getCarBookingSummary(data);
   console.log(res);
   summaryData.value = res.result;
+};
+
+const formatDate = (datePut) => {
+  const date = new Date(datePut);
+
+  // Get the year, month, and day
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Month starts from 0
+  const day = String(date.getDate()).padStart(2, "0");
+
+  // Form the formatted date string
+  let formattedDate = `${year}-${month}-${day}`;
+  return formattedDate;
+};
+
+const changeDate = ref("");
+const changeServiceDate = (data) => {
+  console.log(data);
+  changeDate.value = data;
+  if (data == "today") {
+    let startDate = formatDate(new Date());
+    let endDate = formatDate(new Date());
+    console.log(`${startDate},${endDate}`);
+    dateFilterRange.value = `${startDate},${endDate}`;
+  } else if (data == "tomorrow") {
+    let tomorrowDate = new Date();
+    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+    let startDate = formatDate(tomorrowDate);
+    let endDate = formatDate(tomorrowDate);
+    console.log(`${startDate},${endDate}`);
+    dateFilterRange.value = `${startDate},${endDate}`;
+  } else if (data == "7day") {
+    let startDate = formatDate(new Date());
+    let endDate = formatDate(
+      new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+    );
+    console.log(`${startDate},${endDate}`);
+    dateFilterRange.value = `${startDate},${endDate}`;
+  } else if (data == "30day") {
+    let startDate = formatDate(new Date());
+    let endDate = formatDate(
+      new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
+    );
+    console.log(`${startDate},${endDate}`);
+    dateFilterRange.value = `${startDate},${endDate}`;
+  }
 };
 
 watch(dateFilterRange, (newValue) => {
@@ -210,7 +264,61 @@ onMounted(async () => {
         class="flex col-span-3 items-center justify-between py-3 bg-white rounded-md shadow-sm px-4"
       >
         <p class="text-md font-semibold tracking-wider mr-4">Filter:</p>
-        <div class="flex justify-end items-center gap-2">
+        <div class="flex justify-end items-center gap-4">
+          <div class="">
+            <div class="flex w-full text-xs justify-end items-center gap-4">
+              <p
+                @click="changeServiceDate('today')"
+                class="flex gap-2 justify-start items-center cursor-pointer"
+                :class="
+                  changeDate == 'today' ? ' text-[#FF5B00]' : 'text-black'
+                "
+              >
+                <span
+                  class="w-2 h-2 rounded-full bg-[#FF5B00]"
+                  v-if="changeDate == 'today'"
+                ></span
+                >Today
+              </p>
+              <p
+                @click="changeServiceDate('tomorrow')"
+                class="flex gap-2 justify-start items-center cursor-pointer"
+                :class="
+                  changeDate == 'tomorrow' ? ' text-[#FF5B00]' : 'text-black'
+                "
+              >
+                <span
+                  class="w-2 h-2 rounded-full bg-[#FF5B00]"
+                  v-if="changeDate == 'tomorrow'"
+                ></span
+                >Tomorrow
+              </p>
+              <p
+                @click="changeServiceDate('7day')"
+                class="flex gap-2 justify-start items-center cursor-pointer"
+                :class="changeDate == '7day' ? ' text-[#FF5B00]' : 'text-black'"
+              >
+                <span
+                  class="w-2 h-2 rounded-full bg-[#FF5B00]"
+                  v-if="changeDate == '7day'"
+                ></span
+                >Next 7 Days
+              </p>
+              <p
+                @click="changeServiceDate('30day')"
+                class="flex gap-2 justify-start items-center cursor-pointer"
+                :class="
+                  changeDate == '30day' ? ' text-[#FF5B00]' : 'text-black'
+                "
+              >
+                <span
+                  class="w-2 h-2 rounded-full bg-[#FF5B00]"
+                  v-if="changeDate == '30day'"
+                ></span
+                >Next 30 Days
+              </p>
+            </div>
+          </div>
           <div v-if="authStore.isSuperAdmin || authStore.isReservation">
             <v-select
               v-model="agent_id"

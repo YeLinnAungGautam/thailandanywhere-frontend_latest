@@ -12,6 +12,7 @@ import {
   ShareIcon,
   EyeIcon,
   TicketIcon,
+  InformationCircleIcon,
   BuildingOfficeIcon,
   PlusIcon,
   UserGroupIcon,
@@ -1039,7 +1040,16 @@ const changeServiceDate = (data) => {
                 Entrance
               </p>
               <p v-if="d.product_type == 'App\\Models\\Inclusive'">Inclusive</p>
-              <p v-if="d.product_type == 'App\\Models\\Hotel'">Hotel</p>
+              <p
+                v-if="d.product_type == 'App\\Models\\Hotel'"
+                class="flex justify-center items-center gap-2"
+              >
+                Hotel
+                <InformationCircleIcon
+                  class="w-6 h-6 text-orange-500"
+                  v-if="d.paid_slip.length > 0"
+                />
+              </p>
               <p v-if="d.product_type == 'App\\Models\\Airline'">Airline</p>
             </div>
             <div

@@ -874,7 +874,7 @@ const copyReservation = async () => {
 #️⃣ CRM ID: ${res.result.crm_id}
 #️⃣ Reservation Code: ${res.result.reservation_code}
 🎫 Attraction : ${res.result.hotel_name != "null" ? res.result.hotel_name : "-"}
-🎫 Entrance Ticket Name : ${res.result.entrance_ticket_name}
+🎫 Entrance Ticket Name : ${res.result.entrance_ticket_variation_name}
 💵 Sale Price: ${res.result.sale_price} THB
 📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
 🗓️Service Date: ${

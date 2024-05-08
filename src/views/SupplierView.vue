@@ -7,7 +7,14 @@
     </h3>
     <!-- search input sort filter -->
     <div class="flex items-center justify-between mb-8">
-      <div class=""></div>
+      <div class="">
+        <input
+          v-model="search"
+          type="text"
+          class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+          placeholder="Search for cities.."
+        />
+      </div>
       <div class="space-x-3">
         <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
         <Button :leftIcon="PlusIcon" @click.prevent="cityModalOpen = true">
@@ -17,16 +24,9 @@
     </div>
     <div class="p-6 mb-5 rounded-lg shadow-sm bg-white/60">
       <!-- search input sort filter -->
-      <div class="flex items-center justify-between mb-5">
-        <div class="">
-          <input
-            v-model="search"
-            type="text"
-            class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
-            placeholder="Search for cities.."
-          />
-        </div>
-      </div>
+      <!-- <div class="flex items-center justify-between mb-5">
+        
+      </div> -->
       <div class="mb-5 overflow-auto rounded-lg shadow" v-if="!loading">
         <table class="w-full">
           <thead class="border-b-2 border-gray-200 bg-gray-50">

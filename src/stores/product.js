@@ -127,5 +127,18 @@ export const useProductStore = defineStore("product", {
         throw error;
       }
     },
+    async importAction(data) {
+      try {
+        this.importLoading = true;
+        const res = await axios.post("/product-categories/import/csv", data);
+        if (res.status === 200) {
+          this.importLoading = false;
+        }
+        return res.data;
+      } catch (err) {
+        this.importLoading = false;
+        throw err;
+      }
+    },
   },
 });

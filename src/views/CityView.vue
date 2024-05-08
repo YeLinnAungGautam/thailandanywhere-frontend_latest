@@ -5,17 +5,7 @@
     <h3 class="mb-3 text-xl font-medium tracking-wide text-gray-600">City</h3>
     <!-- search input sort filter -->
     <div class="flex items-center justify-between mb-8">
-      <div class=""></div>
-      <div class="space-x-3">
-        <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
-        <Button :leftIcon="PlusIcon" @click.prevent="cityModalOpen = true">
-          Add City
-        </Button>
-      </div>
-    </div>
-    <div class="p-6 mb-5 rounded-lg shadow-sm bg-white/60">
-      <!-- search input sort filter -->
-      <div class="flex items-center justify-between mb-5">
+      <div class="">
         <div class="">
           <input
             v-model="search"
@@ -24,7 +14,21 @@
             placeholder="Search for cities.."
           />
         </div>
-        <!-- <div>
+      </div>
+      <div class="space-x-3">
+        <Button :leftIcon="ShareIcon" intent="text" @click="importModal = true">
+          Import
+        </Button>
+        <Button :leftIcon="PlusIcon" @click.prevent="cityModalOpen = true">
+          Add City
+        </Button>
+      </div>
+    </div>
+    <div class="p-6 mb-5 rounded-lg shadow-sm bg-white/60">
+      <!-- search input sort filter -->
+      <!-- <div class="flex items-center justify-between mb-5"> -->
+
+      <!-- <div>
           <p class="inline-block mr-2 font-medium text-gray-500">Show</p>
           <select
             v-model="showEntries"
@@ -39,7 +43,7 @@
           </select>
           <p class="inline-block ml-2 font-medium text-gray-500">entries</p>
         </div> -->
-      </div>
+      <!-- </div> -->
       <div class="mb-5 overflow-auto rounded-lg shadow" v-if="!loading">
         <table class="w-full">
           <thead class="border-b-2 border-gray-200 bg-gray-50">
@@ -172,6 +176,42 @@
             <Button type="submit"> Submit </Button>
           </div>
         </form>
+      </DialogPanel>
+    </Modal>
+    <Modal :isOpen="importModal" @closeModal="importModal = false">
+      <DialogPanel
+        class="w-full max-w-lg transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-5"
+        >
+          Import Process
+        </DialogTitle>
+        <form
+          class="flex justify-between items-center"
+          @submit.prevent="importActionHandler"
+        >
+          <input type="file" name="" @change="importFileAction" id="" />
+          <button
+            class="border hover:shadow-md border-gray-400 px-4 py-2 rounded-md"
+          >
+            Import
+          </button>
+        </form>
+        <div class="mt-5 space-y-3 border border-gray-400 p-4 rounded-md">
+          <p class="font-semibold">notice</p>
+          <p class="text-xs">- file input must be CSV file .</p>
+          <p class="text-xs">- All table data must be have .</p>
+          <p class="text-xs">- Import process will take time may be longer</p>
+          <p class="text-xs">- Process is working behind .</p>
+          <p class="text-xs">
+            - When finish process , system will show noti message
+          </p>
+          <p class="text-xs">
+            - When fail the process , system will show noti message
+          </p>
+        </div>
       </DialogPanel>
     </Modal>
   </div>
@@ -326,6 +366,32 @@ const onDeleteHandler = async (id) => {
       await cityStore.getListAction();
     }
   });
+};
+
+//For import Process
+const importModal = ref(false);
+const importHandler = () => {
+  importModal.value = !importModal.value;
+};
+const fileImport = ref(null);
+const importFileAction = (e) => {
+  let file = e.target.files[0];
+  fileImport.value = file;
+};
+const importActionHandler = async () => {
+  const frmData = new FormData();
+  frmData.append("file", fileImport.value);
+  try {
+    importModal.value = false;
+    const res = await cityStore.importAction(frmData);
+    fileImport.value = null;
+    console.log(res);
+    toast.success(`Cities ${res.message}`);
+  } catch (e) {
+    // errors.value = e.response.data.errors;
+    importModal.value = false;
+    toast.error(e.response.data.message);
+  }
 };
 
 onMounted(async () => {

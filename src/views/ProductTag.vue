@@ -7,7 +7,14 @@
     </h3>
     <!-- search input sort filter -->
     <div class="flex items-center justify-between mb-8">
-      <div class=""></div>
+      <div class="">
+        <input
+          v-model="search"
+          type="text"
+          class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
+          placeholder="Search for product tags.."
+        />
+      </div>
       <div class="space-x-3">
         <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
         <Button :leftIcon="PlusIcon" @click.prevent="carModalOpen = true">
@@ -17,16 +24,9 @@
     </div>
     <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
       <!-- search input sort filter -->
-      <div class="flex items-center justify-between mb-5">
-        <div class="">
-          <input
-            v-model="search"
-            type="text"
-            class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
-            placeholder="Search for product tags.."
-          />
-        </div>
-        <!-- <div>
+      <!-- <div class="flex items-center justify-between mb-5"> -->
+
+      <!-- <div>
           <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>
           <select
             v-model="showEntries"
@@ -41,7 +41,7 @@
           </select>
           <p class="inline-block ml-2 text-gray-500 font-medium">entries</p>
         </div> -->
-      </div>
+      <!-- </div> -->
       <div class="overflow-auto rounded-lg shadow mb-5" v-if="!loading">
         <table class="w-full">
           <thead class="bg-gray-50 border-b-2 border-gray-200">

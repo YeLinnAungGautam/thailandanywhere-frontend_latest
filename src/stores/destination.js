@@ -64,5 +64,18 @@ export const useDestinationStore = defineStore("destination", {
         throw error;
       }
     },
+    async importAction(data) {
+      try {
+        this.importLoading = true;
+        const res = await axios.post("/destinations/import/csv", data);
+        if (res.status === 200) {
+          this.importLoading = false;
+        }
+        return res.data;
+      } catch (err) {
+        this.importLoading = false;
+        throw err;
+      }
+    },
   },
 });

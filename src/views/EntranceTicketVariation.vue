@@ -97,6 +97,66 @@
               {{ errors.description[0] }}
             </p>
           </div>
+          <div class="mb-2 space-y-1">
+            <label for="description" class="text-sm text-gray-800"
+              >Images</label
+            >
+            <input
+              multiple
+              type="file"
+              name=""
+              ref="imagesInput"
+              id=""
+              @change="handlerImagesFileChange"
+              class="hidden w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              accept="image/*"
+            />
+            <button
+              class="text-sm text-blue-600 ml-4"
+              @click.prevent="openFileImagePicker"
+            >
+              <i
+                class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
+              ></i>
+            </button>
+            <div
+              class="grid grid-cols-3 gap-2"
+              v-if="imagesPreview.length != 0"
+            >
+              <div
+                class="relative"
+                v-for="(image, index) in imagesPreview"
+                :key="index"
+              >
+                <button
+                  @click.prevent="removeImageSelectImage(index)"
+                  class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                >
+                  <XCircleIcon class="w-8 h-8 font-semibold" />
+                </button>
+
+                <img class="h-auto w-full rounded" :src="image" alt="" />
+              </div>
+            </div>
+            <div
+              class="grid grid-cols-3 gap-2"
+              v-if="editImagesPreview.length != 0 && imagesPreview.length == 0"
+            >
+              <div
+                class="relative"
+                v-for="(image, index) in editImagesPreview"
+                :key="index"
+              >
+                <button
+                  @click.prevent="removeImageUpdateImage(formData.id, image.id)"
+                  class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                >
+                  <XCircleIcon class="w-8 h-8 font-semibold" />
+                </button>
+                <img class="h-auto w-full rounded" :src="image.image" alt="" />
+              </div>
+            </div>
+          </div>
 
           <div class="text-end flex justify-end items-center">
             <p
@@ -303,6 +363,7 @@ import Modal from "../components/Modal.vue";
 import { useEntranceStore } from "../stores/entrance";
 import { useVariationStore } from "../stores/variations";
 import { useAuthStore } from "../stores/auth";
+import { XCircleIcon } from "@heroicons/vue/24/outline";
 
 const createModalOpen = ref(false);
 const toast = useToast();
@@ -326,7 +387,10 @@ const openModal = () => {
     cost_price: "",
     agent_price: "",
     description: "",
+    images: [],
   };
+  imagesPreview.value = [];
+  editImagesPreview.value = [];
 };
 
 const formData = ref({
@@ -337,7 +401,33 @@ const formData = ref({
   price_name: "",
   price: "",
   description: "",
+  images: [],
 });
+
+const editImagesPreview = ref([]);
+const imagesPreview = ref([]);
+const imagesInput = ref(null);
+
+const openFileImagePicker = () => {
+  imagesInput.value.click();
+};
+
+const handlerImagesFileChange = (e) => {
+  console.log(e.target.files);
+  let selectedFile = e.target.files;
+  if (selectedFile) {
+    for (let index = 0; index < selectedFile.length; index++) {
+      formData.value.images.push(selectedFile[index]);
+      imagesPreview.value.push(URL.createObjectURL(selectedFile[index]));
+    }
+  }
+};
+
+const removeImageSelectImage = (index) => {
+  formData.value.images.splice(index, 1);
+  imagesPreview.value.splice(index, 1);
+  console.log(imagesPreview.value);
+};
 
 const addNewHandler = async () => {
   const frmData = new FormData();
@@ -348,6 +438,12 @@ const addNewHandler = async () => {
   frmData.append("cost_price", formData.value.cost_price);
   frmData.append("agent_price", formData.value.agent_price);
   frmData.append("name", formData.value.price_name);
+  if (formData.value.images.length > 0) {
+    for (let i = 0; i < formData.value.images.length; i++) {
+      let file = formData.value.images[i];
+      frmData.append("images[" + i + "]", file);
+    }
+  }
 
   try {
     const response = await variationStore.addNewAction(frmData);
@@ -359,9 +455,12 @@ const addNewHandler = async () => {
       price_name: "",
       price: "",
       description: "",
+      images: [],
     };
     errors.value = null;
     createModalOpen.value = false;
+    imagesPreview.value = [];
+    editImagesPreview.value = [];
     await variationStore.getListAction({
       search: search.value,
       entrance_ticket_id: entrance_ticket_id.value,
@@ -384,6 +483,12 @@ const updateHandler = async () => {
   frmData.append("agent_price", formData.value.agent_price);
   frmData.append("name", formData.value.price_name);
 
+  if (formData.value.images.length > 0) {
+    for (let i = 0; i < formData.value.images.length; i++) {
+      let file = formData.value.images[i];
+      frmData.append("images[" + i + "]", file);
+    }
+  }
   frmData.append("_method", "PUT");
   try {
     const response = await variationStore.updateAction(
@@ -398,9 +503,12 @@ const updateHandler = async () => {
       price_name: "",
       price: "",
       description: "",
+      images: [],
     };
     errors.value = null;
     createModalOpen.value = false;
+    imagesPreview.value = [];
+    editImagesPreview.value = [];
     await variationStore.getListAction({
       search: search.value,
       entrance_ticket_id: entrance_ticket_id.value,
@@ -431,6 +539,23 @@ const editModalOpenHandler = (data) => {
   formData.value.price = data.price;
   formData.value.description = data.description;
   createModalOpen.value = true;
+  if (data.images.length > 0) {
+    for (let i = 0; i < data.images.length; i++) {
+      editImagesPreview.value.push(data.images[i]);
+    }
+  }
+  console.log(editImagesPreview.value);
+};
+
+const removeImageUpdateImage = async (id, imageID) => {
+  console.log(id, imageID, "this is delete image id");
+  const res = variationStore.deleteImageAction(id, imageID);
+  console.log(res, "delete image res");
+  toast.success("delete image success");
+  createModalOpen.value = false;
+  imagesPreview.value = [];
+  editImagesPreview.value = [];
+  await variationStore.getListAction({ search: search.value });
 };
 
 const changePage = async (url) => {
@@ -462,7 +587,10 @@ const onDeleteHandler = async (id) => {
         }
         toast.error(error.response.data.message);
       }
-      await variationStore.getListAction();
+      await variationStore.getListAction({
+        search: search.value,
+        entrance_ticket_id: entrance_ticket_id.value,
+      });
     }
   });
 };

@@ -10,7 +10,7 @@
     </div>
 
     <!-- modal -->
-    <Modal :isOpen="createModalOpen" @closeModal="createModalOpen = false">
+    <Modal :isOpen="createModalOpen" @closeModal="closeModal">
       <DialogPanel
         class="w-full max-w-md p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
       >
@@ -379,6 +379,22 @@ const errors = ref([]);
 
 const openModal = () => {
   createModalOpen.value = true;
+  formData.value = {
+    id: "",
+    entrance_ticket_id: "",
+    price: "",
+    price_name: "",
+    cost_price: "",
+    agent_price: "",
+    description: "",
+    images: [],
+  };
+  imagesPreview.value = [];
+  editImagesPreview.value = [];
+};
+
+const closeModal = () => {
+  createModalOpen.value = false;
   formData.value = {
     id: "",
     entrance_ticket_id: "",

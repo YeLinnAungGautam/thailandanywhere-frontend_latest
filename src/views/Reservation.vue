@@ -331,7 +331,7 @@ const copyReservation = async (id) => {
     }
 #️⃣ CRM ID: ${res.result.crm_id}
 #️⃣ Reservation Code: ${res.result.reservation_code}
-🏨 Hotel Name: ${res.result.hotel_name != "null" ? res.result.hotel_name : "-"}
+🏨 Hotel Name: ${res.result.product_name}
 🏩 Room Name : ${res.result.room_name != "null" ? res.result.room_name : "-"}
 🛌 Total Rooms: ${
       res.result.total_rooms != "null" ? res.result.total_rooms : "-"
@@ -349,7 +349,7 @@ const copyReservation = async (id) => {
     }
 🤑 Score : ${res.result.score}
     `;
-  } else {
+  } else if (res.result.entrance_ticket_variation_name) {
     formattedOutput = `
 💰 Total Cost: ${res.result.total_cost} THB
 🏦 Bank Name: ${res.result.bank_name != "null" ? res.result.bank_name : "-"}
@@ -361,7 +361,7 @@ const copyReservation = async (id) => {
 🧑‍💼 Account Name: ${res.result.account_name}
 #️⃣ CRM ID: ${res.result.crm_id}
 #️⃣ Reservation Code: ${res.result.reservation_code}
-🎫 Attraction : ${res.result.hotel_name != "null" ? res.result.hotel_name : "-"}
+🎫 Attraction : ${res.result.product_name}
 🎫 Entrance Ticket Name : ${res.result.entrance_ticket_variation_name}
 💵 Sale Price: ${res.result.sale_price} THB
 📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
@@ -370,6 +370,23 @@ const copyReservation = async (id) => {
     }
 🤑 Score : ${res.result.score}
     `;
+  } else if (res.result.ticket_type) {
+    formattedOutput = `
+💰 Total Cost: ${res.result.total_cost} THB
+#️⃣ CRM ID: ${res.result.crm_id}
+#️⃣ Reservation Code: ${res.result.reservation_code}
+✈️ Airline Name : ${res.result.product_name}
+🎫 Ticket Type : ${res.result.ticket_type}
+🎫 Total Tickets : ${res.result.total_ticket}
+💵 Sale Price: ${res.result.sale_price} THB
+📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
+🗓️ Service Date: ${
+      res.result.service_date != "null" ? res.result.service_date : "-"
+    }
+🧾 Payment Status: ${res.result.payment_status}
+🤑 Score : ${res.result.score}
+📝 Expense Comment:
+  `;
   }
 
   setTimeout(() => {
@@ -1157,10 +1174,6 @@ const changeServiceDate = (data) => {
               class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 space-x-2"
             >
               <button
-                v-if="
-                  d.product_type == 'App\\Models\\Hotel' ||
-                  d.product_type == 'App\\Models\\EntranceTicket'
-                "
                 @click="copyReservation(d.id)"
                 class="p-1 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
               >

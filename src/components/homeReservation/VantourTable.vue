@@ -13,7 +13,7 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useCarBookingStore } from "../../stores/carbooking";
 import { useSupplierStore } from "../../stores/supplier";
 import { useDriverStore } from "../../stores/driver";
-import { useAuthStore } from "../../../../thailandanywhere-app-admin/thanywhereapp/src/stores/auth";
+import { useAuthStore } from "../../stores/auth";
 import { useToast } from "vue-toastification";
 import { storeToRefs } from "pinia";
 

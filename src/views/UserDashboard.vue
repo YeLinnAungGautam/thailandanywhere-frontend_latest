@@ -5,6 +5,7 @@ import { useDashboardStore } from "../stores/dashboard";
 import { useHomeStore } from "../stores/home";
 import SaleByAgent from "../components/SaleByAgent.vue";
 import { LineChart } from "vue-chart-3";
+import ReservationPartHome from "../components/homeReservation/ReservationPartHome.vue";
 import { Chart, registerables } from "chart.js";
 import {
   ArchiveBoxIcon,
@@ -23,6 +24,8 @@ import {
   startOfYear,
   subMonths,
 } from "date-fns";
+
+const dashboardReservation = ref("reservation");
 
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
@@ -271,7 +274,64 @@ watch(dateForUnpaid, async (newValue) => {
 
 <template>
   <Layout :title="`Welcome back, ${authStore.user.name.split(' ')[0]}!`">
-    <div class="grid grid-cols-3 gap-2">
+    <div class="flex justify-start items-center gap-2 text-sm pb-4">
+      <div
+        class="px-4 py-1 text-xs rounded-full cursor-pointer flex justify-start items-center gap-1.5"
+        :class="dashboardReservation == 'sale' ? 'text-[#FF5B00]' : ''"
+        @click="dashboardReservation = 'sale'"
+      >
+        <p
+          class="w-2 h-2 rounded-full bg-[#FF5B00]"
+          v-if="dashboardReservation == 'sale'"
+        ></p>
+        Sales
+      </div>
+      <div
+        class="px-4 py-1 text-xs rounded-full cursor-pointer flex justify-start items-center gap-1.5"
+        :class="dashboardReservation == 'reservation' ? 'text-[#FF5B00]' : ''"
+        @click="dashboardReservation = 'reservation'"
+      >
+        <p
+          class="w-2 h-2 rounded-full bg-[#FF5B00]"
+          v-if="dashboardReservation == 'reservation'"
+        ></p>
+        Reservations
+      </div>
+      <div
+        class="px-4 py-1 text-xs rounded-full cursor-pointer flex justify-start items-center gap-1.5"
+        :class="dashboardReservation == 'expense' ? 'text-[#FF5B00]' : ''"
+        @click="dashboardReservation = 'expense'"
+      >
+        <p
+          class="w-2 h-2 rounded-full bg-[#FF5B00]"
+          v-if="dashboardReservation == 'expense'"
+        ></p>
+        Expenses
+      </div>
+      <div
+        class="px-4 py-1 text-xs rounded-full cursor-pointer flex justify-start items-center gap-1.5"
+        :class="dashboardReservation == 'product' ? 'text-[#FF5B00]' : ''"
+        @click="dashboardReservation = 'product'"
+      >
+        <p
+          class="w-2 h-2 rounded-full bg-[#FF5B00]"
+          v-if="dashboardReservation == 'product'"
+        ></p>
+        Products
+      </div>
+      <div
+        class="px-4 py-1 text-xs rounded-full cursor-pointer flex justify-start items-center gap-1.5"
+        :class="dashboardReservation == 'availability' ? 'text-[#FF5B00]' : ''"
+        @click="dashboardReservation = 'availability'"
+      >
+        <p
+          class="w-2 h-2 rounded-full bg-[#FF5B00]"
+          v-if="dashboardReservation == 'availability'"
+        ></p>
+        Availability
+      </div>
+    </div>
+    <div class="grid grid-cols-3 gap-2" v-if="dashboardReservation == 'sale'">
       <div
         class="col-span-3 flex items-center justify-between py-5 bg-white/60 rounded-md shadow-sm p-4 mb-2"
       >
@@ -474,6 +534,9 @@ watch(dateForUnpaid, async (newValue) => {
           </div>
         </div>
       </div>
+    </div>
+    <div class="" v-if="dashboardReservation == 'reservation'">
+      <ReservationPartHome />
     </div>
   </Layout>
 </template>

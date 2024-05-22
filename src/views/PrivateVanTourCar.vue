@@ -110,7 +110,7 @@ const getWithDate = async (date) => {
   let data = {
     first: first,
     second: second,
-    supplier_id: part.value != "unassigned" ? part.value : "",
+    supplier_id: part.value != "unassigned" ? part.value : "unassigned",
   };
   if (user.value.role == "super_admin" || user.value.role == "reservation") {
     data.agent_id = agent_id.value;

@@ -28,6 +28,7 @@ import VueApexCharts from "vue3-apexcharts";
 import SaleByAgent from "../components/SaleByAgent.vue";
 import TopSellingProductVue from "../components/TopSellingProduct.vue";
 import SaleAgentReportByDate from "../components/SaleAgentReportByDate.vue";
+import ReservationPartHome from "../components/homeReservation/ReservationPartHome.vue";
 
 import {
   endOfMonth,
@@ -804,279 +805,310 @@ watch(hotelSaleDate, async (newValue) => {
 watch(priceSalesGraph, async (newValue) => {
   console.log(priceSalesGraph.value);
 });
+
+const homeSectionPartView = ref("sale");
 </script>
 
 <template>
   <Layout :title="`Welcome back, ${authStore.user.name.split(' ')[0]}!`">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 mb-3">
       <div class="flex justify-start items-center space-x-10 col-span-3 pb-1">
-        <HomeFirstPartVue :title="'Sales'" :isActive="true" />
-        <HomeFirstPartVue :title="'Reservations'" :isActive="false" />
-        <HomeFirstPartVue :title="'Expenses'" :isActive="false" />
-        <HomeFirstPartVue :title="'Products'" :isActive="false" />
+        <HomeFirstPartVue
+          :title="'Sales'"
+          :isActive="homeSectionPartView == 'sale'"
+          @click="homeSectionPartView = 'sale'"
+        />
+        <HomeFirstPartVue
+          :title="'Reservations'"
+          :isActive="homeSectionPartView == 'reservation'"
+          @click="homeSectionPartView = 'reservation'"
+        />
+        <HomeFirstPartVue
+          :title="'Expenses'"
+          :isActive="homeSectionPartView == 'expense'"
+        />
+        <HomeFirstPartVue
+          :title="'Products'"
+          :isActive="homeSectionPartView == 'product'"
+        />
       </div>
       <!-- filter -->
       <div
-        class="flex col-span-3 items-center justify-between py-3 bg-white rounded-md shadow-sm px-4"
+        v-if="homeSectionPartView == 'sale'"
+        class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 mb-3 col-span-3"
       >
-        <p class="text-md font-semibold tracking-wider mr-4">Filter:</p>
-        <div class="w-[30%]">
-          <VueDatePicker
-            v-model="dateFilterRange"
-            range
-            :preset-dates="presetDates"
-            :format="'yyyy-MM-dd'"
-            placeholder="select date range"
-          >
-            <template #preset-date-range-button="{ label, value, presetDate }">
-              <span
-                role="button"
-                :tabindex="0"
-                @click="presetDate(value)"
-                @keyup.enter.prevent="presetDate(value)"
-                @keyup.space.prevent="presetDate(value)"
-              >
-                {{ label }}
-              </span>
-            </template>
-          </VueDatePicker>
-        </div>
-      </div>
-      <div class="flex justify-start items-center space-x-2 col-span-3">
-        <HomeSecondPartVue
-          :icon="HeartIcon"
-          :title="'Total Bookings'"
-          :amount="allSaleList?.result?.booking_count"
-          :isActive="true"
-        />
-        <HomeSecondPartVue
-          :icon="PuzzlePieceIcon"
-          :title="'Van Tour Sales'"
-          :amount="allSaleList?.result?.van_tour_sale_count"
-          :isActive="false"
-        />
-        <HomeSecondPartVue
-          :icon="SquaresPlusIcon"
-          :title="'Attraction Sales'"
-          :amount="allSaleList?.result?.attraction_sale_count"
-          :isActive="false"
-        />
-        <HomeSecondPartVue
-          :icon="SquaresPlusIcon"
-          :title="'Hotels Sales'"
-          :amount="allSaleList?.result?.hotel_sale_count"
-          :isActive="false"
-        />
-        <HomeSecondPartVue
-          :icon="SquaresPlusIcon"
-          :title="'Airticket Sales'"
-          :amount="allSaleList?.result?.air_ticket_sale_count"
-          :isActive="false"
-        />
-      </div>
-
-      <div class="col-span-2 bg-white p-4 rounded-lg h-[520px]">
-        <div class="flex justify-between items-start">
-          <div>
-            <p
-              class="mb-3 font-semibold tracking-wide text-sm"
-              v-if="priceSalesGraph"
+        <div
+          class="flex col-span-3 items-center justify-between py-3 bg-white rounded-md shadow-sm px-4"
+        >
+          <p class="text-md font-semibold tracking-wider mr-4">Filter:</p>
+          <div class="w-[30%]">
+            <VueDatePicker
+              v-model="dateFilterRange"
+              range
+              :preset-dates="presetDates"
+              :format="'yyyy-MM-dd'"
+              placeholder="select date range"
             >
-              Overall Sales
-            </p>
-
-            <p
-              class="mb-3 font-semibold tracking-wide text-sm"
-              v-if="!priceSalesGraph"
-            >
-              Sale by Employee
-            </p>
-            <p class="text-sm pb-3">
-              Total Sales :
-              <span class="text-[#FF5B00]">{{ totalSaleForShow }} thb</span>
-            </p>
-            <p class="text-sm pb-3">
-              Total Bookings :
-              <span class="text-[#FF5B00]"
-                >{{ totalBookingsForShow }} Bookings</span
+              <template
+                #preset-date-range-button="{ label, value, presetDate }"
               >
-            </p>
-          </div>
-          <div class="flex justify-end items-center gap-3">
-            <select
-              name=""
-              id=""
-              v-if="!priceSalesGraph"
-              v-model="priceSalesGraphAgent"
-              class="px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none"
-            >
-              <option value="" class="py-2">All</option>
-              <!-- AgentName -->
-              <option
-                :value="a"
-                class="py-2"
-                v-for="(a, index) in AgentName ?? []"
-                :key="index"
-              >
-                {{ a }}
-              </option>
-            </select>
-
-            <input
-              type="month"
-              name=""
-              v-model="monthForGraph"
-              class="bg-white text-sm w-[200px] px-2 py-2"
-              id=""
-            />
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                @click="togglePriceSalesGraph"
-                value=""
-                class="sr-only peer"
-              />
-              <div
-                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
-              ></div>
-            </label>
-          </div>
-        </div>
-        <LineChart :chartData="saleData" v-if="priceSalesGraph == '1'" />
-        <LineChart
-          :chartData="saleDataAgent"
-          :options="saleDataAgentOption"
-          v-if="priceSalesGraph == '0' && priceSalesGraphAgent == ''"
-        />
-        <LineChart
-          :chartData="saleDataByAgent"
-          :options="saleDataByAgentOption"
-          v-if="priceSalesGraph == '0' && priceSalesGraphAgent != ''"
-        />
-      </div>
-      <div
-        class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[520px] px-3 bg-white"
-      >
-        <div class="flex justify-between items-center">
-          <!-- <p class="text-gray-600 text-xs font-semibold tracking-wide">
-            Sale By Agent
-          </p> -->
-          <div class="bg-white px-4 w-full space-y-4">
-            <div class="flex justify-between items-center tracking-wide">
-              <p class="text-sm font-medium mr-2">AgentSales</p>
-              <VueDatePicker
-                v-model="dateForSaleAgent"
-                :format="'yyyy-MM-dd'"
-                range
-                :preset-dates="presetDates"
-                placeholder="select date range"
-              >
-                <template
-                  #preset-date-range-button="{ label, value, presetDate }"
+                <span
+                  role="button"
+                  :tabindex="0"
+                  @click="presetDate(value)"
+                  @keyup.enter.prevent="presetDate(value)"
+                  @keyup.space.prevent="presetDate(value)"
                 >
-                  <span
-                    role="button"
-                    :tabindex="0"
-                    @click="presetDate(value)"
-                    @keyup.enter.prevent="presetDate(value)"
-                    @keyup.space.prevent="presetDate(value)"
-                  >
-                    {{ label }}
-                  </span>
-                </template>
-              </VueDatePicker>
-            </div>
-
-            <div
-              class=""
-              v-for="(s, index) in saleAgentDataRes?.result"
-              :key="index"
-            >
-              <SaleAgentReportByDate :data="s" />
-            </div>
+                  {{ label }}
+                </span>
+              </template>
+            </VueDatePicker>
           </div>
         </div>
-      </div>
-      <div class="col-span-3 grid grid-cols-4 gap-4">
-        <div class="bg-white p-2">
-          <p class="text-sm font-semibold py-2">Channels Sold From</p>
-          <BarChart :chartData="reportChannalData" :options="reportOptions" />
-        </div>
-        <div class="bg-white p-2">
-          <p class="text-sm font-semibold py-2">Payment Method</p>
-          <!-- <DoughnutChart :chartData="reportStatusData" /> -->
-          <!-- <CombineBarLineVue /> -->
-          <VueApexCharts
-            :options="chartOptions"
-            :series="series"
-            type="treemap"
+        <div class="flex justify-start items-center space-x-2 col-span-3">
+          <HomeSecondPartVue
+            :icon="HeartIcon"
+            :title="'Total Bookings'"
+            :amount="allSaleList?.result?.booking_count"
+            :isActive="true"
           />
-        </div>
-        <div class="bg-white p-2">
-          <p class="text-sm font-semibold py-2">Method of Payment</p>
-          <DoughnutChart
-            :chartData="reportMethodData"
-            :options="methodOptions"
+          <HomeSecondPartVue
+            :icon="PuzzlePieceIcon"
+            :title="'Van Tour Sales'"
+            :amount="allSaleList?.result?.van_tour_sale_count"
+            :isActive="false"
+          />
+          <HomeSecondPartVue
+            :icon="SquaresPlusIcon"
+            :title="'Attraction Sales'"
+            :amount="allSaleList?.result?.attraction_sale_count"
+            :isActive="false"
+          />
+          <HomeSecondPartVue
+            :icon="SquaresPlusIcon"
+            :title="'Hotels Sales'"
+            :amount="allSaleList?.result?.hotel_sale_count"
+            :isActive="false"
+          />
+          <HomeSecondPartVue
+            :icon="SquaresPlusIcon"
+            :title="'Airticket Sales'"
+            :amount="allSaleList?.result?.air_ticket_sale_count"
+            :isActive="false"
           />
         </div>
 
-        <div class="bg-white p-2">
-          <p class="text-sm font-semibold py-2">Payment Statuses</p>
-          <DoughnutChart
-            :chartData="reportStatusData"
-            :options="paymentOptions"
-          />
-        </div>
-      </div>
-      <div class="col-span-3 grid grid-cols-6 gap-4">
-        <div class="col-span-4">
-          <TopSellingProductVue />
-        </div>
-        <div class="col-span-2 bg-white">
-          <div
-            class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[490px] px-3 bg-white"
-          >
-            <div class="flex justify-between items-center">
-              <!-- <p class="text-gray-600 text-xs font-semibold tracking-wide">
-                Sale By Agent
-              </p> -->
-              <div class="bg-white px-4 w-full space-y-4">
-                <div class="flex justify-between items-center tracking-wide">
-                  <p class="text-sm font-medium mr-2">Unpaid</p>
-                  <VueDatePicker
-                    v-model="dateForUnpaid"
-                    :format="'yyyy-MM-dd'"
-                    range
-                    :preset-dates="presetDates"
-                    placeholder="select date range"
-                  >
-                    <template
-                      #preset-date-range-button="{ label, value, presetDate }"
-                    >
-                      <span
-                        role="button"
-                        :tabindex="0"
-                        @click="presetDate(value)"
-                        @keyup.enter.prevent="presetDate(value)"
-                        @keyup.space.prevent="presetDate(value)"
-                      >
-                        {{ label }}
-                      </span>
-                    </template>
-                  </VueDatePicker>
-                </div>
+        <div class="col-span-2 bg-white p-4 rounded-lg h-[520px]">
+          <div class="flex justify-between items-start">
+            <div>
+              <p
+                class="mb-3 font-semibold tracking-wide text-sm"
+                v-if="priceSalesGraph"
+              >
+                Overall Sales
+              </p>
 
-                <div
-                  class=""
-                  v-for="(s, index) in unpaidDataList?.result"
+              <p
+                class="mb-3 font-semibold tracking-wide text-sm"
+                v-if="!priceSalesGraph"
+              >
+                Sale by Employee
+              </p>
+              <p class="text-sm pb-3">
+                Total Sales :
+                <span class="text-[#FF5B00]">{{ totalSaleForShow }} thb</span>
+              </p>
+              <p class="text-sm pb-3">
+                Total Bookings :
+                <span class="text-[#FF5B00]"
+                  >{{ totalBookingsForShow }} Bookings</span
+                >
+              </p>
+            </div>
+            <div class="flex justify-end items-center gap-3">
+              <select
+                name=""
+                id=""
+                v-if="!priceSalesGraph"
+                v-model="priceSalesGraphAgent"
+                class="px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none"
+              >
+                <option value="" class="py-2">All</option>
+                <!-- AgentName -->
+                <option
+                  :value="a"
+                  class="py-2"
+                  v-for="(a, index) in AgentName ?? []"
                   :key="index"
                 >
-                  <SaleByAgent :data="s" />
+                  {{ a }}
+                </option>
+              </select>
+
+              <input
+                type="month"
+                name=""
+                v-model="monthForGraph"
+                class="bg-white text-sm w-[200px] px-2 py-2"
+                id=""
+              />
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  @click="togglePriceSalesGraph"
+                  value=""
+                  class="sr-only peer"
+                />
+                <div
+                  class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
+                ></div>
+              </label>
+            </div>
+          </div>
+          <LineChart :chartData="saleData" v-if="priceSalesGraph == '1'" />
+          <LineChart
+            :chartData="saleDataAgent"
+            :options="saleDataAgentOption"
+            v-if="priceSalesGraph == '0' && priceSalesGraphAgent == ''"
+          />
+          <LineChart
+            :chartData="saleDataByAgent"
+            :options="saleDataByAgentOption"
+            v-if="priceSalesGraph == '0' && priceSalesGraphAgent != ''"
+          />
+        </div>
+        <div
+          class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[520px] px-3 bg-white"
+        >
+          <div class="flex justify-between items-center">
+            <!-- <p class="text-gray-600 text-xs font-semibold tracking-wide">
+              Sale By Agent
+            </p> -->
+            <div class="bg-white px-4 w-full space-y-4">
+              <div class="flex justify-between items-center tracking-wide">
+                <p class="text-sm font-medium mr-2">AgentSales</p>
+                <VueDatePicker
+                  v-model="dateForSaleAgent"
+                  :format="'yyyy-MM-dd'"
+                  range
+                  :preset-dates="presetDates"
+                  placeholder="select date range"
+                >
+                  <template
+                    #preset-date-range-button="{ label, value, presetDate }"
+                  >
+                    <span
+                      role="button"
+                      :tabindex="0"
+                      @click="presetDate(value)"
+                      @keyup.enter.prevent="presetDate(value)"
+                      @keyup.space.prevent="presetDate(value)"
+                    >
+                      {{ label }}
+                    </span>
+                  </template>
+                </VueDatePicker>
+              </div>
+
+              <div
+                class=""
+                v-for="(s, index) in saleAgentDataRes?.result"
+                :key="index"
+              >
+                <SaleAgentReportByDate :data="s" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-span-3 grid grid-cols-4 gap-4">
+          <div class="bg-white p-2">
+            <p class="text-sm font-semibold py-2">Channels Sold From</p>
+            <BarChart :chartData="reportChannalData" :options="reportOptions" />
+          </div>
+          <div class="bg-white p-2">
+            <p class="text-sm font-semibold py-2">Payment Method</p>
+            <!-- <DoughnutChart :chartData="reportStatusData" /> -->
+            <!-- <CombineBarLineVue /> -->
+            <VueApexCharts
+              :options="chartOptions"
+              :series="series"
+              type="treemap"
+            />
+          </div>
+          <div class="bg-white p-2">
+            <p class="text-sm font-semibold py-2">Method of Payment</p>
+            <DoughnutChart
+              :chartData="reportMethodData"
+              :options="methodOptions"
+            />
+          </div>
+
+          <div class="bg-white p-2">
+            <p class="text-sm font-semibold py-2">Payment Statuses</p>
+            <DoughnutChart
+              :chartData="reportStatusData"
+              :options="paymentOptions"
+            />
+          </div>
+        </div>
+        <div class="col-span-3 grid grid-cols-6 gap-4">
+          <div class="col-span-4">
+            <TopSellingProductVue />
+          </div>
+          <div class="col-span-2 bg-white">
+            <div
+              class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[490px] px-3 bg-white"
+            >
+              <div class="flex justify-between items-center">
+                <!-- <p class="text-gray-600 text-xs font-semibold tracking-wide">
+                  Sale By Agent
+                </p> -->
+                <div class="bg-white px-4 w-full space-y-4">
+                  <div class="flex justify-between items-center tracking-wide">
+                    <p class="text-sm font-medium mr-2">Unpaid</p>
+                    <VueDatePicker
+                      v-model="dateForUnpaid"
+                      :format="'yyyy-MM-dd'"
+                      range
+                      :preset-dates="presetDates"
+                      placeholder="select date range"
+                    >
+                      <template
+                        #preset-date-range-button="{ label, value, presetDate }"
+                      >
+                        <span
+                          role="button"
+                          :tabindex="0"
+                          @click="presetDate(value)"
+                          @keyup.enter.prevent="presetDate(value)"
+                          @keyup.space.prevent="presetDate(value)"
+                        >
+                          {{ label }}
+                        </span>
+                      </template>
+                    </VueDatePicker>
+                  </div>
+
+                  <div
+                    class=""
+                    v-for="(s, index) in unpaidDataList?.result"
+                    :key="index"
+                  >
+                    <SaleByAgent :data="s" />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- reservation -->
+      <div
+        class="col-span-3 w-full"
+        v-if="homeSectionPartView == 'reservation'"
+      >
+        <ReservationPartHome />
       </div>
     </div>
   </Layout>

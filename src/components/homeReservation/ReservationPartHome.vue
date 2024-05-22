@@ -85,7 +85,7 @@ const getWithDate = async (date) => {
     second: second,
     supplier_id: "",
   };
-  if (user.value.role == "reservation") {
+  if (user.value.role == "reservation" || user.value.role == "super_admin") {
     data.agent_id = agent_id.value;
   } else {
     data.agent_id = user.value.id;
@@ -111,7 +111,7 @@ const changePage = async (url) => {
     second,
     supplier_id: "",
   };
-  if (user.value.role == "reservation") {
+  if (user.value.role == "reservation" || user.value.role == "super_admin") {
     data.agent_id = "";
   } else {
     data.agent_id = user.value.id;
@@ -128,6 +128,7 @@ const changeFunction = (data) => {
 
 onMounted(async () => {
   changeServiceDate("today");
+  console.log(user.value, "this is user ");
 });
 </script>
 

@@ -6,6 +6,7 @@ import {
   CheckBadgeIcon,
   InformationCircleIcon,
   XCircleIcon,
+  DocumentDuplicateIcon,
   XMarkIcon,
 } from "@heroicons/vue/24/outline";
 import { computed, onMounted, ref, defineEmits } from "vue";
@@ -69,9 +70,9 @@ const supplierAction = async () => {
 };
 
 const driverCarNumberList = ref(null);
-const driverAction = async () => {
-  console.log(formData.value.driver_id);
-  const res = await driverStore.getDetailAction(formData.value.driver_id);
+const driverAction = async (id) => {
+  console.log(id);
+  const res = await driverStore.getDetailAction(id);
   console.log(res, "this is driver detail action");
   let data = res.result;
   formData.value.driver_contact = data.contact;
@@ -193,7 +194,7 @@ const openModel = async () => {
     await supplierAction();
   }
   if (formData.value.driver_id) {
-    await driverAction();
+    await driverAction(formData.value.driver_id);
   }
 
   carModalOpen.value = true;
@@ -228,12 +229,17 @@ const closeInfoModal = () => {
   showInfoModal.value = false;
 };
 
+const loadingInfo = ref(false);
 const openInfoModal = async () => {
+  showInfoModal.value = true;
+  loadingInfo.value = true;
+
   const res = await carBookingStore.getDetailAction(props?.data.id);
   console.log(res, "this is detail");
   let data = res.result;
   driverInfoData.value = {
     driver_name: data.driver_name,
+    driver_id: data.driver_id,
     supplier_name: data.supplier_name,
     phone: data.driver_contact,
     car_number: data.car_number,
@@ -241,18 +247,71 @@ const openInfoModal = async () => {
     extra_collect: data.extra_collect,
     total_collect: 0,
     supplier_id: data.supplier_id,
-    driver_id: data.driver_id,
   };
 
   if (driverInfoData.value.driver_id) {
-    await driverAction();
+    await driverAction(driverInfoData.value.driver_id);
   }
 
-  showInfoModal.value = true;
+  loadingInfo.value = false;
 };
 
 const permission = ref(false);
 const showInfoModal = ref(false);
+
+const complete = computed(() => {
+  if (props.data) {
+    switch (user.value.role) {
+      case "super_admin":
+        return (
+          props.data.supplier_name != null &&
+          props.data.driver_info_id != null &&
+          props.data.car_number != null &&
+          props.data.pickup_time != null &&
+          props.data.route_plan != null
+        );
+      case "reservation":
+        return (
+          props.data.supplier_name != null &&
+          props.data.driver_info_id != null &&
+          props.data.car_number != null
+        );
+      case "admin":
+        return props.data.pickup_time != null && props.data.route_plan != null;
+      default:
+        return false;
+    }
+  }
+  return false;
+});
+
+const copyFunction = async () => {
+  const res = await carBookingStore.getDetailAction(props?.data.id);
+  const resDriver = await driverStore.getDetailAction(res?.result.driver_id);
+  console.log(resDriver, "this is cpy res");
+  let formattedOutput;
+  if (resDriver.status == "Request was successful.") {
+    formattedOutput = `
+🆔 CRM ID : ${props?.data.crm_id}
+📝 Product Name : ${props?.data.product_name}
+📅 Departure Date : ${props?.data.service_date}
+🕧 Pickup Time : ${props?.data.pickup_time}
+🧑‍✈️ Driver Name : ${resDriver?.result.name}
+☎️ Driver Contact : ${resDriver?.result.contact}
+🚗 Car Number : ${resDriver?.result.infos[0]?.car_number}
+💸 Driver Collect : ${props?.data.is_driver_collect == 1 ? "Yes" : "No"}
+💰 Total Collect : ${
+      props?.data.selling_price * 1 + props?.data.extra_collect_amount * 1
+    } thb
+      `;
+  }
+
+  setTimeout(() => {
+    navigator.clipboard.writeText(formattedOutput);
+  }, 0);
+
+  toast.success("success copy reservation");
+};
 
 onMounted(async () => {
   if (props?.data) {
@@ -276,16 +335,6 @@ onMounted(async () => {
   }
   await supplierStore.getSimpleListAction();
   await driverStore.getSimpleListAction();
-
-  if (
-    user?.value?.role == "super_admin" ||
-    user?.value?.role == "reservation"
-  ) {
-    permission.value = true;
-  } else {
-    permission.value = false;
-  }
-  console.log(permission.value, "this is a permission");
 });
 </script>
 <template>
@@ -312,12 +361,20 @@ onMounted(async () => {
         </p>
       </div>
       <p class="w-[10%] text-[10px] py-2 px-2 text-[#ff613c] font-semibold">
-        {{ data?.selling_price }} thb
+        {{ data?.selling_price * 1 + data?.extra_collect_amount * 1 }} thb
       </p>
+      <div class="w-[10%] text-[10px] py-2 px-2 text-[#ff613c] font-semibold">
+        <p class="text-green-600" v-if="complete">R.complete</p>
+        <p class="text-red-600" v-if="!complete">R.incomplete</p>
+      </div>
 
       <div
         class="w-[10%] text-[10px] py-2 px-2 flex justify-end items-center gap-4"
       >
+        <DocumentDuplicateIcon
+          @click="copyFunction"
+          class="w-4 h-4 cursor-pointer hover:text-orange-600"
+        />
         <InformationCircleIcon
           @click="openInfoModal"
           class="w-4 h-4 cursor-pointer hover:text-orange-600"
@@ -342,8 +399,8 @@ onMounted(async () => {
       class="w-full bg-gray-300 flex items-center rounded-md pl-2"
       v-if="showDropDown"
     >
-      <p class="w-[30%] text-[10px] py-1.5 px-2 font-medium">Route Plan</p>
-      <p class="w-[30%] text-[10px] py-1.5 px-2 font-medium">Special Request</p>
+      <p class="w-[26%] text-[10px] py-1.5 px-2 font-medium">Route Plan</p>
+      <p class="w-[26%] text-[10px] py-1.5 px-2 font-medium">Special Request</p>
 
       <p class="w-[15%] text-[10px] py-1.5 px-2 font-medium">Pickup Time</p>
 
@@ -355,7 +412,7 @@ onMounted(async () => {
       class="w-full bg-gray-200 flex items-start rounded-md pl-2"
       v-if="showDropDown"
     >
-      <div class="w-[30%] text-[10px] py-2 px-2">
+      <div class="w-[26%] text-[10px] py-2 px-2">
         <textarea
           name=""
           class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-xs text-gray-900 focus:outline-none focus:border-gray-300"
@@ -365,7 +422,7 @@ onMounted(async () => {
           rows="2"
         ></textarea>
       </div>
-      <div class="w-[30%] text-[10px] py-2 px-2">
+      <div class="w-[26%] text-[10px] py-2 px-2">
         <textarea
           name=""
           class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-xs text-gray-900 focus:outline-none focus:border-gray-300"
@@ -432,7 +489,7 @@ onMounted(async () => {
             class="opacity-0 col-span-2 absolute top-0"
             id=""
           />
-          <div class="space-y-1" v-if="permission">
+          <div class="space-y-1" v-if="user.role != 'admin'">
             <label for="name" class="text-gray-800 text-xs"
               >Supplier Name
               <span class="text-red-600 text-base pl-2">*</span></label
@@ -450,7 +507,7 @@ onMounted(async () => {
               {{ errors.supplier_id[0] }}
             </p>
           </div>
-          <div class="space-y-1" v-if="permission">
+          <div class="space-y-1" v-if="user.role != 'admin'">
             <label for="name" class="text-gray-800 text-xs">Car Number</label>
             <!-- <input
               type="text"
@@ -470,7 +527,7 @@ onMounted(async () => {
               {{ errors.driver_info_id[0] }}
             </p>
           </div>
-          <div class="space-y-1" v-if="permission">
+          <div class="space-y-1" v-if="user.role != 'admin'">
             <label for="name" class="text-gray-800 text-xs">Driver Name</label>
             <v-select
               v-model="formData.driver_id"
@@ -485,7 +542,7 @@ onMounted(async () => {
               {{ errors.driver_id[0] }}
             </p>
           </div>
-          <div class="space-y-1" v-if="permission">
+          <div class="space-y-1" v-if="user.role != 'admin'">
             <div class="flex justify-between items-center gap-2">
               <div class="space-y-1">
                 <label for="name" class="text-gray-800 text-xs"
@@ -513,7 +570,7 @@ onMounted(async () => {
               {{ errors.cost_price[0] }}
             </p>
           </div>
-          <div class="space-y-1" v-if="permission">
+          <div class="space-y-1" v-if="user.role != 'admin'">
             <label for="name" class="text-gray-800 text-xs"
               >Driver Contact</label
             >
@@ -527,7 +584,7 @@ onMounted(async () => {
               {{ errors.driver_contact[0] }}
             </p>
           </div>
-          <div class="space-y-1" v-if="permission">
+          <div class="space-y-1" v-if="user.role != 'admin'">
             <label for="name" class="text-gray-800 text-xs"
               >Total Cost Price</label
             >
@@ -545,7 +602,7 @@ onMounted(async () => {
               {{ errors.total_cost_price[0] }}
             </p>
           </div>
-          <div class="col-span-2" v-if="permission">
+          <div class="col-span-2" v-if="user.role != 'admin'">
             <a
               :href="formData.car_photo"
               target="_blink"
@@ -554,7 +611,7 @@ onMounted(async () => {
               >car photo link -- click to see</a
             >
           </div>
-          <div class="space-y-1 col-span-2" v-if="!permission">
+          <div class="space-y-1 col-span-2" v-if="user.role != 'reservation'">
             <label for="name" class="text-gray-800 text-xs">Pickup Time</label>
             <input
               type="time"
@@ -564,7 +621,7 @@ onMounted(async () => {
               class="h-10 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
             />
           </div>
-          <div class="space-y-1 col-span-2" v-if="!permission">
+          <div class="space-y-1 col-span-2" v-if="user.role != 'reservation'">
             <label for="name" class="text-gray-800 text-xs">Route Plan</label>
             <textarea
               name=""
@@ -575,7 +632,7 @@ onMounted(async () => {
               rows="3"
             ></textarea>
           </div>
-          <div class="space-y-1 col-span-2" v-if="!permission">
+          <div class="space-y-1 col-span-2" v-if="user.role != 'reservation'">
             <label for="name" class="text-gray-800 text-xs"
               >Special Request & Notes</label
             >
@@ -588,7 +645,7 @@ onMounted(async () => {
               rows="3"
             ></textarea>
           </div>
-          <!-- <div class="space-y-1 col-span-2" v-if="!permission">
+          <!-- <div class="space-y-1 col-span-2" v-if="user.role != 'reservation'">
             <label for="name" class="text-gray-800 text-xs"
               >Pickup Location</label
             >
@@ -601,7 +658,7 @@ onMounted(async () => {
               rows="3"
             ></textarea>
           </div>
-          <div class="space-y-1 col-span-2" v-if="!permission">
+          <div class="space-y-1 col-span-2" v-if="user.role != 'reservation'">
             <label for="name" class="text-gray-800 text-xs"
               >Dropoff Location</label
             >
@@ -615,7 +672,7 @@ onMounted(async () => {
             ></textarea>
           </div> -->
 
-          <div class="space-y-1 col-span-1" v-if="!permission">
+          <div class="space-y-1 col-span-1" v-if="user.role != 'reservation'">
             <label for="name" class="text-gray-800 text-xs"
               >Is Driver Collect ?</label
             >
@@ -670,7 +727,12 @@ onMounted(async () => {
           <p>Driver Information</p>
           <button @click="closeInfoModal"><XMarkIcon class="w-5 h-5" /></button>
         </DialogTitle>
-        <div class="grid grid-cols-2 gap-6">
+        <div v-if="loadingInfo">
+          <p class="text-sm text-red-600 py-6 text-center">
+            Form is loading , Please wait
+          </p>
+        </div>
+        <div class="grid grid-cols-2 gap-6" v-if="!loadingInfo">
           <div class="space-y-2">
             <p class="text-xs font-semibold">Name of Driver :</p>
             <p class="text-sm font-normal">{{ driverInfoData?.driver_name }}</p>

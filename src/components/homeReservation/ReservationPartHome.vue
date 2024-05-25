@@ -225,10 +225,10 @@ onMounted(async () => {
         <p class="w-[10%] text-[10px] font-semibold py-2 px-2">Variation</p>
         <p class="w-[15%] text-[10px] font-semibold py-2 px-2">Dri_Collect?</p>
         <p class="w-[10%] text-[10px] font-semibold py-2 px-2">Assign</p>
-        <p class="w-[10%] text-[10px] font-semibold py-2 px-2">
-          Selling Amount
-        </p>
-        <p class="w-[10%] text-[10px] font-semibold py-2 px-2"></p>
+
+        <p class="w-[10%] text-[10px] font-semibold py-2 px-2">Total Collect</p>
+        <p class="w-[10%] text-[10px] font-semibold py-2 px-2">complete?</p>
+        <p class="w-[12%] text-[10px] font-semibold py-2 px-2"></p>
       </div>
       <div v-for="(l, index) in carbookings?.data" :key="index">
         <VantourTable

@@ -4,7 +4,9 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   CheckBadgeIcon,
+  InformationCircleIcon,
   XCircleIcon,
+  XMarkIcon,
 } from "@heroicons/vue/24/outline";
 import { computed, onMounted, ref, defineEmits } from "vue";
 import Modal from "../Modal.vue";
@@ -16,6 +18,7 @@ import { useDriverStore } from "../../stores/driver";
 import { useAuthStore } from "../../stores/auth";
 import { useToast } from "vue-toastification";
 import { storeToRefs } from "pinia";
+import { Switch } from "@headlessui/vue";
 
 const props = defineProps({
   data: Object || Array,
@@ -73,6 +76,7 @@ const driverAction = async () => {
   let data = res.result;
   formData.value.driver_contact = data.contact;
   driverCarNumberList.value = data.infos;
+  driverInfoData.value.car_image = data.car_photo;
   if (data.infos.length > 0) {
     data.infos.forEach((num) => {
       if (num.is_default == 1) {
@@ -84,6 +88,29 @@ const driverAction = async () => {
 
 const errors = ref(null);
 const emit = defineEmits();
+
+const closeFunction = () => {
+  formData.value = {
+    id: "",
+    supplier_id: "",
+    driver_id: "",
+    quantity: "",
+    car_number: "",
+    cost_price: "",
+    total_cost_price: "",
+    extra_collect_amount: "",
+    is_driver_collect: false,
+    route_plan: "",
+    special_request: "",
+    driver_contact: "",
+    car_photo: "",
+    pickup_location: "",
+    dropoff_location: "",
+    pickup_time: "",
+  };
+  errors.value = null;
+  carModalOpen.value = false;
+};
 
 const onSubmitHandler = async () => {
   // console.log(formData.value.pickup_time);
@@ -128,7 +155,7 @@ const onSubmitHandler = async () => {
     }
   } catch (error) {
     console.log(error, "this is error");
-    if (error.response.data.errors) {
+    if (error.response?.data?.errors) {
       errors.value = error.response.data.errors;
       console.log(errors.value, "this is error");
     }
@@ -172,6 +199,61 @@ const openModel = async () => {
   carModalOpen.value = true;
 };
 
+const driverInfoData = ref({
+  driver_name: "",
+  supplier_name: "",
+  supplier_id: "",
+  driver_id: "",
+  phone: "",
+  car_number: "",
+  driver_collect: "",
+  extra_collect: "",
+  total_collect: "",
+  car_image: null,
+});
+
+const closeInfoModal = () => {
+  driverInfoData.value = {
+    driver_name: "",
+    supplier_name: "",
+    phone: "",
+    car_number: "",
+    driver_collect: "",
+    extra_collect: "",
+    total_collect: "",
+    car_image: null,
+    supplier_id: "",
+    driver_id: "",
+  };
+  showInfoModal.value = false;
+};
+
+const openInfoModal = async () => {
+  const res = await carBookingStore.getDetailAction(props?.data.id);
+  console.log(res, "this is detail");
+  let data = res.result;
+  driverInfoData.value = {
+    driver_name: data.driver_name,
+    supplier_name: data.supplier_name,
+    phone: data.driver_contact,
+    car_number: data.car_number,
+    driver_collect: data.is_driver_collect == 1 ? "Yes" : "No",
+    extra_collect: data.extra_collect,
+    total_collect: 0,
+    supplier_id: data.supplier_id,
+    driver_id: data.driver_id,
+  };
+
+  if (driverInfoData.value.driver_id) {
+    await driverAction();
+  }
+
+  showInfoModal.value = true;
+};
+
+const permission = ref(false);
+const showInfoModal = ref(false);
+
 onMounted(async () => {
   if (props?.data) {
     formData.value = {
@@ -194,6 +276,16 @@ onMounted(async () => {
   }
   await supplierStore.getSimpleListAction();
   await driverStore.getSimpleListAction();
+
+  if (
+    user?.value?.role == "super_admin" ||
+    user?.value?.role == "reservation"
+  ) {
+    permission.value = true;
+  } else {
+    permission.value = false;
+  }
+  console.log(permission.value, "this is a permission");
 });
 </script>
 <template>
@@ -214,7 +306,7 @@ onMounted(async () => {
           v-if="data?.is_driver_collect == 0"
         />
       </div>
-      <div class="w-[15%] text-[10px] py-2 px-2">
+      <div class="w-[10%] text-[10px] py-2 px-2">
         <p class="">
           {{ data?.supplier_name }}
         </p>
@@ -224,8 +316,12 @@ onMounted(async () => {
       </p>
 
       <div
-        class="w-[5%] text-[10px] py-2 px-2 flex justify-end items-center gap-4"
+        class="w-[10%] text-[10px] py-2 px-2 flex justify-end items-center gap-4"
       >
+        <InformationCircleIcon
+          @click="openInfoModal"
+          class="w-4 h-4 cursor-pointer hover:text-orange-600"
+        />
         <ChevronDownIcon
           v-if="!showDropDown"
           class="w-4 h-4 cursor-pointer hover:text-orange-600"
@@ -320,7 +416,11 @@ onMounted(async () => {
           as="h5"
           class="text-base font-semibold leading-6 text-[#ff613c] mb-5"
         >
-          Assign Car Booking Vendor
+          {{
+            permission
+              ? "Assign Car Booking Vendor"
+              : "Complete Car Information"
+          }}
         </DialogTitle>
         <form
           @submit.prevent="onSubmitHandler"
@@ -332,7 +432,7 @@ onMounted(async () => {
             class="opacity-0 col-span-2 absolute top-0"
             id=""
           />
-          <div class="space-y-1">
+          <div class="space-y-1" v-if="permission">
             <label for="name" class="text-gray-800 text-xs"
               >Supplier Name
               <span class="text-red-600 text-base pl-2">*</span></label
@@ -350,12 +450,8 @@ onMounted(async () => {
               {{ errors.supplier_id[0] }}
             </p>
           </div>
-          <div class="space-y-1">
-            <label for="name" class="text-gray-800 text-xs"
-              >Car Number<span class="text-red-600 text-base pl-2"
-                >*</span
-              ></label
-            >
+          <div class="space-y-1" v-if="permission">
+            <label for="name" class="text-gray-800 text-xs">Car Number</label>
             <!-- <input
               type="text"
               v-model="formData.car_number"
@@ -374,12 +470,8 @@ onMounted(async () => {
               {{ errors.driver_info_id[0] }}
             </p>
           </div>
-          <div class="space-y-1">
-            <label for="name" class="text-gray-800 text-xs"
-              >Driver Name<span class="text-red-600 text-base pl-2"
-                >*</span
-              ></label
-            >
+          <div class="space-y-1" v-if="permission">
+            <label for="name" class="text-gray-800 text-xs">Driver Name</label>
             <v-select
               v-model="formData.driver_id"
               class="style-chooser bg-white rounded-lg"
@@ -393,13 +485,11 @@ onMounted(async () => {
               {{ errors.driver_id[0] }}
             </p>
           </div>
-          <div class="space-y-1">
+          <div class="space-y-1" v-if="permission">
             <div class="flex justify-between items-center gap-2">
               <div class="space-y-1">
                 <label for="name" class="text-gray-800 text-xs"
-                  >Cost Price<span class="text-red-600 text-base pl-2"
-                    >*</span
-                  ></label
+                  >Cost Price</label
                 >
                 <input
                   type="number"
@@ -423,11 +513,9 @@ onMounted(async () => {
               {{ errors.cost_price[0] }}
             </p>
           </div>
-          <div class="space-y-1">
+          <div class="space-y-1" v-if="permission">
             <label for="name" class="text-gray-800 text-xs"
-              >Driver Contact<span class="text-red-600 text-base pl-2"
-                >*</span
-              ></label
+              >Driver Contact</label
             >
             <input
               type="text"
@@ -439,11 +527,9 @@ onMounted(async () => {
               {{ errors.driver_contact[0] }}
             </p>
           </div>
-          <div class="space-y-1">
+          <div class="space-y-1" v-if="permission">
             <label for="name" class="text-gray-800 text-xs"
-              >Total Cost Price<span class="text-red-600 text-base pl-2"
-                >*</span
-              ></label
+              >Total Cost Price</label
             >
             <input
               type="number"
@@ -459,7 +545,7 @@ onMounted(async () => {
               {{ errors.total_cost_price[0] }}
             </p>
           </div>
-          <div class="col-span-2">
+          <div class="col-span-2" v-if="permission">
             <a
               :href="formData.car_photo"
               target="_blink"
@@ -468,11 +554,176 @@ onMounted(async () => {
               >car photo link -- click to see</a
             >
           </div>
+          <div class="space-y-1 col-span-2" v-if="!permission">
+            <label for="name" class="text-gray-800 text-xs">Pickup Time</label>
+            <input
+              type="time"
+              name=""
+              v-model="formData.pickup_time"
+              id=""
+              class="h-10 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+            />
+          </div>
+          <div class="space-y-1 col-span-2" v-if="!permission">
+            <label for="name" class="text-gray-800 text-xs">Route Plan</label>
+            <textarea
+              name=""
+              v-model="formData.route_plan"
+              id=""
+              class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+              cols="30"
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="space-y-1 col-span-2" v-if="!permission">
+            <label for="name" class="text-gray-800 text-xs"
+              >Special Request & Notes</label
+            >
+            <textarea
+              name=""
+              id=""
+              v-model="formData.special_request"
+              class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+              cols="30"
+              rows="3"
+            ></textarea>
+          </div>
+          <!-- <div class="space-y-1 col-span-2" v-if="!permission">
+            <label for="name" class="text-gray-800 text-xs"
+              >Pickup Location</label
+            >
+            <textarea
+              name=""
+              id=""
+              v-model="formData.pickup_location"
+              class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+              cols="30"
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="space-y-1 col-span-2" v-if="!permission">
+            <label for="name" class="text-gray-800 text-xs"
+              >Dropoff Location</label
+            >
+            <textarea
+              name=""
+              id=""
+              v-model="formData.dropoff_location"
+              class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+              cols="30"
+              rows="3"
+            ></textarea>
+          </div> -->
 
+          <div class="space-y-1 col-span-1" v-if="!permission">
+            <label for="name" class="text-gray-800 text-xs"
+              >Is Driver Collect ?</label
+            >
+            <div class="pt-2">
+              <Switch
+                v-model="formData.is_driver_collect"
+                :class="
+                  formData.is_driver_collect ? 'bg-orange-600' : 'bg-gray-200'
+                "
+                class="relative inline-flex h-6 w-11 items-center rounded-full"
+              >
+                <span class="sr-only">Enable notifications</span>
+                <span
+                  :class="
+                    formData.is_driver_collect
+                      ? 'translate-x-6'
+                      : 'translate-x-1'
+                  "
+                  class="inline-block h-4 w-4 transform rounded-full bg-white transition"
+                />
+              </Switch>
+            </div>
+          </div>
+          <div
+            class="space-y-1 col-span-1"
+            v-if="formData.is_driver_collect && !permission"
+          >
+            <label for="name" class="text-gray-800 text-xs"
+              >Extra Collect</label
+            >
+            <input
+              type="text"
+              v-model="formData.extra_collect_amount"
+              id="name"
+              class="h-10 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-300"
+            />
+          </div>
           <div class="text-end col-span-2">
             <Button type="submit"> Assign </Button>
           </div>
         </form>
+      </DialogPanel>
+    </Modal>
+    <Modal :isOpen="showInfoModal" @closeModal="closeInfoModal">
+      <DialogPanel
+        class="w-full max-w-md transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-base flex justify-between items-center font-semibold leading-6 text-[#ff613c] mb-5"
+        >
+          <p>Driver Information</p>
+          <button @click="closeInfoModal"><XMarkIcon class="w-5 h-5" /></button>
+        </DialogTitle>
+        <div class="grid grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <p class="text-xs font-semibold">Name of Driver :</p>
+            <p class="text-sm font-normal">{{ driverInfoData?.driver_name }}</p>
+          </div>
+          <div class="space-y-2">
+            <p class="text-xs font-semibold">Supplier Name :</p>
+            <p class="text-sm font-normal">
+              {{ driverInfoData?.supplier_name }}
+            </p>
+          </div>
+          <div class="space-y-2">
+            <p class="text-xs font-semibold">Mobile Number (Contact) :</p>
+            <p class="text-sm font-normal">{{ driverInfoData?.phone }}</p>
+          </div>
+          <div class="space-y-2">
+            <p class="text-xs font-semibold">Car Number :</p>
+            <p class="text-sm font-normal">{{ driverInfoData?.car_number }}</p>
+          </div>
+          <div class="space-y-2">
+            <p class="text-xs font-semibold">Dirver Collect :</p>
+            <p class="text-sm font-normal">
+              {{ driverInfoData?.driver_collect }}
+            </p>
+          </div>
+          <div class="space-y-2">
+            <p class="text-xs font-semibold">Extra Collect :</p>
+            <p class="text-sm font-normal">
+              {{ driverInfoData?.extra_collect }}
+            </p>
+          </div>
+          <div class="space-y-2">
+            <p class="text-xs font-semibold">Total Collect :</p>
+            <p class="text-sm font-normal">
+              {{ driverInfoData?.total_collect }}
+            </p>
+          </div>
+          <div class="space-y-2 col-span-2">
+            <p class="text-xs font-semibold">Car Image :</p>
+            <!-- <p class="text-sm font-normal">{{ driverInfoData?.car_image }}</p> -->
+            <img
+              :src="driverInfoData?.car_image"
+              class="pt-4"
+              alt=""
+              v-if="driverInfoData.car_image != null"
+            />
+            <p
+              v-if="driverInfoData.car_image == null"
+              class="text-xs font-medium pt-6 text-red-600 text-center"
+            >
+              Image isn't have
+            </p>
+          </div>
+        </div>
       </DialogPanel>
     </Modal>
   </div>

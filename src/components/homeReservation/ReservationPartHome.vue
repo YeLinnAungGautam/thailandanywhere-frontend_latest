@@ -12,6 +12,7 @@ import { storeToRefs } from "pinia";
 import { onMounted, ref, watch } from "vue";
 import { useAuthStore } from "../../stores/auth";
 import Pagination from "../Pagination.vue";
+import HotelPartReservation from "./HotelPartReservation.vue";
 
 const carBookingStore = useCarBookingStore();
 
@@ -44,6 +45,7 @@ const changeServiceDate = (data) => {
     let endDate = formatDate(new Date());
     console.log(`${startDate},${endDate}`);
     dateFilterRange.value = `${startDate},${endDate}`;
+    dateRange.value = "";
   } else if (data == "tomorrow") {
     let tomorrowDate = new Date();
     tomorrowDate.setDate(tomorrowDate.getDate() + 1);
@@ -51,6 +53,7 @@ const changeServiceDate = (data) => {
     let endDate = formatDate(tomorrowDate);
     console.log(`${startDate},${endDate}`);
     dateFilterRange.value = `${startDate},${endDate}`;
+    dateRange.value = "";
   } else if (data == "7day") {
     let startDate = formatDate(new Date());
     let endDate = formatDate(
@@ -58,6 +61,7 @@ const changeServiceDate = (data) => {
     );
     console.log(`${startDate},${endDate}`);
     dateFilterRange.value = `${startDate},${endDate}`;
+    dateRange.value = "";
   } else if (data == "30day") {
     let startDate = formatDate(new Date());
     let endDate = formatDate(
@@ -65,6 +69,7 @@ const changeServiceDate = (data) => {
     );
     console.log(`${startDate},${endDate}`);
     dateFilterRange.value = `${startDate},${endDate}`;
+    dateRange.value = "";
   }
 };
 
@@ -126,6 +131,37 @@ const changeFunction = (data) => {
   }
 };
 
+const part = ref("vantour");
+const dateRange = ref("");
+
+watch(dateRange, async (newValue) => {
+  console.log(dateRange.value, "this is date");
+  if (dateRange.value != "" && dateRange.value != null) {
+    const options = { day: "2-digit", month: "2-digit", year: "numeric" };
+    const startDate = dateRange?.value[0]?.toLocaleDateString("en-GB", options);
+    const endDate = dateRange?.value[1]?.toLocaleDateString("en-GB", options);
+
+    // Custom function to format date as dd-MM-yyyy
+    const formatDateAsDDMMYYYY = (date) => {
+      if (date) {
+        const dd = String(date.getDate()).padStart(2, "0");
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const yyyy = date.getFullYear();
+        return `${yyyy}-${mm}-${dd}`;
+      }
+    };
+
+    // Format start and end dates
+    const formattedStartDate = formatDateAsDDMMYYYY(dateRange.value[0]);
+    const formattedEndDate = formatDateAsDDMMYYYY(dateRange.value[1]);
+
+    dateFilterRange.value = `${formattedStartDate},${formattedEndDate}`;
+    changeServiceDate("");
+  } else {
+    changeServiceDate("today");
+  }
+});
+
 onMounted(async () => {
   changeServiceDate("today");
   console.log(user.value, "this is user ");
@@ -138,7 +174,7 @@ onMounted(async () => {
       class="flex items-center justify-between py-5 bg-white/60 rounded-md shadow-sm p-4 mb-2"
     >
       <p class="text-lg font-semibold tracking-wider mr-4">Filter:</p>
-      <div class="">
+      <div class="flex justify-start items-center gap-3">
         <div class="flex w-full text-xs justify-end items-center gap-4">
           <p
             @click="changeServiceDate('today')"
@@ -164,7 +200,7 @@ onMounted(async () => {
           </p>
           <p
             @click="changeServiceDate('7day')"
-            class="flex gap-2 justify-start items-center cursor-pointer"
+            class="flex gap-2 justify-start items-center cursor-pointer whitespace-nowrap"
             :class="changeDate == '7day' ? ' text-[#FF5B00]' : 'text-black'"
           >
             <span
@@ -175,7 +211,7 @@ onMounted(async () => {
           </p>
           <p
             @click="changeServiceDate('30day')"
-            class="flex gap-2 justify-start items-center cursor-pointer"
+            class="flex gap-2 justify-start items-center cursor-pointer whitespace-nowrap"
             :class="changeDate == '30day' ? ' text-[#FF5B00]' : 'text-black'"
           >
             <span
@@ -185,6 +221,12 @@ onMounted(async () => {
             >Next 30 Days
           </p>
         </div>
+        <VueDatePicker
+          v-model="dateRange"
+          range
+          :format="'yyyy-MM-dd'"
+          placeholder="Search with date range"
+        />
       </div>
     </div>
     <!-- show data -->
@@ -192,31 +234,33 @@ onMounted(async () => {
       <HomePersent
         :icon="TruckIcon"
         :title="'Van Tour'"
-        :amount="100"
-        :isActive="true"
+        :amount="40"
+        :isActive="part == 'vantour'"
+        @click="part = 'vantour'"
       />
       <HomePersent
         :icon="HomeModernIcon"
         :title="'Hotels'"
-        :amount="0"
-        :isActive="false"
+        :amount="20"
+        :isActive="part == 'hotel'"
+        @click="part = 'hotel'"
       />
       <HomePersent
         :icon="TicketIcon"
         :title="'Attractions'"
         :amount="0"
-        :isActive="false"
+        :isActive="part == 'attraction'"
       />
       <HomePersent
         :icon="PaperAirplaneIcon"
         :title="'Air Tickets'"
         :amount="0"
-        :isActive="false"
+        :isActive="part == 'airticket'"
       />
     </div>
 
     <!-- table for reservation -->
-    <div class="space-y-1">
+    <div class="space-y-1" v-if="part == 'vantour'">
       <div class="w-full bg-gray-50 flex rounded-md pl-2 items-center">
         <p class="w-[10%] text-[10px] font-semibold py-2 px-2">Resev ID</p>
         <p class="w-[10%] text-[10px] font-semibold py-2 px-2">Serv Date</p>
@@ -246,6 +290,9 @@ onMounted(async () => {
           @change-page="changePage"
         />
       </div>
+    </div>
+    <div v-if="part == 'hotel'">
+      <HotelPartReservation :date="dateFilterRange" />
     </div>
   </div>
 </template>

@@ -724,6 +724,7 @@ const changeServiceDate = (data) => {
           <VueDatePicker
             v-model="dateRange"
             range
+            :format="'yyyy-MM-dd'"
             placeholder="Export Sale Range"
           />
         </div>

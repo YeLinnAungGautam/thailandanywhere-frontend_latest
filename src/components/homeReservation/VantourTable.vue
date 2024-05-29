@@ -165,6 +165,8 @@ const onSubmitHandler = async () => {
 };
 
 const openModel = async () => {
+  await supplierStore.getSimpleListAction();
+  await driverStore.getSimpleListAction();
   const res = await carBookingStore.getDetailAction(props?.data.id);
   console.log(res, "this is detail");
   let data = res.result;
@@ -333,8 +335,6 @@ onMounted(async () => {
       pickup_time: props.data.pickup_time,
     };
   }
-  await supplierStore.getSimpleListAction();
-  await driverStore.getSimpleListAction();
 });
 </script>
 <template>

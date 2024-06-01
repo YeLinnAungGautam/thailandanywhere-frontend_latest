@@ -49,7 +49,7 @@ const watchSystem = computed(() => {
 
   result.product_type = "App\\Models\\Hotel";
 
-  if (sale_daterange.value != undefined) {
+  if (sale_daterange.value != undefined && searchId.value == "") {
     result.sale_daterange = sale_daterange.value;
   }
   if (searchId.value != "" && searchId.value != undefined) {

@@ -13,6 +13,7 @@ import { onMounted, ref, watch } from "vue";
 import { useAuthStore } from "../../stores/auth";
 import Pagination from "../Pagination.vue";
 import HotelPartReservation from "./HotelPartReservation.vue";
+import AttractionPartHome from "./AttractionPartHome.vue";
 
 const carBookingStore = useCarBookingStore();
 
@@ -97,9 +98,7 @@ const getWithDate = async (date) => {
   }
   console.log(data, "this is data from car booking");
   const res = await carBookingStore.getListAction(data);
-  console.log("====================================");
   console.log(carbookings.value?.data, "this is data from car booking");
-  console.log("====================================");
 };
 
 watch(dateFilterRange, (newValue) => {
@@ -133,6 +132,7 @@ const changeFunction = (data) => {
 
 const part = ref("vantour");
 const dateRange = ref("");
+const searchId = ref("");
 
 watch(dateRange, async (newValue) => {
   console.log(dateRange.value, "this is date");
@@ -225,7 +225,14 @@ onMounted(async () => {
           v-model="dateRange"
           range
           :format="'yyyy-MM-dd'"
-          placeholder="Search with date range"
+          placeholder="date range"
+        />
+        <input
+          v-model="searchId"
+          v-if="part != 'vantour'"
+          type="text"
+          class="h-9 text-sm w-3/5 sm:w-3/5 md:w-full border px-4 py-2 rounded-md focus:ring-0 focus:outline-none text-gray-500"
+          placeholder="Search CRM ID"
         />
       </div>
     </div>
@@ -248,8 +255,9 @@ onMounted(async () => {
       <HomePersent
         :icon="TicketIcon"
         :title="'Attractions'"
-        :amount="0"
+        :amount="20"
         :isActive="part == 'attraction'"
+        @click="part = 'attraction'"
       />
       <HomePersent
         :icon="PaperAirplaneIcon"
@@ -292,7 +300,10 @@ onMounted(async () => {
       </div>
     </div>
     <div v-if="part == 'hotel'">
-      <HotelPartReservation :date="dateFilterRange" />
+      <HotelPartReservation :date="dateFilterRange" :searchId="searchId" />
+    </div>
+    <div v-if="part == 'attraction'">
+      <AttractionPartHome :date="dateFilterRange" :searchId="searchId" />
     </div>
   </div>
 </template>

@@ -28,7 +28,7 @@ const toast = useToast();
 const { reservations, loading } = storeToRefs(reservationStore);
 const { admin } = storeToRefs(adminStore);
 
-const search = ref("App\\Models\\Hotel");
+const search = ref("App\\Models\\EntranceTicket");
 
 const props = defineProps({
   date: "String",
@@ -46,14 +46,14 @@ const watchSystem = computed(() => {
   } else {
     result.user_id = authStore.user.id;
   }
+  if (searchId.value != "" && searchId.value != undefined) {
+    result.crm_id = searchId.value;
+  }
 
-  result.product_type = "App\\Models\\Hotel";
+  result.product_type = "App\\Models\\EntranceTicket";
 
   if (sale_daterange.value != undefined) {
     result.sale_daterange = sale_daterange.value;
-  }
-  if (searchId.value != "" && searchId.value != undefined) {
-    result.crm_id = searchId.value;
   }
 
   console.log(result);
@@ -76,9 +76,9 @@ const infoData = ref({
   special_request: "",
 });
 
-const printHotelConfirm = (id) => {
+const printReservation = (id) => {
   window.open(
-    import.meta.env.VITE_API_URL + "/hotel-reservation/" + id + "/receipt"
+    import.meta.env.VITE_API_URL + "/reservations/" + id + "/receipt"
   );
 };
 
@@ -92,18 +92,17 @@ const openInfoFormModal = async (id) => {
   customer_passport_data.value = data?.customer_passports;
   paid_slip_data.value = data?.paid_slip;
   special_request_data.value = data?.special_request;
-  slip_code.value = data?.slip_code;
   receipt_image_data.value = data?.receipt_images;
-
+  slip_code.value = data?.slip_code;
   showInfoFormModal.value = true;
 };
 const closeInfoFormModal = () => {
   showInfoFormModal.value = false;
   editId.value = "";
+  slip_code.value = "";
   customer_passport_data.value = [];
   paid_slip_data.value = [];
   special_request_data.value = "";
-  slip_code.value = "";
   receipt_image_data.value = [];
   featureCusPassPreview.value = [];
   customer_passport.value = [];
@@ -254,39 +253,27 @@ const copyReservation = async (id) => {
   const res = await reservationStore.copyReservationDetail(id);
   console.log(res, "this is cpy reservation");
   let formattedOutput;
-  if (res.result.checkin_date != undefined) {
+  if (res.result.entrance_ticket_variation_name) {
     formattedOutput = `
-💰 Total Cost: ${res.result.total_cost} THB 🏦 Bank Name: ${
-      res.result.bank_name != "null" ? res.result.bank_name : "-"
-    }
+💰 Total Cost: ${res.result.total_cost} THB
+🏦 Bank Name: ${res.result.bank_name != "null" ? res.result.bank_name : "-"}
 🔢 Bank Account Number: ${
       res.result.bank_account_number != "null"
         ? `➖${res.result.bank_account_number}`
         : "-"
     }
-🧑‍💼 Account Name: ${
-      res.result.account_name != "null" ? res.result.account_name : "-"
-    }
+🧑‍💼 Account Name: ${res.result.account_name}
 #️⃣ CRM ID: ${res.result.crm_id}
 #️⃣ Reservation Code: ${res.result.reservation_code}
-🏨 Hotel Name: ${res.result.product_name}
-🏩 Room Name : ${res.result.room_name != "null" ? res.result.room_name : "-"}
-🛌 Total Rooms: ${
-      res.result.total_rooms != "null" ? res.result.total_rooms : "-"
-    }
-🌙 Total Nights: ${
-      res.result.total_nights != "null" ? res.result.total_nights : "-"
-    }
+🎫 Attraction : ${res.result.product_name}
+🎫 Entrance Ticket Name : ${res.result.entrance_ticket_variation_name}
 💵 Sale Price: ${res.result.sale_price} THB
 📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
-📅 Check-in Date: ${
-      res.result.checkin_date != "null" ? res.result.checkin_date : "-"
-    }
-📅 Checkout Date: ${
-      res.result.checkout_date != "null" ? res.result.checkout_date : "-"
+🗓️ Service Date: ${
+      res.result.service_date != "null" ? res.result.service_date : "-"
     }
 🤑 Score : ${res.result.score}
-    `;
+        `;
   }
 
   setTimeout(() => {
@@ -333,7 +320,6 @@ const onSubmitHandler = async (id) => {
     if (special_request_data.value) {
       frmData.append("special_request", special_request_data.value);
     }
-
     if (customer_passport.value.length != 0) {
       if (customer_passport.value.length > 0) {
         for (let i = 0; i < customer_passport.value.length; i++) {
@@ -371,19 +357,16 @@ reservationStore.getListAction(watchSystem.value);
               Resv.ID
             </th>
             <th class="p-4 text-[10px] font-medium tracking-wide text-left">
-              Checkin
-            </th>
-            <th class="p-4 text-[10px] font-medium tracking-wide text-left">
-              Checkout
+              Service Date
             </th>
             <th class="p-4 text-[10px] font-medium tracking-wide text-left">
               Customer
             </th>
             <th class="p-4 text-[10px] font-medium tracking-wide text-left">
-              Hotel
+              Attraction
             </th>
             <th class="p-4 text-[10px] font-medium tracking-wide text-left">
-              Room Type
+              Ticket Type
             </th>
             <th class="p-4 text-[10px] font-medium tracking-wide text-left">
               Pay.Status
@@ -412,10 +395,7 @@ reservationStore.getListAction(watchSystem.value);
               {{ l.crm_id }}
             </td>
             <td class="p-4 text-[10px] text-gray-700 whitespace-nowrap">
-              {{ l.checkin_date }}
-            </td>
-            <td class="p-4 text-[10px] text-gray-700 whitespace-nowrap">
-              {{ l.checkout_date }}
+              {{ l.service_date }}
             </td>
             <td
               class="p-4 text-[10px] text-gray-700 max-w-[80px] whitespace-wrap"
@@ -430,7 +410,7 @@ reservationStore.getListAction(watchSystem.value);
             <td
               class="p-4 text-[10px] max-w-[200px] text-gray-700 whitespace-wrap"
             >
-              {{ l.room?.name }}
+              {{ l.variation?.name }}
             </td>
             <td class="p-4 text-[10px] text-gray-700 whitespace-nowrap">
               <p
@@ -523,7 +503,7 @@ reservationStore.getListAction(watchSystem.value);
                     l?.booking?.payment_status == 'fully_paid' ||
                     l?.booking?.payment_status == 'partially_paid'
                   "
-                  @click="printHotelConfirm(l?.id)"
+                  @click="printReservation(l?.id)"
                   class="w-4 h-4 cursor-pointer hover:text-orange-600"
                 />
                 <PencilSquareIcon
@@ -551,7 +531,7 @@ reservationStore.getListAction(watchSystem.value);
           as="div"
           class="text-base flex justify-between items-center font-semibold leading-6 text-[#ff613c] mb-5"
         >
-          <p>Hotel Information</p>
+          <p>Attraction Information</p>
           <button @click="closeInfoModal"><XMarkIcon class="w-5 h-5" /></button>
         </DialogTitle>
         <div class="space-y-3">
@@ -588,7 +568,7 @@ reservationStore.getListAction(watchSystem.value);
             <!-- <div class="w-full h-0.5 col-span-2 bg-orange-600"></div> -->
           </div>
           <p class="text-xs font-semibold text-orange-500">
-            Hotel Confirmations
+            Attraction Confirmations
           </p>
           <div class="grid grid-cols-2 gap-2">
             <div
@@ -626,7 +606,7 @@ reservationStore.getListAction(watchSystem.value);
           as="div"
           class="text-base flex justify-between items-center font-semibold leading-6 text-[#ff613c] mb-5"
         >
-          <p>Hotel Information Form</p>
+          <p>Attraction Information Form</p>
           <button @click="closeInfoFormModal">
             <XMarkIcon class="w-5 h-5" />
           </button>
@@ -754,7 +734,9 @@ reservationStore.getListAction(watchSystem.value);
             class="space-y-4"
             v-if="authStore.isReservation || authStore.isSuperAdmin"
           >
-            <p class="text-xs text-[#ff613c]">Hotel Confirmation Receipt</p>
+            <p class="text-xs text-[#ff613c]">
+              Attraction Confirmation Receipt
+            </p>
             <input
               type="file"
               id="image"
@@ -768,7 +750,7 @@ reservationStore.getListAction(watchSystem.value);
               @click.prevent="openFilePickerTwo"
               class="font-semibold py-4 px-4 flex justify-center items-center text-xs border border-gray-400 border-dashed rounded-md"
             >
-              <span class="text-xs">Add Hotel Confirmation Receipts</span>
+              <span class="text-xs">Add Attraction Confirmation Receipts</span>
             </div>
 
             <div
@@ -779,7 +761,7 @@ reservationStore.getListAction(watchSystem.value);
                 class="text-gray-400 col-span-3 text-xs"
                 v-if="expPreviewImage.length > 0"
               >
-                Hotel Confirmation Receipts Preview
+                Attraction Confirmation Receipts Preview
               </p>
               <div
                 class="relative"
@@ -804,7 +786,7 @@ reservationStore.getListAction(watchSystem.value);
                 class="text-gray-400 col-span-3 text-xs"
                 v-if="paid_slip_data.length > 0"
               >
-                Hotel Confirmation Receipts
+                Attraction Confirmation Receipts
               </p>
               <div
                 class="relative"

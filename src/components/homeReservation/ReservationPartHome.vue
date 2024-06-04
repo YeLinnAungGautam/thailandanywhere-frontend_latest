@@ -8,6 +8,7 @@ import {
 } from "@heroicons/vue/24/outline";
 import VantourTable from "./VantourTable.vue";
 import { useCarBookingStore } from "../../stores/carbooking";
+import { useHomeStore } from "../../stores/home";
 import { storeToRefs } from "pinia";
 import { onMounted, ref, watch } from "vue";
 import { useAuthStore } from "../../stores/auth";
@@ -16,6 +17,7 @@ import HotelPartReservation from "./HotelPartReservation.vue";
 import AttractionPartHome from "./AttractionPartHome.vue";
 
 const carBookingStore = useCarBookingStore();
+const homeStore = useHomeStore();
 
 const authStore = useAuthStore();
 const { carbookings, loading } = storeToRefs(carBookingStore);
@@ -99,6 +101,7 @@ const getWithDate = async (date) => {
   console.log(data, "this is data from car booking");
   const res = await carBookingStore.getListAction(data);
   console.log(carbookings.value?.data, "this is data from car booking");
+  await getPersent();
 };
 
 watch(dateFilterRange, (newValue) => {
@@ -161,6 +164,22 @@ watch(dateRange, async (newValue) => {
     changeServiceDate("today");
   }
 });
+
+const carbookingPersent = ref("");
+
+const getPersent = async () => {
+  const data = {
+    daterange: dateFilterRange.value,
+    role: user.value.role,
+    created_by:
+      user.value.role != "super_admin" && user.value.role != "reservation"
+        ? user.value.id
+        : "",
+  };
+  const res = await homeStore.getPersent(data);
+  console.log(res, "this is home result");
+  carbookingPersent.value = res.data.data.complete_percentage.toFixed(2);
+};
 
 onMounted(async () => {
   changeServiceDate("today");
@@ -241,7 +260,7 @@ onMounted(async () => {
       <HomePersent
         :icon="TruckIcon"
         :title="'Van Tour'"
-        :amount="40"
+        :amount="carbookingPersent"
         :isActive="part == 'vantour'"
         @click="part = 'vantour'"
       />

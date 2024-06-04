@@ -72,15 +72,17 @@
             </p>
           </div>
           <div class="mb-2 space-y-1">
-            <label for="price" class="text-sm text-gray-800">Agent Price</label>
+            <label for="price" class="text-sm text-gray-800"
+              >Wolk in Price ( owner price )</label
+            >
             <input
               type="number"
-              v-model="formData.agent_price"
-              id="agent_price"
+              v-model="formData.owner_price"
+              id="owner_price"
               class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
-            <p v-if="errors?.agent_price" class="mt-1 text-sm text-red-600">
-              {{ errors.agent_price[0] }}
+            <p v-if="errors?.owner_price" class="mt-1 text-sm text-red-600">
+              {{ errors.owner_price[0] }}
             </p>
           </div>
           <div class="mb-2 space-y-1">
@@ -161,7 +163,7 @@
           <div class="text-end flex justify-end items-center">
             <p
               class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
-              @click="createModalOpen = false"
+              @click="closeModal"
             >
               close
             </p>
@@ -386,6 +388,7 @@ const openModal = () => {
     price_name: "",
     cost_price: "",
     agent_price: "",
+    owner_price: "",
     description: "",
     images: [],
   };
@@ -402,6 +405,7 @@ const closeModal = () => {
     price_name: "",
     cost_price: "",
     agent_price: "",
+    owner_price: "",
     description: "",
     images: [],
   };
@@ -414,6 +418,7 @@ const formData = ref({
   entrance_ticket_id: "",
   cost_price: "",
   agent_price: "",
+  owner_price: "",
   price_name: "",
   price: "",
   description: "",
@@ -453,6 +458,7 @@ const addNewHandler = async () => {
   frmData.append("price", formData.value.price);
   frmData.append("cost_price", formData.value.cost_price);
   frmData.append("agent_price", formData.value.agent_price);
+  frmData.append("owner_price", formData.value.owner_price);
   frmData.append("name", formData.value.price_name);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
@@ -468,6 +474,7 @@ const addNewHandler = async () => {
       entrance_ticket_id: "",
       cost_price: "",
       agent_price: "",
+      owner_price: "",
       price_name: "",
       price: "",
       description: "",
@@ -497,6 +504,7 @@ const updateHandler = async () => {
   frmData.append("price", formData.value.price);
   frmData.append("cost_price", formData.value.cost_price);
   frmData.append("agent_price", formData.value.agent_price);
+  frmData.append("owner_price", formData.value.owner_price);
   frmData.append("name", formData.value.price_name);
 
   if (formData.value.images.length > 0) {
@@ -516,6 +524,7 @@ const updateHandler = async () => {
       entrance_ticket_id: "",
       cost_price: "",
       agent_price: "",
+      owner_price: "",
       price_name: "",
       price: "",
       description: "",
@@ -551,6 +560,7 @@ const editModalOpenHandler = (data) => {
   formData.value.entrance_ticket_id = data.entrance_ticket?.id;
   formData.value.cost_price = data.cost_price;
   formData.value.agent_price = data.agent_price;
+  formData.value.owner_price = data.owner_price;
   formData.value.price_name = data.name;
   formData.value.price = data.price;
   formData.value.description = data.description;

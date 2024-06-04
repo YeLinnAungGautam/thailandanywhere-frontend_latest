@@ -91,16 +91,16 @@
           </div>
           <div class="mb-2 space-y-1">
             <label for="room_price" class="text-sm text-gray-800"
-              >Agent Price</label
+              >Walk in Price ( owner price )</label
             >
             <input
               type="number"
-              v-model="formData.agent_price"
-              id="agent_price"
+              v-model="formData.owner_price"
+              id="owner_price"
               class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
-            <p v-if="errors?.agent_price" class="mt-1 text-sm text-red-600">
-              {{ errors.agent_price[0] }}
+            <p v-if="errors?.owner_price" class="mt-1 text-sm text-red-600">
+              {{ errors.owner_price[0] }}
             </p>
           </div>
           <div class="mb-2 space-y-1 flex justify-start items-center gap-3">
@@ -183,6 +183,7 @@
                     placeholder="agent price"
                   />
                 </div>
+
                 <div>
                   <button @click.prevent="addNewPerid" class="">
                     <i
@@ -592,6 +593,7 @@ const formData = ref({
   room_price: "",
   cost: "",
   agent_price: "",
+  owner_price: "",
 });
 const editImagesPreview = ref([]);
 
@@ -608,6 +610,7 @@ const closeModal = () => {
     room_price: "",
     cost: "",
     agent_price: "",
+    owner_price: "",
   };
   errors.value = null;
   enabled.value = false;
@@ -639,6 +642,7 @@ const addNewHandler = async () => {
     frmData.append("cost", 0);
   }
   frmData.append("agent_price", formData.value.agent_price);
+  frmData.append("owner_price", formData.value.owner_price);
   frmData.append("is_extra", enabled.value ? 1 : 0);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
@@ -689,6 +693,7 @@ const addNewHandler = async () => {
       room_price: "",
       cost: "",
       agent_price: "",
+      owner_price: "",
     };
     enabled.value = false;
     errors.value = null;
@@ -753,6 +758,7 @@ const updateHandler = async () => {
     frmData.append("cost", 0);
   }
   frmData.append("agent_price", formData.value.agent_price);
+  frmData.append("owner_price", formData.value.owner_price);
 
   frmData.append("_method", "PUT");
   try {
@@ -769,6 +775,7 @@ const updateHandler = async () => {
       room_price: "",
       cost: "",
       agent_price: "",
+      owner_price: "",
     };
     enabled.value = false;
     imagesPreview.value = [];
@@ -832,6 +839,7 @@ const editModalOpenHandler = (data) => {
   formData.value.description = data.description;
   formData.value.cost = data.cost;
   formData.value.agent_price = data.agent_price;
+  formData.value.owner_price = data.owner_price;
   createModalOpen.value = true;
   if (data.images.length > 0) {
     for (let i = 0; i < data.images.length; i++) {

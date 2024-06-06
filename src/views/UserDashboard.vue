@@ -138,6 +138,9 @@ const isCurrentMonth = (date) => {
   console.log(isCurrent.value, "this is current");
 };
 
+const commission_amount = ref("");
+const commission_date = ref("");
+
 const updateStartAndEndDate = async () => {
   isCurrentMonth(selectMonth.value);
 
@@ -153,12 +156,23 @@ const updateStartAndEndDate = async () => {
   endDate = dateFormat(endDate);
   console.log(startDate, endDate);
   let data = {
-    start_date: startDate,
-    end_date: endDate,
+    first: startDate,
+    second: endDate,
   };
-  let res = await dashboardStore.getMonthData(data);
-  console.log(monthlyData.value, "this is data");
-  checkIndexMonth(monthlyData.value.agents);
+  commission_date.value = `${data.first} to ${data.second}`;
+
+  const resSaleAgent = await homeStore.getAgentSales(data);
+  console.log(resSaleAgent, "this is sale agent report");
+  if (resSaleAgent.result) {
+    resSaleAgent?.result.forEach((sale) => {
+      if (sale.created_by?.name == authStore.user.name) {
+        console.log("====================================");
+        console.log(sale, "this is that user");
+        commission_amount.value = sale.over_target_count * 2000;
+        console.log("====================================");
+      }
+    });
+  }
 };
 
 const getCurrent = () => {
@@ -437,29 +451,16 @@ watch(dateForUnpaid, async (newValue) => {
             </div>
           </div>
         </div>
-        <div class="grid grid-cols-3 gap-4" v-if="!loading">
-          <div class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-2">
+        <div class="grid grid-cols-4 gap-4" v-if="!loading">
+          <div
+            class="bg-white/60 col-span-2 p-4 rounded-lg shadow-sm w-full space-y-2"
+          >
             <div class="flex justify-between items-center">
               <p class="text-xs font-semibold">Filter with Month</p>
             </div>
             <div class="text-sm flex justify-between items-center">
-              <p class="text-sm text-[#FF5B00]" v-if="isCurrent == 'next'">
-                no record found
-              </p>
-              <p class="text-sm text-[#FF5B00]" v-if="isCurrent == 'prenoshow'">
-                This month , commission already receipt
-              </p>
-              <p
-                class="text-sm"
-                v-if="isCurrent == 'current' || isCurrent == 'pre'"
-              >
-                {{ monthlyData?.agents[checkMonthIndex] }}
-              </p>
-              <p
-                class="text-[#FF5B00] text-base"
-                v-if="isCurrent == 'current' || isCurrent == 'pre'"
-              >
-                {{ monthlyData?.amount[checkMonthIndex] }}
+              <p class="text-[#FF5B00] text-sm font-medium">
+                {{ commission_date }}
               </p>
             </div>
           </div>
@@ -471,23 +472,9 @@ watch(dateForUnpaid, async (newValue) => {
               <p class="text-xs font-semibold">Commission Price by Month</p>
             </div>
             <div class="text-sm flex justify-between items-center">
-              <p class="text-sm text-[#FF5B00]" v-if="isCurrent == 'next'">
-                no record found
-              </p>
-              <p class="text-sm text-[#FF5B00]" v-if="isCurrent == 'prenoshow'">
-                This month , commission already receipt
-              </p>
-              <p
-                class="text-sm"
-                v-if="isCurrent == 'pre' || isCurrent == 'current'"
-              >
-                {{ monthlyData?.agents[checkMonthIndex] }}'s commissions :
-              </p>
-              <p
-                class="text-[#FF5B00] text-base"
-                v-if="isCurrent == 'pre' || isCurrent == 'current'"
-              >
-                {{ monthlyData?.amount[checkMonthIndex] * 1000 }}
+              <p class="text-sm">{{ authStore.user.name }}'s commissions :</p>
+              <p class="text-[#FF5B00] text-base">
+                {{ commission_amount }}
               </p>
             </div>
           </div>

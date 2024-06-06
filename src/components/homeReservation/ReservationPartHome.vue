@@ -170,15 +170,10 @@ const carbookingPersent = ref("");
 const getPersent = async () => {
   const data = {
     daterange: dateFilterRange.value,
-    role: user.value.role,
-    created_by:
-      user.value.role != "super_admin" && user.value.role != "reservation"
-        ? user.value.id
-        : "",
   };
   const res = await homeStore.getPersent(data);
   console.log(res, "this is home result");
-  carbookingPersent.value = res.data.data.complete_percentage.toFixed(2);
+  carbookingPersent.value = res.data?.data?.complete_percentage;
 };
 
 onMounted(async () => {

@@ -15,13 +15,22 @@
           <p class="text-xs text-gray-800">{{ data.total_booking }} Booking</p>
         </div>
       </div>
-      <p
-        class="text-[#FF5B00] text-sm flex justify-end font-semibold items-center gap-3"
-        v-if="data.total"
-      >
-        {{ data.total }} thb
-        <ChevronDownIcon class="w-4 h-4" />
-      </p>
+      <div>
+        <p
+          class="text-[#FF5B00] text-xs flex justify-end items-center font-medium gap-3"
+          v-if="data?.over_target_count"
+        >
+          count - {{ data?.over_target_count }} -
+          {{ data?.over_target_count * 2000 }}
+        </p>
+        <p
+          class="text-[#FF5B00] text-sm flex justify-end font-semibold items-center gap-3"
+          v-if="data.total"
+        >
+          {{ data.total }} thb
+          <ChevronDownIcon class="w-4 h-4" />
+        </p>
+      </div>
     </div>
     <div
       class="px-4 py-2 bg-gray-50 text-sm rounded-md space-y-2 divide-y-2 divide-y-gray-400"

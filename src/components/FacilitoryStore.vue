@@ -210,7 +210,7 @@ onMounted(async () => {
       </button>
     </form>
     <h3 class="text-sm pt-2">Facilities list</h3>
-    <div class="h-[400px] overflow-y-scroll">
+    <div class="h-[400px] overflow-y-scroll space-y-2">
       <div
         class="flex justify-between items-center px-4 py-2 border border-gray-200 rounded-md"
         v-for="(i, index) in facilities?.data"
@@ -220,10 +220,10 @@ onMounted(async () => {
           <img
             v-if="i.image"
             :src="i.image"
-            class="w-full h-full object-cover border border-dashed border-gray-900"
+            class="w-full h-full object-cover border-gray-900"
           />
         </div>
-        <p>{{ i.name }}</p>
+        <p class="text-xs">{{ i.name }}</p>
         <div class="flex justify-end items-center gap-3">
           <PencilIcon class="w-4" @click="editMood(i)" />
           <TrashIcon class="w-4" @click="deleteMood(i.id)" />

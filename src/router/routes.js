@@ -40,6 +40,7 @@ import ReservationViewView from "../views/ReservationView.vue";
 import DashboardView from "../views/UserDashboard.vue";
 import CarBookingView from "../views/PrivateVanTourCar.vue";
 import AvailabilityView from "../views/Availability.vue";
+import HotelEditView from "../views/HotelEditPage.vue";
 
 const routes = [{
         path: "/login",
@@ -158,6 +159,11 @@ const routes = [{
         path: "/vantour/edit",
         name: "vantouredit",
         component: VantourView,
+    },
+    {
+        path: "/product/hotel/edit/:id",
+        name: "hoteledit",
+        component: HotelEditView,
     },
     {
         path: "/vantour/view/:id/:action",

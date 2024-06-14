@@ -15,28 +15,57 @@
         class="w-full max-w-5xl p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
       >
         <DialogTitle
-          as="h3"
-          class="mb-5 text-lg font-medium leading-6 text-gray-900"
+          as="div"
+          class="mb-5 flex justify-between items-center text-lg font-medium leading-6 text-gray-900"
         >
-          {{ formData.id ? "Edit Room" : "Add New Room" }}
+          <p>{{ formData.id ? "Edit Room" : "Add New Room" }}</p>
+          <div class="flex justify-end items-center gap-2 text-xs">
+            <p
+              class="px-4 py-2 cursor-pointer rounded-md"
+              @click="quiteSwitch = 1"
+              :class="
+                quiteSwitch == 1 ? 'bg-[#ff613c] text-white' : 'bg-gray-200'
+              "
+            >
+              quit
+            </p>
+            <p
+              class="px-4 py-2 cursor-pointer rounded-md"
+              @click="quiteSwitch = 2"
+              :class="
+                quiteSwitch == 2 ? 'bg-[#ff613c] text-white' : 'bg-gray-200'
+              "
+            >
+              room details
+            </p>
+            <p
+              class="px-4 py-2 cursor-pointer rounded-md"
+              @click="quiteSwitch = 3"
+              :class="
+                quiteSwitch == 3 ? 'bg-[#ff613c] text-white' : 'bg-gray-200'
+              "
+            >
+              period
+            </p>
+          </div>
         </DialogTitle>
         <form
           @submit.prevent="onSubmitHandler"
           class="mt-2 grid grid-cols-2 gap-2"
         >
-          <div class="mb-2 space-y-1">
+          <div class="mb-2 space-y-1" v-if="quiteSwitch == 1">
             <label for="name" class="text-sm text-gray-800">Name</label>
             <input
               type="text"
               v-model="formData.name"
               id="name"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              class="w-full h-10 text-sm px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
             <p v-if="errors?.name" class="mt-1 text-sm text-red-600">
               {{ errors.name[0] }}
             </p>
           </div>
-          <div>
+          <div v-if="quiteSwitch == 1">
             <p class="mb-2 text-sm text-gray-800">Hotel</p>
             <v-select
               v-model="formData.hotel_id"
@@ -49,7 +78,10 @@
             ></v-select>
           </div>
 
-          <div class="mb-2 space-y-1" v-if="!authStore.isAgent">
+          <div
+            class="mb-2 space-y-1"
+            v-if="!authStore.isAgent && quiteSwitch == 1"
+          >
             <label for="room_price" class="text-sm text-gray-800"
               >Room Price</label
             >
@@ -57,13 +89,13 @@
               type="text"
               v-model="formData.room_price"
               id="room_price"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              class="w-full h-10 text-sm px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
             <p v-if="errors?.room_price" class="mt-1 text-sm text-red-600">
               {{ errors.room_price[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1">
+          <div class="mb-2 space-y-1" v-if="quiteSwitch == 1">
             <label for="room_price" class="text-sm text-gray-800"
               >Max Preson</label
             >
@@ -71,25 +103,28 @@
               type="text"
               v-model="formData.max_person"
               id="max_person"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              class="w-full h-10 text-sm px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
             <p v-if="errors?.max_person" class="mt-1 text-sm text-red-600">
               {{ errors.max_person[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1" v-if="!authStore.isAgent">
+          <div
+            class="mb-2 space-y-1"
+            v-if="!authStore.isAgent && quiteSwitch == 1"
+          >
             <label for="room_price" class="text-sm text-gray-800">Cost</label>
             <input
               type="number"
               v-model="formData.cost"
               id="cost"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              class="w-full h-10 text-sm px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
             <p v-if="errors?.cost" class="mt-1 text-sm text-red-600">
               {{ errors.cost[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1">
+          <div class="mb-2 space-y-1" v-if="quiteSwitch == 1">
             <label for="room_price" class="text-sm text-gray-800"
               >Walk in Price ( owner price )</label
             >
@@ -97,13 +132,16 @@
               type="number"
               v-model="formData.owner_price"
               id="owner_price"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              class="w-full h-10 text-sm px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
             <p v-if="errors?.owner_price" class="mt-1 text-sm text-red-600">
               {{ errors.owner_price[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1 flex justify-start items-center gap-3">
+          <div
+            class="mb-2 space-y-1 flex justify-start items-center gap-3"
+            v-if="quiteSwitch == 1"
+          >
             <label for="room_price" class="text-sm text-gray-800"
               >Is Extra ?</label
             >
@@ -120,7 +158,7 @@
               />
             </Switch>
           </div>
-          <div class="col-span-2">
+          <div class="col-span-2" v-if="quiteSwitch == 3">
             <div class="">
               <div class="flex items-center justify-start mb-2">
                 <label class="text-sm block text-red-500 mr-3" for="">
@@ -133,7 +171,7 @@
                     v-model="formPeriod.period_name"
                     type="text"
                     id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="enter name"
                   />
                 </div>
@@ -142,7 +180,7 @@
                     v-model="formPeriod.start_date"
                     type="date"
                     id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="enter prices"
                     title="start date"
                   />
@@ -152,7 +190,7 @@
                     v-model="formPeriod.end_date"
                     type="date"
                     id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     title="end date"
                   />
                 </div>
@@ -161,7 +199,7 @@
                     v-model="formPeriod.sale_price"
                     type="number"
                     id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="sale price"
                   />
                 </div>
@@ -170,7 +208,7 @@
                     v-model="formPeriod.cost_price"
                     type="number"
                     id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="cost price"
                   />
                 </div>
@@ -179,7 +217,7 @@
                     v-model="formPeriod.agent_price"
                     type="number"
                     id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="agent price"
                   />
                 </div>
@@ -202,7 +240,7 @@
                     v-model="p.period_name"
                     type="text"
                     id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="enter name"
                   />
                 </div>
@@ -211,7 +249,7 @@
                     v-model="p.start_date"
                     type="date"
                     id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="enter prices"
                     title="start date"
                   />
@@ -221,7 +259,7 @@
                     v-model="p.end_date"
                     type="date"
                     id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     title="end date"
                   />
                 </div>
@@ -230,7 +268,7 @@
                     v-model="p.sale_price"
                     type="number"
                     id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="sale price"
                   />
                 </div>
@@ -239,7 +277,7 @@
                     v-model="p.cost_price"
                     type="number"
                     id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="cost price"
                   />
                 </div>
@@ -248,7 +286,7 @@
                     v-model="p.agent_price"
                     type="number"
                     id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="agent price"
                   />
                 </div>
@@ -265,7 +303,7 @@
               </div>
             </div>
           </div>
-          <div class="mb-2 space-y-1">
+          <div class="mb-2 space-y-1" v-if="quiteSwitch == 1">
             <label for="description" class="text-sm text-gray-800"
               >Description</label
             >
@@ -279,7 +317,7 @@
               {{ errors.description[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1">
+          <div class="mb-2 space-y-1" v-if="quiteSwitch == 1">
             <label for="description" class="text-sm text-gray-800"
               >Images</label
             >
@@ -290,7 +328,7 @@
               ref="imagesInput"
               id=""
               @change="handlerImagesFileChange"
-              class="hidden w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              class="hidden w-full h-10 text-sm px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
               accept="image/*"
             />
             <button
@@ -336,6 +374,104 @@
                   <XCircleIcon class="w-8 h-8 font-semibold" />
                 </button>
                 <img class="h-auto w-full rounded" :src="image.image" alt="" />
+              </div>
+            </div>
+          </div>
+          <div class="col-span-2" v-if="quiteSwitch == 2">
+            <div class="">
+              <div class="flex items-center justify-start mb-2">
+                <label class="text-sm block mr-3" for="">
+                  Room amenities (don't forget to click add button)</label
+                >
+              </div>
+              <div class="flex items-start justify-between gap-3 mb-3">
+                <div class="flex-1 space-y-2">
+                  <input
+                    v-model="room_amen.title"
+                    type="text"
+                    id="title"
+                    class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    placeholder="enter title"
+                  />
+
+                  <div
+                    class="flex-1 pl-20 flex justify-between items-center gap-2"
+                  >
+                    <input
+                      v-model="room_amen_list.list_name"
+                      type="text"
+                      id="title"
+                      class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                      placeholder="enter title"
+                    />
+                    <button @click.prevent="addNewRoomAmenList" class="pt-1">
+                      <i
+                        class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
+                      ></i>
+                    </button>
+                  </div>
+                  <div
+                    class="flex-1 pl-20 flex justify-between items-center gap-2"
+                    v-for="(l, index) in room_amen.list ?? []"
+                    :key="index"
+                  >
+                    <input
+                      v-model="l.list_name"
+                      type="text"
+                      id="title"
+                      class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                      placeholder="enter title"
+                    />
+                    <button
+                      @click.prevent="removeRoomAmenListItem(index)"
+                      class="pt-1"
+                    >
+                      <i
+                        class="fa-solid fa-minus text-sm font-semibold px-2 py-1 bg-red-500 rounded-full shadow text-white"
+                      ></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <button
+                    @click.prevent="addNewRoomAmen"
+                    class="pt-2 bg-gray-200 px-4 pb-2 rounded-lg"
+                  >
+                    <i
+                      class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
+                    ></i>
+                    final add
+                  </button>
+                </div>
+              </div>
+              <div
+                v-for="(p, index) in formData.room_amen"
+                :key="index"
+                class="flex items-start border border-gray-300 rounded-lg px-6 py-4 justify-between gap-3 mb-3"
+              >
+                <div class="flex-1 space-y-2">
+                  <p class="font-semibold text-base">{{ p?.title }}</p>
+                  <div
+                    class="flex justify-start items-center gap-2"
+                    v-for="b in p?.list ?? []"
+                    :key="b"
+                  >
+                    <div class="w-1.5 h-1.5 bg-black rounded-full"></div>
+                    <p class="text-[12px]">{{ b.list_name }}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <button
+                    class="text-sm text-red-600"
+                    @click.prevent="removeRoomAmenItem(index)"
+                  >
+                    <i
+                      class="fa-solid fa-minus text-sm font-semibold px-2 py-1 bg-red-500 rounded-full shadow text-white"
+                    ></i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -581,6 +717,8 @@ const { hotels } = storeToRefs(hotelStore);
 const hotelList = ref([]);
 const enabled = ref(false);
 
+const quiteSwitch = ref(1);
+
 const formData = ref({
   id: "",
   name: "",
@@ -590,6 +728,7 @@ const formData = ref({
   is_extra: 0,
   period: [],
   images: [],
+  room_amen: [],
   room_price: "",
   cost: "",
   agent_price: "",
@@ -608,6 +747,7 @@ const closeModal = () => {
     max_person: "",
     images: [],
     room_price: "",
+    room_amen: [],
     cost: "",
     agent_price: "",
     owner_price: "",
@@ -629,6 +769,36 @@ const limitedText = (text) => {
   }
 };
 
+const room_amen = ref({
+  title: "",
+  list: [],
+});
+const room_amen_list = ref([
+  {
+    list_name: "",
+  },
+]);
+const addNewRoomAmen = () => {
+  formData.value.room_amen.push(room_amen.value);
+  room_amen.value = {
+    title: "",
+    list: [],
+  };
+};
+const addNewRoomAmenList = () => {
+  room_amen.value.list.push(room_amen_list.value);
+  console.log(room_amen.value);
+  room_amen_list.value = {
+    list_name: "",
+  };
+};
+const removeRoomAmenItem = (index) => {
+  formData.value.room_amen.splice(index, 1);
+};
+const removeRoomAmenListItem = (index) => {
+  room_amen.value.list.splice(index, 1);
+};
+
 const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
@@ -648,6 +818,20 @@ const addNewHandler = async () => {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
       frmData.append("images[" + i + "]", file);
+    }
+  }
+  if (formData.value.room_amen.length > 0) {
+    for (let i = 0; i < formData.value.room_amen.length; i++) {
+      frmData.append(
+        "amenities[" + i + "][title]",
+        formData.value.room_amen[i].title
+      );
+      for (let l = 0; l < formData.value.room_amen[i].list.length; l++) {
+        frmData.append(
+          "amenities[" + i + "][list][" + l + "]",
+          formData.value.room_amen[i].list[l].list_name
+        );
+      }
     }
   }
   if (formData.value.period.length > 0) {
@@ -691,6 +875,7 @@ const addNewHandler = async () => {
       images: [],
       is_extra: 0,
       room_price: "",
+      room_amen: [],
       cost: "",
       agent_price: "",
       owner_price: "",
@@ -721,6 +906,20 @@ const updateHandler = async () => {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
       frmData.append("images[" + i + "]", file);
+    }
+  }
+  if (formData.value.room_amen.length > 0) {
+    for (let i = 0; i < formData.value.room_amen.length; i++) {
+      frmData.append(
+        "amenities[" + i + "][title]",
+        formData.value.room_amen[i].title
+      );
+      for (let l = 0; l < formData.value.room_amen[i].list.length; l++) {
+        frmData.append(
+          "amenities[" + i + "][list][" + l + "]",
+          formData.value.room_amen[i].list[l].list_name
+        );
+      }
     }
   }
   if (formData.value.period.length > 0) {
@@ -773,6 +972,7 @@ const updateHandler = async () => {
       is_extra: 0,
       images: [],
       room_price: "",
+      room_amen: [],
       cost: "",
       agent_price: "",
       owner_price: "",
@@ -841,6 +1041,21 @@ const editModalOpenHandler = (data) => {
   formData.value.agent_price = data.agent_price;
   formData.value.owner_price = data.owner_price;
   createModalOpen.value = true;
+  if (data.amenities.length > 0) {
+    for (let i = 0; i < data.amenities.length; i++) {
+      let dataArry = {
+        title: data.amenities[i].title,
+        list: [],
+      };
+      for (let l = 0; l < data.amenities[i].list.length; l++) {
+        let datapush = {
+          list_name: data.amenities[i].list[l],
+        };
+        dataArry.list.push(datapush);
+      }
+      formData.value.room_amen.push(dataArry);
+    }
+  }
   if (data.images.length > 0) {
     for (let i = 0; i < data.images.length; i++) {
       editImagesPreview.value.push(data.images[i]);

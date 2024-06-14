@@ -84,6 +84,7 @@
                 'entrance',
                 'entrancecreate',
                 'entranceupdate',
+                'hoteledit',
               ]"
               to="/products/page"
             />

@@ -36,7 +36,7 @@
                 quiteSwitch == 2 ? 'bg-[#ff613c] text-white' : 'bg-gray-200'
               "
             >
-              room details
+              room amenities
             </p>
             <p
               class="px-4 py-2 cursor-pointer rounded-md"
@@ -1112,19 +1112,21 @@ const editModalOpenHandler = (data) => {
   formData.value.agent_price = data.agent_price;
   formData.value.owner_price = data.owner_price;
   createModalOpen.value = true;
-  if (data.amenities.length > 0) {
-    for (let i = 0; i < data.amenities.length; i++) {
-      let dataArry = {
-        title: data.amenities[i].title,
-        list: [],
-      };
-      for (let l = 0; l < data.amenities[i].list.length; l++) {
-        let datapush = {
-          list_name: data.amenities[i].list[l],
+  if (data.amenities != null) {
+    if (data.amenities?.length > 0) {
+      for (let i = 0; i < data.amenities.length; i++) {
+        let dataArry = {
+          title: data.amenities[i].title,
+          list: [],
         };
-        dataArry.list.push(datapush);
+        for (let l = 0; l < data.amenities[i].list.length; l++) {
+          let datapush = {
+            list_name: data.amenities[i].list[l],
+          };
+          dataArry.list.push(datapush);
+        }
+        formData.value.room_amen.push(dataArry);
       }
-      formData.value.room_amen.push(dataArry);
     }
   }
   if (data.images.length > 0) {

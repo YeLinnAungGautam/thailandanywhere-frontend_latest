@@ -537,27 +537,47 @@
           clear
         </button>
       </div>
-      <div class="space-x-3 flex flex-nowarp">
-        <Button
-          :leftIcon="DocumentPlusIcon"
-          intent="text"
-          @click="importHandler"
+      <div class="space-y-2 flex justify-end items-center gap-2 flex-wrap">
+        <div
+          class="flex justify-center items-center border-2 shadow-sm rounded-md overflow-hidden"
         >
-          Import
-        </Button>
-        <Button :leftIcon="ShareIcon" intent="text" @click="exportAction">
-          Export
-        </Button>
-        <Button
-          :leftIcon="PlusIcon"
-          @click.prevent="createModalOpen = true"
-          v-if="!authStore.isAgent"
-        >
-          Create
-        </Button>
+          <div
+            class="cursor-pointer px-3 py-2.5 text-xs"
+            :class="!incomplete ? 'bg-[#ff613c] text-white' : 'bg-white'"
+            @click="incomplete = false"
+          >
+            normal list
+          </div>
+          <div
+            class="cursor-pointer px-3 py-2.5 text-xs"
+            @click="incomplete = true"
+            :class="incomplete ? 'bg-[#ff613c] text-white' : 'bg-white'"
+          >
+            incomplete
+          </div>
+        </div>
+        <div class="space-x-3 flex flex-nowarp">
+          <Button
+            :leftIcon="DocumentPlusIcon"
+            intent="text"
+            @click="importHandler"
+          >
+            Import
+          </Button>
+          <Button :leftIcon="ShareIcon" intent="text" @click="exportAction">
+            Export
+          </Button>
+          <Button
+            :leftIcon="PlusIcon"
+            @click.prevent="createModalOpen = true"
+            v-if="!authStore.isAgent"
+          >
+            Create
+          </Button>
+        </div>
       </div>
     </div>
-    <div class="mb-5 overflow-auto rounded-lg shadow">
+    <div class="mb-5 overflow-auto rounded-lg shadow" v-if="!incomplete">
       <table class="w-full">
         <thead class="border-b-2 border-gray-200 bg-gray-50">
           <tr>
@@ -628,8 +648,81 @@
         </tbody>
       </table>
     </div>
+    <div class="mb-5 overflow-auto rounded-lg shadow" v-if="incomplete">
+      <table class="w-full">
+        <thead class="border-b-2 border-gray-200 bg-gray-50">
+          <tr>
+            <th class="w-20 p-3 text-xs font-medium tracking-wide text-left">
+              No.
+            </th>
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
+              Name
+            </th>
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
+              Description
+            </th>
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
+              Hotel
+            </th>
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
+              Room Price
+            </th>
+
+            <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr
+            class="bg-white even:bg-gray-50 hover:bg-gray-50"
+            v-for="(r, index) in incompleteRoom?.data"
+            :key="index"
+          >
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              {{ r.id }}
+            </td>
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              {{ r.name }}
+            </td>
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              {{ limitedText(r.description) }}
+            </td>
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              {{ r.hotel?.name }}
+            </td>
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              <p v-if="!authStore.isAgent">{{ r.room_price }}</p>
+              <p v-if="authStore.isAgent">{{ r.agent_price }}</p>
+            </td>
+
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              <div class="flex items-center gap-2">
+                <button
+                  @click.prevent="editModalOpenHandler(r)"
+                  class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
+                >
+                  <PencilSquareIcon class="w-5 h-5" v-if="!authStore.isAgent" />
+                  <EyeIcon class="w-5 h-5" v-if="authStore.isAgent" />
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <!-- pagination -->
-    <Pagination v-if="!loading" :data="rooms" @change-page="changePage" />
+    <Pagination
+      v-if="!loading && !incomplete"
+      :data="rooms"
+      @change-page="changePage"
+    />
+    <Pagination
+      v-if="!loadingIncomplete && incomplete"
+      :data="incompleteRoom"
+      @change-page="changeIncompletePage"
+    />
+
     <!-- import -->
     <Modal :isOpen="importModal" @closeModal="importModal = false">
       <DialogPanel
@@ -707,7 +800,8 @@ const hotelStore = useHotelStore();
 const roomStore = useRoomStore();
 const authStore = useAuthStore();
 
-const { rooms, loading, importLoading } = storeToRefs(roomStore);
+const { rooms, loading, importLoading, incompleteRoom, loadingIncomplete } =
+  storeToRefs(roomStore);
 
 const search = ref("");
 const errors = ref([]);
@@ -718,6 +812,8 @@ const hotelList = ref([]);
 const enabled = ref(false);
 
 const quiteSwitch = ref(1);
+
+const incomplete = ref(false);
 
 const formData = ref({
   id: "",
@@ -1086,6 +1182,13 @@ const changePage = async (url) => {
   };
   await roomStore.getChangePage(url, data);
 };
+const changeIncompletePage = async (url) => {
+  let data = {
+    hotel_id: hotel_id.value,
+    search: search.value,
+  };
+  await roomStore.getChangeIncompletePage(url, data);
+};
 
 const onDeleteHandler = async (id) => {
   Swal.fire({
@@ -1223,6 +1326,13 @@ watch(hotel_id, async (newValue) => {
     search: search.value,
     period: periodAjj.value,
   });
+  if (incomplete.value == true) {
+    let data = {
+      hotel_id: hotel_id.value,
+      search: search.value,
+    };
+    await roomStore.getListIncompleteAction(data);
+  }
 });
 watch(periodAjj, async (newValue) => {
   await roomStore.getListAction({
@@ -1230,5 +1340,14 @@ watch(periodAjj, async (newValue) => {
     search: search.value,
     period: periodAjj.value,
   });
+});
+watch(incomplete, async (newValue) => {
+  if (incomplete.value == true) {
+    let data = {
+      hotel_id: hotel_id.value,
+      search: search.value,
+    };
+    await roomStore.getListIncompleteAction(data);
+  }
 });
 </script>

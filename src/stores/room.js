@@ -2,7 +2,13 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 export const useRoomStore = defineStore("room", {
-    state: () => ({ rooms: null, loading: false, importLoading: false }),
+    state: () => ({
+        rooms: null,
+        loading: false,
+        importLoading: false,
+        incompleteRoom: null,
+        loadingIncomplete: false,
+    }),
     getters: {},
     actions: {
         async getSimpleListAction(params) {
@@ -43,6 +49,30 @@ export const useRoomStore = defineStore("room", {
                 this.loading = false;
                 throw error;
             }
+        },
+        async getListIncompleteAction(params) {
+            try {
+                this.loadingIncomplete = true;
+                const response = await axios.get("/incomplete-rooms", {
+                    params: params,
+                });
+                this.incompleteRoom = response.data.result;
+                this.loadingIncomplete = false;
+                console.log(response);
+                return response.data;
+            } catch (error) {
+                this.loadingIncomplete = false;
+                throw error;
+            }
+        },
+        async getChangeIncompletePage(url, params) {
+            this.loadingIncomplete = true;
+            const response = await axios.get(url, {
+                params: params,
+            });
+            this.incompleteRoom = response.data.result;
+            this.loadingIncomplete = false;
+            return response.data;
         },
         async addNewAction(data) {
             try {

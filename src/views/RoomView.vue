@@ -490,7 +490,7 @@
     </Modal>
 
     <!-- search input sort filter -->
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex items-start justify-between mb-8">
       <div class="flex justify-start flex-wrap items-center gap-2">
         <input
           type="text"
@@ -522,6 +522,15 @@
           class="w-3/5 sm:w-3/5 md:w-[200px] border px-4 py-1.5 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
           title="end date"
         />
+        <v-select
+          class="style-chooser min-w-[200px] max-w-[400px] bg-white"
+          :options="selectedArray ?? []"
+          v-model="selectedFilter"
+          label="name"
+          :clearable="false"
+          :reduce="(d) => d.value"
+          placeholder="Choose Missing"
+        ></v-select>
         <button
           class="px-2 py-1.5 bg-[#ff613c] rounded-md text-white"
           @click="searchFunction"
@@ -538,24 +547,6 @@
         </button>
       </div>
       <div class="space-y-2 flex justify-end items-center gap-2 flex-wrap">
-        <div
-          class="flex justify-center items-center border-2 shadow-sm rounded-md overflow-hidden"
-        >
-          <div
-            class="cursor-pointer px-3 py-2.5 text-xs"
-            :class="!incomplete ? 'bg-[#ff613c] text-white' : 'bg-white'"
-            @click="incomplete = false"
-          >
-            normal list
-          </div>
-          <div
-            class="cursor-pointer px-3 py-2.5 text-xs"
-            @click="incomplete = true"
-            :class="incomplete ? 'bg-[#ff613c] text-white' : 'bg-white'"
-          >
-            incomplete
-          </div>
-        </div>
         <div class="space-x-3 flex flex-nowarp">
           <Button
             :leftIcon="DocumentPlusIcon"
@@ -577,7 +568,7 @@
         </div>
       </div>
     </div>
-    <div class="mb-5 overflow-auto rounded-lg shadow" v-if="!incomplete">
+    <div class="mb-5 overflow-auto rounded-lg shadow">
       <table class="w-full">
         <thead class="border-b-2 border-gray-200 bg-gray-50">
           <tr>
@@ -605,7 +596,7 @@
         <tbody class="divide-y divide-gray-100">
           <tr
             class="bg-white even:bg-gray-50 hover:bg-gray-50"
-            v-for="(r, index) in rooms?.data"
+            v-for="(r, index) in filteredRoomList"
             :key="index"
           >
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
@@ -645,83 +636,21 @@
               </div>
             </td>
           </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="mb-5 overflow-auto rounded-lg shadow" v-if="incomplete">
-      <table class="w-full">
-        <thead class="border-b-2 border-gray-200 bg-gray-50">
-          <tr>
-            <th class="w-20 p-3 text-xs font-medium tracking-wide text-left">
-              No.
-            </th>
-            <th class="p-3 text-xs font-medium tracking-wide text-left">
-              Name
-            </th>
-            <th class="p-3 text-xs font-medium tracking-wide text-left">
-              Description
-            </th>
-            <th class="p-3 text-xs font-medium tracking-wide text-left">
-              Hotel
-            </th>
-            <th class="p-3 text-xs font-medium tracking-wide text-left">
-              Room Price
-            </th>
-
-            <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <tr
-            class="bg-white even:bg-gray-50 hover:bg-gray-50"
-            v-for="(r, index) in incompleteRoom?.data"
-            :key="index"
-          >
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-              {{ r.id }}
-            </td>
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-              {{ r.name }}
-            </td>
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-              {{ limitedText(r.description) }}
-            </td>
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-              {{ r.hotel?.name }}
-            </td>
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-              <p v-if="!authStore.isAgent">{{ r.room_price }}</p>
-              <p v-if="authStore.isAgent">{{ r.agent_price }}</p>
-            </td>
-
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-              <div class="flex items-center gap-2">
-                <button
-                  @click.prevent="editModalOpenHandler(r)"
-                  class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
-                >
-                  <PencilSquareIcon class="w-5 h-5" v-if="!authStore.isAgent" />
-                  <EyeIcon class="w-5 h-5" v-if="authStore.isAgent" />
-                </button>
-              </div>
+          <tr v-if="filteredRoomList.length == 0">
+            <td
+              class="text-center h-[300px] text-sm text-red-500 font-medium"
+              colspan="10"
+            >
+              this page isn't have {{ selectedFilter }} missing please go next
+              page or for normal please select choose missing
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+
     <!-- pagination -->
-    <Pagination
-      v-if="!loading && !incomplete"
-      :data="rooms"
-      @change-page="changePage"
-    />
-    <Pagination
-      v-if="!loadingIncomplete && incomplete"
-      :data="incompleteRoom"
-      @change-page="changeIncompletePage"
-    />
+    <Pagination v-if="!loading" :data="rooms" @change-page="changePage" />
 
     <!-- import -->
     <Modal :isOpen="importModal" @closeModal="importModal = false">
@@ -779,7 +708,7 @@ import {
 } from "@heroicons/vue/24/outline";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import Pagination from "../components/Pagination.vue";
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
@@ -813,7 +742,53 @@ const enabled = ref(false);
 
 const quiteSwitch = ref(1);
 
-const incomplete = ref(false);
+// const incomplete = ref(false);
+const roomShowList = ref(null);
+
+// selected filter
+
+const selectedArray = ref([
+  { id: 1, name: "choose missing", value: "" },
+  { id: 2, name: "room amenties missing", value: "amenties" },
+  { id: 3, name: "photo missing", value: "images" },
+  { id: 4, name: "room price missing", value: "room price" },
+  { id: 5, name: "cost price missing", value: "cost price" },
+  { id: 6, name: "walk in price missing", value: "walk in price" },
+]);
+
+const selectedFilter = ref("");
+
+const filteredRoomList = computed(() => {
+  if (!selectedFilter.value) {
+    return roomShowList.value?.data || [];
+  }
+
+  return (
+    roomShowList.value?.data.filter((room) => {
+      if (selectedFilter.value === "amenties") {
+        return (
+          !room.amenities ||
+          room.amenities === "null" ||
+          room.amenities.length == 0
+        );
+      } else if (selectedFilter.value === "images") {
+        return (
+          !room.images || room.images === "null" || room.images.length == 0
+        );
+      } else if (selectedFilter.value === "room price") {
+        return !room.room_price || room.room_price === "null";
+      } else if (selectedFilter.value === "cost price") {
+        return !room.cost || room.cost === "null" || room.cost == "undefined";
+      } else if (selectedFilter.value === "walk in price") {
+        return !room.owner_price || room.owner_price === "null";
+      } else {
+        return true;
+      }
+    }) || []
+  );
+});
+
+// end selected filter
 
 const formData = ref({
   id: "",
@@ -1182,13 +1157,13 @@ const changePage = async (url) => {
   };
   await roomStore.getChangePage(url, data);
 };
-const changeIncompletePage = async (url) => {
-  let data = {
-    hotel_id: hotel_id.value,
-    search: search.value,
-  };
-  await roomStore.getChangeIncompletePage(url, data);
-};
+// const changeIncompletePage = async (url) => {
+//   let data = {
+//     hotel_id: hotel_id.value,
+//     search: search.value,
+//   };
+//   await roomStore.getChangeIncompletePage(url, data);
+// };
 
 const onDeleteHandler = async (id) => {
   Swal.fire({
@@ -1326,13 +1301,13 @@ watch(hotel_id, async (newValue) => {
     search: search.value,
     period: periodAjj.value,
   });
-  if (incomplete.value == true) {
-    let data = {
-      hotel_id: hotel_id.value,
-      search: search.value,
-    };
-    await roomStore.getListIncompleteAction(data);
-  }
+  // if (incomplete.value == true) {
+  //   let data = {
+  //     hotel_id: hotel_id.value,
+  //     search: search.value,
+  //   };
+  //   await roomStore.getListIncompleteAction(data);
+  // }
 });
 watch(periodAjj, async (newValue) => {
   await roomStore.getListAction({
@@ -1341,13 +1316,18 @@ watch(periodAjj, async (newValue) => {
     period: periodAjj.value,
   });
 });
-watch(incomplete, async (newValue) => {
-  if (incomplete.value == true) {
-    let data = {
-      hotel_id: hotel_id.value,
-      search: search.value,
-    };
-    await roomStore.getListIncompleteAction(data);
+// watch(incomplete, async (newValue) => {
+//   if (incomplete.value == true) {
+//     let data = {
+//       hotel_id: hotel_id.value,
+//       search: search.value,
+//     };
+//     await roomStore.getListIncompleteAction(data);
+//   }
+// });
+watch(rooms, async (newValue) => {
+  if (newValue) {
+    roomShowList.value = newValue;
   }
 });
 </script>

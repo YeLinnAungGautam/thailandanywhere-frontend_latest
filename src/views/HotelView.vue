@@ -11,7 +11,7 @@
           </h3>
           <p v-if="importLoading">import process is doing ...</p>
           <div class="flex justify-end items-center gap-4">
-            <div
+            <!-- <div
               class="flex justify-center items-center border-2 shadow-sm rounded-md overflow-hidden"
             >
               <div
@@ -28,7 +28,7 @@
               >
                 incomplete
               </div>
-            </div>
+            </div> -->
             <div
               class="flex justify-center items-center border-2 shadow-sm rounded-md overflow-hidden"
             >
@@ -50,14 +50,23 @@
           </div>
         </div>
         <div class="mb-4 mt-2">
-          <div class="space-x-3 flex justify-between items-center gap-2">
-            <div class="">
+          <div class="space-x-3 flex justify-between items-start gap-2">
+            <div class="flex justify-start items-start gap-2">
               <input
                 type="text"
                 v-model="search"
                 class="w-3/5 sm:w-3/5 md:w-[300px] border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
                 placeholder="Search Hotels..."
               />
+              <v-select
+                class="style-chooser min-w-[200px] max-w-[400px] bg-white"
+                :options="selectedArray ?? []"
+                v-model="selectedFilter"
+                label="name"
+                :clearable="false"
+                :reduce="(d) => d.value"
+                placeholder="Choose Missing"
+              ></v-select>
             </div>
             <div class="flex justify-end items-center gap-3">
               <Button
@@ -80,7 +89,7 @@
             </div>
           </div>
         </div>
-        <div class="mb-5 overflow-auto rounded-lg shadow" v-if="!incomplete">
+        <div class="mb-5 overflow-auto rounded-lg shadow">
           <table class="w-full">
             <thead class="border-b-2 border-gray-200 bg-gray-50">
               <tr>
@@ -108,7 +117,7 @@
             <tbody class="divide-y divide-gray-100">
               <tr
                 class="bg-white even:bg-gray-50 hover:bg-gray-50"
-                v-for="(r, index) in hotels?.data"
+                v-for="(r, index) in filteredHotelList"
                 :key="index"
               >
                 <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
@@ -146,66 +155,13 @@
                   </div>
                 </td>
               </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="mb-5 overflow-auto rounded-lg shadow" v-if="incomplete">
-          <table class="w-full">
-            <thead class="border-b-2 border-gray-200 bg-gray-50">
-              <tr>
-                <th
-                  class="w-20 p-3 text-xs font-medium tracking-wide text-left"
+              <tr v-if="filteredHotelList.length == 0">
+                <td
+                  class="text-center h-[300px] text-sm text-red-500 font-medium"
+                  colspan="10"
                 >
-                  No.
-                </th>
-                <th class="p-3 text-xs font-medium tracking-wide text-left">
-                  Name
-                </th>
-                <th class="p-3 text-xs font-medium tracking-wide text-left">
-                  City
-                </th>
-                <th class="p-3 text-xs font-medium tracking-wide text-left">
-                  Place
-                </th>
-                <th
-                  class="p-3 text-xs font-medium tracking-wide text-left w-30"
-                >
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-              <tr
-                class="bg-white even:bg-gray-50 hover:bg-gray-50"
-                v-for="(r, index) in incompleteHotel?.data"
-                :key="index"
-              >
-                <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-                  {{ r.id }}
-                </td>
-                <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-                  {{ r.name }}
-                </td>
-                <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-                  {{ r.city?.name }}
-                </td>
-                <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-                  {{ r.place }}
-                </td>
-                <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-                  <div class="flex items-center gap-2">
-                    <button
-                      @click.prevent="goEditPage(r.id)"
-                      class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
-                    >
-                      <PencilSquareIcon
-                        class="w-5 h-5"
-                        v-if="!authStore.isAgent"
-                      />
-                      <EyeIcon class="w-5 h-5" v-if="authStore.isAgent" />
-                    </button>
-                    <!-- v-if="authStore.isSuperAdmin" -->
-                  </div>
+                  this page isn't have {{ selectedFilter }} missing please go
+                  next page or for normal please select choose missing
                 </td>
               </tr>
             </tbody>
@@ -214,16 +170,12 @@
       </div>
     </div>
     <!-- pagination -->
-    <Pagination
-      v-if="!loading && !incomplete"
-      :data="hotels"
-      @change-page="changePage"
-    />
-    <Pagination
+    <Pagination v-if="!loading" :data="hotels" @change-page="changePage" />
+    <!-- <Pagination
       v-if="!loadingIncomplete && incomplete"
       :data="incompleteHotel"
       @change-page="changeIncompletePage"
-    />
+    /> -->
     <Modal :isOpen="importModal" @closeModal="importModal = false">
       <DialogPanel
         class="w-full max-w-lg transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
@@ -281,7 +233,7 @@ import {
 import { QuillEditor } from "@vueup/vue-quill";
 import Pagination from "../components/Pagination.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
@@ -307,10 +259,83 @@ const { hotels, loading, importLoading, incompleteHotel, loadingIncomplete } =
 const search = ref("");
 const errors = ref([]);
 
+const hotelShowList = ref(null);
+
 const { cities } = storeToRefs(cityStore);
 const citylist = ref([]);
 
-const incomplete = ref(false);
+// select function
+
+const selectedArray = ref([
+  { id: 1, name: "choose missing", value: "" },
+  { id: 2, name: "description missing", value: "description" },
+  { id: 3, name: "photo missing", value: "images" },
+  { id: 4, name: "facilities missing", value: "facilities" },
+  { id: 5, name: "map missing", value: "map" },
+  { id: 6, name: "star rating missing", value: "rating" },
+  { id: 7, name: "nearby places missing", value: "nearby_places" },
+  { id: 8, name: "banks missing", value: "bank_name" },
+  { id: 9, name: "place missing", value: "place" },
+  { id: 10, name: "bank account missing", value: "bank_account_number" },
+]);
+
+const selectedFilter = ref("");
+
+const filteredHotelList = computed(() => {
+  if (!selectedFilter.value) {
+    return hotelShowList.value?.data || [];
+  }
+
+  return (
+    hotelShowList.value?.data.filter((hotel) => {
+      if (selectedFilter.value === "description") {
+        return (
+          !hotel.description ||
+          hotel.description === "null" ||
+          !hotel.full_description ||
+          hotel.full_description == "null"
+        );
+      } else if (selectedFilter.value === "images") {
+        return (
+          !hotel.images || hotel.images === "null" || hotel.images.length == 0
+        );
+      } else if (selectedFilter.value === "facilities") {
+        return (
+          !hotel.facilities ||
+          hotel.facilities === "null" ||
+          hotel.facilities.length == 0
+        );
+      } else if (selectedFilter.value === "map") {
+        return (
+          !hotel.location_map ||
+          hotel.location_map === "null" ||
+          !hotel.location_map_title ||
+          hotel.location_map_title === "null"
+        );
+      } else if (selectedFilter.value === "rating") {
+        return !hotel.rating || hotel.rating === "null";
+      } else if (selectedFilter.value === "nearby_places") {
+        return (
+          !hotel.nearby_places ||
+          hotel.nearbyPlaces === "null" ||
+          hotel.nearbyPlaces.length == 0
+        );
+      } else if (selectedFilter.value === "bank_name") {
+        return !hotel.bank_name || hotel.bank_name === "null";
+      } else if (selectedFilter.value === "place") {
+        return !hotel.place || hotel.place === "null";
+      } else if (selectedFilter.value === "bank_account_number") {
+        return (
+          !hotel.bank_account_number || hotel.bank_account_number === "null"
+        );
+      } else {
+        return true;
+      }
+    }) || []
+  );
+});
+
+// const incomplete = ref(false);
 
 const goEditPage = (data) => {
   router.push({ name: "hoteledit", params: { id: data } });
@@ -337,9 +362,9 @@ const changePage = async (url) => {
   await hotelStore.getChangePage(url, data);
 };
 
-const changeIncompletePage = async (url) => {
-  await hotelStore.getChangeIncompletePage(url, { search: search.value });
-};
+// const changeIncompletePage = async (url) => {
+//   await hotelStore.getChangeIncompletePage(url, { search: search.value });
+// };
 
 const onDeleteHandler = async (id) => {
   Swal.fire({
@@ -414,13 +439,14 @@ onMounted(async () => {
 });
 
 watch(search, async (newValue) => {
+  selectedFilter.value = "";
   await hotelStore.getListAction({
     search: search.value,
     type: forSale.value ? "other_booking" : "direct_booking",
   });
-  if (incomplete.value == true) {
-    await hotelStore.incompleteHotelAction({ search: search.value });
-  }
+  // if (incomplete.value == true) {
+  //   await hotelStore.incompleteHotelAction({ search: search.value });
+  // }
 });
 
 watch(forSale, async (newValue) => {
@@ -430,9 +456,15 @@ watch(forSale, async (newValue) => {
   });
 });
 
-watch(incomplete, async (newValue) => {
-  if (incomplete.value == true) {
-    await hotelStore.incompleteHotelAction({ search: search.value });
+//watch(incomplete, async (newValue) => {
+// if (incomplete.value == true) {
+// await hotelStore.incompleteHotelAction({ search: search.value });
+//}
+// });
+
+watch(hotels, async (newValue) => {
+  if (newValue) {
+    hotelShowList.value = newValue;
   }
 });
 </script>

@@ -399,10 +399,17 @@ const updateHandler = async () => {
   }
   if (formData.value.nearby_places.length > 0) {
     for (let i = 0; i < formData.value.nearby_places.length; i++) {
-      frmData.append(
-        "nearby_places[" + i + "][image]",
-        formData.value.nearby_places[i].img
-      );
+      if (formData.value.nearby_places[i].img) {
+        frmData.append(
+          "nearby_places[" + i + "][image]",
+          formData.value.nearby_places[i].img
+        );
+      } else {
+        frmData.append(
+          "nearby_places[" + i + "][image]",
+          formData.value.nearby_places[i].image
+        );
+      }
       frmData.append(
         "nearby_places[" + i + "][name]",
         formData.value.nearby_places[i].place
@@ -531,8 +538,19 @@ const getDetail = async (params) => {
     formData.value.location_map = data.location_map;
     formData.value.location_map_title = data.location_map_title;
     formData.value.rating = data.rating;
-    nearByPlaceArray.value =
-      data.nearby_places == null ? [] : data.nearby_places;
+    //nearByPlaceArray.value =
+    // data.nearby_places == null ? [] : data.nearby_places;
+
+    if (data.nearby_places.length > 0) {
+      for (let i = 0; i < data.nearby_places.length; i++) {
+        let obj = {
+          image: data.nearby_places[i].image,
+          place: data.nearby_places[i].name,
+          distance: data.nearby_places[i].distance,
+        };
+        formData.value.nearby_places.push(obj);
+      }
+    }
     console.log(formData.value.facilities);
     createModalOpen.value = true;
   }
@@ -1049,41 +1067,6 @@ onMounted(async () => {
                     >
                       <img :src="f.icon" alt="" class="w-28 h-10" />
                     </div>
-
-                    <input
-                      type="text"
-                      id="name"
-                      v-model="f.place"
-                      placeholder="enter place name"
-                      class="w-full h-10 text-xs px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-                    />
-                    <input
-                      type="text"
-                      id="name"
-                      v-model="f.distance"
-                      placeholder="3 min drive"
-                      class="w-full h-10 text-xs px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-                    />
-                    <div
-                      @click="removeNearByItem(index)"
-                      class="rounded px-2 py-1.5 border-2 cursor-pointer border-gray-300"
-                    >
-                      ➖
-                    </div>
-                  </div>
-                </div>
-                <div
-                  v-if="quiteSwitch == 4 && nearByPlaceArray?.length > 0"
-                  class="mb-2 space-y-1"
-                >
-                  <label for="name" class="text-sm text-gray-800"
-                    >Have Nearby
-                  </label>
-                  <div
-                    class="flex justify-between items-center gap-2"
-                    v-for="(f, index) in nearByPlaceArray ?? []"
-                    :key="index"
-                  >
                     <div
                       v-if="f.image"
                       class="rounded border-2 cursor-pointer border-gray-300"
@@ -1094,7 +1077,7 @@ onMounted(async () => {
                     <input
                       type="text"
                       id="name"
-                      v-model="f.name"
+                      v-model="f.place"
                       placeholder="enter place name"
                       class="w-full h-10 text-xs px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
                     />

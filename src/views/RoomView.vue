@@ -1355,32 +1355,67 @@ const importActionHandler = async () => {
 };
 
 watch(search, async (newValue) => {
-  await roomStore.getListAction({
-    search: search.value,
-    hotel_id: hotel_id.value,
-    period: periodAjj.value,
-  });
+  if (selectedFilter.value != "") {
+    await roomStore.getListAction({
+      hotel_id: hotel_id.value,
+      search: search.value,
+      period: periodAjj.value,
+      limit: 1000,
+    });
+    currentPage.value = 1;
+    pagiantionShow.value = true;
+  } else if (selectedFilter.value == "") {
+    await roomStore.getListAction({
+      hotel_id: hotel_id.value,
+      search: search.value,
+      period: periodAjj.value,
+      limit: 10,
+    });
+    pagiantionShow.value = false;
+    currentPage.value = 1;
+  }
 });
 watch(hotel_id, async (newValue) => {
-  await roomStore.getListAction({
-    hotel_id: hotel_id.value,
-    search: search.value,
-    period: periodAjj.value,
-  });
-  // if (incomplete.value == true) {
-  //   let data = {
-  //     hotel_id: hotel_id.value,
-  //     search: search.value,
-  //   };
-  //   await roomStore.getListIncompleteAction(data);
-  // }
+  if (selectedFilter.value != "") {
+    await roomStore.getListAction({
+      hotel_id: hotel_id.value,
+      search: search.value,
+      period: periodAjj.value,
+      limit: 1000,
+    });
+    currentPage.value = 1;
+    pagiantionShow.value = true;
+  } else if (selectedFilter.value == "") {
+    await roomStore.getListAction({
+      hotel_id: hotel_id.value,
+      search: search.value,
+      period: periodAjj.value,
+      limit: 10,
+    });
+    pagiantionShow.value = false;
+    currentPage.value = 1;
+  }
 });
 watch(periodAjj, async (newValue) => {
-  await roomStore.getListAction({
-    hotel_id: hotel_id.value,
-    search: search.value,
-    period: periodAjj.value,
-  });
+  if (selectedFilter.value != "") {
+    await roomStore.getListAction({
+      hotel_id: hotel_id.value,
+      search: search.value,
+      period: periodAjj.value,
+      limit: 1000,
+    });
+    currentPage.value = 1;
+    pagiantionShow.value = true;
+  } else if (selectedFilter.value == "") {
+    await roomStore.getListAction({
+      hotel_id: hotel_id.value,
+      search: search.value,
+      period: periodAjj.value,
+      limit: 10,
+    });
+    pagiantionShow.value = false;
+    currentPage.value = 1;
+  }
 });
 
 watch(rooms, async (newValue) => {

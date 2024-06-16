@@ -499,21 +499,43 @@ onMounted(async () => {
 });
 
 watch(search, async (newValue) => {
-  selectedFilter.value = "";
-  await hotelStore.getListAction({
-    search: search.value,
-    type: forSale.value ? "other_booking" : "direct_booking",
-  });
-  // if (incomplete.value == true) {
-  //   await hotelStore.incompleteHotelAction({ search: search.value });
-  // }
+  if (selectedFilter.value != "") {
+    await hotelStore.getListAction({
+      search: search.value,
+      type: forSale.value ? "other_booking" : "direct_booking",
+      limit: 1000,
+    });
+    currentPage.value = 1;
+    pagiantionShow.value = true;
+  } else if (selectedFilter.value == "") {
+    await hotelStore.getListAction({
+      search: search.value,
+      type: forSale.value ? "other_booking" : "direct_booking",
+      limit: 10,
+    });
+    pagiantionShow.value = false;
+    currentPage.value = 1;
+  }
 });
 
 watch(forSale, async (newValue) => {
-  await hotelStore.getListAction({
-    search: search.value,
-    type: forSale.value ? "other_booking" : "direct_booking",
-  });
+  if (selectedFilter.value != "") {
+    await hotelStore.getListAction({
+      search: search.value,
+      type: forSale.value ? "other_booking" : "direct_booking",
+      limit: 1000,
+    });
+    currentPage.value = 1;
+    pagiantionShow.value = true;
+  } else if (selectedFilter.value == "") {
+    await hotelStore.getListAction({
+      search: search.value,
+      type: forSale.value ? "other_booking" : "direct_booking",
+      limit: 10,
+    });
+    pagiantionShow.value = false;
+    currentPage.value = 1;
+  }
 });
 
 //watch(incomplete, async (newValue) => {

@@ -117,7 +117,7 @@
             <tbody class="divide-y divide-gray-100">
               <tr
                 class="bg-white even:bg-gray-50 hover:bg-gray-50"
-                v-for="(r, index) in filteredHotelList"
+                v-for="(r, index) in paginatedItems"
                 :key="index"
               >
                 <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
@@ -170,12 +170,40 @@
       </div>
     </div>
     <!-- pagination -->
-    <Pagination v-if="!loading" :data="hotels" @change-page="changePage" />
+    <Pagination
+      v-if="!loading && !pagiantionShow"
+      :data="hotels"
+      @change-page="changePage"
+    />
     <!-- <Pagination
       v-if="!loadingIncomplete && incomplete"
       :data="incompleteHotel"
       @change-page="changeIncompletePage"
     /> -->
+    <div
+      v-if="!loading && pagiantionShow"
+      class="flex justify-between items-center text-sm"
+    >
+      <div class="px-4 py-2 bg-gray-300 rounded-lg">
+        Page: {{ currentPage }} / {{ totalPages }}
+      </div>
+      <div class="flex justify-end items-center gap-2 text-sm">
+        <button
+          @click="prevPage"
+          class="px-4 py-2 bg-[#FF5B00] text-white rounded-lg"
+          :disabled="currentPage === 1"
+        >
+          Previous
+        </button>
+        <button
+          @click="nextPage"
+          :disabled="currentPage === totalPages"
+          class="px-4 py-2 bg-[#FF5B00] text-white rounded-lg"
+        >
+          Next
+        </button>
+      </div>
+    </div>
     <Modal :isOpen="importModal" @closeModal="importModal = false">
       <DialogPanel
         class="w-full max-w-lg transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
@@ -264,7 +292,39 @@ const hotelShowList = ref(null);
 const { cities } = storeToRefs(cityStore);
 const citylist = ref([]);
 
+// pagiantion
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+
+// Computed property for paginated items
+const paginatedItems = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredHotelList.value.slice(start, end);
+});
+
+// Total number of pages
+const totalPages = computed(() => {
+  return Math.ceil(filteredHotelList.value.length / itemsPerPage.value);
+});
+
+// Methods to change the page
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value += 1;
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value -= 1;
+  }
+};
+
 // select function
+
+const pagiantionShow = ref(false);
 
 const selectedArray = ref([
   { id: 1, name: "choose missing", value: "" },
@@ -465,6 +525,26 @@ watch(forSale, async (newValue) => {
 watch(hotels, async (newValue) => {
   if (newValue) {
     hotelShowList.value = newValue;
+  }
+});
+
+watch(selectedFilter, async (newValue) => {
+  if (selectedFilter.value != "") {
+    await hotelStore.getListAction({
+      search: search.value,
+      type: forSale.value ? "other_booking" : "direct_booking",
+      limit: 1000,
+    });
+    currentPage.value = 1;
+    pagiantionShow.value = true;
+  } else if (selectedFilter.value == "") {
+    await hotelStore.getListAction({
+      search: search.value,
+      type: forSale.value ? "other_booking" : "direct_booking",
+      limit: 10,
+    });
+    pagiantionShow.value = false;
+    currentPage.value = 1;
   }
 });
 </script>

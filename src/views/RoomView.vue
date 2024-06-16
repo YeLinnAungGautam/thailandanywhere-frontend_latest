@@ -575,7 +575,9 @@
             <th class="w-20 p-3 text-xs font-medium tracking-wide text-left">
               No.
             </th>
-            <th class="p-3 text-xs font-medium tracking-wide text-left">
+            <th
+              class="p-3 text-xs font-medium tracking-wide text-left max-w-[300px] overflow-hidden"
+            >
               Name
             </th>
             <th class="p-3 text-xs font-medium tracking-wide text-left">
@@ -596,13 +598,15 @@
         <tbody class="divide-y divide-gray-100">
           <tr
             class="bg-white even:bg-gray-50 hover:bg-gray-50"
-            v-for="(r, index) in filteredRoomList"
+            v-for="(r, index) in paginatedItems"
             :key="index"
           >
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.id }}
             </td>
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+            <td
+              class="p-3 text-xs text-gray-700 whitespace-warp max-w-[300px] overflow-hidden"
+            >
               {{ r.name }}
             </td>
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
@@ -650,7 +654,35 @@
     </div>
 
     <!-- pagination -->
-    <Pagination v-if="!loading" :data="rooms" @change-page="changePage" />
+    <Pagination
+      v-if="!loading && !pagiantionShow"
+      :data="rooms"
+      @change-page="changePage"
+    />
+    <div
+      v-if="!loading && pagiantionShow"
+      class="flex justify-between items-center text-sm"
+    >
+      <div class="px-4 py-2 bg-gray-300 rounded-lg">
+        Page: {{ currentPage }} / {{ totalPages }}
+      </div>
+      <div class="flex justify-end items-center gap-2 text-sm">
+        <button
+          @click="prevPage"
+          class="px-4 py-2 bg-[#FF5B00] text-white rounded-lg"
+          :disabled="currentPage === 1"
+        >
+          Previous
+        </button>
+        <button
+          @click="nextPage"
+          :disabled="currentPage === totalPages"
+          class="px-4 py-2 bg-[#FF5B00] text-white rounded-lg"
+        >
+          Next
+        </button>
+      </div>
+    </div>
 
     <!-- import -->
     <Modal :isOpen="importModal" @closeModal="importModal = false">
@@ -744,6 +776,38 @@ const quiteSwitch = ref(1);
 
 // const incomplete = ref(false);
 const roomShowList = ref(null);
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+
+// Computed property for paginated items
+const paginatedItems = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredRoomList.value.slice(start, end);
+});
+
+// Total number of pages
+const totalPages = computed(() => {
+  return Math.ceil(filteredRoomList.value.length / itemsPerPage.value);
+});
+
+// Methods to change the page
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value += 1;
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value -= 1;
+  }
+};
+
+// select function
+
+const pagiantionShow = ref(false);
 
 // selected filter
 
@@ -1318,18 +1382,32 @@ watch(periodAjj, async (newValue) => {
     period: periodAjj.value,
   });
 });
-// watch(incomplete, async (newValue) => {
-//   if (incomplete.value == true) {
-//     let data = {
-//       hotel_id: hotel_id.value,
-//       search: search.value,
-//     };
-//     await roomStore.getListIncompleteAction(data);
-//   }
-// });
+
 watch(rooms, async (newValue) => {
   if (newValue) {
     roomShowList.value = newValue;
+  }
+});
+
+watch(selectedFilter, async (newValue) => {
+  if (selectedFilter.value != "") {
+    await roomStore.getListAction({
+      hotel_id: hotel_id.value,
+      search: search.value,
+      period: periodAjj.value,
+      limit: 1000,
+    });
+    currentPage.value = 1;
+    pagiantionShow.value = true;
+  } else if (selectedFilter.value == "") {
+    await roomStore.getListAction({
+      hotel_id: hotel_id.value,
+      search: search.value,
+      period: periodAjj.value,
+      limit: 10,
+    });
+    pagiantionShow.value = false;
+    currentPage.value = 1;
   }
 });
 </script>

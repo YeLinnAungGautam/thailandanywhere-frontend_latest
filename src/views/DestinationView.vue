@@ -155,7 +155,7 @@ const imagesEdit = ref([]);
 const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
-  formData.value.category_id = data.category.id;
+  formData.value.category_id = data.category?.id;
   formData.value.description = data.description;
   formData.value.entry_fee = data.entry_fee;
   formData.value.city_id = data.city?.id;
@@ -381,6 +381,12 @@ watch(search, async (newValue) => {
                 v-if="des.category?.name"
               >
                 {{ des.category?.name }}
+              </td>
+              <td
+                class="p-4 text-xs text-gray-700 whitespace-nowrap"
+                v-if="!des.category?.name"
+              >
+                -
               </td>
               <td
                 class="p-4 text-xs text-gray-700 whitespace-nowrap max-w-[200px] overflow-hidden"

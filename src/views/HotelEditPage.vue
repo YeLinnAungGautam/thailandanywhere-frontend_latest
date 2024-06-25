@@ -386,7 +386,15 @@ const updateHandler = async () => {
   frmData.append("legal_name", formData.value.legal_name);
   frmData.append("description", formData.value.description);
   frmData.append("full_description", formData.value.full_description);
-  frmData.append("contract_due", formData.value.contract_due);
+  // frmData.append("contract_due", formData.value.contract_due);
+  if (
+    formData.value.contract_due != null &&
+    formData.value.contract_due != undefined &&
+    formData.value.contract_due != "null" &&
+    formData.value.contract_due != "undefinded"
+  ) {
+    frmData.append("contract_due", formData.value.contract_due);
+  }
   frmData.append("location_map_title", formData.value.location_map_title);
   frmData.append("location_map", formData.value.location_map);
   frmData.append("rating", formData.value.rating);
@@ -541,7 +549,7 @@ const getDetail = async (params) => {
     //nearByPlaceArray.value =
     // data.nearby_places == null ? [] : data.nearby_places;
 
-    if (data.nearby_places.length > 0) {
+    if (data?.nearby_places?.length > 0) {
       for (let i = 0; i < data.nearby_places.length; i++) {
         let obj = {
           image: data.nearby_places[i].image,
@@ -1023,7 +1031,11 @@ onMounted(async () => {
               </div>
               <!-- location map preview -->
               <div
-                v-if="quiteSwitch == 4 && formData.location_map"
+                v-if="
+                  quiteSwitch == 4 &&
+                  formData.location_map &&
+                  formData.location_map != 'null'
+                "
                 class="mb-2 space-y-1"
               >
                 <label for="name" class="text-sm text-gray-800"

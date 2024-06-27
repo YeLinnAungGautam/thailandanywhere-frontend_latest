@@ -677,7 +677,8 @@ const changeServiceDate = (data) => {
             placeholder="Search Date"
           /> -->
           <VueDatePicker
-            v-model="searchTime"
+            v-model="dateRange"
+            range
             placeholder="Service Date"
             text-input
           />

@@ -135,18 +135,6 @@ onMounted(async () => {
   <div class="pb-6 space-y-3 min-h-[550px]">
     <div class="space-y-3">
       <p class="text-sm">Select Facilities</p>
-      <!-- <v-select
-        v-model="formData.list"
-        class="style-chooser"
-        :options="facilities?.data ?? []"
-        label="name"
-        multiple
-        :clearable="false"
-        :reduce="(d) => d.id"
-        @option:selected="chooseType"
-        @click="chooseType"
-        placeholder="Choose Facility"
-      ></v-select> -->
       <v-select
         class="style-chooser"
         multiple

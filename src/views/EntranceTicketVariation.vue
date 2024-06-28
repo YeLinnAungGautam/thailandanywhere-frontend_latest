@@ -99,6 +99,57 @@
               {{ errors.description[0] }}
             </p>
           </div>
+          <div class="col-span-2">
+            <div class="">
+              <div class="flex items-center justify-start mb-2">
+                <label class="text-sm block mr-3 pb-2" for="">
+                  Including Services (don't forget to click add button)</label
+                >
+              </div>
+              <div class="flex items-start justify-between gap-3 mb-3">
+                <div class="flex-1 space-y-2">
+                  <input
+                    v-model="title"
+                    type="text"
+                    id="title"
+                    class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    placeholder="enter title"
+                  />
+                </div>
+
+                <div>
+                  <button
+                    @click.prevent="addNewService"
+                    class="pt-2 rounded-lg"
+                  >
+                    <i
+                      class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
+                    ></i>
+                  </button>
+                </div>
+              </div>
+              <div
+                v-for="(p, index) in formData.services"
+                :key="index"
+                class="flex items-start justify-between gap-3 mb-3"
+              >
+                <div class="flex-1 space-y-2 px-2">
+                  <p class="text-sm">{{ p }}</p>
+                </div>
+
+                <div>
+                  <button
+                    class="text-sm text-red-600"
+                    @click.prevent="removeServiceItem(index)"
+                  >
+                    <i
+                      class="fa-solid fa-minus text-sm font-semibold px-2 py-1 bg-red-500 rounded-full shadow text-white"
+                    ></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="mb-2 space-y-1">
             <label for="description" class="text-sm text-gray-800"
               >Images</label
@@ -391,6 +442,7 @@ const openModal = () => {
     owner_price: "",
     description: "",
     images: [],
+    services: [],
   };
   imagesPreview.value = [];
   editImagesPreview.value = [];
@@ -408,6 +460,7 @@ const closeModal = () => {
     owner_price: "",
     description: "",
     images: [],
+    services: [],
   };
   imagesPreview.value = [];
   editImagesPreview.value = [];
@@ -423,7 +476,18 @@ const formData = ref({
   price: "",
   description: "",
   images: [],
+  services: [],
 });
+
+const title = ref("");
+const addNewService = () => {
+  formData.value.services.push(title.value);
+  title.value = "";
+  console.log(formData.value.services, "this is array");
+};
+const removeServiceItem = (index) => {
+  formData.value.services.splice(index, 1);
+};
 
 const editImagesPreview = ref([]);
 const imagesPreview = ref([]);
@@ -466,6 +530,14 @@ const addNewHandler = async () => {
       frmData.append("images[" + i + "]", file);
     }
   }
+  if (formData.value.services.length > 0) {
+    for (let i = 0; i < formData.value.services.length; i++) {
+      frmData.append(
+        "including_services[" + i + "]",
+        formData.value.services[i]
+      );
+    }
+  }
 
   try {
     const response = await variationStore.addNewAction(frmData);
@@ -479,6 +551,7 @@ const addNewHandler = async () => {
       price: "",
       description: "",
       images: [],
+      services: [],
     };
     errors.value = null;
     createModalOpen.value = false;
@@ -513,6 +586,14 @@ const updateHandler = async () => {
       frmData.append("images[" + i + "]", file);
     }
   }
+  if (formData.value.services.length > 0) {
+    for (let i = 0; i < formData.value.services.length; i++) {
+      frmData.append(
+        "including_services[" + i + "]",
+        formData.value.services[i]
+      );
+    }
+  }
   frmData.append("_method", "PUT");
   try {
     const response = await variationStore.updateAction(
@@ -529,6 +610,7 @@ const updateHandler = async () => {
       price: "",
       description: "",
       images: [],
+      services: [],
     };
     errors.value = null;
     createModalOpen.value = false;
@@ -556,6 +638,7 @@ const onSubmitHandler = async () => {
 };
 
 const editModalOpenHandler = (data) => {
+  console.log(data, "this is edit data");
   formData.value.id = data.id;
   formData.value.entrance_ticket_id = data.entrance_ticket?.id;
   formData.value.cost_price = data.cost_price;
@@ -569,6 +652,9 @@ const editModalOpenHandler = (data) => {
     for (let i = 0; i < data.images.length; i++) {
       editImagesPreview.value.push(data.images[i]);
     }
+  }
+  if (data.including_services.length > 0) {
+    formData.value.services = data.including_services;
   }
   console.log(editImagesPreview.value);
 };

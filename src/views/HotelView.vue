@@ -37,14 +37,14 @@
                 :class="forSale ? 'bg-[#ff613c] text-white' : 'bg-white'"
                 @click="toggleSale"
               >
-                for Sale Part
+                Other Bookings
               </div>
               <div
                 class="cursor-pointer px-3 py-2.5 text-xs"
                 @click="toggleSale"
                 :class="!forSale ? 'bg-[#ff613c] text-white' : 'bg-white'"
               >
-                for User Web
+                Direct Bookings
               </div>
             </div>
           </div>

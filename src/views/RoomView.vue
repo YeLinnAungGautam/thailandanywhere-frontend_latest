@@ -743,7 +743,7 @@ import Pagination from "../components/Pagination.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import Modal from "../components/Modal.vue";
@@ -760,6 +760,8 @@ const cityStore = useCityStore();
 const hotelStore = useHotelStore();
 const roomStore = useRoomStore();
 const authStore = useAuthStore();
+const router = useRouter();
+const route = useRoute();
 
 const { rooms, loading, importLoading, incompleteRoom, loadingIncomplete } =
   storeToRefs(roomStore);
@@ -1020,7 +1022,8 @@ const addNewHandler = async () => {
     createModalOpen.value = false;
     imagesPreview.value = [];
     editImagesPreview.value = [];
-    await roomStore.getListAction();
+    // await roomStore.getListAction();
+    window.location.reload();
     toast.success(response.message);
   } catch (error) {
     if (error.response.data.errors) {
@@ -1117,7 +1120,8 @@ const updateHandler = async () => {
     editImagesPreview.value = [];
     errors.value = null;
     createModalOpen.value = false;
-    await roomStore.getListAction();
+    // await roomStore.getListAction();
+    window.location.reload();
     toast.success(response.message);
   } catch (error) {
     if (error.response.data.errors) {
@@ -1297,8 +1301,22 @@ const exportAction = async () => {
 };
 
 onMounted(async () => {
+  search.value =
+    route.query.search != "null" && route.query.search ? search.value : "";
+  hotel_id.value =
+    route.query.hotel != "null" && route.query.hotel ? route.query.hotel : "";
+  selectedFilter.value =
+    route.query.missing != "null" && route.query.missing
+      ? route.query.missing
+      : "";
   await hotelStore.getSimpleListAction();
-  await roomStore.getListAction();
+  if (
+    search.value == "" &&
+    hotel_id.value == "" &&
+    selectedFilter.value == ""
+  ) {
+    await roomStore.getListAction();
+  }
   hotelList.value = hotels.value.data;
 });
 
@@ -1354,6 +1372,20 @@ const importActionHandler = async () => {
   }
 };
 
+const goRouterFilter = () => {
+  router.push({
+    name: "products",
+    params: {
+      id: 3,
+    },
+    query: {
+      hotel: hotel_id.value || "null",
+      missing: selectedFilter.value || "null",
+      search: search.value || "null",
+    },
+  });
+};
+
 watch(search, async (newValue) => {
   if (selectedFilter.value != "") {
     await roomStore.getListAction({
@@ -1364,6 +1396,7 @@ watch(search, async (newValue) => {
     });
     currentPage.value = 1;
     pagiantionShow.value = true;
+    setTimeout(goRouterFilter, 1000);
   } else if (selectedFilter.value == "") {
     await roomStore.getListAction({
       hotel_id: hotel_id.value,
@@ -1373,6 +1406,7 @@ watch(search, async (newValue) => {
     });
     pagiantionShow.value = false;
     currentPage.value = 1;
+    setTimeout(goRouterFilter, 1000);
   }
 });
 watch(hotel_id, async (newValue) => {
@@ -1385,6 +1419,7 @@ watch(hotel_id, async (newValue) => {
     });
     currentPage.value = 1;
     pagiantionShow.value = true;
+    setTimeout(goRouterFilter, 1000);
   } else if (selectedFilter.value == "") {
     await roomStore.getListAction({
       hotel_id: hotel_id.value,
@@ -1394,6 +1429,7 @@ watch(hotel_id, async (newValue) => {
     });
     pagiantionShow.value = false;
     currentPage.value = 1;
+    setTimeout(goRouterFilter, 1000);
   }
 });
 watch(periodAjj, async (newValue) => {
@@ -1434,6 +1470,7 @@ watch(selectedFilter, async (newValue) => {
     });
     currentPage.value = 1;
     pagiantionShow.value = true;
+    setTimeout(goRouterFilter, 1000);
   } else if (selectedFilter.value == "") {
     await roomStore.getListAction({
       hotel_id: hotel_id.value,
@@ -1443,6 +1480,7 @@ watch(selectedFilter, async (newValue) => {
     });
     pagiantionShow.value = false;
     currentPage.value = 1;
+    setTimeout(goRouterFilter, 1000);
   }
 });
 </script>

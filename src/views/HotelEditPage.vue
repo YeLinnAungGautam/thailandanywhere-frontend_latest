@@ -319,7 +319,8 @@ const addNewHandler = async () => {
     closeModal();
     createModalOpen.value = false;
     toast.success(response.message);
-    cancelButtonAction();
+    router.push("/product/hotel/edit/" + route.params.id);
+    window.location.reload();
   } catch (error) {
     if (error.response.data.errors) {
       errors.value = error.response.data.errors;
@@ -335,6 +336,8 @@ const addNewHandler = async () => {
 
 const cancelButtonAction = () => {
   router.push("/products/2");
+  // window.location.back();
+  // router.go(-1);
 };
 
 const openCreate = () => {
@@ -471,7 +474,8 @@ const updateHandler = async () => {
     closeModal();
 
     toast.success(response.message);
-    cancelButtonAction();
+    router.push("/product/hotel/edit/" + route.params.id);
+    window.location.reload();
   } catch (error) {
     if (error.response.data.errors) {
       errors.value = error.response.data.errors;

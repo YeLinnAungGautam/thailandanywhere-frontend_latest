@@ -264,7 +264,7 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { computed, onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import Modal from "../components/Modal.vue";
@@ -280,6 +280,7 @@ const cityStore = useCityStore();
 const hotelStore = useHotelStore();
 const authStore = useAuthStore();
 const router = useRouter();
+const route = useRoute();
 
 const { hotels, loading, importLoading, incompleteHotel, loadingIncomplete } =
   storeToRefs(hotelStore);

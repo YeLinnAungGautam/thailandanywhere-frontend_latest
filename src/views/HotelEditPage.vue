@@ -108,6 +108,7 @@ const formData = ref({
   legal_name: "",
   description: "",
   full_description: null,
+  full_description_en: null,
   location_map_title: "",
   location_map: "",
   rating: "",
@@ -168,6 +169,7 @@ const closeModal = () => {
     legal_name: "",
     description: "",
     full_description: null,
+    full_description_en: null,
     location_map_title: "",
     location_map: "",
     rating: "",
@@ -184,6 +186,9 @@ const closeModal = () => {
   createModalOpen.value = false;
   console.log(formData.value, "thsi is check");
   if (formData.value.full_description == null) {
+    clearEditorContent();
+  }
+  if (formData.value.full_description_en == null) {
     clearEditorContent();
   }
 };
@@ -251,6 +256,7 @@ const addNewHandler = async () => {
   frmData.append("legal_name", formData.value.legal_name);
   frmData.append("description", formData.value.description);
   frmData.append("full_description", formData.value.full_description);
+  frmData.append("full_description_en", formData.value.full_description_en);
   frmData.append("location_map_title", formData.value.location_map_title);
   frmData.append("location_map", formData.value.location_map);
   frmData.append("rating", formData.value.rating);
@@ -312,6 +318,7 @@ const addNewHandler = async () => {
       legal_name: "",
       description: "",
       full_description: null,
+      full_description_en: null,
       location_map_title: "",
       location_map: "",
       rating: "",
@@ -360,6 +367,7 @@ const openCreate = () => {
   formData.value.legal_name = "";
   formData.value.description = "";
   formData.value.full_description = "";
+  formData.value.full_description_en = "";
   formData.value.location_map_title = "";
   formData.value.location_map = "";
   formData.value.rating = "";
@@ -398,6 +406,7 @@ const updateHandler = async () => {
   frmData.append("legal_name", formData.value.legal_name);
   frmData.append("description", formData.value.description);
   frmData.append("full_description", formData.value.full_description);
+  frmData.append("full_description_en", formData.value.full_description_en);
   // frmData.append("contract_due", formData.value.contract_due);
   if (
     formData.value.contract_due != null &&
@@ -470,6 +479,7 @@ const updateHandler = async () => {
       contract_due: "",
       description: "",
       full_description: null,
+      full_description_en: null,
       location_map_title: "",
       location_map: "",
       rating: "",
@@ -534,6 +544,7 @@ const getDetail = async (params) => {
     formData.value.legal_name = data.legal_name;
     formData.value.description = data.description;
     formData.value.full_description = data.full_description;
+    formData.value.full_description_en = data.full_description_en;
     formData.value.location_map_title = "";
     formData.value.location_map = "";
     formData.value.rating = "";
@@ -960,6 +971,20 @@ onMounted(async () => {
                   toolbar="essential"
                   contentType="html"
                   v-model:content="formData.full_description"
+                />
+              </div>
+              <div v-if="quiteSwitch == 2" class="mb-2 space-y-1">
+                <label for="name" class="text-sm text-gray-800"
+                  >Full Description ( english )</label
+                >
+                <QuillEditor
+                  ref="textEditor"
+                  :options="editorOptions"
+                  theme="snow"
+                  class="!bg-white/50 !border-1 !border-gray-300 !rounded-bl-md !rounded-br-md !shadow-sm !text-xs !text-gray-900 !h-[350px]"
+                  toolbar="essential"
+                  contentType="html"
+                  v-model:content="formData.full_description_en"
                 />
               </div>
             </div>

@@ -58,7 +58,7 @@ const sidebarStore = useSidebarStore();
               }"
               class="flex items-center gap-3 tracking-wide text-sm text-gray-600 cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none shadow rounded-md"
             >
-              Product Sub Category
+              Hotel Category
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }">

@@ -29,6 +29,7 @@ import { useCityStore } from "../stores/city";
 import { useHotelStore } from "../stores/hotel";
 import { useAuthStore } from "../stores/auth";
 import FacilitoryStoreVue from "../components/FacilitoryStore.vue";
+import { useHotelCategoryStore } from "../stores/hotelcategory";
 // import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const createModalOpen = ref(false);
@@ -38,7 +39,9 @@ const hotelStore = useHotelStore();
 const authStore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
+const hotelCategoryStore = useHotelCategoryStore();
 
+const { hcategories } = storeToRefs(hotelCategoryStore);
 const { hotels, loading, importLoading } = storeToRefs(hotelStore);
 
 const search = ref("");
@@ -95,6 +98,7 @@ const formData = ref({
   id: "",
   name: "",
   city_id: null,
+  category_id: null,
   type: "other_booking",
   payment_method: "",
   bank_name: "",
@@ -154,6 +158,7 @@ const closeModal = () => {
     id: "",
     name: "",
     city_id: null,
+    category_id: null,
     type: "other_booking",
     payment_method: "",
     bank_name: "",
@@ -236,6 +241,7 @@ const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("city_id", formData.value.city_id);
+  frmData.append("category_id", formData.value.category_id);
   frmData.append("type", formData.value.type);
   frmData.append("account_name", formData.value.account_name);
   frmData.append("place", formData.value.place);
@@ -296,6 +302,7 @@ const addNewHandler = async () => {
     formData.value = {
       name: "",
       city_id: null,
+      category_id: null,
       type: "other_booking",
       payment_method: "",
       bank_name: "",
@@ -343,6 +350,7 @@ const cancelButtonAction = () => {
 const openCreate = () => {
   formData.value.name = "";
   formData.value.city_id = null;
+  formData.value.category_id = null;
   formData.value.type = "other_booking";
   formData.value.payment_method = "";
   formData.value.bank_name = "";
@@ -381,6 +389,7 @@ const updateHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("place", formData.value.place);
   frmData.append("city_id", formData.value.city_id);
+  frmData.append("category_id", formData.value.category_id);
   frmData.append("type", formData.value.type);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
@@ -449,6 +458,7 @@ const updateHandler = async () => {
     formData.value = {
       name: "",
       city_id: null,
+      category_id: null,
       type: "other_booking",
       place: "",
       id: "",
@@ -518,6 +528,7 @@ const getDetail = async (params) => {
     formData.value.id = data.id;
     formData.value.name = data.name;
     formData.value.city_id = data.city.id;
+    formData.value.category_id = data.category?.id;
     formData.value.type = data.type;
     formData.value.place = data.place;
     formData.value.legal_name = data.legal_name;
@@ -616,8 +627,16 @@ const importActionHandler = async () => {
   }
 };
 
+const removeLinkContract = async (id) => {
+  const res = await hotelStore.deleteHotelContractAction(formData.value.id, id);
+  console.log(res);
+  toast.success("delete link contract success");
+  await getDetail(route.params.id);
+};
+
 onMounted(async () => {
   await cityStore.getSimpleListAction();
+  await hotelCategoryStore.getSimpleListAction();
   citylist.value = cities.value.data;
   await getDetail(route.params.id);
 });
@@ -716,6 +735,18 @@ onMounted(async () => {
                 placeholder="Choose City"
               ></v-select>
             </div>
+            <div v-if="quiteSwitch == 1">
+              <p class="mb-2 text-sm text-gray-800">Hotel Category</p>
+              <v-select
+                v-model="formData.category_id"
+                class="style-chooser"
+                :options="hcategories?.data ?? []"
+                label="name"
+                :clearable="false"
+                :reduce="(h) => h.id"
+                placeholder="Choose Category"
+              ></v-select>
+            </div>
             <div v-if="quiteSwitch == 1" class="mb-2 space-y-1">
               <label for="name" class="text-sm text-gray-800">Place</label>
               <input
@@ -812,17 +843,25 @@ onMounted(async () => {
               </p>
             </div>
             <div
-              class="mb-2 space-y-1 flex justify-start items-center flex-wrap gap-4"
+              class="mb-2 space-y-3 gap-4"
               v-if="linkContract.length != 0 && quiteSwitch == 1"
             >
-              <p v-for="(a, index) in linkContract.contacts" :key="index">
-                <a
-                  :href="a.file"
-                  target="_blink"
-                  class="text-sm text-red-500 bg-gray-200 px-3 py-1 rounded-lg"
-                  >contracts link {{ index + 1 }}</a
-                >
-              </p>
+              <div v-for="(a, index) in linkContract.contacts" :key="index">
+                <p>
+                  <a
+                    :href="a.file"
+                    target="_blink"
+                    class="text-sm text-red-500 bg-gray-200 px-3 py-1 rounded-lg"
+                    >contracts link {{ index + 1 }}</a
+                  >
+                  <button
+                    @click.prevent="removeLinkContract(a.id)"
+                    class="text-sm text-white bg-red-600 px-4 py-1 rounded-lg ml-2"
+                  >
+                    delete
+                  </button>
+                </p>
+              </div>
             </div>
 
             <div v-if="quiteSwitch == 1" class="mb-2 space-y-1">

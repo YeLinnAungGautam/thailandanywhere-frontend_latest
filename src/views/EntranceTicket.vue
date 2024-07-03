@@ -158,9 +158,23 @@
 
             <div class="mb-2 space-y-1" v-if="linkContract.length != 0">
               <p v-for="(a, index) in linkContract.contacts" :key="index">
-                <a :href="a.file" target="_blink" class="text-sm text-red-500"
+                <!-- <a :href="a.file" target="_blink" class="text-sm text-red-500"
                   >link</a
-                >
+                > -->
+                <p>
+                  <a
+                    :href="a.file"
+                    target="_blink"
+                    class="text-sm text-red-500 bg-gray-200 px-3 py-1 rounded-lg"
+                    >contracts link {{ index + 1 }}</a
+                  >
+                  <button
+                    @click.prevent="removeLinkContract(a.id)"
+                    class="text-sm text-white bg-red-600 px-4 py-1 rounded-lg ml-2"
+                  >
+                    delete
+                  </button>
+                </p>
               </p>
             </div>
             <div class="col-span-2">
@@ -1007,6 +1021,14 @@ const exportAction = async () => {
   if (res) {
     window.open(res.result.download_link);
   }
+};
+
+const removeLinkContract = async (id) => {
+  const res = await entranceStore.deleteContractAction(formData.value.id, id);
+  console.log(res);
+  toast.success("delete link contract success");
+  createModalOpen.value = false;
+  await entranceStore.getListAction();
 };
 
 // import functions

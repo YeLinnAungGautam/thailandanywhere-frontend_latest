@@ -82,6 +82,16 @@ export const useHotelStore = defineStore("hotel", {
                 throw error;
             }
         },
+        async deleteHotelContractAction(id, contract_id) {
+            try {
+                const response = await axios.delete(
+                    "/hotels/" + id + "/contracts/" + contract_id
+                );
+                return response.data;
+            } catch (error) {
+                throw error;
+            }
+        },
 
         async deleteImageAction(id, imageID) {
             try {

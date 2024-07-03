@@ -158,6 +158,26 @@
               />
             </Switch>
           </div>
+          <div
+            class="mb-2 space-y-1 flex justify-start items-center gap-3"
+            v-if="quiteSwitch == 1"
+          >
+            <label for="room_price" class="text-sm text-gray-800"
+              >Has Breakfast ?</label
+            >
+            <Switch
+              v-model="enabledhas"
+              :class="enabledhas ? ' bg-orange-600' : 'bg-gray-500'"
+              class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+            >
+              <span class="sr-only">Use setting</span>
+              <span
+                aria-hidden="true"
+                :class="enabledhas ? 'translate-x-9' : 'translate-x-0'"
+                class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+              />
+            </Switch>
+          </div>
           <div class="col-span-2" v-if="quiteSwitch == 3">
             <div class="">
               <div class="flex items-center justify-start mb-2">
@@ -773,6 +793,7 @@ const { hotels } = storeToRefs(hotelStore);
 
 const hotelList = ref([]);
 const enabled = ref(false);
+const enabledhas = ref(false);
 
 const quiteSwitch = ref(1);
 
@@ -863,6 +884,7 @@ const formData = ref({
   description: "",
   max_person: "",
   is_extra: 0,
+  has_breakfast: 0,
   period: [],
   images: [],
   room_amen: [],
@@ -879,6 +901,7 @@ const closeModal = () => {
     name: "",
     hotel_id: null,
     is_extra: 0,
+    has_breakfast: 0,
     period: [],
     description: "",
     max_person: "",
@@ -891,6 +914,7 @@ const closeModal = () => {
   };
   errors.value = null;
   enabled.value = false;
+  enabledhas.value = false;
   createModalOpen.value = false;
   imagesPreview.value = [];
   editImagesPreview.value = [];
@@ -951,6 +975,7 @@ const addNewHandler = async () => {
   frmData.append("agent_price", formData.value.agent_price);
   frmData.append("owner_price", formData.value.owner_price);
   frmData.append("is_extra", enabled.value ? 1 : 0);
+  frmData.append("has_breakfast", enabledhas.value ? 1 : 0);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -1011,6 +1036,7 @@ const addNewHandler = async () => {
       period: [],
       images: [],
       is_extra: 0,
+      has_breakfast: 0,
       room_price: "",
       room_amen: [],
       cost: "",
@@ -1018,6 +1044,7 @@ const addNewHandler = async () => {
       owner_price: "",
     };
     enabled.value = false;
+    enabledhas.value = false;
     errors.value = null;
     createModalOpen.value = false;
     imagesPreview.value = [];
@@ -1040,6 +1067,7 @@ const updateHandler = async () => {
   frmData.append("description", formData.value.description);
   frmData.append("max_person", formData.value.max_person);
   frmData.append("is_extra", enabled.value ? 1 : 0);
+  frmData.append("has_breakfast", enabledhas.value ? 1 : 0);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -1108,6 +1136,7 @@ const updateHandler = async () => {
       max_person: "",
       period: [],
       is_extra: 0,
+      has_breakfast: 0,
       images: [],
       room_price: "",
       room_amen: [],
@@ -1116,6 +1145,7 @@ const updateHandler = async () => {
       owner_price: "",
     };
     enabled.value = false;
+    enabledhas.value = false;
     imagesPreview.value = [];
     editImagesPreview.value = [];
     errors.value = null;
@@ -1173,6 +1203,7 @@ const editModalOpenHandler = (data) => {
   formData.value.name = data.name;
   formData.value.hotel_id = data.hotel.id;
   enabled.value = data.is_extra == 1 ? true : false;
+  enabledhas.value = data.has_breakfast == 1 ? true : false;
   formData.value.max_person = data.max_person;
   formData.value.room_price = data.room_price;
   formData.value.description = data.description;

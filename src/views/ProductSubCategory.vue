@@ -3,7 +3,7 @@
     class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 md:col-span-3 hidden md:block"
   >
     <h3 class="text-xl font-medium text-gray-600 tracking-wide mb-3">
-      Product Sub Category
+      Hotel Categories
     </h3>
     <!-- search input sort filter -->
     <div class="flex items-center justify-between mb-8">
@@ -12,7 +12,7 @@
           v-model="search"
           type="text"
           class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
-          placeholder="Search for sub category.."
+          placeholder="Search for hotel category.."
         />
       </div>
 
@@ -24,25 +24,6 @@
       </div>
     </div>
     <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
-      <!-- search input sort filter -->
-      <!-- <div class="flex items-center justify-between mb-5"> -->
-
-      <!-- <div>
-          <p class="inline-block mr-2 text-gray-500 font-medium">Show</p>
-          <select
-            v-model="showEntries"
-            class="border-2 p-2 rounded-md w-16 focus:outline-none focus:ring-0"
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="30">30</option>
-            <option value="40">40</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
-          <p class="inline-block ml-2 text-gray-500 font-medium">entries</p>
-        </div> -->
-      <!-- </div> -->
       <div class="overflow-auto rounded-lg shadow mb-5" v-if="!loading">
         <table class="w-full">
           <thead class="bg-gray-50 border-b-2 border-gray-200">
@@ -53,9 +34,7 @@
               <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Name
               </th>
-              <th class="p-4 text-xs font-medium tracking-wide text-left">
-                Category
-              </th>
+
               <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Actions
               </th>
@@ -63,7 +42,7 @@
           </thead>
           <tbody class="divide-y divide-gray-100">
             <tr
-              v-for="sub in subData?.data"
+              v-for="sub in hcategories?.data"
               :key="sub.id"
               class="bg-white even:bg-gray-50 hover:bg-gray-50"
             >
@@ -73,12 +52,7 @@
               <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 {{ sub.name }}
               </td>
-              <td
-                class="p-4 text-xs text-gray-700 whitespace-nowrap"
-                v-if="sub.category.name"
-              >
-                {{ sub.category.name }}
-              </td>
+
               <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
                   <button
@@ -100,7 +74,11 @@
         </table>
       </div>
       <!-- pagination -->
-      <Pagination v-if="!loading" :data="subData" @change-page="changePage" />
+      <Pagination
+        v-if="!loading"
+        :data="hcategories"
+        @change-page="changePage"
+      />
     </div>
     <!-- modal -->
     <Modal :isOpen="subModalOpen" @closeModal="subModalOpen = false">
@@ -111,11 +89,7 @@
           as="h3"
           class="text-lg font-medium leading-6 text-gray-900 mb-5"
         >
-          {{
-            formData.id
-              ? "Edit Product Sub Category"
-              : "Add Product Sub Category"
-          }}
+          {{ formData.id ? "Edit Hotel Category" : "Add Hotel Category" }}
         </DialogTitle>
         <form @submit.prevent="onSubmitHandler" class="mt-2">
           <div class="space-y-1 mb-2">
@@ -130,18 +104,7 @@
               {{ errors.name[0] }}
             </p>
           </div>
-          <div class="space-y-1 mb-4">
-            <p class="text-gray-800 text-sm mb-2">Category</p>
-            <v-select
-              v-model="formData.category_id"
-              class="style-chooser"
-              :options="products.data ?? []"
-              label="name"
-              :clearable="false"
-              :reduce="(product) => product.id"
-              placeholder="Choose category"
-            ></v-select>
-          </div>
+
           <div class="text-end">
             <Button type="submit"> Submit </Button>
           </div>
@@ -176,11 +139,10 @@ import { storeToRefs } from "pinia";
 import axios from "axios";
 import { useToast } from "vue-toastification";
 import Swal from "sweetalert2";
-import { useProductStore } from "../stores/product";
-import { useSubProductStore } from "../stores/subproduct";
+import { useHotelCategoryStore } from "../stores/hotelcategory";
 
-const productStore = useProductStore();
-const subproductStore = useSubProductStore();
+const hotelCategoryStore = useHotelCategoryStore();
+const { hcategories, loading } = storeToRefs(hotelCategoryStore);
 const toast = useToast();
 
 const subModalOpen = ref(false);
@@ -188,33 +150,28 @@ const subModalOpen = ref(false);
 const formData = ref({
   name: "",
   id: "",
-  category_id: "",
 });
 const showEntries = ref(10);
 const errors = ref(null);
 const search = ref("");
-const { subData, loading } = storeToRefs(subproductStore);
-const { products } = storeToRefs(productStore);
 
 const changePage = async (url) => {
   // const { subdata } = await axios.get(url);
   // productStore.subData = subdata.result;
-  await subproductStore.getChangePage(url);
+  await hotelCategoryStore.getChangePage(url);
 };
 
 const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
-  frmData.append("category_id", formData.value.category_id);
   try {
-    const response = await subproductStore.addNewAction(frmData);
+    const response = await hotelCategoryStore.addNewAction(frmData);
     formData.value = {
       name: "",
-      category_id: "",
     };
     errors.value = null;
     subModalOpen.value = false;
-    await subproductStore.getListAction();
+    await hotelCategoryStore.getListAction();
     toast.success(response.message);
   } catch (error) {
     if (error.response.data.errors) {
@@ -227,21 +184,19 @@ const addNewHandler = async () => {
 const updateHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
-  frmData.append("category_id", formData.value.category_id);
   frmData.append("_method", "PUT");
   try {
-    const response = await subproductStore.updateAction(
+    const response = await hotelCategoryStore.updateAction(
       frmData,
       formData.value.id
     );
     formData.value = {
       name: "",
-      category_id: "",
       id: "",
     };
     errors.value = null;
     subModalOpen.value = false;
-    await subproductStore.getListAction();
+    await hotelCategoryStore.getListAction();
     toast.success(response.message);
   } catch (error) {
     if (error.response.data.errors) {
@@ -262,7 +217,6 @@ const onSubmitHandler = async () => {
 const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
-  formData.value.category_id = data.category.id;
   subModalOpen.value = true;
 };
 
@@ -278,7 +232,7 @@ const onDeleteHandler = async (id) => {
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
-        const response = await subproductStore.deleteAction(id);
+        const response = await hotelCategoryStore.deleteAction(id);
         toast.success(response.message);
       } catch (error) {
         if (error.response.data.errors) {
@@ -286,22 +240,21 @@ const onDeleteHandler = async (id) => {
         }
         toast.error(error.response.data.message);
       }
-      await subproductStore.getListAction();
+      await hotelCategoryStore.getListAction();
     }
   });
 };
 
 onMounted(async () => {
-  await subproductStore.getListAction();
-  await productStore.getSimpleListAction();
-  console.log(products.value, "this is data");
+  await hotelCategoryStore.getListAction();
+  console.log(hcategories.value, "this is data");
 });
 
 watch(showEntries, async (newValue) => {
-  await subproductStore.getListAction({ limit: showEntries.value });
+  await hotelCategoryStore.getListAction({ limit: showEntries.value });
 });
 
 watch(search, async (newValue) => {
-  await subproductStore.getListAction({ search: search.value });
+  await hotelCategoryStore.getListAction({ search: search.value });
 });
 </script>

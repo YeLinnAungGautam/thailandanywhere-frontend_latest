@@ -246,7 +246,13 @@ const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("city_id", formData.value.city_id);
-  frmData.append("category_id", formData.value.category_id);
+  if (
+    formData.value.category_id != undefined ||
+    formData.value.category_id != "" ||
+    formData.value.category_id != "null"
+  ) {
+    frmData.append("category_id", formData.value.category_id);
+  }
   frmData.append("type", formData.value.type);
   frmData.append("account_name", formData.value.account_name);
   frmData.append("place", formData.value.place);
@@ -397,7 +403,13 @@ const updateHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("place", formData.value.place);
   frmData.append("city_id", formData.value.city_id);
-  frmData.append("category_id", formData.value.category_id);
+  if (
+    formData.value.category_id != undefined ||
+    formData.value.category_id != "" ||
+    formData.value.category_id != "null"
+  ) {
+    frmData.append("category_id", formData.value.category_id);
+  }
   frmData.append("type", formData.value.type);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);

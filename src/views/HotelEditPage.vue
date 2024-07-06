@@ -247,8 +247,8 @@ const addNewHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("city_id", formData.value.city_id);
   if (
-    formData.value.category_id != undefined ||
-    formData.value.category_id != "" ||
+    formData.value.category_id != undefined &&
+    formData.value.category_id != "" &&
     formData.value.category_id != "null"
   ) {
     frmData.append("category_id", formData.value.category_id);
@@ -404,8 +404,8 @@ const updateHandler = async () => {
   frmData.append("place", formData.value.place);
   frmData.append("city_id", formData.value.city_id);
   if (
-    formData.value.category_id != undefined ||
-    formData.value.category_id != "" ||
+    formData.value.category_id != undefined &&
+    formData.value.category_id != "" &&
     formData.value.category_id != "null"
   ) {
     frmData.append("category_id", formData.value.category_id);

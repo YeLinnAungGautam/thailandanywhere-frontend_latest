@@ -61,7 +61,9 @@ const changePage = async (url) => {
 const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
-  frmData.append("category_id", formData.value.category_id);
+  if(formData.value.category_id != "null" && formData.value.category_id != undefined && formData.value.category_id != ""){
+    frmData.append("category_id", formData.value.category_id);
+  }
   frmData.append("description", formData.value.description);
   frmData.append("entry_fee", formData.value.entry_fee);
   frmData.append("detail", formData.value.detail);
@@ -108,7 +110,9 @@ const addNewHandler = async () => {
 const updateHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
-  frmData.append("category_id", formData.value.category_id);
+  if(formData.value.category_id != "null" && formData.value.category_id != undefined && formData.value.category_id != ""){
+    frmData.append("category_id", formData.value.category_id);
+  }
   frmData.append("description", formData.value.description);
   frmData.append("entry_fee", formData.value.entry_fee);
   frmData.append("detail", formData.value.detail);

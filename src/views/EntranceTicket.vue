@@ -157,7 +157,7 @@
             </div> -->
 
             <div class="mb-2 space-y-1" v-if="linkContract.length != 0">
-              <p v-for="(a, index) in linkContract.contacts" :key="index">
+              <div v-for="(a, index) in linkContract.contacts" :key="index">
                 <!-- <a :href="a.file" target="_blink" class="text-sm text-red-500"
                   >link</a
                 > -->
@@ -175,7 +175,7 @@
                     delete
                   </button>
                 </p>
-              </p>
+              </div>
             </div>
             <div class="col-span-2">
               <p class="text-gray-800 text-sm mb-2">Description</p>
@@ -187,6 +187,21 @@
               />
               <p v-if="errors?.description" class="mt-1 text-sm text-red-600">
                 {{ errors.description[0] }}
+              </p>
+            </div>
+            <div class="col-span-2">
+              <p class="text-gray-800 text-sm mb-2">Description (english)</p>
+              <textarea
+                v-model="formData.full_description_en"
+                rows="3"
+                id="title"
+                class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <p
+                v-if="errors?.full_description_en"
+                class="mt-1 text-sm text-red-600"
+              >
+                {{ errors.full_description_en[0] }}
               </p>
             </div>
             <div class="col-span-2" v-if="!formData.id">
@@ -674,6 +689,7 @@ const paymentMethod = [
 const formData = ref({
   name: "",
   description: "",
+  full_description_en: "",
   cover_image: "",
   city_id: [],
   category: [],
@@ -696,6 +712,7 @@ const VantourCreate = () => {
   formData.value.id = "";
   formData.value.name = "";
   formData.value.description = "";
+  formData.value.full_description_en = "";
   formData.value.images = [];
   formData.value.feature_image = "";
   formData.value.payment_method = "";
@@ -804,6 +821,7 @@ const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("description", formData.value.description);
+  frmData.append("full_description_en", formData.value.full_description_en);
   frmData.append("account_name", formData.value.account_name);
   // frmData.append("place", formData.value.place);
   frmData.append("payment_method", formData.value.payment_method);
@@ -840,6 +858,7 @@ const addNewHandler = async () => {
     formData.value = {
       name: "",
       description: "",
+      full_description_en: "",
       cover_image: "",
       city_id: [],
       category: [],
@@ -890,6 +909,7 @@ const updateHandler = async () => {
   frmData.append("_method", "PUT");
 
   frmData.append("description", formData.value.description);
+  frmData.append("full_description_en", formData.value.full_description_en);
   frmData.append("account_name", formData.value.account_name);
   // frmData.append("place", formData.value.place);
   frmData.append("payment_method", formData.value.payment_method);
@@ -930,6 +950,7 @@ const updateHandler = async () => {
       id: "",
       name: "",
       description: "",
+      full_description_en: "",
       cover_image: "",
       city_id: [],
       category: [],
@@ -991,6 +1012,7 @@ const editModalOpenHandler = async (id) => {
     formData.value.id = id;
 
     formData.value.description = response.result.description;
+    formData.value.full_description_en = response.result.full_description_en;
     formData.value.account_name = response.result.account_name;
     formData.value.payment_method = response.result.payment_method;
     formData.value.bank_name = response.result.bank_name;

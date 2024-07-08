@@ -40,6 +40,7 @@ const formData = ref({
   name: "",
   description: "",
   long_description: "",
+  full_description_en: "",
   cover_image: "",
   sku_code: "",
   type: "car_rental",
@@ -129,6 +130,7 @@ const onSubmitHandler = async () => {
   frmData.append("sku_code", formData.value.sku_code);
   frmData.append("type", formData.value.type);
   frmData.append("long_description", formData.value.long_description);
+  frmData.append("full_description_en", formData.value.full_description_en);
   frmData.append("description", formData.value.description);
 
   if (editData.value.images.length > 0) {
@@ -167,6 +169,7 @@ const onSubmitHandler = async () => {
       name: "",
       description: "",
       long_description: "",
+      full_description_en: "",
       cover_image: "",
       sku_code: "",
       type: "car_rental",
@@ -223,6 +226,7 @@ const getDetail = async () => {
     formData.value.name = response.result.name;
     formData.value.description = response.result.description;
     formData.value.long_description = response.result.long_description;
+    formData.value.full_description_en = response.result.full_description_en;
     editData.value.cover_image = response.result.cover_image;
     formData.value.sku_code = response.result.sku_code;
     formData.value.type = response.result.type;
@@ -512,6 +516,21 @@ onMounted(async () => {
               class="mt-1 text-sm text-red-600"
             >
               {{ errors.long_description[0] }}
+            </p>
+          </div>
+          <div class="">
+            <p class="text-gray-800 text-sm mb-2">Long-Description (english)</p>
+            <textarea
+              v-model="formData.full_description_en"
+              rows="10"
+              id="title"
+              class="w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+            />
+            <p
+              v-if="errors?.full_description_en"
+              class="mt-1 text-sm text-red-600"
+            >
+              {{ errors.full_description_en[0] }}
             </p>
           </div>
           <div class="text-end" v-if="actionPage == 'edit'">

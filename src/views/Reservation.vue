@@ -670,16 +670,19 @@ const changeServiceDate = (data) => {
           ></v-select>
         </div>
         <div>
-          <!-- <input
+          <input
             v-model="searchTime"
             type="date"
             class="h-8 w-3/5 sm:w-3/5 md:w-full text-md border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
             placeholder="Search Date"
-          /> -->
+            title="search with date"
+          />
+        </div>
+        <div>
           <VueDatePicker
             v-model="dateRange"
             range
-            placeholder="Service Date"
+            placeholder="Service Date range"
             text-input
           />
         </div>
@@ -758,7 +761,7 @@ const changeServiceDate = (data) => {
             entries
           </p>
         </div>
-        <div class="col-span-3">
+        <div class="col-span-2">
           <div class="flex w-full text-xs pt-4 justify-end items-center gap-4">
             <p
               @click="changeServiceDate('today')"

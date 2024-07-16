@@ -151,7 +151,7 @@ const routes = [{
         component: UpdateBookingView,
     },
     {
-        path: "/database",
+        path: "/database/:page",
         name: "database",
         component: DatabaseView,
     },

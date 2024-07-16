@@ -26,10 +26,13 @@ import Swal from "sweetalert2";
 import { useDestinationStore } from "../stores/destination";
 import { useProductStore } from "../stores/product";
 import { useCityStore } from "../stores/city";
+import { useRouter, useRoute } from "vue-router";
 
 const destStore = useDestinationStore();
 const productStore = useProductStore();
 const toast = useToast();
+const router = useRouter();
+const route = useRoute();
 const cityStore = useCityStore();
 
 const carModalOpen = ref(false);
@@ -54,14 +57,37 @@ const { dests, loading } = storeToRefs(destStore);
 const { products } = storeToRefs(productStore);
 const { cities } = storeToRefs(cityStore);
 
+const pageValue = ref(1);
+
 const changePage = async (url) => {
+  console.log(url, "this is change page");
+  const regex = /page=(\d+)/;
+  const match = url.match(regex);
+
+  if (match) {
+    pageValue.value = match[1]; // Extracted page value
+  } else {
+    console.error("Page parameter not found in URL");
+  }
+  console.log(pageValue.value, "this is page");
+  router.push({
+    name: "database",
+    params: { page: 3 },
+    query: {
+      pagi: pageValue.value,
+    },
+  });
   await destStore.getChangePage(url);
 };
 
 const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
-  if(formData.value.category_id != "null" && formData.value.category_id != undefined && formData.value.category_id != ""){
+  if (
+    formData.value.category_id != "null" &&
+    formData.value.category_id != undefined &&
+    formData.value.category_id != ""
+  ) {
     frmData.append("category_id", formData.value.category_id);
   }
   frmData.append("description", formData.value.description);
@@ -99,6 +125,9 @@ const addNewHandler = async () => {
     imagesPreview.value = [];
     await destStore.getListAction();
     toast.success(response.message);
+    changePage(
+      `https://api-blog.thanywhere.com/admin/destinations?page=${pageValue.value}`
+    );
   } catch (error) {
     if (error.response.data.errors) {
       errors.value = error.response.data.errors;
@@ -110,7 +139,11 @@ const addNewHandler = async () => {
 const updateHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
-  if(formData.value.category_id != "null" && formData.value.category_id != undefined && formData.value.category_id != ""){
+  if (
+    formData.value.category_id != "null" &&
+    formData.value.category_id != undefined &&
+    formData.value.category_id != ""
+  ) {
     frmData.append("category_id", formData.value.category_id);
   }
   frmData.append("description", formData.value.description);
@@ -139,6 +172,9 @@ const updateHandler = async () => {
     closeModal();
     await destStore.getListAction();
     toast.success(response.message);
+    changePage(
+      `https://api-blog.thanywhere.com/admin/destinations?page=${pageValue.value}`
+    );
   } catch (error) {
     if (error.response.data.errors) {
       errors.value = error.response.data.errors;
@@ -288,9 +324,15 @@ const importActionHandler = async () => {
 };
 
 onMounted(async () => {
+  pageValue.value = route.query.pagi;
+  console.log(pageValue.value, "this is from page value");
+
   await destStore.getListAction();
   await productStore.getSimpleListAction();
   await cityStore.getSimpleListAction();
+  changePage(
+    `https://api-blog.thanywhere.com/admin/destinations?page=${pageValue.value}`
+  );
   console.log(cities.value, "pro");
 });
 

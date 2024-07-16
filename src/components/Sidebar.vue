@@ -92,7 +92,8 @@
               v-if="!authStore.isAgent"
               name="Database"
               :icon="CircleStackIcon"
-              to="/database"
+              :activePaths="['database', 'blog_categories']"
+              to="/database/page"
             />
             <SidebarItem
               name="Blogs"

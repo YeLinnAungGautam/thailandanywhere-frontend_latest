@@ -8,11 +8,12 @@ import SupplierView from "../views/SupplierView.vue";
 import ProductSubCategory from "../views/ProductSubCategory.vue";
 import DestinationView from "../views/DestinationView.vue";
 import DriverView from "../views/DriverView.vue";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import Button from "../components/Button.vue";
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@headlessui/vue";
 import Pagination from "../components/Pagination.vue";
 import { useSidebarStore } from "../stores/sidebar";
+import { useRouter, useRoute } from "vue-router";
 import {
   PencilSquareIcon,
   TrashIcon,
@@ -27,6 +28,31 @@ import {
 } from "@heroicons/vue/24/outline";
 
 const sidebarStore = useSidebarStore();
+const router = useRouter();
+const route = useRoute();
+const selectedTab = ref(0);
+
+const changeTab = (index) => {
+  selectedTab.value = index;
+  router.push({
+    name: "database",
+    params: {
+      page: index,
+    },
+  });
+};
+
+const changeUseRouter = () => {
+  if (route.params.page) {
+    changeTab(route.params.page);
+  } else if (route.params.page == "page") {
+    changeTab(0);
+  }
+};
+
+onMounted(() => {
+  changeUseRouter();
+});
 </script>
 
 <template>
@@ -35,11 +61,11 @@ const sidebarStore = useSidebarStore();
       <h3 class="text-2xl font-medium text-gray-600">Database</h3>
     </div>
     <div :class="sidebarStore.isShowSidebar ? 'w-[80vw]' : 'w-[96vw]'">
-      <TabGroup>
+      <TabGroup :selectedIndex="selectedTab">
         <TabList
           class="space-x-2 bg-white/60 p-6 rounded-lg shadow-sm mb-5 flex"
         >
-          <Tab as="template" v-slot="{ selected }">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(0)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -50,7 +76,7 @@ const sidebarStore = useSidebarStore();
               Product Category
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(1)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -61,7 +87,7 @@ const sidebarStore = useSidebarStore();
               Hotel Category
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(2)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -72,7 +98,7 @@ const sidebarStore = useSidebarStore();
               Product Tag
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(3)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -83,7 +109,7 @@ const sidebarStore = useSidebarStore();
               Destination
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(4)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -94,7 +120,7 @@ const sidebarStore = useSidebarStore();
               City
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(5)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -105,7 +131,7 @@ const sidebarStore = useSidebarStore();
               Car
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(6)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -116,7 +142,7 @@ const sidebarStore = useSidebarStore();
               Driver
             </button>
           </Tab>
-          <Tab as="template" v-slot="{ selected }">
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(7)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,

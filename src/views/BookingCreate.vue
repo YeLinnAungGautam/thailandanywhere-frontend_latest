@@ -194,6 +194,37 @@ const sub_total = computed(() => {
   }
 });
 
+const sub_total_real = computed(() => {
+  if (enabledIn.value == false) {
+    let totalsub = 0;
+    for (let i = 0; i < formData.value.items.length; i++) {
+      if (!formData.value.items[i].is_inclusive) {
+        if (formData.value.items[i].product_type != "7") {
+          totalsub = totalsub + formData.value.items[i].total_amount;
+        }
+      }
+    }
+    return totalsub;
+  } else {
+    return formData.value.inclusive_rate * formData.value.inclusive_quantity;
+  }
+});
+const sub_total_airline = computed(() => {
+  if (enabledIn.value == false) {
+    let totalsub = 0;
+    for (let i = 0; i < formData.value.items.length; i++) {
+      if (!formData.value.items[i].is_inclusive) {
+        if (formData.value.items[i].product_type == "7") {
+          totalsub = totalsub + formData.value.items[i].total_amount;
+        }
+      }
+    }
+    return totalsub;
+  } else {
+    return 0;
+  }
+});
+
 const sub_qty_total = computed(() => {
   let totalsub = 0;
   if (formitem.value.days) {
@@ -227,6 +258,21 @@ const grand_total = computed(() => {
   }
 });
 
+const grand_total_real = computed(() => {
+  // console.log(sub_total.value, formData.value.discount);
+  if (formData.value.discount.trim().endsWith("%")) {
+    let remove = parseFloat(formData.value.discount);
+    let calculate = (sub_total.value * remove) / 100;
+    percentageValue.value = calculate;
+    let final = sub_total_real.value - calculate;
+    return final;
+  } else {
+    let final = sub_total_real.value - formData.value.discount;
+    percentageValue.value = formData.value.discount;
+    return final;
+  }
+});
+
 const balance_due = computed(() => {
   if (
     grand_total.value - formData.value.deposit == 0 &&
@@ -244,6 +290,23 @@ const balance_due = computed(() => {
   } else if (formData.value.deposit == 0 && formData.value.items.length != 0) {
     formData.value.payment_status = "not_paid";
     return grand_total.value - formData.value.deposit;
+  }
+});
+
+const balance_due_real = computed(() => {
+  if (
+    grand_total_real.value - formData.value.deposit == 0 &&
+    formData.value.items.length != 0
+  ) {
+    return grand_total_real.value - formData.value.deposit;
+  } else if (
+    grand_total_real.value - formData.value.deposit != 0 &&
+    formData.value.items.length != 0 &&
+    formData.value.deposit != 0
+  ) {
+    return grand_total_real.value - formData.value.deposit;
+  } else if (formData.value.deposit == 0 && formData.value.items.length != 0) {
+    return grand_total_real.value - formData.value.deposit;
   }
 });
 
@@ -594,11 +657,11 @@ const onSubmitHandler = async () => {
     frmData.append("discount", percentageValue.value);
   }
 
-  frmData.append("sub_total", sub_total.value);
-  frmData.append("grand_total", grand_total.value);
+  frmData.append("sub_total", sub_total_real.value);
+  frmData.append("grand_total", grand_total_real.value);
   frmData.append("deposit", formData.value.deposit);
   frmData.append("payment_currency", formData.value.payment_currency);
-  frmData.append("balance_due", balance_due.value);
+  frmData.append("balance_due", balance_due_real.value);
   frmData.append("balance_due_date", formData.value.balance_due_date);
 
   if (formData.value.confirmation_letter.length > 0) {
@@ -2373,7 +2436,7 @@ watch(page, async (newValue) => {
                   <div class="px-6 mt-6">
                     <div class="grid grid-cols-2 gap-4">
                       <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
-                        Subtotal
+                        Subtotal 
                       </p>
                       <input
                         v-model="sub_total"
@@ -2402,7 +2465,7 @@ watch(page, async (newValue) => {
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                       <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
-                        Total:
+                        Total: 
                       </p>
                       <input
                         v-model="grand_total"
@@ -2517,7 +2580,7 @@ watch(page, async (newValue) => {
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                       <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
-                        Balance Due:
+                        Balance Due: 
                       </p>
                       <input
                         type="text"

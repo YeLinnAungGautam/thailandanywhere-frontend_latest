@@ -3135,8 +3135,7 @@ onMounted(async () => {
                         <p
                           class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end"
                         >
-                          Subtotal , {{ sub_total_real }} ,
-                          {{ sub_total_airline }}
+                          Subtotal
                         </p>
                         <input
                           v-model="sub_total"
@@ -3169,7 +3168,7 @@ onMounted(async () => {
                         <p
                           class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end"
                         >
-                          Total: {{ grand_total_real }}
+                          Total:
                         </p>
                         <input
                           v-model="grand_total"
@@ -3255,7 +3254,7 @@ onMounted(async () => {
                         <p
                           class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end"
                         >
-                          Balance Due: {{ balance_due_real }}
+                          Balance Due:
                         </p>
                         <input
                           type="text"

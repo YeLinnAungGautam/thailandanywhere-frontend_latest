@@ -658,6 +658,7 @@ const onSubmitHandler = async () => {
   }
 
   frmData.append("sub_total", sub_total_real.value);
+  frmData.append("exclude_amount", sub_total_airline.value);
   frmData.append("grand_total", grand_total_real.value);
   frmData.append("deposit", formData.value.deposit);
   frmData.append("payment_currency", formData.value.payment_currency);
@@ -2436,7 +2437,7 @@ watch(page, async (newValue) => {
                   <div class="px-6 mt-6">
                     <div class="grid grid-cols-2 gap-4">
                       <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
-                        Subtotal 
+                        Subtotal
                       </p>
                       <input
                         v-model="sub_total"
@@ -2465,7 +2466,7 @@ watch(page, async (newValue) => {
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                       <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
-                        Total: 
+                        Total:
                       </p>
                       <input
                         v-model="grand_total"
@@ -2580,7 +2581,7 @@ watch(page, async (newValue) => {
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                       <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
-                        Balance Due: 
+                        Balance Due:
                       </p>
                       <input
                         type="text"

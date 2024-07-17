@@ -220,6 +220,14 @@ const searchHandler = async () => {
   await bookingStore.getListAction(watchSystem.value);
 };
 
+const subTotal = (a, b) => {
+  if (b != null || !b) {
+    return a * 1 + b;
+  } else {
+    return b;
+  }
+};
+
 watch(
   [
     search,
@@ -470,7 +478,7 @@ watch(
                   </p>
                 </div>
                 <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
-                  {{ r.sub_total }}
+                  {{ subTotal(r.sub_total, r.exclude_amount) }}
                 </div>
                 <div
                   class="flex items-center justify-end col-span-2 p-3 space-x-2 text-xs text-gray-700 whitespace-nowrap"

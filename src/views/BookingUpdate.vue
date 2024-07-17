@@ -409,7 +409,7 @@ const removeFromitem = (indexGet, item, type) => {
   console.log(type, "this is type");
 
   formData.value.items.splice(indexGet, 1);
-
+  getSubTotal();
   console.log(formData.value.items);
 };
 

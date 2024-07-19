@@ -188,7 +188,7 @@ const sub_total = computed(() => {
         totalsub = totalsub + formData.value.items[i].total_amount;
       }
     }
-    return totalsub;
+    return totalsub + sub_total_discount.value * 1;
   } else {
     return formData.value.inclusive_rate * formData.value.inclusive_quantity;
   }
@@ -204,7 +204,7 @@ const sub_total_real = computed(() => {
         }
       }
     }
-    return totalsub;
+    return totalsub + sub_total_discount.value * 1;
   } else {
     return formData.value.inclusive_rate * formData.value.inclusive_quantity;
   }
@@ -272,7 +272,7 @@ const grand_total = computed(() => {
   // } else {
   //   let final = sub_total.value - formData.value.discount;
   //   percentageValue.value = formData.value.discount;
-  let final = sub_total.value;
+  let final = sub_total.value - sub_total_discount.value * 1;
   return final;
   // }
 });
@@ -290,7 +290,7 @@ const grand_total_real = computed(() => {
   //   percentageValue.value = formData.value.discount;
   //   return final;
   // }
-  let final = sub_total_real.value;
+  let final = sub_total_real.value - sub_total_discount.value * 1;
   return final;
 });
 
@@ -2167,10 +2167,12 @@ watch(page, async (newValue) => {
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <input
+                            v-if="formitem.product_type != '7'"
                             type="number"
                             v-model="formitem.discount"
                             class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
                           />
+                          <p v-if="formitem.product_type == '7'">0</p>
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"

@@ -209,6 +209,21 @@ const sub_total_real = computed(() => {
     return formData.value.inclusive_rate * formData.value.inclusive_quantity;
   }
 });
+
+const sub_total_discount = computed(() => {
+  if (enabledIn.value == false) {
+    let totalsub = 0;
+    for (let i = 0; i < formData.value.items.length; i++) {
+      if (!formData.value.items[i].is_inclusive) {
+        totalsub = totalsub + formData.value.items[i].discount;
+      }
+    }
+    return totalsub;
+  } else {
+    return 0;
+  }
+});
+
 const sub_total_airline = computed(() => {
   if (enabledIn.value == false) {
     let totalsub = 0;
@@ -230,12 +245,15 @@ const sub_qty_total = computed(() => {
   if (formitem.value.days) {
     totalsub =
       formitem.value.quantity *
-      formitem.value.selling_price *
-      formitem.value.days;
+        formitem.value.selling_price *
+        formitem.value.days -
+      formitem.value.discount;
     formitem.value.total_amount = totalsub;
     return totalsub;
   } else {
-    totalsub = formitem.value.quantity * formitem.value.selling_price;
+    totalsub =
+      formitem.value.quantity * formitem.value.selling_price -
+      formitem.value.discount;
     formitem.value.total_amount = totalsub;
     return totalsub;
   }
@@ -245,32 +263,35 @@ const percentageValue = ref("");
 
 const grand_total = computed(() => {
   // console.log(sub_total.value, formData.value.discount);
-  if (formData.value.discount.trim().endsWith("%")) {
-    let remove = parseFloat(formData.value.discount);
-    let calculate = (sub_total.value * remove) / 100;
-    percentageValue.value = calculate;
-    let final = sub_total.value - calculate;
-    return final;
-  } else {
-    let final = sub_total.value - formData.value.discount;
-    percentageValue.value = formData.value.discount;
-    return final;
-  }
+  // if (formData.value.discount.trim().endsWith("%")) {
+  //   let remove = parseFloat(formData.value.discount);
+  //   let calculate = (sub_total.value * remove) / 100;
+  //   percentageValue.value = calculate;
+  //   let final = sub_total.value - calculate;
+  //   return final;
+  // } else {
+  //   let final = sub_total.value - formData.value.discount;
+  //   percentageValue.value = formData.value.discount;
+  let final = sub_total.value;
+  return final;
+  // }
 });
 
 const grand_total_real = computed(() => {
   // console.log(sub_total.value, formData.value.discount);
-  if (formData.value.discount.trim().endsWith("%")) {
-    let remove = parseFloat(formData.value.discount);
-    let calculate = (sub_total.value * remove) / 100;
-    percentageValue.value = calculate;
-    let final = sub_total_real.value - calculate;
-    return final;
-  } else {
-    let final = sub_total_real.value - formData.value.discount;
-    percentageValue.value = formData.value.discount;
-    return final;
-  }
+  // if (formData.value.discount.trim().endsWith("%")) {
+  //   let remove = parseFloat(formData.value.discount);
+  //   let calculate = (sub_total.value * remove) / 100;
+  //   percentageValue.value = calculate;
+  //   let final = sub_total_real.value - calculate;
+  //   return final;
+  // } else {
+  //   let final = sub_total_real.value - formData.value.discount;
+  //   percentageValue.value = formData.value.discount;
+  //   return final;
+  // }
+  let final = sub_total_real.value;
+  return final;
 });
 
 const balance_due = computed(() => {
@@ -321,6 +342,7 @@ const formitem = ref({
   quantity: "1",
   days: "",
   duration: "",
+  discount: 0,
   selling_price: "",
   comment: "",
   reservation_status: "",
@@ -476,6 +498,7 @@ const addNewitem = () => {
     days: "",
     room_id: "",
     duration: "",
+    discount: 0,
     selling_price: "",
     comment: "",
     reservation_status: "",
@@ -651,11 +674,7 @@ const onSubmitHandler = async () => {
     frmData.append("money_exchange_rate", 0);
   }
 
-  if (formData.value.discount == "" || formData.value.discount == 0) {
-    frmData.append("discount", 0);
-  } else {
-    frmData.append("discount", percentageValue.value);
-  }
+  frmData.append("discount", sub_total_discount.value);
 
   frmData.append("sub_total", sub_total_real.value);
   frmData.append("exclude_amount", sub_total_airline.value);
@@ -723,6 +742,15 @@ const onSubmitHandler = async () => {
         "items[" + x + "][is_inclusive]",
         formData.value.items[x].is_inclusive
       );
+    }
+
+    if (formData.value.items[x].discount) {
+      frmData.append(
+        "items[" + x + "][discount]",
+        formData.value.items[x].discount
+      );
+    } else {
+      frmData.append("items[" + x + "][discount]", 0);
     }
 
     if (formData.value.items[x].product_type != "6") {
@@ -1028,7 +1056,8 @@ const clickdetaildesToggle = (
   room,
   quantity,
   limit,
-  guest
+  guest,
+  disocunt
 ) => {
   clickdetaildes.value = true;
   itemDes.value = a;
@@ -1049,6 +1078,7 @@ const clickdetaildesToggle = (
   itemLimit.value = limit;
   itemGuest.value = guest;
   console.log(itemIs.value, "this is item is");
+  itemDiscount.value = disocunt;
 };
 const itemType = ref("");
 const itemRoutePlan = ref("");
@@ -1065,6 +1095,7 @@ const itemQ = ref("");
 const itemIs = ref("");
 const itemLimit = ref("");
 const itemGuest = ref("");
+const itemDiscount = ref("");
 
 const itemCheckoutCheck = () => {
   if (!itemCheckOut.value || itemCheckOut.value < itemCheckIn.value) {
@@ -1086,6 +1117,7 @@ const clickdetaildesUpdate = (x) => {
   formData.value.items[x].quantity = itemQ.value;
   formData.value.items[x].dropoff_location = itemDropoff.value;
   formData.value.items[x].route_plan = itemRoutePlan.value;
+  formData.value.items[x].discount = itemDiscount.value;
   if (itemCheckIn.value && itemCheckOut.value) {
     let oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
     let startDateTimestamp = new Date(itemCheckIn.value).getTime();
@@ -1099,7 +1131,8 @@ const clickdetaildesUpdate = (x) => {
     formData.value.items[x].quantity *
     formData.value.items[x].selling_price *
     formData.value.items[x].days;
-  formData.value.items[x].total_amount = totalsub;
+  formData.value.items[x].total_amount =
+    totalsub - formData.value.items[x].discount;
   clickdetaildes.value = false;
 };
 
@@ -1955,6 +1988,11 @@ watch(page, async (newValue) => {
                         <th
                           class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
                         >
+                          Discount
+                        </th>
+                        <th
+                          class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
+                        >
                           Amount
                         </th>
                         <th
@@ -2125,7 +2163,15 @@ watch(page, async (newValue) => {
                             class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
                           />
                         </td>
-
+                        <td
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
+                        >
+                          <input
+                            type="number"
+                            v-model="formitem.discount"
+                            class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
+                          />
+                        </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
@@ -2365,11 +2411,23 @@ watch(page, async (newValue) => {
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
+                          <p>
+                            {{ item.discount }}
+                          </p>
+                        </td>
+                        <td
+                          class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
+                        >
                           <p v-if="item.product_type != '6'">
-                            {{ item.selling_price * item.quantity }}
+                            {{
+                              item.selling_price * item.quantity - item.discount
+                            }}
                           </p>
                           <p v-if="item.product_type == '6'">
-                            {{ item.selling_price * item.quantity * item.days }}
+                            {{
+                              item.selling_price * item.quantity * item.days -
+                              item.discount
+                            }}
                           </p>
                         </td>
 
@@ -2396,7 +2454,8 @@ watch(page, async (newValue) => {
                                 item.room_number,
                                 item.quantity,
                                 item.limit,
-                                item.total_guest
+                                item.total_guest,
+                                item.discount
                               )
                             "
                           >
@@ -2452,17 +2511,12 @@ watch(page, async (newValue) => {
                         Discount
                       </p>
                       <input
-                        v-model="formData.discount"
+                        v-model="sub_total_discount"
                         type="text"
+                        disabled
                         id="title"
-                        class="w-full h-8 px-4 py-2 mt-2 text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                        class="w-full h-8 px-4 py-2 mt-2 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300"
                       />
-                      <p
-                        v-if="errors?.discount"
-                        class="mt-1 text-sm text-red-600"
-                      >
-                        {{ errors.discount[0] }}
-                      </p>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                       <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">

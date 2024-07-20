@@ -158,7 +158,7 @@ const formData = ref({
   items: [],
   money_exchange_rate: "",
   crm_id: "",
-  discount: "",
+  discount: 0,
   comment: "",
   receipt_image: [],
   confirmation_letter: [],
@@ -223,12 +223,27 @@ const sub_total_real_function = () => {
         }
       }
     }
-    sub_total_real.value = totalsub;
+    sub_total_real.value = totalsub + sub_total_discount.value * 1;
   } else {
     sub_total_real.value =
       formData.value.inclusive_rate * formData.value.inclusive_quantity;
   }
 };
+
+const sub_total_discount = computed(() => {
+  if (enabledIn.value == false) {
+    let totalsub = 0;
+    for (let i = 0; i < formData.value.items.length; i++) {
+      if (!formData.value.items[i].is_inclusive) {
+        totalsub = totalsub + formData.value.items[i].discount;
+      }
+    }
+    return totalsub;
+  } else {
+    return 0;
+  }
+});
+
 const sub_total_airline_function = () => {
   if (enabledIn.value == false) {
     let totalsub = 0;
@@ -252,39 +267,43 @@ const sub_total_airline_function = () => {
 const percentageValue = ref("");
 
 const grand_total = computed(() => {
-  console.log(sub_total.value, formData.value.discount);
-  if (formData.value.discount == null) {
-    formData.value.discount = 0;
-  } else {
-    if (formData.value.discount != "" || formData.value.discount != null) {
-      if (formData.value.discount.trim().endsWith("%")) {
-        let remove = parseFloat(formData.value.discount);
-        let calculate = (sub_total.value * remove) / 100;
-        percentageValue.value = calculate;
-        let final = sub_total.value - calculate;
-        return final;
-      } else {
-        let final = sub_total.value - formData.value.discount;
-        percentageValue.value = formData.value.discount;
-        return final;
-      }
-    }
-  }
+  // console.log(sub_total.value, formData.value.discount);
+  // if (formData.value.discount == null) {
+  //   formData.value.discount = 0;
+  // } else {
+  //   if (formData.value.discount != "" || formData.value.discount != null) {
+  //     if (formData.value.discount.trim().endsWith("%")) {
+  //       let remove = parseFloat(formData.value.discount);
+  //       let calculate = (sub_total.value * remove) / 100;
+  //       percentageValue.value = calculate;
+  //       let final = sub_total.value - calculate;
+  //       return final;
+  //     } else {
+  //       let final = sub_total.value - formData.value.discount;
+  //       percentageValue.value = formData.value.discount;
+  //       return final;
+  //     }
+  //   }
+  // }
+  let final = sub_total.value - sub_total_discount.value * 1;
+  return final;
 });
 
 const grand_total_real = computed(() => {
   // console.log(sub_total.value, formData.value.discount);
-  if (formData.value.discount.trim().endsWith("%")) {
-    let remove = parseFloat(formData.value.discount);
-    let calculate = (sub_total.value * remove) / 100;
-    percentageValue.value = calculate;
-    let final = sub_total_real.value - calculate;
-    return final;
-  } else {
-    let final = sub_total_real.value - formData.value.discount;
-    percentageValue.value = formData.value.discount;
-    return final;
-  }
+  // if (formData.value.discount.trim().endsWith("%")) {
+  //   let remove = parseFloat(formData.value.discount);
+  //   let calculate = (sub_total.value * remove) / 100;
+  //   percentageValue.value = calculate;
+  //   let final = sub_total_real.value - calculate;
+  //   return final;
+  // } else {
+  //   let final = sub_total_real.value - formData.value.discount;
+  //   percentageValue.value = formData.value.discount;
+  //   return final;
+  // }
+  let final = sub_total_real.value - sub_total_discount.value * 1;
+  return final;
 });
 
 const balance_due = computed(() => {
@@ -364,6 +383,7 @@ const formitem = ref({
   room_number: "",
   checkout_date: "",
   pickup_time: "",
+  discount: 0,
   customer_attachment: "",
   dropoff_location: "",
   route_plan: "",
@@ -769,6 +789,14 @@ const onSubmitHandler = async () => {
       "items[" + x + "][quantity]",
       formData.value.items[x].quantity
     );
+    if (formData.value.items[x].discount) {
+      frmData.append(
+        "items[" + x + "][discount]",
+        formData.value.items[x].discount
+      );
+    } else {
+      frmData.append("items[" + x + "][discount]", 0);
+    }
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     formData.value.items[x].days &&
@@ -1138,6 +1166,7 @@ const getDetail = async () => {
         service_date: response.result.items[x].service_date,
         is_inclusive: response.result.is_inclusive == 1 ? 1 : 0,
         quantity: response.result.items[x].quantity,
+        discount: response.result.items[x].discount,
         total_guest: response.result.items[x].total_guest,
         days: response.result.items[x].days
           ? response.result.items[x].days
@@ -1330,7 +1359,8 @@ const clickdetaildesToggle = (
   days,
   room,
   quantity,
-  guest
+  guest,
+  discount
 ) => {
   console.log(a, b, index);
   clickdetaildes.value = true;
@@ -1349,6 +1379,7 @@ const clickdetaildesToggle = (
   itemRoom.value = room;
   itemQ.value = quantity;
   itemGuest.value = guest;
+  itemDiscount.value = discount;
   console.log(itemCheckIn.value, itemCheckOut.value);
 };
 const itemType = ref("");
@@ -1364,6 +1395,7 @@ const itemRoom = ref("");
 const itemQ = ref("");
 const itemIs = ref("");
 const itemGuest = ref("");
+const itemDiscount = ref("");
 
 const itemCheckoutCheck = () => {
   if (!itemCheckOut.value || itemCheckOut.value < itemCheckIn.value) {
@@ -1385,6 +1417,7 @@ const clickdetaildesUpdate = (x) => {
   formData.value.items[x].checkout_date = itemCheckOut.value;
   formData.value.items[x].dropoff_location = itemDropoff.value;
   formData.value.items[x].route_plan = itemRoutePlan.value;
+  formData.value.items[x].discount = itemDiscount.value;
   if (itemCheckIn.value && itemCheckOut.value) {
     let oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
     let startDateTimestamp = new Date(itemCheckIn.value).getTime();
@@ -1404,7 +1437,8 @@ const clickdetaildesUpdate = (x) => {
     totalsub =
       formData.value.items[x].quantity * formData.value.items[x].selling_price;
   }
-  formData.value.items[x].total_amount = totalsub;
+  formData.value.items[x].total_amount =
+    totalsub - formData.value.items[x].discount;
   clickdetaildes.value = false;
   console.log(
     formData.value.items[x].total_amount,
@@ -2455,7 +2489,12 @@ onMounted(async () => {
                           <th
                             class="border-r py-2 text-start px-4 border-gray-300 text-xs text-[#ff613c]"
                           >
-                            Quantity
+                            Qty
+                          </th>
+                          <th
+                            class="border-r py-2 text-start px-4 border-gray-300 text-xs text-[#ff613c]"
+                          >
+                            Discount
                           </th>
                           <th
                             class="border-r py-2 text-start px-4 border-gray-300 text-xs text-[#ff613c]"
@@ -2624,6 +2663,27 @@ onMounted(async () => {
                               v-model="formitem.quantity"
                               class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
                             />
+                          </td>
+                          <td
+                            class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
+                          >
+                            <input
+                              v-if="
+                                formitem.product_type != '7' &&
+                                formitem.product_type != 'App\\Models\\Airline'
+                              "
+                              type="number"
+                              v-model="formitem.discount"
+                              class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
+                            />
+                            <p
+                              v-if="
+                                formitem.product_type == '7' &&
+                                formitem.product_type != 'App\\Models\\Airline'
+                              "
+                            >
+                              0
+                            </p>
                           </td>
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
@@ -3041,13 +3101,23 @@ onMounted(async () => {
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
+                            <p>
+                              {{ item.discount }}
+                            </p>
+                          </td>
+                          <td
+                            class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
+                          >
                             <p
                               v-if="
                                 item.product_type != 'App\\Models\\Hotel' &&
                                 item.product_type != '6'
                               "
                             >
-                              {{ item.selling_price * item.quantity }}
+                              {{
+                                item.selling_price * item.quantity -
+                                item.discount
+                              }}
                             </p>
                             <p
                               v-if="
@@ -3056,7 +3126,8 @@ onMounted(async () => {
                               "
                             >
                               {{
-                                item.selling_price * item.quantity * item.days
+                                item.selling_price * item.quantity * item.days -
+                                item.discount
                               }}
                             </p>
                           </td>
@@ -3082,7 +3153,8 @@ onMounted(async () => {
                                   item.days,
                                   item.room_number,
                                   item.quantity,
-                                  item.total_guest
+                                  item.total_guest,
+                                  item.discount
                                 )
                               "
                             >
@@ -3152,17 +3224,12 @@ onMounted(async () => {
                           Discount
                         </p>
                         <input
-                          v-model="formData.discount"
+                          v-model="sub_total_discount"
                           type="text"
+                          disabled
                           id="title"
-                          class="w-full h-8 px-4 py-2 mt-2 text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                          class="w-full h-8 px-4 py-2 mt-2 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300"
                         />
-                        <p
-                          v-if="errors?.discount"
-                          class="mt-1 text-sm text-red-600"
-                        >
-                          {{ errors.discount[0] }}
-                        </p>
                       </div>
                       <div class="grid grid-cols-2 gap-4">
                         <p

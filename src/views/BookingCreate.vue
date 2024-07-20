@@ -1983,7 +1983,7 @@ watch(page, async (newValue) => {
                         <th
                           class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"
                         >
-                          Quantity
+                          Qty
                         </th>
                         <th
                           class="px-4 py-2 text-xs text-[#ff613c] border-r border-gray-300 text-start"

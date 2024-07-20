@@ -2763,6 +2763,7 @@ onMounted(async () => {
                           class="border-b border-gray-300"
                           v-for="(item, index) in formData.items"
                           :key="index"
+                          :class="item.product_type != 'App\\Models\\InclusiveProduct' ? '': 'hidden' "
                         >
                           <td
                             v-if="item.crm_id"

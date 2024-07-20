@@ -2167,12 +2167,14 @@ watch(page, async (newValue) => {
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
                           <input
-                            v-if="formitem.product_type != '7'"
+                            v-if="formitem.product_type != '7' && !enabledIn"
                             type="number"
                             v-model="formitem.discount"
                             class="border-gray-400 px-1 py-1.5 max-w-[50px] focus:outline-none rounded border"
                           />
-                          <p v-if="formitem.product_type == '7'">0</p>
+                          <p v-if="formitem.product_type == '7' || enabledIn">
+                            0
+                          </p>
                         </td>
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"

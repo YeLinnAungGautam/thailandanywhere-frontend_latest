@@ -205,11 +205,13 @@ const getSubTotal = () => {
   sub_total.value = data;
   sub_total_real_function();
   sub_total_airline_function();
+  sub_total_discount_function();
 };
 
 const sub_total_real = ref("");
 const sub_total_airline = ref("");
 const sub_total_real_function = () => {
+  console.log("this is real function");
   if (enabledIn.value == false) {
     let totalsub = 0;
     sub_total_real.value = 0;
@@ -223,14 +225,30 @@ const sub_total_real_function = () => {
         }
       }
     }
-    sub_total_real.value = totalsub + sub_total_discount.value * 1;
+    sub_total_real.value = totalsub;
   } else {
     sub_total_real.value =
       formData.value.inclusive_rate * formData.value.inclusive_quantity;
   }
 };
 
-const sub_total_discount = computed(() => {
+watch(
+  () => [formData.inclusive_rate, formData.inclusive_quantity],
+  (
+    [newInclusiveRate, newInclusiveQuantity],
+    [oldInclusiveRate, oldInclusiveQuantity]
+  ) => {
+    if (
+      newInclusiveRate !== oldInclusiveRate ||
+      newInclusiveQuantity !== oldInclusiveQuantity
+    ) {
+      getSubTotal();
+    }
+  }
+);
+
+const sub_total_discount = ref("");
+const sub_total_discount_function = () => {
   if (enabledIn.value == false) {
     let totalsub = 0;
     for (let i = 0; i < formData.value.items.length; i++) {
@@ -238,11 +256,11 @@ const sub_total_discount = computed(() => {
         totalsub = totalsub + formData.value.items[i].discount;
       }
     }
-    return totalsub;
+    sub_total_discount.value = totalsub;
   } else {
-    return 0;
+    sub_total_discount.value = 0;
   }
-});
+};
 
 const sub_total_airline_function = () => {
   if (enabledIn.value == false) {
@@ -1936,22 +1954,34 @@ onMounted(async () => {
                 </div>
                 <div v-if="stateInclusive" class="col-span-1">
                   <p class="mb-2 text-xs text-[#ff613c]">Quantity Inclusive</p>
-                  <input
-                    type="number"
-                    v-model="formData.inclusive_quantity"
-                    id="title"
-                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
-                  />
+                  <div class="flex justify-start items-center">
+                    <input
+                      type="number"
+                      v-model="formData.inclusive_quantity"
+                      @keyup.enter="getSubTotal"
+                      id="title"
+                      class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                    />
+                    <p @click="getSubTotal" class="p-1 rounded-md bg-gray-300">
+                      #
+                    </p>
+                  </div>
                 </div>
                 <div v-if="stateInclusive" class="col-span-1">
                   <p class="mb-2 text-xs text-[#ff613c]">Rate Per Person</p>
 
-                  <input
-                    type="number"
-                    v-model="formData.inclusive_rate"
-                    id="title"
-                    class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
-                  />
+                  <div class="flex justify-start items-center">
+                    <input
+                      type="number"
+                      v-model="formData.inclusive_rate"
+                      @keyup.enter="getSubTotal"
+                      id="title"
+                      class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                    />
+                    <p @click="getSubTotal" class="p-1 rounded-md bg-gray-300">
+                      #
+                    </p>
+                  </div>
                 </div>
                 <div v-if="stateInclusive" class="col-span-1">
                   <p class="mb-2 text-xs text-[#ff613c]">
@@ -2670,7 +2700,9 @@ onMounted(async () => {
                             <input
                               v-if="
                                 formitem.product_type != '7' &&
-                                formitem.product_type != 'App\\Models\\Airline'
+                                formitem.product_type !=
+                                  'App\\Models\\Airline' &&
+                                !enabledIn
                               "
                               type="number"
                               v-model="formitem.discount"
@@ -2678,8 +2710,10 @@ onMounted(async () => {
                             />
                             <p
                               v-if="
-                                formitem.product_type == '7' &&
-                                formitem.product_type != 'App\\Models\\Airline'
+                                (formitem.product_type == '7' &&
+                                  formitem.product_type !=
+                                    'App\\Models\\Airline') ||
+                                enabledIn
                               "
                             >
                               0

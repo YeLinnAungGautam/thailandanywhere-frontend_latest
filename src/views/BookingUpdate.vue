@@ -196,7 +196,10 @@ const getSubTotal = () => {
     for (let i = 0; i < formData.value.items.length; i++) {
       // data = data + formData.value.items[i].total_amount;
       if (formData.value.items[i].is_inclusive != 1) {
-        data = data + formData.value.items[i].total_amount;
+        data =
+          data +
+          formData.value.items[i].total_amount +
+          formData.value.items[i].discount * 1;
       }
     }
   } else {
@@ -707,7 +710,9 @@ const onSubmitHandler = async () => {
     ) {
       frmData.append(
         "items[" + x + "][amount]",
-        formData.value.items[x].selling_price * formData.value.items[x].quantity
+        formData.value.items[x].selling_price *
+          formData.value.items[x].quantity -
+          formData.value.items[x].discount
       );
     } else if (
       formData.value.items[x].days ||
@@ -717,7 +722,8 @@ const onSubmitHandler = async () => {
         "items[" + x + "][amount]",
         formData.value.items[x].selling_price *
           formData.value.items[x].quantity *
-          formData.value.items[x].days
+          formData.value.items[x].days -
+          formData.value.items[x].discount
       );
     }
   }
@@ -1269,10 +1275,12 @@ const getDetail = async () => {
               daysBetween(
                 response.result.items[x].checkin_date,
                 response.result.items[x].checkout_date
-              )
+              ),
+              response.result.items[x].discount
             )
           : response.result.items[x].selling_price *
-            response.result.items[x].quantity,
+              response.result.items[x].quantity -
+            response.result.items[x].discount,
       };
       formData.value.items.push(itemData);
       getSubTotal();
@@ -1299,9 +1307,9 @@ const changeType = (a) => {
   }
 };
 
-const totalAmountCheck = (q, s, d) => {
+const totalAmountCheck = (q, s, d, c) => {
   let totalsub = 0;
-  totalsub = q * s * d;
+  totalsub = q * s * d - c;
   console.log(q, s, d, "this is total amount");
   return totalsub;
 };
@@ -2763,7 +2771,11 @@ onMounted(async () => {
                           class="border-b border-gray-300"
                           v-for="(item, index) in formData.items"
                           :key="index"
-                          :class="item.product_type != 'App\\Models\\InclusiveProduct' ? '': 'hidden' "
+                          :class="
+                            item.product_type != 'App\\Models\\InclusiveProduct'
+                              ? ''
+                              : 'hidden'
+                          "
                         >
                           <td
                             v-if="item.crm_id"

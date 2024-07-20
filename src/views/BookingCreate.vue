@@ -756,14 +756,17 @@ const onSubmitHandler = async () => {
     if (formData.value.items[x].product_type != "6") {
       frmData.append(
         "items[" + x + "][amount]",
-        formData.value.items[x].selling_price * formData.value.items[x].quantity
+        formData.value.items[x].selling_price *
+          formData.value.items[x].quantity -
+          formData.value.items[x].discount
       );
     } else if (formData.value.items[x].product_type == "6") {
       frmData.append(
         "items[" + x + "][amount]",
         formData.value.items[x].selling_price *
           formData.value.items[x].quantity *
-          formData.value.items[x].days
+          formData.value.items[x].days -
+          formData.value.items[x].discount
       );
     }
 

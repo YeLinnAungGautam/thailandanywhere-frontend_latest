@@ -1239,6 +1239,15 @@ onMounted(async () => {
   getTodayDate();
 });
 
+watch(
+  () => formitem.value.service_date,
+  (newData) => {
+    if (formitem.value.product_type == "6") {
+      formitem.value.checkin_date = newData;
+    }
+  }
+);
+
 watch(searchI, async (newValue) => {
   await customerStore.getSimpleListAction({ search: searchI.value });
 });
@@ -1694,6 +1703,7 @@ watch(page, async (newValue) => {
                       <p class="text-xs">Checkin Date</p>
                       <input
                         type="date"
+                        disabled
                         class="p-2 border text-sm border-gray-300 rounded-sm focus:outline-none"
                         id=""
                         v-model="formitem.checkin_date"

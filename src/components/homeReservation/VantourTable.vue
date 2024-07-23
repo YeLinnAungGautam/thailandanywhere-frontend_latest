@@ -287,6 +287,49 @@ const complete = computed(() => {
   return false;
 });
 
+const carOrderCopyFunction = async () => {
+  const res = await carBookingStore.getDetailAction(props?.data.id);
+  console.log("====================================");
+  console.log(props.data, res, "this is order detail");
+  console.log("====================================");
+
+  let formattedOutput;
+  if (res.status == "Request was successful.") {
+    formattedOutput = `
+CRMID: ${props?.data.crm_id}
+C. Name: ${props?.data.customer_name}
+Contact: ${res?.result?.driver_contact}
+
+S.Date: ${props?.data.service_date}
+Pickup Time: ${props?.data.pickup_time}
+Pickup Location: ${props?.data.pickup_location}
+
+Routeplan: ${props?.data.route_plan}
+
+Product Variation: ${props?.data.variation_name}
+PaymentMethod: ${
+      props?.data.is_driver_collect == 1 ? props?.data.payment_method : "xxxx"
+    }
+SaleAmount: ${
+      props?.data.is_driver_collect == 1 ? props?.data.selling_price : "xxxx"
+    }
+ExtraCollect: ${
+      props?.data.is_driver_collect == 1
+        ? props?.data.extra_collect_amount
+        : "0"
+    }
+
+SpecialRequest: ${props?.data.special_request}
+        `;
+  }
+
+  setTimeout(() => {
+    navigator.clipboard.writeText(formattedOutput);
+  }, 0);
+
+  toast.success("success copy reservation");
+};
+
 const copyFunction = async () => {
   const res = await carBookingStore.getDetailAction(props?.data.id);
   const resDriver = await driverStore.getDetailAction(res?.result.driver_id);
@@ -783,6 +826,14 @@ onMounted(async () => {
               class="text-xs font-medium pt-6 text-red-600 text-center"
             >
               Image isn't have
+            </p>
+          </div>
+          <div class="col-span-2">
+            <p
+              @click="carOrderCopyFunction"
+              class="bg-[#FF5B00] text-center text-xs rounded-md py-2 text-white cursor-pointer"
+            >
+              copy for car order
             </p>
           </div>
         </div>

@@ -14,6 +14,11 @@ import { useProductStore } from "../stores/product";
 import { useDestinationStore } from "../stores/destination";
 import { useCarStore } from "../stores/car";
 import { useVantourStore } from "../stores/vantour";
+import { QuillEditor } from "@vueup/vue-quill";
+
+const editorOptions = {
+  placeholder: "Description with editor ...",
+};
 
 const toast = useToast();
 const router = useRouter();
@@ -414,8 +419,8 @@ onMounted(async () => {
             </p>
           </div>
           <div class="">
-            <p class="text-gray-800 text-sm mb-2">Long-Description</p>
-            <textarea
+            <p class="text-gray-800 text-sm mb-2">Summary (mm)</p>
+            <!-- <textarea
               v-model="formData.long_description"
               rows="3"
               id="title"
@@ -426,11 +431,20 @@ onMounted(async () => {
               class="mt-1 text-sm text-red-600"
             >
               {{ errors.long_description[0] }}
-            </p>
+            </p> -->
+            <QuillEditor
+              ref="textEditor"
+              :options="editorOptions"
+              theme="snow"
+              class="!bg-white/50 !border-1 !border-gray-300 !rounded-bl-md !rounded-br-md !shadow-sm !text-xs !text-gray-900 !h-[300px]"
+              toolbar="essential"
+              contentType="html"
+              v-model:content="formData.long_description"
+            />
           </div>
           <div class="">
-            <p class="text-gray-800 text-sm mb-2">Long Description (english)</p>
-            <textarea
+            <p class="text-gray-800 text-sm mb-2">Summary (eng)</p>
+            <!-- <textarea
               v-model="formData.full_description_en"
               rows="3"
               id="title"
@@ -441,7 +455,16 @@ onMounted(async () => {
               class="mt-1 text-sm text-red-600"
             >
               {{ errors.full_description_en[0] }}
-            </p>
+            </p> -->
+            <QuillEditor
+              ref="textEditor"
+              :options="editorOptions"
+              theme="snow"
+              class="!bg-white/50 !border-1 !border-gray-300 !rounded-bl-md !rounded-br-md !shadow-sm !text-xs !text-gray-900 !h-[300px]"
+              toolbar="essential"
+              contentType="html"
+              v-model:content="formData.full_description_en"
+            />
           </div>
           <div class="text-end">
             <Button @click.prevent="onSubmitHandler"> Create </Button>

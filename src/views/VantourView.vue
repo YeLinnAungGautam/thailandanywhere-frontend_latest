@@ -15,6 +15,11 @@ import { useDestinationStore } from "../stores/destination";
 import { useCarStore } from "../stores/car";
 import { useVantourStore } from "../stores/vantour";
 import { useAuthStore } from "../stores/auth";
+import { QuillEditor } from "@vueup/vue-quill";
+
+const editorOptions = {
+  placeholder: "Description with editor ...",
+};
 
 const toast = useToast();
 const router = useRouter();
@@ -488,8 +493,8 @@ onMounted(async () => {
               {{ errors.description[0] }}
             </p>
           </div>
-          <div class="" v-if="actionPage == 'edit'">
-            <p class="text-gray-800 text-sm mb-2">Long-Description</p>
+          <!-- <div class="" v-if="actionPage == 'edit'">
+            <p class="text-gray-800 text-sm mb-2">Summary</p>
             <textarea
               v-model="formData.long_description"
               rows="10"
@@ -502,10 +507,10 @@ onMounted(async () => {
             >
               {{ errors.long_description[0] }}
             </p>
-          </div>
-          <div class="" v-if="actionPage == 'view'">
-            <p class="text-gray-800 text-sm mb-2">Long-Description</p>
-            <textarea
+          </div> -->
+          <div class="">
+            <p class="text-gray-800 text-sm mb-2">Summary (mm)</p>
+            <!-- <textarea
               v-model="formData.long_description"
               rows="10"
               id="title"
@@ -516,11 +521,20 @@ onMounted(async () => {
               class="mt-1 text-sm text-red-600"
             >
               {{ errors.long_description[0] }}
-            </p>
+            </p> -->
+            <QuillEditor
+              ref="textEditor"
+              :options="editorOptions"
+              theme="snow"
+              class="!bg-white/50 !border-1 !border-gray-300 !rounded-bl-md !rounded-br-md !shadow-sm !text-xs !text-gray-900 !h-[300px]"
+              toolbar="essential"
+              contentType="html"
+              v-model:content="formData.long_description"
+            />
           </div>
           <div class="">
-            <p class="text-gray-800 text-sm mb-2">Long-Description (english)</p>
-            <textarea
+            <p class="text-gray-800 text-sm mb-2">Summary (eng)</p>
+            <!-- <textarea
               v-model="formData.full_description_en"
               rows="10"
               id="title"
@@ -531,7 +545,16 @@ onMounted(async () => {
               class="mt-1 text-sm text-red-600"
             >
               {{ errors.full_description_en[0] }}
-            </p>
+            </p> -->
+            <QuillEditor
+              ref="textEditor"
+              :options="editorOptions"
+              theme="snow"
+              class="!bg-white/50 !border-1 !border-gray-300 !rounded-bl-md !rounded-br-md !shadow-sm !text-xs !text-gray-900 !h-[300px]"
+              toolbar="essential"
+              contentType="html"
+              v-model:content="formData.full_description_en"
+            />
           </div>
           <div class="text-end" v-if="actionPage == 'edit'">
             <Button @click.prevent="onSubmitHandler"> Update Vantour </Button>

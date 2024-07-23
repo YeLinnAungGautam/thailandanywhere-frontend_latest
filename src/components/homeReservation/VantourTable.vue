@@ -415,7 +415,7 @@ onMounted(async () => {
         class="w-[10%] text-[10px] py-2 px-2 flex justify-end items-center gap-4"
       >
         <DocumentDuplicateIcon
-          @click="copyFunction"
+          @click="carOrderCopyFunction"
           class="w-4 h-4 cursor-pointer hover:text-orange-600"
         />
         <InformationCircleIcon

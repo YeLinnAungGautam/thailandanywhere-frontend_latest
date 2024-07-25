@@ -122,6 +122,7 @@ const customerPaymentStatusArr = [
   { id: "3", name: "partially_paid" },
 ];
 const searchTime = ref("");
+const booking_date = ref("");
 const booking_daterange = ref("");
 const dateRange = ref();
 const sale_daterange = ref(null);
@@ -161,6 +162,7 @@ const clearFilter = () => {
   //   authStore.isSuperAdmin || authStore.isReservation ? "" : authStore.user.id;
   searchReservation.value = "";
   searchTime.value = "";
+  booking_date.value = "";
   showFilter.value = false;
   customer_name.value = "";
   sorting.value = "";
@@ -273,6 +275,13 @@ const watchSystem = computed(() => {
     dateOnlyToggle.value
   ) {
     result.service_date = formatDate(searchTime.value);
+  }
+  if (
+    booking_date.value != "" &&
+    booking_date.value != undefined &&
+    dateOnlyToggle.value
+  ) {
+    result.booking_date = formatDate(booking_date.value);
   }
   if (sale_daterange.value != undefined && !dateOnlyToggle.value) {
     result.sale_daterange = sale_daterange.value;
@@ -430,7 +439,7 @@ watch(
     // await reservationStore.getListAction(watchSystem.value);
   }
 );
-watch([searchTime, customer_name, sorting], async () => {
+watch([searchTime, booking_date, customer_name, sorting], async () => {
   showFilter.value = true;
   searchFunction();
   await reservationStore.getListAction(watchSystem.value);
@@ -642,37 +651,44 @@ const changeServiceDate = (data) => {
             Airline
           </p>
         </div>
-        <div
-          @click="dateOnlyToggle = !dateOnlyToggle"
-          class="flex justify-end items-center gap-2"
-        >
-          <p class="text-xs">date only filter</p>
-          <label
-            class="inline-flex items-center cursor-pointer"
-            v-if="dateOnlyToggle"
+        <div class="flex justify-end items-center gap-2">
+          <div
+            @click="dateOnlyToggle = !dateOnlyToggle"
+            class="flex justify-end items-center gap-2"
           >
-            <input type="checkbox" value="" class="sr-only peer" disabled />
-            <div
-              class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
-            ></div>
-          </label>
+            <p class="text-xs">date only filter</p>
+            <label
+              class="inline-flex items-center cursor-pointer"
+              v-if="dateOnlyToggle"
+            >
+              <input type="checkbox" value="" class="sr-only peer" disabled />
+              <div
+                class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+              ></div>
+            </label>
 
-          <label
-            class="inline-flex items-center cursor-pointer"
-            v-if="!dateOnlyToggle"
-          >
-            <input
-              type="checkbox"
-              value=""
-              class="sr-only peer"
-              checked
-              disabled
-            />
-            <div
-              class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
-            ></div>
-          </label>
-          <p class="text-xs">date range filter</p>
+            <label
+              class="inline-flex items-center cursor-pointer"
+              v-if="!dateOnlyToggle"
+            >
+              <input
+                type="checkbox"
+                value=""
+                class="sr-only peer"
+                checked
+                disabled
+              />
+              <div
+                class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
+              ></div>
+            </label>
+            <p class="text-xs">date range filter</p>
+          </div>
+          <div v-if="authStore.isSuperAdmin">
+            <p class="text-xs bg-[#FF5B00] text-white px-2 py-2 rounded-lg">
+              total amount - {{ reservations?.meta.total_amount }} thb
+            </p>
+          </div>
         </div>
       </div>
 
@@ -766,6 +782,14 @@ const changeServiceDate = (data) => {
             v-model="searchTime"
             :format="'yyyy-MM-dd'"
             placeholder="Service Date"
+            text-input
+          />
+        </div>
+        <div v-if="dateOnlyToggle">
+          <VueDatePicker
+            v-model="booking_date"
+            :format="'yyyy-MM-dd'"
+            placeholder="Booking Date"
             text-input
           />
         </div>

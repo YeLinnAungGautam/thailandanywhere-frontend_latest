@@ -196,8 +196,7 @@ const getSubTotal = () => {
     for (let i = 0; i < formData.value.items.length; i++) {
       // data = data + formData.value.items[i].total_amount;
       if (formData.value.items[i].is_inclusive != 1) {
-        data =
-          data +
+        data +=
           formData.value.items[i].total_amount +
           formData.value.items[i].discount * 1;
       }
@@ -224,7 +223,10 @@ const sub_total_real_function = () => {
           formData.value.items[i].product_type != "7" &&
           formData.value.items[i].product_type != "App\\Models\\Airline"
         ) {
-          totalsub = totalsub + formData.value.items[i].total_amount;
+          totalsub =
+            totalsub +
+            formData.value.items[i].total_amount +
+            formData.value.items[i].discount * 1;
         }
       }
     }

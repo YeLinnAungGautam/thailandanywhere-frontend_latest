@@ -122,6 +122,7 @@ const customerPaymentStatusArr = [
   { id: "3", name: "partially_paid" },
 ];
 const searchTime = ref("");
+const booking_daterange = ref("");
 const dateRange = ref();
 const sale_daterange = ref(null);
 const oldCrmId = ref("");
@@ -137,6 +138,8 @@ const sortingArr = ref([
 ]);
 const sorting = ref("");
 
+const dateOnlyToggle = ref(false);
+
 const showFilter = ref(false);
 const clearFilter = () => {
   search.value = "";
@@ -144,6 +147,7 @@ const clearFilter = () => {
   oldCrmId.value = "";
   dateRange.value = "";
   sale_daterange.value = "";
+  booking_daterange.value = "";
   bookingStatus.value = "";
   expenseStatus.value = "";
   customerPaymentStatus.value = "";
@@ -263,15 +267,23 @@ const watchSystem = computed(() => {
   if (searchReservation.value != "" && searchReservation.value != undefined) {
     result.reservation_status = searchReservation.value;
   }
-  if (searchTime.value != "" && searchTime.value != undefined) {
+  if (
+    searchTime.value != "" &&
+    searchTime.value != undefined &&
+    dateOnlyToggle.value
+  ) {
     result.service_date = formatDate(searchTime.value);
+  }
+  if (sale_daterange.value != undefined && !dateOnlyToggle.value) {
+    result.sale_daterange = sale_daterange.value;
+  }
+  if (booking_daterange.value != undefined && !dateOnlyToggle.value) {
+    result.booking_daterange = booking_daterange.value;
   }
   if (userFilter.value != undefined) {
     result.user_id = userFilter.value;
   }
-  if (sale_daterange.value != undefined) {
-    result.sale_daterange = sale_daterange.value;
-  }
+
   if (customer_name.value != "" && customer_name.value != null) {
     result.order_by = customer_name.value;
   } else {
@@ -457,11 +469,52 @@ watch(dateRange, async (newValue) => {
   // console.log(sale_daterange.value, "this is daterange");
   await reservationStore.getListAction(watchSystem.value);
 });
+
+const bookingDateRange = ref("");
+watch(bookingDateRange, async (newValue) => {
+  showFilter.value = true;
+  console.log(bookingDateRange.value, "this is date");
+  if (bookingDateRange.value != "" && bookingDateRange.value != null) {
+    const options = { day: "2-digit", month: "2-digit", year: "numeric" };
+    const startDate = bookingDateRange?.value[0]?.toLocaleDateString(
+      "en-GB",
+      options
+    );
+    const endDate = bookingDateRange?.value[1]?.toLocaleDateString(
+      "en-GB",
+      options
+    );
+
+    // Custom function to format date as dd-MM-yyyy
+    const formatDateAsDDMMYYYY = (date) => {
+      if (date) {
+        const dd = String(date.getDate()).padStart(2, "0");
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const yyyy = date.getFullYear();
+        return `${yyyy}-${mm}-${dd}`;
+      }
+    };
+
+    // Format start and end dates
+    const formattedStartDate = formatDateAsDDMMYYYY(bookingDateRange.value[0]);
+    const formattedEndDate = formatDateAsDDMMYYYY(bookingDateRange.value[1]);
+
+    booking_daterange.value = `${formattedStartDate},${formattedEndDate}`;
+  } else {
+    booking_daterange.value = "";
+  }
+  // console.log(sale_daterange.value, "this is daterange");
+  await reservationStore.getListAction(watchSystem.value);
+});
 watch(search, async (newValue) => {
   showFilter.value = true;
   await reservationStore.getListAction(watchSystem.value);
 });
 watch(sale_daterange, async (newValue) => {
+  showFilter.value = true;
+  await reservationStore.getListAction(watchSystem.value);
+});
+watch(booking_daterange, async (newValue) => {
   showFilter.value = true;
   await reservationStore.getListAction(watchSystem.value);
 });
@@ -499,11 +552,18 @@ const changeServiceDate = (data) => {
   <Layout>
     <div class="flex items-center justify-between mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Reservation Lists</h3>
-      <div class="space-x-2">
+      <div class="space-x-2 flex justify-end gap-1">
         <Button :leftIcon="FunnelIcon" v-if="showFilter" @click="clearFilter">
           Clear
         </Button>
         <Button :leftIcon="FunnelIcon" @click="searchHandler"> Search </Button>
+        <div
+          v-if="sale_daterange && dateRange"
+          @click="openExport(sale_daterange)"
+          class="text-base px-4 cursor-pointer bg-[#ff613c] text-white shadow-md py-2 border border-gray-200 rounded-lg"
+        >
+          Export
+        </div>
       </div>
     </div>
     <div class="p-6 mb-5 rounded-lg shadow-sm bg-white/60">
@@ -583,11 +643,36 @@ const changeServiceDate = (data) => {
           </p>
         </div>
         <div
-          v-if="sale_daterange && dateRange"
-          @click="openExport(sale_daterange)"
-          class="text-xs px-4 cursor-pointer bg-[#ff613c] text-white shadow-md py-2 border border-gray-200 rounded"
+          @click="dateOnlyToggle = !dateOnlyToggle"
+          class="flex justify-end items-center gap-2"
         >
-          Export
+          <p class="text-xs">date only filter</p>
+          <label
+            class="inline-flex items-center cursor-pointer"
+            v-if="dateOnlyToggle"
+          >
+            <input type="checkbox" value="" class="sr-only peer" disabled />
+            <div
+              class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+            ></div>
+          </label>
+
+          <label
+            class="inline-flex items-center cursor-pointer"
+            v-if="!dateOnlyToggle"
+          >
+            <input
+              type="checkbox"
+              value=""
+              class="sr-only peer"
+              checked
+              disabled
+            />
+            <div
+              class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
+            ></div>
+          </label>
+          <p class="text-xs">date range filter</p>
         </div>
       </div>
 
@@ -669,20 +754,36 @@ const changeServiceDate = (data) => {
             placeholder="customer payment status ..."
           ></v-select>
         </div>
-        <div>
-          <input
+        <div v-if="dateOnlyToggle">
+          <!-- <input
             v-model="searchTime"
             type="date"
             class="h-8 w-3/5 sm:w-3/5 md:w-full text-md border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
             placeholder="Search Date"
             title="search with date"
+          /> -->
+          <VueDatePicker
+            v-model="searchTime"
+            :format="'yyyy-MM-dd'"
+            placeholder="Service Date"
+            text-input
           />
         </div>
-        <div>
+        <div v-if="!dateOnlyToggle">
           <VueDatePicker
             v-model="dateRange"
             range
+            :format="'yyyy-MM-dd'"
             placeholder="Service Date range"
+            text-input
+          />
+        </div>
+        <div v-if="!dateOnlyToggle">
+          <VueDatePicker
+            v-model="bookingDateRange"
+            range
+            :format="'yyyy-MM-dd'"
+            placeholder="Booking Date range"
             text-input
           />
         </div>
@@ -724,14 +825,14 @@ const changeServiceDate = (data) => {
             placeholder="attraction name ..."
           ></v-select>
         </div>
-        <div>
+        <!-- <div>
           <VueDatePicker
             v-model="dateRange"
             range
             :format="'yyyy-MM-dd'"
             placeholder="Export Sale Range"
           />
-        </div>
+        </div> -->
         <div>
           <v-select
             class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
@@ -761,7 +862,7 @@ const changeServiceDate = (data) => {
             entries
           </p>
         </div>
-        <div class="col-span-2">
+        <div v-if="!dateOnlyToggle" class="col-span-3">
           <div class="flex w-full text-xs pt-4 justify-end items-center gap-4">
             <p
               @click="changeServiceDate('today')"

@@ -541,7 +541,7 @@ watch(search, async (newValue) => {
             </div>
             <div class="space-y-1 mb-2">
               <label for="name" class="text-gray-800 text-sm"
-                >Description</label
+                >Detail (eng)</label
               >
               <textarea
                 class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
@@ -556,7 +556,9 @@ watch(search, async (newValue) => {
               </p>
             </div>
             <div class="space-y-1 mb-2">
-              <label for="name" class="text-gray-800 text-sm">Detail</label>
+              <label for="name" class="text-gray-800 text-sm"
+                >Detail (mm)</label
+              >
               <textarea
                 class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                 name=""
@@ -570,21 +572,9 @@ watch(search, async (newValue) => {
               </p>
             </div>
             <div class="space-y-1 mb-2">
-              <label for="name" class="text-gray-800 text-sm">Summary</label>
-              <textarea
-                class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                name=""
-                id=""
-                cols="30"
-                rows="5"
-                v-model="formData.summary"
-              ></textarea>
-              <p v-if="errors?.summary" class="mt-1 text-sm text-red-600">
-                {{ errors.summary[0] }}
-              </p>
-            </div>
-            <div class="space-y-1 mb-2">
-              <label for="name" class="text-gray-800 text-sm">Place Id</label>
+              <label for="name" class="text-gray-800 text-sm"
+                >Summary (eng)</label
+              >
               <textarea
                 class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                 name=""
@@ -595,6 +585,22 @@ watch(search, async (newValue) => {
               ></textarea>
               <p v-if="errors?.place_id" class="mt-1 text-sm text-red-600">
                 {{ errors.place_id[0] }}
+              </p>
+            </div>
+            <div class="space-y-1 mb-2">
+              <label for="name" class="text-gray-800 text-sm"
+                >Summary (mm)</label
+              >
+              <textarea
+                class="w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                name=""
+                id=""
+                cols="30"
+                rows="5"
+                v-model="formData.summary"
+              ></textarea>
+              <p v-if="errors?.summary" class="mt-1 text-sm text-red-600">
+                {{ errors.summary[0] }}
               </p>
             </div>
           </div>

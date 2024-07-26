@@ -230,13 +230,14 @@ import { onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import { useVantourStore } from "../stores/vantour";
 import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import { useAuthStore } from "../stores/auth";
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
+const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 const vantourStore = useVantourStore();
@@ -282,6 +283,14 @@ const changePage = async (url) => {
     search: search.value,
     type: forSale.value ? "car_rental" : "van_tour",
   };
+  router.push({
+    name: "products",
+    params: { id: 1 },
+    query: {
+      search: search.value,
+      type: forSale.value ? "car_rental" : "van_tour",
+    },
+  });
   await vantourStore.getChangePage(url, data);
 };
 
@@ -318,6 +327,14 @@ const forSale = ref(true);
 
 const toggleSale = () => {
   forSale.value = !forSale.value;
+  router.push({
+    name: "products",
+    params: { id: 0 },
+    query: {
+      search: search.value,
+      type: forSale.value ? "car_rental" : "van_tour",
+    },
+  });
 };
 
 const exportAction = async () => {
@@ -328,6 +345,8 @@ const exportAction = async () => {
 };
 
 onMounted(async () => {
+  search.value = route.query.search ? route.query.search : "";
+  forSale.value = route.query.type == "van_tour" ? false : true;
   await vantourStore.getListAction({
     search: search.value,
     type: forSale.value ? "car_rental" : "van_tour",
@@ -339,11 +358,27 @@ watch(search, async (newValue) => {
     search: search.value,
     type: forSale.value ? "car_rental" : "van_tour",
   });
+  router.push({
+    name: "products",
+    params: { id: 0 },
+    query: {
+      search: search.value,
+      type: forSale.value ? "car_rental" : "van_tour",
+    },
+  });
 });
 watch(forSale, async (newValue) => {
   await vantourStore.getListAction({
     search: search.value,
     type: forSale.value ? "car_rental" : "van_tour",
+  });
+  router.push({
+    name: "products",
+    params: { id: 0 },
+    query: {
+      search: search.value,
+      type: forSale.value ? "car_rental" : "van_tour",
+    },
   });
 });
 </script>

@@ -303,6 +303,7 @@ Contact: ${res?.result?.driver_contact}
 S.Date: ${props?.data.service_date}
 Pickup Time: ${props?.data.pickup_time}
 Pickup Location: ${props?.data.pickup_location}
+Dropoff Location: ${props?.data.dropoff_location}
 
 Routeplan: ${props?.data.route_plan}
 

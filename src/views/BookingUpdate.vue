@@ -614,12 +614,12 @@ const onSubmitHandler = async () => {
   frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
   console.log(formData.value.money_exchange_rate, "this is ex money");
   // frmData.append("crm_id", formData.value.crm_id);
-
-  if (formData.value.discount == "" || formData.value.discount == 0) {
-    frmData.append("discount", 0);
-  } else {
-    frmData.append("discount", percentageValue.value);
-  }
+  frmData.append("discount", sub_total_discount.value);
+  // if (formData.value.discount == "" || formData.value.discount == 0) {
+  //   frmData.append("discount", 0);
+  // } else {
+  //   frmData.append("discount", percentageValue.value);
+  // }
   formData.value.comment && frmData.append("comment", formData.value.comment);
   // frmData.append("receipt_image", formData.value.receipt_image);
   frmData.append("sub_total", sub_total_real.value);

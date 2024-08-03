@@ -88,7 +88,7 @@
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100">
+        <tbody class="divide-y divide-gray-100" v-if="!loading">
           <tr
             class="bg-white even:bg-gray-50 hover:bg-gray-50"
             v-for="(r, index) in vantours?.data"
@@ -166,6 +166,11 @@
                 </button>
               </div>
             </td>
+          </tr>
+        </tbody>
+        <tbody class="w-full" v-if="loading">
+          <tr class="">
+            <td colspan="9" class="text-center py-10">loading ...</td>
           </tr>
         </tbody>
       </table>
@@ -318,7 +323,10 @@ const onDeleteHandler = async (id) => {
         }
         toast.error(error.response.data.message);
       }
-      await vantourStore.getListAction();
+      await vantourStore.getListAction({
+        search: search.value,
+        type: forSale.value ? "car_rental" : "van_tour",
+      });
     }
   });
 };

@@ -42,6 +42,7 @@ const typeList = ref([
 ]);
 
 const formData = ref({
+  id: "",
   name: "",
   description: "",
   long_description: "",
@@ -100,9 +101,21 @@ const handlerFeatureFileChange = (e) => {
   }
 };
 
-const removeFeatureSelectImage = () => {
+const removeFeatureSelectImage = async () => {
   formData.value.feature_image = null;
   featureImagePreview.value = null;
+  const res = await vantourStore.deleteCoverImageAction(formData.value.id);
+  console.log(res, "delete cover image");
+  toast.success(res.message);
+  getDetail();
+  // editData.value.cover_image = null;
+};
+
+const removeFeatureSelectPreviewImage = () => {
+  formData.value.feature_image = null;
+  editData.value.cover_image = null;
+  featureImagePreview.value = null;
+  // editData.value.cover_image = null;
 };
 
 const imagesInput = ref(null);
@@ -225,10 +238,8 @@ const updateEditDesData = () => {
 const getDetail = async () => {
   try {
     const response = await vantourStore.getDetailAction(route.params.id);
-    console.log(response.result.tags, "tag");
-    console.log(response.result.cities, "city");
-    console.log(response.result.destinations, "description");
-
+    console.log(response, "tag");
+    formData.value.id = response.result.id;
     formData.value.name = response.result.name;
     formData.value.description = response.result.description;
     formData.value.long_description = response.result.long_description;
@@ -563,24 +574,12 @@ onMounted(async () => {
         </div>
       </div>
       <div>
-        <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
+        <!-- <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
           <div class="flex items-center justify-between gap-3 mb-3">
             <p>Images</p>
-            <!-- <button
-              @click.prevent="openFileImagePicker"
-              class="text-sm text-blue-500"
-            >
-              + Upload
-            </button> -->
+            
             <div>
-              <!-- <button
-                class="text-sm text-red-600"
-                @click.prevent="openFileImagePicker"
-              >
-                <i
-                  class="fa-solid fa-minus text-sm font-semibold px-2 py-1 bg-red-500 rounded-full shadow text-white"
-                ></i>
-              </button> -->
+              
               <button
                 class="text-sm text-blue-600"
                 @click.prevent="openFileImagePicker"
@@ -627,7 +626,7 @@ onMounted(async () => {
               <img class="h-auto w-full rounded" :src="image.image" alt="" />
             </div>
           </div>
-        </div>
+        </div> -->
         <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
           <div class="flex items-center justify-between gap-3 mb-3">
             <p>Feature Image</p>
@@ -647,16 +646,25 @@ onMounted(async () => {
             </button> -->
             <button
               class="text-sm text-red-600"
-              v-if="!featureImagePreview"
+              v-if="!featureImagePreview && !editData.cover_image"
               @click.prevent="openFileFeaturePicker"
+            >
+              <i
+                class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-green-500 rounded-full shadow text-white"
+              ></i>
+            </button>
+            <button
+              v-if="editData.cover_image"
+              @click.prevent="removeFeatureSelectImage"
+              class="text-sm text-red-500"
             >
               <i
                 class="fa-solid fa-minus text-sm font-semibold px-2 py-1 bg-red-500 rounded-full shadow text-white"
               ></i>
             </button>
             <button
-              v-else
-              @click.prevent="removeFeatureSelectImage"
+              v-if="featureImagePreview"
+              @click.prevent="removeFeatureSelectPreviewImage"
               class="text-sm text-red-500"
             >
               <i
@@ -667,14 +675,24 @@ onMounted(async () => {
 
           <div v-if="featureImagePreview" class="">
             <img
-              v-if="featureImagePreview || !formData.cover_image"
               class="h-auto w-full rounded"
               :src="featureImagePreview"
               alt=""
             />
           </div>
           <div
-            v-if="!featureImagePreview"
+            v-if="!featureImagePreview && !editData.cover_image"
+            @click.prevent="openFileFeaturePicker"
+            class="cursor-pointer w-full h-[200px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
+          >
+            <span class="text-xs"
+              ><i
+                class="fa-solid fa-plus text-lg font-semibold py-3 px-5 bg-[#ff613c] rounded-full shadow text-white"
+              ></i
+            ></span>
+          </div>
+          <div
+            v-if="!featureImagePreview && editData.cover_image"
             class="p-2 bg-white rounded-md shadow"
           >
             <img :src="editData.cover_image" alt="" class="w-full" />

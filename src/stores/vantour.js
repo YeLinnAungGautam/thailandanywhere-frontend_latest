@@ -84,6 +84,17 @@ export const useVantourStore = defineStore("vantour", {
         throw error;
       }
     },
+    async deleteCoverImageAction(id) {
+      try {
+        const response = await axios.delete(
+          "/private-van-tours/" + id + "/delete-cover-image"
+        );
+        console.log(response.data);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
     async downloadExport() {
       try {
         const res = await axios.get("/private-van-tours/export/csv");

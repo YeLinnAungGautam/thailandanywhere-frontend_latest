@@ -473,7 +473,7 @@ onMounted(async () => {
         </div>
       </div>
       <div>
-        <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
+        <!-- <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
           <div class="flex items-center justify-start gap-3 mb-3">
             <p>Images</p>
 
@@ -545,7 +545,7 @@ onMounted(async () => {
               ></span>
             </div>
           </div>
-        </div>
+        </div> -->
         <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
           <div class="flex items-center justify-between gap-3 mb-3">
             <p>Feature Image</p>

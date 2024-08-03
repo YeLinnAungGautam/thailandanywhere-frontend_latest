@@ -478,7 +478,8 @@ watch(
                   </p>
                 </div>
                 <div class="p-3 text-xs text-gray-700 whitespace-nowrap">
-                  {{ subTotal(r.sub_total, r.exclude_amount) }}
+                  <!-- {{ subTotal(r.sub_total, r.exclude_amount) }} -->
+                  {{ r.sub_total }}
                 </div>
                 <div
                   class="flex items-center justify-end col-span-2 p-3 space-x-2 text-xs text-gray-700 whitespace-nowrap"

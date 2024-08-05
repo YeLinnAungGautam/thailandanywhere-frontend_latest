@@ -268,6 +268,8 @@ const copyReservation = async (id) => {
 🎫 Attraction : ${res.result.product_name}
 🎫 Entrance Ticket Name : ${res.result.entrance_ticket_variation_name}
 💵 Sale Price: ${res.result.sale_price} THB
+💵 Balance Due: ${res.result.balance_due} THB
+📝 Payment Status: ${res.result.payment_status}
 📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
 🗓️ Service Date: ${
       res.result.service_date != "null" ? res.result.service_date : "-"

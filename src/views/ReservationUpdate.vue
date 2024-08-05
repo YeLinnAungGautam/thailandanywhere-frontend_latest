@@ -852,6 +852,8 @@ const copyReservation = async () => {
       res.result.total_nights != "null" ? res.result.total_nights : "-"
     }
 💵 Sale Price: ${res.result.sale_price} THB
+💵 Balance Due: ${res.result.balance_due} THB
+📝 Payment Status: ${res.result.payment_status}
 📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
 📅 Check-in Date: ${
       res.result.checkin_date != "null" ? res.result.checkin_date : "-"
@@ -876,6 +878,8 @@ const copyReservation = async () => {
 🎫 Attraction : ${res.result.product_name}
 🎫 Entrance Ticket Name : ${res.result.entrance_ticket_variation_name}
 💵 Sale Price: ${res.result.sale_price} THB
+💵 Balance Due: ${res.result.balance_due} THB
+📝 Payment Status: ${res.result.payment_status}
 📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
 🗓️ Service Date: ${
       res.result.service_date != "null" ? res.result.service_date : "-"
@@ -891,6 +895,8 @@ const copyReservation = async () => {
 🎫 Ticket Type : ${res.result.ticket_type}
 🎫 Total Tickets : ${res.result.total_ticket}
 💵 Sale Price: ${res.result.sale_price} THB
+💵 Balance Due: ${res.result.balance_due} THB
+📝 Payment Status: ${res.result.payment_status}
 📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
 🗓️ Service Date: ${
       res.result.service_date != "null" ? res.result.service_date : "-"

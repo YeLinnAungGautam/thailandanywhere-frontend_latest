@@ -333,30 +333,36 @@ SpecialRequest: ${props?.data.special_request}
 
 const copyFunction = async () => {
   const res = await carBookingStore.getDetailAction(props?.data.id);
-  const resDriver = await driverStore.getDetailAction(res?.result.driver_id);
-  console.log(resDriver, "this is cpy res");
-  let formattedOutput;
-  if (resDriver.status == "Request was successful.") {
-    formattedOutput = `
-🆔 CRM ID : ${props?.data.crm_id}
-📝 Product Name : ${props?.data.product_name}
-📅 Departure Date : ${props?.data.service_date}
-🕧 Pickup Time : ${props?.data.pickup_time}
-🧑‍✈️ Driver Name : ${resDriver?.result.name}
-☎️ Driver Contact : ${resDriver?.result.contact}
-🚗 Car Number : ${resDriver?.result.infos[0]?.car_number}
-💸 Driver Collect : ${props?.data.is_driver_collect == 1 ? "Yes" : "No"}
-💰 Total Collect : ${
+  console.log(res, "this is copy function");
+
+  if (res.result?.driver_id != null) {
+    const resDriver = await driverStore.getDetailAction(res?.result?.driver_id);
+    console.log(resDriver, "this is cpy res");
+    let formattedOutput;
+    if (resDriver.status == "Request was successful.") {
+      formattedOutput = `
+    🆔 CRM ID : ${props?.data.crm_id}
+    📝 Product Name : ${props?.data.product_name}
+    📅 Departure Date : ${props?.data.service_date}
+    🕧 Pickup Time : ${props?.data.pickup_time}
+    🧑‍✈️ Driver Name : ${resDriver?.result.name}
+    ☎️ Driver Contact : ${resDriver?.result.contact}
+    🚗 Car Number : ${resDriver?.result.infos[0]?.car_number}
+    💸 Driver Collect : ${props?.data.is_driver_collect == 1 ? "Yes" : "No"}
+    💰 Total Collect : ${
       props?.data.selling_price * 1 + props?.data.extra_collect_amount * 1
     } thb
-      `;
+          `;
+    }
+
+    setTimeout(() => {
+      navigator.clipboard.writeText(formattedOutput);
+    }, 0);
+
+    toast.success("success copy reservation");
+  } else {
+    toast.error("Driver Information not found");
   }
-
-  setTimeout(() => {
-    navigator.clipboard.writeText(formattedOutput);
-  }, 0);
-
-  toast.success("success copy reservation");
 };
 
 onMounted(async () => {
@@ -689,7 +695,7 @@ onMounted(async () => {
               rows="3"
             ></textarea>
           </div>
-          <!-- <div class="space-y-1 col-span-2" v-if="user.role != 'reservation'">
+          <div class="space-y-1 col-span-2" v-if="user.role != 'reservation'">
             <label for="name" class="text-gray-800 text-xs"
               >Pickup Location</label
             >
@@ -714,7 +720,7 @@ onMounted(async () => {
               cols="30"
               rows="3"
             ></textarea>
-          </div> -->
+          </div>
 
           <div class="space-y-1 col-span-1" v-if="user.role != 'reservation'">
             <label for="name" class="text-gray-800 text-xs"
@@ -745,7 +751,7 @@ onMounted(async () => {
             v-if="formData.is_driver_collect && !permission"
           >
             <label for="name" class="text-gray-800 text-xs"
-              >Extra Collect</label
+              >Total Collect</label
             >
             <input
               type="text"
@@ -831,7 +837,7 @@ onMounted(async () => {
           </div>
           <div class="col-span-2">
             <p
-              @click="carOrderCopyFunction"
+              @click="copyFunction"
               class="bg-[#FF5B00] text-center text-xs rounded-md py-2 text-white cursor-pointer"
             >
               copy for car order

@@ -380,13 +380,15 @@ const sub_qty_total = computed(() => {
   if (formitem.value.days) {
     totalsub =
       formitem.value.quantity *
-      formitem.value.selling_price *
-      formitem.value.days;
+        formitem.value.selling_price *
+        formitem.value.days -
+      formitem.value.discount;
     formitem.value.total_amount = totalsub;
-    console.log(formitem.value.total_amount, "this is total amount");
     return totalsub;
   } else {
-    totalsub = formitem.value.quantity * formitem.value.selling_price;
+    totalsub =
+      formitem.value.quantity * formitem.value.selling_price -
+      formitem.value.discount;
     formitem.value.total_amount = totalsub;
     return totalsub;
   }
@@ -406,6 +408,7 @@ const formitem = ref({
   room_number: "",
   checkout_date: "",
   pickup_time: "",
+  is_driver_collect: false,
   discount: 0,
   customer_attachment: "",
   dropoff_location: "",
@@ -473,6 +476,7 @@ const addNewitem = () => {
     car_list: [],
     pickup_location: "",
     pickup_time: "",
+    is_driver_collect: false,
     customer_attachment: "",
     dropoff_location: "",
     route_plan: "",
@@ -871,6 +875,10 @@ const onSubmitHandler = async () => {
         "items[" + x + "][pickup_time]",
         formData.value.items[x].pickup_time
       );
+    frmData.append(
+      "items[" + x + "][is_driver_collect]",
+      formData.value.items[x].is_driver_collect ? 1 : 0
+    );
     if (formData.value.items[x].customer_attachment) {
       frmData.append(
         "items[" + x + "][customer_attachment]",
@@ -1220,6 +1228,8 @@ const getDetail = async () => {
           response.result.items[x].pickup_time != "null"
             ? response.result.items[x].pickup_time
             : "",
+        is_driver_collect:
+          response.result.items[x].is_driver_collect == 1 ? true : false,
         dropoff_location:
           response.result.items[x].dropoff_location != "null"
             ? response.result.items[x].dropoff_location
@@ -1388,7 +1398,8 @@ const clickdetaildesToggle = (
   room,
   quantity,
   guest,
-  discount
+  discount,
+  is_driver_collect
 ) => {
   console.log(a, b, index);
   clickdetaildes.value = true;
@@ -1408,6 +1419,7 @@ const clickdetaildesToggle = (
   itemQ.value = quantity;
   itemGuest.value = guest;
   itemDiscount.value = discount;
+  itemIsDriverCollect.value = is_driver_collect;
   console.log(itemCheckIn.value, itemCheckOut.value);
 };
 const itemType = ref("");
@@ -1424,6 +1436,7 @@ const itemQ = ref("");
 const itemIs = ref("");
 const itemGuest = ref("");
 const itemDiscount = ref("");
+const itemIsDriverCollect = ref(false);
 
 const itemCheckoutCheck = () => {
   if (!itemCheckOut.value || itemCheckOut.value < itemCheckIn.value) {
@@ -1438,6 +1451,7 @@ const clickdetaildesUpdate = (x) => {
   formData.value.items[x].service_date = itemServiceDate.value;
   formData.value.items[x].pickup_location = itemPickup.value;
   formData.value.items[x].pickup_time = itemPickupTime.value;
+  formData.value.items[x].is_driver_collect = itemIsDriverCollect.value;
   formData.value.items[x].checkin_date = itemCheckIn.value;
   formData.value.items[x].room_number = itemRoom.value;
   formData.value.items[x].quantity = itemQ.value;
@@ -2160,6 +2174,37 @@ watch(
                           formitem.product_type == 'App\\Models\\AirportPickup'
                         "
                       >
+                        <p class="text-xs">Is Driver Collect</p>
+                        <!-- <input
+                          type="checkbox"
+                          name=""
+                          v-model="formitem.is_driver_collect"
+                          class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                          id=""
+                        /> -->
+                        <div
+                          class="flex justify-start items-center py-3 text-sm gap-2"
+                        >
+                          <input
+                            type="checkbox"
+                            name=""
+                            v-model="formitem.is_driver_collect"
+                            class="px-4 w-6 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                            id=""
+                          />
+                          is driver collect ?
+                        </div>
+                      </div>
+                      <div
+                        class="grid grid-cols-1 space-y-2"
+                        v-if="
+                          formitem.product_type == '1' ||
+                          formitem.product_type == '3' ||
+                          formitem.product_type ==
+                            'App\\Models\\PrivateVanTour' ||
+                          formitem.product_type == 'App\\Models\\AirportPickup'
+                        "
+                      >
                         <p class="text-xs">Dropoff Location</p>
                         <textarea
                           name=""
@@ -2281,7 +2326,7 @@ watch(
                   </Modal>
                   <Modal
                     :isOpen="clickdetaildes"
-                    @closeModal="clickdetaildesToggle = false"
+                    @closeModal="clickdetaildes = false"
                   >
                     <DialogPanel
                       class="w-full max-w-md p-4 space-y-2 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
@@ -2393,6 +2438,30 @@ watch(
                           class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                           id=""
                         />
+                      </div>
+                      <div
+                        class="grid grid-cols-1 space-y-2"
+                        v-if="
+                          itemType == '1' ||
+                          itemType == '3' ||
+                          itemType == 'App\\Models\\PrivateVanTour' ||
+                          itemType == 'App\\Models\\AirportPickup'
+                        "
+                      >
+                        <p class="text-sm">Is Driver Collect</p>
+
+                        <div
+                          class="flex justify-start items-center py-3 text-sm gap-2"
+                        >
+                          <input
+                            type="checkbox"
+                            name=""
+                            v-model="itemIsDriverCollect"
+                            class="px-4 w-6 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                            id=""
+                          />
+                          is driver collect ?
+                        </div>
                       </div>
                       <div
                         class="grid grid-cols-1 space-y-2"
@@ -3213,7 +3282,8 @@ watch(
                                   item.room_number,
                                   item.quantity,
                                   item.total_guest,
-                                  item.discount
+                                  item.discount,
+                                  item.is_driver_collect
                                 )
                               "
                             >

@@ -355,6 +355,7 @@ const formitem = ref({
   total_amount: "",
   pickup_location: "",
   pickup_time: "",
+  is_driver_collect: false,
   dropoff_location: "",
   route_plan: "",
   checkin_date: "",
@@ -511,6 +512,7 @@ const addNewitem = () => {
     route_plan: "",
     pickup_location: "",
     pickup_time: "",
+    is_driver_collect: false,
     amount: "",
     customer_attachment: "",
     dropoff_location: "",
@@ -782,6 +784,11 @@ const onSubmitHandler = async () => {
         formData.value.items[x].pickup_time
       );
     }
+    frmData.append(
+      "items[" + x + "][is_driver_collect]",
+      formData.value.items[x].is_driver_collect ? 1 : 0
+    );
+
     if (formData.value.items[x].customer_attachment) {
       frmData.append(
         "items[" + x + "][customer_attachment]",
@@ -1060,7 +1067,8 @@ const clickdetaildesToggle = (
   quantity,
   limit,
   guest,
-  disocunt
+  disocunt,
+  is_driver_collect
 ) => {
   clickdetaildes.value = true;
   itemDes.value = a;
@@ -1082,6 +1090,7 @@ const clickdetaildesToggle = (
   itemGuest.value = guest;
   console.log(itemIs.value, "this is item is");
   itemDiscount.value = disocunt;
+  itemIsDriverCollect.value = is_driver_collect;
 };
 const itemType = ref("");
 const itemRoutePlan = ref("");
@@ -1090,6 +1099,7 @@ const indexValue = ref("");
 const itemPickup = ref("");
 const itemDropoff = ref("");
 const itemPickupTime = ref("");
+const itemIsDriverCollect = ref(false);
 const itemCheckIn = ref("");
 const itemCheckOut = ref("");
 const itemDays = ref("");
@@ -1112,6 +1122,7 @@ const clickdetaildesUpdate = (x) => {
   formData.value.items[x].special_request = itemSpecial.value;
   formData.value.items[x].service_date = itemServiceDate.value;
   formData.value.items[x].pickup_location = itemPickup.value;
+  formData.value.items[x].is_driver_collect = itemIsDriverCollect.value;
   formData.value.items[x].total_guest = itemGuest.value;
   formData.value.items[x].customer_attachment = itemFile;
   formData.value.items[x].checkin_date = itemCheckIn.value;
@@ -1129,6 +1140,8 @@ const clickdetaildesUpdate = (x) => {
       Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
     );
     formData.value.items[x].days = result;
+  } else {
+    formData.value.items[x].days = 1;
   }
   let totalsub =
     formData.value.items[x].quantity *
@@ -1149,6 +1162,7 @@ const clickdetaildesClose = () => {
   itemServiceDate.value = "";
   itemPickup.value = "";
   itemPickupTime.value = "";
+  itemIsDriverCollect.value = false;
   itemDropoff.value = "";
   itemCheckIn.value = "";
   itemCheckOut.value = "";
@@ -1662,6 +1676,34 @@ watch(page, async (newValue) => {
                         formitem.product_type == '3'
                       "
                     >
+                      <p class="text-xs">Is Driver Collect</p>
+                      <!-- <input
+                        type="checkbox"
+                        name=""
+                        v-model="formitem.is_driver_collect"
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                        id=""
+                      /> -->
+                      <div
+                        class="flex justify-start items-center py-3 text-sm gap-2"
+                      >
+                        <input
+                          type="checkbox"
+                          name=""
+                          v-model="formitem.is_driver_collect"
+                          class="px-4 w-6 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                          id=""
+                        />
+                        is driver collect ?
+                      </div>
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="
+                        formitem.product_type == '1' ||
+                        formitem.product_type == '3'
+                      "
+                    >
                       <p class="text-xs">Dropoff Location</p>
                       <textarea
                         name=""
@@ -1764,7 +1806,7 @@ watch(page, async (newValue) => {
                 </Modal>
                 <Modal
                   :isOpen="clickdetaildes"
-                  @closeModal="clickdetaildesToggle = false"
+                  @closeModal="clickdetaildes = false"
                 >
                   <DialogPanel
                     class="w-full max-w-md p-4 space-y-2 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
@@ -1861,6 +1903,31 @@ watch(page, async (newValue) => {
                         class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                         id=""
                       />
+                    </div>
+                    <div
+                      class="grid grid-cols-1 space-y-2"
+                      v-if="itemType == '1' || itemType == '3'"
+                    >
+                      <p class="text-xs">Is Driver Collect</p>
+                      <!-- <input
+                        type="checkbox"
+                        name=""
+                        v-model="itemIsDriverCollect"
+                        class="px-4 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                        id=""
+                      /> -->
+                      <div
+                        class="flex justify-start items-center py-3 text-sm gap-2"
+                      >
+                        <input
+                          type="checkbox"
+                          name=""
+                          v-model="itemIsDriverCollect"
+                          class="px-4 w-6 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                          id=""
+                        />
+                        is driver collect ?
+                      </div>
                     </div>
                     <div
                       class="grid grid-cols-1 space-y-2"
@@ -2472,7 +2539,8 @@ watch(page, async (newValue) => {
                                 item.quantity,
                                 item.limit,
                                 item.total_guest,
-                                item.discount
+                                item.discount,
+                                item.is_driver_collect
                               )
                             "
                           >

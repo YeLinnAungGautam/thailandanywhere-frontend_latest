@@ -127,8 +127,9 @@ const toggleTopbarHandler = () => {
 const logoutHandler = async () => {
   try {
     const response = await authStore.logout();
-    router.push("/login");
+
     toast.success(response.message);
+    router.push("/login");
   } catch (error) {
     console.log(error);
   }
@@ -141,6 +142,7 @@ const logoutHandlerAllUser = async () => {
     console.log(response);
 
     toast.success(response.message);
+    router.push("/login");
   } catch (error) {
     console.log(error);
   }

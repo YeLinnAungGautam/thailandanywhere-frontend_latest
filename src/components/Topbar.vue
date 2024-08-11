@@ -72,6 +72,15 @@
                   Logout
                 </p>
               </li>
+              <li v-if="authStore.user.role == 'super_admin'">
+                <p
+                  @click.prevent="logoutHandlerAllUser"
+                  class="block px-4 py-2 text-sm text-gray-500 bg-white hover:text-red-400 hover:scale-105"
+                >
+                  <i class="mr-1 fa-solid fa-arrow-right-from-bracket"></i>
+                  All User Logout from Admin
+                </p>
+              </li>
             </ul>
           </div>
         </div>
@@ -99,12 +108,16 @@ import {
 import { useSidebarStore } from "../stores/sidebar";
 import { useAuthStore } from "../stores/auth";
 import { storeToRefs } from "pinia";
+import { useToast } from "vue-toastification";
 const sidebarStore = useSidebarStore();
 const authStore = useAuthStore();
 import { useRouter } from "vue-router";
 const router = useRouter();
 const { isTopBarDropdownShow } = storeToRefs(sidebarStore);
 const props = defineProps({});
+
+const toast = useToast();
+
 const toggleSidebarHandler = () => {
   sidebarStore.toggleSidebar();
 };
@@ -115,6 +128,18 @@ const logoutHandler = async () => {
   try {
     const response = await authStore.logout();
     router.push("/login");
+    toast.success(response.message);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const logoutHandlerAllUser = async () => {
+  try {
+    const response = await authStore.logoutAllUser();
+    // router.push("/login");
+    console.log(response);
+
     toast.success(response.message);
   } catch (error) {
     console.log(error);

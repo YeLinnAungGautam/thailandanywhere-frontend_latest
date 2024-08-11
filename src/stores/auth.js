@@ -65,5 +65,14 @@ export const useAuthStore = defineStore("auth", {
         throw error;
       }
     },
+    async logoutAllUser() {
+      try {
+        const response = await axios.post("/logout/all");
+        // localStorage.removeItem("token");
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

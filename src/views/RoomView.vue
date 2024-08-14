@@ -1211,28 +1211,31 @@ const editModalOpenHandler = (data) => {
   formData.value.agent_price = data.agent_price;
   formData.value.owner_price = data.owner_price;
   createModalOpen.value = true;
-  if (data.amenities != null) {
-    if (data.amenities?.length > 0) {
-      for (let i = 0; i < data.amenities.length; i++) {
-        let dataArry = {
-          title: data.amenities[i].title,
-          list: [],
-        };
-        for (let l = 0; l < data.amenities[i].list.length; l++) {
-          let datapush = {
-            list_name: data.amenities[i].list[l],
-          };
-          dataArry.list.push(datapush);
-        }
-        formData.value.room_amen.push(dataArry);
-      }
-    }
-  }
   if (data.images.length > 0) {
     for (let i = 0; i < data.images.length; i++) {
       editImagesPreview.value.push(data.images[i]);
     }
   }
+  if (data.amenities != null) {
+    if (data.amenities?.length > 0) {
+      for (let i = 0; i < data?.amenities?.length; i++) {
+        let dataArry = {
+          title: data.amenities[i].title,
+          list: [],
+        };
+        if (data.amenities[i].list) {
+          for (let l = 0; l < data.amenities[i]?.list.length; l++) {
+            let datapush = {
+              list_name: data.amenities[i].list[l],
+            };
+            dataArry.list.push(datapush);
+          }
+        }
+        formData.value.room_amen.push(dataArry);
+      }
+    }
+  }
+
   if (data.room_periods.length > 0) {
     for (let i = 0; i < data.room_periods.length; i++) {
       // editImagesPreview.value.push(data.images[i]);

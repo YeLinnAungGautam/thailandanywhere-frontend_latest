@@ -85,6 +85,23 @@
               {{ errors.owner_price[0] }}
             </p>
           </div>
+          <div class="mb-2 space-y-1 flex justify-start items-center gap-3">
+            <label for="room_price" class="text-sm text-gray-800"
+              >Is Add On ?</label
+            >
+            <Switch
+              v-model="enabled"
+              :class="enabled ? ' bg-orange-600' : 'bg-gray-500'"
+              class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+            >
+              <span class="sr-only">Use setting</span>
+              <span
+                aria-hidden="true"
+                :class="enabled ? 'translate-x-9' : 'translate-x-0'"
+                class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+              />
+            </Switch>
+          </div>
           <div class="mb-2 space-y-1">
             <label for="description" class="text-sm text-gray-800"
               >Description</label
@@ -417,6 +434,7 @@ import { useEntranceStore } from "../stores/entrance";
 import { useVariationStore } from "../stores/variations";
 import { useAuthStore } from "../stores/auth";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
+import { Switch } from "@headlessui/vue";
 
 const createModalOpen = ref(false);
 const toast = useToast();
@@ -430,6 +448,8 @@ const { variations, loading, importLoading } = storeToRefs(variationStore);
 const search = ref("");
 const errors = ref([]);
 
+const enabled = ref(false);
+
 const openModal = () => {
   createModalOpen.value = true;
   formData.value = {
@@ -440,10 +460,12 @@ const openModal = () => {
     cost_price: "",
     agent_price: "",
     owner_price: "",
+    is_add_on: 0,
     description: "",
     images: [],
     services: [],
   };
+  enabled.value = false;
   imagesPreview.value = [];
   editImagesPreview.value = [];
 };
@@ -458,10 +480,12 @@ const closeModal = () => {
     cost_price: "",
     agent_price: "",
     owner_price: "",
+    is_add_on: 0,
     description: "",
     images: [],
     services: [],
   };
+  enabled.value = false;
   imagesPreview.value = [];
   editImagesPreview.value = [];
 };
@@ -472,6 +496,7 @@ const formData = ref({
   cost_price: "",
   agent_price: "",
   owner_price: "",
+  is_add_on: 0,
   price_name: "",
   price: "",
   description: "",
@@ -523,6 +548,7 @@ const addNewHandler = async () => {
   frmData.append("cost_price", formData.value.cost_price);
   frmData.append("agent_price", formData.value.agent_price);
   frmData.append("owner_price", formData.value.owner_price);
+  frmData.append("is_add_on", enabled.value ? 1 : 0);
   frmData.append("name", formData.value.price_name);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
@@ -547,6 +573,7 @@ const addNewHandler = async () => {
       cost_price: "",
       agent_price: "",
       owner_price: "",
+      is_add_on: 0,
       price_name: "",
       price: "",
       description: "",
@@ -554,6 +581,7 @@ const addNewHandler = async () => {
       services: [],
     };
     errors.value = null;
+    enabled.value = false;
     createModalOpen.value = false;
     imagesPreview.value = [];
     editImagesPreview.value = [];
@@ -578,6 +606,7 @@ const updateHandler = async () => {
   frmData.append("cost_price", formData.value.cost_price);
   frmData.append("agent_price", formData.value.agent_price);
   frmData.append("owner_price", formData.value.owner_price);
+  frmData.append("is_add_on", enabled.value ? 1 : 0);
   frmData.append("name", formData.value.price_name);
 
   if (formData.value.images.length > 0) {
@@ -606,6 +635,7 @@ const updateHandler = async () => {
       cost_price: "",
       agent_price: "",
       owner_price: "",
+      is_add_on: 0,
       price_name: "",
       price: "",
       description: "",
@@ -613,6 +643,7 @@ const updateHandler = async () => {
       services: [],
     };
     errors.value = null;
+    enabled.value = false;
     createModalOpen.value = false;
     imagesPreview.value = [];
     editImagesPreview.value = [];
@@ -644,6 +675,7 @@ const editModalOpenHandler = (data) => {
   formData.value.cost_price = data.cost_price;
   formData.value.agent_price = data.agent_price;
   formData.value.owner_price = data.owner_price;
+  enabled.value = data.is_add_on == 1;
   formData.value.price_name = data.name;
   formData.value.price = data.price;
   formData.value.description = data.description;

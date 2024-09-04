@@ -152,7 +152,9 @@ const updateHandler = async () => {
   frmData.append("summary", formData.value.summary);
   frmData.append("city_id", formData.value.city_id);
   frmData.append("place_id", formData.value.place_id);
-  frmData.append("feature_img", formData.value.feature_img);
+  if (formData.value.feature_img) {
+    frmData.append("feature_img", formData.value.feature_img);
+  }
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];

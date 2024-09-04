@@ -46,6 +46,7 @@ const formData = ref({
   full_description_en: "",
   cover_image: "",
   sku_code: "",
+  ticket_price: "",
   type: "car_rental",
   tag: [],
   city_id: [],
@@ -122,6 +123,7 @@ const onSubmitHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("sku_code", formData.value.sku_code);
+  frmData.append("ticket_price", formData.value.ticket_price);
   frmData.append("type", formData.value.type);
   frmData.append("long_description", formData.value.long_description);
   frmData.append("full_description_en", formData.value.full_description_en);
@@ -164,6 +166,7 @@ const onSubmitHandler = async () => {
       full_description_en: "",
       cover_image: "",
       sku_code: "",
+      ticket_price: "",
       type: "car_rental",
       tag: [],
       city_id: [],
@@ -312,6 +315,19 @@ onMounted(async () => {
               :reduce="(dest) => dest.id"
               placeholder="Choose Destination"
             ></v-select>
+          </div>
+          <div class="">
+            <p class="text-gray-800 text-sm mb-2">Ticket Price</p>
+            <input
+              v-model="formData.ticket_price"
+              type="number"
+              id="title"
+              placeholder="eg : 800"
+              class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.ticket_price" class="mt-1 text-sm text-red-600">
+              {{ errors.ticket_price[0] }}
+            </p>
           </div>
           <div class="col-span-2">
             <div class="col-span-2">

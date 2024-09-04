@@ -49,6 +49,7 @@ const formData = ref({
   full_description_en: "",
   cover_image: "",
   sku_code: "",
+  ticket_price: "",
   type: "car_rental",
   tag: [],
   city_id: [],
@@ -146,6 +147,7 @@ const onSubmitHandler = async () => {
   frmData.append("_method", "PUT");
   frmData.append("name", formData.value.name);
   frmData.append("sku_code", formData.value.sku_code);
+  frmData.append("ticket_price", formData.value.ticket_price);
   frmData.append("type", formData.value.type);
   frmData.append("long_description", formData.value.long_description);
   frmData.append("full_description_en", formData.value.full_description_en);
@@ -190,6 +192,7 @@ const onSubmitHandler = async () => {
       full_description_en: "",
       cover_image: "",
       sku_code: "",
+      ticket_price: "",
       type: "car_rental",
       tag: [],
       city_id: [],
@@ -246,6 +249,7 @@ const getDetail = async () => {
     formData.value.full_description_en = response.result.full_description_en;
     editData.value.cover_image = response.result.cover_image;
     formData.value.sku_code = response.result.sku_code;
+    formData.value.ticket_price = response.result.ticket_price;
     formData.value.type = response.result.type;
     editData.value.tag = response.result.tags;
     editData.value.city_id = response.result.cities;
@@ -394,6 +398,18 @@ onMounted(async () => {
               :reduce="(dest) => dest.id"
               placeholder="Choose Destination"
             ></v-select>
+          </div>
+          <div class="">
+            <p class="text-gray-800 text-sm mb-2">Ticket Price</p>
+            <input
+              v-model="formData.ticket_price"
+              type="text"
+              id="title"
+              class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.ticket_price" class="mt-1 text-sm text-red-600">
+              {{ errors.ticket_price[0] }}
+            </p>
           </div>
           <div class="col-span-2">
             <div class="col-span-2">

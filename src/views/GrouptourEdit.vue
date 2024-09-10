@@ -1,8 +1,12 @@
 <script setup>
 import Layout from "./Layout.vue";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
-import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
-import { onMounted, onUnmounted, ref } from "vue";
+import {
+  PlusIcon,
+  ListBulletIcon,
+  ArrowDownTrayIcon,
+} from "@heroicons/vue/24/outline";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
@@ -144,15 +148,30 @@ const onSubmitHandler = async () => {
 const citylist = ref([]);
 const taglist = ref([]);
 const destlist = ref([]);
-onMounted(async () => {
-  await cityStore.getSimpleListAction();
-  await productStore.getSimpleListTagAction();
-  await destinationStore.getSimpleListAction();
-  citylist.value = cities.value.data;
 
-  taglist.value = tags.value.data;
-  destlist.value = dests.value.data;
-});
+const cityAction = ref(false);
+const productAction = ref(false);
+const destinationAction = ref(false);
+
+watch(
+  [cityAction, productAction, destinationAction],
+  async ([cityValue, productValue, destinationValue]) => {
+    if (cityValue == true) {
+      await cityStore.getSimpleListAction();
+      citylist.value = cities.value.data;
+    }
+    if (productValue == true) {
+      await productStore.getSimpleListTagAction();
+      taglist.value = tags?.value.data;
+    }
+    if (destinationValue == true) {
+      await destinationStore.getSimpleListAction();
+      destlist.value = dests?.value.data;
+    }
+  }
+);
+
+onMounted(async () => {});
 </script>
 
 <template>
@@ -192,7 +211,16 @@ onMounted(async () => {
           </div>
           <div>
             <p class="text-gray-800 text-sm mb-2">Cities</p>
+            <div
+              v-if="citylist.length == 0 && !cityAction"
+              @click="cityAction = true"
+              class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+            >
+              <p>city choose</p>
+              <ArrowDownTrayIcon class="w-4 h-4" />
+            </div>
             <v-select
+              v-if="cityAction && citylist.length != 0"
               v-model="formData.city_id"
               class="style-chooser"
               :options="citylist ?? []"
@@ -205,8 +233,17 @@ onMounted(async () => {
           </div>
           <div>
             <p class="text-gray-800 text-sm mb-2">Tags</p>
+            <div
+              v-if="taglist.length == 0 && !productAction"
+              @click="productAction = true"
+              class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+            >
+              <p>tags choose</p>
+              <ArrowDownTrayIcon class="w-4 h-4" />
+            </div>
             <v-select
               v-model="formData.tag"
+              v-if="taglist.length != 0 && productAction"
               class="style-chooser"
               :options="taglist ?? []"
               label="name"
@@ -218,8 +255,17 @@ onMounted(async () => {
           </div>
           <div>
             <p class="text-gray-800 text-sm mb-2">Destination</p>
+            <div
+              v-if="destlist.length == 0 && !destinationAction"
+              @click="destinationAction = true"
+              class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+            >
+              <p>destinations choose</p>
+              <ArrowDownTrayIcon class="w-4 h-4" />
+            </div>
             <v-select
               v-model="formData.destination"
+              v-if="destlist.length != 0 && destinationAction"
               class="style-chooser"
               :options="destlist ?? []"
               label="name"

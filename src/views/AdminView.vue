@@ -24,6 +24,7 @@ import Button from "../components/Button.vue";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useAdminStore } from "../stores/admin";
+import debounce from "lodash/debounce";
 
 const adminModalOpen = ref(false);
 
@@ -178,9 +179,15 @@ onMounted(async () => {
   console.log(admin.value, "this is admin");
 });
 
-watch(search, async (newValue) => {
-  await adminStore.getListAction({ search: search.value });
-});
+// watch(search, async (newValue) => {
+//   await adminStore.getListAction({ search: search.value });
+// });
+watch(
+  search,
+  debounce(async (newValue) => {
+    await adminStore.getListAction({ search: search.value });
+  }, 500)
+);
 </script>
 
 <template>

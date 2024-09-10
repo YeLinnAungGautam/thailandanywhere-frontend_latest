@@ -242,6 +242,7 @@ import axios from "axios";
 import { useToast } from "vue-toastification";
 import Swal from "sweetalert2";
 import { useCityStore } from "../stores/city";
+import debounce from "lodash/debounce";
 
 const cityStore = useCityStore();
 const toast = useToast();
@@ -402,7 +403,13 @@ watch(showEntries, async (newValue) => {
   await cityStore.getListAction({ limit: showEntries.value });
 });
 
-watch(search, async (newValue) => {
-  await cityStore.getListAction({ search: search.value });
-});
+// watch(search, async (newValue) => {
+//   await cityStore.getListAction({ search: search.value });
+// });
+watch(
+  search,
+  debounce(async (newValue) => {
+    await cityStore.getListAction({ search: search.value });
+  }, 500)
+);
 </script>

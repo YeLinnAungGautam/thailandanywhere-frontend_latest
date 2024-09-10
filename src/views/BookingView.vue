@@ -15,6 +15,7 @@ import {
   UsersIcon,
   AdjustmentsHorizontalIcon,
   FunnelIcon,
+  ArrowDownTrayIcon,
 } from "@heroicons/vue/24/outline";
 
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
@@ -27,6 +28,7 @@ import { useBookingStore } from "../stores/booking";
 import { storeToRefs } from "pinia";
 import { useAuthStore } from "../stores/auth";
 import { useAdminStore } from "../stores/admin";
+import debounce from "lodash/debounce";
 
 const router = useRouter();
 const route = useRoute();
@@ -147,6 +149,12 @@ const SearchFunction = () => {
   });
 };
 
+const showAgentSearch = ref(false);
+
+const agentSearchAction = async () => {
+  await adminStore.getSimpleListAction();
+};
+
 onMounted(async () => {
   await bookingStore.getListAction(watchSystem.value);
   (sale_date_order_by.value = "desc"),
@@ -155,7 +163,7 @@ onMounted(async () => {
   customerName.value =
     route.params.customer_name == "%" ? "" : route.params.customer_name;
   saleDate.value = route.params.sale_date == "%" ? "" : route.params.sale_date;
-  await adminStore.getSimpleListAction();
+
   console.log(admin.value, "this is admin");
 });
 
@@ -214,6 +222,14 @@ const watchSystem = computed(() => {
   return result;
 });
 
+watch(showAgentSearch, async (newValue) => {
+  if (newValue == true) {
+    if (admin.value == null) {
+      await agentSearchAction();
+    }
+  }
+});
+
 const searchHandler = async () => {
   showFilter.value = true;
   SearchFunction();
@@ -230,11 +246,9 @@ const subTotal = (a, b) => {
 
 watch(
   [
-    search,
     searchA,
     sale_date_order_by,
     inclusive_only,
-    customerName,
     balanceDueDate,
     bookingStatus,
     saleDate,
@@ -244,6 +258,16 @@ watch(
   () => {
     showFilter.value = true;
   }
+);
+
+watch(
+  [search, customerName],
+  debounce(async ([newValue, secValue]) => {
+    if (newValue || secValue) {
+      showFilter.value = true;
+      await searchHandler();
+    }
+  }, 500)
 );
 </script>
 
@@ -283,15 +307,27 @@ watch(
       <div class="mb-5">
         <div class="grid grid-cols-4 gap-2">
           <div v-if="authStore.isSuperAdmin">
-            <v-select
-              v-model="createdBy"
-              class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400"
-              :options="admin?.data"
-              label="name"
-              :clearable="false"
-              :reduce="(d) => d.id"
-              placeholder="agent ..."
-            ></v-select>
+            <div
+              v-if="
+                (!admin?.data || admin?.data.length > 10) && !showAgentSearch
+              "
+              @click="showAgentSearch = true"
+              class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+            >
+              <p>select agent</p>
+              <ArrowDownTrayIcon class="w-4 h-4" />
+            </div>
+            <div v-if="admin?.data.length > 10 && showAgentSearch">
+              <v-select
+                v-model="createdBy"
+                class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400"
+                :options="admin?.data"
+                label="name"
+                :clearable="false"
+                :reduce="(d) => d.id"
+                placeholder="agent ..."
+              ></v-select>
+            </div>
           </div>
           <div class="">
             <v-select

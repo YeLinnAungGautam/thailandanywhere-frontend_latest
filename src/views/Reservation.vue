@@ -3,6 +3,7 @@ import Layout from "./Layout.vue";
 import Input from "../components/Input.vue";
 import InputField from "../components/InputField.vue";
 import Pagination from "../components/Pagination.vue";
+import debounce from "lodash/debounce";
 
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
@@ -22,6 +23,7 @@ import {
   AdjustmentsHorizontalIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  ArrowDownTrayIcon,
   FunnelIcon,
 } from "@heroicons/vue/24/outline";
 
@@ -205,17 +207,46 @@ const openExport = (date) => {
   );
 };
 
+const adminAction = ref(false);
+const hotelAction = ref(false);
+const entranceAction = ref(false);
+
+watch(
+  [adminAction, hotelAction, entranceAction],
+  async ([newValue, secValue, thridValue]) => {
+    if (newValue == true) {
+      if (admin.value == null) {
+        await adminStore.getSimpleListAction();
+      }
+    }
+    if (secValue == true) {
+      if (hotels.value == null) {
+        await hotelStore.getSimpleListAction();
+      }
+    }
+    if (thridValue == true) {
+      if (entrances.value == null) {
+        await entranceStore.getSimpleListAction();
+      }
+    }
+  }
+);
+
 onMounted(async () => {
   console.log(entrances.value, "this is hotel list");
   searchId.value = route.params.crm_id == "%" ? "" : route.params.crm_id;
-  search.value =
-    route.params.product_type == "%" ? "" : route.params.product_type;
+  if (route.params.product_type != "%") {
+    search.value =
+      route.params.product_type == "%" ? "" : route.params.product_type;
+  } else {
+    search.value = "App\\Models\\Hotel";
+  }
+
   searchTime.value =
     route.params.service_date == "%" ? "" : route.params.service_date;
-  await reservationStore.getListAction(watchSystem.value);
-  await adminStore.getSimpleListAction();
-  await hotelStore.getSimpleListAction();
-  await entranceStore.getSimpleListAction();
+
+  // await reservationStore.getListAction(watchSystem.value);
+
   // const startDate = new Date();
   // const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
   // dateRange.value = [startDate, endDate];
@@ -438,7 +469,6 @@ watch(
     expenseStatus,
     customerPaymentStatus,
     limit,
-    searchId,
     searchA,
     userFilter,
     searchReservation,
@@ -451,6 +481,17 @@ watch(
     // await reservationStore.getListAction(watchSystem.value);
   }
 );
+
+watch(
+  searchId,
+  debounce(async (newValue) => {
+    if (newValue) {
+      showFilter.value = true;
+      searchFunction();
+    }
+  }, 500)
+);
+
 watch([searchTime, booking_date, customer_name, sorting], async () => {
   showFilter.value = true;
   searchFunction();
@@ -706,11 +747,19 @@ const changeServiceDate = (data) => {
 
       <div class="grid grid-cols-5 gap-2 mb-5 flex-wrap">
         <div class="" v-if="authStore.isSuperAdmin || authStore.isReservation">
+          <div
+            v-if="(!admin?.data || admin?.data.length > 10) && !adminAction"
+            @click="adminAction = true"
+            class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+          >
+            <p>select user</p>
+            <ArrowDownTrayIcon class="w-4 h-4" />
+          </div>
           <select
             name=""
             id=""
             v-model="userFilter"
-            v-if="admin"
+            v-if="admin && adminAction"
             class="px-2 py-1 focus:border-gray-300 border border-gray-300 placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400 space-y-2 h-9"
           >
             <option :value="null" disabled class="bg-gray-200 text-sm">
@@ -727,17 +776,7 @@ const changeServiceDate = (data) => {
             </option>
           </select>
         </div>
-        <!-- <div class="">
-          <v-select
-            v-model="searchA"
-            class="style-chooser placeholder-xs bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
-            :options="searchArray"
-            label="name"
-            :clearable="false"
-            :reduce="(d) => d.name"
-            placeholder="current & past ..."
-          ></v-select>
-        </div> -->
+
         <div class="">
           <v-select
             v-model="searchReservation"
@@ -840,7 +879,16 @@ const changeServiceDate = (data) => {
           />
         </div> -->
         <div class="">
+          <div
+            v-if="(!hotels?.data || hotels?.data.length > 10) && !hotelAction"
+            @click="hotelAction = true"
+            class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+          >
+            <p>hotel name</p>
+            <ArrowDownTrayIcon class="w-4 h-4" />
+          </div>
           <v-select
+            v-if="hotels && hotelAction"
             class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
             v-model="hotel_name"
             :options="hotels?.data"
@@ -851,9 +899,21 @@ const changeServiceDate = (data) => {
           ></v-select>
         </div>
         <div class="">
+          <div
+            v-if="
+              (!entrances?.data || entrances?.data.length > 10) &&
+              !entranceAction
+            "
+            @click="entranceAction = true"
+            class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+          >
+            <p>attraction name</p>
+            <ArrowDownTrayIcon class="w-4 h-4" />
+          </div>
           <v-select
             class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
             v-model="attraction_name"
+            v-if="entrances && entranceAction"
             :options="entrances?.data"
             label="name"
             :clearable="false"

@@ -268,15 +268,16 @@ import { useRouter, useRoute } from "vue-router";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import Modal from "../components/Modal.vue";
-import { useCityStore } from "../stores/city";
+// import { useCityStore } from "../stores/city";
 import { useHotelStore } from "../stores/hotel";
 import { useAuthStore } from "../stores/auth";
 import FacilitoryStoreVue from "../components/FacilitoryStore.vue";
+import debounce from "lodash/debounce";
 // import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const createModalOpen = ref(false);
 const toast = useToast();
-const cityStore = useCityStore();
+// const cityStore = useCityStore();
 const hotelStore = useHotelStore();
 const authStore = useAuthStore();
 const router = useRouter();
@@ -290,8 +291,8 @@ const errors = ref([]);
 
 const hotelShowList = ref(null);
 
-const { cities } = storeToRefs(cityStore);
-const citylist = ref([]);
+// const { cities } = storeToRefs(cityStore);
+// const citylist = ref([]);
 
 // pagiantion
 
@@ -495,29 +496,52 @@ onMounted(async () => {
     search: search.value,
     type: forSale.value ? "other_booking" : "direct_booking",
   });
-  await cityStore.getSimpleListAction();
-  citylist.value = cities.value.data;
+  // await cityStore.getSimpleListAction();
+  // citylist.value = cities.value.data;
 });
 
-watch(search, async (newValue) => {
-  if (selectedFilter.value != "") {
-    await hotelStore.getListAction({
-      search: search.value,
-      type: forSale.value ? "other_booking" : "direct_booking",
-      limit: 1000,
-    });
-    currentPage.value = 1;
-    pagiantionShow.value = true;
-  } else if (selectedFilter.value == "") {
-    await hotelStore.getListAction({
-      search: search.value,
-      type: forSale.value ? "other_booking" : "direct_booking",
-      limit: 10,
-    });
-    pagiantionShow.value = false;
-    currentPage.value = 1;
-  }
-});
+// watch(search, async (newValue) => {
+//   if (selectedFilter.value != "") {
+//     await hotelStore.getListAction({
+//       search: search.value,
+//       type: forSale.value ? "other_booking" : "direct_booking",
+//       limit: 1000,
+//     });
+//     currentPage.value = 1;
+//     pagiantionShow.value = true;
+//   } else if (selectedFilter.value == "") {
+//     await hotelStore.getListAction({
+//       search: search.value,
+//       type: forSale.value ? "other_booking" : "direct_booking",
+//       limit: 10,
+//     });
+//     pagiantionShow.value = false;
+//     currentPage.value = 1;
+//   }
+// });
+
+watch(
+  search,
+  debounce(async (newValue) => {
+    if (selectedFilter.value != "") {
+      await hotelStore.getListAction({
+        search: search.value,
+        type: forSale.value ? "other_booking" : "direct_booking",
+        limit: 1000,
+      });
+      currentPage.value = 1;
+      pagiantionShow.value = true;
+    } else if (selectedFilter.value == "") {
+      await hotelStore.getListAction({
+        search: search.value,
+        type: forSale.value ? "other_booking" : "direct_booking",
+        limit: 10,
+      });
+      pagiantionShow.value = false;
+      currentPage.value = 1;
+    }
+  }, 500)
+);
 
 watch(forSale, async (newValue) => {
   if (selectedFilter.value != "") {

@@ -24,6 +24,7 @@ import { useRouter } from "vue-router";
 import { useCustomerStore } from "../stores/customer";
 import { useAuthStore } from "../stores/auth";
 import { storeToRefs } from "pinia";
+import debounce from "lodash/debounce";
 
 const router = useRouter();
 const toast = useToast();
@@ -89,9 +90,15 @@ onMounted(async () => {
   console.log(customers.value, "this is customer");
 });
 
-watch(search, async (newValue) => {
-  await customerStore.getListAction({ search: search.value });
-});
+// watch(search, async (newValue) => {
+//   await customerStore.getListAction({ search: search.value });
+// });
+watch(
+  search,
+  debounce(async (newValue) => {
+    await customerStore.getListAction({ search: search.value });
+  }, 500)
+);
 watch(searchI, async (newValue) => {
   await customerStore.getSimpleListAction({ search: searchI.value });
 });

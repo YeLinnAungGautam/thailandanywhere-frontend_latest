@@ -241,6 +241,7 @@ import { useToast } from "vue-toastification";
 import { useAuthStore } from "../stores/auth";
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import debounce from "lodash/debounce";
 
 const route = useRoute();
 const router = useRouter();
@@ -355,26 +356,48 @@ const exportAction = async () => {
 onMounted(async () => {
   search.value = route.query.search ? route.query.search : "";
   forSale.value = route.query.type == "van_tour" ? false : true;
-  await vantourStore.getListAction({
-    search: search.value,
-    type: forSale.value ? "car_rental" : "van_tour",
-  });
-});
-
-watch(search, async (newValue) => {
-  await vantourStore.getListAction({
-    search: search.value,
-    type: forSale.value ? "car_rental" : "van_tour",
-  });
-  router.push({
-    name: "products",
-    params: { id: 0 },
-    query: {
+  if (!route.query.type) {
+    await vantourStore.getListAction({
       search: search.value,
       type: forSale.value ? "car_rental" : "van_tour",
-    },
-  });
+    });
+  }
 });
+
+// watch(search, async (newValue) => {
+//   await vantourStore.getListAction({
+//     search: search.value,
+//     type: forSale.value ? "car_rental" : "van_tour",
+//   });
+//   router.push({
+//     name: "products",
+//     params: { id: 0 },
+//     query: {
+//       search: search.value,
+//       type: forSale.value ? "car_rental" : "van_tour",
+//     },
+//   });
+// });
+watch(
+  search,
+  debounce(async (newValue) => {
+    if (newValue) {
+      await vantourStore.getListAction({
+        search: search.value,
+        type: forSale.value ? "car_rental" : "van_tour",
+      });
+      router.push({
+        name: "products",
+        params: { id: 0 },
+        query: {
+          search: search.value,
+          type: forSale.value ? "car_rental" : "van_tour",
+        },
+      });
+    }
+  }, 500)
+);
+
 watch(forSale, async (newValue) => {
   await vantourStore.getListAction({
     search: search.value,

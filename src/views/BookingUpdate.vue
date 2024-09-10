@@ -398,6 +398,7 @@ const formitem = ref({
   reservation_id: "",
   product_type: "",
   product_id: "",
+  product_name: "",
   service_date: "",
   quantity: "",
   days: "",
@@ -425,25 +426,42 @@ const formitem = ref({
   total_guest: "",
 });
 const productList = ref([]);
+
 const chooseType = async () => {
   if (formitem.value.product_type == "1") {
-    await vantourStore.getSimpleListAction();
+    productList.value = [];
+    if (vantours.value == null || vantours.value.data.length < 10) {
+      await vantourStore.getSimpleListAction();
+    }
     productList.value = vantours.value.data;
+
     console.log(productList.value);
   } else if (formitem.value.product_type == "2") {
-    await grouptourStore.getSimpleListAction();
+    productList.value = [];
+    if (grouptours.value == null || grouptours?.value.data.length < 10) {
+      await grouptourStore.getSimpleListAction();
+    }
     productList.value = grouptours.value.data;
     console.log(productList.value);
   } else if (formitem.value.product_type == "4") {
-    await entranceStore.getSimpleListAction();
+    productList.value = [];
+    if (entrances.value == null || entrances.value.data.length < 10) {
+      await entranceStore.getSimpleListAction();
+    }
     productList.value = entrances.value.data;
     console.log(productList.value);
   } else if (formitem.value.product_type == "6") {
-    await hotelStore.getSimpleListAction();
+    productList.value = [];
+    if (hotels.value == null || hotels.value.data.length < 10) {
+      await hotelStore.getSimpleListAction();
+    }
     productList.value = hotels.value.data;
     console.log(productList.value);
   } else if (formitem.value.product_type == "7") {
-    await airlineStore.getSimpleListAction();
+    productList.value = [];
+    if (airlines.value == null || airlines.value.data.length < 10) {
+      await airlineStore.getSimpleListAction();
+    }
     productList.value = airlines.value.data;
     console.log(productList.value, "this is air");
   }
@@ -1132,11 +1150,13 @@ const checkType = (product) => {
 };
 
 const paymentStatus = ref("");
+const customerName = ref("");
 const getDetail = async () => {
   try {
     const response = await bookingStore.getDetailAction(route.params.id);
     console.log(response, "this is response get");
     formData.value.customer_id = response.result.customer.id;
+    customerName.value = response.result.customer?.name;
     if (response.result.is_inclusive == 1) {
       formData.value.is_inclusive = response.result.is_inclusive;
       enabledIn.value = true;
@@ -1197,6 +1217,7 @@ const getDetail = async () => {
         product_type: response.result.items[x].product_type,
         crm_id: response.result.items[x].crm_id,
         product_id: response.result.items[x].product_id,
+        product_name: response.result.items[x].product?.name,
         service_date: response.result.items[x].service_date,
         is_inclusive: response.result.is_inclusive == 1 ? 1 : 0,
         quantity: response.result.items[x].quantity,
@@ -1642,15 +1663,15 @@ const checkCheckout = () => {
 onMounted(async () => {
   loadingState.value = true;
   await getDetail();
-  await adminStore.getSimpleListAction();
-  await vantourStore.getSimpleListAction();
-  await grouptourStore.getSimpleListAction();
-  await airportStore.getSimpleListAction();
-  await entranceStore.getSimpleListAction();
-  await inclusiveStore.getSimpleListAction();
-  await airlineStore.getSimpleListAction();
-  await customerStore.getSimpleListAction();
-  await hotelStore.getSimpleListAction();
+  // await adminStore.getSimpleListAction();
+  // await vantourStore.getSimpleListAction();
+  // await grouptourStore.getSimpleListAction();
+  // await airportStore.getSimpleListAction();
+  // await entranceStore.getSimpleListAction();
+  // await inclusiveStore.getSimpleListAction();
+  // await airlineStore.getSimpleListAction();
+  // await customerStore.getSimpleListAction();
+  // await hotelStore.getSimpleListAction();
 
   // url.value =
   //   "https://api-blog.thanywhere.com/admin/bookings/" +
@@ -1733,18 +1754,11 @@ watch(
               <div class="grid grid-cols-2 gap-4">
                 <div class="">
                   <p class="text-[#ff613c] text-xs mb-2">Customer Name</p>
-
-                  <v-select
-                    v-model="formData.customer_id"
-                    class="style-chooser placeholder-sm"
-                    :class="{
-                      'bg-white rounded-lg': formData.customer_id !== '',
-                    }"
-                    :options="customers?.data"
-                    label="name"
-                    :clearable="false"
-                    :reduce="(d) => d.id"
-                  ></v-select>
+                  <div
+                    class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-2 w-full flex justify-between items-center"
+                  >
+                    <p>{{ customerName }}</p>
+                  </div>
                 </div>
                 <div class="">
                   <p class="text-[#ff613c] text-xs mb-2">Sale Date</p>
@@ -2899,7 +2913,7 @@ watch(
                                   item.product_type == '1'
                                 "
                               >
-                                <p class="inline-block text-sm">
+                                <p class="inline-block text-xs">
                                   Private Van Tour
                                 </p>
                               </div>
@@ -2911,7 +2925,7 @@ watch(
                                   item.product_type == '2'
                                 "
                               >
-                                <p class="inline-block text-sm">Group Tour</p>
+                                <p class="inline-block text-xs">Group Tour</p>
                               </div>
                               <div
                                 class="py-2 text-gray-600"
@@ -2921,60 +2935,64 @@ watch(
                                   item.product_type == '3'
                                 "
                               >
-                                <p class="inline-block text-sm">
+                                <p class="inline-block text-xs">
                                   Airport Pickup
                                 </p>
                               </div>
                               <div
-                                class="py-2 text-gray-600 text-md text-bold"
+                                class="py-2 text-gray-600 text-xs text-bold"
                                 v-if="
                                   item.product_type ==
                                     'App\\Models\\EntranceTicket' ||
                                   item.product_type == '4'
                                 "
                               >
-                                <p class="inline-block text-sm">
+                                <p class="inline-block text-xs">
                                   Entrance Ticket
                                 </p>
                               </div>
                               <div
-                                class="py-2 text-gray-600 text-md text-bold"
+                                class="py-2 text-gray-600 text-xs text-bold"
                                 v-if="
                                   item.product_type ==
                                     'App\\Models\\Inclusive' ||
                                   item.product_type == '5'
                                 "
                               >
-                                <p class="inline-block text-sm">Inclusive</p>
+                                <p class="inline-block text-xs">Inclusive</p>
                               </div>
                               <div
-                                class="py-2 text-gray-600 text-md text-bold"
+                                class="py-2 text-gray-600 text-xs text-bold"
                                 v-if="
                                   item.product_type == 'App\\Models\\Hotel' ||
                                   item.product_type == '6'
                                 "
                               >
-                                <p class="inline-block text-sm">Hotel room</p>
+                                <p class="inline-block text-xs">Hotel room</p>
                               </div>
                               <div
-                                class="py-2 text-gray-600 text-md text-bold"
+                                class="py-2 text-gray-600 text-xs text-bold"
                                 v-if="
                                   item.product_type == 'App\\Models\\Airline' ||
                                   item.product_type == '7'
                                 "
                               >
-                                <p class="inline-block text-sm">Airline</p>
+                                <p class="inline-block text-xs">Airline</p>
                               </div>
                             </div>
                           </td>
                           <td
                             class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                           >
+                            <div v-if="item.product_name" class="text-xs">
+                              {{ item.product_name }}
+                            </div>
                             <v-select
                               v-if="
-                                item.product_type ==
+                                (item.product_type ==
                                   'App\\Models\\PrivateVanTour' ||
-                                item.product_type == '1'
+                                  item.product_type == '1') &&
+                                !item.product_name
                               "
                               v-model="item.product_id"
                               class="style-chooser"
@@ -2985,10 +3003,13 @@ watch(
                               :reduce="(d) => d.id"
                               placeholder="Choose product type"
                             ></v-select>
+
                             <v-select
                               v-if="
-                                item.product_type == 'App\\Models\\GroupTour' ||
-                                item.product_type == '2'
+                                (item.product_type ==
+                                  'App\\Models\\GroupTour' ||
+                                  item.product_type == '2') &&
+                                !item.product_name
                               "
                               v-model="item.product_id"
                               class="style-chooser"
@@ -3001,9 +3022,10 @@ watch(
                             ></v-select>
                             <v-select
                               v-if="
-                                item.product_type ==
+                                (item.product_type ==
                                   'App\\Models\\AirportPickup' ||
-                                item.product_type == '3'
+                                  item.product_type == '3') &&
+                                !item.product_name
                               "
                               v-model="item.product_id"
                               class="style-chooser"
@@ -3016,9 +3038,10 @@ watch(
                             ></v-select>
                             <v-select
                               v-if="
-                                item.product_type ==
+                                (item.product_type ==
                                   'App\\Models\\EntranceTicket' ||
-                                item.product_type == '4'
+                                  item.product_type == '4') &&
+                                !item.product_name
                               "
                               v-model="item.product_id"
                               class="style-chooser"
@@ -3031,8 +3054,10 @@ watch(
                             ></v-select>
                             <v-select
                               v-if="
-                                item.product_type == 'App\\Models\\Inclusive' ||
-                                item.product_type == '5'
+                                (item.product_type ==
+                                  'App\\Models\\Inclusive' ||
+                                  item.product_type == '5') &&
+                                !item.product_name
                               "
                               v-model="item.product_id"
                               class="style-chooser"
@@ -3045,8 +3070,9 @@ watch(
                             ></v-select>
                             <v-select
                               v-if="
-                                item.product_type == 'App\\Models\\Hotel' ||
-                                item.product_type == '6'
+                                (item.product_type == 'App\\Models\\Hotel' ||
+                                  item.product_type == '6') &&
+                                !item.product_name
                               "
                               v-model="item.product_id"
                               class="style-chooser"
@@ -3059,8 +3085,9 @@ watch(
                             ></v-select>
                             <v-select
                               v-if="
-                                item.product_type == 'App\\Models\\Airline' ||
-                                item.product_type == '7'
+                                (item.product_type == 'App\\Models\\Airline' ||
+                                  item.product_type == '7') &&
+                                !item.product_name
                               "
                               v-model="item.product_id"
                               class="style-chooser"

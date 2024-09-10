@@ -12,7 +12,7 @@
     <!-- modal -->
     <Modal :isOpen="createModalOpen" @closeModal="createModalOpen = false">
       <DialogPanel
-        class="w-full max-w-md p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
+        class="w-full max-w-md p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
       >
         <DialogTitle
           as="h3"
@@ -37,8 +37,17 @@
           </div>
           <div class="mb-2 space-y-1">
             <label for="name" class="text-sm text-gray-800">Airline Name</label>
+            <div
+              v-if="airList.length == 0 && !airAction"
+              @click="airAction = true"
+              class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+            >
+              <p>{{ airName != "" ? airName : "choose airline" }}</p>
+              <ArrowDownTrayIcon class="w-4 h-4" />
+            </div>
             <v-select
               v-model="formData.airline_id"
+              v-if="airAction && airList.length != 0"
               class="style-chooser"
               :options="airList ?? []"
               label="name"
@@ -219,6 +228,7 @@ import {
   UserGroupIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
+  ArrowDownTrayIcon,
 } from "@heroicons/vue/24/outline";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import Pagination from "../components/Pagination.vue";
@@ -232,6 +242,7 @@ import Modal from "../components/Modal.vue";
 import { useAirTicketStore } from "../stores/airticket";
 import { useAirLineStore } from "../stores/airline";
 import { useAuthStore } from "../stores/auth";
+import debounce from "lodash/debounce";
 
 const createModalOpen = ref(false);
 const toast = useToast();
@@ -327,8 +338,10 @@ const onSubmitHandler = async () => {
   }
 };
 
+const airName = ref("");
 const editModalOpenHandler = (data) => {
   formData.value.airline_id = data.airline.id;
+  airName.value = data.airline?.name;
   formData.value.price = data.price;
   formData.value.description = data.description;
   formData.value.id = data.id;
@@ -401,14 +414,25 @@ const importActionHandler = async () => {
   }
 };
 
-const airList = ref({});
+const airList = ref([]);
+const airAction = ref(false);
 onMounted(async () => {
   await airticketStore.getListAction();
-  await airlineStore.getSimpleListAction();
-  airList.value = airlines.value.data;
+
+  // airList.value = airlines.value.data;
 });
 
-watch(search, async (newValue) => {
-  await airticketStore.getListAction({ search: search.value });
+watch(airAction, async (newValue) => {
+  if (newValue == true && airList.value.length == 0) {
+    await airlineStore.getSimpleListAction();
+    airList.value = airlines.value.data;
+  }
 });
+
+watch(
+  search,
+  debounce(async (newValue) => {
+    await airticketStore.getListAction({ search: search.value });
+  }, 500)
+);
 </script>

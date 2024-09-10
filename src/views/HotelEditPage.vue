@@ -13,6 +13,7 @@ import {
   UserGroupIcon,
   XCircleIcon,
   UsersIcon,
+  ArrowDownTrayIcon,
   AdjustmentsHorizontalIcon,
 } from "@heroicons/vue/24/outline";
 import { QuillEditor } from "@vueup/vue-quill";
@@ -248,7 +249,7 @@ const addNewHandler = async () => {
   frmData.append("city_id", formData.value.city_id);
   if (
     formData.value.category_id != undefined &&
-    formData.value.category_id != 'undefined' &&
+    formData.value.category_id != "undefined" &&
     formData.value.category_id != "" &&
     formData.value.category_id != "null"
   ) {
@@ -406,7 +407,7 @@ const updateHandler = async () => {
   frmData.append("city_id", formData.value.city_id);
   if (
     formData.value.category_id != undefined &&
-    formData.value.category_id != 'undefined' &&
+    formData.value.category_id != "undefined" &&
     formData.value.category_id != "" &&
     formData.value.category_id != "null"
   ) {
@@ -538,6 +539,8 @@ const formatDate = (getDate) => {
 
 const linkContract = ref({});
 const nearByPlaceArray = ref([]);
+const cityName = ref("");
+const categoryName = ref("");
 
 const getDetail = async (params) => {
   console.log(params);
@@ -551,7 +554,9 @@ const getDetail = async (params) => {
     closeModal();
     formData.value.id = data.id;
     formData.value.name = data.name;
-    formData.value.city_id = data.city.id;
+    cityName.value = data.city?.name;
+    categoryName.value = data.category?.name;
+    formData.value.city_id = data.city?.id;
     formData.value.category_id = data.category?.id;
     formData.value.type = data.type;
     formData.value.place = data.place;
@@ -659,10 +664,20 @@ const removeLinkContract = async (id) => {
   await getDetail(route.params.id);
 };
 
+const cityAction = ref(false);
+const categoryAction = ref(false);
+
+watch([cityAction, categoryAction], async ([newCity, newCategory]) => {
+  if (newCity == true) {
+    await cityStore.getSimpleListAction();
+    citylist.value = cities.value.data;
+  }
+  if (newCategory == true) {
+    await hotelCategoryStore.getSimpleListAction();
+  }
+});
+
 onMounted(async () => {
-  await cityStore.getSimpleListAction();
-  await hotelCategoryStore.getSimpleListAction();
-  citylist.value = cities.value.data;
   await getDetail(route.params.id);
 });
 </script>
@@ -750,8 +765,28 @@ onMounted(async () => {
             </div>
             <div v-if="quiteSwitch == 1">
               <p class="mb-2 text-sm text-gray-800">Cities</p>
+              <div
+                v-if="citylist.length == 0 && !cityAction"
+                @click="cityAction = true"
+                class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+              >
+                <!-- <div class="flex justify-start items-center gap-2 flex-wrap" v-if="city_list_array">
+                  <p
+                    v-for="i in city_list_array"
+                    :key="i.id"
+                    class="text-xs py-1 px-2 bg-gray-100 rounded-md whitespace-nowrap"
+                  >
+                    {{ i.name }}
+                  </p>
+                </div> -->
+                <p class="text-sm">
+                  {{ cityName == "" ? "choose city" : cityName }}
+                </p>
+                <ArrowDownTrayIcon class="w-4 h-4" />
+              </div>
               <v-select
                 v-model="formData.city_id"
+                v-if="citylist.length != 0 && cityAction"
                 class="style-chooser"
                 :options="citylist ?? []"
                 label="name"
@@ -762,8 +797,28 @@ onMounted(async () => {
             </div>
             <div v-if="quiteSwitch == 1">
               <p class="mb-2 text-sm text-gray-800">Hotel Category</p>
+              <div
+                v-if="!categoryAction"
+                @click="categoryAction = true"
+                class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+              >
+                <!-- <div class="flex justify-start items-center gap-2 flex-wrap" v-if="city_list_array">
+                  <p
+                    v-for="i in city_list_array"
+                    :key="i.id"
+                    class="text-xs py-1 px-2 bg-gray-100 rounded-md whitespace-nowrap"
+                  >
+                    {{ i.name }}
+                  </p>
+                </div> -->
+                <p class="text-sm">
+                  {{ categoryName == "" ? "choose category" : categoryName }}
+                </p>
+                <ArrowDownTrayIcon class="w-4 h-4" />
+              </div>
               <v-select
                 v-model="formData.category_id"
+                v-if="categoryAction"
                 class="style-chooser"
                 :options="hcategories?.data ?? []"
                 label="name"

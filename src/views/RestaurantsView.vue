@@ -406,6 +406,7 @@ import Modal from "../components/Modal.vue";
 import { useCityStore } from "../stores/city";
 import { useRestaurantStore } from "../stores/restaurant";
 import { useAuthStore } from "../stores/auth";
+import debounce from "lodash/debounce";
 
 const createModalOpen = ref(false);
 const toast = useToast();
@@ -778,7 +779,13 @@ onMounted(async () => {
   citylist.value = cities.value.data;
 });
 
-watch(search, async (newValue) => {
-  await restaurantStore.getListAction({ search: search.value });
-});
+// watch(search, async (newValue) => {
+//   await restaurantStore.getListAction({ search: search.value });
+// });
+watch(
+  search,
+  debounce(async (newValue) => {
+    await restaurantStore.getListAction({ search: search.value });
+  }, 500)
+);
 </script>

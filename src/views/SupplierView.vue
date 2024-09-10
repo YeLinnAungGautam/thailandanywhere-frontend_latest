@@ -303,6 +303,7 @@ import { useToast } from "vue-toastification";
 import Swal from "sweetalert2";
 import { useDriverStore } from "../stores/driver";
 import { useSupplierStore } from "../stores/supplier";
+import debounce from "lodash/debounce";
 
 const driverStore = useDriverStore();
 const supplierStore = useSupplierStore();
@@ -521,7 +522,13 @@ watch(showEntries, async (newValue) => {
   await supplierStore.getListAction({ limit: showEntries.value });
 });
 
-watch(search, async (newValue) => {
-  await supplierStore.getListAction({ search: search.value });
-});
+// watch(search, async (newValue) => {
+//   await supplierStore.getListAction({ search: search.value });
+// });
+watch(
+  search,
+  debounce(async (newValue) => {
+    await supplierStore.getListAction({ search: search.value });
+  }, 500)
+);
 </script>

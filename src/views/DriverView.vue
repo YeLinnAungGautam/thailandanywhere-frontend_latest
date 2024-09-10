@@ -26,6 +26,7 @@ import Swal from "sweetalert2";
 import { useDriverStore } from "../stores/driver";
 import { useSupplierStore } from "../stores/supplier";
 import listPlugin from "@fullcalendar/list";
+import debounce from "lodash/debounce";
 
 const driverStore = useDriverStore();
 const supplierStore = useSupplierStore();
@@ -356,9 +357,15 @@ watch(showEntries, async (newValue) => {
   await driverStore.getListAction({ limit: showEntries.value });
 });
 
-watch(search, async (newValue) => {
-  await driverStore.getListAction({ search: search.value });
-});
+// watch(search, async (newValue) => {
+//   await driverStore.getListAction({ search: search.value });
+// });
+watch(
+  search,
+  debounce(async (newValue) => {
+    await driverStore.getListAction({ search: search.value });
+  }, 500)
+);
 </script>
 
 <template>

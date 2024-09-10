@@ -8,7 +8,7 @@ export const useAdminStore = defineStore("admin", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/admins?limit=1000&page=1");
+        const response = await axios.get("/admins?limit=50&page=1");
         this.admin = response.data.result;
         this.loading = false;
 

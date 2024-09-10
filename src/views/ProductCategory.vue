@@ -235,6 +235,7 @@ import axios from "axios";
 import { useToast } from "vue-toastification";
 import Swal from "sweetalert2";
 import { useProductStore } from "../stores/product";
+import debounce from "lodash/debounce";
 
 const productStore = useProductStore();
 const toast = useToast();
@@ -403,7 +404,14 @@ watch(showEntries, async (newValue) => {
   await productStore.getListAction({ limit: showEntries.value });
 });
 
-watch(search, async (newValue) => {
-  await productStore.getListAction({ search: search.value });
-});
+// watch(search, async (newValue) => {
+//   await productStore.getListAction({ search: search.value });
+// });
+
+watch(
+  search,
+  debounce(async (newValue) => {
+    await productStore.getListAction({ search: search.value });
+  }, 500)
+);
 </script>

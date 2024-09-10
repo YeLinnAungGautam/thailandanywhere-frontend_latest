@@ -140,6 +140,7 @@ import axios from "axios";
 import { useToast } from "vue-toastification";
 import Swal from "sweetalert2";
 import { useHotelCategoryStore } from "../stores/hotelcategory";
+import debounce from "lodash/debounce";
 
 const hotelCategoryStore = useHotelCategoryStore();
 const { hcategories, loading } = storeToRefs(hotelCategoryStore);
@@ -254,7 +255,13 @@ watch(showEntries, async (newValue) => {
   await hotelCategoryStore.getListAction({ limit: showEntries.value });
 });
 
-watch(search, async (newValue) => {
-  await hotelCategoryStore.getListAction({ search: search.value });
-});
+// watch(search, async (newValue) => {
+//   await hotelCategoryStore.getListAction({ search: search.value });
+// });
+watch(
+  search,
+  debounce(async (newValue) => {
+    await hotelCategoryStore.getListAction({ search: search.value });
+  }, 500)
+);
 </script>

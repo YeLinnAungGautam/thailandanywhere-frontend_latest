@@ -188,6 +188,7 @@ import { useToast } from "vue-toastification";
 import { useAuthStore } from "../stores/auth";
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import debounce from "lodash/debounce";
 
 const router = useRouter();
 const toast = useToast();
@@ -275,7 +276,15 @@ onMounted(async () => {
   await grouptourStore.getListAction();
 });
 
-watch(search, async (newValue) => {
-  await grouptourStore.getListAction({ search: search.value });
-});
+// watch(search, async (newValue) => {
+//   await grouptourStore.getListAction({ search: search.value });
+// });
+watch(
+  search,
+  debounce(async (newValue) => {
+    if (newValue) {
+      await grouptourStore.getListAction({ search: search.value });
+    }
+  }, 500)
+);
 </script>

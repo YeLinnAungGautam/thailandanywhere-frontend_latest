@@ -1,6 +1,6 @@
 <script setup>
 import Layout from "./Layout.vue";
-import { XCircleIcon } from "@heroicons/vue/24/outline";
+import { XCircleIcon, ArrowDownTrayIcon } from "@heroicons/vue/24/outline";
 import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
@@ -368,24 +368,39 @@ const productList = ref([]);
 
 const chooseType = async () => {
   if (formitem.value.product_type == "1") {
-    await vantourStore.getSimpleListAction();
+    productList.value = [];
+    if (vantours.value == null || vantours.value.data.length < 10) {
+      await vantourStore.getSimpleListAction();
+    }
     productList.value = vantours.value.data;
 
     console.log(productList.value);
   } else if (formitem.value.product_type == "2") {
-    await grouptourStore.getSimpleListAction();
+    productList.value = [];
+    if (grouptours.value == null || grouptours?.value.data.length < 10) {
+      await grouptourStore.getSimpleListAction();
+    }
     productList.value = grouptours.value.data;
     console.log(productList.value);
   } else if (formitem.value.product_type == "4") {
-    await entranceStore.getSimpleListAction();
+    productList.value = [];
+    if (entrances.value == null || entrances.value.data.length < 10) {
+      await entranceStore.getSimpleListAction();
+    }
     productList.value = entrances.value.data;
     console.log(productList.value);
   } else if (formitem.value.product_type == "6") {
-    await hotelStore.getSimpleListAction();
+    productList.value = [];
+    if (hotels.value == null || hotels.value.data.length < 10) {
+      await hotelStore.getSimpleListAction();
+    }
     productList.value = hotels.value.data;
     console.log(productList.value);
   } else if (formitem.value.product_type == "7") {
-    await airlineStore.getSimpleListAction();
+    productList.value = [];
+    if (airlines.value == null || airlines.value.data.length < 10) {
+      await airlineStore.getSimpleListAction();
+    }
     productList.value = airlines.value.data;
     console.log(productList.value, "this is air");
   }
@@ -1240,16 +1255,64 @@ const handleSelected = (data) => {
   console.log(data, "this is selected");
 };
 
+const customerSelect = ref(false);
+const adminSelect = ref(false);
+const vantourSelect = ref(false);
+const grouptourSelect = ref(false);
+const entranceSelect = ref(false);
+const airportSelect = ref(false);
+const airlineSelect = ref(false);
+const hotelSelect = ref(false);
+
+watch(
+  [
+    customerSelect,
+    adminSelect,
+    vantourSelect,
+    grouptourSelect,
+    entranceSelect,
+    airportSelect,
+    airlineSelect,
+    hotelSelect,
+  ],
+  async ([
+    newCustomer,
+    newAdmin,
+    newVantour,
+    newGroup,
+    newEntrance,
+    newAirport,
+    newAirline,
+    newHotel,
+  ]) => {
+    if (newCustomer == true && customers.value == null) {
+      await customerStore.getSimpleListAction({ limit: 20, page: page.value });
+    }
+    if (newAdmin == true && admin.value == null) {
+      await adminStore.getSimpleListAction();
+    }
+    if (newVantour == true && vantours.value == null) {
+      await vantourStore.getSimpleListAction();
+    }
+    if (newGroup == true && grouptours.value == null) {
+      await grouptourStore.getSimpleListAction();
+    }
+    if (newEntrance == true && entrances.value == null) {
+      await entranceStore.getSimpleListAction();
+    }
+    if (newAirport == true && airports.value == null) {
+      await airportStore.getSimpleListAction();
+    }
+    if (newAirline == true && airlines.value == null) {
+      await airlineStore.getSimpleListAction();
+    }
+    if (newHotel == true && hotels.value == null) {
+      await hotelStore.getSimpleListAction();
+    }
+  }
+);
+
 onMounted(async () => {
-  await customerStore.getSimpleListAction({ limit: 20, page: page.value });
-  await adminStore.getSimpleListAction();
-  await vantourStore.getSimpleListAction();
-  await grouptourStore.getSimpleListAction();
-  await entranceStore.getSimpleListAction();
-  await airportStore.getSimpleListAction();
-  await airlineStore.getSimpleListAction();
-  await hotelStore.getSimpleListAction();
-  console.log(admin.value, "this is admin");
   getTodayDate();
 });
 
@@ -1291,21 +1354,23 @@ watch(page, async (newValue) => {
               <div class="">
                 <p class="mb-2 text-xs text-[#ff613c]">Customer Name</p>
 
-                <!-- <v-select
-                  v-model="formData.customer_id"
-                  class="style-chooser placeholder-sm bg-white rounded-lg"
-                  :options="customers?.data"
-                  label="name"
-                  :clearable="false"
-                  :reduce="(d) => d.id"
-                ></v-select> -->
-                <VselectVue
-                  :data="customers"
-                  :isMult="false"
-                  @childData="handleChildData"
-                  @searchData="handleSearchData"
-                  @selected="handleSelected"
-                />
+                <div
+                  v-if="!customers?.data && !customerSelect"
+                  @click="customerSelect = true"
+                  class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+                >
+                  <p>customer ...</p>
+                  <ArrowDownTrayIcon class="w-4 h-4" />
+                </div>
+                <div v-if="customerSelect || customers?.data">
+                  <VselectVue
+                    :data="customers"
+                    :isMult="false"
+                    @childData="handleChildData"
+                    @searchData="handleSearchData"
+                    @selected="handleSelected"
+                  />
+                </div>
               </div>
               <div class="">
                 <p class="mb-2 text-xs text-[#ff613c]">Sale Date</p>

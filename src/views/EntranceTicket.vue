@@ -10,7 +10,7 @@
     </div>
 
     <!-- modal -->
-    <Modal :isOpen="createModalOpen" @closeModal="createModalOpen = false">
+    <Modal :isOpen="createModalOpen" @closeModal="clearAction">
       <DialogPanel
         class="w-[900px] p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
       >
@@ -38,8 +38,29 @@
             </div>
             <div>
               <p class="text-gray-800 text-sm mb-2">Cities</p>
+              <div
+                v-if="citylist.length == 0 && !cityAction"
+                @click="cityAction = true"
+                class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+              >
+                <div
+                  v-if="editData.city_id.length != 0"
+                  class="flex flex-wrap justify-start items-center gap-2"
+                >
+                  <p
+                    v-for="i in editData.city_id"
+                    :key="i.id"
+                    class="px-2 py-1 bg-gray-100 rounded-md text-xs"
+                  >
+                    {{ i.name }}
+                  </p>
+                </div>
+                <p v-if="editData.city_id.length == 0">city choose</p>
+                <ArrowDownTrayIcon class="w-4 h-4" />
+              </div>
               <v-select
                 v-model="formData.city_id"
+                v-if="cityAction && citylist.length != 0"
                 class="style-chooser"
                 :options="citylist ?? []"
                 label="name"
@@ -438,7 +459,7 @@
           <div class="text-end flex justify-end items-center">
             <p
               class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
-              @click="createModalOpen = false"
+              @click="clearAction"
             >
               close
             </p>
@@ -620,6 +641,7 @@ import {
   UserGroupIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
+  ArrowDownTrayIcon,
 } from "@heroicons/vue/24/outline";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
 import Pagination from "../components/Pagination.vue";
@@ -633,19 +655,18 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import { useCityStore } from "../stores/city";
-import { useProductStore } from "../stores/product";
 import { useAuthStore } from "../stores/auth";
+import debounce from "lodash/debounce";
 
 const router = useRouter();
 const cityStore = useCityStore();
-const productStore = useProductStore();
+// const productStore = useProductStore();
 const toast = useToast();
 const authStore = useAuthStore();
 
 const entranceStore = useEntranceStore();
 const { entrances, loading, importLoading } = storeToRefs(entranceStore);
 const { cities } = storeToRefs(cityStore);
-const { products } = storeToRefs(productStore);
 
 const search = ref("");
 const errors = ref([]);
@@ -724,7 +745,35 @@ const VantourCreate = () => {
   formData.value.contract_due = "";
   formData.value.contracts = [];
   linkContract.value = {};
+  editData.value.city_id = [];
   createModalOpen.value = true;
+};
+
+const clearAction = () => {
+  formData.value = {
+    name: "",
+    description: "",
+    full_description_en: "",
+    cover_image: "",
+    city_id: [],
+    category: [],
+    images: [],
+    feature_image: "",
+    id: "",
+    payment_method: "",
+    bank_name: "",
+    bank_account_number: "",
+    account_name: "",
+    place: "",
+    legal_name: "",
+    contract_due: "",
+    contracts: [],
+  };
+  linkContract.value = {};
+  editData.value.city_id = [];
+  imagesPreview.value = [];
+  featureImagePreview.value = null;
+  createModalOpen.value = false;
 };
 
 const featureImageInput = ref(null);
@@ -877,6 +926,7 @@ const addNewHandler = async () => {
     featureImagePreview.value = null;
     errors.value = null;
     toast.success(response.message);
+    clearAction();
     createModalOpen.value = false;
     await entranceStore.getListAction();
   } catch (error) {
@@ -968,6 +1018,7 @@ const updateHandler = async () => {
     featureImagePreview.value = null;
     errors.value = null;
     toast.success(response.message);
+    clearAction();
     createModalOpen.value = false;
     await entranceStore.getListAction();
   } catch (error) {
@@ -1080,17 +1131,29 @@ const importActionHandler = async () => {
 };
 
 const citylist = ref([]);
-const categorylist = ref([]);
-onMounted(async () => {
-  await entranceStore.getListAction();
-  await cityStore.getSimpleListAction();
-  await productStore.getSimpleListAction();
-  citylist.value = cities.value.data;
-  categorylist.value = products.value.data;
-  console.log(categorylist.value, "this is category");
+
+const cityAction = ref(false);
+
+watch(cityAction, async (newValue) => {
+  if (newValue == true) {
+    await cityStore.getSimpleListAction();
+    citylist.value = cities.value.data;
+  }
 });
 
-watch(search, async (newValue) => {
-  await entranceStore.getListAction({ search: search.value });
+onMounted(async () => {
+  await entranceStore.getListAction();
+
+  // await productStore.getSimpleListAction();
 });
+
+// watch(search, async (newValue) => {
+//   await entranceStore.getListAction({ search: search.value });
+// });
+watch(
+  search,
+  debounce(async (newValue) => {
+    await entranceStore.getListAction({ search: search.value });
+  }, 500)
+);
 </script>

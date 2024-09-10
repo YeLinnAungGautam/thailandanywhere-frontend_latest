@@ -125,7 +125,10 @@ const updateHandler = async () => {
 };
 
 onMounted(async () => {
-  const res = await facilityStore.getSimpleListAction();
+  if (!facilities?.value && !facility.value.data) {
+    const res = await facilityStore.getSimpleListAction();
+  }
+  
   formData.value.list = props.data;
   console.log(props.data, "this is data");
 });

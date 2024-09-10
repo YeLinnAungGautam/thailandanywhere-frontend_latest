@@ -37,9 +37,24 @@
             <label for="name" class="text-sm text-gray-800"
               >Attraction Name</label
             >
+            <div
+              v-if="entList.length == 0 && !entAction"
+              @click="entAction = true"
+              class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+            >
+              <p>
+                {{
+                  formData.entrance_name != ""
+                    ? formData.entrance_name
+                    : "choose airline"
+                }}
+              </p>
+              <ArrowDownTrayIcon class="w-4 h-4" />
+            </div>
             <v-select
               v-model="formData.entrance_ticket_id"
               class="style-chooser"
+              v-if="entList.length != 0 && entAction"
               :options="entList ?? []"
               label="name"
               :clearable="false"
@@ -250,8 +265,17 @@
           class="w-3/5 sm:w-3/5 md:w-[300px] mr-3 border px-4 py-2 rounded-md shadow-sm focus:ring-0 focus:outline-none text-gray-500"
           placeholder="Search variations..."
         />
+        <div
+          v-if="entList.length == 0 && !entAction"
+          @click="entAction = true"
+          class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+        >
+          <p>choose airline</p>
+          <ArrowDownTrayIcon class="w-4 h-4" />
+        </div>
         <v-select
           class="style-chooser bg-white min-w-[250px]"
+          v-if="entList.length != 0 && entAction"
           :options="entrances?.data"
           v-model="entrance_ticket_id"
           label="name"
@@ -420,6 +444,7 @@ import {
   UserGroupIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
+  ArrowDownTrayIcon,
 } from "@heroicons/vue/24/outline";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import Pagination from "../components/Pagination.vue";
@@ -435,6 +460,7 @@ import { useVariationStore } from "../stores/variations";
 import { useAuthStore } from "../stores/auth";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
 import { Switch } from "@headlessui/vue";
+import debounce from "lodash/debounce";
 
 const createModalOpen = ref(false);
 const toast = useToast();
@@ -455,6 +481,7 @@ const openModal = () => {
   formData.value = {
     id: "",
     entrance_ticket_id: "",
+    entrance_name: "",
     price: "",
     price_name: "",
     cost_price: "",
@@ -471,10 +498,10 @@ const openModal = () => {
 };
 
 const closeModal = () => {
-  createModalOpen.value = false;
   formData.value = {
     id: "",
     entrance_ticket_id: "",
+    entrance_name: "",
     price: "",
     price_name: "",
     cost_price: "",
@@ -488,11 +515,13 @@ const closeModal = () => {
   enabled.value = false;
   imagesPreview.value = [];
   editImagesPreview.value = [];
+  createModalOpen.value = false;
 };
 
 const formData = ref({
   id: "",
   entrance_ticket_id: "",
+  entrance_name: "",
   cost_price: "",
   agent_price: "",
   owner_price: "",
@@ -570,6 +599,7 @@ const addNewHandler = async () => {
     formData.value = {
       id: "",
       entrance_ticket_id: "",
+      entrance_name: "",
       cost_price: "",
       agent_price: "",
       owner_price: "",
@@ -632,6 +662,7 @@ const updateHandler = async () => {
     formData.value = {
       id: "",
       entrance_ticket_id: "",
+      entrance_name: "",
       cost_price: "",
       agent_price: "",
       owner_price: "",
@@ -672,6 +703,7 @@ const editModalOpenHandler = (data) => {
   console.log(data, "this is edit data");
   formData.value.id = data.id;
   formData.value.entrance_ticket_id = data.entrance_ticket?.id;
+  formData.value.entrance_name = data.entrance_ticket?.name;
   formData.value.cost_price = data.cost_price;
   formData.value.agent_price = data.agent_price;
   formData.value.owner_price = data.owner_price;
@@ -739,7 +771,7 @@ const onDeleteHandler = async (id) => {
   });
 };
 
-const entList = ref({});
+const entList = ref([]);
 const entrance_ticket_id = ref("");
 
 const exportAction = async () => {
@@ -775,22 +807,38 @@ const importActionHandler = async () => {
   }
 };
 
+const entAction = ref(false);
+
+watch(entAction, async (newValue) => {
+  if (newValue == true) {
+    await entranceStore.getSimpleListAction();
+    entList.value = entrances.value.data;
+  }
+});
+
 onMounted(async () => {
   await variationStore.getListAction({
     search: search.value,
     entrance_ticket_id: entrance_ticket_id.value,
   });
-  await entranceStore.getSimpleListAction();
-  entList.value = entrances.value.data;
-  console.log(entList.value, "this is res arr");
 });
 
-watch(search, async (newValue) => {
-  await variationStore.getListAction({
-    search: search.value,
-    entrance_ticket_id: entrance_ticket_id.value,
-  });
-});
+// watch(search, async (newValue) => {
+//   await variationStore.getListAction({
+//     search: search.value,
+//     entrance_ticket_id: entrance_ticket_id.value,
+//   });
+// });
+watch(
+  search,
+  debounce(async (newValue) => {
+    await variationStore.getListAction({
+      search: search.value,
+      entrance_ticket_id: entrance_ticket_id.value,
+    });
+  }, 500)
+);
+
 watch(entrance_ticket_id, async (newValue) => {
   await variationStore.getListAction({
     search: search.value,

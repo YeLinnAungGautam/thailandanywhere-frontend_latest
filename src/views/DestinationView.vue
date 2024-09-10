@@ -15,6 +15,7 @@ import {
   XCircleIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
+  ArrowDownTrayIcon,
 } from "@heroicons/vue/24/outline";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { onMounted, ref, watch } from "vue";
@@ -27,6 +28,7 @@ import { useDestinationStore } from "../stores/destination";
 import { useProductStore } from "../stores/product";
 import { useCityStore } from "../stores/city";
 import { useRouter, useRoute } from "vue-router";
+import debounce from "lodash/debounce";
 
 const destStore = useDestinationStore();
 const productStore = useProductStore();
@@ -41,6 +43,8 @@ const formData = ref({
   id: "",
   name: "",
   category_id: "",
+  category_name: "",
+  city_name: "",
   description: "",
   entry_fee: "",
   detail: "",
@@ -109,6 +113,8 @@ const addNewHandler = async () => {
     formData.value = {
       name: "",
       category_id: "",
+      category_name: "",
+      city_name: "",
       description: "",
       entry_fee: "",
       detail: "",
@@ -198,6 +204,8 @@ const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
   formData.value.category_id = data.category?.id;
+  formData.value.category_name = data.category?.name;
+  formData.value.city_name = data.city?.name;
   formData.value.description = data.description;
   formData.value.entry_fee = data.entry_fee;
   formData.value.city_id = data.city?.id;
@@ -285,6 +293,8 @@ const closeModal = () => {
   formData.value = {
     name: "",
     category_id: "",
+    category_name: "",
+    city_name: "",
     description: "",
     entry_fee: "",
     detail: "",
@@ -325,16 +335,27 @@ const importActionHandler = async () => {
   }
 };
 
+const productAction = ref(false);
+const cityAction = ref(false);
+
+watch([productAction, cityAction], async ([newValue, secValue]) => {
+  if (newValue == true) {
+    await productStore.getSimpleListAction();
+  }
+  if (secValue == true) {
+    await cityStore.getSimpleListAction();
+  }
+});
+
 onMounted(async () => {
   pageValue.value = route.query.pagi;
   console.log(pageValue.value, "this is from page value");
 
   await destStore.getListAction();
-  await productStore.getSimpleListAction();
-  await cityStore.getSimpleListAction();
-  changePage(
-    `https://api-blog.thanywhere.com/admin/destinations?page=${pageValue.value}`
-  );
+
+  //changePage(
+  //`https://api-blog.thanywhere.com/admin/destinations?page=${pageValue.value}`
+  //);
   console.log(cities.value, "pro");
 });
 
@@ -342,9 +363,15 @@ watch(showEntries, async (newValue) => {
   await destStore.getListAction({ limit: showEntries.value });
 });
 
-watch(search, async (newValue) => {
-  await destStore.getListAction({ search: search.value });
-});
+// watch(search, async (newValue) => {
+//   await destStore.getListAction({ search: search.value });
+// });
+watch(
+  search,
+  debounce(async (newValue) => {
+    await destStore.getListAction({ search: search.value });
+  }, 500)
+);
 </script>
 
 <template>
@@ -506,9 +533,24 @@ watch(search, async (newValue) => {
             </div>
             <div class="space-y-1 mb-4">
               <p class="text-gray-800 text-sm mb-2">Category</p>
+              <div
+                v-if="!productAction"
+                @click="productAction = true"
+                class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+              >
+                <p>
+                  {{
+                    formData.category_name
+                      ? formData.category_name
+                      : "choose category"
+                  }}
+                </p>
+                <ArrowDownTrayIcon class="w-4 h-4" />
+              </div>
               <v-select
                 v-model="formData.category_id"
                 class="style-chooser"
+                v-if="productAction"
                 :options="products.data ?? []"
                 label="name"
                 :clearable="false"
@@ -519,8 +561,19 @@ watch(search, async (newValue) => {
 
             <div class="space-y-1 mb-4">
               <p class="text-gray-800 text-sm mb-2">City</p>
+              <div
+                v-if="!cityAction"
+                @click="cityAction = true"
+                class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+              >
+                <p>
+                  {{ formData.city_name ? formData.city_name : "choose city" }}
+                </p>
+                <ArrowDownTrayIcon class="w-4 h-4" />
+              </div>
               <v-select
                 v-model="formData.city_id"
+                v-if="cityAction"
                 class="style-chooser"
                 :options="cities?.data ?? []"
                 label="name"

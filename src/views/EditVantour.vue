@@ -1,8 +1,12 @@
 <script setup>
 import Layout from "./Layout.vue";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
-import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
-import { onMounted, onUnmounted, ref } from "vue";
+import {
+  PlusIcon,
+  ListBulletIcon,
+  ArrowDownTrayIcon,
+} from "@heroicons/vue/24/outline";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
@@ -195,33 +199,36 @@ const taglist = ref([]);
 const destlist = ref([]);
 const carList = ref([]);
 
-// const limit = ref(10);
-// const onOpen = async () => {
-//   console.log(cities.value);
-//   if (cities.value.meta.total == citylist.value.length) {
-//     console.log("this is limit");
-//   } else {
-//     console.log("still loading");
-//     limit.value = cities.value.meta.total;
-//     await cityStore.getSimpleListAction({
-//       limit: limit.value,
-//     });
-//     citylist.value = cities.value.data;
-//     console.log(citylist.value);
-//   }
-// };
+const cityAction = ref(false);
+const productAction = ref(false);
+const carAction = ref(false);
+const destinationAction = ref(false);
+
+watch(
+  [cityAction, productAction, carAction, destinationAction],
+  async ([cityValue, productValue, carValue, destinationValue]) => {
+    if (cityValue == true) {
+      await cityStore.getSimpleListAction();
+      citylist.value = cities.value.data;
+    }
+    if (productValue == true) {
+      await productStore.getSimpleListTagAction();
+      taglist.value = tags?.value.data;
+    }
+    if (carValue == true) {
+      await carStore.getSimpleListAction();
+      carList.value = cars?.value.data;
+    }
+    if (destinationValue == true) {
+      await destinationStore.getSimpleListAction();
+      destlist.value = dests?.value.data;
+    }
+  }
+);
 
 onMounted(async () => {
-  await cityStore.getSimpleListAction();
-  await productStore.getSimpleListTagAction();
-  await carStore.getSimpleListAction();
-  await destinationStore.getSimpleListAction();
-  citylist.value = cities.value.data;
-
-  taglist.value = tags.value.data;
-  destlist.value = dests.value.data;
   console.log(cars.value, "this is dest");
-  carList.value = cars.value.data;
+
   console.log(carList.value);
 });
 // @open="onOpen"
@@ -279,7 +286,16 @@ onMounted(async () => {
           </div>
           <div>
             <p class="text-gray-800 text-sm mb-2">Cities</p>
+            <div
+              v-if="citylist.length == 0 && !cityAction"
+              @click="cityAction = true"
+              class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+            >
+              <p>city choose</p>
+              <ArrowDownTrayIcon class="w-4 h-4" />
+            </div>
             <v-select
+              v-if="cityAction && citylist.length != 0"
               v-model="formData.city_id"
               class="style-chooser"
               :options="citylist ?? []"
@@ -292,8 +308,17 @@ onMounted(async () => {
           </div>
           <div>
             <p class="text-gray-800 text-sm mb-2">Tags</p>
+            <div
+              v-if="taglist.length == 0 && !productAction"
+              @click="productAction = true"
+              class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+            >
+              <p>tags choose</p>
+              <ArrowDownTrayIcon class="w-4 h-4" />
+            </div>
             <v-select
               v-model="formData.tag"
+              v-if="taglist.length != 0 && productAction"
               class="style-chooser"
               :options="taglist ?? []"
               label="name"
@@ -305,8 +330,17 @@ onMounted(async () => {
           </div>
           <div>
             <p class="text-gray-800 text-sm mb-2">Destination</p>
+            <div
+              v-if="destlist.length == 0 && !destinationAction"
+              @click="destinationAction = true"
+              class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+            >
+              <p>destinations choose</p>
+              <ArrowDownTrayIcon class="w-4 h-4" />
+            </div>
             <v-select
               v-model="formData.destination"
+              v-if="destlist.length != 0 && destinationAction"
               class="style-chooser"
               :options="destlist ?? []"
               label="name"
@@ -338,7 +372,16 @@ onMounted(async () => {
               </div>
               <div class="flex items-center justify-between gap-3 mb-3">
                 <div class="flex-1">
+                  <div
+                    v-if="carList.length == 0 && !carAction"
+                    @click="carAction = true"
+                    class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+                  >
+                    <p>car choose</p>
+                    <ArrowDownTrayIcon class="w-4 h-4" />
+                  </div>
                   <v-select
+                    v-if="carList.length != 0 && carAction"
                     v-model="formPrice.car"
                     class="style-chooser"
                     :options="carList ?? []"

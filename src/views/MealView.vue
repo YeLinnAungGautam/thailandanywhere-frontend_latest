@@ -542,6 +542,7 @@ import { useMealStore } from "../stores/meal";
 import { useAuthStore } from "../stores/auth";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
 import { Switch } from "@headlessui/vue";
+import debounce from "lodash/debounce";
 
 const createModalOpen = ref(false);
 const toast = useToast();
@@ -946,13 +947,24 @@ const importActionHandler = async () => {
   }
 };
 
-watch(search, async (newValue) => {
-  await mealStore.getListAction({
-    search: search.value,
-    restaurant_id: restaurant_id.value,
-    period: periodAjj.value,
-  });
-});
+// watch(search, async (newValue) => {
+//   await mealStore.getListAction({
+//     search: search.value,
+//     restaurant_id: restaurant_id.value,
+//     period: periodAjj.value,
+//   });
+// });
+
+watch(
+  search,
+  debounce(async (newValue) => {
+    await mealStore.getListAction({
+      search: search.value,
+      restaurant_id: restaurant_id.value,
+      period: periodAjj.value,
+    });
+  }, 500)
+);
 watch(restaurant_id, async (newValue) => {
   await mealStore.getListAction({
     restaurant_id: restaurant_id.value,

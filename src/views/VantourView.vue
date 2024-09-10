@@ -1,8 +1,12 @@
 <script setup>
 import Layout from "./Layout.vue";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
-import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
-import { onMounted, onUnmounted, ref } from "vue";
+import {
+  PlusIcon,
+  ListBulletIcon,
+  ArrowDownTrayIcon,
+} from "@heroicons/vue/24/outline";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
@@ -69,6 +73,7 @@ const editData = ref({
 
 const formPrice = ref({
   car: "",
+  name: "",
   price: "",
   agent_price: "",
 });
@@ -77,6 +82,7 @@ const addNewPrice = () => {
   console.log(editData.value.prices, "prices");
   formPrice.value = {
     car: "",
+    name: "",
     price: "",
     agent_price: "",
   };
@@ -238,6 +244,11 @@ const updateEditDesData = () => {
   }
   console.log(formData.value.destination, "this is destination");
 };
+
+const city_list_array = ref(null);
+const tag_list_array = ref(null);
+const dest_list_array = ref(null);
+
 const getDetail = async () => {
   try {
     const response = await vantourStore.getDetailAction(route.params.id);
@@ -255,11 +266,15 @@ const getDetail = async () => {
     editData.value.city_id = response.result.cities;
     editData.value.destination = response.result.destinations;
     formData.value.images = response.result.images;
+    city_list_array.value = response.result.cities;
+    tag_list_array.value = response.result.tags;
+    dest_list_array.value = response.result.destinations;
     console.log(response.result.tags);
     // editData.value.prices = response.result.cars;
     for (const x in response.result.cars) {
       const item = {
         car: response.result.cars[x].id,
+        name: response.result.cars[x].name,
         price: response.result.cars[x].price,
         agent_price: response.result.cars[x].agent_price,
       };
@@ -283,18 +298,35 @@ const carList = ref([]);
 
 const actionPage = ref("");
 
+const cityAction = ref(false);
+const productAction = ref(false);
+const carAction = ref(false);
+const destinationAction = ref(false);
+
+watch(
+  [cityAction, productAction, carAction, destinationAction],
+  async ([cityValue, productValue, carValue, destinationValue]) => {
+    if (cityValue == true) {
+      await cityStore.getSimpleListAction();
+      citylist.value = cities.value.data;
+    }
+    if (productValue == true) {
+      await productStore.getSimpleListTagAction();
+      taglist.value = tags?.value.data;
+    }
+    if (carValue == TextTrackCue) {
+      await carStore.getSimpleListAction();
+      carList.value = cars?.value.data;
+    }
+    if (destinationValue == true) {
+      await destinationStore.getSimpleListAction();
+      destlist.value = dests?.value.data;
+    }
+  }
+);
+
 onMounted(async () => {
   await getDetail();
-  await cityStore.getSimpleListAction();
-  await productStore.getSimpleListTagAction();
-  await carStore.getSimpleListAction();
-  await destinationStore.getSimpleListAction();
-  actionPage.value = route.params.action;
-  citylist.value = cities.value.data;
-  taglist.value = tags.value.data;
-  destlist.value = dests.value.data;
-  console.log(formData.value, "this is dest");
-  carList.value = cars.value.data;
 });
 </script>
 
@@ -362,7 +394,24 @@ onMounted(async () => {
           </div>
           <div>
             <p class="text-gray-800 text-sm mb-2">Cities</p>
+            <div
+              v-if="citylist.length == 0 && !cityAction"
+              @click="cityAction = true"
+              class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+            >
+              <div class="flex justify-start items-center gap-2 flex-wrap">
+                <p
+                  v-for="i in city_list_array"
+                  :key="i.id"
+                  class="text-xs py-1 px-2 bg-gray-100 rounded-md whitespace-nowrap"
+                >
+                  {{ i.name }}
+                </p>
+              </div>
+              <ArrowDownTrayIcon class="w-4 h-4" />
+            </div>
             <v-select
+              v-if="cityAction && citylist.length != 0"
               v-model="formData.city_id"
               class="style-chooser"
               :options="citylist ?? []"
@@ -375,8 +424,35 @@ onMounted(async () => {
           </div>
           <div>
             <p class="text-gray-800 text-sm mb-2">Tags</p>
+            <!-- <v-select
+              v-model="formData.tag"
+              class="style-chooser"
+              :options="taglist ?? []"
+              label="name"
+              multiple
+              :clearable="false"
+              :reduce="(tag) => tag.id"
+              placeholder="Choose Tag"
+            ></v-select> -->
+            <div
+              v-if="taglist.length == 0 && !productAction"
+              @click="productAction = true"
+              class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+            >
+              <div class="flex justify-start items-center gap-2 flex-wrap">
+                <p
+                  v-for="i in tag_list_array"
+                  :key="i.id"
+                  class="text-xs py-1 px-2 bg-gray-100 rounded-md whitespace-nowrap"
+                >
+                  {{ i.name }}
+                </p>
+              </div>
+              <ArrowDownTrayIcon class="w-4 h-4" />
+            </div>
             <v-select
               v-model="formData.tag"
+              v-if="taglist.length != 0 && productAction"
               class="style-chooser"
               :options="taglist ?? []"
               label="name"
@@ -388,8 +464,35 @@ onMounted(async () => {
           </div>
           <div>
             <p class="text-gray-800 text-sm mb-2">Destination</p>
+            <!-- <v-select
+              v-model="formData.destination"
+              class="style-chooser"
+              :options="destlist ?? []"
+              label="name"
+              multiple
+              :clearable="false"
+              :reduce="(dest) => dest.id"
+              placeholder="Choose Destination"
+            ></v-select> -->
+            <div
+              v-if="destlist.length == 0 && !destinationAction"
+              @click="destinationAction = true"
+              class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+            >
+              <div class="flex justify-start items-center gap-2 flex-wrap">
+                <p
+                  v-for="i in dest_list_array"
+                  :key="i.id"
+                  class="text-xs py-1 px-2 bg-gray-100 rounded-md whitespace-nowrap"
+                >
+                  {{ i.name }}
+                </p>
+              </div>
+              <ArrowDownTrayIcon class="w-4 h-4" />
+            </div>
             <v-select
               v-model="formData.destination"
+              v-if="destlist.length != 0 && destinationAction"
               class="style-chooser"
               :options="destlist ?? []"
               label="name"
@@ -421,7 +524,25 @@ onMounted(async () => {
 
               <div class="flex items-center justify-between gap-3 mb-3">
                 <div class="flex-1">
+                  <!-- <v-select
+                    v-model="formPrice.car"
+                    class="style-chooser"
+                    :options="carList ?? []"
+                    label="name"
+                    :clearable="false"
+                    :reduce="(car) => car.id"
+                    placeholder="Choose car type"
+                  ></v-select> -->
+                  <div
+                    v-if="carList.length == 0 && !carAction"
+                    @click="carAction = true"
+                    class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+                  >
+                    <p>car choose</p>
+                    <ArrowDownTrayIcon class="w-4 h-4" />
+                  </div>
                   <v-select
+                    v-if="carList.length != 0 && carAction"
                     v-model="formPrice.car"
                     class="style-chooser"
                     :options="carList ?? []"
@@ -465,7 +586,14 @@ onMounted(async () => {
                 class="flex items-center justify-between gap-3 mb-3"
               >
                 <div class="flex-1">
+                  <p
+                    v-if="price.name"
+                    class="py-2 px-2 rounded-md border border-gray-300"
+                  >
+                    {{ price.name }}
+                  </p>
                   <v-select
+                    v-if="!price?.name"
                     v-model="price.car"
                     class="style-chooser"
                     :options="carList ?? []"
@@ -584,7 +712,7 @@ onMounted(async () => {
               v-model:content="formData.full_description_en"
             />
           </div>
-          <div class="text-end" v-if="actionPage == 'edit'">
+          <div class="text-end">
             <Button @click.prevent="onSubmitHandler"> Update Vantour </Button>
           </div>
         </div>

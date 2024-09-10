@@ -45,10 +45,15 @@ export const useAuthStore = defineStore("auth", {
     },
     async getMe() {
       try {
-        const response = await axios.get("/me");
-        this.user = response.data.result.user;
-        this.token = localStorage.getItem("token");
-        return response;
+        if (this.user == null) {
+          const response = await axios.get("/me");
+          this.user = response.data.result.user;
+          this.token = localStorage.getItem("token");
+          return response;
+        } else {
+          this.token = localStorage.getItem("token");
+          return "get already";
+        }
       } catch (error) {
         this.user = null;
         this.token = null;

@@ -67,8 +67,17 @@
           </div>
           <div v-if="quiteSwitch == 1">
             <p class="mb-2 text-sm text-gray-800">Hotel</p>
+            <div
+              v-if="hotelList.length == 0 && !hotelAction"
+              @click="hotelAction = true"
+              class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+            >
+              <p>{{ hotelName != "" ? hotelName : "hotel choose" }}</p>
+              <ArrowDownTrayIcon class="w-4 h-4" />
+            </div>
             <v-select
               v-model="formData.hotel_id"
+              v-if="hotelAction && hotelList.length != 0"
               class="style-chooser"
               :options="hotelList ?? []"
               label="name"
@@ -518,10 +527,19 @@
           class="w-3/5 sm:w-3/5 md:w-[200px] border px-4 py-1.5 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
           placeholder="Search Rooms..."
         />
+        <div
+          v-if="hotelList.length == 0 && !hotelAction"
+          @click="hotelAction = true"
+          class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 min-w-[200px] flex justify-between items-center"
+        >
+          <p>hotel choose</p>
+          <ArrowDownTrayIcon class="w-4 h-4" />
+        </div>
         <v-select
           class="style-chooser min-w-[200px] bg-white"
           :options="hotelList ?? []"
           v-model="hotel_id"
+          v-if="hotelList.length != 0 && hotelAction"
           label="name"
           :clearable="false"
           :reduce="(hotel) => hotel.id"
@@ -754,6 +772,7 @@ import {
   BuildingOfficeIcon,
   DocumentPlusIcon,
   PlusIcon,
+  ArrowDownTrayIcon,
   UserGroupIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
@@ -773,6 +792,7 @@ import { useRoomStore } from "../stores/room";
 import { useAuthStore } from "../stores/auth";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
 import { Switch } from "@headlessui/vue";
+import debounce from "lodash/debounce";
 
 const createModalOpen = ref(false);
 const toast = useToast();
@@ -918,6 +938,7 @@ const closeModal = () => {
   createModalOpen.value = false;
   imagesPreview.value = [];
   editImagesPreview.value = [];
+  hotelName.value = "";
 };
 
 const limitedText = (text) => {
@@ -1197,11 +1218,13 @@ const removeEditImageSelectImage = (index) => {
   console.log(editImagesPreview.value);
 };
 
+const hotelName = ref("");
 const editModalOpenHandler = (data) => {
   console.log(data);
   formData.value.id = data.id;
   formData.value.name = data.name;
   formData.value.hotel_id = data.hotel.id;
+  hotelName.value = data.hotel?.name;
   enabled.value = data.is_extra == 1 ? true : false;
   enabledhas.value = data.has_breakfast == 1 ? true : false;
   formData.value.max_person = data.max_person;
@@ -1334,6 +1357,15 @@ const exportAction = async () => {
   }
 };
 
+const hotelAction = ref(false);
+
+watch(hotelAction, async (newValue) => {
+  if (newValue == true && hotelList.value.length == 0) {
+    await hotelStore.getSimpleListAction();
+    hotelList.value = hotels.value.data;
+  }
+});
+
 onMounted(async () => {
   search.value =
     route.query.search != "null" && route.query.search ? search.value : "";
@@ -1343,7 +1375,7 @@ onMounted(async () => {
     route.query.missing != "null" && route.query.missing
       ? route.query.missing
       : "";
-  await hotelStore.getSimpleListAction();
+  //
   if (
     search.value == "" &&
     hotel_id.value == "" &&
@@ -1351,7 +1383,7 @@ onMounted(async () => {
   ) {
     await roomStore.getListAction();
   }
-  hotelList.value = hotels.value.data;
+  //
 });
 
 const hotel_id = ref("");
@@ -1420,29 +1452,56 @@ const goRouterFilter = () => {
   });
 };
 
-watch(search, async (newValue) => {
-  if (selectedFilter.value != "") {
-    await roomStore.getListAction({
-      hotel_id: hotel_id.value,
-      search: search.value,
-      period: periodAjj.value,
-      limit: 1000,
-    });
-    currentPage.value = 1;
-    pagiantionShow.value = true;
-    setTimeout(goRouterFilter, 1000);
-  } else if (selectedFilter.value == "") {
-    await roomStore.getListAction({
-      hotel_id: hotel_id.value,
-      search: search.value,
-      period: periodAjj.value,
-      limit: 10,
-    });
-    pagiantionShow.value = false;
-    currentPage.value = 1;
-    setTimeout(goRouterFilter, 1000);
-  }
-});
+// watch(search, async (newValue) => {
+//   if (selectedFilter.value != "") {
+//     await roomStore.getListAction({
+//       hotel_id: hotel_id.value,
+//       search: search.value,
+//       period: periodAjj.value,
+//       limit: 1000,
+//     });
+//     currentPage.value = 1;
+//     pagiantionShow.value = true;
+//     setTimeout(goRouterFilter, 1000);
+//   } else if (selectedFilter.value == "") {
+//     await roomStore.getListAction({
+//       hotel_id: hotel_id.value,
+//       search: search.value,
+//       period: periodAjj.value,
+//       limit: 10,
+//     });
+//     pagiantionShow.value = false;
+//     currentPage.value = 1;
+//     setTimeout(goRouterFilter, 1000);
+//   }
+// });
+
+watch(
+  search,
+  debounce(async (newValue) => {
+    if (selectedFilter.value != "") {
+      await roomStore.getListAction({
+        hotel_id: hotel_id.value,
+        search: search.value,
+        period: periodAjj.value,
+        limit: 1000,
+      });
+      currentPage.value = 1;
+      pagiantionShow.value = true;
+      setTimeout(goRouterFilter, 1000);
+    } else if (selectedFilter.value == "") {
+      await roomStore.getListAction({
+        hotel_id: hotel_id.value,
+        search: search.value,
+        period: periodAjj.value,
+        limit: 10,
+      });
+      pagiantionShow.value = false;
+      currentPage.value = 1;
+      setTimeout(goRouterFilter, 1000);
+    }
+  }, 500)
+);
 watch(hotel_id, async (newValue) => {
   if (selectedFilter.value != "") {
     await roomStore.getListAction({

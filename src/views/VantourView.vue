@@ -314,7 +314,7 @@ watch(
       await productStore.getSimpleListTagAction();
       taglist.value = tags?.value.data;
     }
-    if (carValue == TextTrackCue) {
+    if (carValue == true) {
       await carStore.getSimpleListAction();
       carList.value = cars?.value.data;
     }
@@ -542,7 +542,7 @@ onMounted(async () => {
                     <ArrowDownTrayIcon class="w-4 h-4" />
                   </div>
                   <v-select
-                    v-if="carList.length != 0 && carAction"
+                    v-if="carList.length != 0 || carAction"
                     v-model="formPrice.car"
                     class="style-chooser"
                     :options="carList ?? []"

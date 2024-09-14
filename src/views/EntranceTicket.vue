@@ -388,20 +388,44 @@
                     <img class="h-auto w-full rounded" :src="image" alt="" />
                   </div>
                 </div>
-                <div
-                  class="grid grid-cols-3 gap-2 mb-6 bg-white rounded-md shadow"
-                  v-if="imagesPreview.length == 0"
-                >
+                <div class="" v-if="imagesPreview.length == 0">
                   <div
-                    class="relative"
-                    v-for="(image, index) in formData.images"
-                    :key="index"
+                    v-if="formData.images"
+                    class="grid grid-cols-3 gap-2 mb-6 bg-white rounded-md shadow"
                   >
-                    <img
-                      class="h-auto w-full rounded"
-                      :src="image.image"
-                      alt=""
-                    />
+                    <div
+                      class="relative"
+                      v-for="(image, index) in formData.images"
+                      :key="index"
+                    >
+                      <img
+                        class="h-auto w-full rounded"
+                        :src="image.image"
+                        alt=""
+                      />
+                    </div>
+                  </div>
+                  <div
+                    v-if="editData.images"
+                    class="grid grid-cols-3 gap-2 mb-6 bg-white rounded-md shadow"
+                  >
+                    <div
+                      class="relative"
+                      v-for="(image, index) in editData.images"
+                      :key="index"
+                    >
+                      <button
+                        @click.prevent="removeImageUpdateImage(image.id)"
+                        class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                      >
+                        <XCircleIcon class="w-8 h-8 font-semibold" />
+                      </button>
+                      <img
+                        class="h-auto w-full rounded"
+                        :src="image.image"
+                        alt=""
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1035,7 +1059,6 @@ const updateHandler = async () => {
 
 const editData = ref({
   city_id: [],
-
   category: [],
   cover_image: "",
   images: [],
@@ -1075,7 +1098,8 @@ const editModalOpenHandler = async (id) => {
     linkContract.value = response.result;
     editData.value.city_id = response.result.cities;
     // editData.value.category = response.result.categories;
-    formData.value.images = response.result.images;
+    // formData.value.images = response.result.images;
+    editData.value.images = response.result.images;
     editData.value.variations = response.result.variations;
     console.log(response.result.tags);
     console.log(editData.value.category, "edit category");
@@ -1127,6 +1151,21 @@ const importActionHandler = async () => {
     // errors.value = e.response.data.errors;
     importModal.value = false;
     toast.error(e.response.data.message);
+  }
+};
+
+const removeImageUpdateImage = async (id) => {
+  try {
+    const res = await entranceStore.deleteEntranceImageAction(id);
+    toast.success("Delete image success");
+
+    // Remove the image from the editData.value.images array
+    editData.value.images = editData.value.images.filter(
+      (image) => image.id !== id
+    );
+  } catch (error) {
+    console.error("Error deleting image:", error);
+    toast.error("Failed to delete image");
   }
 };
 

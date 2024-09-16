@@ -70,6 +70,40 @@
                 placeholder="Choose City"
               ></v-select>
             </div>
+            <div>
+              <p class="text-gray-800 text-sm mb-2">Categories</p>
+              <div
+                v-if="categoryList.length == 0 && !categoryAction"
+                @click="categoryAction = true"
+                class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+              >
+                <div
+                  v-if="editData.category_id.length != 0"
+                  class="flex flex-wrap justify-start items-center gap-2"
+                >
+                  <p
+                    v-for="i in editData.category_id"
+                    :key="i.id"
+                    class="px-2 py-1 bg-gray-100 rounded-md text-xs"
+                  >
+                    {{ i.name }}
+                  </p>
+                </div>
+                <p v-if="editData.category_id.length == 0">category choose</p>
+                <ArrowDownTrayIcon class="w-4 h-4" />
+              </div>
+              <v-select
+                v-model="formData.category_id"
+                v-if="categoryAction && categoryList.length != 0"
+                class="style-chooser"
+                :options="categoryList ?? []"
+                label="name"
+                multiple
+                :clearable="false"
+                :reduce="(d) => d.id"
+                placeholder="Choose Category"
+              ></v-select>
+            </div>
             <!-- <div>
               <p class="text-gray-800 text-sm mb-2">Category</p>
               <v-select
@@ -679,18 +713,20 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import { useCityStore } from "../stores/city";
+import { useProductStore } from "../stores/product";
 import { useAuthStore } from "../stores/auth";
 import debounce from "lodash/debounce";
 
 const router = useRouter();
 const cityStore = useCityStore();
-// const productStore = useProductStore();
+const productStore = useProductStore();
 const toast = useToast();
 const authStore = useAuthStore();
 
 const entranceStore = useEntranceStore();
 const { entrances, loading, importLoading } = storeToRefs(entranceStore);
 const { cities } = storeToRefs(cityStore);
+const { products } = storeToRefs(productStore);
 
 const search = ref("");
 const errors = ref([]);
@@ -737,7 +773,7 @@ const formData = ref({
   full_description_en: "",
   cover_image: "",
   city_id: [],
-  category: [],
+  category_id: [],
   images: [],
   feature_image: "",
   id: "",
@@ -770,6 +806,7 @@ const VantourCreate = () => {
   formData.value.contracts = [];
   linkContract.value = {};
   editData.value.city_id = [];
+  editData.value.category_id = [];
   createModalOpen.value = true;
 };
 
@@ -780,7 +817,7 @@ const clearAction = () => {
     full_description_en: "",
     cover_image: "",
     city_id: [],
-    category: [],
+    category_id: [],
     images: [],
     feature_image: "",
     id: "",
@@ -795,6 +832,7 @@ const clearAction = () => {
   };
   linkContract.value = {};
   editData.value.city_id = [];
+  editData.value.category_id = [];
   imagesPreview.value = [];
   featureImagePreview.value = null;
   createModalOpen.value = false;
@@ -914,10 +952,11 @@ const addNewHandler = async () => {
   for (var x = 0; x < formData.value.city_id.length; x++) {
     frmData.append("city_ids[" + x + "]", formData.value.city_id[x]);
   }
-
-  // for (var x = 0; x < formData.value.category.length; x++) {
-  //   frmData.append("category_ids[" + x + "]", formData.value.category[x]);
-  // }
+  if (formData.value.category_id.length > 0) {
+    for (var x = 0; x < formData.value.category_id.length; x++) {
+      frmData.append("category_ids[" + x + "]", formData.value.category_id[x]);
+    }
+  }
   if (formData.value.contracts) {
     // frmData.append("contracts", formData.value.contracts);
     for (let i = 0; i < formData.value.contracts.length; i++) {
@@ -934,7 +973,7 @@ const addNewHandler = async () => {
       full_description_en: "",
       cover_image: "",
       city_id: [],
-      category: [],
+      category_id: [],
       images: [],
       feature_image: "",
       id: "",
@@ -1003,6 +1042,11 @@ const updateHandler = async () => {
   for (var x = 0; x < formData.value.city_id.length; x++) {
     frmData.append("city_ids[" + x + "]", formData.value.city_id[x]);
   }
+  if (formData.value.category_id.length > 0) {
+    for (var x = 0; x < formData.value.category_id.length; x++) {
+      frmData.append("category_ids[" + x + "]", formData.value.category_id[x]);
+    }
+  }
   if (formData.value.contracts) {
     // frmData.append("contracts", formData.value.contracts);
     for (let i = 0; i < formData.value.contracts.length; i++) {
@@ -1027,7 +1071,7 @@ const updateHandler = async () => {
       full_description_en: "",
       cover_image: "",
       city_id: [],
-      category: [],
+      category_id: [],
       images: [],
       feature_image: "",
       id: "",
@@ -1059,7 +1103,7 @@ const updateHandler = async () => {
 
 const editData = ref({
   city_id: [],
-  category: [],
+  category_id: [],
   cover_image: "",
   images: [],
 });
@@ -1070,11 +1114,11 @@ const updateEditCityData = () => {
   }
 };
 const updateEditCategoryData = () => {
-  for (const key in editData.value.category) {
-    const categoryId = editData.value.category[key].id;
-    formData.value.category.push(categoryId);
+  for (const key in editData.value.category_id) {
+    const categoryId = editData.value.category_id[key].id;
+    formData.value.category_id.push(categoryId);
   }
-  console.log(formData.value.category, "form category");
+  console.log(formData.value.category_id, "form category");
 };
 
 // const linkContract = ref({});
@@ -1097,7 +1141,7 @@ const editModalOpenHandler = async (id) => {
     editData.value.cover_image = response.result.cover_image;
     linkContract.value = response.result;
     editData.value.city_id = response.result.cities;
-    // editData.value.category = response.result.categories;
+    editData.value.category_id = response.result.categories;
     // formData.value.images = response.result.images;
     editData.value.images = response.result.images;
     editData.value.variations = response.result.variations;
@@ -1170,13 +1214,21 @@ const removeImageUpdateImage = async (id) => {
 };
 
 const citylist = ref([]);
+const categoryList = ref([]);
 
 const cityAction = ref(false);
+const categoryAction = ref(false);
 
 watch(cityAction, async (newValue) => {
   if (newValue == true) {
     await cityStore.getSimpleListAction();
     citylist.value = cities.value.data;
+  }
+});
+watch(categoryAction, async (newValue) => {
+  if (newValue == true) {
+    await productStore.getSimpleListAction();
+    categoryList.value = products.value.data;
   }
 });
 

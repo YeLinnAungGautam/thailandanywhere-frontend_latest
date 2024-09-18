@@ -125,10 +125,10 @@ const updateHandler = async () => {
 };
 
 onMounted(async () => {
-  if (!facilities?.value && !facility.value.data) {
+  if (!facilities?.value) {
     const res = await facilityStore.getSimpleListAction();
   }
-  
+
   formData.value.list = props.data;
   console.log(props.data, "this is data");
 });

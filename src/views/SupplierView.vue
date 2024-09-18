@@ -41,7 +41,7 @@
                 Name
               </th>
               <th class="p-4 text-xs font-medium tracking-wide text-left">
-                Contact
+                Email
               </th>
               <th class="p-4 text-xs font-medium tracking-wide text-left">
                 bank_account_name
@@ -77,10 +77,12 @@
                 {{ supplier.name }}
               </td>
               <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
-                {{ supplier.contact }}
+                {{ supplier?.email ? supplier.email : "-" }}
               </td>
               <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
-                {{ supplier.bank_account_name }}
+                {{
+                  supplier?.bank_account_name ? supplier.bank_account_name : "-"
+                }}
               </td>
 
               <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
@@ -109,7 +111,7 @@
     <!-- modal -->
     <Modal :isOpen="cityModalOpen" @closeModal="closeMethod">
       <DialogPanel
-        class="w-full max-w-md p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
+        class="w-full max-w-lg p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
       >
         <DialogTitle
           as="h3"
@@ -141,6 +143,47 @@
             />
             <p v-if="errors?.contact" class="mt-1 text-sm text-red-600">
               {{ errors.contact[0] }}
+            </p>
+          </div>
+          <div class="mb-2 space-y-1">
+            <label for="name" class="text-sm text-gray-800">Email</label>
+            <input
+              type="text"
+              v-model="formData.email"
+              id="email"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.email" class="mt-1 text-sm text-red-600">
+              {{ errors.email[0] }}
+            </p>
+          </div>
+          <div class="mb-2 space-y-1">
+            <label for="name" class="text-sm text-gray-800">Password</label>
+            <input
+              type="password"
+              v-model="formData.password"
+              id="password"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.password" class="mt-1 text-sm text-red-600">
+              {{ errors.password[0] }}
+            </p>
+          </div>
+          <div class="mb-2 space-y-1">
+            <label for="name" class="text-sm text-gray-800"
+              >Password Confirmation</label
+            >
+            <input
+              type="password"
+              v-model="formData.password_confirmation"
+              id="password_confirmation"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+            <p
+              v-if="errors?.password_confirmation"
+              class="mt-1 text-sm text-red-600"
+            >
+              {{ errors.password_confirmation[0] }}
             </p>
           </div>
           <div class="mb-2 space-y-1">
@@ -195,34 +238,35 @@
             <label for="name" class="text-sm text-gray-800"
               >Relative Driver</label
             >
-            <table class="w-full border border-gray-200">
+            <table class="w-full border border-gray-200 overflow-hidden">
               <thead class="border-b-2 border-gray-200 bg-gray-50">
                 <tr>
-                  <th class="p-4 text-xs font-medium tracking-wide text-left">
-                    No.
-                  </th>
-                  <th class="p-4 text-xs font-medium tracking-wide text-left">
-                    Name
-                  </th>
-                  <th class="p-4 text-xs font-medium tracking-wide text-left">
-                    Contact
-                  </th>
+                  <th class="p-4 text-xs font-medium text-left">No.</th>
+                  <th class="p-4 text-xs font-medium text-left">Name</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200">
+                <tr>
+                  <td colspan="2" class="text-center py-3">
+                    <p
+                      @click="showList = !showList"
+                      class="text-xs bg-[#FF6300] rounded-3xl inline-block px-8 py-1 text-white"
+                    >
+                      {{ showList ? "Open" : "close" }}
+                    </p>
+                  </td>
+                </tr>
                 <tr
-                  v-for="dri in drivers?.data"
+                  v-for="(dri, index) in driverList ?? []"
+                  :class="{ hidden: !showList }"
                   :key="dri.id"
                   class="bg-white even:bg-gray-50 hover:bg-gray-50"
                 >
                   <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
-                    {{ dri.id }}
+                    {{ index + 1 }}
                   </td>
                   <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                     {{ dri.name }}
-                  </td>
-                  <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
-                    {{ dri.contact }}
                   </td>
                 </tr>
               </tbody>
@@ -301,14 +345,14 @@ import { storeToRefs } from "pinia";
 import axios from "axios";
 import { useToast } from "vue-toastification";
 import Swal from "sweetalert2";
-import { useDriverStore } from "../stores/driver";
+// import { useDriverStore } from "../stores/driver";
 import { useSupplierStore } from "../stores/supplier";
 import debounce from "lodash/debounce";
 
-const driverStore = useDriverStore();
+// const driverStore = useDriverStore();
 const supplierStore = useSupplierStore();
 const toast = useToast();
-
+const showList = ref(false);
 const cityModalOpen = ref(false);
 const fileInput = ref(null);
 const previewImage = ref(null);
@@ -316,6 +360,9 @@ const previewImage = ref(null);
 const formData = ref({
   name: "",
   contact: "",
+  email: "",
+  password: "",
+  password_confirmation: "",
   logo: null,
   bank_name: "",
   bank_account_no: "",
@@ -326,18 +373,22 @@ const showEntries = ref(10);
 const errors = ref(null);
 const search = ref("");
 const { suppliers, loading } = storeToRefs(supplierStore);
-const { drivers } = storeToRefs(driverStore);
+// const { drivers } = storeToRefs(driverStore);
 
 const closeMethod = () => {
   formData.value = {
     name: "",
     contact: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
     logo: null,
     bank_name: "",
     bank_account_no: "",
     bank_account_name: "",
     id: "",
   };
+  driverList.value = [];
   previewImage.value = null;
   cityModalOpen.value = false;
 };
@@ -395,7 +446,9 @@ const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("contact", formData.value.contact);
-
+  frmData.append("email", formData.value.email);
+  frmData.append("password", formData.value.password);
+  frmData.append("password_confirmation", formData.value.password_confirmation);
   frmData.append("logo", formData.value.logo);
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_no", formData.value.bank_account_no);
@@ -406,6 +459,9 @@ const addNewHandler = async () => {
     formData.value = {
       name: "",
       contact: "",
+      email: "",
+      password: "",
+      password_confirmation: "",
       logo: null,
       bank_name: "",
       bank_account_no: "",
@@ -430,7 +486,7 @@ const updateHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("contact", formData.value.contact);
-
+  frmData.append("email", formData.value.email);
   if (formData.value.logo) {
     frmData.append("logo", formData.value.logo);
   }
@@ -446,6 +502,9 @@ const updateHandler = async () => {
     formData.value = {
       name: "",
       contact: "",
+      email: "",
+      password: "",
+      password_confirmation: "",
       logo: null,
       bank_name: "",
       bank_account_no: "",
@@ -453,6 +512,7 @@ const updateHandler = async () => {
 
       id: "",
     };
+    driverList.value = [];
     previewImage.value = null;
     errors.value = null;
     cityModalOpen.value = false;
@@ -474,16 +534,21 @@ const onSubmitHandler = async () => {
   }
 };
 
+const driverShow = ref(false);
+const getDrivers = async () => {
+  driverShow.value = true;
+};
+const driverList = ref([]);
+
 const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
   formData.value.contact = data.contact;
   formData.value.bank_name = data.bank_name;
-
+  driverList.value = data.drivers;
   formData.value.bank_account_name = data.bank_account_name;
   formData.value.bank_account_no = data.bank_account_no;
   previewImage.value = data.logo;
-
   cityModalOpen.value = true;
 };
 
@@ -514,7 +579,7 @@ const onDeleteHandler = async (id) => {
 
 onMounted(async () => {
   await supplierStore.getListAction();
-  await driverStore.getSimpleListAction();
+  // await driverStore.getSimpleListAction();
   console.log(suppliers.value, "this is driver");
 });
 

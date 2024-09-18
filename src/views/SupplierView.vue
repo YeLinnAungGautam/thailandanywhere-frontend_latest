@@ -157,7 +157,7 @@
               {{ errors.email[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1">
+          <div class="mb-2 space-y-1" v-if="!formData.id">
             <label for="name" class="text-sm text-gray-800">Password</label>
             <input
               type="password"
@@ -169,7 +169,7 @@
               {{ errors.password[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1">
+          <div class="mb-2 space-y-1" v-if="!formData.id">
             <label for="name" class="text-sm text-gray-800"
               >Password Confirmation</label
             >
@@ -545,6 +545,7 @@ const editModalOpenHandler = (data) => {
   formData.value.name = data.name;
   formData.value.contact = data.contact;
   formData.value.bank_name = data.bank_name;
+  formData.value.email = data.email;
   driverList.value = data.drivers;
   formData.value.bank_account_name = data.bank_account_name;
   formData.value.bank_account_no = data.bank_account_no;

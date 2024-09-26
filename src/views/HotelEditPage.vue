@@ -31,6 +31,7 @@ import { useHotelStore } from "../stores/hotel";
 import { useAuthStore } from "../stores/auth";
 import FacilitoryStoreVue from "../components/FacilitoryStore.vue";
 import { useHotelCategoryStore } from "../stores/hotelcategory";
+import { usePlaceStore } from "../stores/place";
 // import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const createModalOpen = ref(false);
@@ -41,7 +42,9 @@ const authStore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 const hotelCategoryStore = useHotelCategoryStore();
+const placeStore = usePlaceStore();
 
+const { places } = storeToRefs(placeStore);
 const { hcategories } = storeToRefs(hotelCategoryStore);
 const { hotels, loading, importLoading } = storeToRefs(hotelStore);
 
@@ -99,6 +102,7 @@ const formData = ref({
   id: "",
   name: "",
   city_id: null,
+  place_id: null,
   category_id: null,
   type: "other_booking",
   payment_method: "",
@@ -159,6 +163,7 @@ const closeModal = () => {
   formData.value = {
     id: "",
     name: "",
+    place_id: null,
     city_id: null,
     category_id: null,
     type: "other_booking",
@@ -247,6 +252,7 @@ const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("city_id", formData.value.city_id);
+  frmData.append("place_id", formData.value.place_id);
   if (
     formData.value.category_id != undefined &&
     formData.value.category_id != "undefined" &&
@@ -316,6 +322,7 @@ const addNewHandler = async () => {
     formData.value = {
       name: "",
       city_id: null,
+      place_id: null,
       category_id: null,
       type: "other_booking",
       payment_method: "",
@@ -341,7 +348,8 @@ const addNewHandler = async () => {
     closeModal();
     createModalOpen.value = false;
     toast.success(response.message);
-    router.push("/product/hotel/edit/" + route.params.id);
+    let id = response.result.id;
+    // router.push("/product/hotel/edit/" + id);
     window.location.reload();
   } catch (error) {
     if (error.response.data.errors) {
@@ -366,6 +374,7 @@ const openCreate = () => {
   formData.value.name = "";
   formData.value.city_id = null;
   formData.value.category_id = null;
+  formData.value.place_id = null;
   formData.value.type = "other_booking";
   formData.value.payment_method = "";
   formData.value.bank_name = "";
@@ -405,6 +414,7 @@ const updateHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("place", formData.value.place);
   frmData.append("city_id", formData.value.city_id);
+  frmData.append("place_id", formData.value.place_id);
   if (
     formData.value.category_id != undefined &&
     formData.value.category_id != "undefined" &&
@@ -482,6 +492,7 @@ const updateHandler = async () => {
     formData.value = {
       name: "",
       city_id: null,
+      place_id: null,
       category_id: null,
       type: "other_booking",
       place: "",
@@ -540,6 +551,7 @@ const formatDate = (getDate) => {
 const linkContract = ref({});
 const nearByPlaceArray = ref([]);
 const cityName = ref("");
+const placeName = ref("");
 const categoryName = ref("");
 
 const getDetail = async (params) => {
@@ -555,8 +567,10 @@ const getDetail = async (params) => {
     formData.value.id = data.id;
     formData.value.name = data.name;
     cityName.value = data.city?.name;
+    placeName.value = data.hotel_place?.name;
     categoryName.value = data.category?.name;
     formData.value.city_id = data.city?.id;
+    formData.value.place_id = data.hotel_place?.id;
     formData.value.category_id = data.category?.id;
     formData.value.type = data.type;
     formData.value.place = data.place;
@@ -665,17 +679,25 @@ const removeLinkContract = async (id) => {
 };
 
 const cityAction = ref(false);
+const placeAction = ref(false);
 const categoryAction = ref(false);
 
-watch([cityAction, categoryAction], async ([newCity, newCategory]) => {
-  if (newCity == true) {
-    await cityStore.getSimpleListAction();
-    citylist.value = cities.value.data;
+watch(
+  [cityAction, categoryAction, placeAction],
+  async ([newCity, newCategory, newPlace]) => {
+    if (newCity == true) {
+      await cityStore.getSimpleListAction();
+      citylist.value = cities.value.data;
+    }
+    if (newCategory == true) {
+      await hotelCategoryStore.getSimpleListAction();
+    }
+    if (newPlace == true) {
+      await placeStore.getSimpleListAction();
+      console.log(places.value, "this is places");
+    }
   }
-  if (newCategory == true) {
-    await hotelCategoryStore.getSimpleListAction();
-  }
-});
+);
 
 onMounted(async () => {
   await getDetail(route.params.id);
@@ -793,6 +815,29 @@ onMounted(async () => {
                 :clearable="false"
                 :reduce="(city) => city.id"
                 placeholder="Choose City"
+              ></v-select>
+            </div>
+            <div v-if="quiteSwitch == 1">
+              <p class="mb-2 text-sm text-gray-800">Place</p>
+              <div
+                v-if="places == null && !placeAction"
+                @click="placeAction = true"
+                class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
+              >
+                <p class="text-sm">
+                  {{ placeName == "" ? "choose place" : placeName }}
+                </p>
+                <ArrowDownTrayIcon class="w-4 h-4" />
+              </div>
+              <v-select
+                v-model="formData.place_id"
+                v-if="places?.data.length != 0 && placeAction"
+                class="style-chooser"
+                :options="places?.data?.data ?? []"
+                label="name"
+                :clearable="false"
+                :reduce="(place) => place.id"
+                placeholder="Choose Place"
               ></v-select>
             </div>
             <div v-if="quiteSwitch == 1">

@@ -26,6 +26,7 @@ import {
   UsersIcon,
   AdjustmentsHorizontalIcon,
 } from "@heroicons/vue/24/outline";
+import PlaceView from "./PlaceView.vue";
 
 const sidebarStore = useSidebarStore();
 const router = useRouter();
@@ -128,7 +129,7 @@ onMounted(() => {
               }"
               class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
-              Car
+              Place
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(6)">
@@ -139,10 +140,21 @@ onMounted(() => {
               }"
               class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
             >
-              Driver
+              Car
             </button>
           </Tab>
           <Tab as="template" v-slot="{ selected }" @click="changeTab(7)">
+            <button
+              :class="{
+                'bg-[#ff613c] text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+            >
+              Driver
+            </button>
+          </Tab>
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(8)">
             <button
               :class="{
                 'bg-[#ff613c] text-white': selected,
@@ -169,6 +181,9 @@ onMounted(() => {
           </TabPanel>
           <TabPanel>
             <CityView />
+          </TabPanel>
+          <TabPanel>
+            <PlaceView />
           </TabPanel>
           <TabPanel>
             <CarView />

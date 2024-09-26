@@ -820,7 +820,7 @@ onMounted(async () => {
             <div v-if="quiteSwitch == 1">
               <p class="mb-2 text-sm text-gray-800">Place</p>
               <div
-                v-if="places == null && !placeAction"
+                v-if="!placeAction"
                 @click="placeAction = true"
                 class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
               >
@@ -831,7 +831,7 @@ onMounted(async () => {
               </div>
               <v-select
                 v-model="formData.place_id"
-                v-if="places?.data.length != 0 && placeAction"
+                v-if="placeAction"
                 class="style-chooser"
                 :options="places?.data?.data ?? []"
                 label="name"

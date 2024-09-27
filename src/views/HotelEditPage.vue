@@ -252,7 +252,9 @@ const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("city_id", formData.value.city_id);
-  frmData.append("place_id", formData.value.place_id);
+  if (formData.value.place_id != null) {
+    frmData.append("place_id", formData.value.place_id);
+  }
   if (
     formData.value.category_id != undefined &&
     formData.value.category_id != "undefined" &&
@@ -273,7 +275,9 @@ const addNewHandler = async () => {
   frmData.append("full_description_en", formData.value.full_description_en);
   frmData.append("location_map_title", formData.value.location_map_title);
   frmData.append("location_map", formData.value.location_map);
-  frmData.append("rating", formData.value.rating);
+  if (formData.value.rating != "") {
+    frmData.append("rating", formData.value.rating);
+  }
   frmData.append("contract_due", formData.value.contract_due);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
@@ -414,7 +418,9 @@ const updateHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("place", formData.value.place);
   frmData.append("city_id", formData.value.city_id);
-  frmData.append("place_id", formData.value.place_id);
+  if (formData.value.place_id != null) {
+    frmData.append("place_id", formData.value.place_id);
+  }
   if (
     formData.value.category_id != undefined &&
     formData.value.category_id != "undefined" &&
@@ -443,7 +449,9 @@ const updateHandler = async () => {
   }
   frmData.append("location_map_title", formData.value.location_map_title);
   frmData.append("location_map", formData.value.location_map);
-  frmData.append("rating", formData.value.rating);
+  if (formData.value.rating != "") {
+    frmData.append("rating", formData.value.rating);
+  }
   if (formData.value.contracts) {
     // frmData.append("contracts", formData.value.contracts);
     for (let i = 0; i < formData.value.contracts.length; i++) {

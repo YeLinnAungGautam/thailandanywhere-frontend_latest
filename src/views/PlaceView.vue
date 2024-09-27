@@ -42,7 +42,7 @@
           </thead>
           <tbody class="divide-y divide-gray-100">
             <tr
-              v-for="tag in places?.data?.data ?? []"
+              v-for="tag in places?.data ?? []"
               :key="tag.id"
               class="bg-white even:bg-gray-50 hover:bg-gray-50"
             >
@@ -76,11 +76,11 @@
         </table>
       </div>
       <!-- pagination -->
-      <!-- <Pagination
+      <Pagination
         v-if="!loading && places != null"
-        :data="places?.data"
+        :data="places"
         @change-page="changePage"
-      /> -->
+      />
     </div>
     <!-- modal -->
     <Modal :isOpen="carModalOpen" @closeModal="closeAction">

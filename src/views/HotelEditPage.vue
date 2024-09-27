@@ -841,7 +841,7 @@ onMounted(async () => {
                 v-model="formData.place_id"
                 v-if="placeAction"
                 class="style-chooser"
-                :options="places?.data?.data ?? []"
+                :options="places?.data ?? []"
                 label="name"
                 :clearable="false"
                 :reduce="(place) => place.id"

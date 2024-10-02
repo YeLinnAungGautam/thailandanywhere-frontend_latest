@@ -110,6 +110,13 @@
               :activePaths="['customers', 'customerscreate', 'customersupdate']"
             />
             <SidebarItem
+              name="Users"
+              v-if="!authStore.isAgent"
+              :icon="UsersIcon"
+              to="/users"
+              :activePaths="['users']"
+            />
+            <SidebarItem
               v-if="authStore.isSuperAdmin"
               name="Admins"
               :icon="UserCircleIcon"

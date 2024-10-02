@@ -1,6 +1,11 @@
 <script setup>
 import Layout from "./Layout.vue";
-import { XCircleIcon, ArrowDownTrayIcon } from "@heroicons/vue/24/outline";
+import {
+  XCircleIcon,
+  ArrowDownTrayIcon,
+  UserIcon,
+  UserPlusIcon,
+} from "@heroicons/vue/24/outline";
 import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
@@ -27,6 +32,7 @@ import { useAuthStore } from "../stores/auth";
 import { useAdminStore } from "../stores/admin";
 import { addDays } from "date-fns";
 import VselectVue from "../components/Vselect.vue";
+import { useUserStore } from "../stores/user";
 
 // const enabled = ref(false);
 
@@ -46,7 +52,7 @@ const roomStore = useRoomStore();
 const airlineStore = useAirLineStore();
 const authStore = useAuthStore();
 const adminStore = useAdminStore();
-
+const userStore = useUserStore();
 const { customers, loading } = storeToRefs(customerStore);
 const { vantours } = storeToRefs(vantourStore);
 const { grouptours } = storeToRefs(grouptourStore);
@@ -152,6 +158,7 @@ const paymentArray = [
 const formData = ref({
   payment_notes: "",
   customer_id: "",
+  user_id: "",
   sold_from: "",
   payment_method: "",
   bank_name: "",
@@ -330,6 +337,8 @@ const balance_due_real = computed(() => {
     return grand_total_real.value - formData.value.deposit;
   }
 });
+
+const openAddUserModal = ref(false);
 
 const formitem = ref({
   product_type: "",
@@ -650,6 +659,9 @@ const stateInclusive = computed(() => {
 const onSubmitHandler = async () => {
   const frmData = new FormData();
   frmData.append("customer_id", formData.value.customer_id);
+  if (formData.value.user_id) {
+    frmData.append("user_id", formData.value.user_id);
+  }
   frmData.append("payment_notes", formData.value.payment_notes);
   frmData.append("sold_from", formData.value.sold_from);
   frmData.append("payment_method", formData.value.payment_method);
@@ -973,6 +985,7 @@ const onSubmitHandler = async () => {
     console.log(response, "create response");
     formData.value = {
       customer_id: "",
+      user_id: "",
       sold_from: "",
       payment_method: "",
       bank_name: "",
@@ -1312,6 +1325,22 @@ watch(
   }
 );
 
+const unique_key = ref("");
+const user = ref(null);
+
+const cancelAddUser = () => {
+  unique_key.value = "";
+  user.value = null;
+  formData.value.user_id = "";
+  openAddUserModal.value = false;
+};
+
+const addUserToBooking = (id) => {
+  console.log(id);
+  formData.value.user_id = id;
+  openAddUserModal.value = false;
+};
+
 onMounted(async () => {
   getTodayDate();
 });
@@ -1324,6 +1353,20 @@ watch(
     }
   }
 );
+
+watch(unique_key, async (newValue) => {
+  if (newValue != "") {
+    const res = await userStore.getListAction({ unique_key: unique_key.value });
+    console.log(res?.result?.data, "this is search user with unique");
+    if (res?.result?.data?.length > 0) {
+      user.value = res.result.data;
+    } else {
+      toast.warning("User not found");
+    }
+  } else {
+    user.value = null;
+  }
+});
 
 watch(searchI, async (newValue) => {
   await customerStore.getSimpleListAction({ search: searchI.value });
@@ -1452,7 +1495,16 @@ watch(page, async (newValue) => {
                   class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                 />
               </div>
-              <div></div>
+              <div>
+                <p class="mb-2 text-xs text-[#ff613c]">User ID</p>
+                <p
+                  @click="openAddUserModal = true"
+                  class="w-full h-10 bg-[#ff613c] flex justify-center items-center px-4 text-xs text-white border border-gray-300 rounded-lg shadow-sm cursor-pointer line-clamp-1 overflow-hidden"
+                >
+                  <UserPlusIcon class="w-4 h-4 mr-2" />
+                  {{ formData.user_id ? user[0]?.name : "Add User" }}
+                </p>
+              </div>
               <div class="relative" v-if="authStore.isCashier">
                 <p class="mb-3 text-xs text-[#ff613c]">Is Past Info</p>
 
@@ -2834,6 +2886,76 @@ watch(page, async (newValue) => {
         </div>
       </div>
     </div>
+    <Modal :isOpen="openAddUserModal" @closeModal="openAddUserModal = false">
+      <DialogPanel
+        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-5"
+        >
+          Add User
+        </DialogTitle>
+        <div>
+          <div>
+            <input
+              type="search"
+              v-model="unique_key"
+              name=""
+              id=""
+              class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+              placeholder="Paste User Unique Key"
+            />
+          </div>
+          <div>
+            <div
+              v-if="user"
+              class="w-full h-[335px] border border-gray-300 rounded mt-4 px-4"
+            >
+              <div class="w-20 h-20 overflow-hidden rounded-full mx-auto mt-5">
+                <img
+                  :src="
+                    user[0]?.profile !=
+                    'https://api-blog.thanywhere.com/storage/images/'
+                      ? user[0]?.profile
+                      : '../../public/logo.jpg'
+                  "
+                  alt=""
+                  class="w-full h-full object-cover"
+                />
+              </div>
+              <p class="text-center text-xl font-semibold">
+                {{ user[0]?.name }}
+              </p>
+              <p class="text-center text-sm">{{ user[0]?.email }}</p>
+              <p class="text-center text-sm">
+                phone : {{ user[0]?.phone ? user[0]?.phone : "-" }}
+              </p>
+              <p
+                class="text-center text-sm text-red-600 bg-red-300/50 p-2 mt-4 rounded"
+              >
+                Please check user information before add user. if you wrong,
+                user privacy is exposed. So please be careful.
+              </p>
+              <div class="flex justify-center gap-4">
+                <button
+                  @click.prevent="cancelAddUser"
+                  class="bg-white border border-[#ff613c] text-[#ff613c] w-full px-4 py-2 rounded-lg shadow mt-4"
+                >
+                  Cancel
+                </button>
+                <button
+                  @click.prevent="addUserToBooking(user[0]?.id)"
+                  class="bg-[#ff613c] text-white w-full px-4 py-2 rounded-lg shadow mt-4"
+                >
+                  Add User
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>
 

@@ -1,10 +1,11 @@
 <script setup>
 import Layout from "./Layout.vue";
-import { XCircleIcon } from "@heroicons/vue/24/outline";
+import { UserPlusIcon, XCircleIcon } from "@heroicons/vue/24/outline";
 import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import Modal from "../components/Modal.vue";
 import CustomerCreate from "../components/CustomerCreate.vue";
 import { Switch } from "@headlessui/vue";
@@ -25,9 +26,11 @@ import { useAirLineStore } from "../stores/airline";
 import { useAuthStore } from "../stores/auth";
 import { useAdminStore } from "../stores/admin";
 import { addDays } from "date-fns";
+import { useUserStore } from "../stores/user";
 
 const toast = useToast();
 const sidebar = useSidebarStore();
+const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
 const customerStore = useCustomerStore();
@@ -150,6 +153,8 @@ const formItemType = [
 const formData = ref({
   payment_notes: "",
   customer_id: "",
+  user_id: "",
+  user_name: "",
   sold_from: "",
   payment_method: "",
   bank_name: "",
@@ -598,6 +603,9 @@ const onSubmitHandler = async () => {
   frmData.append("_method", "PUT");
   frmData.append("payment_notes", formData.value.payment_notes);
   frmData.append("customer_id", formData.value.customer_id);
+  if (formData.value.user_id) {
+    frmData.append("user_id", formData.value.user_id);
+  }
   frmData.append("sold_from", formData.value.sold_from);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
@@ -997,6 +1005,8 @@ const onSubmitHandler = async () => {
     const response = await bookingStore.updateAction(frmData, route.params.id);
     formData.value = {
       customer_id: "",
+      user_id: "",
+      user_name: "",
       sold_from: "",
       payment_method: "",
       payment_status: "",
@@ -1156,6 +1166,8 @@ const getDetail = async () => {
     const response = await bookingStore.getDetailAction(route.params.id);
     console.log(response, "this is response get");
     formData.value.customer_id = response.result.customer.id;
+    formData.value.user_id = response.result.user?.id;
+    formData.value.user_name = response.result.user?.name;
     customerName.value = response.result.customer?.name;
     if (response.result.is_inclusive == 1) {
       formData.value.is_inclusive = response.result.is_inclusive;
@@ -1660,6 +1672,23 @@ const checkCheckout = () => {
 //   }
 // };
 
+const unique_key = ref("");
+const user = ref(null);
+const openAddUserModal = ref(false);
+
+const cancelAddUser = () => {
+  unique_key.value = "";
+  user.value = null;
+  formData.value.user_id = "";
+  openAddUserModal.value = false;
+};
+
+const addUserToBooking = (id) => {
+  console.log(id);
+  formData.value.user_id = id;
+  openAddUserModal.value = false;
+};
+
 onMounted(async () => {
   loadingState.value = true;
   await getDetail();
@@ -1692,6 +1721,20 @@ watch(
     }
   }
 );
+
+watch(unique_key, async (newValue) => {
+  if (newValue != "") {
+    const res = await userStore.getListAction({ unique_key: unique_key.value });
+    console.log(res?.result?.data, "this is search user with unique");
+    if (res?.result?.data?.length > 0) {
+      user.value = res.result.data;
+    } else {
+      toast.warning("User not found");
+    }
+  } else {
+    user.value = null;
+  }
+});
 </script>
 
 <template>
@@ -1945,6 +1988,29 @@ watch(
                     {{ errors.money_exchange_rate[0] }}
                   </p>
                 </div>
+                <div class="col-span-2 pt-2">
+                  <p class="mb-2 text-xs text-[#ff613c]">User ID</p>
+                  <div
+                    @click="openAddUserModal = true"
+                    class="w-full h-10 bg-[#ff613c] flex justify-center items-center px-4 text-xs text-white border border-gray-300 rounded-lg shadow-sm cursor-pointer line-clamp-1 overflow-hidden"
+                  >
+                    <UserPlusIcon class="w-4 h-4 mr-2" />
+                    <p
+                      v-if="
+                        formData.user_name && formData.user_id && user == null
+                      "
+                    >
+                      {{ formData.user_name }}
+                    </p>
+                    <p v-if="user != null">
+                      {{ user[0]?.name }}
+                    </p>
+                    <p v-if="formData.user_id == null">Add User</p>
+                  </div>
+                </div>
+                <div class="col-span-2 h-10"></div>
+                <div class="col-span-2 h-10"></div>
+                <div class="col-span-2 h-6"></div>
               </div>
             </div>
             <div class="col-span-1 space-y-4 text-end">
@@ -3551,6 +3617,76 @@ watch(
         </div>
       </div>
     </div>
+    <Modal :isOpen="openAddUserModal" @closeModal="openAddUserModal = false">
+      <DialogPanel
+        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-5"
+        >
+          {{ formData.user_id ? "Edit User" : "Add User" }}
+        </DialogTitle>
+        <div>
+          <div>
+            <input
+              type="search"
+              v-model="unique_key"
+              name=""
+              id=""
+              class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+              placeholder="Paste User Unique Key"
+            />
+          </div>
+          <div>
+            <div
+              v-if="user"
+              class="w-full h-[335px] border border-gray-300 rounded mt-4 px-4"
+            >
+              <div class="w-20 h-20 overflow-hidden rounded-full mx-auto mt-5">
+                <img
+                  :src="
+                    user[0]?.profile !=
+                    'https://api-blog.thanywhere.com/storage/images/'
+                      ? user[0]?.profile
+                      : '../../public/logo.jpg'
+                  "
+                  alt=""
+                  class="w-full h-full object-cover"
+                />
+              </div>
+              <p class="text-center text-xl font-semibold">
+                {{ user[0]?.name }}
+              </p>
+              <p class="text-center text-sm">{{ user[0]?.email }}</p>
+              <p class="text-center text-sm">
+                phone : {{ user[0]?.phone ? user[0]?.phone : "-" }}
+              </p>
+              <p
+                class="text-center text-sm text-red-600 bg-red-300/50 p-2 mt-4 rounded"
+              >
+                Please check user information before add user. if you wrong,
+                user privacy is exposed. So please be careful.
+              </p>
+              <div class="flex justify-center gap-4">
+                <button
+                  @click.prevent="cancelAddUser"
+                  class="bg-white border border-[#ff613c] text-[#ff613c] w-full px-4 py-2 rounded-lg shadow mt-4"
+                >
+                  Cancel
+                </button>
+                <button
+                  @click.prevent="addUserToBooking(user[0]?.id)"
+                  class="bg-[#ff613c] text-white w-full px-4 py-2 rounded-lg shadow mt-4"
+                >
+                  Add User
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>
 

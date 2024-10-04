@@ -1,7 +1,13 @@
 <script setup>
 import Layout from "./Layout.vue";
-import { UserPlusIcon, XCircleIcon } from "@heroicons/vue/24/outline";
+import {
+  MagnifyingGlassIcon,
+  TrashIcon,
+  UserPlusIcon,
+  XCircleIcon,
+} from "@heroicons/vue/24/outline";
 import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
+import Swal from "sweetalert2";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
@@ -603,9 +609,12 @@ const onSubmitHandler = async () => {
   frmData.append("_method", "PUT");
   frmData.append("payment_notes", formData.value.payment_notes);
   frmData.append("customer_id", formData.value.customer_id);
-  if (formData.value.user_id) {
-    frmData.append("user_id", formData.value.user_id);
-  }
+
+  frmData.append(
+    "user_id",
+    formData.value.user_id ? formData.value.user_id : 0
+  );
+
   frmData.append("sold_from", formData.value.sold_from);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
@@ -1683,6 +1692,32 @@ const cancelAddUser = () => {
   openAddUserModal.value = false;
 };
 
+const removeUserAdd = async () => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        formData.value.user_id = "";
+        user.value = null;
+        formData.value.user_name = "";
+        await onSubmitHandler();
+      } catch (error) {
+        console.log(
+          "🚀 ~ file: BlogView.vue:65 ~ onDeleteHandler ~ error:",
+          error
+        );
+      }
+    }
+  });
+};
+
 const addUserToBooking = (id) => {
   console.log(id);
   formData.value.user_id = id;
@@ -1722,8 +1757,8 @@ watch(
   }
 );
 
-watch(unique_key, async (newValue) => {
-  if (newValue != "") {
+const searchWithUnique = async () => {
+  if (unique_key.value != "") {
     const res = await userStore.getListAction({ unique_key: unique_key.value });
     console.log(res?.result?.data, "this is search user with unique");
     if (res?.result?.data?.length > 0) {
@@ -1733,8 +1768,23 @@ watch(unique_key, async (newValue) => {
     }
   } else {
     user.value = null;
+    toast.warning("Please enter user unique key");
   }
-});
+};
+
+// watch(unique_key, async (newValue) => {
+//   if (newValue != "") {
+//     const res = await userStore.getListAction({ unique_key: unique_key.value });
+//     console.log(res?.result?.data, "this is search user with unique");
+//     if (res?.result?.data?.length > 0) {
+//       user.value = res.result.data;
+//     } else {
+//       toast.warning("User not found");
+//     }
+//   } else {
+//     user.value = null;
+//   }
+// });
 </script>
 
 <template>
@@ -1991,21 +2041,31 @@ watch(unique_key, async (newValue) => {
                 <div class="col-span-2 pt-2">
                   <p class="mb-2 text-xs text-[#ff613c]">User ID</p>
                   <div
-                    @click="openAddUserModal = true"
-                    class="w-full h-10 bg-[#ff613c] flex justify-center items-center px-4 text-xs text-white border border-gray-300 rounded-lg shadow-sm cursor-pointer line-clamp-1 overflow-hidden"
+                    class="w-full h-10 bg-[#ff613c] flex justify-center items-center px-4 text-xs text-white border border-gray-300 rounded-lg shadow-sm line-clamp-1 overflow-hidden relative"
                   >
-                    <UserPlusIcon class="w-4 h-4 mr-2" />
-                    <p
-                      v-if="
-                        formData.user_name && formData.user_id && user == null
-                      "
+                    <div
+                      class="flex justify-center items-center cursor-pointer"
+                      @click="openAddUserModal = true"
                     >
-                      {{ formData.user_name }}
-                    </p>
-                    <p v-if="user != null">
-                      {{ user[0]?.name }}
-                    </p>
-                    <p v-if="formData.user_id == null">Add User</p>
+                      <UserPlusIcon class="w-4 h-4 mr-2 cursor-pointer" />
+                      <p
+                        v-if="
+                          formData.user_name && formData.user_id && user == null
+                        "
+                      >
+                        {{ formData.user_name }}
+                      </p>
+                      <p v-if="user != null">
+                        {{ user[0]?.name }}
+                      </p>
+                      <p v-if="formData.user_id == null">Add User</p>
+                    </div>
+                    <div
+                      @click="removeUserAdd"
+                      class="absolute right-1 top-1.5 z-40 cursor-pointer rounded-lg bg-white p-1.5"
+                    >
+                      <TrashIcon class="w-4 h-4 text-red-500" />
+                    </div>
                   </div>
                 </div>
                 <div class="col-span-2 h-10"></div>
@@ -3628,7 +3688,7 @@ watch(unique_key, async (newValue) => {
           {{ formData.user_id ? "Edit User" : "Add User" }}
         </DialogTitle>
         <div>
-          <div>
+          <div class="relative">
             <input
               type="search"
               v-model="unique_key"
@@ -3637,6 +3697,13 @@ watch(unique_key, async (newValue) => {
               class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
               placeholder="Paste User Unique Key"
             />
+            <div
+              class="absolute right-1 top-1 text-xs cursor-pointer flex justify-start items-center gap-2 bg-[#ff613c] text-white px-2 py-2 rounded-lg"
+              @click="searchWithUnique"
+            >
+              <MagnifyingGlassIcon class="w-4 h-4" />
+              search
+            </div>
           </div>
           <div>
             <div

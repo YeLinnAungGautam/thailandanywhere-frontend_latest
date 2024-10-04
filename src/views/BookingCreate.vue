@@ -5,6 +5,7 @@ import {
   ArrowDownTrayIcon,
   UserIcon,
   UserPlusIcon,
+  MagnifyingGlassIcon,
 } from "@heroicons/vue/24/outline";
 import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
@@ -1354,8 +1355,8 @@ watch(
   }
 );
 
-watch(unique_key, async (newValue) => {
-  if (newValue != "") {
+const searchWithUnique = async () => {
+  if (unique_key.value != "") {
     const res = await userStore.getListAction({ unique_key: unique_key.value });
     console.log(res?.result?.data, "this is search user with unique");
     if (res?.result?.data?.length > 0) {
@@ -1365,8 +1366,23 @@ watch(unique_key, async (newValue) => {
     }
   } else {
     user.value = null;
+    toast.warning("Please enter user unique key");
   }
-});
+};
+
+// watch(unique_key, async (newValue) => {
+//   if (newValue != "") {
+//     const res = await userStore.getListAction({ unique_key: unique_key.value });
+//     console.log(res?.result?.data, "this is search user with unique");
+//     if (res?.result?.data?.length > 0) {
+//       user.value = res.result.data;
+//     } else {
+//       toast.warning("User not found");
+//     }
+//   } else {
+//     user.value = null;
+//   }
+// });
 
 watch(searchI, async (newValue) => {
   await customerStore.getSimpleListAction({ search: searchI.value });
@@ -2897,7 +2913,7 @@ watch(page, async (newValue) => {
           Add User
         </DialogTitle>
         <div>
-          <div>
+          <div class="relative">
             <input
               type="search"
               v-model="unique_key"
@@ -2906,6 +2922,13 @@ watch(page, async (newValue) => {
               class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
               placeholder="Paste User Unique Key"
             />
+            <div
+              class="absolute right-1 top-1 text-xs cursor-pointer flex justify-start items-center gap-2 bg-[#ff613c] text-white px-2 py-2 rounded-lg"
+              @click="searchWithUnique"
+            >
+              <MagnifyingGlassIcon class="w-4 h-4" />
+              search
+            </div>
           </div>
           <div>
             <div

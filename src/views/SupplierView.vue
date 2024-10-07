@@ -157,7 +157,7 @@
               {{ errors.email[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1" v-if="!formData.id">
+          <div class="mb-2 space-y-1">
             <label for="name" class="text-sm text-gray-800">Password</label>
             <input
               type="password"
@@ -487,6 +487,9 @@ const updateHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("contact", formData.value.contact);
   frmData.append("email", formData.value.email);
+  if (formData.value.password) {
+    frmData.append("password", formData.value.password);
+  }
   if (formData.value.logo) {
     frmData.append("logo", formData.value.logo);
   }

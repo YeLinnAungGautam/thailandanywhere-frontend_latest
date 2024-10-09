@@ -235,7 +235,8 @@ const onSubmitHandler = async () => {
     frmData.append("payment_method", formData.value.payment_method);
   }
 
-  frmData.append("payment_status", formData.value.payment_status);
+  formData.value.payment_status &&
+    frmData.append("payment_status", formData.value.payment_status);
 
   frmData.append("product_type", formData.value.product_type);
   if (formData.value.cost_price) {
@@ -255,13 +256,18 @@ const onSubmitHandler = async () => {
     }
   }
 
-  frmData.append("quantity", formData.value.quantity);
+  formData.value.quantity &&
+    frmData.append("quantity", formData.value.quantity);
 
-  frmData.append("reservation_status", formData.value.reservation_status);
-  frmData.append("selling_price", formData.value.selling_price);
-  frmData.append("service_date", formData.value.service_date);
-  frmData.append("car_id", formData.value.car_id);
-  frmData.append("slip_code", formData.value.slip_code);
+  formData.value.reservation_status &&
+    frmData.append("reservation_status", formData.value.reservation_status);
+  formData.value.selling_price &&
+    frmData.append("selling_price", formData.value.selling_price);
+  formData.value.service_date &&
+    frmData.append("service_date", formData.value.service_date);
+  formData.value.car_id && frmData.append("car_id", formData.value.car_id);
+  formData.value.slip_code &&
+    frmData.append("slip_code", formData.value.slip_code);
   if (secForm.value.route_plan) {
     frmData.append("route_plan", secForm.value.route_plan);
   }
@@ -326,7 +332,8 @@ const onSubmitHandler = async () => {
         secfrm.append("is_associated", 0);
       }
 
-      secfrm.append("expense_amount", expense_amount.value);
+      expense_amount.value &&
+        secfrm.append("expense_amount", expense_amount.value);
 
       if (formData.value.receipt_image.length != 0) {
         if (formData.value.receipt_image.length > 0) {

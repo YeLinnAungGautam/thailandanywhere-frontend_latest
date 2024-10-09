@@ -611,16 +611,20 @@ const onSubmitHandler = async () => {
     if (formData.value.payment_notes != null) {
       frmData.append("payment_notes", formData.value.payment_notes);
     }
-    frmData.append("customer_id", formData.value.customer_id);
+    formData.value.customer_id &&
+      frmData.append("customer_id", formData.value.customer_id);
 
     frmData.append(
       "user_id",
       formData.value.user_id ? formData.value.user_id : 0
     );
 
-    frmData.append("sold_from", formData.value.sold_from);
-    frmData.append("payment_method", formData.value.payment_method);
-    frmData.append("bank_name", formData.value.bank_name);
+    formData.value.sold_from &&
+      frmData.append("sold_from", formData.value.sold_from);
+    formData.value.payment_method &&
+      frmData.append("payment_method", formData.value.payment_method);
+    formData.value.bank_name &&
+      frmData.append("bank_name", formData.value.bank_name);
     console.log(enabled, "this is status");
     // if (enabled.value == true) {
     //   frmData.append("is_past_info", "1");
@@ -651,12 +655,16 @@ const onSubmitHandler = async () => {
         frmData.append("inclusive_end_date", formData.value.inclusive_end_date);
     }
 
-    frmData.append("payment_status", formData.value.payment_status);
-    frmData.append("booking_date", formData.value.booking_date);
-    frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
+    formData.value.payment_status &&
+      frmData.append("payment_status", formData.value.payment_status);
+    formData.value.booking_date &&
+      frmData.append("booking_date", formData.value.booking_date);
+    formData.value.money_exchange_rate &&
+      frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
     console.log(formData.value.money_exchange_rate, "this is ex money");
     // frmData.append("crm_id", formData.value.crm_id);
-    frmData.append("discount", sub_total_discount.value);
+    sub_total_discount.value &&
+      frmData.append("discount", sub_total_discount.value);
     // if (formData.value.discount == "" || formData.value.discount == 0) {
     //   frmData.append("discount", 0);
     // } else {
@@ -664,17 +672,21 @@ const onSubmitHandler = async () => {
     // }
     formData.value.comment && frmData.append("comment", formData.value.comment);
     // frmData.append("receipt_image", formData.value.receipt_image);
-    frmData.append("sub_total", sub_total_real.value);
-    frmData.append("exclude_amount", sub_total_airline.value);
-    frmData.append("grand_total", grand_total_real.value);
-    frmData.append("deposit", formData.value.deposit);
-    frmData.append("payment_currency", formData.value.payment_currency);
+    sub_total_real.value && frmData.append("sub_total", sub_total_real.value);
+    sub_total_airline.value &&
+      frmData.append("exclude_amount", sub_total_airline.value);
+    grand_total_real.value &&
+      frmData.append("grand_total", grand_total_real.value);
+    formData.value.deposit && frmData.append("deposit", formData.value.deposit);
+    formData.value.payment_currency &&
+      frmData.append("payment_currency", formData.value.payment_currency);
     if (balance_due.value) {
       frmData.append("balance_due", balance_due_real.value);
     } else {
       frmData.append("balance_due", 0);
     }
-    frmData.append("balance_due_date", formData.value.balance_due_date);
+    formData.value.balance_due_date &&
+      frmData.append("balance_due_date", formData.value.balance_due_date);
 
     if (formData.value.confirmation_letter.length > 0) {
       for (let i = 0; i < formData.value.confirmation_letter.length; i++) {
@@ -856,10 +868,11 @@ const onSubmitHandler = async () => {
       );
     }
     for (var x = 0; x < formData.value.items.length; x++) {
-      frmData.append(
-        "items[" + x + "][quantity]",
-        formData.value.items[x].quantity
-      );
+      formData.value.items[x].quantity &&
+        frmData.append(
+          "items[" + x + "][quantity]",
+          formData.value.items[x].quantity
+        );
       if (formData.value.items[x].discount) {
         frmData.append(
           "items[" + x + "][discount]",
@@ -886,12 +899,11 @@ const onSubmitHandler = async () => {
           "items[" + x + "][checkin_date]",
           formData.value.items[x].checkin_date
         );
-      formData.value.items[x].reservation_id != ""
-        ? frmData.append(
-            "items[" + x + "][reservation_id]",
-            formData.value.items[x].reservation_id
-          )
-        : frmData.append("items[" + x + "][reservation_id]", null);
+      formData.value.items[x].reservation_id != "" &&
+        frmData.append(
+          "items[" + x + "][reservation_id]",
+          formData.value.items[x].reservation_id
+        );
       formData.value.items[x].room_number &&
         frmData.append(
           "items[" + x + "][room_number]",
@@ -995,12 +1007,11 @@ const onSubmitHandler = async () => {
     }
 
     for (var x = 0; x < formData.value.items.length; x++) {
-      formData.value.items[x].reservation_status
-        ? frmData.append(
-            "items[" + x + "][reservation_status]",
-            formData.value.items[x].reservation_status
-          )
-        : frmData.append("items[" + x + "][reservation_status]", null);
+      formData.value.items[x].reservation_status != null &&
+        frmData.append(
+          "items[" + x + "][reservation_status]",
+          formData.value.items[x].reservation_status
+        );
     }
     for (var x = 0; x < formData.value.items.length; x++) {
       formData.value.items[x].payment_method &&

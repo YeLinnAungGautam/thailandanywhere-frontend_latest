@@ -109,6 +109,8 @@ const payment_usd = [
 
 const payment = ref([]);
 const paymentValid = ref(true);
+
+// for choose payment currency , when choose MMK , USD need to add exchange rate
 const choosePaymentBank = () => {
   if (formData.value.payment_currency == "MMK") {
     payment.value = payment_mm;
@@ -188,6 +190,7 @@ const formData = ref({
   inclusive_end_date: "",
 });
 
+// sub total all item which have
 const sub_total = computed(() => {
   if (enabledIn.value == false) {
     let totalsub = 0;
@@ -202,6 +205,10 @@ const sub_total = computed(() => {
   }
 });
 
+// Modue: Sales Invoice Module
+// Function: Is Inclusive Button
+// How it works: IF inclusive is "ON" THEN calculate rate based on amount and quantity.
+// Comment: real mean that is for reduce discount amount, discount amount will save on db.if inclusive we need inclusive rate and quanity
 const sub_total_real = computed(() => {
   if (enabledIn.value == false) {
     let totalsub = 0;
@@ -218,6 +225,10 @@ const sub_total_real = computed(() => {
   }
 });
 
+// Modue: Sales Invoice Module > All Inclusive Related
+// Function: For Discount Form Button
+// How it works: IF inclusive is "ON" THEN don't use the discount field.
+// this part is all items discount when it is inclusive
 const sub_total_discount = computed(() => {
   if (enabledIn.value == false) {
     let totalsub = 0;
@@ -232,6 +243,7 @@ const sub_total_discount = computed(() => {
   }
 });
 
+// this part is our sale db didn't count airline sale amount , so we save as airline sale amount as new.
 const sub_total_airline = computed(() => {
   if (enabledIn.value == false) {
     let totalsub = 0;
@@ -248,6 +260,7 @@ const sub_total_airline = computed(() => {
   }
 });
 
+// this data is for all item total amount, that will save on db for all total amount.
 const sub_qty_total = computed(() => {
   let totalsub = 0;
   if (formitem.value.days) {
@@ -269,6 +282,7 @@ const sub_qty_total = computed(() => {
 
 const percentageValue = ref("");
 
+// grand total means all data reduce discount amount;
 const grand_total = computed(() => {
   // console.log(sub_total.value, formData.value.discount);
   // if (formData.value.discount.trim().endsWith("%")) {
@@ -285,6 +299,7 @@ const grand_total = computed(() => {
   // }
 });
 
+// real is not include airline sale amount reduce discount for all items.
 const grand_total_real = computed(() => {
   // console.log(sub_total.value, formData.value.discount);
   // if (formData.value.discount.trim().endsWith("%")) {
@@ -302,6 +317,7 @@ const grand_total_real = computed(() => {
   return final;
 });
 
+// that is for change grand total and deposit changes and change fully paid , partially paid , no paid
 const balance_due = computed(() => {
   if (
     grand_total.value - formData.value.deposit == 0 &&
@@ -660,16 +676,24 @@ const stateInclusive = computed(() => {
 const onSubmitHandler = async () => {
   if (sub_total_real.value != NaN || sub_total_real.value != null) {
     const frmData = new FormData();
-    frmData.append("customer_id", formData.value.customer_id);
+    if (formData.value.customer_id) {
+      frmData.append("customer_id", formData.value.customer_id);
+    }
     if (formData.value.user_id) {
       frmData.append("user_id", formData.value.user_id);
     }
     if (formData.value.payment_notes != null) {
       frmData.append("payment_notes", formData.value.payment_notes);
     }
-    frmData.append("sold_from", formData.value.sold_from);
-    frmData.append("payment_method", formData.value.payment_method);
-    frmData.append("bank_name", formData.value.bank_name);
+    if (formData.value.sold_from) {
+      frmData.append("sold_from", formData.value.sold_from);
+    }
+    if (formData.value.payment_method) {
+      frmData.append("payment_method", formData.value.payment_method);
+    }
+    if (formData.value.bank_name) {
+      frmData.append("bank_name", formData.value.bank_name);
+    }
 
     if (enabledIn.value) {
       frmData.append("is_inclusive", enabledIn.value ? "1" : "0");
@@ -699,23 +723,35 @@ const onSubmitHandler = async () => {
     formData.value.past_user_id &&
       frmData.append("past_user_id", formData.value.past_user_id);
 
-    frmData.append("payment_status", formData.value.payment_status);
-    frmData.append("booking_date", formData.value.booking_date);
+    formData.value.payment_status &&
+      frmData.append("payment_status", formData.value.payment_status);
+    formData.value.booking_date &&
+      frmData.append("booking_date", formData.value.booking_date);
     if (formData.value.money_exchange_rate) {
       frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
     } else {
       frmData.append("money_exchange_rate", 0);
     }
 
-    frmData.append("discount", sub_total_discount.value);
+    if (sub_total_discount.value) {
+      frmData.append("discount", sub_total_discount.value);
+    }
 
-    frmData.append("sub_total", sub_total_real.value);
-    frmData.append("exclude_amount", sub_total_airline.value);
-    frmData.append("grand_total", grand_total_real.value);
-    frmData.append("deposit", formData.value.deposit);
-    frmData.append("payment_currency", formData.value.payment_currency);
-    frmData.append("balance_due", balance_due_real.value);
-    frmData.append("balance_due_date", formData.value.balance_due_date);
+    if (sub_total_real.value != null || sub_total_real.value != NaN) {
+      frmData.append("sub_total", sub_total_real.value);
+    }
+    if (sub_total_airline.value) {
+      frmData.append("exclude_amount", sub_total_airline.value);
+    }
+    grand_total_real.value &&
+      frmData.append("grand_total", grand_total_real.value);
+    formData.value.deposit && frmData.append("deposit", formData.value.deposit);
+    formData.value.payment_currency &&
+      frmData.append("payment_currency", formData.value.payment_currency);
+    balance_due_real.value &&
+      frmData.append("balance_due", balance_due_real.value);
+    formData.value.balance_due_date &&
+      frmData.append("balance_due_date", formData.value.balance_due_date);
 
     if (formData.value.confirmation_letter.length > 0) {
       for (let i = 0; i < formData.value.confirmation_letter.length; i++) {
@@ -956,16 +992,16 @@ const onSubmitHandler = async () => {
         );
       }
 
-      formData.value.items[x].reservation_status
-        ? frmData.append(
-            "items[" + x + "][reservation_status]",
-            formData.value.items[x].reservation_status
-          )
-        : frmData.append("items[" + x + "][reservation_status]", null);
-      frmData.append(
-        "items[" + x + "][payment_method]",
-        formData.value.items[x].payment_method
-      );
+      formData.value.items[x].reservation_status &&
+        frmData.append(
+          "items[" + x + "][reservation_status]",
+          formData.value.items[x].reservation_status
+        );
+      formData.value.items[x].payment_method &&
+        frmData.append(
+          "items[" + x + "][payment_method]",
+          formData.value.items[x].payment_method
+        );
       formData.value.items[x].payment_status &&
         frmData.append(
           "items[" + x + "][payment_status]",

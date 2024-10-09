@@ -49,6 +49,7 @@ const roleList = [
 ];
 const errors = ref([]);
 
+// when open with modal , detail can get
 const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
@@ -58,6 +59,7 @@ const editModalOpenHandler = (data) => {
   adminModalOpen.value = true;
 };
 
+// delete action
 const onDeleteHandler = async (id) => {
   Swal.fire({
     title: "Are you sure?",
@@ -95,6 +97,7 @@ const formData = ref({
   target_amount: "",
 });
 
+// add action for admin
 const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
@@ -125,6 +128,7 @@ const addNewHandler = async () => {
   }
 };
 
+// update action
 const updateHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
@@ -166,6 +170,7 @@ const formatDate = (dateInput) => {
   return date.toISOString().split("T")[0];
 };
 
+// onsubmit when click create and update choose what we do
 const onSubmitHandler = async () => {
   if (formData.value.id) {
     updateHandler();
@@ -179,9 +184,7 @@ onMounted(async () => {
   console.log(admin.value, "this is admin");
 });
 
-// watch(search, async (newValue) => {
-//   await adminStore.getListAction({ search: search.value });
-// });
+// search action with debounce when search
 watch(
   search,
   debounce(async (newValue) => {
@@ -192,6 +195,7 @@ watch(
 
 <template>
   <Layout>
+    <!-- admin modal open  -->
     <Modal :isOpen="adminModalOpen" @closeModal="adminModalOpen = false">
       <DialogPanel
         class="w-full max-w-md p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"

@@ -658,373 +658,383 @@ const stateInclusive = computed(() => {
 });
 
 const onSubmitHandler = async () => {
-  const frmData = new FormData();
-  frmData.append("customer_id", formData.value.customer_id);
-  if (formData.value.user_id) {
-    frmData.append("user_id", formData.value.user_id);
-  }
-  frmData.append("payment_notes", formData.value.payment_notes);
-  frmData.append("sold_from", formData.value.sold_from);
-  frmData.append("payment_method", formData.value.payment_method);
-  frmData.append("bank_name", formData.value.bank_name);
+  if (sub_total_real.value != NaN || sub_total_real.value != null) {
+    const frmData = new FormData();
+    frmData.append("customer_id", formData.value.customer_id);
+    if (formData.value.user_id) {
+      frmData.append("user_id", formData.value.user_id);
+    }
+    if (formData.value.payment_notes != null) {
+      frmData.append("payment_notes", formData.value.payment_notes);
+    }
+    frmData.append("sold_from", formData.value.sold_from);
+    frmData.append("payment_method", formData.value.payment_method);
+    frmData.append("bank_name", formData.value.bank_name);
 
-  if (enabledIn.value) {
-    frmData.append("is_inclusive", enabledIn.value ? "1" : "0");
-    formData.value.inclusive_name &&
-      frmData.append("inclusive_name", formData.value.inclusive_name);
-    formData.value.inclusive_description &&
-      frmData.append(
-        "inclusive_description",
-        formData.value.inclusive_description
-      );
-    formData.value.inclusive_quantity &&
-      frmData.append("inclusive_quantity", formData.value.inclusive_quantity);
-    formData.value.inclusive_rate &&
-      frmData.append("inclusive_rate", formData.value.inclusive_rate);
-    formData.value.inclusive_start_date &&
-      frmData.append(
-        "inclusive_start_date",
-        formData.value.inclusive_start_date
-      );
-    formData.value.inclusive_end_date &&
-      frmData.append("inclusive_end_date", formData.value.inclusive_end_date);
-  }
-
-  frmData.append("is_past_info", enabled.value ? "1" : "0");
-  formData.value.past_crm_id &&
-    frmData.append("past_crm_id", formData.value.past_crm_id);
-  formData.value.past_user_id &&
-    frmData.append("past_user_id", formData.value.past_user_id);
-
-  frmData.append("payment_status", formData.value.payment_status);
-  frmData.append("booking_date", formData.value.booking_date);
-  if (formData.value.money_exchange_rate) {
-    frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
-  } else {
-    frmData.append("money_exchange_rate", 0);
-  }
-
-  frmData.append("discount", sub_total_discount.value);
-
-  frmData.append("sub_total", sub_total_real.value);
-  frmData.append("exclude_amount", sub_total_airline.value);
-  frmData.append("grand_total", grand_total_real.value);
-  frmData.append("deposit", formData.value.deposit);
-  frmData.append("payment_currency", formData.value.payment_currency);
-  frmData.append("balance_due", balance_due_real.value);
-  frmData.append("balance_due_date", formData.value.balance_due_date);
-
-  if (formData.value.confirmation_letter.length > 0) {
-    for (let i = 0; i < formData.value.confirmation_letter.length; i++) {
-      let file = formData.value.confirmation_letter[i];
-      frmData.append("items[" + i + "][confirmation_letter]", file);
-    }
-  }
-  for (var x = 0; x < formData.value.items.length; x++) {
-    if (formData.value.items[x].product_type == "1") {
-      frmData.append(
-        "items[" + x + "][product_type]",
-        `App\\Models\\PrivateVanTour`
-      );
-    } else if (formData.value.items[x].product_type == "2") {
-      frmData.append(
-        "items[" + x + "][product_type]",
-        `App\\Models\\GroupTour`
-      );
-    } else if (formData.value.items[x].product_type == "3") {
-      frmData.append(
-        "items[" + x + "][product_type]",
-        `App\\Models\\AirportPickup`
-      );
-    } else if (formData.value.items[x].product_type == "4") {
-      frmData.append(
-        "items[" + x + "][product_type]",
-        `App\\Models\\EntranceTicket`
-      );
-    } else if (formData.value.items[x].product_type == "5") {
-      frmData.append(
-        "items[" + x + "][product_type]",
-        `App\\Models\\Inclusive`
-      );
-    } else if (formData.value.items[x].product_type == "6") {
-      frmData.append("items[" + x + "][product_type]", `App\\Models\\Hotel`);
-    } else if (formData.value.items[x].product_type == "7") {
-      frmData.append("items[" + x + "][product_type]", `App\\Models\\Airline`);
-    }
-  }
-
-  if (formData.value.receipt_image.length != 0) {
-    for (let x = 0; x < formData.value.receipt_image.length; x++) {
-      frmData.append(
-        "receipt_image[" + x + "]",
-        formData.value.receipt_image[x]
-      );
-    }
-  }
-
-  for (var x = 0; x < formData.value.items.length; x++) {
-    frmData.append(
-      "items[" + x + "][product_id]",
-      formData.value.items[x].product_id
-    );
-    if (formData.value.items[x].is_inclusive) {
-      frmData.append(
-        "items[" + x + "][is_inclusive]",
-        formData.value.items[x].is_inclusive
-      );
-    }
-
-    if (formData.value.items[x].discount) {
-      frmData.append(
-        "items[" + x + "][discount]",
-        formData.value.items[x].discount
-      );
-    } else {
-      frmData.append("items[" + x + "][discount]", 0);
-    }
-
-    if (formData.value.items[x].product_type != "6") {
-      frmData.append(
-        "items[" + x + "][amount]",
-        formData.value.items[x].selling_price *
-          formData.value.items[x].quantity -
-          formData.value.items[x].discount
-      );
-    } else if (formData.value.items[x].product_type == "6") {
-      frmData.append(
-        "items[" + x + "][amount]",
-        formData.value.items[x].selling_price *
-          formData.value.items[x].quantity *
-          formData.value.items[x].days -
-          formData.value.items[x].discount
-      );
-    }
-
-    formData.value.items[x].pickup_location &&
-      frmData.append(
-        "items[" + x + "][pickup_location]",
-        formData.value.items[x].pickup_location
-      );
-
-    if (formData.value.items[x].pickup_time) {
-      frmData.append(
-        "items[" + x + "][pickup_time]",
-        formData.value.items[x].pickup_time
-      );
-    }
-    frmData.append(
-      "items[" + x + "][is_driver_collect]",
-      formData.value.items[x].is_driver_collect ? 1 : 0
-    );
-
-    if (formData.value.items[x].customer_attachment) {
-      frmData.append(
-        "items[" + x + "][customer_attachment]",
-        formData.value.items[x].customer_attachment
-      );
-    }
-
-    if (formData.value.items[x].dropoff_location) {
-      frmData.append(
-        "items[" + x + "][dropoff_location]",
-        formData.value.items[x].dropoff_location
-      );
-    }
-    if (formData.value.items[x].checkin_date) {
-      frmData.append(
-        "items[" + x + "][checkin_date]",
-        formData.value.items[x].checkin_date
-      );
-    }
-    if (formData.value.items[x].room_number) {
-      frmData.append(
-        "items[" + x + "][room_number]",
-        formData.value.items[x].room_number
-      );
-    }
-    if (formData.value.items[x].checkout_date) {
-      frmData.append(
-        "items[" + x + "][checkout_date]",
-        formData.value.items[x].checkout_date
-      );
-    }
-    if (formData.value.items[x].total_guest) {
-      frmData.append(
-        "items[" + x + "][total_guest]",
-        formData.value.items[x].total_guest
-      );
-    }
-    if (formData.value.items[x].route_plan) {
-      frmData.append(
-        "items[" + x + "][route_plan]",
-        formData.value.items[x].route_plan
-      );
-    }
-    // add new cost price & total_cost_price
-    if (formData.value.items[x].cost_price) {
-      frmData.append(
-        "items[" + x + "][cost_price]",
-        formData.value.items[x].cost_price
-      );
-    }
-    if (
-      formData.value.items[x].cost_price &&
-      formData.value.items[x].quantity
-    ) {
-      if (formData.value.items[x].product_type != "6") {
+    if (enabledIn.value) {
+      frmData.append("is_inclusive", enabledIn.value ? "1" : "0");
+      formData.value.inclusive_name &&
+        frmData.append("inclusive_name", formData.value.inclusive_name);
+      formData.value.inclusive_description &&
         frmData.append(
-          "items[" + x + "][total_cost_price]",
-          formData.value.items[x].cost_price * formData.value.items[x].quantity
+          "inclusive_description",
+          formData.value.inclusive_description
         );
-      } else {
-        "items[" + x + "][total_cost_price]",
-          formData.value.items[x].cost_price *
-            formData.value.items[x].quantity *
-            formData.value.items[x].days;
+      formData.value.inclusive_quantity &&
+        frmData.append("inclusive_quantity", formData.value.inclusive_quantity);
+      formData.value.inclusive_rate &&
+        frmData.append("inclusive_rate", formData.value.inclusive_rate);
+      formData.value.inclusive_start_date &&
+        frmData.append(
+          "inclusive_start_date",
+          formData.value.inclusive_start_date
+        );
+      formData.value.inclusive_end_date &&
+        frmData.append("inclusive_end_date", formData.value.inclusive_end_date);
+    }
+
+    frmData.append("is_past_info", enabled.value ? "1" : "0");
+    formData.value.past_crm_id &&
+      frmData.append("past_crm_id", formData.value.past_crm_id);
+    formData.value.past_user_id &&
+      frmData.append("past_user_id", formData.value.past_user_id);
+
+    frmData.append("payment_status", formData.value.payment_status);
+    frmData.append("booking_date", formData.value.booking_date);
+    if (formData.value.money_exchange_rate) {
+      frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
+    } else {
+      frmData.append("money_exchange_rate", 0);
+    }
+
+    frmData.append("discount", sub_total_discount.value);
+
+    frmData.append("sub_total", sub_total_real.value);
+    frmData.append("exclude_amount", sub_total_airline.value);
+    frmData.append("grand_total", grand_total_real.value);
+    frmData.append("deposit", formData.value.deposit);
+    frmData.append("payment_currency", formData.value.payment_currency);
+    frmData.append("balance_due", balance_due_real.value);
+    frmData.append("balance_due_date", formData.value.balance_due_date);
+
+    if (formData.value.confirmation_letter.length > 0) {
+      for (let i = 0; i < formData.value.confirmation_letter.length; i++) {
+        let file = formData.value.confirmation_letter[i];
+        frmData.append("items[" + i + "][confirmation_letter]", file);
+      }
+    }
+    for (var x = 0; x < formData.value.items.length; x++) {
+      if (formData.value.items[x].product_type == "1") {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\PrivateVanTour`
+        );
+      } else if (formData.value.items[x].product_type == "2") {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\GroupTour`
+        );
+      } else if (formData.value.items[x].product_type == "3") {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\AirportPickup`
+        );
+      } else if (formData.value.items[x].product_type == "4") {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\EntranceTicket`
+        );
+      } else if (formData.value.items[x].product_type == "5") {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\Inclusive`
+        );
+      } else if (formData.value.items[x].product_type == "6") {
+        frmData.append("items[" + x + "][product_type]", `App\\Models\\Hotel`);
+      } else if (formData.value.items[x].product_type == "7") {
+        frmData.append(
+          "items[" + x + "][product_type]",
+          `App\\Models\\Airline`
+        );
       }
     }
 
-    if (
-      formData.value.items[x].product_type === "6" &&
-      formData.value.items[x].room_id
-    ) {
-      frmData.append(
-        "items[" + x + "][room_id]",
-        formData.value.items[x].room_id
-      );
-    }
-    if (
-      formData.value.items[x].product_type != "4" &&
-      formData.value.items[x].product_type != "7"
-    ) {
-      if (formData.value.items[x].car_id) {
+    if (formData.value.receipt_image.length != 0) {
+      for (let x = 0; x < formData.value.receipt_image.length; x++) {
         frmData.append(
-          "items[" + x + "][car_id]",
+          "receipt_image[" + x + "]",
+          formData.value.receipt_image[x]
+        );
+      }
+    }
+
+    for (var x = 0; x < formData.value.items.length; x++) {
+      frmData.append(
+        "items[" + x + "][product_id]",
+        formData.value.items[x].product_id
+      );
+      if (formData.value.items[x].is_inclusive) {
+        frmData.append(
+          "items[" + x + "][is_inclusive]",
+          formData.value.items[x].is_inclusive
+        );
+      }
+
+      if (formData.value.items[x].discount) {
+        frmData.append(
+          "items[" + x + "][discount]",
+          formData.value.items[x].discount
+        );
+      } else {
+        frmData.append("items[" + x + "][discount]", 0);
+      }
+
+      if (formData.value.items[x].product_type != "6") {
+        frmData.append(
+          "items[" + x + "][amount]",
+          formData.value.items[x].selling_price *
+            formData.value.items[x].quantity -
+            formData.value.items[x].discount
+        );
+      } else if (formData.value.items[x].product_type == "6") {
+        frmData.append(
+          "items[" + x + "][amount]",
+          formData.value.items[x].selling_price *
+            formData.value.items[x].quantity *
+            formData.value.items[x].days -
+            formData.value.items[x].discount
+        );
+      }
+
+      formData.value.items[x].pickup_location &&
+        frmData.append(
+          "items[" + x + "][pickup_location]",
+          formData.value.items[x].pickup_location
+        );
+
+      if (formData.value.items[x].pickup_time) {
+        frmData.append(
+          "items[" + x + "][pickup_time]",
+          formData.value.items[x].pickup_time
+        );
+      }
+      frmData.append(
+        "items[" + x + "][is_driver_collect]",
+        formData.value.items[x].is_driver_collect ? 1 : 0
+      );
+
+      if (formData.value.items[x].customer_attachment) {
+        frmData.append(
+          "items[" + x + "][customer_attachment]",
+          formData.value.items[x].customer_attachment
+        );
+      }
+
+      if (formData.value.items[x].dropoff_location) {
+        frmData.append(
+          "items[" + x + "][dropoff_location]",
+          formData.value.items[x].dropoff_location
+        );
+      }
+      if (formData.value.items[x].checkin_date) {
+        frmData.append(
+          "items[" + x + "][checkin_date]",
+          formData.value.items[x].checkin_date
+        );
+      }
+      if (formData.value.items[x].room_number) {
+        frmData.append(
+          "items[" + x + "][room_number]",
+          formData.value.items[x].room_number
+        );
+      }
+      if (formData.value.items[x].checkout_date) {
+        frmData.append(
+          "items[" + x + "][checkout_date]",
+          formData.value.items[x].checkout_date
+        );
+      }
+      if (formData.value.items[x].total_guest) {
+        frmData.append(
+          "items[" + x + "][total_guest]",
+          formData.value.items[x].total_guest
+        );
+      }
+      if (formData.value.items[x].route_plan) {
+        frmData.append(
+          "items[" + x + "][route_plan]",
+          formData.value.items[x].route_plan
+        );
+      }
+      // add new cost price & total_cost_price
+      if (formData.value.items[x].cost_price) {
+        frmData.append(
+          "items[" + x + "][cost_price]",
+          formData.value.items[x].cost_price
+        );
+      }
+      if (
+        formData.value.items[x].cost_price &&
+        formData.value.items[x].quantity
+      ) {
+        if (formData.value.items[x].product_type != "6") {
+          frmData.append(
+            "items[" + x + "][total_cost_price]",
+            formData.value.items[x].cost_price *
+              formData.value.items[x].quantity
+          );
+        } else {
+          "items[" + x + "][total_cost_price]",
+            formData.value.items[x].cost_price *
+              formData.value.items[x].quantity *
+              formData.value.items[x].days;
+        }
+      }
+
+      if (
+        formData.value.items[x].product_type === "6" &&
+        formData.value.items[x].room_id
+      ) {
+        frmData.append(
+          "items[" + x + "][room_id]",
+          formData.value.items[x].room_id
+        );
+      }
+      if (
+        formData.value.items[x].product_type != "4" &&
+        formData.value.items[x].product_type != "7"
+      ) {
+        if (formData.value.items[x].car_id) {
+          frmData.append(
+            "items[" + x + "][car_id]",
+            formData.value.items[x].car_id
+          );
+        }
+      } else if (formData.value.items[x].product_type == "4") {
+        frmData.append(
+          "items[" + x + "][variation_id]",
+          formData.value.items[x].car_id
+        );
+      } else if (formData.value.items[x].product_type == "7") {
+        frmData.append(
+          "items[" + x + "][ticket_id]",
           formData.value.items[x].car_id
         );
       }
-    } else if (formData.value.items[x].product_type == "4") {
       frmData.append(
-        "items[" + x + "][variation_id]",
-        formData.value.items[x].car_id
+        "items[" + x + "][service_date]",
+        formData.value.items[x].service_date
       );
-    } else if (formData.value.items[x].product_type == "7") {
       frmData.append(
-        "items[" + x + "][ticket_id]",
-        formData.value.items[x].car_id
+        "items[" + x + "][quantity]",
+        formData.value.items[x].quantity
       );
-    }
-    frmData.append(
-      "items[" + x + "][service_date]",
-      formData.value.items[x].service_date
-    );
-    frmData.append(
-      "items[" + x + "][quantity]",
-      formData.value.items[x].quantity
-    );
-    formData.value.days &&
-      frmData.append("items[" + x + "][days]", formData.value.items[x].days);
-    if (formData.value.items[x].duration) {
-      frmData.append(
-        "items[" + x + "][duration]",
-        formData.value.items[x].duration
-      );
-    }
-    if (formData.value.items[x].special_request) {
-      frmData.append(
-        "items[" + x + "][special_request]",
-        formData.value.items[x].special_request
-      );
-    }
-    if (formData.value.items[x].selling_price) {
-      frmData.append(
-        "items[" + x + "][selling_price]",
-        formData.value.items[x].selling_price
-      );
-    }
-    if (formData.value.items[x].comment) {
-      frmData.append(
-        "items[" + x + "][comment]",
-        formData.value.items[x].comment
-      );
-    }
+      formData.value.days &&
+        frmData.append("items[" + x + "][days]", formData.value.items[x].days);
+      if (formData.value.items[x].duration) {
+        frmData.append(
+          "items[" + x + "][duration]",
+          formData.value.items[x].duration
+        );
+      }
+      if (formData.value.items[x].special_request) {
+        frmData.append(
+          "items[" + x + "][special_request]",
+          formData.value.items[x].special_request
+        );
+      }
+      if (formData.value.items[x].selling_price) {
+        frmData.append(
+          "items[" + x + "][selling_price]",
+          formData.value.items[x].selling_price
+        );
+      }
+      if (formData.value.items[x].comment) {
+        frmData.append(
+          "items[" + x + "][comment]",
+          formData.value.items[x].comment
+        );
+      }
 
-    formData.value.items[x].reservation_status
-      ? frmData.append(
-          "items[" + x + "][reservation_status]",
-          formData.value.items[x].reservation_status
-        )
-      : frmData.append("items[" + x + "][reservation_status]", null);
-    frmData.append(
-      "items[" + x + "][payment_method]",
-      formData.value.items[x].payment_method
-    );
-    formData.value.items[x].payment_status &&
+      formData.value.items[x].reservation_status
+        ? frmData.append(
+            "items[" + x + "][reservation_status]",
+            formData.value.items[x].reservation_status
+          )
+        : frmData.append("items[" + x + "][reservation_status]", null);
       frmData.append(
-        "items[" + x + "][payment_status]",
-        formData.value.items[x].payment_status
+        "items[" + x + "][payment_method]",
+        formData.value.items[x].payment_method
       );
-    // frmData.append(
-    //   "items[" + x + "][exchange_rate]",
-    //   formData.value.items[x].exchange_rate
-    // );
-    formData.value.items[x].exchange_rate &&
-      frmData.append(
-        "items[" + x + "][exchange_rate]",
-        formData.value.items[x].exchange_rate
-      );
-  }
-  console.log(
-    frmData.total_cost_price,
-    frmData.cost_price,
-    frmData.quantity,
-    frmData.days,
-    "thi is testing"
-  );
-  try {
-    const response = await bookingStore.addNewAction(frmData);
-    console.log(response, "create response");
-    formData.value = {
-      customer_id: "",
-      user_id: "",
-      sold_from: "",
-      payment_method: "",
-      bank_name: "",
-      payment_status: "",
-      booking_date: "",
-      items: [],
-      receipt_image: [],
-      money_exchange_rate: "",
-      crm_id: "",
-      discount: "",
-      comment: "",
-      past_user_id: "",
-      is_past_info: "",
-      past_crm_id: "",
-      is_inclusive: "",
-      inclusive_name: "",
-      inclusive_description: "",
-      inclusive_quantity: "",
-      inclusive_rate: "",
-      inclusive_start_date: "",
-      inclusive_end_date: "",
-    };
-    enabled.value = false;
-    enabledIn.value = false;
-    errors.value = null;
-    toast.success(response.message);
-    featureImagePreview.value = [];
-    router.push("/bookings/update/" + response.result.id + "/edit");
-    // bookings/update/65/edit
-  } catch (error) {
-    console.log(
-      "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
-      error
-    );
-    if (error.response.data.errors) {
-      errors.value = error.response.data.errors;
+      formData.value.items[x].payment_status &&
+        frmData.append(
+          "items[" + x + "][payment_status]",
+          formData.value.items[x].payment_status
+        );
+      // frmData.append(
+      //   "items[" + x + "][exchange_rate]",
+      //   formData.value.items[x].exchange_rate
+      // );
+      formData.value.items[x].exchange_rate &&
+        frmData.append(
+          "items[" + x + "][exchange_rate]",
+          formData.value.items[x].exchange_rate
+        );
     }
-    toast.error(error.response.data.message);
+    console.log(
+      frmData.total_cost_price,
+      frmData.cost_price,
+      frmData.quantity,
+      frmData.days,
+      "thi is testing"
+    );
+    try {
+      const response = await bookingStore.addNewAction(frmData);
+      console.log(response, "create response");
+      formData.value = {
+        customer_id: "",
+        user_id: "",
+        sold_from: "",
+        payment_method: "",
+        bank_name: "",
+        payment_status: "",
+        booking_date: "",
+        items: [],
+        receipt_image: [],
+        money_exchange_rate: "",
+        crm_id: "",
+        discount: "",
+        comment: "",
+        past_user_id: "",
+        is_past_info: "",
+        past_crm_id: "",
+        is_inclusive: "",
+        inclusive_name: "",
+        inclusive_description: "",
+        inclusive_quantity: "",
+        inclusive_rate: "",
+        inclusive_start_date: "",
+        inclusive_end_date: "",
+      };
+      enabled.value = false;
+      enabledIn.value = false;
+      errors.value = null;
+      toast.success(response.message);
+      featureImagePreview.value = [];
+      router.push("/bookings/update/" + response.result.id + "/edit");
+      // bookings/update/65/edit
+    } catch (error) {
+      console.log(
+        "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
+        error
+      );
+      if (error.response.data.errors) {
+        errors.value = error.response.data.errors;
+      }
+      toast.error(error.response.data.message);
+    }
+  } else {
+    toast.warning("please check again , item have issue !");
   }
 };
 const todayVali = ref("");

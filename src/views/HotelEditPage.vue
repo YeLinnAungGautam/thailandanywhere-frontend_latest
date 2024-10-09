@@ -122,6 +122,10 @@ const formData = ref({
   contracts: [],
   images: [],
   facilities: [],
+  youtube_link: {
+    mm_link: "",
+    en_link: "",
+  },
 });
 
 const onGetArray = (data) => {
@@ -180,6 +184,10 @@ const closeModal = () => {
     location_map: "",
     rating: "",
     nearby_places: [],
+    youtube_link: {
+      mm_link: "",
+      en_link: "",
+    },
     contract_due: "",
     contracts: [],
     images: [],
@@ -285,6 +293,19 @@ const addNewHandler = async () => {
       frmData.append("images[" + i + "]", file);
     }
   }
+  if (
+    formData.value.youtube_link.mm_link ||
+    formData.value.youtube_link.en_link
+  ) {
+    frmData.append(
+      "youtube_link[0][mm_link]",
+      formData.value.youtube_link.mm_link
+    );
+    frmData.append(
+      "youtube_link[0][en_link]",
+      formData.value.youtube_link.en_link
+    );
+  }
   if (formData.value.nearby_places.length > 0) {
     for (let i = 0; i < formData.value.nearby_places.length; i++) {
       frmData.append(
@@ -342,6 +363,10 @@ const addNewHandler = async () => {
       location_map: "",
       rating: "",
       nearby_places: [],
+      youtube_link: {
+        mm_link: "",
+        en_link: "",
+      },
       contract_due: "",
       images: [],
       contracts: [],
@@ -393,6 +418,10 @@ const openCreate = () => {
   formData.value.location_map = "";
   formData.value.rating = "";
   formData.value.nearby_places = [];
+  formData.value.youtube_link = {
+    mm_link: "",
+    en_link: "",
+  };
   formData.value.contract_due = "";
   formData.value.contracts = [];
   linkContract.value = {};
@@ -459,6 +488,19 @@ const updateHandler = async () => {
       frmData.append("contracts[" + i + "]", file);
     }
   }
+  if (
+    formData.value.youtube_link?.mm_link ||
+    formData.value.youtube_link?.en_link
+  ) {
+    frmData.append(
+      "youtube_link[0][mm_link]",
+      formData.value.youtube_link.mm_link
+    );
+    frmData.append(
+      "youtube_link[0][en_link]",
+      formData.value.youtube_link.en_link
+    );
+  }
   if (formData.value.nearby_places.length > 0) {
     for (let i = 0; i < formData.value.nearby_places.length; i++) {
       if (formData.value.nearby_places[i].img) {
@@ -518,6 +560,10 @@ const updateHandler = async () => {
       location_map: "",
       rating: "",
       nearby_places: [],
+      youtube_link: {
+        mm_link: "",
+        en_link: "",
+      },
       contracts: [],
       images: [],
     };
@@ -590,6 +636,10 @@ const getDetail = async (params) => {
     formData.value.location_map = "";
     formData.value.rating = "";
     formData.value.nearby_places = [];
+    formData.value.youtube_link = {
+      mm_link: "",
+      en_link: "",
+    };
     formData.value.contract_due = formatDate(data.contract_due);
     formData.value.bank_account_number = data.bank_account_number;
     formData.value.account_name = data.account_name;
@@ -613,6 +663,12 @@ const getDetail = async (params) => {
     formData.value.location_map = data.location_map;
     formData.value.location_map_title = data.location_map_title;
     formData.value.rating = data.rating;
+    if (data.youtube_link != null && data.youtube_link.length > 0) {
+      formData.value.youtube_link = {
+        mm_link: data.youtube_link[0].mm_link,
+        en_link: data.youtube_link[0].en_link,
+      };
+    }
     //nearByPlaceArray.value =
     // data.nearby_places == null ? [] : data.nearby_places;
 
@@ -1298,6 +1354,51 @@ onMounted(async () => {
                     </div>
                   </div>
                 </div>
+              </div>
+              <div class="col-span-2" v-if="quiteSwitch == 4">
+                <div class="space-y-2">
+                  <label for="name" class="text-sm text-gray-800"
+                    >Youtube Link code (mm)</label
+                  >
+                  <input
+                    type="text"
+                    name=""
+                    v-model="formData.youtube_link.mm_link"
+                    class="w-full h-10 text-xs px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                    id=""
+                  />
+                </div>
+                <div class="space-y-2 mt-3">
+                  <label for="name" class="text-sm text-gray-800"
+                    >Youtube Link code (en)</label
+                  >
+                  <input
+                    type="text"
+                    name=""
+                    v-model="formData.youtube_link.en_link"
+                    class="w-full h-10 text-xs px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                    id=""
+                  />
+                </div>
+                <div class="py-4">
+                  <p class="text-xs text-red-600">
+                    <span class="text-black">youtube link url</span> :
+                    https://www.youtube.com/watch?v=<span
+                      class="font-semibold text-blue-800"
+                      >8E7X00VVApo</span
+                    >
+                  </p>
+                  <p class="text-xs text-red-600">get behind v= code</p>
+                </div>
+                <!-- <iframe
+                  width="560"
+                  height="315"
+                  src="https://www.youtube.com/embed/yjMEIq7A0Gk"
+                  title="YouTube video player"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                ></iframe> -->
               </div>
             </div>
             <div class="text-end flex justify-end items-center col-span-3">

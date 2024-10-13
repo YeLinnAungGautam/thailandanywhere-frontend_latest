@@ -389,6 +389,7 @@ const formitem = ref({
   checkout_date: "",
   customer_attachment: "",
   total_guest: "",
+  individual_pricing: [],
 });
 const productList = ref([]);
 
@@ -561,6 +562,7 @@ const addNewitem = () => {
     checkout_date: "",
     room_number: "",
     total_guest: "",
+    individual_pricing: [],
     is_inclusive: "",
   };
   todayVali.value = false;
@@ -896,6 +898,9 @@ const onSubmitHandler = async () => {
           formData.value.items[x].total_guest
         );
       }
+
+      frmData.append("items[" + x + "][individual_pricing]", null);
+
       if (formData.value.items[x].route_plan) {
         frmData.append(
           "items[" + x + "][route_plan]",

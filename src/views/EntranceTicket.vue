@@ -232,6 +232,64 @@
                 </p>
               </div>
             </div>
+            <div class="col-span-2 grid grid-cols-2 gap-4">
+              <div class="mb-2 space-y-1">
+                <label for="name" class="text-sm text-gray-800"
+                  >Location Map</label
+                >
+                <input
+                  type="text"
+                  v-model="formData.location_map"
+                  id="name"
+                  class="w-full h-10 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                />
+                <p
+                  v-if="errors?.location_map"
+                  class="mt-1 text-sm text-red-600"
+                >
+                  {{ errors.location_map[0] }}
+                </p>
+              </div>
+              <div class="mb-2 space-y-1">
+                <label for="name" class="text-sm text-gray-800"
+                  >Location Map Title</label
+                >
+                <input
+                  type="text"
+                  v-model="formData.location_map_title"
+                  id="name"
+                  class="w-full h-10 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                />
+                <p
+                  v-if="errors?.location_map_title"
+                  class="mt-1 text-sm text-red-600"
+                >
+                  {{ errors.location_map_title[0] }}
+                </p>
+              </div>
+              <div class="mb-2 space-y-1">
+                <label for="name" class="text-sm text-gray-800"
+                  >Youtube Link (mm)</label
+                >
+                <input
+                  type="text"
+                  v-model="formData.youtube_link.mm_link"
+                  id="name"
+                  class="w-full h-10 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                />
+              </div>
+              <div class="mb-2 space-y-1">
+                <label for="name" class="text-sm text-gray-800"
+                  >Youtube Link (en)</label
+                >
+                <input
+                  type="text"
+                  v-model="formData.youtube_link.en_link"
+                  id="name"
+                  class="w-full h-10 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                />
+              </div>
+            </div>
             <div class="col-span-2">
               <p class="text-gray-800 text-sm mb-2">Description</p>
               <textarea
@@ -783,6 +841,12 @@ const formData = ref({
   account_name: "",
   place: "",
   legal_name: "",
+  location_map_title: "",
+  location_map: "",
+  youtube_link: {
+    mm_link: "",
+    en_link: "",
+  },
   contract_due: "",
   contracts: [],
 });
@@ -802,6 +866,12 @@ const VantourCreate = () => {
   formData.value.bank_account_number = "";
   formData.value.place = "";
   formData.value.legal_name = "";
+  formData.value.location_map_title = "";
+  formData.value.location_map = "";
+  formData.value.youtube_link = {
+    mm_link: "",
+    en_link: "",
+  };
   formData.value.contract_due = "";
   formData.value.contracts = [];
   linkContract.value = {};
@@ -827,6 +897,12 @@ const clearAction = () => {
     account_name: "",
     place: "",
     legal_name: "",
+    location_map: "",
+    location_map_title: "",
+    youtube_link: {
+      mm_link: "",
+      en_link: "",
+    },
     contract_due: "",
     contracts: [],
   };
@@ -939,6 +1015,23 @@ const addNewHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
+  formData.value.location_map &&
+    frmData.append("location_map", formData.value.location_map);
+  formData.value.location_map_title &&
+    frmData.append("location_map_title", formData.value.location_map_title);
+  if (
+    formData.value.youtube_link.mm_link ||
+    formData.value.youtube_link.en_link
+  ) {
+    frmData.append(
+      "youtube_link[0][mm_link]",
+      formData.value.youtube_link.mm_link
+    );
+    frmData.append(
+      "youtube_link[0][en_link]",
+      formData.value.youtube_link.en_link
+    );
+  }
 
   console.log(formData.value.contracts);
 
@@ -984,6 +1077,12 @@ const addNewHandler = async () => {
       place: "",
       contracts: [],
       legal_name: "",
+      location_map: "",
+      location_map_title: "",
+      youtube_link: {
+        mm_link: "",
+        en_link: "",
+      },
     };
     imagesPreview.value = [];
     featureImagePreview.value = null;
@@ -1029,6 +1128,23 @@ const updateHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
+  formData.value.location_map &&
+    frmData.append("location_map", formData.value.location_map);
+  formData.value.location_map_title &&
+    frmData.append("location_map_title", formData.value.location_map_title);
+  if (
+    formData.value.youtube_link.mm_link ||
+    formData.value.youtube_link.en_link
+  ) {
+    frmData.append(
+      "youtube_link[0][mm_link]",
+      formData.value.youtube_link.mm_link
+    );
+    frmData.append(
+      "youtube_link[0][en_link]",
+      formData.value.youtube_link.en_link
+    );
+  }
 
   console.log(formData.value.contracts);
 
@@ -1081,6 +1197,12 @@ const updateHandler = async () => {
       account_name: "",
       place: "",
       legal_name: "",
+      location_map: "",
+      location_map_title: "",
+      youtube_link: {
+        mm_link: "",
+        en_link: "",
+      },
     };
     imagesPreview.value = [];
     featureImagePreview.value = null;
@@ -1137,6 +1259,18 @@ const editModalOpenHandler = async (id) => {
     formData.value.bank_account_number = response.result.bank_account_number;
     // formData.value.place = response.result.place;
     formData.value.legal_name = response.result.legal_name;
+    formData.value.location_map = response.result.location_map;
+    formData.value.location_map_title = response.result.location_map_title;
+    // formData.value.youtube_link = response.result.location_map;
+    if (
+      response.result.youtube_link != null &&
+      response.result.youtube_link.length > 0
+    ) {
+      formData.value.youtube_link = {
+        mm_link: response.result.youtube_link[0].mm_link,
+        en_link: response.result.youtube_link[0].en_link,
+      };
+    }
 
     editData.value.cover_image = response.result.cover_image;
     linkContract.value = response.result;

@@ -12,7 +12,7 @@
     <!-- modal -->
     <Modal :isOpen="createModalOpen" @closeModal="closeModal">
       <DialogPanel
-        class="w-full max-w-md p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
+        class="w-full max-w-3xl p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
       >
         <DialogTitle
           as="h3"
@@ -20,7 +20,10 @@
         >
           {{ formData.id ? "Edit Variation" : "Add New Variation" }}
         </DialogTitle>
-        <form @submit.prevent="onSubmitHandler" class="mt-2">
+        <form
+          @submit.prevent="onSubmitHandler"
+          class="mt-2 grid grid-cols-2 gap-4"
+        >
           <div class="mb-2 space-y-1">
             <label for="price" class="text-sm text-gray-800">Ticket Name</label>
             <input
@@ -62,48 +65,127 @@
               placeholder="Choose entrance"
             ></v-select>
           </div>
-          <div class="mb-2 space-y-1">
-            <label for="price" class="text-sm text-gray-800">Price</label>
-            <input
-              type="number"
-              v-model="formData.price"
-              id="price"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.price" class="mt-1 text-sm text-red-600">
-              {{ errors.price[0] }}
-            </p>
+          <div class="flex justify-start items-center gap-x-2 col-span-2">
+            <div class="mb-2 space-y-1 col-span-1">
+              <label for="price" class="text-sm text-gray-800">Price</label>
+              <input
+                type="number"
+                v-model="formData.price"
+                id="price"
+                class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.price" class="mt-1 text-sm text-red-600">
+                {{ errors.price[0] }}
+              </p>
+            </div>
+            <div class="mb-2 space-y-1 col-span-1">
+              <label for="price" class="text-sm text-gray-800"
+                >Cost Price</label
+              >
+              <input
+                type="number"
+                v-model="formData.cost_price"
+                id="cost_price"
+                class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.cost_price" class="mt-1 text-sm text-red-600">
+                {{ errors.cost_price[0] }}
+              </p>
+            </div>
+            <div class="mb-2 space-y-1 col-span-1">
+              <label for="price" class="text-sm text-gray-800"
+                >Wolk in Price</label
+              >
+              <input
+                type="number"
+                v-model="formData.owner_price"
+                id="owner_price"
+                class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.owner_price" class="mt-1 text-sm text-red-600">
+                {{ errors.owner_price[0] }}
+              </p>
+            </div>
+            <div class="mb-2 space-y-1 col-span-1">
+              <label for="price" class="text-sm text-gray-800"
+                >Adult Info</label
+              >
+              <input
+                type="text"
+                v-model="formData.adult_info"
+                id="adult info"
+                class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.adult_info" class="mt-1 text-sm text-red-600">
+                {{ errors.adult_info[0] }}
+              </p>
+            </div>
           </div>
-          <div class="mb-2 space-y-1">
-            <label for="price" class="text-sm text-gray-800">Cost Price</label>
-            <input
-              type="number"
-              v-model="formData.cost_price"
-              id="cost_price"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.cost_price" class="mt-1 text-sm text-red-600">
-              {{ errors.cost_price[0] }}
-            </p>
-          </div>
-          <div class="mb-2 space-y-1">
-            <label for="price" class="text-sm text-gray-800"
-              >Wolk in Price ( owner price )</label
-            >
-            <input
-              type="number"
-              v-model="formData.owner_price"
-              id="owner_price"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.owner_price" class="mt-1 text-sm text-red-600">
-              {{ errors.owner_price[0] }}
-            </p>
+          <div class="flex justify-start items-center gap-x-2 col-span-2">
+            <div class="mb-2 space-y-1 col-span-1">
+              <label for="price" class="text-sm text-gray-800"
+                >Child Price</label
+              >
+              <input
+                type="number"
+                v-model="formData.child_price"
+                id="child_price"
+                class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.child_price" class="mt-1 text-sm text-red-600">
+                {{ errors.child_price[0] }}
+              </p>
+            </div>
+            <div class="mb-2 space-y-1 col-span-1">
+              <label for="price" class="text-sm text-gray-800"
+                >Child Cost Price</label
+              >
+              <input
+                type="number"
+                v-model="formData.child_cost_price"
+                id="child_cost_price"
+                class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
+              <p
+                v-if="errors?.child_cost_price"
+                class="mt-1 text-sm text-red-600"
+              >
+                {{ errors.child_cost_price[0] }}
+              </p>
+            </div>
+            <div class="mb-2 space-y-1 col-span-1">
+              <label for="price" class="text-sm text-gray-800"
+                >Child Wolk in Price</label
+              >
+              <input
+                type="number"
+                v-model="formData.child_owner_price"
+                id="child_owner_price"
+                class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
+              <p
+                v-if="errors?.child_owner_price"
+                class="mt-1 text-sm text-red-600"
+              >
+                {{ errors.child_owner_price[0] }}
+              </p>
+            </div>
+            <div class="mb-2 space-y-1 col-span-1">
+              <label for="price" class="text-sm text-gray-800"
+                >Child Info</label
+              >
+              <input
+                type="text"
+                v-model="formData.child_info"
+                id="adult info"
+                class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.child_info" class="mt-1 text-sm text-red-600">
+                {{ errors.child_info[0] }}
+              </p>
+            </div>
           </div>
           <div class="mb-2 space-y-1 flex justify-start items-center gap-3">
-            <label for="room_price" class="text-sm text-gray-800"
-              >Is Add On ?</label
-            >
             <Switch
               v-model="enabled"
               :class="enabled ? ' bg-orange-600' : 'bg-gray-500'"
@@ -116,8 +198,47 @@
                 class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
               />
             </Switch>
+            <label for="room_price" class="text-sm text-gray-800"
+              >Is Add On ?</label
+            >
           </div>
-          <div class="mb-2 space-y-1">
+          <div class="pt-6">
+            <div class="mb-2 space-y-1 flex justify-start items-center gap-3">
+              <Switch
+                v-model="enabledMain"
+                :class="enabledMain ? ' bg-orange-600' : 'bg-gray-500'"
+                class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+              >
+                <span class="sr-only">Use setting</span>
+                <span
+                  aria-hidden="true"
+                  :class="enabledMain ? 'translate-x-9' : 'translate-x-0'"
+                  class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                />
+              </Switch>
+              <label for="room_price" class="text-sm text-gray-800"
+                >Is main of attraction ticket ?</label
+              >
+            </div>
+            <div class="mb-2 space-y-1 flex justify-start items-center gap-3">
+              <Switch
+                v-model="enabledShow"
+                :class="enabledShow ? ' bg-orange-600' : 'bg-gray-500'"
+                class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+              >
+                <span class="sr-only">Use setting</span>
+                <span
+                  aria-hidden="true"
+                  :class="enabledShow ? 'translate-x-9' : 'translate-x-0'"
+                  class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                />
+              </Switch>
+              <label for="room_price" class="text-sm text-gray-800"
+                >Is show on thanywhere app ?</label
+              >
+            </div>
+          </div>
+          <div class="mb-2 space-y-1 col-span-2">
             <label for="description" class="text-sm text-gray-800"
               >Description</label
             >
@@ -130,6 +251,29 @@
             <p v-if="errors?.description" class="mt-1 text-sm text-red-600">
               {{ errors.description[0] }}
             </p>
+          </div>
+
+          <div class="mb-2 space-y-1">
+            <label for="price" class="text-sm text-gray-800"
+              >Youtube Link (mm)</label
+            >
+            <input
+              type="text"
+              v-model="formData.meta_data.youtube_mm_link"
+              id="owner_price"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+          </div>
+          <div class="mb-2 space-y-1">
+            <label for="price" class="text-sm text-gray-800"
+              >Youtube Link (en)</label
+            >
+            <input
+              type="text"
+              v-model="formData.meta_data.youtube_en_link"
+              id="owner_price"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
           </div>
           <div class="col-span-2">
             <div class="">
@@ -182,7 +326,7 @@
               </div>
             </div>
           </div>
-          <div class="mb-2 space-y-1">
+          <div class="mb-2 space-y-1 col-span-2">
             <label for="description" class="text-sm text-gray-800"
               >Images</label
             >
@@ -243,7 +387,7 @@
             </div>
           </div>
 
-          <div class="text-end flex justify-end items-center">
+          <div class="text-end flex justify-end items-center col-span-2">
             <p
               class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
               @click="closeModal"
@@ -475,6 +619,8 @@ const search = ref("");
 const errors = ref([]);
 
 const enabled = ref(false);
+const enabledMain = ref(false);
+const enabledShow = ref(false);
 
 const openModal = () => {
   createModalOpen.value = true;
@@ -487,7 +633,19 @@ const openModal = () => {
     cost_price: "",
     agent_price: "",
     owner_price: "",
+    adult_info: "",
+    child_price: "",
+    child_cost_price: "",
+    child_owner_price: "",
+    child_info: "",
     is_add_on: 0,
+    periods: [],
+    meta_data: {
+      is_main: 0,
+      is_show: 0,
+      youtube_mm_link: "",
+      youtube_en_link: "",
+    },
     description: "",
     images: [],
     services: [],
@@ -507,7 +665,19 @@ const closeModal = () => {
     cost_price: "",
     agent_price: "",
     owner_price: "",
+    adult_info: "",
+    child_price: "",
+    child_cost_price: "",
+    child_owner_price: "",
+    child_info: "",
     is_add_on: 0,
+    periods: [],
+    meta_data: {
+      is_main: 0,
+      is_show: 0,
+      youtube_mm_link: "",
+      youtube_en_link: "",
+    },
     description: "",
     images: [],
     services: [],
@@ -526,12 +696,74 @@ const formData = ref({
   agent_price: "",
   owner_price: "",
   is_add_on: 0,
+  periods: [],
+  meta_data: {
+    is_main: 0,
+    is_show: 0,
+    youtube_mm_link: "",
+    youtube_en_link: "",
+  },
   price_name: "",
+  adult_info: "",
+  child_price: "",
+  child_cost_price: "",
+  child_owner_price: "",
+  child_info: "",
   price: "",
   description: "",
   images: [],
   services: [],
 });
+
+const formPeriod = ref({
+  period_name: "",
+  period_type: "",
+  start_date: "",
+  end_date: "",
+  cost_price: "",
+  owner_price: "",
+  agent_price: "",
+  price: "",
+  child_cost_price: "",
+  child_owner_price: "",
+  child_agent_price: "",
+  child_price: "",
+});
+
+const period_type_array = ref([
+  {
+    id: 1,
+    name: "By the Day of Week",
+    value: "by_the_day_of_week",
+  },
+  {
+    id: 2,
+    name: "By the Day",
+    value: "by_the_day",
+  },
+]);
+
+const addNewPerid = () => {
+  formData.value.periods.push(formPeriod.value);
+  formPeriod.value = {
+    period_name: "",
+    period_type: "",
+    start_date: "",
+    end_date: "",
+    cost_price: "",
+    owner_price: "",
+    agent_price: "",
+    price: "",
+    child_cost_price: "",
+    child_owner_price: "",
+    child_agent_price: "",
+    child_price: "",
+  };
+};
+
+const removeFromPerid = (index) => {
+  formData.value.periods.splice(index, 1);
+};
 
 const title = ref("");
 const addNewService = () => {
@@ -574,10 +806,50 @@ const addNewHandler = async () => {
 
   frmData.append("description", formData.value.description);
   frmData.append("price", formData.value.price);
-  frmData.append("cost_price", formData.value.cost_price);
-  frmData.append("agent_price", formData.value.agent_price);
-  frmData.append("owner_price", formData.value.owner_price);
+  formData.value.cost_price
+    ? frmData.append("cost_price", formData.value.cost_price)
+    : 0;
+  formData.value.agent_price
+    ? frmData.append("agent_price", formData.value.agent_price)
+    : 0;
+  formData.value.owner_price
+    ? frmData.append("owner_price", formData.value.owner_price)
+    : 0;
+  formData.value.adult_info &&
+    frmData.append("adult_info", formData.value.adult_info);
+  formData.value.child_price
+    ? frmData.append("child_price", formData.value.child_price)
+    : 0;
+  formData.value.child_owner_price
+    ? frmData.append("child_owner_price", formData.value.child_owner_price)
+    : 0;
+  formData.value.child_cost_price
+    ? frmData.append("child_cost_price", formData.value.child_cost_price)
+    : 0;
+  formData.value.child_info &&
+    frmData.append("child_info", formData.value.child_info);
+
   frmData.append("is_add_on", enabled.value ? 1 : 0);
+  if (
+    formData.value.meta_data?.youtube_en_link ||
+    formData.value.meta_data?.youtube_mm_link
+  ) {
+    frmData.append(
+      "meta_data[0][youtube_mm_link]",
+      formData.value.meta_data.youtube_mm_link
+    );
+    frmData.append(
+      "meta_data[0][youtube_en_link]",
+      formData.value.meta_data.youtube_en_link
+    );
+  }
+  enabledMain
+    ? frmData.append("meta_data[0][is_main]", 1)
+    : frmData.append("meta_data[0][is_main]", 0);
+  enabledShow
+    ? frmData.append("meta_data[0][is_show]", 1)
+    : frmData.append("meta_data[0][is_show]", 0);
+
   frmData.append("name", formData.value.price_name);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
@@ -603,7 +875,19 @@ const addNewHandler = async () => {
       cost_price: "",
       agent_price: "",
       owner_price: "",
+      adult_info: "",
+      child_price: "",
+      child_cost_price: "",
+      child_owner_price: "",
+      child_info: "",
       is_add_on: 0,
+      periods: [],
+      meta_data: {
+        is_main: 0,
+        is_show: 0,
+        youtube_mm_link: "",
+        youtube_en_link: "",
+      },
       price_name: "",
       price: "",
       description: "",
@@ -636,7 +920,39 @@ const updateHandler = async () => {
   frmData.append("cost_price", formData.value.cost_price);
   frmData.append("agent_price", formData.value.agent_price);
   frmData.append("owner_price", formData.value.owner_price);
+  formData.value.adult_info &&
+    frmData.append("adult_info", formData.value.adult_info);
+  formData.value.child_price
+    ? frmData.append("child_price", formData.value.child_price)
+    : 0;
+  formData.value.child_owner_price
+    ? frmData.append("child_owner_price", formData.value.child_owner_price)
+    : 0;
+  formData.value.child_cost_price
+    ? frmData.append("child_cost_price", formData.value.child_cost_price)
+    : 0;
+  formData.value.child_info &&
+    frmData.append("child_info", formData.value.child_info);
   frmData.append("is_add_on", enabled.value ? 1 : 0);
+  if (
+    formData.value.meta_data?.youtube_en_link ||
+    formData.value.meta_data?.youtube_mm_link
+  ) {
+    frmData.append(
+      "meta_data[0][youtube_mm_link]",
+      formData.value.meta_data.youtube_mm_link
+    );
+    frmData.append(
+      "meta_data[0][youtube_en_link]",
+      formData.value.meta_data.youtube_en_link
+    );
+  }
+  enabledMain
+    ? frmData.append("meta_data[0][is_main]", 1)
+    : frmData.append("meta_data[0][is_main]", 0);
+  enabledShow
+    ? frmData.append("meta_data[0][is_show]", 1)
+    : frmData.append("meta_data[0][is_show]", 0);
   frmData.append("name", formData.value.price_name);
 
   if (formData.value.images.length > 0) {
@@ -666,7 +982,19 @@ const updateHandler = async () => {
       cost_price: "",
       agent_price: "",
       owner_price: "",
+      adult_info: "",
+      child_price: "",
+      child_cost_price: "",
+      child_owner_price: "",
+      child_info: "",
       is_add_on: 0,
+      periods: [],
+      meta_data: {
+        is_main: 0,
+        is_show: 0,
+        youtube_mm_link: "",
+        youtube_en_link: "",
+      },
       price_name: "",
       price: "",
       description: "",
@@ -707,7 +1035,21 @@ const editModalOpenHandler = (data) => {
   formData.value.cost_price = data.cost_price;
   formData.value.agent_price = data.agent_price;
   formData.value.owner_price = data.owner_price;
+  formData.value.adult_info = data.adult_info;
+  formData.value.child_price = data.child_price;
+  formData.value.child_cost_price = data.child_cost_price;
+  formData.value.child_owner_price = data.child_owner_price;
+  formData.value.child_info = data.child_info;
+
   enabled.value = data.is_add_on == 1;
+  if (data.meta_data != null && data?.meta_data?.length > 0) {
+    enabledMain.value = data.meta_data[0]?.is_main == 1;
+    enabledShow.value = data.meta_data[0]?.is_show == 1;
+    formData.value.meta_data.youtube_mm_link =
+      data.meta_data[0]?.youtube_mm_link;
+    formData.value.meta_data.youtube_en_link =
+      data.meta_data[0]?.youtube_en_link;
+  }
   formData.value.price_name = data.name;
   formData.value.price = data.price;
   formData.value.description = data.description;

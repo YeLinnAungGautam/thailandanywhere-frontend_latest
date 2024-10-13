@@ -435,6 +435,7 @@ const formitem = ref({
   cost_price: "",
   total_amount: "",
   total_guest: "",
+  individual_pricing: [],
 });
 const productList = ref([]);
 
@@ -914,6 +915,7 @@ const onSubmitHandler = async () => {
           "items[" + x + "][total_guest]",
           formData.value.items[x].total_guest
         );
+      frmData.append("items[" + x + "][individual_pricing]", null);
     }
     for (var x = 0; x < formData.value.items.length; x++) {
       formData.value.items[x].checkout_date &&

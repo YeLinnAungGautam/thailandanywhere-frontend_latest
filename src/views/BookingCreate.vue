@@ -735,9 +735,9 @@ const onSubmitHandler = async () => {
       frmData.append("money_exchange_rate", 0);
     }
 
-    if (sub_total_discount.value) {
-      frmData.append("discount", sub_total_discount.value);
-    }
+    sub_total_discount.value
+      ? frmData.append("discount", sub_total_discount.value)
+      : frmData.append("discount", 0);
 
     if (sub_total_real.value != null || sub_total_real.value != NaN) {
       frmData.append("sub_total", sub_total_real.value);

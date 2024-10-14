@@ -664,8 +664,10 @@ const onSubmitHandler = async () => {
       frmData.append("money_exchange_rate", formData.value.money_exchange_rate);
     console.log(formData.value.money_exchange_rate, "this is ex money");
     // frmData.append("crm_id", formData.value.crm_id);
-    sub_total_discount.value &&
-      frmData.append("discount", sub_total_discount.value);
+
+    sub_total_discount.value
+      ? frmData.append("discount", sub_total_discount.value)
+      : frmData.append("discount", 0);
     // if (formData.value.discount == "" || formData.value.discount == 0) {
     //   frmData.append("discount", 0);
     // } else {

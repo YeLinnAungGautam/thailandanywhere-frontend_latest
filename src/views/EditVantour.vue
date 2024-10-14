@@ -127,7 +127,9 @@ const onSubmitHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("sku_code", formData.value.sku_code);
-  frmData.append("ticket_price", formData.value.ticket_price);
+  formData.value.ticket_price
+    ? frmData.append("ticket_price", formData.value.ticket_price)
+    : 0;
   frmData.append("type", formData.value.type);
   frmData.append("long_description", formData.value.long_description);
   frmData.append("full_description_en", formData.value.full_description_en);

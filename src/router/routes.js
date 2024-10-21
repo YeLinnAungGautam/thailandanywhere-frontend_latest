@@ -4,6 +4,7 @@ import TableView from "../views/TableView.vue";
 import ProductView from "../views/ProductView.vue";
 import BookingView from "../views/BookingView.vue";
 import BookingCreateView from "../views/BookingCreate.vue";
+import BookingNewCreateView from "../views/BookingCreateNewVersion.vue";
 import NewBookingView from "../views/NewBookingView.vue";
 import CustomerView from "../views/CustomerView.vue";
 import AdminView from "../views/AdminView.vue";
@@ -131,6 +132,11 @@ const routes = [
     path: "/bookings/create",
     name: "bookings_create",
     component: BookingCreateView,
+  },
+  {
+    path: "/bookings/new-create",
+    name: "bookings_new_create",
+    component: BookingNewCreateView,
   },
   {
     path: "/calendar",

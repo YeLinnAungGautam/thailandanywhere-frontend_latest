@@ -17,7 +17,8 @@ import {
   FunnelIcon,
   ArrowDownTrayIcon,
 } from "@heroicons/vue/24/outline";
-
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import Modal from "../components/Modal.vue";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
@@ -150,6 +151,16 @@ const SearchFunction = () => {
 };
 
 const showAgentSearch = ref(false);
+
+// for sale create new version & old version
+const showVersion = ref(false);
+const goCreatePage = (data) => {
+  if (data == "new") {
+    router.push("/bookings/new-create");
+  } else {
+    router.push("/bookings/create");
+  }
+};
 
 const agentSearchAction = async () => {
   await adminStore.getSimpleListAction();
@@ -291,15 +302,20 @@ watch(
           <p class="inline-block ml-2 font-medium text-gray-500">entries</p>
         </div>
       </div>
-      <div class="space-x-3">
+      <div class="space-x-3 flex justify-end items-center">
         <Button :leftIcon="FunnelIcon" @click="clearFilter" v-if="showFilter">
           Clear
         </Button>
         <Button :leftIcon="FunnelIcon" @click="searchHandler"> Search </Button>
 
-        <router-link to="/bookings/create">
+        <!-- <router-link to="/bookings/create">
           <Button :leftIcon="PlusIcon"> Create </Button>
-        </router-link>
+        </router-link> -->
+        <div class="relative">
+          <Button :leftIcon="PlusIcon" @click="showVersion = !showVersion">
+            Create
+          </Button>
+        </div>
       </div>
     </div>
     <div class="p-6 mb-5 rounded-lg shadow-sm bg-white/60">
@@ -745,6 +761,40 @@ watch(
       <!-- pagination -->
       <Pagination v-if="!loading" :data="bookings" @change-page="changePage" />
     </div>
+    <Modal :isOpen="showVersion" @closeModal="showVersion = false">
+      <DialogPanel
+        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-5"
+        >
+          select version controll !
+        </DialogTitle>
+        <div class="space-y-2">
+          <div>
+            <Button
+              class="w-full"
+              :leftIcon="PlusIcon"
+              @click="goCreatePage('old')"
+            >
+              <p class="text-xs w-full whitespace-nowrap">
+                Old Version (stable)
+              </p>
+            </Button>
+          </div>
+          <div>
+            <Button
+              :leftIcon="PlusIcon"
+              class="w-full bg-gray-500"
+              @click="goCreatePage('new')"
+            >
+              <p class="text-xs w-full whitespace-nowrap">New Version (beta)</p>
+            </Button>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>
 

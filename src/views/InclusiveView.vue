@@ -33,24 +33,30 @@
             <th class="w-20 p-3 text-xs font-medium tracking-wide text-left">
               No.
             </th>
-            <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
-              Image
-            </th>
+
             <th class="p-3 text-xs font-medium tracking-wide text-left">
               Name
             </th>
             <th class="p-3 text-xs font-medium tracking-wide text-left">
-              Prices
+              Prices (Rate per person)
             </th>
-            <th class="p-3 text-xs font-medium tracking-wide text-left">
-              Agent Prices
-            </th>
+
             <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
               Actions
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100">
+        <tbody class="divide-y divide-gray-100" v-if="loading">
+          <tr class="bg-white even:bg-gray-50 hover:bg-gray-50">
+            <td
+              class="p-3 text-xs text-gray-700 whitespace-nowrap py-20 text-center"
+              colspan="4"
+            >
+              loading ...
+            </td>
+          </tr>
+        </tbody>
+        <tbody class="divide-y divide-gray-100" v-if="!loading">
           <tr
             class="bg-white even:bg-gray-50 hover:bg-gray-50"
             v-for="(r, index) in inclusives?.data"
@@ -59,27 +65,14 @@
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.id }}
             </td>
-            <td
-              class="p-3 text-xs text-gray-700 whitespace-nowrap"
-              v-if="r.cover_image"
-            >
-              <img :src="r.cover_image" class="w-14 h-12 rounded-lg" alt="" />
-            </td>
-            <td
-              class="p-3 text-xs text-gray-700 whitespace-nowrap"
-              v-if="!r.cover_image"
-            >
-              -
-            </td>
+
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.name }}
             </td>
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.price }} B
             </td>
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-              {{ r.agent_price }} B
-            </td>
+
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">
                 <router-link :to="'/inclusive/view/' + r.id + '/view'">
@@ -136,6 +129,7 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import { useAuthStore } from "../stores/auth";
+import debounce from "lodash/debounce";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -191,7 +185,10 @@ onMounted(async () => {
   await inclusiveStore.getListAction();
 });
 
-watch(search, async (newValue) => {
-  await inclusiveStore.getListAction({ search: search.value });
-});
+watch(
+  search,
+  debounce(async (newValue) => {
+    await inclusiveStore.getListAction({ search: search.value });
+  }, 500)
+);
 </script>

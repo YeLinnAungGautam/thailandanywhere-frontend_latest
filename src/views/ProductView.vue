@@ -294,6 +294,28 @@ onMounted(() => {
               </div>
             </button>
           </Tab>
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(10)">
+            <button
+              :class="selected ? 'bg-[#FF5B00]' : 'bg-white'"
+              class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[180px] text-center"
+            >
+              <img
+                src="../../public/web-logo.png"
+                class="w-12 h-12 p-2 rounded-lg"
+                :class="
+                  selected ? 'bg-white' : 'bg-[#FF5B00]/30 text-[#FF5B00]'
+                "
+                alt=""
+              />
+              <div
+                class="text-xs"
+                :class="selected ? 'text-white' : 'text-gray-900'"
+              >
+                <p class="font-semibold">124</p>
+                <p class="text-[10px]">Inclusive</p>
+              </div>
+            </button>
+          </Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -325,6 +347,9 @@ onMounted(() => {
           </TabPanel>
           <TabPanel>
             <Meal />
+          </TabPanel>
+          <TabPanel>
+            <Inclusive />
           </TabPanel>
         </TabPanels>
       </TabGroup>

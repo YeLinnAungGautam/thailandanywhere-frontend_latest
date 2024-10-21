@@ -481,9 +481,11 @@ const onSubmitHandler = async () => {
   frmData.append("sku_code", formData.value.sku_code);
   frmData.append("day", formData.value.day);
   frmData.append("night", formData.value.night);
-  frmData.append("description", formData.value.description);
-  frmData.append("price", formData.value.price);
-  frmData.append("agent_price", formData.value.agent_price);
+  // frmData.append("description", formData.value.description);
+  formData.value.price ? frmData.append("price", formData.value.price) : 0;
+  formData.value.agent_price
+    ? frmData.append("agent_price", formData.value.agent_price)
+    : 0;
 
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
@@ -577,7 +579,7 @@ const onSubmitHandler = async () => {
     };
     errors.value = null;
     toast.success(response.message);
-    router.push("/products/3");
+    router.push("/products/10");
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
@@ -603,7 +605,7 @@ onMounted(async () => {});
       <div class="bg-white/60 col-span-2 p-6 rounded-lg shadow-sm mb-5">
         <div class="space-y-2">
           <div class="grid grid-cols-2 gap-6">
-            <div>
+            <div class="col-span-2">
               <div class="grid grid-cols-2 gap-4">
                 <div class="">
                   <p class="text-gray-800 text-xs mb-2">Name</p>
@@ -685,7 +687,7 @@ onMounted(async () => {});
                     {{ errors.night[0] }}
                   </p>
                 </div>
-                <div class="col-span-2">
+                <!-- <div class="col-span-2">
                   <p class="text-gray-800 text-xs mb-2">Description</p>
                   <textarea
                     v-model="formData.description"
@@ -699,11 +701,11 @@ onMounted(async () => {});
                   >
                     {{ errors.description[0] }}
                   </p>
-                </div>
+                </div> -->
               </div>
             </div>
 
-            <div>
+            <!-- <div>
               <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
                 <div class="flex items-center justify-start gap-3 mb-3">
                   <p class="text-xs">Images</p>
@@ -791,7 +793,7 @@ onMounted(async () => {});
                   {{ errors.image[0] }}
                 </p>
               </div>
-            </div>
+            </div> -->
           </div>
 
           <div class="grid-cols-1 col-span-3 pt-10 gird">

@@ -248,41 +248,7 @@ const closedes = () => {
   desopen.value = false;
 };
 const clickdetaildes = ref(false);
-const clickdetaildesToggle = (
-  a,
-  b,
-  c,
-  x,
-  d,
-  index,
-  t,
-  r,
-  s,
-  file,
-  i,
-  o,
-  days,
-  room,
-  quantity
-) => {
-  console.log(a, b, index);
-  clickdetaildes.value = true;
-  itemDes.value = a;
-  itemSpecial.value = b;
-  itemServiceDate.value = s;
-  itemPickup.value = c;
-  itemPickupTime.value = x;
-  itemDropoff.value = d;
-  indexValue.value = index;
-  itemType.value = t;
-  itemRoutePlan.value = r;
-  itemFile.value = file;
-  itemCheckIn.value = i;
-  itemCheckOut.value = o;
-  itemDays.value = days;
-  itemRoom.value = room;
-  itemQ.value = quantity;
-};
+
 const itemType = ref("");
 const itemRoutePlan = ref("");
 const itemFile = ref("");
@@ -537,10 +503,7 @@ const onSubmitHandler = async () => {
       "products[" + x + "][selling_price]",
       formData.value.items[x].selling_price
     );
-    frmData.append(
-      "products[" + x + "][quantity]",
-      formData.value.items[x].quantity
-    );
+    frmData.append("products[" + x + "][quantity]", 1);
   }
   for (var x = 0; x < formData.value.items.length; x++) {
     formData.value.items[x].product_type == "1" ||
@@ -589,7 +552,7 @@ const onSubmitHandler = async () => {
     };
     errors.value = null;
     toast.success(response.message);
-    router.push("/products/3");
+    router.push("/products/10");
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
@@ -1539,7 +1502,7 @@ onMounted(async () => {
                 <div class="grid grid-cols-3">
                   <div></div>
                   <div></div>
-                  <div class="px-6 mt-6">
+                  <div class="px-6 mt-6 hidden">
                     <div class="grid grid-cols-2 gap-4">
                       <p class="pr-8 mt-3 mb-2 text-sm text-gray-800 text-end">
                         Subtotal
@@ -1549,7 +1512,7 @@ onMounted(async () => {
                         disabled
                         type="text"
                         id="title"
-                        class="w-full h-8 px-4 py-2 mt-2 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300"
+                        class="w-full hidden h-8 px-4 py-2 mt-2 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300"
                       />
                     </div>
 

@@ -33,6 +33,7 @@ import { useAuthStore } from "../stores/auth";
 import { useAdminStore } from "../stores/admin";
 import { addDays } from "date-fns";
 import { useUserStore } from "../stores/user";
+import InclusiveCreate from "./InclusiveCreateModal.vue";
 
 const toast = useToast();
 const sidebar = useSidebarStore();
@@ -1198,10 +1199,12 @@ const checkType = (product) => {
 
 const paymentStatus = ref("");
 const customerName = ref("");
+const inclusiveDetail = ref(null);
 const getDetail = async () => {
   try {
     const response = await bookingStore.getDetailAction(route.params.id);
     console.log(response, "this is response get");
+    inclusiveDetail.value = response.result;
     formData.value.customer_id = response.result.customer.id;
     formData.value.user_id = response.result.user?.id;
     formData.value.user_name = response.result.user?.name;
@@ -1746,11 +1749,22 @@ const removeUserAdd = async () => {
   });
 };
 
-const addUserToBooking = (id) => {
+const addUserToBooking = async (id) => {
   console.log(id);
   formData.value.user_id = id;
   openAddUserModal.value = false;
+  await onSubmitHandler();
 };
+
+// change inclusive product
+
+const openModalInclusive = ref(false);
+
+const openModalInclusiveAction = () => {
+  openModalInclusive.value = true;
+};
+
+// end change inclusive product
 
 onMounted(async () => {
   loadingState.value = true;
@@ -2070,10 +2084,10 @@ const searchWithUnique = async () => {
                   <p class="mb-2 text-xs text-[#ff613c]">User ID</p>
                   <div
                     class="w-full h-10 bg-[#ff613c] flex justify-center items-center px-4 text-xs text-white border border-gray-300 rounded-lg shadow-sm line-clamp-1 overflow-hidden relative"
+                    @click="openAddUserModal = true"
                   >
                     <div
                       class="flex justify-center items-center cursor-pointer"
-                      @click="openAddUserModal = true"
                     >
                       <UserPlusIcon class="w-4 h-4 mr-2 cursor-pointer" />
                       <p
@@ -2090,6 +2104,7 @@ const searchWithUnique = async () => {
                     </div>
                     <div
                       @click="removeUserAdd"
+                      v-if="authStore.isSuperAdmin"
                       class="absolute right-1 top-1.5 z-40 cursor-pointer rounded-lg bg-white p-1.5"
                     >
                       <TrashIcon class="w-4 h-4 text-red-500" />
@@ -2144,7 +2159,9 @@ const searchWithUnique = async () => {
                   />
                 </div>
                 <div v-if="stateInclusive" class="col-span-1">
-                  <p class="mb-2 text-xs text-[#ff613c]">Inclusive Name</p>
+                  <p class="mb-2 text-xs text-[#ff613c] line-clamp-1">
+                    Inclusive Name
+                  </p>
 
                   <input
                     type="text"
@@ -2154,7 +2171,9 @@ const searchWithUnique = async () => {
                   />
                 </div>
                 <div v-if="stateInclusive" class="col-span-1">
-                  <p class="mb-2 text-xs text-[#ff613c]">Quantity Inclusive</p>
+                  <p class="mb-2 text-xs text-[#ff613c] line-clamp-1">
+                    Quantity Inclusive
+                  </p>
                   <div class="flex justify-start items-center">
                     <input
                       type="number"
@@ -2169,7 +2188,9 @@ const searchWithUnique = async () => {
                   </div>
                 </div>
                 <div v-if="stateInclusive" class="col-span-1">
-                  <p class="mb-2 text-xs text-[#ff613c]">Rate Per Person</p>
+                  <p class="mb-2 text-xs text-[#ff613c] line-clamp-1">
+                    Rate Per Person
+                  </p>
 
                   <div class="flex justify-start items-center">
                     <input
@@ -2185,7 +2206,7 @@ const searchWithUnique = async () => {
                   </div>
                 </div>
                 <div v-if="stateInclusive" class="col-span-1">
-                  <p class="mb-2 text-xs text-[#ff613c]">
+                  <p class="mb-2 text-xs text-[#ff613c] line-clamp-1">
                     Service Date (start)
                   </p>
 
@@ -2197,7 +2218,9 @@ const searchWithUnique = async () => {
                   />
                 </div>
                 <div v-if="stateInclusive" class="col-span-1">
-                  <p class="mb-2 text-xs text-[#ff613c]">Service Date (end)</p>
+                  <p class="mb-2 text-xs text-[#ff613c] line-clamp-1">
+                    Service Date (end)
+                  </p>
 
                   <input
                     type="date"
@@ -2206,8 +2229,8 @@ const searchWithUnique = async () => {
                     class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                   />
                 </div>
-                <div v-if="stateInclusive" class="col-span-3">
-                  <p class="mb-2 text-xs text-[#ff613c]">
+                <div v-if="stateInclusive" class="col-span-2">
+                  <p class="mb-2 text-xs text-[#ff613c] line-clamp-1">
                     Inclusive Description
                   </p>
 
@@ -2217,6 +2240,40 @@ const searchWithUnique = async () => {
                     class="w-full bg-white h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                   ></textarea>
                 </div>
+                <div v-if="stateInclusive" class="col-span-1">
+                  <p
+                    class="mb-2 text-xs text-[#ff613c] whitespace-nowrap line-clamp-1 opacity-0"
+                  >
+                    change product
+                  </p>
+
+                  <p
+                    @click="openModalInclusiveAction"
+                    class="w-full bg-[#ff613c] cursor-pointer text-white h-10 px-4 pb-2 pt-3 text-xs border border-gray-300 rounded-lg shadow-sm focus:outline-none whitespace-nowrap line-clamp-1 focus:border-gray-300 text-center"
+                  >
+                    Product Create
+                  </p>
+                </div>
+
+                <!-- change product -->
+                <Modal
+                  :isOpen="openModalInclusive"
+                  @closeModal="openModalInclusive = false"
+                >
+                  <DialogPanel
+                    class="w-full max-w-2xl p-4 space-y-2 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
+                  >
+                    <DialogTitle
+                      as="h3"
+                      class="mb-5 font-medium leading-6 text-gray-900 text-md"
+                    >
+                      Create Inclusive Product
+                    </DialogTitle>
+                    <div>
+                      <InclusiveCreate :data="inclusiveDetail" />
+                    </div>
+                  </DialogPanel>
+                </Modal>
               </div>
             </div>
             <div class="grid-cols-1 col-span-3 pt-10 gird">

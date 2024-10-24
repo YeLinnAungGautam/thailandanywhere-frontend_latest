@@ -22,6 +22,29 @@ const search = ref("");
 const type = ref("van_tour");
 const addItemModal = ref(false);
 const addInfoModal = ref(false);
+const detailModal = ref(false);
+const details = ref(null);
+const details_images = ref([]);
+
+const viewDetail = (data) => {
+  console.log(data, "this is data");
+  details_images.value = [];
+  details.value = data;
+  detailModal.value = true;
+  if (details.value != null) {
+    details_images.value.push(details.value.cover_image);
+    for (let i = 0; i < details.value.destinations.length; i++) {
+      details_images.value.push(details.value.destinations[i].feature_img);
+    }
+  }
+  console.log(details_images.value, "this is images");
+};
+
+const closeDetail = () => {
+  detailModal.value = false;
+  details.value = null;
+  details_images.value = [];
+};
 
 const emit = defineEmits(["formData"]);
 
@@ -63,6 +86,7 @@ const formitem = ref({
 
 // add item function
 const openAddItemModal = (item) => {
+  closeDetail();
   console.log("====================================");
   console.log(item, "this is item");
   console.log("====================================");
@@ -305,11 +329,11 @@ onMounted(async () => {
       @scroll="handleScroll"
     >
       <div
-        class="bg-white p-2 rounded-lg shadow-sm space-y-2 relative"
+        class="bg-white px-2 pb-2 rounded-lg shadow-sm space-y-2 relative"
         v-for="i in destsList ?? []"
         :key="i"
       >
-        <div class="right-1 top-1 rounded-full absolute">
+        <div class="right-1 top-1 rounded-full absolute" @click="viewDetail(i)">
           <InformationCircleIcon class="w-5 h-5 text-[#ff613c] bg-white" />
         </div>
         <div class="flex justify-start items-start gap-x-2">
@@ -547,6 +571,7 @@ onMounted(async () => {
         </div>
         <div class="flex justify-end items-center gap-x-2 pt-2">
           <button
+            @click="clearAction"
             class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
           >
             Cancel
@@ -564,6 +589,98 @@ onMounted(async () => {
             @click="getFunction"
             class="bg-[#ff613c] text-white px-3 py-2.5 rounded-lg text-xs"
             :class="todayVali ? 'bg-[#ff613c]' : 'bg-gray-300'"
+          >
+            Add Item
+          </button>
+        </div>
+      </DialogPanel>
+    </Modal>
+
+    <!-- vantour detail  -->
+    <!-- choose info booking modal -->
+    <Modal :isOpen="detailModal" @closeModal="detailModal = false">
+      <DialogPanel
+        class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-1"
+        >
+          Van Tour Information
+        </DialogTitle>
+        <div class="space-y-2.5 pb-3 border-b border-gray-300">
+          <p class="text-xs text-gray-500">
+            Please notify data issues if you see any incorrect data.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 pt-2">
+          <!-- Large image on the left (index 0) -->
+          <div class="col-span-1">
+            <img
+              :src="
+                details_images[0]
+                  ? details_images[0]
+                  : 'https://placehold.co/400'
+              "
+              alt="Large Image"
+              class="w-full h-[200px] object-cover object-center rounded-lg"
+            />
+          </div>
+
+          <!-- Small images on the right -->
+          <div class="flex flex-col gap-2 h-[200px] overflow-y-scroll">
+            <img
+              v-for="(img, index) in details_images.slice(1)"
+              :key="index"
+              :src="img ? img : 'https://placehold.co/400'"
+              alt="Small Image"
+              class="w-full min-h-[100px] h-full object-cover object-center rounded-lg"
+            />
+          </div>
+        </div>
+        <div class="py-4 space-y-1">
+          <p class="text-sm font-medium text-[#ff613c]">{{ details?.name }}</p>
+          <p class="text-xs text-[#ff613c] pb-3">
+            {{ details?.destinations?.length }} destinations
+          </p>
+          <div
+            class="flex justify-start items-center gap-x-2 w-full overflow-x-scroll no-scrollbar"
+          >
+            <div
+              v-for="i in details?.destinations"
+              :key="i"
+              class="min-w-[200px] space-y-2"
+            >
+              <img
+                :src="
+                  i?.feature_img ? i?.feature_img : 'https://placehold.co/400'
+                "
+                alt=""
+                class="w-full h-[100px] object-cover object-center rounded-lg"
+              />
+              <p class="text-xs line-clamp-2">{{ i?.name }}</p>
+            </div>
+          </div>
+          <div>
+            <p
+              class="border-l-4 border-[#ff613c] pl-3 text-sm font-medium mt-4"
+            >
+              Package Summary
+            </p>
+            <p v-html="details?.long_description" class="text-sm pt-4"></p>
+          </div>
+        </div>
+        <div class="flex justify-end items-center gap-x-2 pt-2">
+          <button
+            @click="closeDetail"
+            class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
+          >
+            Cancel
+          </button>
+          <button
+            @click="openAddItemModal(details)"
+            class="bg-[#ff613c] text-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
           >
             Add Item
           </button>

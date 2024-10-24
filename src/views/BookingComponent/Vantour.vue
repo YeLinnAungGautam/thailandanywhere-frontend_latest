@@ -239,7 +239,7 @@ onMounted(async () => {
   <div class="space-y-4">
     <div class="flex justify-between items-center">
       <h1 class="text-sm font-medium">Product Vantours</h1>
-      <div class="flex justify-end items-center gap-x-2 mr-10">
+      <div class="flex justify-end items-center gap-x-2 mr-2">
         <div
           class="border border-gray-200 bg-white flex justify-start items-center gap-x-1 rounded-full p-1"
         >
@@ -269,8 +269,10 @@ onMounted(async () => {
       </div>
     </div>
     <!-- search part -->
-    <div class="flex justify-start items-center gap-x-2 flex-nowrap relative">
-      <div class="relative w-[80%]">
+    <div
+      class="flex justify-start items-center gap-x-2 flex-nowrap relative mr-2"
+    >
+      <div class="relative w-full">
         <input
           type="text"
           v-model="search"
@@ -299,7 +301,7 @@ onMounted(async () => {
     </div>
     <!-- product part -->
     <div
-      class="max-h-[63vh] grid grid-cols-3 gap-3 pr-4 overflow-y-scroll"
+      class="max-h-[60vh] grid grid-cols-3 gap-3 pr-4 overflow-y-scroll"
       @scroll="handleScroll"
     >
       <div

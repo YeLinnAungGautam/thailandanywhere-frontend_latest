@@ -84,6 +84,9 @@ const formData = ref({
   payment_notes: "",
   customer_id: "",
   customer_name: "",
+  customer_phone: "",
+  customer_email: "",
+  is_corporate: "",
   sold_from: "",
   payment_method: "",
   bank_name: "",
@@ -255,15 +258,19 @@ const changeGetForm = (data) => {
   formData.value.money_exchange_rate = data.money_exchange_rate;
   formData.value.payment_currency = data.payment_currency;
   formData.value.payment_method = data.payment_method;
-  formData.value.sold_from = data.sold_from;
+  // formData.value.sold_from = data.sold_from;
   formData.value.bank_name = data.bank_name;
   formData.value.is_past_info = data.is_past_info;
   formData.value.past_crm_id = data.past_crm_id;
   formData.value.past_user_id = data.past_user_id;
+  formData.value.is_inclusive = data.is_inclusive;
+  // console.log("====================================");
+  // console.log(formData.value, "this is inclusive ");
+  // console.log("====================================");
 };
 const changeGetInclusiveForm = (data) => {
   // console.log(data);
-  formData.value.is_inclusive = data.is_inclusive;
+  // formData.value.is_inclusive = data.is_inclusive;
   formData.value.inclusive_name = data.inclusive_name;
   formData.value.inclusive_quantity = data.inclusive_quantity;
   formData.value.inclusive_rate = data.inclusive_rate;
@@ -272,6 +279,7 @@ const changeGetInclusiveForm = (data) => {
   formData.value.inclusive_description = data.inclusive_description;
 
   // currentSubTag.value = "items";
+  // console.log(formData.value, "this is inclusive ");
 };
 const formitem = ref({});
 const changeGetItem = (data) => {
@@ -304,6 +312,10 @@ const customerId = (data) => {
   console.log(data);
   formData.value.customer_id = data.id;
   formData.value.customer_name = data.name;
+  formData.value.customer_email = data.email;
+  formData.value.customer_phone = data.phone_number;
+  formData.value.is_corporate = data.is_corporate_customer;
+  formData.value.sold_from = data.sold_from;
 };
 
 // const getDeleteFunction = (id) => {
@@ -815,40 +827,35 @@ const onSubmitHandler = async () => {
           >
             Payment detail
           </p>
-          <p
+          <!-- <p
             class="rounded-lg px-5 py-1.5 text-[10px] cursor-pointer hover:bg-[#ff613c]/20 whitespace-nowrap"
-            @click="currentSubTag = 'inclusive'"
+            @click="currentSubTag = 'payment'"
             :class="
               currentSubTag == 'inclusive' ? 'bg-[#ff613c] text-white' : ' '
             "
           >
             Inclusive
-          </p>
+          </p> -->
         </div>
         <!-- tags result -->
         <div
           v-if="currentSubTag == 'items'"
-          class="min-h-[20vh] max-h-[50vh] bg-white rounded-lg overflow-y-scroll px-3"
+          class="min-h-[10vh] max-h-[50vh] bg-white rounded-lg overflow-y-scroll px-3"
         >
           <ItemList :data="formData" @remove="removeItemList" />
         </div>
-        <div
-          v-if="currentSubTag == 'inclusive'"
-          class="min-h-[10vh] max-h-[50vh] bg-white rounded-lg overflow-y-scroll px-3"
-        >
-          <InclusivePart :data="formData" @formData="changeGetInclusiveForm" />
-        </div>
-        <div
-          v-if="currentSubTag == 'info'"
-          class="min-h-[10vh] max-h-[50vh] bg-white rounded-lg overflow-y-scroll px-3"
-        >
+
+        <div v-if="currentSubTag == 'info'" class="">
           <CustomerInfo @checked="customerId" :data="formData" />
         </div>
-        <div
-          v-if="currentSubTag == 'payment'"
-          class="min-h-[10vh] max-h-[50vh] bg-white rounded-lg overflow-y-scroll px-3"
-        >
+        <div v-if="currentSubTag == 'payment'" class="bg-white rounded-lg px-3">
           <PaymentDetail :data="formData" @formData="changeGetForm" />
+        </div>
+        <div
+          v-if="(formData.is_inclusive == 1) & (currentSubTag == 'payment')"
+          class="bg-white rounded-lg px-3"
+        >
+          <InclusivePart :data="formData" @formData="changeGetInclusiveForm" />
         </div>
         <!-- suummary -->
         <div class="p-3 bg-white rounded-lg">

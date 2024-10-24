@@ -4,89 +4,26 @@
       <h1
         class="sticky top-0 bg-white z-10 py-1 text-xs font-medium text-[#ff613c]"
       >
-        Inclusive Detail
+        Payment Detail
       </h1>
     </div>
-    <div class="space-y-1">
+    <div class="grid grid-cols-2 gap-2">
       <div class="space-y-2">
-        <label for="name" class="text-gray-800 text-[10px]">Booking Date</label>
+        <label for="name" class="text-gray-800 text-[10px]">CRM ID</label>
+        <div
+          class="w-full text-xs px-4 text-gray-900 border-main border rounded-lg shadow-sm bg-gray-200 focus:outline-none focus:border-gray-300 h-9"
+        ></div>
+      </div>
+      <div class="space-y-2">
+        <label for="name" class="text-gray-800 text-[10px]">Sales Date</label>
         <input
           type="date"
           v-model="formData.booking_date"
           :disabled="formData.id || disabled"
           id="name"
-          class="min-w-full text-xs px-4 py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+          class="w-full text-xs px-4 py-2 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
         />
       </div>
-      <div class="space-y-2">
-        <label for="name" class="text-gray-800 text-[10px]"
-          >Balance Due Date</label
-        >
-        <input
-          type="date"
-          v-model="formData.balance_due_date"
-          :disabled="formData.id || disabled"
-          id="name"
-          class="min-w-full text-xs px-4 py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
-        />
-      </div>
-      <div class="grid grid-cols-2 gap-2">
-        <div class="space-y-2">
-          <label for="name" class="text-gray-800 text-[10px]">Sold From</label>
-          <v-select
-            :style="{ fontSize: '11px !important' }"
-            v-model="formData.sold_from"
-            class="style-chooser text-xs"
-            :options="soldFrom"
-            label="name"
-            :clearable="false"
-            :reduce="(d) => d.name"
-            placeholder=""
-          ></v-select>
-        </div>
-        <div class="space-y-2">
-          <label for="name" class="text-gray-800 text-[10px]"
-            >Payment Currency</label
-          >
-          <v-select
-            :style="{ fontSize: '11px !important' }"
-            v-model="formData.payment_currency"
-            class="style-chooser text-xs"
-            :options="payment_currency"
-            @option:selected="choosePaymentBank"
-            label="name"
-            :clearable="false"
-            :reduce="(d) => d.name"
-            placeholder=""
-          ></v-select>
-        </div>
-        <div class="space-y-2 col-span-2">
-          <label for="name" class="text-gray-800 text-[10px]">Bank name</label>
-          <v-select
-            v-model="formData.bank_name"
-            class="style-chooser text-xs"
-            :options="payment"
-            label="name"
-            :clearable="false"
-            :reduce="(d) => d.name"
-            placeholder=""
-          ></v-select>
-        </div>
-      </div>
-      <div class="space-y-2">
-        <label for="name" class="text-gray-800 text-[10px]"
-          >Money Exchange Rate</label
-        >
-        <input
-          v-model="formData.money_exchange_rate"
-          :disabled="!paymentValid || disabled"
-          type="number"
-          id="title"
-          class="text-xs px-4 py-1.5 w-full text-gray-900 border-main border rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
-          :class="!paymentValid ? 'bg-gray-200' : 'bg-white'"
-        />
-      </div>
-
       <div class="space-y-2">
         <label for="name" class="text-gray-800 text-[10px]"
           >Payment Method</label
@@ -100,6 +37,92 @@
           :reduce="(d) => d.name"
           placeholder=""
         ></v-select>
+      </div>
+      <div class="space-y-2">
+        <label for="name" class="text-gray-800 text-[10px]"
+          >Payment Currency</label
+        >
+        <v-select
+          :style="{ fontSize: '11px !important' }"
+          v-model="formData.payment_currency"
+          class="style-chooser text-xs"
+          :options="payment_currency"
+          @option:selected="choosePaymentBank"
+          label="name"
+          :clearable="false"
+          :reduce="(d) => d.name"
+          placeholder=""
+        ></v-select>
+      </div>
+      <div class="space-y-2">
+        <label for="name" class="text-gray-800 text-[10px]">Bank name</label>
+        <v-select
+          v-model="formData.bank_name"
+          class="style-chooser text-xs"
+          :options="payment"
+          label="name"
+          :clearable="false"
+          :reduce="(d) => d.name"
+          placeholder=""
+        ></v-select>
+      </div>
+      <div class="space-y-2">
+        <label for="name" class="text-gray-800 text-[10px]"
+          >Exchange Rate</label
+        >
+        <input
+          v-model="formData.money_exchange_rate"
+          :disabled="!paymentValid || disabled"
+          type="number"
+          id="title"
+          class="text-xs px-4 py-2.5 w-full text-gray-900 border-main border rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+          :class="!paymentValid ? 'bg-gray-200' : 'bg-white'"
+        />
+      </div>
+
+      <!-- <div class="space-y-2">
+        <label for="name" class="text-gray-800 text-[10px]">Sold From</label>
+        <v-select
+          :style="{ fontSize: '11px !important' }"
+          v-model="formData.sold_from"
+          class="style-chooser text-xs"
+          :options="soldFrom"
+          label="name"
+          :clearable="false"
+          :reduce="(d) => d.name"
+          placeholder=""
+        ></v-select>
+      </div> -->
+      <div class="space-y-2">
+        <label for="name" class="text-gray-800 text-[10px]"
+          >Is Inclusive ?</label
+        >
+        <div>
+          <Switch
+            v-model="enabled"
+            :class="enabled ? ' bg-[#ff613c]/50' : 'bg-gray-200'"
+            class="relative inline-flex h-[22px] w-[50px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+          >
+            <span class="sr-only">Use setting</span>
+            <span
+              aria-hidden="true"
+              :class="enabled ? 'translate-x-7' : 'translate-x-0'"
+              class="pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-[#ff613c] shadow-lg ring-0 transition duration-200 ease-in-out"
+            />
+          </Switch>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <label for="name" class="text-gray-800 text-[10px]"
+          >Balance Due Date</label
+        >
+        <input
+          type="date"
+          v-model="formData.balance_due_date"
+          :disabled="formData.id || disabled"
+          id="name"
+          class="w-full text-xs px-4 py-2 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+        />
       </div>
     </div>
   </div>
@@ -116,18 +139,11 @@ import { defineEmits } from "vue";
 const emit = defineEmits();
 
 const changeGetInclusiveForm = () => {
+  formData.value.is_inclusive = enabled.value ? 1 : 0;
+
   emit("formData", formData.value);
 };
 
-const soldFrom = [
-  { id: "1", name: "Facebook" },
-  { id: "2", name: "Twitter" },
-  { id: "3", name: "Instagram" },
-  { id: "4", name: "Twitter" },
-  { id: "5", name: "Viber" },
-  { id: "6", name: "Phone" },
-  { id: "7", name: "Office" },
-];
 const payment_mm = [
   { id: "1", name: "KPAY" },
   { id: "2", name: "AYAPAY" },
@@ -203,8 +219,9 @@ const formData = ref({
   money_exchange_rate: "",
   payment_currency: "",
   payment_method: "",
-  sold_from: "",
+  // sold_from: "",
   bank_name: "",
+  is_inclusive: "",
 });
 
 const props = defineProps({
@@ -218,8 +235,9 @@ watch(
     formData.value.money_exchange_rate,
     formData.value.payment_currency,
     formData.value.payment_method,
-    formData.value.sold_from,
+    // formData.value.sold_from,
     formData.value.bank_name,
+    enabled.value,
   ],
   (newVal) => {
     changeGetInclusiveForm();
@@ -234,8 +252,14 @@ onMounted(() => {
     formData.value.money_exchange_rate = props.data.money_exchange_rate;
     formData.value.payment_currency = props.data.payment_currency;
     formData.value.payment_method = props.data.payment_method;
-    formData.value.sold_from = props.data.sold_from;
+    // formData.value.sold_from = props.data.sold_from;
     formData.value.bank_name = props.data.bank_name;
+    // formData.value.is_inclusive = props.data.is_inclusive;
+    if (props?.data?.is_inclusive == 1) {
+      enabled.value = true;
+    } else {
+      enabled.value = false;
+    }
   }
 });
 </script>

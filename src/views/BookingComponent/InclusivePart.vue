@@ -14,7 +14,7 @@
       </div> -->
     </div>
     <div class="space-y-1">
-      <div class="space-y-2">
+      <!-- <div class="space-y-2">
         <label for="name" class="text-gray-800 text-[10px]"
           >Is Inclusive ?</label
         >
@@ -32,19 +32,20 @@
             />
           </Switch>
         </div>
-      </div>
-      <div class="space-y-2" v-if="enabled">
-        <label for="name" class="text-gray-800 text-[10px]"
-          >Inclusive Name</label
-        >
-        <input
-          type="text"
-          v-model="formData.inclusive_name"
-          id="name"
-          class="min-w-full text-xs px-4 py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
-        />
-      </div>
+      </div> -->
+
       <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2" v-if="enabled">
+          <label for="name" class="text-gray-800 text-[10px]"
+            >Inclusive Name</label
+          >
+          <input
+            type="text"
+            v-model="formData.inclusive_name"
+            id="name"
+            class="min-w-full text-xs px-4 py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+          />
+        </div>
         <div class="space-y-2" v-if="enabled">
           <label for="name" class="text-gray-800 text-[10px]"
             >Rate per person</label
@@ -65,6 +66,7 @@
             class="w-full text-xs px-4 py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
           />
         </div>
+        <div></div>
         <div class="space-y-2" v-if="enabled">
           <label for="name" class="text-gray-800 text-[10px]"
             >Inclusive Start Date</label
@@ -136,7 +138,6 @@ const props = defineProps({
 
 watch(
   () => [
-    formData.value.is_inclusive,
     formData.value.inclusive_name,
     formData.value.inclusive_quantity,
     formData.value.inclusive_rate,
@@ -146,6 +147,15 @@ watch(
   ],
   (newVal) => {
     changeGetInclusiveForm();
+  }
+);
+
+watch(
+  () => [props.data.is_inclusive],
+  (newVal) => {
+    if (props.data.is_inclusive == 1) {
+      enabled.value = true;
+    }
   }
 );
 
@@ -160,6 +170,8 @@ onMounted(() => {
 
     if (props.data.is_inclusive == 1) {
       enabled.value = true;
+    } else {
+      enabled.value = false;
     }
   }
 });

@@ -43,7 +43,7 @@
             type="text"
             v-model="formData.inclusive_name"
             id="name"
-            class="min-w-full text-xs px-4 py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+            class="w-full text-xs px-4 py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
           />
         </div>
         <div class="space-y-2" v-if="enabled">

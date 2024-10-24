@@ -267,7 +267,7 @@ onMounted(() => {
               <div class="w-full">
                 <p class="text-sm font-medium pb-1 text-[#ff613c] line-clamp-1">
                   <!-- {{ formitem?.product_name }} -->
-                  Change car type
+                  Change type
                 </p>
                 <p class="text-xs">{{ formitem.item_name }}</p>
                 <div class="flex justify-between items-center">
@@ -420,7 +420,7 @@ onMounted(() => {
         </div>
         <div class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1">
           <div class="grid grid-cols-2 gap-x-2">
-            <div class="space-y-1">
+            <div class="space-y-1" v-if="formitem.product_type == 1">
               <label for="" class="text-[12px] text-gray-500"
                 >Pick up time</label
               >
@@ -434,7 +434,7 @@ onMounted(() => {
             </div>
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Pick up date</label
+                >Service date</label
               >
               <input
                 type="date"
@@ -452,7 +452,7 @@ onMounted(() => {
               </p>
             </div>
           </div>
-          <div class="space-y-1">
+          <div class="space-y-1" v-if="formitem.product_type == 1">
             <label for="" class="text-[12px] text-gray-500"
               >Pick up location</label
             >
@@ -465,7 +465,7 @@ onMounted(() => {
             />
           </div>
           <div class="grid grid-cols-2 gap-x-2">
-            <div class="space-y-1">
+            <div class="space-y-1" v-if="formitem.product_type == 1">
               <label for="" class="text-[12px] text-gray-500"
                 >Payment Method</label
               >
@@ -501,7 +501,7 @@ onMounted(() => {
               id=""
             />
           </div>
-          <div class="space-y-1">
+          <div class="space-y-1" v-if="formitem.product_type == 1">
             <label for="" class="text-[12px] text-gray-500">Route Plan</label>
             <textarea
               name=""

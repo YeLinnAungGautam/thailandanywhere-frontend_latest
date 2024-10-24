@@ -4,7 +4,8 @@ import {
   MagnifyingGlassIcon,
   BarsArrowDownIcon,
 } from "@heroicons/vue/24/outline";
-import { useVantourStore } from "../../stores/vantour";
+// import { useentranceStore } from "../../stores/vantour";
+import { useEntranceStore } from "../../stores/entrance";
 import { storeToRefs } from "pinia";
 import debounce from "lodash/debounce";
 import { InformationCircleIcon } from "@heroicons/vue/24/solid";
@@ -13,13 +14,13 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 // import { useCityStore } from "../../stores/city";
 
 const bottomOfWindow = ref(false);
-const vantourStore = useVantourStore();
+const entranceStore = useEntranceStore();
 // const cityStore = useCityStore();
 // const { cities } = storeToRefs(cityStore);
-const { vantours, loading } = storeToRefs(vantourStore);
+const { entrances, loading } = storeToRefs(entranceStore);
 const destsList = ref([]);
 const search = ref("");
-const type = ref("van_tour");
+// const type = ref("van_tour");
 const addItemModal = ref(false);
 const addInfoModal = ref(false);
 const detailModal = ref(false);
@@ -33,8 +34,8 @@ const viewDetail = (data) => {
   detailModal.value = true;
   if (details.value != null) {
     details_images.value.push(details.value.cover_image);
-    for (let i = 0; i < details.value.destinations.length; i++) {
-      details_images.value.push(details.value.destinations[i].feature_img);
+    for (let i = 0; i < details.value.images.length; i++) {
+      details_images.value.push(details.value.images[i].image);
     }
   }
   console.log(details_images.value, "this is images");
@@ -90,11 +91,11 @@ const openAddItemModal = (item) => {
   console.log("====================================");
   console.log(item, "this is item");
   console.log("====================================");
-  formitem.value.comment = item.long_description ? item.long_description : "";
+  // formitem.value.comment = item.long_description ? item.long_description : "";
   formitem.value.product_id = item.id;
   formitem.value.product_name = item.name;
-  if (item?.cars.length > 0) {
-    formitem.value.car_list = item?.cars;
+  if (item?.variations.length > 0) {
+    formitem.value.car_list = item?.variations;
   }
   addItemModal.value = true;
 };
@@ -131,7 +132,7 @@ const handleScroll = (event) => {
 const changePage = async (url) => {
   console.log(url);
   if (url != null) {
-    await vantourStore.getChangePage(url, watchSystem.value);
+    await entranceStore.getChangePage(url, watchSystem.value);
   }
 };
 
@@ -160,7 +161,7 @@ const todayCheck = () => {
 const clearAction = () => {
   formitem.value = {
     reservation_id: null,
-    product_type: 1,
+    product_type: 4,
     product_id: "",
     car_id: "",
     car_list: [],
@@ -212,13 +213,14 @@ watch(bottomOfWindow, (newVal) => {
       console.log("This is the bottom of the window");
 
       if (
-        vantours?.value?.meta?.current_page < vantours?.value?.meta?.last_page
+        entrances?.value?.meta?.current_page < entrances?.value?.meta?.last_page
       ) {
         changePageCalled = true; // Set the flag to true
 
         changePage(
-          vantours?.value?.meta?.links[vantours?.value?.meta?.current_page + 1]
-            .url
+          entrances?.value?.meta?.links[
+            entrances?.value?.meta?.current_page + 1
+          ].url
         );
       }
     }
@@ -231,66 +233,39 @@ const watchSystem = computed(() => {
     result.search = search.value;
   }
   result.limit = 20;
-  if (type.value != null) {
-    result.type = type.value;
-  }
+  // if (type.value != null) {
+  //   result.type = type.value;
+  // }
 
   return result;
 });
 
-watch(vantours, async (newValue) => {
+watch(entrances, async (newValue) => {
   if (newValue) {
     destsList.value = [...destsList.value, ...newValue?.data];
+    // console.log(destsList.value, "this is add new");
   }
 });
 
 watch(
-  [search, type],
+  [search],
   debounce(async (newValue) => {
     destsList.value = [];
-    await vantourStore.getListAction(watchSystem.value);
+    await entranceStore.getListAction(watchSystem.value);
   }, 500)
 );
 
 onMounted(async () => {
   window.addEventListener("scroll", handleScroll);
-  await vantourStore.getListAction(watchSystem.value);
-  formitem.value.product_type = 1;
+  await entranceStore.getListAction(watchSystem.value);
+  formitem.value.product_type = 4;
 });
 </script>
 
 <template>
   <div class="space-y-4">
     <div class="flex justify-between items-center">
-      <h1 class="text-sm font-medium">Product Vantours</h1>
-      <div class="flex justify-end items-center gap-x-2 mr-2">
-        <div
-          class="border border-gray-200 bg-white flex justify-start items-center gap-x-1 rounded-full p-1"
-        >
-          <p
-            class="text-xs px-2 py-0.5 rounded-xl cursor-pointer"
-            @click="type = 'van_tour'"
-            :class="
-              type == 'van_tour'
-                ? 'bg-[#ff613c] text-white'
-                : 'bg-white text-black'
-            "
-          >
-            van tour
-          </p>
-          <p
-            class="text-xs bg-[#ff613c] px-2 py-0.5 rounded-xl cursor-pointer"
-            @click="type = 'car_rental'"
-            :class="
-              type == 'car_rental'
-                ? 'bg-[#ff613c] text-white'
-                : 'bg-white text-black'
-            "
-          >
-            car rental
-          </p>
-        </div>
-      </div>
+      <h1 class="text-sm font-medium">Product Attractions</h1>
     </div>
     <!-- search part -->
     <div
@@ -347,12 +322,12 @@ onMounted(async () => {
             alt=""
           />
           <div>
-            <p class="text-xs font-medium">{{ i?.name }}</p>
-            <p class="text-[10px]">{{ i?.type }}</p>
+            <p class="text-xs font-medium line-clamp-3">{{ i?.name }}</p>
+            <!-- <p class="text-[10px]">{{ i?.type }}</p> -->
           </div>
         </div>
         <div class="flex justify-between items-center">
-          <p class="font-medium">{{ i?.lowest_car_price }} ฿</p>
+          <p class="font-medium">{{ i?.lowest_variation_price }} ฿</p>
           <button
             @click="openAddItemModal(i)"
             class="bg-blue-500 text-white px-2 py-1 rounded-full text-[10px]"
@@ -375,10 +350,10 @@ onMounted(async () => {
           as="h3"
           class="text-lg font-medium leading-6 text-gray-900 mb-1"
         >
-          Choose Car Type
+          Choose Variation Type
         </DialogTitle>
         <div class="space-y-2.5 pb-3 border-b border-gray-300">
-          <p class="text-xs text-gray-500">Please Choose the Car type.</p>
+          <p class="text-xs text-gray-500">Please Choose Variation type.</p>
           <div class="relative w-full border border-gray-300 rounded-lg">
             <input
               type="text"
@@ -409,14 +384,16 @@ onMounted(async () => {
                 class="w-16 h-16 rounded-lg"
                 alt=""
               />
-              <div class="flex justify-between items-start w-full h-16">
+              <div
+                class="flex justify-between items-start gap-x-2 w-full h-auto"
+              >
                 <div class="space-y-1">
-                  <p class="text-sm font-medium text-[#ff613c]">{{ i.name }}</p>
-                  <p class="text-xs">{{ i.max_person }} Pax</p>
+                  <p class="text-xs font-medium">{{ i.name }}</p>
+                  <!-- <p class="text-xs">{{ i.max_person }} Pax</p> -->
                 </div>
                 <div class="my-auto">
                   <p class="text-xs font-semibold whitespace-nowrap">
-                    <span class="text-lg">{{ i?.price }}</span> / car
+                    <span class="text-lg">{{ i?.price }}</span> / tickets
                   </p>
                 </div>
               </div>
@@ -458,7 +435,7 @@ onMounted(async () => {
         </div>
         <div class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1">
           <div class="grid grid-cols-2 gap-x-2">
-            <div class="space-y-1">
+            <!-- <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
                 >Pick up time</label
               >
@@ -469,10 +446,10 @@ onMounted(async () => {
                 class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                 id=""
               />
-            </div>
+            </div> -->
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Pick up date</label
+                >Service date</label
               >
               <input
                 type="date"
@@ -490,7 +467,7 @@ onMounted(async () => {
               </p>
             </div>
           </div>
-          <div class="space-y-1">
+          <!-- <div class="space-y-1">
             <label for="" class="text-[12px] text-gray-500"
               >Pick up location</label
             >
@@ -501,9 +478,9 @@ onMounted(async () => {
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
               id=""
             />
-          </div>
+          </div> -->
           <div class="grid grid-cols-2 gap-x-2">
-            <div class="space-y-1">
+            <!-- <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
                 >Payment Method</label
               >
@@ -517,9 +494,9 @@ onMounted(async () => {
                 />
                 <p class="text-xs">Is Driver Collect ?</p>
               </div>
-            </div>
-            <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500">Qty</label>
+            </div> -->
+            <div class="space-y-1 col-span-2">
+              <label for="" class="text-[12px] text-gray-500">Ticket Qty</label>
               <input
                 type="number"
                 v-model="formitem.quantity"
@@ -539,7 +516,7 @@ onMounted(async () => {
               id=""
             />
           </div>
-          <div class="space-y-1">
+          <!-- <div class="space-y-1">
             <label for="" class="text-[12px] text-gray-500">Route Plan</label>
             <textarea
               name=""
@@ -547,7 +524,7 @@ onMounted(async () => {
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
               id=""
             ></textarea>
-          </div>
+          </div> -->
           <div class="space-y-1">
             <label for="" class="text-[12px] text-gray-500"
               >Special Request</label
@@ -606,7 +583,7 @@ onMounted(async () => {
           as="h3"
           class="text-lg font-medium leading-6 text-gray-900 mb-1"
         >
-          Van Tour Information
+          Attraction Information
         </DialogTitle>
         <div class="space-y-2.5 pb-3 border-b border-gray-300">
           <p class="text-xs text-gray-500">
@@ -642,19 +619,21 @@ onMounted(async () => {
         <div class="py-4 space-y-1">
           <p class="text-sm font-medium text-[#ff613c]">{{ details?.name }}</p>
           <p class="text-xs text-[#ff613c] pb-3">
-            {{ details?.destinations?.length }} destinations
+            {{ details?.variations?.length }} variations
           </p>
           <div
             class="flex justify-start items-center gap-x-2 w-full overflow-x-scroll no-scrollbar"
           >
             <div
-              v-for="i in details?.destinations"
+              v-for="i in details?.variations"
               :key="i"
               class="min-w-[200px] space-y-2"
             >
               <img
                 :src="
-                  i?.feature_img ? i?.feature_img : 'https://placehold.co/400'
+                  i?.image_links?.length
+                    ? i?.image_links[0].image
+                    : 'https://placehold.co/400'
                 "
                 alt=""
                 class="w-full h-[100px] object-cover object-center rounded-lg"
@@ -668,7 +647,7 @@ onMounted(async () => {
             >
               Package Summary
             </p>
-            <p v-html="details?.long_description" class="text-sm pt-4"></p>
+            <p v-html="details?.description" class="text-sm pt-4"></p>
           </div>
         </div>
         <div class="flex justify-end items-center gap-x-2 pt-2">

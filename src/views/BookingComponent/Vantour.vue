@@ -10,6 +10,7 @@ import debounce from "lodash/debounce";
 import { InformationCircleIcon } from "@heroicons/vue/24/solid";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import { useRouter } from "vue-router";
 // import { useCityStore } from "../../stores/city";
 
 const bottomOfWindow = ref(false);
@@ -25,6 +26,7 @@ const addInfoModal = ref(false);
 const detailModal = ref(false);
 const details = ref(null);
 const details_images = ref([]);
+const router = useRouter();
 
 const viewDetail = (data) => {
   console.log(data, "this is data");
@@ -53,6 +55,7 @@ const formitem = ref({
   product_type: 1,
   product_id: "",
   product_name: "",
+  product_image: "",
   item_name: "",
   car_id: "",
   car_list: [],
@@ -93,6 +96,7 @@ const openAddItemModal = (item) => {
   formitem.value.comment = item.long_description ? item.long_description : "";
   formitem.value.product_id = item.id;
   formitem.value.product_name = item.name;
+  formitem.value.product_image = item?.cover_image;
   if (item?.cars.length > 0) {
     formitem.value.car_list = item?.cars;
   }
@@ -104,6 +108,7 @@ const closeItemModal = () => {
   formitem.value.car_list = [];
   formitem.value.product_id = "";
   formitem.value.product_name = "";
+  formitem.value.product_image = "";
   formitem.value.item_name = "";
   formitem.value.selling_price = "";
 };
@@ -677,6 +682,12 @@ onMounted(async () => {
             class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
           >
             Cancel
+          </button>
+          <button
+            @click="router.push(`/vantour/view/${details?.id}/edit`)"
+            class="bg-blue-500 text-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
+          >
+            Update
           </button>
           <button
             @click="openAddItemModal(details)"

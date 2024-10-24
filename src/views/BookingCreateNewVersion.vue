@@ -29,6 +29,7 @@ import CustomerInfo from "./BookingComponent/CustomerInfo.vue";
 import PaymentDetail from "./BookingComponent/PaymentDetail.vue";
 import { useBookingStore } from "../stores/booking";
 import Attraction from "./BookingComponent/Attraction.vue";
+import Hotel from "./BookingComponent/Hotel.vue";
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
 // for tag
@@ -71,7 +72,7 @@ const productArray = [
 const componentsMap = {
   "Van Tours": Vantour,
   Attractions: Attraction,
-  Hotels: Vantour,
+  Hotels: Hotel,
   Restaurants: Vantour,
 };
 

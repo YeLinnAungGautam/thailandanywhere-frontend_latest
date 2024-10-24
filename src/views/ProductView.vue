@@ -47,11 +47,17 @@ const changeTab = (index) => {
     params: {
       id: index,
     },
+    query: {
+      edit: route.query.edit,
+    },
   });
 };
 
 const changeUseRouter = () => {
   if (route.params.id) {
+    if (route.query.edit) {
+      changeTab(route.params.id);
+    }
     changeTab(route.params.id);
   } else if (route.params.id == "page") {
     changeTab(0);

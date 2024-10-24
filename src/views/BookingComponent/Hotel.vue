@@ -4,8 +4,8 @@ import {
   MagnifyingGlassIcon,
   BarsArrowDownIcon,
 } from "@heroicons/vue/24/outline";
-// import { useentranceStore } from "../../stores/vantour";
-import { useEntranceStore } from "../../stores/entrance";
+// import { useVantourStore } from "../../stores/vantour";
+import { useHotelStore } from "../../stores/hotel";
 import { storeToRefs } from "pinia";
 import debounce from "lodash/debounce";
 import { InformationCircleIcon } from "@heroicons/vue/24/solid";
@@ -15,14 +15,12 @@ import { useRouter } from "vue-router";
 // import { useCityStore } from "../../stores/city";
 
 const bottomOfWindow = ref(false);
-const entranceStore = useEntranceStore();
-// const cityStore = useCityStore();
-// const { cities } = storeToRefs(cityStore);
-const { entrances, loading } = storeToRefs(entranceStore);
+const hotelStore = useHotelStore();
+const router = useRouter();
+const { hotels, loading } = storeToRefs(hotelStore);
 const destsList = ref([]);
 const search = ref("");
-// const type = ref("van_tour");
-const router = useRouter();
+const type = ref("direct_booking");
 const addItemModal = ref(false);
 const addInfoModal = ref(false);
 const detailModal = ref(false);
@@ -35,7 +33,7 @@ const viewDetail = (data) => {
   details.value = data;
   detailModal.value = true;
   if (details.value != null) {
-    details_images.value.push(details.value.cover_image);
+    // details_images.value.push(details.value.cover_image);
     for (let i = 0; i < details.value.images.length; i++) {
       details_images.value.push(details.value.images[i].image);
     }
@@ -53,7 +51,7 @@ const emit = defineEmits(["formData"]);
 
 const formitem = ref({
   reservation_id: null,
-  product_type: 4,
+  product_type: 6,
   product_id: "",
   product_name: "",
   product_image: "",
@@ -91,18 +89,19 @@ const formitem = ref({
 // add item function
 const openAddItemModal = (item) => {
   closeDetail();
-
-  // formitem.value.comment = item.long_description ? item.long_description : "";
+  console.log("====================================");
+  console.log(item, "this is item");
+  console.log("====================================");
+  formitem.value.comment = item.description ? item.description : "";
   formitem.value.product_id = item.id;
   formitem.value.product_name = item.name;
-  formitem.value.product_image = item.cover_image;
-  if (item?.variations.length > 0) {
-    formitem.value.car_list = item?.variations;
+  formitem.value.product_image = item?.images[0]?.image
+    ? item?.images[0]?.image
+    : "";
+  if (item?.rooms.length > 0) {
+    formitem.value.car_list = item?.rooms;
   }
   addItemModal.value = true;
-  console.log("====================================");
-  console.log(formitem.value.product_image, "this is item");
-  console.log("====================================");
 };
 const closeItemModal = () => {
   addItemModal.value = false;
@@ -117,10 +116,11 @@ const closeItemModal = () => {
 const selectAction = (item) => {
   formitem.value.car_id = item.id;
   formitem.value.item_name = item.name;
-  formitem.value.selling_price = item.price;
-  formitem.value.cost_price = item.cost_price ? item.cost_price : 0;
-  // formitem.value.comment = item.description;
+  formitem.value.selling_price = item.room_price;
+  formitem.value.cost_price = item.cost ? item.cost : 0;
   console.log(formitem.value, "this is formItem");
+  formitem.value.extra_price = item.extra_price;
+  formitem.value.comment = item.description;
 };
 const goInfoModal = () => {
   if (formitem.value.car_id != "") {
@@ -140,7 +140,7 @@ const handleScroll = (event) => {
 const changePage = async (url) => {
   console.log(url);
   if (url != null) {
-    await entranceStore.getChangePage(url, watchSystem.value);
+    await hotelStore.getChangePage(url, watchSystem.value);
   }
 };
 
@@ -169,10 +169,8 @@ const todayCheck = () => {
 const clearAction = () => {
   formitem.value = {
     reservation_id: null,
-    product_type: 4,
+    product_type: 6,
     product_id: "",
-    product_image: "",
-    product_name: "",
     car_id: "",
     car_list: [],
     room_id: "",
@@ -209,10 +207,34 @@ const clearAction = () => {
 // send item
 const getFunction = () => {
   formitem.value.total_amount =
-    formitem.value.selling_price * formitem.value.quantity -
+    formitem.value.quantity *
+      formitem.value.selling_price *
+      formitem.value.days -
     formitem.value.discount;
   emit("formData", formitem.value);
   clearAction();
+};
+
+const calculateDaysBetween = (a, b) => {
+  if (a && b) {
+    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    const startDateTimestamp = new Date(a).getTime();
+    const endDateTimestamp = new Date(b).getTime();
+    let result = Math.abs(
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+    );
+    // formitem.value.days = result;
+    return result;
+  }
+};
+
+const calculateRateRoom = () => {
+  if (formitem.value.checkin_date && formitem.value.checkout_date) {
+    formitem.value.days = calculateDaysBetween(
+      formitem.value.checkin_date,
+      formitem.value.checkout_date
+    );
+  }
 };
 
 watch(bottomOfWindow, (newVal) => {
@@ -222,15 +244,11 @@ watch(bottomOfWindow, (newVal) => {
     if (newVal && !changePageCalled) {
       console.log("This is the bottom of the window");
 
-      if (
-        entrances?.value?.meta?.current_page < entrances?.value?.meta?.last_page
-      ) {
+      if (hotels?.value?.meta?.current_page < hotels?.value?.meta?.last_page) {
         changePageCalled = true; // Set the flag to true
 
         changePage(
-          entrances?.value?.meta?.links[
-            entrances?.value?.meta?.current_page + 1
-          ].url
+          hotels?.value?.meta?.links[hotels?.value?.meta?.current_page + 1].url
         );
       }
     }
@@ -243,39 +261,77 @@ const watchSystem = computed(() => {
     result.search = search.value;
   }
   result.limit = 20;
-  // if (type.value != null) {
-  //   result.type = type.value;
-  // }
+  if (type.value != null) {
+    result.type = type.value;
+  }
 
   return result;
 });
 
-watch(entrances, async (newValue) => {
+watch(hotels, async (newValue) => {
   if (newValue) {
     destsList.value = [...destsList.value, ...newValue?.data];
-    // console.log(destsList.value, "this is add new");
+    console.log(destsList.value, "this is add new");
   }
 });
 
 watch(
-  [search],
+  () => [formitem.value.service_date, formitem.value.checkout_date],
+  ([newData, secData]) => {
+    if (formitem.value.product_type == "6") {
+      formitem.value.checkin_date = formitem.value.service_date;
+    }
+    calculateRateRoom();
+  }
+);
+
+watch(
+  [search, type],
   debounce(async (newValue) => {
     destsList.value = [];
-    await entranceStore.getListAction(watchSystem.value);
+    await hotelStore.getListAction(watchSystem.value);
   }, 500)
 );
 
 onMounted(async () => {
   window.addEventListener("scroll", handleScroll);
-  await entranceStore.getListAction(watchSystem.value);
-  formitem.value.product_type = 4;
+  await hotelStore.getListAction(watchSystem.value);
+  formitem.value.product_type = 6;
 });
 </script>
 
 <template>
   <div class="space-y-4">
     <div class="flex justify-between items-center">
-      <h1 class="text-sm font-medium">Product Attractions</h1>
+      <h1 class="text-sm font-medium">Product hotels</h1>
+      <div class="flex justify-end items-center gap-x-2 mr-2">
+        <div
+          class="border border-gray-200 bg-white flex justify-start items-center gap-x-1 rounded-full p-1"
+        >
+          <p
+            class="text-xs px-2 py-0.5 rounded-xl cursor-pointer"
+            @click="type = 'direct_booking'"
+            :class="
+              type == 'direct_booking'
+                ? 'bg-[#ff613c] text-white'
+                : 'bg-white text-black'
+            "
+          >
+            Direct Booking
+          </p>
+          <p
+            class="text-xs bg-[#ff613c] px-2 py-0.5 rounded-xl cursor-pointer"
+            @click="type = 'other_booking'"
+            :class="
+              type == 'other_booking'
+                ? 'bg-[#ff613c] text-white'
+                : 'bg-white text-black'
+            "
+          >
+            Other Booking
+          </p>
+        </div>
+      </div>
     </div>
     <!-- search part -->
     <div
@@ -324,20 +380,20 @@ onMounted(async () => {
         <div class="flex justify-start items-start gap-x-2">
           <img
             :src="
-              i?.cover_image != null
-                ? i?.cover_image
+              i?.images[0]?.image != null
+                ? i?.images[0]?.image
                 : 'https://placehold.co/400'
             "
             class="w-16 h-16 rounded-lg"
             alt=""
           />
           <div>
-            <p class="text-xs font-medium line-clamp-3">{{ i?.name }}</p>
-            <!-- <p class="text-[10px]">{{ i?.type }}</p> -->
+            <p class="text-xs font-medium">{{ i?.name }}</p>
+            <p class="text-[10px]">{{ i?.type }}</p>
           </div>
         </div>
         <div class="flex justify-between items-center">
-          <p class="font-medium">{{ i?.lowest_variation_price }} ฿</p>
+          <p class="font-medium">{{ i?.lowest_room_price }} ฿</p>
           <button
             @click="openAddItemModal(i)"
             class="bg-blue-500 text-white px-2 py-1 rounded-full text-[10px]"
@@ -360,16 +416,16 @@ onMounted(async () => {
           as="h3"
           class="text-lg font-medium leading-6 text-gray-900 mb-1"
         >
-          Choose Variation Type
+          Choose Room Type
         </DialogTitle>
         <div class="space-y-2.5 pb-3 border-b border-gray-300">
-          <p class="text-xs text-gray-500">Please Choose Variation type.</p>
+          <p class="text-xs text-gray-500">Please Choose the Room type.</p>
           <div class="relative w-full border border-gray-300 rounded-lg">
             <input
               type="text"
               v-model="search"
               class="bg-white w-full px-8 py-2 rounded-lg focus:outline-none text-[10px]"
-              placeholder="Search Car Type"
+              placeholder="Search Room Type"
             />
             <MagnifyingGlassIcon
               class="w-4 h-4 absolute text-[#ff613c] top-2 left-2"
@@ -391,23 +447,21 @@ onMounted(async () => {
             <div class="flex justify-start items-start gap-x-2">
               <img
                 :src="
-                  i?.image_links[0]?.image
-                    ? i?.image_links[0]?.image
+                  i?.images[0]?.image
+                    ? i?.images[0]?.image
                     : 'https://placehold.co/400'
                 "
-                class="w-16 h-16 object-cover rounded-lg"
+                class="w-16 h-16 rounded-lg"
                 alt=""
               />
-              <div
-                class="flex justify-between items-start gap-x-2 w-full h-auto"
-              >
+              <div class="flex justify-between items-start w-full gap-x-2">
                 <div class="space-y-1">
-                  <p class="text-xs font-medium">{{ i.name }}</p>
-                  <!-- <p class="text-xs">{{ i.max_person }} Pax</p> -->
+                  <p class="text-xs font-medium text-[#ff613c]">{{ i.name }}</p>
+                  <p class="text-xs">{{ i.max_person }} Pax</p>
                 </div>
                 <div class="my-auto">
                   <p class="text-xs font-semibold whitespace-nowrap">
-                    <span class="text-lg">{{ i?.price }}</span> / tickets
+                    <span class="text-lg">{{ i?.room_price }}</span> / night
                   </p>
                 </div>
               </div>
@@ -449,21 +503,9 @@ onMounted(async () => {
         </div>
         <div class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1">
           <div class="grid grid-cols-2 gap-x-2">
-            <!-- <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500"
-                >Pick up time</label
-              >
-              <input
-                type="time"
-                v-model="formitem.pickup_time"
-                name=""
-                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                id=""
-              />
-            </div> -->
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Service date</label
+                >Check in date</label
               >
               <input
                 type="date"
@@ -480,37 +522,22 @@ onMounted(async () => {
                 ! please change date
               </p>
             </div>
-          </div>
-          <!-- <div class="space-y-1">
-            <label for="" class="text-[12px] text-gray-500"
-              >Pick up location</label
-            >
-            <input
-              type="text"
-              v-model="formitem.pickup_location"
-              name=""
-              class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-              id=""
-            />
-          </div> -->
-          <div class="grid grid-cols-2 gap-x-2">
-            <!-- <div class="space-y-1">
+            <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Payment Method</label
+                >Check out date</label
               >
-              <div class="flex justify-start items-center gap-x-2">
-                <input
-                  type="checkbox"
-                  name=""
-                  v-model="formitem.is_driver_collect"
-                  class="px-4 w-6 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                  id=""
-                />
-                <p class="text-xs">Is Driver Collect ?</p>
-              </div>
-            </div> -->
-            <div class="space-y-1 col-span-2">
-              <label for="" class="text-[12px] text-gray-500">Ticket Qty</label>
+              <input
+                type="date"
+                v-model="formitem.checkout_date"
+                name=""
+                class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              />
+            </div>
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500"
+                >Total Rooms</label
+              >
               <input
                 type="number"
                 v-model="formitem.quantity"
@@ -519,7 +546,16 @@ onMounted(async () => {
                 id=""
               />
             </div>
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500">Qty</label>
+              <p
+                class="border border-gray-300 bg-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+              >
+                {{ formitem.days }} Night x {{ formitem.quantity }} Rooms
+              </p>
+            </div>
           </div>
+
           <div class="space-y-1">
             <label for="" class="text-[12px] text-gray-500">Discount</label>
             <input
@@ -530,15 +566,7 @@ onMounted(async () => {
               id=""
             />
           </div>
-          <!-- <div class="space-y-1">
-            <label for="" class="text-[12px] text-gray-500">Route Plan</label>
-            <textarea
-              name=""
-              v-model="formitem.route_plan"
-              class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-              id=""
-            ></textarea>
-          </div> -->
+
           <div class="space-y-1">
             <label for="" class="text-[12px] text-gray-500"
               >Special Request</label
@@ -597,7 +625,7 @@ onMounted(async () => {
           as="h3"
           class="text-lg font-medium leading-6 text-gray-900 mb-1"
         >
-          Attraction Information
+          Hotel Information
         </DialogTitle>
         <div class="space-y-2.5 pb-3 border-b border-gray-300">
           <p class="text-xs text-gray-500">
@@ -633,20 +661,20 @@ onMounted(async () => {
         <div class="py-4 space-y-1">
           <p class="text-sm font-medium text-[#ff613c]">{{ details?.name }}</p>
           <p class="text-xs text-[#ff613c] pb-3">
-            {{ details?.variations?.length }} variations
+            {{ details?.rooms?.length }} rooms
           </p>
           <div
             class="flex justify-start items-center gap-x-2 w-full overflow-x-scroll no-scrollbar"
           >
             <div
-              v-for="i in details?.variations"
+              v-for="i in details?.rooms"
               :key="i"
               class="min-w-[200px] space-y-2"
             >
               <img
                 :src="
-                  i?.image_links?.length
-                    ? i?.image_links[0].image
+                  i?.images[0]?.image
+                    ? i?.images[0]?.image
                     : 'https://placehold.co/400'
                 "
                 alt=""
@@ -661,7 +689,7 @@ onMounted(async () => {
             >
               Package Summary
             </p>
-            <p v-html="details?.description" class="text-sm pt-4"></p>
+            <p v-html="details?.full_description" class="text-sm pt-4"></p>
           </div>
         </div>
         <div class="flex justify-end items-center gap-x-2 pt-2">
@@ -672,7 +700,7 @@ onMounted(async () => {
             Cancel
           </button>
           <button
-            @click="router.push(`/products/6?edit=${details?.id}`)"
+            @click="router.push(`/product/hotel/edit/${details?.id}`)"
             class="bg-blue-500 text-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
           >
             Update

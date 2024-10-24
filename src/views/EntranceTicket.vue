@@ -666,7 +666,9 @@
             >
               -
             </td>
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+            <td
+              class="p-3 text-xs text-gray-700 whitespace-nowrap max-w-[200px] overflow-hidden"
+            >
               {{ r.name }}
             </td>
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
@@ -767,7 +769,7 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useEntranceStore } from "../stores/entrance";
 import Modal from "../components/Modal.vue";
 import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import { useCityStore } from "../stores/city";
@@ -776,6 +778,7 @@ import { useAuthStore } from "../stores/auth";
 import debounce from "lodash/debounce";
 
 const router = useRouter();
+const route = useRoute();
 const cityStore = useCityStore();
 const productStore = useProductStore();
 const toast = useToast();
@@ -912,6 +915,7 @@ const clearAction = () => {
   imagesPreview.value = [];
   featureImagePreview.value = null;
   createModalOpen.value = false;
+  router.push(`/products/6`);
 };
 
 const featureImageInput = ref(null);
@@ -1368,7 +1372,12 @@ watch(categoryAction, async (newValue) => {
 
 onMounted(async () => {
   await entranceStore.getListAction();
-
+  console.log("====================================");
+  console.log(route.query.edit, "this is edit");
+  console.log("====================================");
+  if (route.query.edit) {
+    editModalOpenHandler(route.query.edit);
+  }
   // await productStore.getSimpleListAction();
 });
 

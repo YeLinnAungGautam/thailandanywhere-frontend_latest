@@ -1,6 +1,6 @@
 <script setup>
 import { TrashIcon, PencilSquareIcon } from "@heroicons/vue/24/outline";
-import { onMounted, defineProps, ref, defineEmits } from "vue";
+import { onMounted, defineProps, ref, defineEmits, watch } from "vue";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
@@ -118,8 +118,14 @@ const selectAction = (item) => {
   console.log("====================================");
   formitem.value.car_id = item.id;
   formitem.value.item_name = item.name;
-  formitem.value.selling_price = item.price;
+  formitem.value.selling_price = item.price ? item.price : item.room_price;
+  if (formitem.value.product_type == 6) {
+    formitem.value.cost_price = item.cost ? item.cost : 0;
+  } else if (formitem.value.product_type == 4) {
+    formitem.value.cost_price = item.cost_price ? item.cost_price : 0;
+  }
   console.log(formitem.value, "this is formItem");
+  getFunction();
 };
 
 const goInfoModal = () => {
@@ -155,21 +161,62 @@ const todayCheck = () => {
 
 // send item
 const getFunction = () => {
-  formitem.value.total_amount =
-    formitem.value.selling_price * formitem.value.quantity -
-    formitem.value.discount;
+  if (formitem.value.product_type != 6) {
+    formitem.value.total_amount =
+      formitem.value.selling_price * formitem.value.quantity -
+      formitem.value.discount;
+  } else {
+    formitem.value.total_amount =
+      formitem.value.quantity *
+        formitem.value.selling_price *
+        formitem.value.days -
+      formitem.value.discount;
+  }
   console.log("====================================");
   console.log(formitem.value, "thsi is ");
   console.log("====================================");
   // emit("formData", formitem.value);
-  cancelAction();
+  // cancelAction();
 };
 
 const cancelAction = () => {
+  getFunction();
   closeModalAction();
   addItemModal.value = false;
   addInfoModal.value = false;
 };
+
+const calculateDaysBetween = (a, b) => {
+  if (a && b) {
+    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    const startDateTimestamp = new Date(a).getTime();
+    const endDateTimestamp = new Date(b).getTime();
+    let result = Math.abs(
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+    );
+    // formitem.value.days = result;
+    return result;
+  }
+};
+
+const calculateRateRoom = () => {
+  if (formitem.value.checkin_date && formitem.value.checkout_date) {
+    formitem.value.days = calculateDaysBetween(
+      formitem.value.checkin_date,
+      formitem.value.checkout_date
+    );
+  }
+};
+
+watch(
+  () => [formitem.value.service_date, formitem.value.checkout_date],
+  ([newData, secData]) => {
+    if (formitem.value.product_type == "6") {
+      formitem.value.checkin_date = formitem.value.service_date;
+    }
+    calculateRateRoom();
+  }
+);
 
 onMounted(() => {
   console.log("====================================");
@@ -197,7 +244,9 @@ onMounted(() => {
         :key="i"
       >
         <img
-          src="https://placehold.co/400"
+          :src="
+            i?.product_image ? i?.product_image : 'https://placehold.co/400'
+          "
           class="w-16 h-16 rounded-lg"
           alt=""
         />
@@ -328,7 +377,7 @@ onMounted(() => {
     </Modal>
 
     <!-- choose room type modal -->
-    <Modal :isOpen="addItemModal" @closeModal="addItemModal = false">
+    <Modal :isOpen="addItemModal" @closeModal="cancelAction">
       <DialogPanel
         class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
       >
@@ -364,7 +413,10 @@ onMounted(() => {
                 : 'border-gray-200'
             "
           >
-            <div class="flex justify-start items-start gap-x-2">
+            <div
+              class="flex justify-start items-start gap-x-2"
+              v-if="formitem?.product_type == 1"
+            >
               <img
                 src="https://placehold.co/400"
                 class="w-16 h-16 rounded-lg"
@@ -378,6 +430,48 @@ onMounted(() => {
                 <div class="my-auto">
                   <p class="text-xs font-semibold whitespace-nowrap">
                     <span class="text-lg">{{ i?.price }}</span> / car
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div
+              class="flex justify-start items-start gap-x-2"
+              v-if="formitem?.product_type == 4"
+            >
+              <img
+                src="https://placehold.co/400"
+                class="w-16 h-16 rounded-lg"
+                alt=""
+              />
+              <div class="flex justify-between items-start w-full">
+                <div class="space-y-1">
+                  <p class="text-xs font-medium text-[#ff613c]">{{ i.name }}</p>
+                  <!-- <p class="text-xs">{{ i.max_person }} Pax</p> -->
+                </div>
+                <div class="my-auto">
+                  <p class="text-xs font-semibold whitespace-nowrap">
+                    <span class="text-lg">{{ i?.price }}</span> / ticket
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div
+              class="flex justify-start items-start gap-x-2"
+              v-if="formitem?.product_type == 6"
+            >
+              <img
+                src="https://placehold.co/400"
+                class="w-16 h-16 rounded-lg"
+                alt=""
+              />
+              <div class="flex justify-between items-start w-full gap-x-2">
+                <div class="space-y-1">
+                  <p class="text-xs font-medium text-[#ff613c]">{{ i.name }}</p>
+                  <p class="text-xs">{{ i.max_person }} Pax</p>
+                </div>
+                <div class="my-auto">
+                  <p class="text-xs font-semibold whitespace-nowrap">
+                    <span class="text-lg">{{ i?.room_price }}</span> / night
                   </p>
                 </div>
               </div>
@@ -419,22 +513,86 @@ onMounted(() => {
           </p>
         </div>
         <div class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1">
-          <div class="grid grid-cols-2 gap-x-2">
+          <div v-if="formitem.product_type != 6" class="space-y-2">
+            <div class="grid grid-cols-2 gap-x-2">
+              <div class="space-y-1" v-if="formitem.product_type == 1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Pick up time</label
+                >
+                <input
+                  type="time"
+                  v-model="formitem.pickup_time"
+                  name=""
+                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id=""
+                />
+              </div>
+              <div class="space-y-1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Service date</label
+                >
+                <input
+                  type="date"
+                  v-model="formitem.service_date"
+                  @change="todayCheck"
+                  name=""
+                  class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  :class="
+                    todayVali
+                      ? 'border-gray-300'
+                      : 'border-red-600 text-red-600'
+                  "
+                  id=""
+                />
+                <p v-if="!todayVali" class="text-[8px] text-red-600">
+                  ! please change date
+                </p>
+              </div>
+            </div>
             <div class="space-y-1" v-if="formitem.product_type == 1">
               <label for="" class="text-[12px] text-gray-500"
-                >Pick up time</label
+                >Pick up location</label
               >
               <input
-                type="time"
-                v-model="formitem.pickup_time"
+                type="text"
+                v-model="formitem.pickup_location"
                 name=""
                 class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                 id=""
               />
             </div>
+            <div class="grid grid-cols-2 gap-x-2">
+              <div class="space-y-1" v-if="formitem.product_type == 1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Payment Method</label
+                >
+                <div class="flex justify-start items-center gap-x-2">
+                  <input
+                    type="checkbox"
+                    name=""
+                    v-model="formitem.is_driver_collect"
+                    class="px-4 w-6 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                    id=""
+                  />
+                  <p class="text-xs">Is Driver Collect ?</p>
+                </div>
+              </div>
+              <div class="space-y-1">
+                <label for="" class="text-[12px] text-gray-500">Qty</label>
+                <input
+                  type="number"
+                  v-model="formitem.quantity"
+                  name=""
+                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id=""
+                />
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2" v-if="formitem.product_type == 6">
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Service date</label
+                >Check in date</label
               >
               <input
                 type="date"
@@ -451,37 +609,22 @@ onMounted(() => {
                 ! please change date
               </p>
             </div>
-          </div>
-          <div class="space-y-1" v-if="formitem.product_type == 1">
-            <label for="" class="text-[12px] text-gray-500"
-              >Pick up location</label
-            >
-            <input
-              type="text"
-              v-model="formitem.pickup_location"
-              name=""
-              class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-              id=""
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-x-2">
-            <div class="space-y-1" v-if="formitem.product_type == 1">
+            <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Payment Method</label
+                >Check out date</label
               >
-              <div class="flex justify-start items-center gap-x-2">
-                <input
-                  type="checkbox"
-                  name=""
-                  v-model="formitem.is_driver_collect"
-                  class="px-4 w-6 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                  id=""
-                />
-                <p class="text-xs">Is Driver Collect ?</p>
-              </div>
+              <input
+                type="date"
+                v-model="formitem.checkout_date"
+                name=""
+                class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              />
             </div>
             <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500">Qty</label>
+              <label for="" class="text-[12px] text-gray-500"
+                >Total Rooms</label
+              >
               <input
                 type="number"
                 v-model="formitem.quantity"
@@ -489,6 +632,14 @@ onMounted(() => {
                 class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                 id=""
               />
+            </div>
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500">Qty</label>
+              <p
+                class="border border-gray-300 bg-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+              >
+                {{ formitem.days }} Night x {{ formitem.quantity }} Rooms
+              </p>
             </div>
           </div>
           <div class="space-y-1">
@@ -540,7 +691,7 @@ onMounted(() => {
           </button>
           <button
             v-if="formitem.product_id && todayVali"
-            @click="getFunction"
+            @click="cancelAction"
             class="bg-[#ff613c] text-white px-3 py-2.5 rounded-lg text-xs"
             :class="todayVali ? 'bg-[#ff613c]' : 'bg-gray-300'"
           >

@@ -18,10 +18,30 @@
     .style-chooser .vs__dropdown-toggle .vs__selected-options .vs__selected {
       padding: 4px 5px;
       border: none;
+      font-size: 11px !important;
       /* overflow-x: scrollbar;
       min-width: 100px !important;
       max-width: 170px !important; */
       /* white-space: nowrap !important; */
+    }
+    .vs--single .vs__selected {
+      background-color: transparent;
+      border-color: transparent;
+      color: #00000;
+    }
+    .vs__open-indicator {
+      fill: #ff6300 !important;
+      transform: scale(var(--vs-controls-size));
+      transition: transform var(--vs-transition-duration)
+        var(--vs-transition-timing-function);
+      transition-timing-function: var(--vs-transition-timing-function);
+    }
+    .vs__search {
+      color: #ff6300 !important;
+      font-size: 11px !important;
+    }
+    .vs__search .vs__placeholder {
+      font-size: 11px !important;
     }
   }
 }

@@ -481,7 +481,8 @@ const onSubmitHandler = async () => {
   frmData.append("sku_code", formData.value.sku_code);
   frmData.append("day", formData.value.day);
   frmData.append("night", formData.value.night);
-  // frmData.append("description", formData.value.description);
+  formData.value.description &&
+    frmData.append("description", formData.value.description);
   formData.value.price ? frmData.append("price", formData.value.price) : 0;
   formData.value.agent_price
     ? frmData.append("agent_price", formData.value.agent_price)
@@ -687,7 +688,7 @@ onMounted(async () => {});
                     {{ errors.night[0] }}
                   </p>
                 </div>
-                <!-- <div class="col-span-2">
+                <div class="col-span-2">
                   <p class="text-gray-800 text-xs mb-2">Description</p>
                   <textarea
                     v-model="formData.description"
@@ -701,7 +702,7 @@ onMounted(async () => {});
                   >
                     {{ errors.description[0] }}
                   </p>
-                </div> -->
+                </div>
               </div>
             </div>
 

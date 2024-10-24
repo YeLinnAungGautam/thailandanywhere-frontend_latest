@@ -124,105 +124,105 @@ onMounted(async () => {});
 <template>
   <div>
     <div class="mb-5 flex items-center justify-between">
-      <h3 class="text-2xl font-medium text-gray-600">Create Customer</h3>
+      <h3 class="font-medium text-gray-600 px-6">Create Customer</h3>
       <div class="space-x-3"></div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-      <div class="bg-white/60 col-span-2 p-6 rounded-lg shadow-sm mb-5">
+      <div class="bg-white/60 col-span-2 p-6 rounded-lg">
         <div class="space-y-4">
           <div class="grid grid-cols-2 gap-8">
             <div class="">
-              <p class="text-gray-800 text-sm mb-2">Name</p>
+              <p class="text-gray-800 text-xs mb-2">Name</p>
               <input
                 v-model="formData.name"
                 type="text"
                 id="title"
-                class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                class="w-full bg-white/50 text-xs border border-gray-300 rounded-md px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
               />
-              <p v-if="errors?.name" class="mt-1 text-sm text-red-600">
+              <p v-if="errors?.name" class="mt-1 text-xs text-red-600">
                 {{ errors.name[0] }}
               </p>
             </div>
             <div class="">
-              <p class="text-gray-800 text-sm mb-2">Email address</p>
+              <p class="text-gray-800 text-xs mb-2">Email address</p>
               <input
                 v-model="formData.email"
                 type="email"
                 id="title"
-                class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                class="w-full bg-white/50 text-xs border border-gray-300 rounded-md px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
               />
-              <p v-if="errors?.email" class="mt-1 text-sm text-red-600">
+              <p v-if="errors?.email" class="mt-1 text-xs text-red-600">
                 {{ errors.email[0] }}
               </p>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-8">
             <div class="">
-              <p class="text-gray-800 text-sm mb-2">Phone Number</p>
+              <p class="text-gray-800 text-xs mb-2">Phone Number</p>
               <input
                 v-model="formData.phone_number"
                 type="number"
                 id="title"
-                class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                class="w-full bg-white/50 text-xs border border-gray-300 rounded-md px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
               />
-              <p v-if="errors?.phone_number" class="mt-1 text-sm text-red-600">
+              <p v-if="errors?.phone_number" class="mt-1 text-xs text-red-600">
                 {{ errors.phone_number[0] }}
               </p>
             </div>
             <div class="">
-              <p class="text-gray-800 text-sm mb-2">DOB</p>
+              <p class="text-gray-800 text-xs mb-2">DOB</p>
               <input
                 v-model="formData.dob"
                 type="date"
                 id="title"
-                class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                class="w-full bg-white/50 text-xs border border-gray-300 rounded-md px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
               />
-              <p v-if="errors?.dob" class="mt-1 text-sm text-red-600">
+              <p v-if="errors?.dob" class="mt-1 text-xs text-red-600">
                 {{ errors.dob[0] }}
               </p>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-8">
             <div class="">
-              <p class="text-gray-800 text-sm mb-2">Line ID</p>
+              <p class="text-gray-800 text-xs mb-2">Line ID</p>
               <input
                 v-model="formData.line_id"
                 type="text"
                 id="title"
-                class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                class="w-full bg-white/50 text-xs border border-gray-300 rounded-md px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
               />
-              <p v-if="errors?.line_id" class="mt-1 text-sm text-red-600">
+              <p v-if="errors?.line_id" class="mt-1 text-xs text-red-600">
                 {{ errors.line_id[0] }}
               </p>
             </div>
             <div class="">
-              <p class="text-gray-800 text-sm mb-2">Passport Number</p>
+              <p class="text-gray-800 text-xs mb-2">Passport Number</p>
               <input
                 v-model="formData.nrc_number"
                 type="text"
                 id="title"
-                class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                class="w-full bg-white/50 text-xs border border-gray-300 rounded-md px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
               />
-              <p v-if="errors?.nrc_number" class="mt-1 text-sm text-red-600">
+              <p v-if="errors?.nrc_number" class="mt-1 text-xs text-red-600">
                 {{ errors.nrc_number[0] }}
               </p>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-8">
             <div class="">
-              <p class="text-gray-800 text-sm mb-2">Company Name</p>
+              <p class="text-gray-800 text-xs mb-2">Company Name</p>
               <input
                 v-model="formData.company_name"
                 type="text"
                 id="title"
-                class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                class="w-full bg-white/50 text-xs border border-gray-300 rounded-md px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
               />
-              <p v-if="errors?.company_name" class="mt-1 text-sm text-red-600">
+              <p v-if="errors?.company_name" class="mt-1 text-xs text-red-600">
                 {{ errors.company_name[0] }}
               </p>
             </div>
             <div class="">
-              <p class="text-gray-800 text-sm mb-2">Is Corporate Customer</p>
+              <p class="text-gray-800 text-xs">Is Corporate Customer</p>
               <div class="py-3">
                 <Switch
                   v-model="enabled"
@@ -241,14 +241,16 @@ onMounted(async () => {});
           </div>
 
           <div class="text-start">
-            <Button @click.prevent="onSubmitHandler"> Create </Button>
+            <Button @click.prevent="onSubmitHandler" class="text-xs">
+              Create
+            </Button>
           </div>
         </div>
       </div>
       <div>
-        <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
+        <div class="bg-white/60 p-4 rounded-lg mb-5">
           <div class="flex items-center justify-between gap-3 mb-3">
-            <p>Passport Label Name</p>
+            <p class="text-xs">Passport</p>
             <input
               type="file"
               ref="featureImageInput"
@@ -259,12 +261,12 @@ onMounted(async () => {});
             <button
               v-if="!featureImagePreview"
               @click.prevent="openFileFeaturePicker"
-              class="text-sm text-[#ff613c]"
+              class="text-xs text-[#ff613c]"
             ></button>
             <button
               v-else
               @click.prevent="removeFeatureSelectImage"
-              class="rounded-full text-sm text-red-600 items-center justify-center flex"
+              class="rounded-full text-xs text-red-600 items-center justify-center flex"
             >
               <XCircleIcon class="w-8 h-8 font-semibold" />
             </button>
@@ -272,7 +274,7 @@ onMounted(async () => {});
           <div
             v-if="!featureImagePreview"
             @click.prevent="openFileFeaturePicker"
-            class="cursor-pointer w-full h-[200px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
+            class="cursor-pointer w-full h-[150px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
           >
             <span class="text-xs"
               ><i
@@ -287,7 +289,7 @@ onMounted(async () => {});
               alt=""
             />
           </div>
-          <p v-if="errors?.image" class="mt-1 text-sm text-red-600">
+          <p v-if="errors?.image" class="mt-1 text-xs text-red-600">
             {{ errors.image[0] }}
           </p>
         </div>

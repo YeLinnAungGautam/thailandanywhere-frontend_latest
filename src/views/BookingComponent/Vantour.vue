@@ -4,6 +4,7 @@ import {
   MagnifyingGlassIcon,
   BarsArrowDownIcon,
 } from "@heroicons/vue/24/outline";
+import { MapPinIcon } from "@heroicons/vue/24/solid";
 import { useVantourStore } from "../../stores/vantour";
 import { storeToRefs } from "pinia";
 import debounce from "lodash/debounce";
@@ -11,6 +12,10 @@ import { InformationCircleIcon } from "@heroicons/vue/24/solid";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRouter } from "vue-router";
+import van from "../../../public/1.png";
+import saloon from "../../../public/2.png";
+import deluxe from "../../../public/3.png";
+import attractionImage from "../../../public/attractions.png";
 // import { useCityStore } from "../../stores/city";
 
 const bottomOfWindow = ref(false);
@@ -257,6 +262,29 @@ watch(
   }, 500)
 );
 
+const getCarImage = (type) => {
+  // Define the car images for each van tour type
+  const carImages = {
+    car1: van,
+    car2: saloon,
+    car3: deluxe,
+    // Add more car types and their corresponding images as needed
+  };
+
+  // Return the car image based on the van tour type
+  // return carImages[type.toLowerCase()] || 'https://placehold.co/400';
+  switch (type) {
+    case "SUV":
+      return carImages["car2"]; // Use this for SUV logic
+    case "Saloon":
+      return carImages["car1"];
+    case "VIP Van": // Example of a different case, instead of repeating 'SUV'
+      return carImages["car2"];
+    default:
+      return carImages["car2"]; // Default case
+  }
+};
+
 onMounted(async () => {
   window.addEventListener("scroll", handleScroll);
   await vantourStore.getListAction(watchSystem.value);
@@ -354,6 +382,18 @@ onMounted(async () => {
           <div>
             <p class="text-xs font-medium">{{ i?.name }}</p>
             <p class="text-[10px]">{{ i?.type }}</p>
+            <div class="flex justify-between items-center">
+              <p
+                class="flex justify-start items-center gap-x-1 text-[8px] line-clamp-1"
+              >
+                <MapPinIcon class="w-3 h-3 text-[#ff613c]" />
+                {{ i?.cities[0]?.name }}
+              </p>
+              <p class="text-[10px] flex justify-start items-center gap-x-2">
+                {{ i?.destinations?.length }}
+                <img :src="attractionImage" alt="" class="w-3 h-3" />
+              </p>
+            </div>
           </div>
         </div>
         <div class="flex justify-between items-center">
@@ -410,7 +450,7 @@ onMounted(async () => {
           >
             <div class="flex justify-start items-start gap-x-2">
               <img
-                src="https://placehold.co/400"
+                :src="getCarImage(i.name)"
                 class="w-16 h-16 rounded-lg"
                 alt=""
               />

@@ -16,12 +16,12 @@ import van from "../../../public/1.png";
 import saloon from "../../../public/2.png";
 import deluxe from "../../../public/3.png";
 import attractionImage from "../../../public/attractions.png";
-// import { useCityStore } from "../../stores/city";
+import { useCityStore } from "../../stores/city";
 
 const bottomOfWindow = ref(false);
 const vantourStore = useVantourStore();
-// const cityStore = useCityStore();
-// const { cities } = storeToRefs(cityStore);
+const cityStore = useCityStore();
+const { cities } = storeToRefs(cityStore);
 const { vantours, loading } = storeToRefs(vantourStore);
 const destsList = ref([]);
 const search = ref("");
@@ -214,6 +214,31 @@ const getFunction = () => {
   clearAction();
 };
 
+// filter action
+const search_city = ref("");
+const search_type = ref("van");
+const city_id = ref("");
+const filterModal = ref(false);
+
+const cityIdSelect = (id) => {
+  city_id.value = id;
+  filterModal.value = !filterModal.value;
+};
+const filterAction = async () => {
+  await searchFilterCity();
+  filterModal.value = !filterModal.value;
+};
+const searchFilterCity = async () => {
+  await cityStore.getListAction({ search: search_city.value });
+};
+
+watch(
+  [search_city],
+  debounce(async (newValue) => {
+    await searchFilterCity();
+  }, 500)
+);
+
 watch(bottomOfWindow, (newVal) => {
   console.log("bottomOfWindow changed:", newVal);
   if (bottomOfWindow.value == true) {
@@ -244,6 +269,9 @@ const watchSystem = computed(() => {
   if (type.value != null) {
     result.type = type.value;
   }
+  if (city_id.value != "null") {
+    result.city_id = city_id.value;
+  }
 
   return result;
 });
@@ -255,7 +283,7 @@ watch(vantours, async (newValue) => {
 });
 
 watch(
-  [search, type],
+  [search, type, city_id],
   debounce(async (newValue) => {
     destsList.value = [];
     await vantourStore.getListAction(watchSystem.value);
@@ -298,10 +326,10 @@ onMounted(async () => {
       <h1 class="text-sm font-medium">Product Vantours</h1>
       <div class="flex justify-end items-center gap-x-2 mr-2">
         <div
-          class="border border-gray-200 bg-white flex justify-start items-center gap-x-1 rounded-full p-1"
+          class="border border-gray-200 bg-white flex justify-start items-center gap-x-1 rounded-lg p-1"
         >
           <p
-            class="text-xs px-2 py-0.5 rounded-xl cursor-pointer"
+            class="text-xs px-2 py-0.5 rounded-md cursor-pointer"
             @click="type = 'van_tour'"
             :class="
               type == 'van_tour'
@@ -312,7 +340,7 @@ onMounted(async () => {
             van tour
           </p>
           <p
-            class="text-xs bg-[#ff613c] px-2 py-0.5 rounded-xl cursor-pointer"
+            class="text-xs bg-[#ff613c] px-2 py-0.5 rounded-md cursor-pointer"
             @click="type = 'car_rental'"
             :class="
               type == 'car_rental'
@@ -332,23 +360,59 @@ onMounted(async () => {
       <div class="relative w-full">
         <input
           type="text"
+          v-if="search_type == 'van'"
           v-model="search"
           name=""
           class="bg-white w-full px-8 py-2.5 rounded-lg focus:outline-none text-xs"
-          placeholder="Search for products here !"
+          placeholder="Search van tour !"
+          id=""
+        />
+        <input
+          type="text"
+          v-if="search_type == 'des'"
+          v-model="search"
+          name=""
+          class="bg-white w-full px-8 py-2.5 rounded-lg focus:outline-none text-xs"
+          placeholder="Search destination !"
           id=""
         />
         <MagnifyingGlassIcon
           class="w-4 h-4 absolute text-[#ff613c] top-2.5 left-2"
         />
-        <!-- <div class="bg-white absolute bottom-[-30px] right-0">
-          <p>van tour</p>
-          <p>car rental</p>
-        </div> -->
+        <div
+          class="flex justify-end items-center absolute bottom-0.5 right-1 gap-x-2"
+        >
+          <div
+            class="border border-gray-200 bg-white flex justify-start items-center gap-x-1 rounded-lg p-1"
+          >
+            <p
+              class="text-xs px-2 py-0.5 rounded-md cursor-pointer"
+              @click="search_type = 'van'"
+              :class="
+                search_type == 'van'
+                  ? 'bg-[#ff613c] text-white'
+                  : 'bg-white text-black'
+              "
+            >
+              van
+            </p>
+            <p
+              class="text-xs bg-[#ff613c] px-2 py-0.5 rounded-md cursor-pointer"
+              @click="search_type = 'des'"
+              :class="
+                search_type == 'des'
+                  ? 'bg-[#ff613c] text-white'
+                  : 'bg-white text-black'
+              "
+            >
+              des
+            </p>
+          </div>
+        </div>
       </div>
       <div class="bg-[#ff613c] p-2 rounded-full">
         <!-- filter icon -->
-        <BarsArrowDownIcon class="w-4 h-4 text-white" />
+        <BarsArrowDownIcon class="w-4 h-4 text-white" @click="filterAction" />
       </div>
       <div
         class="bg-[#ff613c] py-2 px-4 cursor-pointer text-xs text-white rounded-xl"
@@ -637,6 +701,64 @@ onMounted(async () => {
           >
             Add Item
           </button>
+        </div>
+      </DialogPanel>
+    </Modal>
+
+    <!-- filter modal -->
+    <Modal :isOpen="filterModal" @closeModal="filterModal = false">
+      <DialogPanel
+        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-1"
+        >
+          Filter Cities
+        </DialogTitle>
+        <div class="space-y-2.5 pb-3 border-b border-gray-300">
+          <p class="text-xs text-gray-500">
+            Search with city, for action click result city.
+          </p>
+          <div class="relative w-full border border-gray-300 rounded-lg">
+            <input
+              type="text"
+              v-model="search_city"
+              name=""
+              class="bg-white w-full px-8 py-2.5 rounded-lg focus:outline-none text-xs"
+              placeholder="Search for products here !"
+              id=""
+            />
+            <MagnifyingGlassIcon
+              class="w-4 h-4 absolute text-[#ff613c] top-2.5 left-2"
+            />
+          </div>
+        </div>
+        <div class="h-[300px] overflow-y-scroll py-2 space-y-2">
+          <div
+            class="border rounded-lg"
+            @click="cityIdSelect('null')"
+            :class="
+              city_id == 'null'
+                ? 'bg-[#ff613c] text-white border-[#ff613c]'
+                : 'border-gray-300'
+            "
+          >
+            <p class="py-3 px-4 text-xs">All City</p>
+          </div>
+          <div
+            v-for="c in cities?.data ?? []"
+            :key="c"
+            class="border rounded-lg"
+            @click="cityIdSelect(c.id)"
+            :class="
+              city_id == c.id
+                ? 'bg-[#ff613c] text-white border-[#ff613c]'
+                : 'border-gray-300'
+            "
+          >
+            <p class="py-3 px-4 text-xs">{{ c.name }}</p>
+          </div>
         </div>
       </DialogPanel>
     </Modal>

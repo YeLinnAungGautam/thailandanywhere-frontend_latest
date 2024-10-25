@@ -1172,8 +1172,11 @@ const updateHandler = async () => {
     errors.value = null;
     createModalOpen.value = false;
     // await roomStore.getListAction();
-    window.location.reload();
+
     toast.success(response.message);
+    setTimeout(() => {
+      window.location.reload();
+    }, 3000);
   } catch (error) {
     if (error.response.data.errors) {
       errors.value = error.response.data.errors;

@@ -17,12 +17,15 @@ import saloon from "../../../public/2.png";
 import deluxe from "../../../public/3.png";
 import attractionImage from "../../../public/attractions.png";
 import { useCityStore } from "../../stores/city";
+import { useDestinationStore } from "../../stores/destination";
 
 const bottomOfWindow = ref(false);
 const vantourStore = useVantourStore();
 const cityStore = useCityStore();
 const { cities } = storeToRefs(cityStore);
 const { vantours, loading } = storeToRefs(vantourStore);
+const destinationStore = useDestinationStore();
+const { dests } = storeToRefs(destinationStore);
 const destsList = ref([]);
 const search = ref("");
 const type = ref("van_tour");
@@ -217,8 +220,31 @@ const getFunction = () => {
 // filter action
 const search_city = ref("");
 const search_type = ref("van");
+const search_dest = ref("");
 const city_id = ref("");
 const filterModal = ref(false);
+const search_destination = ref("");
+
+const destination = () => {
+  let result = "";
+  if (search_dest.value !== "") {
+    result = Object.values(search_dest.value).join(","); // Get values and join them with commas
+  }
+  search_destination.value = result;
+};
+
+watch(search_type, async (newValue) => {
+  if (newValue) {
+    search.value = "";
+    search_dest.value = "";
+  }
+});
+
+watch(search_dest, async (newValue) => {
+  // console.log(search_dest.value, "this is search_dest");
+  destination();
+  console.log(search_destination.value, "this is destination");
+});
 
 const cityIdSelect = (id) => {
   city_id.value = id;
@@ -269,8 +295,11 @@ const watchSystem = computed(() => {
   if (type.value != null) {
     result.type = type.value;
   }
-  if (city_id.value != "null") {
+  if (city_id.value != "null" && city_id.value != "") {
     result.city_id = city_id.value;
+  }
+  if (search_type.value == "des") {
+    result.category_ids = search_destination.value;
   }
 
   return result;
@@ -283,7 +312,7 @@ watch(vantours, async (newValue) => {
 });
 
 watch(
-  [search, type, city_id],
+  [search, type, city_id, search_destination],
   debounce(async (newValue) => {
     destsList.value = [];
     await vantourStore.getListAction(watchSystem.value);
@@ -316,6 +345,7 @@ const getCarImage = (type) => {
 onMounted(async () => {
   window.addEventListener("scroll", handleScroll);
   await vantourStore.getListAction(watchSystem.value);
+  await destinationStore.getSimpleListAction();
   formitem.value.product_type = 1;
 });
 </script>
@@ -367,20 +397,26 @@ onMounted(async () => {
           placeholder="Search van tour !"
           id=""
         />
-        <input
-          type="text"
+        <div
           v-if="search_type == 'des'"
-          v-model="search"
-          name=""
-          class="bg-white w-full px-8 py-2.5 rounded-lg focus:outline-none text-xs"
-          placeholder="Search destination !"
-          id=""
-        />
+          class="bg-white w-full px-4 py-1 rounded-lg focus:outline-none text-xs"
+        >
+          <v-select
+            v-model="search_dest"
+            class="style-chooser-custom px-8 text-[12px]"
+            :options="dests?.data ?? []"
+            label="name"
+            :clearable="false"
+            :multiple="true"
+            :reduce="(d) => d.id"
+            placeholder=""
+          ></v-select>
+        </div>
         <MagnifyingGlassIcon
           class="w-4 h-4 absolute text-[#ff613c] top-2.5 left-2"
         />
         <div
-          class="flex justify-end items-center absolute bottom-0.5 right-1 gap-x-2"
+          class="flex justify-end items-center absolute top-1 right-1 gap-x-2"
         >
           <div
             class="border border-gray-200 bg-white flex justify-start items-center gap-x-1 rounded-lg p-1"
@@ -862,3 +898,26 @@ onMounted(async () => {
     </Modal>
   </div>
 </template>
+
+<style>
+.style-chooser-custom .vs__dropdown-toggle {
+  border: none !important;
+  padding: 0px 0px 0px 0px !important;
+  border-radius: 8px;
+}
+.style-chooser-custom .vs__selected {
+  font-size: 12px !important;
+}
+.style-chooser-custom .vs__selected {
+  display: flex;
+  align-items: center;
+  /* background-color: var(--vs-selected-bg); */
+  border: none !important;
+  /* border-radius: var(--vs-border-radius); */
+  color: var(--vs-selected-color);
+  line-height: var(--vs-line-height);
+  margin: 4px 2px 0;
+  padding: 0 0.25em;
+  z-index: 0;
+}
+</style>

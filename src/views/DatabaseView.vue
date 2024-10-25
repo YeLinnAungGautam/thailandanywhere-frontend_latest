@@ -61,7 +61,7 @@ onMounted(() => {
     <div class="mb-5">
       <h3 class="text-2xl font-medium text-gray-600">Database</h3>
     </div>
-    <div :class="sidebarStore.isShowSidebar ? 'w-[80vw]' : 'w-[96vw]'">
+    <div :class="sidebarStore.isShowSidebar ? 'w-[80vw]' : 'w-[90vw]'">
       <TabGroup :selectedIndex="selectedTab">
         <TabList
           class="space-x-2 bg-white/60 p-6 rounded-lg shadow-sm mb-5 flex"

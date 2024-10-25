@@ -188,18 +188,20 @@ watch(
       <div class="grid grid-cols-2 gap-2">
         <div class="space-y-2">
           <label for="name" class="text-gray-800 text-[10px]"
-            >Customer Name</label
+            >Customer Name <span class="text-red-800">*</span></label
           >
           <input
             type="text"
             v-model="customerName"
             disabled
             id="name"
-            class="w-full text-xs px-4 py-2 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+            class="w-full text-xs px-4 py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
           />
         </div>
         <div class="space-y-2">
-          <label for="name" class="text-gray-800 text-[10px]">Sold From</label>
+          <label for="name" class="text-gray-800 text-[10px]"
+            >Sold From <span class="text-red-800">*</span></label
+          >
 
           <v-select
             :style="{ fontSize: '11px !important' }"
@@ -221,7 +223,7 @@ watch(
             v-model="customerPhone"
             disabled
             id="name"
-            class="w-full text-xs px-4 py-2 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+            class="w-full text-xs px-4 py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
           />
         </div>
         <div class="space-y-2">
@@ -231,7 +233,7 @@ watch(
             v-model="customerEmail"
             disabled
             id="name"
-            class="w-full text-xs px-4 py-2 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+            class="w-full text-xs px-4 py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
           />
         </div>
         <div class="space-y-2">

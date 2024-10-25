@@ -74,7 +74,7 @@ onMounted(() => {
     <div class="mb-5 w-[90%]">
       <!-- <h3 class="text-2xl font-medium text-gray-600">Products</h3> -->
     </div>
-    <div :class="sidebarStore.isShowSidebar ? 'w-[80vw]' : 'w-[96vw]'">
+    <div :class="sidebarStore.isShowSidebar ? 'w-[80vw]' : 'w-[90vw]'">
       <TabGroup :selectedIndex="selectedTab">
         <TabList
           class="flex w-full p-6 mb-5 space-x-2 rounded-lg shadow-sm bg-white/60 overflow-x-scroll"

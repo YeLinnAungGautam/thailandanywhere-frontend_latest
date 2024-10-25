@@ -878,7 +878,8 @@ const onSubmitHandler = async () => {
               type="text"
               v-model="sub_total_discount"
               id="title"
-              class="w-[140px] h-8 px-4 py-1.5 mt-1 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300 text-xs"
+              disabled
+              class="w-[140px] h-8 px-4 py-1.5 mt-1 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300 text-xs"
             />
           </div>
           <div class="flex justify-between items-center">

@@ -14,7 +14,7 @@
       </div> -->
     </div>
     <div class="space-y-1">
-      <!-- <div class="space-y-2">
+      <!-- <div class="space-y-1">
         <label for="name" class="text-gray-800 text-[10px]"
           >Is Inclusive ?</label
         >
@@ -34,10 +34,10 @@
         </div>
       </div> -->
 
-      <div class="grid grid-cols-2 gap-4">
-        <div class="space-y-2" v-if="enabled">
+      <div class="grid grid-cols-2 gap-2">
+        <div class="space-y-1" v-if="enabled">
           <label for="name" class="text-gray-800 text-[10px]"
-            >Inclusive Name</label
+            >Inclusive Name <span class="text-red-800">*</span></label
           >
           <input
             type="text"
@@ -46,9 +46,9 @@
             class="w-full text-xs px-4 py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
           />
         </div>
-        <div class="space-y-2" v-if="enabled">
+        <div class="space-y-1" v-if="enabled">
           <label for="name" class="text-gray-800 text-[10px]"
-            >Rate per person</label
+            >Rate per person <span class="text-red-800">*</span></label
           >
           <input
             type="number"
@@ -57,8 +57,10 @@
             class="w-full text-xs px-4 py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
           />
         </div>
-        <div class="space-y-2" v-if="enabled">
-          <label for="name" class="text-gray-800 text-[10px]">Quantity</label>
+        <div class="space-y-1" v-if="enabled">
+          <label for="name" class="text-gray-800 text-[10px]"
+            >Quantity <span class="text-red-800">*</span></label
+          >
           <input
             type="number"
             v-model="formData.inclusive_quantity"
@@ -67,9 +69,9 @@
           />
         </div>
         <div></div>
-        <div class="space-y-2" v-if="enabled">
+        <div class="space-y-1" v-if="enabled">
           <label for="name" class="text-gray-800 text-[10px]"
-            >Inclusive Start Date</label
+            >Inclusive Start Date <span class="text-red-800">*</span></label
           >
           <input
             type="date"
@@ -78,9 +80,9 @@
             class="text-xs px-4 w-full py-1.5 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
           />
         </div>
-        <div class="space-y-2" v-if="enabled">
+        <div class="space-y-1" v-if="enabled">
           <label for="name" class="text-gray-800 text-[10px]"
-            >inclusive End Date</label
+            >inclusive End Date <span class="text-red-800">*</span></label
           >
           <input
             type="date"
@@ -90,7 +92,7 @@
           />
         </div>
       </div>
-      <div class="space-y-2" v-if="enabled">
+      <div class="space-y-1" v-if="enabled">
         <label for="name" class="text-gray-800 text-[10px]"
           >inclusive Description</label
         >

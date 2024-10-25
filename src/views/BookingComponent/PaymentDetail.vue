@@ -11,22 +11,24 @@
       <div class="space-y-2">
         <label for="name" class="text-gray-800 text-[10px]">CRM ID</label>
         <div
-          class="w-full text-xs px-4 text-gray-900 border-main border rounded-lg shadow-sm bg-gray-200 focus:outline-none focus:border-gray-300 h-9"
+          class="w-full text-xs px-4 text-gray-900 border-main border rounded-lg shadow-sm bg-gray-200 focus:outline-none focus:border-gray-200 h-7"
         ></div>
       </div>
       <div class="space-y-2">
-        <label for="name" class="text-gray-800 text-[10px]">Sales Date</label>
+        <label for="name" class="text-gray-800 text-[10px]"
+          >Sales Date <span class="text-red-800">*</span></label
+        >
         <input
           type="date"
           v-model="formData.booking_date"
           :disabled="formData.id || disabled"
           id="name"
-          class="w-full text-xs px-4 py-2 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+          class="w-full text-xs px-4 py-1 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-200"
         />
       </div>
       <div class="space-y-2">
         <label for="name" class="text-gray-800 text-[10px]"
-          >Payment Method</label
+          >Payment Method <span class="text-red-800">*</span></label
         >
         <v-select
           v-model="formData.payment_method"
@@ -40,7 +42,7 @@
       </div>
       <div class="space-y-2">
         <label for="name" class="text-gray-800 text-[10px]"
-          >Payment Currency</label
+          >Payment Currency <span class="text-red-800">*</span></label
         >
         <v-select
           :style="{ fontSize: '11px !important' }"
@@ -55,7 +57,9 @@
         ></v-select>
       </div>
       <div class="space-y-2">
-        <label for="name" class="text-gray-800 text-[10px]">Bank name</label>
+        <label for="name" class="text-gray-800 text-[10px]"
+          >Bank name <span class="text-red-800">*</span></label
+        >
         <v-select
           v-model="formData.bank_name"
           class="style-chooser text-xs"
@@ -68,14 +72,14 @@
       </div>
       <div class="space-y-2">
         <label for="name" class="text-gray-800 text-[10px]"
-          >Exchange Rate</label
+          >Exchange Rate <span class="text-red-800">*</span></label
         >
         <input
           v-model="formData.money_exchange_rate"
           :disabled="!paymentValid || disabled"
           type="number"
           id="title"
-          class="text-xs px-4 py-2.5 w-full text-gray-900 border-main border rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+          class="text-xs px-4 py-1.5 w-full text-gray-900 border-main border rounded-lg shadow-sm focus:outline-none focus:border-gray-200"
           :class="!paymentValid ? 'bg-gray-200' : 'bg-white'"
         />
       </div>
@@ -114,14 +118,14 @@
       </div>
       <div class="space-y-2">
         <label for="name" class="text-gray-800 text-[10px]"
-          >Balance Due Date</label
+          >Balance Due Date <span class="text-red-800">*</span></label
         >
         <input
           type="date"
           v-model="formData.balance_due_date"
           :disabled="formData.id || disabled"
           id="name"
-          class="w-full text-xs px-4 py-2 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+          class="w-full text-xs px-4 py-1 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-200"
         />
       </div>
     </div>

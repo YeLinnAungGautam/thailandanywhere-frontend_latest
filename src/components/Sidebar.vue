@@ -1,7 +1,8 @@
 <template>
+  <!-- v-show="isShowSidebar" -->
   <div
-    class="w-[260px] bg-gray-100 text-white absolute md:relative transition duration-500 delay-100"
-    v-show="isShowSidebar"
+    class="bg-gray-100 text-white absolute md:relative transition duration-500 delay-100"
+    :class="isShowSidebar ? 'w-[260px]' : 'w-[90px]'"
   >
     <div class="h-[80px] w-full flex items-center">
       <div class="flex w-full items-center justify-between px-[20px]">
@@ -13,7 +14,10 @@
               alt=""
             />
           </h3>
-          <p class="ml-2 font-medium tracking-wide text-sm text-[#FF5B00]">
+          <p
+            class="ml-2 font-medium tracking-wide text-sm text-[#FF5B00]"
+            v-if="isShowSidebar"
+          >
             thanywhere
           </p>
         </div>
@@ -138,7 +142,7 @@
                 :is="Cog6ToothIcon"
                 class="w-4 h-4 mr-[1.2rem]"
               ></component>
-              Setting
+              {{ isShowSidebar ? "Setting" : "" }}
               <component
                 v-if="!isShowSetting"
                 :is="ChevronDownIcon"

@@ -382,16 +382,16 @@ onMounted(async () => {
           <div>
             <p class="text-xs font-medium">{{ i?.name }}</p>
             <p class="text-[10px]">{{ i?.type }}</p>
-            <div class="flex justify-between items-center">
+            <div class="flex justify-start gap-x-2 items-center pt-2">
               <p
-                class="flex justify-start items-center gap-x-1 text-[8px] line-clamp-1"
+                class="flex justify-start items-center gap-x-1 text-[10px] line-clamp-1"
               >
                 <MapPinIcon class="w-3 h-3 text-[#ff613c]" />
                 {{ i?.cities[0]?.name }}
               </p>
-              <p class="text-[10px] flex justify-start items-center gap-x-2">
+              <p class="text-[10px] flex justify-start items-center gap-x-1">
                 {{ i?.destinations?.length }}
-                <img :src="attractionImage" alt="" class="w-3 h-3" />
+                <img :src="attractionImage" alt="" class="w-2.5 h-2.5" />
               </p>
             </div>
           </div>

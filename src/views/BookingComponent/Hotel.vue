@@ -458,6 +458,9 @@ onMounted(async () => {
                 <div class="space-y-1">
                   <p class="text-xs font-medium text-[#ff613c]">{{ i.name }}</p>
                   <p class="text-xs">{{ i.max_person }} Pax</p>
+                  <p class="text-[10px] text-green-600">
+                    {{ i?.has_breakfast == 1 ? "Breakfast included" : "" }}
+                  </p>
                 </div>
                 <div class="my-auto">
                   <p class="text-xs font-semibold whitespace-nowrap">

@@ -869,7 +869,7 @@ const onSubmitHandler = async () => {
               disabled
               v-model="sub_total"
               id="title"
-              class="w-[140px] h-8 px-4 py-1.5 mt-1 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300 text-xs"
+              class="w-[140px] h-8 px-4 py-1.5 mt-1 text-gray-900 bg-gray-200 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300 text-xs"
             />
           </div>
           <div class="flex justify-between items-center">
@@ -879,16 +879,17 @@ const onSubmitHandler = async () => {
               v-model="sub_total_discount"
               id="title"
               disabled
-              class="w-[140px] h-8 px-4 py-1.5 mt-1 text-gray-900 bg-gray-300 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300 text-xs"
+              class="w-[140px] h-8 px-4 py-1.5 mt-1 text-gray-900 bg-gray-200 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300 text-xs"
             />
           </div>
           <div class="flex justify-between items-center">
             <p class="text-xs font-medium">Total :</p>
             <input
               type="text"
+              disabled
               v-model="grand_total"
               id="title"
-              class="w-[140px] h-8 px-4 py-1.5 mt-1 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300 text-xs"
+              class="w-[140px] h-8 px-4 py-1.5 mt-1 text-gray-900 bg-gray-200 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300 text-xs"
             />
           </div>
           <div class="flex justify-between items-center">
@@ -905,8 +906,9 @@ const onSubmitHandler = async () => {
             <input
               type="text"
               v-model="balance_due"
+              disabled
               id="title"
-              class="w-[140px] h-8 px-4 py-1.5 mt-1 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300 text-xs"
+              class="w-[140px] h-8 px-4 py-1.5 mt-1 text-gray-900 bg-gray-200 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300 text-xs"
             />
           </div>
           <div

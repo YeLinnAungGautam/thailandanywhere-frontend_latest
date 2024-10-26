@@ -299,7 +299,7 @@ const watchSystem = computed(() => {
     result.city_id = city_id.value;
   }
   if (search_type.value == "des") {
-    result.category_ids = search_destination.value;
+    result.destination_ids = search_destination.value;
   }
 
   return result;

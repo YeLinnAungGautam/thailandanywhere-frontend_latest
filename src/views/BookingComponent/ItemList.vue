@@ -229,11 +229,12 @@ onMounted(() => {
 </script>
 <template>
   <div class="relative w-full h-full">
-    <h1
-      class="sticky top-0 bg-white z-10 py-2 text-xs font-medium text-[#ff613c]"
+    <div
+      class="sticky top-0 bg-white z-10 py-2 text-xs font-medium text-[#ff613c] flex justify-between items-center"
     >
-      Added items ({{ itemList.length }})
-    </h1>
+      <p>Added items</p>
+      <p>{{ itemList.length }} items</p>
+    </div>
     <div
       class="space-y-3 divide-y-2 pb-3 divide-gray-200"
       v-if="itemList.length > 0"

@@ -101,7 +101,11 @@ const openAddItemModal = (item) => {
   console.log("====================================");
   console.log(item, "this is item");
   console.log("====================================");
-  formitem.value.comment = item.long_description ? item.long_description : "";
+  // formitem.value.comment = item.long_description ? item.long_description : "";
+  formitem.value.comment =
+    item?.destinations.length > 0
+      ? item.destinations.map((d) => d.name).join(", ")
+      : "";
   formitem.value.product_id = item.id;
   formitem.value.product_name = item.name;
   formitem.value.product_image = item?.cover_image;

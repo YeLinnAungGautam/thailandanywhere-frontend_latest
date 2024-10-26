@@ -92,7 +92,7 @@ const openAddItemModal = (item) => {
   console.log("====================================");
   console.log(item, "this is item");
   console.log("====================================");
-  formitem.value.comment = item.description ? item.description : "";
+  // formitem.value.comment = item.description ? item.description : "";
   formitem.value.product_id = item.id;
   formitem.value.product_name = item.name;
   formitem.value.product_image = item?.images[0]?.image
@@ -120,7 +120,7 @@ const selectAction = (item) => {
   formitem.value.cost_price = item.cost ? item.cost : 0;
   console.log(formitem.value, "this is formItem");
   formitem.value.extra_price = item.extra_price;
-  formitem.value.comment = item.description;
+  // formitem.value.comment = item.description;
 };
 const goInfoModal = () => {
   if (formitem.value.car_id != "") {

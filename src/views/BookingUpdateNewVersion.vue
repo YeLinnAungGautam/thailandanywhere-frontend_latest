@@ -974,6 +974,7 @@ const getDetail = async () => {
             data.items[x].discount,
         payment_status: data.items[x].payment_status,
         associated_customer: data.items[x].associated_customer,
+        customer_passport: data.items[x].customer_passports,
         reservation_status: data.items[x].reservation_status,
       };
       formData.value.items.push(itemData);
@@ -1027,6 +1028,11 @@ onMounted(() => {
               :showEditPart="
                 () => {
                   showEditPart = !showEditPart;
+                }
+              "
+              :uploadingAction="
+                () => {
+                  updatingLoading = !updatingLoading;
                 }
               "
             />

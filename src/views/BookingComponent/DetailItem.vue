@@ -15,12 +15,15 @@ import van from "../../../public/1.png";
 import saloon from "../../../public/2.png";
 import deluxe from "../../../public/3.png";
 import { useReservationStore } from "../../stores/reservation";
+import { useToast } from "vue-toastification";
 
 const reservationStore = useReservationStore();
+const toast = useToast();
 
 const props = defineProps({
   data: Object,
   showEditPart: Function,
+  uploadingAction: Function,
 });
 const itemList = ref([]);
 
@@ -44,6 +47,7 @@ const editData = ref({
   phone: "",
   email: "",
   customer_passport: [],
+  customer_passport_have: [],
 });
 const addItemModal = ref(false);
 const addInfoModal = ref(false);
@@ -79,6 +83,7 @@ const closeTravellerModal = () => {
     phone: "",
     email: "",
     customer_passport: [],
+    customer_passport_have: [],
   };
   featureImagePreview.value = [];
 };
@@ -88,6 +93,20 @@ const featureImageInput = ref(null);
 const goTravellerModal = (data) => {
   addTravellerModal.value = true;
   editData.value.id = data.reservation_id;
+  editData.value.name = data.associated_customer[0]?.name
+    ? data.associated_customer[0]?.name
+    : "";
+  editData.value.passport = data.associated_customer[0]?.passport
+    ? data.associated_customer[0]?.passport
+    : "";
+  editData.value.phone = data.associated_customer[0]?.phone
+    ? data.associated_customer[0]?.phone
+    : "";
+  editData.value.email = data.associated_customer[0]?.email
+    ? data.associated_customer[0]?.email
+    : "";
+  editData.value.customer_passport_have =
+    data.customer_passport.length > 0 ? data.customer_passport : [];
 };
 
 const featureImagePreview = ref([]);
@@ -110,7 +129,18 @@ const removeFeatureSelectImage = (index) => {
   // console.log(editData.value.customer_passport, "this is remove");
 };
 
+const removeFeatureDeleteImage = async (index, id) => {
+  const res = await reservationStore.deleteTravellerImageAction(id);
+  if (res) {
+    editData.value.customer_passport_have.splice(index, 1);
+    // featureImagePreview.value.splice(index, 1);
+  }
+  // console.log(editData.value.customer_passport, "this is remove");
+};
+
 const addTravellerAction = async () => {
+  props.uploadingAction();
+  addTravellerModal.value = false;
   const frmData = new FormData();
   editData.value.name && frmData.append("name", editData.value.name);
   editData.value.passport &&
@@ -130,9 +160,19 @@ const addTravellerAction = async () => {
     frmData,
     editData.value.id
   );
-  console.log("====================================");
+
   console.log(res, "this is res");
-  console.log("====================================");
+  if (res.message == "success") {
+    toast.success(res.message);
+  } else {
+    toast.error(res.message);
+  }
+  // closeTravellerModal();
+
+  setTimeout(() => {
+    props.uploadingAction();
+    window.location.reload();
+  }, 1000);
 };
 
 const getCarImage = (type) => {
@@ -334,7 +374,7 @@ onMounted(async () => {
           <p
             v-if="i?.reservation_id"
             @click="openModalAction(i)"
-            class="bg-blue-500 text-white text-[10px] px-3 py-1.5 rounded-full"
+            class="bg-blue-500 text-white text-[10px] px-3 py-1.5 rounded-full cursor-pointer"
           >
             Add Detail
           </p>
@@ -435,13 +475,26 @@ onMounted(async () => {
                 <p class="text-sm font-medium pb-1 line-clamp-1">
                   Traveller information
                 </p>
-                <p class="text-xs">Count Passport</p>
+                <p class="text-xs">
+                  {{
+                    showData?.customer_passport != undefined
+                      ? showData?.customer_passport.length
+                      : "-"
+                  }}
+                  Passports
+                </p>
                 <div class="flex justify-between items-center">
-                  <p class="text-xs">Traveller Name</p>
+                  <p class="text-xs">
+                    {{
+                      showData?.associated_customer[0]?.name
+                        ? showData?.associated_customer[0]?.name
+                        : "-"
+                    }}
+                  </p>
                   <div class="flex justify-end items-center">
                     <p
                       @click="goTravellerModal(showData)"
-                      class="text-xs font-medium bg-[#ff613c] rounded-lg px-4 py-1 text-white"
+                      class="text-xs font-medium bg-[#ff613c] rounded-lg px-4 py-1 text-white cursor-pointer"
                     >
                       Edit Detail
                     </p>
@@ -855,6 +908,21 @@ onMounted(async () => {
                 </button>
 
                 <img class="h-auto w-full rounded" :src="image" alt="" />
+              </div>
+            </div>
+            <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
+              <div
+                class="relative"
+                v-for="(image, index) in editData.customer_passport_have"
+                :key="index"
+              >
+                <button
+                  @click.prevent="removeFeatureDeleteImage(index, image.id)"
+                  class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                >
+                  <XCircleIcon class="w-8 h-8 font-semibold" />
+                </button>
+                <img class="h-auto w-full rounded" :src="image.file" alt="" />
               </div>
             </div>
           </div>

@@ -63,6 +63,7 @@
                 'edit_bookings',
                 'update_bookings',
                 'bookings_new_create',
+                'update_new_bookings',
               ]"
             />
             <SidebarItem

@@ -11,8 +11,10 @@
       <div class="space-y-2">
         <label for="name" class="text-gray-800 text-[10px]">CRM ID</label>
         <div
-          class="w-full text-xs px-4 text-gray-900 border-main border rounded-lg shadow-sm bg-gray-200 focus:outline-none focus:border-gray-200 h-7"
-        ></div>
+          class="w-full text-xs px-4 text-gray-900 border-main border rounded-lg shadow-sm bg-gray-200 focus:outline-none focus:border-gray-200 py-1.5"
+        >
+          {{ formData?.crm_id ? formData?.crm_id : "-" }}
+        </div>
       </div>
       <div class="space-y-2">
         <label for="name" class="text-gray-800 text-[10px]"
@@ -218,6 +220,7 @@ const choosePaymentBank = () => {
 
 const formData = ref({
   id: "",
+  crm_id: "",
   balance_due_date: "",
   booking_date: "",
   money_exchange_rate: "",
@@ -251,6 +254,7 @@ watch(
 onMounted(() => {
   if (props.data) {
     formData.value.id = props.data.id;
+    formData.value.crm_id = props.data?.crm_id ? props.data?.crm_id : "";
     formData.value.balance_due_date = props.data.balance_due_date;
     formData.value.booking_date = props.data.booking_date;
     formData.value.money_exchange_rate = props.data.money_exchange_rate;

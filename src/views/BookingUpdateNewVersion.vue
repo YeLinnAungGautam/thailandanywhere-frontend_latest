@@ -6,6 +6,8 @@ import {
   UserIcon,
   UserPlusIcon,
   MagnifyingGlassIcon,
+  PrinterIcon,
+  PencilSquareIcon,
 } from "@heroicons/vue/24/outline";
 import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
@@ -30,6 +32,9 @@ import PaymentDetail from "./BookingComponent/PaymentDetail.vue";
 import { useBookingStore } from "../stores/booking";
 import Attraction from "./BookingComponent/Attraction.vue";
 import Hotel from "./BookingComponent/Hotel.vue";
+import DetailItemVue from "./BookingComponent/DetailItem.vue";
+import DetailListVue from "./BookingComponent/DetailList.vue";
+import { useAuthStore } from "../stores/auth";
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
 // for tag
@@ -39,6 +44,8 @@ const addItemModal = ref(false);
 const bookingStore = useBookingStore();
 const toast = useToast();
 const router = useRouter();
+const route = useRoute();
+const authStore = useAuthStore();
 
 const productArray = [
   {
@@ -101,6 +108,7 @@ const formData = ref({
   discount: "0",
   comment: "",
   receipt_image: [],
+  receipt_images: [],
   confirmation_letter: [],
   due_date: "",
   deposit: 0,
@@ -346,7 +354,9 @@ const removeFeatureSelectImage = (index) => {
   console.log(formData.value.receipt_image, "this is remove");
 };
 
+const checkCondition = ref(false);
 const allowCreate = computed(() => {
+  // console.log(checkCondition.value, "this is check");
   if (
     formData.value.items.length != 0 &&
     formData.value.deposit != 0 &&
@@ -355,15 +365,21 @@ const allowCreate = computed(() => {
     return true;
   } else if (formData.value.items.length != 0 && formData.value.deposit == 0) {
     return true;
+  } else if (formData.value.items.length != 0 && checkCondition.value) {
+    return true;
   } else {
     return false;
   }
 });
 
 const errors = ref(null);
+const updatingLoading = ref(false);
+
 const onSubmitHandler = async () => {
+  updatingLoading.value = true;
   if (sub_total_real.value != NaN || sub_total_real.value != null) {
     const frmData = new FormData();
+    frmData.append("_method", "PUT");
     formData.value.customer_id &&
       frmData.append("customer_id", formData.value.customer_id);
     formData.value.payment_notes &&
@@ -430,12 +446,12 @@ const onSubmitHandler = async () => {
     formData.value.balance_due_date &&
       frmData.append("balance_due_date", formData.value.balance_due_date);
 
-    if (formData.value.confirmation_letter.length > 0) {
-      for (let i = 0; i < formData.value.confirmation_letter.length; i++) {
-        let file = formData.value.confirmation_letter[i];
-        frmData.append("items[" + i + "][confirmation_letter]", file);
-      }
-    }
+    // if (formData.value.confirmation_letter.length > 0) {
+    //   for (let i = 0; i < formData.value.confirmation_letter.length; i++) {
+    //     let file = formData.value.confirmation_letter[i];
+    //     frmData.append("items[" + i + "][confirmation_letter]", file);
+    //   }
+    // }
     for (var x = 0; x < formData.value.items.length; x++) {
       if (formData.value.items[x].product_type == "1") {
         frmData.append(
@@ -472,7 +488,7 @@ const onSubmitHandler = async () => {
       }
     }
 
-    if (formData.value.receipt_image.length != 0) {
+    if (formData.value.receipt_image?.length > 0) {
       for (let x = 0; x < formData.value.receipt_image.length; x++) {
         frmData.append(
           "receipt_image[" + x + "]",
@@ -481,12 +497,12 @@ const onSubmitHandler = async () => {
       }
     }
 
-    for (var x = 0; x < formData.value.items.length; x++) {
+    for (var x = 0; x < formData.value?.items.length; x++) {
       frmData.append(
         "items[" + x + "][product_id]",
         formData.value.items[x].product_id
       );
-      if (formData.value.is_inclusive == 1) {
+      if (formData.value.is_inclusive) {
         frmData.append("items[" + x + "][is_inclusive]", 1);
       } else {
         frmData.append("items[" + x + "][is_inclusive]", 0);
@@ -598,7 +614,10 @@ const onSubmitHandler = async () => {
         );
       }
 
-      if (formData.value.items[x].product_type == "6") {
+      if (
+        formData.value.items[x].product_type === "6" &&
+        formData.value.items[x].car_id
+      ) {
         frmData.append(
           "items[" + x + "][room_id]",
           formData.value.items[x].car_id
@@ -635,8 +654,8 @@ const onSubmitHandler = async () => {
           "items[" + x + "][quantity]",
           formData.value.items[x].quantity
         );
-      formData.value.days &&
-        frmData.append("items[" + x + "][days]", formData.value.items[x].days);
+      // formData.value.days &&
+      //   frmData.append("items[" + x + "][days]", formData.value.items[x].days);
       if (formData.value.items[x].duration) {
         frmData.append(
           "items[" + x + "][duration]",
@@ -688,7 +707,10 @@ const onSubmitHandler = async () => {
     }
 
     try {
-      const response = await bookingStore.addNewAction(frmData);
+      const response = await bookingStore.updateAction(
+        frmData,
+        route.params.id
+      );
       console.log(response, "create response");
       formData.value = {
         customer_id: "",
@@ -699,6 +721,7 @@ const onSubmitHandler = async () => {
         booking_date: "",
         items: [],
         receipt_image: [],
+        receipt_images: [],
         money_exchange_rate: "",
         crm_id: "",
         discount: "",
@@ -711,7 +734,12 @@ const onSubmitHandler = async () => {
       errors.value = null;
       toast.success(response.message);
       featureImagePreview.value = [];
-      router.push("/bookings/update/" + response.result.id + "/edit");
+      router.push("/bookings/new-update/" + response.result.id);
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+      updatingLoading.value = false;
       // bookings/update/65/edit
     } catch (error) {
       console.log(
@@ -722,22 +750,313 @@ const onSubmitHandler = async () => {
         errors.value = error.response.data.errors;
       }
       toast.error(error.response?.data?.message);
+      updatingLoading.value = false;
     }
   } else {
     toast.warning("please check again , item have issue !");
+    updatingLoading.value = false;
   }
 };
+
+const choiceProductType = (type) => {
+  console.log(type);
+  if (type == "App\\Models\\PrivateVanTour") {
+    return "1";
+  }
+  if (type == "App\\Models\\GroupTour") {
+    return "2";
+  }
+  if (type == "App\\Models\\AirportPickup") {
+    return "3";
+  }
+  if (type == "App\\Models\\EntranceTicket") {
+    return "4";
+  }
+  if (type == "App\\Models\\Hotel") {
+    return "6";
+  }
+  if (type == "App\\Models\\Airline") {
+    return "7";
+  }
+};
+
+const daysBetween = (a, b) => {
+  console.log(a, b);
+  if (a && b) {
+    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    const startDateTimestamp = new Date(a).getTime();
+    const endDateTimestamp = new Date(b).getTime();
+    let result = Math.abs(
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+    );
+    console.log(formData.value.checkin_date, result, "this is result");
+    return result;
+  }
+};
+
+const checkType = (product) => {
+  if (product?.cars) {
+    return product.cars;
+  }
+  if (product?.variations) {
+    return product.variations;
+  }
+  if (product?.rooms) {
+    return product.rooms;
+  }
+  if (product?.tickets) {
+    return product.tickets;
+  }
+};
+
+const totalAmountCheck = (q, s, d, discount) => {
+  let totalsub = 0;
+  totalsub = q * s * d - discount;
+  console.log(q, s, d, discount, "this is total amount");
+  return totalsub;
+};
+
+const getProductId = (item) => {
+  if (!item) return ""; // Handle undefined or null item
+
+  switch (item.product_type) {
+    case "App\\Models\\PrivateVanTour":
+      return item.car?.id || "";
+
+    case "App\\Models\\EntranceTicket":
+      return item.variation?.id || "";
+
+    case "App\\Models\\Hotel":
+      return item.room?.id || "";
+
+    case "App\\Models\\Airline":
+      return item.ticket?.id || "";
+
+    default:
+      return ""; // Handle unknown product_type
+  }
+};
+const getProductName = (item) => {
+  if (!item) return ""; // Handle undefined or null item
+
+  switch (item.product_type) {
+    case "App\\Models\\PrivateVanTour":
+      return item.car?.name || "";
+
+    case "App\\Models\\EntranceTicket":
+      return item.variation?.name || "";
+
+    case "App\\Models\\Hotel":
+      return item.room?.name || "";
+
+    case "App\\Models\\Airline":
+      return item.ticket?.name || "";
+
+    default:
+      return ""; // Handle unknown product_type
+  }
+};
+
+const getDetail = async () => {
+  try {
+    const response = await bookingStore.getDetailAction(route.params.id);
+    console.log(response, "this is response get");
+    let data = response.result;
+    formData.value = {
+      id: data.id,
+      payment_notes: data.payment_notes ? data.payment_notes : "",
+      customer_id: data.customer.id,
+      customer_name: data.customer?.name,
+      customer_email: data.customer?.email ? data.customer?.email : "",
+      customer_phone: data.customer?.phone_number
+        ? data.customer?.phone_number
+        : "",
+      is_corporate: data.customer?.is_corporate_customer,
+      sold_from: data?.sold_from,
+      payment_method: data.payment_method ? data.payment_method : "",
+      payment_currency: data.payment_currency ? data.payment_currency : "",
+      bank_name: data.bank_name ? data.bank_name : "",
+      payment_status: data.payment_status ? data.payment_status : "",
+      booking_date: data.booking_date ? data.booking_date : "",
+      money_exchange_rate: data.money_exchange_rate
+        ? data.money_exchange_rate
+        : "",
+      crm_id: data.crm_id ? data.crm_id : "",
+      items: [],
+      receipt_image: [],
+      receipt_images: [],
+      balance_due_date: data.balance_due_date,
+      deposit: data.deposit,
+      is_inclusive: data.is_inclusive,
+      inclusive_name: data.inclusive_name,
+      inclusive_quantity: data.inclusive_quantity,
+      inclusive_rate: data.inclusive_rate,
+      inclusive_start_date: data.inclusive_start_date,
+      inclusive_end_date: data.inclusive_end_date,
+      inclusive_description: data.inclusive_description,
+    };
+    for (let i = 0; i < data.receipts.length; i++) {
+      let dataAdd = {
+        id: data.receipts[i].id,
+        image: data.receipts[i].image,
+      };
+      formData.value.receipt_images.push(dataAdd);
+    }
+    for (const x in data.items) {
+      const car_id = getProductId(data.items[x]);
+      const item_name = getProductName(data.items[x]);
+
+      const itemData = {
+        reservation_id: data.items[x].id,
+        product_type: choiceProductType(data.items[x].product_type),
+        crm_id: data.items[x].crm_id,
+        product_id: data.items[x].product_id,
+        product_name: data.items[x].product?.name,
+        product_image: data.items[x].product?.cover_image
+          ? data.items[x].product?.cover_image
+          : data.items[x].product?.images[0]?.image,
+        service_date: data.items[x].service_date,
+        is_inclusive: data.items[x].is_inclusive,
+        discount: data.items[x].discount,
+        quantity: data.items[x].quantity,
+        days: data.items[x].days ? data.items[x].days : "",
+        duration: data.items[x].duration,
+        selling_price: data.items[x].selling_price,
+        comment: data.items[x].comment != "null" ? data.items[x].comment : "",
+        special_request:
+          data.items[x].special_request != "null"
+            ? data.items[x].special_request
+            : "",
+        reservation_status: data.items[x].reservation_status,
+        payment_method: data.items[x].payment_method,
+        payment_status: data.items[x].payment_status,
+        exchange_rate: data.items[x].exchange_rate,
+        cost_price: data.items[x].cost_price,
+        pickup_location:
+          data.items[x].pickup_location != "null"
+            ? data.items[x].pickup_location
+            : "",
+        pickup_time:
+          data.items[x].pickup_time != "null" ? data.items[x].pickup_time : "",
+        is_driver_collect: data.items[x].is_driver_collect == 1 ? true : false,
+        dropoff_location:
+          data.items[x].dropoff_location != "null"
+            ? data.items[x].dropoff_location
+            : "",
+        route_plan:
+          data.items[x].route_plan != "null" ? data.items[x].route_plan : "",
+
+        days: daysBetween(
+          data.items[x].checkin_date,
+          data.items[x].checkout_date
+        ),
+        car_list: checkType(data.items[x].product),
+        car_id: car_id || "",
+        item_name: item_name || "",
+        checkin_date: data.items[x].checkin_date
+          ? data.items[x].checkin_date
+          : "",
+        checkout_date: data.items[x].checkout_date
+          ? data.items[x].checkout_date
+          : "",
+        room_number: data.items[x].room_number ? data.items[x].room_number : "",
+        total_amount: data.items[x].checkin_date
+          ? totalAmountCheck(
+              data.items[x].quantity,
+              data.items[x].selling_price,
+              daysBetween(
+                data.items[x].checkin_date,
+                data.items[x].checkout_date
+              ),
+              data.items[x].discount
+            )
+          : data.items[x].selling_price * data.items[x].quantity -
+            data.items[x].discount,
+        payment_status: data.items[x].payment_status,
+        associated_customer: data.items[x].associated_customer,
+        reservation_status: data.items[x].reservation_status,
+      };
+      formData.value.items.push(itemData);
+    }
+    console.log(formData.value, "this is formData");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const showEditPart = ref(false);
+
+const openPaid = () => {
+  window.open(
+    import.meta.env.VITE_API_URL +
+      "/bookings/" +
+      route.params.id +
+      "/receipt?paid=1"
+  );
+};
+
+const deleteImage = async (id) => {
+  updatingLoading.value = true;
+  await bookingStore.deleteBookingImage(id);
+  toast.success("success delete sale Image");
+  window.location.reload();
+  // await getDetail();
+};
+
+onMounted(() => {
+  getDetail();
+});
 </script>
 
 <template>
   <Layout>
-    <div class="grid grid-cols-6 gap-4">
+    <div
+      class="grid grid-cols-6 gap-4 relative"
+      :class="updatingLoading ? 'opacity-50 ' : ''"
+    >
       <div class="col-span-4 h-[85vh] overflow-hidden">
-        <div class="space-y-4">
+        <div class="space-y-4" v-if="!showEditPart">
+          <DetailListVue
+            :data="formData"
+            :total="grand_total"
+            :balance_due="balance_due"
+          />
+          <div class="">
+            <DetailItemVue
+              :data="formData"
+              :showEditPart="
+                () => {
+                  showEditPart = !showEditPart;
+                }
+              "
+            />
+          </div>
+        </div>
+        <div class="space-y-4" v-if="showEditPart">
           <!-- sale info part -->
           <div
             class="flex justify-start items-center gap-x-2 overflow-x-scroll pb-2 border-r border-gray-300"
           >
+            <div
+              @click="showEditPart = !showEditPart"
+              class="p-2 shadow-sm bg-white rounded-md flex justify-start items-center gap-x-2 cursor-pointer hover:bg-[#ff613c]/20"
+            >
+              <img
+                src="https://placehold.co/400"
+                class="w-12 h-12 rounded-xl text-[#FF5B00]"
+                alt=""
+              />
+              <div class="w-[130px] space-y-1">
+                <p class="whitespace-nowrap text-[10px] font-medium">
+                  All Items
+                </p>
+                <p
+                  class="text-[8px] text-gray-500 font-normal whitespace-nowrap"
+                >
+                  view items
+                </p>
+              </div>
+            </div>
             <div
               v-for="l in productArray"
               :key="l"
@@ -786,19 +1105,30 @@ const onSubmitHandler = async () => {
       </div>
       <div class="col-span-2 h-[85vh] relative overflow-y-scroll space-y-4">
         <!-- create -->
-        <div class="text-end">
+        <div class="flex justify-end items-center space-x-2">
+          <button
+            @click="openPaid"
+            class="text-center bg-gray-600 px-4 py-2 text-xs text-white rounded-xl"
+          >
+            <PrinterIcon class="w-4 h-4 text-white" />
+          </button>
+          <button
+            class="text-center bg-green-500 py-2 px-4 text-xs text-white rounded-xl flex justify-center items-center gap-x-2"
+          >
+            <UserPlusIcon class="w-4 h-4 text-white" />Connect
+          </button>
           <button
             @click="onSubmitHandler"
             v-show="allowCreate"
-            class="text-center bg-[#ff613c] py-2 px-4 text-xs text-white rounded-lg"
+            class="text-center bg-[#ff613c] py-2 px-4 text-xs text-white rounded-xl flex justify-center items-center gap-x-2"
           >
-            + Create
+            <PencilSquareIcon class="w-4 h-4 text-white" />Update
           </button>
           <button
             v-show="!allowCreate"
-            class="text-center bg-gray-400 py-2 px-4 text-xs text-white rounded-lg"
+            class="text-center bg-gray-400 py-2 px-4 text-xs text-white rounded-xl flex justify-center items-center gap-x-2"
           >
-            + Create
+            <PencilSquareIcon class="w-4 h-4 text-white" />Update
           </button>
         </div>
         <!-- tags -->
@@ -940,6 +1270,19 @@ const onSubmitHandler = async () => {
             </div>
           </div>
         </div>
+
+        <div
+          class="flex items-center justify-start mt-4 mb-4 space-x-3 flex-nowrap"
+        >
+          <input
+            type="checkbox"
+            name=""
+            id=""
+            v-model="checkCondition"
+            class="w-6 h-6 bg-[#ff613c] border-gray-300 rounded-lg"
+          />
+          <p class="text-xs">click get allow update !</p>
+        </div>
         <!-- receipt image -->
         <!-- <div class="h-[20vh] rounded-lg text-sm text-[#ff613c]">Images</div> -->
         <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
@@ -958,8 +1301,40 @@ const onSubmitHandler = async () => {
             <img class="h-auto w-full rounded" :src="image" alt="" />
           </div>
         </div>
+        <p
+          class="text-xs font-medium pb-2"
+          v-if="formData.receipt_images.length > 0"
+        >
+          receipt images
+        </p>
+        <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
+          <div
+            class="relative"
+            v-for="(image, index) in formData.receipt_images"
+            :key="index"
+          >
+            <button
+              class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+            >
+              <XCircleIcon
+                class="w-8 h-8 font-semibold"
+                v-if="authStore.isSuperAdmin"
+                @click="deleteImage(image.id)"
+              />
+            </button>
+            <a :href="image.image" target="_blink">
+              <img class="h-auto w-full rounded" :src="image.image" alt="" />
+            </a>
+          </div>
+        </div>
       </div>
     </div>
+    <p
+      v-if="updatingLoading"
+      class="absolute w-full bg-black/80 text-white z-50 h-full top-0 left-0 flex justify-center items-center text-3xl"
+    >
+      Please wait updating process ...
+    </p>
   </Layout>
 </template>
 

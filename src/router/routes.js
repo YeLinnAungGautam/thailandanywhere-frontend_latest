@@ -43,6 +43,7 @@ import CarBookingView from "../views/PrivateVanTourCar.vue";
 import AvailabilityView from "../views/Availability.vue";
 import UserView from "../views/UserView.vue";
 import HotelEditView from "../views/HotelEditPage.vue";
+import UpdateBookingNewView from "../views/BookingUpdateNewVersion.vue";
 
 const routes = [
   {
@@ -137,6 +138,11 @@ const routes = [
     path: "/bookings/new-create",
     name: "bookings_new_create",
     component: BookingNewCreateView,
+  },
+  {
+    path: "/bookings/new-update/:id",
+    name: "update_new_bookings",
+    component: UpdateBookingNewView,
   },
   {
     path: "/calendar",

@@ -3,6 +3,10 @@ import { TrashIcon, PencilSquareIcon } from "@heroicons/vue/24/outline";
 import { onMounted, defineProps, ref, defineEmits, watch } from "vue";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import van from "../../../public/1.png";
+import saloon from "../../../public/2.png";
+import deluxe from "../../../public/3.png";
+import { useAuthStore } from "../../stores/auth";
 
 const props = defineProps({
   data: Object,
@@ -11,6 +15,7 @@ const emit = defineEmits(["remove"]);
 const itemList = ref([]);
 const editIndex = ref("");
 const openModal = ref(false);
+const authStore = useAuthStore();
 
 const formitem = ref({
   reservation_id: null,
@@ -186,6 +191,29 @@ const cancelAction = () => {
   addInfoModal.value = false;
 };
 
+const getCarImage = (type) => {
+  // Define the car images for each van tour type
+  const carImages = {
+    car1: van,
+    car2: saloon,
+    car3: deluxe,
+    // Add more car types and their corresponding images as needed
+  };
+
+  // Return the car image based on the van tour type
+  // return carImages[type.toLowerCase()] || 'https://placehold.co/400';
+  switch (type) {
+    case "SUV":
+      return carImages["car2"]; // Use this for SUV logic
+    case "Saloon":
+      return carImages["car1"];
+    case "VIP Van": // Example of a different case, instead of repeating 'SUV'
+      return carImages["car2"];
+    default:
+      return carImages["car2"]; // Default case
+  }
+};
+
 const calculateDaysBetween = (a, b) => {
   if (a && b) {
     const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
@@ -218,6 +246,17 @@ watch(
   }
 );
 
+watch(
+  () => props.data?.items, // Watch for changes in items
+  (newItems) => {
+    console.log("props.data.items changed:", newItems);
+    if (newItems) {
+      itemList.value = newItems; // Update itemList when items change
+    }
+  },
+  { deep: true, immediate: true } // Optional: immediate triggers the callback initially
+);
+
 onMounted(() => {
   console.log("====================================");
   console.log(props.data, "this is props");
@@ -233,7 +272,9 @@ onMounted(() => {
       class="sticky top-0 bg-white z-10 py-2 text-xs font-medium text-[#ff613c] flex justify-between items-center"
     >
       <p>Added items</p>
-      <p>{{ itemList.length }} items</p>
+      <p>
+        {{ data?.is_inclusive ? itemList.length - 1 : itemList.length }} items
+      </p>
     </div>
     <div
       class="space-y-3 divide-y-2 pb-3 divide-gray-200"
@@ -243,6 +284,7 @@ onMounted(() => {
         class="flex justify-start items-start gap-x-2 pt-3"
         v-for="(i, index) in itemList ?? []"
         :key="i"
+        :class="i?.product_type != undefined ? '' : 'hidden'"
       >
         <img
           :src="
@@ -260,6 +302,7 @@ onMounted(() => {
                 @click="editAction(index, i)"
               />
               <TrashIcon
+                v-if="!i?.reservation_id || authStore?.isSuperAdmin"
                 class="w-4 h-4 cursor-pointer text-red-800"
                 @click="getRemoveFunction(i?.product_id)"
               />
@@ -386,16 +429,16 @@ onMounted(() => {
           as="h3"
           class="text-lg font-medium leading-6 text-gray-900 mb-1"
         >
-          Choose Car Type
+          Choose Type
         </DialogTitle>
         <div class="space-y-2.5 pb-3 border-b border-gray-300">
-          <p class="text-xs text-gray-500">Please Choose the Car type.</p>
+          <p class="text-xs text-gray-500">Please Choose the type.</p>
           <div class="relative w-full border border-gray-300 rounded-lg">
             <input
               type="text"
               v-model="search"
               class="bg-white w-full px-8 py-2 rounded-lg focus:outline-none text-[10px]"
-              placeholder="Search Car Type"
+              placeholder="Search Type"
             />
             <MagnifyingGlassIcon
               class="w-4 h-4 absolute text-[#ff613c] top-2 left-2"
@@ -419,7 +462,7 @@ onMounted(() => {
               v-if="formitem?.product_type == 1"
             >
               <img
-                src="https://placehold.co/400"
+                :src="getCarImage(i.name)"
                 class="w-16 h-16 rounded-lg"
                 alt=""
               />

@@ -154,11 +154,26 @@ const showAgentSearch = ref(false);
 
 // for sale create new version & old version
 const showVersion = ref(false);
+const showVersionUpdate = ref(false);
+const editId = ref("");
+
+const newUpdateHandler = (id) => {
+  showVersionUpdate.value = true;
+  editId.value = id;
+};
+
 const goCreatePage = (data) => {
   if (data == "new") {
     router.push("/bookings/new-create");
   } else {
     router.push("/bookings/create");
+  }
+};
+const goEditPage = (data) => {
+  if (data == "old") {
+    router.push("/bookings/update/" + editId.value + "/edit");
+  } else {
+    router.push("/bookings/new-update/" + editId.value);
   }
 };
 
@@ -549,13 +564,21 @@ watch(
                       <EyeIcon class="w-5 h-5" />
                     </button>
                   </router-link> -->
-                  <router-link :to="'/bookings/update/' + r.id + '/edit'">
+                  <!-- <router-link :to="'/bookings/update/' + r.id + '/edit'">
                     <button
                       class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                     >
                       <PencilSquareIcon class="w-5 h-5" />
                     </button>
-                  </router-link>
+                  </router-link> -->
+                  <!-- <router-link :to="'/bookings/new-update/' + r.id"> -->
+                  <button
+                    @click="newUpdateHandler(r.id)"
+                    class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
+                  >
+                    <PencilSquareIcon class="w-5 h-5" />
+                  </button>
+                  <!-- </router-link> -->
                   <button
                     v-if="authStore.isSuperAdmin"
                     @click.prevent="onDeleteHandler(r.id)"
@@ -790,6 +813,42 @@ watch(
               @click="goCreatePage('new')"
             >
               <p class="text-xs w-full whitespace-nowrap">New Version (beta)</p>
+            </Button>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+    <Modal :isOpen="showVersionUpdate" @closeModal="showVersionUpdate = false">
+      <DialogPanel
+        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-5"
+        >
+          select version controll !
+        </DialogTitle>
+        <div class="space-y-2">
+          <div>
+            <Button
+              class="w-full"
+              :leftIcon="PlusIcon"
+              @click="goEditPage('old')"
+            >
+              <p class="text-xs w-full whitespace-nowrap">
+                Old Version Edit (stable)
+              </p>
+            </Button>
+          </div>
+          <div>
+            <Button
+              :leftIcon="PlusIcon"
+              class="w-full bg-gray-500"
+              @click="goEditPage('new')"
+            >
+              <p class="text-xs w-full whitespace-nowrap">
+                New Version Edit (beta)
+              </p>
             </Button>
           </div>
         </div>

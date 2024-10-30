@@ -613,6 +613,11 @@ const onSubmitHandler = async () => {
           formData.value.items[x].route_plan
         );
       }
+      formData.value.items[x].reservation_id != "" &&
+        frmData.append(
+          "items[" + x + "][reservation_id]",
+          formData.value.items[x].reservation_id
+        );
 
       if (
         formData.value.items[x].product_type === "6" &&

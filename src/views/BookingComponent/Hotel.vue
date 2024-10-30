@@ -165,6 +165,26 @@ const todayCheck = () => {
   console.log(todayVali.value, "this is value");
 };
 
+const checkRoomPrice = async () => {
+  if (
+    formitem.value.car_id != "" &&
+    formitem.value.checkin_date != "" &&
+    formitem.value.checkout_date != ""
+  ) {
+    let data = {
+      checkin_date: formitem.value.checkin_date,
+      checkout_date: formitem.value.checkout_date,
+    };
+    const res = await hotelStore.getRoomPrice(data, formitem.value.car_id);
+    console.log("====================================");
+    console.log(res, "this is room price");
+    console.log("====================================");
+    // formitem.value.selling_price = res.data.room_price;
+  } else {
+    console.log("need to fill");
+  }
+};
+
 // cear item
 const clearAction = () => {
   formitem.value = {
@@ -291,6 +311,19 @@ watch(
     destsList.value = [];
     await hotelStore.getListAction(watchSystem.value);
   }, 500)
+);
+
+watch(
+  () => [
+    formitem.value.checkin_date,
+    formitem.value.checkout_date,
+    formitem.value.car_id,
+  ],
+  ([newData, secData, thirdData]) => {
+    if (newData && secData && thirdData) {
+      checkRoomPrice();
+    }
+  }
 );
 
 onMounted(async () => {
@@ -505,7 +538,7 @@ onMounted(async () => {
           </p>
         </div>
         <div class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1">
-          <div class="grid grid-cols-2 gap-x-2">
+          <div class="grid grid-cols-2 gap-2">
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
                 >Check in date</label
@@ -532,6 +565,7 @@ onMounted(async () => {
               <input
                 type="date"
                 v-model="formitem.checkout_date"
+                @change="checkRoomPrice"
                 name=""
                 class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                 id=""
@@ -557,6 +591,17 @@ onMounted(async () => {
                 {{ formitem.days }} Night x {{ formitem.quantity }} Rooms
               </p>
             </div>
+            <!-- <div class="space-y-1 col-span-2">
+              <label for="" class="text-[12px] text-gray-500"
+                >Total Amount</label
+              >
+              <p
+                class="border border-gray-300 bg-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+              >
+                {{ formitem.selling_price }} thb X {{ formitem.quantity }} Rooms
+                = {{ formitem.selling_price * formitem.quantity }} thb
+              </p>
+            </div> -->
           </div>
 
           <div class="space-y-1">

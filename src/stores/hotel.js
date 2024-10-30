@@ -33,6 +33,16 @@ export const useHotelStore = defineStore("hotel", {
             this.loading = false;
             return response.data;
         },
+        async getRoomPrice(params, id) {
+            try {
+                const response = await axios.get(/rooms/ + id + "/price", {
+                    params: params,
+                });
+                return response.data;
+            } catch (error) {
+                throw error;
+            }
+        },
         async getChangeIncompletePage(url, params) {
             this.loadingIncomplete = true;
             const response = await axios.get(url, {

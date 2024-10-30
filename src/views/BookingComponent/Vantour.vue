@@ -473,7 +473,7 @@ onMounted(async () => {
         <div class="right-1 top-1 rounded-full absolute" @click="viewDetail(i)">
           <InformationCircleIcon class="w-5 h-5 text-[#ff613c] bg-white" />
         </div>
-        <div class="flex justify-start items-start gap-x-2">
+        <div class="flex justify-start items-start gap-x-2 pb-8">
           <img
             :src="
               i?.cover_image != null
@@ -486,21 +486,35 @@ onMounted(async () => {
           <div>
             <p class="text-xs font-medium">{{ i?.name }}</p>
             <p class="text-[10px]">{{ i?.type }}</p>
-            <div class="flex justify-start gap-x-2 items-center pt-2">
+            <div class="flex justify-start gap-x-2 items-center py-1">
               <p
-                class="flex justify-start items-center gap-x-1 text-[10px] line-clamp-1"
+                class="flex justify-start items-center gap-x-1 text-[8px] line-clamp-1"
               >
-                <MapPinIcon class="w-3 h-3 text-[#ff613c]" />
+                <MapPinIcon class="w-3 h-3 text-[#ff613c] text-[8px]" />
                 {{ i?.cities[0]?.name }}
               </p>
-              <p class="text-[10px] flex justify-start items-center gap-x-1">
+              <p class="text-[8px] flex justify-start items-center gap-x-1">
                 {{ i?.destinations?.length }}
                 <img :src="attractionImage" alt="" class="w-2.5 h-2.5" />
               </p>
             </div>
+            <div class="overflow-hidden">
+              <div
+                class="flex justify-start items-center gap-x-1 pr-2"
+                v-for="a in i?.destinations"
+                :key="a"
+              >
+                <img :src="attractionImage" alt="" class="w-1 h-1" />
+                <p class="text-[8px] whitespace-nowrap line-clamp-1 w-[150px]">
+                  {{ a.name }}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="flex justify-between items-center">
+        <div
+          class="flex justify-between items-center absolute bottom-2 w-[93%]"
+        >
           <p class="font-medium">{{ i?.lowest_car_price }} ฿</p>
           <button
             @click="openAddItemModal(i)"

@@ -55,6 +55,14 @@ export const useVariationStore = defineStore("variation", {
         throw error;
       }
     },
+    async detailAction(id) {
+      try {
+        const response = await axios.get("/entrance-tickets-variations/" + id);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
     async updateAction(data, id) {
       try {
         const response = await axios.post(

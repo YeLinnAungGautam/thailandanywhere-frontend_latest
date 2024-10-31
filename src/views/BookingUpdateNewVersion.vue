@@ -8,6 +8,7 @@ import {
   MagnifyingGlassIcon,
   PrinterIcon,
   PencilSquareIcon,
+  TrashIcon,
 } from "@heroicons/vue/24/outline";
 import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
@@ -17,6 +18,8 @@ import OverView from "./BookingComponent/Vantour.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import { Switch } from "@headlessui/vue";
 import Modal from "../components/Modal.vue";
+import Swal from "sweetalert2";
+// import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useToast } from "vue-toastification";
 import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
@@ -35,6 +38,7 @@ import Hotel from "./BookingComponent/Hotel.vue";
 import DetailItemVue from "./BookingComponent/DetailItem.vue";
 import DetailListVue from "./BookingComponent/DetailList.vue";
 import { useAuthStore } from "../stores/auth";
+import { useUserStore } from "../stores/user";
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
 // for tag
@@ -46,6 +50,7 @@ const toast = useToast();
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+const userStore = useUserStore();
 
 const productArray = [
   {
@@ -92,6 +97,8 @@ const currentComponent = computed(
 const formData = ref({
   payment_notes: "",
   customer_id: "",
+  user_id: "",
+  user_name: "",
   customer_name: "",
   customer_phone: "",
   customer_email: "",
@@ -397,6 +404,10 @@ const onSubmitHandler = async () => {
       frmData.append("past_crm_id", formData.value.past_crm_id);
     formData.value.past_user_id &&
       frmData.append("past_user_id", formData.value.past_user_id);
+    frmData.append(
+      "user_id",
+      formData.value.user_id ? formData.value.user_id : 0
+    );
 
     formData.value.payment_status &&
       frmData.append("payment_status", formData.value.payment_status);
@@ -720,6 +731,8 @@ const onSubmitHandler = async () => {
       formData.value = {
         customer_id: "",
         sold_from: "",
+        user_id: "",
+        user_name: "",
         payment_method: "",
         bank_name: "",
         payment_status: "",
@@ -871,6 +884,8 @@ const getDetail = async () => {
       id: data.id,
       payment_notes: data.payment_notes ? data.payment_notes : "",
       customer_id: data.customer.id,
+      user_id: response.result.user?.id,
+      user_name: response.result.user?.name,
       customer_name: data.customer?.name,
       customer_email: data.customer?.email ? data.customer?.email : "",
       customer_phone: data.customer?.phone_number
@@ -1009,6 +1024,68 @@ const deleteImage = async (id) => {
   // await getDetail();
 };
 
+// add user to this sale
+// this will be called when add user button is clicked
+const unique_key = ref("");
+const user = ref(null);
+const openAddUserModal = ref(false);
+
+const cancelAddUser = () => {
+  unique_key.value = "";
+  user.value = null;
+  formData.value.user_id = "";
+  formData.value.user_name = "";
+  openAddUserModal.value = false;
+};
+
+const removeUserAdd = async () => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        formData.value.user_id = "";
+        user.value = null;
+        formData.value.user_name = "";
+        await onSubmitHandler();
+      } catch (error) {
+        console.log(
+          "🚀 ~ file: BlogView.vue:65 ~ onDeleteHandler ~ error:",
+          error
+        );
+      }
+    }
+  });
+};
+
+const addUserToBooking = async (id) => {
+  console.log(id);
+  formData.value.user_id = id;
+  openAddUserModal.value = false;
+  await onSubmitHandler();
+};
+
+const searchWithUnique = async () => {
+  if (unique_key.value != "") {
+    const res = await userStore.getListAction({ unique_key: unique_key.value });
+    console.log(res?.result?.data, "this is search user with unique");
+    if (res?.result?.data?.length > 0) {
+      user.value = res.result.data;
+    } else {
+      toast.warning("User not found");
+    }
+  } else {
+    user.value = null;
+    toast.warning("Please enter user unique key");
+  }
+};
+
 onMounted(() => {
   getDetail();
 });
@@ -1059,12 +1136,12 @@ onMounted(() => {
               />
               <div class="w-[130px] space-y-1">
                 <p class="whitespace-nowrap text-[10px] font-medium">
-                  All Items
+                  View Items
                 </p>
                 <p
                   class="text-[8px] text-gray-500 font-normal whitespace-nowrap"
                 >
-                  view items
+                  Go Back
                 </p>
               </div>
             </div>
@@ -1123,11 +1200,32 @@ onMounted(() => {
           >
             <PrinterIcon class="w-4 h-4 text-white" />
           </button>
-          <button
-            class="text-center bg-green-500 py-2 px-4 text-xs text-white rounded-xl flex justify-center items-center gap-x-2"
+          <div
+            @click="openAddUserModal = true"
+            class="text-center cursor-pointer relative max-w-[200px] bg-green-500 py-2 px-4 text-xs text-white rounded-xl flex justify-start items-center gap-x-2"
           >
-            <UserPlusIcon class="w-4 h-4 text-white" />Connect
-          </button>
+            <!-- <UserPlusIcon class="w-4 h-4 text-white" />Connect -->
+            <div class="flex justify-center items-center cursor-pointer">
+              <UserPlusIcon class="w-4 h-4 mr-2 cursor-pointer" />
+              <p
+                v-if="formData.user_name && formData.user_id && user == null"
+                class="text-[10px] whitespace-nowrap line-clamp-1"
+              >
+                {{ formData.user_name }}
+              </p>
+              <p v-if="user != null">
+                {{ user[0]?.name }}
+              </p>
+              <p v-if="formData.user_id == null">Connect</p>
+            </div>
+            <div
+              @click="removeUserAdd"
+              v-if="authStore.isSuperAdmin && formData.user_id != undefined"
+              class="absolute right-0.5 top-0.5 z-40 cursor-pointer rounded-xl bg-white p-1.5"
+            >
+              <TrashIcon class="w-4 h-4 text-red-500" />
+            </div>
+          </div>
           <button
             @click="onSubmitHandler"
             v-show="allowCreate"
@@ -1346,6 +1444,83 @@ onMounted(() => {
     >
       Please wait updating process ...
     </p>
+    <Modal :isOpen="openAddUserModal" @closeModal="openAddUserModal = false">
+      <DialogPanel
+        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-5"
+        >
+          {{ formData.user_id ? "Edit User" : "Add User" }}
+        </DialogTitle>
+        <div>
+          <div class="relative">
+            <input
+              type="search"
+              v-model="unique_key"
+              name=""
+              id=""
+              class="w-full h-10 px-4 py-2 text-xs text-gray-900 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:border-gray-300"
+              placeholder="Paste User Unique Key"
+            />
+            <div
+              class="absolute right-1 top-1 text-xs cursor-pointer flex justify-start items-center gap-2 bg-[#ff613c] text-white px-2 py-2 rounded-xl"
+              @click="searchWithUnique"
+            >
+              <MagnifyingGlassIcon class="w-4 h-4" />
+              search
+            </div>
+          </div>
+          <div>
+            <div
+              v-if="user"
+              class="w-full h-auto pb-5 border border-gray-300 rounded-xl mt-4 px-4"
+            >
+              <div class="w-20 h-20 overflow-hidden rounded-full mx-auto mt-5">
+                <img
+                  :src="
+                    user[0]?.profile !=
+                    'https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/'
+                      ? user[0]?.profile
+                      : '../../public/logo.jpg'
+                  "
+                  alt=""
+                  class="w-full h-full object-cover"
+                />
+              </div>
+              <p class="text-center text-xl font-semibold">
+                {{ user[0]?.name }}
+              </p>
+              <p class="text-center text-sm">{{ user[0]?.email }}</p>
+              <p class="text-center text-sm">
+                phone : {{ user[0]?.phone ? user[0]?.phone : "-" }}
+              </p>
+              <p
+                class="text-center text-xs text-red-600 bg-red-300/50 p-2 mt-4 rounded"
+              >
+                Please check user information before add user. if you wrong,
+                user privacy is exposed. So please be careful.
+              </p>
+              <div class="flex justify-end items-center gap-x-4 pt-5">
+                <button
+                  @click.prevent="cancelAddUser"
+                  class="bg-white border border-gray-300 px-3 py-2 rounded-lg text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  @click.prevent="addUserToBooking(user[0]?.id)"
+                  class="bg-[#ff613c] text-white border border-gray-300 px-3 py-2 rounded-lg text-xs"
+                >
+                  Add User
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>
 

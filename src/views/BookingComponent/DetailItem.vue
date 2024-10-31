@@ -16,6 +16,9 @@ import saloon from "../../../public/2.png";
 import deluxe from "../../../public/3.png";
 import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
+import bookingInfo from "../../../public/bookingInfo.png";
+import travellerInfo from "../../../public/travellerInfo.png";
+import DetailitemVue from "./DetailItemView.vue";
 
 const reservationStore = useReservationStore();
 const toast = useToast();
@@ -52,30 +55,67 @@ const editData = ref({
 const addItemModal = ref(false);
 const addInfoModal = ref(false);
 const addTravellerModal = ref(false);
+const openModalPart = ref(false);
 const openModalAction = (data) => {
   openModal.value = true;
+  openModalPart.value = true;
   showData.value = data;
-  console.log("====================================");
-  console.log(showData.value, "this is showData");
-  console.log("====================================");
 };
 
-const openAddItemModalAction = (data) => {
+const headLabel = ref("");
+const secLabel = ref("");
+
+watch(
+  [addItemModal, addInfoModal, addTravellerModal, openModalPart],
+  ([itemValue, infoValue, travellerValue, openModalValue]) => {
+    if (addItemModal.value == true) {
+      headLabel.value = "Product Information";
+      secLabel.value = "Please contact super admin for product amends";
+    } else if (addInfoModal.value == true) {
+      headLabel.value = "Booking Information";
+      secLabel.value = "Checking your booking information";
+    } else if (addTravellerModal.value == true) {
+      headLabel.value = "Fill Traveller Information";
+      secLabel.value =
+        "To make reservation easier, please insert customer info.";
+    } else if (openModalPart.value == true) {
+      headLabel.value = "Chose Detail Type";
+      secLabel.value = "Please choose your required detail type";
+    }
+  }
+);
+
+const openAddItemModalAction = () => {
   addItemModal.value = true;
-  showData.value = data;
+  openModalPart.value = false;
+  // showData.value = data;
 };
 const cancelAction = () => {
   showData.value = null;
   addItemModal.value = false;
   openModal.value = false;
   addInfoModal.value = false;
+  addTravellerModal.value = false;
+  closeTravellerModal();
 };
+
+const backAction = () => {
+  addItemModal.value = false;
+  openModalPart.value = true;
+  addInfoModal.value = false;
+  addTravellerModal.value = false;
+  closeTravellerModal();
+};
+
 const goInfoModal = (data) => {
   addInfoModal.value = true;
-  showData.value = data;
+  // showData.value = data;
+  addInfoModal.value = true;
+  openModalPart.value = false;
 };
 const closeTravellerModal = () => {
   addTravellerModal.value = false;
+  // openModal.value = false;
   editData.value = {
     id: "",
     name: "",
@@ -92,6 +132,7 @@ const featureImageInput = ref(null);
 
 const goTravellerModal = (data) => {
   addTravellerModal.value = true;
+  openModalPart.value = false;
   editData.value.id = data.reservation_id;
   editData.value.name = data.associated_customer[0]?.name
     ? data.associated_customer[0]?.name
@@ -389,557 +430,475 @@ onMounted(async () => {
           as="h3"
           class="text-lg font-medium leading-6 text-gray-900 mb-1"
         >
-          View Detail Type
+          {{ headLabel }}
         </DialogTitle>
         <div class="space-y-2.5 pb-3 border-b border-gray-300">
           <p class="text-xs text-gray-500">
-            If wanna edit, please edit in Added Items
+            {{ secLabel }}
           </p>
         </div>
-        <div class="h-[300px] overflow-y-scroll">
-          <div class="bg-white p-2 rounded-xl border mt-2 shadow-sm space-y-2">
-            <div class="flex justify-start items-start gap-x-2">
-              <img
-                :src="
-                  showData?.product_image
-                    ? showData?.product_image
-                    : 'https://placehold.co/400'
-                "
-                class="w-16 h-16 rounded-lg"
-                alt=""
-              />
+        <!-- view type -->
+        <div class="" v-if="openModalPart">
+          <div class="h-[300px] overflow-y-scroll">
+            <div
+              class="bg-white p-2 rounded-xl border mt-2 shadow-sm space-y-2"
+            >
+              <div class="flex justify-start items-start gap-x-2">
+                <img
+                  :src="
+                    showData?.product_image
+                      ? showData?.product_image
+                      : 'https://placehold.co/400'
+                  "
+                  class="w-16 h-16 rounded-lg"
+                  alt=""
+                />
 
-              <div class="w-full">
-                <p class="text-sm font-medium pb-1 text-[#ff613c] line-clamp-1">
-                  <!-- {{ showData?.product_name }} -->
-                  View type
-                </p>
-                <p class="text-xs">{{ showData?.item_name }}</p>
-                <div class="flex justify-between items-center">
-                  <p class="text-xs">{{ showData?.quantity }} Qty</p>
-                  <div class="flex justify-end items-center">
-                    <p
-                      @click="openAddItemModalAction(showData)"
-                      class="text-xs font-medium bg-[#ff613c] rounded-lg px-4 py-1 text-white"
-                    >
-                      View
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="bg-white p-2 rounded-xl border mt-2 shadow-sm space-y-2">
-            <div class="flex justify-start items-start gap-x-2">
-              <img
-                src="https://placehold.co/400"
-                class="w-16 h-16 rounded-lg"
-                alt=""
-              />
-
-              <div class="w-full">
-                <p class="text-sm font-medium pb-1 line-clamp-1">
-                  Booking information
-                </p>
-                <p class="text-xs">{{ showData?.service_date }}</p>
-                <div class="flex justify-between items-center">
-                  <p class="text-xs">
-                    {{
-                      showData?.is_driver_collect ? "collect" : "bank tranfer"
-                    }}
+                <div class="w-full">
+                  <p
+                    class="text-sm font-medium pb-1 text-[#ff613c] line-clamp-1"
+                  >
+                    {{ showData?.product_name }}
+                    <!-- View type -->
                   </p>
-                  <div class="flex justify-end items-center">
-                    <p
-                      @click="goInfoModal(showData)"
-                      class="text-xs font-medium bg-[#ff613c] rounded-lg px-4 py-1 text-white"
+                  <p class="text-xs">{{ showData?.item_name }}</p>
+                  <div class="flex justify-between items-center">
+                    <p class="text-xs">{{ showData?.quantity }} Qty</p>
+                    <div
+                      class="flex justify-end items-center"
+                      v-if="showData?.product_type != 1"
                     >
-                      View
-                    </p>
+                      <p
+                        @click="openAddItemModalAction(showData)"
+                        class="text-xs font-medium bg-[#ff613c] rounded-lg px-4 py-1 text-white"
+                      >
+                        View
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div
-            class="bg-white p-2 rounded-xl border mt-2 shadow-sm space-y-2"
-            v-if="showData?.product_type != 1"
-          >
-            <div class="flex justify-start items-start gap-x-2">
-              <img
-                src="https://placehold.co/400"
-                class="w-16 h-16 rounded-lg"
-                alt=""
-              />
+            <div
+              class="bg-white p-2 rounded-xl border mt-2 shadow-sm space-y-2"
+            >
+              <div class="flex justify-start items-start gap-x-2">
+                <img :src="bookingInfo" class="w-16 h-16 rounded-lg" alt="" />
 
-              <div class="w-full">
-                <p class="text-sm font-medium pb-1 line-clamp-1">
-                  Traveller information
-                </p>
-                <p class="text-xs">
-                  {{
-                    showData?.customer_passport != undefined
-                      ? showData?.customer_passport.length
-                      : "-"
-                  }}
-                  Passports
-                </p>
-                <div class="flex justify-between items-center">
+                <div class="w-full">
+                  <p class="text-sm font-medium pb-1 line-clamp-1">
+                    Booking information
+                  </p>
+                  <p class="text-xs">{{ showData?.service_date }}</p>
+                  <div class="flex justify-between items-center">
+                    <p class="text-xs">
+                      {{
+                        showData?.is_driver_collect ? "collect" : "bank tranfer"
+                      }}
+                    </p>
+                    <div class="flex justify-end items-center">
+                      <p
+                        @click="goInfoModal(showData)"
+                        class="text-xs font-medium bg-[#ff613c] rounded-lg px-4 py-1 text-white"
+                      >
+                        View
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="bg-white p-2 rounded-xl border mt-2 shadow-sm space-y-2"
+              v-if="showData?.product_type != 1"
+            >
+              <div class="flex justify-start items-start gap-x-2">
+                <img :src="travellerInfo" class="w-16 h-16 rounded-lg" alt="" />
+
+                <div class="w-full">
+                  <p class="text-sm font-medium pb-1 line-clamp-1">
+                    Traveller information
+                  </p>
                   <p class="text-xs">
                     {{
-                      showData?.associated_customer[0]?.name
-                        ? showData?.associated_customer[0]?.name
+                      showData?.customer_passport != undefined
+                        ? showData?.customer_passport.length
                         : "-"
                     }}
+                    Passports
                   </p>
-                  <div class="flex justify-end items-center">
-                    <p
-                      @click="goTravellerModal(showData)"
-                      class="text-xs font-medium bg-[#ff613c] rounded-lg px-4 py-1 text-white cursor-pointer"
-                    >
-                      Edit Detail
+                  <div class="flex justify-between items-center">
+                    <p class="text-xs">
+                      {{
+                        showData?.associated_customer[0]?.name
+                          ? showData?.associated_customer[0]?.name
+                          : "-"
+                      }}
                     </p>
+                    <div class="flex justify-end items-center">
+                      <p
+                        @click="goTravellerModal(showData)"
+                        class="text-xs font-medium bg-[#ff613c] rounded-lg px-4 py-1 text-white cursor-pointer"
+                      >
+                        Edit Detail
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="flex justify-end items-center gap-x-2 pt-2">
-          <button
-            @click="cancelAction"
-            class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
-          >
-            Cancel
-          </button>
-        </div>
-      </DialogPanel>
-    </Modal>
-
-    <!-- choose room type modal -->
-    <Modal :isOpen="addItemModal" @closeModal="cancelAction">
-      <DialogPanel
-        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
-      >
-        <DialogTitle
-          as="h3"
-          class="text-lg font-medium leading-6 text-gray-900 mb-1"
-        >
-          View Type
-        </DialogTitle>
-        <div class="space-y-2.5 pb-3 border-b border-gray-300">
-          <p class="text-xs text-gray-500">
-            If wanna edit, please edit in Added Items
-          </p>
-        </div>
-        <div class="h-[300px] overflow-y-scroll pr-2">
-          <div
-            class="bg-white p-2 rounded-xl border mt-2 shadow-sm space-y-2"
-            v-for="i in showData?.car_list.length > 0 ? showData?.car_list : []"
-            :key="i"
-            :class="
-              showData?.car_id == i.id
-                ? 'border-[#ff613c] bg-[#ff613c]/20'
-                : 'border-gray-200'
-            "
-          >
-            <div
-              class="flex justify-start items-start gap-x-2"
-              v-if="showData?.product_type == 1"
+          <div class="flex justify-end items-center gap-x-2 pt-2">
+            <button
+              @click="cancelAction"
+              class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
             >
-              <img
-                :src="getCarImage(i.name)"
-                class="w-16 h-16 rounded-lg"
-                alt=""
-              />
-              <div class="flex justify-between items-start w-full h-16">
-                <div class="space-y-1">
-                  <p class="text-sm font-medium text-[#ff613c]">{{ i.name }}</p>
-                  <p class="text-xs">{{ i.max_person }} Pax</p>
-                </div>
-                <div class="my-auto">
-                  <p class="text-xs font-semibold whitespace-nowrap">
-                    <span class="text-lg">{{ i?.price }}</span> / car
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div
-              class="flex justify-start items-start gap-x-2"
-              v-if="showData?.product_type == 4"
-            >
-              <img
-                src="https://placehold.co/400"
-                class="w-16 h-16 rounded-lg"
-                alt=""
-              />
-              <div class="flex justify-between items-start w-full">
-                <div class="space-y-1">
-                  <p class="text-xs font-medium text-[#ff613c]">{{ i.name }}</p>
-                  <!-- <p class="text-xs">{{ i.max_person }} Pax</p> -->
-                </div>
-                <div class="my-auto">
-                  <p class="text-xs font-semibold whitespace-nowrap">
-                    <span class="text-lg">{{ i?.price }}</span> / ticket
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div
-              class="flex justify-start items-start gap-x-2"
-              v-if="showData?.product_type == 6"
-            >
-              <img
-                src="https://placehold.co/400"
-                class="w-16 h-16 rounded-lg"
-                alt=""
-              />
-              <div class="flex justify-between items-start w-full gap-x-2">
-                <div class="space-y-1">
-                  <p class="text-xs font-medium text-[#ff613c]">{{ i.name }}</p>
-                  <p class="text-xs">{{ i.max_person }} Pax</p>
-                  <p class="text-[10px] text-green-600">
-                    {{ i?.has_breakfast == 1 ? "Breakfast included" : "" }}
-                  </p>
-                </div>
-                <div class="my-auto">
-                  <p class="text-xs font-semibold whitespace-nowrap">
-                    <span class="text-lg">{{ i?.room_price }}</span> / night
-                  </p>
-                </div>
-              </div>
-            </div>
+              Cancel
+            </button>
           </div>
         </div>
-        <div class="flex justify-end items-center gap-x-2 pt-2">
-          <button
-            @click="cancelAction"
-            class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
-          >
-            Cancel
-          </button>
+        <!-- view detail -->
+        <div v-if="addItemModal == true">
+          <div class="h-[600px] overflow-y-scroll pr-2">
+            <!-- {{ showData.product_id }} -->
+            <DetailitemVue
+              :id="showData?.car_id"
+              :type="showData?.product_type"
+            />
+          </div>
+          <div class="flex justify-end items-center gap-x-2 pt-2">
+            <button
+              @click="backAction"
+              class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
+            >
+              Back
+            </button>
+            <button
+              @click="cancelAction"
+              class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
-      </DialogPanel>
-    </Modal>
-
-    <!-- choose info booking modal -->
-    <Modal :isOpen="addInfoModal" @closeModal="cancelAction">
-      <DialogPanel
-        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
-      >
-        <DialogTitle
-          as="h3"
-          class="text-lg font-medium leading-6 text-gray-900 mb-1"
-        >
-          View Booking Information
-        </DialogTitle>
-        <div class="space-y-2.5 pb-3 border-b border-gray-300">
-          <p class="text-xs text-gray-500">
-            If wanna edit, please edit in Added Items
-          </p>
-        </div>
-        <div class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1">
-          <div v-if="showData?.product_type != 6" class="space-y-2">
-            <div class="grid grid-cols-2 gap-x-2">
+        <!-- view info -->
+        <div v-if="addInfoModal == true">
+          <div class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1">
+            <div v-if="showData?.product_type != 6" class="space-y-2">
+              <div class="grid grid-cols-2 gap-x-2">
+                <div class="space-y-1" v-if="showData?.product_type == 1">
+                  <label for="" class="text-[12px] text-gray-500"
+                    >Pick up time</label
+                  >
+                  <input
+                    type="time"
+                    :value="showData?.pickup_time"
+                    name=""
+                    disabled
+                    class="border border-gray-300 bg-gray-100 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    id=""
+                  />
+                </div>
+                <div class="space-y-1">
+                  <label for="" class="text-[12px] text-gray-500"
+                    >Service date</label
+                  >
+                  <input
+                    type="date"
+                    :value="showData?.service_date"
+                    name=""
+                    disabled
+                    class="border border-gray-300 bg-gray-100 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    id=""
+                  />
+                </div>
+              </div>
               <div class="space-y-1" v-if="showData?.product_type == 1">
                 <label for="" class="text-[12px] text-gray-500"
-                  >Pick up time</label
+                  >Pick up location</label
                 >
                 <input
-                  type="time"
-                  :value="showData?.pickup_time"
+                  type="text"
+                  :value="showData?.pickup_location"
                   name=""
-                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  disabled
+                  class="border bg-gray-100 border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                   id=""
                 />
               </div>
+              <div class="grid grid-cols-2 gap-x-2">
+                <div class="space-y-1" v-if="showData?.product_type == 1">
+                  <label for="" class="text-[12px] text-gray-500"
+                    >Payment Method</label
+                  >
+                  <div class="flex justify-start items-center gap-x-2">
+                    <input
+                      type="checkbox"
+                      name=""
+                      disabled
+                      :value="showData?.is_driver_collect"
+                      class="px-4 w-6 bg-gray-100 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                      id=""
+                    />
+                    <p class="text-xs">Is Driver Collect ?</p>
+                  </div>
+                </div>
+                <div class="space-y-1">
+                  <label for="" class="text-[12px] text-gray-500">Qty</label>
+                  <input
+                    type="number"
+                    :value="showData?.quantity"
+                    name=""
+                    disabled
+                    class="border border-gray-300 bg-gray-100 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    id=""
+                  />
+                </div>
+              </div>
+            </div>
+            <div
+              class="grid grid-cols-2 gap-2"
+              v-if="showData?.product_type == 6"
+            >
               <div class="space-y-1">
                 <label for="" class="text-[12px] text-gray-500"
-                  >Service date</label
+                  >Check in date</label
                 >
                 <input
                   type="date"
                   :value="showData?.service_date"
                   name=""
-                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  disabled
+                  class="border w-full bg-gray-100 border-gray-300 px-2 py-2 rounded-lg text-xs focus:outline-none"
                   id=""
                 />
               </div>
-            </div>
-            <div class="space-y-1" v-if="showData?.product_type == 1">
-              <label for="" class="text-[12px] text-gray-500"
-                >Pick up location</label
-              >
-              <input
-                type="text"
-                :value="showData?.pickup_location"
-                name=""
-                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                id=""
-              />
-            </div>
-            <div class="grid grid-cols-2 gap-x-2">
-              <div class="space-y-1" v-if="showData?.product_type == 1">
+              <div class="space-y-1">
                 <label for="" class="text-[12px] text-gray-500"
-                  >Payment Method</label
+                  >Check out date</label
                 >
-                <div class="flex justify-start items-center gap-x-2">
-                  <input
-                    type="checkbox"
-                    name=""
-                    :value="showData?.is_driver_collect"
-                    class="px-4 w-6 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
-                    id=""
-                  />
-                  <p class="text-xs">Is Driver Collect ?</p>
-                </div>
+                <input
+                  type="date"
+                  :value="showData?.checkout_date"
+                  name=""
+                  disabled
+                  class="border w-full bg-gray-100 px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id=""
+                />
               </div>
               <div class="space-y-1">
-                <label for="" class="text-[12px] text-gray-500">Qty</label>
+                <label for="" class="text-[12px] text-gray-500"
+                  >Total Rooms</label
+                >
                 <input
                   type="number"
                   :value="showData?.quantity"
+                  disabled
+                  name=""
+                  class="border bg-gray-100 border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id=""
+                />
+              </div>
+              <div class="space-y-1">
+                <label for="" class="text-[12px] text-gray-500">Qty</label>
+                <p
+                  class="border border-gray-300 bg-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                >
+                  {{ showData?.days }} Night x {{ showData?.quantity }} Rooms
+                </p>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500">Discount</label>
+              <input
+                type="number"
+                :value="showData?.discount"
+                disabled
+                name=""
+                class="border border-gray-300 bg-gray-100 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              />
+            </div>
+            <div class="space-y-1" v-if="showData?.product_type == 1">
+              <label for="" class="text-[12px] text-gray-500">Route Plan</label>
+              <textarea
+                name=""
+                :value="showData?.route_plan"
+                disabled
+                class="border bg-gray-100 border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              ></textarea>
+            </div>
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500"
+                >Special Request</label
+              >
+              <textarea
+                name=""
+                disabled
+                :value="showData?.special_request"
+                class="border bg-gray-100 border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              ></textarea>
+            </div>
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500"
+                >Description</label
+              >
+              <textarea
+                name=""
+                :value="showData?.comment"
+                disabled
+                class="border bg-gray-100 border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              ></textarea>
+            </div>
+          </div>
+          <div class="flex justify-end items-center gap-x-2 pt-2">
+            <button
+              @click="backAction"
+              class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
+            >
+              Back
+            </button>
+            <button
+              @click="cancelAction"
+              class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+        <!-- view traveller modal -->
+        <div v-if="addTravellerModal">
+          <div class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1">
+            <div class="grid grid-cols-2 gap-2">
+              <div class="space-y-1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Full Name</label
+                >
+                <input
+                  type="text"
+                  v-model="editData.name"
                   name=""
                   class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                   id=""
                 />
               </div>
+              <div class="space-y-1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Passport or ID Number</label
+                >
+                <input
+                  type="text"
+                  v-model="editData.passport"
+                  name=""
+                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id=""
+                />
+              </div>
+              <div class="space-y-1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Phone Number</label
+                >
+                <input
+                  type="text"
+                  v-model="editData.phone"
+                  name=""
+                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id=""
+                />
+              </div>
+              <div class="space-y-1">
+                <label for="" class="text-[12px] text-gray-500">Email</label>
+                <input
+                  type="text"
+                  v-model="editData.email"
+                  name=""
+                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id=""
+                />
+              </div>
+              <div class="space-y-1 col-span-2">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Add Passports</label
+                >
+                <input
+                  type="file"
+                  ref="featureImageInput"
+                  multiple
+                  class="hidden"
+                  @change="handlerFeatureFileChange"
+                  accept="image/*"
+                />
+                <button
+                  @click.prevent="openFileFeaturePicker"
+                  class="text-sm text-[#ff613c]"
+                ></button>
+                <div
+                  class="cursor-pointer mt-2 w-full h-[80px] border-2 border-dashed border-gray-300 rounded flex justify-center items-center"
+                  @click.prevent="openFileFeaturePicker"
+                >
+                  <span class="text-xs"
+                    ><i
+                      class="px-2 py-1 text-sm font-semibold text-white bg-[#ff613c] rounded-full shadow fa-solid fa-plus"
+                    ></i
+                  ></span>
+                </div>
+              </div>
+              <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
+                <div
+                  class="relative"
+                  v-for="(image, index) in featureImagePreview"
+                  :key="index"
+                >
+                  <button
+                    @click.prevent="removeFeatureSelectImage(index)"
+                    class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                  >
+                    <XCircleIcon class="w-8 h-8 font-semibold" />
+                  </button>
+
+                  <img class="h-auto w-full rounded" :src="image" alt="" />
+                </div>
+              </div>
+              <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
+                <div
+                  class="relative"
+                  v-for="(image, index) in editData.customer_passport_have"
+                  :key="index"
+                >
+                  <button
+                    @click.prevent="removeFeatureDeleteImage(index, image.id)"
+                    class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                  >
+                    <XCircleIcon class="w-8 h-8 font-semibold" />
+                  </button>
+                  <img class="h-auto w-full rounded" :src="image.file" alt="" />
+                </div>
+              </div>
             </div>
           </div>
-          <div
-            class="grid grid-cols-2 gap-2"
-            v-if="showData?.product_type == 6"
-          >
-            <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500"
-                >Check in date</label
-              >
-              <input
-                type="date"
-                :value="showData?.service_date"
-                name=""
-                class="border w-full border-gray-300 px-2 py-2 rounded-lg text-xs focus:outline-none"
-                id=""
-              />
-            </div>
-            <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500"
-                >Check out date</label
-              >
-              <input
-                type="date"
-                :value="showData?.checkout_date"
-                name=""
-                class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                id=""
-              />
-            </div>
-            <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500"
-                >Total Rooms</label
-              >
-              <input
-                type="number"
-                :value="showData?.quantity"
-                name=""
-                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                id=""
-              />
-            </div>
-            <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500">Qty</label>
-              <p
-                class="border border-gray-300 bg-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-              >
-                {{ showData?.days }} Night x {{ showData?.quantity }} Rooms
-              </p>
-            </div>
-          </div>
-          <div class="space-y-1">
-            <label for="" class="text-[12px] text-gray-500">Discount</label>
-            <input
-              type="number"
-              :value="showData?.discount"
-              name=""
-              class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-              id=""
-            />
-          </div>
-          <div class="space-y-1" v-if="showData?.product_type == 1">
-            <label for="" class="text-[12px] text-gray-500">Route Plan</label>
-            <textarea
-              name=""
-              :value="showData?.route_plan"
-              class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-              id=""
-            ></textarea>
-          </div>
-          <div class="space-y-1">
-            <label for="" class="text-[12px] text-gray-500"
-              >Special Request</label
+          <div class="flex justify-end items-center gap-x-2 pt-2">
+            <button
+              @click="backAction"
+              class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
             >
-            <textarea
-              name=""
-              :value="showData?.special_request"
-              class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-              id=""
-            ></textarea>
+              Back
+            </button>
+            <button
+              @click="closeTravellerModal"
+              class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
+            >
+              Cancel
+            </button>
+            <button
+              @click="addTravellerAction"
+              class="bg-[#ff613c] text-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
+            >
+              Add Traveller
+            </button>
           </div>
-          <div class="space-y-1">
-            <label for="" class="text-[12px] text-gray-500">Description</label>
-            <textarea
-              name=""
-              :value="showData?.comment"
-              class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-              id=""
-            ></textarea>
-          </div>
-        </div>
-        <div class="flex justify-end items-center gap-x-2 pt-2">
-          <button
-            @click="cancelAction"
-            class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
-          >
-            Cancel
-          </button>
-        </div>
-      </DialogPanel>
-    </Modal>
-
-    <!-- choose traveller info modal -->
-    <Modal :isOpen="addTravellerModal" @closeModal="closeTravellerModal">
-      <DialogPanel
-        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
-      >
-        <DialogTitle
-          as="h3"
-          class="text-lg font-medium leading-6 text-gray-900 mb-1"
-        >
-          Fill Traveller Information
-        </DialogTitle>
-        <div class="space-y-2.5 pb-3 border-b border-gray-300">
-          <p class="text-xs text-gray-500">
-            To make reservation easier, please insert customer info.
-          </p>
-        </div>
-        <div class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1">
-          <div class="grid grid-cols-2 gap-2">
-            <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500">Full Name</label>
-              <input
-                type="text"
-                v-model="editData.name"
-                name=""
-                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                id=""
-              />
-            </div>
-            <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500"
-                >Passport or ID Number</label
-              >
-              <input
-                type="text"
-                v-model="editData.passport"
-                name=""
-                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                id=""
-              />
-            </div>
-            <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500"
-                >Phone Number</label
-              >
-              <input
-                type="text"
-                v-model="editData.phone"
-                name=""
-                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                id=""
-              />
-            </div>
-            <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500">Email</label>
-              <input
-                type="text"
-                v-model="editData.email"
-                name=""
-                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                id=""
-              />
-            </div>
-            <div class="space-y-1 col-span-2">
-              <label for="" class="text-[12px] text-gray-500"
-                >Add Passports</label
-              >
-              <input
-                type="file"
-                ref="featureImageInput"
-                multiple
-                class="hidden"
-                @change="handlerFeatureFileChange"
-                accept="image/*"
-              />
-              <button
-                @click.prevent="openFileFeaturePicker"
-                class="text-sm text-[#ff613c]"
-              ></button>
-              <div
-                class="cursor-pointer mt-2 w-full h-[80px] border-2 border-dashed border-gray-300 rounded flex justify-center items-center"
-                @click.prevent="openFileFeaturePicker"
-              >
-                <span class="text-xs"
-                  ><i
-                    class="px-2 py-1 text-sm font-semibold text-white bg-[#ff613c] rounded-full shadow fa-solid fa-plus"
-                  ></i
-                ></span>
-              </div>
-            </div>
-            <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
-              <div
-                class="relative"
-                v-for="(image, index) in featureImagePreview"
-                :key="index"
-              >
-                <button
-                  @click.prevent="removeFeatureSelectImage(index)"
-                  class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
-                >
-                  <XCircleIcon class="w-8 h-8 font-semibold" />
-                </button>
-
-                <img class="h-auto w-full rounded" :src="image" alt="" />
-              </div>
-            </div>
-            <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
-              <div
-                class="relative"
-                v-for="(image, index) in editData.customer_passport_have"
-                :key="index"
-              >
-                <button
-                  @click.prevent="removeFeatureDeleteImage(index, image.id)"
-                  class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
-                >
-                  <XCircleIcon class="w-8 h-8 font-semibold" />
-                </button>
-                <img class="h-auto w-full rounded" :src="image.file" alt="" />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="flex justify-end items-center gap-x-2 pt-2">
-          <button
-            @click="closeTravellerModal"
-            class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
-          >
-            Cancel
-          </button>
-          <button
-            @click="addTravellerAction"
-            class="bg-[#ff613c] text-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
-          >
-            Add Traveller
-          </button>
         </div>
       </DialogPanel>
     </Modal>

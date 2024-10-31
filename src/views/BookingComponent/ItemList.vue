@@ -564,7 +564,7 @@ onMounted(() => {
             <div class="grid grid-cols-2 gap-x-2">
               <div class="space-y-1" v-if="formitem.product_type == 1">
                 <label for="" class="text-[12px] text-gray-500"
-                  >Pick up time</label
+                  >Pick up time <span class="text-red-800">*</span></label
                 >
                 <input
                   type="time"
@@ -576,7 +576,7 @@ onMounted(() => {
               </div>
               <div class="space-y-1">
                 <label for="" class="text-[12px] text-gray-500"
-                  >Service date</label
+                  >Service date <span class="text-red-800">*</span></label
                 >
                 <input
                   type="date"
@@ -598,7 +598,7 @@ onMounted(() => {
             </div>
             <div class="space-y-1" v-if="formitem.product_type == 1">
               <label for="" class="text-[12px] text-gray-500"
-                >Pick up location</label
+                >Pick up location <span class="text-red-800">*</span></label
               >
               <input
                 type="text"
@@ -611,7 +611,7 @@ onMounted(() => {
             <div class="grid grid-cols-2 gap-x-2">
               <div class="space-y-1" v-if="formitem.product_type == 1">
                 <label for="" class="text-[12px] text-gray-500"
-                  >Payment Method</label
+                  >Payment Method <span class="text-red-800">*</span></label
                 >
                 <div class="flex justify-start items-center gap-x-2">
                   <input
@@ -621,11 +621,15 @@ onMounted(() => {
                     class="px-4 w-6 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                     id=""
                   />
-                  <p class="text-xs">Is Driver Collect ?</p>
+                  <p class="text-xs">
+                    Is Driver Collect ? <span class="text-red-800">*</span>
+                  </p>
                 </div>
               </div>
               <div class="space-y-1">
-                <label for="" class="text-[12px] text-gray-500">Qty</label>
+                <label for="" class="text-[12px] text-gray-500"
+                  >Qty <span class="text-red-800">*</span></label
+                >
                 <input
                   type="number"
                   v-model="formitem.quantity"
@@ -639,7 +643,7 @@ onMounted(() => {
           <div class="grid grid-cols-2 gap-2" v-if="formitem.product_type == 6">
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Check in date</label
+                >Check in date <span class="text-red-800">*</span></label
               >
               <input
                 type="date"
@@ -658,7 +662,7 @@ onMounted(() => {
             </div>
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Check out date</label
+                >Check out date <span class="text-red-800">*</span></label
               >
               <input
                 type="date"
@@ -670,7 +674,7 @@ onMounted(() => {
             </div>
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Total Rooms</label
+                >Total Rooms <span class="text-red-800">*</span></label
               >
               <input
                 type="number"
@@ -681,7 +685,9 @@ onMounted(() => {
               />
             </div>
             <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500">Qty</label>
+              <label for="" class="text-[12px] text-gray-500"
+                >Qty <span class="text-red-800">*</span></label
+              >
               <p
                 class="border border-gray-300 bg-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
               >
@@ -700,7 +706,9 @@ onMounted(() => {
             />
           </div>
           <div class="space-y-1" v-if="formitem.product_type == 1">
-            <label for="" class="text-[12px] text-gray-500">Route Plan</label>
+            <label for="" class="text-[12px] text-gray-500"
+              >Route Plan <span class="text-red-800">*</span></label
+            >
             <textarea
               name=""
               v-model="formitem.route_plan"
@@ -710,7 +718,7 @@ onMounted(() => {
           </div>
           <div class="space-y-1">
             <label for="" class="text-[12px] text-gray-500"
-              >Special Request</label
+              >Special Request <span class="text-red-800">*</span></label
             >
             <textarea
               name=""
@@ -720,7 +728,9 @@ onMounted(() => {
             ></textarea>
           </div>
           <div class="space-y-1">
-            <label for="" class="text-[12px] text-gray-500">Description</label>
+            <label for="" class="text-[12px] text-gray-500"
+              >Description <span class="text-red-800">*</span></label
+            >
             <textarea
               name=""
               v-model="formitem.comment"

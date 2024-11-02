@@ -541,7 +541,7 @@ onMounted(async () => {
           <div class="grid grid-cols-2 gap-2">
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Check in date</label
+                >Check in date <span class="text-red-800">*</span></label
               >
               <input
                 type="date"
@@ -560,7 +560,7 @@ onMounted(async () => {
             </div>
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Check out date</label
+                >Check out date <span class="text-red-800">*</span></label
               >
               <input
                 type="date"
@@ -573,7 +573,7 @@ onMounted(async () => {
             </div>
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Total Rooms</label
+                >Total Rooms <span class="text-red-800">*</span></label
               >
               <input
                 type="number"
@@ -584,7 +584,9 @@ onMounted(async () => {
               />
             </div>
             <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500">Qty</label>
+              <label for="" class="text-[12px] text-gray-500"
+                >Qty <span class="text-red-800">*</span></label
+              >
               <p
                 class="border border-gray-300 bg-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
               >
@@ -617,7 +619,7 @@ onMounted(async () => {
 
           <div class="space-y-1">
             <label for="" class="text-[12px] text-gray-500"
-              >Special Request</label
+              >Special Request <span class="text-red-800">*</span></label
             >
             <textarea
               name=""
@@ -627,7 +629,9 @@ onMounted(async () => {
             ></textarea>
           </div>
           <div class="space-y-1">
-            <label for="" class="text-[12px] text-gray-500">Description</label>
+            <label for="" class="text-[12px] text-gray-500"
+              >Description <span class="text-red-800">*</span></label
+            >
             <textarea
               name=""
               v-model="formitem.comment"

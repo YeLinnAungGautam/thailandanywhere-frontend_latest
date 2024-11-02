@@ -623,7 +623,7 @@ onMounted(async () => {
           <div class="grid grid-cols-2 gap-x-2">
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Pick up time</label
+                >Pick up time <span class="text-red-800">*</span></label
               >
               <input
                 type="time"
@@ -635,7 +635,7 @@ onMounted(async () => {
             </div>
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Pick up date</label
+                >Pick up date <span class="text-red-800">*</span></label
               >
               <input
                 type="date"
@@ -655,7 +655,7 @@ onMounted(async () => {
           </div>
           <div class="space-y-1">
             <label for="" class="text-[12px] text-gray-500"
-              >Pick up location</label
+              >Pick up location <span class="text-red-800">*</span></label
             >
             <input
               type="text"
@@ -668,7 +668,7 @@ onMounted(async () => {
           <div class="grid grid-cols-2 gap-x-2">
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Payment Method</label
+                >Payment Method <span class="text-red-800">*</span></label
               >
               <div class="flex justify-start items-center gap-x-2">
                 <input
@@ -678,11 +678,15 @@ onMounted(async () => {
                   class="px-4 w-6 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                   id=""
                 />
-                <p class="text-xs">Is Driver Collect ?</p>
+                <p class="text-xs">
+                  Is Driver Collect ? <span class="text-red-800">*</span>
+                </p>
               </div>
             </div>
             <div class="space-y-1">
-              <label for="" class="text-[12px] text-gray-500">Qty</label>
+              <label for="" class="text-[12px] text-gray-500"
+                >Qty <span class="text-red-800">*</span></label
+              >
               <input
                 type="number"
                 v-model="formitem.quantity"
@@ -693,7 +697,7 @@ onMounted(async () => {
             </div>
           </div>
           <div class="space-y-1">
-            <label for="" class="text-[12px] text-gray-500">Discount</label>
+            <label for="" class="text-[12px] text-gray-500">Discount </label>
             <input
               type="number"
               v-model="formitem.discount"
@@ -703,7 +707,9 @@ onMounted(async () => {
             />
           </div>
           <div class="space-y-1">
-            <label for="" class="text-[12px] text-gray-500">Route Plan</label>
+            <label for="" class="text-[12px] text-gray-500"
+              >Route Plan <span class="text-red-800">*</span></label
+            >
             <textarea
               name=""
               v-model="formitem.route_plan"
@@ -713,7 +719,7 @@ onMounted(async () => {
           </div>
           <div class="space-y-1">
             <label for="" class="text-[12px] text-gray-500"
-              >Special Request</label
+              >Special Request <span class="text-red-800">*</span></label
             >
             <textarea
               name=""
@@ -723,7 +729,9 @@ onMounted(async () => {
             ></textarea>
           </div>
           <div class="space-y-1">
-            <label for="" class="text-[12px] text-gray-500">Description</label>
+            <label for="" class="text-[12px] text-gray-500"
+              >Description <span class="text-red-800">*</span></label
+            >
             <textarea
               name=""
               v-model="formitem.comment"

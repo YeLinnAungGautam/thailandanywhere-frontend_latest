@@ -843,10 +843,10 @@ const addNewHandler = async () => {
       formData.value.meta_data.youtube_en_link
     );
   }
-  enabledMain
+  enabledMain.value
     ? frmData.append("meta_data[0][is_main]", 1)
     : frmData.append("meta_data[0][is_main]", 0);
-  enabledShow
+  enabledShow.value
     ? frmData.append("meta_data[0][is_show]", 1)
     : frmData.append("meta_data[0][is_show]", 0);
 
@@ -947,10 +947,10 @@ const updateHandler = async () => {
       formData.value.meta_data.youtube_en_link
     );
   }
-  enabledMain
+  enabledMain.value
     ? frmData.append("meta_data[0][is_main]", 1)
     : frmData.append("meta_data[0][is_main]", 0);
-  enabledShow
+  enabledShow.value
     ? frmData.append("meta_data[0][is_show]", 1)
     : frmData.append("meta_data[0][is_show]", 0);
   frmData.append("name", formData.value.price_name);
@@ -961,12 +961,16 @@ const updateHandler = async () => {
       frmData.append("images[" + i + "]", file);
     }
   }
-  if (formData.value.services.length > 0) {
-    for (let i = 0; i < formData.value.services.length; i++) {
-      frmData.append(
-        "including_services[" + i + "]",
-        formData.value.services[i]
-      );
+  if (formData.value.services) {
+    if (formData.value.services.length > 0) {
+      for (let i = 0; i < formData.value.services.length; i++) {
+        frmData.append(
+          "including_services[" + i + "]",
+          formData.value.services[i]
+        );
+      }
+    } else {
+      frmData.append("including_services[0]", "");
     }
   }
   frmData.append("_method", "PUT");
@@ -1059,8 +1063,8 @@ const editModalOpenHandler = (data) => {
       editImagesPreview.value.push(data.images[i]);
     }
   }
-  if (data.including_services.length > 0) {
-    formData.value.services = data.including_services;
+  if (data?.including_services && data?.including_services?.length > 0) {
+    formData.value.services = data?.including_services;
   }
   console.log(editImagesPreview.value);
 };

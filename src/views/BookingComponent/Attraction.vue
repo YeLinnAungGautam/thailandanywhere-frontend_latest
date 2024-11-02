@@ -463,7 +463,7 @@ onMounted(async () => {
             </div> -->
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
-                >Service date</label
+                >Service date <span class="text-red-800">*</span></label
               >
               <input
                 type="date"
@@ -510,7 +510,9 @@ onMounted(async () => {
               </div>
             </div> -->
             <div class="space-y-1 col-span-2">
-              <label for="" class="text-[12px] text-gray-500">Ticket Qty</label>
+              <label for="" class="text-[12px] text-gray-500"
+                >Ticket Qty <span class="text-red-800">*</span></label
+              >
               <input
                 type="number"
                 v-model="formitem.quantity"
@@ -541,7 +543,7 @@ onMounted(async () => {
           </div> -->
           <div class="space-y-1">
             <label for="" class="text-[12px] text-gray-500"
-              >Special Request</label
+              >Special Request <span class="text-red-800">*</span></label
             >
             <textarea
               name=""
@@ -551,7 +553,9 @@ onMounted(async () => {
             ></textarea>
           </div>
           <div class="space-y-1">
-            <label for="" class="text-[12px] text-gray-500">Description</label>
+            <label for="" class="text-[12px] text-gray-500"
+              >Description <span class="text-red-800">*</span></label
+            >
             <textarea
               name=""
               v-model="formitem.comment"

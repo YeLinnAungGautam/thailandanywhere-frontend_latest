@@ -250,6 +250,23 @@
                   {{ errors.location_map[0] }}
                 </p>
               </div>
+              <div
+                v-if="formData.location_map"
+                class="mb-2 space-y-1"
+                :class="formData.location_map == 'null' ? 'hidden' : ''"
+              >
+                <label for="name" class="text-sm text-gray-800"
+                  >Location map preview</label
+                >
+                <iframe
+                  :src="formData?.location_map"
+                  class="w-[100%] h-[400px] rounded-2xl"
+                  style="border: 0"
+                  allowfullscreen=""
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                ></iframe>
+              </div>
               <div class="mb-2 space-y-1">
                 <label for="name" class="text-sm text-gray-800"
                   >Location Map Title</label

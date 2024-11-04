@@ -99,13 +99,18 @@ const formitem = ref({
 const openAddItemModal = (item) => {
   closeDetail();
   console.log("====================================");
-  console.log(item, "this is item");
+  console.log(item, formitem.value, "this is item");
   console.log("====================================");
   // formitem.value.comment = item.long_description ? item.long_description : "";
+  // let des =
+  //   item?.destinations.length > 0
+  //     ? item.destinations.map((d) => d.name).join(", ")
+  //     : "";
   formitem.value.comment =
     item?.destinations.length > 0
       ? item.destinations.map((d) => d.name).join(", ")
       : "";
+  // formitem.value.comment = `${formitem.value.item_name}: ${des}`;
   formitem.value.product_id = item.id;
   formitem.value.product_name = item.name;
   formitem.value.product_image = item?.cover_image;
@@ -128,10 +133,14 @@ const selectAction = (item) => {
   formitem.value.car_id = item.id;
   formitem.value.item_name = item.name;
   formitem.value.selling_price = item.price;
+  formitem.value.comment = `Car Type : ${item.name} ; Destination : ${formitem.value.comment}`;
   console.log(formitem.value, "this is formItem");
 };
 const goInfoModal = () => {
   if (formitem.value.car_id != "") {
+    console.log("====================================");
+    console.log(formitem.value.car_id, formitem.value.item_name);
+    console.log("====================================");
     addItemModal.value = false;
     addInfoModal.value = true;
   }

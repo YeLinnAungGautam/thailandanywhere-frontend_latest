@@ -47,7 +47,7 @@ const closeDetail = () => {
   details_images.value = [];
 };
 
-const emit = defineEmits(["formData"]);
+const emit = defineEmits(["formitem"]);
 
 const formitem = ref({
   reservation_id: null,
@@ -322,6 +322,7 @@ watch(
   ([newData, secData, thirdData]) => {
     if (newData && secData && thirdData) {
       checkRoomPrice();
+      formitem.value.comment = `Room : ${formitem.value.item_name}; Checkin : ${formitem.value.checkin_date} Checkout : ${formitem.value.checkout_date}`;
     }
   }
 );

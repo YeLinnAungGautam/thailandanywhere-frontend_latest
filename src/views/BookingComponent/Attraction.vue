@@ -119,7 +119,7 @@ const selectAction = (item) => {
   formitem.value.item_name = item.name;
   formitem.value.selling_price = item.price;
   formitem.value.cost_price = item.cost_price ? item.cost_price : 0;
-  // formitem.value.comment = item.description;
+  formitem.value.comment = `Variation : ${formitem.value.item_name}`;
   console.log(formitem.value, "this is formItem");
 };
 const goInfoModal = () => {

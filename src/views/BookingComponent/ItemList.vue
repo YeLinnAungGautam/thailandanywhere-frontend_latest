@@ -118,16 +118,18 @@ const openAddItemModalAction = () => {
 };
 
 const selectAction = (item) => {
-  console.log("====================================");
-  console.log(item);
-  console.log("====================================");
   formitem.value.car_id = item.id;
   formitem.value.item_name = item.name;
+  if (formitem.value.product_type == 1) {
+    let des = formitem.value.comment.replace(/^[^;]*;\s*/, "");
+    formitem.value.comment = `Car Type : ${item.name} ; ${des}`;
+  }
   formitem.value.selling_price = item.price ? item.price : item.room_price;
   if (formitem.value.product_type == 6) {
     formitem.value.cost_price = item.cost ? item.cost : 0;
   } else if (formitem.value.product_type == 4) {
     formitem.value.cost_price = item.cost_price ? item.cost_price : 0;
+    formitem.value.comment = `Variation : ${formitem.value.item_name}`;
   }
   console.log(formitem.value, "this is formItem");
   getFunction();
@@ -237,10 +239,15 @@ const calculateRateRoom = () => {
 };
 
 watch(
-  () => [formitem.value.service_date, formitem.value.checkout_date],
-  ([newData, secData]) => {
+  () => [
+    formitem.value.service_date,
+    formitem.value.checkout_date,
+    formitem.value.item_name,
+  ],
+  ([newData, secData, thirdData]) => {
     if (formitem.value.product_type == "6") {
       formitem.value.checkin_date = formitem.value.service_date;
+      formitem.value.comment = `Room : ${formitem.value.item_name}; Checkin : ${formitem.value.checkin_date} Checkout : ${formitem.value.checkout_date}`;
     }
     calculateRateRoom();
   }

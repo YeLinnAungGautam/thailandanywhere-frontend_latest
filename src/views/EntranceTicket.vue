@@ -36,6 +36,22 @@
                 {{ errors.name[0] }}
               </p>
             </div>
+            <div class="mb-2 space-y-1">
+              <label for="name" class="text-sm text-gray-800"
+                >Is Show On website ?</label
+              >
+              <div class="flex justify-start items-center gap-x-4 pt-2">
+                <input
+                  type="checkbox"
+                  class="w-5 h-5 rounded-xl block"
+                  name=""
+                  :checked="formData.meta_data.is_show"
+                  id=""
+                  v-model="formData.meta_data.is_show"
+                />
+                <p>is show on thanywhere ?</p>
+              </div>
+            </div>
             <div>
               <p class="text-gray-800 text-sm mb-2">Cities</p>
               <div
@@ -869,6 +885,9 @@ const formData = ref({
   },
   contract_due: "",
   contracts: [],
+  meta_data: {
+    is_show: true,
+  },
 });
 
 const linkContract = ref({});
@@ -891,6 +910,9 @@ const VantourCreate = () => {
   formData.value.youtube_link = {
     mm_link: "",
     en_link: "",
+  };
+  formData.value.meta_data = {
+    is_show: true,
   };
   formData.value.contract_due = "";
   formData.value.contracts = [];
@@ -922,6 +944,9 @@ const clearAction = () => {
     youtube_link: {
       mm_link: "",
       en_link: "",
+    },
+    meta_data: {
+      is_show: true,
     },
     contract_due: "",
     contracts: [],
@@ -1054,6 +1079,8 @@ const addNewHandler = async () => {
     );
   }
 
+  frmData.append("meta_data[is_show]", formData.value.meta_data.is_show);
+
   console.log(formData.value.contracts);
 
   if (formData.value.images.length > 0) {
@@ -1103,6 +1130,9 @@ const addNewHandler = async () => {
       youtube_link: {
         mm_link: "",
         en_link: "",
+      },
+      meta_data: {
+        is_show: true,
       },
     };
     imagesPreview.value = [];
@@ -1166,6 +1196,7 @@ const updateHandler = async () => {
       formData.value.youtube_link.en_link
     );
   }
+  frmData.append("meta_data[is_show]", formData.value.meta_data.is_show);
 
   console.log(formData.value.contracts);
 
@@ -1223,6 +1254,9 @@ const updateHandler = async () => {
       youtube_link: {
         mm_link: "",
         en_link: "",
+      },
+      meta_data: {
+        is_show: true,
       },
     };
     imagesPreview.value = [];
@@ -1290,6 +1324,13 @@ const editModalOpenHandler = async (id) => {
       formData.value.youtube_link = {
         mm_link: response.result.youtube_link[0].mm_link,
         en_link: response.result.youtube_link[0].en_link,
+      };
+    }
+    if (response.result.meta_data != null) {
+      formData.value.meta_data = response.result.meta_data;
+    } else {
+      formData.value.meta_data = {
+        is_show: false,
       };
     }
 

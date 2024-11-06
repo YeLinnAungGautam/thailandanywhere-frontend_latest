@@ -1079,7 +1079,10 @@ const addNewHandler = async () => {
     );
   }
 
-  frmData.append("meta_data[is_show]", formData.value.meta_data.is_show);
+  frmData.append(
+    "meta_data[is_show]",
+    formData.value.meta_data.is_show ? 1 : 0
+  );
 
   console.log(formData.value.contracts);
 
@@ -1196,7 +1199,10 @@ const updateHandler = async () => {
       formData.value.youtube_link.en_link
     );
   }
-  frmData.append("meta_data[is_show]", formData.value.meta_data.is_show);
+  frmData.append(
+    "meta_data[is_show]",
+    formData.value.meta_data.is_show ? 1 : 0
+  );
 
   console.log(formData.value.contracts);
 
@@ -1327,7 +1333,8 @@ const editModalOpenHandler = async (id) => {
       };
     }
     if (response.result.meta_data != null) {
-      formData.value.meta_data = response.result.meta_data;
+      formData.value.meta_data.is_show =
+        response.result.meta_data?.is_show == 1 ? true : false;
     } else {
       formData.value.meta_data = {
         is_show: false,

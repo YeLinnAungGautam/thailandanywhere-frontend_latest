@@ -910,27 +910,29 @@ const addNewHandler = async () => {
   //   : 0;
   // formData.value.child_info &&
   //   frmData.append("child_info", formData.value.child_info);
-  for (var x = 0; x < formData.value.child_info.length; x++) {
-    frmData.append(
-      "child_info[" + x + "][info]",
-      formData.value.child_info[x].info
-    );
-    frmData.append(
-      "child_info[" + x + "][child_price]",
-      formData.value.child_info[x].child_price
-    );
-    frmData.append(
-      "child_info[" + x + "][child_owner_price]",
-      formData.value.child_info[x].child_owner_price
-    );
-    frmData.append(
-      "child_info[" + x + "][child_cost_price]",
-      formData.value.child_info[x].child_cost_price
-    );
-    frmData.append(
-      "child_info[" + x + "][child_agent_price]",
-      formData.value.child_info[x].child_agent_price
-    );
+  if (formData.value.child_info.length > 0) {
+    for (var x = 0; x < formData.value.child_info.length; x++) {
+      frmData.append(
+        "child_info[" + x + "][info]",
+        formData.value.child_info[x].info
+      );
+      frmData.append(
+        "child_info[" + x + "][child_price]",
+        formData.value.child_info[x].child_price
+      );
+      frmData.append(
+        "child_info[" + x + "][child_owner_price]",
+        formData.value.child_info[x].child_owner_price
+      );
+      frmData.append(
+        "child_info[" + x + "][child_cost_price]",
+        formData.value.child_info[x].child_cost_price
+      );
+      frmData.append(
+        "child_info[" + x + "][child_agent_price]",
+        formData.value.child_info[x].child_agent_price
+      );
+    }
   }
 
   frmData.append("is_add_on", enabled.value ? 1 : 0);
@@ -1038,27 +1040,29 @@ const updateHandler = async () => {
   //   : 0;
   // formData.value.child_info &&
   //   frmData.append("child_info", formData.value.child_info);
-  for (var x = 0; x < formData.value.child_info.length; x++) {
-    frmData.append(
-      "child_info[" + x + "][info]",
-      formData.value.child_info[x].info
-    );
-    frmData.append(
-      "child_info[" + x + "][child_price]",
-      formData.value.child_info[x].child_price
-    );
-    frmData.append(
-      "child_info[" + x + "][child_owner_price]",
-      formData.value.child_info[x].child_owner_price
-    );
-    frmData.append(
-      "child_info[" + x + "][child_cost_price]",
-      formData.value.child_info[x].child_cost_price
-    );
-    frmData.append(
-      "child_info[" + x + "][child_agent_price]",
-      formData.value.child_info[x].child_agent_price
-    );
+  if (formData.value.child_info.length > 0) {
+    for (var x = 0; x < formData.value.child_info.length; x++) {
+      frmData.append(
+        "child_info[" + x + "][info]",
+        formData.value.child_info[x].info
+      );
+      frmData.append(
+        "child_info[" + x + "][child_price]",
+        formData.value.child_info[x].child_price
+      );
+      frmData.append(
+        "child_info[" + x + "][child_owner_price]",
+        formData.value.child_info[x].child_owner_price
+      );
+      frmData.append(
+        "child_info[" + x + "][child_cost_price]",
+        formData.value.child_info[x].child_cost_price
+      );
+      frmData.append(
+        "child_info[" + x + "][child_agent_price]",
+        formData.value.child_info[x].child_agent_price
+      );
+    }
   }
   frmData.append("is_add_on", enabled.value ? 1 : 0);
   if (
@@ -1172,7 +1176,7 @@ const editModalOpenHandler = (data) => {
   // formData.value.child_cost_price = data.child_cost_price;
   // formData.value.child_owner_price = data.child_owner_price;
   // formData.value.child_info = data.child_info;
-  formData.value.child_info = data.child_info;
+  formData.value.child_info = data.child_info != null ? data.child_info : [];
 
   enabled.value = data.is_add_on == 1;
   if (data.meta_data != null && data?.meta_data?.length > 0) {

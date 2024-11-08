@@ -147,6 +147,7 @@ const secForm = ref({
   customer_name: "",
   customer_phone: "",
   customer_passport_number: "",
+  customer_email: "",
 });
 
 const fileInput = ref(null);
@@ -586,7 +587,18 @@ const getDetail = async () => {
       secForm.value.product_score = "";
       secForm.value.other_info = "";
     }
-    if (response.result.is_associated == 1) {
+    // if (response.result.is_associated == 1) {
+    //   enabled.value = true;
+    //   if (response.result.associated_customer != null) {
+    //     secForm.value.customer_name =
+    //       response.result.associated_customer[0].name;
+    //     secForm.value.customer_phone =
+    //       response.result.associated_customer[0].phone;
+    //     secForm.value.customer_passport_number =
+    //       response.result.associated_customer[0].passport;
+    //   }
+    // }
+    if (response.result.associated_customer != null) {
       enabled.value = true;
       if (response.result.associated_customer != null) {
         secForm.value.customer_name =
@@ -595,6 +607,8 @@ const getDetail = async () => {
           response.result.associated_customer[0].phone;
         secForm.value.customer_passport_number =
           response.result.associated_customer[0].passport;
+        secForm.value.customer_email =
+          response.result.associated_customer[0].email;
       }
     }
 
@@ -1554,6 +1568,16 @@ onMounted(async () => {
                 />
               </div>
               <div class="pl-10 pr-4 space-y-2" v-if="enabled">
+                <p class="text-xs text-gray-400">Associated Customer Email</p>
+                <input
+                  type="text"
+                  v-model="secForm.customer_email"
+                  name=""
+                  class="h-8 w-full font-semibold bg-white border border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                  id=""
+                />
+              </div>
+              <div class="pl-10 space-y-2" v-if="enabled">
                 <p class="text-xs text-gray-400">
                   Associated Customer Passport
                 </p>
@@ -1566,7 +1590,7 @@ onMounted(async () => {
                 />
               </div>
 
-              <div class="pl-10 space-y-2">
+              <div class="pl-10 pr-4 pt-4 space-y-2">
                 <input
                   type="file"
                   ref="featureImageInput"
@@ -1576,10 +1600,10 @@ onMounted(async () => {
                   accept="image/*"
                 />
                 <p
-                  class="text-white text-xs inline-block cursor-pointer bg-[#ff613c] rounded-sm px-2 py-1"
+                  class="text-white text-xs inline-block cursor-pointer bg-[#ff613c] rounded-lg w-full px-3 py-1.5"
                   @click.prevent="openFileFeaturePicker"
                 >
-                  Add New Customer Passport multiple
+                  Add New Customer Passport
                 </p>
               </div>
               <div class="px-10 space-y-2 col-span-2">

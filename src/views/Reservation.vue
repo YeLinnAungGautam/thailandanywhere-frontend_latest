@@ -1535,11 +1535,14 @@ const changeServiceDate = (data) => {
         <DialogPanel
           class="w-full max-w-[500px] transform rounded-lg bg-white pt-4 text-left align-middle shadow-xl transition-all"
         >
-          <div class="pb-4 px-8 space-y-3">
+          <div class="pb-4 px-8">
             <h1 class="font-medium text-sm">Reservations Export for Tax</h1>
+            <input type="text" name="" class="opacity-0 h-0" id="" />
             <div class="space-y-2">
               <div class="space-y-1">
-                <label for="" class="text-xs">Product Type </label>
+                <label for="" class="text-xs"
+                  >Product Type <span class="text-red-600">*</span>
+                </label>
                 <v-select
                   v-model="openExcelData.product"
                   class="style-chooser placeholder-xs bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
@@ -1550,7 +1553,9 @@ const changeServiceDate = (data) => {
                 ></v-select>
               </div>
               <div class="space-y-1">
-                <label for="" class="text-xs">Filter Date Type </label>
+                <label for="" class="text-xs"
+                  >Filter Date Type <span class="text-red-600">*</span></label
+                >
                 <v-select
                   v-model="openExcelData.filter_type"
                   class="style-chooser placeholder-xs bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
@@ -1561,7 +1566,9 @@ const changeServiceDate = (data) => {
                 ></v-select>
               </div>
               <div class="space-y-1">
-                <label for="" class="text-xs">Choose Date </label>
+                <label for="" class="text-xs"
+                  >Choose Date <span class="text-red-600">*</span></label
+                >
                 <VueDatePicker
                   v-model="openExcelData.daterange"
                   range

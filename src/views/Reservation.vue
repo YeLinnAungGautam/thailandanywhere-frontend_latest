@@ -25,8 +25,15 @@ import {
   ChevronUpIcon,
   ArrowDownTrayIcon,
   FunnelIcon,
+  PrinterIcon,
 } from "@heroicons/vue/24/outline";
-
+import {
+  endOfMonth,
+  endOfYear,
+  startOfMonth,
+  startOfYear,
+  subMonths,
+} from "date-fns";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import { computed, onMounted, ref, watch } from "vue";
@@ -231,6 +238,95 @@ watch(
     }
   }
 );
+
+// excel for tax
+
+const presetDates = ref([
+  { label: "Today", value: [new Date(), new Date()] },
+  {
+    label: "Today (Slot)",
+    value: [new Date(), new Date()],
+    slot: "preset-date-range-button",
+  },
+  {
+    label: "This month",
+    value: [startOfMonth(new Date()), endOfMonth(new Date())],
+  },
+  {
+    label: "Last month",
+    value: [
+      startOfMonth(subMonths(new Date(), 1)),
+      endOfMonth(subMonths(new Date(), 1)),
+    ],
+  },
+  {
+    label: "This year",
+    value: [startOfYear(new Date()), endOfYear(new Date())],
+  },
+]);
+
+const openExcelModal = ref(false);
+const product_type_array = [
+  { id: 1, name: "private_van_tour" },
+  { id: 2, name: "hotel" },
+  { id: 3, name: "entrance_ticket" },
+  { id: 4, name: "airline" },
+  { id: 5, name: "group_tour" },
+];
+const select_date_type = [
+  { id: 1, name: "service_date" },
+  { id: 2, name: "sale_date" },
+];
+
+const openExcelData = ref({
+  daterange: "",
+  product: "",
+  filter_type: "",
+});
+const clearExcelData = () => {
+  openExcelData.value = {
+    daterange: "",
+    product: "",
+    filter_type: "",
+  };
+};
+const openExcelModalAction = () => {
+  clearExcelData();
+  openExcelModal.value = true;
+};
+
+const closeExcelModal = () => {
+  clearExcelData();
+  openExcelModal.value = false;
+};
+
+const exportTaxAction = async () => {
+  let date;
+  if (openExcelData.value.daterange != "") {
+    // Format start and end dates
+    const formattedStartDate = formatDate(openExcelData.value.daterange[0]);
+    const formattedEndDate = formatDate(openExcelData.value.daterange[1]);
+
+    date = `${formattedStartDate},${formattedEndDate}`;
+  }
+
+  const res = await reservationStore.exportTaxExcelFile({
+    filter_type: openExcelData.value.filter_type,
+    product: openExcelData.value.product,
+    daterange: date,
+  });
+
+  console.log("====================================");
+  console.log(res, "this is data");
+  console.log("====================================");
+  if (res.data.message == "success export") {
+    toast.success("export success");
+    window.open(res.data.data.download_link);
+  }
+  closeExcelModal();
+};
+
+// end excel for tax
 
 onMounted(async () => {
   console.log(entrances.value, "this is hotel list");
@@ -625,6 +721,13 @@ const changeServiceDate = (data) => {
           class="text-base px-4 cursor-pointer bg-[#ff613c] text-white shadow-md py-2 border border-gray-200 rounded-lg"
         >
           Export
+        </div>
+        <div
+          @click="openExcelModalAction"
+          class="text-base flex justify-start items-center gap-x-2 px-4 cursor-pointer bg-[#ff613c] text-white shadow-md py-2 border border-gray-200 rounded-lg"
+        >
+          <PrinterIcon class="w-6 h-6" />
+          Export For Tax
         </div>
       </div>
     </div>
@@ -1422,245 +1525,74 @@ const changeServiceDate = (data) => {
           Loading ...
         </div>
       </div>
-      <!-- <div
-        class="w-auto mb-5 overflow-scroll bg-white rounded-lg shadow"
-        v-if="private_van_tour_show"
-      >
-        <div class="grid grid-cols-11 gap-2 py-2">
-          <div
-            class="py-2 text-xs font-medium tracking-wide text-center "
-          >
-            CRM ID
-          </div>
-          <div
-            class="py-2 text-xs font-medium tracking-wide text-center "
-          >
-            Customer
-          </div>
-          <div
-            class="py-2 text-xs font-medium tracking-wide text-center "
-          >
-            Supplier
-          </div>
-          <div
-            class="py-2 text-xs font-medium tracking-wide text-center "
-          >
-            Pickup Time
-          </div>
-          <div
-            class="py-2 text-xs font-medium tracking-wide text-center "
-          >
-            Product
-          </div>
-          <div
-            class="py-2 text-xs font-medium tracking-wide text-center "
-          >
-            Variation
-          </div>
-          <div
-            class="py-2 text-xs font-medium tracking-wide text-center "
-          >
-            Payment Method
-          </div>
-          <div
-            class="py-2 text-xs font-medium tracking-wide text-center "
-          >
-            Payment
-          </div>
-          <div
-            class="py-2 text-xs font-medium tracking-wide text-center "
-          >
-            Expense
-          </div>
-          <div
-            class="py-2 text-xs font-medium tracking-wide text-center "
-          >
-            Reservation
-          </div>
-          <div
-            class="py-2 text-xs font-medium tracking-wide text-center "
-          >
-            Service Date
-          </div>
-          <div
-            class="py-2 text-xs font-medium tracking-wide text-center "
-          ></div>
-        </div>
-        <div
-          v-show="!loading"
-          class="relative group"
-          v-for="d in reservations?.data"
-          :key="d.id"
-        >
-          <div
-            class="grid w-auto grid-cols-11 col-span-11 bg-white divide-y divide-gray-100"
-          >
-            <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
-            >
-              {{ d.crm_id }}
-            </div>
-            <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
-            >
-              {{ limitedText(d.customer_info?.name) }}
-            </div>
-            <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
-            >
-              {{
-                d.reservation_car_info?.supplier_name
-                  ? limitedText(d.reservation_car_info?.supplier_name)
-                  : "-"
-              }}
-            </div>
-            <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
-            >
-              {{ d.pickup_time ? d.pickup_time : "-" }}
-            </div>
-            <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
-            >
-              <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
-                PrivateVanTour
-              </p>
-            </div>
-            <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
-            >
-              <p v-if="d.car?.name">{{ limitedText(d.car?.name) }}</p>
-              <p v-if="d.variation?.name">
-                {{ limitedText(d.variation?.name) }}
-              </p>
-              <p v-if="d.room?.name">{{ limitedText(d.room?.name) }}</p>
-            </div>
-            <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
-            >
-              {{
-                d.booking?.payment_method
-                  ? limitedText(d.booking?.payment_method)
-                  : "-"
-              }}
-            </div>
-            <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
-            >
-              <p
-                v-if="
-                  !d.booking?.payment_status ||
-                  d.booking?.payment_status == 'null'
-                "
-              >
-                -
-              </p>
-              <p
-                v-if="d.booking?.payment_status == 'fully_paid'"
-                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
-              >
-                {{ d.booking?.payment_status }}
-              </p>
-              <p
-                v-if="d.booking?.payment_status == 'not_paid'"
-                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
-              >
-                {{ d.booking?.payment_status }}
-              </p>
-              <p
-                v-if="d.booking?.payment_status == 'partially_paid'"
-                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
-              >
-                {{ d.booking?.payment_status }}
-              </p>
-            </div>
-            <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap "
-            >
-              <p v-if="!d.payment_status || d.payment_status == 'null'">-</p>
-              <p
-                v-if="d.payment_status == 'fully_paid'"
-                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
-              >
-                {{ d.payment_status }}
-              </p>
-              <p
-                v-if="d.payment_status == 'not_paid'"
-                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
-              >
-                {{ d.payment_status }}
-              </p>
-              <p
-                v-if="d.payment_status == 'partially_paid'"
-                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
-              >
-                {{ d.payment_status }}
-              </p>
-            </div>
-            <div
-              class="p-3 mt-2 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap "
-            >
-              <p v-if="!d.reservation_status">-</p>
 
-              <p
-                v-if="d.reservation_status == 'confirmed'"
-                class="inline-block px-3 py-1 text-xs text-white bg-green-500 rounded-full shadow"
-              >
-                {{ d.reservation_status }}
-              </p>
-              <p
-                v-if="d.reservation_status == 'declined'"
-                class="inline-block px-3 py-1 text-xs text-white bg-red-500 rounded-full shadow"
-              >
-                {{ d.reservation_status }}
-              </p>
-              <p
-                v-if="d.reservation_status == 'awaiting'"
-                class="inline-block px-3 py-1 text-xs text-white bg-yellow-500 rounded-full shadow"
-              >
-                {{ d.reservation_status }}
-              </p>
-            </div>
-
-            <div
-              class="p-3 mt-2 text-xs text-center divide-y divide-gray-100 text-gray-700 whitespace-nowrap  flex justify-end items-center"
-            >
-              <p class="mr-6">{{ d.service_date }}</p>
-              <router-link :to="'/reservation/update/' + d.id + '/' + d.crm_id">
-                <button
-                  class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
-                >
-                  <PencilSquareIcon class="w-5 h-5" />
-                </button>
-              </router-link>
-            </div>
-          </div>
-        </div>
-        <div
-          v-if="reservations?.data.length == 0"
-          class="flex items-center justify-center py-20"
-        >
-          Data Empty ...
-        </div>
-        <div v-if="loading" class="flex items-center justify-center py-20">
-          <div
-            class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] mr-4"
-            role="status"
-          >
-            <span
-              class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
-              >Loading...</span
-            >
-          </div>
-          Loading ...
-        </div>
-      </div> -->
-      <!-- pagination -->
       <Pagination
         v-if="!loading"
         :data="reservations"
         @change-page="changePage"
       />
+      <Modal :isOpen="openExcelModal" @closeModal="closeExcelModal">
+        <DialogPanel
+          class="w-full max-w-[500px] transform rounded-lg bg-white pt-4 text-left align-middle shadow-xl transition-all"
+        >
+          <div class="pb-4 px-8 space-y-3">
+            <h1 class="font-medium text-sm">Reservations Export for Tax</h1>
+            <div class="space-y-2">
+              <div class="space-y-1">
+                <label for="" class="text-xs">Product Type </label>
+                <v-select
+                  v-model="openExcelData.product"
+                  class="style-chooser placeholder-xs bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
+                  :options="product_type_array"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.name"
+                ></v-select>
+              </div>
+              <div class="space-y-1">
+                <label for="" class="text-xs">Filter Date Type </label>
+                <v-select
+                  v-model="openExcelData.filter_type"
+                  class="style-chooser placeholder-xs bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
+                  :options="select_date_type"
+                  label="name"
+                  :clearable="false"
+                  :reduce="(d) => d.name"
+                ></v-select>
+              </div>
+              <div class="space-y-1">
+                <label for="" class="text-xs">Choose Date </label>
+                <VueDatePicker
+                  v-model="openExcelData.daterange"
+                  range
+                  :preset-dates="presetDates"
+                >
+                  <template
+                    #preset-date-range-button="{ label, value, presetDate }"
+                  >
+                    <span
+                      role="button"
+                      :tabindex="0"
+                      @click="presetDate(value)"
+                      @keyup.enter.prevent="presetDate(value)"
+                      @keyup.space.prevent="presetDate(value)"
+                    >
+                      {{ label }}
+                    </span>
+                  </template>
+                </VueDatePicker>
+              </div>
+              <div
+                @click="exportTaxAction"
+                class="text-sm bg-[#ff613c] rounded-lg w-full text-white flex items-center justify-center py-2 gap-x-2"
+              >
+                <PrinterIcon class="w-5 h-5" />
+                <p>Export</p>
+              </div>
+            </div>
+          </div>
+        </DialogPanel>
+      </Modal>
     </div>
   </Layout>
 </template>

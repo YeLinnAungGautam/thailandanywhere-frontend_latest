@@ -39,6 +39,7 @@ import DetailItemVue from "./BookingComponent/DetailItem.vue";
 import DetailListVue from "./BookingComponent/DetailList.vue";
 import { useAuthStore } from "../stores/auth";
 import { useUserStore } from "../stores/user";
+import TaxInfo from "./BookingComponent/TaxInfo.vue";
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
 // for tag
@@ -96,6 +97,7 @@ const currentComponent = computed(
 // data add action part
 const formData = ref({
   payment_notes: "",
+  transfer_code: "",
   customer_id: "",
   user_id: "",
   user_name: "",
@@ -285,6 +287,9 @@ const changeGetForm = (data) => {
   // console.log(formData.value, "this is inclusive ");
   // console.log("====================================");
 };
+const changeGetTaxForm = (data) => {
+  formData.value.transfer_code = data.transfer_code;
+};
 const changeGetInclusiveForm = (data) => {
   // console.log(data);
   // formData.value.is_inclusive = data.is_inclusive;
@@ -391,6 +396,8 @@ const onSubmitHandler = async () => {
       frmData.append("customer_id", formData.value.customer_id);
     formData.value.payment_notes &&
       frmData.append("payment_notes", formData.value.payment_notes);
+    formData.value.transfer_code &&
+      frmData.append("transfer_code", formData.value.transfer_code);
     formData.value.sold_from &&
       frmData.append("sold_from", formData.value.sold_from);
     formData.value.payment_method &&
@@ -883,6 +890,7 @@ const getDetail = async () => {
     formData.value = {
       id: data.id,
       payment_notes: data.payment_notes ? data.payment_notes : "",
+      transfer_code: data.transfer_code,
       customer_id: data.customer.id,
       user_id: response.result.user?.id,
       user_name: response.result.user?.name,
@@ -1268,6 +1276,13 @@ onMounted(() => {
           >
             Payment detail
           </p>
+          <p
+            class="rounded-lg px-5 py-1.5 text-[10px] cursor-pointer hover:bg-[#ff613c]/20 whitespace-nowrap"
+            @click="currentSubTag = 'tax'"
+            :class="currentSubTag == 'tax' ? 'bg-[#ff613c] text-white' : ' '"
+          >
+            Tax information
+          </p>
           <!-- <p
             class="rounded-lg px-5 py-1.5 text-[10px] cursor-pointer hover:bg-[#ff613c]/20 whitespace-nowrap"
             @click="currentSubTag = 'payment'"
@@ -1291,6 +1306,9 @@ onMounted(() => {
         </div>
         <div v-if="currentSubTag == 'payment'" class="bg-white rounded-lg px-3">
           <PaymentDetail :data="formData" @formData="changeGetForm" />
+        </div>
+        <div v-if="currentSubTag == 'tax'" class="bg-white rounded-lg px-3">
+          <TaxInfo :data="formData" @formData="changeGetTaxForm" />
         </div>
         <div
           v-if="(formData.is_inclusive == 1) & (currentSubTag == 'payment')"

@@ -90,7 +90,7 @@
           </div>
         </div>
         <div class="mb-5 overflow-auto rounded-lg shadow">
-          <table class="w-full">
+          <!-- <table class="w-full">
             <thead class="border-b-2 border-gray-200 bg-gray-50">
               <tr>
                 <th
@@ -144,7 +144,6 @@
                       />
                       <EyeIcon class="w-5 h-5" v-if="authStore.isAgent" />
                     </button>
-                    <!-- v-if="authStore.isSuperAdmin" -->
                     <button
                       v-if="authStore.isSuperAdmin"
                       @click.prevent="onDeleteHandler(r.id)"
@@ -165,7 +164,188 @@
                 </td>
               </tr>
             </tbody>
-          </table>
+          </table> -->
+          <div class="mb-5 overflow-auto rounded-lg shadow">
+            <div class="grid grid-cols-6 gap-2 bg-gray-100">
+              <div class="py-2 text-xs font-medium tracking-wide text-center">
+                No.
+              </div>
+              <div class="py-2 text-xs font-medium tracking-wide text-center">
+                Name
+              </div>
+              <div class="py-2 text-xs font-medium tracking-wide text-center">
+                City
+              </div>
+              <div class="py-2 text-xs font-medium tracking-wide text-center">
+                Place
+              </div>
+              <div
+                class="py-2 text-xs font-medium tracking-wide text-center"
+              ></div>
+              <div class="py-2 text-xs font-medium tracking-wide text-center">
+                Action
+              </div>
+            </div>
+            <div
+              v-show="!loading"
+              class="relative divide-y divide-gray-200 group"
+              v-for="r in paginatedItems ?? []"
+              :key="r.id"
+            >
+              <Disclosure>
+                <DisclosureButton class="w-full">
+                  <div class="grid grid-cols-6 gap-2 bg-white">
+                    <div
+                      class="flex justify-center items-center text-xs text-gray-700 whitespace-nowrap"
+                    >
+                      {{ r.id }}
+                    </div>
+                    <div
+                      class="flex justify-start items-center text-xs text-gray-700 whitespace-nowrap overflow-hidden"
+                    >
+                      {{ r.name }}
+                    </div>
+                    <div
+                      class="flex justify-center items-center text-xs text-gray-700 whitespace-nowrap"
+                    >
+                      {{ r.city?.name }}
+                    </div>
+                    <div
+                      class="flex justify-start items-center text-xs text-gray-700 whitespace-nowrap overflow-hidden"
+                    >
+                      {{ r.hotel_place ? r.hotel_place?.name : "-" }}
+                    </div>
+
+                    <div
+                      class="flex items-center justify-end col-span-2 p-3 space-x-2 text-xs text-gray-700 whitespace-nowrap"
+                      @click="seenClick"
+                    >
+                      <p
+                        class="inline-block px-3 py-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
+                      >
+                        <i class="fa-solid fa-chevron-down"></i>
+                      </p>
+
+                      <button
+                        @click.prevent="goEditPage(r.id)"
+                        class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
+                      >
+                        <PencilSquareIcon class="w-5 h-5" />
+                      </button>
+                      <!-- </router-link> -->
+                      <button
+                        v-if="authStore.isSuperAdmin"
+                        @click.prevent="onDeleteHandler(r.id)"
+                        class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
+                      >
+                        <TrashIcon class="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                </DisclosureButton>
+                <transition
+                  enter-active-class="transition duration-150 ease-out"
+                  enter-from-class="transform scale-95 opacity-0"
+                  enter-to-class="transform scale-100 opacity-100"
+                  leave-active-class="transition duration-75 ease-out"
+                  leave-from-class="transform scale-100 opacity-100"
+                  leave-to-class="transform scale-95 opacity-0"
+                >
+                  <DisclosurePanel class="w-full text-gray-500">
+                    <div class="grid grid-cols-6 gap-2 bg-gray-300">
+                      <div
+                        class="py-2 text-xs font-medium tracking-wide text-center"
+                      >
+                        No.
+                      </div>
+                      <div
+                        class="py-2 text-xs col-span-2 font-medium tracking-wide text-start pl-14"
+                      >
+                        Name
+                      </div>
+
+                      <div
+                        class="py-2 text-xs font-medium tracking-wide text-start"
+                      >
+                        Is Extra
+                      </div>
+                      <div
+                        class="py-2 text-xs font-medium tracking-wide text-start"
+                      >
+                        Has Breakfast
+                      </div>
+                      <div
+                        class="py-2 text-xs font-medium tracking-wide text-center"
+                      >
+                        Price
+                      </div>
+                    </div>
+                    <div
+                      class="grid w-full grid-cols-6 gap-2 bg-gray-100"
+                      v-for="d in r?.rooms"
+                      :key="d.id"
+                      @click="goRoomPage(d.hotel_id)"
+                    >
+                      <div
+                        class="p-3 text-xs text-center text-gray-700 whitespace-nowrap"
+                      >
+                        {{ d?.id }}
+                      </div>
+
+                      <div
+                        class="p-3 text-xs col-span-2 text-start text-gray-700 whitespace-nowrap overflow-hidden"
+                      >
+                        <p>{{ d?.name }}</p>
+                      </div>
+                      <div
+                        class="p-3 text-xs text-gray-700 whitespace-nowrap overflow-hidden"
+                      >
+                        <p
+                          class="text-white inline-block px-2 py-0.5 rounded-full"
+                          :class="
+                            d?.is_extra == 1 ? 'bg-green-600' : 'bg-red-600'
+                          "
+                        >
+                          {{ d?.is_extra == 1 ? "Yes" : "No" }}
+                        </p>
+                      </div>
+                      <div
+                        class="p-3 text-xs text-gray-700 whitespace-nowrap overflow-hidden"
+                      >
+                        <p
+                          class="text-white inline-block px-2 py-0.5 rounded-full"
+                          :class="
+                            d?.has_breakfast == 1
+                              ? 'bg-green-600'
+                              : 'bg-red-600'
+                          "
+                        >
+                          {{ d?.has_breakfast == 1 ? "Yes" : "No" }}
+                        </p>
+                      </div>
+                      <div
+                        class="p-3 text-xs text-center text-gray-700 whitespace-nowrap overflow-hidden"
+                      >
+                        <p>{{ d?.room_price }} thb</p>
+                      </div>
+                    </div>
+                  </DisclosurePanel>
+                </transition>
+              </Disclosure>
+            </div>
+            <div v-if="loading" class="flex items-center justify-center py-20">
+              <div
+                class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] mr-4"
+                role="status"
+              >
+                <span
+                  class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+                  >Loading...</span
+                >
+              </div>
+              Loading ...
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -273,6 +453,7 @@ import { useHotelStore } from "../stores/hotel";
 import { useAuthStore } from "../stores/auth";
 import FacilitoryStoreVue from "../components/FacilitoryStore.vue";
 import debounce from "lodash/debounce";
+import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
 // import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const createModalOpen = ref(false);
@@ -489,6 +670,11 @@ const importActionHandler = async () => {
     importModal.value = false;
     toast.error(e.response.data.message);
   }
+};
+
+const goRoomPage = (data) => {
+  // console.log(data, "this is data");
+  router.push(`/products/3?edit=${data}`);
 };
 
 onMounted(async () => {

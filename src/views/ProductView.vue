@@ -1,6 +1,6 @@
 <script setup>
 import Layout from "./Layout.vue";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@headlessui/vue";
 import VanTour from "../views/VanTour.vue";
@@ -67,6 +67,14 @@ const changeUseRouter = () => {
 onMounted(() => {
   changeUseRouter();
 });
+
+watch(
+  () => route.params,
+  (newParams) => {
+    changeUseRouter();
+  },
+  { deep: true } // Ensures nested properties like `id` are watched
+);
 </script>
 
 <template>

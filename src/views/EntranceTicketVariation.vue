@@ -526,14 +526,17 @@
             >
               Price
             </th>
-            <th
+            <!-- <th
               class="p-3 text-xs font-medium tracking-wide text-left"
               v-if="!authStore.isAgent"
             >
               Cost Price
+            </th> -->
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
+              Is Main
             </th>
             <th class="p-3 text-xs font-medium tracking-wide text-left">
-              Agent Price
+              Is Show
             </th>
             <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
               Actions
@@ -549,7 +552,9 @@
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.id }}
             </td>
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+            <td
+              class="p-3 text-xs text-gray-700 max-w-[200px] overflow-hidden whitespace-nowrap"
+            >
               {{ r.name }}
             </td>
 
@@ -559,15 +564,29 @@
             >
               {{ r.price }}
             </td>
-            <td
-              class="p-3 text-xs text-gray-700 whitespace-nowrap"
-              v-if="!authStore.isAgent"
-            >
-              {{ r.cost_price }}
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              <p
+                v-if="r?.meta_data != null"
+                class="text-white inline-block px-2 py-0.5 rounded-full"
+                :class="
+                  r?.meta_data[0]?.is_main == 1 ? 'bg-green-600' : 'bg-red-600'
+                "
+              >
+                {{ r?.meta_data[0]?.is_main == 1 ? "Yes" : "No" }}
+              </p>
             </td>
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-              {{ r.agent_price }}
+              <p
+                v-if="r?.meta_data != null"
+                class="text-white inline-block px-2 py-0.5 rounded-full"
+                :class="
+                  r?.meta_data[0]?.is_main == 1 ? 'bg-green-600' : 'bg-red-600'
+                "
+              >
+                {{ r?.meta_data[0]?.is_main == 1 ? "Yes" : "No" }}
+              </p>
             </td>
+
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">
                 <button
@@ -652,7 +671,7 @@ import Pagination from "../components/Pagination.vue";
 import { onMounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import Modal from "../components/Modal.vue";
@@ -668,6 +687,7 @@ const toast = useToast();
 const entranceStore = useEntranceStore();
 const variationStore = useVariationStore();
 const authStore = useAuthStore();
+const route = useRoute();
 
 const { entrances } = storeToRefs(entranceStore);
 const { variations, loading, importLoading } = storeToRefs(variationStore);
@@ -1296,6 +1316,7 @@ watch(entAction, async (newValue) => {
 });
 
 onMounted(async () => {
+  route.query.id ? (entrance_ticket_id.value = route.query.id) : "";
   await variationStore.getListAction({
     search: search.value,
     entrance_ticket_id: entrance_ticket_id.value,

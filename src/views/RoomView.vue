@@ -1378,6 +1378,7 @@ onMounted(async () => {
     route.query.missing != "null" && route.query.missing
       ? route.query.missing
       : "";
+  route.query.edit ? (hotel_id.value = route.query.edit) : "null";
   //
   if (
     search.value == "" &&

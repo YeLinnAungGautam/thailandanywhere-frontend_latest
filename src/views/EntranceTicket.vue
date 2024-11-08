@@ -37,19 +37,42 @@
               </p>
             </div>
             <div class="mb-2 space-y-1">
-              <label for="name" class="text-sm text-gray-800"
-                >Is Show On website ?</label
-              >
-              <div class="flex justify-start items-center gap-x-4 pt-2">
+              <label for="name" class="text-sm text-gray-800">Is Show ?</label>
+              <!-- <div class="flex justify-start items-center gap-x-4 pt-2">
                 <input
                   type="checkbox"
                   class="w-5 h-5 rounded-xl block"
                   name=""
-                  :checked="formData.meta_data.is_show"
+                  :checked="formData.meta_data.is_show == 1"
                   id=""
                   v-model="formData.meta_data.is_show"
                 />
                 <p>is show on thanywhere ?</p>
+              </div> -->
+              <div class="mb-2 space-y-1 flex justify-start items-center gap-3">
+                <Switch
+                  v-model="formData.meta_data.is_show"
+                  :class="
+                    formData.meta_data.is_show == true
+                      ? 'bg-orange-600'
+                      : 'bg-gray-500'
+                  "
+                  class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                >
+                  <span class="sr-only">Use setting</span>
+                  <span
+                    aria-hidden="true"
+                    :class="
+                      formData.meta_data.is_show
+                        ? 'translate-x-9'
+                        : 'translate-x-0'
+                    "
+                    class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                  />
+                </Switch>
+                <label for="room_price" class="text-sm text-gray-800"
+                  >Is Show on Website ?</label
+                >
               </div>
             </div>
             <div>
@@ -657,7 +680,7 @@
       </div>
     </div>
     <div class="overflow-auto rounded-lg shadow mb-5">
-      <table class="w-full">
+      <!-- <table class="w-full">
         <thead class="bg-gray-50 border-b-2 border-gray-200">
           <tr>
             <th class="w-20 p-3 text-xs font-medium tracking-wide text-left">
@@ -671,6 +694,9 @@
             </th>
             <th class="p-3 text-xs font-medium tracking-wide text-left">
               Legal Name
+            </th>
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
+              Is show
             </th>
 
             <th class="w-30 p-3 text-xs font-medium tracking-wide text-left">
@@ -700,12 +726,26 @@
               -
             </td>
             <td
-              class="p-3 text-xs text-gray-700 whitespace-nowrap max-w-[200px] overflow-hidden"
+              class="p-3 text-xs text-gray-700 whitespace-nowrap max-w-[100px] overflow-hidden"
             >
               {{ r.name }}
             </td>
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+            <td
+              class="p-3 text-xs text-gray-700 whitespace-nowrap max-w-[120px] overflow-hidden"
+            >
               {{ r.legal_name }}
+            </td>
+            <td
+              class="p-3 text-xs text-gray-700 whitespace-nowrap max-w-[100px] flex justify-center pt-5"
+            >
+              <p
+                class="px-2 py-0.5 rounded-2xl text-white inline-block"
+                :class="
+                  r.meta_data?.is_show == 1 ? 'bg-green-500' : 'bg-red-500'
+                "
+              >
+                {{ r.meta_data?.is_show == 1 ? "Yes" : "No" }}
+              </p>
             </td>
 
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
@@ -736,7 +776,207 @@
             </td>
           </tr>
         </tbody>
-      </table>
+      </table> -->
+      <div class="mb-5 overflow-auto rounded-lg shadow">
+        <div class="grid grid-cols-6 gap-2 bg-gray-100">
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
+            No.
+          </div>
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
+            Image
+          </div>
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
+            Ticket Name
+          </div>
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
+            Is show
+          </div>
+          <div class="py-2 text-xs font-medium tracking-wide text-center"></div>
+          <div class="py-2 text-xs font-medium tracking-wide text-center">
+            Action
+          </div>
+        </div>
+        <div
+          v-show="!loading"
+          class="relative divide-y divide-gray-200 group"
+          v-for="r in entrances?.data ?? []"
+          :key="r.id"
+        >
+          <Disclosure>
+            <DisclosureButton class="w-full">
+              <div class="grid grid-cols-6 gap-2 bg-white">
+                <div
+                  class="flex justify-center items-center text-xs text-gray-700 whitespace-nowrap"
+                >
+                  {{ r.id }}
+                </div>
+                <div
+                  class="flex justify-center items-center text-xs text-gray-700 whitespace-nowrap overflow-hidden"
+                >
+                  <img
+                    v-if="r.cover_image"
+                    :src="r.cover_image"
+                    class="w-14 h-10 rounded-lg"
+                    alt=""
+                  />
+                  <p v-if="!r.cover_image">-</p>
+                </div>
+                <div
+                  class="flex justify-start items-center text-xs text-gray-700 whitespace-nowrap overflow-hidden"
+                >
+                  {{ r.name }}
+                </div>
+                <div
+                  class="flex justify-center items-center text-xs text-gray-700 whitespace-nowrap overflow-hidden"
+                >
+                  <p
+                    class="px-2 py-0.5 rounded-2xl text-white inline-block"
+                    :class="
+                      r.meta_data?.is_show == 1 ? 'bg-green-500' : 'bg-red-500'
+                    "
+                  >
+                    {{ r.meta_data?.is_show == 1 ? "Yes" : "No" }}
+                  </p>
+                </div>
+
+                <div
+                  class="flex items-center justify-end col-span-2 p-3 space-x-2 text-xs text-gray-700 whitespace-nowrap"
+                  @click="seenClick"
+                >
+                  <p
+                    class="inline-block px-3 py-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
+                  >
+                    <i class="fa-solid fa-chevron-down"></i>
+                  </p>
+
+                  <button
+                    @click.prevent="editModalOpenHandler(r.id)"
+                    class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
+                  >
+                    <PencilSquareIcon class="w-5 h-5" />
+                  </button>
+                  <!-- </router-link> -->
+                  <button
+                    v-if="authStore.isSuperAdmin || authStore.isReservation"
+                    @click.prevent="onDeleteHandler(r.id)"
+                    class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
+                  >
+                    <TrashIcon class="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </DisclosureButton>
+            <transition
+              enter-active-class="transition duration-150 ease-out"
+              enter-from-class="transform scale-95 opacity-0"
+              enter-to-class="transform scale-100 opacity-100"
+              leave-active-class="transition duration-75 ease-out"
+              leave-from-class="transform scale-100 opacity-100"
+              leave-to-class="transform scale-95 opacity-0"
+            >
+              <DisclosurePanel class="w-full text-gray-500">
+                <div class="grid grid-cols-6 gap-2 bg-gray-300">
+                  <div
+                    class="py-2 text-xs font-medium tracking-wide text-center"
+                  >
+                    No.
+                  </div>
+                  <div
+                    class="py-2 text-xs col-span-2 font-medium tracking-wide text-start pl-14"
+                  >
+                    Name
+                  </div>
+
+                  <div
+                    class="py-2 text-xs font-medium tracking-wide text-start"
+                  >
+                    Is Main
+                  </div>
+                  <div
+                    class="py-2 text-xs font-medium tracking-wide text-start"
+                  >
+                    Is Show
+                  </div>
+                  <div
+                    class="py-2 text-xs font-medium tracking-wide text-center"
+                  >
+                    Price
+                  </div>
+                </div>
+                <div
+                  class="grid w-full grid-cols-6 gap-2 bg-gray-100"
+                  v-for="d in r?.variations"
+                  :key="d.id"
+                  @click="goRoomPage(d.entrance_ticket_id)"
+                >
+                  <div
+                    class="p-3 text-xs text-center text-gray-700 whitespace-nowrap"
+                  >
+                    {{ d?.id }}
+                  </div>
+
+                  <div
+                    class="p-3 text-xs col-span-2 text-start text-gray-700 whitespace-nowrap overflow-hidden"
+                  >
+                    <p>{{ d?.name }}</p>
+                  </div>
+                  <div
+                    class="p-3 text-xs text-gray-700 whitespace-nowrap overflow-hidden"
+                  >
+                    <p
+                      v-if="d?.meta_data != null"
+                      class="text-white inline-block px-2 py-0.5 rounded-full"
+                      :class="
+                        JSON.parse(d?.meta_data)[0]?.is_main == 1
+                          ? 'bg-green-600'
+                          : 'bg-red-600'
+                      "
+                    >
+                      {{
+                        JSON.parse(d?.meta_data)[0]?.is_main == 1 ? "Yes" : "No"
+                      }}
+                    </p>
+                  </div>
+                  <div
+                    class="p-3 text-xs text-gray-700 whitespace-nowrap overflow-hidden"
+                  >
+                    <p
+                      v-if="d?.meta_data != null"
+                      class="text-white inline-block px-2 py-0.5 rounded-full"
+                      :class="
+                        JSON.parse(d?.meta_data)[0]?.is_show == 1
+                          ? 'bg-green-600'
+                          : 'bg-red-600'
+                      "
+                    >
+                      {{
+                        JSON.parse(d?.meta_data)[0]?.is_show == 1 ? "Yes" : "No"
+                      }}
+                    </p>
+                  </div>
+                  <div
+                    class="p-3 text-xs text-center text-gray-700 whitespace-nowrap overflow-hidden"
+                  >
+                    <p>{{ d?.price }} thb</p>
+                  </div>
+                </div>
+              </DisclosurePanel>
+            </transition>
+          </Disclosure>
+        </div>
+        <div v-if="loading" class="flex items-center justify-center py-20">
+          <div
+            class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] mr-4"
+            role="status"
+          >
+            <span
+              class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+              >Loading...</span
+            >
+          </div>
+          Loading ...
+        </div>
+      </div>
     </div>
     <!-- pagination -->
     <Pagination v-if="!loading" :data="entrances" @change-page="changePage" />
@@ -794,6 +1034,7 @@ import {
   AdjustmentsHorizontalIcon,
   ArrowDownTrayIcon,
 } from "@heroicons/vue/24/outline";
+import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
 import Pagination from "../components/Pagination.vue";
 import { onMounted, ref, watch } from "vue";
@@ -809,6 +1050,7 @@ import { useCityStore } from "../stores/city";
 import { useProductStore } from "../stores/product";
 import { useAuthStore } from "../stores/auth";
 import debounce from "lodash/debounce";
+import { Switch } from "@headlessui/vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -1167,6 +1409,11 @@ const contract_file = (e) => {
     }
     console.log(formData.value.contracts, "this is contracts");
   }
+};
+
+const goRoomPage = (data) => {
+  // console.log(data, "this is data");
+  router.push(`/products/7?id=${data}`);
 };
 
 const updateHandler = async () => {

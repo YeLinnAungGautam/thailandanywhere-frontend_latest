@@ -598,7 +598,7 @@ const getDetail = async () => {
     //       response.result.associated_customer[0].passport;
     //   }
     // }
-    if (response.result.associated_customer != null) {
+    if (response.result.associated_customer.length > 0) {
       enabled.value = true;
       if (response.result.associated_customer != null) {
         secForm.value.customer_name =

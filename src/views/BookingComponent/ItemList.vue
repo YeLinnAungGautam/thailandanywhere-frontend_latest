@@ -497,7 +497,55 @@ onMounted(() => {
               <div class="flex justify-between items-start w-full">
                 <div class="space-y-1">
                   <p class="text-xs font-medium text-[#ff613c]">{{ i.name }}</p>
-                  <!-- <p class="text-xs">{{ i.max_person }} Pax</p> -->
+                  <div class="flex justify-start items-center gap-x-1">
+                    <p
+                      class="text-[8px] text-white px-2 py-0.5 rounded-full inline-block"
+                      :class="
+                        i?.meta_data != null &&
+                        JSON.parse(i?.meta_data)[0].is_main == 1
+                          ? 'bg-green-500'
+                          : 'hidden'
+                      "
+                    >
+                      {{
+                        i?.meta_data != null &&
+                        JSON.parse(i?.meta_data)[0].is_show == 1
+                          ? "main"
+                          : "-"
+                      }}
+                    </p>
+                    <p
+                      class="text-[8px] text-white px-2 py-0.5 rounded-full inline-block"
+                      :class="
+                        i?.meta_data != null &&
+                        JSON.parse(i?.meta_data)[0].is_show == 1
+                          ? 'bg-green-500'
+                          : 'hidden'
+                      "
+                    >
+                      {{
+                        i?.meta_data != null &&
+                        JSON.parse(i?.meta_data)[0].is_show == 1
+                          ? "show"
+                          : "no show"
+                      }}
+                    </p>
+                  </div>
+                  <div>
+                    <p
+                      class="text-[10px] text-gray-800"
+                      v-for="a in i?.including_services != null &&
+                      i?.including_services != ''
+                        ? JSON.parse(i?.including_services)
+                        : []"
+                      :key="a"
+                    >
+                      <span
+                        class="h-1.5 w-1.5 mr-2 bg-gray-500 inline-block rounded-full"
+                      ></span
+                      >{{ a }}
+                    </p>
+                  </div>
                 </div>
                 <div class="my-auto">
                   <p class="text-xs font-semibold whitespace-nowrap">

@@ -293,19 +293,20 @@ const addNewHandler = async () => {
       frmData.append("images[" + i + "]", file);
     }
   }
-  if (
-    formData.value.youtube_link.mm_link ||
+
+  frmData.append(
+    "youtube_link[0][mm_link]",
+    formData.value.youtube_link.mm_link
+      ? formData.value.youtube_link.mm_link
+      : ""
+  );
+  frmData.append(
+    "youtube_link[0][en_link]",
     formData.value.youtube_link.en_link
-  ) {
-    frmData.append(
-      "youtube_link[0][mm_link]",
-      formData.value.youtube_link.mm_link
-    );
-    frmData.append(
-      "youtube_link[0][en_link]",
-      formData.value.youtube_link.en_link
-    );
-  }
+      ? formData.value.youtube_link.en_link
+      : ""
+  );
+
   if (formData.value.nearby_places.length > 0) {
     for (let i = 0; i < formData.value.nearby_places.length; i++) {
       frmData.append(
@@ -488,19 +489,31 @@ const updateHandler = async () => {
       frmData.append("contracts[" + i + "]", file);
     }
   }
-  if (
-    formData.value.youtube_link?.mm_link ||
-    formData.value.youtube_link?.en_link
-  ) {
-    frmData.append(
-      "youtube_link[0][mm_link]",
-      formData.value.youtube_link.mm_link
-    );
-    frmData.append(
-      "youtube_link[0][en_link]",
-      formData.value.youtube_link.en_link
-    );
-  }
+  // if (
+  //   formData.value.youtube_link?.mm_link ||
+  //   formData.value.youtube_link?.en_link
+  // ) {
+  //   frmData.append(
+  //     "youtube_link[0][mm_link]",
+  //     formData.value.youtube_link.mm_link
+  //   );
+  //   frmData.append(
+  //     "youtube_link[0][en_link]",
+  //     formData.value.youtube_link.en_link
+  //   );
+  // }
+  frmData.append(
+    "youtube_link[0][mm_link]",
+    formData.value.youtube_link.mm_link
+      ? formData.value.youtube_link.mm_link
+      : ""
+  );
+  frmData.append(
+    "youtube_link[0][en_link]",
+    formData.value.youtube_link.en_link
+      ? formData.value.youtube_link.en_link
+      : ""
+  );
   if (formData.value.nearby_places.length > 0) {
     for (let i = 0; i < formData.value.nearby_places.length; i++) {
       if (formData.value.nearby_places[i].img) {

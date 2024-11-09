@@ -1307,19 +1307,31 @@ const addNewHandler = async () => {
     frmData.append("location_map", formData.value.location_map);
   formData.value.location_map_title &&
     frmData.append("location_map_title", formData.value.location_map_title);
-  if (
-    formData.value.youtube_link.mm_link ||
+  // if (
+  //   formData.value.youtube_link.mm_link ||
+  //   formData.value.youtube_link.en_link
+  // ) {
+  //   frmData.append(
+  //     "youtube_link[0][mm_link]",
+  //     formData.value.youtube_link.mm_link
+  //   );
+  //   frmData.append(
+  //     "youtube_link[0][en_link]",
+  //     formData.value.youtube_link.en_link
+  //   );
+  // }
+  frmData.append(
+    "youtube_link[0][mm_link]",
+    formData.value.youtube_link.mm_link
+      ? formData.value.youtube_link.mm_link
+      : ""
+  );
+  frmData.append(
+    "youtube_link[0][en_link]",
     formData.value.youtube_link.en_link
-  ) {
-    frmData.append(
-      "youtube_link[0][mm_link]",
-      formData.value.youtube_link.mm_link
-    );
-    frmData.append(
-      "youtube_link[0][en_link]",
-      formData.value.youtube_link.en_link
-    );
-  }
+      ? formData.value.youtube_link.en_link
+      : ""
+  );
 
   frmData.append(
     "meta_data[is_show]",
@@ -1433,19 +1445,31 @@ const updateHandler = async () => {
     frmData.append("location_map", formData.value.location_map);
   formData.value.location_map_title &&
     frmData.append("location_map_title", formData.value.location_map_title);
-  if (
-    formData.value.youtube_link.mm_link ||
+  // if (
+  //   formData.value.youtube_link.mm_link ||
+  //   formData.value.youtube_link.en_link
+  // ) {
+  //   frmData.append(
+  //     "youtube_link[0][mm_link]",
+  //     formData.value.youtube_link.mm_link
+  //   );
+  //   frmData.append(
+  //     "youtube_link[0][en_link]",
+  //     formData.value.youtube_link.en_link
+  //   );
+  // }
+  frmData.append(
+    "youtube_link[0][mm_link]",
+    formData.value.youtube_link.mm_link
+      ? formData.value.youtube_link.mm_link
+      : ""
+  );
+  frmData.append(
+    "youtube_link[0][en_link]",
     formData.value.youtube_link.en_link
-  ) {
-    frmData.append(
-      "youtube_link[0][mm_link]",
-      formData.value.youtube_link.mm_link
-    );
-    frmData.append(
-      "youtube_link[0][en_link]",
-      formData.value.youtube_link.en_link
-    );
-  }
+      ? formData.value.youtube_link.en_link
+      : ""
+  );
   frmData.append(
     "meta_data[is_show]",
     formData.value.meta_data.is_show ? 1 : 0

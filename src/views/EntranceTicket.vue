@@ -152,7 +152,7 @@
                 :options="vat_inclusion_array ?? []"
                 label="name"
                 :clearable="false"
-                :reduce="(h) => h.id"
+                :reduce="(h) => h.name"
                 placeholder=""
               ></v-select>
             </div>
@@ -1174,6 +1174,7 @@ const VantourCreate = () => {
   formData.value.legal_name = "";
   formData.value.location_map_title = "";
   formData.value.location_map = "";
+  formData.value.vat_inclusion = "";
   formData.value.youtube_link = {
     mm_link: "",
     en_link: "",
@@ -1197,6 +1198,7 @@ const clearAction = () => {
     cover_image: "",
     city_id: [],
     category_id: [],
+    vat_inclusion: "",
     images: [],
     feature_image: "",
     id: "",
@@ -1380,6 +1382,9 @@ const addNewHandler = async () => {
       frmData.append("category_ids[" + x + "]", formData.value.category_id[x]);
     }
   }
+  if (formData.value.vat_inclusion) {
+    frmData.append("vat_inclusion", formData.value.vat_inclusion);
+  }
   if (formData.value.contracts) {
     // frmData.append("contracts", formData.value.contracts);
     for (let i = 0; i < formData.value.contracts.length; i++) {
@@ -1397,6 +1402,7 @@ const addNewHandler = async () => {
       cover_image: "",
       city_id: [],
       category_id: [],
+      vat_inclusion: "",
       images: [],
       feature_image: "",
       id: "",
@@ -1517,6 +1523,9 @@ const updateHandler = async () => {
       frmData.append("category_ids[" + x + "]", formData.value.category_id[x]);
     }
   }
+  if (formData.value.vat_inclusion) {
+    frmData.append("vat_inclusion", formData.value.vat_inclusion);
+  }
   if (formData.value.contracts) {
     // frmData.append("contracts", formData.value.contracts);
     for (let i = 0; i < formData.value.contracts.length; i++) {
@@ -1542,6 +1551,7 @@ const updateHandler = async () => {
       cover_image: "",
       city_id: [],
       category_id: [],
+      vat_inclusion: "",
       images: [],
       feature_image: "",
       id: "",
@@ -1617,6 +1627,7 @@ const editModalOpenHandler = async (id) => {
     // formData.value.place = response.result.place;
     formData.value.legal_name = response.result.legal_name;
     formData.value.location_map = response.result.location_map;
+    formData.value.vat_inclusion = response.result.vat_inclusion;
     formData.value.location_map_title = response.result.location_map_title;
     // formData.value.youtube_link = response.result.location_map;
     if (

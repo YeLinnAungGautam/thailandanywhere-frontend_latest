@@ -284,9 +284,9 @@ const addNewHandler = async () => {
   ) {
     frmData.append("category_id", formData.value.category_id);
   }
-  // if (formData.value.vat_inclusion!= "") {
-  //   frmData.append("vat_inclusion", formData.value.vat_inclusion);
-  // }
+  if (formData.value.vat_inclusion != "") {
+    frmData.append("vat_inclusion", formData.value.vat_inclusion);
+  }
   frmData.append("type", formData.value.type);
   frmData.append("account_name", formData.value.account_name);
   frmData.append("place", formData.value.place);
@@ -366,6 +366,7 @@ const addNewHandler = async () => {
       city_id: null,
       place_id: null,
       category_id: null,
+      vat_inclusion: "",
       type: "other_booking",
       payment_method: "",
       bank_name: "",
@@ -420,6 +421,7 @@ const openCreate = () => {
   formData.value.name = "";
   formData.value.city_id = null;
   formData.value.category_id = null;
+  formData.value.vat_inclusion = "";
   formData.value.place_id = null;
   formData.value.type = "other_booking";
   formData.value.payment_method = "";
@@ -474,6 +476,9 @@ const updateHandler = async () => {
     formData.value.category_id != "null"
   ) {
     frmData.append("category_id", formData.value.category_id);
+  }
+  if (formData.value.vat_inclusion != "") {
+    frmData.append("vat_inclusion", formData.value.vat_inclusion);
   }
   frmData.append("type", formData.value.type);
   frmData.append("payment_method", formData.value.payment_method);
@@ -573,6 +578,7 @@ const updateHandler = async () => {
       city_id: null,
       place_id: null,
       category_id: null,
+      vat_inclusion: "",
       type: "other_booking",
       place: "",
       id: "",
@@ -655,6 +661,7 @@ const getDetail = async (params) => {
     formData.value.city_id = data.city?.id;
     formData.value.place_id = data.hotel_place?.id;
     formData.value.category_id = data.category?.id;
+    formData.value.vat_inclusion = data.vat_inclusion;
     formData.value.type = data.type;
     formData.value.place = data.place;
     formData.value.legal_name = data.legal_name;
@@ -965,7 +972,7 @@ onMounted(async () => {
                 :options="vat_inclusion_array ?? []"
                 label="name"
                 :clearable="false"
-                :reduce="(h) => h.id"
+                :reduce="(h) => h.name"
                 placeholder=""
               ></v-select>
             </div>

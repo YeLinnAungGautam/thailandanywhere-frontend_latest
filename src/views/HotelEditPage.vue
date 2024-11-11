@@ -98,12 +98,24 @@ const typeList = ref([
   { id: 2, name: "Other Booking", value: "other_booking" },
 ]);
 
+const vat_inclusion_array = [
+  {
+    id: 1,
+    name: "Inclusive of VAT",
+  },
+  {
+    id: 2,
+    name: "No VAT",
+  },
+];
+
 const formData = ref({
   id: "",
   name: "",
   city_id: null,
   place_id: null,
   category_id: null,
+  vat_inclusion: "",
   type: "other_booking",
   payment_method: "",
   bank_name: "",
@@ -170,6 +182,7 @@ const closeModal = () => {
     place_id: null,
     city_id: null,
     category_id: null,
+    vat_inclusion: "",
     type: "other_booking",
     payment_method: "",
     bank_name: "",
@@ -271,6 +284,9 @@ const addNewHandler = async () => {
   ) {
     frmData.append("category_id", formData.value.category_id);
   }
+  // if (formData.value.vat_inclusion!= "") {
+  //   frmData.append("vat_inclusion", formData.value.vat_inclusion);
+  // }
   frmData.append("type", formData.value.type);
   frmData.append("account_name", formData.value.account_name);
   frmData.append("place", formData.value.place);
@@ -924,15 +940,6 @@ onMounted(async () => {
                 @click="categoryAction = true"
                 class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
               >
-                <!-- <div class="flex justify-start items-center gap-2 flex-wrap" v-if="city_list_array">
-                  <p
-                    v-for="i in city_list_array"
-                    :key="i.id"
-                    class="text-xs py-1 px-2 bg-gray-100 rounded-md whitespace-nowrap"
-                  >
-                    {{ i.name }}
-                  </p>
-                </div> -->
                 <p class="text-sm">
                   {{ categoryName == "" ? "choose category" : categoryName }}
                 </p>
@@ -947,6 +954,19 @@ onMounted(async () => {
                 :clearable="false"
                 :reduce="(h) => h.id"
                 placeholder="Choose Category"
+              ></v-select>
+            </div>
+            <div v-if="quiteSwitch == 1">
+              <p class="mb-2 text-sm text-gray-800">VAT Inclusion</p>
+
+              <v-select
+                v-model="formData.vat_inclusion"
+                class="style-chooser"
+                :options="vat_inclusion_array ?? []"
+                label="name"
+                :clearable="false"
+                :reduce="(h) => h.id"
+                placeholder=""
               ></v-select>
             </div>
             <div v-if="quiteSwitch == 1" class="mb-2 space-y-1">

@@ -143,6 +143,19 @@
                 placeholder="Choose Category"
               ></v-select>
             </div>
+            <div>
+              <p class="mb-2 text-sm text-gray-800">VAT Inclusion</p>
+
+              <v-select
+                v-model="formData.vat_inclusion"
+                class="style-chooser"
+                :options="vat_inclusion_array ?? []"
+                label="name"
+                :clearable="false"
+                :reduce="(h) => h.id"
+                placeholder=""
+              ></v-select>
+            </div>
             <!-- <div>
               <p class="text-gray-800 text-sm mb-2">Category</p>
               <v-select
@@ -1103,6 +1116,17 @@ const paymentMethod = [
   { id: "4", name: "Other ..." },
 ];
 
+const vat_inclusion_array = [
+  {
+    id: 1,
+    name: "Inclusive of VAT",
+  },
+  {
+    id: 2,
+    name: "No VAT",
+  },
+];
+
 const formData = ref({
   name: "",
   description: "",
@@ -1110,6 +1134,7 @@ const formData = ref({
   cover_image: "",
   city_id: [],
   category_id: [],
+  vat_inclusion: "",
   images: [],
   feature_image: "",
   id: "",

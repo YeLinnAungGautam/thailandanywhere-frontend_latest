@@ -522,6 +522,7 @@ const chartOptions = {
 };
 
 const date = ref("");
+const partOfAgent = ref("sale");
 const startDate = ref("");
 const endDate = ref("");
 const priceReservation = ref(false);
@@ -1009,13 +1010,39 @@ const homeSectionPartView = ref("sale");
                   </template>
                 </VueDatePicker>
               </div>
+              <div
+                class="grid grid-cols-2 border border-gray-300 rounded-md divide-x-2 divide-gray-300"
+              >
+                <p
+                  class="text-xs text-center py-1.5 rounded-s-lg"
+                  @click="partOfAgent = 'sale'"
+                  :class="
+                    partOfAgent == 'sale' ? 'bg-[#FF5B00] text-white' : ''
+                  "
+                >
+                  amount
+                </p>
+                <p
+                  class="text-xs text-center py-1.5 rounded-e-lg"
+                  @click="partOfAgent = 'average'"
+                  :class="
+                    partOfAgent == 'average' ? 'bg-[#FF5B00] text-white' : ''
+                  "
+                >
+                  target
+                </p>
+              </div>
 
               <div
                 class=""
                 v-for="(s, index) in saleAgentDataRes?.result"
                 :key="index"
               >
-                <SaleAgentReportByDate :data="s" />
+                <SaleAgentReportByDate
+                  :data="s"
+                  :part="partOfAgent"
+                  :date="dateForSaleAgent"
+                />
               </div>
             </div>
           </div>

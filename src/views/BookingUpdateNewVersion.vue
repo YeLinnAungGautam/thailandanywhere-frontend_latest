@@ -10,7 +10,7 @@ import {
   PencilSquareIcon,
   TrashIcon,
 } from "@heroicons/vue/24/outline";
-import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
+import { PlusIcon, ListBulletIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
@@ -386,6 +386,27 @@ const allowCreate = computed(() => {
 
 const errors = ref(null);
 const updatingLoading = ref(false);
+const required_archive = ref(false);
+
+const openModalArchive = ref(false);
+
+const updateAuthAction = async () => {
+  if (authStore.isSuperAdmin) {
+    openModalArchive.value = true;
+  } else {
+    await onSubmitHandler();
+  }
+};
+const archiveUpdate = async () => {
+  required_archive.value = true;
+  await onSubmitHandler();
+  openModalArchive.value = false;
+};
+const normalUpdate = async () => {
+  required_archive.value = false;
+  await onSubmitHandler();
+  openModalArchive.value = false;
+};
 
 const onSubmitHandler = async () => {
   updatingLoading.value = true;
@@ -425,6 +446,8 @@ const onSubmitHandler = async () => {
     } else {
       frmData.append("money_exchange_rate", 0);
     }
+
+    required_archive.value && frmData.append("required_archive", true);
 
     // if (formData.value.discount == "" || formData.value.discount == 0) {
     //   frmData.append("discount", 0);
@@ -1235,7 +1258,7 @@ onMounted(() => {
             </div>
           </div>
           <button
-            @click="onSubmitHandler"
+            @click="updateAuthAction"
             v-show="allowCreate"
             class="text-center bg-[#ff613c] py-2 px-4 text-xs text-white rounded-xl flex justify-center items-center gap-x-2"
           >
@@ -1535,6 +1558,72 @@ onMounted(() => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+    <Modal :isOpen="openModalArchive" @closeModal="openModalArchive = false">
+      <DialogPanel
+        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-lg font-medium leading-6 text-gray-900 mb-5 flex justify-between items-center"
+        >
+          ⚠️ Archive Confirmation
+          <XMarkIcon
+            class="w-6 h-6 text-black cursor-pointer"
+            @click="openModalArchive = false"
+          />
+        </DialogTitle>
+        <div class="space-y-1">
+          <p class="text-sm font-medium">
+            Do you want to archive this invoice ?
+          </p>
+          <p class="text-sm">Please check this invoice before archive</p>
+          <p class="text-sm pt-2">
+            <span
+              class="bg-[#ff613c] w-3 h-3 mr-2 inline-block rounded-full"
+            ></span
+            >Is all items is correct ?
+          </p>
+          <p class="text-sm">
+            <span
+              class="bg-[#ff613c] w-3 h-3 mr-2 inline-block rounded-full"
+            ></span
+            >Is payment is correct ?
+          </p>
+          <p class="text-sm">
+            <span
+              class="bg-[#ff613c] w-3 h-3 mr-2 inline-block rounded-full"
+            ></span
+            >Is tax is correct ?
+          </p>
+          <p class="text-sm">
+            <span
+              class="bg-[#ff613c] w-3 h-3 mr-2 inline-block rounded-full"
+            ></span
+            >Is discount is correct ?
+          </p>
+          <p class="text-sm pb-4">
+            <span
+              class="bg-[#ff613c] w-3 h-3 mr-2 inline-block rounded-full"
+            ></span
+            >Is total is correct ?
+          </p>
+          <div class="flex justify-between items-center gap-x-4">
+            <p
+              @click="archiveUpdate"
+              class="w-full bg-[#ff613c] py-2 shadow text-white text-center text-xs rounded-xl"
+            >
+              Archive Update
+            </p>
+            <p
+              @click="normalUpdate"
+              class="w-full bg-white py-2 shadow text-[#ff613c] border border-[#ff613c] text-center text-xs rounded-xl"
+            >
+              Normal Update
+            </p>
           </div>
         </div>
       </DialogPanel>

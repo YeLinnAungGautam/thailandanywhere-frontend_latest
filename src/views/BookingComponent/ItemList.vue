@@ -623,6 +623,7 @@ onMounted(() => {
                 >
                 <input
                   type="time"
+                  :disabled="authStore?.isSuperAdmin ? false : true"
                   v-model="formitem.pickup_time"
                   name=""
                   class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
@@ -635,6 +636,7 @@ onMounted(() => {
                 >
                 <input
                   type="date"
+                  :disabled="authStore?.isSuperAdmin ? false : true"
                   v-model="formitem.service_date"
                   @change="todayCheck"
                   name=""
@@ -657,6 +659,7 @@ onMounted(() => {
               >
               <input
                 type="text"
+                :disabled="authStore?.isSuperAdmin ? false : true"
                 v-model="formitem.pickup_location"
                 name=""
                 class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
@@ -671,6 +674,7 @@ onMounted(() => {
                 <div class="flex justify-start items-center gap-x-2">
                   <input
                     type="checkbox"
+                    :disabled="authStore?.isSuperAdmin ? false : true"
                     name=""
                     v-model="formitem.is_driver_collect"
                     class="px-4 w-6 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
@@ -687,6 +691,7 @@ onMounted(() => {
                 >
                 <input
                   type="number"
+                  :disabled="authStore?.isSuperAdmin ? false : true"
                   v-model="formitem.quantity"
                   name=""
                   class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
@@ -702,6 +707,7 @@ onMounted(() => {
               >
               <input
                 type="date"
+                :disabled="authStore?.isSuperAdmin ? false : true"
                 v-model="formitem.service_date"
                 @change="todayCheck"
                 name=""
@@ -721,6 +727,7 @@ onMounted(() => {
               >
               <input
                 type="date"
+                :disabled="authStore?.isSuperAdmin ? false : true"
                 v-model="formitem.checkout_date"
                 name=""
                 class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
@@ -733,6 +740,7 @@ onMounted(() => {
               >
               <input
                 type="number"
+                :disabled="authStore?.isSuperAdmin ? false : true"
                 v-model="formitem.quantity"
                 name=""
                 class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
@@ -754,6 +762,7 @@ onMounted(() => {
             <label for="" class="text-[12px] text-gray-500">Discount</label>
             <input
               type="number"
+              :disabled="authStore?.isSuperAdmin ? false : true"
               v-model="formitem.discount"
               name=""
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
@@ -766,6 +775,7 @@ onMounted(() => {
             >
             <textarea
               name=""
+              :disabled="authStore?.isSuperAdmin ? false : true"
               v-model="formitem.route_plan"
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
               id=""
@@ -777,6 +787,7 @@ onMounted(() => {
             >
             <textarea
               name=""
+              :disabled="authStore?.isSuperAdmin ? false : true"
               v-model="formitem.special_request"
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
               id=""
@@ -788,6 +799,7 @@ onMounted(() => {
             >
             <textarea
               name=""
+              :disabled="authStore?.isSuperAdmin ? false : true"
               v-model="formitem.comment"
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
               id=""

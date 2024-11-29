@@ -797,22 +797,24 @@ watch(
         <div class="space-y-2">
           <div>
             <Button
+              :leftIcon="PlusIcon"
               class="w-full"
+              @click="goCreatePage('new')"
+            >
+              <p class="text-xs w-full whitespace-nowrap">
+                New Version (recommended)
+              </p>
+            </Button>
+          </div>
+          <div>
+            <Button
+              class="w-full bg-gray-500"
               :leftIcon="PlusIcon"
               @click="goCreatePage('old')"
             >
               <p class="text-xs w-full whitespace-nowrap">
                 Old Version (stable)
               </p>
-            </Button>
-          </div>
-          <div>
-            <Button
-              :leftIcon="PlusIcon"
-              class="w-full bg-gray-500"
-              @click="goCreatePage('new')"
-            >
-              <p class="text-xs w-full whitespace-nowrap">New Version (beta)</p>
             </Button>
           </div>
         </div>
@@ -831,23 +833,23 @@ watch(
         <div class="space-y-2">
           <div>
             <Button
-              class="w-full"
               :leftIcon="PlusIcon"
-              @click="goEditPage('old')"
+              class="w-full"
+              @click="goEditPage('new')"
             >
               <p class="text-xs w-full whitespace-nowrap">
-                Old Version Edit (stable)
+                New Version Edit (recommended)
               </p>
             </Button>
           </div>
           <div>
             <Button
-              :leftIcon="PlusIcon"
               class="w-full bg-gray-500"
-              @click="goEditPage('new')"
+              :leftIcon="PlusIcon"
+              @click="goEditPage('old')"
             >
               <p class="text-xs w-full whitespace-nowrap">
-                New Version Edit (beta)
+                Old Version Edit (stable)
               </p>
             </Button>
           </div>

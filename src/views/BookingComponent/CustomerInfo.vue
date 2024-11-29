@@ -10,6 +10,8 @@ import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import CustomerCreate from "../../components/CustomerCreate.vue";
 import { Switch } from "@headlessui/vue";
+import { useAdminStore } from "../../stores/admin";
+import { useAuthStore } from "@/stores/auth";
 
 const props = defineProps({
   data: [Object, String],
@@ -17,12 +19,19 @@ const props = defineProps({
 
 const router = useRouter();
 const sidebar = useSidebarStore();
+const adminStore = useAdminStore();
 const customerStore = useCustomerStore();
 const emit = defineEmits(["checked"]);
 const { customer, customers, loading } = storeToRefs(customerStore);
+const authStore = useAuthStore();
 const { isOpenCustomerCreate } = storeToRefs(sidebar);
+const { admin } = useAdminStore();
 
 const search = ref("");
+
+// past_user_id: "",
+// is_past_info: "",
+// past_crm_id: "",
 
 const checkValue = ref("");
 const customerName = ref("");
@@ -30,6 +39,9 @@ const customerPhone = ref("");
 const customerEmail = ref("");
 const is_corporate = ref("");
 const sold_from = ref("");
+const past_user_id = ref("");
+const is_past_info = ref(false);
+const past_crm_id = ref("");
 
 const soldFrom = [
   { id: "1", name: "Facebook" },
@@ -51,6 +63,7 @@ const change = (d) => {
     customerPhone.value = d.phone_number;
     customerEmail.value = d.email;
     is_corporate.value = d.is_corporate_customer;
+
     let data = {
       id: d.id,
       name: d.name,
@@ -58,6 +71,9 @@ const change = (d) => {
       email: d.email,
       is_corporate_customer: d.is_corporate_customer,
       sold_from: sold_from.value,
+      is_past_info: is_past_info.value,
+      past_crm_id: past_crm_id.value,
+      past_user_id: past_user_id.value,
     };
     emit("checked", data);
   } else {
@@ -73,6 +89,9 @@ const changeSoldFrom = () => {
     email: customerEmail.value,
     is_corporate_customer: is_corporate.value,
     sold_from: sold_from.value,
+    is_past_info: is_past_info.value,
+    past_crm_id: past_crm_id.value,
+    past_user_id: past_user_id.value,
   };
   emit("checked", data);
 };
@@ -87,14 +106,27 @@ const customerClose = async () => {
 };
 
 watch(
-  () => [sold_from.value],
-  (newVal) => {
+  () => [
+    sold_from.value,
+    is_past_info.value,
+    past_crm_id.value,
+    past_user_id.value,
+  ],
+  () => {
     changeSoldFrom();
   }
 );
 
+const getAdmin = async () => {
+  await adminStore.getSimpleListAction();
+  console.log("====================================");
+  console.log(admin?.data);
+  console.log("====================================");
+};
+
 onMounted(async () => {
   // await customerStore.getListAction();
+  await getAdmin();
   if (customers?.value == null) {
     await customerStore.getListAction();
   }
@@ -105,6 +137,9 @@ onMounted(async () => {
   customerEmail.value = props.data.customer_email;
   is_corporate.value = props.data.is_corporate;
   sold_from.value = props.data.sold_from;
+  is_past_info.value = props.data.is_past_info == 1 ? true : false;
+  past_crm_id.value = props.data.past_crm_id;
+  past_user_id.value = props.data.past_user_id;
 });
 
 watch(
@@ -254,6 +289,61 @@ watch(
                 class="pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-[#ff613c] shadow-lg ring-0 transition duration-200 ease-in-out"
               />
             </Switch>
+          </div>
+        </div>
+      </div>
+      <div class="pt-4" v-if="authStore.isSuperAdmin">
+        <div class="flex justify-between items-center py-2">
+          <h1 class="bg-white text-xs font-medium text-[#ff613c]">
+            Is Pass Info
+          </h1>
+          <div>
+            <Switch
+              v-model="is_past_info"
+              :class="is_past_info ? ' bg-[#ff613c]/50' : 'bg-gray-200'"
+              class="relative inline-flex h-[22px] w-[50px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+            >
+              <span class="sr-only">Use setting</span>
+              <span
+                aria-hidden="true"
+                :class="is_past_info ? 'translate-x-7' : 'translate-x-0'"
+                class="pointer-events-none inline-block h-[18px] w-[18px] transform rounded-full bg-[#ff613c] shadow-lg ring-0 transition duration-200 ease-in-out"
+              />
+            </Switch>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2" v-if="is_past_info">
+          <div class="space-y-2">
+            <p class="text-gray-800 text-[10px]">Past Admin ID</p>
+
+            <v-select
+              v-if="admin?.data"
+              :style="{ fontSize: '11px !important' }"
+              v-model="past_user_id"
+              class="style-chooser text-xs"
+              :options="admin?.data"
+              label="name"
+              :clearable="false"
+              :reduce="(d) => d.id"
+              placeholder=""
+            ></v-select>
+            <p
+              class="text-[10px] bg-gray-100 py-2 text-center rounded-lg"
+              @click="getAdmin()"
+              v-if="!admin?.data"
+            >
+              reload
+            </p>
+          </div>
+          <div class="space-y-2">
+            <p class="text-gray-800 text-[10px]">Past CRM ID</p>
+
+            <input
+              type="text"
+              v-model="past_crm_id"
+              id="name"
+              class="w-full text-xs px-4 py-2 text-gray-900 border-main border rounded-lg shadow-sm bg-white focus:outline-none focus:border-gray-300"
+            />
           </div>
         </div>
       </div>

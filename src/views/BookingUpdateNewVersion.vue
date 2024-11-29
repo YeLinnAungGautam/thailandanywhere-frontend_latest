@@ -24,6 +24,7 @@ import { useToast } from "vue-toastification";
 import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import Vantour from "./BookingComponent/Vantour.vue";
+import Airline from "./BookingComponent/Airline.vue";
 import ItemList from "./BookingComponent/ItemList.vue";
 import VantourImage from "../../src/assets/road-trip.png";
 import HotelImage from "../../src/assets/hotel.png";
@@ -277,7 +278,6 @@ const changeGetForm = (data) => {
   formData.value.money_exchange_rate = data.money_exchange_rate;
   formData.value.payment_currency = data.payment_currency;
   formData.value.payment_method = data.payment_method;
-  // formData.value.sold_from = data.sold_from;
   formData.value.bank_name = data.bank_name;
   formData.value.is_past_info = data.is_past_info;
   formData.value.past_crm_id = data.past_crm_id;
@@ -338,6 +338,9 @@ const customerId = (data) => {
   formData.value.customer_phone = data.phone_number;
   formData.value.is_corporate = data.is_corporate_customer;
   formData.value.sold_from = data.sold_from;
+  formData.value.is_past_info = data.is_past_info;
+  formData.value.past_crm_id = data.past_crm_id;
+  formData.value.past_user_id = data.past_user_id;
 };
 
 // const getDeleteFunction = (id) => {
@@ -426,8 +429,9 @@ const onSubmitHandler = async () => {
     formData.value.bank_name &&
       frmData.append("bank_name", formData.value.bank_name);
 
-    formData.value.is_past_info &&
-      frmData.append("is_past_info", formData.value.is_past_info);
+    formData.value.is_past_info
+      ? frmData.append("is_past_info", 1)
+      : frmData.append("is_past_info", 0);
     formData.value.past_crm_id &&
       frmData.append("past_crm_id", formData.value.past_crm_id);
     formData.value.past_user_id &&
@@ -924,6 +928,9 @@ const getDetail = async () => {
         : "",
       is_corporate: data.customer?.is_corporate_customer,
       sold_from: data?.sold_from,
+      is_past_info: data.is_past_info,
+      past_crm_id: data.past_crm_id,
+      past_user_id: data.past_user_id,
       payment_method: data.payment_method ? data.payment_method : "",
       payment_currency: data.payment_currency ? data.payment_currency : "",
       bank_name: data.bank_name ? data.bank_name : "",
@@ -963,11 +970,12 @@ const getDetail = async () => {
         crm_id: data.items[x].crm_id,
         product_id: data.items[x].product_id,
         product_name: data.items[x].product?.name,
-        product_image: data.items[x].product?.cover_image
-          ? data.items[x].product?.cover_image
-          : data.items[x].product?.images[0]?.image,
+        product_image:
+          data.items[x].product?.cover_image ||
+          data.items[x].product?.images?.[0]?.image ||
+          "",
         service_date: data.items[x].service_date,
-        is_inclusive: data.items[x].is_inclusive,
+        is_inclusive: data.is_inclusive ? 1 : 0,
         discount: data.items[x].discount,
         quantity: data.items[x].quantity,
         days: data.items[x].days ? data.items[x].days : "",

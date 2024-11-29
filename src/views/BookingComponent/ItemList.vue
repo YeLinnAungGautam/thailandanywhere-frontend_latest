@@ -7,6 +7,7 @@ import van from "../../../public/1.png";
 import saloon from "../../../public/2.png";
 import deluxe from "../../../public/3.png";
 import { useAuthStore } from "../../stores/auth";
+import { useHotelStore } from "../../stores/hotel";
 
 const props = defineProps({
   data: Object,
@@ -16,6 +17,7 @@ const itemList = ref([]);
 const editIndex = ref("");
 const openModal = ref(false);
 const authStore = useAuthStore();
+const hotelStore = useHotelStore();
 
 const formitem = ref({
   reservation_id: null,
@@ -119,17 +121,24 @@ const openAddItemModalAction = () => {
 
 const selectAction = (item) => {
   formitem.value.car_id = item.id;
-  formitem.value.item_name = item.name;
-  if (formitem.value.product_type == 1) {
-    let des = formitem.value.comment.replace(/^[^;]*;\s*/, "");
-    formitem.value.comment = `Car Type : ${item.name} ; ${des}`;
+  if (formitem.value.product_type != 7) {
+    formitem.value.item_name = item.name;
+    if (formitem.value.product_type == 1) {
+      let des = formitem.value.comment.replace(/^[^;]*;\s*/, "");
+      formitem.value.comment = `Car Type : ${item.name} ; ${des}`;
+    }
+    formitem.value.selling_price = item.price ? item.price : item.room_price;
+    if (formitem.value.product_type == 6) {
+      formitem.value.cost_price = item.cost ? item.cost : 0;
+    }
+    if (formitem.value.product_type == 4) {
+      formitem.value.cost_price = item.cost_price ? item.cost_price : 0;
+      formitem.value.comment = `Variation : ${formitem.value.item_name}`;
+    }
   }
-  formitem.value.selling_price = item.price ? item.price : item.room_price;
-  if (formitem.value.product_type == 6) {
-    formitem.value.cost_price = item.cost ? item.cost : 0;
-  } else if (formitem.value.product_type == 4) {
-    formitem.value.cost_price = item.cost_price ? item.cost_price : 0;
-    formitem.value.comment = `Variation : ${formitem.value.item_name}`;
+  if (formitem.value.product_type == 7) {
+    formitem.value.item_name = item.description;
+    formitem.value.comment = `Ticket : ${formitem.value.item_name}`;
   }
   console.log(formitem.value, "this is formItem");
   getFunction();
@@ -168,17 +177,10 @@ const todayCheck = () => {
 
 // send item
 const getFunction = () => {
-  if (formitem.value.product_type != 6) {
-    formitem.value.total_amount =
-      formitem.value.selling_price * formitem.value.quantity -
-      formitem.value.discount;
-  } else {
-    formitem.value.total_amount =
-      formitem.value.quantity *
-        formitem.value.selling_price *
-        formitem.value.days -
-      formitem.value.discount;
-  }
+  formitem.value.total_amount =
+    formitem.value.selling_price * formitem.value.quantity -
+    formitem.value.discount;
+
   console.log("====================================");
   console.log(formitem.value, "thsi is ");
   console.log("====================================");
@@ -229,6 +231,28 @@ const calculateDaysBetween = (a, b) => {
   }
 };
 
+const checkRoomPrice = async () => {
+  if (
+    formitem.value.car_id != "" &&
+    formitem.value.checkin_date != "" &&
+    formitem.value.checkout_date != ""
+  ) {
+    let data = {
+      checkin_date: formitem.value.checkin_date,
+      checkout_date: formitem.value.checkout_date,
+    };
+    const res = await hotelStore.getRoomPrice(data, formitem.value.car_id);
+    console.log("====================================");
+    console.log(res, "this is room price");
+    console.log("====================================");
+    // formitem.value.selling_price = res.data.room_price;
+    formitem.value.selling_price = res.data.room_price;
+    formitem.value.cost_price = res.data.room?.cost ? res.data.room.cost : 0;
+  } else {
+    console.log("need to fill");
+  }
+};
+
 const calculateRateRoom = () => {
   if (formitem.value.checkin_date && formitem.value.checkout_date) {
     formitem.value.days = calculateDaysBetween(
@@ -246,6 +270,7 @@ watch(
   ],
   ([newData, secData, thirdData]) => {
     if (formitem.value.product_type == "6") {
+      checkRoomPrice();
       formitem.value.checkin_date = formitem.value.service_date;
       formitem.value.comment = `Room : ${formitem.value.item_name}; Checkin : ${formitem.value.checkin_date} Checkout : ${formitem.value.checkout_date}`;
     }
@@ -578,6 +603,22 @@ onMounted(() => {
                 </div>
               </div>
             </div>
+            <div v-if="formitem?.product_type == 7">
+              <div class="flex justify-start items-start gap-x-2">
+                <img
+                  src="https://placehold.co/400"
+                  class="w-16 h-16 object-cover rounded-lg"
+                  alt=""
+                />
+                <div
+                  class="flex justify-between items-start gap-x-2 w-full h-auto"
+                >
+                  <div class="pt-2">
+                    <p class="text-xs font-medium">{{ i?.description }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="flex justify-end items-center gap-x-2 pt-2">
@@ -685,7 +726,7 @@ onMounted(() => {
                   </p>
                 </div>
               </div>
-              <div class="space-y-1">
+              <div class="space-y-1" v-if="formitem.product_type != 7">
                 <label for="" class="text-[12px] text-gray-500"
                   >Qty <span class="text-red-800">*</span></label
                 >
@@ -697,6 +738,61 @@ onMounted(() => {
                   class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                   id=""
                 />
+              </div>
+              <div class="space-y-1 col-span-2">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Ticket Info <span class="text-red-800">*</span></label
+                >
+                <div class="grid-cols-2 grid gap-2">
+                  <div class="relative space-y-1">
+                    <label for="" class="text-xs text-gray-500"
+                      >Selling Price <span class="text-red-800">*</span></label
+                    >
+                    <input
+                      type="number"
+                      v-model="formitem.selling_price"
+                      :disabled="authStore?.isSuperAdmin ? false : true"
+                      name=""
+                      class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                      id=""
+                    />
+                  </div>
+                  <div
+                    class="relative space-y-1"
+                    v-if="formitem.product_type == 7"
+                  >
+                    <label for="" class="text-xs text-gray-500"
+                      >Ticket Qty <span class="text-red-800">*</span></label
+                    >
+                    <input
+                      type="number"
+                      v-model="formitem.quantity"
+                      :disabled="authStore?.isSuperAdmin ? false : true"
+                      name=""
+                      class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                      id=""
+                    />
+                    <p
+                      @click="formitem.quantity++"
+                      class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-8"
+                    >
+                      +
+                    </p>
+                    <p
+                      @click="formitem.quantity--"
+                      v-if="formitem.quantity > 1"
+                      class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
+                    >
+                      -
+                    </p>
+                    <p
+                      v-if="formitem.quantity == 1"
+                      class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
+                    >
+                      -
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

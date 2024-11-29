@@ -30,6 +30,7 @@ import PaymentDetail from "./BookingComponent/PaymentDetail.vue";
 import { useBookingStore } from "../stores/booking";
 import Attraction from "./BookingComponent/Attraction.vue";
 import Hotel from "./BookingComponent/Hotel.vue";
+import Airline from "./BookingComponent/Airline.vue";
 import TaxInfo from "./BookingComponent/TaxInfo.vue";
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
@@ -59,7 +60,7 @@ const productArray = [
   },
   {
     id: 4,
-    name: "Airline Tickets",
+    name: "Airline",
     image: AirlineImage,
   },
   // {
@@ -75,6 +76,7 @@ const componentsMap = {
   Attractions: Attraction,
   Hotels: Hotel,
   Restaurants: Vantour,
+  Airline: Airline,
 };
 
 // Compute the current component based on the tag
@@ -262,11 +264,8 @@ const changeGetForm = (data) => {
   formData.value.money_exchange_rate = data.money_exchange_rate;
   formData.value.payment_currency = data.payment_currency;
   formData.value.payment_method = data.payment_method;
-  // formData.value.sold_from = data.sold_from;
   formData.value.bank_name = data.bank_name;
-  formData.value.is_past_info = data.is_past_info;
-  formData.value.past_crm_id = data.past_crm_id;
-  formData.value.past_user_id = data.past_user_id;
+
   formData.value.is_inclusive = data.is_inclusive;
   // console.log("====================================");
   // console.log(formData.value, "this is inclusive ");
@@ -325,6 +324,9 @@ const customerId = (data) => {
   formData.value.customer_phone = data.phone_number;
   formData.value.is_corporate = data.is_corporate_customer;
   formData.value.sold_from = data.sold_from;
+  formData.value.is_past_info = data.is_past_info;
+  formData.value.past_crm_id = data.past_crm_id;
+  formData.value.past_user_id = data.past_user_id;
 };
 
 // const getDeleteFunction = (id) => {
@@ -384,8 +386,9 @@ const onSubmitHandler = async () => {
     formData.value.bank_name &&
       frmData.append("bank_name", formData.value.bank_name);
 
-    formData.value.is_past_info &&
-      frmData.append("is_past_info", formData.value.is_past_info);
+    formData.value.is_past_info
+      ? frmData.append("is_past_info", 1)
+      : frmData.append("is_past_info", 0);
     formData.value.past_crm_id &&
       frmData.append("past_crm_id", formData.value.past_crm_id);
     formData.value.past_user_id &&
@@ -714,7 +717,7 @@ const onSubmitHandler = async () => {
         discount: "",
         comment: "",
         past_user_id: "",
-        is_past_info: "",
+        is_past_info: false,
         past_crm_id: "",
       };
 

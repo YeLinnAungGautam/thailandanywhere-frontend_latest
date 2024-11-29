@@ -4,8 +4,7 @@ import {
   MagnifyingGlassIcon,
   BarsArrowDownIcon,
 } from "@heroicons/vue/24/outline";
-// import { useentranceStore } from "../../stores/vantour";
-import { useEntranceStore } from "../../stores/entrance";
+import { useAirLineStore } from "../../stores/airline";
 import { storeToRefs } from "pinia";
 import debounce from "lodash/debounce";
 import { InformationCircleIcon } from "@heroicons/vue/24/solid";
@@ -15,10 +14,10 @@ import { useRouter } from "vue-router";
 // import { useCityStore } from "../../stores/city";
 
 const bottomOfWindow = ref(false);
-const entranceStore = useEntranceStore();
+const airlineStore = useAirLineStore();
 // const cityStore = useCityStore();
 // const { cities } = storeToRefs(cityStore);
-const { entrances, loading } = storeToRefs(entranceStore);
+const { airlines, loading } = storeToRefs(airlineStore);
 const destsList = ref([]);
 const search = ref("");
 // const type = ref("van_tour");
@@ -53,7 +52,7 @@ const emit = defineEmits(["formData"]);
 
 const formitem = ref({
   reservation_id: null,
-  product_type: 4,
+  product_type: 7,
   product_id: "",
   product_name: "",
   product_image: "",
@@ -90,18 +89,21 @@ const formitem = ref({
 
 // add item function
 const openAddItemModal = (item) => {
+  console.log("====================================");
+  console.log(item);
+  console.log("====================================");
   closeDetail();
 
   // formitem.value.comment = item.long_description ? item.long_description : "";
   formitem.value.product_id = item.id;
   formitem.value.product_name = item.name;
   formitem.value.product_image = item.cover_image;
-  if (item?.variations.length > 0) {
-    formitem.value.car_list = item?.variations;
+  if (item?.tickets.length > 0) {
+    formitem.value.car_list = item?.tickets;
   }
   addItemModal.value = true;
   console.log("====================================");
-  console.log(formitem.value.car_list, "this is item");
+  console.log(formitem.value, "this is item");
   console.log("====================================");
 };
 const closeItemModal = () => {
@@ -116,10 +118,10 @@ const closeItemModal = () => {
 };
 const selectAction = (item) => {
   formitem.value.car_id = item.id;
-  formitem.value.item_name = item.name;
+  formitem.value.item_name = item.description;
   formitem.value.selling_price = item.price;
   formitem.value.cost_price = item.cost_price ? item.cost_price : 0;
-  formitem.value.comment = `Variation : ${formitem.value.item_name}`;
+  formitem.value.comment = `Ticket : ${formitem.value.item_name}`;
   console.log(formitem.value, "this is formItem");
 };
 const goInfoModal = () => {
@@ -140,7 +142,7 @@ const handleScroll = (event) => {
 const changePage = async (url) => {
   console.log(url);
   if (url != null) {
-    await entranceStore.getChangePage(url, watchSystem.value);
+    await airlineStore.getChangePage(url, watchSystem.value);
   }
 };
 
@@ -169,7 +171,7 @@ const todayCheck = () => {
 const clearAction = () => {
   formitem.value = {
     reservation_id: null,
-    product_type: 4,
+    product_type: 7,
     product_id: "",
     product_image: "",
     product_name: "",
@@ -228,14 +230,13 @@ watch(bottomOfWindow, (newVal) => {
       console.log("This is the bottom of the window");
 
       if (
-        entrances?.value?.meta?.current_page < entrances?.value?.meta?.last_page
+        airlines?.value?.meta?.current_page < airlines?.value?.meta?.last_page
       ) {
         changePageCalled = true; // Set the flag to true
 
         changePage(
-          entrances?.value?.meta?.links[
-            entrances?.value?.meta?.current_page + 1
-          ].url
+          airlines?.value?.meta?.links[airlines?.value?.meta?.current_page + 1]
+            .url
         );
       }
     }
@@ -255,7 +256,7 @@ const watchSystem = computed(() => {
   return result;
 });
 
-watch(entrances, async (newValue) => {
+watch(airlines, async (newValue) => {
   if (newValue) {
     destsList.value = [...destsList.value, ...newValue?.data];
     // console.log(destsList.value, "this is add new");
@@ -266,21 +267,21 @@ watch(
   [search],
   debounce(async (newValue) => {
     destsList.value = [];
-    await entranceStore.getListAction(watchSystem.value);
+    await airlineStore.getListAction(watchSystem.value);
   }, 500)
 );
 
 onMounted(async () => {
   window.addEventListener("scroll", handleScroll);
-  await entranceStore.getListAction(watchSystem.value);
-  formitem.value.product_type = 4;
+  await airlineStore.getListAction(watchSystem.value);
+  formitem.value.product_type = 7;
 });
 </script>
 
 <template>
   <div class="space-y-4">
     <div class="flex justify-between items-center">
-      <h1 class="text-sm font-medium">Product Attractions</h1>
+      <h1 class="text-sm font-medium">Product Airline</h1>
     </div>
     <!-- search part -->
     <div
@@ -342,7 +343,7 @@ onMounted(async () => {
           </div>
         </div>
         <div class="flex justify-between items-center">
-          <p class="font-medium">{{ i?.lowest_variation_price }} ฿</p>
+          <p class="font-medium">{{ i?.starting_balance }} ฿</p>
           <button
             @click="openAddItemModal(i)"
             class="bg-blue-500 text-white px-2 py-1 rounded-full text-[10px]"
@@ -365,10 +366,10 @@ onMounted(async () => {
           as="h3"
           class="text-lg font-medium leading-6 text-gray-900 mb-1"
         >
-          Choose Variation Type
+          Choose Ticket Type
         </DialogTitle>
         <div class="space-y-2.5 pb-3 border-b border-gray-300">
-          <p class="text-xs text-gray-500">Please Choose Variation type.</p>
+          <p class="text-xs text-gray-500">Please Choose Ticket type.</p>
           <div class="relative w-full border border-gray-300 rounded-lg">
             <input
               type="text"
@@ -395,73 +396,15 @@ onMounted(async () => {
           >
             <div class="flex justify-start items-start gap-x-2">
               <img
-                :src="
-                  i?.image_links[0]?.image
-                    ? i?.image_links[0]?.image
-                    : 'https://placehold.co/400'
-                "
+                src="https://placehold.co/400"
                 class="w-16 h-16 object-cover rounded-lg"
                 alt=""
               />
               <div
                 class="flex justify-between items-start gap-x-2 w-full h-auto"
               >
-                <div class="space-y-1">
-                  <p class="text-xs font-medium">{{ i.name }}</p>
-                  <div class="flex justify-start items-center gap-x-1">
-                    <p
-                      class="text-[8px] text-white px-2 py-0.5 rounded-full inline-block"
-                      :class="
-                        i?.meta_data != null &&
-                        JSON.parse(i?.meta_data)[0].is_main == 1
-                          ? 'bg-green-500'
-                          : 'hidden'
-                      "
-                    >
-                      {{
-                        i?.meta_data != null &&
-                        JSON.parse(i?.meta_data)[0].is_show == 1
-                          ? "main"
-                          : "-"
-                      }}
-                    </p>
-                    <p
-                      class="text-[8px] text-white px-2 py-0.5 rounded-full inline-block"
-                      :class="
-                        i?.meta_data != null &&
-                        JSON.parse(i?.meta_data)[0].is_show == 1
-                          ? 'bg-green-500'
-                          : 'hidden'
-                      "
-                    >
-                      {{
-                        i?.meta_data != null &&
-                        JSON.parse(i?.meta_data)[0].is_show == 1
-                          ? "show"
-                          : "no show"
-                      }}
-                    </p>
-                  </div>
-                  <div>
-                    <p
-                      class="text-[10px] text-gray-800"
-                      v-for="a in i?.including_services != null &&
-                      i?.including_services != ''
-                        ? JSON.parse(i?.including_services)
-                        : []"
-                      :key="a"
-                    >
-                      <span
-                        class="h-1.5 w-1.5 mr-2 bg-gray-500 inline-block rounded-full"
-                      ></span
-                      >{{ a }}
-                    </p>
-                  </div>
-                </div>
-                <div class="my-auto">
-                  <p class="text-xs font-semibold whitespace-nowrap">
-                    <span class="text-lg">{{ i?.price }}</span> / tickets
-                  </p>
+                <div class="pt-2">
+                  <p class="text-xs font-medium">{{ i?.description }}</p>
                 </div>
               </div>
             </div>
@@ -564,12 +507,24 @@ onMounted(async () => {
             </div> -->
             <div class="space-y-1 col-span-2">
               <label for="" class="text-[12px] text-gray-500"
-                >Ticket Qty <span class="text-red-800">*</span></label
+                >Ticket Info <span class="text-red-800">*</span></label
               >
               <div class="grid-cols-2 grid gap-2">
                 <div class="relative space-y-1">
                   <label for="" class="text-xs text-gray-500"
-                    >Adult Qty <span class="text-red-800">*</span></label
+                    >Selling Price <span class="text-red-800">*</span></label
+                  >
+                  <input
+                    type="number"
+                    v-model="formitem.selling_price"
+                    name=""
+                    class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    id=""
+                  />
+                </div>
+                <div class="relative space-y-1">
+                  <label for="" class="text-xs text-gray-500"
+                    >Ticket Qty <span class="text-red-800">*</span></label
                   >
                   <input
                     type="number"
@@ -594,27 +549,6 @@ onMounted(async () => {
                   <p
                     v-if="formitem.quantity == 1"
                     class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
-                  >
-                    -
-                  </p>
-                </div>
-                <div class="relative space-y-1">
-                  <label for="" class="text-xs text-gray-500">Child Qty</label>
-                  <input
-                    type="number"
-                    value="0"
-                    disabled
-                    name=""
-                    class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                    id=""
-                  />
-                  <p
-                    class="bg-[#ff613c]/10 text-[#ff613c] inline-block px-2 rounded-lg absolute top-7 right-8"
-                  >
-                    +
-                  </p>
-                  <p
-                    class="bg-[#ff613c]/10 text-[#ff613c] inline-block px-2 rounded-lg absolute top-7 right-1"
                   >
                     -
                   </p>

@@ -4,6 +4,7 @@ import {
   CheckBadgeIcon,
   MagnifyingGlassIcon,
   MagnifyingGlassPlusIcon,
+  ArrowsPointingOutIcon,
   PlusIcon,
   XCircleIcon,
   XMarkIcon,
@@ -19,6 +20,9 @@ import { useToast } from "vue-toastification";
 import bookingInfo from "../../../public/bookingInfo.png";
 import travellerInfo from "../../../public/travellerInfo.png";
 import DetailitemVue from "./DetailItemView.vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const reservationStore = useReservationStore();
 const toast = useToast();
@@ -324,6 +328,23 @@ onMounted(async () => {
             </div>
           </div>
         </div>
+        <div
+          v-if="i?.crm_id"
+          class="flex justify-between items-center pt-2"
+          @click="
+            router.push(`/reservation/update/${i?.reservation_id}/${i?.crm_id}`)
+          "
+        >
+          <p
+            class="text-[10px] font-medium px-2 py-0.5 rounded-full"
+            :class="i?.is_inclusive == 1 ? 'bg-yellow-300' : 'bg-gray-100'"
+          >
+            {{ i?.crm_id }}
+          </p>
+          <ArrowsPointingOutIcon
+            class="w-5 h-5 text-[#ff613c] bg-gray-100 p-0.5 rounded-full"
+          />
+        </div>
         <div class="space-y-1 py-2">
           <div
             class="flex justify-between items-center"
@@ -466,7 +487,10 @@ onMounted(async () => {
                     <p class="text-xs">{{ showData?.quantity }} Qty</p>
                     <div
                       class="flex justify-end items-center"
-                      v-if="showData?.product_type != 1"
+                      v-if="
+                        showData?.product_type != 1 &&
+                        showData?.product_type != 7
+                      "
                     >
                       <p
                         @click="openAddItemModalAction(showData)"
@@ -510,7 +534,7 @@ onMounted(async () => {
             </div>
             <div
               class="bg-white p-2 rounded-xl border mt-2 shadow-sm space-y-2"
-              v-if="showData?.product_type != 1"
+              v-if="showData?.product_type != 1 && showData?.product_type != 7"
             >
               <div class="flex justify-start items-start gap-x-2">
                 <img :src="travellerInfo" class="w-16 h-16 rounded-lg" alt="" />

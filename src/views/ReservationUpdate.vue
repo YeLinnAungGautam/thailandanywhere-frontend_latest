@@ -355,7 +355,7 @@ const onSubmitHandler = async () => {
       if (formData.value.paid_slip.length != 0) {
         if (formData.value.paid_slip.length > 0) {
           for (let i = 0; i < formData.value.paid_slip.length; i++) {
-            let file = formData.value.paid_slip[i];
+            let file = formData.value.paid_slip[i].file;
             let amount = formData.value.paid_slip[i].amount;
             secfrm.append("paid_slip[" + i + "][file]", file);
             secfrm.append("paid_slip[" + i + "][amount]", amount);

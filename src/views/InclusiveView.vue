@@ -148,6 +148,7 @@ const changePage = async (url) => {
   console.log(url);
   let data = {
     search: search.value,
+    limit: 5,
   };
   await inclusiveStore.getChangePage(url, data);
 };

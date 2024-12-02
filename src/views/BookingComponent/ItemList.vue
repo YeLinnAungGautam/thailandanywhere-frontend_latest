@@ -345,6 +345,12 @@ onMounted(() => {
               />
             </div>
           </div>
+          <p
+            v-if="i?.crm_id"
+            class="text-[10px] mt-1 bg-[#ff613c] py-0.5 text-white px-2 inline-block rounded-md"
+          >
+            {{ i?.crm_id }}
+          </p>
           <p class="text-[10px] pt-1">{{ i?.item_name }}</p>
           <div class="flex justify-between items-center">
             <p class="text-[10px]">{{ i?.service_date }}</p>

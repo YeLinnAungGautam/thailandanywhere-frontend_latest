@@ -116,8 +116,8 @@ const closeItemModal = () => {
 const selectAction = (item) => {
   formitem.value.car_id = item.id;
   formitem.value.item_name = item.name;
-  // formitem.value.selling_price = item.room_price;
-  // formitem.value.cost_price = item.cost ? item.cost : 0;
+  formitem.value.selling_price = item.room_price;
+  formitem.value.cost_price = item.cost ? item.cost : 0;
   console.log(formitem.value, "this is formItem");
   formitem.value.extra_price = item.extra_price;
   // formitem.value.comment = item.description;
@@ -180,8 +180,8 @@ const checkRoomPrice = async () => {
     console.log(res, "this is room price");
     console.log("====================================");
     // formitem.value.selling_price = res.data.room_price;
-    formitem.value.selling_price = res.data.room_price;
-    formitem.value.cost_price = res.data.room?.cost ? res.data.room.cost : 0;
+    // formitem.value.selling_price = res.data.room_price;
+    // formitem.value.cost_price = res.data.room?.cost ? res.data.room.cost : 0;
   } else {
     console.log("need to fill");
   }
@@ -229,7 +229,9 @@ const clearAction = () => {
 // send item
 const getFunction = () => {
   formitem.value.total_amount =
-    formitem.value.quantity * formitem.value.selling_price -
+    formitem.value.quantity *
+      formitem.value.selling_price *
+      formitem.value.days -
     formitem.value.discount;
   emit("formData", formitem.value);
   clearAction();
@@ -321,7 +323,7 @@ watch(
   ],
   ([newData, secData, thirdData]) => {
     if (newData && secData && thirdData) {
-      checkRoomPrice();
+      // checkRoomPrice();
       formitem.value.comment = `Room : ${formitem.value.item_name}; Checkin : ${formitem.value.checkin_date} Checkout : ${formitem.value.checkout_date}`;
     }
   }

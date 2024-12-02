@@ -130,6 +130,9 @@ const selectAction = (item) => {
     formitem.value.selling_price = item.price ? item.price : item.room_price;
     if (formitem.value.product_type == 6) {
       formitem.value.cost_price = item.cost ? item.cost : 0;
+      formitem.value.selling_price = item.room_price
+        ? item.room_price
+        : item.price;
     }
     if (formitem.value.product_type == 4) {
       formitem.value.cost_price = item.cost_price ? item.cost_price : 0;
@@ -178,7 +181,9 @@ const todayCheck = () => {
 // send item
 const getFunction = () => {
   formitem.value.total_amount =
-    formitem.value.selling_price * formitem.value.quantity -
+    formitem.value.selling_price *
+      formitem.value.days *
+      formitem.value.quantity -
     formitem.value.discount;
 
   console.log("====================================");
@@ -246,8 +251,8 @@ const checkRoomPrice = async () => {
     console.log(res, "this is room price");
     console.log("====================================");
     // formitem.value.selling_price = res.data.room_price;
-    formitem.value.selling_price = res.data.room_price;
-    formitem.value.cost_price = res.data.room?.cost ? res.data.room.cost : 0;
+    // formitem.value.selling_price = res.data.room_price;
+    // formitem.value.cost_price = res.data.room?.cost ? res.data.room.cost : 0;
   } else {
     console.log("need to fill");
   }
@@ -270,7 +275,7 @@ watch(
   ],
   ([newData, secData, thirdData]) => {
     if (formitem.value.product_type == "6") {
-      checkRoomPrice();
+      // checkRoomPrice();
       formitem.value.checkin_date = formitem.value.service_date;
       formitem.value.comment = `Room : ${formitem.value.item_name}; Checkin : ${formitem.value.checkin_date} Checkout : ${formitem.value.checkout_date}`;
     }

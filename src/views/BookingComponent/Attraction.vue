@@ -60,6 +60,22 @@ const formitem = ref({
   item_name: "",
   car_id: "",
   car_list: [],
+  individual_pricing: {
+    adult: {
+      quantity: 1,
+      selling_price: 0,
+      cost_price: 0,
+      total_cost_price: 0,
+      amount: 0,
+    },
+    child: {
+      quantity: 0,
+      selling_price: 0,
+      cost_price: 0,
+      total_cost_price: 0,
+      amount: 0,
+    },
+  },
   room_id: "",
   room: null,
   service_date: "",
@@ -178,6 +194,22 @@ const clearAction = () => {
     room_id: "",
     room: null,
     service_date: "",
+    individual_pricing: {
+      adult: {
+        quantity: 1,
+        selling_price: 0,
+        cost_price: 0,
+        total_cost_price: 0,
+        amount: 0,
+      },
+      child: {
+        quantity: 0,
+        selling_price: 0,
+        cost_price: 0,
+        total_cost_price: 0,
+        amount: 0,
+      },
+    },
     quantity: "1",
     discount: 0,
     days: "",
@@ -576,7 +608,7 @@ onMounted(async () => {
                     v-model="formitem.quantity"
                     name=""
                     class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                    id=""
+                    id="adult_pricing"
                   />
                   <p
                     @click="formitem.quantity++"
@@ -599,22 +631,32 @@ onMounted(async () => {
                   </p>
                 </div>
                 <div class="relative space-y-1">
-                  <label for="" class="text-xs text-gray-500">Child Qty</label>
+                  <label for="" class="text-xs text-gray-500"
+                    >Child Qty <span class="text-red-800">*</span></label
+                  >
                   <input
                     type="number"
-                    value="0"
-                    disabled
+                    v-model="formitem.individual_pricing.child.quantity"
                     name=""
                     class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                    id=""
+                    id="child_qty"
                   />
                   <p
-                    class="bg-[#ff613c]/10 text-[#ff613c] inline-block px-2 rounded-lg absolute top-7 right-8"
+                    @click="formitem.individual_pricing.child.quantity++"
+                    class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-8"
                   >
                     +
                   </p>
                   <p
-                    class="bg-[#ff613c]/10 text-[#ff613c] inline-block px-2 rounded-lg absolute top-7 right-1"
+                    @click="formitem.individual_pricing.child.quantity--"
+                    v-if="formitem.individual_pricing.child.quantity > 0"
+                    class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
+                  >
+                    -
+                  </p>
+                  <p
+                    v-if="formitem.individual_pricing.child.quantity == 0"
+                    class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
                   >
                     -
                   </p>

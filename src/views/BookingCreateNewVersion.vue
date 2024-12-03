@@ -32,6 +32,7 @@ import Attraction from "./BookingComponent/Attraction.vue";
 import Hotel from "./BookingComponent/Hotel.vue";
 import Airline from "./BookingComponent/Airline.vue";
 import TaxInfo from "./BookingComponent/TaxInfo.vue";
+import { useAdminStore } from "../stores/admin";
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
 // for tag
@@ -40,6 +41,7 @@ const currentSubTag = ref("items");
 const addItemModal = ref(false);
 const bookingStore = useBookingStore();
 const toast = useToast();
+const adminStore = useAdminStore();
 const router = useRouter();
 
 const productArray = [
@@ -748,6 +750,10 @@ const onSubmitHandler = async () => {
     toast.warning("please check again , item have issue !");
   }
 };
+
+onMounted(async () => {
+  await adminStore.getSimpleListAction();
+});
 </script>
 
 <template>

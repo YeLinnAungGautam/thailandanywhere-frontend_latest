@@ -34,6 +34,7 @@ import InclusivePart from "./BookingComponent/InclusivePart.vue";
 import CustomerInfo from "./BookingComponent/CustomerInfo.vue";
 import PaymentDetail from "./BookingComponent/PaymentDetail.vue";
 import { useBookingStore } from "../stores/booking";
+import { useAdminStore } from "../stores/admin";
 import Attraction from "./BookingComponent/Attraction.vue";
 import Hotel from "./BookingComponent/Hotel.vue";
 import DetailItemVue from "./BookingComponent/DetailItem.vue";
@@ -53,6 +54,7 @@ const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const userStore = useUserStore();
+const adminStore = useAdminStore();
 
 const productArray = [
   {
@@ -1133,8 +1135,9 @@ const searchWithUnique = async () => {
   }
 };
 
-onMounted(() => {
-  getDetail();
+onMounted(async () => {
+  await getDetail();
+  await adminStore.getSimpleListAction();
 });
 </script>
 

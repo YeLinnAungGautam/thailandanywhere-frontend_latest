@@ -479,6 +479,15 @@ const onSubmitHandler = async () => {
     }
   }
 
+  if (formData.value.price_range.length > 0) {
+    for (let i = 0; i < formData.value.price_range.length; i++) {
+      let p = formData.value.price_range[i];
+      frmData.append("price_range[" + i + "][from]", p.from);
+      frmData.append("price_range[" + i + "][to]", p.to);
+      frmData.append("price_range[" + i + "][price]", p.price);
+    }
+  }
+
   for (var x = 0; x < formData.value.items.length; x++) {
     if (formData.value.items[x].product_type == "1") {
       frmData.append("products[" + x + "][product_type]", `private_van_tour`);
@@ -607,26 +616,30 @@ const getDetail = async () => {
     editData.value.cover_image = response.result.cover_image;
     editData.value.images = response.result.images;
     formData.value.sku_code = response.result.sku_code;
-    if (response.result.price_range.length > 0) {
-      for (const x in response.result.price_range) {
-        formData.value.price_range.push({
-          from: response.result.price_range[x].from,
-          to: response.result.price_range[x].to,
-          price: response.result.price_range[x].price,
-        });
+    if (response.result.price_range != null) {
+      if (response.result.price_range.length > 0) {
+        for (const x in response.result.price_range) {
+          formData.value.price_range.push({
+            from: response.result.price_range[x].from,
+            to: response.result.price_range[x].to,
+            price: response.result.price_range[x].price,
+          });
+        }
       }
     }
-    if (response.result.details.length > 0) {
-      response.result.details.forEach((detail) => {
-        formData.value.details.push({
-          day_name: detail.day_name,
-          title: detail.title,
-          summary: detail.summary,
-          meals: detail.meals,
-          cities: detail.cities.map((city) => city.id), // Extracting only the IDs
-          image_url: detail.image ? detail.image : "",
+    if (response.result.details != null) {
+      if (response.result.details.length > 0) {
+        response.result.details.forEach((detail) => {
+          formData.value.details.push({
+            day_name: detail.day_name,
+            title: detail.title,
+            summary: detail.summary,
+            meals: detail.meals,
+            cities: detail.cities.map((city) => city.id), // Extracting only the IDs
+            image_url: detail.image ? detail.image : "",
+          });
         });
-      });
+      }
     }
     if (response.result.airport_pickups.length != 0) {
       for (const x in response.result.airport_pickups) {
@@ -884,7 +897,7 @@ const editorOptionsMeal = {
   placeholder: "Write an awesome meals here ...",
 };
 
-const selectedDay = ref(1);
+const selectedDay = ref(0);
 
 const hasData = (date) => {
   if (formData.value.details.length > 0) {
@@ -1898,8 +1911,11 @@ onMounted(async () => {
                   <div
                     class="flex justify-between items-center border-b border-gray-300 pb-4 mb-4"
                   >
-                    <p class="text-md font-medium">
+                    <p class="text-md font-medium" v-if="selectedDay != 0">
                       Add Day {{ selectedDay }} Info
+                    </p>
+                    <p class="text-md font-medium" v-if="selectedDay == 0">
+                      Please choose a new day
                     </p>
                     <button
                       class="bg-[#ff613c] text-white px-3 py-1 rounded-lg text-sm"
@@ -1912,7 +1928,7 @@ onMounted(async () => {
                     </button>
                   </div>
 
-                  <div class="grid grid-cols-2 gap-4">
+                  <div class="grid grid-cols-2 gap-4" v-if="selectedDay != 0">
                     <div>
                       <div class="col-span-2 space-y-1">
                         <label for="" class="text-sm"

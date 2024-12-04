@@ -20,6 +20,10 @@ import { useInclusiveStore } from "../stores/inclusion";
 import { useRoomStore } from "../stores/room";
 import { useHotelStore } from "../stores/hotel";
 import { useAirLineStore } from "../stores/airline";
+import { QuillEditor } from "@vueup/vue-quill";
+import "@vueup/vue-quill/dist/vue-quill.snow.css";
+import { useCityStore } from "@/stores/city";
+import { watch } from "vue";
 
 const vantourStore = useVantourStore();
 const grouptourStore = useGrouptourStore();
@@ -30,6 +34,7 @@ const inclusiveStore = useInclusiveStore();
 const roomStore = useRoomStore();
 const hotelStore = useHotelStore();
 const airlineStore = useAirLineStore();
+const cityStore = useCityStore();
 
 const { vantours } = storeToRefs(vantourStore);
 const { grouptours } = storeToRefs(grouptourStore);
@@ -39,6 +44,7 @@ const { entrances } = storeToRefs(entranceStore);
 const { airlines } = storeToRefs(airlineStore);
 const { rooms } = storeToRefs(roomStore);
 const { hotels } = storeToRefs(hotelStore);
+const { cities } = storeToRefs(cityStore);
 // const { isOpenCustomerCreate } = storeToRefs(sidebar);
 // const { admin } = storeToRefs(adminStore);
 
@@ -54,11 +60,15 @@ const formData = ref({
   night: "",
   sku_code: "",
   images: [],
+  details: [],
   price: "",
+  price_range: [],
   items: [],
   agent_price: "",
   feature_image: "",
 });
+
+const showDetail = ref(false);
 
 formData.value.day = computed(() => {
   return formData.value.night + 1;
@@ -597,6 +607,15 @@ const getDetail = async () => {
     editData.value.cover_image = response.result.cover_image;
     editData.value.images = response.result.images;
     formData.value.sku_code = response.result.sku_code;
+    if (response.result.price_range.length > 0) {
+      for (const x in response.result.price_range) {
+        formData.value.price_range.push({
+          from: response.result.price_range[x].from,
+          to: response.result.price_range[x].to,
+          price: response.result.price_range[x].price,
+        });
+      }
+    }
     if (response.result.airport_pickups.length != 0) {
       for (const x in response.result.airport_pickups) {
         const itemData = {
@@ -766,6 +785,148 @@ const getDetail = async () => {
   }
 };
 
+// price range
+
+const price_range_item = ref({
+  from: "",
+  to: "",
+  price: "",
+});
+
+const addPriceRange = () => {
+  formData.value.price_range.push(price_range_item.value);
+  price_range_item.value = {
+    from: "",
+    to: "",
+    price: "",
+  };
+};
+
+const removePriceRange = (index) => {
+  formData.value.price_range.splice(index, 1);
+};
+
+// add more details
+
+const detailItem = ref({
+  day_name: "",
+  title: "",
+  image: null,
+  summary: "",
+  meals: "",
+  cities: "",
+});
+
+const clearAction = () => {
+  detailItem.value = {
+    day_name: "",
+    title: "",
+    image: null,
+    summary: "-",
+    meals: "-",
+    cities: "",
+  };
+  imagePreview.value = null;
+};
+
+const imagePreview = ref([]);
+const imageInput = ref(null);
+const openFileImageDPicker = () => {
+  imageInput.value.click();
+};
+const handlerImageDFileChange = (e) => {
+  let selectedFile = e.target.files[0];
+  if (selectedFile) {
+    detailItem.value.image = e.target.files[0];
+    imagePreview.value = URL.createObjectURL(selectedFile);
+  }
+};
+
+const removeSelectedImage = () => {
+  detailItem.value.image = null;
+  imagePreview.value = null;
+};
+
+const addDetail = () => {
+  detailItem.value.day_name = selectedDay.value;
+  formData.value.details = formData.value.details.filter(
+    (detail) => detail.day_name !== detailItem.value.day_name
+  );
+
+  formData.value.details.push(detailItem.value);
+
+  console.log("====================================");
+  console.log(formData.value.details);
+  console.log("====================================");
+  clearAction();
+};
+
+const editorOptions = {
+  placeholder: "Write an awesome summary here ...",
+};
+
+const editorOptionsMeal = {
+  placeholder: "Write an awesome meals here ...",
+};
+
+const selectedDay = ref(1);
+
+const hasData = (date) => {
+  if (formData.value.details.length > 0) {
+    let data = formData.value.details.filter((d) => d.day_name == date);
+    if (data.length > 0) {
+      return true;
+    }
+  }
+  return false;
+};
+
+watch(selectedDay, () => {
+  if (formData.value.details.length > 0) {
+    console.log("====================================");
+    console.log(formData.value, "this is value");
+    console.log("====================================");
+    let data = formData.value.details.filter(
+      (d) => d.day_name == selectedDay.value
+    );
+    if (data.length > 0) {
+      const [firstItem] = data;
+      detailItem.value.title = firstItem.title || "";
+      detailItem.value.summary = firstItem.summary || "";
+      detailItem.value.meals = firstItem?.meals || "";
+      detailItem.value.image = firstItem.image || null;
+      detailItem.value.cities = firstItem?.cities || "";
+      imagePreview.value = firstItem.image
+        ? URL.createObjectURL(firstItem.image)
+        : null;
+    }
+  }
+});
+
+const updateDetailAction = async () => {
+  console.log("====================================");
+  console.log(formData.value.details, "this is detail");
+  console.log("====================================");
+  const frmData = new FormData();
+  for (let i = 0; i < formData.value.details.length; i++) {
+    frmData.append(
+      `details[${i}][day_name]`,
+      formData.value.details[i].day_name
+    );
+    frmData.append(`details[${i}][title]`, formData.value.details[i].title);
+    frmData.append(`details[${i}][summary]`, formData.value.details[i].summary);
+    frmData.append(`details[${i}][meals]`, formData.value.details[i].meals);
+    frmData.append(`details[${i}][cities]`, formData.value.details[i].cities);
+    if (formData.value.details[i].image) {
+      frmData.append(`details[${i}][image]`, formData.value.details[i].image);
+    }
+  }
+  const res = await inclusiveStore.addNewDetailAction(frmData, route.params.id);
+  console.log("====================================");
+  console.log(res, "this is response");
+  console.log("====================================");
+};
+
 onMounted(async () => {
   await getDetail();
   vantourStore.getSimpleListAction();
@@ -774,6 +935,7 @@ onMounted(async () => {
   entranceStore.getSimpleListAction();
   hotelStore.getSimpleListAction();
   airlineStore.getSimpleListAction();
+  await cityStore.getSimpleListAction();
 });
 </script>
 
@@ -786,8 +948,8 @@ onMounted(async () => {
     <div class="grid grid-cols-1 gap-3">
       <div class="bg-white/60 col-span-2 p-6 rounded-lg shadow-sm mb-5">
         <div class="space-y-4">
-          <div class="grid grid-cols-2 gap-6">
-            <div>
+          <div class="grid grid-cols-3 gap-6">
+            <div class="col-span-2">
               <div class="grid grid-cols-2 gap-4">
                 <div class="">
                   <p class="text-gray-800 text-xs mb-2">Name</p>
@@ -839,6 +1001,119 @@ onMounted(async () => {
                   >
                     {{ errors.agent_price[0] }}
                   </p>
+                </div>
+                <div class="col-span-2">
+                  <p class="text-gray-800 text-xs mb-2">Price Range</p>
+                  <div class="space-x-3 flex justify-start items-center">
+                    <div>
+                      <label for="" class="text-xs"
+                        >from <span class="text-red-600">*</span></label
+                      >
+                      <div>
+                        <input
+                          type="number"
+                          class="border border-gray-300 px-2 py-1.5 text-xs rounded-lg"
+                          name=""
+                          placeholder="eg : 1"
+                          v-model="price_range_item.from"
+                          id=""
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label for="" class="text-xs"
+                        >to <span class="text-red-600">*</span></label
+                      >
+                      <div>
+                        <input
+                          type="number"
+                          class="border border-gray-300 px-2 py-1.5 text-xs rounded-lg"
+                          name=""
+                          placeholder="eg : 2"
+                          v-model="price_range_item.to"
+                          id=""
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label for="" class="text-xs"
+                        >price <span class="text-red-600">*</span></label
+                      >
+                      <div>
+                        <input
+                          type="number"
+                          class="border border-gray-300 px-2 py-1.5 text-xs rounded-lg"
+                          name=""
+                          placeholder="eg : 1000"
+                          v-model="price_range_item.price"
+                          id=""
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label for="" class="text-xs opacity-0">add </label>
+                      <div>
+                        <button
+                          @click="addPriceRange"
+                          class="px-2 py-0.5 rounded-full bg-green-500 text-white"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="space-x-3 flex justify-start items-center space-y-2 pt-2"
+                    v-for="(p, index) in formData.price_range"
+                    :key="p"
+                  >
+                    <div>
+                      <div>
+                        <input
+                          type="number"
+                          class="border border-gray-300 px-2 py-1.5 text-xs rounded-lg"
+                          name=""
+                          placeholder="eg : 1"
+                          v-model="p.from"
+                          id=""
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div>
+                        <input
+                          type="number"
+                          class="border border-gray-300 px-2 py-1.5 text-xs rounded-lg"
+                          name=""
+                          placeholder="eg : 2"
+                          v-model="p.to"
+                          id=""
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div>
+                        <input
+                          type="number"
+                          class="border border-gray-300 px-2 py-1.5 text-xs rounded-lg"
+                          name=""
+                          placeholder="eg : 1000"
+                          v-model="p.price"
+                          id=""
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div>
+                        <button
+                          @click="removePriceRange(index)"
+                          class="px-2 rounded-full bg-red-500 text-white"
+                        >
+                          -
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div class="">
                   <p class="text-gray-800 text-xs mb-2">
@@ -954,14 +1229,16 @@ onMounted(async () => {
                 </div>
               </div>
               <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
-                <div class="flex items-center justify-between gap-3">
+                <div class="space-y-2">
                   <p class="text-xs">Feature Image (pdf file)</p>
-                  <input
-                    type="file"
-                    ref="featureImageInput"
-                    class=""
-                    @change="handlerFeatureFileChange"
-                  />
+                  <div>
+                    <input
+                      type="file"
+                      ref="featureImageInput"
+                      class=""
+                      @change="handlerFeatureFileChange"
+                    />
+                  </div>
                 </div>
                 <p v-if="editData.cover_image" class="mt-3">
                   <a
@@ -980,12 +1257,18 @@ onMounted(async () => {
 
           <div class="grid-cols-1 col-span-3 pt-10 gird">
             <div
-              class="flex justify-end mb-3 text-sm font-semibold cursor-pointer"
+              class="flex justify-between mb-3 text-sm font-semibold cursor-pointer"
             >
+              <p
+                @click="showDetail = !showDetail"
+                class="bg-[#FF613c] rounded-lg font-normal px-2 py-1 text-white"
+              >
+                {{ showDetail ? "- Hide" : "+ Show" }} Add More Detail
+              </p>
               <p @click="addToggle" v-if="!addComment">+ Add Item</p>
               <p @click="addToggle" v-if="addComment">- Remove Item</p>
             </div>
-            <div class="col-span-1 p-3 bg-white rounded">
+            <div class="col-span-1 p-3 bg-white rounded" v-if="!showDetail">
               <div class="col-span-1">
                 <div class="px-6 pt-3">
                   <table class="w-full">
@@ -1573,41 +1856,160 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
+            <div v-if="showDetail">
+              <div class="pb-4 pt-4">
+                <div
+                  class="flex justify-start items-center overflow-x-scroll flex-nowrap gap-x-3"
+                >
+                  <p
+                    v-for="i in formData.day"
+                    :key="i"
+                    @click="selectedDay = i"
+                    :class="{
+                      'text-white bg-[#ff613c]': selectedDay == i, // Highlight if selected and no data
+                      'bg-gray-200 ': selectedDay != i && !hasData(i), // Default style
+                      'text-white bg-gray-500': hasData(i), // Specific style if the day has data
+                    }"
+                    class="text-xs px-4 py-1 rounded-lg whitespace-nowrap cursor-pointer"
+                  >
+                    {{ i }} days
+                  </p>
+                </div>
+                <div class="pt-4">
+                  <div
+                    class="flex justify-between items-center border-b border-gray-300 mb-2 pb-2"
+                  >
+                    <p class="text-md font-medium pb-2">
+                      Add Day {{ selectedDay }} Info
+                    </p>
+                    <button
+                      class="bg-[#ff613c] text-white px-3 py-1 rounded-lg text-sm"
+                      @click="addDetail"
+                    >
+                      + Add to detail
+                    </button>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <div class="col-span-2 space-y-1">
+                        <label for="" class="text-sm"
+                          >Title <span class="text-red-600">*</span></label
+                        >
+                        <div>
+                          <input
+                            type="text"
+                            v-model="detailItem.title"
+                            name=""
+                            class="text-xs px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                      <div class="col-span-2 space-y-1">
+                        <label for="" class="text-sm"
+                          >Cities <span class="text-red-600">*</span></label
+                        >
+                        <v-select
+                          v-model="detailItem.cities"
+                          v-if="cities?.data"
+                          class="style-chooser"
+                          :options="cities?.data ?? []"
+                          label="name"
+                          multiple
+                          :clearable="false"
+                          :reduce="(c) => c.id"
+                          placeholder="Choose cities for this day."
+                        ></v-select>
+                      </div>
+                    </div>
+                    <div class="space-y-2">
+                      <label for="" class="text-sm"
+                        >Image <span class="text-red-600">*</span></label
+                      >
+                      <input
+                        type="file"
+                        name=""
+                        ref="imageInput"
+                        id=""
+                        @change="handlerImageDFileChange"
+                        class="hidden w-full h-10 text-sm px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                        accept="image/*"
+                      />
+                      <div
+                        v-if="imagePreview == null || imagePreview == ''"
+                        class="w-full h-[99px] border border-dashed border-[#FF6300] cursor-pointer rounded-lg flex justify-center items-center"
+                        @click.prevent="openFileImageDPicker"
+                      >
+                        <p class="text-3xl text-[#FF6300]">+</p>
+                      </div>
+                      <div
+                        v-if="imagePreview != null && imagePreview != ''"
+                        class="w-full h-auto relative"
+                      >
+                        <img
+                          :src="imagePreview"
+                          alt="Image preview"
+                          class="w-auto h-[99px] rounded"
+                        />
+                        <span
+                          class="text-xs absolute top-0 right-0 cursor-pointer"
+                          @click="removeSelectedImage"
+                          ><i
+                            class="fa-solid fa-minus text-sm font-semibold py-1 px-2 bg-[#ff613c] rounded-full shadow text-white"
+                          ></i
+                        ></span>
+                      </div>
+                    </div>
+                    <div class="space-y-1 col-span-1">
+                      <label for="" class="text-sm"
+                        >Summary <span class="text-red-600">*</span></label
+                      >
+                      <div class="overflow-hidden">
+                        <QuillEditor
+                          ref="textEditor"
+                          :options="editorOptions"
+                          theme="snow"
+                          class="!bg-white/50 !border-1 !border-[#FF6300] !rounded-bl-md !rounded-br-md !shadow-sm !text-sm !text-gray-900 !h-[350px]"
+                          toolbar="essential"
+                          contentType="html"
+                          v-model:content="detailItem.summary"
+                        />
+                      </div>
+                    </div>
+                    <div class="space-y-1 col-span-1">
+                      <label for="" class="text-sm">Meals </label>
+                      <div class="overflow-hidden">
+                        <QuillEditor
+                          ref="textEditor"
+                          :options="editorOptionsMeal"
+                          theme="snow"
+                          class="!bg-white/50 !border-1 !border-[#FF6300] !rounded-bl-md !rounded-br-md !shadow-sm !text-sm !text-gray-900 !h-[350px]"
+                          toolbar="essential"
+                          contentType="html"
+                          v-model:content="detailItem.meals"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="text-end" v-show="allowCreate">
-            <Button @click.prevent="onSubmitHandler" class="py-2 px-14">
-              Update
-            </Button>
+          <div v-if="!showDetail">
+            <div class="text-end" v-show="allowCreate">
+              <Button @click.prevent="onSubmitHandler" class="py-2 px-14">
+                Update
+              </Button>
+            </div>
+            <div class="text-end" v-show="!allowCreate">
+              <Button class="py-2 px-14 bg-gray-300"> Update Disabled </Button>
+            </div>
           </div>
-          <div class="text-end" v-show="!allowCreate">
-            <Button class="py-2 bg-gray-400 px-14"> Update </Button>
+          <div v-if="showDetail">
+            <div class="text-end" @click="updateDetailAction">
+              <Button class="py-2 px-14"> Update Details </Button>
+            </div>
           </div>
-          <!-- <div class="text-end">
-            <Button
-              class="bg-gray-300"
-              v-if="
-                formData.items.length == 0 ||
-                formData.images.length == 0 ||
-                formData.cover_image == '' ||
-                formData.name == '' ||
-                formData.description == ''
-              "
-            >
-              Create
-            </Button>
-            <Button
-              @click.prevent="onSubmitHandler"
-              v-if="
-                formData.items.length != 0 &&
-                formData.images.length != 0 &&
-                formData.cover_image != '' &&
-                formData.name != '' &&
-                formData.description != ''
-              "
-            >
-              Create
-            </Button>
-          </div> -->
         </div>
       </div>
       <!--  -->

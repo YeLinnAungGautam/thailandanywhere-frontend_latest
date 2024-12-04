@@ -68,13 +68,6 @@ const formData = ref({
   feature_image: "",
 });
 
-const detailFormAction = (data) => {
-  console.log("====================================");
-  console.log(data, "this is data");
-  console.log("====================================");
-  formData.value.details = data;
-};
-
 formData.value.day = computed(() => {
   return formData.value.night + 1;
 });
@@ -503,15 +496,12 @@ const onSubmitHandler = async () => {
   }
 
   if (formData.value.price_range.length > 0) {
-    let final = [];
     for (let i = 0; i < formData.value.price_range.length; i++) {
       let p = formData.value.price_range[i];
-      // frmData.append("price_range[" + i + "][from]", p.from);
-      // frmData.append("price_range[" + i + "][to]", p.to);
-      // frmData.append("price_range[" + i + "][price]", p.price);
-      final.push({ from: p.from, to: p.to, price: p.price });
+      frmData.append("price_range[" + i + "][from]", p.from);
+      frmData.append("price_range[" + i + "][to]", p.to);
+      frmData.append("price_range[" + i + "][price]", p.price);
     }
-    frmData.append("price_range", JSON.stringify(final));
   }
 
   for (var x = 0; x < formData.value.items.length; x++) {
@@ -599,7 +589,10 @@ const onSubmitHandler = async () => {
     };
     errors.value = null;
     toast.success(response.message);
-    router.push("/products/10");
+    console.log("====================================");
+    console.log(response);
+    console.log("====================================");
+    router.push("/inclusive/view/" + response.result.id + "/edit");
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
@@ -957,19 +950,12 @@ onMounted(async () => {
 
           <div class="grid-cols-1 col-span-3 pt-10 gird">
             <div
-              class="flex justify-between mb-3 text-sm font-semibold cursor-pointer"
+              class="flex justify-end mb-3 text-sm font-semibold cursor-pointer"
             >
-              <p
-                @click="showDetail = !showDetail"
-                class="bg-[#FF613c] rounded-lg font-normal px-2 py-1 text-white"
-              >
-                {{ showDetail ? "- Hide" : "+ Show" }} Add More Detail
-              </p>
-
               <p @click="addToggle" v-if="!addComment">+ Add Item</p>
               <p @click="addToggle" v-if="addComment">- Remove Item</p>
             </div>
-            <div class="col-span-1 p-3 bg-white rounded" v-if="!showDetail">
+            <div class="col-span-1 p-3 bg-white rounded">
               <div class="col-span-1">
                 <div class="px-6 pt-3">
                   <table class="w-full">
@@ -1553,144 +1539,6 @@ onMounted(async () => {
                     <div class="mt-6 mb-3 text-end" v-show="!allowCreate">
                       <Button class="py-2 bg-gray-400 px-14"> Create </Button>
                     </div> -->
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div v-if="showDetail">
-              <div class="pb-4 pt-4">
-                <div
-                  class="flex justify-start items-center overflow-x-scroll flex-nowrap gap-x-3"
-                >
-                  <p
-                    v-for="i in formData.day"
-                    :key="i"
-                    @click="selectedDay = i"
-                    :class="{
-                      'text-white bg-[#ff613c]': selectedDay == i, // Highlight if selected and no data
-                      'bg-gray-200 ': selectedDay != i && !hasData(i), // Default style
-                      'text-white bg-gray-500': hasData(i), // Specific style if the day has data
-                    }"
-                    class="text-xs px-4 py-1 rounded-lg whitespace-nowrap cursor-pointer"
-                  >
-                    {{ i }} days
-                  </p>
-                </div>
-                <div class="pt-4">
-                  <div
-                    class="flex justify-between items-center border-b border-gray-300 mb-2 pb-2"
-                  >
-                    <p class="text-md font-medium pb-2">
-                      Add Day {{ selectedDay }} Info
-                    </p>
-                    <button
-                      class="bg-[#ff613c] text-white px-3 py-1 rounded-lg text-sm"
-                      @click="addDetail"
-                    >
-                      + Add to detail
-                    </button>
-                  </div>
-
-                  <div class="grid grid-cols-2 gap-4">
-                    <div>
-                      <div class="col-span-2 space-y-1">
-                        <label for="" class="text-sm"
-                          >Title <span class="text-red-600">*</span></label
-                        >
-                        <div>
-                          <input
-                            type="text"
-                            v-model="detailItem.title"
-                            name=""
-                            class="text-xs px-4 py-2 w-full rounded-lg border border-gray-300 focus:outline-none"
-                          />
-                        </div>
-                      </div>
-                      <div class="col-span-2 space-y-1">
-                        <label for="" class="text-sm"
-                          >Cities <span class="text-red-600">*</span></label
-                        >
-                        <v-select
-                          v-model="detailItem.meals.city_ids"
-                          v-if="cities?.data"
-                          class="style-chooser"
-                          :options="cities?.data ?? []"
-                          label="name"
-                          multiple
-                          :clearable="false"
-                          :reduce="(c) => c.name"
-                          placeholder="Choose cities for this day."
-                        ></v-select>
-                      </div>
-                    </div>
-                    <div class="space-y-2">
-                      <label for="" class="text-sm"
-                        >Image <span class="text-red-600">*</span></label
-                      >
-                      <input
-                        type="file"
-                        name=""
-                        ref="imageInput"
-                        id=""
-                        @change="handlerImageDFileChange"
-                        class="hidden w-full h-10 text-sm px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-                        accept="image/*"
-                      />
-                      <div
-                        v-if="imagePreview == null || imagePreview == ''"
-                        class="w-full h-[99px] border border-dashed border-[#FF6300] cursor-pointer rounded-lg flex justify-center items-center"
-                        @click.prevent="openFileImageDPicker"
-                      >
-                        <p class="text-3xl text-[#FF6300]">+</p>
-                      </div>
-                      <div
-                        v-if="imagePreview != null && imagePreview != ''"
-                        class="w-full h-auto relative"
-                      >
-                        <img
-                          :src="imagePreview"
-                          alt="Image preview"
-                          class="w-auto h-[99px] rounded"
-                        />
-                        <span
-                          class="text-xs absolute top-0 right-0 cursor-pointer"
-                          @click="removeSelectedImage"
-                          ><i
-                            class="fa-solid fa-minus text-sm font-semibold py-1 px-2 bg-[#ff613c] rounded-full shadow text-white"
-                          ></i
-                        ></span>
-                      </div>
-                    </div>
-                    <div class="space-y-1 col-span-1">
-                      <label for="" class="text-sm"
-                        >Summary <span class="text-red-600">*</span></label
-                      >
-                      <div class="overflow-hidden">
-                        <QuillEditor
-                          ref="textEditor"
-                          :options="editorOptions"
-                          theme="snow"
-                          class="!bg-white/50 !border-1 !border-[#FF6300] !rounded-bl-md !rounded-br-md !shadow-sm !text-sm !text-gray-900 !h-[350px]"
-                          toolbar="essential"
-                          contentType="html"
-                          v-model:content="detailItem.summary"
-                        />
-                      </div>
-                    </div>
-                    <div class="space-y-1 col-span-1">
-                      <label for="" class="text-sm">Meals </label>
-                      <div class="overflow-hidden">
-                        <QuillEditor
-                          ref="textEditor"
-                          :options="editorOptionsMeal"
-                          theme="snow"
-                          class="!bg-white/50 !border-1 !border-[#FF6300] !rounded-bl-md !rounded-br-md !shadow-sm !text-sm !text-gray-900 !h-[350px]"
-                          toolbar="essential"
-                          contentType="html"
-                          v-model:content="detailItem.meals.meals"
-                        />
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>

@@ -55,6 +55,14 @@ export const useInclusiveStore = defineStore("inclusive", {
                 throw error;
             }
         },
+        async addNewDetailAction(data, id) {
+            try {
+                const response = await axios.post("/inclusive/" + id + "/detail", data);
+                return response.data;
+            } catch (error) {
+                throw error;
+            }
+        },
 
         async getDetailAction(id) {
             try {

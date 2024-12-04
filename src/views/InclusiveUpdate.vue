@@ -616,6 +616,18 @@ const getDetail = async () => {
         });
       }
     }
+    if (response.result.details.length > 0) {
+      response.result.details.forEach((detail) => {
+        formData.value.details.push({
+          day_name: detail.day_name,
+          title: detail.title,
+          summary: detail.summary,
+          meals: detail.meals,
+          cities: detail.cities.map((city) => city.id), // Extracting only the IDs
+          image_url: detail.image ? detail.image : "",
+        });
+      });
+    }
     if (response.result.airport_pickups.length != 0) {
       for (const x in response.result.airport_pickups) {
         const itemData = {
@@ -812,6 +824,7 @@ const detailItem = ref({
   day_name: "",
   title: "",
   image: null,
+  image_url: "",
   summary: "",
   meals: "",
   cities: "",
@@ -822,6 +835,7 @@ const clearAction = () => {
     day_name: "",
     title: "",
     image: null,
+    image_url: "",
     summary: "-",
     meals: "-",
     cities: "",
@@ -845,12 +859,13 @@ const handlerImageDFileChange = (e) => {
 const removeSelectedImage = () => {
   detailItem.value.image = null;
   imagePreview.value = null;
+  detailItem.value.image_url = null;
 };
 
 const addDetail = () => {
   detailItem.value.day_name = selectedDay.value;
   formData.value.details = formData.value.details.filter(
-    (detail) => detail.day_name !== detailItem.value.day_name
+    (detail) => detail.day_name != detailItem.value.day_name
   );
 
   formData.value.details.push(detailItem.value);
@@ -883,30 +898,30 @@ const hasData = (date) => {
 
 watch(selectedDay, () => {
   if (formData.value.details.length > 0) {
-    console.log("====================================");
-    console.log(formData.value, "this is value");
-    console.log("====================================");
     let data = formData.value.details.filter(
       (d) => d.day_name == selectedDay.value
     );
+    console.log("====================================");
+    console.log(data);
+    console.log("====================================");
     if (data.length > 0) {
       const [firstItem] = data;
       detailItem.value.title = firstItem.title || "";
       detailItem.value.summary = firstItem.summary || "";
       detailItem.value.meals = firstItem?.meals || "";
+      detailItem.value.image_url = firstItem.image_url || "";
       detailItem.value.image = firstItem.image || null;
       detailItem.value.cities = firstItem?.cities || "";
       imagePreview.value = firstItem.image
         ? URL.createObjectURL(firstItem.image)
         : null;
+    } else {
+      clearAction();
     }
   }
 });
 
 const updateDetailAction = async () => {
-  console.log("====================================");
-  console.log(formData.value.details, "this is detail");
-  console.log("====================================");
   const frmData = new FormData();
   for (let i = 0; i < formData.value.details.length; i++) {
     frmData.append(
@@ -924,6 +939,10 @@ const updateDetailAction = async () => {
   const res = await inclusiveStore.addNewDetailAction(frmData, route.params.id);
   console.log("====================================");
   console.log(res, "this is response");
+  console.log("====================================");
+  await onSubmitHandler();
+  console.log("====================================");
+  console.log(formData.value.details, "this is detail");
   console.log("====================================");
 };
 
@@ -1877,16 +1896,19 @@ onMounted(async () => {
                 </div>
                 <div class="pt-4">
                   <div
-                    class="flex justify-between items-center border-b border-gray-300 mb-2 pb-2"
+                    class="flex justify-between items-center border-b border-gray-300 pb-4 mb-4"
                   >
-                    <p class="text-md font-medium pb-2">
+                    <p class="text-md font-medium">
                       Add Day {{ selectedDay }} Info
                     </p>
                     <button
                       class="bg-[#ff613c] text-white px-3 py-1 rounded-lg text-sm"
                       @click="addDetail"
                     >
-                      + Add to detail
+                      + add to detail
+                      <span class="text-gray-200 text-xs"
+                        >(every time when you add new click again)</span
+                      >
                     </button>
                   </div>
 
@@ -1948,6 +1970,23 @@ onMounted(async () => {
                       >
                         <img
                           :src="imagePreview"
+                          alt="Image preview"
+                          class="w-auto h-[99px] rounded"
+                        />
+                        <span
+                          class="text-xs absolute top-0 right-0 cursor-pointer"
+                          @click="removeSelectedImage"
+                          ><i
+                            class="fa-solid fa-minus text-sm font-semibold py-1 px-2 bg-[#ff613c] rounded-full shadow text-white"
+                          ></i
+                        ></span>
+                      </div>
+                      <div
+                        v-if="detailItem.image_url && imagePreview == null"
+                        class="w-full h-auto relative"
+                      >
+                        <img
+                          :src="detailItem.image_url"
                           alt="Image preview"
                           class="w-auto h-[99px] rounded"
                         />

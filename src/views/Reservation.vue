@@ -742,7 +742,7 @@ const changeServiceDate = (data) => {
           >
             All
           </p> -->
-          <!-- <p
+          <p
             class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="private_van_handle"
             :class="
@@ -752,7 +752,7 @@ const changeServiceDate = (data) => {
             "
           >
             Private Van tour
-          </p> -->
+          </p>
 
           <!-- <p
             class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
@@ -1112,10 +1112,7 @@ const changeServiceDate = (data) => {
           </div>
         </div>
       </div>
-      <div
-        class="w-full mb-5 overflow-scroll bg-white rounded-lg shadow"
-        v-if="!private_van_tour_show"
-      >
+      <div class="w-full mb-5 overflow-scroll bg-white rounded-lg shadow">
         <div class="grid grid-cols-10 gap-2 py-2">
           <div
             class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
@@ -1354,9 +1351,9 @@ const changeServiceDate = (data) => {
             <div
               class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 whitespace-nowrap"
             >
-              <!-- <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
+              <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
                 PrivateVanTour
-              </p> -->
+              </p>
               <p v-if="d.product_type == 'App\\Models\\GroupTour'">GroupTour</p>
               <p v-if="d.product_type == 'App\\Models\\AirportPickup'">
                 Airpot

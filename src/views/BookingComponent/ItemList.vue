@@ -121,11 +121,15 @@ const openAddItemModalAction = () => {
 
 const selectAction = (item) => {
   formitem.value.car_id = item.id;
+  console.log("====================================");
+  console.log(item, "this is selected item");
+  console.log("====================================");
   if (formitem.value.product_type != 7) {
     formitem.value.item_name = item.name;
     if (formitem.value.product_type == 1) {
       let des = formitem.value.comment.replace(/^[^;]*;\s*/, "");
       formitem.value.comment = `Car Type : ${item.name} ; ${des}`;
+      // formitem.value.selling_price = item.price ? item.price : item.room_price;
     }
     formitem.value.selling_price = item.price ? item.price : item.room_price;
     if (formitem.value.product_type == 6) {
@@ -180,11 +184,17 @@ const todayCheck = () => {
 
 // send item
 const getFunction = () => {
-  formitem.value.total_amount =
-    formitem.value.selling_price *
-      formitem.value.days *
-      formitem.value.quantity -
-    formitem.value.discount;
+  if (formitem.value.days != undefined) {
+    formitem.value.total_amount =
+      formitem.value.selling_price *
+        formitem.value.days *
+        formitem.value.quantity -
+      formitem.value.discount;
+  } else {
+    formitem.value.total_amount =
+      formitem.value.selling_price * formitem.value.quantity -
+      formitem.value.discount;
+  }
 
   console.log("====================================");
   console.log(formitem.value, "thsi is ");

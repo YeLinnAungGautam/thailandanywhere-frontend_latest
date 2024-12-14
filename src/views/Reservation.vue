@@ -131,6 +131,7 @@ const customerPaymentStatusArr = [
   { id: "3", name: "partially_paid" },
 ];
 const searchTime = ref("");
+const empty_unit_cost = ref("");
 const booking_date = ref("");
 const booking_daterange = ref("");
 const dateRange = ref();
@@ -171,6 +172,7 @@ const clearFilter = () => {
   //   authStore.isSuperAdmin || authStore.isReservation ? "" : authStore.user.id;
   searchReservation.value = "";
   searchTime.value = "";
+  empty_unit_cost.value = "";
   booking_date.value = "";
   showFilter.value = false;
   customer_name.value = "";
@@ -328,6 +330,13 @@ const exportTaxAction = async () => {
 
 // end excel for tax
 
+const setStartAndEndDate = () => {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  dateRange.value = [startOfMonth, endOfMonth];
+};
+
 onMounted(async () => {
   console.log(entrances.value, "this is hotel list");
   searchId.value = route.params.crm_id == "%" ? "" : route.params.crm_id;
@@ -340,6 +349,8 @@ onMounted(async () => {
 
   searchTime.value =
     route.params.service_date == "%" ? "" : route.params.service_date;
+
+  setStartAndEndDate();
 
   // await reservationStore.getListAction(watchSystem.value);
 
@@ -402,6 +413,9 @@ const watchSystem = computed(() => {
     dateOnlyToggle.value
   ) {
     result.service_date = formatDate(searchTime.value);
+  }
+  if (empty_unit_cost.value != "" && empty_unit_cost.value != false) {
+    result.empty_unit_cost = empty_unit_cost.value;
   }
   if (
     booking_date.value != "" &&
@@ -588,11 +602,14 @@ watch(
   }, 500)
 );
 
-watch([searchTime, booking_date, customer_name, sorting], async () => {
-  showFilter.value = true;
-  searchFunction();
-  await reservationStore.getListAction(watchSystem.value);
-});
+watch(
+  [searchTime, empty_unit_cost, booking_date, customer_name, sorting],
+  async () => {
+    showFilter.value = true;
+    searchFunction();
+    await reservationStore.getListAction(watchSystem.value);
+  }
+);
 // watch(customer_name, async () => {
 //   showFilter.value = true;
 //   searchFunction();
@@ -842,6 +859,11 @@ const changeServiceDate = (data) => {
           </div>
           <div v-if="authStore.isSuperAdmin">
             <p class="text-xs bg-[#FF5B00] text-white px-2 py-2 rounded-lg">
+              expense - {{ reservations?.meta.total_expense_amount }} thb
+            </p>
+          </div>
+          <div v-if="authStore.isSuperAdmin">
+            <p class="text-xs bg-[#FF5B00] text-white px-2 py-2 rounded-lg">
               total amount - {{ reservations?.meta.total_amount }} thb
             </p>
           </div>
@@ -925,13 +947,6 @@ const changeServiceDate = (data) => {
           ></v-select>
         </div>
         <div v-if="dateOnlyToggle">
-          <!-- <input
-            v-model="searchTime"
-            type="date"
-            class="h-8 w-3/5 sm:w-3/5 md:w-full text-md border px-4 py-2 rounded-md shadow focus:ring-0 focus:outline-none text-gray-500"
-            placeholder="Search Date"
-            title="search with date"
-          /> -->
           <VueDatePicker
             v-model="searchTime"
             :format="'yyyy-MM-dd'"
@@ -1043,6 +1058,7 @@ const changeServiceDate = (data) => {
             placeholder="sorting ..."
           ></v-select>
         </div>
+
         <div>
           <p class="inline-block mr-2 text-sm font-medium text-gray-500">
             Show
@@ -1061,7 +1077,18 @@ const changeServiceDate = (data) => {
             entries
           </p>
         </div>
-        <div v-if="!dateOnlyToggle" class="col-span-3">
+        <div
+          @click="empty_unit_cost = !empty_unit_cost"
+          :class="
+            empty_unit_cost == true
+              ? 'bg-[#FF5B00] text-white'
+              : 'text-gray-500'
+          "
+          class="border border-gray-300 text-sm rounded-md px-4 py-2"
+        >
+          <p>empty unit cost</p>
+        </div>
+        <div v-if="!dateOnlyToggle" class="col-span-2">
           <div class="flex w-full text-xs pt-4 justify-end items-center gap-4">
             <p
               @click="changeServiceDate('today')"

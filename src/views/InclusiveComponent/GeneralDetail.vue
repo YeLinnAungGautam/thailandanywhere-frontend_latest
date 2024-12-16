@@ -2,7 +2,7 @@
 import { PlusIcon } from "@heroicons/vue/24/outline";
 </script>
 <template>
-  <div class="grid grid-cols-3 gap-2">
+  <div class="grid grid-cols-3 gap-6">
     <div class="col-span-2">
       <div class="grid grid-cols-2 gap-4 pt-2">
         <div class="space-y-2">

@@ -191,7 +191,7 @@ const todayCheck = () => {
 
 // send item
 const getFunction = () => {
-  if (formitem.value.days != undefined) {
+  if (formitem.value.days != undefined && formitem.value.days != "") {
     formitem.value.total_amount =
       formitem.value.selling_price *
         formitem.value.days *

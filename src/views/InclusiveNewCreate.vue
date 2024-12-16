@@ -3,6 +3,9 @@ import Layout from "./Layout.vue";
 import { ref } from "vue";
 import { CheckCircleIcon } from "@heroicons/vue/24/solid";
 import GeneralDetailVue from "./InclusiveComponent/GeneralDetail.vue";
+import ItemDetail from "./InclusiveComponent/ItemDetail.vue";
+import ContentDetail from "./InclusiveComponent/ContentDetail.vue";
+import OtherMaterial from "./InclusiveComponent/OtherMaterial.vue";
 
 const session = ref(1);
 const finish = ref({
@@ -89,20 +92,110 @@ const finish = ref({
     </div>
 
     <!-- body part -->
-    <div class="px-8 py-6 bg-white">
+    <div class="px-8 py-6 bg-white" v-if="session == 1">
       <div class="flex justify-between items-center">
         <p class="text-base">General Details</p>
         <div class="flex gap-x-2 justify-end items-center">
-          <p class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs">
+          <p
+            @click="finish.session1 = true"
+            class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
             Save
           </p>
-          <p class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs">
+          <p
+            @click="session = 2"
+            class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
             Next
           </p>
         </div>
       </div>
       <div>
         <GeneralDetailVue />
+      </div>
+    </div>
+    <div class="px-8 py-6 bg-white" v-if="session == 2">
+      <div class="flex justify-between items-center">
+        <p class="text-base pb-4">Item details</p>
+        <div class="flex gap-x-2 justify-end items-center">
+          <p
+            @click="session = 1"
+            class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Back
+          </p>
+          <p
+            @click="finish.session2 = true"
+            class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Save
+          </p>
+          <p
+            @click="session = 3"
+            class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Next
+          </p>
+        </div>
+      </div>
+      <div>
+        <ItemDetail />
+      </div>
+    </div>
+    <div class="px-8 py-6 bg-white" v-if="session == 3">
+      <div class="flex justify-between items-center">
+        <p class="text-base">Content Details</p>
+        <div class="flex gap-x-2 justify-end items-center">
+          <p
+            @click="session = 2"
+            class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Back
+          </p>
+          <p
+            @click="finish.session3 = true"
+            class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Save
+          </p>
+          <p
+            @click="session = 4"
+            class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Next
+          </p>
+        </div>
+      </div>
+      <div>
+        <ContentDetail />
+      </div>
+    </div>
+    <div class="px-8 py-6 bg-white" v-if="session == 4">
+      <div class="flex justify-between items-center">
+        <p class="text-base">Other Materials</p>
+        <div class="flex gap-x-2 justify-end items-center">
+          <p
+            @click="session = 3"
+            class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Back
+          </p>
+          <p
+            @click="finish.session4 = true"
+            class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Save
+          </p>
+          <p
+            @click="session = 1"
+            class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Create
+          </p>
+        </div>
+      </div>
+      <div>
+        <OtherMaterial />
       </div>
     </div>
   </Layout>

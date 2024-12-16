@@ -314,8 +314,8 @@ watch(
               class="flex items-center gap-3 tracking-wide text-xs cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md min-w-[180px] text-center"
             >
               <img
-                src="../../public/web-logo.png"
-                class="w-12 h-12 p-2 rounded-lg"
+                src="https://cdn-icons-png.flaticon.com/128/5793/5793406.png"
+                class="w-12 h-12 rounded-lg"
                 :class="
                   selected ? 'bg-white' : 'bg-[#FF5B00]/30 text-[#FF5B00]'
                 "

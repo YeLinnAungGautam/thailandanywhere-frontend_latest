@@ -250,13 +250,29 @@ const balance_due = computed(() => {
 });
 
 const removeItemList = (message) => {
-  if (message) {
-    const index = formData.value.items.findIndex(
-      (item) => item.product_id === message
-    );
-    if (index !== -1) {
-      formData.value.items.splice(index, 1);
-    }
+  if (
+    !message ||
+    typeof message.id === "undefined" ||
+    typeof message.index === "undefined"
+  ) {
+    console.error("Invalid 'message' object. Must have both 'id' and 'index'.");
+    return;
+  }
+
+  const items = formData.value.items;
+
+  // Ensure 'items' is an array
+  if (!Array.isArray(items)) {
+    console.error("'formData.value.items' is not an array.");
+    return;
+  }
+
+  // Validate the index and item
+  const itemAtIndex = items[message.index];
+  if (itemAtIndex && itemAtIndex.product_id === message.id) {
+    items.splice(message.index, 1); // Remove the item if the conditions match
+  } else {
+    console.warn("No matching item found at the provided index.");
   }
 };
 const changeGetForm = (data) => {

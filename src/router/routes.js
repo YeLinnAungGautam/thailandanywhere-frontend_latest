@@ -44,241 +44,252 @@ import AvailabilityView from "../views/Availability.vue";
 import UserView from "../views/UserView.vue";
 import HotelEditView from "../views/HotelEditPage.vue";
 import UpdateBookingNewView from "../views/BookingUpdateNewVersion.vue";
+import InclusiveNewCreateView from "../views/InclusiveNewCreate.vue";
+import InclusiveNewDetailView from "../views/InclusiveNewUpdate.vue";
 
-const routes = [
-  {
-    path: "/login",
-    name: "login",
-    component: LoginView,
-    meta: {
-      guest: true,
+const routes = [{
+        path: "/login",
+        name: "login",
+        component: LoginView,
+        meta: {
+            guest: true,
+        },
     },
-  },
-  {
-    path: "/",
-    name: "home",
-    component: HomeView,
-  },
-  {
-    path: "/user_dashboard",
-    name: "dashboard",
-    component: DashboardView,
-  },
-  {
-    path: "/components",
-    name: "components",
-    component: ComponentView,
-  },
-  {
-    path: "/tables",
-    name: "tables",
-    component: TableView,
-  },
-  {
-    path: "/products/:id",
-    name: "products",
-    component: ProductView,
-  },
-  // {
-  //   path: "/sales",
-  //   name: "sales",
-  //   component: SaleView,
-  // },
-  {
-    path: "/partners",
-    name: "partners",
-    component: PartnerView,
-  },
-  {
-    path: "/customers",
-    name: "customers",
-    component: CustomerView,
-  },
-  {
-    path: "/customers/create",
-    name: "customerscreate",
-    component: CustomerCreateView,
-  },
-  {
-    path: "/customers/update/:id",
-    name: "customersupdate",
-    component: CustomerUpdateView,
-  },
-  {
-    path: "/blogs",
-    name: "blogs",
-    component: BlogView,
-  },
-  {
-    path: "/blogs/new",
-    name: "new_blog",
-    component: NewBlogView,
-  },
-  {
-    path: "/blogs/edit/:slug",
-    name: "edit_blog",
-    component: EditBlogView,
-  },
-  {
-    path: "/blogs/categories",
-    name: "blog_categories",
-    component: BlogCategoryView,
-  },
-  {
-    path: "/bookings/:crm_id/:customer_name/:sale_date",
-    name: "bookings",
-    component: BookingView,
-  },
-  {
-    path: "/bookings/create",
-    name: "bookings_create",
-    component: BookingCreateView,
-  },
-  {
-    path: "/bookings/new-create",
-    name: "bookings_new_create",
-    component: BookingNewCreateView,
-  },
-  {
-    path: "/bookings/new-update/:id",
-    name: "update_new_bookings",
-    component: UpdateBookingNewView,
-  },
-  {
-    path: "/calendar",
-    name: "calendar",
-    component: CalendarView,
-  },
-  {
-    path: "/bookings/new",
-    name: "new_bookings",
-    component: NewBookingView,
-  },
-  {
-    path: "/bookings/edit",
-    name: "edit_bookings",
-    component: EditBookingView,
-  },
-  {
-    path: "/bookings/update/:id/:action",
-    name: "update_bookings",
-    component: UpdateBookingView,
-  },
-  {
-    path: "/database/:page",
-    name: "database",
-    component: DatabaseView,
-  },
-  {
-    path: "/vantour/edit",
-    name: "vantouredit",
-    component: VantourView,
-  },
-  {
-    path: "/product/hotel/edit/:id",
-    name: "hoteledit",
-    component: HotelEditView,
-  },
-  {
-    path: "/vantour/view/:id/:action",
-    name: "vantourview",
-    component: VantourviewView,
-  },
-  {
-    path: "/vantour",
-    name: "vantour",
-    component: VantourlistView,
-  },
-  {
-    path: "/grouptour",
-    name: "grouptour",
-    component: GrouptourlistView,
-  },
-  {
-    path: "/grouptour/view/:id/:action",
-    name: "grouptourview",
-    component: GrouptourviewView,
-  },
-  {
-    path: "/grouptour/create",
-    name: "grouptourcreate",
-    component: GrouptourcreateView,
-  },
-  {
-    path: "/airport/create",
-    name: "airportcreate",
-    component: AirportcreateView,
-  },
-  {
-    path: "/airport/update/:id/:action",
-    name: "airportupdate",
-    component: AirportupdateView,
-  },
-  {
-    path: "/entrance",
-    name: "entrance",
-    component: EntranceView,
-  },
-  {
-    path: "/entrance/create",
-    name: "entrancecreate",
-    component: EntranceCreateView,
-  },
-  {
-    path: "/entrance/update/:id/:action",
-    name: "entranceupdate",
-    component: EntranceUpdateView,
-  },
-  {
-    path: "/reservation/:product_type/:crm_id/:service_date",
-    name: "reservation",
-    component: ReservationView,
-  },
-  {
-    path: "/reservation/update/:id/:crm",
-    name: "reservation-update",
-    component: ReservationUpdate,
-  },
-  {
-    path: "/reservation/view/:id/:crm/:old",
-    name: "reservation-view",
-    component: ReservationViewView,
-  },
-  {
-    path: "/expenses",
-    name: "expenses",
-    component: ExpensesView,
-  },
-  {
-    path: "/inclusive/create",
-    name: "inclusive-create",
-    component: InclusiveView,
-  },
-  {
-    path: "/inclusive/view/:id/:action",
-    name: "inclusive-view",
-    component: InclusiveDetailView,
-  },
-  {
-    path: "/admins",
-    name: "admins",
-    component: AdminView,
-  },
-  {
-    path: "/car-bookings/:part",
-    name: "car-bookings",
-    component: CarBookingView,
-  },
-  {
-    path: "/availabilities/",
-    name: "availabilities",
-    component: AvailabilityView,
-  },
-  {
-    path: "/users",
-    name: "UserView",
-    component: UserView,
-  },
+    {
+        path: "/",
+        name: "home",
+        component: HomeView,
+    },
+    {
+        path: "/user_dashboard",
+        name: "dashboard",
+        component: DashboardView,
+    },
+    {
+        path: "/components",
+        name: "components",
+        component: ComponentView,
+    },
+    {
+        path: "/tables",
+        name: "tables",
+        component: TableView,
+    },
+    {
+        path: "/products/:id",
+        name: "products",
+        component: ProductView,
+    },
+    // {
+    //   path: "/sales",
+    //   name: "sales",
+    //   component: SaleView,
+    // },
+    {
+        path: "/partners",
+        name: "partners",
+        component: PartnerView,
+    },
+    {
+        path: "/customers",
+        name: "customers",
+        component: CustomerView,
+    },
+    {
+        path: "/customers/create",
+        name: "customerscreate",
+        component: CustomerCreateView,
+    },
+    {
+        path: "/customers/update/:id",
+        name: "customersupdate",
+        component: CustomerUpdateView,
+    },
+    {
+        path: "/blogs",
+        name: "blogs",
+        component: BlogView,
+    },
+    {
+        path: "/blogs/new",
+        name: "new_blog",
+        component: NewBlogView,
+    },
+    {
+        path: "/blogs/edit/:slug",
+        name: "edit_blog",
+        component: EditBlogView,
+    },
+    {
+        path: "/blogs/categories",
+        name: "blog_categories",
+        component: BlogCategoryView,
+    },
+    {
+        path: "/bookings/:crm_id/:customer_name/:sale_date",
+        name: "bookings",
+        component: BookingView,
+    },
+    {
+        path: "/bookings/create",
+        name: "bookings_create",
+        component: BookingCreateView,
+    },
+    {
+        path: "/bookings/new-create",
+        name: "bookings_new_create",
+        component: BookingNewCreateView,
+    },
+    {
+        path: "/bookings/new-update/:id",
+        name: "update_new_bookings",
+        component: UpdateBookingNewView,
+    },
+    {
+        path: "/calendar",
+        name: "calendar",
+        component: CalendarView,
+    },
+    {
+        path: "/bookings/new",
+        name: "new_bookings",
+        component: NewBookingView,
+    },
+    {
+        path: "/bookings/edit",
+        name: "edit_bookings",
+        component: EditBookingView,
+    },
+    {
+        path: "/bookings/update/:id/:action",
+        name: "update_bookings",
+        component: UpdateBookingView,
+    },
+    {
+        path: "/database/:page",
+        name: "database",
+        component: DatabaseView,
+    },
+    {
+        path: "/vantour/edit",
+        name: "vantouredit",
+        component: VantourView,
+    },
+    {
+        path: "/product/hotel/edit/:id",
+        name: "hoteledit",
+        component: HotelEditView,
+    },
+    {
+        path: "/vantour/view/:id/:action",
+        name: "vantourview",
+        component: VantourviewView,
+    },
+    {
+        path: "/vantour",
+        name: "vantour",
+        component: VantourlistView,
+    },
+    {
+        path: "/grouptour",
+        name: "grouptour",
+        component: GrouptourlistView,
+    },
+    {
+        path: "/grouptour/view/:id/:action",
+        name: "grouptourview",
+        component: GrouptourviewView,
+    },
+    {
+        path: "/grouptour/create",
+        name: "grouptourcreate",
+        component: GrouptourcreateView,
+    },
+    {
+        path: "/airport/create",
+        name: "airportcreate",
+        component: AirportcreateView,
+    },
+    {
+        path: "/airport/update/:id/:action",
+        name: "airportupdate",
+        component: AirportupdateView,
+    },
+    {
+        path: "/entrance",
+        name: "entrance",
+        component: EntranceView,
+    },
+    {
+        path: "/entrance/create",
+        name: "entrancecreate",
+        component: EntranceCreateView,
+    },
+    {
+        path: "/entrance/update/:id/:action",
+        name: "entranceupdate",
+        component: EntranceUpdateView,
+    },
+    {
+        path: "/reservation/:product_type/:crm_id/:service_date",
+        name: "reservation",
+        component: ReservationView,
+    },
+    {
+        path: "/reservation/update/:id/:crm",
+        name: "reservation-update",
+        component: ReservationUpdate,
+    },
+    {
+        path: "/reservation/view/:id/:crm/:old",
+        name: "reservation-view",
+        component: ReservationViewView,
+    },
+    {
+        path: "/expenses",
+        name: "expenses",
+        component: ExpensesView,
+    },
+    {
+        path: "/inclusive/create",
+        name: "inclusive-create",
+        component: InclusiveView,
+    },
+    {
+        path: "/inclusive/new/create",
+        name: "inclusive-create-new",
+        component: InclusiveNewCreateView,
+    },
+    {
+        path: "/inclusive/view/:id/:action",
+        name: "inclusive-view",
+        component: InclusiveDetailView,
+    },
+    {
+        path: "/inclusive/new/update/:id/:action",
+        name: "inclusive-view-new",
+        component: InclusiveNewDetailView,
+    },
+    {
+        path: "/admins",
+        name: "admins",
+        component: AdminView,
+    },
+    {
+        path: "/car-bookings/:part",
+        name: "car-bookings",
+        component: CarBookingView,
+    },
+    {
+        path: "/availabilities/",
+        name: "availabilities",
+        component: AvailabilityView,
+    },
+    {
+        path: "/users",
+        name: "UserView",
+        component: UserView,
+    },
 ];
 
 export default routes;

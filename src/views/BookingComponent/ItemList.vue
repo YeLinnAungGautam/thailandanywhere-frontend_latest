@@ -53,8 +53,15 @@ const formitem = ref({
   customer_attachment: "",
 });
 
-const getRemoveFunction = (id) => {
-  emit("remove", id);
+const getRemoveFunction = (id, index) => {
+  let data = {
+    id: id,
+    index: index,
+  };
+  console.log("====================================");
+  console.log(data, "this is emit id");
+  console.log("====================================");
+  emit("remove", data);
 };
 
 const editAction = (index, data) => {
@@ -351,7 +358,7 @@ onMounted(() => {
               <TrashIcon
                 v-if="!i?.reservation_id || authStore?.isSuperAdmin"
                 class="w-4 h-4 cursor-pointer text-red-800"
-                @click="getRemoveFunction(i?.product_id)"
+                @click="getRemoveFunction(i?.product_id, index)"
               />
             </div>
           </div>

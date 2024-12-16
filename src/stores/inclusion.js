@@ -35,7 +35,7 @@ export const useInclusiveStore = defineStore("inclusive", {
         async getListAction(params) {
             try {
                 this.loading = true;
-                const response = await axios.get("/inclusive?limit=5", {
+                const response = await axios.get("/inclusive", {
                     params: params,
                 });
                 this.inclusives = response.data.result;

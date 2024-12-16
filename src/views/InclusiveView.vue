@@ -19,11 +19,16 @@
           class="inline-block w-6 h-6 mx-2 text-gray-600 cursor-pointer"
         />
       </div>
-      <div class="space-x-3">
+      <div class="space-x-3 flex justify-end items-center">
         <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
-        <Button :leftIcon="PlusIcon" @click="inclusiveHandling">
+        <!-- <Button :leftIcon="PlusIcon" @click="inclusiveHandling">
           Create
-        </Button>
+        </Button> -->
+        <div class="relative">
+          <Button :leftIcon="PlusIcon" @click="showVersion = !showVersion">
+            Create
+          </Button>
+        </div>
       </div>
     </div>
     <div class="mb-5 overflow-auto rounded-lg shadow">
@@ -82,13 +87,14 @@
                     <EyeIcon class="w-5 h-5" />
                   </button>
                 </router-link>
-                <router-link :to="'/inclusive/view/' + r.id + '/edit'">
-                  <button
-                    class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
-                  >
-                    <PencilSquareIcon class="w-5 h-5" />
-                  </button>
-                </router-link>
+                <!-- <router-link :to="'/inclusive/view/' + r.id + '/edit'"> -->
+                <button
+                  @click="newUpdateHandler(r.id)"
+                  class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
+                >
+                  <PencilSquareIcon class="w-5 h-5" />
+                </button>
+                <!-- </router-link> -->
                 <button
                   v-if="authStore.isSuperAdmin"
                   @click.prevent="onDeleteHandler(r.id)"
@@ -101,6 +107,81 @@
           </tr>
         </tbody>
       </table>
+      <Modal :isOpen="showVersion" @closeModal="showVersion = false">
+        <DialogPanel
+          class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+        >
+          <DialogTitle
+            as="h3"
+            class="text-lg font-medium leading-6 text-gray-900 mb-5"
+          >
+            select version controll !
+          </DialogTitle>
+          <div class="space-y-2">
+            <div>
+              <Button
+                :leftIcon="PlusIcon"
+                class="w-full"
+                @click="goCreatePage('new')"
+              >
+                <p class="text-xs w-full whitespace-nowrap">
+                  New Version (recommended)
+                </p>
+              </Button>
+            </div>
+            <div>
+              <Button
+                class="w-full bg-gray-500"
+                :leftIcon="PlusIcon"
+                @click="goCreatePage('old')"
+              >
+                <p class="text-xs w-full whitespace-nowrap">
+                  Old Version (stable)
+                </p>
+              </Button>
+            </div>
+          </div>
+        </DialogPanel>
+      </Modal>
+      <Modal
+        :isOpen="showVersionUpdate"
+        @closeModal="showVersionUpdate = false"
+      >
+        <DialogPanel
+          class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+        >
+          <DialogTitle
+            as="h3"
+            class="text-lg font-medium leading-6 text-gray-900 mb-5"
+          >
+            select version controll !
+          </DialogTitle>
+          <div class="space-y-2">
+            <div>
+              <Button
+                :leftIcon="PlusIcon"
+                class="w-full"
+                @click="goEditPage('new')"
+              >
+                <p class="text-xs w-full whitespace-nowrap">
+                  New Version Edit (recommended)
+                </p>
+              </Button>
+            </div>
+            <div>
+              <Button
+                class="w-full bg-gray-500"
+                :leftIcon="PlusIcon"
+                @click="goEditPage('old')"
+              >
+                <p class="text-xs w-full whitespace-nowrap">
+                  Old Version Edit (stable)
+                </p>
+              </Button>
+            </div>
+          </div>
+        </DialogPanel>
+      </Modal>
     </div>
     <!-- pagination -->
     <Pagination v-if="!loading" :data="inclusives" @change-page="changePage" />
@@ -130,6 +211,8 @@ import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import { useAuthStore } from "../stores/auth";
 import debounce from "lodash/debounce";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import Modal from "../components/Modal.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -140,8 +223,32 @@ const { inclusives, loading } = storeToRefs(inclusiveStore);
 const search = ref("");
 const errors = ref([]);
 
+const showVersion = ref(false);
+const showVersionUpdate = ref(false);
+const editId = ref("");
+
+const newUpdateHandler = (id) => {
+  showVersionUpdate.value = true;
+  editId.value = id;
+};
+
 const inclusiveHandling = () => {
   router.push("/inclusive/create");
+};
+
+const goCreatePage = (data) => {
+  if (data == "new") {
+    router.push("/inclusive/new/create");
+  } else {
+    router.push("/inclusive/create");
+  }
+};
+const goEditPage = (data) => {
+  if (data == "old") {
+    router.push("/inclusive/view/" + editId.value + "/edit");
+  } else {
+    router.push("/inclusive/new/update/" + editId.value + "/edit");
+  }
 };
 
 const changePage = async (url) => {

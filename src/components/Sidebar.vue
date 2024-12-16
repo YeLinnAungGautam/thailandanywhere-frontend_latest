@@ -91,6 +91,8 @@
                 'entrancecreate',
                 'entranceupdate',
                 'hoteledit',
+                'inclusive-create-new',
+                'inclusive-view-new',
               ]"
               to="/products/page"
             />

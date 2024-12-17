@@ -1,11 +1,26 @@
 <script setup>
 import { ChevronRightIcon, PlusIcon } from "@heroicons/vue/24/outline";
-import { ref } from "vue";
+import { ref, defineProps } from "vue";
 
 const session = ref(1);
 const finish = ref({
   session1: false,
 });
+
+const props = defineProps({
+  formData: Object,
+  editImage: String,
+});
+
+const handlerImageFileChange = (e) => {
+  let selectedFile = e.target.files[0];
+  if (selectedFile) {
+    props.formData.cover_image = selectedFile;
+    console.log("====================================");
+    console.log(props.formData.cover_image);
+    console.log("====================================");
+  }
+};
 </script>
 <template>
   <div class="grid grid-cols-2 gap-6">
@@ -58,18 +73,25 @@ const finish = ref({
 
         <div class="space-y-2">
           <label for="" class="text-[12px] text-gray-500">Upload Image</label>
-          <p
-            class="text-2xl flex justify-center items-center w-full h-[70px] border-dashed border border-gray-200 rounded-2xl text-gray-400 cursor-pointer"
-          >
-            +
-          </p>
+          <input
+            type="file"
+            name=""
+            class="text-xs flex justify-center items-center w-full h-[70px] border-dashed border border-gray-200 rounded-2xl text-gray-400 cursor-pointer p-6"
+            @change="handlerImageFileChange"
+            id=""
+          />
         </div>
         <div class="space-y-2">
           <label for="" class="text-[12px] text-gray-500">Upload PDFs</label>
           <p
-            class="text-2xl flex justify-center items-center w-full h-[70px] border-dashed border border-gray-200 rounded-2xl text-gray-400 cursor-pointer"
+            class="text-sm flex justify-center items-center w-full h-[70px] border-dashed border border-gray-200 rounded-2xl text-gray-400 cursor-pointer"
           >
-            PDF lists
+            <a
+              :href="editImage"
+              target="_blink"
+              class="cursor-pointer text-indigo-600"
+              >Click to see pdf and download</a
+            >
           </p>
         </div>
         <div class="space-y-2 col-span-3">

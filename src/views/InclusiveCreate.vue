@@ -1436,15 +1436,6 @@ onMounted(async () => {
                         <td
                           class="px-4 py-3 text-sm text-gray-800 border-gray-300 text-start"
                         >
-                          <!-- <button
-                            class="mr-4 text-sm text-blue-600"
-                            @click="clickdetaildesToggle(item, index)"
-                          >
-                            <i
-                              class="fa-solid fa-ellipsis text-xs font-semibold px-1 py-[1.5px] bg-blue-500 rounded-full shadow text-white"
-                              title="add description"
-                            ></i>
-                          </button> -->
                           <button
                             class="text-sm text-red-600"
                             @click.prevent="removeFromitem(index)"

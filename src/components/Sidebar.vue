@@ -73,6 +73,12 @@
               :activePaths="['reservation', 'reservation-update']"
             />
             <SidebarItem
+              name="Expenses"
+              :icon="DocumentCheckIcon"
+              to="/expenses"
+              :activePaths="['expenses']"
+            />
+            <SidebarItem
               name="Products"
               :icon="ArchiveBoxIcon"
               :activePaths="[

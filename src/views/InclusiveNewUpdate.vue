@@ -181,10 +181,18 @@ const onSubmitHandler = async () => {
         `details[${i}][summary]`,
         formData.value.details[i].summary
       );
+      frmData2.append(
+        `details[${i}][summary_mm]`,
+        formData.value.details[i].summary_mm
+      );
       frmData2.append(`details[${i}][meals]`, formData.value.details[i].meals);
       frmData2.append(
         `details[${i}][cities]`,
         formData.value.details[i].cities
+      );
+      frmData2.append(
+        `details[${i}][destinations]`,
+        formData.value.details[i].destinations
       );
       if (formData.value.details[i].image) {
         frmData2.append(
@@ -256,8 +264,12 @@ const getDetail = async () => {
             day_name: detail.day_name,
             title: detail.title,
             summary: detail.summary,
+            summary_mm: detail.summary_mm,
             meals: detail.meals,
             cities: detail.cities.map((city) => city.id), // Extracting only the IDs
+            destinations: detail.destinations.map(
+              (destination) => destination.id
+            ), // Extracting only the IDs
             image_url: detail.image ? detail.image : "",
           });
         });

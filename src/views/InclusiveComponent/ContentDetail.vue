@@ -4,9 +4,12 @@ import { CheckCircleIcon, ChevronRightIcon } from "@heroicons/vue/24/solid";
 import { storeToRefs } from "pinia";
 import { useCityStore } from "../../stores/city";
 import PreviewPageVue from "./PreviewPage.vue";
+import { useDestinationStore } from "../../stores/destination";
 
 const cityStore = useCityStore();
 const { cities } = storeToRefs(cityStore);
+const destinationStore = useDestinationStore();
+const { dests } = storeToRefs(destinationStore);
 
 const session = ref(1);
 const finish = ref({
@@ -20,6 +23,13 @@ const props = defineProps({
 
 const hasData = (data) => {
   if (data.title != "" && data.cities.length > 0 && data.summary != "") {
+    return true;
+  }
+  return false;
+};
+
+const hasDestination = (destination) => {
+  if (destination.length > 0) {
     return true;
   }
   return false;
@@ -69,8 +79,10 @@ const addDetails = () => {
       image: null,
       image_url: "",
       summary: "",
+      summary_mm: "",
       meals: "",
       cities: [],
+      destinations: [],
     });
   }
 };
@@ -94,8 +106,10 @@ const addNewDetails = () => {
         image: null,
         image_url: "",
         summary: "",
+        summary_mm: "",
         meals: "",
         cities: [],
+        destinations: [],
       });
     }
   } else {
@@ -127,6 +141,7 @@ onMounted(async () => {
     setupDetailsWatcher();
   });
   await cityStore.getSimpleListAction();
+  await destinationStore.getSimpleListAction();
 });
 </script>
 <template>
@@ -210,11 +225,34 @@ onMounted(async () => {
           ></textarea>
         </div>
         <div v-if="i.day_name == openDayDetail" class="space-y-2">
+          <label for="" class="text-[12px] text-gray-500">Summary (mm) *</label>
+          <textarea
+            v-model="i.summary_mm"
+            class="border border-gray-200 w-full h-[100px] px-2 py-2 rounded-lg text-xs focus:outline-none"
+          ></textarea>
+        </div>
+        <div v-if="i.day_name == openDayDetail" class="space-y-2">
           <label for="" class="text-[12px] text-gray-500">Meals </label>
           <textarea
             v-model="i.meals"
             class="border border-gray-200 w-full h-[100px] px-2 py-2 rounded-lg text-xs focus:outline-none"
           ></textarea>
+        </div>
+        <div v-if="i.day_name == openDayDetail" class="space-y-2 pb-2">
+          <label for="" class="text-[12px] text-gray-500"
+            >Destination List *</label
+          >
+          <v-select
+            v-model="i.destinations"
+            v-if="dests?.data"
+            class="style-chooser"
+            :options="dests?.data ?? []"
+            label="name"
+            multiple
+            :clearable="false"
+            :reduce="(c) => c.id"
+            placeholder="..."
+          ></v-select>
         </div>
         <div v-if="i.day_name == openDayDetail" class="space-y-2">
           <label for="" class="text-[12px] text-gray-500">Upload Image</label>
@@ -249,19 +287,6 @@ onMounted(async () => {
               ></i
             ></span>
           </div>
-        </div>
-        <div
-          v-if="i.day_name == openDayDetail"
-          class="space-y-2 col-span-2 pb-2"
-        >
-          <label for="" class="text-[12px] text-gray-500"
-            >Destination List *</label
-          >
-          <input
-            type="text"
-            disabled
-            class="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none text-xs w-full"
-          />
         </div>
       </div>
     </div>

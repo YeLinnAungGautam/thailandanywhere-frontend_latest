@@ -171,10 +171,18 @@ const onSubmitHandler = async () => {
         `details[${i}][summary]`,
         formData.value.details[i].summary
       );
+      frmData2.append(
+        `details[${i}][summary_mm]`,
+        formData.value.details[i].summary_mm
+      );
       frmData2.append(`details[${i}][meals]`, formData.value.details[i].meals);
       frmData2.append(
         `details[${i}][cities]`,
         formData.value.details[i].cities
+      );
+      frmData2.append(
+        `details[${i}][destinations]`,
+        formData.value.details[i].destinations
       );
       if (formData.value.details[i].image) {
         frmData2.append(

@@ -75,7 +75,7 @@ const partOfshowFunction = async (data) => {
   if (partOfshow.value != 1) {
     expenseStatus.value = "not_paid";
     customerPaymentStatus.value = "fully_paid"; //
-
+    customer_name.value = "service_date";
     partOfshow.value = data;
   } else {
     partOfshow.value = 0;
@@ -86,7 +86,7 @@ const partOfshowFunction2 = async (data) => {
   if (partOfshow.value != 2) {
     expenseStatus.value = "not_paid";
     customerPaymentStatus.value = "partially_paid"; //
-
+    customer_name.value = "service_date";
     partOfshow.value = data;
   } else {
     partOfshow.value = 0;
@@ -97,6 +97,7 @@ const partOfshowFunction3 = (data) => {
   if (partOfshow.value != 3) {
     expenseStatus.value = "";
     customerPaymentStatus.value = "not_paid"; //
+    customer_name.value = "service_date";
     partOfshow.value = data;
   } else {
     partOfshow.value = 0;
@@ -424,8 +425,13 @@ const watchSystem = computed(() => {
   if (userFilter.value != undefined) {
     result.user_id = userFilter.value;
   }
+  if (customer_name.value != "" && customer_name.value != null) {
+    result.order_by = customer_name.value;
+  } else {
+    result.order_by = "";
+  }
 
-  result.order_direction = "desc";
+  result.order_direction = "asc";
 
   console.log(result);
   return result;
@@ -681,18 +687,8 @@ watch(search, async (newValue) => {
             placeholder="Search CRM ID"
           />
         </div>
-        <div
-          @click="empty_unit_cost = !empty_unit_cost"
-          :class="
-            empty_unit_cost == true
-              ? 'bg-[#FF5B00] text-white'
-              : 'text-gray-500'
-          "
-          class="border border-gray-300 text-sm rounded-md px-4 py-2"
-        >
-          <p>empty unit cost</p>
-        </div>
-        <div>
+
+        <div class="flex justify-end items-center gap-2">
           <p class="inline-block mr-2 text-sm font-medium text-gray-500">
             Show
           </p>
@@ -708,7 +704,7 @@ watch(search, async (newValue) => {
           </select>
         </div>
 
-        <div v-if="!dateOnlyToggle" class="col-span-8">
+        <!-- <div v-if="!dateOnlyToggle" class="col-span-8">
           <div class="flex w-full text-xs pt-4 justify-end items-center gap-4">
             <p
               @click="changeServiceDate('today')"
@@ -757,7 +753,7 @@ watch(search, async (newValue) => {
               >Next 30 Days
             </p>
           </div>
-        </div>
+        </div> -->
       </div>
       <div class="space-y-2">
         <div class="">

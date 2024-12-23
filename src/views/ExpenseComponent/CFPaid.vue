@@ -149,7 +149,7 @@ const copyReservation = async (id) => {
   <div>
     <div
       class="relative group space-y-2"
-      v-for="d in softList(reservations?.data)"
+      v-for="d in reservations?.data"
       :key="d.id"
     >
       <div
@@ -157,9 +157,11 @@ const copyReservation = async (id) => {
         class="grid w-auto grid-cols-10 col-span-8 bg-white rounded-xl mb-3 shadow-sm bg-opacity-30"
       >
         <div
-          class="p-3 mt-2 text-sm font-semibold flex justify-center items-center text-gray-700 whitespace-nowrap"
+          class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 whitespace-nowrap"
         >
-          {{ d.crm_id }}
+          <p class="bg-[#FF613c] text-white px-1.5 py-1 rounded-lg">
+            {{ d.crm_id }}
+          </p>
         </div>
         <div
           class="p-3 mt-2 text-sm font-semibold flex justify-center items-center text-gray-700 whitespace-nowrap overflow-hidden"
@@ -289,9 +291,11 @@ const copyReservation = async (id) => {
         class="grid w-auto grid-cols-10 col-span-8 bg-white rounded-xl mb-3 shadow-sm bg-opacity-30"
       >
         <div
-          class="p-3 mt-2 text-sm font-semibold flex justify-center items-center text-gray-700 whitespace-nowrap"
+          class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 whitespace-nowrap"
         >
-          {{ d.crm_id }}
+          <p class="bg-[#FF613c] text-white px-1.5 py-1 rounded-lg">
+            {{ d.crm_id }}
+          </p>
         </div>
         <div
           class="p-3 mt-2 text-sm font-semibold flex justify-center items-center text-gray-700 whitespace-nowrap overflow-hidden"

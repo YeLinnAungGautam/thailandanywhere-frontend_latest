@@ -96,7 +96,7 @@
                 </button>
                 <!-- </router-link> -->
                 <button
-                  v-if="authStore.isSuperAdmin"
+                  v-if="authStore.isSuperAdmin || authStore.isReservation"
                   @click.prevent="onDeleteHandler(r.id)"
                   class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
                 >

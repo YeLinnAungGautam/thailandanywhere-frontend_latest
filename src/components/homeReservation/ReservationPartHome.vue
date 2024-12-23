@@ -43,6 +43,20 @@ const agent_id = ref("");
 const changeServiceDate = (data) => {
   console.log(data);
   changeDate.value = data;
+  if (data == "today&90day") {
+    let today = new Date();
+    let startDate = formatDate(today);
+
+    // Add 90 days to the current date
+    let endDate = new Date();
+    endDate.setDate(today.getDate() + 90);
+
+    endDate = formatDate(endDate);
+
+    console.log(`${startDate},${endDate}`);
+    dateFilterRange.value = `${startDate},${endDate}`;
+    dateRange.value = "";
+  }
   if (data == "today") {
     let startDate = formatDate(new Date());
     let endDate = formatDate(new Date());
@@ -76,6 +90,29 @@ const changeServiceDate = (data) => {
   }
 };
 
+const partOfReservation = ref("");
+const partOfAssign = ref("");
+
+const openUnassigned = () => {
+  if (partOfReservation.value != "unassigned") {
+    partOfReservation.value = "unassigned";
+    getWithDate(dateFilterRange.value);
+  } else {
+    partOfReservation.value = "";
+    getWithDate(dateFilterRange.value);
+  }
+};
+
+const openElse = () => {
+  if (partOfAssign.value != "open") {
+    partOfAssign.value = "open";
+    getWithDate(dateFilterRange.value);
+  } else {
+    partOfAssign.value = "";
+    getWithDate(dateFilterRange.value);
+  }
+};
+
 const getWithDate = async (date) => {
   console.log(date, "this is date data for function");
   let first;
@@ -97,6 +134,9 @@ const getWithDate = async (date) => {
     data.agent_id = agent_id.value;
   } else {
     data.agent_id = user.value.id;
+  }
+  if (partOfReservation.value != "") {
+    data.supplier_id = partOfReservation.value;
   }
   console.log(data, "this is data from car booking");
   const res = await carBookingStore.getListAction(data);
@@ -190,6 +230,19 @@ onMounted(async () => {
       <p class="text-lg font-semibold tracking-wider mr-4">Filter:</p>
       <div class="flex justify-start items-center gap-3">
         <div class="flex w-full text-xs justify-end items-center gap-4">
+          <p
+            @click="changeServiceDate('today&90day')"
+            class="flex gap-2 justify-start items-center cursor-pointer whitespace-nowrap"
+            :class="
+              changeDate == 'today&90day' ? ' text-[#FF5B00]' : 'text-black'
+            "
+          >
+            <span
+              class="w-2 h-2 rounded-full bg-[#FF5B00]"
+              v-if="changeDate == 'today&90day'"
+            ></span
+            >Today & Next 90 Days
+          </p>
           <p
             @click="changeServiceDate('today')"
             class="flex gap-2 justify-start items-center cursor-pointer"
@@ -304,6 +357,12 @@ onMounted(async () => {
           @change="changeFunction"
         />
       </div>
+
+      <!-- part of unasign -->
+      <div class="">
+        <p></p>
+      </div>
+
       <!-- pagination -->
       <div class="pt-4">
         <Pagination

@@ -184,6 +184,7 @@ const onSubmitHandler = async () => {
         `details[${i}][destinations]`,
         formData.value.details[i].destinations
       );
+
       if (formData.value.details[i].image) {
         frmData2.append(
           `details[${i}][image]`,

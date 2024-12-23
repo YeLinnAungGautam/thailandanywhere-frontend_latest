@@ -267,9 +267,9 @@ const getDetail = async () => {
             summary_mm: detail.summary_mm,
             meals: detail.meals,
             cities: detail.cities.map((city) => city.id), // Extracting only the IDs
-            destinations: detail.destinations.map(
-              (destination) => destination.id
-            ), // Extracting only the IDs
+            destinations: detail.destinations
+              ? detail.destinations?.map((destination) => destination.id)
+              : "", // Extracting only the IDs
             image_url: detail.image ? detail.image : "",
           });
         });

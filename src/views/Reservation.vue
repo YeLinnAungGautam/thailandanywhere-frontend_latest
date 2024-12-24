@@ -337,6 +337,29 @@ const setStartAndEndDate = () => {
   dateRange.value = [startOfMonth, endOfMonth];
 };
 
+const adminLists = ref([]);
+
+const getListUser = async () => {
+  try {
+    const res = await await adminStore.getSimpleListAction();
+    console.log(res, "this is admin list");
+
+    adminLists.value = res.result.data
+      .filter((item) => item.role === "admin")
+      .map((item) => {
+        // Return desired structure or transformation here
+        return {
+          id: item.id,
+          name: item.name,
+        };
+      });
+  } catch (error) {
+    console.log("====================================");
+    console.log(error);
+    console.log("====================================");
+  }
+};
+
 onMounted(async () => {
   console.log(entrances.value, "this is hotel list");
   searchId.value = route.params.crm_id == "%" ? "" : route.params.crm_id;
@@ -357,6 +380,8 @@ onMounted(async () => {
   // const startDate = new Date();
   // const endDate = new Date(new Date().setDate(startDate.getDate() + 7));
   // dateRange.value = [startDate, endDate];
+
+  await getListUser();
 });
 
 const watchSystem = computed(() => {
@@ -872,19 +897,18 @@ const changeServiceDate = (data) => {
 
       <div class="grid grid-cols-5 gap-2 mb-5 flex-wrap">
         <div class="" v-if="authStore.isSuperAdmin || authStore.isReservation">
-          <div
+          <!-- <div
             v-if="(!admin?.data || admin?.data.length > 10) && !adminAction"
             @click="adminAction = true"
             class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
           >
             <p>select user</p>
             <ArrowDownTrayIcon class="w-4 h-4" />
-          </div>
+          </div> -->
           <select
             name=""
             id=""
             v-model="userFilter"
-            v-if="admin && adminAction"
             class="px-2 py-1 focus:border-gray-300 border border-gray-300 placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400 space-y-2 h-9"
           >
             <option :value="null" disabled class="bg-gray-200 text-sm">
@@ -893,7 +917,7 @@ const changeServiceDate = (data) => {
             <option value="" class="text-sm">All User</option>
             <option
               :value="key.id"
-              v-for="(key, index) in admin?.data"
+              v-for="(key, index) in adminLists"
               :key="index"
               class="text-sm"
             >

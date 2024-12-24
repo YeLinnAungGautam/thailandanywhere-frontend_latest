@@ -5,6 +5,7 @@ import {
   HomeModernIcon,
   TicketIcon,
   PaperAirplaneIcon,
+  ChevronDownIcon,
 } from "@heroicons/vue/24/outline";
 import VantourTable from "./VantourTable.vue";
 import { useCarBookingStore } from "../../stores/carbooking";
@@ -12,7 +13,7 @@ import { useHomeStore } from "../../stores/home";
 import { storeToRefs } from "pinia";
 import { onMounted, ref, watch } from "vue";
 import { useAuthStore } from "../../stores/auth";
-import Pagination from "../Pagination.vue";
+import Pagination from "../PaginationExpense.vue";
 import HotelPartReservation from "./HotelPartReservation.vue";
 import AttractionPartHome from "./AttractionPartHome.vue";
 
@@ -96,9 +97,11 @@ const partOfAssign = ref("");
 const openUnassigned = () => {
   if (partOfReservation.value != "unassigned") {
     partOfReservation.value = "unassigned";
+    partOfAssign.value = "";
     getWithDate(dateFilterRange.value);
   } else {
     partOfReservation.value = "";
+    partOfAssign.value = "";
     getWithDate(dateFilterRange.value);
   }
 };
@@ -106,9 +109,11 @@ const openUnassigned = () => {
 const openElse = () => {
   if (partOfAssign.value != "open") {
     partOfAssign.value = "open";
+    partOfReservation.value = "";
     getWithDate(dateFilterRange.value);
   } else {
     partOfAssign.value = "";
+    partOfReservation.value = "";
     getWithDate(dateFilterRange.value);
   }
 };
@@ -128,7 +133,6 @@ const getWithDate = async (date) => {
   let data = {
     first: first,
     second: second,
-    supplier_id: "",
   };
   if (user.value.role == "reservation" || user.value.role == "super_admin") {
     data.agent_id = agent_id.value;
@@ -336,7 +340,31 @@ onMounted(async () => {
 
     <!-- table for reservation -->
     <div class="space-y-1" v-if="part == 'vantour'">
-      <div class="w-full bg-gray-50 flex rounded-md pl-2 items-center">
+      <!-- part of unasign -->
+      <div
+        :class="
+          partOfReservation != '' ? 'bg-[#FF5B00] text-white' : 'bg-white'
+        "
+        class="rounded-lg px-4 py-5 flex justify-between items-center gap-2 cursor-pointer"
+      >
+        <div
+          class="flex justify-start items-center gap-2 cursor-pointer"
+          @click="openUnassigned"
+        >
+          <TruckIcon class="w-5 h-5" />
+          <p class="text-sm">unassigned</p>
+          <ChevronDownIcon class="w-5 h-5" />
+        </div>
+        <Pagination
+          v-if="!loading & (partOfReservation != '')"
+          :data="carbookings"
+          @change-page="changePage"
+        />
+      </div>
+      <div
+        class="w-full bg-gray-50 flex rounded-md pl-2 items-center"
+        v-if="partOfReservation != ''"
+      >
         <p class="w-[10%] text-[10px] font-semibold py-2 px-2">Resev ID</p>
         <p class="w-[10%] text-[10px] font-semibold py-2 px-2">Serv Date</p>
         <p class="w-[10%] text-[10px] font-semibold py-2 px-2">Customer</p>
@@ -349,28 +377,73 @@ onMounted(async () => {
         <p class="w-[10%] text-[10px] font-semibold py-2 px-2">complete?</p>
         <p class="w-[12%] text-[10px] font-semibold py-2 px-2"></p>
       </div>
-      <div v-for="(l, index) in carbookings?.data" :key="index">
-        <VantourTable
-          :data="l"
-          :loading="loading"
-          :pag="carbookings"
-          @change="changeFunction"
+      <div class="space-y-1" v-if="partOfReservation != ''">
+        <div v-for="(l, index) in carbookings?.data" :key="index">
+          <VantourTable
+            :data="l"
+            :loading="loading"
+            :pag="carbookings"
+            @change="changeFunction"
+          />
+        </div>
+      </div>
+      <div
+        :class="partOfAssign != '' ? 'bg-[#FF5B00] text-white' : 'bg-white'"
+        class="rounded-lg px-4 py-5 flex justify-between items-center gap-2"
+      >
+        <div
+          class="flex justify-start items-center gap-2 cursor-pointer"
+          @click="openElse"
+        >
+          <TruckIcon class="w-5 h-5" />
+          <p class="text-sm">assigned & everying else</p>
+          <ChevronDownIcon class="w-5 h-5" />
+        </div>
+
+        <Pagination
+          v-if="!loading & (partOfAssign != '')"
+          :data="carbookings"
+          @change-page="changePage"
         />
       </div>
+      <div class="space-y-1" v-if="partOfAssign != ''">
+        <div class="w-full bg-gray-50 flex rounded-md pl-2 items-center">
+          <p class="w-[10%] text-[10px] font-semibold py-2 px-2">Resev ID</p>
+          <p class="w-[10%] text-[10px] font-semibold py-2 px-2">Serv Date</p>
+          <p class="w-[10%] text-[10px] font-semibold py-2 px-2">Customer</p>
+          <p class="w-[20%] text-[10px] font-semibold py-2 px-2">
+            Product Name
+          </p>
+          <p class="w-[10%] text-[10px] font-semibold py-2 px-2">Variation</p>
+          <p class="w-[15%] text-[10px] font-semibold py-2 px-2">
+            Dri_Collect?
+          </p>
+          <p class="w-[10%] text-[10px] font-semibold py-2 px-2">Assign</p>
 
-      <!-- part of unasign -->
-      <div class="">
-        <p></p>
+          <p class="w-[10%] text-[10px] font-semibold py-2 px-2">
+            Total Collect
+          </p>
+          <p class="w-[10%] text-[10px] font-semibold py-2 px-2">complete?</p>
+          <p class="w-[12%] text-[10px] font-semibold py-2 px-2"></p>
+        </div>
+        <div v-for="(l, index) in carbookings?.data" :key="index">
+          <VantourTable
+            :data="l"
+            :loading="loading"
+            :pag="carbookings"
+            @change="changeFunction"
+          />
+        </div>
       </div>
 
       <!-- pagination -->
-      <div class="pt-4">
+      <!-- <div class="pt-4">
         <Pagination
           v-if="!loading"
           :data="carbookings"
           @change-page="changePage"
         />
-      </div>
+      </div> -->
     </div>
     <div v-if="part == 'hotel'">
       <HotelPartReservation :date="dateFilterRange" :searchId="searchId" />

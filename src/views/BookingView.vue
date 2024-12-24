@@ -181,6 +181,29 @@ const agentSearchAction = async () => {
   await adminStore.getSimpleListAction();
 };
 
+const adminLists = ref([]);
+
+const getListUser = async () => {
+  try {
+    const res = await await adminStore.getSimpleListAction();
+    console.log(res, "this is admin list");
+
+    adminLists.value = res.result.data
+      .filter((item) => item.role === "admin")
+      .map((item) => {
+        // Return desired structure or transformation here
+        return {
+          id: item.id,
+          name: item.name,
+        };
+      });
+  } catch (error) {
+    console.log("====================================");
+    console.log(error);
+    console.log("====================================");
+  }
+};
+
 onMounted(async () => {
   await bookingStore.getListAction(watchSystem.value);
   (sale_date_order_by.value = "desc"),
@@ -191,6 +214,8 @@ onMounted(async () => {
   saleDate.value = route.params.sale_date == "%" ? "" : route.params.sale_date;
 
   console.log(admin.value, "this is admin");
+
+  await getListUser();
 });
 
 const formatDate = (datePut) => {
@@ -338,7 +363,7 @@ watch(
       <div class="mb-5">
         <div class="grid grid-cols-4 gap-2">
           <div v-if="authStore.isSuperAdmin">
-            <div
+            <!-- <div
               v-if="
                 (!admin?.data || admin?.data.length > 10) && !showAgentSearch
               "
@@ -347,12 +372,12 @@ watch(
             >
               <p>select agent</p>
               <ArrowDownTrayIcon class="w-4 h-4" />
-            </div>
-            <div v-if="admin?.data.length > 10 && showAgentSearch">
+            </div> -->
+            <div>
               <v-select
                 v-model="createdBy"
                 class="style-chooser placeholder-sm bg-white rounded-lg w-full text-gray-400"
-                :options="admin?.data"
+                :options="adminLists"
                 label="name"
                 :clearable="false"
                 :reduce="(d) => d.id"

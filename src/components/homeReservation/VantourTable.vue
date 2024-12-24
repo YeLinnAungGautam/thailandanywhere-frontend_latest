@@ -419,7 +419,7 @@ onMounted(async () => {
       </div>
 
       <div
-        class="w-[10%] text-[10px] py-2 px-2 flex justify-end items-center gap-4"
+        class="w-[150px] text-[10px] py-2 px-2 flex justify-end items-center gap-4"
       >
         <DocumentDuplicateIcon
           @click="carOrderCopyFunction"

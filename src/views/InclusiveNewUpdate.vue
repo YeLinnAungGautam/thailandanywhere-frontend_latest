@@ -400,8 +400,7 @@ const getDetail = async () => {
     }
 
     console.log(formData.value.items, "this is push");
-    console.log(formData.value.receipt_images, "this is image");
-    console.log(formData.value.sku_code, "this is sku code");
+    formData.value.items.sort((a, b) => a.day - b.day);
   } catch (error) {
     console.log(error);
   }
@@ -421,6 +420,7 @@ onMounted(async () => {
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
         :class="session == 1 ? '' : 'opacity-40'"
+        @click="session = 1"
       >
         <CheckCircleIcon
           class="text-green-500 w-6 h-6"
@@ -438,6 +438,7 @@ onMounted(async () => {
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
         :class="session == 2 ? '' : 'opacity-40'"
+        @click="session = 2"
       >
         <CheckCircleIcon
           class="text-green-500 w-6 h-6"
@@ -455,6 +456,7 @@ onMounted(async () => {
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
         :class="session == 3 ? '' : 'opacity-40'"
+        @click="session = 3"
       >
         <CheckCircleIcon
           class="text-green-500 w-6 h-6"
@@ -472,6 +474,7 @@ onMounted(async () => {
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
         :class="session == 4 ? '' : 'opacity-40'"
+        @click="session = 4"
       >
         <CheckCircleIcon
           class="text-green-500 w-6 h-6"
@@ -492,12 +495,12 @@ onMounted(async () => {
       <div class="flex justify-between items-center">
         <p class="text-base">General Details</p>
         <div class="flex gap-x-2 justify-end items-center">
-          <!-- <p
-            @click="saveSession1()"
+          <p
+            @click="onSubmitHandler"
             class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
           >
             Save
-          </p> -->
+          </p>
           <p
             @click="session = 2"
             class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
@@ -520,12 +523,12 @@ onMounted(async () => {
           >
             Back
           </p>
-          <!-- <p
-            @click="finish.session2 = true"
+          <p
+            @click="onSubmitHandler"
             class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
           >
             Save
-          </p> -->
+          </p>
           <p
             @click="session = 3"
             class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
@@ -548,12 +551,12 @@ onMounted(async () => {
           >
             Back
           </p>
-          <!-- <p
-            @click="finish.session3 = true"
+          <p
+            @click="onSubmitHandler"
             class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
           >
             Save
-          </p> -->
+          </p>
           <p
             @click="session = 4"
             class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"

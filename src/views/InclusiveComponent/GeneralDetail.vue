@@ -3,6 +3,8 @@ import { PlusIcon } from "@heroicons/vue/24/outline";
 import { defineProps, computed, watch } from "vue";
 import { ref } from "@vue/reactivity";
 import { MinusIcon } from "@heroicons/vue/24/solid";
+import { QuillEditor } from "@vueup/vue-quill";
+import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
 const props = defineProps({
   formData: Object,
@@ -18,6 +20,9 @@ watch(
     props.formData.day = newVal * 1 + 1;
   }
 );
+const editorOptions = {
+  placeholder: "Write an awesome description here ...",
+};
 
 const price_range_item = ref({
   from: "",
@@ -95,6 +100,18 @@ const removePriceRange = (index) => {
             type="number"
             v-model="formData.agent_price"
             class="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none text-xs w-full"
+          />
+        </div>
+        <div class="space-y-2 col-span-2">
+          <label for="" class="text-[12px] text-gray-500">Description *</label>
+          <QuillEditor
+            ref="textEditor"
+            :options="editorOptions"
+            theme="snow"
+            class="!bg-white/50 !border-1 !border-gray-200 !rounded-bl-md !rounded-br-md !shadow-sm !text-sm !text-gray-900 !h-[200px]"
+            toolbar="essential"
+            contentType="html"
+            v-model:content="formData.description"
           />
         </div>
         <div class="col-span-2 flex justify-start items-center gap-x-4 w-full">

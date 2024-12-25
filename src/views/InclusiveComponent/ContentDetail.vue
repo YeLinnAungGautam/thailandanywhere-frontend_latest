@@ -5,6 +5,8 @@ import { storeToRefs } from "pinia";
 import { useCityStore } from "../../stores/city";
 import PreviewPageVue from "./PreviewPage.vue";
 import { useDestinationStore } from "../../stores/destination";
+import { QuillEditor } from "@vueup/vue-quill";
+import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
 const cityStore = useCityStore();
 const { cities } = storeToRefs(cityStore);
@@ -40,6 +42,10 @@ const hasDestination = (destination) => {
 //   props.formData.details.push(detailItem.value);
 //   clearAction();
 // };
+
+const editorOptions = {
+  placeholder: "Write an awesome summary here ...",
+};
 
 const imagePreview = ref(null);
 const imageInput = ref(null);
@@ -219,24 +225,51 @@ onMounted(async () => {
           <label for="" class="text-[12px] text-gray-500"
             >Summary (eng) *</label
           >
-          <textarea
+          <!-- <textarea
             v-model="i.summary"
             class="border border-gray-200 w-full h-[100px] px-2 py-2 rounded-lg text-xs focus:outline-none"
-          ></textarea>
+          ></textarea> -->
+          <QuillEditor
+            ref="textEditor"
+            :options="editorOptions"
+            theme="snow"
+            class="!bg-white/50 !border-1 !border-gray-200 !rounded-bl-md !rounded-br-md !shadow-sm !text-sm !text-gray-900 !h-[200px]"
+            toolbar="essential"
+            contentType="html"
+            v-model:content="i.summary"
+          />
         </div>
         <div v-if="i.day_name == openDayDetail" class="space-y-2">
           <label for="" class="text-[12px] text-gray-500">Summary (mm) *</label>
-          <textarea
+          <!-- <textarea
             v-model="i.summary_mm"
             class="border border-gray-200 w-full h-[100px] px-2 py-2 rounded-lg text-xs focus:outline-none"
-          ></textarea>
+          ></textarea> -->
+          <QuillEditor
+            ref="textEditor"
+            :options="editorOptions"
+            theme="snow"
+            class="!bg-white/50 !border-1 !border-gray-200 !rounded-bl-md !rounded-br-md !shadow-sm !text-sm !text-gray-900 !h-[200px]"
+            toolbar="essential"
+            contentType="html"
+            v-model:content="i.summary_mm"
+          />
         </div>
         <div v-if="i.day_name == openDayDetail" class="space-y-2">
           <label for="" class="text-[12px] text-gray-500">Meals </label>
-          <textarea
+          <!-- <textarea
             v-model="i.meals"
             class="border border-gray-200 w-full h-[100px] px-2 py-2 rounded-lg text-xs focus:outline-none"
-          ></textarea>
+          ></textarea> -->
+          <QuillEditor
+            ref="textEditor"
+            :options="editorOptions"
+            theme="snow"
+            class="!bg-white/50 !border-1 !border-gray-200 !rounded-bl-md !rounded-br-md !shadow-sm !text-sm !text-gray-900 !h-[200px]"
+            toolbar="essential"
+            contentType="html"
+            v-model:content="i.meals"
+          />
         </div>
         <div v-if="i.day_name == openDayDetail" class="space-y-2 pb-2">
           <label for="" class="text-[12px] text-gray-500"

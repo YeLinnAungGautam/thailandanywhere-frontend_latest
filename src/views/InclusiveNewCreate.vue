@@ -235,6 +235,7 @@ const onSubmitHandler = async () => {
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
         :class="session == 1 ? '' : 'opacity-40'"
+        @click="session = 1"
       >
         <CheckCircleIcon
           class="text-green-500 w-6 h-6"
@@ -252,6 +253,7 @@ const onSubmitHandler = async () => {
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
         :class="session == 2 ? '' : 'opacity-40'"
+        @click="session = 2"
       >
         <CheckCircleIcon
           class="text-green-500 w-6 h-6"
@@ -269,6 +271,7 @@ const onSubmitHandler = async () => {
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
         :class="session == 3 ? '' : 'opacity-40'"
+        @click="session = 3"
       >
         <CheckCircleIcon
           class="text-green-500 w-6 h-6"
@@ -286,6 +289,7 @@ const onSubmitHandler = async () => {
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
         :class="session == 4 ? '' : 'opacity-40'"
+        @click="session = 4"
       >
         <CheckCircleIcon
           class="text-green-500 w-6 h-6"

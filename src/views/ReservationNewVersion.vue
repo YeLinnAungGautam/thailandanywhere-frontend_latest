@@ -2,9 +2,11 @@
 import Layout from "./Layout.vue";
 import Input from "../components/Input.vue";
 import InputField from "../components/InputField.vue";
-import Pagination from "../components/Pagination.vue";
+import Pagination from "../components/PaginationExpense.vue";
 import debounce from "lodash/debounce";
 import PrivateVanTourList from "./ReservationComponent/PrivateVanTourList.vue";
+import TableHeaderVue from "./ReservationComponent/TableHeader.vue";
+import ReservationTableListVue from "./ReservationComponent/ReservationTableList.vue";
 
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
@@ -86,16 +88,6 @@ const searchId = ref("");
 const seen = ref(true);
 const seenClick = () => {
   seen.value = !seen.value;
-};
-
-const limitedText = (text) => {
-  if (text != "") {
-    if (text?.length <= 10) {
-      return text;
-    } else {
-      return text?.slice(0, 10);
-    }
-  }
 };
 
 const searchValue = (val) => {
@@ -203,6 +195,8 @@ const searchFunction = () => {
       service_date: searchTime.value ? searchTime.value : "%",
     },
   });
+
+  EverythingElse.value = true;
 };
 
 const openExport = (date) => {
@@ -365,6 +359,69 @@ const getListUser = async () => {
   }
 };
 
+// this is for reservation new versions of the lists
+
+const partOfEFullAndBookNC = ref(false);
+const partOfEFullAndBookWait = ref(false);
+const EverythingElse = ref(false);
+
+const reservationFilterList = ref([]);
+
+const partOfEFullAndBookNCAction = async () => {
+  partOfEFullAndBookNC.value = !partOfEFullAndBookNC.value;
+
+  partOfEFullAndBookWait.value = false;
+  EverythingElse.value = false;
+
+  if (partOfEFullAndBookNC.value == true) {
+    // fully_paid
+    expenseStatus.value = "fully_paid";
+    searchReservation.value = "awaiting";
+
+    await searchHandler();
+  }
+
+  if (partOfEFullAndBookNC.value == false) {
+    expenseStatus.value = "";
+    searchReservation.value = "";
+  }
+};
+
+const partOfEFullAndBookWaitAction = async () => {
+  partOfEFullAndBookWait.value = !partOfEFullAndBookWait.value;
+
+  partOfEFullAndBookNC.value = false;
+  EverythingElse.value = false;
+
+  if (partOfEFullAndBookWait.value == true) {
+    // fully_paid
+    expenseStatus.value = "fully_paid";
+    // awaiting
+    searchReservation.value = "";
+
+    await searchHandler();
+  }
+
+  if (partOfEFullAndBookWait.value == false) {
+    expenseStatus.value = "";
+    searchReservation.value = "";
+  }
+};
+
+const EverythingElseAction = async () => {
+  EverythingElse.value = !EverythingElse.value;
+  partOfEFullAndBookNC.value = false;
+  partOfEFullAndBookWait.value = false;
+
+  expenseStatus.value = "";
+  // awaiting
+  searchReservation.value = "";
+
+  await searchHandler();
+};
+
+// this is end for reservation new versions of the lists
+
 onMounted(async () => {
   console.log(entrances.value, "this is hotel list");
   searchId.value = route.params.crm_id == "%" ? "" : route.params.crm_id;
@@ -381,6 +438,18 @@ onMounted(async () => {
   setStartAndEndDate();
 
   await getListUser();
+});
+
+watch(reservations, (newValue) => {
+  if (newValue) {
+    if (partOfEFullAndBookWait.value) {
+      reservationFilterList.value = newValue.data.filter(
+        (item) => item.paid_slip.length === 0
+      );
+    } else {
+      reservationFilterList.value = newValue.data;
+    }
+  }
 });
 
 const watchSystem = computed(() => {
@@ -594,28 +663,6 @@ const copyReservation = async (id) => {
   toast.success("success copy reservation");
 };
 
-// watch(
-//   [
-//     hotel_name,
-//     attraction_name,
-//     oldCrmId,
-//     bookingStatus,
-//     expenseStatus,
-//     customerPaymentStatus,
-//     limit,
-//     searchA,
-//     userFilter,
-//     searchReservation,
-
-//     sorting,
-//   ],
-//   async (newValue) => {
-//     showFilter.value = true;
-//     searchFunction();
-//     // await reservationStore.getListAction(watchSystem.value);
-//   }
-// );
-
 watch(
   searchId,
   debounce(async (newValue) => {
@@ -625,20 +672,6 @@ watch(
     }
   }, 500)
 );
-
-// watch(
-//   [searchTime, empty_unit_cost, booking_date, customer_name, sorting],
-//   async () => {
-//     showFilter.value = true;
-//     searchFunction();
-//     await reservationStore.getListAction(watchSystem.value);
-//   }
-// );
-// watch(customer_name, async () => {
-//   showFilter.value = true;
-//   searchFunction();
-//   await reservationStore.getListAction(watchSystem.value);
-// });
 watch(dateRange, async (newValue) => {
   showFilter.value = true;
   console.log(dateRange.value, "this is date");
@@ -811,16 +844,6 @@ const changeServiceDate = (data) => {
           >
             Entrance Ticket
           </p>
-
-          <p
-            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
-            @click="searchValue('App\\Models\\Airline')"
-            :class="
-              search == 'App\\Models\\Airline' ? 'bg-[#ff613c] text-white' : ''
-            "
-          >
-            Airline
-          </p>
         </div>
         <div class="flex justify-end items-center gap-2">
           <div
@@ -933,7 +956,7 @@ const changeServiceDate = (data) => {
           />
         </div>
 
-        <div>
+        <!-- <div>
           <v-select
             class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
             v-model="sorting"
@@ -943,9 +966,16 @@ const changeServiceDate = (data) => {
             :reduce="(d) => d.value"
             placeholder="sorting ..."
           ></v-select>
-        </div>
+        </div> -->
 
-        <div>
+        <div
+          class="flex justify-end items-center gap-2"
+          :class="
+            authStore.isSuperAdmin || authStore.isReservation
+              ? 'col-span-1'
+              : 'col-span-2'
+          "
+        >
           <p class="inline-block mr-2 text-sm font-medium text-gray-500">
             Show
           </p>
@@ -959,9 +989,6 @@ const changeServiceDate = (data) => {
             <option value="40">40</option>
             <option value="50">50</option>
           </select>
-          <p class="inline-block ml-2 text-sm font-medium text-gray-500">
-            entries
-          </p>
         </div>
         <div
           @click="empty_unit_cost = !empty_unit_cost"
@@ -974,7 +1001,7 @@ const changeServiceDate = (data) => {
         >
           <p>empty unit cost</p>
         </div>
-        <div v-if="!dateOnlyToggle" class="col-span-3">
+        <div v-if="!dateOnlyToggle" class="col-span-4">
           <div class="flex w-full text-xs pt-4 justify-end items-center gap-4">
             <p
               @click="changeServiceDate('today')"
@@ -1026,430 +1053,137 @@ const changeServiceDate = (data) => {
         </div>
       </div>
       <div
-        class="w-full mb-5 overflow-scroll bg-white rounded-lg shadow"
+        class="w-full mb-5 overflow-scroll space-y-4 bg-white rounded-lg"
         v-if="
           search == 'App\\Models\\Hotel' ||
           search == 'App\\Models\\EntranceTicket'
         "
       >
-        <div class="grid grid-cols-10 gap-2 py-2">
+        <div>
           <div
-            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
+            class="flex justify-between items-center px-4 cursor-pointer py-5 rounded-lg"
+            :class="
+              partOfEFullAndBookNC
+                ? 'bg-[#FF5B00] text-white'
+                : 'border border-gray-300'
+            "
           >
-            Crm ID
-            <div>
-              <span
-                ><ChevronUpIcon
-                  class="w-4 cursor-pointer"
-                  :class="
-                    customer_name == 'crm_id' && sorting == 'asc'
-                      ? 'text-gray-900'
-                      : 'text-gray-500'
-                  "
-                  @click="upFunction(`crm_id`)"
-                />
-              </span>
-              <span>
-                <ChevronDownIcon
-                  class="w-4 cursor-pointer"
-                  :class="
-                    customer_name == 'crm_id' && sorting == 'desc'
-                      ? 'text-gray-900'
-                      : 'text-gray-500'
-                  "
-                  @click="downFunction(`crm_id`)"
-                />
-              </span>
+            <div
+              @click="partOfEFullAndBookNCAction"
+              class="flex items-center gap-2"
+            >
+              <ChevronDownIcon class="w-5 h-5" />
+              <p class="text-sm">Expense Fully Paid & Booking Not Confirmed</p>
             </div>
+            <Pagination
+              v-if="partOfEFullAndBookNC"
+              :data="reservations"
+              @change-page="changePage"
+            />
           </div>
-          <div
-            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
-          >
-            Customer
-            <div>
-              <span
-                ><ChevronUpIcon
-                  class="w-4 cursor-pointer"
-                  :class="
-                    customer_name == 'customer_name' && sorting == 'asc'
-                      ? 'text-gray-900'
-                      : 'text-gray-500'
-                  "
-                  @click="upFunction(`customer_name`)"
-                />
-              </span>
-              <span>
-                <ChevronDownIcon
-                  class="w-4 cursor-pointer"
-                  :class="
-                    customer_name == 'customer_name' && sorting == 'desc'
-                      ? 'text-gray-900'
-                      : 'text-gray-500'
-                  "
-                  @click="downFunction(`customer_name`)"
-                />
-              </span>
-            </div>
+          <div v-if="partOfEFullAndBookNC">
+            <TableHeaderVue
+              :customer_name="customer_name"
+              :sorting="sorting"
+              :upFunction="upFunction"
+              :downFunction="downFunction"
+            />
           </div>
-          <div
-            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
-          >
-            Type
-            <div>
-              <span
-                ><ChevronUpIcon
-                  class="w-4 cursor-pointer"
-                  :class="
-                    customer_name == 'product_type' && sorting == 'asc'
-                      ? 'text-gray-900'
-                      : 'text-gray-500'
-                  "
-                  @click="upFunction(`product_type`)"
-                />
-              </span>
-              <span>
-                <ChevronDownIcon
-                  class="w-4 cursor-pointer"
-                  :class="
-                    customer_name == 'product_type' && sorting == 'desc'
-                      ? 'text-gray-900'
-                      : 'text-gray-500'
-                  "
-                  @click="downFunction(`product_type`)"
-                />
-              </span>
-            </div>
-          </div>
-          <div
-            class="flex justify-center items-center text-xs font-medium tracking-wide text-center"
-          >
-            Product Name
-          </div>
-          <div
-            class="flex justify-center items-center text-xs font-medium tracking-wide text-center"
-          >
-            Variation Name
-          </div>
-          <div
-            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
-          >
-            Pay Status
-            <div>
-              <span
-                ><ChevronUpIcon
-                  class="w-4 cursor-pointer"
-                  :class="
-                    customer_name == 'payment_status' && sorting == 'asc'
-                      ? 'text-gray-900'
-                      : 'text-gray-500'
-                  "
-                  @click="upFunction(`payment_status`)"
-                />
-              </span>
-              <span>
-                <ChevronDownIcon
-                  class="w-4 cursor-pointer"
-                  :class="
-                    customer_name == 'payment_status' && sorting == 'desc'
-                      ? 'text-gray-900'
-                      : 'text-gray-500'
-                  "
-                  @click="downFunction(`payment_status`)"
-                />
-              </span>
-            </div>
-          </div>
-          <div
-            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
-          >
-            Res Status
-            <div>
-              <span
-                ><ChevronUpIcon
-                  class="w-4 cursor-pointer"
-                  :class="
-                    customer_name == 'reservation_status' && sorting == 'asc'
-                      ? 'text-gray-900'
-                      : 'text-gray-500'
-                  "
-                  @click="upFunction(`reservation_status`)"
-                />
-              </span>
-              <span>
-                <ChevronDownIcon
-                  class="w-4 cursor-pointer"
-                  :class="
-                    customer_name == 'reservation_status' && sorting == 'desc'
-                      ? 'text-gray-900'
-                      : 'text-gray-500'
-                  "
-                  @click="downFunction(`reservation_status`)"
-                />
-              </span>
-            </div>
-          </div>
-          <div
-            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
-          >
-            Exp Status
-            <div>
-              <span
-                ><ChevronUpIcon
-                  class="w-4 cursor-pointer"
-                  :class="
-                    customer_name == 'expense_status' && sorting == 'asc'
-                      ? 'text-gray-900'
-                      : 'text-gray-500'
-                  "
-                  @click="upFunction(`expense_status`)"
-                />
-              </span>
-              <span>
-                <ChevronDownIcon
-                  class="w-4 cursor-pointer"
-                  :class="
-                    customer_name == 'expense_status' && sorting == 'desc'
-                      ? 'text-gray-900'
-                      : 'text-gray-500'
-                  "
-                  @click="downFunction(`expense_status`)"
-                />
-              </span>
-            </div>
-          </div>
-          <div
-            class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
-          >
-            Service Date
-            <div>
-              <span
-                ><ChevronUpIcon
-                  class="w-4 cursor-pointer"
-                  :class="
-                    customer_name == 'service_date' && sorting == 'asc'
-                      ? 'text-gray-900'
-                      : 'text-gray-500'
-                  "
-                  @click="upFunction(`service_date`)"
-                />
-              </span>
-              <span>
-                <ChevronDownIcon
-                  class="w-4 cursor-pointer"
-                  :class="
-                    customer_name == 'service_date' && sorting == 'desc'
-                      ? 'text-gray-900'
-                      : 'text-gray-500'
-                  "
-                  @click="downFunction(`service_date`)"
-                />
-              </span>
-            </div>
-          </div>
-          <div class="py-2 text-xs font-medium tracking-wide text-center"></div>
-        </div>
-        <div
-          v-show="!loading"
-          class="relative group"
-          v-for="d in reservations?.data"
-          :key="d.id"
-        >
-          <div
-            class="grid w-auto grid-cols-10 col-span-8 bg-white divide-y divide-gray-100"
-          >
-            <div
-              class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 whitespace-nowrap"
-            >
-              {{ d.crm_id }}
-            </div>
-            <div
-              class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 whitespace-nowrap overflow-hidden"
-            >
-              {{ d.customer_info?.name }}
-            </div>
-            <div
-              class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 whitespace-nowrap"
-            >
-              <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
-                PrivateVanTour
-              </p>
-              <p v-if="d.product_type == 'App\\Models\\GroupTour'">GroupTour</p>
-              <p v-if="d.product_type == 'App\\Models\\AirportPickup'">
-                Airpot
-              </p>
-              <p v-if="d.product_type == 'App\\Models\\EntranceTicket'">
-                Entrance
-              </p>
-              <p v-if="d.product_type == 'App\\Models\\Inclusive'">Inclusive</p>
-              <p
-                v-if="d.product_type == 'App\\Models\\Hotel'"
-                class="flex justify-center items-center gap-2"
-              >
-                Hotel
-                <!-- <InformationCircleIcon
-                  class="w-6 h-6 text-orange-500"
-                  v-if="d.paid_slip.length > 0"
-                /> -->
-              </p>
-              <p v-if="d.product_type == 'App\\Models\\Airline'">Airline</p>
-            </div>
-            <div
-              class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700"
-            >
-              <!-- {{ limitedText(d.product?.name) }} -->
-              {{ limitedText(d.product?.name) }}
-            </div>
-            <div
-              class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700"
-            >
-              <p v-if="d.car?.name">{{ limitedText(d.car?.name) }}</p>
-              <p v-if="d.variation?.name">
-                {{ limitedText(d.variation?.name) }}
-              </p>
-              <p v-if="d.room?.name">{{ limitedText(d.room?.name) }}</p>
-              <p v-if="d.ticket?.price">{{ limitedText(d.ticket?.price) }}</p>
-            </div>
-            <div
-              class="p-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap"
-            >
-              <p
-                v-if="
-                  !d.booking?.payment_status ||
-                  d.booking?.payment_status == 'null'
-                "
-              >
-                -
-              </p>
-              <p
-                v-if="d.booking?.payment_status == 'fully_paid'"
-                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
-              >
-                {{ d.booking?.payment_status }}
-              </p>
-              <p
-                v-if="d.booking?.payment_status == 'not_paid'"
-                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
-              >
-                {{ d.booking?.payment_status }}
-              </p>
-              <p
-                v-if="d.booking?.payment_status == 'partially_paid'"
-                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
-              >
-                {{ d.booking?.payment_status }}
-              </p>
-            </div>
-            <div
-              class="py-3 mt-2 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap"
-            >
-              <p v-if="!d.reservation_status">-</p>
-
-              <p
-                v-if="d.reservation_status == 'confirmed'"
-                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
-              >
-                {{ d.reservation_status }}
-              </p>
-              <p
-                v-if="d.reservation_status == 'declined'"
-                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
-              >
-                {{ d.reservation_status }}
-              </p>
-              <p
-                v-if="d.reservation_status == 'awaiting'"
-                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
-              >
-                {{ d.reservation_status }}
-              </p>
-            </div>
-            <div
-              class="py-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap z-10"
-            >
-              <p v-if="!d?.payment_status || d?.payment_status == 'null'">-</p>
-              <p
-                v-if="d?.payment_status == 'fully_paid'"
-                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
-              >
-                {{ d?.payment_status }}
-              </p>
-              <p
-                v-if="d?.payment_status == 'not_paid'"
-                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
-              >
-                {{ d?.payment_status }}
-              </p>
-              <p
-                v-if="d?.payment_status == 'partially_paid'"
-                class="inline-block px-3 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
-              >
-                {{ d?.payment_status }}
-              </p>
-            </div>
-            <div
-              class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700"
-            >
-              <p class="mr-6 whitespace-nowrap">{{ d.service_date }}</p>
-            </div>
-            <div
-              class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 space-x-2"
-            >
-              <button
-                @click="copyReservation(d.id)"
-                class="p-1 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
-              >
-                <DocumentDuplicateIcon class="w-5 h-5" />
-              </button>
-              <button
-                @click="
-                  router.push({
-                    name: 'update_bookings',
-                    params: { id: d.booking.id, action: 'edit' },
-                  })
-                "
-                class="p-1 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
-              >
-                <ClipboardDocumentListIcon class="w-5 h-5" />
-              </button>
-
-              <router-link :to="'/reservation/update/' + d.id + '/' + d.crm_id">
-                <button
-                  class="p-1 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
-                >
-                  <PencilSquareIcon class="w-5 h-5" />
-                </button>
-              </router-link>
-            </div>
+          <div v-if="partOfEFullAndBookNC">
+            <ReservationTableListVue
+              :loading="loading"
+              :reservations="reservationFilterList"
+              :copyReservation="copyReservation"
+            />
           </div>
         </div>
-        <div
-          v-if="reservations?.data.length == 0"
-          class="flex items-center justify-center py-20"
-        >
-          Data Empty ...
-        </div>
-        <div v-if="loading" class="flex items-center justify-center py-20">
+        <div>
           <div
-            class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] mr-4"
-            role="status"
+            class="flex justify-between items-center px-4 cursor-pointer py-5 rounded-lg"
+            :class="
+              partOfEFullAndBookWait
+                ? 'bg-[#FF5B00] text-white'
+                : 'border border-gray-300'
+            "
           >
-            <span
-              class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
-              >Loading...</span
+            <div
+              @click="partOfEFullAndBookWaitAction"
+              class="flex items-center gap-2"
             >
+              <ChevronDownIcon class="w-5 h-5" />
+              <p class="text-sm">Expense Fully Paid & Booked Receipt Waiting</p>
+            </div>
+            <Pagination
+              v-if="partOfEFullAndBookWait"
+              :data="reservations"
+              @change-page="changePage"
+            />
           </div>
-          Loading ...
+          <div v-if="partOfEFullAndBookWait">
+            <TableHeaderVue
+              :customer_name="customer_name"
+              :sorting="sorting"
+              :upFunction="upFunction"
+              :downFunction="downFunction"
+            />
+          </div>
+          <div v-if="partOfEFullAndBookWait">
+            <ReservationTableListVue
+              :loading="loading"
+              :reservations="reservationFilterList"
+              :copyReservation="copyReservation"
+            />
+          </div>
+        </div>
+        <div>
+          <div
+            class="flex justify-between items-center px-4 cursor-pointer py-5 rounded-lg"
+            :class="
+              EverythingElse
+                ? 'bg-[#FF5B00] text-white'
+                : 'border border-gray-300'
+            "
+          >
+            <div @click="EverythingElseAction" class="flex items-center gap-2">
+              <ChevronDownIcon class="w-5 h-5" />
+              <p class="text-sm">Everything Else</p>
+            </div>
+            <Pagination
+              v-if="EverythingElse"
+              :data="reservations"
+              @change-page="changePage"
+            />
+          </div>
+          <div v-if="EverythingElse">
+            <TableHeaderVue
+              :customer_name="customer_name"
+              :sorting="sorting"
+              :upFunction="upFunction"
+              :downFunction="downFunction"
+            />
+          </div>
+          <div v-if="EverythingElse">
+            <ReservationTableListVue
+              :loading="loading"
+              :reservations="reservationFilterList"
+              :copyReservation="copyReservation"
+            />
+          </div>
         </div>
       </div>
+
       <div v-if="search == 'App\\Models\\PrivateVanTour'">
-        <PrivateVanTourList />
+        <PrivateVanTourList :saleDate="sale_daterange" />
       </div>
 
-      <Pagination
-        v-if="!loading"
+      <!-- <Pagination
+        v-if="
+          (!loading && search == 'App\\Models\\Hotel') ||
+          search == 'App\\Models\\EntranceTicket'
+        "
         :data="reservations"
         @change-page="changePage"
-      />
+      /> -->
       <Modal :isOpen="openExcelModal" @closeModal="closeExcelModal">
         <DialogPanel
           class="w-full max-w-[500px] transform rounded-lg bg-white pt-4 text-left align-middle shadow-xl transition-all"

@@ -8,7 +8,7 @@
     class="inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[12px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
   >
     <component v-if="icon" :is="icon" class="w-4 h-4 mr-[1.2rem]"></component>
-    <p v-show="isShowSidebar">{{ name }}</p>
+    <p v-show="isShowSidebar" class="transition-all duration-150">{{ name }}</p>
     <!-- <p v-show="!isShowSidebar">.</p> -->
   </router-link>
 </template>

@@ -4,6 +4,7 @@ import Input from "../components/Input.vue";
 import InputField from "../components/InputField.vue";
 import Pagination from "../components/Pagination.vue";
 import debounce from "lodash/debounce";
+import PrivateVanTourList from "./ReservationComponent/PrivateVanTourList.vue";
 
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
@@ -195,7 +196,7 @@ const private_van_handle = () => {
 
 const searchFunction = () => {
   router.push({
-    name: `reservation`,
+    name: `reservation-new`,
     params: {
       crm_id: searchId.value ? searchId.value : "%",
       product_type: search.value ? search.value : "%",
@@ -593,27 +594,27 @@ const copyReservation = async (id) => {
   toast.success("success copy reservation");
 };
 
-watch(
-  [
-    hotel_name,
-    attraction_name,
-    oldCrmId,
-    bookingStatus,
-    expenseStatus,
-    customerPaymentStatus,
-    limit,
-    searchA,
-    userFilter,
-    searchReservation,
+// watch(
+//   [
+//     hotel_name,
+//     attraction_name,
+//     oldCrmId,
+//     bookingStatus,
+//     expenseStatus,
+//     customerPaymentStatus,
+//     limit,
+//     searchA,
+//     userFilter,
+//     searchReservation,
 
-    sorting,
-  ],
-  async (newValue) => {
-    showFilter.value = true;
-    searchFunction();
-    // await reservationStore.getListAction(watchSystem.value);
-  }
-);
+//     sorting,
+//   ],
+//   async (newValue) => {
+//     showFilter.value = true;
+//     searchFunction();
+//     // await reservationStore.getListAction(watchSystem.value);
+//   }
+// );
 
 watch(
   searchId,
@@ -625,14 +626,14 @@ watch(
   }, 500)
 );
 
-watch(
-  [searchTime, empty_unit_cost, booking_date, customer_name, sorting],
-  async () => {
-    showFilter.value = true;
-    searchFunction();
-    await reservationStore.getListAction(watchSystem.value);
-  }
-);
+// watch(
+//   [searchTime, empty_unit_cost, booking_date, customer_name, sorting],
+//   async () => {
+//     showFilter.value = true;
+//     searchFunction();
+//     await reservationStore.getListAction(watchSystem.value);
+//   }
+// );
 // watch(customer_name, async () => {
 //   showFilter.value = true;
 //   searchFunction();
@@ -751,7 +752,9 @@ const changeServiceDate = (data) => {
 <template>
   <Layout>
     <div class="flex items-center justify-between mb-5">
-      <h3 class="text-2xl font-medium text-gray-600">Reservation Lists</h3>
+      <h3 class="text-2xl font-medium text-gray-600">
+        Reservation New Version Lists
+      </h3>
       <div class="space-x-2 flex justify-end gap-1">
         <Button :leftIcon="FunnelIcon" v-if="showFilter" @click="clearFilter">
           Clear
@@ -777,13 +780,6 @@ const changeServiceDate = (data) => {
       <!-- search input sort filter -->
       <div class="flex items-center justify-between mb-5">
         <div class="flex items-center justify-start gap-2 space-x-2">
-          <!-- <p
-            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
-            @click="searchValue('')"
-            :class="search == '' ? 'bg-[#ff613c] text-white' : ''"
-          >
-            All
-          </p> -->
           <p
             class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="private_van_handle"
@@ -795,18 +791,6 @@ const changeServiceDate = (data) => {
           >
             Private Van tour
           </p>
-
-          <!-- <p
-            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
-            @click="searchValue('App\\Models\\GroupTour')"
-            :class="
-              search == 'App\\Models\\GroupTour'
-                ? 'bg-[#ff613c] text-white'
-                : ''
-            "
-          >
-            Group Tour
-          </p> -->
           <p
             class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
             @click="searchValue('App\\Models\\Hotel')"
@@ -827,17 +811,6 @@ const changeServiceDate = (data) => {
           >
             Entrance Ticket
           </p>
-          <!-- <p
-            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
-            @click="searchValue('App\\Models\\AirportPickup')"
-            :class="
-              search == 'App\\Models\\AirportPickup'
-                ? 'bg-[#ff613c] text-white'
-                : ''
-            "
-          >
-            Airport Pickup
-          </p> -->
 
           <p
             class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-200 rounded"
@@ -897,14 +870,6 @@ const changeServiceDate = (data) => {
 
       <div class="grid grid-cols-5 gap-2 mb-5 flex-wrap">
         <div class="" v-if="authStore.isSuperAdmin || authStore.isReservation">
-          <!-- <div
-            v-if="(!admin?.data || admin?.data.length > 10) && !adminAction"
-            @click="adminAction = true"
-            class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
-          >
-            <p>select user</p>
-            <ArrowDownTrayIcon class="w-4 h-4" />
-          </div> -->
           <select
             name=""
             id=""
@@ -924,51 +889,6 @@ const changeServiceDate = (data) => {
               {{ key.name }}
             </option>
           </select>
-        </div>
-
-        <div class="">
-          <v-select
-            v-model="searchReservation"
-            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
-            :options="searchResArray"
-            label="name"
-            :clearable="false"
-            :reduce="(d) => d.name"
-            placeholder="reservation ..."
-          ></v-select>
-        </div>
-        <div class="">
-          <v-select
-            v-model="bookingStatus"
-            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
-            :options="bookingStatusArr"
-            label="name"
-            :clearable="false"
-            :reduce="(d) => d.name"
-            placeholder="booking status ..."
-          ></v-select>
-        </div>
-        <div class="">
-          <v-select
-            v-model="expenseStatus"
-            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
-            :options="expenseStatusArr"
-            label="name"
-            :clearable="false"
-            :reduce="(d) => d.name"
-            placeholder="expense status ..."
-          ></v-select>
-        </div>
-        <div class="">
-          <v-select
-            v-model="customerPaymentStatus"
-            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
-            :options="customerPaymentStatusArr"
-            label="name"
-            :clearable="false"
-            :reduce="(d) => d.name"
-            placeholder="customer payment status ..."
-          ></v-select>
         </div>
         <div v-if="dateOnlyToggle">
           <VueDatePicker
@@ -1012,65 +932,7 @@ const changeServiceDate = (data) => {
             placeholder="Search CRM ID"
           />
         </div>
-        <!-- <div>
-          <input
-            v-model="oldCrmId"
-            type="text"
-            class="h-9 text-sm w-3/5 sm:w-3/5 md:w-full border px-4 py-2 rounded-md focus:ring-0 focus:outline-none text-gray-500"
-            placeholder="Search Old CRM ID"
-          />
-        </div> -->
-        <div class="">
-          <div
-            v-if="(!hotels?.data || hotels?.data.length > 10) && !hotelAction"
-            @click="hotelAction = true"
-            class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
-          >
-            <p>hotel name</p>
-            <ArrowDownTrayIcon class="w-4 h-4" />
-          </div>
-          <v-select
-            v-if="hotels && hotelAction"
-            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
-            v-model="hotel_name"
-            :options="hotels?.data"
-            label="name"
-            :clearable="false"
-            :reduce="(d) => d.name"
-            placeholder="hotels name ..."
-          ></v-select>
-        </div>
-        <div class="">
-          <div
-            v-if="
-              (!entrances?.data || entrances?.data.length > 10) &&
-              !entranceAction
-            "
-            @click="entranceAction = true"
-            class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
-          >
-            <p>attraction name</p>
-            <ArrowDownTrayIcon class="w-4 h-4" />
-          </div>
-          <v-select
-            class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
-            v-model="attraction_name"
-            v-if="entrances && entranceAction"
-            :options="entrances?.data"
-            label="name"
-            :clearable="false"
-            :reduce="(d) => d.name"
-            placeholder="attraction name ..."
-          ></v-select>
-        </div>
-        <!-- <div>
-          <VueDatePicker
-            v-model="dateRange"
-            range
-            :format="'yyyy-MM-dd'"
-            placeholder="Export Sale Range"
-          />
-        </div> -->
+
         <div>
           <v-select
             class="style-chooser placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400"
@@ -1112,7 +974,7 @@ const changeServiceDate = (data) => {
         >
           <p>empty unit cost</p>
         </div>
-        <div v-if="!dateOnlyToggle" class="col-span-2">
+        <div v-if="!dateOnlyToggle" class="col-span-3">
           <div class="flex w-full text-xs pt-4 justify-end items-center gap-4">
             <p
               @click="changeServiceDate('today')"
@@ -1163,7 +1025,13 @@ const changeServiceDate = (data) => {
           </div>
         </div>
       </div>
-      <div class="w-full mb-5 overflow-scroll bg-white rounded-lg shadow">
+      <div
+        class="w-full mb-5 overflow-scroll bg-white rounded-lg shadow"
+        v-if="
+          search == 'App\\Models\\Hotel' ||
+          search == 'App\\Models\\EntranceTicket'
+        "
+      >
         <div class="grid grid-cols-10 gap-2 py-2">
           <div
             class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
@@ -1418,10 +1286,10 @@ const changeServiceDate = (data) => {
                 class="flex justify-center items-center gap-2"
               >
                 Hotel
-                <InformationCircleIcon
+                <!-- <InformationCircleIcon
                   class="w-6 h-6 text-orange-500"
                   v-if="d.paid_slip.length > 0"
-                />
+                /> -->
               </p>
               <p v-if="d.product_type == 'App\\Models\\Airline'">Airline</p>
             </div>
@@ -1572,6 +1440,9 @@ const changeServiceDate = (data) => {
           </div>
           Loading ...
         </div>
+      </div>
+      <div v-if="search == 'App\\Models\\PrivateVanTour'">
+        <PrivateVanTourList />
       </div>
 
       <Pagination

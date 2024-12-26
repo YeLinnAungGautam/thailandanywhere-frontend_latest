@@ -66,15 +66,40 @@
                 'update_new_bookings',
               ]"
             />
-            <SidebarItem
-              name="Reservation"
-              :icon="DocumentCheckIcon"
-              to="/reservation/%25/%25/%25"
-              :activePaths="['reservation', 'reservation-update']"
-            />
+            <div
+              @click="toggleReservationShow"
+              class="text-gray-600 bg-gray-100 inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[12px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
+            >
+              <DocumentCheckIcon class="w-4 h-4 mr-[1.2rem]" />
+              <p
+                class="flex justify-between w-[80%] items-center"
+                v-if="isShowSidebar"
+              >
+                Reservation <ChevronDownIcon class="w-4 h-4" />
+              </p>
+            </div>
+            <div
+              v-if="isReservationShow"
+              class="transition-all duration-150"
+              :class="isShowSidebar ? 'ml-5' : ''"
+            >
+              <SidebarItem
+                name="new version"
+                :icon="DocumentCheckIcon"
+                to="/reservation-new/%25/%25/%25"
+                :activePaths="['reservation-new']"
+              />
+              <SidebarItem
+                name="stable version"
+                :icon="DocumentCheckIcon"
+                to="/reservation/%25/%25/%25"
+                :activePaths="['reservation', 'reservation-update']"
+              />
+            </div>
+
             <SidebarItem
               name="Expenses"
-              :icon="DocumentCheckIcon"
+              :icon="WalletIcon"
               to="/expenses"
               :activePaths="['expenses']"
             />
@@ -164,19 +189,23 @@
               ></component>
             </div>
 
-            <div class="transition-all duration-150" v-if="isShowSetting">
+            <div
+              class="transition-all duration-150"
+              :class="isShowSidebar ? 'ml-5' : ''"
+              v-if="isShowSetting"
+            >
               <SidebarItem
                 name="Partners"
                 v-if="!authStore.isAgent"
                 :icon="UserGroupIcon"
                 to="/partners"
               />
-              <SidebarItem
+              <!-- <SidebarItem
                 name="Expenses"
                 v-if="!authStore.isAgent"
                 :icon="WalletIcon"
                 to="/expenses"
-              />
+              /> -->
               <SidebarItem
                 name="Calendar"
                 :icon="CalendarDaysIcon"
@@ -237,7 +266,8 @@ import { useAuthStore } from "../stores/auth";
 const sidebarStore = useSidebarStore();
 import { useRouter } from "vue-router";
 const router = useRouter();
-const { isShowSidebar, isShowSetting } = storeToRefs(sidebarStore);
+const { isShowSidebar, isShowSetting, isReservationShow } =
+  storeToRefs(sidebarStore);
 const authStore = useAuthStore();
 const toggleSidebarHandler = () => {
   sidebarStore.toggleSidebar();
@@ -247,8 +277,14 @@ const toggleSidebarShowSetting = () => {
   sidebarStore.toggleShowSetting();
 };
 
+const toggleReservationShow = () => {
+  sidebarStore.toggleReservation();
+};
+
 import { useToast } from "vue-toastification";
 const toast = useToast();
+
+const reservationTypeShow = ref(false);
 
 onMounted(() => {
   // console.log(window.innerWidth);

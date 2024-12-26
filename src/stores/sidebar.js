@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 export const useSidebarStore = defineStore("sidebar", {
   state: () => ({
     isShowSidebar: true,
+    isReservationShow: false,
     isSideBarDropdownShow: false,
     isTopBarDropdownShow: false,
     isOpenCustomerCreate: false,
@@ -12,6 +13,9 @@ export const useSidebarStore = defineStore("sidebar", {
   actions: {
     customSideBar() {
       this.isShowSidebar = false;
+    },
+    showReservation() {
+      this.isReservationShow = true;
     },
     showSidebar() {
       this.isShowSidebar = true;
@@ -27,6 +31,9 @@ export const useSidebarStore = defineStore("sidebar", {
     },
     toggleSidebar() {
       this.isShowSidebar = !this.isShowSidebar;
+    },
+    toggleReservation() {
+      this.isReservationShow = !this.isReservationShow;
     },
     toggleSideBarDropdown() {
       this.isSideBarDropdownShow = !this.isSideBarDropdownShow;

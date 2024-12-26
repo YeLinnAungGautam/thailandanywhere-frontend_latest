@@ -15,6 +15,11 @@
           {{ d.crm_id }}
         </div>
         <div
+          class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700"
+        >
+          <p class="mr-6 whitespace-nowrap">{{ d.service_date }}</p>
+        </div>
+        <div
           class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 whitespace-nowrap overflow-hidden"
         >
           {{ d.customer_info?.name }}
@@ -133,11 +138,7 @@
             {{ d?.payment_status }}
           </p>
         </div>
-        <div
-          class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700"
-        >
-          <p class="mr-6 whitespace-nowrap">{{ d.service_date }}</p>
-        </div>
+
         <div
           class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 space-x-2"
         >

@@ -197,6 +197,8 @@ const searchFunction = () => {
   });
 
   EverythingElse.value = true;
+  partOfEFullAndBookNC.value = false;
+  partOfEFullAndBookWait.value = false;
 };
 
 const openExport = (date) => {

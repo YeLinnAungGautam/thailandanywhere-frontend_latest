@@ -33,6 +33,35 @@
       <div
         class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
       >
+        Service Date
+        <div>
+          <span
+            ><ChevronUpIcon
+              class="w-4 cursor-pointer"
+              :class="
+                customer_name == 'service_date' && sorting == 'asc'
+                  ? 'text-gray-900'
+                  : 'text-gray-500'
+              "
+              @click="upFunction(`service_date`)"
+            />
+          </span>
+          <span>
+            <ChevronDownIcon
+              class="w-4 cursor-pointer"
+              :class="
+                customer_name == 'service_date' && sorting == 'desc'
+                  ? 'text-gray-900'
+                  : 'text-gray-500'
+              "
+              @click="downFunction(`service_date`)"
+            />
+          </span>
+        </div>
+      </div>
+      <div
+        class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
+      >
         Customer
         <div>
           <span
@@ -185,35 +214,7 @@
           </span>
         </div>
       </div>
-      <div
-        class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
-      >
-        Service Date
-        <div>
-          <span
-            ><ChevronUpIcon
-              class="w-4 cursor-pointer"
-              :class="
-                customer_name == 'service_date' && sorting == 'asc'
-                  ? 'text-gray-900'
-                  : 'text-gray-500'
-              "
-              @click="upFunction(`service_date`)"
-            />
-          </span>
-          <span>
-            <ChevronDownIcon
-              class="w-4 cursor-pointer"
-              :class="
-                customer_name == 'service_date' && sorting == 'desc'
-                  ? 'text-gray-900'
-                  : 'text-gray-500'
-              "
-              @click="downFunction(`service_date`)"
-            />
-          </span>
-        </div>
-      </div>
+
       <div class="py-2 text-xs font-medium tracking-wide text-center"></div>
     </div>
   </div>

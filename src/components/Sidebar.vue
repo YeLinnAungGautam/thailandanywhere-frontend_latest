@@ -68,7 +68,7 @@
             />
             <div
               @click="toggleReservationShow"
-              class="text-gray-600 bg-gray-100 inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[12px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
+              class="text-gray-600 bg-gray-100 cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[12px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
             >
               <DocumentCheckIcon class="w-4 h-4 mr-[1.2rem]" />
               <p

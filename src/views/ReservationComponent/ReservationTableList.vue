@@ -13,10 +13,12 @@
         <div
           class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 whitespace-nowrap"
         >
-          {{ d.crm_id }}
+          <p class="bg-[#FF613c] text-white px-1.5 py-1 rounded-lg">
+            {{ d.crm_id }}
+          </p>
         </div>
         <div
-          class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700"
+          class="p-3 mt-2 text-sm font-semibold flex justify-center items-center text-gray-700"
         >
           <p class="mr-6 whitespace-nowrap">{{ d.service_date }}</p>
         </div>
@@ -25,28 +27,7 @@
         >
           {{ d.customer_info?.name }}
         </div>
-        <div
-          class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 whitespace-nowrap"
-        >
-          <p v-if="d.product_type == 'App\\Models\\PrivateVanTour'">
-            PrivateVanTour
-          </p>
-          <p v-if="d.product_type == 'App\\Models\\GroupTour'">GroupTour</p>
-          <p v-if="d.product_type == 'App\\Models\\AirportPickup'">Airpot</p>
-          <p v-if="d.product_type == 'App\\Models\\EntranceTicket'">Entrance</p>
-          <p v-if="d.product_type == 'App\\Models\\Inclusive'">Inclusive</p>
-          <p
-            v-if="d.product_type == 'App\\Models\\Hotel'"
-            class="flex justify-center items-center gap-2"
-          >
-            Hotel
-            <!-- <InformationCircleIcon
-              class="w-6 h-6 text-orange-500"
-              v-if="d.paid_slip.length > 0"
-            /> -->
-          </p>
-          <p v-if="d.product_type == 'App\\Models\\Airline'">Airline</p>
-        </div>
+
         <div
           class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700"
         >
@@ -92,30 +73,7 @@
             {{ d.booking?.payment_status }}
           </p>
         </div>
-        <div
-          class="py-3 mt-2 text-xs text-gray-700 flex justify-center items-center whitespace-nowrap"
-        >
-          <p v-if="!d.reservation_status">-</p>
 
-          <p
-            v-if="d.reservation_status == 'confirmed'"
-            class="inline-block px-3 py-1 mt-2 text-xs text-white bg-green-500 rounded-full shadow"
-          >
-            {{ d.reservation_status }}
-          </p>
-          <p
-            v-if="d.reservation_status == 'declined'"
-            class="inline-block px-3 py-1 mt-2 text-xs text-white bg-red-500 rounded-full shadow"
-          >
-            {{ d.reservation_status }}
-          </p>
-          <p
-            v-if="d.reservation_status == 'awaiting'"
-            class="inline-block px-3 py-1 mt-2 text-xs text-white bg-yellow-500 rounded-full shadow"
-          >
-            {{ d.reservation_status }}
-          </p>
-        </div>
         <div
           class="py-3 mt-2 text-xs text-center text-gray-700 whitespace-nowrap z-10"
         >
@@ -138,6 +96,20 @@
           >
             {{ d?.payment_status }}
           </p>
+        </div>
+        <div
+          class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 whitespace-nowrap"
+        >
+          {{ d.cost_price }}
+        </div>
+        <div
+          class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 whitespace-nowrap"
+        >
+          {{
+            d.cost_price *
+            d.quantity *
+            daysBetween(d.checkin_date, d.checkout_date)
+          }}
         </div>
 
         <div
@@ -230,6 +202,19 @@ const limitedText = (text) => {
     } else {
       return text?.slice(0, 10);
     }
+  }
+};
+
+const daysBetween = (a, b) => {
+  console.log(a, b);
+  if (a && b) {
+    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    const startDateTimestamp = new Date(a).getTime();
+    const endDateTimestamp = new Date(b).getTime();
+    let result = Math.abs(
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+    );
+    return result;
   }
 };
 </script>

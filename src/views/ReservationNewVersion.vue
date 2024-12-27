@@ -1061,7 +1061,7 @@ const changeServiceDate = (data) => {
           search == 'App\\Models\\EntranceTicket'
         "
       >
-        <div>
+        <!-- <div>
           <div
             class="flex justify-between items-center px-4 cursor-pointer py-5 rounded-lg"
             :class="
@@ -1098,7 +1098,7 @@ const changeServiceDate = (data) => {
               :copyReservation="copyReservation"
             />
           </div>
-        </div>
+        </div> -->
         <div>
           <div
             class="flex justify-between items-center px-4 cursor-pointer py-5 rounded-lg"

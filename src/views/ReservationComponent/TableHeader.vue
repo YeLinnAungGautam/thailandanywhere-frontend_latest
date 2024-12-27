@@ -88,7 +88,7 @@
           </span>
         </div>
       </div>
-      <div
+      <!-- <div
         class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
       >
         Type
@@ -116,7 +116,7 @@
             />
           </span>
         </div>
-      </div>
+      </div> -->
       <div
         class="flex justify-center items-center text-xs font-medium tracking-wide text-center"
       >
@@ -156,7 +156,7 @@
           </span>
         </div>
       </div>
-      <div
+      <!-- <div
         class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
       >
         Res Status
@@ -184,7 +184,7 @@
             />
           </span>
         </div>
-      </div>
+      </div> -->
       <div
         class="py-2 text-xs font-medium flex justify-center items-center gap-2 tracking-wide text-center"
       >
@@ -213,6 +213,16 @@
             />
           </span>
         </div>
+      </div>
+      <div
+        class="flex justify-center items-center text-xs font-medium tracking-wide text-center"
+      >
+        Unit Cost
+      </div>
+      <div
+        class="flex justify-center items-center text-xs font-medium tracking-wide text-center"
+      >
+        Total Cost
       </div>
 
       <div class="py-2 text-xs font-medium tracking-wide text-center"></div>

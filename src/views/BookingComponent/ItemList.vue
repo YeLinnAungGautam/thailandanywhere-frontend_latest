@@ -1,5 +1,9 @@
 <script setup>
-import { TrashIcon, PencilSquareIcon } from "@heroicons/vue/24/outline";
+import {
+  TrashIcon,
+  PencilSquareIcon,
+  XCircleIcon,
+} from "@heroicons/vue/24/outline";
 import { onMounted, defineProps, ref, defineEmits, watch } from "vue";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
@@ -31,6 +35,7 @@ const formitem = ref({
   service_date: "",
   quantity: "1",
   days: "",
+  cancellation: null,
   duration: "",
   selling_price: "",
   comment: "",
@@ -62,6 +67,24 @@ const getRemoveFunction = (id, index) => {
   console.log(data, "this is emit id");
   console.log("====================================");
   emit("remove", data);
+};
+
+const cancellationModal = ref(false);
+const cancellationAction = (data, index) => {
+  editIndex.value = index;
+  formitem.value = data;
+  cancellationModal.value = true;
+  console.log("====================================");
+  console.log(formitem.value, "this is for cancel formitem");
+  console.log("====================================");
+};
+
+const cancellationModalAction = () => {
+  console.log("====================================");
+  console.log(formitem.value, "this is for cancel formitem");
+  console.log("====================================");
+  // getRemoveFunction(formitem.value.product_id, editIndex.value);
+  cancellationModal.value = false;
 };
 
 const editAction = (index, data) => {
@@ -335,10 +358,14 @@ onMounted(() => {
       v-if="itemList.length > 0"
     >
       <div
-        class="flex justify-start items-start gap-x-2 pt-3"
+        class="flex justify-start items-start gap-x-2 px-2 pt-2 rounded-lg"
         v-for="(i, index) in itemList ?? []"
         :key="i"
-        :class="i?.product_type != undefined ? '' : 'hidden'"
+        :class="{
+          hidden: i?.product_type == undefined,
+          'bg-yellow-200/40': i?.cancellation === 'cancel_request',
+          'bg-green-200/40': i?.cancellation === 'cancel_confirm',
+        }"
       >
         <img
           :src="
@@ -355,8 +382,13 @@ onMounted(() => {
                 class="w-4 h-4 cursor-pointer text-blue-800"
                 @click="editAction(index, i)"
               />
+              <XCircleIcon
+                v-if="i?.reservation_id && authStore?.isSuperAdmin"
+                class="w-4 h-4 cursor-pointer text-yellow-600"
+                @click="cancellationAction(i, index)"
+              />
               <TrashIcon
-                v-if="!i?.reservation_id || authStore?.isSuperAdmin"
+                v-if="!i?.reservation_id"
                 class="w-4 h-4 cursor-pointer text-red-800"
                 @click="getRemoveFunction(i?.product_id, index)"
               />
@@ -951,6 +983,97 @@ onMounted(() => {
             :class="todayVali ? 'bg-[#ff613c]' : 'bg-gray-300'"
           >
             Add Item
+          </button>
+        </div>
+      </DialogPanel>
+    </Modal>
+
+    <!-- for cancellation modal -->
+    <Modal :isOpen="cancellationModal" @closeModal="cancellationModalAction">
+      <DialogPanel
+        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-1"
+        >
+          Choose Cancellation Type
+        </DialogTitle>
+        <div class="space-y-2.5 pb-3 border-b border-gray-300">
+          <p class="text-xs text-gray-500">Please Choose cancellation type.</p>
+        </div>
+        <div class="h-[160px] overflow-y-scroll flex justify-start items-start">
+          <div class="space-y-4 py-6">
+            <div class="flex justify-start items-center gap-x-2">
+              <input
+                type="radio"
+                name="cancellation"
+                id="cancel"
+                class="mr-2 focus:outline-none w-5 h-5"
+                @click="formitem.cancellation = 'cancel_request'"
+                :checked="
+                  formitem.cancellation != null &&
+                  formitem.cancellation == 'cancel_request'
+                    ? true
+                    : false
+                "
+              />
+              <label
+                for="cancel"
+                class="text-sm font-medium text-yellow-600 bg-yellow-200 px-2 py-0.5 rounded-full"
+                >Cancel Request</label
+              >
+            </div>
+            <div class="flex justify-start items-center gap-x-2">
+              <input
+                type="radio"
+                name="cancellation"
+                id="cancel"
+                class="mr-2 focus:outline-none w-5 h-5"
+                @click="formitem.cancellation = 'cancel_confirm'"
+                :checked="
+                  formitem.cancellation != null &&
+                  formitem.cancellation == 'cancel_confirm'
+                    ? true
+                    : false
+                "
+              />
+              <label
+                for="cancel"
+                class="text-sm font-medium text-green-600 bg-green-200 px-2 py-0.5 rounded-full"
+                >Cancel Complete</label
+              >
+            </div>
+            <div class="flex justify-start items-center gap-x-2">
+              <input
+                type="radio"
+                name="cancellation"
+                id="cancel"
+                class="mr-2 focus:outline-none w-5 h-5"
+                @click="formitem.cancellation = null"
+                :checked="formitem.cancellation == null ? true : false"
+              />
+              <label
+                for="cancel"
+                class="text-sm font-medium bg-white-200 px-2 py-0.5 rounded-full"
+                >Cancel remove & Cancel empty</label
+              >
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end items-center gap-x-2 pt-2">
+          <button
+            @click="cancellationModalAction"
+            v-if="formitem.cancellation != null"
+            class="bg-green-500 border text-white border-green-300 px-3 py-2.5 rounded-lg text-xs"
+          >
+            Confirm
+          </button>
+          <button
+            @click="cancellationModalAction"
+            class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
+          >
+            Cancel
           </button>
         </div>
       </DialogPanel>

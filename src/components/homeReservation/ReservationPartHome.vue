@@ -142,6 +142,9 @@ const getWithDate = async (date) => {
   if (partOfReservation.value != "") {
     data.supplier_id = partOfReservation.value;
   }
+  if (partOfAssign.value != "") {
+    data.assigned_only = true;
+  }
   console.log(data, "this is data from car booking");
   const res = await carBookingStore.getListAction(data);
   console.log(carbookings.value?.data, "this is data from car booking");
@@ -396,7 +399,7 @@ onMounted(async () => {
           @click="openElse"
         >
           <TruckIcon class="w-5 h-5" />
-          <p class="text-sm">assigned & everying else</p>
+          <p class="text-sm">assigned</p>
           <ChevronDownIcon class="w-5 h-5" />
         </div>
 

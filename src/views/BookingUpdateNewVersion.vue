@@ -141,10 +141,9 @@ const sub_total = computed(() => {
   if (formData.value.is_inclusive != 1) {
     let totalsub = 0;
     for (let i = 0; i < formData.value.items.length; i++) {
-      // if (!formData.value.items[i].is_inclusive) {
-      //   totalsub = totalsub + formData.value.items[i].total_amount;
-      // }
-      totalsub = totalsub + formData.value.items[i].total_amount;
+      if (formData.value.items[i].cancellation != "cancel_confirm") {
+        totalsub = totalsub + formData.value.items[i].total_amount;
+      }
     }
     return totalsub + sub_total_discount.value * 1;
   } else {
@@ -158,7 +157,9 @@ const sub_total_real = computed(() => {
     for (let i = 0; i < formData.value.items.length; i++) {
       if (!formData.value.items[i].is_inclusive) {
         if (formData.value.items[i].product_type != "7") {
-          totalsub = totalsub + formData.value.items[i].total_amount;
+          if (formData.value.items[i].cancellation != "cancel_confirm") {
+            totalsub = totalsub + formData.value.items[i].total_amount;
+          }
         }
       }
     }
@@ -173,7 +174,9 @@ const sub_total_discount = computed(() => {
     let totalsub = 0;
     for (let i = 0; i < formData.value.items.length; i++) {
       if (!formData.value.items[i].is_inclusive) {
-        totalsub = totalsub + formData.value.items[i].discount;
+        if (formData.value.items[i].cancellation != "cancel_confirm") {
+          totalsub = totalsub + formData.value.items[i].discount;
+        }
       }
     }
     return totalsub;
@@ -207,7 +210,9 @@ const sub_total_airline = computed(() => {
     for (let i = 0; i < formData.value.items.length; i++) {
       if (!formData.value.items[i].is_inclusive) {
         if (formData.value.items[i].product_type == "7") {
-          totalsub = totalsub + formData.value.items[i].total_amount;
+          if (formData.value.items[i].cancellation != "cancel_confirm") {
+            totalsub = totalsub + formData.value.items[i].total_amount;
+          }
         }
       }
     }
@@ -609,6 +614,12 @@ const onSubmitHandler = async () => {
           formData.value.items[x].pickup_time
         );
       }
+      if (formData.value.items[x].cancellation) {
+        frmData.append(
+          "items[" + x + "][cancellation]",
+          formData.value.items[x].cancellation
+        );
+      }
       frmData.append(
         "items[" + x + "][is_driver_collect]",
         formData.value.items[x].is_driver_collect ? 1 : 0
@@ -1002,6 +1013,7 @@ const getDetail = async () => {
           "",
         service_date: data.items[x].service_date,
         is_inclusive: data.is_inclusive ? 1 : 0,
+        cancellation: data.items[x].cancellation ?? null,
         discount: data.items[x].discount,
         quantity: data.items[x].quantity,
         days: data.items[x].days ? data.items[x].days : "",

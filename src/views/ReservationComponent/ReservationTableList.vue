@@ -7,7 +7,8 @@
       :key="d.id"
     >
       <div
-        class="grid w-auto grid-cols-10 col-span-8 bg-white divide-y divide-gray-100"
+        class="grid w-auto grid-cols-10 col-span-8 bg-white divide-y divide-gray-100 pr-2"
+        :class="d.cancellation == 'cancel_confirm' ? 'bg-yellow-200/50' : ''"
       >
         <div
           class="p-3 mt-2 text-xs flex justify-center items-center text-gray-700 whitespace-nowrap"
@@ -144,7 +145,7 @@
         >
           <button
             @click="copyReservation(d.id)"
-            class="p-1 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
+            class="p-1 text-blue-500 transition bg-white rounded-lg shadow hover:bg-blue-500 hover:text-white"
           >
             <DocumentDuplicateIcon class="w-5 h-5" />
           </button>
@@ -155,14 +156,14 @@
                 params: { id: d.booking.id, action: 'edit' },
               })
             "
-            class="p-1 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
+            class="p-1 text-blue-500 transition bg-white rounded-lg shadow hover:bg-yellow-500 hover:text-white"
           >
             <ClipboardDocumentListIcon class="w-5 h-5" />
           </button>
 
           <router-link :to="'/reservation/update/' + d.id + '/' + d.crm_id">
             <button
-              class="p-1 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
+              class="p-1 text-blue-500 transition bg-white rounded-lg shadow hover:bg-yellow-500 hover:text-white"
             >
               <PencilSquareIcon class="w-5 h-5" />
             </button>

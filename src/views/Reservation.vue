@@ -345,7 +345,7 @@ const adminLists = ref([]);
 
 const getListUser = async () => {
   try {
-    const res = await await adminStore.getSimpleListAction();
+    const res = await adminStore.getSimpleListAction();
     console.log(res, "this is admin list");
 
     adminLists.value = res.result.data

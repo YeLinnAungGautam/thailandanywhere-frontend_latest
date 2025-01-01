@@ -14,6 +14,7 @@ import {
 } from "@heroicons/vue/24/outline";
 import { onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
+import ReservationCalendarHome from "./Dashboard/ReservationCalendarHome.vue";
 
 Chart.register(...registerables);
 
@@ -345,179 +346,188 @@ watch(dateForUnpaid, async (newValue) => {
         Availability
       </div>
     </div>
-    <div class="grid grid-cols-3 gap-2" v-if="dashboardReservation == 'sale'">
-      <div
-        class="col-span-3 flex items-center justify-between py-5 bg-white/60 rounded-md shadow-sm p-4 mb-2"
-      >
-        <p class="text-lg font-semibold tracking-wider mr-4">Filter:</p>
-        <input
-          type="month"
-          id="monthInput"
-          class="bg-transparent focus:ring-0 focus:border-0"
-          v-model="selectMonth"
-          @input="handleMonthChange"
-        />
-      </div>
-      <div class="col-span-2">
-        <div class="grid grid-cols-1 gap-4" v-if="loading">
-          <div
-            class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4 h-[100px] flex justify-center items-center"
-          >
-            <div
-              aria-label="Loading..."
-              role="status"
-              class="flex items-center space-x-2"
-            >
-              <svg
-                class="h-20 w-20 animate-spin stroke-gray-500"
-                viewBox="0 0 256 256"
-              >
-                <line
-                  x1="128"
-                  y1="32"
-                  x2="128"
-                  y2="64"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="24"
-                ></line>
-                <line
-                  x1="195.9"
-                  y1="60.1"
-                  x2="173.3"
-                  y2="82.7"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="24"
-                ></line>
-                <line
-                  x1="224"
-                  y1="128"
-                  x2="192"
-                  y2="128"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="24"
-                ></line>
-                <line
-                  x1="195.9"
-                  y1="195.9"
-                  x2="173.3"
-                  y2="173.3"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="24"
-                ></line>
-                <line
-                  x1="128"
-                  y1="224"
-                  x2="128"
-                  y2="192"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="24"
-                ></line>
-                <line
-                  x1="60.1"
-                  y1="195.9"
-                  x2="82.7"
-                  y2="173.3"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="24"
-                ></line>
-                <line
-                  x1="32"
-                  y1="128"
-                  x2="64"
-                  y2="128"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="24"
-                ></line>
-                <line
-                  x1="60.1"
-                  y1="60.1"
-                  x2="82.7"
-                  y2="82.7"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="24"
-                ></line>
-              </svg>
-              <span class="text-lg font-medium text-gray-500"
-                >Please wait , loading ...</span
-              >
-            </div>
-          </div>
-        </div>
-        <div class="grid grid-cols-4 gap-4" v-if="!loading">
-          <div
-            class="bg-white/60 col-span-2 p-4 rounded-lg shadow-sm w-full space-y-2"
-          >
-            <div class="flex justify-between items-center">
-              <p class="text-xs font-semibold">Filter with Month</p>
-            </div>
-            <div class="text-sm flex justify-between items-center">
-              <p class="text-[#FF5B00] text-sm font-medium">
-                {{ commission_date }}
-              </p>
-            </div>
-          </div>
 
-          <div
-            class="bg-white/60 p-4 rounded-lg shadow-sm w-full col-span-2 space-y-2"
-          >
-            <div class="flex justify-between items-center">
-              <p class="text-xs font-semibold">Commission Price by Month</p>
-            </div>
-            <div class="text-sm flex justify-between items-center">
-              <p class="text-sm">{{ authStore.user.name }}'s commissions :</p>
-              <p class="text-[#FF5B00] text-base">
-                {{ commission_amount }}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="bg-white/60 shadow rounded-md pt-2 pb-6 px-4 my-4">
-          <LineChart :chartData="saleData" :options="chartOptions" />
-        </div>
-      </div>
-      <div class="pl-2 pb-4">
+    <div
+      class=""
+      v-if="authStore.isReservation && dashboardReservation == 'sale'"
+    >
+      <ReservationCalendarHome />
+    </div>
+    <div class="pt-4">
+      <div class="grid grid-cols-3 gap-2" v-if="dashboardReservation == 'sale'">
         <div
-          class="bg-white/60 h-[530px] rounded-md shadow-sm p-3 space-y-4 overflow-y-scroll"
+          class="col-span-3 flex items-center justify-between py-5 bg-white/60 rounded-md shadow-sm p-4 mb-2"
         >
-          <div class="flex justify-between items-center tracking-wide">
-            <p class="text-sm font-medium mr-2">Unpaid</p>
-            <VueDatePicker
-              v-model="dateForUnpaid"
-              :format="'yyyy-MM-dd'"
-              range
-              :preset-dates="presetDates"
-              placeholder="select date range"
+          <p class="text-lg font-semibold tracking-wider mr-4">Filter:</p>
+          <input
+            type="month"
+            id="monthInput"
+            class="bg-transparent focus:ring-0 focus:border-0"
+            v-model="selectMonth"
+            @input="handleMonthChange"
+          />
+        </div>
+        <div class="col-span-2">
+          <div class="grid grid-cols-1 gap-4" v-if="loading">
+            <div
+              class="bg-white/60 p-4 rounded-lg shadow-sm w-full space-y-4 h-[100px] flex justify-center items-center"
             >
-              <template
-                #preset-date-range-button="{ label, value, presetDate }"
+              <div
+                aria-label="Loading..."
+                role="status"
+                class="flex items-center space-x-2"
               >
-                <span
-                  role="button"
-                  :tabindex="0"
-                  @click="presetDate(value)"
-                  @keyup.enter.prevent="presetDate(value)"
-                  @keyup.space.prevent="presetDate(value)"
+                <svg
+                  class="h-20 w-20 animate-spin stroke-gray-500"
+                  viewBox="0 0 256 256"
                 >
-                  {{ label }}
-                </span>
-              </template>
-            </VueDatePicker>
+                  <line
+                    x1="128"
+                    y1="32"
+                    x2="128"
+                    y2="64"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="24"
+                  ></line>
+                  <line
+                    x1="195.9"
+                    y1="60.1"
+                    x2="173.3"
+                    y2="82.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="24"
+                  ></line>
+                  <line
+                    x1="224"
+                    y1="128"
+                    x2="192"
+                    y2="128"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="24"
+                  ></line>
+                  <line
+                    x1="195.9"
+                    y1="195.9"
+                    x2="173.3"
+                    y2="173.3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="24"
+                  ></line>
+                  <line
+                    x1="128"
+                    y1="224"
+                    x2="128"
+                    y2="192"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="24"
+                  ></line>
+                  <line
+                    x1="60.1"
+                    y1="195.9"
+                    x2="82.7"
+                    y2="173.3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="24"
+                  ></line>
+                  <line
+                    x1="32"
+                    y1="128"
+                    x2="64"
+                    y2="128"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="24"
+                  ></line>
+                  <line
+                    x1="60.1"
+                    y1="60.1"
+                    x2="82.7"
+                    y2="82.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="24"
+                  ></line>
+                </svg>
+                <span class="text-lg font-medium text-gray-500"
+                  >Please wait , loading ...</span
+                >
+              </div>
+            </div>
           </div>
+          <div class="grid grid-cols-4 gap-4" v-if="!loading">
+            <div
+              class="bg-white/60 col-span-2 p-4 rounded-lg shadow-sm w-full space-y-2"
+            >
+              <div class="flex justify-between items-center">
+                <p class="text-xs font-semibold">Filter with Month</p>
+              </div>
+              <div class="text-sm flex justify-between items-center">
+                <p class="text-[#FF5B00] text-sm font-medium">
+                  {{ commission_date }}
+                </p>
+              </div>
+            </div>
 
+            <div
+              class="bg-white/60 p-4 rounded-lg shadow-sm w-full col-span-2 space-y-2"
+            >
+              <div class="flex justify-between items-center">
+                <p class="text-xs font-semibold">Commission Price by Month</p>
+              </div>
+              <div class="text-sm flex justify-between items-center">
+                <p class="text-sm">{{ authStore.user.name }}'s commissions :</p>
+                <p class="text-[#FF5B00] text-base">
+                  {{ commission_amount }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white/60 shadow rounded-md pt-2 pb-6 px-4 my-4">
+            <LineChart :chartData="saleData" :options="chartOptions" />
+          </div>
+        </div>
+        <div class="pl-2 pb-4">
           <div
-            class=""
-            v-for="(s, index) in unpaidDataList?.result"
-            :key="index"
+            class="bg-white/60 h-[530px] rounded-md shadow-sm p-3 space-y-4 overflow-y-scroll"
           >
-            <SaleByAgent :data="s" />
+            <div class="flex justify-between items-center tracking-wide">
+              <p class="text-sm font-medium mr-2">Unpaid</p>
+              <VueDatePicker
+                v-model="dateForUnpaid"
+                :format="'yyyy-MM-dd'"
+                range
+                :preset-dates="presetDates"
+                placeholder="select date range"
+              >
+                <template
+                  #preset-date-range-button="{ label, value, presetDate }"
+                >
+                  <span
+                    role="button"
+                    :tabindex="0"
+                    @click="presetDate(value)"
+                    @keyup.enter.prevent="presetDate(value)"
+                    @keyup.space.prevent="presetDate(value)"
+                  >
+                    {{ label }}
+                  </span>
+                </template>
+              </VueDatePicker>
+            </div>
+
+            <div
+              class=""
+              v-for="(s, index) in unpaidDataList?.result"
+              :key="index"
+            >
+              <SaleByAgent :data="s" />
+            </div>
           </div>
         </div>
       </div>

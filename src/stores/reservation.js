@@ -14,12 +14,9 @@ export const useReservationStore = defineStore("reservation", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get(
-          "/reservations?limit=20&page=" + params.page,
-          {
-            params: params,
-          }
-        );
+        const response = await axios.get("/reservations?limit=200&page=1", {
+          params: params,
+        });
         this.reservation = response.data.result;
         this.loading = false;
 

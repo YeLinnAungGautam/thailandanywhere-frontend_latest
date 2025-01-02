@@ -347,13 +347,10 @@ watch(dateForUnpaid, async (newValue) => {
       </div>
     </div>
 
-    <div
-      class=""
-      v-if="authStore.isReservation && dashboardReservation == 'sale'"
-    >
+    <div class="" v-if="dashboardReservation == 'sale'">
       <ReservationCalendarHome />
     </div>
-    <div class="pt-4" v-if="authStore.isAdmin">
+    <div class="pt-4">
       <div class="grid grid-cols-3 gap-2" v-if="dashboardReservation == 'sale'">
         <div
           class="col-span-3 flex items-center justify-between py-5 bg-white/60 rounded-md shadow-sm p-4 mb-2"

@@ -100,7 +100,7 @@
       </p>
       <div
         v-if="!loading"
-        class="bg-white shadow rounded-lg divide-y-4 divide-gray-200 max-h-[452px] overflow-scroll"
+        class="bg-white shadow rounded-lg divide-y-2 divide-gray-300 max-h-[405px] overflow-scroll"
       >
         <div class="" v-for="i in reservation_list ?? []" :key="i">
           <ReservationCartVue :backgroundCustom="backgroundCustom" :data="i" />
@@ -108,7 +108,7 @@
       </div>
       <div
         v-if="loading"
-        class="bg-white shadow rounded-lg divide-y-4 divide-gray-200 max-h-[452px] overflow-scroll"
+        class="bg-white shadow rounded-lg divide-y-4 divide-gray-200 max-h-[405px] overflow-scroll"
       >
         <div class="" v-for="i in 5 ?? []" :key="i">
           <ReservationCartLoadingVue :backgroundCustom="backgroundCustom" />
@@ -129,7 +129,9 @@ import { ChevronDownIcon } from "@heroicons/vue/24/outline";
 import { useDashboardStore } from "../../stores/dashboard";
 import { useReservationStore } from "../../stores/reservation";
 import ReservationCartLoadingVue from "./ReservationCartLoading.vue";
+import { useAuthStore } from "../../stores/auth";
 
+const authStore = useAuthStore();
 const dashboardStore = useDashboardStore();
 const reservationStore = useReservationStore();
 
@@ -178,12 +180,22 @@ const reservation_list = ref([]);
 
 const getTodaySale = async () => {
   loading.value = true;
-  const res = await reservationStore.getSimpleListAction({
+
+  let dataFilter = {
     limit: 100,
     page: 1,
     product_type: productType.value,
     service_date: selectedDay.value,
-  });
+  };
+
+  if (authStore.isSuperAdmin || authStore.isReservation) {
+    dataFilter.user_id = "";
+  } else {
+    dataFilter.user_id = authStore.user.id;
+  }
+
+  const res = await reservationStore.getSimpleListAction(dataFilter);
+
   reservation_list.value = res.result.data;
   filterGetTodaySale(res.result);
   loading.value = false;

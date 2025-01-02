@@ -10,7 +10,12 @@
           ></p>
         </div>
       </div>
-      <p class="font-semibold text-2xl pt-2">21</p>
+      <p
+        class="font-semibold text-2xl pt-2"
+        :class="loading ? 'animate-bounce' : ''"
+      >
+        {{ loading ? "..." : reservationTotal }}
+      </p>
     </div>
     <div class="p-3">
       <div class=" ">
@@ -22,8 +27,12 @@
           ></p>
         </div>
       </div>
-      <p class="font-semibold text-2xl pt-2">
-        21 <span class="text-lg">/30</span>
+      <p
+        class="font-semibold text-2xl pt-2"
+        :class="loading ? 'animate-bounce' : ''"
+      >
+        {{ loading ? "..." : expense }}
+        <span class="text-lg">/{{ loading ? "..." : reservationTotal }}</span>
       </p>
     </div>
     <div class="p-3">
@@ -36,8 +45,12 @@
           ></p>
         </div>
       </div>
-      <p class="font-semibold text-2xl pt-2">
-        21 <span class="text-lg">/30</span>
+      <p
+        class="font-semibold text-2xl pt-2"
+        :class="loading ? 'animate-bounce' : ''"
+      >
+        {{ loading ? "..." : booking_receipt }}
+        <span class="text-lg">/{{ loading ? "..." : reservationTotal }}</span>
       </p>
     </div>
   </div>
@@ -59,6 +72,22 @@ const props = defineProps({
   },
   backgroundCustom: {
     type: String,
+    required: true,
+  },
+  reservationTotal: {
+    type: Number,
+    required: true,
+  },
+  expense: {
+    type: Number,
+    required: true,
+  },
+  booking_receipt: {
+    type: Number,
+    required: true,
+  },
+  loading: {
+    type: Boolean,
     required: true,
   },
 });

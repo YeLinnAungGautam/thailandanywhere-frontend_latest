@@ -46,5 +46,19 @@ export const useDashboardStore = defineStore("dashboard", {
         throw error;
       }
     },
+    async getTodaySaleData(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/product-sale-count-report", {
+          params: params,
+        });
+        this.loading = false;
+        // console.log(response.data);
+        return response;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
   },
 });

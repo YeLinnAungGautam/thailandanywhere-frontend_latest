@@ -1,5 +1,13 @@
 <template>
-  <div class="grid grid-cols-11 gap-4">
+  <div class="grid grid-cols-11 gap-4 relative">
+    <!-- <div
+      v-if="loading"
+      class="absolute top-[30%] left-[30%] rounded-2xl bg-black/50 z-20 w-[300px] h-[300px]"
+    >
+      <div class="flex justify-center items-center h-full">
+        <p class="text-center my-auto text-white">loading</p>
+      </div>
+    </div> -->
     <div class="space-y-1 col-span-2">
       <div class="flex justify-between items-center gap-x-2">
         <p class="text-sm pb-1">Information</p>
@@ -45,7 +53,7 @@
               >Hotel
             </p>
             <p
-              @click="changeBackground('vantour')"
+              @click="changeBackground('private-van-tour')"
               class="px-2 py-1 text-[10px] flex justify-start cursor-pointer items-center gap-x-2"
             >
               <span
@@ -61,12 +69,16 @@
           <InformationVue
             :selectedDay="selectedDay"
             :backgroundCustom="backgroundCustom"
+            :reservationTotal="reservationTotal"
+            :expense="expense"
+            :booking_receipt="booking_receipt"
+            :loading="loading"
           />
         </div>
       </div>
     </div>
 
-    <div class="col-span-5 space-y-2">
+    <div class="col-span-4 space-y-2">
       <p class="text-sm">
         Calendar
         <span class="text-[#ff613c] rounded-lg font-medium">{{
@@ -79,7 +91,7 @@
         </div>
       </div>
     </div>
-    <div class="col-span-4 space-y-2">
+    <div class="col-span-5 space-y-2">
       <p class="text-sm">
         Today Event
         <span class="text-[#ff613c] rounded-lg font-medium">{{
@@ -87,10 +99,19 @@
         }}</span>
       </p>
       <div
+        v-if="!loading"
         class="bg-white shadow rounded-lg divide-y-4 divide-gray-200 max-h-[452px] overflow-scroll"
       >
-        <div class="" v-for="i in 5" :key="i">
-          <ReservationCartVue :backgroundCustom="backgroundCustom" />
+        <div class="" v-for="i in reservation_list ?? []" :key="i">
+          <ReservationCartVue :backgroundCustom="backgroundCustom" :data="i" />
+        </div>
+      </div>
+      <div
+        v-if="loading"
+        class="bg-white shadow rounded-lg divide-y-4 divide-gray-200 max-h-[452px] overflow-scroll"
+      >
+        <div class="" v-for="i in 5 ?? []" :key="i">
+          <ReservationCartLoadingVue :backgroundCustom="backgroundCustom" />
         </div>
       </div>
     </div>
@@ -101,12 +122,20 @@
 import { format } from "date-fns";
 import CalendarPartVue from "./CalendarPart.vue";
 import InformationVue from "./Information.vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 
 import ReservationCartVue from "./ReservationCart.vue";
 import { ChevronDownIcon } from "@heroicons/vue/24/outline";
+import { useDashboardStore } from "../../stores/dashboard";
+import { useReservationStore } from "../../stores/reservation";
+import ReservationCartLoadingVue from "./ReservationCartLoading.vue";
+
+const dashboardStore = useDashboardStore();
+const reservationStore = useReservationStore();
 
 const selectedDay = ref(new Date());
+
+const loading = ref(false);
 
 const openSelection = ref(false);
 const selectedProductType = ref("attraction");
@@ -127,7 +156,7 @@ const changeBackground = (type) => {
       productType.value = "App\\Models\\Hotel";
       openSelection.value = false;
       break;
-    case "vantour":
+    case "private-van-tour":
       backgroundCustom.value = "bg-yellow-600";
       productType.value = "App\\Models\\PrivateVanTour";
       openSelection.value = false;
@@ -142,7 +171,48 @@ const changesFromCalendar = (value) => {
   selectedDay.value = value;
 };
 
-onMounted(() => {
+const reservationTotal = ref(0);
+const expense = ref(0);
+const booking_receipt = ref(0);
+const reservation_list = ref([]);
+
+const getTodaySale = async () => {
+  loading.value = true;
+  const res = await reservationStore.getSimpleListAction({
+    limit: 100,
+    page: 1,
+    product_type: productType.value,
+    service_date: selectedDay.value,
+  });
+  reservation_list.value = res.result.data;
+  filterGetTodaySale(res.result);
+  loading.value = false;
+};
+
+const filterGetTodaySale = (data) => {
+  reservationTotal.value = data.data.length;
+
+  const expense_data = data.data.filter(
+    (item) => item.payment_status === "fully_paid"
+  );
+  expense.value = expense_data.length;
+
+  const reservation_data = data.data.filter(
+    (item) => item.paid_slip.length > 0
+  );
+  booking_receipt.value = reservation_data.length;
+
+  console.log("====================================");
+  console.log("data", data);
+  console.log("====================================");
+  console.log("expense", expense.value);
+};
+
+watch([selectedDay, productType], async (value) => {
+  await getTodaySale();
+});
+
+onMounted(async () => {
   const formatter = new Intl.DateTimeFormat("en-CA", {
     year: "numeric",
     month: "2-digit",
@@ -150,5 +220,7 @@ onMounted(() => {
   });
 
   selectedDay.value = formatter.format(new Date());
+
+  // await getTodaySale();
 });
 </script>

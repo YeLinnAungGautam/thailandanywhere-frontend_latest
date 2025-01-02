@@ -112,8 +112,9 @@ import { useToast } from "vue-toastification";
 const sidebarStore = useSidebarStore();
 const authStore = useAuthStore();
 import { useRouter } from "vue-router";
+import { onMounted } from "vue";
 const router = useRouter();
-const { isTopBarDropdownShow } = storeToRefs(sidebarStore);
+const { isTopBarDropdownShow, isShowSidebar } = storeToRefs(sidebarStore);
 const props = defineProps({});
 
 const toast = useToast();
@@ -121,6 +122,7 @@ const toast = useToast();
 const toggleSidebarHandler = () => {
   sidebarStore.toggleSidebar();
 };
+
 const toggleTopbarHandler = () => {
   sidebarStore.toggleTopBarDropdown();
 };
@@ -151,6 +153,23 @@ const logoutHandlerAllUser = async () => {
 const goBack = () => {
   router.go(-1);
 };
+
+onMounted(() => {
+  const screenWidth = window.innerWidth;
+  console.log("Screen Width:", screenWidth);
+
+  if (screenWidth < 1024) {
+    // Assuming '1024px' is the breakpoint for tablets
+    if (isShowSidebar.value == true) {
+      toggleSidebarHandler();
+    }
+  } else {
+  }
+
+  console.log("====================================");
+  console.log("isShowSidebar:", isShowSidebar.value);
+  console.log("====================================");
+});
 </script>
 
 <style lang="scss" scoped></style>

@@ -26,7 +26,7 @@ import {
   subMonths,
 } from "date-fns";
 
-const dashboardReservation = ref("reservation");
+const dashboardReservation = ref("sale");
 
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
@@ -353,7 +353,7 @@ watch(dateForUnpaid, async (newValue) => {
     >
       <ReservationCalendarHome />
     </div>
-    <div class="pt-4">
+    <div class="pt-4" v-if="authStore.isAdmin">
       <div class="grid grid-cols-3 gap-2" v-if="dashboardReservation == 'sale'">
         <div
           class="col-span-3 flex items-center justify-between py-5 bg-white/60 rounded-md shadow-sm p-4 mb-2"

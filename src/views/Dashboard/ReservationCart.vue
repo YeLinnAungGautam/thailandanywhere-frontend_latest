@@ -1,16 +1,38 @@
 <template>
   <div class="px-4 pb-2 relative cursor-pointer" @click="open = !open">
     <div
-      class="absolute top-[20px] left-3 rounded-full w-2 h-2"
+      class="absolute top-[36px] left-3 rounded-full w-2 h-2"
       :class="backgroundCustom"
     ></div>
     <div class="pl-5 pt-2 pb-2 gap-y-4 gap-x-3">
+      <div class="">
+        <p
+          class="text-[10px] space-x-1"
+          v-if="data?.product_type != 'App\\Models\\Hotel'"
+        >
+          <span class="font-medium">{{ data?.service_date }}</span>
+        </p>
+        <p
+          class="text-[10px] space-x-1"
+          v-if="data?.product_type == 'App\\Models\\Hotel'"
+        >
+          <span class="font-medium"
+            >{{ data?.checkin_date }} / {{ data?.checkout_date }}</span
+          >
+        </p>
+      </div>
       <div class="py-2 flex justify-start items-center gap-x-2">
         <p
           class="text-xs px-1 py-0.5 text-white inline-block rounded-lg"
           :class="backgroundCustom"
         >
-          {{ data?.product_type.split("\\").pop() }}
+          {{
+            data?.product_type == "App\\Models\\EntranceTicket" ? "Ticket" : ""
+          }}
+          {{ data?.product_type == "App\\Models\\Hotel" ? "Hotel" : "" }}
+          {{
+            data?.product_type == "App\\Models\\PrivateVanTour" ? "Vantour" : ""
+          }}
         </p>
         <p
           class="text-xs bg-[#ff613c] px-1 py-0.5 text-white inline-block rounded-lg"
@@ -123,22 +145,7 @@
         </div>
       </div>
     </div>
-    <div class="absolute top-5 right-4">
-      <p
-        class="text-[10px] space-x-1"
-        v-if="data?.product_type != 'App\\Models\\Hotel'"
-      >
-        <span class="font-medium">{{ data?.service_date }}</span>
-      </p>
-      <p
-        class="text-[10px] space-x-1"
-        v-if="data?.product_type == 'App\\Models\\Hotel'"
-      >
-        <span class="font-medium"
-          >{{ data?.checkin_date }} / {{ data?.checkout_date }}</span
-        >
-      </p>
-    </div>
+
     <div class="" v-if="open">
       <div class="flex justify-start items-center px-5 py-1 gap-x-2">
         <CheckCircleIcon class="w-4 h-4 text-green-600" />

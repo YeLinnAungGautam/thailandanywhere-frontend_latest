@@ -29,6 +29,7 @@
             class="absolute top-8 right-0 bg-white duration-150 shadow rounded-lg divide-y-2 divide-white"
           >
             <p
+              @click="changeBackground('all')"
               class="px-2 py-1 text-[10px] flex justify-start cursor-pointer items-center gap-x-2"
             >
               <span
@@ -66,7 +67,7 @@
           </div>
         </div>
       </div>
-      <div class="bg-white shadow rounded-lg">
+      <div class="">
         <div>
           <InformationVue
             :selectedDay="selectedDay"
@@ -161,6 +162,11 @@ const productType = ref("App\\Models\\EntranceTicket");
 const changeBackground = (type) => {
   selectedProductType.value = type;
   switch (type) {
+    case "all":
+      backgroundCustom.value = "bg-gray-600";
+      productType.value = "";
+      openSelection.value = false;
+      break;
     case "attraction":
       backgroundCustom.value = "bg-blue-600";
       productType.value = "App\\Models\\EntranceTicket";
@@ -198,9 +204,13 @@ const getTodaySale = async () => {
   let dataFilter = {
     limit: 100,
     page: 1,
-    product_type: productType.value,
+
     service_date: selectedDay.value,
   };
+
+  if (productType.value != "") {
+    dataFilter.product_type = productType.value;
+  }
 
   if (authStore.isSuperAdmin || authStore.isReservation) {
     dataFilter.user_id = "";

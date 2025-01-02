@@ -229,12 +229,12 @@ const filterGetTodaySale = (data) => {
   reservationTotal.value = data.data.length;
 
   const expense_data = data.data.filter(
-    (item) => item.payment_status === "fully_paid"
+    (item) => item.payment_status === "not_paid"
   );
   expense.value = expense_data.length;
 
   const reservation_data = data.data.filter(
-    (item) => item.paid_slip.length > 0
+    (item) => item.paid_slip.length == 0
   );
   booking_receipt.value = reservation_data.length;
 

@@ -21,7 +21,7 @@
       <div class="p-3 hover:bg-[#ff613c] hover:rounded-t-lg hover:text-white">
         <div class=" ">
           <div class="text-xs font-medium flex justify-between items-center">
-            <p>Expense</p>
+            <p>Expense Not Paid</p>
             <p
               class="text-xs w-2 h-2 mr-2 inline-block rounded-lg"
               :class="backgroundCustom"
@@ -41,7 +41,7 @@
       <div class="p-3 hover:bg-[#ff613c] hover:text-white">
         <div class=" ">
           <div class="text-xs font-medium flex justify-between items-center">
-            <p>Booking receipt</p>
+            <p>Missing Receipt</p>
             <p
               class="text-xs w-2 h-2 mr-2 inline-block rounded-lg"
               :class="backgroundCustom"

@@ -8,19 +8,21 @@
         <p class="text-center my-auto text-white">loading</p>
       </div>
     </div> -->
-    <div class="space-y-1 col-span-2">
-      <div class="flex justify-between items-center gap-x-2">
-        <p class="text-sm pb-1">Information</p>
+    <div class="space-y-2 col-span-2">
+      <div
+        class="flex justify-between items-center gap-x-2 shadow bg-white py-4 px-3 rounded-lg"
+      >
+        <p class="text-xs font-medium pb-1">Information</p>
         <div class="relative">
           <p
             class="flex justify-start items-center gap-x-2 mr-2"
             @click="openSelection = !openSelection"
           >
-            <ChevronDownIcon class="w-3 h-3" />
             <span
               class="text-xs w-2 h-2 inline-block rounded-lg"
               :class="backgroundCustom"
             ></span>
+            <ChevronDownIcon class="w-3 h-3" />
           </p>
           <div
             v-if="openSelection"
@@ -73,18 +75,29 @@
             :expense="expense"
             :booking_receipt="booking_receipt"
             :loading="loading"
+            :customer_not_paid="customer_not_paid"
           />
         </div>
       </div>
     </div>
 
     <div class="col-span-4 space-y-2">
-      <p class="text-sm">
+      <!-- <p class="text-sm">
         Calendar
         <span class="text-[#ff613c] rounded-lg font-medium">{{
           selectedDay ? `at ${selectedDay}` : ``
         }}</span>
-      </p>
+      </p> -->
+      <div
+        class="text-xs font-medium shadow bg-white py-4 px-4 rounded-lg flex justify-between items-center"
+      >
+        <p class="">Chosen Date</p>
+        <p>
+          <span class="text-[#ff613c] rounded-lg font-medium">{{
+            selectedDay ? `${selectedDay}` : ``
+          }}</span>
+        </p>
+      </div>
       <div class="bg-white shadow p-2 rounded-lg">
         <div class="h-auto font-poppins">
           <CalendarPartVue @change="changesFromCalendar" />
@@ -92,11 +105,11 @@
       </div>
     </div>
     <div class="col-span-5 space-y-2">
-      <p class="text-sm">
-        Today Event
-        <span class="text-[#ff613c] rounded-lg font-medium">{{
+      <p class="text-xs font-medium shadow bg-white py-4 px-4 rounded-lg">
+        Sort By
+        <!-- <span class="text-[#ff613c] rounded-lg font-medium">{{
           selectedDay ? `at ${selectedDay}` : ``
-        }}</span>
+        }}</span> -->
       </p>
       <div
         v-if="!loading"
@@ -177,6 +190,7 @@ const reservationTotal = ref(0);
 const expense = ref(0);
 const booking_receipt = ref(0);
 const reservation_list = ref([]);
+const customer_not_paid = ref(0);
 
 const getTodaySale = async () => {
   loading.value = true;
@@ -213,6 +227,11 @@ const filterGetTodaySale = (data) => {
     (item) => item.paid_slip.length > 0
   );
   booking_receipt.value = reservation_data.length;
+
+  const customer_not = data.data.filter(
+    (item) => item.booking.payment_status == "not_paid"
+  );
+  customer_not_paid.value = customer_not.length;
 
   console.log("====================================");
   console.log("data", data);

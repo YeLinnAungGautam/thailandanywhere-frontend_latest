@@ -15,6 +15,10 @@ import {
 import { onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import ReservationCalendarHome from "./Dashboard/ReservationCalendarHome.vue";
+import { useSidebarStore } from "../stores/sidebar";
+
+const sidebarStore = useSidebarStore();
+const { isShowSidebar } = storeToRefs(sidebarStore);
 
 Chart.register(...registerables);
 
@@ -289,60 +293,53 @@ watch(dateForUnpaid, async (newValue) => {
 
 <template>
   <Layout :title="`Welcome back, ${authStore.user.name.split(' ')[0]}!`">
-    <div class="flex justify-start items-center gap-2 text-sm pb-4">
+    <div
+      class="flex justify-start items-center gap-2 text-sm pb-4 absolute top-8"
+      :class="isShowSidebar ? 'left-[330px]' : 'left-[220px]'"
+    >
       <div
-        class="px-4 py-1 text-xs rounded-full cursor-pointer flex justify-start items-center gap-1.5"
-        :class="dashboardReservation == 'sale' ? 'text-[#FF5B00]' : ''"
+        class="px-2 py-1 text-xs rounded-lg cursor-pointer flex justify-start items-center gap-1.5"
+        :class="dashboardReservation == 'sale' ? 'text-white bg-[#ff613c]' : ''"
         @click="dashboardReservation = 'sale'"
       >
-        <p
-          class="w-2 h-2 rounded-full bg-[#FF5B00]"
-          v-if="dashboardReservation == 'sale'"
-        ></p>
         Sales
       </div>
       <div
-        class="px-4 py-1 text-xs rounded-full cursor-pointer flex justify-start items-center gap-1.5"
-        :class="dashboardReservation == 'reservation' ? 'text-[#FF5B00]' : ''"
+        class="px-2 py-1 text-xs rounded-lg cursor-pointer flex justify-start items-center gap-1.5"
+        :class="
+          dashboardReservation == 'reservation' ? 'text-white bg-[#ff613c]' : ''
+        "
         @click="dashboardReservation = 'reservation'"
       >
-        <p
-          class="w-2 h-2 rounded-full bg-[#FF5B00]"
-          v-if="dashboardReservation == 'reservation'"
-        ></p>
         Reservations
       </div>
       <div
-        class="px-4 py-1 text-xs rounded-full cursor-pointer flex justify-start items-center gap-1.5"
-        :class="dashboardReservation == 'expense' ? 'text-[#FF5B00]' : ''"
+        class="px-2 py-1 text-xs rounded-lg cursor-pointer flex justify-start items-center gap-1.5"
+        :class="
+          dashboardReservation == 'expense' ? 'text-white bg-[#ff613c]' : ''
+        "
         @click="dashboardReservation = 'expense'"
       >
-        <p
-          class="w-2 h-2 rounded-full bg-[#FF5B00]"
-          v-if="dashboardReservation == 'expense'"
-        ></p>
         Expenses
       </div>
       <div
-        class="px-4 py-1 text-xs rounded-full cursor-pointer flex justify-start items-center gap-1.5"
-        :class="dashboardReservation == 'product' ? 'text-[#FF5B00]' : ''"
+        class="px-2 py-1 text-xs rounded-lg cursor-pointer flex justify-start items-center gap-1.5"
+        :class="
+          dashboardReservation == 'product' ? 'text-white bg-[#ff613c]' : ''
+        "
         @click="dashboardReservation = 'product'"
       >
-        <p
-          class="w-2 h-2 rounded-full bg-[#FF5B00]"
-          v-if="dashboardReservation == 'product'"
-        ></p>
         Products
       </div>
       <div
-        class="px-4 py-1 text-xs rounded-full cursor-pointer flex justify-start items-center gap-1.5"
-        :class="dashboardReservation == 'availability' ? 'text-[#FF5B00]' : ''"
+        class="px-2 py-1 text-xs rounded-lg cursor-pointer flex justify-start items-center gap-1.5"
+        :class="
+          dashboardReservation == 'availability'
+            ? 'text-white bg-[#ff613c]'
+            : ''
+        "
         @click="dashboardReservation = 'availability'"
       >
-        <p
-          class="w-2 h-2 rounded-full bg-[#FF5B00]"
-          v-if="dashboardReservation == 'availability'"
-        ></p>
         Availability
       </div>
     </div>

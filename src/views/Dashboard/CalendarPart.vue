@@ -1,6 +1,6 @@
 <template>
   <div class="py-4">
-    <div class="max-w-md px-4 mx-auto sm:px-7 md:max-w-4xl md:px-6">
+    <div class="max-w-md px-2 mx-auto sm:px-7 md:max-w-4xl md:px-4">
       <div class="md:grid md:grid-cols-1">
         <div class="">
           <div class="flex items-center">

@@ -5,14 +5,20 @@
       :class="backgroundCustom"
     ></div>
     <div class="pl-5 pt-2 pb-2 gap-y-4 gap-x-3">
-      <div class="py-2 flex justify-start items-center gap-x-1">
+      <div class="py-2 flex justify-start items-center gap-x-2">
+        <p
+          class="text-xs px-1 py-0.5 text-white inline-block rounded-lg"
+          :class="backgroundCustom"
+        >
+          {{ data?.product_type.split("\\").pop() }}
+        </p>
         <p
           class="text-xs bg-[#ff613c] px-1 py-0.5 text-white inline-block rounded-lg"
         >
           {{ data?.crm_id }}
         </p>
         <p
-          class="text-xs bg-gray-600 ml-2 px-1 py-0.5 text-white inline-block rounded-lg"
+          class="text-xs bg-gray-600 px-1 py-0.5 text-white inline-block rounded-lg"
         >
           {{ data.customer_info?.name }}
         </p>

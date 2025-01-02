@@ -32,7 +32,7 @@
         :class="loading ? 'animate-bounce' : ''"
       >
         {{ loading ? "..." : expense }}
-        <span class="text-lg">/{{ loading ? "..." : reservationTotal }}</span>
+        <span class="text-lg">/ {{ loading ? "..." : reservationTotal }}</span>
       </p>
     </div>
     <div class="p-3">
@@ -50,7 +50,25 @@
         :class="loading ? 'animate-bounce' : ''"
       >
         {{ loading ? "..." : booking_receipt }}
-        <span class="text-lg">/{{ loading ? "..." : reservationTotal }}</span>
+        <span class="text-lg">/ {{ loading ? "..." : reservationTotal }}</span>
+      </p>
+    </div>
+    <div class="p-3">
+      <div class=" ">
+        <div class="text-xs font-medium flex justify-between items-center">
+          <p>Customer Not Paid</p>
+          <p
+            class="text-xs w-2 h-2 mr-2 inline-block rounded-lg"
+            :class="backgroundCustom"
+          ></p>
+        </div>
+      </div>
+      <p
+        class="font-semibold text-2xl pt-2"
+        :class="loading ? 'animate-bounce' : ''"
+      >
+        {{ loading ? "..." : customer_not_paid }}
+        <span class="text-lg">/ {{ loading ? "..." : reservationTotal }}</span>
       </p>
     </div>
   </div>
@@ -83,6 +101,10 @@ const props = defineProps({
     required: true,
   },
   booking_receipt: {
+    type: Number,
+    required: true,
+  },
+  customer_not_paid: {
     type: Number,
     required: true,
   },

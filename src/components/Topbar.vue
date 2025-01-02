@@ -13,9 +13,9 @@
       >
         <ArrowUturnLeftIcon class="w-6 h-6" />
       </p>
-      <p class="text-sm font-poppins text-[#ff613c] font-medium">
+      <!-- <p class="text-sm font-poppins text-[#ff613c] font-medium">
         Welcome back, {{ authStore.user.name.split(" ")[0] }} !
-      </p>
+      </p> -->
     </div>
     <div class="">
       <div class="flex items-center justify-start space-x-6 cursor-pointer">

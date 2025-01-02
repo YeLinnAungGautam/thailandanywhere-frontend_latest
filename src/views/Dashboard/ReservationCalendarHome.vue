@@ -10,12 +10,12 @@
     </div> -->
     <div class="space-y-2 col-span-2">
       <div
-        class="flex justify-between items-center gap-x-2 shadow bg-white py-4 px-3 rounded-lg"
+        class="flex justify-between items-center shadow bg-white py-4 px-3 rounded-lg"
       >
-        <p class="text-[10px] font-medium pb-1">Type:</p>
+        <p class="text-[10px] font-medium">Type:</p>
         <div class="relative">
           <p
-            class="flex justify-start items-center gap-x-2 mr-2"
+            class="flex justify-start items-center gap-x-2"
             @click="openSelection = !openSelection"
           >
             <span
@@ -65,6 +65,15 @@
               ></span
               >Vantour
             </p>
+            <p
+              @click="changeBackground('all-without-van')"
+              class="px-2 py-2 text-[12px] whitespace-nowrap flex justify-start cursor-pointer items-center gap-x-2"
+            >
+              <span
+                class="text-xs bg-black w-2 h-2 inline-block rounded-lg"
+              ></span
+              >All w/o van
+            </p>
           </div>
         </div>
       </div>
@@ -79,6 +88,8 @@
             :loading="loading"
             :customer_not_paid="customer_not_paid"
             :filterType="filterType"
+            :supplier_not="supplier_not"
+            :driver_not="driver_not"
             @filterType="changeFilterType"
           />
         </div>
@@ -111,16 +122,16 @@
     <div class="col-span-5 space-y-2">
       <div
         class="text-xs font-medium shadow flex justify-between items-center bg-white px-4 rounded-lg"
-        :class="filterType != '' ? 'py-3' : 'py-4'"
+        :class="filterType != '' || chooseType != '' ? 'py-3' : 'py-4'"
       >
         <p>Filtered By</p>
         <div class="flex justify-end items-center gap-x-2">
-          <!-- <select
+          <select
             v-if="authStore.isSuperAdmin || authStore.isReservation"
             name=""
             id=""
             v-model="userFilter"
-            class="px-2 py-1 focus:border-gray-300 border border-gray-300 placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400 space-y-2 h-9"
+            class="px-1 text-[10px] py-1 focus:border-gray-300 border border-gray-300 placeholder-sm bg-white rounded-lg w-[100px] text-gray-400 space-y-2 focus:outline-none"
           >
             <option :value="null" disabled class="bg-gray-200 text-sm">
               Filter By User
@@ -134,7 +145,7 @@
             >
               {{ key.name }}
             </option>
-          </select> -->
+          </select>
           <p
             class="text-white text-[10px] px-2 py-1 rounded-lg"
             v-if="chooseType"
@@ -252,6 +263,12 @@ const changeBackground = (type) => {
       chooseType.value = "Van Tour";
       openSelection.value = false;
       break;
+    case "all-without-van":
+      backgroundCustom.value = "bg-black";
+      productType.value = "";
+      chooseType.value = "All w/o van";
+      openSelection.value = false;
+      break;
     default:
       backgroundCustom.value = "bg-blue-600";
   }
@@ -288,9 +305,12 @@ const getTodaySale = async () => {
     dataFilter.user_id = authStore.user.id;
   }
 
+  if (userFilter.value != undefined) {
+    dataFilter.user_id = userFilter.value;
+  }
+
   const res = await reservationStore.getSimpleListAction(dataFilter);
 
-  reservation_list.value = res.result.data;
   filterGetTodaySale(res.result);
   loading.value = false;
 };
@@ -304,30 +324,64 @@ const getListing = computed(() => {
     return expense_data.value;
   } else if (filterType.value == "missing receipt") {
     return reservation_data.value;
+  } else if (filterType.value == "missing supplier") {
+    return supplier_not_list.value;
+  } else if (filterType.value == "missing driver") {
+    return driver_not_list.value;
   }
 });
 
 const expense_data = ref(null);
 const reservation_data = ref(null);
 const customer_not = ref(null);
+const supplier_not = ref(null);
+const driver_not = ref(null);
+const supplier_not_list = ref(null);
+const driver_not_list = ref(null);
+const without_vantours = ref(null);
 
 const filterGetTodaySale = (data) => {
-  reservationTotal.value = data.data.length;
+  let getData = "";
 
-  expense_data.value = data.data.filter(
+  if (selectedProductType.value != "all-without-van") {
+    getData = data.data;
+    without_vantours.value = data.data;
+  } else {
+    getData = data.data.filter(
+      (item) => item.product_type != "App\\Models\\PrivateVanTour"
+    );
+  }
+
+  reservation_list.value = getData;
+
+  reservationTotal.value = getData.length;
+
+  expense_data.value = getData.filter(
     (item) => item.payment_status === "not_paid"
   );
   expense.value = expense_data.value.length;
 
-  reservation_data.value = data.data.filter(
-    (item) => item.paid_slip.length == 0
-  );
+  reservation_data.value = getData.filter((item) => item.paid_slip.length == 0);
   booking_receipt.value = reservation_data.value.length;
 
-  customer_not.value = data.data.filter(
+  customer_not.value = getData.filter(
     (item) => item.booking.payment_status == "not_paid"
   );
   customer_not_paid.value = customer_not.value.length;
+
+  supplier_not_list.value = getData.filter(
+    (item) =>
+      item.reservation_car_info == null ||
+      item.reservation_car_info?.supplier_id == ""
+  );
+  supplier_not.value = supplier_not_list.value.length;
+
+  driver_not_list.value = getData.filter(
+    (item) =>
+      item.reservation_car_info == null ||
+      item.reservation_car_info?.driver_id == ""
+  );
+  driver_not.value = driver_not_list.value.length;
 
   console.log("====================================");
   console.log("data", data);
@@ -341,7 +395,7 @@ const changeFilterType = (value) => {
   filterType.value = value;
 };
 
-watch([selectedDay, productType], async (value) => {
+watch([selectedDay, productType, userFilter], async (value) => {
   await getTodaySale();
 });
 

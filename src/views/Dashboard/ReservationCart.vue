@@ -23,13 +23,36 @@
           </p>
         </div>
         <div>
-          <p class="text-[10px] text-[#ff613c] space-x-1">
+          <p
+            class="text-[10px] text-[#ff613c] space-x-1"
+            v-if="data?.product_type != 'App\\Models\\Hotel'"
+          >
             <span class="font-medium"
               >E-{{ data?.cost_price * data?.quantity }}</span
             >
-            :
+
             <span class="font-medium" v-if="authStore.isSuperAdmin"
-              >P-{{ data?.selling_price * data?.quantity }}</span
+              >: P-{{ data?.selling_price * data?.quantity }}</span
+            >
+          </p>
+          <p
+            class="text-[10px] text-[#ff613c] space-x-1"
+            v-if="data?.product_type == 'App\\Models\\Hotel'"
+          >
+            <span class="font-medium"
+              >E-{{
+                data?.cost_price *
+                data?.quantity *
+                daysBetween(data?.checkin_date, data?.checkout_date)
+              }}</span
+            >
+
+            <span class="font-medium" v-if="authStore.isSuperAdmin"
+              >: P-{{
+                data?.selling_price *
+                data?.quantity *
+                daysBetween(data?.checkin_date, data?.checkout_date)
+              }}</span
             >
           </p>
         </div>

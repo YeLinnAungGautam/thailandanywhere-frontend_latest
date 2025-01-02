@@ -47,6 +47,7 @@
         </p>
       </div>
       <div
+        v-if="backgroundCustom != 'bg-yellow-600'"
         class="p-3 hover:bg-[#ff613c] hover:text-white"
         :class="
           filterType == 'expense not paid' ? 'bg-[#ff613c]  text-white' : ''
@@ -73,6 +74,7 @@
         </p>
       </div>
       <div
+        v-if="backgroundCustom != 'bg-yellow-600'"
         class="p-3 hover:bg-[#ff613c] hover:rounded-b-lg hover:text-white"
         :class="
           filterType == 'missing receipt'
@@ -95,6 +97,62 @@
           :class="loading ? 'animate-bounce' : ''"
         >
           {{ loading ? "..." : booking_receipt }}
+          <span class="text-lg"
+            >/ {{ loading ? "..." : reservationTotal }}</span
+          >
+        </p>
+      </div>
+      <div
+        v-if="backgroundCustom == 'bg-yellow-600'"
+        class="p-3 hover:bg-[#ff613c] hover:text-white"
+        :class="
+          filterType == 'missing supplier' ? 'bg-[#ff613c]  text-white' : ''
+        "
+        @click="filterTypeChange('missing supplier')"
+      >
+        <div class=" ">
+          <div class="text-xs font-medium flex justify-between items-center">
+            <p>Missing Supplier</p>
+            <p
+              class="text-xs w-2 h-2 mr-2 inline-block rounded-lg"
+              :class="backgroundCustom"
+            ></p>
+          </div>
+        </div>
+        <p
+          class="font-semibold text-2xl pt-2"
+          :class="loading ? 'animate-bounce' : ''"
+        >
+          {{ loading ? "..." : supplier_not }}
+          <span class="text-lg"
+            >/ {{ loading ? "..." : reservationTotal }}</span
+          >
+        </p>
+      </div>
+      <div
+        v-if="backgroundCustom == 'bg-yellow-600'"
+        class="p-3 hover:bg-[#ff613c] hover:rounded-b-lg hover:text-white"
+        :class="
+          filterType == 'missing driver'
+            ? 'bg-[#ff613c] rounded-b-lg text-white'
+            : ''
+        "
+        @click="filterTypeChange('missing driver')"
+      >
+        <div class=" " v-if="backgroundCustom == 'bg-yellow-600'">
+          <div class="text-xs font-medium flex justify-between items-center">
+            <p>Missing Driver</p>
+            <p
+              class="text-xs w-2 h-2 mr-2 inline-block rounded-lg"
+              :class="backgroundCustom"
+            ></p>
+          </div>
+        </div>
+        <p
+          class="font-semibold text-2xl pt-2"
+          :class="loading ? 'animate-bounce' : ''"
+        >
+          {{ loading ? "..." : driver_not }}
           <span class="text-lg"
             >/ {{ loading ? "..." : reservationTotal }}</span
           >
@@ -145,6 +203,14 @@ const props = defineProps({
   filterType: {
     type: String,
     required: false,
+  },
+  supplier_not: {
+    type: Number,
+    required: true,
+  },
+  driver_not: {
+    type: Number,
+    required: true,
   },
 });
 

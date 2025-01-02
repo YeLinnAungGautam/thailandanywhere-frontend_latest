@@ -48,6 +48,7 @@ import {
   PuzzlePieceIcon,
   UsersIcon,
 } from "@heroicons/vue/24/outline";
+import ReservationCalendarHome from "./Dashboard/ReservationCalendarHome.vue";
 
 Chart.register(...registerables);
 
@@ -820,6 +821,11 @@ const homeSectionPartView = ref("sale");
           @click="homeSectionPartView = 'sale'"
         />
         <HomeFirstPartVue
+          :title="'Sales analysis'"
+          :isActive="homeSectionPartView == 'sale-analysis'"
+          @click="homeSectionPartView = 'sale-analysis'"
+        />
+        <HomeFirstPartVue
           :title="'Reservations'"
           :isActive="homeSectionPartView == 'reservation'"
           @click="homeSectionPartView = 'reservation'"
@@ -1136,6 +1142,13 @@ const homeSectionPartView = ref("sale");
         v-if="homeSectionPartView == 'reservation'"
       >
         <ReservationPartHome />
+      </div>
+
+      <div
+        class="col-span-3 w-full"
+        v-if="homeSectionPartView == 'sale-analysis'"
+      >
+        <ReservationCalendarHome />
       </div>
     </div>
   </Layout>

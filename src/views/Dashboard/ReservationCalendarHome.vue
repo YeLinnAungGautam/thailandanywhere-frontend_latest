@@ -77,6 +77,8 @@
             :booking_receipt="booking_receipt"
             :loading="loading"
             :customer_not_paid="customer_not_paid"
+            :filterType="filterType"
+            @filterType="changeFilterType"
           />
         </div>
       </div>
@@ -106,17 +108,19 @@
       </div>
     </div>
     <div class="col-span-5 space-y-2">
-      <p class="text-xs font-medium shadow bg-white py-4 px-4 rounded-lg">
-        Sort By
-        <!-- <span class="text-[#ff613c] rounded-lg font-medium">{{
-          selectedDay ? `at ${selectedDay}` : ``
-        }}</span> -->
-      </p>
+      <div
+        class="text-xs font-medium shadow flex justify-between items-center bg-white py-4 px-4 rounded-lg"
+      >
+        <p>Sort By</p>
+        <p class="bg-gray-100 px-2 py-1 rounded-lg">
+          {{ filterType }}
+        </p>
+      </div>
       <div
         v-if="!loading"
         class="bg-white shadow rounded-lg divide-y-2 divide-gray-300 max-h-[405px] overflow-scroll"
       >
-        <div class="" v-for="i in reservation_list ?? []" :key="i">
+        <div class="" v-for="i in getListing ?? []" :key="i">
           <ReservationCartVue :backgroundCustom="backgroundCustom" :data="i" />
         </div>
       </div>
@@ -136,7 +140,7 @@
 import { format } from "date-fns";
 import CalendarPartVue from "./CalendarPart.vue";
 import InformationVue from "./Information.vue";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 
 import ReservationCartVue from "./ReservationCart.vue";
 import { ChevronDownIcon } from "@heroicons/vue/24/outline";
@@ -225,28 +229,50 @@ const getTodaySale = async () => {
   loading.value = false;
 };
 
+const getListing = computed(() => {
+  if (filterType.value == "") {
+    return reservation_list.value;
+  } else if (filterType.value == "customer not paid") {
+    return customer_not.value;
+  } else if (filterType.value == "expense not paid") {
+    return expense_data.value;
+  } else if (filterType.value == "missing receipt") {
+    return reservation_data.value;
+  }
+});
+
+const expense_data = ref(null);
+const reservation_data = ref(null);
+const customer_not = ref(null);
+
 const filterGetTodaySale = (data) => {
   reservationTotal.value = data.data.length;
 
-  const expense_data = data.data.filter(
+  expense_data.value = data.data.filter(
     (item) => item.payment_status === "not_paid"
   );
-  expense.value = expense_data.length;
+  expense.value = expense_data.value.length;
 
-  const reservation_data = data.data.filter(
+  reservation_data.value = data.data.filter(
     (item) => item.paid_slip.length == 0
   );
-  booking_receipt.value = reservation_data.length;
+  booking_receipt.value = reservation_data.value.length;
 
-  const customer_not = data.data.filter(
+  customer_not.value = data.data.filter(
     (item) => item.booking.payment_status == "not_paid"
   );
-  customer_not_paid.value = customer_not.length;
+  customer_not_paid.value = customer_not.value.length;
 
   console.log("====================================");
   console.log("data", data);
   console.log("====================================");
   console.log("expense", expense.value);
+};
+
+const filterType = ref("");
+
+const changeFilterType = (value) => {
+  filterType.value = value;
 };
 
 watch([selectedDay, productType], async (value) => {

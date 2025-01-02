@@ -109,7 +109,8 @@
     </div>
     <div class="col-span-5 space-y-2">
       <div
-        class="text-xs font-medium shadow flex justify-between items-center bg-white py-4 px-4 rounded-lg"
+        class="text-xs font-medium shadow flex justify-between items-center bg-white px-4 rounded-lg"
+        :class="filterType != '' ? 'py-3' : 'py-4'"
       >
         <p>Sort By</p>
         <p class="bg-gray-100 px-2 py-1 rounded-lg">

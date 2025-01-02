@@ -158,12 +158,11 @@ onMounted(() => {
   const screenWidth = window.innerWidth;
   console.log("Screen Width:", screenWidth);
 
-  if (screenWidth < 800) {
+  if (screenWidth > 1000) {
     // Assuming '1024px' is the breakpoint for tablets
     if (isShowSidebar.value == true) {
       toggleSidebarHandler();
     }
-  } else {
   }
 
   console.log("====================================");

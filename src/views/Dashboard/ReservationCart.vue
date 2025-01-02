@@ -5,21 +5,34 @@
       :class="backgroundCustom"
     ></div>
     <div class="pl-5 pt-2 pb-2 gap-y-4 gap-x-3">
-      <div class="">
-        <p
-          class="text-[10px] space-x-1"
-          v-if="data?.product_type != 'App\\Models\\Hotel'"
-        >
-          <span class="font-medium">{{ data?.service_date }}</span>
-        </p>
-        <p
-          class="text-[10px] space-x-1"
-          v-if="data?.product_type == 'App\\Models\\Hotel'"
-        >
-          <span class="font-medium"
-            >{{ data?.checkin_date }} / {{ data?.checkout_date }}</span
+      <div class="flex justify-between items-center">
+        <div>
+          <p
+            class="text-[10px] space-x-1"
+            v-if="data?.product_type != 'App\\Models\\Hotel'"
           >
-        </p>
+            <span class="font-medium">{{ data?.service_date }}</span>
+          </p>
+          <p
+            class="text-[10px] space-x-1"
+            v-if="data?.product_type == 'App\\Models\\Hotel'"
+          >
+            <span class="font-medium"
+              >{{ data?.checkin_date }} / {{ data?.checkout_date }}</span
+            >
+          </p>
+        </div>
+        <div>
+          <p class="text-[10px] text-[#ff613c] space-x-1">
+            <span class="font-medium"
+              >E-{{ data?.cost_price * data?.quantity }}</span
+            >
+            :
+            <span class="font-medium" v-if="authStore.isSuperAdmin"
+              >P-{{ data?.selling_price * data?.quantity }}</span
+            >
+          </p>
+        </div>
       </div>
       <div class="py-2 flex justify-start items-center gap-x-2">
         <p
@@ -179,7 +192,9 @@ import {
   CheckCircleIcon,
   XMarkIcon,
 } from "@heroicons/vue/24/outline";
+import { useAuthStore } from "../../stores/auth";
 
+const authStore = useAuthStore();
 const open = ref(false);
 
 const daysBetween = (a, b) => {

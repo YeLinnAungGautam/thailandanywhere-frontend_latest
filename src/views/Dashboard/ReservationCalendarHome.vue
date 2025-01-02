@@ -12,7 +12,7 @@
       <div
         class="flex justify-between items-center gap-x-2 shadow bg-white py-4 px-3 rounded-lg"
       >
-        <p class="text-xs font-medium pb-1">Information</p>
+        <p class="text-[10px] font-medium pb-1">Type:</p>
         <div class="relative">
           <p
             class="flex justify-start items-center gap-x-2 mr-2"
@@ -21,7 +21,8 @@
             <span
               class="text-xs w-2 h-2 inline-block rounded-lg"
               :class="backgroundCustom"
-            ></span>
+            ></span
+            ><span class="text-[10px] font-medium">{{ chooseType }}</span>
             <ChevronDownIcon class="w-3 h-3" />
           </p>
           <div
@@ -30,7 +31,7 @@
           >
             <p
               @click="changeBackground('all')"
-              class="px-2 py-1 text-[10px] flex justify-start cursor-pointer items-center gap-x-2"
+              class="px-2 py-2 text-[12px] flex justify-start cursor-pointer items-center gap-x-2"
             >
               <span
                 class="text-xs bg-gray-600 w-2 h-2 inline-block rounded-lg"
@@ -39,7 +40,7 @@
             </p>
             <p
               @click="changeBackground('attraction')"
-              class="px-2 py-1 text-[10px] flex justify-start cursor-pointer items-center gap-x-2"
+              class="px-2 py-2 text-[12px] flex justify-start cursor-pointer items-center gap-x-2"
             >
               <span
                 class="text-xs bg-blue-600 w-2 h-2 inline-block rounded-lg"
@@ -48,7 +49,7 @@
             </p>
             <p
               @click="changeBackground('hotel')"
-              class="px-2 py-1 text-[10px] flex justify-start cursor-pointer items-center gap-x-2"
+              class="px-2 py-2 text-[12px] flex justify-start cursor-pointer items-center gap-x-2"
             >
               <span
                 class="text-xs bg-green-600 w-2 h-2 inline-block rounded-lg"
@@ -57,7 +58,7 @@
             </p>
             <p
               @click="changeBackground('private-van-tour')"
-              class="px-2 py-1 text-[10px] flex justify-start cursor-pointer items-center gap-x-2"
+              class="px-2 py-2 text-[12px] flex justify-start cursor-pointer items-center gap-x-2"
             >
               <span
                 class="text-xs bg-yellow-600 w-2 h-2 inline-block rounded-lg"
@@ -112,10 +113,42 @@
         class="text-xs font-medium shadow flex justify-between items-center bg-white px-4 rounded-lg"
         :class="filterType != '' ? 'py-3' : 'py-4'"
       >
-        <p>Sort By</p>
-        <p class="bg-gray-100 px-2 py-1 rounded-lg">
-          {{ filterType }}
-        </p>
+        <p>Filtered By</p>
+        <div class="flex justify-end items-center gap-x-2">
+          <!-- <select
+            v-if="authStore.isSuperAdmin || authStore.isReservation"
+            name=""
+            id=""
+            v-model="userFilter"
+            class="px-2 py-1 focus:border-gray-300 border border-gray-300 placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 md:w-full text-gray-400 space-y-2 h-9"
+          >
+            <option :value="null" disabled class="bg-gray-200 text-sm">
+              Filter By User
+            </option>
+            <option value="" class="text-sm">All User</option>
+            <option
+              :value="key.id"
+              v-for="(key, index) in adminLists"
+              :key="index"
+              class="text-sm"
+            >
+              {{ key.name }}
+            </option>
+          </select> -->
+          <p
+            class="text-white text-[10px] px-2 py-1 rounded-lg"
+            v-if="chooseType"
+            :class="backgroundCustom"
+          >
+            {{ chooseType }}
+          </p>
+          <p
+            class="text-white text-[10px] bg-[#ff613c] px-2 py-1 rounded-lg"
+            v-if="filterType"
+          >
+            {{ filterType }}
+          </p>
+        </div>
       </div>
       <div
         v-if="!loading"
@@ -149,10 +182,13 @@ import { useDashboardStore } from "../../stores/dashboard";
 import { useReservationStore } from "../../stores/reservation";
 import ReservationCartLoadingVue from "./ReservationCartLoading.vue";
 import { useAuthStore } from "../../stores/auth";
+import { useAdminStore } from "../../stores/admin";
 
 const authStore = useAuthStore();
 const dashboardStore = useDashboardStore();
 const reservationStore = useReservationStore();
+const userFilter = ref(null);
+const adminStore = useAdminStore();
 
 const selectedDay = ref(new Date());
 
@@ -164,27 +200,56 @@ const selectedProductType = ref("attraction");
 const backgroundCustom = ref("bg-blue-600");
 const productType = ref("App\\Models\\EntranceTicket");
 
+const chooseType = ref("Attraction");
+
+const adminLists = ref([]);
+
+const getListUser = async () => {
+  try {
+    const res = await adminStore.getSimpleListAction();
+    console.log(res, "this is admin list");
+
+    adminLists.value = res.result.data
+      .filter((item) => item.role === "admin")
+      .map((item) => {
+        // Return desired structure or transformation here
+        return {
+          id: item.id,
+          name: item.name,
+        };
+      });
+  } catch (error) {
+    console.log("====================================");
+    console.log(error);
+    console.log("====================================");
+  }
+};
+
 const changeBackground = (type) => {
   selectedProductType.value = type;
   switch (type) {
     case "all":
       backgroundCustom.value = "bg-gray-600";
       productType.value = "";
+      chooseType.value = "All";
       openSelection.value = false;
       break;
     case "attraction":
       backgroundCustom.value = "bg-blue-600";
       productType.value = "App\\Models\\EntranceTicket";
+      chooseType.value = "Attraction";
       openSelection.value = false;
       break;
     case "hotel":
       backgroundCustom.value = "bg-green-600";
       productType.value = "App\\Models\\Hotel";
+      chooseType.value = "Hotel";
       openSelection.value = false;
       break;
     case "private-van-tour":
       backgroundCustom.value = "bg-yellow-600";
       productType.value = "App\\Models\\PrivateVanTour";
+      chooseType.value = "Van Tour";
       openSelection.value = false;
       break;
     default:
@@ -288,6 +353,8 @@ onMounted(async () => {
   });
 
   selectedDay.value = formatter.format(new Date());
+
+  await getListUser();
 
   // await getTodaySale();
 });

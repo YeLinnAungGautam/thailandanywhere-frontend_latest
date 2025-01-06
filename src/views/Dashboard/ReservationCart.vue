@@ -253,7 +253,12 @@
       v-if="open"
     >
       <div
-        class="h-[130px] w-[1px] bg-black/20 absolute top-1 left-[27px]"
+        class="w-[1px] bg-black/20 absolute top-1 left-[27px]"
+        :class="
+          data?.product_type == 'App\\Models\\PrivateVanTour'
+            ? 'h-[130px]'
+            : 'h-[160px]'
+        "
       ></div>
       <div
         class="flex justify-start items-center px-5 gap-x-2 z-2 bg-white relative"
@@ -287,6 +292,49 @@
             {{
               data?.booking?.receipts.length > 0
                 ? formatDate(data?.booking?.receipts[0]?.created_at)
+                : "--/--/--"
+            }}
+          </p>
+          <p class="text-[10px] text-gray-600">
+            <PencilSquareIcon class="w-4 h-4" />
+          </p>
+        </div>
+      </div>
+      <div
+        v-if="data?.product_type != 'App\\Models\\PrivateVanTour'"
+        class="flex justify-start items-center px-5 gap-x-2 z-2 bg-white relative"
+      >
+        <div
+          v-if="data?.customer_passports.length != 0"
+          class="h-[30px] w-[1px] bg-green-500 absolute top-1 z-1 left-[27px]"
+        ></div>
+        <CurrencyDollarIcon
+          class="w-4 h-4 text-green-600 bg-white z-4 relative"
+          v-if="data?.customer_passports.length != 0"
+        />
+        <CurrencyDollarIcon
+          class="w-4 h-4 text-yellow-600 bg-white z-4 relative"
+          v-if="data?.customer_passports.length == 0"
+        />
+        <div class="grid grid-cols-6 gap-x-4 w-full">
+          <p class="text-[10px] text-gray-600 col-span-2">Passport Info</p>
+          <p
+            class="text-[10px] col-span-2"
+            :class="{
+              'text-green-600': data?.customer_passports.length != 0,
+              'text-red-600': data?.customer_passports.length == 0,
+            }"
+          >
+            {{
+              data?.customer_passports.length == 0
+                ? "not available"
+                : "available"
+            }}
+          </p>
+          <p class="text-[10px] text-gray-600 flex justify-end">
+            {{
+              data?.customer_passports.length > 0
+                ? formatDate(data?.customer_passports[0]?.created_at)
                 : "--/--/--"
             }}
           </p>
@@ -472,6 +520,29 @@
           </p>
         </div>
       </div>
+      <div class="flex justify-center items-center">
+        <div class="flex justify-start items-center space-x-2">
+          <p
+            @click="
+              router.push(`/reservation/update/${data.id}/${data.crm_id}`)
+            "
+            class="text-[10px] bg-blue-600 shadow-lg rounded-lg text-white px-3 py-1 cursor-pointer"
+          >
+            reservation
+          </p>
+          <p
+            @click="
+              router.push({
+                name: 'update_new_bookings',
+                params: { id: data.booking.id },
+              })
+            "
+            class="text-[10px] bg-green-600 shadow-lg rounded-lg text-white px-3 py-1 cursor-pointer"
+          >
+            sales invoice
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -488,6 +559,7 @@ import {
 } from "@heroicons/vue/24/solid";
 import { useAuthStore } from "../../stores/auth";
 import { PencilIcon } from "@heroicons/vue/24/outline";
+import router from "../../router";
 
 const authStore = useAuthStore();
 const open = ref(false);

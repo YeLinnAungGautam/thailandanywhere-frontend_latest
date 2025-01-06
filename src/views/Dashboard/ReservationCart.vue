@@ -22,19 +22,23 @@
             >
           </p>
         </div>
-        <div>
-          <p
-            class="text-[10px] text-[#ff613c] space-x-1"
+        <div class="">
+          <div
+            class="text-[10px] text-[#ff613c] space-x-1 flex justify-end items-center"
             v-if="data?.product_type != 'App\\Models\\Hotel'"
           >
-            <span class="font-medium"
-              >E-{{ data?.cost_price * data?.quantity }}</span
-            >
+            <p class="font-medium">E-{{ data?.cost_price * data?.quantity }}</p>
 
-            <span class="font-medium" v-if="authStore.isSuperAdmin"
-              >: P-{{ data?.selling_price * data?.quantity }}</span
+            <p class="font-medium" v-if="authStore.isSuperAdmin">
+              : P-{{ data?.selling_price * data?.quantity }}
+            </p>
+            <p
+              class="text-white bg-gray-800 px-1 rounded-md"
+              v-if="data?.booking?.is_inclusive == 1"
             >
-          </p>
+              Inclusive
+            </p>
+          </div>
           <p
             class="text-[10px] text-[#ff613c] space-x-1"
             v-if="data?.product_type == 'App\\Models\\Hotel'"

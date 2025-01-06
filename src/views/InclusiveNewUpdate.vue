@@ -9,6 +9,8 @@ import OtherMaterial from "./InclusiveComponent/OtherMaterial.vue";
 import { useToast } from "vue-toastification";
 import { useInclusiveStore } from "../stores/inclusion";
 import { useRouter, useRoute } from "vue-router";
+import OtherDetail from "./InclusiveComponent/OtherDetail.vue";
+import DesignDetail from "./InclusiveComponent/DesignDetail.vue";
 
 const inclusiveStore = useInclusiveStore();
 const toast = useToast();
@@ -20,6 +22,8 @@ const finish = ref({
   session2: false,
   session3: false,
   session4: false,
+  session5: false,
+  session6: false,
 });
 
 const formData = ref({
@@ -62,8 +66,34 @@ watch(formData.value, () => {
   if (formData.value.items.length > 0) {
     finish.value.session2 = true;
   }
+  if (formData.value.details.length > 0) {
+    if (
+      formData.value.details[0].title_name != "" &&
+      formData.value.details[0].cities?.length != 0 &&
+      formData.value.details[0].destinations.length != 0
+    ) {
+      finish.value.session3 = true;
+    }
+  }
+  if (formData.value.details.length > 0) {
+    if (
+      formData.value.description != "" &&
+      formData.value.details[0].summary_mm &&
+      formData.value.details[0].summary
+    ) {
+      finish.value.session4 = true;
+    }
+  }
+  if (formData.value.details.length > 0) {
+    if (
+      formData.value.images.length > 0 &&
+      formData.value.details[0].image_url != null
+    ) {
+      finish.value.session5 = true;
+    }
+  }
   if (formData.value.cover_image || editData.value.cover_image) {
-    finish.value.session4 = true;
+    finish.value.session6 = true;
   }
 });
 
@@ -245,6 +275,13 @@ const getDetail = async () => {
     formData.value.price = response.result.price;
     formData.value.agent_price = response.result.agent_price;
     editData.value.cover_image = response.result.cover_image;
+    // formData.value.images = response.result.images;
+    if (response.result.images.length > 0) {
+      for (let i = 0; i < response.result.images.length; i++) {
+        const image = response.result.images[i].image;
+        formData.value.images.push(image);
+      }
+    }
     formData.value.sku_code = response.result.sku_code;
     if (response.result.price_range != null) {
       if (response.result.price_range.length > 0) {
@@ -415,7 +452,7 @@ onMounted(async () => {
   <Layout>
     <!-- header part -->
     <div
-      class="flex justify-start py-3 bg-white border-b border-gray-200 px-8 gap-x-2 items-center"
+      class="flex justify-start py-3 overflow-x-scroll overflow-y-hidden no-sidebar bg-white border-b border-gray-200 px-8 gap-x-2 items-center"
     >
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
@@ -432,8 +469,8 @@ onMounted(async () => {
         >
           <p class="pb-9 text-red-500 text-6xl">.</p>
         </div>
-        <p class="text-sm">General details</p>
-        <p class="px-4 text-gray-400">-----</p>
+        <p class="text-sm whitespace-nowrap">General details</p>
+        <p class="px-4 text-gray-400 whitespace-nowrap">-----</p>
       </div>
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
@@ -450,8 +487,8 @@ onMounted(async () => {
         >
           <p class="pb-9 text-red-500 text-6xl">.</p>
         </div>
-        <p class="text-sm">Item details</p>
-        <p class="px-4 text-gray-400">-----</p>
+        <p class="text-sm whitespace-nowrap">Item details</p>
+        <p class="px-4 text-gray-400 whitespace-nowrap">-----</p>
       </div>
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
@@ -468,8 +505,8 @@ onMounted(async () => {
         >
           <p class="pb-9 text-red-500 text-6xl">.</p>
         </div>
-        <p class="text-sm">Content details</p>
-        <p class="px-4 text-gray-400">-----</p>
+        <p class="text-sm whitespace-nowrap">Other details</p>
+        <p class="px-4 text-gray-400 whitespace-nowrap">-----</p>
       </div>
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
@@ -486,7 +523,43 @@ onMounted(async () => {
         >
           <p class="pb-9 text-red-500 text-6xl">.</p>
         </div>
-        <p class="text-sm">Other Materials</p>
+        <p class="text-sm whitespace-nowrap">Content details</p>
+        <p class="px-4 text-gray-400 whitespace-nowrap">-----</p>
+      </div>
+      <div
+        class="flex justify-start items-center gap-2 cursor-pointer"
+        :class="session == 5 ? '' : 'opacity-40'"
+        @click="session = 5"
+      >
+        <CheckCircleIcon
+          class="text-green-500 w-6 h-6"
+          v-if="finish.session5"
+        />
+        <div
+          v-if="!finish.session5"
+          class="w-5 h-5 border border-red-300 rounded-full flex justify-center items-center"
+        >
+          <p class="pb-9 text-red-500 text-6xl">.</p>
+        </div>
+        <p class="text-sm whitespace-nowrap">Design details</p>
+        <p class="px-4 text-gray-400 whitespace-nowrap">-----</p>
+      </div>
+      <div
+        class="flex justify-start items-center gap-2 cursor-pointer"
+        :class="session == 6 ? '' : 'opacity-40'"
+        @click="session = 6"
+      >
+        <CheckCircleIcon
+          class="text-green-500 w-6 h-6"
+          v-if="finish.session6"
+        />
+        <div
+          v-if="!finish.session6"
+          class="w-5 h-5 border border-red-300 rounded-full flex justify-center items-center"
+        >
+          <p class="pb-9 text-red-500 text-6xl">.</p>
+        </div>
+        <p class="text-sm whitespace-nowrap">Other Materials</p>
       </div>
     </div>
 
@@ -543,7 +616,7 @@ onMounted(async () => {
     </div>
     <div class="px-8 py-6 bg-white" v-if="session == 3">
       <div class="flex justify-between items-center">
-        <p class="text-base">Content Details</p>
+        <p class="text-base">Other Details</p>
         <div class="flex gap-x-2 justify-end items-center">
           <p
             @click="session = 2"
@@ -566,15 +639,71 @@ onMounted(async () => {
         </div>
       </div>
       <div>
-        <ContentDetail :formData="formData" />
+        <OtherDetail :formData="formData" />
       </div>
     </div>
     <div class="px-8 py-6 bg-white" v-if="session == 4">
       <div class="flex justify-between items-center">
-        <p class="text-base">Other Materials</p>
+        <p class="text-base">Content Details</p>
         <div class="flex gap-x-2 justify-end items-center">
           <p
             @click="session = 3"
+            class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Back
+          </p>
+          <p
+            @click="onSubmitHandler"
+            class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Save
+          </p>
+          <p
+            @click="session = 5"
+            class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Next
+          </p>
+        </div>
+      </div>
+      <div>
+        <ContentDetail :formData="formData" />
+      </div>
+    </div>
+    <div class="px-8 py-6 bg-white" v-if="session == 5">
+      <div class="flex justify-between items-center">
+        <p class="text-base">Design Details</p>
+        <div class="flex gap-x-2 justify-end items-center">
+          <p
+            @click="session = 4"
+            class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Back
+          </p>
+          <p
+            @click="onSubmitHandler"
+            class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Save
+          </p>
+          <p
+            @click="session = 6"
+            class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Next
+          </p>
+        </div>
+      </div>
+      <div>
+        <DesignDetail :formData="formData" />
+      </div>
+    </div>
+    <div class="px-8 py-6 bg-white" v-if="session == 6">
+      <div class="flex justify-between items-center">
+        <p class="text-base">Other Materials</p>
+        <div class="flex gap-x-2 justify-end items-center">
+          <p
+            @click="session = 5"
             class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
           >
             Back

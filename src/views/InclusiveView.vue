@@ -43,6 +43,24 @@
               Name
             </th>
             <th class="p-3 text-xs font-medium tracking-wide text-left">
+              general
+            </th>
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
+              items
+            </th>
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
+              other
+            </th>
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
+              content
+            </th>
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
+              design
+            </th>
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
+              material
+            </th>
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
               Prices (Rate per person)
             </th>
 
@@ -71,8 +89,81 @@
               {{ r.id }}
             </td>
 
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+            <td
+              class="p-3 text-xs text-gray-700 whitespace-nowrap max-w-[150px] overflow-hidden"
+            >
               {{ r.name }}
+            </td>
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              <CheckBadgeIcon
+                class="w-5 h-5 text-green-600"
+                v-if="
+                  checkOne(
+                    r.name,
+                    r.day,
+                    r.night,
+                    r.price,
+                    r.sku_code,
+                    r.price_range
+                  )
+                "
+              />
+              <XCircleIcon
+                class="w-5 h-5 text-red-600"
+                v-if="
+                  !checkOne(
+                    r.name,
+                    r.day,
+                    r.night,
+                    r.price,
+                    r.sku_code,
+                    r.price_range
+                  )
+                "
+              />
+            </td>
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              <CheckBadgeIcon class="w-5 h-5 text-green-600" />
+            </td>
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              <CheckBadgeIcon
+                class="w-5 h-5 text-green-600"
+                v-if="checkOther(r.details)"
+              />
+              <XCircleIcon
+                class="w-5 h-5 text-red-600"
+                v-if="!checkOther(r.details)"
+              />
+            </td>
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              <CheckBadgeIcon
+                class="w-5 h-5 text-green-600"
+                v-if="checkContext(r.details, r.description)"
+              />
+              <XCircleIcon
+                class="w-5 h-5 text-red-600"
+                v-if="!checkContext(r.details, r.description)"
+              />
+            </td>
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              <CheckBadgeIcon
+                class="w-5 h-5 text-green-600"
+                v-if="checkDesign(r.details, r.images)"
+              />
+              <XCircleIcon
+                class="w-5 h-5 text-red-600"
+                v-if="!checkDesign(r.details, r.images)"
+              />
+            </td>
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              <CheckBadgeIcon
+                class="w-5 h-5 text-green-600"
+                v-if="r.cover_image != null"
+              />
+              <XCircleIcon
+                class="w-5 h-5 text-red-600"
+                v-if="r.cover_image == null"
+              />
             </td>
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.price }} B
@@ -213,6 +304,7 @@ import { useAuthStore } from "../stores/auth";
 import debounce from "lodash/debounce";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import Modal from "../components/Modal.vue";
+import { CheckBadgeIcon, XCircleIcon } from "@heroicons/vue/24/solid";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -288,6 +380,104 @@ const onDeleteHandler = async (id) => {
     }
   });
 };
+
+const checkOne = (name, day, night, price, sku_code, price_range) => {
+  if (
+    name != "" &&
+    day != "" &&
+    night != "" &&
+    price != "" &&
+    sku_code != "" &&
+    price_range != null
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+const checkOther = (details) => {
+  if (details.length > 0) {
+    if (
+      details[0]?.title != "" &&
+      details[0]?.cities?.length != 0 &&
+      details[0]?.destinations.length != 0
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+};
+
+const checkContext = (details, des) => {
+  if (details.length > 0) {
+    if (des != "" && details[0].summary_mm && details[0].summary) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+};
+
+const checkDesign = (details, images) => {
+  if (details.length > 0) {
+    if (images.length > 0 && details[0].image != null) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+};
+
+// if (
+//   formData.value.name != "" &&
+//   formData.value.day != "" &&
+//   formData.value.night != "" &&
+//   formData.value.price != "" &&
+//   formData.value.sku_code != "" &&
+//   formData.value.price_range.length > 0
+// ) {
+//   finish.value.session1 = true;
+// }
+// if (formData.value.items.length > 0) {
+//   finish.value.session2 = true;
+// }
+// if (formData.value.details.length > 0) {
+//   if (
+//     formData.value.details[0].title_name != "" &&
+//     formData.value.details[0].cities?.length != 0 &&
+//     formData.value.details[0].destinations.length != 0
+//   ) {
+//     finish.value.session3 = true;
+//   }
+// }
+// if (formData.value.details.length > 0) {
+//   if (
+//     formData.value.description != "" &&
+//     formData.value.details[0].summary_mm &&
+//     formData.value.details[0].summary
+//   ) {
+//     finish.value.session4 = true;
+//   }
+// }
+// if (formData.value.details.length > 0) {
+//   if (
+//     formData.value.images.length > 0 &&
+//     formData.value.details[0].image_url != null
+//   ) {
+//     finish.value.session5 = true;
+//   }
+// }
+// if (formData.value.cover_image || editData.value.cover_image) {
+//   finish.value.session6 = true;
+// }
 
 onMounted(async () => {
   await inclusiveStore.getListAction();

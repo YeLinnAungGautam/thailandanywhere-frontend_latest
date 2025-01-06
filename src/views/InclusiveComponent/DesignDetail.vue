@@ -49,6 +49,9 @@ const editorOptions = {
   placeholder: "Write an awesome summary here ...",
 };
 
+const imagesInput = ref(null);
+const imagesPreview = ref([]);
+
 const imagePreview = ref(null);
 const imageInput = ref(null);
 const openFileImageDPicker = () => {
@@ -62,6 +65,22 @@ const handlerImageDFileChange = (e) => {
       URL.createObjectURL(selectedFile);
     console.log(props.formData.details);
   }
+};
+
+const handlerImagesFileChange = (e) => {
+  console.log(e.target.files);
+  let selectedFile = e.target.files;
+  if (selectedFile) {
+    for (let index = 0; index < selectedFile.length; index++) {
+      props.formData.images.push(selectedFile[index]);
+      imagesPreview.value.push(URL.createObjectURL(selectedFile[index]));
+    }
+  }
+};
+
+const removeImageSelectImage = (index) => {
+  props.formData.images.splice(index, 1);
+  imagesPreview.value.splice(index, 1);
 };
 
 const removeSelectedImage = () => {
@@ -174,20 +193,53 @@ onMounted(async () => {
             >
               <p class="pb-9 text-red-500 text-6xl">.</p>
             </div>
-            <p class="text-sm">General detail's description</p>
+            <p class="text-sm">General detail's Cover Image</p>
           </div>
           <ChevronRightIcon class="w-4 h-4" />
         </div>
-        <div class="space-y-2 col-span-2 pt-4" v-if="detailOpen">
-          <QuillEditor
-            ref="textEditor"
-            :options="editorOptions"
-            theme="snow"
-            class="!bg-white/50 !border-1 !border-gray-200 !rounded-bl-md !rounded-br-md !shadow-sm !text-sm !text-gray-900 !h-[200px]"
-            toolbar="essential"
-            contentType="html"
-            v-model:content="formData.description"
-          />
+        <div
+          class="col-span-2 gap-x-2 flex justify-start items-center"
+          v-if="detailOpen"
+        >
+          <div class="space-y-2">
+            <input
+              type="file"
+              name=""
+              class="text-xs flex justify-center items-center w-full h-[70px] border-dashed border border-gray-200 rounded-2xl text-gray-400 cursor-pointer p-6"
+              @change="handlerImagesFileChange"
+              multiple
+              id=""
+            />
+          </div>
+          <div class="space-y-2 pt-2">
+            <p
+              v-if="imagesPreview.length == 0 && formData.images.length == 0"
+              class="text-xs flex justify-center items-center w-[70px] h-[70px] border-dashed border border-gray-200 rounded-2xl text-gray-400 cursor-pointer"
+            >
+              preview
+            </p>
+            <div class="flex justify-start items-center gap-x-2">
+              <div
+                v-for="(imagePreview, index) in imagesPreview &&
+                formData.images"
+                :key="imagePreview"
+                class="w-full h-auto relative"
+              >
+                <img
+                  :src="imagePreview"
+                  alt="Image preview"
+                  class="w-auto h-[99px] rounded"
+                />
+                <span
+                  class="text-xs absolute top-0 right-0 cursor-pointer"
+                  @click="removeImageSelectImage(index)"
+                  ><i
+                    class="fa-solid fa-minus text-sm font-semibold py-1 px-2 bg-[#ff613c] rounded-full shadow text-white"
+                  ></i
+                ></span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div
@@ -215,91 +267,6 @@ onMounted(async () => {
           <ChevronRightIcon class="w-4 h-4" />
         </div>
 
-        <!-- <div v-if="i.day_name == openDayDetail" class="space-y-2">
-          <label for="" class="text-[12px] text-gray-500">Title Name * </label>
-          <input
-            type="text"
-            v-model="i.title"
-            class="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none text-xs w-full"
-          />
-        </div>
-        <div v-if="i.day_name == openDayDetail" class="space-y-2">
-          <label for="" class="text-[12px] text-gray-500">cities *</label>
-          <v-select
-            v-model="i.cities"
-            v-if="cities?.data"
-            class="style-chooser"
-            :options="cities?.data ?? []"
-            label="name"
-            multiple
-            :clearable="false"
-            :reduce="(c) => c.id"
-            placeholder="..."
-          ></v-select>
-        </div> -->
-        <div v-if="i.day_name == openDayDetail" class="space-y-2">
-          <label for="" class="text-[12px] text-gray-500"
-            >Summary (eng) *</label
-          >
-          <!-- <textarea
-            v-model="i.summary"
-            class="border border-gray-200 w-full h-[100px] px-2 py-2 rounded-lg text-xs focus:outline-none"
-          ></textarea> -->
-          <QuillEditor
-            ref="textEditor"
-            :options="editorOptions"
-            theme="snow"
-            class="!bg-white/50 !border-1 !border-gray-200 !rounded-bl-md !rounded-br-md !shadow-sm !text-sm !text-gray-900 !h-[200px]"
-            toolbar="essential"
-            contentType="html"
-            v-model:content="i.summary"
-          />
-        </div>
-        <div v-if="i.day_name == openDayDetail" class="space-y-2">
-          <label for="" class="text-[12px] text-gray-500">Summary (mm) *</label>
-          <!-- <textarea
-            v-model="i.summary_mm"
-            class="border border-gray-200 w-full h-[100px] px-2 py-2 rounded-lg text-xs focus:outline-none"
-          ></textarea> -->
-          <QuillEditor
-            ref="textEditor"
-            :options="editorOptions"
-            theme="snow"
-            class="!bg-white/50 !border-1 !border-gray-200 !rounded-bl-md !rounded-br-md !shadow-sm !text-sm !text-gray-900 !h-[200px]"
-            toolbar="essential"
-            contentType="html"
-            v-model:content="i.summary_mm"
-          />
-        </div>
-        <!-- <div v-if="i.day_name == openDayDetail" class="space-y-2">
-          <label for="" class="text-[12px] text-gray-500">Meals </label>
-          
-          <QuillEditor
-            ref="textEditor"
-            :options="editorOptions"
-            theme="snow"
-            class="!bg-white/50 !border-1 !border-gray-200 !rounded-bl-md !rounded-br-md !shadow-sm !text-sm !text-gray-900 !h-[200px]"
-            toolbar="essential"
-            contentType="html"
-            v-model:content="i.meals"
-          />
-        </div>
-        <div v-if="i.day_name == openDayDetail" class="space-y-2 pb-2">
-          <label for="" class="text-[12px] text-gray-500"
-            >Destination List *</label
-          >
-          <v-select
-            v-model="i.destinations"
-            v-if="dests?.data"
-            class="style-chooser"
-            :options="dests?.data ?? []"
-            label="name"
-            multiple
-            :clearable="false"
-            :reduce="(c) => c.id"
-            placeholder="..."
-          ></v-select>
-        </div>
         <div v-if="i.day_name == openDayDetail" class="space-y-2">
           <label for="" class="text-[12px] text-gray-500">Upload Image</label>
 
@@ -333,7 +300,7 @@ onMounted(async () => {
               ></i
             ></span>
           </div>
-        </div> -->
+        </div>
       </div>
     </div>
     <div class="pt-4">

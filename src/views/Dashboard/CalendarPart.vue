@@ -73,7 +73,7 @@
                     isPastOrToday(day) && 'opacity-20'
                   )
                 "
-                :disabled="isPastOrToday(day)"
+                :disabled="!authStore.isSuperAdmin"
               >
                 <time :dateTime="format(day, 'yyyy-MM-dd')">
                   {{ format(day, "d") }}
@@ -93,30 +93,6 @@
             </div>
           </div>
         </div>
-        <!-- <section class="mt-12 md:mt-0">
-          <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-gray-800">
-              <time :dateTime="format(selectedDay, 'yyyy-MM-dd')">
-                {{ format(selectedDay, "MMM dd, yyyy") }}
-              </time>
-            </h2>
-            <button
-              @click="goToMainPage"
-              class="text-center bg-[#ff613c] rounded-full py-2 w-[30%] text-sm text-white font-semibold"
-            >
-              choose
-            </button>
-          </div>
-          <ol class="mt-4 space-y-1 text-sm leading-6 text-gray-500">
-            <template v-if="selectedDayMeetings.length > 0">
-              <Meeting
-                v-for="meeting in selectedDayMeetings"
-                :key="meeting.id"
-                :meeting="meeting"
-              />
-            </template>
-          </ol>
-        </section> -->
       </div>
     </div>
   </div>
@@ -126,6 +102,7 @@
 import { ref, computed, defineEmits } from "vue";
 // import { Menu, Transition } from '@headlessui/vue';
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/vue/24/outline";
+import { useAuthStore } from "../../stores/auth";
 import {
   add,
   eachDayOfInterval,
@@ -141,6 +118,8 @@ import {
   isBefore,
   startOfToday,
 } from "date-fns";
+
+const authStore = useAuthStore();
 
 const emit = defineEmits(["change"]);
 

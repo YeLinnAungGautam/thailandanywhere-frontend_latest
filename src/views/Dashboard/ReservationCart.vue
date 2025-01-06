@@ -4,7 +4,7 @@
       class="absolute top-[36px] left-3 rounded-full w-2 h-2"
       :class="backgroundCustom"
     ></div>
-    <div class="pl-5 pt-2 pb-2 gap-y-4 gap-x-3">
+    <div class="pl-5 pt-2 gap-y-4 gap-x-3">
       <div class="flex justify-between items-center">
         <div>
           <p
@@ -115,7 +115,10 @@
           {{ data?.quantity }} cars
         </p>
       </div>
-      <div class="flex justify-start space-x-4 pt-2 items-center">
+      <div
+        class="flex justify-start space-x-4 pt-2 items-center transition-all duration-150"
+        v-if="!open"
+      >
         <div
           class="flex justify-start space-x-1 items-center"
           v-if="data?.booking?.payment_status == 'fully_paid'"
@@ -182,25 +185,44 @@
       </div>
     </div>
 
-    <div class="" v-if="open">
-      <div class="flex justify-start items-center px-5 py-1 gap-x-2">
+    <div
+      class="relative space-y-3 pb-2 transition-all duration-150"
+      v-if="open"
+    >
+      <div
+        class="h-[120px] w-[3px] bg-black/40 absolute top-1 left-[26px]"
+      ></div>
+      <div
+        class="flex justify-start items-center px-5 gap-x-2 z-2 bg-white relative"
+      >
+        <div
+          class="h-[25px] w-[3px] bg-green-500 absolute top-1 z-1 left-[26px]"
+        ></div>
+        <CheckCircleIcon class="w-4 h-4 text-green-600 bg-white z-4 relative" />
+        <p class="text-[10px] text-gray-600">detail 1</p>
+      </div>
+      <div
+        class="flex justify-start items-center px-5 gap-x-2 z-2 bg-white relative"
+      >
         <CheckCircleIcon class="w-4 h-4 text-green-600" />
         <p class="text-[10px] text-gray-600">detail 1</p>
       </div>
-      <div class="flex justify-start items-center px-5 py-1 gap-x-2">
+      <div
+        class="flex justify-start items-center px-5 gap-x-2 z-2 bg-white relative"
+      >
+        <XCircleIcon class="w-4 h-4 text-red-600" />
+        <p class="text-[10px] text-gray-600">detail 1</p>
+      </div>
+      <div
+        class="flex justify-start items-center px-5 gap-x-2 z-2 bg-white relative"
+      >
         <CheckCircleIcon class="w-4 h-4 text-green-600" />
         <p class="text-[10px] text-gray-600">detail 1</p>
       </div>
-      <div class="flex justify-start items-center px-5 py-1 gap-x-2">
-        <XMarkIcon class="w-4 h-4 text-red-600" />
-        <p class="text-[10px] text-gray-600">detail 1</p>
-      </div>
-      <div class="flex justify-start items-center px-5 py-1 gap-x-2">
-        <CheckCircleIcon class="w-4 h-4 text-green-600" />
-        <p class="text-[10px] text-gray-600">detail 1</p>
-      </div>
-      <div class="flex justify-start items-center px-5 py-1 gap-x-2">
-        <XMarkIcon class="w-4 h-4 text-red-600" />
+      <div
+        class="flex justify-start items-center px-5 gap-x-2 z-2 bg-white relative"
+      >
+        <XCircleIcon class="w-4 h-4 text-red-600" />
         <p class="text-[10px] text-gray-600">detail 1</p>
       </div>
     </div>
@@ -213,8 +235,8 @@ import {
   CurrencyDollarIcon,
   CreditCardIcon,
   CheckCircleIcon,
-  XMarkIcon,
-} from "@heroicons/vue/24/outline";
+  XCircleIcon,
+} from "@heroicons/vue/24/solid";
 import { useAuthStore } from "../../stores/auth";
 
 const authStore = useAuthStore();

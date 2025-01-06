@@ -199,6 +199,7 @@ onMounted(async () => {});
           <component
             :is="currentComponent"
             :key="currentTag"
+            :data="formData"
             @formData="changeGetItem"
           />
         </transition>

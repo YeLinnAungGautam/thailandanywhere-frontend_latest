@@ -166,6 +166,14 @@ const goInfoModal = () => {
   openModal.value = false;
   addInfoModal.value = true;
 };
+
+const validateDay = (event) => {
+  const maxDay = props.data.day || 1; // Ensure there's always a max value
+  if (formitem.value.day > maxDay) {
+    formitem.value.day = maxDay; // Reset to maxDay if the input exceeds
+  }
+};
+
 const formatDate = (date) => {
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -670,8 +678,14 @@ onMounted(() => {
             <input
               type="number"
               v-model="formitem.day"
-              class="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none text-xs w-full"
+              min="1"
+              :max="data.day ? data.day : 1"
+              @input="validateDay"
+              name=""
+              class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+              id=""
             />
+            <p class="text-[10px] text-red-600">this is limit {{ data.day }}</p>
           </div>
         </div>
         <div class="flex justify-end items-center gap-x-2 pt-2">

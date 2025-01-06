@@ -9,6 +9,7 @@ import OtherMaterial from "./InclusiveComponent/OtherMaterial.vue";
 import { useToast } from "vue-toastification";
 import { useInclusiveStore } from "../stores/inclusion";
 import { useRouter } from "vue-router";
+import OtherDetail from "./InclusiveComponent/OtherDetail.vue";
 
 const inclusiveStore = useInclusiveStore();
 const toast = useToast();
@@ -230,7 +231,7 @@ const onSubmitHandler = async () => {
   <Layout>
     <!-- header part -->
     <div
-      class="flex justify-start py-3 bg-white border-b border-gray-200 px-8 gap-x-2 items-center"
+      class="flex justify-start py-3 overflow-x-scroll overflow-y-hidden no-sidebar bg-white border-b border-gray-200 px-8 gap-x-2 items-center"
     >
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
@@ -247,8 +248,8 @@ const onSubmitHandler = async () => {
         >
           <p class="pb-9 text-red-500 text-6xl">.</p>
         </div>
-        <p class="text-sm">General details</p>
-        <p class="px-4 text-gray-400">-----</p>
+        <p class="text-sm whitespace-nowrap">General details</p>
+        <p class="px-4 text-gray-400 whitespace-nowrap">-----</p>
       </div>
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
@@ -265,8 +266,8 @@ const onSubmitHandler = async () => {
         >
           <p class="pb-9 text-red-500 text-6xl">.</p>
         </div>
-        <p class="text-sm">Item details</p>
-        <p class="px-4 text-gray-400">-----</p>
+        <p class="text-sm whitespace-nowrap">Item details</p>
+        <p class="px-4 text-gray-400 whitespace-nowrap">-----</p>
       </div>
       <div
         class="flex justify-start items-center gap-2 cursor-pointer"
@@ -283,10 +284,11 @@ const onSubmitHandler = async () => {
         >
           <p class="pb-9 text-red-500 text-6xl">.</p>
         </div>
-        <p class="text-sm">Content details</p>
-        <p class="px-4 text-gray-400">-----</p>
+        <p class="text-sm whitespace-nowrap">Other details</p>
+        <!-- <p class="px-4 text-gray-400 whitespace-nowrap">-----</p> -->
       </div>
-      <div
+
+      <!-- <div
         class="flex justify-start items-center gap-2 cursor-pointer"
         :class="session == 4 ? '' : 'opacity-40'"
         @click="session = 4"
@@ -301,8 +303,8 @@ const onSubmitHandler = async () => {
         >
           <p class="pb-9 text-red-500 text-6xl">.</p>
         </div>
-        <p class="text-sm">Other Materials</p>
-      </div>
+        <p class="text-sm whitespace-nowrap">Other Materials</p>
+      </div> -->
     </div>
 
     <!-- body part -->
@@ -358,7 +360,7 @@ const onSubmitHandler = async () => {
     </div>
     <div class="px-8 py-6 bg-white" v-if="session == 3">
       <div class="flex justify-between items-center">
-        <p class="text-base">Content Details</p>
+        <p class="text-base">Other Details</p>
         <div class="flex gap-x-2 justify-end items-center">
           <p
             @click="session = 2"
@@ -373,15 +375,15 @@ const onSubmitHandler = async () => {
             Save
           </p> -->
           <p
-            @click="session = 4"
+            @click="onSubmitHandler"
             class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
           >
-            Next
+            Create
           </p>
         </div>
       </div>
       <div>
-        <ContentDetail :formData="formData" />
+        <OtherDetail :formData="formData" />
       </div>
     </div>
     <div class="px-8 py-6 bg-white" v-if="session == 4">

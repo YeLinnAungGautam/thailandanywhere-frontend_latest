@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed, defineEmits } from "vue";
+import { ref, onMounted, watch, computed, defineEmits, defineProps } from "vue";
 import {
   MagnifyingGlassIcon,
   BarsArrowDownIcon,
@@ -27,6 +27,10 @@ const addInfoModal = ref(false);
 const detailModal = ref(false);
 const details = ref(null);
 const details_images = ref([]);
+
+const props = defineProps({
+  data: Object,
+});
 
 const viewDetail = (data) => {
   console.log(data, "this is data");
@@ -144,6 +148,13 @@ const changePage = async (url) => {
   console.log(url);
   if (url != null) {
     await airlineStore.getChangePage(url, watchSystem.value);
+  }
+};
+
+const validateDay = (event) => {
+  const maxDay = props.data.day || 1; // Ensure there's always a max value
+  if (formitem.value.day > maxDay) {
+    formitem.value.day = maxDay; // Reset to maxDay if the input exceeds
   }
 };
 
@@ -442,10 +453,14 @@ onMounted(async () => {
             <input
               type="number"
               v-model="formitem.day"
+              min="1"
+              :max="data.day ? data.day : 1"
+              @input="validateDay"
               name=""
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
               id=""
             />
+            <p class="text-[10px] text-red-600">this is limit {{ data.day }}</p>
           </div>
         </div>
         <div class="flex justify-end items-center gap-x-2 pt-2">

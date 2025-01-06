@@ -102,7 +102,7 @@ const removePriceRange = (index) => {
             class="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none text-xs w-full"
           />
         </div>
-        <div class="space-y-2 col-span-2">
+        <!-- <div class="space-y-2 col-span-2">
           <label for="" class="text-[12px] text-gray-500">Description *</label>
           <QuillEditor
             ref="textEditor"
@@ -113,7 +113,7 @@ const removePriceRange = (index) => {
             contentType="html"
             v-model:content="formData.description"
           />
-        </div>
+        </div> -->
         <div class="col-span-2 flex justify-start items-center gap-x-4 w-full">
           <div class="space-y-2">
             <label for="" class="text-[12px] text-gray-500"

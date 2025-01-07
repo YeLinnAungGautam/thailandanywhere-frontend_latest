@@ -73,7 +73,7 @@
                     isPastOrToday(day) && 'opacity-20'
                   )
                 "
-                :disabled="!authStore.isSuperAdmin"
+                :disabled="!authStore.isSuperAdmin && isPastOrToday(day)"
               >
                 <time :dateTime="format(day, 'yyyy-MM-dd')">
                   {{ format(day, "d") }}

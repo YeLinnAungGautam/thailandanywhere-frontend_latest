@@ -1,10 +1,10 @@
 <template>
-  <div class="px-4 pb-2 relative cursor-pointer" @click="open = !open">
+  <div class="px-4 pb-2 relative cursor-pointer">
     <div
       class="absolute top-[36px] left-3 rounded-full w-2 h-2"
       :class="backgroundCustom"
     ></div>
-    <div class="pl-5 pt-2 gap-y-4 gap-x-3">
+    <div class="pl-5 pt-2 gap-y-4 gap-x-3" @click="open = !open">
       <div class="flex justify-between items-center">
         <div>
           <p
@@ -299,7 +299,15 @@
                 : "--/--/--"
             }}
           </p>
-          <p class="text-[10px] text-gray-600">
+          <p
+            class="text-[10px] text-gray-600"
+            @click="
+              router.push({
+                name: 'update_new_bookings',
+                params: { id: data.booking.id },
+              })
+            "
+          >
             <PencilSquareIcon class="w-4 h-4" />
           </p>
         </div>
@@ -408,7 +416,7 @@
                 : "--/--/--"
             }}
           </p>
-          <p class="text-[10px] text-gray-600">
+          <p class="text-[10px] text-gray-600" @click="goToExpense">
             <PencilSquareIcon class="w-4 h-4" />
           </p>
         </div>
@@ -548,6 +556,22 @@
         </div>
       </div>
     </div>
+
+    <Modal :isOpen="openExpenseModal" @closeModal="goToExpense">
+      <DialogPanel
+        class="w-full max-w-lg transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-sm font-medium leading-6 text-gray-900 mb-2 px-4"
+        >
+          Expense Copy & Expense Data Form
+        </DialogTitle>
+        <div>
+          <ExpensePartVue />
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
@@ -564,6 +588,10 @@ import {
 import { useAuthStore } from "../../stores/auth";
 import { PencilIcon } from "@heroicons/vue/24/outline";
 import router from "../../router";
+import ExpensePartVue from "./ExpensePart.vue";
+
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import Modal from "../../components/Modal.vue";
 
 const authStore = useAuthStore();
 const open = ref(false);
@@ -591,6 +619,12 @@ const props = defineProps({
     required: true,
   },
 });
+
+const openExpenseModal = ref(false);
+
+const goToExpense = () => {
+  openExpenseModal.value = !openExpenseModal.value;
+};
 
 const formatDate = (date) => {
   const [datePart] = date.split(" ");

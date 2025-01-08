@@ -20,9 +20,10 @@ import { useToast } from "vue-toastification";
 import bookingInfo from "../../../public/bookingInfo.png";
 import travellerInfo from "../../../public/travellerInfo.png";
 import DetailitemVue from "./DetailItemView.vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
+const route = useRoute();
 
 const reservationStore = useReservationStore();
 const toast = useToast();
@@ -64,6 +65,14 @@ const openModalAction = (data) => {
   openModal.value = true;
   openModalPart.value = true;
   showData.value = data;
+};
+
+const openAndAddPassport = (data) => {
+  openModal.value = true;
+  openModalPart.value = true;
+  showData.value = data;
+
+  goTravellerModal(data);
 };
 
 const headLabel = ref("");
@@ -243,14 +252,33 @@ const getCarImage = (type) => {
   }
 };
 
+const queryCrmId = ref("");
+
 onMounted(async () => {
-  console.log("====================================");
-  console.log(props.data, "this is props");
   if (props.data) {
     itemList.value = props.data.items;
   }
-  console.log("====================================");
+  queryCrmId.value = route.query.crm_id;
+
+  // Trigger modal logic after mounting if `crm_id` exists
+  checkAndOpenModal(queryCrmId.value);
 });
+
+watch([queryCrmId, itemList], ([newCrmId, newItemList]) => {
+  if (newCrmId && newItemList.length) {
+    checkAndOpenModal(newCrmId);
+  }
+});
+
+// Function to check and open the modal
+function checkAndOpenModal(crmId) {
+  if (!crmId) return;
+
+  const matchingItem = itemList.value.find((item) => item.crm_id === crmId);
+  if (matchingItem) {
+    openAndAddPassport(matchingItem);
+  }
+}
 </script>
 
 <template>

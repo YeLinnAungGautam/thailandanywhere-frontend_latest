@@ -1163,8 +1163,11 @@ const searchWithUnique = async () => {
   }
 };
 
+const queryCrmId = ref("");
+
 onMounted(async () => {
   await getDetail();
+  queryCrmId.value = route.query.crm_id ? route.query.crm_id : "";
   await adminStore.getSimpleListAction();
 });
 </script>

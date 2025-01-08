@@ -351,7 +351,18 @@
             }}
           </p>
           <p class="text-[10px] text-gray-600">
-            <PencilSquareIcon class="w-4 h-4" />
+            <PencilSquareIcon
+              class="w-4 h-4"
+              @click="
+                router.push({
+                  name: 'update_new_bookings',
+                  params: { id: data.booking.id },
+                  query: {
+                    crm_id: data?.crm_id,
+                  },
+                })
+              "
+            />
           </p>
         </div>
       </div>

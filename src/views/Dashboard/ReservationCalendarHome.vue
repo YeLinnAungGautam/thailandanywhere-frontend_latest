@@ -194,6 +194,7 @@ import { useReservationStore } from "../../stores/reservation";
 import ReservationCartLoadingVue from "./ReservationCartLoading.vue";
 import { useAuthStore } from "../../stores/auth";
 import { useAdminStore } from "../../stores/admin";
+import { useRouter, useRoute } from "vue-router";
 
 const authStore = useAuthStore();
 const dashboardStore = useDashboardStore();
@@ -204,6 +205,8 @@ const adminStore = useAdminStore();
 const selectedDay = ref(new Date());
 
 const loading = ref(false);
+const router = useRouter();
+const route = useRoute();
 
 const openSelection = ref(false);
 const selectedProductType = ref("attraction");
@@ -399,17 +402,73 @@ watch([selectedDay, productType, userFilter], async (value) => {
   await getTodaySale();
 });
 
-onMounted(async () => {
-  const formatter = new Intl.DateTimeFormat("en-CA", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+watch(
+  [selectedDay, productType, userFilter, filterType, selectedProductType],
+  async (
+    [
+      newSelectedDay,
+      newProductType,
+      newUserFilter,
+      newFilterType,
+      newSelectedProductType,
+    ],
+    [
+      oldSelectedDay,
+      oldProductType,
+      oldUserFilter,
+      oldFilterType,
+      oldSelectedProductType,
+    ]
+  ) => {
+    // Correctly destructured variables
+    router.push({
+      name: authStore.isSuperAdmin ? "home" : "dashboard",
+      query: {
+        day: newSelectedDay != null ? newSelectedDay : "",
+        productType: newProductType,
+        userFilter: newUserFilter != null ? newUserFilter : null,
+        filterType: newFilterType,
+        selectedProductType: newSelectedProductType,
+      },
+    });
+  }
+);
 
-  selectedDay.value = formatter.format(new Date());
+onMounted(async () => {
+  console.log("====================================");
+  console.log(route.query, "this is query");
+  console.log("====================================");
+
+  if (route.query.day) {
+    selectedDay.value = route.query.day;
+  } else {
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+
+    selectedDay.value = formatter.format(new Date());
+  }
+  if (route.query.productType) {
+    productType.value = route.query.productType;
+  }
+  if (route.query.selectedProductType) {
+    // selectedProductType.value = route.query.selectedProductType;
+    changeBackground(route.query.selectedProductType);
+  }
+  if (route.query.userFilter) {
+    userFilter.value = route.query.userFilter;
+  }
+  if (route.query.filterType) {
+    filterType.value = route.query.filterType;
+  }
 
   await getListUser();
 
   // await getTodaySale();
+  console.log("====================================");
+  console.log(selectedDay.value, selectedProductType.value);
+  console.log("====================================");
 });
 </script>

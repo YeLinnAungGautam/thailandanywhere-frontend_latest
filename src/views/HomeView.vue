@@ -1,6 +1,6 @@
 <script setup>
 import Layout from "./Layout.vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import {
   DoughnutChart,
   BarChart,
@@ -60,6 +60,7 @@ const entranceStore = useEntranceStore();
 const bookingStore = useBookingStore();
 const homeStore = useHomeStore();
 const router = useRouter();
+const route = useRoute();
 
 const { loading } = storeToRefs(homeStore);
 
@@ -659,6 +660,10 @@ const allSaleList = ref(null);
 onMounted(async () => {
   // console.log(authStore.isSuperAdmin, "hello");
 
+  if (route.query.day) {
+    homeSectionPartView.value = "sale-analysis";
+  }
+
   console.log(allSaleList.value, "this is sale");
   if (!authStore.isSuperAdmin) {
     router.push({ name: "dashboard" });
@@ -809,6 +814,14 @@ watch(priceSalesGraph, async (newValue) => {
 });
 
 const homeSectionPartView = ref("sale");
+
+watch(homeSectionPartView, (newValue) => {
+  if (newValue == "sale") {
+    router.push({
+      name: "home",
+    });
+  }
+});
 </script>
 
 <template>

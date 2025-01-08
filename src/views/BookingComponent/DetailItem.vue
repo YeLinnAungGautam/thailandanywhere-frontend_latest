@@ -196,10 +196,12 @@ const addTravellerAction = async () => {
   props.uploadingAction();
   addTravellerModal.value = false;
   const frmData = new FormData();
-  editData.value.name && frmData.append("name", editData.value.name);
-  editData.value.passport &&
-    frmData.append("passport", editData.value.passport);
-  editData.value.phone && frmData.append("phone", editData.value.phone);
+  frmData.append("name", editData.value.name ? editData.value.name : "-");
+  frmData.append(
+    "passport",
+    editData.value.passport ? editData.value.passport : "-"
+  );
+  frmData.append("phone", editData.value.phone ? editData.value.phone : "09");
   editData.value.email && frmData.append("email", editData.value.email);
   if (editData.value.customer_passport.length != 0) {
     for (let x = 0; x < editData.value.customer_passport.length; x++) {

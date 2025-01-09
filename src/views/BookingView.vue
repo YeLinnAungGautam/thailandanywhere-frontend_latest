@@ -205,7 +205,6 @@ const getListUser = async () => {
 };
 
 onMounted(async () => {
-  await bookingStore.getListAction(watchSystem.value);
   (sale_date_order_by.value = "desc"),
     // console.log(route.params);
     (search.value = route.params.crm_id == "%" ? "" : route.params.crm_id);
@@ -216,6 +215,7 @@ onMounted(async () => {
   console.log(admin.value, "this is admin");
 
   await getListUser();
+  await bookingStore.getListAction(watchSystem.value);
 });
 
 const formatDate = (datePut) => {
@@ -327,11 +327,13 @@ watch(
     <div class="flex items-center justify-between mb-5">
       <div class="flex justify-start items-center gap-4">
         <h3 class="text-2xl font-medium text-gray-600">Sales List</h3>
-        <div class="bg-white/60 px-2 rounded border-2">
-          <p class="inline-block mr-2 font-medium text-gray-500">Show</p>
+        <div class="bg-white/60 px-2 rounded-lg border-2">
+          <p class="inline-block text-sm mr-2 font-medium text-gray-500">
+            Show
+          </p>
           <select
             v-model="limit"
-            class="w-16 h-9 rounded-md focus:outline-none bg-white/60 focus:ring-0"
+            class="w-16 h-8 rounded-md focus:outline-none bg-white/60 text-sm focus:ring-0"
           >
             <option value="10">10</option>
             <option value="20">20</option>
@@ -339,7 +341,9 @@ watch(
             <option value="40">40</option>
             <option value="50">50</option>
           </select>
-          <p class="inline-block ml-2 font-medium text-gray-500">entries</p>
+          <p class="inline-block text-sm ml-2 font-medium text-gray-500">
+            entries
+          </p>
         </div>
       </div>
       <div class="space-x-3 flex justify-end items-center">

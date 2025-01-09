@@ -411,6 +411,7 @@ const onSubmitHandler = async () => {
       frmData.append("payment_method", formData.value.payment_method);
     formData.value.bank_name &&
       frmData.append("bank_name", formData.value.bank_name);
+    formData.value.comment && frmData.append("comment", formData.value.comment);
 
     formData.value.is_past_info
       ? frmData.append("is_past_info", 1)
@@ -779,7 +780,7 @@ onMounted(async () => {
         <div class="space-y-4">
           <!-- sale info part -->
           <div
-            class="flex justify-start items-center gap-x-2 overflow-x-scroll pb-2 border-r border-gray-300"
+            class="flex justify-start items-center gap-x-2 overflow-x-scroll no-sidebar-container pb-2 border-r border-gray-300"
           >
             <div
               v-for="l in productArray"
@@ -827,7 +828,9 @@ onMounted(async () => {
           </transition>
         </div>
       </div>
-      <div class="col-span-2 h-[85vh] relative overflow-y-scroll space-y-4">
+      <div
+        class="col-span-2 h-[85vh] relative overflow-y-scroll no-sidebar-container space-y-4"
+      >
         <!-- create -->
         <div class="text-end">
           <button
@@ -846,7 +849,7 @@ onMounted(async () => {
         </div>
         <!-- tags -->
         <div
-          class="bg-white flex justify-start sticky top-0 overflow-x-scroll z-30 items-center gap-x-2 rounded-xl p-1.5"
+          class="bg-white flex justify-start sticky top-0 overflow-x-scroll no-sidebar-container z-30 items-center gap-x-2 rounded-xl p-1.5"
         >
           <p
             class="rounded-lg px-5 py-1.5 text-[10px] cursor-pointer hover:bg-[#ff613c]/20 whitespace-nowrap"
@@ -892,7 +895,7 @@ onMounted(async () => {
         <!-- tags result -->
         <div
           v-if="currentSubTag == 'items'"
-          class="min-h-[10vh] max-h-[50vh] bg-white rounded-lg overflow-y-scroll px-3"
+          class="min-h-[10vh] max-h-[50vh] bg-white rounded-lg overflow-y-scroll no-sidebar-container px-3"
         >
           <ItemList :data="formData" @remove="removeItemList" />
         </div>
@@ -911,6 +914,18 @@ onMounted(async () => {
           class="bg-white rounded-lg px-3"
         >
           <InclusivePart :data="formData" @formData="changeGetInclusiveForm" />
+        </div>
+        <!-- comment -->
+        <div class="px-3 pt-2 pb-1 bg-white rounded-lg">
+          <div class="">
+            <p class="text-xs font-medium whitespace-nowrap">Sale Comment :</p>
+            <textarea
+              name=""
+              v-model="formData.comment"
+              id=""
+              class="px-2 py-1.5 mt-1.5 text-gray-900 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300 text-xs w-full"
+            ></textarea>
+          </div>
         </div>
         <!-- suummary -->
         <div class="p-3 bg-white rounded-lg">
@@ -964,6 +979,7 @@ onMounted(async () => {
               class="w-[140px] h-8 px-4 py-1.5 mt-1 text-gray-900 bg-gray-200 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-gray-300 text-xs"
             />
           </div>
+
           <div
             class="flex justify-between items-start"
             v-if="formData.deposit > 0"
@@ -1035,5 +1051,13 @@ onMounted(async () => {
 
 .slide-leave-to {
   transform: translateX(-100%);
+}
+
+.no-sidebar-container {
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none; /* For IE and Edge */
+}
+.no-sidebar-container::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
 }
 </style>

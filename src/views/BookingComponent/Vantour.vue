@@ -471,7 +471,7 @@ onMounted(async () => {
     </div>
     <!-- product part -->
     <div
-      class="max-h-[60vh] grid grid-cols-3 gap-3 pr-4 overflow-y-scroll"
+      class="max-h-[60vh] grid grid-cols-3 gap-3 overflow-y-scroll no-sidebar-container"
       @scroll="handleScroll"
     >
       <div

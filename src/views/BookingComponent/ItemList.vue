@@ -67,6 +67,7 @@ const getRemoveFunction = (id, index) => {
   console.log(data, "this is emit id");
   console.log("====================================");
   emit("remove", data);
+  cancellationModal.value = false;
 };
 
 const cancellationModal = ref(false);
@@ -1020,7 +1021,7 @@ onMounted(() => {
               />
               <label
                 for="cancel"
-                class="text-sm font-medium text-yellow-600 bg-yellow-200 px-2 py-0.5 rounded-full"
+                class="text-xs font-medium text-yellow-600 bg-yellow-200 px-2 py-0.5 rounded-full"
                 >Cancel Request</label
               >
             </div>
@@ -1040,7 +1041,7 @@ onMounted(() => {
               />
               <label
                 for="cancel"
-                class="text-sm font-medium text-green-600 bg-green-200 px-2 py-0.5 rounded-full"
+                class="text-xs font-medium text-green-600 bg-green-200 px-2 py-0.5 rounded-full"
                 >Cancel Complete</label
               >
             </div>
@@ -1055,25 +1056,30 @@ onMounted(() => {
               />
               <label
                 for="cancel"
-                class="text-sm font-medium bg-white-200 px-2 py-0.5 rounded-full"
+                class="text-xs font-medium bg-white-200 px-2 py-0.5 rounded-full"
                 >Cancel remove & Cancel empty</label
               >
             </div>
           </div>
         </div>
-        <div class="flex justify-end items-center gap-x-2 pt-2">
+        <div class="flex justify-center items-center gap-x-2 pt-2">
           <button
-            @click="cancellationModalAction"
-            v-if="formitem.cancellation != null"
-            class="bg-green-500 border text-white border-green-300 px-3 py-2.5 rounded-lg text-xs"
+            @click="getRemoveFunction(formitem?.product_id, editIndex)"
+            class="bg-red-500 border text-white border-red-300 px-3 py-1.5 shadow-lg rounded-md text-xs"
           >
-            Confirm
+            Delete Item
           </button>
           <button
             @click="cancellationModalAction"
-            class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
+            class="bg-green-500 border text-white border-green-300 px-3 py-1.5 shadow-lg rounded-md text-xs"
           >
-            Cancel
+            Change Item
+          </button>
+          <button
+            @click="cancellationModalAction"
+            class="bg-white border border-gray-300 px-3 py-1.5 shadow-lg rounded-md text-xs"
+          >
+            Close Modal
           </button>
         </div>
       </DialogPanel>

@@ -327,7 +327,7 @@ function checkAndOpenModal(crmId) {
 
     <!-- list  -->
     <div
-      class="grid grid-cols-3 gap-3 max-h-[60vh] overflow-y-scroll"
+      class="grid grid-cols-3 gap-3 max-h-[60vh] overflow-y-scroll no-sidebar-container"
       v-if="itemList?.length > 0"
     >
       <div

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex justify-start items-center gap-x-2 overflow-x-scroll pb-2 border-r border-gray-300"
+    class="flex justify-start items-center gap-x-2 overflow-x-scroll no-sidebar-container pb-2 border-r border-gray-300"
   >
     <div
       class="p-2 shadow-sm rounded-md flex justify-start items-center gap-x-2 cursor-pointer hover:bg-[#ff613c]/20 bg-white"

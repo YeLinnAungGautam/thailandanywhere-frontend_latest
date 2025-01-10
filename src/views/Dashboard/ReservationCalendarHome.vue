@@ -87,6 +87,7 @@
             :booking_receipt="booking_receipt"
             :loading="loading"
             :customer_not_paid="customer_not_paid"
+            :passport_missing_count="passport_missing_count"
             :filterType="filterType"
             :supplier_not="supplier_not"
             :driver_not="driver_not"
@@ -287,6 +288,8 @@ const expense = ref(0);
 const booking_receipt = ref(0);
 const reservation_list = ref([]);
 const customer_not_paid = ref(0);
+const passport_missing_count = ref(0);
+const passport_missing = ref([]);
 
 const getTodaySale = async () => {
   loading.value = true;
@@ -327,6 +330,8 @@ const getListing = computed(() => {
     return expense_data.value;
   } else if (filterType.value == "missing receipt") {
     return reservation_data.value;
+  } else if (filterType.value == "passport missing") {
+    return passport_missing.value;
   } else if (filterType.value == "missing supplier") {
     return supplier_not_list.value;
   } else if (filterType.value == "missing driver") {
@@ -371,6 +376,11 @@ const filterGetTodaySale = (data) => {
     (item) => item.booking.payment_status == "not_paid"
   );
   customer_not_paid.value = customer_not.value.length;
+
+  passport_missing.value = getData.filter(
+    (item) => item.customer_passports.length == 0
+  );
+  passport_missing_count.value = passport_missing.value.length;
 
   supplier_not_list.value = getData.filter(
     (item) =>

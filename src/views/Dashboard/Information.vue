@@ -103,6 +103,35 @@
         </p>
       </div>
       <div
+        v-if="backgroundCustom != 'bg-yellow-600'"
+        class="p-3 hover:bg-[#ff613c] hover:rounded-b-lg hover:text-white"
+        :class="
+          filterType == 'passport missing'
+            ? 'bg-[#ff613c] rounded-b-lg text-white'
+            : ''
+        "
+        @click="filterTypeChange('passport missing')"
+      >
+        <div class=" ">
+          <div class="text-xs font-medium flex justify-between items-center">
+            <p>Passport Missing</p>
+            <p
+              class="text-xs w-2 h-2 mr-2 inline-block rounded-lg"
+              :class="backgroundCustom"
+            ></p>
+          </div>
+        </div>
+        <p
+          class="font-semibold text-2xl pt-2"
+          :class="loading ? 'animate-bounce' : ''"
+        >
+          {{ loading ? "..." : passport_missing_count }}
+          <span class="text-lg"
+            >/ {{ loading ? "..." : reservationTotal }}</span
+          >
+        </p>
+      </div>
+      <div
         v-if="backgroundCustom == 'bg-yellow-600'"
         class="p-3 hover:bg-[#ff613c] hover:text-white"
         :class="
@@ -193,6 +222,10 @@ const props = defineProps({
     required: true,
   },
   customer_not_paid: {
+    type: Number,
+    required: true,
+  },
+  passport_missing_count: {
     type: Number,
     required: true,
   },

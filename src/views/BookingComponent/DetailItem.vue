@@ -827,6 +827,24 @@ function checkAndOpenModal(crmId) {
         <div v-if="addTravellerModal">
           <div class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1">
             <div class="grid grid-cols-2 gap-2">
+              <div class="col-span-2 pb-2">
+                <div class="text-xs font-medium text-black space-y-1">
+                  <p>
+                    <span
+                      class="w-1.5 h-1.5 inline-block bg-black rounded-full mr-2 mb-0.5"
+                    ></span
+                    >{{ showData?.product_name }}
+                  </p>
+
+                  <p class="text-black/60 text-[10px]">
+                    <span
+                      class="w-1.5 h-1.5 inline-block bg-black rounded-full mr-2 mb-0.5"
+                    ></span
+                    >{{ showData?.item_name }}
+                  </p>
+                </div>
+              </div>
+
               <div class="space-y-1">
                 <label for="" class="text-[12px] text-gray-500"
                   >Full Name</label

@@ -86,7 +86,7 @@ const removePriceRange = (index) => {
         </div>
         <div class="space-y-2">
           <label for="" class="text-[12px] text-gray-500"
-            >Display Price *
+            >Display Price Per Pax (Standard 6 pax) *
           </label>
           <input
             type="number"

@@ -7,11 +7,18 @@ import PreviewPageVue from "./PreviewPage.vue";
 import { useDestinationStore } from "../../stores/destination";
 import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
+import Swal from "sweetalert2";
+import { useInclusiveStore } from "../../stores/inclusion";
+import { useToast } from "vue-toastification";
+import { useRoute } from "vue-router";
 
 const cityStore = useCityStore();
+const inclusiveStore = useInclusiveStore();
 const { cities } = storeToRefs(cityStore);
 const destinationStore = useDestinationStore();
 const { dests } = storeToRefs(destinationStore);
+const toast = useToast();
+const route = useRoute();
 
 const session = ref(1);
 const finish = ref({
@@ -21,6 +28,7 @@ const openDayDetail = ref(1);
 
 const props = defineProps({
   formData: Object,
+  editData: Object,
 });
 
 const detailOpen = ref(false);
@@ -74,6 +82,7 @@ const handlerImagesFileChange = (e) => {
     for (let index = 0; index < selectedFile.length; index++) {
       props.formData.images.push(selectedFile[index]);
       imagesPreview.value.push(URL.createObjectURL(selectedFile[index]));
+      console.log(imagesPreview.value, "this is the new image");
     }
   }
 };
@@ -81,6 +90,33 @@ const handlerImagesFileChange = (e) => {
 const removeImageSelectImage = (index) => {
   props.formData.images.splice(index, 1);
   imagesPreview.value.splice(index, 1);
+};
+
+const removeImageSelectImageDelete = async (index, id) => {
+  // props.editData.images.splice(index, 1);
+  // console.log(index, id, "this is the new image");
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await inclusiveStore.deleteImageAction(
+          route.params.id,
+          id
+        );
+        // toast.success(response.message);
+        props.editData.images.splice(index, 1);
+      } catch (error) {
+        toast.error("Error deleting image");
+      }
+    }
+  });
 };
 
 const removeSelectedImage = () => {
@@ -220,8 +256,25 @@ onMounted(async () => {
             </p>
             <div class="flex justify-start items-center gap-x-2">
               <div
-                v-for="(imagePreview, index) in imagesPreview &&
-                formData.images"
+                v-for="(img, index) in editData.images"
+                :key="img"
+                class="w-full h-auto relative"
+              >
+                <img
+                  :src="img.image"
+                  alt="Image preview"
+                  class="w-auto h-[99px] rounded"
+                />
+                <span
+                  class="text-xs absolute top-0 right-0 cursor-pointer"
+                  @click="removeImageSelectImageDelete(index, img.id)"
+                  ><i
+                    class="fa-solid fa-minus text-sm font-semibold py-1 px-2 bg-red-800 rounded-full shadow text-white"
+                  ></i
+                ></span>
+              </div>
+              <div
+                v-for="(imagePreview, index) in imagesPreview"
                 :key="imagePreview"
                 class="w-full h-auto relative"
               >

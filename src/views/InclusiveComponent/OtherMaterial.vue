@@ -69,9 +69,9 @@ const savePDFHandler = async () => {
     }
   }
   const res = await inclusiveStore.storePDFAction(route.params.id, frmData);
-  console.log("====================================");
-  console.log(res);
-  console.log("====================================");
+  setTimeout(() => {
+    window.location.reload();
+  }, 2000);
 };
 
 const removeImage = (index) => {
@@ -205,7 +205,9 @@ const removeImage = (index) => {
                 }}</span
                 >Click to see pdf
               </p>
-              <a :href="a.download_link" target="_blink">Download</a>
+              <a :href="a.download_link" target="_blink" class="text-gray-400"
+                >Download</a
+              >
             </div>
           </div>
         </div>

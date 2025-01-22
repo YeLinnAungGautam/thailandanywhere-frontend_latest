@@ -1,8 +1,12 @@
 <script setup>
 import { ChevronRightIcon, PlusIcon } from "@heroicons/vue/24/outline";
 import { ref, defineProps } from "vue";
+import { useInclusiveStore } from "../../stores/inclusion";
+import { useRoute } from "vue-router";
 
 const session = ref(1);
+const inclusiveStore = useInclusiveStore();
+const route = useRoute();
 const finish = ref({
   session1: false,
 });
@@ -11,7 +15,7 @@ const part = ref(false);
 
 const props = defineProps({
   formData: Object,
-  editImage: String,
+  editImage: Object,
 });
 
 const otherMaterial = ref({
@@ -32,14 +36,47 @@ const removeOtherMaterial = (index) => {
   props.formData.other_materials.splice(index, 1);
 };
 
+// const handlerImageFileChange = (e) => {
+//   let selectedFile = e.target.files[0];
+//   if (selectedFile) {
+//     props.formData.cover_image = selectedFile;
+//     console.log("====================================");
+//     console.log(props.formData.cover_image);
+//     console.log("====================================");
+//   }
+// };
+
+const imagesPreview = ref([]);
+const pdfImages = ref([]);
+
 const handlerImageFileChange = (e) => {
-  let selectedFile = e.target.files[0];
+  console.log(e.target.files);
+  let selectedFile = e.target.files;
   if (selectedFile) {
-    props.formData.cover_image = selectedFile;
-    console.log("====================================");
-    console.log(props.formData.cover_image);
-    console.log("====================================");
+    for (let index = 0; index < selectedFile.length; index++) {
+      pdfImages.value.push(selectedFile[index]);
+      imagesPreview.value.push(URL.createObjectURL(selectedFile[index]));
+      console.log(imagesPreview.value, "this is the new image");
+    }
   }
+};
+
+const savePDFHandler = async () => {
+  const frmData = new FormData();
+  if (pdfImages.value.length > 0) {
+    for (let index = 0; index < pdfImages.value.length; index++) {
+      frmData.append("pdfs[" + index + "]", pdfImages.value[index]);
+    }
+  }
+  const res = await inclusiveStore.storePDFAction(route.params.id, frmData);
+  console.log("====================================");
+  console.log(res);
+  console.log("====================================");
+};
+
+const removeImage = (index) => {
+  pdfImages.value.splice(index, 1);
+  imagesPreview.value.splice(index, 1);
 };
 </script>
 <template>
@@ -61,7 +98,8 @@ const handlerImageFileChange = (e) => {
             >
               <p class="pb-9 text-red-500 text-6xl">.</p>
             </div>
-            <p class="text-sm">Product Itineary Material</p>
+            <!-- <p class="text-sm">Product Itineary Material</p> -->
+            <p class="text-sm">Cost Related Material</p>
           </div>
           <ChevronRightIcon class="w-4 h-4" />
         </div>
@@ -129,9 +167,14 @@ const handlerImageFileChange = (e) => {
             >
               <p class="pb-9 text-red-500 text-6xl">.</p>
             </div>
-            <p class="text-sm">Cost Related Material</p>
+            <p class="text-sm">Product Itineary Material</p>
           </div>
-          <ChevronRightIcon class="w-4 h-4" />
+          <p
+            @click="savePDFHandler"
+            class="text-xs font-medium bg-[#ff613c] text-white cursor-pointer px-4 py-1.5 rounded-lg"
+          >
+            save
+          </p>
         </div>
 
         <div class="space-y-2">
@@ -141,29 +184,30 @@ const handlerImageFileChange = (e) => {
             name=""
             class="text-xs flex justify-center items-center w-full h-[70px] border-dashed border border-gray-200 rounded-2xl text-gray-400 cursor-pointer p-6"
             @change="handlerImageFileChange"
+            accept="image/*, application/pdf"
+            multiple
             id=""
           />
         </div>
         <div class="space-y-2">
           <label for="" class="text-[12px] text-gray-500">Upload PDFs</label>
-          <p
-            class="text-sm flex justify-center items-center w-full h-[70px] border-dashed border border-gray-200 rounded-2xl text-gray-400 cursor-pointer"
+          <div
+            class="text-sm px-6 w-full min-h-[70px] space-y-4 pt-2 my-auto border-dashed border border-gray-200 rounded-2xl text-gray-400 cursor-pointer"
           >
-            <a
-              :href="editImage"
-              target="_blink"
-              class="cursor-pointer text-indigo-600"
-              >Click to see pdf and download</a
+            <div
+              class="cursor-pointer flex justify-between items-center w-full text-indigo-600"
+              v-for="a in editImage.pdfs.length > 0 ? editImage.pdfs : []"
+              :key="a"
             >
-          </p>
-        </div>
-        <div class="space-y-2 col-span-3">
-          <label for="" class="text-[12px] text-gray-500">Preview PDF</label>
-          <p
-            class="text-2xl flex justify-center items-center w-full h-[500px] border-dashed bg-gray-100 border border-gray-200 rounded-2xl text-gray-400 cursor-pointer"
-          >
-            PDF Preview
-          </p>
+              <p class="text-gray-400">
+                <span class="mr-3 bg-[#ff613c] text-white rounded-full px-2">{{
+                  a.id
+                }}</span
+                >Click to see pdf
+              </p>
+              <a :href="a.download_link" target="_blink">Download</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>

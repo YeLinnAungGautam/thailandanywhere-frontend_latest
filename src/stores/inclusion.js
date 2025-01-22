@@ -100,5 +100,13 @@ export const useInclusiveStore = defineStore("inclusive", {
         throw error;
       }
     },
+    async storePDFAction(id, params) {
+      try {
+        const response = await axios.post(`inclusive/${id}/pdf`, params);
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

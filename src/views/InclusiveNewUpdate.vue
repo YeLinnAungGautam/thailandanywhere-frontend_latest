@@ -36,6 +36,7 @@ const formData = ref({
   cover_image: "",
   sku_code: "",
   images: [],
+
   other_materials: [],
   price: "",
   items: [],
@@ -45,6 +46,7 @@ const formData = ref({
 
 const editData = ref({
   cover_image: "",
+  pdfs: null,
   images: [],
 });
 
@@ -288,6 +290,7 @@ const getDetail = async () => {
     formData.value.price = response.result.price;
     formData.value.agent_price = response.result.agent_price;
     editData.value.cover_image = response.result.cover_image;
+    editData.value.pdfs = response.result.pdfs;
     // editData.value.images = response.result.images;
     // formData.value.images = response.result.images;
     if (response.result.images.length > 0) {
@@ -750,7 +753,7 @@ onMounted(async () => {
         </div>
       </div>
       <div>
-        <OtherMaterial :formData="formData" :editImage="editData.cover_image" />
+        <OtherMaterial :formData="formData" :editImage="editData" />
       </div>
     </div>
   </Layout>

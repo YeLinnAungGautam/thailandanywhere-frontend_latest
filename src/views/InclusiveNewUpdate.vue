@@ -297,10 +297,10 @@ const getDetail = async () => {
         editData.value.images.push(response.result.images[i]);
       }
     }
-    formData.value.other_materials =
-      response.result.other_materials == null
-        ? []
-        : response.result.other_materials;
+    // formData.value.other_materials =
+    //   response.result.other_materials == null
+    //     ? []
+    //     : response.result.other_materials;
     formData.value.sku_code = response.result.sku_code;
     if (response.result.price_range != null) {
       if (response.result.price_range.length > 0) {
@@ -312,6 +312,20 @@ const getDetail = async () => {
           });
         }
       }
+    }
+    if (response.result.product_itenary_material != null) {
+      for (
+        let p = 0;
+        p < response.result.product_itenary_material.length;
+        p++
+      ) {
+        const element = response.result.product_itenary_material[p];
+        formData.value.other_materials.push({
+          link: element.link,
+        });
+      }
+    } else {
+      formData.value.product_itenary_material = [];
     }
     if (response.result.details != null) {
       if (response.result.details.length > 0) {

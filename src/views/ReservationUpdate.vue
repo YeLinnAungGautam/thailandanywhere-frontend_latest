@@ -849,6 +849,13 @@ const printReservation = () => {
       route.params.id +
       "/receipt"
   );
+
+  // go to print page
+  // router.push(`/reservation/confirmations/entrance/${route.params.id}`);
+};
+
+const goToReservationImage = () => {
+  router.push(`/reservation/confirmations/entrance/${route.params.id}`);
 };
 
 const addUnderline = (text) => {
@@ -1223,6 +1230,17 @@ onMounted(async () => {
             "
           >
             Print
+          </p>
+          <p
+            class="px-4 py-2 border border-[#ff613c] text-white bg-[#ff613c] text-xs cursor-pointer hover:bg-transparent hover:text-[#ff613c]"
+            @click="goToReservationImage"
+            v-if="
+              formData.product_type == 'App\\Models\\EntranceTicket' &&
+              (booking_status.payment_status == 'fully_paid' ||
+                booking_status.payment_status == 'partially_paid')
+            "
+          >
+            Print As Image
           </p>
           <p
             class="px-4 py-2 border border-[#ff613c] text-white bg-[#ff613c] text-xs cursor-pointer hover:bg-transparent hover:text-[#ff613c]"

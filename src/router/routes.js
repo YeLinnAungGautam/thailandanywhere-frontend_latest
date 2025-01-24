@@ -47,6 +47,7 @@ import HotelEditView from "../views/HotelEditPage.vue";
 import UpdateBookingNewView from "../views/BookingUpdateNewVersion.vue";
 import InclusiveNewCreateView from "../views/InclusiveNewCreate.vue";
 import InclusiveNewDetailView from "../views/InclusiveNewUpdate.vue";
+import ReservationEntranceConfirmationsView from "../views/ReservationEntranceConfirmationsView.vue";
 
 const routes = [
   {
@@ -253,6 +254,11 @@ const routes = [
     component: ReservationViewView,
   },
   {
+    path: "/reservation/confirmations/entrance/:id",
+    name: "reservation-entrance-confirmations",
+    component: ReservationEntranceConfirmationsView,
+  },
+  {
     path: "/expenses",
     name: "expenses",
     component: ExpensesView,
@@ -277,6 +283,7 @@ const routes = [
     name: "inclusive-view-new",
     component: InclusiveNewDetailView,
   },
+
   {
     path: "/admins",
     name: "admins",

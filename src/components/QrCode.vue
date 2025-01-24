@@ -15,7 +15,7 @@ export default {
     },
   },
   mounted() {
-    const url = `https://www.thanywhere.com/ticket-checker/${this.id}`;
+    const url = `https://thanywhere.com/ticket-checker/${this.id}?language=myanmar`;
     const canvas = this.$refs.qrCanvas;
 
     QRCode.toCanvas(canvas, url, { width: 150 }, (error) => {

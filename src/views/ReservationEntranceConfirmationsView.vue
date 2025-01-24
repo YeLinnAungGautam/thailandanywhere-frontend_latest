@@ -136,7 +136,7 @@ onMounted(async () => {
           </p>
         </div>
         <div class="pt-4 flex justify-center items-center">
-          <QrCode :id="details?.id" />
+          <QrCode :id="route.params.id" />
         </div>
       </div>
     </div>

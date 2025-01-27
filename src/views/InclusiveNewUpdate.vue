@@ -36,6 +36,8 @@ const formData = ref({
   cover_image: "",
   sku_code: "",
   images: [],
+
+  other_materials: [],
   price: "",
   items: [],
   agent_price: "",
@@ -44,6 +46,7 @@ const formData = ref({
 
 const editData = ref({
   cover_image: "",
+  pdfs: null,
   images: [],
 });
 
@@ -126,6 +129,13 @@ const onSubmitHandler = async () => {
       frmData.append("price_range[" + i + "][from]", p.from);
       frmData.append("price_range[" + i + "][to]", p.to);
       frmData.append("price_range[" + i + "][price]", p.price);
+    }
+  }
+
+  if (formData.value.other_materials.length > 0) {
+    for (let i = 0; i < formData.value.other_materials.length; i++) {
+      let p = formData.value.other_materials[i];
+      frmData.append("product_itenary_material[" + i + "][link]", p.link);
     }
   }
 
@@ -251,7 +261,12 @@ const onSubmitHandler = async () => {
     console.log(response, "this is response");
     console.log("====================================");
     toast.success(response.message);
-    router.push("/products/10");
+    // router.push("/products/10");
+    router.push("/inclusive/new/update/" + route.params.id + "/edit");
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
@@ -275,13 +290,20 @@ const getDetail = async () => {
     formData.value.price = response.result.price;
     formData.value.agent_price = response.result.agent_price;
     editData.value.cover_image = response.result.cover_image;
+    editData.value.pdfs = response.result.pdfs;
+    // editData.value.images = response.result.images;
     // formData.value.images = response.result.images;
     if (response.result.images.length > 0) {
       for (let i = 0; i < response.result.images.length; i++) {
         const image = response.result.images[i].image;
         formData.value.images.push(image);
+        editData.value.images.push(response.result.images[i]);
       }
     }
+    // formData.value.other_materials =
+    //   response.result.other_materials == null
+    //     ? []
+    //     : response.result.other_materials;
     formData.value.sku_code = response.result.sku_code;
     if (response.result.price_range != null) {
       if (response.result.price_range.length > 0) {
@@ -293,6 +315,20 @@ const getDetail = async () => {
           });
         }
       }
+    }
+    if (response.result.product_itenary_material != null) {
+      for (
+        let p = 0;
+        p < response.result.product_itenary_material.length;
+        p++
+      ) {
+        const element = response.result.product_itenary_material[p];
+        formData.value.other_materials.push({
+          link: element.link,
+        });
+      }
+    } else {
+      formData.value.product_itenary_material = [];
     }
     if (response.result.details != null) {
       if (response.result.details.length > 0) {
@@ -695,7 +731,7 @@ onMounted(async () => {
         </div>
       </div>
       <div>
-        <DesignDetail :formData="formData" />
+        <DesignDetail :formData="formData" :editData="editData" />
       </div>
     </div>
     <div class="px-8 py-6 bg-white" v-if="session == 6">
@@ -717,7 +753,7 @@ onMounted(async () => {
         </div>
       </div>
       <div>
-        <OtherMaterial :formData="formData" :editImage="editData.cover_image" />
+        <OtherMaterial :formData="formData" :editImage="editData" />
       </div>
     </div>
   </Layout>

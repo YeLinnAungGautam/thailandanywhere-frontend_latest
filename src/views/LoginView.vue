@@ -48,6 +48,8 @@ const loginHandler = async () => {
     toast.success(response.message);
     if (authStore.isSuperAdmin) {
       router.push({ name: "home" });
+    } else if (authStore.isAuditor) {
+      router.push({ name: "auditor_dashboard" });
     } else {
       router.push({ name: "dashboard" });
     }

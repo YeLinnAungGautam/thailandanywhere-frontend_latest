@@ -3,10 +3,13 @@ import { ChevronRightIcon, PlusIcon } from "@heroicons/vue/24/outline";
 import { ref, defineProps } from "vue";
 import { useInclusiveStore } from "../../stores/inclusion";
 import { useRoute } from "vue-router";
+import { useToast } from "vue-toastification";
+import router from "../../router";
 
 const session = ref(1);
 const inclusiveStore = useInclusiveStore();
 const route = useRoute();
+const toast = useToast();
 const finish = ref({
   session1: false,
 });
@@ -46,6 +49,13 @@ const removeOtherMaterial = (index) => {
 //   }
 // };
 
+const removeAction = async (id, index) => {
+  const res = await inclusiveStore.deletePDFAction(route.params.id, id);
+  props.editImage.pdfs.splice(index, 1);
+  // console.log("====================================", id, route.params.id);
+  toast.success("PDF deleted successfully");
+};
+
 const imagesPreview = ref([]);
 const pdfImages = ref([]);
 
@@ -61,17 +71,28 @@ const handlerImageFileChange = (e) => {
   }
 };
 
+const loading = ref(false);
+
 const savePDFHandler = async () => {
-  const frmData = new FormData();
-  if (pdfImages.value.length > 0) {
-    for (let index = 0; index < pdfImages.value.length; index++) {
-      frmData.append("pdfs[" + index + "]", pdfImages.value[index]);
+  try {
+    loading.value = true;
+    const frmData = new FormData();
+    if (pdfImages.value.length > 0) {
+      for (let index = 0; index < pdfImages.value.length; index++) {
+        frmData.append("pdfs[" + index + "]", pdfImages.value[index]);
+      }
     }
+    const res = await inclusiveStore.storePDFAction(route.params.id, frmData);
+    toast.success("PDF uploaded successfully");
+    loading.value = false;
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
+  } catch (error) {
+    toast.error("Failed to upload PDF");
+  } finally {
+    loading.value = false;
   }
-  const res = await inclusiveStore.storePDFAction(route.params.id, frmData);
-  setTimeout(() => {
-    window.location.reload();
-  }, 2000);
 };
 
 const removeImage = (index) => {
@@ -189,14 +210,16 @@ const removeImage = (index) => {
             id=""
           />
         </div>
-        <div class="space-y-2">
+        <div class="space-y-2 col-span-2">
           <label for="" class="text-[12px] text-gray-500">Upload PDFs</label>
           <div
             class="text-sm px-6 w-full min-h-[70px] space-y-4 pt-2 my-auto border-dashed border border-gray-200 rounded-2xl text-gray-400 cursor-pointer"
           >
             <div
               class="cursor-pointer flex justify-between items-center w-full text-indigo-600"
-              v-for="a in editImage.pdfs.length > 0 ? editImage.pdfs : []"
+              v-for="(a, index) in editImage?.pdfs?.length > 0
+                ? editImage?.pdfs
+                : []"
               :key="a"
             >
               <p class="text-gray-400">
@@ -208,6 +231,12 @@ const removeImage = (index) => {
               <a :href="a.download_link" target="_blink" class="text-gray-400"
                 >Download</a
               >
+              <p
+                class="text-red-600 underline"
+                @click="removeAction(a.id, index)"
+              >
+                Delete
+              </p>
             </div>
           </div>
         </div>

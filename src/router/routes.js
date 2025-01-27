@@ -48,6 +48,7 @@ import UpdateBookingNewView from "../views/BookingUpdateNewVersion.vue";
 import InclusiveNewCreateView from "../views/InclusiveNewCreate.vue";
 import InclusiveNewDetailView from "../views/InclusiveNewUpdate.vue";
 import ReservationEntranceConfirmationsView from "../views/ReservationEntranceConfirmationsView.vue";
+import AuditorDashboardView from "../views/Auditor.vue";
 
 const routes = [
   {
@@ -67,6 +68,11 @@ const routes = [
     path: "/user_dashboard",
     name: "dashboard",
     component: DashboardView,
+  },
+  {
+    path: "/auditor_dashboard",
+    name: "auditor_dashboard",
+    component: AuditorDashboardView,
   },
   {
     path: "/components",

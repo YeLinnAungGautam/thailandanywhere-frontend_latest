@@ -44,8 +44,14 @@
             <SidebarItem
               name="Dashboard"
               :icon="Squares2X2Icon"
+              to="/auditor_dashboard"
+              v-show="authStore.isAuditor"
+            />
+            <SidebarItem
+              name="Dashboard"
+              :icon="Squares2X2Icon"
               to="/user_dashboard"
-              v-show="!authStore.isSuperAdmin"
+              v-show="!authStore.isSuperAdmin && !authStore.isAuditor"
             />
             <SidebarItem
               name="Sales"
@@ -67,6 +73,7 @@
               ]"
             />
             <div
+              v-if="!authStore.isAuditor"
               @click="toggleReservationShow"
               class="text-gray-600 bg-gray-100 cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[12px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
             >
@@ -98,6 +105,7 @@
             </div>
 
             <SidebarItem
+              v-if="!authStore.isAuditor"
               name="Expenses"
               :icon="WalletIcon"
               to="/expenses"
@@ -143,14 +151,14 @@
             />
             <SidebarItem
               name="Customers"
-              v-if="!authStore.isAgent"
+              v-if="!authStore.isAgent && !authStore.isAuditor"
               :icon="UsersIcon"
               to="/customers"
               :activePaths="['customers', 'customerscreate', 'customersupdate']"
             />
             <SidebarItem
               name="Users"
-              v-if="!authStore.isAgent"
+              v-if="!authStore.isAgent && !authStore.isAuditor"
               :icon="UsersIcon"
               to="/users"
               :activePaths="['users']"
@@ -169,6 +177,7 @@
               @click="settingHandle"
             /> -->
             <div
+              v-if="!authStore.isAuditor"
               class="inline-flex text-[.75rem] rounded-md relative items-center py-[12px] px-[10px] w-full text-sm font-roboto text-gray-600 bg-gray-100 mb-1 hover:text-[#FF5B00] hover:bg-[rgb(255, 91, 0, 0.1)] transition duration-150 hover:bg-[#FF5B00]/10"
               @click="toggleSidebarShowSetting"
             >
@@ -213,14 +222,14 @@
               />
             </div>
             <SidebarItem
-              v-if="!authStore.isAgent"
+              v-if="!authStore.isAgent && !authStore.isAuditor"
               name="Car Bookings"
               :icon="DocumentTextIcon"
               to="/car-bookings/unassigned"
               :activePaths="['car-bookings']"
             />
             <SidebarItem
-              v-if="!authStore.isAgent"
+              v-if="!authStore.isAgent && !authStore.isAuditor"
               name="Availabilities"
               :icon="CheckBadgeIcon"
               to="/availabilities"

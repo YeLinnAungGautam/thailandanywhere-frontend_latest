@@ -108,5 +108,13 @@ export const useInclusiveStore = defineStore("inclusive", {
         throw error;
       }
     },
+    async deletePDFAction(id, imageID) {
+      try {
+        const response = await axios.delete(`inclusive/${id}/pdfs/${imageID}`);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

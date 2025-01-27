@@ -53,6 +53,7 @@ const router = useRouter();
 const route = useRoute();
 
 const formData = ref({
+  id: "",
   name: "",
   description: "",
   cover_image: "",
@@ -608,6 +609,7 @@ const getDetail = async () => {
     const response = await inclusiveStore.getDetailAction(route.params.id);
     console.log(response, "this is response");
     formData.value.name = response.result.name;
+    formData.value.id = response.result.id;
     formData.value.description = response.result.description;
     // formData.value.day = response.result.day;
     formData.value.night = response.result.night;

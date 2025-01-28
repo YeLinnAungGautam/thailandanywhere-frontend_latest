@@ -116,5 +116,13 @@ export const useInclusiveStore = defineStore("inclusive", {
         throw error;
       }
     },
+    async downloadPDFAction(id) {
+      try {
+        const response = await axios.get(`/download-pdf/${id}`);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

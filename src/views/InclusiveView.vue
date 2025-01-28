@@ -158,11 +158,11 @@
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <CheckBadgeIcon
                 class="w-5 h-5 text-green-600"
-                v-if="r.cover_image != null"
+                v-if="checkMaterial(r.pdfs, r.product_itenary_material)"
               />
               <XCircleIcon
                 class="w-5 h-5 text-red-600"
-                v-if="r.cover_image == null"
+                v-if="!checkMaterial(r.pdfs, r.product_itenary_material)"
               />
             </td>
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
@@ -347,7 +347,6 @@ const changePage = async (url) => {
   console.log(url);
   let data = {
     search: search.value,
-    limit: 5,
   };
   await inclusiveStore.getChangePage(url, data);
 };
@@ -431,6 +430,14 @@ const checkDesign = (details, images) => {
     } else {
       return false;
     }
+  } else {
+    return false;
+  }
+};
+
+const checkMaterial = (one = [], two = []) => {
+  if (one.length > 0 && two != null) {
+    return true;
   } else {
     return false;
   }

@@ -38,7 +38,7 @@ const saveAsJpeg = async () => {
     });
 
     const link = document.createElement("a");
-    link.download = "screenshot.jpeg"; // Name of the saved file
+    link.download = `${details?.value.crm_id}.jpeg`; // Name of the saved file
     link.href = canvas.toDataURL("image/jpeg");
     link.click();
   } catch (error) {
@@ -46,8 +46,36 @@ const saveAsJpeg = async () => {
   }
 };
 
+const saveAsPng = async () => {
+  if (!captureArea.value) {
+    console.error("Capture area not found!");
+    return;
+  }
+
+  try {
+    const canvas = await html2canvas(captureArea.value, {
+      backgroundColor: "#fff", // Ensure a white background for the image
+      useCORS: true,
+      allowTaint: true,
+    });
+
+    const link = document.createElement("a");
+    link.download = `${details?.value.crm_id}.png`; // Name of the saved file
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  } catch (error) {
+    console.error("Error capturing the view:", error);
+  }
+};
+
+const goToSvg = () => {
+  router.push(`/reservation/confirmations/svg/entrance/${route.params.id}`);
+};
+
 onMounted(async () => {
   await getDetail();
+  const svgElement = captureArea.value?.querySelector("svg");
+  console.log("SVG element after mount:", svgElement);
 });
 </script>
 
@@ -63,13 +91,13 @@ onMounted(async () => {
           Save as JPEG
         </button>
         <button
-          @click="saveAsJpeg()"
-          class="py-3 px-4 mt-4 rounded-lg text-white bg-gray-500/30 hover:bg-[#ff613c]/70 text-xs font-medium"
+          @click="saveAsPng()"
+          class="py-3 px-4 mt-4 rounded-lg text-white bg-[#FF613c] hover:bg-[#ff613c]/70 text-xs font-medium"
         >
           Save as PNG
         </button>
         <button
-          @click="saveAsJpeg()"
+          @click="goToSvg()"
           class="py-3 px-4 mt-4 rounded-lg text-white bg-gray-500/30 hover:bg-[#ff613c]/70 text-xs font-medium"
         >
           Save as SVG
@@ -78,7 +106,7 @@ onMounted(async () => {
     </div>
 
     <div class="p-6 bg-[#F6F6F6] max-w-[400px] mx-auto" ref="captureArea">
-      <div class="bg-white rounded-xl p-5 mt-4">
+      <div id="mySvg" class="bg-white rounded-xl p-5 mt-4">
         <img
           :src="details?.product?.cover_image"
           class="rounded-lg w-full h-[160px] object-cover"
@@ -87,11 +115,13 @@ onMounted(async () => {
 
         <div class="py-3 border-b border-black/10 space-y-1">
           <p class="font-medium text-[#ff613c]">{{ details?.product?.name }}</p>
-          <p class="text-sm">
-            {{ details?.product?.categories[0].name }}
-            <span class="text-xl font-semibold">.</span>
-            {{ details?.product?.cities[0].name }}
-          </p>
+          <div class="flex justify-start items-center gap-x-1">
+            <p class="text-sm">
+              {{ details?.product?.categories[0].name }}
+            </p>
+            <p class="text-black font-bold text-xl mb-3">.</p>
+            <p class="text-sm">{{ details?.product?.cities[0].name }}</p>
+          </div>
         </div>
         <div class="py-3 grid grid-cols-2 gap-4">
           <div class="space-y-1.5">

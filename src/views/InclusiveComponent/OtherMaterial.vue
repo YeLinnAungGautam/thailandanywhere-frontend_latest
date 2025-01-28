@@ -73,6 +73,14 @@ const handlerImageFileChange = (e) => {
 
 const loading = ref(false);
 
+const downloadLink = async (id) => {
+  const res = await inclusiveStore.downloadPDFAction(id);
+  console.log("====================================");
+  console.log(res.result.link);
+  console.log("====================================");
+  window.open(res.result.link);
+};
+
 const savePDFHandler = async () => {
   try {
     loading.value = true;
@@ -228,9 +236,13 @@ const removeImage = (index) => {
                 }}</span
                 >Click to see pdf
               </p>
-              <a :href="a.download_link" target="_blink" class="text-gray-400"
-                >Download</a
+              <p
+                @click="downloadLink(a.id)"
+                target="_blink"
+                class="text-gray-400"
               >
+                Download
+              </p>
               <p
                 class="text-red-600 underline"
                 @click="removeAction(a.id, index)"

@@ -49,6 +49,7 @@ import InclusiveNewCreateView from "../views/InclusiveNewCreate.vue";
 import InclusiveNewDetailView from "../views/InclusiveNewUpdate.vue";
 import ReservationEntranceConfirmationsView from "../views/ReservationEntranceConfirmationsView.vue";
 import AuditorDashboardView from "../views/Auditor.vue";
+import ReservationEntranceConfirmationsSvgView from "../views/ReservationEntranceConfirmationSvg.vue";
 
 const routes = [
   {
@@ -263,6 +264,11 @@ const routes = [
     path: "/reservation/confirmations/entrance/:id",
     name: "reservation-entrance-confirmations",
     component: ReservationEntranceConfirmationsView,
+  },
+  {
+    path: "/reservation/confirmations/svg/entrance/:id",
+    name: "reservation-entrance-svg-confirmations",
+    component: ReservationEntranceConfirmationsSvgView,
   },
   {
     path: "/expenses",

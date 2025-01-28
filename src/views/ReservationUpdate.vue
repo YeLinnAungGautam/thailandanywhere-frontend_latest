@@ -10,6 +10,8 @@ import { computed, onMounted, onUnmounted, ref } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import { Switch } from "@headlessui/vue";
+import Modal from "../components/Modal.vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 import { useToast } from "vue-toastification";
 import { useRouter, useRoute } from "vue-router";
@@ -1076,6 +1078,8 @@ const cancelEmailFunction = () => {
   };
 };
 
+const printAsImageEntrance = ref(false);
+
 const emailLoading = ref(false);
 const sendEmailFunction = async () => {
   Swal.fire({
@@ -1236,8 +1240,18 @@ onMounted(async () => {
             @click="goToReservationImage"
             v-if="
               formData.product_type == 'App\\Models\\EntranceTicket' &&
-              (formData.payment_status == 'fully_paid' ||
-                formData.payment_status == 'partially_paid')
+              (booking_status.payment_status == 'fully_paid' ||
+                booking_status.payment_status == 'partially_paid')
+            "
+          >
+            Print As Image
+          </p>
+          <p
+            class="px-4 py-2 border border-gray-400 text-white bg-gray-400 text-xs cursor-pointer hover:bg-transparent hover:text-gray-400"
+            @click="printAsImageEntrance = true"
+            v-if="
+              formData.product_type == 'App\\Models\\EntranceTicket' &&
+              booking_status.payment_status == 'not_paid'
             "
           >
             Print As Image
@@ -2536,6 +2550,33 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+      <Modal
+        :isOpen="printAsImageEntrance"
+        @closeModal="printAsImageEntrance = false"
+      >
+        <DialogPanel
+          class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+        >
+          <DialogTitle
+            as="h3"
+            class="text-lg font-medium leading-6 text-gray-900 mb-5"
+          >
+            Warning ⚠️
+          </DialogTitle>
+          <div class="space-y-2 pb-5">
+            <p>
+              <span class="w-2 h-2 mr-4 rounded-full bg-red-500 inline-block">
+              </span>
+              Need to fill customer payment slip.
+            </p>
+            <p>
+              <span class="w-2 h-2 mr-4 rounded-full bg-red-500 inline-block">
+              </span>
+              Please check expense paid or not.
+            </p>
+          </div>
+        </DialogPanel>
+      </Modal>
     </div>
   </Layout>
 </template>

@@ -95,7 +95,10 @@ watch(formData.value, () => {
       finish.value.session5 = true;
     }
   }
-  if (formData.value.cover_image || editData.value.cover_image) {
+  if (
+    formData.value.other_materials?.length > 0 &&
+    editData.value.pdfs?.length > 0
+  ) {
     finish.value.session6 = true;
   }
 });

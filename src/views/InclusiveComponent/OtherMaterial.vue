@@ -102,7 +102,7 @@ const removeImage = (index) => {
 </script>
 <template>
   <div class="grid grid-cols-2 gap-6">
-    <div class="col-span-2 space-y-3 pt-3">
+    <div class="col-span-2 space-y-3 pt-3 relative">
       <div class="border border-gray-300 p-3 rounded-2xl">
         <div class="flex justify-between items-center" @click="part = !part">
           <div
@@ -240,6 +240,14 @@ const removeImage = (index) => {
             </div>
           </div>
         </div>
+      </div>
+      <div
+        v-if="loading"
+        class="w-full h-full bg-black/60 absolute flex justify-center items-center top-0 right-0 rounded-lg"
+      >
+        <p class="text-white animate-bounce">
+          Please wait, loading is depend on file size ...
+        </p>
       </div>
     </div>
   </div>

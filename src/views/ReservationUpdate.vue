@@ -1224,7 +1224,7 @@ onMounted(async () => {
           >
             Pending Booking
           </p>
-          <p
+          <!-- <p
             class="px-4 py-2 border border-[#ff613c] text-white bg-[#ff613c] text-xs cursor-pointer hover:bg-transparent hover:text-[#ff613c]"
             @click="printReservation"
             v-if="
@@ -1234,14 +1234,14 @@ onMounted(async () => {
             "
           >
             Print
-          </p>
+          </p> -->
           <p
             class="px-4 py-2 border border-[#ff613c] text-white bg-[#ff613c] text-xs cursor-pointer hover:bg-transparent hover:text-[#ff613c]"
             @click="goToReservationImage"
             v-if="
               formData.product_type == 'App\\Models\\EntranceTicket' &&
               (booking_status.payment_status == 'fully_paid' ||
-                booking_status.payment_status == 'partially_paid')
+                formData.payment_status == 'fully_paid')
             "
           >
             Print As Image
@@ -1251,7 +1251,8 @@ onMounted(async () => {
             @click="printAsImageEntrance = true"
             v-if="
               formData.product_type == 'App\\Models\\EntranceTicket' &&
-              booking_status.payment_status == 'not_paid'
+              (booking_status.payment_status != 'fully_paid' ||
+                formData.payment_status != 'fully_paid')
             "
           >
             Print As Image

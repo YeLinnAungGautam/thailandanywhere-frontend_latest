@@ -1240,8 +1240,8 @@ onMounted(async () => {
             @click="goToReservationImage"
             v-if="
               formData.product_type == 'App\\Models\\EntranceTicket' &&
-              (booking_status.payment_status == 'fully_paid' ||
-                formData.payment_status == 'fully_paid')
+              booking_status.payment_status == 'fully_paid' &&
+              formData.payment_status == 'fully_paid'
             "
           >
             Print As Image

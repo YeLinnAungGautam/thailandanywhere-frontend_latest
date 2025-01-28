@@ -844,17 +844,17 @@ const changeName = () => {
   }
 };
 
-const printReservation = () => {
-  window.open(
-    import.meta.env.VITE_API_URL +
-      "/reservations/" +
-      route.params.id +
-      "/receipt"
-  );
+// const printReservation = () => {
+//   window.open(
+//     import.meta.env.VITE_API_URL +
+//       "/reservations/" +
+//       route.params.id +
+//       "/receipt"
+//   );
 
-  // go to print page
-  // router.push(`/reservation/confirmations/entrance/${route.params.id}`);
-};
+//   // go to print page
+//   // router.push(`/reservation/confirmations/entrance/${route.params.id}`);
+// };
 
 const goToReservationImage = () => {
   router.push(`/reservation/confirmations/entrance/${route.params.id}`);

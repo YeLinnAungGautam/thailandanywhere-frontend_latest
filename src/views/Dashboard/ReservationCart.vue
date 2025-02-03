@@ -350,19 +350,15 @@
                 : "--/--/--"
             }}
           </p>
+          <!-- router.push({
+            name: 'update_new_bookings',
+            params: { id: data.booking.id },
+            query: {
+              crm_id: data?.crm_id,
+            },
+          }) -->
           <p class="text-[10px] text-gray-600">
-            <PencilSquareIcon
-              class="w-4 h-4"
-              @click="
-                router.push({
-                  name: 'update_new_bookings',
-                  params: { id: data.booking.id },
-                  query: {
-                    crm_id: data?.crm_id,
-                  },
-                })
-              "
-            />
+            <PencilSquareIcon class="w-4 h-4" @click="goToPassportInfo" />
           </p>
         </div>
       </div>
@@ -593,6 +589,25 @@
         </div>
       </DialogPanel>
     </Modal>
+
+    <Modal :isOpen="openPassportInfoModal" @closeModal="goToPassportInfo">
+      <DialogPanel
+        class="w-full max-w-lg transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm font-medium flex justify-between items-center leading-6 text-gray-900 mb-2 px-4"
+        >
+          <p>Passport Info</p>
+        </DialogTitle>
+        <div>
+          <PassportInfoPart
+            :closeTravellerModal="goToPassportInfo"
+            :data="data"
+          />
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
@@ -613,6 +628,7 @@ import {
 } from "@heroicons/vue/24/outline";
 import router from "../../router";
 import ExpensePartVue from "./ExpensePart.vue";
+import PassportInfoPart from "./PassportInfoPart.vue";
 
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import Modal from "../../components/Modal.vue";
@@ -652,8 +668,14 @@ const props = defineProps({
 
 const openExpenseModal = ref(false);
 
+const openPassportInfoModal = ref(false);
+
 const goToExpense = () => {
   openExpenseModal.value = !openExpenseModal.value;
+};
+
+const goToPassportInfo = () => {
+  openPassportInfoModal.value = !openPassportInfoModal.value;
 };
 
 const formData = ref({
@@ -842,9 +864,6 @@ const copyReservation = async (id) => {
 
 onMounted(async () => {
   if (props.data) {
-    console.log("====================================");
-    console.log(props.data, "this is a new reservation");
-    console.log("====================================");
     formData.value.id = props.data?.id;
     formData.value.cost_price = props.data?.cost_price;
     formData.value.payment_method = props.data?.payment_method;

@@ -573,10 +573,16 @@
         class="w-full max-w-lg transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
-          as="h3"
-          class="text-sm font-medium leading-6 text-gray-900 mb-2 px-4"
+          as="div"
+          class="text-sm font-medium flex justify-between items-center leading-6 text-gray-900 mb-2 px-4"
         >
-          Expense Copy & Expense Data Form
+          <p>Expense Copy & Expense Data Form</p>
+          <p
+            @click="copyReservation(formData.id)"
+            class="flex justify-end items-center gap-x-1 text-[12px] font-normal"
+          >
+            <ClipboardDocumentCheckIcon class="w-4 h-4" /><span>Copy</span>
+          </p>
         </DialogTitle>
         <div>
           <ExpensePartVue
@@ -601,7 +607,10 @@ import {
   TruckIcon,
 } from "@heroicons/vue/24/solid";
 import { useAuthStore } from "../../stores/auth";
-import { PencilIcon } from "@heroicons/vue/24/outline";
+import {
+  PencilIcon,
+  ClipboardDocumentCheckIcon,
+} from "@heroicons/vue/24/outline";
 import router from "../../router";
 import ExpensePartVue from "./ExpensePart.vue";
 
@@ -733,6 +742,102 @@ const expenseUpdateAction = async () => {
 const expenseCancelAction = () => {
   // your logic to cancel the expense update goes here
   openExpenseModal.value = false;
+};
+
+const copyReservation = async (id) => {
+  const res = await reservationStore.copyReservationDetail(id);
+  console.log(res, "this is cpy reservation");
+  let formattedOutput;
+  if (res.result.checkin_date != undefined) {
+    formattedOutput = `
+💰 Total Cost: ${res.result.total_cost} THB 🏦 Bank Name: ${
+      res.result.bank_name != "null" ? res.result.bank_name : "-"
+    }
+🔢 Bank Account Number: ${
+      res.result.bank_account_number != "null"
+        ? `➖${res.result.bank_account_number}`
+        : "-"
+    }
+🧑‍💼 Account Name: ${
+      res.result.account_name != "null" ? res.result.account_name : "-"
+    }
+#️⃣ CRM ID: ${res.result.crm_id}
+#️⃣ Reservation Code: ${res.result.reservation_code}
+🏨 Hotel Name: ${res.result.product_name}
+🏩 Room Name : ${res.result.room_name != "null" ? res.result.room_name : "-"}
+🛌 Total Rooms: ${
+      res.result.total_rooms != "null" ? res.result.total_rooms : "-"
+    }
+🌙 Total Nights: ${
+      res.result.total_nights != "null" ? res.result.total_nights : "-"
+    }
+💵 Price: ${res.result.sale_price} THB
+💵 Total Sale Amount: ${res.result.total_sale_amount} THB
+💸 Discount : ${res.result.discount} THB
+💵 Balance Due: ${res.result.balance_due} THB
+📝 Payment Status: ${res.result.payment_status}
+📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
+📅 Check-in Date: ${
+      res.result.checkin_date != "null" ? res.result.checkin_date : "-"
+    }
+📅 Checkout Date: ${
+      res.result.checkout_date != "null" ? res.result.checkout_date : "-"
+    }
+🤑 Score : ${res.result.score}
+    `;
+  } else if (res.result.entrance_ticket_variation_name) {
+    formattedOutput = `
+💰 Total Cost: ${res.result.total_cost} THB
+🏦 Bank Name: ${res.result.bank_name != "null" ? res.result.bank_name : "-"}
+🔢 Bank Account Number: ${
+      res.result.bank_account_number != "null"
+        ? `➖${res.result.bank_account_number}`
+        : "-"
+    }
+🧑‍💼 Account Name: ${res.result.account_name}
+#️⃣ CRM ID: ${res.result.crm_id}
+#️⃣ Reservation Code: ${res.result.reservation_code}
+🎫 Attraction : ${res.result.product_name}
+🎫 Entrance Ticket Name : ${res.result.entrance_ticket_variation_name}
+💵 Price: ${res.result.sale_price} THB
+💵 Total Sale Amount: ${res.result.total_sale_amount} THB
+💸 Discount : ${res.result.discount} THB
+💵 Balance Due: ${res.result.balance_due} THB
+📝 Payment Status: ${res.result.payment_status}
+📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
+🗓️ Service Date: ${
+      res.result.service_date != "null" ? res.result.service_date : "-"
+    }
+🤑 Score : ${res.result.score}
+    `;
+  } else if (res.result.ticket_type) {
+    formattedOutput = `
+💰 Total Cost: ${res.result.total_cost} THB
+#️⃣ CRM ID: ${res.result.crm_id}
+#️⃣ Reservation Code: ${res.result.reservation_code}
+✈️ Airline Name : ${res.result.product_name}
+🎫 Ticket Type : ${res.result.ticket_type}
+🎫 Total Tickets : ${res.result.total_ticket}
+💵 Price: ${res.result.sale_price} THB
+💵 Total Sale Amount: ${res.result.total_sale_amount} THB
+💸 Discount : ${res.result.discount} THB
+💵 Balance Due: ${res.result.balance_due} THB
+📝 Payment Status: ${res.result.payment_status}
+📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
+🗓️ Service Date: ${
+      res.result.service_date != "null" ? res.result.service_date : "-"
+    }
+🧾 Payment Status: ${res.result.payment_status}
+🤑 Score : ${res.result.score}
+📝 Expense Comment:
+  `;
+  }
+
+  setTimeout(() => {
+    navigator.clipboard.writeText(formattedOutput);
+  }, 0);
+
+  toast.success("success copy reservation");
 };
 
 onMounted(() => {

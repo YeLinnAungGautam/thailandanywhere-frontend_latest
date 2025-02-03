@@ -579,7 +579,11 @@
           Expense Copy & Expense Data Form
         </DialogTitle>
         <div>
-          <ExpensePartVue />
+          <ExpensePartVue
+            :data="formData"
+            :expenseUpdateAction="expenseUpdateAction"
+            :expenseCancelAction="expenseCancelAction"
+          />
         </div>
       </DialogPanel>
     </Modal>
@@ -587,7 +591,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps } from "vue";
+import { ref, defineProps, onMounted } from "vue";
 import {
   CurrencyDollarIcon,
   CreditCardIcon,
@@ -603,9 +607,13 @@ import ExpensePartVue from "./ExpensePart.vue";
 
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import Modal from "../../components/Modal.vue";
+import { useReservationStore } from "../../stores/reservation";
+import { useToast } from "vue-toastification";
 
 const authStore = useAuthStore();
+const toast = useToast();
 const open = ref(false);
+const reservationStore = useReservationStore();
 
 const daysBetween = (a, b) => {
   console.log(a, b);
@@ -617,6 +625,8 @@ const daysBetween = (a, b) => {
       Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
     );
     return result;
+  } else {
+    return 1;
   }
 };
 
@@ -637,9 +647,112 @@ const goToExpense = () => {
   openExpenseModal.value = !openExpenseModal.value;
 };
 
+const formData = ref({
+  id: "",
+  reservation_id: "",
+  cost_price: "",
+  payment_method: "",
+  bank_name: "",
+  bank_account_number: "",
+  payment_status: "",
+  hotalQuantity: "",
+  quantity: "",
+  receipt_image: [],
+  booking_receipt_image: [],
+  product_type: "",
+  customer_feedback: "",
+});
+
 const formatDate = (date) => {
   const [datePart] = date.split(" ");
   const [day, month, year] = datePart.split("-");
   return `${day}/${month}/${year}`;
 };
+
+const expenseUpdateAction = async () => {
+  // your logic to update the expense data goes here
+  const frmData = new FormData();
+  frmData.append("_method", "PUT");
+  formData.value.cost_price &&
+    frmData.append("cost_price", formData.value.cost_price);
+  formData.value.payment_method &&
+    frmData.append("payment_method", formData.value.payment_method);
+  formData.value.quantity &&
+    frmData.append("quantity", formData.value.quantity);
+  formData.value.payment_status &&
+    frmData.append("payment_status", formData.value.payment_status);
+  if (formData.value.cost_price) {
+    if (!formData.value.hotalQuantity) {
+      frmData.append(
+        "total_cost_price",
+        formData.value.cost_price * formData.value.quantity
+      );
+    } else {
+      frmData.append(
+        "total_cost_price",
+        formData.value.cost_price * formData.value.hotalQuantity
+      );
+    }
+  }
+  const response = await reservationStore.updateAction(
+    frmData,
+    formData.value.id
+  );
+
+  if (response.status) {
+    const secfrm = new FormData();
+    secfrm.append("_method", "PUT");
+    if (formData.value.customer_feedback) {
+      secfrm.append("customer_feedback", formData.value.customer_feedback);
+    }
+
+    if (formData.value.bank_name) {
+      secfrm.append("bank_name", formData.value.bank_name);
+    }
+    if (formData.value.bank_account_number) {
+      secfrm.append("bank_account_number", formData.value.bank_account_number);
+    }
+    if (formData.value.receipt_image.length != 0) {
+      if (formData.value.receipt_image.length > 0) {
+        for (let i = 0; i < formData.value.receipt_image.length; i++) {
+          let file = formData.value.receipt_image[i];
+          secfrm.append("receipt_image[" + i + "]", file);
+        }
+      }
+    }
+
+    await reservationStore.updateInfoAction(secfrm, formData.value.id);
+
+    toast.success(response.message);
+    setTimeout(() => {
+      window.location.reload();
+    }, 3000);
+  }
+};
+
+const expenseCancelAction = () => {
+  // your logic to cancel the expense update goes here
+  openExpenseModal.value = false;
+};
+
+onMounted(() => {
+  if (props.data) {
+    formData.value.id = props.data?.id;
+    formData.value.cost_price = props.data?.cost_price;
+    formData.value.payment_method = props.data?.payment_method;
+    formData.value.bank_name = props.data?.reservation_info?.bank_name || "";
+    formData.value.bank_account_number =
+      props.data?.reservation_info?.bank_account_number || "";
+    formData.value.payment_status = props.data?.payment_status;
+    formData.value.hotalQuantity =
+      props.data?.quantity *
+      daysBetween(props.data?.checkin_date, props.data?.checkout_date);
+    formData.value.quantity = props.data?.quantity;
+    // formData.value.receipt_image = props.data?.receipt_image;
+    formData.value.booking_receipt_image = props.data?.receipt_images;
+    formData.value.product_type = props.data?.product_type;
+    formData.value.customer_feedback =
+      props.data?.reservation_info?.customer_feedback || "";
+  }
+});
 </script>

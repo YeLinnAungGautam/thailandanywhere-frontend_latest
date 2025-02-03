@@ -236,20 +236,25 @@ onMounted(() => {
   if (props.data) {
     loading.value = true;
     editData.value.name =
-      props.data?.associated_customer.length > 0 &&
-      props.data?.associated_customer[0]?.name;
+      props.data?.associated_customer.length > 0
+        ? props.data?.associated_customer[0]?.name
+        : "";
     editData.value.passport =
-      props.data?.associated_customer.length > 0 &&
-      props.data?.associated_customer[0]?.passport;
+      props.data?.associated_customer.length > 0
+        ? props.data?.associated_customer[0]?.passport
+        : "";
     editData.value.phone =
-      props.data?.associated_customer.length > 0 &&
-      props.data?.associated_customer[0]?.phone;
+      props.data?.associated_customer.length > 0
+        ? props.data?.associated_customer[0]?.phone
+        : "";
     editData.value.email =
-      props.data?.associated_customer.length > 0 &&
-      props.data?.associated_customer[0]?.email;
+      props.data?.associated_customer.length > 0
+        ? props.data?.associated_customer[0]?.email
+        : "";
     editData.value.customer_passport_have =
-      props.data?.customer_passports.length > 0 &&
-      props.data?.customer_passports;
+      props.data?.customer_passports.length > 0
+        ? props.data?.customer_passports
+        : [];
 
     loading.value = false;
   }

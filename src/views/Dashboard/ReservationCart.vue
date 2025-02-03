@@ -579,7 +579,7 @@
           <p>Expense Copy & Expense Data Form</p>
           <p
             @click="copyReservation(formData.id)"
-            class="flex justify-end items-center gap-x-1 text-[12px] font-normal"
+            class="flex justify-end items-center gap-x-1 cursor-pointer text-[12px] font-normal"
           >
             <ClipboardDocumentCheckIcon class="w-4 h-4" /><span>Copy</span>
           </p>

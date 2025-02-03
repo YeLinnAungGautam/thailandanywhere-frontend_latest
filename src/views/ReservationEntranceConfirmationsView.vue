@@ -80,7 +80,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="bg-[#F6F6F6] min-h-screen px-6 py-4">
+  <div class="bg-[#edecec] min-h-screen px-6 py-4">
     <div class="flex justify-between items-center">
       <ArrowLeftCircleIcon class="w-8 h-8" @click="router.back()" />
       <div class="flex justify-center items-center mt-4 gap-x-3">
@@ -105,7 +105,7 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div class="p-6 bg-[#F6F6F6] max-w-[400px] mx-auto" ref="captureArea">
+    <div class="p-6 bg-[#edecec] max-w-[400px] mx-auto" ref="captureArea">
       <div id="mySvg" class="bg-white rounded-xl p-5 mt-4">
         <img
           :src="details?.product?.cover_image"
@@ -152,13 +152,13 @@ onMounted(async () => {
           </div>
         </div>
         <div
-          class="space-y-2 pt-8 pb-6 border-b-4 border-dashed border-black/30 w-full relative"
+          class="space-y-2 pt-8 pb-6 border-b-[2px] border-dashed border-black/50 w-full relative"
         >
           <div
-            class="w-20 h-20 bg-[#F6F6F6] rounded-full absolute top-[75px] -left-[60px]"
+            class="w-20 h-20 bg-[#edecec] rounded-full absolute top-[75px] -left-[60px]"
           ></div>
           <div
-            class="w-20 h-20 bg-[#F6F6F6] rounded-full absolute top-[70px] -right-[60px]"
+            class="w-20 h-20 bg-[#edecec] rounded-full absolute top-[70px] -right-[60px]"
           ></div>
           <p class="text-center text-xs text-black/40">Customer Name:</p>
           <p class="text-xl font-semibold text-[#ff613c] text-center">
@@ -168,6 +168,9 @@ onMounted(async () => {
         <div class="pt-4 flex justify-center items-center">
           <QrCode :id="route.params.id" />
         </div>
+        <p class="text-[10px] font-medium text-center text-[#FF613c]">
+          Validate your ticket at www.thanywhere.com
+        </p>
       </div>
     </div>
   </div>

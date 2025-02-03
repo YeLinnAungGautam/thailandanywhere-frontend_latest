@@ -840,14 +840,24 @@ const copyReservation = async (id) => {
   toast.success("success copy reservation");
 };
 
-onMounted(() => {
+onMounted(async () => {
   if (props.data) {
+    console.log("====================================");
+    console.log(props.data, "this is a new reservation");
+    console.log("====================================");
     formData.value.id = props.data?.id;
     formData.value.cost_price = props.data?.cost_price;
     formData.value.payment_method = props.data?.payment_method;
-    formData.value.bank_name = props.data?.reservation_info?.bank_name || "";
+    formData.value.bank_name =
+      props.data?.reservation_info?.bank_name ||
+      props.data?.bank_name ||
+      props.data?.product.bank_name ||
+      "";
     formData.value.bank_account_number =
-      props.data?.reservation_info?.bank_account_number || "";
+      props.data?.reservation_info?.bank_account_number ||
+      props.data?.bank_account_number ||
+      props.data?.product.bank_account_number ||
+      "";
     formData.value.payment_status = props.data?.payment_status;
     formData.value.hotalQuantity =
       props.data?.quantity *

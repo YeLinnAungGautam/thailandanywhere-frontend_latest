@@ -117,10 +117,10 @@ onMounted(async () => {
           <p class="font-medium text-[#ff613c]">{{ details?.product?.name }}</p>
           <div class="flex justify-start items-center gap-x-1">
             <p class="text-sm">
-              {{ details?.product?.categories[0].name }}
+              {{ details?.product?.categories[0]?.name }}
             </p>
             <p class="text-black font-bold text-xl mb-3">.</p>
-            <p class="text-sm">{{ details?.product?.cities[0].name }}</p>
+            <p class="text-sm">{{ details?.product?.cities[0]?.name }}</p>
           </div>
         </div>
         <div class="py-3 grid grid-cols-2 gap-4">

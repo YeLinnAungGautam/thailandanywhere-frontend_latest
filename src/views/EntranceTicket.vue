@@ -15,12 +15,22 @@
         class="w-[900px] p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
       >
         <DialogTitle
-          as="h3"
-          class="mb-5 text-lg font-medium leading-6 text-gray-900"
+          as="div"
+          class="mb-5 text-lg flex justify-between items-center font-medium leading-6 text-gray-900"
         >
-          {{ formData.id ? "Edit Attraction" : "Create Attraction" }}
+          <p>{{ formData.id ? "Edit Attraction" : "Create Attraction" }}</p>
+          <p
+            class="px-4 py-1 rounded-lg bg-[#FF613c] text-white text-sm"
+            @click="add_on_show = !add_on_show"
+          >
+            {{ add_on_show ? "Detail" : "+ Add on" }}
+          </p>
         </DialogTitle>
-        <form @submit.prevent="onSubmitHandler" class="mt-2">
+        <form
+          @submit.prevent="onSubmitHandler"
+          class="mt-2"
+          v-if="!add_on_show"
+        >
           <div class="grid grid-cols-2 gap-4">
             <div class="mb-2 space-y-1">
               <label for="name" class="text-sm text-gray-800"
@@ -656,6 +666,9 @@
             </Button>
           </div>
         </form>
+        <div v-if="add_on_show">
+          <AddonPage :id="formData.id" :type="'entrance_ticket'" />
+        </div>
       </DialogPanel>
     </Modal>
     <!-- search input sort filter -->
@@ -1064,6 +1077,7 @@ import { useProductStore } from "../stores/product";
 import { useAuthStore } from "../stores/auth";
 import debounce from "lodash/debounce";
 import { Switch } from "@headlessui/vue";
+import AddonPage from "./Addon/AddonPage.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -1115,6 +1129,8 @@ const paymentMethod = [
   { id: "3", name: "Cash" },
   { id: "4", name: "Other ..." },
 ];
+
+const add_on_show = ref(false);
 
 const vat_inclusion_array = [
   {

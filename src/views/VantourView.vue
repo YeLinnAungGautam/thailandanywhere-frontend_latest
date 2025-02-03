@@ -9,7 +9,7 @@ import {
 import { onMounted, onUnmounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
-
+import AddonPage from "./Addon/AddonPage.vue";
 import { useToast } from "vue-toastification";
 import { useRouter, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
@@ -44,6 +44,8 @@ const typeList = ref([
   { id: 1, name: "Van Tour", value: "van_tour" },
   { id: 2, name: "Car Rental", value: "car_rental" },
 ]);
+
+const add_on_show = ref(false);
 
 const formData = ref({
   id: "",
@@ -348,12 +350,20 @@ onMounted(async () => {
         Edit VanTour
       </h3>
 
-      <div class="space-x-3 text-sm">
-        Note : Type - Car Rental for Sale Part & Type - VanTour for User Website
-        Show Items
+      <div class="flex justify-between items-center w-full">
+        <div class="space-x-3 text-sm">
+          Note : Type - Car Rental for Sale Part & Type - VanTour for User
+          Website Show Items
+        </div>
+        <p
+          class="px-4 py-1 rounded-lg bg-[#FF613c] text-white text-sm"
+          @click="add_on_show = !add_on_show"
+        >
+          {{ add_on_show ? "Detail" : "+ Add on" }}
+        </p>
       </div>
     </div>
-    <div class="grid grid-cols-3 gap-3">
+    <div class="grid grid-cols-3 gap-3" v-if="!add_on_show">
       <div class="bg-white/60 col-span-2 p-6 rounded-lg shadow-sm mb-5">
         <div class="space-y-4">
           <div class="grid grid-cols-3 gap-8">
@@ -720,59 +730,6 @@ onMounted(async () => {
         </div>
       </div>
       <div>
-        <!-- <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
-          <div class="flex items-center justify-between gap-3 mb-3">
-            <p>Images</p>
-            
-            <div>
-              
-              <button
-                class="text-sm text-blue-600"
-                @click.prevent="openFileImagePicker"
-              >
-                <i
-                  class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
-                ></i>
-              </button>
-            </div>
-            <input
-              multiple
-              type="file"
-              ref="imagesInput"
-              class="hidden"
-              @change="handlerImagesFileChange"
-              accept="image/*"
-            />
-          </div>
-          <div class="grid grid-cols-3 gap-2" v-if="imagesPreview.length != 0">
-            <div
-              class="relative"
-              v-for="(image, index) in imagesPreview"
-              :key="index"
-            >
-              <button
-                @click.prevent="removeImageSelectImage(index)"
-                class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
-              >
-                <XCircleIcon class="w-8 h-8 font-semibold" />
-              </button>
-
-              <img class="h-auto w-full rounded" :src="image" alt="" />
-            </div>
-          </div>
-          <div
-            class="grid grid-cols-3 gap-2 mb-6 bg-white rounded-md shadow"
-            v-if="imagesPreview.length == 0"
-          >
-            <div
-              class="relative"
-              v-for="(image, index) in formData.images"
-              :key="index"
-            >
-              <img class="h-auto w-full rounded" :src="image.image" alt="" />
-            </div>
-          </div>
-        </div> -->
         <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
           <div class="flex items-center justify-between gap-3 mb-3">
             <p>Feature Image</p>
@@ -848,6 +805,9 @@ onMounted(async () => {
           </p>
         </div>
       </div>
+    </div>
+    <div v-if="add_on_show">
+      <AddonPage :id="formData.id" :type="'private_van_tour'" />
     </div>
   </Layout>
 </template>

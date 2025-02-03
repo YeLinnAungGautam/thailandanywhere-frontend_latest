@@ -5,9 +5,9 @@ export const useAddonStore = defineStore("addon", {
   state: () => ({ addons: null, loading: false }),
   getters: {},
   actions: {
-    async getChangePage(url) {
+    async getChangePage(url, params) {
       this.loading = true;
-      const response = await axios.get(url);
+      const response = await axios.get(url, { params: params });
       this.addons = response.data.result;
       this.loading = false;
       return response.data;
@@ -18,10 +18,10 @@ export const useAddonStore = defineStore("addon", {
         const response = await axios.get("/product-addons", {
           params: params,
         });
-        this.addons = response.data.data;
+        this.addons = response.data.result;
         this.loading = false;
         // console.log(response);
-        return response.data.data;
+        return response.data;
       } catch (error) {
         this.loading = false;
         throw error;

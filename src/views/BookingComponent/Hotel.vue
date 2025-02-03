@@ -12,6 +12,7 @@ import { InformationCircleIcon } from "@heroicons/vue/24/solid";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRouter } from "vue-router";
+import AddonListOnBooking from "../Addon/AddonListOnBooking.vue";
 // import { useCityStore } from "../../stores/city";
 
 const bottomOfWindow = ref(false);
@@ -26,6 +27,37 @@ const addInfoModal = ref(false);
 const detailModal = ref(false);
 const details = ref(null);
 const details_images = ref([]);
+const addOnList = ref([]);
+
+const changeAddOnList = (message) => {
+  console.log(message, "this is message");
+
+  addOnList.value = [];
+};
+
+const addOnSellingPrice = computed(() => {
+  let result = 0;
+  if (addOnList.value != null) {
+    for (let i = 0; i < addOnList.value.length; i++) {
+      if (addOnList.value[i].select == true) {
+        result += addOnList.value[i].price * addOnList.value[i].quantity;
+      }
+    }
+  }
+  return result;
+});
+
+const addOnCostPrice = computed(() => {
+  let result = 0;
+  if (addOnList.value != null) {
+    for (let i = 0; i < addOnList.value.length; i++) {
+      if (addOnList.value[i].select == true) {
+        result += addOnList.value[i].cost_price * addOnList.value[i].quantity;
+      }
+    }
+  }
+  return result;
+});
 
 const viewDetail = (data) => {
   console.log(data, "this is data");
@@ -596,17 +628,6 @@ onMounted(async () => {
                 {{ formitem.days }} Night x {{ formitem.quantity }} Rooms
               </p>
             </div>
-            <!-- <div class="space-y-1 col-span-2">
-              <label for="" class="text-[12px] text-gray-500"
-                >Total Amount</label
-              >
-              <p
-                class="border border-gray-300 bg-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-              >
-                {{ formitem.selling_price }} thb X {{ formitem.quantity }} Rooms
-                = {{ formitem.selling_price * formitem.quantity }} thb
-              </p>
-            </div> -->
           </div>
 
           <div class="space-y-1">
@@ -618,6 +639,43 @@ onMounted(async () => {
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
               id=""
             />
+          </div>
+
+          <div>
+            <label for="" class="text-[12px] text-gray-500"
+              >Add on <span class="text-red-800">*</span></label
+            >
+            <div>
+              <AddonListOnBooking
+                :id="formitem.product_id"
+                :type="'hotel'"
+                :addOnList="addOnList"
+                @cleanAddOnList="changeAddOnList"
+              />
+            </div>
+          </div>
+
+          <div>
+            <p class="text-xs text-end px-2">
+              selling price {{ addOnSellingPrice }} :
+              <span class="font-medium text-[#ff613c]"
+                >{{
+                  formitem.selling_price * formitem.quantity * formitem.days -
+                  formitem.discount +
+                  addOnSellingPrice
+                }}
+                ฿</span
+              >
+              - cost price :
+              <span class="font-medium text-[#ff613c]"
+                >{{
+                  formitem.cost_price * formitem.quantity * formitem.days -
+                  formitem.discount +
+                  addOnCostPrice
+                }}
+                ฿</span
+              >
+            </p>
           </div>
 
           <div class="space-y-1">

@@ -350,19 +350,15 @@
                 : "--/--/--"
             }}
           </p>
+          <!-- router.push({
+            name: 'update_new_bookings',
+            params: { id: data.booking.id },
+            query: {
+              crm_id: data?.crm_id,
+            },
+          }) -->
           <p class="text-[10px] text-gray-600">
-            <PencilSquareIcon
-              class="w-4 h-4"
-              @click="
-                router.push({
-                  name: 'update_new_bookings',
-                  params: { id: data.booking.id },
-                  query: {
-                    crm_id: data?.crm_id,
-                  },
-                })
-              "
-            />
+            <PencilSquareIcon class="w-4 h-4" @click="goToPassportInfo" />
           </p>
         </div>
       </div>
@@ -573,13 +569,42 @@
         class="w-full max-w-lg transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
-          as="h3"
-          class="text-sm font-medium leading-6 text-gray-900 mb-2 px-4"
+          as="div"
+          class="text-sm font-medium flex justify-between items-center leading-6 text-gray-900 mb-2 px-4"
         >
-          Expense Copy & Expense Data Form
+          <p>Expense Copy & Expense Data Form</p>
+          <p
+            @click="copyReservation(formData.id)"
+            class="flex justify-end items-center gap-x-1 cursor-pointer text-[12px] font-normal"
+          >
+            <ClipboardDocumentCheckIcon class="w-4 h-4" /><span>Copy</span>
+          </p>
         </DialogTitle>
         <div>
-          <ExpensePartVue />
+          <ExpensePartVue
+            :data="formData"
+            :expenseUpdateAction="expenseUpdateAction"
+            :expenseCancelAction="expenseCancelAction"
+          />
+        </div>
+      </DialogPanel>
+    </Modal>
+
+    <Modal :isOpen="openPassportInfoModal" @closeModal="goToPassportInfo">
+      <DialogPanel
+        class="w-full max-w-lg transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm font-medium flex justify-between items-center leading-6 text-gray-900 mb-2 px-4"
+        >
+          <p>Passport Info</p>
+        </DialogTitle>
+        <div>
+          <PassportInfoPart
+            :closeTravellerModal="goToPassportInfo"
+            :data="data"
+          />
         </div>
       </DialogPanel>
     </Modal>
@@ -587,7 +612,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps } from "vue";
+import { ref, defineProps, onMounted } from "vue";
 import {
   CurrencyDollarIcon,
   CreditCardIcon,
@@ -597,15 +622,23 @@ import {
   TruckIcon,
 } from "@heroicons/vue/24/solid";
 import { useAuthStore } from "../../stores/auth";
-import { PencilIcon } from "@heroicons/vue/24/outline";
+import {
+  PencilIcon,
+  ClipboardDocumentCheckIcon,
+} from "@heroicons/vue/24/outline";
 import router from "../../router";
 import ExpensePartVue from "./ExpensePart.vue";
+import PassportInfoPart from "./PassportInfoPart.vue";
 
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import Modal from "../../components/Modal.vue";
+import { useReservationStore } from "../../stores/reservation";
+import { useToast } from "vue-toastification";
 
 const authStore = useAuthStore();
+const toast = useToast();
 const open = ref(false);
+const reservationStore = useReservationStore();
 
 const daysBetween = (a, b) => {
   console.log(a, b);
@@ -617,6 +650,8 @@ const daysBetween = (a, b) => {
       Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
     );
     return result;
+  } else {
+    return 1;
   }
 };
 
@@ -633,13 +668,225 @@ const props = defineProps({
 
 const openExpenseModal = ref(false);
 
+const openPassportInfoModal = ref(false);
+
 const goToExpense = () => {
   openExpenseModal.value = !openExpenseModal.value;
 };
+
+const goToPassportInfo = () => {
+  openPassportInfoModal.value = !openPassportInfoModal.value;
+};
+
+const formData = ref({
+  id: "",
+  reservation_id: "",
+  cost_price: "",
+  payment_method: "",
+  bank_name: "",
+  bank_account_number: "",
+  payment_status: "",
+  hotalQuantity: "",
+  quantity: "",
+  receipt_image: [],
+  booking_receipt_image: [],
+  product_type: "",
+  customer_feedback: "",
+});
 
 const formatDate = (date) => {
   const [datePart] = date.split(" ");
   const [day, month, year] = datePart.split("-");
   return `${day}/${month}/${year}`;
 };
+
+const expenseUpdateAction = async () => {
+  // your logic to update the expense data goes here
+  const frmData = new FormData();
+  frmData.append("_method", "PUT");
+  formData.value.cost_price &&
+    frmData.append("cost_price", formData.value.cost_price);
+  formData.value.payment_method &&
+    frmData.append("payment_method", formData.value.payment_method);
+  formData.value.quantity &&
+    frmData.append("quantity", formData.value.quantity);
+  formData.value.payment_status &&
+    frmData.append("payment_status", formData.value.payment_status);
+  if (formData.value.cost_price) {
+    if (!formData.value.hotalQuantity) {
+      frmData.append(
+        "total_cost_price",
+        formData.value.cost_price * formData.value.quantity
+      );
+    } else {
+      frmData.append(
+        "total_cost_price",
+        formData.value.cost_price * formData.value.hotalQuantity
+      );
+    }
+  }
+  const response = await reservationStore.updateAction(
+    frmData,
+    formData.value.id
+  );
+
+  if (response.status) {
+    const secfrm = new FormData();
+    secfrm.append("_method", "PUT");
+    if (formData.value.customer_feedback) {
+      secfrm.append("customer_feedback", formData.value.customer_feedback);
+    }
+
+    if (formData.value.bank_name) {
+      secfrm.append("bank_name", formData.value.bank_name);
+    }
+    if (formData.value.bank_account_number) {
+      secfrm.append("bank_account_number", formData.value.bank_account_number);
+    }
+    if (formData.value.receipt_image.length != 0) {
+      if (formData.value.receipt_image.length > 0) {
+        for (let i = 0; i < formData.value.receipt_image.length; i++) {
+          let file = formData.value.receipt_image[i];
+          secfrm.append("receipt_image[" + i + "]", file);
+        }
+      }
+    }
+
+    await reservationStore.updateInfoAction(secfrm, formData.value.id);
+
+    toast.success(response.message);
+    setTimeout(() => {
+      window.location.reload();
+    }, 3000);
+  }
+};
+
+const expenseCancelAction = () => {
+  // your logic to cancel the expense update goes here
+  openExpenseModal.value = false;
+};
+
+const copyReservation = async (id) => {
+  const res = await reservationStore.copyReservationDetail(id);
+  console.log(res, "this is cpy reservation");
+  let formattedOutput;
+  if (res.result.checkin_date != undefined) {
+    formattedOutput = `
+💰 Total Cost: ${res.result.total_cost} THB 🏦 Bank Name: ${
+      res.result.bank_name != "null" ? res.result.bank_name : "-"
+    }
+🔢 Bank Account Number: ${
+      res.result.bank_account_number != "null"
+        ? `➖${res.result.bank_account_number}`
+        : "-"
+    }
+🧑‍💼 Account Name: ${
+      res.result.account_name != "null" ? res.result.account_name : "-"
+    }
+#️⃣ CRM ID: ${res.result.crm_id}
+#️⃣ Reservation Code: ${res.result.reservation_code}
+🏨 Hotel Name: ${res.result.product_name}
+🏩 Room Name : ${res.result.room_name != "null" ? res.result.room_name : "-"}
+🛌 Total Rooms: ${
+      res.result.total_rooms != "null" ? res.result.total_rooms : "-"
+    }
+🌙 Total Nights: ${
+      res.result.total_nights != "null" ? res.result.total_nights : "-"
+    }
+💵 Price: ${res.result.sale_price} THB
+💵 Total Sale Amount: ${res.result.total_sale_amount} THB
+💸 Discount : ${res.result.discount} THB
+💵 Balance Due: ${res.result.balance_due} THB
+📝 Payment Status: ${res.result.payment_status}
+📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
+📅 Check-in Date: ${
+      res.result.checkin_date != "null" ? res.result.checkin_date : "-"
+    }
+📅 Checkout Date: ${
+      res.result.checkout_date != "null" ? res.result.checkout_date : "-"
+    }
+🤑 Score : ${res.result.score}
+    `;
+  } else if (res.result.entrance_ticket_variation_name) {
+    formattedOutput = `
+💰 Total Cost: ${res.result.total_cost} THB
+🏦 Bank Name: ${res.result.bank_name != "null" ? res.result.bank_name : "-"}
+🔢 Bank Account Number: ${
+      res.result.bank_account_number != "null"
+        ? `➖${res.result.bank_account_number}`
+        : "-"
+    }
+🧑‍💼 Account Name: ${res.result.account_name}
+#️⃣ CRM ID: ${res.result.crm_id}
+#️⃣ Reservation Code: ${res.result.reservation_code}
+🎫 Attraction : ${res.result.product_name}
+🎫 Entrance Ticket Name : ${res.result.entrance_ticket_variation_name}
+💵 Price: ${res.result.sale_price} THB
+💵 Total Sale Amount: ${res.result.total_sale_amount} THB
+💸 Discount : ${res.result.discount} THB
+💵 Balance Due: ${res.result.balance_due} THB
+📝 Payment Status: ${res.result.payment_status}
+📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
+🗓️ Service Date: ${
+      res.result.service_date != "null" ? res.result.service_date : "-"
+    }
+🤑 Score : ${res.result.score}
+    `;
+  } else if (res.result.ticket_type) {
+    formattedOutput = `
+💰 Total Cost: ${res.result.total_cost} THB
+#️⃣ CRM ID: ${res.result.crm_id}
+#️⃣ Reservation Code: ${res.result.reservation_code}
+✈️ Airline Name : ${res.result.product_name}
+🎫 Ticket Type : ${res.result.ticket_type}
+🎫 Total Tickets : ${res.result.total_ticket}
+💵 Price: ${res.result.sale_price} THB
+💵 Total Sale Amount: ${res.result.total_sale_amount} THB
+💸 Discount : ${res.result.discount} THB
+💵 Balance Due: ${res.result.balance_due} THB
+📝 Payment Status: ${res.result.payment_status}
+📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
+🗓️ Service Date: ${
+      res.result.service_date != "null" ? res.result.service_date : "-"
+    }
+🧾 Payment Status: ${res.result.payment_status}
+🤑 Score : ${res.result.score}
+📝 Expense Comment:
+  `;
+  }
+
+  setTimeout(() => {
+    navigator.clipboard.writeText(formattedOutput);
+  }, 0);
+
+  toast.success("success copy reservation");
+};
+
+onMounted(async () => {
+  if (props.data) {
+    formData.value.id = props.data?.id;
+    formData.value.cost_price = props.data?.cost_price;
+    formData.value.payment_method = props.data?.payment_method;
+    formData.value.bank_name =
+      props.data?.reservation_info?.bank_name ||
+      props.data?.bank_name ||
+      props.data?.product.bank_name ||
+      "";
+    formData.value.bank_account_number =
+      props.data?.reservation_info?.bank_account_number ||
+      props.data?.bank_account_number ||
+      props.data?.product.bank_account_number ||
+      "";
+    formData.value.payment_status = props.data?.payment_status;
+    formData.value.hotalQuantity =
+      props.data?.quantity *
+      daysBetween(props.data?.checkin_date, props.data?.checkout_date);
+    formData.value.quantity = props.data?.quantity;
+    // formData.value.receipt_image = props.data?.receipt_image;
+    formData.value.booking_receipt_image = props.data?.receipt_images;
+    formData.value.product_type = props.data?.product_type;
+    formData.value.customer_feedback =
+      props.data?.reservation_info?.customer_feedback || "";
+  }
+});
 </script>

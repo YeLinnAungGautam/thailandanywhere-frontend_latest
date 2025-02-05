@@ -5,6 +5,7 @@ import { onMounted, ref } from "vue";
 import { ArrowLeftCircleIcon } from "@heroicons/vue/24/outline";
 import QrCode from "../components/QrCode.vue";
 import html2canvas from "html2canvas";
+import logoIcon from "../assets/web-logo.png";
 
 const route = useRoute();
 const router = useRouter();
@@ -106,7 +107,18 @@ onMounted(async () => {
     </div>
 
     <div class="p-6 bg-[#edecec] max-w-[400px] mx-auto" ref="captureArea">
-      <div id="mySvg" class="bg-white rounded-xl p-5 mt-4">
+      <div id="mySvg" class="bg-white rounded-xl px-5 pt-4 pb-5 mt-4">
+        <div class="flex justify-between items-center pb-4">
+          <img :src="logoIcon" class="w-8 h-8" alt="" />
+          <div
+            class="bg-[#FF613c] h-[25px] w-[120px] relative overflow-hidden px-3 rounded-lg"
+          >
+            <p class="text-sm text-white font-semibold absolute -top-1">
+              THANYWHERE
+            </p>
+          </div>
+        </div>
+
         <img
           :src="details?.product?.cover_image"
           class="rounded-lg w-full h-[160px] object-cover"
@@ -152,13 +164,13 @@ onMounted(async () => {
           </div>
         </div>
         <div
-          class="space-y-2 pt-8 pb-6 border-b-[2px] border-dashed border-black/50 w-full relative"
+          class="space-y-2 pb-6 border-b-[2px] border-dashed border-black/50 w-full relative"
         >
           <div
-            class="w-20 h-20 bg-[#edecec] rounded-full absolute top-[75px] -left-[60px]"
+            class="w-20 h-20 bg-[#edecec] rounded-full absolute top-[35px] -left-[60px]"
           ></div>
           <div
-            class="w-20 h-20 bg-[#edecec] rounded-full absolute top-[70px] -right-[60px]"
+            class="w-20 h-20 bg-[#edecec] rounded-full absolute top-[30px] -right-[60px]"
           ></div>
           <p class="text-center text-xs text-black/40">Customer Name:</p>
           <p class="text-xl font-semibold text-[#ff613c] text-center">

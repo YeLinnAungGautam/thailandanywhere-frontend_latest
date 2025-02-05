@@ -110,10 +110,15 @@ onMounted(async () => {
       <div id="mySvg" class="bg-white rounded-xl px-5 pt-4 pb-5 mt-4">
         <div class="flex justify-between items-center pb-4">
           <img :src="logoIcon" class="w-8 h-8" alt="" />
-          <div class="bg-[#FF613c] px-4 rounded-lg">
-            <p class="text-sm text-white font-semibold pb-3">THANYWHERE</p>
+          <div
+            class="bg-[#FF613c] h-[25px] w-[120px] relative overflow-hidden px-3 rounded-lg"
+          >
+            <p class="text-sm text-white font-semibold absolute -top-1">
+              THANYWHERE
+            </p>
           </div>
         </div>
+
         <img
           :src="details?.product?.cover_image"
           class="rounded-lg w-full h-[160px] object-cover"

@@ -107,12 +107,12 @@ onMounted(async () => {
     </div>
 
     <div class="p-6 bg-[#edecec] max-w-[400px] mx-auto" ref="captureArea">
-      <div id="mySvg" class="bg-white rounded-xl p-5 mt-4">
-        <div class="flex justify-between items-center pb-2">
+      <div id="mySvg" class="bg-white rounded-xl px-5 pt-4 pb-5 mt-4">
+        <div class="flex justify-between items-center pb-4">
           <img :src="logoIcon" class="w-8 h-8" alt="" />
-          <p class="font-semibold tracking-wide text-[#FF613c] block text-md">
-            THANYWHERE
-          </p>
+          <div class="bg-[#FF613c] px-4 rounded-lg">
+            <p class="text-sm text-white font-semibold pb-3">THANYWHERE</p>
+          </div>
         </div>
         <img
           :src="details?.product?.cover_image"

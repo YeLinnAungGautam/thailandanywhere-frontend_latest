@@ -12,7 +12,7 @@
     <!-- modal -->
     <Modal :isOpen="createModalOpen" @closeModal="closeModal">
       <DialogPanel
-        class="max-w-xl p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
+        class="max-w-3xl p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
       >
         <DialogTitle
           as="h3"
@@ -20,21 +20,24 @@
         >
           {{ formData.id ? "Edit Restaurant" : "Add New Restaurant" }}
         </DialogTitle>
-        <form @submit.prevent="onSubmitHandler" class="mt-2">
-          <div class="mb-2 space-y-1">
-            <label for="name" class="text-sm text-gray-800">Name</label>
+        <form
+          @submit.prevent="onSubmitHandler"
+          class="mt-2 space-y-2 grid grid-cols-2 gap-4"
+        >
+          <div class="space-y-1">
+            <label for="name" class="text-xs text-gray-800">Name</label>
             <input
               type="text"
               v-model="formData.name"
               id="name"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              class="w-full h-9 px-4 py-2 text-gray-900 text-sm border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
             <p v-if="errors?.name" class="mt-1 text-sm text-red-600">
               {{ errors.name[0] }}
             </p>
           </div>
-          <div>
-            <p class="mb-2 text-sm text-gray-800">Cities</p>
+          <div class="space-y-1">
+            <p class="text-xs text-gray-800">Cities</p>
             <v-select
               v-model="formData.city_id"
               class="style-chooser"
@@ -45,49 +48,20 @@
               placeholder="Choose City"
             ></v-select>
           </div>
-          <div class="mb-2 space-y-1">
-            <label for="name" class="text-sm text-gray-800">Place</label>
+          <div class="space-y-1">
+            <label for="name" class="text-xs text-gray-800">Place</label>
             <input
               type="text"
               v-model="formData.place"
               id="name"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              class="w-full h-9 px-4 py-2 text-gray-900 text-sm border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
             <p v-if="errors?.name" class="mt-1 text-sm text-red-600">
               {{ errors.place[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1">
-            <label for="description" class="text-sm text-gray-800"
-              >Description</label
-            >
-            <textarea
-              v-model="formData.description"
-              id="description"
-              class="w-full h-20 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            ></textarea>
-            <p v-if="errors?.description" class="mt-1 text-sm text-red-600">
-              {{ errors.description[0] }}
-            </p>
-          </div>
-          <div class="mb-2 space-y-1">
-            <label for="description" class="text-sm text-gray-800"
-              >Description (english)</label
-            >
-            <textarea
-              v-model="formData.full_description_en"
-              id="full_description_en"
-              class="w-full h-20 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            ></textarea>
-            <p
-              v-if="errors?.full_description_en"
-              class="mt-1 text-sm text-red-600"
-            >
-              {{ errors.full_description_en[0] }}
-            </p>
-          </div>
           <div>
-            <p class="mb-2 text-sm text-gray-800 space-y-1">Bank Name</p>
+            <p class="mb-2 text-xs text-gray-800 space-y-1">Bank Name</p>
             <v-select
               v-model="formData.bank_name"
               class="style-chooser"
@@ -98,8 +72,38 @@
               placeholder="Choose Bank"
             ></v-select>
           </div>
+          <div class="space-y-1">
+            <label for="description" class="text-xs text-gray-800"
+              >Description</label
+            >
+            <textarea
+              v-model="formData.description"
+              id="description"
+              class="w-full h-20 px-4 py-2 text-sm text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            ></textarea>
+            <p v-if="errors?.description" class="mt-1 text-sm text-red-600">
+              {{ errors.description[0] }}
+            </p>
+          </div>
+          <div class="space-y-1">
+            <label for="description" class="text-xs text-gray-800"
+              >Description (english)</label
+            >
+            <textarea
+              v-model="formData.full_description_en"
+              id="full_description_en"
+              class="w-full h-20 px-4 py-2 text-sm text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            ></textarea>
+            <p
+              v-if="errors?.full_description_en"
+              class="mt-1 text-sm text-red-600"
+            >
+              {{ errors.full_description_en[0] }}
+            </p>
+          </div>
+
           <div>
-            <p class="mb-2 mt-2 text-sm text-gray-800 space-y-1">
+            <p class="mb-2 mt-2 text-xs text-gray-800 space-y-1">
               Payment Method
             </p>
             <v-select
@@ -113,7 +117,7 @@
             ></v-select>
           </div>
           <div class="mb-2 mt-2 space-y-1">
-            <label for="name" class="text-sm text-gray-800"
+            <label for="name" class="text-xs text-gray-800"
               >Bank Account Number</label
             >
             <input
@@ -123,7 +127,7 @@
             />
           </div>
           <div class="mb-2 mt-2 space-y-1">
-            <label for="name" class="text-sm text-gray-800">
+            <label for="name" class="text-xs text-gray-800">
               Account Name</label
             >
             <input
@@ -132,8 +136,8 @@
               class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
             />
           </div>
-          <div class="mb-2 space-y-1">
-            <label for="name" class="text-sm text-gray-800"
+          <div class="space-y-1">
+            <label for="name" class="text-xs text-gray-800"
               >Contract Due Date</label
             >
             <input
@@ -143,20 +147,20 @@
             />
             <!-- <p>{{ formData.contract_due }}</p> -->
           </div>
-          <div class="mb-2 space-y-1">
-            <label for="name" class="text-sm text-gray-800">Contracts</label>
+          <div class="space-y-1">
+            <label for="name" class="text-xs text-gray-800">Contracts</label>
             <input
               type="file"
               multiple
               @change="contract_file"
               id="name"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              class="w-full h-9 px-4 py-2 text-gray-900 text-sm border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
             <p v-if="errors?.contracts" class="mt-1 text-sm text-red-600">
               {{ errors.contracts[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1" v-if="linkContract.length != 0">
+          <div class="space-y-1" v-if="linkContract.length != 0">
             <p v-for="(a, index) in linkContract.contacts" :key="index">
               <a :href="a.file" target="_blink" class="text-sm text-red-500"
                 >link</a
@@ -164,8 +168,8 @@
             </p>
           </div>
 
-          <div class="mb-2 space-y-1">
-            <label for="description" class="text-sm text-gray-800"
+          <div class="space-y-1">
+            <label for="description" class="text-xs text-gray-800"
               >Images</label
             >
             <input
@@ -175,7 +179,7 @@
               ref="imagesInput"
               id=""
               @change="handlerImagesFileChange"
-              class="hidden w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              class="hidden w-full h-9 px-4 py-2 text-gray-900 text-sm border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
               accept="image/*"
             />
             <button
@@ -215,7 +219,9 @@
                 :key="index"
               >
                 <button
-                  @click.prevent="removeImageUpdateImage(formData.id, image.id)"
+                  @click.prevent="
+                    removeImageUpdateImage(formData.id, image.id, index)
+                  "
                   class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
                 >
                   <XCircleIcon class="w-8 h-8 font-semibold" />
@@ -504,7 +510,7 @@ const addNewHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("city_id", formData.value.city_id);
   frmData.append("account_name", formData.value.account_name);
-  frmData.append("place", formData.value.place);
+  frmData.append("place", formData.value.place ? formData.value.place : ".");
   frmData.append("description", formData.value.description);
   frmData.append("full_description_en", formData.value.full_description_en);
   frmData.append("payment_method", formData.value.payment_method);
@@ -600,7 +606,7 @@ const contract_file = (e) => {
 const updateHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
-  frmData.append("place", formData.value.place);
+  frmData.append("place", formData.value.place ? formData.value.place : ".");
   frmData.append("description", formData.value.description);
   frmData.append("full_description_en", formData.value.full_description_en);
   frmData.append("city_id", formData.value.city_id);
@@ -682,7 +688,8 @@ const editModalOpenHandler = (data) => {
   formData.value.place = data.place;
   formData.value.description = data.description;
   formData.value.full_description_en = data.full_description_en;
-  formData.value.contract_due = formatDate(data.contract_due);
+  formData.value.contract_due =
+    data.contract_due != null ? formatDate(data.contract_due) : "";
   formData.value.bank_account_number = data.bank_account_number;
   formData.value.account_name = data.account_name;
   formData.value.payment_method = data.payment_method;
@@ -732,12 +739,16 @@ const onDeleteHandler = async (id) => {
   });
 };
 
-const removeImageUpdateImage = async (id, imageID) => {
+const removeImageUpdateImage = async (id, imageID, index) => {
+  editImagesPreview.value.splice(index, 1);
   const res = restaurantStore.deleteImageAction(id, imageID);
   console.log(res, "delete image res");
   toast.success("delete image success");
-  closeModal();
-  await restaurantStore.getListAction({ search: search.value });
+
+  // closeModal();
+  setTimeout(() => {
+    window.location.reload();
+  }, 2000);
 };
 
 const exportAction = async () => {

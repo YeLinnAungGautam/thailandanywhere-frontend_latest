@@ -107,6 +107,7 @@ const formitem = ref({
   cost_price: "",
   special_request: "",
   total_amount: "",
+  total_cost_price: "",
   pickup_location: "",
   pickup_time: "",
   is_driver_collect: false,
@@ -244,6 +245,7 @@ const clearAction = () => {
     cost_price: "",
     special_request: "",
     total_amount: "",
+    total_cost_price: "",
     pickup_location: "",
     pickup_time: "",
     is_driver_collect: false,
@@ -264,7 +266,11 @@ const getFunction = () => {
     formitem.value.quantity *
       formitem.value.selling_price *
       formitem.value.days -
-    formitem.value.discount;
+    formitem.value.discount +
+    addOnSellingPrice.value;
+  formitem.value.total_cost_price =
+    formitem.value.quantity * formitem.value.cost_price * formitem.value.days +
+    addOnCostPrice.value;
   emit("formData", formitem.value);
   clearAction();
 };

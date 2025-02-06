@@ -25,7 +25,7 @@
           Create
         </Button> -->
         <div class="relative">
-          <Button :leftIcon="PlusIcon" @click="showVersion = !showVersion">
+          <Button :leftIcon="PlusIcon" @click="goCreatePage('new')">
             Create
           </Button>
         </div>
@@ -171,16 +171,16 @@
 
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">
-                <router-link :to="'/inclusive/view/' + r.id + '/view'">
+                <!-- <router-link :to="'/inclusive/view/' + r.id + '/view'">
                   <button
                     class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
                   >
                     <EyeIcon class="w-5 h-5" />
                   </button>
-                </router-link>
+                </router-link> -->
                 <!-- <router-link :to="'/inclusive/view/' + r.id + '/edit'"> -->
                 <button
-                  @click="newUpdateHandler(r.id)"
+                  @click="goEditPage('new', r.id)"
                   class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
                 >
                   <PencilSquareIcon class="w-5 h-5" />
@@ -198,81 +198,6 @@
           </tr>
         </tbody>
       </table>
-      <Modal :isOpen="showVersion" @closeModal="showVersion = false">
-        <DialogPanel
-          class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
-        >
-          <DialogTitle
-            as="h3"
-            class="text-lg font-medium leading-6 text-gray-900 mb-5"
-          >
-            select version controll !
-          </DialogTitle>
-          <div class="space-y-2">
-            <div>
-              <Button
-                :leftIcon="PlusIcon"
-                class="w-full"
-                @click="goCreatePage('new')"
-              >
-                <p class="text-xs w-full whitespace-nowrap">
-                  New Version (recommended)
-                </p>
-              </Button>
-            </div>
-            <div>
-              <Button
-                class="w-full bg-gray-500"
-                :leftIcon="PlusIcon"
-                @click="goCreatePage('old')"
-              >
-                <p class="text-xs w-full whitespace-nowrap">
-                  Old Version (stable)
-                </p>
-              </Button>
-            </div>
-          </div>
-        </DialogPanel>
-      </Modal>
-      <Modal
-        :isOpen="showVersionUpdate"
-        @closeModal="showVersionUpdate = false"
-      >
-        <DialogPanel
-          class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
-        >
-          <DialogTitle
-            as="h3"
-            class="text-lg font-medium leading-6 text-gray-900 mb-5"
-          >
-            select version controll !
-          </DialogTitle>
-          <div class="space-y-2">
-            <div>
-              <Button
-                :leftIcon="PlusIcon"
-                class="w-full"
-                @click="goEditPage('new')"
-              >
-                <p class="text-xs w-full whitespace-nowrap">
-                  New Version Edit (recommended)
-                </p>
-              </Button>
-            </div>
-            <div>
-              <Button
-                class="w-full bg-gray-500"
-                :leftIcon="PlusIcon"
-                @click="goEditPage('old')"
-              >
-                <p class="text-xs w-full whitespace-nowrap">
-                  Old Version Edit (stable)
-                </p>
-              </Button>
-            </div>
-          </div>
-        </DialogPanel>
-      </Modal>
     </div>
     <!-- pagination -->
     <Pagination v-if="!loading" :data="inclusives" @change-page="changePage" />
@@ -335,11 +260,11 @@ const goCreatePage = (data) => {
     router.push("/inclusive/create");
   }
 };
-const goEditPage = (data) => {
+const goEditPage = (data, id) => {
   if (data == "old") {
-    router.push("/inclusive/view/" + editId.value + "/edit");
+    router.push("/inclusive/view/" + id + "/edit");
   } else {
-    router.push("/inclusive/new/update/" + editId.value + "/edit");
+    router.push("/inclusive/new/update/" + id + "/edit");
   }
 };
 

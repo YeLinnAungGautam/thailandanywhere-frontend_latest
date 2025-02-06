@@ -50,6 +50,7 @@ import InclusiveNewDetailView from "../views/InclusiveNewUpdate.vue";
 import ReservationEntranceConfirmationsView from "../views/ReservationEntranceConfirmationsView.vue";
 import AuditorDashboardView from "../views/Auditor.vue";
 import ReservationEntranceConfirmationsSvgView from "../views/ReservationEntranceConfirmationSvg.vue";
+import ReservationSecondView from "../views/Reservation2.vue";
 
 const routes = [
   {
@@ -249,6 +250,11 @@ const routes = [
     path: "/reservation-new/:product_type/:crm_id/:service_date",
     name: "reservation-new",
     component: ReservationNewView,
+  },
+  {
+    path: "/reservation-second",
+    name: "reservation-second",
+    component: ReservationSecondView,
   },
   {
     path: "/reservation/update/:id/:crm",

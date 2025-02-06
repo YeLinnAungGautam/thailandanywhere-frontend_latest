@@ -286,8 +286,11 @@ const onSubmitHandler = async () => {
   }
 };
 
+const getDetailLoading = ref(false);
+
 const getDetail = async () => {
   try {
+    getDetailLoading.value = true;
     const response = await inclusiveStore.getDetailAction(route.params.id);
     console.log(response, "this is response");
     formData.value.name = response.result.name;
@@ -486,6 +489,8 @@ const getDetail = async () => {
     formData.value.items.sort((a, b) => a.day - b.day);
   } catch (error) {
     console.log(error);
+  } finally {
+    getDetailLoading.value = false;
   }
 };
 
@@ -495,7 +500,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Layout>
+  <Layout class="">
     <!-- header part -->
     <div
       class="flex justify-start py-3 overflow-x-scroll overflow-y-hidden no-sidebar bg-white border-b border-gray-200 px-8 gap-x-2 items-center"
@@ -610,160 +615,170 @@ onMounted(async () => {
     </div>
 
     <!-- body part -->
-    <div class="px-8 py-6 bg-white" v-if="session == 1">
-      <div class="flex justify-between items-center">
-        <p class="text-base">General Details</p>
-        <div class="flex gap-x-2 justify-end items-center">
-          <p
-            @click="onSubmitHandler"
-            class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Save
-          </p>
-          <p
-            @click="session = 2"
-            class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Next
-          </p>
+    <div class="relative">
+      <div
+        v-if="getDetailLoading"
+        class="absolute top-0 z-50 right-0 rounded-2xl animate-pulse flex justify-center items-center bg-black/30 w-[100%] h-[75vh]"
+      >
+        <p class="text-white text-xl font-semibold animate-bounce">
+          loading, please wait ...
+        </p>
+      </div>
+      <div class="px-8 py-6 bg-white" v-if="session == 1">
+        <div class="flex justify-between items-center">
+          <p class="text-base">General Details</p>
+          <div class="flex gap-x-2 justify-end items-center">
+            <p
+              @click="onSubmitHandler"
+              class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Save
+            </p>
+            <p
+              @click="session = 2"
+              class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Next
+            </p>
+          </div>
+        </div>
+        <div>
+          <GeneralDetailVue :formData="formData" />
         </div>
       </div>
-      <div>
-        <GeneralDetailVue :formData="formData" />
-      </div>
-    </div>
-    <div class="px-8 py-6 bg-white" v-if="session == 2">
-      <div class="flex justify-between items-center">
-        <p class="text-base pb-4">Item details</p>
-        <div class="flex gap-x-2 justify-end items-center">
-          <p
-            @click="session = 1"
-            class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Back
-          </p>
-          <p
-            @click="onSubmitHandler"
-            class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Save
-          </p>
-          <p
-            @click="session = 3"
-            class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Next
-          </p>
+      <div class="px-8 py-6 bg-white" v-if="session == 2">
+        <div class="flex justify-between items-center">
+          <p class="text-base pb-4">Item details</p>
+          <div class="flex gap-x-2 justify-end items-center">
+            <p
+              @click="session = 1"
+              class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Back
+            </p>
+            <p
+              @click="onSubmitHandler"
+              class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Save
+            </p>
+            <p
+              @click="session = 3"
+              class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Next
+            </p>
+          </div>
+        </div>
+        <div>
+          <ItemDetail :formData="formData" />
         </div>
       </div>
-      <div>
-        <ItemDetail :formData="formData" />
-      </div>
-    </div>
-    <div class="px-8 py-6 bg-white" v-if="session == 3">
-      <div class="flex justify-between items-center">
-        <p class="text-base">Other Details</p>
-        <div class="flex gap-x-2 justify-end items-center">
-          <p
-            @click="session = 2"
-            class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Back
-          </p>
-          <p
-            @click="onSubmitHandler"
-            class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Save
-          </p>
-          <p
-            @click="session = 4"
-            class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Next
-          </p>
+      <div class="px-8 py-6 bg-white" v-if="session == 3">
+        <div class="flex justify-between items-center">
+          <p class="text-base">Other Details</p>
+          <div class="flex gap-x-2 justify-end items-center">
+            <p
+              @click="session = 2"
+              class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Back
+            </p>
+            <p
+              @click="onSubmitHandler"
+              class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Save
+            </p>
+            <p
+              @click="session = 4"
+              class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Next
+            </p>
+          </div>
+        </div>
+        <div>
+          <OtherDetail :formData="formData" />
         </div>
       </div>
-      <div>
-        <OtherDetail :formData="formData" />
-      </div>
-    </div>
-    <div class="px-8 py-6 bg-white" v-if="session == 4">
-      <div class="flex justify-between items-center">
-        <p class="text-base">Content Details</p>
-        <div class="flex gap-x-2 justify-end items-center">
-          <p
-            @click="session = 3"
-            class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Back
-          </p>
-          <p
-            @click="onSubmitHandler"
-            class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Save
-          </p>
-          <p
-            @click="session = 5"
-            class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Next
-          </p>
+      <div class="px-8 py-6 bg-white" v-if="session == 4">
+        <div class="flex justify-between items-center">
+          <p class="text-base">Content Details</p>
+          <div class="flex gap-x-2 justify-end items-center">
+            <p
+              @click="session = 3"
+              class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Back
+            </p>
+            <p
+              @click="onSubmitHandler"
+              class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Save
+            </p>
+            <p
+              @click="session = 5"
+              class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Next
+            </p>
+          </div>
+        </div>
+        <div>
+          <ContentDetail :formData="formData" />
         </div>
       </div>
-      <div>
-        <ContentDetail :formData="formData" />
-      </div>
-    </div>
-    <div class="px-8 py-6 bg-white" v-if="session == 5">
-      <div class="flex justify-between items-center">
-        <p class="text-base">Design Details</p>
-        <div class="flex gap-x-2 justify-end items-center">
-          <p
-            @click="session = 4"
-            class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Back
-          </p>
-          <p
-            @click="onSubmitHandler"
-            class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Save
-          </p>
-          <p
-            @click="session = 6"
-            class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Next
-          </p>
+      <div class="px-8 py-6 bg-white" v-if="session == 5">
+        <div class="flex justify-between items-center">
+          <p class="text-base">Design Details</p>
+          <div class="flex gap-x-2 justify-end items-center">
+            <p
+              @click="session = 4"
+              class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Back
+            </p>
+            <p
+              @click="onSubmitHandler"
+              class="bg-green-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Save
+            </p>
+            <p
+              @click="session = 6"
+              class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Next
+            </p>
+          </div>
+        </div>
+        <div>
+          <DesignDetail :formData="formData" :editData="editData" />
         </div>
       </div>
-      <div>
-        <DesignDetail :formData="formData" :editData="editData" />
-      </div>
-    </div>
-    <div class="px-8 py-6 bg-white" v-if="session == 6">
-      <div class="flex justify-between items-center">
-        <p class="text-base">Other Materials</p>
-        <div class="flex gap-x-2 justify-end items-center">
-          <p
-            @click="session = 5"
-            class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Back
-          </p>
-          <p
-            @click="onSubmitHandler"
-            class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
-          >
-            Update
-          </p>
+      <div class="px-8 py-6 bg-white" v-if="session == 6">
+        <div class="flex justify-between items-center">
+          <p class="text-base">Other Materials</p>
+          <div class="flex gap-x-2 justify-end items-center">
+            <p
+              @click="session = 5"
+              class="bg-gray-500 text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Back
+            </p>
+            <p
+              @click="onSubmitHandler"
+              class="bg-[#FF613C] text-white px-6 py-2 rounded-lg text-xs cursor-pointer"
+            >
+              Update
+            </p>
+          </div>
         </div>
-      </div>
-      <div>
-        <OtherMaterial :formData="formData" :editImage="editData" />
+        <div>
+          <OtherMaterial :formData="formData" :editImage="editData" />
+        </div>
       </div>
     </div>
   </Layout>

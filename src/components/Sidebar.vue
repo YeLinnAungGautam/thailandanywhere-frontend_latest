@@ -91,6 +91,12 @@
               :class="isShowSidebar ? 'ml-5' : ''"
             >
               <SidebarItem
+                name="reservation v2"
+                :icon="DocumentCheckIcon"
+                to="/reservation-second"
+                :activePaths="['reservation-second']"
+              />
+              <SidebarItem
                 name="new version"
                 :icon="DocumentCheckIcon"
                 to="/reservation-new/%25/%25/%25"

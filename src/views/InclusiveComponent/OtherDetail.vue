@@ -7,11 +7,14 @@ import PreviewPageVue from "./PreviewPage.vue";
 import { useDestinationStore } from "../../stores/destination";
 import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
+import { useRestaurantStore } from "../../stores/restaurant";
 
 const cityStore = useCityStore();
 const { cities } = storeToRefs(cityStore);
 const destinationStore = useDestinationStore();
+const restaurantStore = useRestaurantStore();
 const { dests } = storeToRefs(destinationStore);
+const { restaurant } = storeToRefs(restaurantStore);
 
 const session = ref(1);
 const finish = ref({
@@ -93,6 +96,7 @@ const addDetails = () => {
       meals: "",
       cities: [],
       destinations: [],
+      restaurants: [],
     });
   }
 };
@@ -120,6 +124,7 @@ const addNewDetails = () => {
         meals: "",
         cities: [],
         destinations: [],
+        restaurants: [],
       });
     }
   } else {
@@ -152,6 +157,7 @@ onMounted(async () => {
   });
   await cityStore.getSimpleListAction();
   await destinationStore.getSimpleListAction();
+  await restaurantStore.getSimpleListAction();
 });
 </script>
 <template>
@@ -205,19 +211,6 @@ onMounted(async () => {
           ></v-select>
         </div>
 
-        <div v-if="i.day_name == openDayDetail" class="space-y-2">
-          <label for="" class="text-[12px] text-gray-500">Meals </label>
-
-          <QuillEditor
-            ref="textEditor"
-            :options="editorOptions"
-            theme="snow"
-            class="!bg-white/50 !border-1 !border-gray-200 !rounded-bl-md !rounded-br-md !shadow-sm !text-sm !text-gray-900 !h-[200px]"
-            toolbar="essential"
-            contentType="html"
-            v-model:content="i.meals"
-          />
-        </div>
         <div v-if="i.day_name == openDayDetail" class="space-y-2 pb-2">
           <label for="" class="text-[12px] text-gray-500"
             >Destination List *</label
@@ -233,6 +226,35 @@ onMounted(async () => {
             :reduce="(c) => c.id"
             placeholder="..."
           ></v-select>
+        </div>
+        <div v-if="i.day_name == openDayDetail" class="space-y-2 pb-2">
+          <label for="" class="text-[12px] text-gray-500"
+            >Restaurant List *</label
+          >
+          <v-select
+            v-model="i.restaurants"
+            v-if="restaurant?.data"
+            class="style-chooser"
+            :options="restaurant?.data ?? []"
+            label="name"
+            multiple
+            :clearable="false"
+            :reduce="(c) => c.id"
+            placeholder="..."
+          ></v-select>
+        </div>
+        <div v-if="i.day_name == openDayDetail" class="space-y-2">
+          <label for="" class="text-[12px] text-gray-500">Meals </label>
+
+          <QuillEditor
+            ref="textEditor"
+            :options="editorOptions"
+            theme="snow"
+            class="!bg-white/50 !border-1 !border-gray-200 !rounded-bl-md !rounded-br-md !shadow-sm !text-sm !text-gray-900 !h-[200px]"
+            toolbar="essential"
+            contentType="html"
+            v-model:content="i.meals"
+          />
         </div>
       </div>
     </div>

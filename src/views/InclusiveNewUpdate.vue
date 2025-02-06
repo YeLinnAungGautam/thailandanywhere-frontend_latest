@@ -237,6 +237,10 @@ const onSubmitHandler = async () => {
         `details[${i}][destinations]`,
         formData.value.details[i].destinations
       );
+      frmData2.append(
+        `details[${i}][restaurants]`,
+        formData.value.details[i].restaurants
+      );
       if (formData.value.details[i].image) {
         frmData2.append(
           `details[${i}][image]`,
@@ -346,6 +350,9 @@ const getDetail = async () => {
             destinations: detail.destinations
               ? detail.destinations?.map((destination) => destination.id)
               : "", // Extracting only the IDs
+            restaurants: detail.restaurants
+              ? detail.restaurants?.map((restaurant) => restaurant.id)
+              : "",
             image_url: detail.image ? detail.image : "",
           });
         });

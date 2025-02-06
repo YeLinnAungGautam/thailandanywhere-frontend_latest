@@ -12,9 +12,11 @@ import { InformationCircleIcon } from "@heroicons/vue/24/solid";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRouter } from "vue-router";
+import AddonListOnBooking from "../Addon/AddonListOnBooking.vue";
 // import { useCityStore } from "../../stores/city";
 
 const bottomOfWindow = ref(false);
+const addOnList = ref([]);
 const entranceStore = useEntranceStore();
 // const cityStore = useCityStore();
 // const { cities } = storeToRefs(cityStore);
@@ -28,6 +30,36 @@ const addInfoModal = ref(false);
 const detailModal = ref(false);
 const details = ref(null);
 const details_images = ref([]);
+
+const changeAddOnList = (message) => {
+  console.log(message, "this is message");
+
+  addOnList.value = [];
+};
+
+const addOnSellingPrice = computed(() => {
+  let result = 0;
+  if (addOnList.value != null) {
+    for (let i = 0; i < addOnList.value.length; i++) {
+      if (addOnList.value[i].select == true) {
+        result += addOnList.value[i].price * addOnList.value[i].quantity;
+      }
+    }
+  }
+  return result;
+});
+
+const addOnCostPrice = computed(() => {
+  let result = 0;
+  if (addOnList.value != null) {
+    for (let i = 0; i < addOnList.value.length; i++) {
+      if (addOnList.value[i].select == true) {
+        result += addOnList.value[i].cost_price * addOnList.value[i].quantity;
+      }
+    }
+  }
+  return result;
+});
 
 const viewDetail = (data) => {
   console.log(data, "this is data");
@@ -102,6 +134,7 @@ const formitem = ref({
   room_number: "",
   checkout_date: "",
   customer_attachment: "",
+  addons: [],
 });
 
 // add item function
@@ -233,6 +266,7 @@ const clearAction = () => {
     room_number: "",
     checkout_date: "",
     customer_attachment: "",
+    addons: [],
   };
   todayVali.value = false;
   addInfoModal.value = false;
@@ -242,7 +276,29 @@ const clearAction = () => {
 const getFunction = () => {
   formitem.value.total_amount =
     formitem.value.selling_price * formitem.value.quantity -
-    formitem.value.discount;
+    formitem.value.discount +
+    addOnSellingPrice.value;
+  formitem.value.total_cost_price =
+    formitem.value.quantity * formitem.value.cost_price + addOnCostPrice.value;
+  if (addOnList.value != null) {
+    let data = {
+      addon_id: "",
+      quantity: "",
+    };
+    for (let i = 0; i < addOnList.value.length; i++) {
+      if (addOnList.value[i].select == true) {
+        data = {
+          addon_id: addOnList.value[i].id,
+          quantity: addOnList.value[i].quantity,
+        };
+        formitem.value.addons.push(data);
+        data = {
+          addon_id: "",
+          quantity: "",
+        };
+      }
+    }
+  }
   emit("formData", formitem.value);
   clearAction();
 };
@@ -601,7 +657,7 @@ onMounted(async () => {
               <div class="grid-cols-2 grid gap-2">
                 <div class="relative space-y-1">
                   <label for="" class="text-xs text-gray-500"
-                    >Adult Qty <span class="text-red-800">*</span></label
+                    >Qty <span class="text-red-800">*</span></label
                   >
                   <input
                     type="number"
@@ -630,37 +686,6 @@ onMounted(async () => {
                     -
                   </p>
                 </div>
-                <div class="relative space-y-1">
-                  <label for="" class="text-xs text-gray-500"
-                    >Child Qty <span class="text-red-800">*</span></label
-                  >
-                  <input
-                    type="number"
-                    v-model="formitem.individual_pricing.child.quantity"
-                    name=""
-                    class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                    id="child_qty"
-                  />
-                  <p
-                    @click="formitem.individual_pricing.child.quantity++"
-                    class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-8"
-                  >
-                    +
-                  </p>
-                  <p
-                    @click="formitem.individual_pricing.child.quantity--"
-                    v-if="formitem.individual_pricing.child.quantity > 0"
-                    class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
-                  >
-                    -
-                  </p>
-                  <p
-                    v-if="formitem.individual_pricing.child.quantity == 0"
-                    class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
-                  >
-                    -
-                  </p>
-                </div>
               </div>
             </div>
           </div>
@@ -673,6 +698,42 @@ onMounted(async () => {
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
               id=""
             />
+          </div>
+          <div>
+            <label for="" class="text-[12px] text-gray-500"
+              >Add on <span class="text-red-800">*</span></label
+            >
+            <div>
+              <AddonListOnBooking
+                :id="formitem.product_id"
+                :type="'hotel'"
+                :addOnList="addOnList"
+                @cleanAddOnList="changeAddOnList"
+              />
+            </div>
+          </div>
+
+          <div>
+            <p class="text-xs text-end px-2">
+              selling price {{ addOnSellingPrice }} :
+              <span class="font-medium text-[#ff613c]"
+                >{{
+                  formitem.selling_price * formitem.quantity -
+                  formitem.discount +
+                  addOnSellingPrice
+                }}
+                ฿</span
+              >
+              - cost price :
+              <span class="font-medium text-[#ff613c]"
+                >{{
+                  formitem.cost_price * formitem.quantity -
+                  formitem.discount +
+                  addOnCostPrice
+                }}
+                ฿</span
+              >
+            </p>
           </div>
           <!-- <div class="space-y-1">
             <label for="" class="text-[12px] text-gray-500">Route Plan</label>

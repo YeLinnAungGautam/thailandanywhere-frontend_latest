@@ -18,6 +18,7 @@ import deluxe from "../../../public/3.png";
 import attractionImage from "../../../public/attractions.png";
 import { useCityStore } from "../../stores/city";
 import { useDestinationStore } from "../../stores/destination";
+import AddonListOnBooking from "../Addon/AddonListOnBooking.vue";
 
 const bottomOfWindow = ref(false);
 const vantourStore = useVantourStore();
@@ -35,6 +36,36 @@ const detailModal = ref(false);
 const details = ref(null);
 const details_images = ref([]);
 const router = useRouter();
+const addOnList = ref([]);
+const changeAddOnList = (message) => {
+  console.log(message, "this is message");
+
+  addOnList.value = [];
+};
+
+const addOnSellingPrice = computed(() => {
+  let result = 0;
+  if (addOnList.value != null) {
+    for (let i = 0; i < addOnList.value.length; i++) {
+      if (addOnList.value[i].select == true) {
+        result += addOnList.value[i].price * addOnList.value[i].quantity;
+      }
+    }
+  }
+  return result;
+});
+
+const addOnCostPrice = computed(() => {
+  let result = 0;
+  if (addOnList.value != null) {
+    for (let i = 0; i < addOnList.value.length; i++) {
+      if (addOnList.value[i].select == true) {
+        result += addOnList.value[i].cost_price * addOnList.value[i].quantity;
+      }
+    }
+  }
+  return result;
+});
 
 const viewDetail = (data) => {
   console.log(data, "this is data");
@@ -93,6 +124,7 @@ const formitem = ref({
   room_number: "",
   checkout_date: "",
   customer_attachment: "",
+  addons: [],
 });
 
 // add item function
@@ -216,6 +248,7 @@ const clearAction = () => {
     room_number: "",
     checkout_date: "",
     customer_attachment: "",
+    addons: [],
   };
   todayVali.value = false;
   addInfoModal.value = false;
@@ -225,7 +258,29 @@ const clearAction = () => {
 const getFunction = () => {
   formitem.value.total_amount =
     formitem.value.selling_price * formitem.value.quantity -
-    formitem.value.discount;
+    formitem.value.discount +
+    addOnSellingPrice.value;
+  formitem.value.total_cost_price =
+    formitem.value.quantity * formitem.value.cost_price + addOnCostPrice.value;
+  if (addOnList.value != null) {
+    let data = {
+      addon_id: "",
+      quantity: "",
+    };
+    for (let i = 0; i < addOnList.value.length; i++) {
+      if (addOnList.value[i].select == true) {
+        data = {
+          addon_id: addOnList.value[i].id,
+          quantity: addOnList.value[i].quantity,
+        };
+        formitem.value.addons.push(data);
+        data = {
+          addon_id: "",
+          quantity: "",
+        };
+      }
+    }
+  }
   emit("formData", formitem.value);
   clearAction();
 };
@@ -714,6 +769,42 @@ onMounted(async () => {
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
               id=""
             />
+          </div>
+          <div>
+            <label for="" class="text-[12px] text-gray-500"
+              >Add on <span class="text-red-800">*</span></label
+            >
+            <div>
+              <AddonListOnBooking
+                :id="formitem.product_id"
+                :type="'hotel'"
+                :addOnList="addOnList"
+                @cleanAddOnList="changeAddOnList"
+              />
+            </div>
+          </div>
+
+          <div>
+            <p class="text-xs text-end px-2">
+              selling price {{ addOnSellingPrice }} :
+              <span class="font-medium text-[#ff613c]"
+                >{{
+                  formitem.selling_price * formitem.quantity -
+                  formitem.discount +
+                  addOnSellingPrice
+                }}
+                ฿</span
+              >
+              - cost price :
+              <span class="font-medium text-[#ff613c]"
+                >{{
+                  formitem.cost_price * formitem.quantity -
+                  formitem.discount +
+                  addOnCostPrice
+                }}
+                ฿</span
+              >
+            </p>
           </div>
           <div class="space-y-1">
             <label for="" class="text-[12px] text-gray-500"

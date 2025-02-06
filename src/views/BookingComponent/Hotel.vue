@@ -117,6 +117,7 @@ const formitem = ref({
   room_number: "",
   checkout_date: "",
   customer_attachment: "",
+  addons: [],
 });
 
 // add item function
@@ -255,6 +256,7 @@ const clearAction = () => {
     room_number: "",
     checkout_date: "",
     customer_attachment: "",
+    addons: [],
   };
   todayVali.value = false;
   addInfoModal.value = false;
@@ -271,6 +273,25 @@ const getFunction = () => {
   formitem.value.total_cost_price =
     formitem.value.quantity * formitem.value.cost_price * formitem.value.days +
     addOnCostPrice.value;
+  if (addOnList.value != null) {
+    let data = {
+      addon_id: "",
+      quantity: "",
+    };
+    for (let i = 0; i < addOnList.value.length; i++) {
+      if (addOnList.value[i].select == true) {
+        data = {
+          addon_id: addOnList.value[i].id,
+          quantity: addOnList.value[i].quantity,
+        };
+        formitem.value.addons.push(data);
+        data = {
+          addon_id: "",
+          quantity: "",
+        };
+      }
+    }
+  }
   emit("formData", formitem.value);
   clearAction();
 };

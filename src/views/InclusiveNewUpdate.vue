@@ -106,9 +106,9 @@ watch(formData.value, () => {
 const errors = ref(null);
 
 const onSubmitHandler = async () => {
-  // console.log("====================================");
-  // console.log(formData.value, "this is formData");
-  // console.log("====================================");
+  console.log("====================================");
+  console.log(formData.value.details, "this is formData");
+  console.log("====================================");
   const frmData = new FormData();
   frmData.append("_method", "PUT");
   frmData.append("name", formData.value.name);
@@ -235,7 +235,9 @@ const onSubmitHandler = async () => {
       );
       frmData2.append(
         `details[${i}][destinations]`,
-        formData.value.details[i].destinations
+        formData.value.details[i].destinations.length > 0
+          ? formData.value.details[i].destinations
+          : JSON.stringify([])
       );
       frmData2.append(
         `details[${i}][restaurants]`,
@@ -295,7 +297,7 @@ const getDetail = async () => {
     console.log(response, "this is response");
     formData.value.name = response.result.name;
     formData.value.description = response.result.description;
-    // formData.value.day = response.result.day;
+    formData.value.day = response.result.day;
     formData.value.night = response.result.night;
     formData.value.price = response.result.price;
     formData.value.agent_price = response.result.agent_price;
@@ -494,7 +496,17 @@ const getDetail = async () => {
   }
 };
 
+watch(session, (newValue) => {
+  router.push({
+    name: "inclusive-view-new",
+    query: {
+      session: newValue,
+    },
+  });
+});
+
 onMounted(async () => {
+  session.value = route.query.session ? route.query.session : 1;
   await getDetail();
 });
 </script>

@@ -106,9 +106,9 @@ watch(formData.value, () => {
 const errors = ref(null);
 
 const onSubmitHandler = async () => {
-  // console.log("====================================");
-  // console.log(formData.value, "this is formData");
-  // console.log("====================================");
+  console.log("====================================");
+  console.log(formData.value.details, "this is formData");
+  console.log("====================================");
   const frmData = new FormData();
   frmData.append("_method", "PUT");
   frmData.append("name", formData.value.name);
@@ -233,10 +233,14 @@ const onSubmitHandler = async () => {
         `details[${i}][cities]`,
         formData.value.details[i].cities
       );
-      frmData2.append(
-        `details[${i}][destinations]`,
-        formData.value.details[i].destinations
-      );
+      if (formData.value.details[i].destinations.length > 0) {
+        frmData2.append(
+          `details[${i}][destinations]`,
+          formData.value.details[i].destinations
+        );
+      } else {
+        frmData2.append(`details[${i}][destinations]`, "");
+      }
       frmData2.append(
         `details[${i}][restaurants]`,
         formData.value.details[i].restaurants
@@ -269,11 +273,11 @@ const onSubmitHandler = async () => {
     console.log("====================================");
     toast.success(response.message);
     // router.push("/products/10");
-    router.push("/inclusive/new/update/" + route.params.id + "/edit");
+    // router.push("/inclusive/new/update/" + route.params.id + "/edit");
 
-    setTimeout(() => {
-      window.location.reload();
-    }, 2000);
+    // setTimeout(() => {
+    //   window.location.reload();
+    // }, 2000);
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",
@@ -295,7 +299,7 @@ const getDetail = async () => {
     console.log(response, "this is response");
     formData.value.name = response.result.name;
     formData.value.description = response.result.description;
-    // formData.value.day = response.result.day;
+    formData.value.day = response.result.day;
     formData.value.night = response.result.night;
     formData.value.price = response.result.price;
     formData.value.agent_price = response.result.agent_price;
@@ -494,7 +498,17 @@ const getDetail = async () => {
   }
 };
 
+watch(session, (newValue) => {
+  router.push({
+    name: "inclusive-view-new",
+    query: {
+      session: newValue,
+    },
+  });
+});
+
 onMounted(async () => {
+  session.value = route.query.session ? route.query.session : 1;
   await getDetail();
 });
 </script>

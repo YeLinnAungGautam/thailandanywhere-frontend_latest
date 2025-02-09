@@ -101,6 +101,38 @@
               {{ errors.full_description_en[0] }}
             </p>
           </div>
+          <div class="space-y-1">
+            <label for="description" class="text-xs text-gray-800"
+              >Location Map Link</label
+            >
+            <textarea
+              v-model="formData.location_map_link"
+              id="link"
+              class="w-full h-20 px-4 py-2 text-sm text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            ></textarea>
+            <p
+              v-if="errors?.location_map_link"
+              class="mt-1 text-sm text-red-600"
+            >
+              {{ errors.location_map_link[0] }}
+            </p>
+          </div>
+          <div class="space-y-1">
+            <label for="address" class="text-xs text-gray-800"
+              >Location map address</label
+            >
+            <textarea
+              v-model="formData.location_map_address"
+              id="location_map_address"
+              class="w-full h-20 px-4 py-2 text-sm text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            ></textarea>
+            <p
+              v-if="errors?.location_map_address"
+              class="mt-1 text-sm text-red-600"
+            >
+              {{ errors.location_map_address[0] }}
+            </p>
+          </div>
 
           <div>
             <p class="mb-2 mt-2 text-xs text-gray-800 space-y-1">
@@ -449,6 +481,8 @@ const formData = ref({
   bank_name: "",
   bank_account_number: "",
   account_name: "",
+  location_map_link: "",
+  location_map_address: "",
   place: "",
   description: "",
   full_description_en: "",
@@ -492,6 +526,8 @@ const closeModal = () => {
     bank_account_number: "",
     account_name: "",
     place: "",
+    location_map_link: "",
+    location_map_address: "",
     description: "",
     full_description_en: "",
     contract_due: "",
@@ -510,6 +546,16 @@ const addNewHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("city_id", formData.value.city_id);
   frmData.append("account_name", formData.value.account_name);
+  frmData.append(
+    "location_map_link",
+    formData.value.location_map_link ? formData.value.location_map_link : ""
+  );
+  frmData.append(
+    "location_map_address",
+    formData.value.location_map_address
+      ? formData.value.location_map_address
+      : ""
+  );
   frmData.append("place", formData.value.place ? formData.value.place : ".");
   frmData.append("description", formData.value.description);
   frmData.append("full_description_en", formData.value.full_description_en);
@@ -546,6 +592,8 @@ const addNewHandler = async () => {
       payment_method: "",
       bank_name: "",
       account_name: "",
+      location_map_link: "",
+      location_map_address: "",
       bank_account_number: "",
       place: "",
       description: "",
@@ -579,6 +627,8 @@ const openCreate = () => {
   formData.value.payment_method = "";
   formData.value.bank_name = "";
   formData.value.account_name = "";
+  formData.value.location_map_link = "";
+  formData.value.location_map_address = "";
   formData.value.bank_account_number = "";
   formData.value.place = "";
   formData.value.description = "";
@@ -614,6 +664,16 @@ const updateHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("account_name", formData.value.account_name);
+  frmData.append(
+    "location_map_link",
+    formData.value.location_map_link ? formData.value.location_map_link : ""
+  );
+  frmData.append(
+    "location_map_address",
+    formData.value.location_map_address
+      ? formData.value.location_map_address
+      : ""
+  );
   frmData.append("contract_due", formData.value.contract_due);
   if (formData.value.contracts) {
     // frmData.append("contracts", formData.value.contracts);
@@ -646,6 +706,8 @@ const updateHandler = async () => {
       bank_name: "",
       bank_account_number: "",
       account_name: "",
+      location_map_link: "",
+      location_map_address: "",
       contract_due: "",
       contracts: [],
       images: [],
@@ -692,6 +754,8 @@ const editModalOpenHandler = (data) => {
     data.contract_due != null ? formatDate(data.contract_due) : "";
   formData.value.bank_account_number = data.bank_account_number;
   formData.value.account_name = data.account_name;
+  formData.value.location_map_link = data.location_map_link;
+  formData.value.location_map_address = data.location_map_address;
   formData.value.payment_method = data.payment_method;
   formData.value.bank_name = data.bank_name;
   formData.value.contracts = [];

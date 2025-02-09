@@ -233,12 +233,14 @@ const onSubmitHandler = async () => {
         `details[${i}][cities]`,
         formData.value.details[i].cities
       );
-      frmData2.append(
-        `details[${i}][destinations]`,
-        formData.value.details[i].destinations.length > 0
-          ? formData.value.details[i].destinations
-          : JSON.stringify([])
-      );
+      if (formData.value.details[i].destinations.length > 0) {
+        frmData2.append(
+          `details[${i}][destinations]`,
+          formData.value.details[i].destinations
+        );
+      } else {
+        frmData2.append(`details[${i}][destinations]`, "");
+      }
       frmData2.append(
         `details[${i}][restaurants]`,
         formData.value.details[i].restaurants
@@ -271,11 +273,11 @@ const onSubmitHandler = async () => {
     console.log("====================================");
     toast.success(response.message);
     // router.push("/products/10");
-    router.push("/inclusive/new/update/" + route.params.id + "/edit");
+    // router.push("/inclusive/new/update/" + route.params.id + "/edit");
 
-    setTimeout(() => {
-      window.location.reload();
-    }, 2000);
+    // setTimeout(() => {
+    //   window.location.reload();
+    // }, 2000);
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",

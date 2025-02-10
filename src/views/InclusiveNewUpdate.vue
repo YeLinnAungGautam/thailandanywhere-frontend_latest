@@ -275,9 +275,9 @@ const onSubmitHandler = async () => {
     // router.push("/products/10");
     // router.push("/inclusive/new/update/" + route.params.id + "/edit");
 
-    // setTimeout(() => {
-    //   window.location.reload();
-    // }, 2000);
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
   } catch (error) {
     console.log(
       "🚀 ~ file: NewBlogView.vue:38 ~ onSubmitHandler ~ error:",

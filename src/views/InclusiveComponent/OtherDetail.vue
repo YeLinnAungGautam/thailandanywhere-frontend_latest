@@ -13,6 +13,7 @@ const cityStore = useCityStore();
 const { cities } = storeToRefs(cityStore);
 const destinationStore = useDestinationStore();
 const { dests } = storeToRefs(destinationStore);
+const restaurantStore = useRestaurantStore();
 const { restaurant } = storeToRefs(restaurantStore);
 
 const session = ref(1);

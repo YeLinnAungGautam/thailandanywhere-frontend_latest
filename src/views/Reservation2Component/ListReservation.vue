@@ -1,5 +1,8 @@
 <template>
-  <div class="px-4 pb-2 relative cursor-pointer">
+  <div
+    class="px-4 pb-2 relative cursor-pointer"
+    :class="data?.id == detailId ? 'bg-[#FF613c]/20 shadow-lg' : ''"
+  >
     <div
       class="absolute top-[36px] left-3 rounded-full w-2 h-2 bg-[#FF613c]"
     ></div>
@@ -153,7 +156,10 @@ import { useToast } from "vue-toastification";
 const authStore = useAuthStore();
 const toast = useToast();
 const reservationStore = useReservationStore();
-const props = defineProps(["data"]);
+const props = defineProps({
+  data: Object,
+  detailId: String,
+});
 
 const daysBetween = (a, b) => {
   console.log(a, b);

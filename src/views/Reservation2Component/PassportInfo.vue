@@ -1,34 +1,16 @@
 <template>
   <div>
-    <div
-      class="max-h-[450px] overflow-y-scroll py-2 space-y-2 pr-1"
-      v-if="!loading"
-    >
+    <div class="py-2 space-y-2 pr-1" v-if="!loading">
       <div class="flex justify-between items-center">
-        <p>Passport Information</p>
-        <p class="bg-[#FF613c] text-white px-1.5 inline-block rounded-full">
+        <p class="font-medium pb-2">Associated Customer Passport Information</p>
+        <p
+          class="bg-[#FF613c] text-white px-1.5 inline-block rounded-full"
+          @click="openFileFeaturePicker"
+        >
           +
         </p>
       </div>
       <div class="grid grid-cols-2 gap-4">
-        <!-- <div class="col-span-2 pb-2">
-          <div class="text-xs font-medium text-black space-y-1">
-            <p>
-              <span
-                class="w-1.5 h-1.5 inline-block bg-black rounded-full mr-2 mb-0.5"
-              ></span
-              >{{ data?.product?.name }}
-            </p>
-
-            <p class="text-black/60 text-[10px]">
-              <span
-                class="w-1.5 h-1.5 inline-block bg-black rounded-full mr-2 mb-0.5"
-              ></span
-              >{{ data?.variation?.name || data?.room?.name }}
-            </p>
-          </div>
-        </div> -->
-
         <div class="space-y-1">
           <label for="" class="text-[12px] text-gray-500">Full Name</label>
           <input
@@ -71,8 +53,10 @@
             id=""
           />
         </div>
-        <!-- <div class="space-y-1 col-span-2">
-          <label for="" class="text-[12px] text-gray-500">Add Passports</label>
+        <div class="space-y-1 col-span-2">
+          <label for="" class="text-[12px] text-gray-500"
+            >Customer Passports</label
+          >
           <input
             type="file"
             ref="featureImageInput"
@@ -81,22 +65,14 @@
             @change="handlerFeatureFileChange"
             accept="image/*"
           />
-          <button
-            @click.prevent="openFileFeaturePicker"
-            class="text-sm text-[#ff613c]"
-          ></button>
-          <div
-            class="cursor-pointer mt-2 w-full h-[80px] border-2 border-dashed border-gray-300 rounded flex justify-center items-center"
-            @click.prevent="openFileFeaturePicker"
-          >
-            <span class="text-xs"
-              ><i
-                class="px-2 py-1 text-sm font-semibold text-white bg-[#ff613c] rounded-full shadow fa-solid fa-plus"
-              ></i
-            ></span>
-          </div>
-        </div> -->
-        <!-- <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
+        </div>
+        <label
+          for=""
+          class="text-[12px] text-gray-500"
+          v-if="featureImagePreview.length > 0"
+          >Preveiw Passports</label
+        >
+        <div class="grid grid-cols-4 col-span-2 gap-3 mt-4">
           <div
             class="relative"
             v-for="(image, index) in featureImagePreview"
@@ -112,7 +88,7 @@
             <img class="h-auto w-full rounded" :src="image" alt="" />
           </div>
         </div>
-        <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
+        <div class="grid grid-cols-4 col-span-2 gap-3 mt-4">
           <div
             class="relative"
             v-for="(image, index) in editData.customer_passport_have"
@@ -126,27 +102,16 @@
             </button>
             <img class="h-auto w-full rounded" :src="image.file" alt="" />
           </div>
-        </div> -->
+        </div>
       </div>
-    </div>
-    <div class="pt-2 grid grid-cols-4 gap-x-4">
-      <div v-for="i in 3" :key="i">
-        <img :src="invoice" class="w-full rounded-lg" alt="" />
+      <div class="flex justify-end items-center gap-x-2 pt-2">
+        <button
+          @click="addTravellerAction"
+          class="bg-[#ff613c] text-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
+        >
+          Add Traveller
+        </button>
       </div>
-    </div>
-    <div class="flex justify-end items-center gap-x-2 pt-2">
-      <button
-        @click="closeTravellerModal"
-        class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
-      >
-        Cancel
-      </button>
-      <button
-        @click="addTravellerAction"
-        class="bg-[#ff613c] text-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
-      >
-        Add Traveller
-      </button>
     </div>
   </div>
 </template>
@@ -225,7 +190,6 @@ const addTravellerAction = async () => {
       );
     }
   }
-
   const res = await reservationStore.updateTravellerAction(
     frmData,
     props.data?.id
@@ -239,7 +203,6 @@ const addTravellerAction = async () => {
   }
   // props.closeTravellerModal();
   setTimeout(() => {
-    props.closeTravellerModal();
     window.location.reload();
   }, 1000);
 };

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex justify-between items-center">
-      <p class="font-medium pb-2">Expense Detail</p>
+      <!-- <p class="font-medium pb-2">Expense Detail</p> -->
       <p
         class="bg-[#FF613c] text-white px-1.5 cursor-pointer inline-block rounded-full"
         @click.prevent="openFilePickerThree"

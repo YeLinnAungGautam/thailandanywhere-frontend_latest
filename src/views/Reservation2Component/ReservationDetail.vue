@@ -1,14 +1,22 @@
 <script setup>
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, computed } from "vue";
 import GeneralDetailPage from "./GeneralDetail.vue";
 import PassportInfo from "./PassportInfo.vue";
 import BookingRequest from "./BookingRequest.vue";
 import InvoiceUpdate from "./InvoiceUpdate.vue";
 import Expense from "./Expense.vue";
 import Confirmation from "./Confirmation.vue";
-import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/vue/24/outline";
+import {
+  ChevronDoubleRightIcon,
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "@heroicons/vue/24/outline";
 import { useRoute, useRouter } from "vue-router";
 import { useReservationStore } from "../../stores/reservation";
+import productIcon from "../../assets/window.png";
+import checkImage from "../../assets/check.png";
+import { useToast } from "vue-toastification";
 
 const part = ref("general");
 const route = useRoute();
@@ -16,6 +24,162 @@ const router = useRouter();
 const reservationStore = useReservationStore();
 const detail = ref(null);
 const getLoading = ref(false);
+const toast = useToast();
+
+const state = ref({
+  general: false,
+  passport: false,
+  booking: false,
+  invoice: false,
+  expense: false,
+  confirmation: false,
+});
+
+const partArray = ref([
+  { id: 1, name: "general" },
+  { id: 2, name: "passport" },
+  { id: 3, name: "booking" },
+  { id: 4, name: "invoice" },
+  { id: 5, name: "expense" },
+  { id: 6, name: "confirmation" },
+]);
+
+const rightButtonAction = () => {
+  const index = partArray.value.findIndex((item) => item.name == part.value);
+  part.value = partArray.value[index + 1].name;
+};
+
+const leftButtonAction = () => {
+  const index = partArray.value.findIndex((item) => item.name == part.value);
+  part.value = partArray.value[index - 1].name;
+};
+
+const score = computed(() => {
+  if (detail.value.amount && detail.value.total_cost_price) {
+    let score =
+      (detail.value.amount * 1 - detail.value.total_cost_price) /
+      (detail.value.amount * 1);
+    return score.toFixed(4);
+  }
+  return 0;
+});
+
+const copyReservation = async (id) => {
+  const res = await reservationStore.copyReservationDetail(id);
+  console.log(res, "this is cpy reservation");
+  let formattedOutput;
+  if (res.result.checkin_date != undefined) {
+    formattedOutput = `
+💰 Total Cost: ${res.result.total_cost} THB 🏦 Bank Name: ${
+      res.result.bank_name != "null" ? res.result.bank_name : "-"
+    }
+🔢 Bank Account Number: ${
+      res.result.bank_account_number != "null"
+        ? `➖${res.result.bank_account_number}`
+        : "-"
+    }
+🧑‍💼 Account Name: ${
+      res.result.account_name != "null" ? res.result.account_name : "-"
+    }
+#️⃣ CRM ID: ${res.result.crm_id}
+#️⃣ Reservation Code: ${res.result.reservation_code}
+🏨 Hotel Name: ${res.result.product_name}
+🏩 Room Name : ${res.result.room_name != "null" ? res.result.room_name : "-"}
+🛌 Total Rooms: ${
+      res.result.total_rooms != "null" ? res.result.total_rooms : "-"
+    }
+🌙 Total Nights: ${
+      res.result.total_nights != "null" ? res.result.total_nights : "-"
+    }
+💵 Price: ${res.result.sale_price} THB
+💵 Total Sale Amount: ${res.result.total_sale_amount} THB
+💸 Discount : ${res.result.discount} THB
+💵 Balance Due: ${res.result.balance_due} THB
+📝 Payment Status: ${res.result.payment_status}
+📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
+📅 Check-in Date: ${
+      res.result.checkin_date != "null" ? res.result.checkin_date : "-"
+    }
+📅 Checkout Date: ${
+      res.result.checkout_date != "null" ? res.result.checkout_date : "-"
+    }
+🤑 Score : ${res.result.score}
+    `;
+  } else if (res.result.entrance_ticket_variation_name) {
+    formattedOutput = `
+💰 Total Cost: ${res.result.total_cost} THB
+🏦 Bank Name: ${res.result.bank_name != "null" ? res.result.bank_name : "-"}
+🔢 Bank Account Number: ${
+      res.result.bank_account_number != "null"
+        ? `➖${res.result.bank_account_number}`
+        : "-"
+    }
+🧑‍💼 Account Name: ${res.result.account_name}
+#️⃣ CRM ID: ${res.result.crm_id}
+#️⃣ Reservation Code: ${res.result.reservation_code}
+🎫 Attraction : ${res.result.product_name}
+🎫 Entrance Ticket Name : ${res.result.entrance_ticket_variation_name}
+💵 Price: ${res.result.sale_price} THB
+💵 Total Sale Amount: ${res.result.total_sale_amount} THB
+💸 Discount : ${res.result.discount} THB
+💵 Balance Due: ${res.result.balance_due} THB
+📝 Payment Status: ${res.result.payment_status}
+📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
+🗓️ Service Date: ${
+      res.result.service_date != "null" ? res.result.service_date : "-"
+    }
+🤑 Score : ${res.result.score}
+    `;
+  } else if (res.result.ticket_type) {
+    formattedOutput = `
+💰 Total Cost: ${res.result.total_cost} THB
+#️⃣ CRM ID: ${res.result.crm_id}
+#️⃣ Reservation Code: ${res.result.reservation_code}
+✈️ Airline Name : ${res.result.product_name}
+🎫 Ticket Type : ${res.result.ticket_type}
+🎫 Total Tickets : ${res.result.total_ticket}
+💵 Price: ${res.result.sale_price} THB
+💵 Total Sale Amount: ${res.result.total_sale_amount} THB
+💸 Discount : ${res.result.discount} THB
+💵 Balance Due: ${res.result.balance_due} THB
+📝 Payment Status: ${res.result.payment_status}
+📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
+🗓️ Service Date: ${
+      res.result.service_date != "null" ? res.result.service_date : "-"
+    }
+🧾 Payment Status: ${res.result.payment_status}
+🤑 Score : ${res.result.score}
+📝 Expense Comment:
+  `;
+  }
+
+  setTimeout(() => {
+    navigator.clipboard.writeText(formattedOutput);
+  }, 0);
+
+  toast.success("success copy reservation");
+};
+
+watch(
+  () => detail.value,
+  () => {
+    if (detail.value.booking.payment_status == "fully_paid") {
+      state.value.general = true;
+    } else {
+      state.value.general = false;
+    }
+    if (detail.value.customer_passports.length > 0) {
+      state.value.passport = true;
+    } else {
+      state.value.passport = false;
+    }
+    if (detail.value.booking_confirm_letters.length > 0) {
+      state.value.invoice = true;
+    } else {
+      state.value.invoice = false;
+    }
+  }
+);
 
 watch(
   () => route.query.id,
@@ -57,27 +221,33 @@ const hide = ref(false);
         <p>If finish select reservation one, please wait for loading !</p>
       </div>
     </div>
-    <div class="space-y-6" v-if="!getLoading">
+    <div class="space-y-4" v-if="!getLoading">
       <div class="flex justify-between items-center">
         <div class="flex justify-start items-center gap-x-2">
-          <p class="text-[10px] bg-[#FF613c] text-white px-3 py-1.5 rounded-lg">
+          <p
+            @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
+            class="text-[10px] bg-[#FF613c] cursor-pointer shadow text-white px-3 py-1.5 rounded-lg"
+          >
             View invoice
           </p>
           <p
-            class="text-[10px] flex justify-center items-center gap-x-2 text-white px-3 py-1.5 rounded-lg"
+            class="text-[10px] shadow flex justify-center items-center gap-x-2 text-white px-3 py-1.5 rounded-lg"
             :class="{
-              'bg-green-500': detail?.payment_status == 'fully_paid',
-              'bg-red-500': detail?.payment_status != 'fully_paid',
+              'bg-green-500': detail?.booking?.payment_status == 'fully_paid',
+              'bg-red-500': detail?.booking?.payment_status != 'fully_paid',
             }"
           >
             <span
-              class="h-1.5 mr-0.5 w-1.5 bg-white rounded-full inline-block"
+              class="h-1 mr-0.5 w-1 bg-white rounded-full inline-block"
             ></span
-            >{{ detail?.payment_status }}
+            >{{ detail?.booking?.payment_status }}
           </p>
         </div>
         <div class="flex justify-end items-center gap-x-2">
-          <p class="text-[10px] bg-[#FF613c] text-white px-3 py-1.5 rounded-lg">
+          <p
+            class="text-[10px] bg-[#FF613c] text-white cursor-pointer px-3 py-1.5 rounded-lg"
+            @click="copyReservation(detail?.id)"
+          >
             Copy Expense
           </p>
           <p class="text-[10px] bg-[#FF613c] text-white px-3 py-1.5 rounded-lg">
@@ -89,45 +259,52 @@ const hide = ref(false);
         <div class="col-span-5 flex justify-between items-center">
           <div>
             <p class="text-[10px] text-gray-500">customer name</p>
-            <p class="text-[22px] text-[#FF613c] font-medium pb-2">
+            <p class="text-[18px] text-[#FF613c] font-medium pb-2">
               {{ detail?.customer_info.name }}
             </p>
             <div class="flex justify-start items-center gap-x-2">
-              <p class="text-xs px-3 py-0.5 text-white rounded-lg bg-[#FF613c]">
+              <p
+                class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-[#FF613c]"
+              >
                 {{ detail?.crm_id }}
               </p>
               <p
-                class="text-xs px-3 py-0.5 text-white rounded-lg bg-blue-600"
+                class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-blue-600"
                 v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
               >
                 Ticket
               </p>
-              <p class="text-xs px-3 py-0.5 text-white rounded-lg bg-black">
+              <p
+                class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-black"
+              >
                 Contact
               </p>
             </div>
           </div>
           <div class="">
             <p class="text-[10px] text-gray-500 text-end">score</p>
-            <p class="text-2xl text-red-500 font-medium pb-2 text-end">0.09</p>
+            <p class="text-2xl text-red-500 font-medium pb-2 text-end">
+              {{ score }}
+            </p>
             <div class="flex justify-start items-center gap-x-2">
               <p
-                class="text-xs cursor-pointer px-2 py-0.5 flex justify-center gap-x-2 items-center text-white rounded-lg bg-[#FF613c]"
+                class="text-xs cursor-pointer px-2 py-0.5 flex justify-center gap-x-1.5 items-center text-white rounded-lg bg-[#FF613c]"
               >
-                Product <ChevronRightIcon class="w-3 h-3 text-white" />
+                <img :src="productIcon" alt="" class="w-3 h-3" />Product
               </p>
               <p
                 @click="hide = !hide"
-                class="text-xs cursor-pointer px-2 py-0.5 flex justify-center gap-x-2 items-center text-white rounded-lg bg-black"
+                class="text-xs cursor-pointer px-2 py-0.5 flex justify-center gap-x-1 items-center text-white rounded-lg bg-black"
               >
-                {{ !hide ? "Hide" : "Show"
-                }}<ChevronDownIcon class="w-3 h-3 text-white" />
+                <ChevronDownIcon class="w-3 h-3 text-white" />{{
+                  !hide ? "Hide" : "Show"
+                }}
               </p>
             </div>
           </div>
         </div>
         <div class="col-span-2" v-if="!hide">
-          <div class="flex justify-start items-start gap-x-4 pt-6">
+          <div class="flex justify-start items-start gap-x-4 pt-3">
             <div>
               <img
                 :src="
@@ -135,7 +312,7 @@ const hide = ref(false);
                     ? detail?.product?.cover_image
                     : 'https://placehold.co/400'
                 "
-                class="min-w-[140px] max-w-[140px] shadow object-cover rounded-lg h-[130px]"
+                class="min-w-[120px] max-w-[120px] shadow object-cover rounded-lg h-[130px]"
                 alt=""
               />
             </div>
@@ -250,7 +427,9 @@ const hide = ref(false);
           <!-- line -->
           <div class="w-full h-[3px] absolute bottom-2.5 bg-gray-200"></div>
           <div
-            class="w-6 h-6 flex justify-center items-center text-[10px] rounded-full relative z-10"
+            v-if="!state.general"
+            @click="part = 'general'"
+            class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
             :class="
               part == 'general' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
             "
@@ -258,10 +437,21 @@ const hide = ref(false);
             1
           </div>
           <div
-            class="w-36 h-[2px] rounded-full relative z-10 bg-gray-200"
+            v-if="state.general"
+            class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+            :class="part == 'general' ? 'bg-white text-white' : ''"
+            @click="part = 'general'"
+          >
+            <img :src="checkImage" alt="" />
+          </div>
+          <div
+            class="w-36 h-[2px] rounded-full relative z-10"
+            :class="state.general ? 'bg-[#04BA00]' : 'bg-gray-200'"
           ></div>
           <div
-            class="w-6 h-6 flex justify-center items-center text-[10px] rounded-full relative z-10"
+            v-if="!state.passport"
+            @click="part = 'passport'"
+            class="w-6 h-6 flex justify-center cursor-pointer items-center text-[10px] rounded-full relative z-10"
             :class="
               part == 'passport' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
             "
@@ -269,10 +459,20 @@ const hide = ref(false);
             2
           </div>
           <div
-            class="w-36 h-[2px] rounded-full relative z-10 bg-gray-200"
+            v-if="state.passport"
+            @click="part = 'passport'"
+            class="w-6 h-6 flex justify-center cursor-pointer shadow hover:shadow-none items-center text-[10px] rounded-full relative z-10"
+            :class="part == 'passport' ? 'bg-white text-white' : ''"
+          >
+            <img :src="checkImage" alt="" />
+          </div>
+          <div
+            class="w-36 h-[2px] rounded-full relative z-10"
+            :class="state.passport ? 'bg-[#04BA00]' : 'bg-gray-200'"
           ></div>
           <div
-            class="w-6 h-6 flex justify-center items-center text-[10px] rounded-full relative z-10"
+            @click="part = 'booking'"
+            class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
             :class="
               part == 'booking' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
             "
@@ -283,7 +483,9 @@ const hide = ref(false);
             class="w-36 h-[2px] rounded-full relative z-10 bg-gray-200"
           ></div>
           <div
-            class="w-6 h-6 flex justify-center items-center text-[10px] rounded-full relative z-10"
+            v-if="!state.invoice"
+            @click="part = 'invoice'"
+            class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
             :class="
               part == 'invoice' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
             "
@@ -291,10 +493,21 @@ const hide = ref(false);
             4
           </div>
           <div
-            class="w-36 h-[2px] rounded-full relative z-10 bg-gray-200"
-          ></div>
+            v-if="state.invoice"
+            @click="part = 'invoice'"
+            class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+            :class="part == 'invoice' ? 'bg-white text-white' : ''"
+          >
+            <img :src="checkImage" alt="" />
+          </div>
           <div
-            class="w-6 h-6 flex justify-center items-center text-[10px] rounded-full relative z-10"
+            class="w-36 h-[2px] rounded-full relative z-10"
+            :class="state.invoice ? 'bg-[#04BA00]' : 'bg-gray-200'"
+          ></div>
+
+          <div
+            @click="part = 'expense'"
+            class="w-6 h-6 flex justify-center items-center text-[10px] shadow hover:shadow-none cursor-pointer rounded-full relative z-10"
             :class="
               part == 'expense' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
             "
@@ -305,7 +518,8 @@ const hide = ref(false);
             class="w-36 h-[2px] rounded-full relative z-10 bg-gray-200"
           ></div>
           <div
-            class="w-6 h-6 flex justify-center items-center text-[10px] rounded-full relative z-10"
+            @click="part = 'confirmation'"
+            class="w-6 h-6 flex justify-center items-center text-[10px] shadow hover:shadow-none cursor-pointer rounded-full relative z-10"
             :class="
               part == 'confirmation' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
             "
@@ -318,16 +532,28 @@ const hide = ref(false);
           <div
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'general'"
-            :class="part == 'general' ? 'text-[#FF613c]' : ''"
+            :class="[
+              part === 'general' ? 'text-[#FF613c]' : 'text-gray-500',
+              state.general ? 'text-[#04BA00]' : '',
+            ]"
           >
-            Payment
+            Payment<span
+              v-if="part == 'general' && state.general"
+              class="w-1 h-1 rounded-full inline-block bg-[#04BA00] ml-2"
+            ></span>
           </div>
           <div
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'passport'"
-            :class="part == 'passport' ? 'text-[#FF613c]' : ''"
+            :class="[
+              part === 'passport' ? 'text-[#FF613c]' : 'text-gray-500',
+              state.passport ? 'text-[#04BA00]' : '',
+            ]"
           >
-            Passport
+            Passport<span
+              v-if="part == 'passport' && state.passport"
+              class="w-1 h-1 rounded-full inline-block bg-[#04BA00] ml-2"
+            ></span>
           </div>
           <div
             class="text-xs cursor-pointer flex justify-center items-center"
@@ -339,10 +565,17 @@ const hide = ref(false);
           <div
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'invoice'"
-            :class="part == 'invoice' ? 'text-[#FF613c]' : ''"
+            :class="[
+              part === 'invoice' ? 'text-[#FF613c]' : 'text-gray-500',
+              state.invoice ? 'text-[#04BA00]' : '',
+            ]"
           >
-            Invoice
+            invoice<span
+              v-if="part == 'invoice' && state.invoice"
+              class="w-1 h-1 rounded-full inline-block bg-[#04BA00] ml-2"
+            ></span>
           </div>
+
           <div
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'expense'"
@@ -358,23 +591,33 @@ const hide = ref(false);
             Confirm:
           </div>
         </div>
-        <div class="pt-6" v-if="part == 'general'">
-          <GeneralDetailPage :detail="detail" />
-        </div>
-        <div class="pt-6" v-if="part == 'passport'">
-          <PassportInfo :data="detail" />
-        </div>
-        <div class="pt-6" v-if="part == 'booking'">
-          <BookingRequest :detail="detail" />
-        </div>
-        <div class="pt-6" v-if="part == 'invoice'">
-          <InvoiceUpdate :detail="detail" />
-        </div>
-        <div class="pt-6" v-if="part == 'expense'">
-          <Expense :data="detail" />
-        </div>
-        <div class="pt-6" v-if="part == 'confirmation'">
-          <Confirmation :data="detail" />
+        <div class="px-16 relative">
+          <ChevronRightIcon
+            @click="rightButtonAction"
+            class="w-5 h-5 text-black bg-white shadow p-1 rounded-full absolute right-0 top-1/2"
+          />
+          <ChevronLeftIcon
+            @click="leftButtonAction"
+            class="w-5 h-5 text-black bg-white shadow p-1 rounded-full absolute left-0 top-1/2"
+          />
+          <div class="pt-6" v-if="part == 'general'">
+            <GeneralDetailPage :detail="detail" />
+          </div>
+          <div class="pt-6" v-if="part == 'passport'">
+            <PassportInfo :data="detail" />
+          </div>
+          <div class="pt-6" v-if="part == 'booking'">
+            <BookingRequest :detail="detail" />
+          </div>
+          <div class="pt-6" v-if="part == 'invoice'">
+            <InvoiceUpdate :detail="detail" />
+          </div>
+          <div class="pt-6" v-if="part == 'expense'">
+            <Expense :data="detail" />
+          </div>
+          <div class="pt-6" v-if="part == 'confirmation'">
+            <Confirmation :data="detail" />
+          </div>
         </div>
       </div>
     </div>

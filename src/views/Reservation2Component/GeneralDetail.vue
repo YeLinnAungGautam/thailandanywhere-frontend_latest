@@ -1,55 +1,222 @@
 <template>
   <div class="space-y-3">
-    <p class="font-medium pb-2">Payment Detail</p>
-    <div class="flex justify-start items-center gap-x-3">
+    <!-- <p class="font-medium pb-2">Payment Detail</p> -->
+    <!-- <div class="flex justify-start items-center gap-x-3">
       <p
         class="text-xs px-3 py-0.5 inline-block text-white rounded-lg"
         :class="{
-          'bg-green-500': detail?.payment_status == 'fully_paid',
-          'bg-red-500': detail?.payment_status != 'fully_paid',
+          'bg-green-500': detail?.booking.payment_status == 'fully_paid',
+          'bg-red-500': detail?.booking.payment_status != 'fully_paid',
         }"
       >
-        {{ detail?.payment_status }}
+        {{ detail?.booking.payment_status }}
       </p>
       <p
         class="text-xs px-3 py-0.5 inline-block text-white rounded-lg bg-[#FF613c]"
       >
         {{ detail?.crm_id }}
       </p>
-      <!-- <p
+      <p
         class="text-xs px-3 py-0.5 inline-block text-white rounded-lg bg-[#FF613c]"
       >
         res code
-      </p> -->
-    </div>
-    <div class="pt-2 grid grid-cols-4 gap-x-4">
-      <div v-for="i in detail?.booking?.receipts ?? []" :key="i">
-        <img :src="i?.image" class="w-full rounded-lg" alt="" />
-        <p class="text-[12px] flex justify-start items-center pt-2">
-          <img
-            src="https://cdn-icons-png.flaticon.com/128/17763/17763038.png"
-            alt=""
-            class="w-4 h-4 mr-2"
-          />
-          {{ i?.amount }}
-        </p>
-        <p class="text-[12px] flex justify-start items-center">
-          <img
-            src="https://cdn-icons-png.flaticon.com/128/3652/3652191.png"
-            alt=""
-            class="w-4 h-4 mr-2"
-          />{{ i?.created_at }}
-        </p>
+      </p>
+    </div> -->
+    <div class="grid grid-cols-5 col-span-2 gap-4 py-3">
+      <div
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Sales Date</p>
+        <p class="text-sm">{{ detail?.booking.booking_date }}</p>
+      </div>
+      <div
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Invoice Amount</p>
+        <p class="text-sm">{{ detail?.booking?.sub_total }} thb</p>
+      </div>
+      <div
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Invoice Discount</p>
+        <p class="text-sm">{{ detail?.booking?.discount }}</p>
+      </div>
+      <div
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Balance Due</p>
+        <p class="text-sm">{{ detail?.booking?.balance_due }}</p>
+      </div>
+      <div
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Payment Method</p>
+        <p class="text-sm">{{ detail?.booking?.payment_method }}</p>
+      </div>
+      <div
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Total Quantity</p>
+        <p class="text-sm">-</p>
+      </div>
+      <div
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Total Cost</p>
+        <p class="text-sm">-</p>
+      </div>
+      <div
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Item Discount</p>
+        <p class="text-sm">{{ detail?.discount }}</p>
+      </div>
+      <div
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Adult Qty</p>
+        <p class="text-sm">{{ detail?.quantity }}</p>
+      </div>
+      <div
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Child Qty</p>
+        <p class="text-sm">-</p>
       </div>
     </div>
+    <div class="pt-2 grid grid-cols-4 gap-x-4">
+      <div
+        v-for="i in detail?.booking?.receipts ?? []"
+        :key="i"
+        class="flex flex-col relative justify-stretch group space-y-2 w-[160px]"
+      >
+        <p
+          @click="openModal(i)"
+          class="absolute top-4 cursor-pointer text-[8px] shadow right-2 text-xs text-white bg-[#FF613c] px-2 py-0.5 rounded-lg"
+        >
+          <span class="text-[10px]">edit</span>
+        </p>
+        <div>
+          <img
+            :src="i?.image"
+            class="rounded-lg shadow hover:shadow-none h-auto w-full"
+            alt=""
+          />
+        </div>
+        <div
+          class="w-full px-4 pb-1 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
+        >
+          <p class="text-[12px] flex justify-start items-center pt-2">
+            <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
+            {{ i?.amount }} thb
+          </p>
+          <p class="text-[12px] flex justify-start items-center">
+            <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
+            {{ i?.created_at }}
+          </p>
+        </div>
+      </div>
+    </div>
+    <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
+      <DialogPanel
+        class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
+        >
+          <p>Payment Slip Audit</p>
+          <XCircleIcon class="w-5 h-5 text-white" />
+        </DialogTitle>
+        <!-- show date  -->
+        <div class="p-4">
+          <div class="grid grid-cols-2 gap-8">
+            <div>
+              <img
+                :src="save?.image"
+                class="rounded-lg shadow hover:shadow-none h-auto w-full"
+                alt=""
+              />
+            </div>
+            <div class="space-y-4 relative pt-4">
+              <div class="space-x-6">
+                <label for="" class="text-[12px] font-medium">Amount</label>
+                <input
+                  type="text"
+                  name=""
+                  v-model="save.amount"
+                  placeholder="Search CRM ID"
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  id=""
+                />
+              </div>
+              <div class="space-x-6">
+                <label for="" class="text-[12px] font-medium"
+                  >Date <span class="opacity-0">......</span></label
+                >
+                <input
+                  type="date"
+                  name=""
+                  v-model="save.created_at"
+                  placeholder="Search CRM ID"
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  id=""
+                />
+              </div>
+              <div class="space-x-6">
+                <label for="" class="text-[12px] font-medium">Bank List</label>
+                <select
+                  name=""
+                  id=""
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                >
+                  <option value="">Select Bank</option>
+                  <option value="1">Bank A</option>
+                  <option value="2">Bank B</option>
+                  <option value="3">Bank C</option>
+                </select>
+              </div>
+              <div
+                class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
+              >
+                <p
+                  class="px-3 py-1 bg-gray-500 text-white text-[12px] cursor-pointer rounded-lg"
+                >
+                  save
+                </p>
+                <p
+                  @click="carModalOpen = false"
+                  class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
+                >
+                  close
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
 <script setup>
 import invoice from "../../assets/invoice_exp.jpg";
-import { defineProps } from "vue";
+import { defineProps, ref } from "vue";
+import dateImage from "../../assets/date.png";
+import bathImage from "../../assets/baht.png";
+import { PencilSquareIcon, XCircleIcon } from "@heroicons/vue/24/outline";
+import Modal from "../../components/Modal.vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const props = defineProps({
   detail: Object,
 });
+
+const carModalOpen = ref(false);
+const save = ref(null);
+
+const openModal = (data) => {
+  carModalOpen.value = true;
+  save.value = data;
+};
 </script>

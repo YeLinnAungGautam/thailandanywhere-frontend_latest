@@ -2,7 +2,7 @@
   <div>
     <div class="py-2 space-y-2 pr-1" v-if="!loading">
       <div class="flex justify-between items-center">
-        <p class="font-medium pb-2">Reservation Confirmation</p>
+        <!-- <p class="font-medium pb-2">Reservation Confirmation</p> -->
         <p
           class="bg-[#FF613c] text-white px-1.5 inline-block rounded-full"
           @click="openFileFeaturePicker"

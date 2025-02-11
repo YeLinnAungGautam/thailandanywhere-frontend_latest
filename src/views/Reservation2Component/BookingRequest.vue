@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex justify-between items-center">
-      <p class="font-medium pb-2">Booking Request</p>
+      <!-- <p class="font-medium pb-2">Booking Request</p> -->
       <div class="space-x-2">
         <button
           class="text-xs px-4 py-2 border rounded-lg shadow border-gray-100/50 bg-gray-100/50 text-[#FF613c]"

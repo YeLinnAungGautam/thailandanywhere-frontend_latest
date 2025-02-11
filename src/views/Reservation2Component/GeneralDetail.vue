@@ -84,7 +84,10 @@
         <p class="text-sm">-</p>
       </div>
     </div>
-    <div class="pt-2 grid grid-cols-4 gap-x-4">
+    <div
+      class="pt-2 grid grid-cols-4 gap-x-4"
+      v-if="detail?.booking?.receipts.length > 0"
+    >
       <div
         v-for="i in detail?.booking?.receipts ?? []"
         :key="i"
@@ -116,6 +119,15 @@
           </p>
         </div>
       </div>
+    </div>
+    <div
+      v-if="detail?.booking?.receipts.length == 0"
+      @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
+      class="w-[160px] h-[160px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c] cursor-pointer"
+    >
+      <p class="px-2 py-1 text-[10px] text-white bg-[#ff613c] rounded-lg">
+        Click to add payment
+      </p>
     </div>
     <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
       <DialogPanel
@@ -207,10 +219,13 @@ import bathImage from "../../assets/baht.png";
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/vue/24/outline";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
   detail: Object,
 });
+
+const router = useRouter();
 
 const carModalOpen = ref(false);
 const save = ref(null);

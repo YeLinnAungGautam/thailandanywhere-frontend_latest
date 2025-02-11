@@ -1,28 +1,9 @@
 <template>
   <div>
-    <div class="flex justify-between items-center">
+    <div class="flex justify-start items-center gap-x-2">
       <!-- <p class="font-medium pb-2">Booking Request</p> -->
-      <div class="space-x-2">
-        <button
-          class="text-xs px-4 py-2 border rounded-lg shadow border-gray-100/50 bg-gray-100/50 text-[#FF613c]"
-          @click="cancelEmailFunction"
-        >
-          Clear Email
-        </button>
-        <button
-          v-if="detail?.payment_status == 'fully_paid'"
-          class="text-xs px-4 py-2 border rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
-          @click="sendEmailFunction"
-        >
-          Send Email
-        </button>
-        <button
-          v-if="detail?.payment_status != 'fully_paid'"
-          class="text-xs px-4 py-2 border rounded-lg shadow border-[#FF6300] bg-transfer"
-        >
-          Send Email
-        </button>
-      </div>
+      <CheckCircleIcon class="w-4 h-4 text-green-500" />
+      <p class="text-xs">Booking Request Sent</p>
     </div>
     <div>
       <div class="grid grid-cols-1 gap-4 py-4 overflow-hidden rounded-xl">
@@ -49,7 +30,7 @@
               />
             </div>
 
-            <div class="flex justify-start items-center gap-2">
+            <!-- <div class="flex justify-start items-center gap-2">
               <input
                 type="checkbox"
                 v-model="emailData.send_to_default"
@@ -59,12 +40,21 @@
               />
               <p class="text-xs">default email send ?</p>
             </div>
+            <div class="flex justify-start items-center gap-2">
+              <input
+                type="checkbox"
+                name=""
+                id=""
+                class="w-6 h-6 rounded-lg border border-gray-200 focus:outline-none"
+              />
+              <p class="text-xs">Is booking send?</p>
+            </div> -->
             <div class="">
               <QuillEditor
                 ref="textEditor"
                 :options="editorOptions"
                 theme="snow"
-                class="!bg-white/50 !border-1 !border-[#FF6300] !rounded-bl-md !rounded-br-md !shadow-sm !text-xs !text-gray-900 !h-[200px]"
+                class="!bg-white/50 !border-1 !border-gray-200 !rounded-bl-md !rounded-br-md !text-xs !text-gray-900 !h-[200px]"
                 toolbar="essential"
                 contentType="html"
                 v-model:content="emailData.mail_body"
@@ -74,17 +64,79 @@
               <p class="text-[10px] text-[#FF6300]">
                 Attachment Files must be under 25mb .
               </p>
-              <input
+              <!-- <input
                 type="file"
                 multiple
                 @change="addAttracted"
                 class="border px-4 py-2 border-gray-200 focus:outline-none rounded-lg text-xs w-full"
-              />
+              /> -->
+              <div
+                @click="showModal = true"
+                class="w-full h-[50px] border border-[#FF613c] border-dashed flex justify-center items-center rounded-lg text-[#FF613c] cursor-pointer"
+              >
+                <span
+                  class="ml-4 px-2 py-1 text-[10px] text-white bg-[#ff613c] rounded-lg"
+                  >+ add passport</span
+                >
+              </div>
+            </div>
+            <div class="space-x-2 flex justify-end items-center gap-x-2">
+              <button
+                class="text-xs px-3 py-1.5 border rounded-lg shadow border-gray-100/50 bg-transfer text-[#FF613c]"
+                @click="cancelEmailFunction"
+              >
+                Clear Email
+              </button>
+              <button
+                v-if="detail?.payment_status == 'fully_paid'"
+                class="text-xs px-3 py-1.5 border rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
+                @click="sendEmailFunction"
+              >
+                Send Email
+              </button>
+              <button
+                v-if="detail?.payment_status != 'fully_paid'"
+                class="text-xs px-3 py-1.5 border rounded-lg shadow border-gray-100 bg-white"
+              >
+                Send Email
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <Modal :isOpen="showModal" @closeModal="showModal = false">
+      <DialogPanel
+        class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
+        >
+          <p>Attachments: Passports</p>
+          <XCircleIcon class="w-5 h-5 text-white" />
+        </DialogTitle>
+        <!-- show date  -->
+        <div class="p-4">
+          <div class="grid grid-cols-3 gap-4">
+            <div class="w-full h-auto p-2 relative" v-for="i in 3" :key="i">
+              <input
+                type="checkbox"
+                name=""
+                class="w-5 h-5 absolute top-0 left-0"
+                id=""
+              />
+              <img src="https://placehold.co/400" class="rounded-lg" alt="" />
+              <div class="text-xs py-1 space-y-1">
+                <p>Name : name</p>
+                <p>Passport : 1234</p>
+                <p>DOB : 1-1-2025</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
@@ -96,10 +148,15 @@ import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
 import { useRoute } from "vue-router";
 import Swal from "sweetalert2";
+import { CheckCircleIcon } from "@heroicons/vue/24/solid";
+import Modal from "../../components/Modal.vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const reservationStore = useReservationStore();
 const toast = useToast();
 const route = useRoute();
+
+const showModal = ref(false);
 
 const props = defineProps({
   detail: Object,
@@ -231,3 +288,12 @@ onMounted(() => {
   mailBodyChange();
 });
 </script>
+
+<style>
+.ql-toolbar.ql-snow {
+  border: 1px solid #edecec !important;
+  box-sizing: border-box;
+  font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  padding: 8px;
+}
+</style>

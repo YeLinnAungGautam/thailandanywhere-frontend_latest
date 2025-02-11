@@ -131,6 +131,131 @@
         </p>
       </div>
     </div>
+    <div
+      class="flex justify-start space-x-4 pt-2 pl-4 items-center transition-all duration-150"
+    >
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="data?.booking?.payment_status == 'fully_paid'"
+      >
+        <CurrencyDollarIcon class="w-4 h-4 text-green-600" />
+        <p class="text-[9px] text-green-600">Customer paid</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="data?.booking?.payment_status == 'partially_paid'"
+      >
+        <CurrencyDollarIcon class="w-4 h-4 text-yellow-600" />
+        <p class="text-[9px] text-yellow-600">C.partially paid</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="data?.booking?.payment_status == 'not_paid'"
+      >
+        <CurrencyDollarIcon class="w-4 h-4 text-red-600" />
+        <p class="text-[9px] text-red-600">C.not paid</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.payment_status == 'fully_paid' &&
+          data.product_type != 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <CreditCardIcon class="w-4 h-4 text-green-600" />
+        <p class="text-[9px] text-green-600">Expense paid</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.payment_status == 'partially_paid' &&
+          data.product_type != 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <CreditCardIcon class="w-4 h-4 text-yellow-600" />
+        <p class="text-[9px] text-yellow-600">E.partially paid</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.payment_status == 'not_paid' &&
+          data.product_type != 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <CreditCardIcon class="w-4 h-4 text-red-600" />
+        <p class="text-[9px] text-red-600">Expense not paid</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.reservation_status == 'confirmed' &&
+          data.product_type != 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <CurrencyDollarIcon class="w-4 h-4 text-green-600" />
+        <p class="text-[9px] text-green-600">Confirmation recieved</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.reservation_status == 'awaiting' &&
+          data.product_type != 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <CurrencyDollarIcon class="w-4 h-4 text-yellow-600" />
+        <p class="text-[9px] text-yellow-600">Confirmation awaiting</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.reservation_status == 'declined' &&
+          data.product_type != 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <CurrencyDollarIcon class="w-4 h-4 text-red-600" />
+        <p class="text-[9px] text-red-600">Confirmation not recieved</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.reservation_car_info?.supplier_id != null &&
+          data.product_type == 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <TruckIcon class="w-4 h-4 text-green-600" />
+        <p class="text-[9px] text-green-600">Supplier</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.reservation_car_info?.supplier_id == null &&
+          data.product_type == 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <TruckIcon class="w-4 h-4 text-yellow-600" />
+        <p class="text-[9px] text-yellow-600">Supplier Missing</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.reservation_car_info?.driver_id != null &&
+          data.product_type == 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <TruckIcon class="w-4 h-4 text-green-600" />
+        <p class="text-[9px] text-green-600">Driver</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.reservation_car_info?.driver_id == null &&
+          data.product_type == 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <TruckIcon class="w-4 h-4 text-yellow-600" />
+        <p class="text-[9px] text-yellow-600">Driver Missing</p>
+      </div>
+    </div>
   </div>
 </template>
 

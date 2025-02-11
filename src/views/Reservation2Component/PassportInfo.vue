@@ -52,7 +52,7 @@
           class="flex flex-col relative justify-stretch group space-y-2 w-[160px]"
         >
           <p
-            @click="openModal(i)"
+            @click="openPassportModal(i.file)"
             class="absolute top-4 cursor-pointer text-[8px] shadow right-2 text-xs text-white bg-[#FF613c] px-2 py-0.5 rounded-lg"
           >
             <span class="text-[10px]">edit</span>
@@ -99,7 +99,7 @@
         </DialogTitle>
         <!-- show date  -->
         <div class="p-4">
-          <div class="grid grid-cols-2 gap-4">
+          <!-- <div class="grid grid-cols-2 gap-4">
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500">Full Name</label>
               <input
@@ -145,9 +145,15 @@
               />
             </div>
             <div class="space-y-1 col-span-2">
-              <label for="" class="text-[12px] text-gray-500"
+              <label for="" class="text-[12px] pr-4 text-gray-500"
                 >Customer Passports</label
               >
+              <p
+                class="bg-[#FF613c] text-white px-1.5 inline-block cursor-pointer rounded-full"
+                @click="openFileFeaturePicker"
+              >
+                +
+              </p>
               <input
                 type="file"
                 ref="featureImageInput"
@@ -202,6 +208,81 @@
             >
               Add Traveller
             </button>
+          </div> -->
+
+          <div class="p-4">
+            <div class="grid grid-cols-2 gap-8">
+              <div v-if="save" class="w-[200px] h-[200px]">
+                <img
+                  :src="save"
+                  class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
+                  alt=""
+                />
+              </div>
+              <div
+                v-if="!save"
+                class="w-[200px] h-[200px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+              >
+                +
+              </div>
+              <div class="space-y-4 relative pt-4">
+                <div class="space-x-6">
+                  <label for="" class="text-[12px] font-medium"
+                    >Name <span class="opacity-0">....</span></label
+                  >
+                  <input
+                    type="text"
+                    name=""
+                    placeholder="name"
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+                <div class="space-x-6">
+                  <label for="" class="text-[12px] font-medium">Passport</label>
+                  <input
+                    type="text"
+                    name=""
+                    placeholder="passport"
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+                <div class="space-x-6">
+                  <label for="" class="text-[12px] font-medium"
+                    >DOB <span class="opacity-0">.........</span></label
+                  >
+                  <input
+                    type="date"
+                    name=""
+                    placeholder=""
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+
+                <div
+                  class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
+                >
+                  <p
+                    class="px-3 py-1 bg-gray-500 text-white text-[12px] cursor-pointer rounded-lg"
+                  >
+                    save
+                  </p>
+                  <p
+                    @click="
+                      () => {
+                        carModalOpen = closed;
+                        save = '';
+                      }
+                    "
+                    class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
+                  >
+                    close
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </DialogPanel>
@@ -230,11 +311,18 @@ const editData = ref({
   customer_passport_have: [],
 });
 
+const save = ref(null);
+
 const loading = ref(false);
 
 const carModalOpen = ref(false);
 
 const openModal = () => {
+  carModalOpen.value = true;
+};
+
+const openPassportModal = (data) => {
+  save.value = data;
   carModalOpen.value = true;
 };
 

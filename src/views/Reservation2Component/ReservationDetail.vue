@@ -55,10 +55,10 @@ const leftButtonAction = () => {
 };
 
 const score = computed(() => {
-  if (detail.value.amount && detail.value.total_cost_price) {
+  if (detail.value?.amount && detail.value?.total_cost_price) {
     let score =
-      (detail.value.amount * 1 - detail.value.total_cost_price) /
-      (detail.value.amount * 1);
+      (detail.value?.amount * 1 - detail.value?.total_cost_price) /
+      (detail.value?.amount * 1);
     return score.toFixed(4);
   }
   return 0;
@@ -411,7 +411,7 @@ const hide = ref(false);
               <!-- <p class="text-[10px] text-gray-500">Invoice Date :</p>
               <p class="text-[12px] text-[#FF613c] pb-2">-</p> -->
               <p class="text-[10px] text-gray-500">Score :</p>
-              <p class="text-[12px] text-[#FF613c] pb-2">0.183</p>
+              <p class="text-[12px] text-[#FF613c] pb-2">{{ score }}</p>
               <!-- <p class="text-[10px] text-gray-500">Current Status</p>
               <p class="text-[12px] text-yellow-400">Booking Request</p> -->
               <p class="text-[10px] text-gray-500">Payment Method :</p>
@@ -533,8 +533,8 @@ const hide = ref(false);
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'general'"
             :class="[
-              part === 'general' ? 'text-[#FF613c]' : 'text-gray-500',
               state.general ? 'text-[#04BA00]' : '',
+              part === 'general' ? 'text-[#FF613c]' : 'text-gray-500',
             ]"
           >
             Payment<span
@@ -546,8 +546,8 @@ const hide = ref(false);
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'passport'"
             :class="[
-              part === 'passport' ? 'text-[#FF613c]' : 'text-gray-500',
               state.passport ? 'text-[#04BA00]' : '',
+              part === 'passport' ? 'text-[#FF613c]' : 'text-gray-500',
             ]"
           >
             Passport<span
@@ -594,11 +594,11 @@ const hide = ref(false);
         <div class="px-16 relative">
           <ChevronRightIcon
             @click="rightButtonAction"
-            class="w-5 h-5 text-black bg-white shadow p-1 rounded-full absolute right-0 top-1/2"
+            class="w-6 cursor-pointer h-6 bg-[#FF613c] text-white shadow p-1 rounded-full absolute right-0 top-[35px]"
           />
           <ChevronLeftIcon
             @click="leftButtonAction"
-            class="w-5 h-5 text-black bg-white shadow p-1 rounded-full absolute left-0 top-1/2"
+            class="w-6 cursor-pointer h-6 bg-[#FF613c] text-white shadow p-1 rounded-full absolute left-0 top-[35px]"
           />
           <div class="pt-6" v-if="part == 'general'">
             <GeneralDetailPage :detail="detail" />

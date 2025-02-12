@@ -71,7 +71,7 @@
       </div>
       <div class="py-2 flex justify-start items-center gap-x-2">
         <p
-          class="text-xs px-1 py-0.5 text-white inline-block rounded-lg"
+          class="text-[10px] px-1 py-0.5 text-white inline-block rounded-lg"
           :class="{
             'bg-blue-600': data.product_type === 'App\\Models\\EntranceTicket',
             'bg-green-600': data.product_type === 'App\\Models\\Hotel',
@@ -92,12 +92,12 @@
           }}
         </p>
         <p
-          class="text-xs bg-[#ff613c] px-1 py-0.5 text-white inline-block rounded-lg"
+          class="text-[10px] bg-[#ff613c] px-1 py-0.5 text-white inline-block rounded-lg"
         >
           {{ data?.crm_id }}
         </p>
         <p
-          class="text-xs bg-gray-600 px-1 py-0.5 text-white inline-block rounded-lg"
+          class="text-[10px] bg-gray-600 px-1 py-0.5 text-white inline-block rounded-lg"
         >
           {{ data.customer_info?.name }}
         </p>
@@ -147,21 +147,21 @@
         v-if="data?.booking?.payment_status == 'fully_paid'"
       >
         <CurrencyDollarIcon class="w-3 h-3 text-green-600" />
-        <p class="text-[9px] text-green-600">Customer paid</p>
+        <p class="text-[8px] text-green-600">Customer paid</p>
       </div>
       <div
         class="flex justify-start space-x-1 items-center"
         v-if="data?.booking?.payment_status == 'partially_paid'"
       >
         <CurrencyDollarIcon class="w-3 h-3 text-yellow-600" />
-        <p class="text-[9px] text-yellow-600">C.partially paid</p>
+        <p class="text-[8px] text-yellow-600">C.partially paid</p>
       </div>
       <div
         class="flex justify-start space-x-1 items-center"
         v-if="data?.booking?.payment_status == 'not_paid'"
       >
         <CurrencyDollarIcon class="w-3 h-3 text-red-600" />
-        <p class="text-[9px] text-red-600">C.not paid</p>
+        <p class="text-[8px] text-red-600">C.not paid</p>
       </div>
       <div
         class="flex justify-start space-x-1 items-center"
@@ -171,7 +171,7 @@
         "
       >
         <CreditCardIcon class="w-3 h-3 text-green-600" />
-        <p class="text-[9px] text-green-600">Expense paid</p>
+        <p class="text-[8px] text-green-600">Expense paid</p>
       </div>
       <div
         class="flex justify-start space-x-1 items-center"
@@ -181,7 +181,7 @@
         "
       >
         <CreditCardIcon class="w-3 h-3 text-yellow-600" />
-        <p class="text-[9px] text-yellow-600">E.partially paid</p>
+        <p class="text-[8px] text-yellow-600">E.partially paid</p>
       </div>
       <div
         class="flex justify-start space-x-1 items-center"
@@ -191,7 +191,7 @@
         "
       >
         <CreditCardIcon class="w-3 h-3 text-red-600" />
-        <p class="text-[9px] text-red-600">Expense not paid</p>
+        <p class="text-[8px] text-red-600">Expense not paid</p>
       </div>
       <div
         class="flex justify-start space-x-1 items-center"
@@ -201,7 +201,7 @@
         "
       >
         <CurrencyDollarIcon class="w-3 h-3 text-green-600" />
-        <p class="text-[9px] text-green-600">Confirmation recieved</p>
+        <p class="text-[8px] text-green-600">Confirmation recieved</p>
       </div>
       <div
         class="flex justify-start space-x-1 items-center"
@@ -211,7 +211,7 @@
         "
       >
         <CurrencyDollarIcon class="w-3 h-3 text-yellow-600" />
-        <p class="text-[9px] text-yellow-600">Confirmation awaiting</p>
+        <p class="text-[8px] text-yellow-600">Confirmation awaiting</p>
       </div>
       <div
         class="flex justify-start space-x-1 items-center"
@@ -221,7 +221,7 @@
         "
       >
         <CurrencyDollarIcon class="w-3 h-3 text-red-600" />
-        <p class="text-[9px] text-red-600">Confirmation not recieved</p>
+        <p class="text-[8px] text-red-600">Confirmation not recieved</p>
       </div>
       <div
         class="flex justify-start space-x-1 items-center"
@@ -231,7 +231,7 @@
         "
       >
         <TruckIcon class="w-3 h-3 text-green-600" />
-        <p class="text-[9px] text-green-600">Supplier</p>
+        <p class="text-[8px] text-green-600">Supplier</p>
       </div>
       <div
         class="flex justify-start space-x-1 items-center"
@@ -241,7 +241,7 @@
         "
       >
         <TruckIcon class="w-3 h-3 text-yellow-600" />
-        <p class="text-[9px] text-yellow-600">Supplier Missing</p>
+        <p class="text-[8px] text-yellow-600">Supplier Missing</p>
       </div>
       <div
         class="flex justify-start space-x-1 items-center"
@@ -251,7 +251,7 @@
         "
       >
         <TruckIcon class="w-3 h-3 text-green-600" />
-        <p class="text-[9px] text-green-600">Driver</p>
+        <p class="text-[8px] text-green-600">Driver</p>
       </div>
       <div
         class="flex justify-start space-x-1 items-center"
@@ -261,7 +261,7 @@
         "
       >
         <TruckIcon class="w-3 h-3 text-yellow-600" />
-        <p class="text-[9px] text-yellow-600">Driver Missing</p>
+        <p class="text-[8px] text-yellow-600">Driver Missing</p>
       </div>
     </div>
   </div>

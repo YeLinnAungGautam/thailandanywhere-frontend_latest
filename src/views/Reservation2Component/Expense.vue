@@ -96,7 +96,7 @@
         </div>
       </div>
       <div class="space-y-2 col-span-2 w-full">
-        <p class="text-gray-800 text-[10px]">Receipt</p>
+        <!-- <p class="text-gray-800 text-[10px]">Receipt</p> -->
         <div class="space-y-4 mb-2">
           <input
             type="file"
@@ -115,7 +115,7 @@
               ><i class="fa-solid fa-plus text-2xl text-gray-800"></i
             ></span>
           </div> -->
-          <p class="text-[10px]" v-if="uploadRecePreview.length != 0">
+          <!-- <p class="text-[10px]" v-if="uploadRecePreview.length != 0">
             preview
           </p>
           <div class="grid grid-cols-4 gap-3 mt-4">
@@ -133,7 +133,7 @@
 
               <img class="h-auto w-full rounded" :src="image" alt="" />
             </div>
-          </div>
+          </div> -->
           <p
             class="text-[10px]"
             v-if="formData.booking_receipt_image?.length != 0"

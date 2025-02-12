@@ -692,7 +692,7 @@ watch(dateRange, async (newValue) => {
           </div>
 
           <div
-            class="border shadow-sm rounded-lg p-4 h-[85vh] transition duration-150 overflow-y-scroll"
+            class="border shadow-sm rounded-lg p-4 h-[85vh] transition duration-150 overflow-y-scroll no-scrollbar"
           >
             <ReservationDetail />
           </div>

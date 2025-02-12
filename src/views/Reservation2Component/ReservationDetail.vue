@@ -472,7 +472,7 @@ const hide = ref(false);
             <img :src="checkImage" alt="" />
           </div>
           <div
-            class="w-36 h-[2px] rounded-full relative z-10"
+            class="w-30 h-[2px] rounded-full relative z-10"
             :class="state.general ? 'bg-[#04BA00]' : 'bg-gray-200'"
           ></div>
           <div
@@ -494,7 +494,7 @@ const hide = ref(false);
             <img :src="checkImage" alt="" />
           </div>
           <div
-            class="w-36 h-[2px] rounded-full relative z-10"
+            class="w-30 h-[2px] rounded-full relative z-10"
             :class="state.passport ? 'bg-[#04BA00]' : 'bg-gray-200'"
           ></div>
           <div
@@ -507,7 +507,7 @@ const hide = ref(false);
             3
           </div>
           <div
-            class="w-36 h-[2px] rounded-full relative z-10 bg-gray-200"
+            class="w-30 h-[2px] rounded-full relative z-10 bg-gray-200"
           ></div>
           <div
             v-if="!state.invoice"
@@ -528,7 +528,7 @@ const hide = ref(false);
             <img :src="checkImage" alt="" />
           </div>
           <div
-            class="w-36 h-[2px] rounded-full relative z-10"
+            class="w-30 h-[2px] rounded-full relative z-10"
             :class="state.invoice ? 'bg-[#04BA00]' : 'bg-gray-200'"
           ></div>
 
@@ -542,7 +542,7 @@ const hide = ref(false);
             5
           </div>
           <div
-            class="w-36 h-[2px] rounded-full relative z-10 bg-gray-200"
+            class="w-30 h-[2px] rounded-full relative z-10 bg-gray-200"
           ></div>
           <div
             @click="part = 'confirmation'"

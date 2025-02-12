@@ -3,12 +3,12 @@
     <div class="py-2 space-y-2 pr-1" v-if="!loading">
       <div class="flex justify-between items-center">
         <!-- <p class="font-medium pb-2">Reservation Confirmation</p> -->
-        <p
+        <!-- <p
           class="bg-[#FF613c] text-white px-1.5 inline-block rounded-full"
           @click="openFileFeaturePicker"
         >
           +
-        </p>
+        </p> -->
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div class="space-y-2">
@@ -49,7 +49,7 @@
             accept="image/*"
           />
         </div>
-        <label
+        <!-- <label
           for=""
           class="text-[12px] text-gray-500"
           v-if="featureImagePreview.length > 0"
@@ -70,8 +70,13 @@
 
             <img class="h-auto w-full rounded" :src="image.file" alt="" />
           </div>
-        </div>
-        <div class="grid grid-cols-4 col-span-2 gap-3 mt-4">
+        </div> -->
+        <div class="grid grid-cols-4 col-span-2 gap-3">
+          <div
+            class="w-full h-full border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+          >
+            +
+          </div>
           <div
             class="relative"
             v-for="(image, index) in editData.slips_have"

@@ -32,15 +32,15 @@
           <div
             class="w-full px-4 pb-1 border-dashed border border-[#FF613c] space-y-2 text-[#FF613c] hover:shadow-none rounded-lg"
           >
-            <p class="text-[12px] flex justify-start items-center pt-2">
+            <p class="text-[10px] flex justify-start items-center pt-2">
               <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
               Name
             </p>
-            <p class="text-[12px] flex justify-start items-center">
+            <p class="text-[10px] flex justify-start items-center">
               <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
               Passport No.
             </p>
-            <p class="text-[12px] flex justify-start items-center">
+            <p class="text-[10px] flex justify-start items-center pb-2">
               <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
               DOB
             </p>
@@ -67,15 +67,15 @@
           <div
             class="w-full px-4 pb-1 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
           >
-            <p class="text-[12px] flex justify-start items-center pt-2">
+            <p class="text-[10px] flex justify-start items-center pt-2">
               <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
               Name
             </p>
-            <p class="text-[12px] flex justify-start items-center">
+            <p class="text-[10px] flex justify-start items-center">
               <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
               Passport No.
             </p>
-            <p class="text-[12px] flex justify-start items-center">
+            <p class="text-[10px] flex justify-start items-center pb-2">
               <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
               DOB
             </p>
@@ -267,7 +267,7 @@
                   <p
                     class="px-3 py-1 bg-gray-500 text-white text-[12px] cursor-pointer rounded-lg"
                   >
-                    save
+                    Save
                   </p>
                   <p
                     @click="
@@ -278,7 +278,7 @@
                     "
                     class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
                   >
-                    close
+                    Close
                   </p>
                 </div>
               </div>

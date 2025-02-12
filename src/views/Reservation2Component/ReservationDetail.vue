@@ -11,12 +11,16 @@ import {
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  XCircleIcon,
 } from "@heroicons/vue/24/outline";
 import { useRoute, useRouter } from "vue-router";
 import { useReservationStore } from "../../stores/reservation";
 import productIcon from "../../assets/window.png";
 import checkImage from "../../assets/check.png";
 import { useToast } from "vue-toastification";
+import Modal from "../../components/Modal.vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import logo from "../../assets/web-logo.png";
 
 const part = ref("general");
 const route = useRoute();
@@ -63,6 +67,26 @@ const score = computed(() => {
   }
   return 0;
 });
+
+const showFailModal = ref(false);
+const generateConfirmation = () => {
+  if (detail.value?.booking?.payment_status != "not_paid") {
+    router.push(`/reservation/confirmations/entrance/${route.query.id}`);
+  } else {
+    showFailModal.value = true;
+  }
+};
+
+const goToFill = () => {
+  router.push({
+    name: "update_new_bookings",
+    params: {
+      id: detail.value?.booking?.id,
+    },
+  });
+
+  showFailModal.value = false;
+};
 
 const copyReservation = async (id) => {
   const res = await reservationStore.copyReservationDetail(id);
@@ -250,7 +274,10 @@ const hide = ref(false);
           >
             Copy Expense
           </p>
-          <p class="text-[10px] bg-[#FF613c] text-white px-3 py-1.5 rounded-lg">
+          <p
+            class="text-[10px] bg-[#FF613c] text-white px-3 py-1.5 rounded-lg cursor-pointer"
+            @click="generateConfirmation"
+          >
             Generate Confirmation
           </p>
         </div>
@@ -588,17 +615,17 @@ const hide = ref(false);
             @click="part = 'confirmation'"
             :class="part == 'confirmation' ? 'text-[#FF613c]' : ''"
           >
-            Confirm:
+            Confirm
           </div>
         </div>
         <div class="px-16 relative">
           <ChevronRightIcon
             @click="rightButtonAction"
-            class="w-6 cursor-pointer h-6 bg-[#FF613c] text-white shadow p-1 rounded-full absolute right-0 top-[35px]"
+            class="w-6 cursor-pointer h-6 bg-[#FF613c] text-white shadow p-1.5 rounded-full absolute right-0 top-[35px]"
           />
           <ChevronLeftIcon
             @click="leftButtonAction"
-            class="w-6 cursor-pointer h-6 bg-[#FF613c] text-white shadow p-1 rounded-full absolute left-0 top-[35px]"
+            class="w-6 cursor-pointer h-6 bg-[#FF613c] text-white shadow p-1.5 rounded-full absolute left-0 top-[35px]"
           />
           <div class="pt-6" v-if="part == 'general'">
             <GeneralDetailPage :detail="detail" />
@@ -621,5 +648,41 @@ const hide = ref(false);
         </div>
       </div>
     </div>
+    <Modal :isOpen="showFailModal" @closeModal="showFailModal = false">
+      <DialogPanel
+        class="w-full max-w-sm transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start pb-20 pt-4 px-4"
+        >
+          <p></p>
+          <XCircleIcon
+            class="w-5 h-5 text-white"
+            @click="showFailModal = false"
+          />
+        </DialogTitle>
+        <!-- show date  -->
+        <div class="relative">
+          <div class="absolute -top-8 left-[43%]">
+            <img
+              :src="logo"
+              class="w-16 h-16 bg-white rounded-full p-3"
+              alt=""
+            />
+          </div>
+          <div class="py-10 text-center space-y-4">
+            <p class="font-medium text-lg text-[#FF613c]">Data Missing !</p>
+            <p class="text-xs">Please sure customer payment is paid</p>
+            <p
+              @click="goToFill"
+              class="cursor-pointer inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
+            >
+              Go To Fill Data
+            </p>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>

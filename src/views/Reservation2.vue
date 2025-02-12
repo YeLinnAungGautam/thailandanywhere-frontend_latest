@@ -158,6 +158,8 @@ const getDetailAction = async (id) => {
       id: detailId.value,
     },
   });
+
+  // showSide.value = false;
 };
 
 const adminLists = ref([]);
@@ -240,7 +242,9 @@ watch([adminAction], async ([newValue]) => {
 const getReservationListAction = async () => {
   const res = await reservationStore.getListAction(watchSystem.value);
   console.log(res, "this is reservation list");
-  await getDetailAction(res.result?.data[0]?.id);
+  if (detailId == "") {
+    await getDetailAction(res.result?.data[0]?.id);
+  }
 };
 
 const searchAction = async () => {
@@ -278,416 +282,455 @@ watch(dateRange, async (newValue) => {
 
 <template>
   <Layout :is_white="true">
-    <div
-      class="grid gap-4 relative"
-      :class="showSide ? 'grid-cols-3' : 'grid-cols-12'"
-    >
-      <div class="border shadow-sm rounded-lg p-4 slide-in" v-if="showSide">
-        <div class="pb-4 flex justify-start items-center gap-x-3 relative">
-          <div
-            @click="filterShow = !filterShow"
-            class="bg-blue-600 px-2 rounded-lg shadow py-1 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer"
-          >
-            <FunnelIcon class="w-5 h-5 text-white" />
-            <p>Filter</p>
-            <p>{{ searchCount }}</p>
-          </div>
-          <div
-            v-if="filterShow"
-            class="absolute top-full pb-3 px-4 left-0 w-[300px] transition-all duration-150 bg-white rounded-lg shadow-lg z-50 border border-gray-100 space-y-2 max-h-[50vh] overflow-y-scroll overflow-x-hidden slide-in"
-          >
+    <div class="grid gap-4 relative grid-cols-3">
+      <transition name="slide">
+        <div class="border shadow-sm rounded-lg p-4" v-if="showSide">
+          <div class="pb-4 flex justify-start items-center gap-x-3 relative">
             <div
-              class="flex justify-between items-center pt-4 border-b border-gray-100 pb-1 sticky top-0 bg-white"
+              @click="filterShow = !filterShow"
+              class="bg-blue-600 px-2 rounded-lg shadow py-1 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer"
             >
-              <p class="text-xs font-medium">Filter</p>
-              <XCircleIcon
-                class="w-6 h-6 text-[#FF613c] cursor-pointer"
-                @click="filterShow = !filterShow"
-              />
+              <FunnelIcon class="w-5 h-5 text-white" />
+              <p>Filter</p>
+              <p>{{ searchCount }}</p>
             </div>
-            <p class="text-[10px] pt-1">Product Type</p>
-            <div class="">
+            <transition name="slide">
               <div
-                class="flex items-center justify-start gap-1 overflow-x-scroll no-sidebar-container"
+                v-if="filterShow"
+                class="absolute top-full pb-3 px-4 left-0 w-[300px] transition-all duration-150 bg-white rounded-lg shadow-lg z-50 border border-gray-100 space-y-2 max-h-[50vh] overflow-y-scroll overflow-x-hidden"
               >
-                <p
-                  class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
-                  @click="searchValue('App\\Models\\Hotel')"
-                  :class="
-                    search == 'App\\Models\\Hotel'
-                      ? 'bg-[#ff613c] text-white'
-                      : ''
-                  "
+                <div
+                  class="flex justify-between items-center pt-4 border-b border-gray-100 pb-1 sticky top-0 bg-white"
                 >
-                  Hotel
-                </p>
-                <p
-                  class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1.5 border whitespace-nowrap border-gray-200 rounded-lg"
-                  @click="searchValue('App\\Models\\EntranceTicket')"
-                  :class="
-                    search == 'App\\Models\\EntranceTicket'
-                      ? 'bg-[#ff613c] text-white'
-                      : ''
-                  "
+                  <p class="text-xs font-medium">Filter</p>
+                  <XCircleIcon
+                    class="w-6 h-6 text-[#FF613c] cursor-pointer"
+                    @click="filterShow = !filterShow"
+                  />
+                </div>
+                <p class="text-[10px] pt-1">Product Type</p>
+                <div class="">
+                  <div
+                    class="flex items-center justify-start gap-1 overflow-x-scroll no-sidebar-container"
+                  >
+                    <p
+                      class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
+                      @click="searchValue('App\\Models\\Hotel')"
+                      :class="
+                        search == 'App\\Models\\Hotel'
+                          ? 'bg-[#ff613c] text-white'
+                          : ''
+                      "
+                    >
+                      Hotel
+                    </p>
+                    <p
+                      class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1.5 border whitespace-nowrap border-gray-200 rounded-lg"
+                      @click="searchValue('App\\Models\\EntranceTicket')"
+                      :class="
+                        search == 'App\\Models\\EntranceTicket'
+                          ? 'bg-[#ff613c] text-white'
+                          : ''
+                      "
+                    >
+                      Entrance Ticket
+                    </p>
+                    <p
+                      class="text-[10px] px-2 whitespace-nowrap cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
+                      @click="searchValue('App\\Models\\PrivateVanTour')"
+                      :class="
+                        search == 'App\\Models\\PrivateVanTour'
+                          ? 'bg-[#ff613c] text-white'
+                          : ''
+                      "
+                    >
+                      Private Van tour
+                    </p>
+                    <p
+                      class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
+                      @click="searchValue('App\\Models\\Airline')"
+                      :class="
+                        search == 'App\\Models\\Airline'
+                          ? 'bg-[#ff613c] text-white'
+                          : ''
+                      "
+                    >
+                      Airline
+                    </p>
+                  </div>
+                </div>
+                <p class="text-[10px]">User</p>
+                <select
+                  name=""
+                  id=""
+                  v-model="userFilter"
+                  class="px-2 py-1 focus:outline-none border border-gray-300 placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 text-[10px] md:w-full text-gray-400 space-y-2 h-9"
                 >
-                  Entrance Ticket
-                </p>
-                <p
-                  class="text-[10px] px-2 whitespace-nowrap cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
-                  @click="searchValue('App\\Models\\PrivateVanTour')"
-                  :class="
-                    search == 'App\\Models\\PrivateVanTour'
-                      ? 'bg-[#ff613c] text-white'
-                      : ''
-                  "
+                  <option :value="null" disabled class="bg-gray-200 text-sm">
+                    Filter By User
+                  </option>
+                  <option value="" class="text-[12px]">All User</option>
+                  <option
+                    :value="key.id"
+                    v-for="(key, index) in adminLists"
+                    :key="index"
+                    class="text-[12px]"
+                  >
+                    {{ key.name }}
+                  </option>
+                </select>
+                <p class="text-[10px]">Service Date</p>
+                <div>
+                  <VueDatePicker
+                    v-model="searchTime"
+                    :format="'yyyy-MM-dd'"
+                    placeholder="Service Date"
+                    text-input
+                  />
+                </div>
+                <p class="text-[10px]">Product</p>
+                <div
+                  class="flex justify-center items-center"
+                  v-if="search == 'App\\Models\\Hotel'"
                 >
-                  Private Van tour
-                </p>
-                <p
-                  class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
-                  @click="searchValue('App\\Models\\Airline')"
-                  :class="
-                    search == 'App\\Models\\Airline'
-                      ? 'bg-[#ff613c] text-white'
-                      : ''
-                  "
+                  <div
+                    v-if="!hotelAction"
+                    @click="hotelAction = true"
+                    class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-lg bg-white px-4 py-1.5 w-full"
+                  >
+                    <p class="text-[10px]">
+                      {{ hotel_name ? hotel_name : "Hotel search" }}
+                    </p>
+                  </div>
+                  <div v-if="hotelAction" class="w-full">
+                    <div class="flex justify-between items-center pb-2">
+                      <p class="text-[10px]">Hotel</p>
+                      <XMarkIcon
+                        class="w-4 h-4 cursor-pointer"
+                        @click="hotelAction = !hotelAction"
+                      />
+                    </div>
+                    <HotelUnlimited @selectAction="ChangeHotelName" />
+                  </div>
+                </div>
+                <div
+                  class="flex justify-center items-center"
+                  v-if="search == 'App\\Models\\EntranceTicket'"
                 >
-                  Airline
-                </p>
+                  <div
+                    v-if="!entranceAction"
+                    @click="entranceAction = true"
+                    class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-lg bg-white px-4 py-1.5 w-full"
+                  >
+                    <p class="text-[10px]">
+                      {{
+                        attraction_name ? attraction_name : "Attraction search"
+                      }}
+                    </p>
+                  </div>
+                  <div v-if="entranceAction" class="w-full">
+                    <div class="flex justify-between items-center pb-2">
+                      <p class="text-[10px]">Attraction</p>
+                      <XMarkIcon
+                        class="w-4 h-4 cursor-pointer"
+                        @click="entranceAction = !entranceAction"
+                      />
+                    </div>
+                    <AttractionUnlimited @selectAction="ChangeAttractionName" />
+                  </div>
+                </div>
+                <div>
+                  <p class="text-[10px] pb-2">Customer Payment Status</p>
+                  <!-- customer payment status -->
+                  <select
+                    name=""
+                    id=""
+                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option class="text-[10px]" value=""></option>
+                    <option class="text-[10px]" value="fully_paid">
+                      Fully paid
+                    </option>
+                    <option class="text-[10px]" value="partially_paid">
+                      Partially paid
+                    </option>
+                    <option class="text-[10px]" value="not_paid">
+                      Not paid
+                    </option>
+                  </select>
+                </div>
+                <div>
+                  <p class="text-[10px] pb-2">Expense Status</p>
+                  <!-- expense status -->
+                  <select
+                    name=""
+                    id=""
+                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option class="text-[10px]" value=""></option>
+                    <option class="text-[10px]" value="fully_paid">
+                      Fully paid
+                    </option>
+
+                    <option class="text-[10px]" value="not_paid">
+                      Not paid
+                    </option>
+                  </select>
+                </div>
+                <div>
+                  <p class="text-[10px] pb-2">Passport Status</p>
+                  <!-- passport status -->
+                  <select
+                    name=""
+                    id=""
+                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option class="text-[10px]" value=""></option>
+                    <option class="text-[10px]" value="missing">Missing</option>
+
+                    <option class="text-[10px]" value="included">
+                      Included
+                    </option>
+                  </select>
+                </div>
+                <div>
+                  <p class="text-[10px] pb-2">Booking Status</p>
+                  <!-- passport status -->
+                  <select
+                    name=""
+                    id=""
+                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option class="text-[10px]" value=""></option>
+                    <option class="text-[10px]" value="email_sent">
+                      Email Sent
+                    </option>
+
+                    <option class="text-[10px]" value="email_not_sent">
+                      Email not Sent
+                    </option>
+                  </select>
+                </div>
+                <div>
+                  <p class="text-[10px] pb-2">Confirmation</p>
+                  <!-- passport status -->
+                  <select
+                    name=""
+                    id=""
+                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option class="text-[10px]" value=""></option>
+                    <option class="text-[10px]" value="included">
+                      Included
+                    </option>
+
+                    <option class="text-[10px]" value="not_included">
+                      Not Included
+                    </option>
+                  </select>
+                </div>
+                <div>
+                  <p class="text-[10px] pb-2">Invoice</p>
+                  <!-- passport status -->
+                  <select
+                    name=""
+                    id=""
+                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option class="text-[10px]" value=""></option>
+                    <option class="text-[10px]" value="included">
+                      Included
+                    </option>
+
+                    <option class="text-[10px]" value="not_included">
+                      Not Included
+                    </option>
+                  </select>
+                </div>
               </div>
+            </transition>
+            <div
+              class="bg-white shadow rounded-full border border-gray-100 p-2"
+              @click="softShow = !softShow"
+            >
+              <ArrowsUpDownIcon class="w-3 h-3" />
             </div>
-            <p class="text-[10px]">User</p>
-            <select
+            <transition name="slide">
+              <div
+                v-if="softShow"
+                class="absolute top-full pb-3 px-4 left-0 w-[200px] transition-all duration-150 bg-white rounded-lg shadow-lg z-50 border border-gray-100 space-y-2 max-h-[70vh] overflow-y-scroll"
+              >
+                <div
+                  class="flex justify-between items-center pt-4 border-b border-gray-100 pb-1 sticky top-0 bg-white"
+                >
+                  <p class="text-xs font-medium">Sort</p>
+                  <XCircleIcon
+                    class="w-6 h-6 text-[#FF613c] cursor-pointer"
+                    @click="softShow = !softShow"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <div class="flex justify-start items-center">
+                    <input type="checkbox" name="sort-by" id="id" />
+                    <p class="text-xs py-2 px-4">Service Date</p>
+                  </div>
+                  <div class="flex justify-start items-center">
+                    <input type="checkbox" name="sort-by" id="id" />
+                    <p class="text-xs py-2 px-4">Expense Status</p>
+                  </div>
+                  <div class="flex justify-start items-center">
+                    <input type="checkbox" name="sort-by" id="id" />
+                    <p class="text-xs py-2 px-4">C. Payment Status</p>
+                  </div>
+                </div>
+              </div>
+            </transition>
+            <input
+              type="search"
               name=""
+              v-model="searchId"
+              placeholder="Search CRM ID"
+              class="w-full px-4 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
               id=""
-              v-model="userFilter"
-              class="px-2 py-1 focus:outline-none border border-gray-300 placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 text-[10px] md:w-full text-gray-400 space-y-2 h-9"
+            />
+            <p
+              class="text-[12px] bg-[#FF613c] px-2 py-1.5 rounded-lg text-white cursor-pointer"
+              @click="searchAction"
             >
-              <option :value="null" disabled class="bg-gray-200 text-sm">
-                Filter By User
-              </option>
-              <option value="" class="text-[12px]">All User</option>
-              <option
-                :value="key.id"
-                v-for="(key, index) in adminLists"
-                :key="index"
-                class="text-[12px]"
-              >
-                {{ key.name }}
-              </option>
-            </select>
-            <p class="text-[10px]">Service Date</p>
-            <div>
-              <VueDatePicker
-                v-model="searchTime"
-                :format="'yyyy-MM-dd'"
-                placeholder="Service Date"
-                text-input
-              />
-            </div>
-            <p class="text-[10px]">Product</p>
-            <div
-              class="flex justify-center items-center"
+              Search
+            </p>
+          </div>
+          <div class="flex justify-start items-center space-x-2 pb-4">
+            <p
+              v-if="search == 'App\\Models\\PrivateVanTour'"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg"
+            >
+              Van Tour
+            </p>
+            <p
               v-if="search == 'App\\Models\\Hotel'"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg"
             >
-              <div
-                v-if="!hotelAction"
-                @click="hotelAction = true"
-                class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-lg bg-white px-4 py-1.5 w-full"
-              >
-                <p class="text-[10px]">
-                  {{ hotel_name ? hotel_name : "Hotel search" }}
-                </p>
-              </div>
-              <div v-if="hotelAction" class="w-full">
-                <div class="flex justify-between items-center pb-2">
-                  <p class="text-[10px]">Hotel</p>
-                  <XMarkIcon
-                    class="w-4 h-4 cursor-pointer"
-                    @click="hotelAction = !hotelAction"
-                  />
-                </div>
-                <HotelUnlimited @selectAction="ChangeHotelName" />
-              </div>
-            </div>
-            <div
-              class="flex justify-center items-center"
+              Hotel
+            </p>
+            <p
               v-if="search == 'App\\Models\\EntranceTicket'"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg"
             >
-              <div
-                v-if="!entranceAction"
-                @click="entranceAction = true"
-                class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-lg bg-white px-4 py-1.5 w-full"
-              >
-                <p class="text-[10px]">
-                  {{ attraction_name ? attraction_name : "Attraction search" }}
-                </p>
-              </div>
-              <div v-if="entranceAction" class="w-full">
-                <div class="flex justify-between items-center pb-2">
-                  <p class="text-[10px]">Attraction</p>
-                  <XMarkIcon
-                    class="w-4 h-4 cursor-pointer"
-                    @click="entranceAction = !entranceAction"
-                  />
-                </div>
-                <AttractionUnlimited @selectAction="ChangeAttractionName" />
-              </div>
-            </div>
-            <div>
-              <p class="text-[10px] pb-2">Customer Payment Status</p>
-              <!-- customer payment status -->
-              <select
-                name=""
-                id=""
-                class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-              >
-                <option class="text-[10px]" value=""></option>
-                <option class="text-[10px]" value="fully_paid">
-                  Fully paid
-                </option>
-                <option class="text-[10px]" value="partially_paid">
-                  Partially paid
-                </option>
-                <option class="text-[10px]" value="not_paid">Not paid</option>
-              </select>
-            </div>
-            <div>
-              <p class="text-[10px] pb-2">Expense Status</p>
-              <!-- expense status -->
-              <select
-                name=""
-                id=""
-                class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-              >
-                <option class="text-[10px]" value=""></option>
-                <option class="text-[10px]" value="fully_paid">
-                  Fully paid
-                </option>
-
-                <option class="text-[10px]" value="not_paid">Not paid</option>
-              </select>
-            </div>
-            <div>
-              <p class="text-[10px] pb-2">Passport Status</p>
-              <!-- passport status -->
-              <select
-                name=""
-                id=""
-                class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-              >
-                <option class="text-[10px]" value=""></option>
-                <option class="text-[10px]" value="missing">Missing</option>
-
-                <option class="text-[10px]" value="included">Included</option>
-              </select>
-            </div>
-            <div>
-              <p class="text-[10px] pb-2">Booking Status</p>
-              <!-- passport status -->
-              <select
-                name=""
-                id=""
-                class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-              >
-                <option class="text-[10px]" value=""></option>
-                <option class="text-[10px]" value="email_sent">
-                  Email Sent
-                </option>
-
-                <option class="text-[10px]" value="email_not_sent">
-                  Email not Sent
-                </option>
-              </select>
-            </div>
-            <div>
-              <p class="text-[10px] pb-2">Confirmation</p>
-              <!-- passport status -->
-              <select
-                name=""
-                id=""
-                class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-              >
-                <option class="text-[10px]" value=""></option>
-                <option class="text-[10px]" value="included">Included</option>
-
-                <option class="text-[10px]" value="not_included">
-                  Not Included
-                </option>
-              </select>
-            </div>
-            <div>
-              <p class="text-[10px] pb-2">Invoice</p>
-              <!-- passport status -->
-              <select
-                name=""
-                id=""
-                class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-              >
-                <option class="text-[10px]" value=""></option>
-                <option class="text-[10px]" value="included">Included</option>
-
-                <option class="text-[10px]" value="not_included">
-                  Not Included
-                </option>
-              </select>
-            </div>
+              Attraction
+            </p>
+            <p
+              v-if="search == 'App\\Models\\Airline'"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg"
+            >
+              Airline
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg"
+              v-if="userName != undefined"
+            >
+              {{ userName }}
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg"
+              v-if="!searchTime"
+            >
+              {{ sale_daterange }}
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg"
+              v-if="searchTime"
+            >
+              {{ formatDate(searchTime) }}
+            </p>
           </div>
           <div
-            class="bg-white shadow rounded-full border border-gray-100 p-2"
-            @click="softShow = !softShow"
-          >
-            <ArrowsUpDownIcon class="w-3 h-3" />
-          </div>
-          <div
-            v-if="softShow"
-            class="absolute top-full pb-3 px-4 left-0 w-[200px] transition-all duration-150 bg-white rounded-lg shadow-lg z-50 border border-gray-100 space-y-2 max-h-[70vh] overflow-y-scroll slide-in"
+            v-if="!loading"
+            class="bg-white shadow rounded-lg divide-y divide-gray-100 max-h-[65vh] overflow-y-scroll"
           >
             <div
-              class="flex justify-between items-center pt-4 border-b border-gray-100 pb-1 sticky top-0 bg-white"
+              class=""
+              v-for="i in reservations?.data ?? []"
+              :key="i"
+              @click="getDetailAction(i.id)"
             >
-              <p class="text-xs font-medium">Sort</p>
-              <XCircleIcon
-                class="w-6 h-6 text-[#FF613c] cursor-pointer"
-                @click="softShow = !softShow"
-              />
-            </div>
-            <div class="space-y-1">
-              <div class="flex justify-start items-center">
-                <input type="checkbox" name="sort-by" id="id" />
-                <p class="text-xs py-2 px-4">Service Date</p>
-              </div>
-              <div class="flex justify-start items-center">
-                <input type="checkbox" name="sort-by" id="id" />
-                <p class="text-xs py-2 px-4">Expense Status</p>
-              </div>
-              <div class="flex justify-start items-center">
-                <input type="checkbox" name="sort-by" id="id" />
-                <p class="text-xs py-2 px-4">C. Payment Status</p>
-              </div>
+              <ListReservation :data="i" :detailId="detailId" />
             </div>
           </div>
-          <input
-            type="search"
-            name=""
-            v-model="searchId"
-            placeholder="Search CRM ID"
-            class="w-full px-4 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-            id=""
-          />
-          <p
-            class="text-[12px] bg-[#FF613c] px-2 py-1.5 rounded-lg text-white cursor-pointer"
-            @click="searchAction"
-          >
-            Search
-          </p>
-        </div>
-        <div class="flex justify-start items-center space-x-2 pb-4">
-          <p
-            v-if="search == 'App\\Models\\PrivateVanTour'"
-            class="text-[12px] shadow px-2 py-0.5 rounded-lg"
-          >
-            Van Tour
-          </p>
-          <p
-            v-if="search == 'App\\Models\\Hotel'"
-            class="text-[12px] shadow px-2 py-0.5 rounded-lg"
-          >
-            Hotel
-          </p>
-          <p
-            v-if="search == 'App\\Models\\EntranceTicket'"
-            class="text-[12px] shadow px-2 py-0.5 rounded-lg"
-          >
-            Attraction
-          </p>
-          <p
-            v-if="search == 'App\\Models\\Airline'"
-            class="text-[12px] shadow px-2 py-0.5 rounded-lg"
-          >
-            Airline
-          </p>
-          <p
-            class="text-[12px] shadow px-2 py-0.5 rounded-lg"
-            v-if="userName != undefined"
-          >
-            {{ userName }}
-          </p>
-          <p
-            class="text-[12px] shadow px-2 py-0.5 rounded-lg"
-            v-if="!searchTime"
-          >
-            {{ sale_daterange }}
-          </p>
-          <p
-            class="text-[12px] shadow px-2 py-0.5 rounded-lg"
-            v-if="searchTime"
-          >
-            {{ formatDate(searchTime) }}
-          </p>
-        </div>
-        <div
-          v-if="!loading"
-          class="bg-white shadow rounded-lg divide-y divide-gray-100 max-h-[65vh] overflow-y-scroll"
-        >
+          <div class="overflow-x-scroll scroll-container py-2">
+            <Pagination
+              v-if="!loading"
+              :data="reservations"
+              @change-page="changePage"
+            />
+          </div>
           <div
-            class=""
-            v-for="i in reservations?.data ?? []"
-            :key="i"
-            @click="getDetailAction(i.id)"
+            v-if="loading"
+            class="bg-white shadow rounded-lg divide-y-4 divide-gray-200 max-h-[75vh] overflow-y-scroll"
           >
-            <ListReservation :data="i" :detailId="detailId" />
+            <div class="" v-for="i in 10 ?? []" :key="i">
+              <ReservationCartLoadingVue />
+            </div>
           </div>
         </div>
-        <div class="overflow-x-scroll scroll-container py-2">
-          <Pagination
-            v-if="!loading"
-            :data="reservations"
-            @change-page="changePage"
-          />
-        </div>
-        <div
-          v-if="loading"
-          class="bg-white shadow rounded-lg divide-y-4 divide-gray-200 max-h-[75vh] overflow-y-scroll"
-        >
-          <div class="" v-for="i in 10 ?? []" :key="i">
-            <ReservationCartLoadingVue />
+      </transition>
+
+      <transition name="slide">
+        <div class="relative" :class="showSide ? 'col-span-2' : 'col-span-3'">
+          <div
+            class="absolute top-1/2 -left-4 z-20"
+            @click="showSide = !showSide"
+          >
+            <ChevronLeftIcon
+              class="w-6 cursor-pointer h-6 bg-[#FF613c] text-white shadow p-1.5 rounded-full"
+              v-if="showSide"
+            />
+            <ChevronRightIcon
+              class="w-6 cursor-pointer h-6 bg-[#FF613c] text-white shadow p-1.5 rounded-full"
+              v-if="!showSide"
+            />
+          </div>
+
+          <div
+            class="border shadow-sm rounded-lg p-4 h-[85vh] transition duration-150 overflow-y-scroll"
+          >
+            <ReservationDetail />
           </div>
         </div>
-      </div>
-      <div class="absolute top-1/2 -left-4 z-20" @click="showSide = !showSide">
-        <ChevronLeftIcon
-          class="w-6 h-6 text-white bg-[#ff613c] p-2 shadow rounded-full"
-          v-if="showSide"
-        />
-        <ChevronRightIcon
-          class="w-6 h-6 text-white bg-[#ff613c] p-2 shadow rounded-full"
-          v-if="!showSide"
-        />
-      </div>
-      <div
-        class="border shadow-sm rounded-lg p-4 h-[85vh] overflow-y-scroll relative"
-        :class="showSide ? 'col-span-2' : 'col-span-12 ml-4'"
-      >
-        <ReservationDetail />
-      </div>
+      </transition>
     </div>
   </Layout>
 </template>
 
 <style scoped>
-.slide-in {
-  animation: slideIn 0.5s ease-out;
+/* Slide-in and slide-out animations */
+.slide-enter-active {
+  animation: slideIn 0.3s ease-out;
+}
+
+.slide-leave-active {
+  animation: slideOut 0.3s ease-in;
 }
 
 @keyframes slideIn {
   from {
-    transform: translateX(-100%); /* Start from the left */
-    opacity: 0; /* Optional: Fade in */
+    transform: translateX(-100%);
+    opacity: 0;
   }
   to {
-    transform: translateX(0); /* End at the original position */
-    opacity: 1; /* Optional: Fade in */
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
   }
 }
 </style>

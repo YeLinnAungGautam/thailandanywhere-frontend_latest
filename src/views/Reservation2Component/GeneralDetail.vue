@@ -1,27 +1,5 @@
 <template>
   <div class="space-y-3">
-    <!-- <p class="font-medium pb-2">Payment Detail</p> -->
-    <!-- <div class="flex justify-start items-center gap-x-3">
-      <p
-        class="text-xs px-3 py-0.5 inline-block text-white rounded-lg"
-        :class="{
-          'bg-green-500': detail?.booking.payment_status == 'fully_paid',
-          'bg-red-500': detail?.booking.payment_status != 'fully_paid',
-        }"
-      >
-        {{ detail?.booking.payment_status }}
-      </p>
-      <p
-        class="text-xs px-3 py-0.5 inline-block text-white rounded-lg bg-[#FF613c]"
-      >
-        {{ detail?.crm_id }}
-      </p>
-      <p
-        class="text-xs px-3 py-0.5 inline-block text-white rounded-lg bg-[#FF613c]"
-      >
-        res code
-      </p>
-    </div> -->
     <div class="grid grid-cols-5 col-span-2 gap-4 py-3">
       <div
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
@@ -84,6 +62,13 @@
         <p class="text-sm">-</p>
       </div>
     </div>
+    <div>
+      <p
+        class="px-2 py-1 bg-[#FF613c] text-white inline-block text-xs rounded-lg"
+      >
+        {{ detail?.crm_id }}
+      </p>
+    </div>
     <div
       class="pt-2 grid grid-cols-4 gap-x-4"
       v-if="detail?.booking?.receipts.length > 0"
@@ -107,6 +92,7 @@
           />
         </div>
         <div
+          @click="openModal(i)"
           class="w-full px-4 pb-1 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
         >
           <p class="text-[12px] flex justify-start items-center pt-2">
@@ -138,7 +124,10 @@
           class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
         >
           <p>Payment Slip Audit</p>
-          <XCircleIcon class="w-5 h-5 text-white" />
+          <XCircleIcon
+            class="w-5 h-5 text-white"
+            @click="carModalOpen = false"
+          />
         </DialogTitle>
         <!-- show date  -->
         <div class="p-4">

@@ -2,12 +2,12 @@
   <div>
     <div class="flex justify-between items-center">
       <!-- <p class="font-medium pb-2">Expense Detail</p> -->
-      <p
+      <!-- <p
         class="bg-[#FF613c] text-white px-1.5 cursor-pointer inline-block rounded-full"
         @click.prevent="openFilePickerThree"
       >
         +
-      </p>
+      </p> -->
     </div>
     <div class="col-span-2 h-1 overflow-hidden">
       <input type="text" class="opacity-0" name="" />
@@ -144,19 +144,59 @@
             class="grid grid-cols-4 gap-4"
             v-if="formData.booking_receipt_image?.length != 0"
           >
+            <div class="space-y-2" @click="carModalOpen = true">
+              <div
+                class="w-full h-[205px] border border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
+              >
+                +
+              </div>
+              <div
+                class="w-full px-4 pb-1 border-dashed border border-[#FF613c] space-y-2 text-[#FF613c] hover:shadow-none rounded-lg"
+              >
+                <p class="text-[10px] flex justify-start items-center pt-2">
+                  <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
+                  Bank Name
+                </p>
+                <p class="text-[10px] flex justify-start items-center">
+                  <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
+                  Amount
+                </p>
+                <p class="text-[10px] flex justify-start items-center pb-2">
+                  <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
+                  Date
+                </p>
+              </div>
+            </div>
             <div
               v-for="(image, index) in formData.booking_receipt_image"
               :key="index"
+              class="relative"
             >
-              <span
-                ><i
-                  class="fa-solid fa-trash-can text-lg text-red-500"
+              <p class="absolute right-2 -top-4 bg-white p-1 rounded-lg">
+                <i
+                  class="fa-solid fa-trash-can text-base text-red-500"
                   @click="deleteImage(image.id, index)"
-                ></i
-              ></span>
+                ></i>
+              </p>
               <a :href="image.file" target="_blink">
-                <img :src="image.file" alt="" />
+                <img :src="image.file" alt="" class="rounded-lg" />
               </a>
+              <div
+                class="w-full px-4 pb-1 mt-2 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
+              >
+                <p class="text-[10px] flex justify-start items-center pt-2">
+                  <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
+                  Bank Name
+                </p>
+                <p class="text-[10px] flex justify-start items-center">
+                  <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
+                  Amount
+                </p>
+                <p class="text-[10px] flex justify-start items-center pb-2">
+                  <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
+                  Date
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -172,6 +212,97 @@
         </div>
       </div>
     </div>
+    <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
+      <DialogPanel
+        class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
+        >
+          <p>Expense Add</p>
+          <XCircleIcon
+            class="w-5 h-5 text-white"
+            @click="carModalOpen = false"
+          />
+        </DialogTitle>
+        <!-- show date  -->
+        <div class="p-4">
+          <div class="p-4">
+            <div class="grid grid-cols-2 gap-8">
+              <div
+                class="w-[200px] h-[280px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+              >
+                +
+              </div>
+              <div class="space-y-4 relative pt-4">
+                <div class="space-x-6">
+                  <label for="" class="text-[12px] font-medium"
+                    >Bank <span class="opacity-0">.....</span></label
+                  >
+                  <input
+                    type="text"
+                    name=""
+                    placeholder="name"
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+                <div class="space-x-6">
+                  <label for="" class="text-[12px] font-medium">Amount</label>
+                  <input
+                    type="text"
+                    name=""
+                    placeholder="passport"
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+                <div class="space-x-6">
+                  <label for="" class="text-[12px] font-medium"
+                    >Date <span class="opacity-0">......</span></label
+                  >
+                  <input
+                    type="date"
+                    name=""
+                    placeholder=""
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+                <div class="space-x-3 flex justify-start items-start">
+                  <label for="" class="text-[12px] font-medium">Comment</label>
+                  <textarea
+                    class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[160px]"
+                  >
+                  </textarea>
+                </div>
+
+                <div
+                  class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
+                >
+                  <p
+                    class="px-3 py-1 bg-gray-500 text-white text-[12px] cursor-pointer rounded-lg"
+                  >
+                    Save
+                  </p>
+                  <p
+                    @click="
+                      () => {
+                        carModalOpen = false;
+                      }
+                    "
+                    class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
+                  >
+                    Close
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
@@ -180,6 +311,8 @@ import { XCircleIcon } from "@heroicons/vue/24/outline";
 import { ref, defineProps, onMounted } from "vue";
 import { useToast } from "vue-toastification";
 import { useReservationStore } from "../../stores/reservation";
+import Modal from "../../components/Modal.vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const toast = useToast();
 const reservationStore = useReservationStore();
@@ -187,6 +320,8 @@ const reservationStore = useReservationStore();
 const props = defineProps({
   data: Object,
 });
+
+const carModalOpen = ref(false);
 
 const fileInputThree = ref(null);
 

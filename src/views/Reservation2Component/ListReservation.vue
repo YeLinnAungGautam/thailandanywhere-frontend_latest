@@ -1,7 +1,16 @@
 <template>
-  <div class="px-4 pb-2 relative cursor-pointer">
+  <div
+    class="px-4 pb-2 relative cursor-pointer"
+    :class="data?.id == detailId ? 'bg-[#FF613c]/20 shadow-lg' : ''"
+  >
     <div
-      class="absolute top-[36px] left-3 rounded-full w-2 h-2 bg-[#FF613c]"
+      class="absolute top-[36px] left-3 rounded-full w-2 h-2"
+      :class="{
+        'bg-blue-600': data.product_type === 'App\\Models\\EntranceTicket',
+        'bg-green-600': data.product_type === 'App\\Models\\Hotel',
+        'bg-yellow-600': data.product_type === 'App\\Models\\PrivateVanTour',
+        'bg-red-600': data.product_type === 'App\\Models\\AirportPickup',
+      }"
     ></div>
     <div class="pl-5 pt-2 gap-y-4 gap-x-3">
       <div class="flex justify-between items-center">
@@ -60,9 +69,11 @@
           </p>
         </div>
       </div>
-      <div class="py-2 flex justify-start items-center gap-x-2">
+      <div
+        class="py-2 flex justify-start overflow-x-scroll no-sidebar-container items-center gap-x-2"
+      >
         <p
-          class="text-xs px-1 py-0.5 text-white inline-block rounded-lg"
+          class="text-[10px] px-1 py-0.5 text-white inline-block rounded-lg"
           :class="{
             'bg-blue-600': data.product_type === 'App\\Models\\EntranceTicket',
             'bg-green-600': data.product_type === 'App\\Models\\Hotel',
@@ -83,20 +94,22 @@
           }}
         </p>
         <p
-          class="text-xs bg-[#ff613c] px-1 py-0.5 text-white inline-block rounded-lg"
+          class="text-[10px] bg-[#ff613c] whitespace-nowrap px-1 py-0.5 text-white inline-block rounded-lg"
         >
           {{ data?.crm_id }}
         </p>
         <p
-          class="text-xs bg-gray-600 px-1 py-0.5 text-white inline-block rounded-lg"
+          class="text-[10px] bg-gray-600 px-1 py-0.5 text-white whitespace-nowrap inline-block rounded-lg"
         >
           {{ data.customer_info?.name }}
         </p>
       </div>
       <div class="flex justify-between items-center">
-        <p class="text-[14px] font-medium space-x-2 text-gray-900 line-clamp-1">
+        <p class="text-[12px] font-medium space-x-2 text-gray-900 line-clamp-1">
           <span>{{ data.product?.name }}</span>
-          <span class="bg-gray-900 w-1 h-1 rounded-full inline-block"></span
+          <span
+            class="bg-gray-900 w-1 h-1 mb-0.5 rounded-full inline-block"
+          ></span
           ><span v-if="data.product_type == 'App\\Models\\EntranceTicket'">{{
             data.variation?.name
           }}</span>
@@ -128,6 +141,149 @@
         </p>
       </div>
     </div>
+    <div
+      class="flex justify-start overflow-x-scroll no-sidebar-container space-x-4 pt-2 pl-4 items-center transition-all duration-150"
+    >
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="data?.booking?.payment_status == 'fully_paid'"
+      >
+        <CurrencyDollarIcon class="w-3 h-3 text-green-600" />
+        <p class="text-[10px] whitespace-nowrap text-green-600">
+          Customer paid
+        </p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="data?.booking?.payment_status == 'partially_paid'"
+      >
+        <CurrencyDollarIcon class="w-3 h-3 text-yellow-600" />
+        <p class="text-[10px] whitespace-nowrap text-yellow-600">
+          C.partially paid
+        </p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="data?.booking?.payment_status == 'not_paid'"
+      >
+        <CurrencyDollarIcon class="w-3 h-3 text-red-600" />
+        <p class="text-[10px] whitespace-nowrap text-red-600">C.not paid</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.payment_status == 'fully_paid' &&
+          data.product_type != 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <CreditCardIcon class="w-3 h-3 text-green-600" />
+        <p class="text-[10px] whitespace-nowrap text-green-600">Expense paid</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.payment_status == 'partially_paid' &&
+          data.product_type != 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <CreditCardIcon class="w-3 h-3 text-yellow-600" />
+        <p class="text-[10px] whitespace-nowrap text-yellow-600">
+          E.partially paid
+        </p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.payment_status == 'not_paid' &&
+          data.product_type != 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <CreditCardIcon class="w-3 h-3 text-red-600" />
+        <p class="text-[10px] whitespace-nowrap text-red-600">
+          Expense not paid
+        </p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.reservation_status == 'confirmed' &&
+          data.product_type != 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <CurrencyDollarIcon class="w-3 h-3 text-green-600" />
+        <p class="text-[10px] whitespace-nowrap text-green-600">
+          Confirmation recieved
+        </p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.reservation_status == 'awaiting' &&
+          data.product_type != 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <CurrencyDollarIcon class="w-3 h-3 text-yellow-600" />
+        <p class="text-[10px] whitespace-nowrap text-yellow-600">
+          Confirmation awaiting
+        </p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.reservation_status == 'declined' &&
+          data.product_type != 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <CurrencyDollarIcon class="w-3 h-3 text-red-600" />
+        <p class="text-[10px] whitespace-nowrap text-red-600">
+          Confirmation not recieved
+        </p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.reservation_car_info?.supplier_id != null &&
+          data.product_type == 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <TruckIcon class="w-3 h-3 text-green-600" />
+        <p class="text-[10px] whitespace-nowrap text-green-600">Supplier</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.reservation_car_info?.supplier_id == null &&
+          data.product_type == 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <TruckIcon class="w-3 h-3 text-yellow-600" />
+        <p class="text-[10px] whitespace-nowrap text-yellow-600">
+          Supplier Missing
+        </p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.reservation_car_info?.driver_id != null &&
+          data.product_type == 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <TruckIcon class="w-3 h-3 text-green-600" />
+        <p class="text-[10px] whitespace-nowrap text-green-600">Driver</p>
+      </div>
+      <div
+        class="flex justify-start space-x-1 items-center"
+        v-if="
+          data?.reservation_car_info?.driver_id == null &&
+          data.product_type == 'App\\Models\\PrivateVanTour'
+        "
+      >
+        <TruckIcon class="w-3 h-3 text-yellow-600" />
+        <p class="text-[10px] whitespace-nowrap text-yellow-600">
+          Driver Missing
+        </p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -153,7 +309,10 @@ import { useToast } from "vue-toastification";
 const authStore = useAuthStore();
 const toast = useToast();
 const reservationStore = useReservationStore();
-const props = defineProps(["data"]);
+const props = defineProps({
+  data: Object,
+  detailId: String,
+});
 
 const daysBetween = (a, b) => {
   console.log(a, b);

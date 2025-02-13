@@ -1,153 +1,292 @@
 <template>
   <div>
-    <div
-      class="max-h-[450px] overflow-y-scroll py-2 space-y-2 pr-1"
-      v-if="!loading"
-    >
-      <div class="flex justify-between items-center">
-        <p>Passport Information</p>
-        <p class="bg-[#FF613c] text-white px-1.5 inline-block rounded-full">
+    <div class="py-2 space-y-2 pr-1" v-if="!loading">
+      <div class="grid grid-cols-5 col-span-2 gap-4 py-3 relative">
+        <!-- <p
+          class="bg-[#FF613c] text-white px-1.5 inline-block absolute top-3 right-3 cursor-pointer rounded-full"
+          @click="openFileFeaturePicker"
+        >
           +
-        </p>
+        </p> -->
+        <div
+          class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+        >
+          <p class="text-[10px] text-gray-500">Adult Qty</p>
+          <p class="text-sm">{{ detail?.quantity }}</p>
+        </div>
+        <div
+          class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+        >
+          <p class="text-[10px] text-gray-500">Child Qty</p>
+          <p class="text-sm">-</p>
+        </div>
       </div>
-      <div class="grid grid-cols-2 gap-4">
-        <!-- <div class="col-span-2 pb-2">
-          <div class="text-xs font-medium text-black space-y-1">
-            <p>
-              <span
-                class="w-1.5 h-1.5 inline-block bg-black rounded-full mr-2 mb-0.5"
-              ></span
-              >{{ data?.product?.name }}
+
+      <div class="pt-2 grid grid-cols-4 gap-x-4">
+        <div class="space-y-2 pt-2" @click="carModalOpen = true">
+          <div
+            class="w-full h-[180px] border border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
+          >
+            +
+          </div>
+          <div
+            class="w-full px-4 pb-1 border-dashed border border-[#FF613c] space-y-2 text-[#FF613c] hover:shadow-none rounded-lg"
+          >
+            <p class="text-[10px] flex justify-start items-center pt-2">
+              <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
+              Name
             </p>
-
-            <p class="text-black/60 text-[10px]">
-              <span
-                class="w-1.5 h-1.5 inline-block bg-black rounded-full mr-2 mb-0.5"
-              ></span
-              >{{ data?.variation?.name || data?.room?.name }}
+            <p class="text-[10px] flex justify-start items-center">
+              <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
+              Passport No.
+            </p>
+            <p class="text-[10px] flex justify-start items-center pb-2">
+              <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
+              DOB
             </p>
           </div>
-        </div> -->
-
-        <div class="space-y-1">
-          <label for="" class="text-[12px] text-gray-500">Full Name</label>
-          <input
-            type="text"
-            v-model="editData.name"
-            name=""
-            class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-            id=""
-          />
         </div>
-        <div class="space-y-1">
-          <label for="" class="text-[12px] text-gray-500"
-            >Passport or ID Number</label
+        <div
+          v-for="i in editData.customer_passport_have ?? []"
+          :key="i"
+          class="flex flex-col relative justify-stretch group space-y-2 w-[160px]"
+        >
+          <p
+            @click="openPassportModal(i.file)"
+            class="absolute top-4 cursor-pointer text-[8px] shadow right-2 text-xs text-white bg-[#FF613c] px-2 py-0.5 rounded-lg"
           >
-          <input
-            type="text"
-            v-model="editData.passport"
-            name=""
-            class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-            id=""
-          />
-        </div>
-        <div class="space-y-1">
-          <label for="" class="text-[12px] text-gray-500">Phone Number</label>
-          <input
-            type="text"
-            v-model="editData.phone"
-            name=""
-            class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-            id=""
-          />
-        </div>
-        <div class="space-y-1">
-          <label for="" class="text-[12px] text-gray-500">Email</label>
-          <input
-            type="text"
-            v-model="editData.email"
-            name=""
-            class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-            id=""
-          />
-        </div>
-        <!-- <div class="space-y-1 col-span-2">
-          <label for="" class="text-[12px] text-gray-500">Add Passports</label>
-          <input
-            type="file"
-            ref="featureImageInput"
-            multiple
-            class="hidden"
-            @change="handlerFeatureFileChange"
-            accept="image/*"
-          />
-          <button
-            @click.prevent="openFileFeaturePicker"
-            class="text-sm text-[#ff613c]"
-          ></button>
-          <div
-            class="cursor-pointer mt-2 w-full h-[80px] border-2 border-dashed border-gray-300 rounded flex justify-center items-center"
-            @click.prevent="openFileFeaturePicker"
-          >
-            <span class="text-xs"
-              ><i
-                class="px-2 py-1 text-sm font-semibold text-white bg-[#ff613c] rounded-full shadow fa-solid fa-plus"
-              ></i
-            ></span>
+            <span class="text-[10px]">edit</span>
+          </p>
+          <div class="h-[180px] w-full">
+            <img
+              :src="i?.file"
+              class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
+              alt=""
+            />
           </div>
-        </div> -->
-        <!-- <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
           <div
-            class="relative"
-            v-for="(image, index) in featureImagePreview"
-            :key="index"
+            class="w-full px-4 pb-1 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
           >
-            <button
-              @click.prevent="removeFeatureSelectImage(index)"
-              class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
-            >
-              <XCircleIcon class="w-8 h-8 font-semibold" />
-            </button>
-
-            <img class="h-auto w-full rounded" :src="image" alt="" />
+            <p class="text-[10px] flex justify-start items-center pt-2">
+              <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
+              Name
+            </p>
+            <p class="text-[10px] flex justify-start items-center">
+              <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
+              Passport No.
+            </p>
+            <p class="text-[10px] flex justify-start items-center pb-2">
+              <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
+              DOB
+            </p>
           </div>
         </div>
-        <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
-          <div
-            class="relative"
-            v-for="(image, index) in editData.customer_passport_have"
-            :key="index"
-          >
-            <button
-              @click.prevent="removeFeatureDeleteImage(index, image.id)"
-              class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
-            >
-              <XCircleIcon class="w-8 h-8 font-semibold" />
-            </button>
-            <img class="h-auto w-full rounded" :src="image.file" alt="" />
-          </div>
-        </div> -->
       </div>
     </div>
-    <div class="pt-2 grid grid-cols-4 gap-x-4">
-      <div v-for="i in 3" :key="i">
-        <img :src="invoice" class="w-full rounded-lg" alt="" />
-      </div>
-    </div>
-    <div class="flex justify-end items-center gap-x-2 pt-2">
-      <button
-        @click="closeTravellerModal"
-        class="bg-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
+    <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
+      <DialogPanel
+        class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
       >
-        Cancel
-      </button>
-      <button
-        @click="addTravellerAction"
-        class="bg-[#ff613c] text-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
-      >
-        Add Traveller
-      </button>
-    </div>
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
+        >
+          <p>Passport Infomation Add</p>
+          <XCircleIcon
+            class="w-5 h-5 text-white"
+            @click="carModalOpen = false"
+          />
+        </DialogTitle>
+        <!-- show date  -->
+        <div class="p-4">
+          <!-- <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500">Full Name</label>
+              <input
+                type="text"
+                v-model="editData.name"
+                name=""
+                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              />
+            </div>
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500"
+                >Passport or ID Number</label
+              >
+              <input
+                type="text"
+                v-model="editData.passport"
+                name=""
+                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              />
+            </div>
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500"
+                >Phone Number</label
+              >
+              <input
+                type="text"
+                v-model="editData.phone"
+                name=""
+                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              />
+            </div>
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500">Email</label>
+              <input
+                type="text"
+                v-model="editData.email"
+                name=""
+                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              />
+            </div>
+            <div class="space-y-1 col-span-2">
+              <label for="" class="text-[12px] pr-4 text-gray-500"
+                >Customer Passports</label
+              >
+              <p
+                class="bg-[#FF613c] text-white px-1.5 inline-block cursor-pointer rounded-full"
+                @click="openFileFeaturePicker"
+              >
+                +
+              </p>
+              <input
+                type="file"
+                ref="featureImageInput"
+                multiple
+                class="hidden"
+                @change="handlerFeatureFileChange"
+                accept="image/*"
+              />
+            </div>
+            <label
+              for=""
+              class="text-[12px] text-gray-500"
+              v-if="featureImagePreview.length > 0"
+              >Preveiw Passports</label
+            >
+            <div class="grid grid-cols-4 col-span-2 gap-3 mt-4">
+              <div
+                class="relative"
+                v-for="(image, index) in featureImagePreview"
+                :key="index"
+              >
+                <button
+                  @click.prevent="removeFeatureSelectImage(index)"
+                  class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                >
+                  <XCircleIcon class="w-8 h-8 font-semibold" />
+                </button>
+
+                <img class="h-auto w-full rounded" :src="image" alt="" />
+              </div>
+            </div>
+            <div class="grid grid-cols-4 col-span-2 gap-3 mt-4">
+              <div
+                class="relative"
+                v-for="(image, index) in editData.customer_passport_have"
+                :key="index"
+              >
+                <button
+                  @click.prevent="removeFeatureDeleteImage(index, image.id)"
+                  class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                >
+                  <XCircleIcon class="w-8 h-8 font-semibold" />
+                </button>
+                <img class="h-auto w-full rounded" :src="image.file" alt="" />
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end items-center gap-x-2 pt-2">
+            <button
+              @click="addTravellerAction"
+              class="bg-[#ff613c] text-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
+            >
+              Add Traveller
+            </button>
+          </div> -->
+
+          <div class="p-4">
+            <div class="grid grid-cols-2 gap-8">
+              <div v-if="save" class="w-[200px] h-[200px]">
+                <img
+                  :src="save"
+                  class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
+                  alt=""
+                />
+              </div>
+              <div
+                v-if="!save"
+                class="w-[200px] h-[200px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+              >
+                +
+              </div>
+              <div class="space-y-4 relative pt-4">
+                <div class="space-x-6">
+                  <label for="" class="text-[12px] font-medium"
+                    >Name <span class="opacity-0">....</span></label
+                  >
+                  <input
+                    type="text"
+                    name=""
+                    placeholder="name"
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+                <div class="space-x-6">
+                  <label for="" class="text-[12px] font-medium">Passport</label>
+                  <input
+                    type="text"
+                    name=""
+                    placeholder="passport"
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+                <div class="space-x-6">
+                  <label for="" class="text-[12px] font-medium"
+                    >DOB <span class="opacity-0">.........</span></label
+                  >
+                  <input
+                    type="date"
+                    name=""
+                    placeholder=""
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+
+                <div
+                  class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
+                >
+                  <p
+                    class="px-3 py-1 bg-gray-500 text-white text-[12px] cursor-pointer rounded-lg"
+                  >
+                    Save
+                  </p>
+                  <p
+                    @click="
+                      () => {
+                        carModalOpen = closed;
+                        save = '';
+                      }
+                    "
+                    class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
+                  >
+                    Close
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
@@ -157,6 +296,8 @@ import { ref, defineProps, onMounted } from "vue";
 import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
 import invoice from "../../assets/invoice_exp.jpg";
+import Modal from "../../components/Modal.vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const reservationStore = useReservationStore();
 const toast = useToast();
@@ -170,11 +311,23 @@ const editData = ref({
   customer_passport_have: [],
 });
 
+const save = ref(null);
+
 const loading = ref(false);
 
+const carModalOpen = ref(false);
+
+const openModal = () => {
+  carModalOpen.value = true;
+};
+
+const openPassportModal = (data) => {
+  save.value = data;
+  carModalOpen.value = true;
+};
+
 const props = defineProps({
-  closeTravellerModal: Function,
-  data: Object,
+  detail: Object,
 });
 
 const featureImageInput = ref(null);
@@ -225,10 +378,9 @@ const addTravellerAction = async () => {
       );
     }
   }
-
   const res = await reservationStore.updateTravellerAction(
     frmData,
-    props.data?.id
+    props.detail?.id
   );
 
   console.log(res, "this is res");
@@ -239,33 +391,32 @@ const addTravellerAction = async () => {
   }
   // props.closeTravellerModal();
   setTimeout(() => {
-    props.closeTravellerModal();
     window.location.reload();
   }, 1000);
 };
 
 onMounted(() => {
-  if (props.data) {
+  if (props.detail) {
     loading.value = true;
     editData.value.name =
-      props.data?.associated_customer.length > 0
-        ? props.data?.associated_customer[0]?.name
+      props.detail?.associated_customer.length > 0
+        ? props.detail?.associated_customer[0]?.name
         : "";
     editData.value.passport =
-      props.data?.associated_customer.length > 0
-        ? props.data?.associated_customer[0]?.passport
+      props.detail?.associated_customer.length > 0
+        ? props.detail?.associated_customer[0]?.passport
         : "";
     editData.value.phone =
-      props.data?.associated_customer.length > 0
-        ? props.data?.associated_customer[0]?.phone
+      props.detail?.associated_customer.length > 0
+        ? props.detail?.associated_customer[0]?.phone
         : "";
     editData.value.email =
-      props.data?.associated_customer.length > 0
-        ? props.data?.associated_customer[0]?.email
+      props.detail?.associated_customer.length > 0
+        ? props.detail?.associated_customer[0]?.email
         : "";
     editData.value.customer_passport_have =
-      props.data?.customer_passports.length > 0
-        ? props.data?.customer_passports
+      props.detail?.customer_passports.length > 0
+        ? props.detail?.customer_passports
         : [];
 
     loading.value = false;

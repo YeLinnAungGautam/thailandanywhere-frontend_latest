@@ -1521,6 +1521,7 @@ onMounted(async () => {
             <div v-for="(image, index) in booking_confirm_letters" :key="index">
               <p class="text-xs mb-2 mt-2">
                 Booking Confirm Letter {{ index + 1 }}
+                <!-- Invoice Receipt {{ index + 1 }} -->
               </p>
               <a :href="image.file" target="_blink">
                 <img :src="image.file" alt="" />
@@ -2234,7 +2235,8 @@ onMounted(async () => {
                   formData.product_type == 'App\\Models\\Hotel'
                 "
               >
-                Booking Confirmation Letter
+                <!-- Booking Confirmation Letter -->
+                Invoice Receipt
               </p>
               <p class="text-gray-400 text-xs" v-else>Car Photos</p>
 

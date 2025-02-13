@@ -12,13 +12,13 @@
           class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
         >
           <p class="text-[10px] text-gray-500">Adult Qty</p>
-          <p class="text-sm">2</p>
+          <p class="text-sm">{{ detail?.quantity }}</p>
         </div>
         <div
           class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
         >
           <p class="text-[10px] text-gray-500">Child Qty</p>
-          <p class="text-sm">1</p>
+          <p class="text-sm">-</p>
         </div>
       </div>
 
@@ -327,8 +327,7 @@ const openPassportModal = (data) => {
 };
 
 const props = defineProps({
-  closeTravellerModal: Function,
-  data: Object,
+  detail: Object,
 });
 
 const featureImageInput = ref(null);
@@ -381,7 +380,7 @@ const addTravellerAction = async () => {
   }
   const res = await reservationStore.updateTravellerAction(
     frmData,
-    props.data?.id
+    props.detail?.id
   );
 
   console.log(res, "this is res");
@@ -397,27 +396,27 @@ const addTravellerAction = async () => {
 };
 
 onMounted(() => {
-  if (props.data) {
+  if (props.detail) {
     loading.value = true;
     editData.value.name =
-      props.data?.associated_customer.length > 0
-        ? props.data?.associated_customer[0]?.name
+      props.detail?.associated_customer.length > 0
+        ? props.detail?.associated_customer[0]?.name
         : "";
     editData.value.passport =
-      props.data?.associated_customer.length > 0
-        ? props.data?.associated_customer[0]?.passport
+      props.detail?.associated_customer.length > 0
+        ? props.detail?.associated_customer[0]?.passport
         : "";
     editData.value.phone =
-      props.data?.associated_customer.length > 0
-        ? props.data?.associated_customer[0]?.phone
+      props.detail?.associated_customer.length > 0
+        ? props.detail?.associated_customer[0]?.phone
         : "";
     editData.value.email =
-      props.data?.associated_customer.length > 0
-        ? props.data?.associated_customer[0]?.email
+      props.detail?.associated_customer.length > 0
+        ? props.detail?.associated_customer[0]?.email
         : "";
     editData.value.customer_passport_have =
-      props.data?.customer_passports.length > 0
-        ? props.data?.customer_passports
+      props.detail?.customer_passports.length > 0
+        ? props.detail?.customer_passports
         : [];
 
     loading.value = false;

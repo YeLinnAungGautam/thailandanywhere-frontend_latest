@@ -2,8 +2,8 @@
   <div>
     <div class="flex justify-start items-center gap-x-2">
       <!-- <p class="font-medium pb-2">Booking Request</p> -->
-      <CheckCircleIcon class="w-4 h-4 text-green-500" />
-      <p class="text-xs">Booking Request Sent</p>
+      <CheckCircleIcon class="w-4 h-4 text-red-500" />
+      <p class="text-xs">Is Booking Request Sent ?</p>
     </div>
     <div>
       <div class="grid grid-cols-1 gap-4 py-4 overflow-hidden rounded-xl">
@@ -75,8 +75,8 @@
                 class="w-full h-[50px] border border-[#FF613c] border-dashed flex justify-center items-center rounded-lg text-[#FF613c] cursor-pointer"
               >
                 <span
-                  class="ml-4 px-2 py-1 text-[10px] text-white bg-[#ff613c] rounded-lg"
-                  >+ add passport</span
+                  class="ml-4 px-2 py-1 text-[10px] text-[#ff613c] rounded-lg"
+                  >+ add file</span
                 >
               </div>
             </div>
@@ -114,12 +114,39 @@
           class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
         >
           <p>Attachments: Passports</p>
-          <XCircleIcon class="w-5 h-5 text-white" />
+          <XCircleIcon class="w-5 h-5 text-white" @click="showModal = false" />
         </DialogTitle>
         <!-- show date  -->
         <div class="p-4">
           <div class="grid grid-cols-3 gap-4">
-            <div class="w-full h-auto p-2 relative" v-for="i in 3" :key="i">
+            <div class="space-y-2 pt-2">
+              <div
+                class="w-full h-[180px] border border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
+              >
+                +
+              </div>
+              <div
+                class="w-full px-4 pb-1 border-dashed border border-[#FF613c] space-y-2 text-[#FF613c] hover:shadow-none rounded-lg"
+              >
+                <p class="text-[10px] flex justify-start items-center pt-2">
+                  <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
+                  Name
+                </p>
+                <p class="text-[10px] flex justify-start items-center">
+                  <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
+                  Passport No.
+                </p>
+                <p class="text-[10px] flex justify-start items-center pb-2">
+                  <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
+                  DOB
+                </p>
+              </div>
+            </div>
+            <div
+              class="w-full h-auto p-2 relative"
+              v-for="i in detail?.customer_passports ?? []"
+              :key="i"
+            >
               <input
                 type="checkbox"
                 name=""
@@ -148,7 +175,7 @@ import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
 import { useRoute } from "vue-router";
 import Swal from "sweetalert2";
-import { CheckCircleIcon } from "@heroicons/vue/24/solid";
+import { CheckCircleIcon, XCircleIcon } from "@heroicons/vue/24/outline";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 

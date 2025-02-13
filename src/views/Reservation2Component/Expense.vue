@@ -72,24 +72,24 @@
       <div
         class="space-y-2"
         v-if="
-          data.product_type == 'App\\Models\\EntranceTicket' ||
-          data.product_type == 'App\\Models\\Hotel' ||
-          data.product_type == 'App\\Models\\PrivateVanTour' ||
-          data.product_type == 'App\\Models\\GroupTour' ||
-          data.product_type == 'App\\Models\\Airline'
+          detail?.product_type == 'App\\Models\\EntranceTicket' ||
+          detail?.product_type == 'App\\Models\\Hotel' ||
+          detail?.product_type == 'App\\Models\\PrivateVanTour' ||
+          detail?.product_type == 'App\\Models\\GroupTour' ||
+          detail?.product_type == 'App\\Models\\Airline'
         "
       >
         <div class="space-y-2">
           <p class="text-gray-800 text-[10px]">Total Cost</p>
           <p
             class="h-9 w-full bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-            v-if="!data.checkin_date"
+            v-if="!detail?.checkin_date"
           >
             {{ formData.cost_price * formData.quantity }}
           </p>
           <p
             class="h-9 w-full bg-white border rounded-md border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-            v-if="data.checkin_date"
+            v-if="detail?.checkin_date"
           >
             {{ formData.cost_price * formData.hotalQuantity }}
           </p>
@@ -140,13 +140,10 @@
           >
             receipt slip
           </p>
-          <div
-            class="grid grid-cols-4 gap-4"
-            v-if="formData.booking_receipt_image?.length != 0"
-          >
+          <div class="grid grid-cols-4 gap-4">
             <div class="space-y-2" @click="carModalOpen = true">
               <div
-                class="w-full h-[205px] border border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
+                class="w-full h-[210px] border border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
               >
                 +
               </div>
@@ -168,7 +165,7 @@
               </div>
             </div>
             <div
-              v-for="(image, index) in formData.booking_receipt_image"
+              v-for="(image, index) in formData.booking_receipt_image ?? []"
               :key="index"
               class="relative"
             >
@@ -231,7 +228,7 @@
           <div class="p-4">
             <div class="grid grid-cols-2 gap-8">
               <div
-                class="w-[200px] h-[280px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+                class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
               >
                 +
               </div>
@@ -248,12 +245,27 @@
                     id=""
                   />
                 </div>
+                <div class="space-x-6 flex justify-start">
+                  <label for="" class="text-[12px] font-medium"
+                    >Bank ? <span class="opacity-0">..</span></label
+                  >
+                  <div class="flex justify-start items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      name=""
+                      placeholder="name"
+                      class="py-1.5 focus:outline-none text-xs"
+                      id=""
+                    />
+                    <p class="text-[12px]">Is collabrate ?</p>
+                  </div>
+                </div>
                 <div class="space-x-6">
                   <label for="" class="text-[12px] font-medium">Amount</label>
                   <input
-                    type="text"
+                    type="number"
                     name=""
-                    placeholder="passport"
+                    placeholder="xxx"
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
@@ -318,7 +330,7 @@ const toast = useToast();
 const reservationStore = useReservationStore();
 
 const props = defineProps({
-  data: Object,
+  detail: Object,
 });
 
 const carModalOpen = ref(false);
@@ -467,33 +479,33 @@ const daysBetween = (a, b) => {
 
 onMounted(() => {
   // Your initial data setup
-  if (props.data) {
-    console.log(props.data, "cart value");
+  if (props.detail) {
+    console.log(props.detail, "cart value");
   }
-  if (props.data) {
-    formData.value.id = props.data?.id;
-    formData.value.cost_price = props.data?.cost_price;
-    formData.value.payment_method = props.data?.payment_method;
+  if (props.detail) {
+    formData.value.id = props.detail?.id;
+    formData.value.cost_price = props.detail?.cost_price;
+    formData.value.payment_method = props.detail?.payment_method;
     formData.value.bank_name =
-      props.data?.reservation_info?.bank_name ||
-      props.data?.bank_name ||
-      props.data?.product.bank_name ||
+      props.detail?.reservation_info?.bank_name ||
+      props.detail?.bank_name ||
+      props.detail?.product.bank_name ||
       "";
     formData.value.bank_account_number =
-      props.data?.reservation_info?.bank_account_number ||
-      props.data?.bank_account_number ||
-      props.data?.product.bank_account_number ||
+      props.detail?.reservation_info?.bank_account_number ||
+      props.detail?.bank_account_number ||
+      props.detail?.product.bank_account_number ||
       "";
-    formData.value.payment_status = props.data?.payment_status;
+    formData.value.payment_status = props.detail?.payment_status;
     formData.value.hotalQuantity =
-      props.data?.quantity *
-      daysBetween(props.data?.checkin_date, props.data?.checkout_date);
-    formData.value.quantity = props.data?.quantity;
-    // formData.value.receipt_image = props.data?.receipt_image;
-    formData.value.booking_receipt_image = props.data?.receipt_images;
-    formData.value.product_type = props.data?.product_type;
+      props.detail?.quantity *
+      daysBetween(props.detail?.checkin_date, props.detail?.checkout_date);
+    formData.value.quantity = props.detail?.quantity;
+    // formData.value.receipt_image = props.detail?.receipt_image;
+    formData.value.booking_receipt_image = props.detail?.receipt_images;
+    formData.value.product_type = props.detail?.product_type;
     formData.value.customer_feedback =
-      props.data?.reservation_info?.customer_feedback || "";
+      props.detail?.reservation_info?.customer_feedback || "";
   }
 });
 </script>

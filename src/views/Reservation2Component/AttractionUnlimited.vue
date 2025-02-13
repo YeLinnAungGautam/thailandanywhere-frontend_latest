@@ -72,6 +72,7 @@ const emit = defineEmits("selectAction");
 const selectionAction = (data) => {
   selectItem.value = data.name;
   selectId.value = data.id;
+  search.value = data.name;
   emit("selectAction", selectItem.value);
 };
 

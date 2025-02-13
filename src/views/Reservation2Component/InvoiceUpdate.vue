@@ -82,6 +82,10 @@
               <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
               Invoice Date
             </p>
+            <p class="text-[10px] flex justify-start items-center">
+              <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
+              Company Name
+            </p>
             <p class="text-[10px] flex justify-start items-center pb-2">
               <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
               Invoice Amount
@@ -112,6 +116,10 @@
             <p class="text-[10px] flex justify-start items-center pt-2">
               <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
               Invoice Date
+            </p>
+            <p class="text-[10px] flex justify-start items-center">
+              <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
+              Company Name
             </p>
             <p class="text-[10px] flex justify-start items-center pb-2">
               <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
@@ -172,6 +180,16 @@
                   >
                   <input
                     type="date"
+                    name=""
+                    placeholder=""
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+                <div class="space-x-2.5">
+                  <label for="" class="text-[12px] font-medium">Company</label>
+                  <input
+                    type="text"
                     name=""
                     placeholder=""
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"

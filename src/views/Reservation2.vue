@@ -51,7 +51,7 @@ const customer_name = ref("");
 const sorting = ref("");
 const dateOnlyToggle = ref(false);
 
-const showSide = ref(false);
+const showSide = ref(3);
 
 const filterShow = ref(false);
 const softShow = ref(false);
@@ -242,7 +242,7 @@ watch([adminAction], async ([newValue]) => {
 const getReservationListAction = async () => {
   const res = await reservationStore.getListAction(watchSystem.value);
   console.log(res, "this is reservation list");
-  if (detailId == "") {
+  if (detailId.value == "") {
     await getDetailAction(res.result?.data[0]?.id);
   }
 };
@@ -284,10 +284,22 @@ watch(dateRange, async (newValue) => {
   <Layout :is_white="true">
     <div class="grid gap-4 relative grid-cols-3">
       <transition name="slide">
-        <div class="border shadow-sm rounded-lg p-4" v-if="showSide">
+        <div
+          class="border shadow-sm rounded-lg p-4"
+          :class="{
+            hidden: showSide == 2,
+            'col-span-1': showSide == 1,
+            'col-span-2': showSide == 3,
+          }"
+        >
           <div class="pb-4 flex justify-start items-center gap-x-3 relative">
             <div
-              @click="filterShow = !filterShow"
+              @click="
+                () => {
+                  filterShow = !filterShow;
+                  softShow = false;
+                }
+              "
               class="bg-blue-600 px-2 rounded-lg shadow py-1 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer"
             >
               <FunnelIcon class="w-5 h-5 text-white" />
@@ -297,16 +309,22 @@ watch(dateRange, async (newValue) => {
             <transition name="slide">
               <div
                 v-if="filterShow"
-                class="absolute top-full pb-3 px-4 left-0 w-[300px] transition-all duration-150 bg-white rounded-lg shadow-lg z-50 border border-gray-100 space-y-2 max-h-[50vh] overflow-y-scroll overflow-x-hidden"
+                class="absolute top-full px-4 left-0 w-[300px] transition-all duration-150 bg-white rounded-lg shadow-lg z-50 border border-gray-100 space-y-2 max-h-[50vh] overflow-y-scroll overflow-x-hidden"
               >
                 <div
                   class="flex justify-between items-center pt-4 border-b border-gray-100 pb-1 sticky top-0 bg-white"
                 >
                   <p class="text-xs font-medium">Filter</p>
-                  <XCircleIcon
+                  <!-- <XCircleIcon
                     class="w-6 h-6 text-[#FF613c] cursor-pointer"
                     @click="filterShow = !filterShow"
-                  />
+                  /> -->
+                  <p
+                    class="text-[10px] cursor-pointer"
+                    @click="filterShow = !filterShow"
+                  >
+                    clear
+                  </p>
                 </div>
                 <p class="text-[10px] pt-1">Product Type</p>
                 <div class="">
@@ -380,19 +398,39 @@ watch(dateRange, async (newValue) => {
                   </option>
                 </select>
                 <p class="text-[10px]">Service Date</p>
-                <div>
+                <!-- <div>
                   <VueDatePicker
                     v-model="searchTime"
                     :format="'yyyy-MM-dd'"
                     placeholder="Service Date"
                     text-input
                   />
-                </div>
-                <p class="text-[10px]">Product</p>
-                <div
-                  class="flex justify-center items-center"
-                  v-if="search == 'App\\Models\\Hotel'"
+                </div> -->
+                <p
+                  class="text-[10px] text-gray-500 cursor-pointer px-4 py-2 border border-gray-300 rounded-lg"
                 >
+                  Select Date
+                </p>
+
+                <div class="" v-if="search == 'App\\Models\\Hotel'">
+                  <div class="flex justify-between items-center pb-2">
+                    <p class="text-[10px]">Hotel</p>
+
+                    <div class="flex justify-end items-center space-x-2">
+                      <p
+                        class="text-[10px] cursor-pointer"
+                        @click="hotel_name = ''"
+                      >
+                        clear
+                      </p>
+                      <p
+                        class="text-[10px] cursor-pointer"
+                        @click="hotelAction = !hotelAction"
+                      >
+                        {{ !hotelAction ? "show" : "hide" }}
+                      </p>
+                    </div>
+                  </div>
                   <div
                     v-if="!hotelAction"
                     @click="hotelAction = true"
@@ -403,20 +441,28 @@ watch(dateRange, async (newValue) => {
                     </p>
                   </div>
                   <div v-if="hotelAction" class="w-full">
-                    <div class="flex justify-between items-center pb-2">
-                      <p class="text-[10px]">Hotel</p>
-                      <XMarkIcon
-                        class="w-4 h-4 cursor-pointer"
-                        @click="hotelAction = !hotelAction"
-                      />
-                    </div>
                     <HotelUnlimited @selectAction="ChangeHotelName" />
                   </div>
                 </div>
-                <div
-                  class="flex justify-center items-center"
-                  v-if="search == 'App\\Models\\EntranceTicket'"
-                >
+                <div class="" v-if="search == 'App\\Models\\EntranceTicket'">
+                  <div class="flex justify-between items-center pb-2">
+                    <p class="text-[10px]">Attraction</p>
+
+                    <div class="flex justify-end items-center space-x-2">
+                      <p
+                        class="text-[10px] cursor-pointer"
+                        @click="attraction_name = ''"
+                      >
+                        clear
+                      </p>
+                      <p
+                        class="text-[10px] cursor-pointer"
+                        @click="entranceAction = !entranceAction"
+                      >
+                        {{ !entranceAction ? "show" : "hide" }}
+                      </p>
+                    </div>
+                  </div>
                   <div
                     v-if="!entranceAction"
                     @click="entranceAction = true"
@@ -429,13 +475,6 @@ watch(dateRange, async (newValue) => {
                     </p>
                   </div>
                   <div v-if="entranceAction" class="w-full">
-                    <div class="flex justify-between items-center pb-2">
-                      <p class="text-[10px]">Attraction</p>
-                      <XMarkIcon
-                        class="w-4 h-4 cursor-pointer"
-                        @click="entranceAction = !entranceAction"
-                      />
-                    </div>
                     <AttractionUnlimited @selectAction="ChangeAttractionName" />
                   </div>
                 </div>
@@ -529,7 +568,7 @@ watch(dateRange, async (newValue) => {
                     </option>
                   </select>
                 </div>
-                <div>
+                <div class="">
                   <p class="text-[10px] pb-2">Invoice</p>
                   <!-- passport status -->
                   <select
@@ -547,11 +586,26 @@ watch(dateRange, async (newValue) => {
                     </option>
                   </select>
                 </div>
+                <div
+                  class="sticky bottom-0 w-full pb-4 pt-2 border-t border-gray-200 bg-white"
+                >
+                  <p
+                    class="text-[12px] bg-[#FF613c] px-2 py-2 rounded-lg text-center text-white cursor-pointer"
+                    @click="searchAction"
+                  >
+                    Search
+                  </p>
+                </div>
               </div>
             </transition>
             <div
               class="bg-white shadow rounded-full border border-gray-100 p-2"
-              @click="softShow = !softShow"
+              @click="
+                () => {
+                  softShow = !softShow;
+                  filterShow = false;
+                }
+              "
             >
               <ArrowsUpDownIcon class="w-3 h-3" />
             </div>
@@ -564,10 +618,21 @@ watch(dateRange, async (newValue) => {
                   class="flex justify-between items-center pt-4 border-b border-gray-100 pb-1 sticky top-0 bg-white"
                 >
                   <p class="text-xs font-medium">Sort</p>
-                  <XCircleIcon
+                  <!-- <XCircleIcon
                     class="w-6 h-6 text-[#FF613c] cursor-pointer"
                     @click="softShow = !softShow"
-                  />
+                  /> -->
+                  <p
+                    class="text-[10px] cursor-pointer"
+                    @click="
+                      () => {
+                        softShow = !softShow;
+                        filterShow = false;
+                      }
+                    "
+                  >
+                    clear
+                  </p>
                 </div>
                 <div class="space-y-1">
                   <div class="flex justify-start items-center">
@@ -593,12 +658,6 @@ watch(dateRange, async (newValue) => {
               class="w-full px-4 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
               id=""
             />
-            <p
-              class="text-[12px] bg-[#FF613c] px-2 py-1.5 rounded-lg text-white cursor-pointer"
-              @click="searchAction"
-            >
-              Search
-            </p>
           </div>
           <div class="flex justify-start items-center space-x-2 pb-4">
             <p
@@ -657,7 +716,7 @@ watch(dateRange, async (newValue) => {
               <ListReservation :data="i" :detailId="detailId" />
             </div>
           </div>
-          <div class="overflow-x-scroll scroll-container py-2">
+          <div class="overflow-x-scroll no-sidebar-container py-2">
             <Pagination
               v-if="!loading"
               :data="reservations"
@@ -676,25 +735,49 @@ watch(dateRange, async (newValue) => {
       </transition>
 
       <transition name="slide">
-        <div class="relative" :class="showSide ? 'col-span-2' : 'col-span-3'">
-          <div
-            class="absolute top-1/2 -left-4 z-20"
-            @click="showSide = !showSide"
-          >
+        <div
+          @click="
+            () => {
+              filterShow = false;
+              softShow = false;
+            }
+          "
+          class="relative"
+          :class="{
+            'col-span-2': showSide == 1,
+            'col-span-1': showSide == 3,
+            'col-span-3': showSide == 2,
+          }"
+        >
+          <div class="absolute -top-4 -left-0 z-20">
             <ChevronLeftIcon
-              class="w-6 cursor-pointer h-6 bg-[#FF613c] text-white shadow p-1.5 rounded-full"
-              v-if="showSide"
+              class="w-6 cursor-pointer h-6 bg-white shadow-md border border-gray-200 p-1.5 rounded-full"
+              @click="showSide = 2"
+              v-if="showSide == 1"
             />
             <ChevronRightIcon
-              class="w-6 cursor-pointer h-6 bg-[#FF613c] text-white shadow p-1.5 rounded-full"
-              v-if="!showSide"
+              class="w-6 cursor-pointer h-6 bg-white shadow-md border border-gray-200 p-1.5 rounded-full"
+              @click="showSide = 1"
+              v-if="showSide == 2"
+            />
+          </div>
+          <div class="absolute -top-4 -left-10 z-20">
+            <ChevronRightIcon
+              class="w-6 cursor-pointer h-6 bg-white shadow-md border border-gray-200 p-1.5 rounded-full"
+              @click="showSide = 3"
+              v-if="showSide == 1"
+            />
+            <ChevronLeftIcon
+              class="w-6 cursor-pointer h-6 bg-white shadow-md border border-gray-200 p-1.5 rounded-full"
+              @click="showSide = 1"
+              v-if="showSide == 3"
             />
           </div>
 
           <div
             class="border shadow-sm rounded-lg p-4 h-[85vh] transition duration-150 overflow-y-scroll no-scrollbar"
           >
-            <ReservationDetail />
+            <ReservationDetail :show="showSide" />
           </div>
         </div>
       </transition>

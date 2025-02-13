@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, computed } from "vue";
+import { ref, watch, onMounted, computed, defineProps } from "vue";
 import GeneralDetailPage from "./GeneralDetail.vue";
 import PassportInfo from "./PassportInfo.vue";
 import BookingRequest from "./BookingRequest.vue";
@@ -21,6 +21,10 @@ import { useToast } from "vue-toastification";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import logo from "../../assets/web-logo.png";
+
+const props = defineProps({
+  show: Number,
+});
 
 const part = ref("general");
 const route = useRoute();
@@ -48,12 +52,16 @@ const partArray = ref([
   { id: 6, name: "confirmation" },
 ]);
 
+const transition = ref("slide-right");
+
 const rightButtonAction = () => {
+  transition.value = "slide-right";
   const index = partArray.value.findIndex((item) => item.name == part.value);
   part.value = partArray.value[index + 1].name;
 };
 
 const leftButtonAction = () => {
+  transition.value = "slide-left";
   const index = partArray.value.findIndex((item) => item.name == part.value);
   part.value = partArray.value[index - 1].name;
 };
@@ -86,6 +94,18 @@ const goToFill = () => {
   });
 
   showFailModal.value = false;
+};
+
+const getComponent = (part) => {
+  const components = {
+    general: GeneralDetailPage,
+    passport: PassportInfo,
+    booking: BookingRequest,
+    invoice: InvoiceUpdate,
+    expense: Expense,
+    confirmation: Confirmation,
+  };
+  return components[part];
 };
 
 const copyReservation = async (id) => {
@@ -241,16 +261,18 @@ const hide = ref(false);
 <template>
   <div>
     <div v-if="getLoading">
-      <div class="flex justify-center items-center h-[70vh]">
+      <div class="flex justify-center text-xs items-center h-[70vh]">
         <p>If finish select reservation one, please wait for loading !</p>
       </div>
     </div>
     <div class="space-y-4" v-if="!getLoading">
-      <div class="flex justify-between items-center">
+      <div
+        class="flex justify-between items-center space-x-2 overflow-x-scroll no-sidebar-container"
+      >
         <div class="flex justify-start items-center gap-x-2">
           <p
             @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
-            class="text-[10px] bg-[#FF613c] cursor-pointer shadow text-white px-3 py-1.5 rounded-lg"
+            class="text-[10px] bg-[#FF613c] whitespace-nowrap cursor-pointer shadow text-white px-3 py-1.5 rounded-lg"
           >
             View invoice
           </p>
@@ -269,13 +291,13 @@ const hide = ref(false);
         </div>
         <div class="flex justify-end items-center gap-x-2">
           <p
-            class="text-[10px] bg-[#FF613c] text-white cursor-pointer px-3 py-1.5 rounded-lg"
+            class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
             @click="copyReservation(detail?.id)"
           >
             Copy Expense
           </p>
           <p
-            class="text-[10px] bg-[#FF613c] text-white px-3 py-1.5 rounded-lg cursor-pointer"
+            class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
             @click="generateConfirmation"
           >
             Generate Confirmation
@@ -291,7 +313,7 @@ const hide = ref(false);
             </p>
             <div class="flex justify-start items-center gap-x-2">
               <p
-                class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-[#FF613c]"
+                class="text-[10px] px-1.5 whitespace-nowrap py-0.5 text-white rounded-lg bg-[#FF613c]"
               >
                 {{ detail?.crm_id }}
               </p>
@@ -310,18 +332,18 @@ const hide = ref(false);
           </div>
           <div class="">
             <p class="text-[10px] text-gray-500 text-end">score</p>
-            <p class="text-2xl text-red-500 font-medium pb-2 text-end">
+            <p class="text-lg text-red-500 font-medium pb-2 text-end">
               {{ score }}
             </p>
             <div class="flex justify-start items-center gap-x-2">
               <p
-                class="text-xs cursor-pointer px-2 py-0.5 flex justify-center gap-x-1.5 items-center text-white rounded-lg bg-[#FF613c]"
+                class="text-[10px] cursor-pointer px-2 py-0.5 flex justify-center gap-x-1.5 items-center text-white rounded-lg bg-[#FF613c]"
               >
                 <img :src="productIcon" alt="" class="w-3 h-3" />Product
               </p>
               <p
                 @click="hide = !hide"
-                class="text-xs cursor-pointer px-2 py-0.5 flex justify-center gap-x-1 items-center text-white rounded-lg bg-black"
+                class="text-[10px] cursor-pointer px-2 py-0.5 flex justify-center gap-x-1 items-center text-white rounded-lg bg-black"
               >
                 <ChevronDownIcon class="w-3 h-3 text-white" />{{
                   !hide ? "Hide" : "Show"
@@ -330,7 +352,7 @@ const hide = ref(false);
             </div>
           </div>
         </div>
-        <div class="col-span-2" v-if="!hide">
+        <div :class="show != 3 ? 'col-span-2' : 'col-span-5'" v-if="!hide">
           <div class="flex justify-start items-start gap-x-4 pt-3">
             <div>
               <img
@@ -361,13 +383,18 @@ const hide = ref(false);
         </div>
 
         <div
-          class="col-span-3 flex justify-end items-end gap-x-16"
+          class=""
           v-if="!hide"
+          :class="
+            show != 3
+              ? 'col-span-3 flex justify-end items-end gap-x-8'
+              : 'col-span-5 grid grid-cols-2 pl-6 gap-8 pt-4'
+          "
         >
           <div class="relative grid grid-cols-[auto_1fr] gap-4">
             <!-- Vertical "Invoice Information" Text -->
             <p
-              class="text-xs font-semibold text-[#FF613c] writing-mode-vertical-lr absolute bottom-[44%] text-nowrap transform -rotate-90 -left-[80px]"
+              class="text-xs font-semibold text-[#FF613c] writing-mode-vertical-lr absolute bottom-[50%] text-nowrap transform -rotate-90 -left-[80px]"
             >
               Booking Information
             </p>
@@ -380,8 +407,6 @@ const hide = ref(false);
               </p>
               <p class="text-[10px] text-gray-500">Total Child :</p>
               <p class="text-[12px] text-[#FF613c] pb-2">-</p>
-              <!-- <p class="text-[10px] text-gray-500">Reser Discount :</p>
-              <p class="text-[12px] text-[#FF613c] pb-2">2380 thb</p> -->
               <p class="text-[10px] text-gray-500">Reser Expense :</p>
               <p class="text-[12px] text-[#FF613c]">
                 {{ detail?.total_cost_price }} thb
@@ -393,7 +418,7 @@ const hide = ref(false);
           <div class="relative grid grid-cols-[auto_1fr] gap-4">
             <!-- Vertical "Invoice Information" Text -->
             <p
-              class="text-xs font-semibold text-[#FF613c] writing-mode-vertical-lr absolute bottom-[42%] text-nowrap transform -rotate-90 -left-[80px]"
+              class="text-xs font-semibold text-[#FF613c] writing-mode-vertical-lr absolute bottom-[48%] text-nowrap transform -rotate-90 -left-[80px]"
             >
               Invoice Information
             </p>
@@ -422,25 +447,17 @@ const hide = ref(false);
           <div class="relative grid grid-cols-[auto_1fr] gap-4">
             <!-- Vertical "Invoice Information" Text -->
             <p
-              class="text-xs font-semibold text-[#FF613c] writing-mode-vertical-lr absolute bottom-[33%] text-nowrap transform -rotate-90 -left-[65px]"
+              class="text-xs font-semibold text-[#FF613c] writing-mode-vertical-lr absolute bottom-[36%] text-nowrap transform -rotate-90 -left-[65px]"
             >
               Dates & Details
             </p>
 
             <!-- Rest of the Content -->
             <div>
-              <!-- <p class="text-[10px] text-gray-500">Service Date :</p>
-              <p class="text-sm text-[#FF613c] pb-2">02/Feb/2025</p> -->
-              <!-- <p class="text-[10px] text-gray-500">Sale Date :</p>
-              <p class="text-[12px] text-[#FF613c] pb-2">08/Feb/2025</p> -->
               <p class="text-[10px] text-gray-500">Total Items :</p>
               <p class="text-[12px] text-[#FF613c] pb-2">-</p>
-              <!-- <p class="text-[10px] text-gray-500">Invoice Date :</p>
-              <p class="text-[12px] text-[#FF613c] pb-2">-</p> -->
               <p class="text-[10px] text-gray-500">Score :</p>
               <p class="text-[12px] text-[#FF613c] pb-2">{{ score }}</p>
-              <!-- <p class="text-[10px] text-gray-500">Current Status</p>
-              <p class="text-[12px] text-yellow-400">Booking Request</p> -->
               <p class="text-[10px] text-gray-500">Payment Method :</p>
               <p class="text-[12px] text-[#FF613c]">
                 {{ detail?.booking?.payment_method }}
@@ -618,7 +635,7 @@ const hide = ref(false);
             Confirm
           </div>
         </div>
-        <div class="px-16 relative">
+        <div class="px-16 relative" v-if="show != 3">
           <ChevronRightIcon
             @click="rightButtonAction"
             class="w-6 cursor-pointer h-6 bg-[#FF613c] text-white shadow p-1.5 rounded-full absolute right-0 top-[35px]"
@@ -627,24 +644,11 @@ const hide = ref(false);
             @click="leftButtonAction"
             class="w-6 cursor-pointer h-6 bg-[#FF613c] text-white shadow p-1.5 rounded-full absolute left-0 top-[35px]"
           />
-          <div class="pt-6" v-if="part == 'general'">
-            <GeneralDetailPage :detail="detail" />
-          </div>
-          <div class="pt-6" v-if="part == 'passport'">
-            <PassportInfo :data="detail" />
-          </div>
-          <div class="pt-6" v-if="part == 'booking'">
-            <BookingRequest :detail="detail" />
-          </div>
-          <div class="pt-6" v-if="part == 'invoice'">
-            <InvoiceUpdate :detail="detail" />
-          </div>
-          <div class="pt-6" v-if="part == 'expense'">
-            <Expense :data="detail" />
-          </div>
-          <div class="pt-6" v-if="part == 'confirmation'">
-            <Confirmation :data="detail" />
-          </div>
+          <Transition :name="transition" mode="out-in">
+            <div class="pt-6" :key="part">
+              <component :is="getComponent(part)" :detail="detail" />
+            </div>
+          </Transition>
         </div>
       </div>
     </div>
@@ -686,3 +690,37 @@ const hide = ref(false);
     </Modal>
   </div>
 </template>
+
+<style scoped>
+/* Slide Right (enter from right, leave to left) */
+.slide-right-enter-active {
+  transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+}
+.slide-right-leave-active {
+  transition: transform 0.3s ease-in, opacity 0.3s ease-in;
+}
+.slide-right-enter-from {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.slide-right-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* Slide Left (enter from left, leave to right) */
+.slide-left-enter-active {
+  transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+}
+.slide-left-leave-active {
+  transition: transform 0.3s ease-in, opacity 0.3s ease-in;
+}
+.slide-left-enter-from {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+.slide-left-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+</style>

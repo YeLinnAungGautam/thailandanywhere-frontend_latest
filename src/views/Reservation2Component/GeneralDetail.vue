@@ -35,13 +35,13 @@
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
       >
         <p class="text-[10px] text-gray-500">Total Quantity</p>
-        <p class="text-sm">-</p>
+        <p class="text-sm">{{ detail?.quantity }}</p>
       </div>
       <div
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
       >
         <p class="text-[10px] text-gray-500">Total Cost</p>
-        <p class="text-sm">-</p>
+        <p class="text-sm">{{ detail?.total_cost_price }}</p>
       </div>
       <div
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
@@ -69,10 +69,15 @@
         {{ detail?.crm_id }}
       </p>
     </div>
-    <div
-      class="pt-2 grid grid-cols-4 gap-x-4"
-      v-if="detail?.booking?.receipts.length > 0"
-    >
+    <div class="pt-2 grid grid-cols-4 gap-4">
+      <div
+        @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
+        class="w-[160px] min-h-[230px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c] cursor-pointer"
+      >
+        <p class="px-2 py-1 text-[10px] text-[#FF613c] rounded-lg">
+          Click to add payment
+        </p>
+      </div>
       <div
         v-for="i in detail?.booking?.receipts ?? []"
         :key="i"
@@ -84,13 +89,6 @@
         >
           <span class="text-[10px]">edit</span>
         </p>
-        <div>
-          <img
-            :src="i?.image"
-            class="rounded-lg shadow hover:shadow-none h-auto w-full"
-            alt=""
-          />
-        </div>
         <div
           @click="openModal(i)"
           class="w-full px-4 pb-1 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
@@ -104,17 +102,16 @@
             {{ i?.created_at }}
           </p>
         </div>
+        <div>
+          <img
+            :src="i?.image"
+            class="rounded-lg shadow hover:shadow-none h-auto w-full"
+            alt=""
+          />
+        </div>
       </div>
     </div>
-    <div
-      v-if="detail?.booking?.receipts.length == 0"
-      @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
-      class="w-[160px] h-[160px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c] cursor-pointer"
-    >
-      <p class="px-2 py-1 text-[10px] text-white bg-[#ff613c] rounded-lg">
-        Click to add payment
-      </p>
-    </div>
+
     <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
       <DialogPanel
         class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"

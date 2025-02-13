@@ -73,13 +73,13 @@
         </div> -->
         <div class="grid grid-cols-4 col-span-2 gap-3">
           <div
-            class="w-full h-full border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+            class="w-full border rounded-lg h-[364px] border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
           >
             +
           </div>
           <div
             class="relative"
-            v-for="(image, index) in editData.slips_have"
+            v-for="(image, index) in editData.slips_have ?? []"
             :key="index"
           >
             <button
@@ -124,7 +124,7 @@ const editData = ref({
 const loading = ref(false);
 
 const props = defineProps({
-  data: Object,
+  detail: Object,
 });
 
 const reservation_status = [
@@ -189,7 +189,7 @@ const addConfirmationAction = async () => {
     }
   }
 
-  await reservationStore.updateInfoAction(secfrm, props.data?.id);
+  await reservationStore.updateInfoAction(secfrm, props.detail?.id);
   const frmData = new FormData();
   frmData.append("_method", "PUT");
   editData.value.reservation_status &&
@@ -197,7 +197,7 @@ const addConfirmationAction = async () => {
   editData.value.reservation_slip_code &&
     frmData.append("slip_code", editData.value.reservation_slip_code);
 
-  const res = await reservationStore.updateAction(frmData, props.data?.id);
+  const res = await reservationStore.updateAction(frmData, props.detail?.id);
 
   console.log(res, "this is res");
   toast.success(res.message);
@@ -209,12 +209,12 @@ const addConfirmationAction = async () => {
 };
 
 onMounted(() => {
-  if (props.data) {
+  if (props.detail) {
     loading.value = true;
-    editData.value.reservation_status = props.data.reservation_status;
-    editData.value.reservation_slip_code = props.data.slip_code;
+    editData.value.reservation_status = props.detail.reservation_status;
+    editData.value.reservation_slip_code = props.detail.slip_code;
     editData.value.slips_have =
-      props.data?.paid_slip.length > 0 ? props.data?.paid_slip : [];
+      props.detail?.paid_slip.length > 0 ? props.detail?.paid_slip : [];
 
     loading.value = false;
   }

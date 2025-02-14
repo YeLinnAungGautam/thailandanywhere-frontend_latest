@@ -3,12 +3,17 @@
     :to="to"
     :class="{
       'text-white bg-[#FF5B00]': isActive(),
-      'text-gray-600 bg-gray-100': !isActive(),
+      'text-gray-600 bg-white': !isActive(),
     }"
-    class="inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[12px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
+    class="inline-flex mb-1 text-[10px] rounded-xl relative items-center py-[12px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
   >
-    <component v-if="icon" :is="icon" class="w-4 h-4 mr-[1.2rem]"></component>
-    <p v-show="isShowSidebar" class="transition-all duration-150">{{ name }}</p>
+    <component v-if="icon" :is="icon" class="w-4 h-4"></component>
+    <p
+      v-show="isShowSidebar"
+      class="transition-all text-[12px] ml-[1.2rem] duration-150"
+    >
+      {{ name }}
+    </p>
     <!-- <p v-show="!isShowSidebar">.</p> -->
   </router-link>
 </template>

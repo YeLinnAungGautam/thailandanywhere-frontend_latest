@@ -2,16 +2,33 @@
   <div class="h-[80px] flex items-center justify-between px-[20px] w-full">
     <div class="flex items-center gap-3">
       <button
-        class="p-2 rounded-md shadow cursor-pointer bg-white/60"
+        class="p-2 rounded-full shadow cursor-pointer bg-white/60"
         @click.prevent="toggleSidebarHandler"
       >
-        <Bars3Icon class="w-6 h-6" />
+        <!-- <Bars3Icon class="w-6 h-6" /> -->
+        <img
+          v-if="isShowSidebar"
+          src="https://cdn-icons-png.flaticon.com/128/10042/10042228.png"
+          alt=""
+          class="w-5 h-5"
+        />
+        <img
+          v-if="!isShowSidebar"
+          src="https://cdn-icons-png.flaticon.com/128/12561/12561773.png"
+          alt=""
+          class="w-5 h-5"
+        />
       </button>
       <p
-        class="p-2 rounded-md shadow cursor-pointer bg-white/60"
+        class="p-2 rounded-full shadow cursor-pointer bg-white/60"
         @click="goBack()"
       >
-        <ArrowUturnLeftIcon class="w-6 h-6" />
+        <!-- <ArrowUturnLeftIcon class="w-6 h-6" /> -->
+        <img
+          src="https://cdn-icons-png.flaticon.com/128/2722/2722991.png"
+          alt=""
+          class="w-5 h-5"
+        />
       </p>
       <!-- <p class="text-sm font-poppins text-[#ff613c] font-medium">
         Welcome back, {{ authStore.user.name.split(" ")[0] }} !
@@ -84,14 +101,6 @@
             </ul>
           </div>
         </div>
-        <!-- <div class="flex items-center justify-start space-x-3 cursor-pointer">
-          <img
-            class="rounded-full shadow-lg w-9 h-9 md:w-10 md:h-10"
-            :src="`https://ui-avatars.com/api/?background=3B81F6&color=fff&name=${authStore.user.name}&font-size=0.33`"
-            alt=""
-          />
-          <div class="hidden text-base md:block">{{ authStore.user.name }}</div>
-        </div> -->
       </div>
     </div>
   </div>

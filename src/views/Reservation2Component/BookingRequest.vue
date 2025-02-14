@@ -153,7 +153,7 @@
                 class="w-5 h-5 absolute top-0 left-0"
                 id=""
               />
-              <img src="https://placehold.co/400" class="rounded-lg" alt="" />
+              <img :src="i.file" class="rounded-lg" alt="" />
               <div class="text-xs py-1 space-y-1">
                 <p>Name : name</p>
                 <p>Passport : 1234</p>

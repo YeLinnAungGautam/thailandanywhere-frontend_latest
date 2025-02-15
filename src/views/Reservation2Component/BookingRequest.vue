@@ -119,45 +119,49 @@
         <!-- show date  -->
         <div class="p-4">
           <div class="grid grid-cols-3 gap-4">
-            <div class="space-y-2 pt-2">
+            <div class="space-y-2">
               <div
                 class="w-full h-[180px] border border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
               >
                 +
               </div>
               <div
-                class="w-full px-4 pb-1 border-dashed border border-[#FF613c] space-y-2 text-[#FF613c] hover:shadow-none rounded-lg"
+                class="w-full px-4 pb-1 border-dashed border border-[#FF613c] space-y-2 text-red-600 hover:shadow-none rounded-lg"
               >
-                <p class="text-[10px] flex justify-start items-center pt-2">
-                  <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
-                  Name
-                </p>
-                <p class="text-[10px] flex justify-start items-center">
-                  <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-                  Passport No.
-                </p>
-                <p class="text-[10px] flex justify-start items-center pb-2">
-                  <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-                  DOB
+                <p class="text-[10px] flex justify-start items-center py-4">
+                  That is attachments file that you need to send, max size is 25
+                  mb
                 </p>
               </div>
             </div>
             <div
-              class="w-full h-auto p-2 relative"
+              class="w-full h-auto relative"
               v-for="i in detail?.customer_passports ?? []"
               :key="i"
             >
               <input
                 type="checkbox"
                 name=""
-                class="w-5 h-5 absolute top-0 left-0"
+                class="custom-checkbox-input absolute top-0 left-0"
                 id=""
               />
-              <img :src="i.file" class="rounded-lg" alt="" />
-              <div class="text-xs py-1 space-y-1">
-                <p>Name : name</p>
-                <p>Passport : 1234</p>
-                <p>DOB : 1-1-2025</p>
+              <img
+                :src="i.file"
+                class="rounded-lg w-full h-[180px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
+                alt=""
+              />
+              <div
+                class="w-full px-4 pb-1 mt-2 border-dashed border border-[#FF613c] space-y-2 text-[#FF613c] hover:shadow-none rounded-lg"
+              >
+                <p class="text-[10px] flex justify-start items-center pt-2">
+                  Name
+                </p>
+                <p class="text-[10px] flex justify-start items-center">
+                  Passport No.
+                </p>
+                <p class="text-[10px] flex justify-start items-center pb-2">
+                  DOB
+                </p>
               </div>
             </div>
           </div>
@@ -287,7 +291,7 @@ const mailBodyChange = () => {
     )} nights</strong></p><p>Name :<strong>${
       props?.detail?.associated_customer[0]?.name
     } & ${
-      props?.detail?.customer_passport.length
+      props?.detail?.customer_passport?.length
     } passports</strong></p><p>Room Type :<strong>${
       props?.detail?.room?.name
     }</strong></p><p>Special Request :<strong>${
@@ -306,7 +310,7 @@ const daysBetween = (a, b) => {
     let result = Math.abs(
       Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
     );
-    console.log(formData.value.checkin_date, result, "this is result");
+    // console.log(formData.value.checkin_date, result, "this is result");
     return result;
   }
 };
@@ -322,5 +326,38 @@ onMounted(() => {
   box-sizing: border-box;
   font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
   padding: 8px;
+}
+
+/* Hide the default checkbox appearance */
+.custom-checkbox-input {
+  appearance: none; /* Removes the default browser styling */
+  -webkit-appearance: none; /* For Safari */
+  -moz-appearance: none; /* For Firefox */
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Style the checkbox when checked */
+.custom-checkbox-input:checked {
+  background-color: #ff613c;
+  border-color: #ff613c;
+}
+
+/* Add a checkmark using a pseudo-element */
+.custom-checkbox-input:checked::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid rgb(255, 255, 255);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 </style>

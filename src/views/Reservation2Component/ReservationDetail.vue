@@ -108,6 +108,13 @@ const getComponent = (part) => {
   return components[part];
 };
 
+const getDetailAction = async (id) => {
+  getLoading.value = true;
+  const res = await reservationStore.getDetailAction(id);
+  detail.value = res.result;
+  getLoading.value = false;
+};
+
 const copyReservation = async (id) => {
   const res = await reservationStore.copyReservationDetail(id);
   console.log(res, "this is cpy reservation");
@@ -222,6 +229,16 @@ watch(
     } else {
       state.value.invoice = false;
     }
+    if (detail.value.payment_status == "fully_paid") {
+      state.value.expense = true;
+    } else {
+      state.value.expense = false;
+    }
+    if (detail.value.reservation_status == "confirmed") {
+      state.value.confirmation = true;
+    } else {
+      state.value.confirmation = false;
+    }
   }
 );
 
@@ -229,11 +246,8 @@ watch(
   () => route.query.id,
   async (newId) => {
     if (newId) {
-      getLoading.value = true;
-      const res = await reservationStore.getDetailAction(newId);
-      detail.value = res.result;
+      getDetailAction(newId);
       console.log(detail.value, "this is get detail value");
-      getLoading.value = false;
     }
   },
   { immediate: true } // This will run the watcher immediately when the component is created
@@ -262,7 +276,31 @@ const hide = ref(false);
   <div>
     <div v-if="getLoading">
       <div class="flex justify-center text-xs items-center h-[70vh]">
-        <p>If finish select reservation one, please wait for loading !</p>
+        <svg
+          class="text-gray-300 animate-spin mr-2"
+          viewBox="0 0 64 64"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+        >
+          <path
+            d="M32 3C35.8083 3 39.5794 3.75011 43.0978 5.20749C46.6163 6.66488 49.8132 8.80101 52.5061 11.4939C55.199 14.1868 57.3351 17.3837 58.7925 20.9022C60.2499 24.4206 61 28.1917 61 32C61 35.8083 60.2499 39.5794 58.7925 43.0978C57.3351 46.6163 55.199 49.8132 52.5061 52.5061C49.8132 55.199 46.6163 57.3351 43.0978 58.7925C39.5794 60.2499 35.8083 61 32 61C28.1917 61 24.4206 60.2499 20.9022 58.7925C17.3837 57.3351 14.1868 55.199 11.4939 52.5061C8.801 49.8132 6.66487 46.6163 5.20749 43.0978C3.7501 39.5794 3 35.8083 3 32C3 28.1917 3.75011 24.4206 5.2075 20.9022C6.66489 17.3837 8.80101 14.1868 11.4939 11.4939C14.1868 8.80099 17.3838 6.66487 20.9022 5.20749C24.4206 3.7501 28.1917 3 32 3L32 3Z"
+            stroke="currentColor"
+            stroke-width="5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+          <path
+            d="M32 3C36.5778 3 41.0906 4.08374 45.1692 6.16256C49.2477 8.24138 52.7762 11.2562 55.466 14.9605C58.1558 18.6647 59.9304 22.9531 60.6448 27.4748C61.3591 31.9965 60.9928 36.6232 59.5759 40.9762"
+            stroke="currentColor"
+            stroke-width="5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="text-gray-900"
+          ></path>
+        </svg>
+        <p>loading</p>
       </div>
     </div>
     <div class="space-y-4" v-if="!getLoading">
@@ -322,6 +360,12 @@ const hide = ref(false);
                 v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
               >
                 Ticket
+              </p>
+              <p
+                class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-green-600"
+                v-if="detail?.product_type == 'App\\Models\\Hotel'"
+              >
+                Hotel
               </p>
               <p
                 class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-black"
@@ -548,10 +592,10 @@ const hide = ref(false);
             class="w-30 h-[2px] rounded-full relative z-10"
             :class="state.invoice ? 'bg-[#04BA00]' : 'bg-gray-200'"
           ></div>
-
           <div
+            v-if="!state.expense"
             @click="part = 'expense'"
-            class="w-6 h-6 flex justify-center items-center text-[10px] shadow hover:shadow-none cursor-pointer rounded-full relative z-10"
+            class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
             :class="
               part == 'expense' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
             "
@@ -559,9 +603,18 @@ const hide = ref(false);
             5
           </div>
           <div
-            class="w-30 h-[2px] rounded-full relative z-10 bg-gray-200"
-          ></div>
+            v-if="state.expense"
+            @click="part = 'expense'"
+            class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+            :class="part == 'expense' ? 'bg-white text-white' : ''"
+          >
+            <img :src="checkImage" alt="" />
+          </div>
           <div
+            class="w-30 h-[2px] rounded-full relative z-10"
+            :class="state.invoice ? 'bg-[#04BA00]' : 'bg-gray-200'"
+          ></div>
+          <!-- <div
             @click="part = 'confirmation'"
             class="w-6 h-6 flex justify-center items-center text-[10px] shadow hover:shadow-none cursor-pointer rounded-full relative z-10"
             :class="
@@ -569,6 +622,24 @@ const hide = ref(false);
             "
           >
             6
+          </div> -->
+          <div
+            v-if="!state.confirmation"
+            @click="part = 'confirmation'"
+            class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
+            :class="
+              part == 'confirmation' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+            "
+          >
+            5
+          </div>
+          <div
+            v-if="state.confirmation"
+            @click="part = 'confirmation'"
+            class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+            :class="part == 'confirmation' ? 'bg-white text-white' : ''"
+          >
+            <img :src="checkImage" alt="" />
           </div>
         </div>
         <div class="flex justify-between pt-2 items-center">
@@ -619,20 +690,31 @@ const hide = ref(false);
               class="w-1 h-1 rounded-full inline-block bg-[#04BA00] ml-2"
             ></span>
           </div>
-
           <div
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'expense'"
-            :class="part == 'expense' ? 'text-[#FF613c]' : ''"
+            :class="[
+              state.expense ? 'text-[#04BA00]' : 'text-gray-500',
+              part === 'expense' ? 'text-[#FF613c]' : 'text-gray-500',
+            ]"
           >
-            Expense
+            expense<span
+              v-if="part == 'expense' && state.expense"
+              class="w-1 h-1 rounded-full inline-block bg-[#04BA00] ml-2"
+            ></span>
           </div>
           <div
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'confirmation'"
-            :class="part == 'confirmation' ? 'text-[#FF613c]' : ''"
+            :class="[
+              state.confirmation ? 'text-[#04BA00]' : 'text-gray-500',
+              part === 'confirmation' ? 'text-[#FF613c]' : 'text-gray-500',
+            ]"
           >
-            Confirm
+            confirm<span
+              v-if="part == 'confirmation' && state.confirmation"
+              class="w-1 h-1 rounded-full inline-block bg-[#04BA00] ml-2"
+            ></span>
           </div>
         </div>
         <div class="px-16 relative" v-if="show != 3">
@@ -646,7 +728,11 @@ const hide = ref(false);
           />
           <Transition :name="transition" mode="out-in">
             <div class="pt-6" :key="part">
-              <component :is="getComponent(part)" :detail="detail" />
+              <component
+                :is="getComponent(part)"
+                :detail="detail"
+                :getDetailAction="getDetailAction"
+              />
             </div>
           </Transition>
         </div>

@@ -72,7 +72,7 @@
     <div class="pt-2 grid grid-cols-4 gap-4">
       <div
         @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
-        class="w-[160px] min-h-[230px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c] cursor-pointer"
+        class="w-full min-h-[230px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c] cursor-pointer"
       >
         <p class="px-2 py-1 text-[10px] text-[#FF613c] rounded-lg">
           Click to add payment
@@ -81,7 +81,7 @@
       <div
         v-for="i in detail?.booking?.receipts ?? []"
         :key="i"
-        class="flex flex-col relative justify-stretch group space-y-2 w-[160px]"
+        class="flex flex-col relative justify-stretch group space-y-2 w-full"
       >
         <p
           @click="openModal(i)"
@@ -102,10 +102,10 @@
             {{ i?.created_at }}
           </p>
         </div>
-        <div>
+        <div class="h-[180px] w-full">
           <img
             :src="i?.image"
-            class="rounded-lg shadow hover:shadow-none h-auto w-full"
+            class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
             alt=""
           />
         </div>

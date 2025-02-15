@@ -358,6 +358,17 @@
                   class="w-full h-10 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
                 />
               </div>
+              <div class="mb-2 space-y-1">
+                <label for="name" class="text-sm text-gray-800"
+                  >Youtube Link (how to ?)</label
+                >
+                <input
+                  type="text"
+                  v-model="formData.youtube_link.how_link"
+                  id="name"
+                  class="w-full h-10 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                />
+              </div>
             </div>
             <div class="col-span-2">
               <p class="text-gray-800 text-sm mb-2">Description</p>
@@ -1149,6 +1160,7 @@ const formData = ref({
   youtube_link: {
     mm_link: "",
     en_link: "",
+    how_link: "",
   },
   contract_due: "",
   contracts: [],
@@ -1178,6 +1190,7 @@ const VantourCreate = () => {
   formData.value.youtube_link = {
     mm_link: "",
     en_link: "",
+    how_link: "",
   };
   formData.value.meta_data = {
     is_show: true,
@@ -1213,6 +1226,7 @@ const clearAction = () => {
     youtube_link: {
       mm_link: "",
       en_link: "",
+      how_link: "",
     },
     meta_data: {
       is_show: true,
@@ -1359,6 +1373,12 @@ const addNewHandler = async () => {
       ? formData.value.youtube_link.en_link
       : ""
   );
+  frmData.append(
+    "youtube_link[0][how_link]",
+    formData.value.youtube_link.how_link
+      ? formData.value.youtube_link.how_link
+      : ""
+  );
 
   frmData.append(
     "meta_data[is_show]",
@@ -1418,6 +1438,7 @@ const addNewHandler = async () => {
       youtube_link: {
         mm_link: "",
         en_link: "",
+        how_link: "",
       },
       meta_data: {
         is_show: true,
@@ -1502,6 +1523,12 @@ const updateHandler = async () => {
       : ""
   );
   frmData.append(
+    "youtube_link[0][how_link]",
+    formData.value.youtube_link.how_link
+      ? formData.value.youtube_link.how_link
+      : ""
+  );
+  frmData.append(
     "meta_data[is_show]",
     formData.value.meta_data.is_show ? 1 : 0
   );
@@ -1566,6 +1593,7 @@ const updateHandler = async () => {
       youtube_link: {
         mm_link: "",
         en_link: "",
+        how_link: "",
       },
       meta_data: {
         is_show: true,
@@ -1637,6 +1665,7 @@ const editModalOpenHandler = async (id) => {
       formData.value.youtube_link = {
         mm_link: response.result.youtube_link[0].mm_link,
         en_link: response.result.youtube_link[0].en_link,
+        how_link: response.result.youtube_link[0].how_link,
       };
     }
     if (response.result.meta_data != null) {

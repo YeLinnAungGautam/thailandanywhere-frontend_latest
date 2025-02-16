@@ -8,6 +8,16 @@
       >
         +
       </p> -->
+      <div class="flex justify-end w-full pt-2.5 items-center col-span-2">
+        <div class="flex justify-end items-center space-x-2">
+          <p
+            @click="expenseUpdateAction"
+            class="bg-green-500 text-white border border-gray-300 px-3 py-1 rounded-lg text-[10px] cursor-pointer"
+          >
+            Update Expense
+          </p>
+        </div>
+      </div>
     </div>
     <div class="col-span-2 h-1 overflow-hidden">
       <input type="text" class="opacity-0" name="" />
@@ -102,38 +112,11 @@
             type="file"
             id="image"
             ref="fileInputThree"
-            multiple
             class="hidden"
             @change="recehandleFileChange"
             accept="image/*"
           />
-          <!-- <div
-            @click.prevent="openFilePickerThree"
-            class="py-4 px-4 flex justify-center rounded-lg items-center text-xs border border-gray-400 border-dashed"
-          >
-            <span class="text-xs"
-              ><i class="fa-solid fa-plus text-2xl text-gray-800"></i
-            ></span>
-          </div> -->
-          <!-- <p class="text-[10px]" v-if="uploadRecePreview.length != 0">
-            preview
-          </p>
-          <div class="grid grid-cols-4 gap-3 mt-4">
-            <div
-              class="relative"
-              v-for="(image, index) in uploadRecePreview"
-              :key="index"
-            >
-              <button
-                @click.prevent="expremoveSecSelectedImage(index)"
-                class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
-              >
-                <XCircleIcon class="w-8 h-8" />
-              </button>
 
-              <img class="h-auto w-full rounded" :src="image" alt="" />
-            </div>
-          </div> -->
           <p
             class="text-[10px]"
             v-if="formData.booking_receipt_image?.length != 0"
@@ -169,43 +152,34 @@
               :key="index"
               class="relative"
             >
-              <p class="absolute right-2 -top-4 bg-white p-1 rounded-lg">
-                <i
-                  class="fa-solid fa-trash-can text-base text-red-500"
-                  @click="deleteImage(image.id, index)"
-                ></i>
+              <p
+                @click="openPassportModal(image, index)"
+                class="absolute top-4 cursor-pointer text-[8px] shadow right-2 text-xs text-white bg-[#FF613c] px-2 py-0.5 rounded-lg"
+              >
+                <span class="text-[10px]">edit</span>
               </p>
-              <a :href="image.file" target="_blink">
-                <img :src="image.file" alt="" class="rounded-lg" />
+              <a :href="image.file" target="_blink" class="w-full h-auto">
+                <img
+                  :src="image.file"
+                  alt=""
+                  class="rounded-lg w-full h-[210px] object-cover"
+                />
               </a>
               <div
                 class="w-full px-4 pb-1 mt-2 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
               >
                 <p class="text-[10px] flex justify-start items-center pt-2">
-                  <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
                   Bank Name
                 </p>
                 <p class="text-[10px] flex justify-start items-center">
-                  <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
                   Amount
                 </p>
                 <p class="text-[10px] flex justify-start items-center pb-2">
-                  <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
                   Date
                 </p>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="flex justify-end items-center col-span-2">
-        <div class="flex justify-end items-center space-x-2">
-          <p
-            @click="expenseUpdateAction"
-            class="bg-[#ff613c] text-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs cursor-pointer"
-          >
-            Update Expense
-          </p>
         </div>
       </div>
     </div>
@@ -218,20 +192,32 @@
           class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
         >
           <p>Expense Add</p>
-          <XCircleIcon
-            class="w-5 h-5 text-white"
-            @click="carModalOpen = false"
-          />
+          <XCircleIcon class="w-5 h-5 text-white" @click="cancelAction" />
         </DialogTitle>
         <!-- show date  -->
         <div class="p-4">
           <div class="p-4">
             <div class="grid grid-cols-2 gap-8">
               <div
+                @click="openFilePickerThree"
+                v-if="uploadRecePreview.length == 0 && save?.index == ''"
                 class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
               >
                 +
               </div>
+              <div
+                v-if="uploadRecePreview.length != 0 && save?.index == ''"
+                class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+              >
+                <img :src="uploadRecePreview[0]" alt="" class="rounded-lg" />
+              </div>
+              <div
+                v-if="save?.index != ''"
+                class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+              >
+                <img :src="save?.data.file" alt="" class="rounded-lg" />
+              </div>
+
               <div class="space-y-4 relative pt-4">
                 <div class="space-x-6">
                   <label for="" class="text-[12px] font-medium"
@@ -241,6 +227,7 @@
                     type="text"
                     name=""
                     placeholder="name"
+                    disabled
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
@@ -253,17 +240,19 @@
                     <input
                       type="checkbox"
                       name=""
+                      disabled
                       placeholder="name"
                       class="py-1.5 focus:outline-none text-xs"
                       id=""
                     />
-                    <p class="text-[12px]">Is collabrate ?</p>
+                    <p class="text-[12px]">Is Corporate ?</p>
                   </div>
                 </div>
                 <div class="space-x-6">
                   <label for="" class="text-[12px] font-medium">Amount</label>
                   <input
                     type="number"
+                    disabled
                     name=""
                     placeholder="xxx"
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
@@ -277,6 +266,7 @@
                   <input
                     type="date"
                     name=""
+                    disabled
                     placeholder=""
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
@@ -285,6 +275,7 @@
                 <div class="space-x-3 flex justify-start items-start">
                   <label for="" class="text-[12px] font-medium">Comment</label>
                   <textarea
+                    disabled
                     class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[160px]"
                   >
                   </textarea>
@@ -294,16 +285,23 @@
                   class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
                 >
                   <p
-                    class="px-3 py-1 bg-gray-500 text-white text-[12px] cursor-pointer rounded-lg"
+                    v-if="save?.index == ''"
+                    @click="expenseUpdateAction"
+                    class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
                   >
                     Save
                   </p>
                   <p
+                    v-if="save?.index != ''"
                     @click="
-                      () => {
-                        carModalOpen = false;
-                      }
+                      removeFeatureDeleteImage(save?.index, save?.data.id)
                     "
+                    class="px-3 py-1 bg-red-500 text-white text-[12px] cursor-pointer rounded-lg"
+                  >
+                    delete
+                  </p>
+                  <p
+                    @click="cancelAction"
                     class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
                   >
                     Close
@@ -325,16 +323,18 @@ import { useToast } from "vue-toastification";
 import { useReservationStore } from "../../stores/reservation";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import { useRoute } from "vue-router";
 
 const toast = useToast();
 const reservationStore = useReservationStore();
 
 const props = defineProps({
   detail: Object,
+  getDetailAction: Function,
 });
 
 const carModalOpen = ref(false);
-
+const route = useRoute();
 const fileInputThree = ref(null);
 
 const formData = ref({
@@ -369,9 +369,25 @@ const recehandleFileChange = (e) => {
 
 const uploadRecePreview = ref([]);
 
-const expremoveSecSelectedImage = (index) => {
-  formData.value.receipt_image.splice(index, 1);
-  uploadRecePreview.value.splice(index, 1);
+const cancelAction = () => {
+  // your logic to cancel the update goes here
+  formData.value.receipt_image = [];
+  uploadRecePreview.value = [];
+  carModalOpen.value = false;
+};
+
+const save = ref({
+  data: {},
+  index: 0,
+});
+
+const openPassportModal = (data, index) => {
+  save.value.data = data;
+  save.value.index = index;
+  console.log("====================================");
+  console.log(save.value, "this is save");
+  console.log("====================================");
+  carModalOpen.value = true;
 };
 
 const expenseUpdateAction = async () => {
@@ -429,9 +445,9 @@ const expenseUpdateAction = async () => {
     await reservationStore.updateInfoAction(secfrm, formData.value.id);
 
     toast.success(response.message);
-    setTimeout(() => {
-      window.location.reload();
-    }, 3000);
+    setTimeout(async () => {
+      await props.getDetailAction(route.query.id);
+    }, 1000);
   }
 };
 
@@ -456,11 +472,20 @@ const payment_status = [
   { id: "3", name: "partially_paid" },
 ];
 
-const deleteImage = async (id, index) => {
-  console.log(id, "this is delete id");
-  await reservationStore.deleteResImage(id);
-  formData.value.booking_receipt_image.splice(index, 1);
-  toast.success("success delete receipt");
+const removeFeatureDeleteImage = async (index, id) => {
+  const res = await reservationStore.deleteResImage(id);
+  toast.success("detected successfully");
+  carModalOpen.value = false;
+  // console.log(editData.value.customer_passport, "this is remove");
+
+  save.value = {
+    data: "",
+    index: "",
+  };
+
+  setTimeout(async () => {
+    await props.getDetailAction(route.query.id);
+  }, 1000);
 };
 
 const daysBetween = (a, b) => {

@@ -1,8 +1,7 @@
 <template>
-  <!-- v-show="isShowSidebar" -->
   <div
-    class="bg-gray-100 text-white absolute md:relative transition duration-500 delay-100"
-    :class="isShowSidebar ? 'w-[260px]' : 'w-[90px]'"
+    class="bg-white text-white absolute md:relative transition-all duration-500 ease-in-out"
+    :class="isShowSidebar ? 'w-[260px]' : 'w-[80px]'"
   >
     <div class="h-[80px] w-full flex items-center">
       <div class="flex w-full items-center justify-between px-[20px]">
@@ -10,237 +9,249 @@
           <h3 class="text-sm font-medium md:text-sm lg:text-base">
             <img
               src="../../public/web-logo.png"
-              class="w-10 h-10 rounded"
+              class="min-w-10 max-w-10 max-h-10 min-h-10 rounded"
               alt=""
             />
           </h3>
           <p
-            class="ml-2 font-medium tracking-wide text-sm text-[#FF5B00]"
-            v-if="isShowSidebar"
+            class="ml-2 font-medium tracking-wide text-sm text-[#FF5B00] transition-opacity duration-500 ease-in-out"
+            :class="isShowSidebar ? 'opacity-100' : 'hidden'"
           >
             thanywhere
           </p>
         </div>
         <button
-          class="block p-3 text-white bg-blue-500 rounded-md shadow md:hidden"
+          class="block p-3 text-white bg-blue-500 rounded-md shadow md:hidden transition-transform duration-500 ease-in-out"
           @click.prevent="toggleSidebarHandler"
+          :class="isShowSidebar ? 'rotate-180' : 'rotate-0'"
         >
           <XMarkIcon class="w-5 h-5" />
         </button>
       </div>
     </div>
     <div class="h-[calc(100vh-80px)] bg-opacity-0 py-[20px] z-50 relative">
-      <div class="flex flex-col justify-between h-full space-y-[10px]">
+      <div class="flex justify-between h-full space-y-[10px]">
         <div
-          class="flex flex-col justify-between space-y-3 mt-5 px-[14px] h-full overflow-y-auto no-scrollbar"
+          class="flex flex-col justify-between space-y-3 px-[14px] h-full overflow-y-auto no-scrollbar"
         >
           <div>
-            <SidebarItem
-              name="Dashboard"
-              :icon="Squares2X2Icon"
-              to="/"
-              v-show="authStore.isSuperAdmin"
-            />
-            <SidebarItem
-              name="Dashboard"
-              :icon="Squares2X2Icon"
-              to="/auditor_dashboard"
-              v-show="authStore.isAuditor"
-            />
-            <SidebarItem
-              name="Dashboard"
-              :icon="Squares2X2Icon"
-              to="/user_dashboard"
-              v-show="!authStore.isSuperAdmin && !authStore.isAuditor"
-            />
-            <SidebarItem
-              name="Sales"
-              v-if="
-                authStore.isSuperAdmin ||
-                authStore.isCashier ||
-                authStore.isAdmin ||
-                authStore.isAgent
-              "
-              :icon="CalendarIcon"
-              to="/bookings/%25/%25/%25"
-              :activePaths="[
-                'bookings',
-                'bookings_create',
-                'edit_bookings',
-                'update_bookings',
-                'bookings_new_create',
-                'update_new_bookings',
-              ]"
-            />
-            <div
-              v-if="!authStore.isAuditor"
-              @click="toggleReservationShow"
-              class="text-gray-600 bg-gray-100 cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[12px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
-            >
-              <DocumentCheckIcon class="w-4 h-4 mr-[1.2rem]" />
-              <p
-                class="flex justify-between w-[80%] items-center"
-                v-if="isShowSidebar"
+            <!-- Sidebar items here -->
+            <div>
+              <SidebarItem
+                name="Dashboard"
+                :icon="Squares2X2Icon"
+                to="/"
+                v-show="authStore.isSuperAdmin"
+              />
+              <SidebarItem
+                name="Dashboard"
+                :icon="Squares2X2Icon"
+                to="/auditor_dashboard"
+                v-show="authStore.isAuditor"
+              />
+              <SidebarItem
+                name="Dashboard"
+                :icon="Squares2X2Icon"
+                to="/user_dashboard"
+                v-show="!authStore.isSuperAdmin && !authStore.isAuditor"
+              />
+              <SidebarItem
+                name="Sales"
+                v-if="
+                  authStore.isSuperAdmin ||
+                  authStore.isCashier ||
+                  authStore.isAdmin ||
+                  authStore.isAgent
+                "
+                :icon="CalendarIcon"
+                to="/bookings/%25/%25/%25"
+                :activePaths="[
+                  'bookings',
+                  'bookings_create',
+                  'edit_bookings',
+                  'update_bookings',
+                  'bookings_new_create',
+                  'update_new_bookings',
+                ]"
+              />
+              <div
+                v-if="!authStore.isAuditor"
+                @click="toggleReservationShow"
+                class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
               >
-                Reservation <ChevronDownIcon class="w-4 h-4" />
-              </p>
-            </div>
-            <div
-              v-if="isReservationShow"
-              class="transition-all duration-150"
-              :class="isShowSidebar ? 'ml-5' : ''"
-            >
-              <SidebarItem
-                name="reservation v2"
-                :icon="DocumentCheckIcon"
-                to="/reservation-second"
-                :activePaths="['reservation-second']"
-              />
-              <SidebarItem
-                name="new version"
-                :icon="DocumentCheckIcon"
-                to="/reservation-new/%25/%25/%25"
-                :activePaths="['reservation-new']"
-              />
-              <SidebarItem
-                name="stable version"
-                :icon="DocumentCheckIcon"
-                to="/reservation/%25/%25/%25"
-                :activePaths="['reservation', 'reservation-update']"
-              />
-            </div>
+                <DocumentCheckIcon class="w-4 h-4" />
+                <p
+                  class="flex justify-between w-[80%] text-[12px] ml-[1.2rem] items-center"
+                  v-if="isShowSidebar"
+                >
+                  Reservations
+                  <ChevronDownIcon
+                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                    :class="isReservationShow ? 'opacity-0' : 'opacity-100'"
+                    v-if="!isReservationShow"
+                  />
+                  <ChevronUpIcon
+                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                    :class="isReservationShow ? 'opacity-100' : 'opacity-0'"
+                    v-if="isReservationShow"
+                  />
+                </p>
+              </div>
+              <div
+                v-if="isReservationShow"
+                class="transition-all duration-500 ease-in-out overflow-hidden"
+                :class="
+                  isReservationShow
+                    ? 'ml-5 opacity-100 max-h-[500px]'
+                    : 'opacity-0 max-h-0'
+                "
+              >
+                <!-- Reservation items here -->
+                <SidebarItem
+                  name="v2"
+                  :icon="DocumentCheckIcon"
+                  to="/reservation-second"
+                  :activePaths="['reservation-second']"
+                />
+                <!-- <SidebarItem
+                  name="new"
+                  :icon="DocumentCheckIcon"
+                  to="/reservation-new/%25/%25/%25"
+                  :activePaths="['reservation-new']"
+                /> -->
+                <SidebarItem
+                  name="stable"
+                  :icon="DocumentCheckIcon"
+                  to="/reservation/%25/%25/%25"
+                  :activePaths="['reservation', 'reservation-update']"
+                />
+              </div>
 
-            <SidebarItem
-              v-if="!authStore.isAuditor"
-              name="Expenses"
-              :icon="WalletIcon"
-              to="/expenses"
-              :activePaths="['expenses']"
-            />
-            <SidebarItem
-              name="Products"
-              :icon="ArchiveBoxIcon"
-              :activePaths="[
-                'products',
-                'inclusive-create',
-                'inclusive-view',
-                'vantourview',
-                'vantouredit',
-                'vantour',
-                'airportcreate',
-                'airportupdate',
-                'grouptour',
-                'grouptourview',
-                'grouptourcreate',
-                'entrance',
-                'entrancecreate',
-                'entranceupdate',
-                'hoteledit',
-                'inclusive-create-new',
-                'inclusive-view-new',
-              ]"
-              to="/products/page"
-            />
-            <SidebarItem
-              v-if="!authStore.isAgent"
-              name="Database"
-              :icon="CircleStackIcon"
-              :activePaths="['database', 'blog_categories']"
-              to="/database/page"
-            />
-            <SidebarItem
-              name="Blogs"
-              v-if="!authStore.isAgent"
-              :icon="DocumentTextIcon"
-              to="/blogs"
-              :activePaths="['new_blog']"
-            />
-            <SidebarItem
-              name="Customers"
-              v-if="!authStore.isAgent && !authStore.isAuditor"
-              :icon="UsersIcon"
-              to="/customers"
-              :activePaths="['customers', 'customerscreate', 'customersupdate']"
-            />
-            <SidebarItem
-              name="Users"
-              v-if="!authStore.isAgent && !authStore.isAuditor"
-              :icon="UsersIcon"
-              to="/users"
-              :activePaths="['users']"
-            />
-            <SidebarItem
-              v-if="authStore.isSuperAdmin"
-              name="Admins"
-              :icon="UserCircleIcon"
-              to="/admins"
-              :activePaths="['admins']"
-            />
-
-            <!-- <SidebarItem
-              name="Setting"
-              :icon="Cog6ToothIcon"
-              @click="settingHandle"
-            /> -->
-            <div
-              v-if="!authStore.isAuditor"
-              class="inline-flex text-[.75rem] rounded-md relative items-center py-[12px] px-[10px] w-full text-sm font-roboto text-gray-600 bg-gray-100 mb-1 hover:text-[#FF5B00] hover:bg-[rgb(255, 91, 0, 0.1)] transition duration-150 hover:bg-[#FF5B00]/10"
-              @click="toggleSidebarShowSetting"
-            >
-              <component
-                :is="Cog6ToothIcon"
-                class="w-4 h-4 mr-[1.2rem]"
-              ></component>
-              {{ isShowSidebar ? "Setting" : "" }}
-              <component
-                v-if="!isShowSetting"
-                :is="ChevronDownIcon"
-                class="w-4 h-4 ml-[4.2rem]"
-              ></component>
-              <component
-                v-if="isShowSetting"
-                :is="ChevronUpIcon"
-                class="w-4 h-4 ml-[4.2rem]"
-              ></component>
-            </div>
-
-            <div
-              class="transition-all duration-150"
-              :class="isShowSidebar ? 'ml-5' : ''"
-              v-if="isShowSetting"
-            >
               <SidebarItem
-                name="Partners"
-                v-if="!authStore.isAgent"
-                :icon="UserGroupIcon"
-                to="/partners"
-              />
-              <!-- <SidebarItem
+                v-if="!authStore.isAuditor"
                 name="Expenses"
-                v-if="!authStore.isAgent"
                 :icon="WalletIcon"
                 to="/expenses"
-              /> -->
+                :activePaths="['expenses']"
+              />
               <SidebarItem
-                name="Calendar"
-                :icon="CalendarDaysIcon"
-                to="/calendar"
+                name="Products"
+                :icon="ArchiveBoxIcon"
+                :activePaths="[
+                  'products',
+                  'inclusive-create',
+                  'inclusive-view',
+                  'vantourview',
+                  'vantouredit',
+                  'vantour',
+                  'airportcreate',
+                  'airportupdate',
+                  'grouptour',
+                  'grouptourview',
+                  'grouptourcreate',
+                  'entrance',
+                  'entrancecreate',
+                  'entranceupdate',
+                  'hoteledit',
+                  'inclusive-create-new',
+                  'inclusive-view-new',
+                ]"
+                to="/products/page"
+              />
+              <SidebarItem
+                v-if="!authStore.isAgent"
+                name="Database"
+                :icon="CircleStackIcon"
+                :activePaths="['database', 'blog_categories']"
+                to="/database/page"
+              />
+              <SidebarItem
+                name="Blogs"
+                v-if="!authStore.isAgent"
+                :icon="DocumentTextIcon"
+                to="/blogs"
+                :activePaths="['new_blog']"
+              />
+              <SidebarItem
+                name="Customers"
+                v-if="!authStore.isAgent && !authStore.isAuditor"
+                :icon="UsersIcon"
+                to="/customers"
+                :activePaths="[
+                  'customers',
+                  'customerscreate',
+                  'customersupdate',
+                ]"
+              />
+              <SidebarItem
+                name="Users"
+                v-if="!authStore.isAgent && !authStore.isAuditor"
+                :icon="UsersIcon"
+                to="/users"
+                :activePaths="['users']"
+              />
+              <SidebarItem
+                v-if="authStore.isSuperAdmin"
+                name="Admins"
+                :icon="UserCircleIcon"
+                to="/admins"
+                :activePaths="['admins']"
+              />
+              <div
+                v-if="!authStore.isAuditor"
+                @click="toggleSidebarShowSetting"
+                class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
+              >
+                <Cog6ToothIcon class="w-4 h-4" />
+                <p
+                  class="flex justify-between w-[80%] text-[12px] ml-[1.2rem] items-center"
+                  v-if="isShowSidebar"
+                >
+                  Setting
+                  <ChevronDownIcon
+                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                    :class="isShowSetting ? 'opacity-0' : 'opacity-100'"
+                    v-if="!isShowSetting"
+                  />
+                  <ChevronUpIcon
+                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                    :class="isShowSetting ? 'opacity-100' : 'opacity-0'"
+                    v-if="isShowSetting"
+                  />
+                </p>
+              </div>
+              <div
+                class="transition-all duration-150"
+                :class="isShowSetting ? 'ml-5' : ''"
+                v-if="isShowSetting"
+              >
+                <SidebarItem
+                  name="Partners"
+                  v-if="!authStore.isAgent"
+                  :icon="UserGroupIcon"
+                  to="/partners"
+                />
+                <SidebarItem
+                  name="Calendar"
+                  :icon="CalendarDaysIcon"
+                  to="/calendar"
+                />
+              </div>
+              <SidebarItem
+                v-if="!authStore.isAgent && !authStore.isAuditor"
+                name="CarBookings"
+                :icon="DocumentTextIcon"
+                to="/car-bookings/unassigned"
+                :activePaths="['car-bookings']"
+              />
+              <SidebarItem
+                v-if="!authStore.isAgent && !authStore.isAuditor"
+                name="Availabilities"
+                :icon="CheckBadgeIcon"
+                to="/availabilities"
+                :activePaths="['availabilities']"
               />
             </div>
-            <SidebarItem
-              v-if="!authStore.isAgent && !authStore.isAuditor"
-              name="Car Bookings"
-              :icon="DocumentTextIcon"
-              to="/car-bookings/unassigned"
-              :activePaths="['car-bookings']"
-            />
-            <SidebarItem
-              v-if="!authStore.isAgent && !authStore.isAuditor"
-              name="Availabilities"
-              :icon="CheckBadgeIcon"
-              to="/availabilities"
-              :activePaths="['availabilities']"
-            />
           </div>
         </div>
       </div>
@@ -310,4 +321,19 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss" scoped></style>
+<style scoped>
+.sidebar-enter-active,
+.sidebar-leave-active {
+  transition: width 0.5s ease-in-out;
+}
+
+.sidebar-enter-from,
+.sidebar-leave-to {
+  width: 80px;
+}
+
+.sidebar-enter-to,
+.sidebar-leave-from {
+  width: 260px;
+}
+</style>

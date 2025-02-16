@@ -9,6 +9,14 @@
         >
           +
         </p> -->
+        <div class="flex justify-end w-full items-center gap-x-2 pt-0.5">
+          <button
+            @click="addConfirmationAction"
+            class="bg-green-500 text-white border border-gray-300 px-3 py-1 rounded-lg text-[10px] cursor-pointer"
+          >
+            Update Confirmation
+          </button>
+        </div>
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div class="space-y-2">
@@ -49,13 +57,14 @@
             accept="image/*"
           />
         </div>
-        <!-- <label
-          for=""
-          class="text-[12px] text-gray-500"
-          v-if="featureImagePreview.length > 0"
-          >Preveiw Passports</label
-        >
-        <div class="grid grid-cols-4 col-span-2 gap-3 mt-4">
+
+        <div class="grid grid-cols-4 col-span-2 gap-3">
+          <div
+            class="w-full border rounded-lg min-h-[100px] max-h-[364px] border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+            @click="openFileFeaturePicker"
+          >
+            +
+          </div>
           <div
             class="relative"
             v-for="(image, index) in featureImagePreview"
@@ -70,13 +79,7 @@
 
             <img class="h-auto w-full rounded" :src="image.file" alt="" />
           </div>
-        </div> -->
-        <div class="grid grid-cols-4 col-span-2 gap-3">
-          <div
-            class="w-full border rounded-lg h-[364px] border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
-          >
-            +
-          </div>
+
           <div
             class="relative"
             v-for="(image, index) in editData.slips_have ?? []"
@@ -92,14 +95,6 @@
           </div>
         </div>
       </div>
-      <div class="flex justify-end items-center gap-x-2 pt-2">
-        <button
-          @click="addConfirmationAction"
-          class="bg-[#ff613c] text-white border border-gray-300 px-3 py-2.5 rounded-lg text-xs"
-        >
-          Add Confirmation
-        </button>
-      </div>
     </div>
   </div>
 </template>
@@ -110,9 +105,11 @@ import { ref, defineProps, onMounted } from "vue";
 import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
 import invoice from "../../assets/invoice_exp.jpg";
+import { useRoute } from "vue-router";
 
 const reservationStore = useReservationStore();
 const toast = useToast();
+const route = useRoute();
 
 const editData = ref({
   reservation_status: "",
@@ -125,6 +122,7 @@ const loading = ref(false);
 
 const props = defineProps({
   detail: Object,
+  getDetailAction: Function,
 });
 
 const reservation_status = [
@@ -166,6 +164,7 @@ const removeFeatureDeleteImage = async (index, id) => {
     // featureImagePreview.value.splice(index, 1);
   }
   // console.log(editData.value.customer_passport, "this is remove");
+  toast.success("delete was successful");
 };
 
 const removeFeatureSelectImage = (index) => {
@@ -203,8 +202,8 @@ const addConfirmationAction = async () => {
   toast.success(res.message);
 
   // props.closeTravellerModal();
-  setTimeout(() => {
-    window.location.reload();
+  setTimeout(async () => {
+    await props.getDetailAction(route.query.id);
   }, 1000);
 };
 

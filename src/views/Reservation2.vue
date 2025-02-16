@@ -20,6 +20,8 @@ import { useAuthStore } from "@/stores/auth";
 import { useRouter, useRoute } from "vue-router";
 import { useAdminStore } from "../stores/admin";
 import { useHotelStore } from "../stores/hotel";
+import Modal from "../components/Modal.vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useEntranceStore } from "../stores/entrance";
 import AttractionUnlimited from "./Reservation2Component/AttractionUnlimited.vue";
 import HotelUnlimited from "./Reservation2Component/HotelUnlimited.vue";
@@ -62,6 +64,8 @@ const userName = computed(() => {
   );
   return filteredUser ? filteredUser.name : undefined;
 });
+
+const searchModel = ref(false);
 
 const searchValue = (val) => {
   search.value = val;
@@ -343,7 +347,7 @@ watch(dateRange, async (newValue) => {
                       Hotel
                     </p>
                     <p
-                      class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1.5 border whitespace-nowrap border-gray-200 rounded-lg"
+                      class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border whitespace-nowrap border-gray-200 rounded-lg"
                       @click="searchValue('App\\Models\\EntranceTicket')"
                       :class="
                         search == 'App\\Models\\EntranceTicket'
@@ -406,7 +410,29 @@ watch(dateRange, async (newValue) => {
                     text-input
                   />
                 </div> -->
+                <Modal :isOpen="searchModel" @closeModal="searchModel = false">
+                  <DialogPanel
+                    class="w-full max-w-lg transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+                  >
+                    <DialogTitle
+                      as="p"
+                      class="text-xs font-medium leading-6 text-gray-900 mb-5"
+                    >
+                      Select Date
+                    </DialogTitle>
+                    <div>
+                      <VueDatePicker
+                        v-model="searchTime"
+                        multi-calendars
+                        :format="'yyyy-MM-dd'"
+                        placeholder="Service Date"
+                        text-input
+                      />
+                    </div>
+                  </DialogPanel>
+                </Modal>
                 <p
+                  @click="searchModel = !searchModel"
                   class="text-[10px] text-gray-500 cursor-pointer px-4 py-2 border border-gray-300 rounded-lg"
                 >
                   Select Date

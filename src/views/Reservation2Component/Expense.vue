@@ -71,13 +71,40 @@
         />
       </div>
       <div class="space-y-2">
-        <p class="text-gray-800 text-[10px]">Unit Cost</p>
-        <input
-          v-model="formData.cost_price"
-          type="number"
-          id="title"
-          class="h-9 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-        />
+        <p class="text-gray-800 text-[10px]">Adult Unit Cost</p>
+        <div class="grid grid-cols-3 gap-x-2">
+          <input
+            v-model="formData.quantity"
+            type="number"
+            id="title"
+            disabled
+            class="h-9 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+          />
+          <input
+            v-model="formData.cost_price"
+            type="number"
+            id="title"
+            class="h-9 col-span-2 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+          />
+        </div>
+      </div>
+      <div class="space-y-2">
+        <p class="text-gray-800 text-[10px]">Child Unit Cost</p>
+        <div class="grid grid-cols-3 gap-x-2">
+          <input
+            v-model="formData.child_quantity"
+            type="number"
+            id="title"
+            disabled
+            class="h-9 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+          />
+          <input
+            v-model="formData.child_price"
+            type="number"
+            id="title"
+            class="h-9 col-span-2 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+          />
+        </div>
       </div>
       <div
         class="space-y-2"
@@ -95,7 +122,10 @@
             class="h-9 w-full bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
             v-if="!detail?.checkin_date"
           >
-            {{ formData.cost_price * formData.quantity }}
+            {{
+              formData.cost_price * formData.quantity +
+              formData.child_price * formData.child_quantity
+            }}
           </p>
           <p
             class="h-9 w-full bg-white border rounded-md border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
@@ -351,6 +381,8 @@ const formData = ref({
   booking_receipt_image: [],
   product_type: "",
   customer_feedback: "",
+  child_quantity: "",
+  child_price: "",
 });
 
 const openFilePickerThree = () => {
@@ -531,6 +563,12 @@ onMounted(() => {
     formData.value.product_type = props.detail?.product_type;
     formData.value.customer_feedback =
       props.detail?.reservation_info?.customer_feedback || "";
+    formData.value.child_quantity = props.detail?.individual_pricing
+      ? props?.detail?.individual_pricing?.child?.quantity
+      : 0;
+    formData.value.child_price = props.detail?.individual_pricing
+      ? props?.detail?.individual_pricing?.child?.cost_price
+      : 0;
   }
 });
 </script>

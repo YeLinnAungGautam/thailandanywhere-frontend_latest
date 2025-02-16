@@ -49,14 +49,52 @@ const searchTime = ref("");
 const empty_unit_cost = ref("");
 const sale_daterange = ref(null);
 const booking_daterange = ref(null);
-const customer_name = ref("");
+const customer_name = ref("service_date");
 const sorting = ref("");
 const dateOnlyToggle = ref(false);
-
+const searchA = ref("");
 const showSide = ref(3);
-
+const changeDate = ref(null);
+const oldCrmId = ref("");
 const filterShow = ref(false);
 const softShow = ref(false);
+const booking_status = ref("");
+const expense_status = ref("");
+const customer_payment_status = ref("");
+const booking_date = ref("");
+const searchReservation = ref("");
+const bookingStatus = ref("");
+const expenseStatus = ref("");
+const customerPaymentStatus = ref("");
+const showFilter = ref(false);
+
+const clearFilter = () => {
+  search.value = "";
+  changeDate.value = "";
+  oldCrmId.value = "";
+  dateRange.value = "";
+  sale_daterange.value = "";
+  booking_daterange.value = "";
+  bookingStatus.value = "";
+  expenseStatus.value = "";
+  customerPaymentStatus.value = "";
+  searchId.value = "";
+  hotel_name.value = "";
+  limit.value = 10;
+  searchA.value = "";
+  userFilter.value = "";
+  attraction_name.value = "";
+  // user_id.value =
+  //   authStore.isSuperAdmin || authStore.isReservation ? "" : authStore.user.id;
+  searchReservation.value = "";
+  searchTime.value = "";
+  booking_date.value = "";
+  showFilter.value = false;
+  customer_name.value = "service_date";
+  sorting.value = "";
+
+  filterShow.value = false;
+};
 
 const userName = computed(() => {
   const filteredUser = adminLists?.value.find(
@@ -121,17 +159,49 @@ const watchSystem = computed(() => {
   if (searchId.value != "" && searchId.value != undefined) {
     result.crm_id = searchId.value;
   }
+  if (bookingStatus.value != "" && bookingStatus.value != undefined) {
+    result.booking_status = bookingStatus.value;
+  }
+  if (expenseStatus.value != "" && expenseStatus.value != undefined) {
+    result.expense_status = expenseStatus.value;
+  }
   if (hotel_name.value != "" && hotel_name.value != undefined) {
     result.hotel_name = hotel_name.value;
   }
   if (attraction_name.value != "" && attraction_name.value != undefined) {
     result.attraction_name = attraction_name.value;
   }
-  if (searchTime.value != "" && searchTime.value != undefined) {
+  if (
+    customerPaymentStatus.value != "" &&
+    customerPaymentStatus.value != undefined
+  ) {
+    result.customer_payment_status = customerPaymentStatus.value;
+  }
+  if (searchA.value != "" && searchA.value != undefined) {
+    result.filter = searchA.value;
+  }
+  if (searchReservation.value != "" && searchReservation.value != undefined) {
+    result.reservation_status = searchReservation.value;
+  }
+  if (
+    searchTime.value != "" &&
+    searchTime.value != undefined &&
+    dateOnlyToggle.value
+  ) {
     result.service_date = formatDate(searchTime.value);
   }
   if (empty_unit_cost.value != "" && empty_unit_cost.value != false) {
     result.empty_unit_cost = empty_unit_cost.value;
+  }
+  if (
+    booking_date.value != "" &&
+    booking_date.value != undefined &&
+    dateOnlyToggle.value
+  ) {
+    result.booking_date = formatDate(booking_date.value);
+  }
+  if (sale_daterange.value != undefined && !dateOnlyToggle.value) {
+    result.sale_daterange = sale_daterange.value;
   }
   if (booking_daterange.value != undefined && !dateOnlyToggle.value) {
     result.booking_daterange = booking_daterange.value;
@@ -145,12 +215,9 @@ const watchSystem = computed(() => {
   } else {
     result.order_by = "";
   }
-  if (sorting.value != "") {
-    result.order_direction = sorting.value;
-  }
-  if (sale_daterange.value != undefined && !dateOnlyToggle.value) {
-    result.sale_daterange = sale_daterange.value;
-  }
+  // if (sorting.value != "") {
+  result.order_direction = "desc";
+  // }
 
   console.log(result);
   return result;
@@ -259,6 +326,11 @@ const searchAction = async () => {
   await reservationStore.getListAction(watchSystem.value);
 };
 
+watch(searchTime, async (newValue) => {
+  await searchAction();
+  searchModel.value = false;
+});
+
 watch(dateRange, async (newValue) => {
   console.log(dateRange.value, "this is date");
   if (dateRange.value != "" && dateRange.value != null) {
@@ -284,6 +356,8 @@ watch(dateRange, async (newValue) => {
   }
   // console.log(sale_daterange.value, "this is daterange");
   getReservationListAction();
+
+  searchModel.value = false;
 });
 </script>
 
@@ -326,10 +400,7 @@ watch(dateRange, async (newValue) => {
                     class="w-6 h-6 text-[#FF613c] cursor-pointer"
                     @click="filterShow = !filterShow"
                   /> -->
-                  <p
-                    class="text-[10px] cursor-pointer"
-                    @click="filterShow = !filterShow"
-                  >
+                  <p class="text-[10px] cursor-pointer" @click="clearFilter">
                     clear
                   </p>
                 </div>
@@ -418,17 +489,64 @@ watch(dateRange, async (newValue) => {
                     class="w-full max-w-lg transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
                   >
                     <DialogTitle
-                      as="p"
-                      class="text-xs font-medium leading-6 text-gray-900 mb-5"
+                      as="div"
+                      class="text-xs flex justify-between items-center font-medium leading-6 text-gray-900 mb-5"
                     >
                       Select Date
+                      <div
+                        @click="dateOnlyToggle = !dateOnlyToggle"
+                        class="flex justify-end items-center gap-2"
+                      >
+                        <p class="text-xs">date only filter</p>
+                        <label
+                          class="inline-flex items-center cursor-pointer"
+                          v-if="dateOnlyToggle"
+                        >
+                          <input
+                            type="checkbox"
+                            value=""
+                            class="sr-only peer"
+                            disabled
+                          />
+                          <div
+                            class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+                          ></div>
+                        </label>
+
+                        <label
+                          class="inline-flex items-center cursor-pointer"
+                          v-if="!dateOnlyToggle"
+                        >
+                          <input
+                            type="checkbox"
+                            value=""
+                            class="sr-only peer"
+                            checked
+                            disabled
+                          />
+                          <div
+                            class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
+                          ></div>
+                        </label>
+                        <p class="text-xs">date range filter</p>
+                      </div>
                     </DialogTitle>
-                    <div>
+                    <div v-if="dateOnlyToggle">
                       <VueDatePicker
                         v-model="searchTime"
                         multi-calendars
                         :format="'yyyy-MM-dd'"
                         placeholder="Service Date"
+                        text-input
+                      />
+                    </div>
+                    <div v-if="!dateOnlyToggle">
+                      <VueDatePicker
+                        v-model="dateRange"
+                        range
+                        multi-calendars
+                        :format="'yyyy-MM-dd'"
+                        placeholder="Service Date range"
                         text-input
                       />
                     </div>
@@ -664,18 +782,54 @@ watch(dateRange, async (newValue) => {
                   </p>
                 </div>
                 <div class="space-y-1">
-                  <div class="flex justify-start items-center">
-                    <input type="checkbox" name="sort-by" id="id" />
+                  <div
+                    class="flex justify-start items-center"
+                    @click="customer_name = 'service_date'"
+                  >
+                    <input
+                      type="checkbox"
+                      name="sort-by"
+                      id="id"
+                      :checked="customer_name == 'service_date'"
+                    />
                     <p class="text-xs py-2 px-4">Service Date</p>
                   </div>
-                  <div class="flex justify-start items-center">
-                    <input type="checkbox" name="sort-by" id="id" />
+                  <div
+                    class="flex justify-start items-center"
+                    @click="customer_name = 'expense_status'"
+                  >
+                    <input
+                      type="checkbox"
+                      name="sort-by"
+                      id="id"
+                      :checked="customer_name == 'expense_status'"
+                    />
                     <p class="text-xs py-2 px-4">Expense Status</p>
                   </div>
-                  <div class="flex justify-start items-center">
-                    <input type="checkbox" name="sort-by" id="id" />
+                  <div
+                    class="flex justify-start items-center"
+                    @click="customer_name = 'payment_status'"
+                  >
+                    <input
+                      type="checkbox"
+                      name="sort-by"
+                      id="id"
+                      :checked="customer_name == 'payment_status'"
+                    />
                     <p class="text-xs py-2 px-4">C. Payment Status</p>
                   </div>
+                </div>
+                <div
+                  @click="
+                    () => {
+                      searchAction();
+                      softShow = !softShow;
+                      filterShow = false;
+                    }
+                  "
+                  class="bg-[#FF613c] text-white px-1.5 cursor-pointer inline-block rounded-lg text-sm w-full py-1.5 text-center"
+                >
+                  soft
                 </div>
               </div>
             </transition>
@@ -688,48 +842,68 @@ watch(dateRange, async (newValue) => {
               id=""
             />
           </div>
-          <div class="flex justify-start items-center space-x-2 pb-4">
+          <div
+            class="flex justify-start items-center overflow-x-scroll no-sidebar-container space-x-2 pb-4"
+          >
+            <p
+              @click="clearFilter"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap bg-red-500 text-white cursor-pointer"
+            >
+              clear
+            </p>
             <p
               v-if="search == 'App\\Models\\PrivateVanTour'"
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
             >
               Van Tour
             </p>
             <p
               v-if="search == 'App\\Models\\Hotel'"
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
             >
               Hotel
             </p>
             <p
               v-if="search == 'App\\Models\\EntranceTicket'"
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
             >
               Attraction
             </p>
             <p
               v-if="search == 'App\\Models\\Airline'"
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
             >
               Airline
             </p>
             <p
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
               v-if="userName != undefined"
             >
               {{ userName }}
             </p>
             <p
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
               v-if="!searchTime"
             >
               {{ sale_daterange }}
             </p>
             <p
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
               v-if="searchTime"
             >
               {{ formatDate(searchTime) }}
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
+              v-if="customer_name"
+            >
+              sort: {{ customer_name }}
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
+              v-if="attraction_name"
+            >
+              {{ attraction_name }}
             </p>
           </div>
           <div

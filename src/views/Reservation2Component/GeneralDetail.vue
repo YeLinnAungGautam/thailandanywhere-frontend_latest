@@ -16,8 +16,8 @@
       <div
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
       >
-        <p class="text-[10px] text-gray-500">Item Discount</p>
-        <p class="text-sm">{{ detail?.discount }}</p>
+        <p class="text-[10px] text-gray-500">Total Discount</p>
+        <p class="text-sm">{{ detail?.booking?.discount }}</p>
       </div>
       <div
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"

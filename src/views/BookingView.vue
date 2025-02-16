@@ -158,8 +158,8 @@ const showVersionUpdate = ref(false);
 const editId = ref("");
 
 const newUpdateHandler = (id) => {
-  showVersionUpdate.value = true;
   editId.value = id;
+  goEditPage("new");
 };
 
 const goCreatePage = (data) => {
@@ -356,7 +356,7 @@ watch(
           <Button :leftIcon="PlusIcon"> Create </Button>
         </router-link> -->
         <div class="relative">
-          <Button :leftIcon="PlusIcon" @click="showVersion = !showVersion">
+          <Button :leftIcon="PlusIcon" @click="goCreatePage('new')">
             Create
           </Button>
         </div>
@@ -813,78 +813,6 @@ watch(
       <!-- pagination -->
       <Pagination v-if="!loading" :data="bookings" @change-page="changePage" />
     </div>
-    <Modal :isOpen="showVersion" @closeModal="showVersion = false">
-      <DialogPanel
-        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
-      >
-        <DialogTitle
-          as="h3"
-          class="text-lg font-medium leading-6 text-gray-900 mb-5"
-        >
-          select version controll !
-        </DialogTitle>
-        <div class="space-y-2">
-          <div>
-            <Button
-              :leftIcon="PlusIcon"
-              class="w-full"
-              @click="goCreatePage('new')"
-            >
-              <p class="text-xs w-full whitespace-nowrap">
-                New Version (recommended)
-              </p>
-            </Button>
-          </div>
-          <div>
-            <Button
-              class="w-full bg-gray-500"
-              :leftIcon="PlusIcon"
-              @click="goCreatePage('old')"
-            >
-              <p class="text-xs w-full whitespace-nowrap">
-                Old Version (stable)
-              </p>
-            </Button>
-          </div>
-        </div>
-      </DialogPanel>
-    </Modal>
-    <Modal :isOpen="showVersionUpdate" @closeModal="showVersionUpdate = false">
-      <DialogPanel
-        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
-      >
-        <DialogTitle
-          as="h3"
-          class="text-lg font-medium leading-6 text-gray-900 mb-5"
-        >
-          select version controll !
-        </DialogTitle>
-        <div class="space-y-2">
-          <div>
-            <Button
-              :leftIcon="PlusIcon"
-              class="w-full"
-              @click="goEditPage('new')"
-            >
-              <p class="text-xs w-full whitespace-nowrap">
-                New Version Edit (recommended)
-              </p>
-            </Button>
-          </div>
-          <div>
-            <Button
-              class="w-full bg-gray-500"
-              :leftIcon="PlusIcon"
-              @click="goEditPage('old')"
-            >
-              <p class="text-xs w-full whitespace-nowrap">
-                Old Version Edit (stable)
-              </p>
-            </Button>
-          </div>
-        </div>
-      </DialogPanel>
-    </Modal>
   </Layout>
 </template>
 

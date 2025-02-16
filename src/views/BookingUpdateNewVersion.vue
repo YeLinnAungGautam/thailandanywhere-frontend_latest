@@ -485,11 +485,6 @@ const onSubmitHandler = async () => {
 
     required_archive.value && frmData.append("required_archive", true);
 
-    // if (formData.value.discount == "" || formData.value.discount == 0) {
-    //   frmData.append("discount", 0);
-    // } else {
-    //   frmData.append("discount", percentageValue.value);
-    // }
     sub_total_discount.value
       ? frmData.append("discount", sub_total_discount.value)
       : frmData.append("discount", 0);
@@ -626,7 +621,10 @@ const onSubmitHandler = async () => {
           formData.value.items[x].cost_price
         );
       }
-      if (formData.value.items[x].individual_pricing) {
+      if (
+        formData.value.items[x].individual_pricing?.adult &&
+        formData.value.items[x].individual_pricing.child
+      ) {
         frmData.append(
           "items[" + x + "][individual_pricing][adult][quantity]",
           formData.value.items[x].individual_pricing.adult.quantity
@@ -667,6 +665,8 @@ const onSubmitHandler = async () => {
           "items[" + x + "][individual_pricing][child][amount]",
           formData.value.items[x].individual_pricing.child.amount
         );
+      } else {
+        frmData.append("items[" + x + "][individual_pricing]", null);
       }
 
       if (formData.value.items[x].discount) {
@@ -1077,7 +1077,10 @@ const getDetail = async () => {
         room_number: data.items[x].room_number ? data.items[x].room_number : "",
         total_amount: data.items[x].amount * 1,
         total_cost_price: data.items[x].total_cost_price * 1,
-        individual_pricing: data.items[x].individual_pricing,
+        individual_pricing:
+          data.items[x].individual_pricing != null
+            ? data.items[x].individual_pricing
+            : {},
         child_info:
           data.items[x].variation && data.items[x].variation?.child_info
             ? JSON.parse(data.items[x].variation?.child_info)

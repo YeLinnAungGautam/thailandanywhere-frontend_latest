@@ -520,11 +520,18 @@ onMounted(() => {
             </div>
           </div>
           <div
+            v-if="i?.crm_id"
             class="flex justify-start items-center gap-x-2 pt-1"
             @click="
-              router.push(
-                `/reservation/update/${i?.reservation_id}/${i?.crm_id}`
-              )
+              () => {
+                if (i?.product_type != 4) {
+                  router.push(
+                    `/reservation/update/${i?.reservation_id}/${i?.crm_id}`
+                  );
+                } else {
+                  router.push(`/reservation-second?id=${i?.reservation_id}`);
+                }
+              }
             "
           >
             <DocumentCheckIcon
@@ -550,8 +557,9 @@ onMounted(() => {
               {{ i?.quantity }} x {{ i?.selling_price }} ฿
             </p>
             <p class="text-[10px]" v-if="i?.product_type == 4">
-              {{ i?.quantity }} x {{ i?.selling_price }} +
-              {{ i?.individual_pricing?.child?.quantity }} x
+              adult - {{ i?.quantity }} x {{ i?.selling_price }} ฿
+              <br />
+              child - {{ i?.individual_pricing?.child?.quantity }} x
               {{ i?.individual_pricing?.child?.selling_price }} ฿
             </p>
             <p class="text-[10px]">

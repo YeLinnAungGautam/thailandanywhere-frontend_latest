@@ -128,7 +128,10 @@
                   Child Price</label
                 >
               </div>
-              <div class="flex items-center justify-between gap-3 mb-3">
+              <div
+                class="flex items-center justify-between gap-3 mb-3"
+                v-if="formData.child_info.length != 1"
+              >
                 <div class="flex-1">
                   <input
                     v-model="child_info_default.info"

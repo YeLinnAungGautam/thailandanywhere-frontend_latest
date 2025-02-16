@@ -12,6 +12,8 @@ import saloon from "../../../public/2.png";
 import deluxe from "../../../public/3.png";
 import { useAuthStore } from "../../stores/auth";
 import { useHotelStore } from "../../stores/hotel";
+import AddonListOnBooking from "../Addon/AddonListOnBooking.vue";
+import { computed } from "vue";
 
 const props = defineProps({
   data: Object,
@@ -33,10 +35,11 @@ const formitem = ref({
   room_id: "",
   room: null,
   service_date: "",
-  quantity: "1",
+  quantity: 0,
   days: "",
   cancellation: null,
   duration: "",
+  individual_pricing: {},
   selling_price: "",
   comment: "",
   reservation_status: "",
@@ -111,7 +114,7 @@ const closeModalAction = () => {
     room_id: "",
     room: null,
     service_date: "",
-    quantity: "1",
+    quantity: 0,
     days: "",
     duration: "",
     selling_price: "",
@@ -124,6 +127,7 @@ const closeModalAction = () => {
     cost_price: "",
     special_request: "",
     total_amount: "",
+    individual_pricing: {},
     pickup_location: "",
     pickup_time: "",
     is_driver_collect: false,
@@ -172,6 +176,9 @@ const selectAction = (item) => {
     if (formitem.value.product_type == 4) {
       formitem.value.cost_price = item.cost_price ? item.cost_price : 0;
       formitem.value.comment = `Variation : ${formitem.value.item_name}`;
+      formitem.value.child_info = item.child_info
+        ? JSON.parse(item.child_info)
+        : [];
     }
   }
   if (formitem.value.product_type == 7) {
@@ -181,6 +188,38 @@ const selectAction = (item) => {
   console.log(formitem.value, "this is formItem");
   getFunction();
 };
+
+const addOnList = ref([]);
+
+const changeAddOnList = (message) => {
+  console.log(message, "this is message");
+
+  addOnList.value = [];
+};
+
+const addOnSellingPrice = computed(() => {
+  let result = 0;
+  if (addOnList.value != null) {
+    for (let i = 0; i < addOnList.value.length; i++) {
+      if (addOnList.value[i].select == true) {
+        result += addOnList.value[i].price * addOnList.value[i].quantity;
+      }
+    }
+  }
+  return result;
+});
+
+const addOnCostPrice = computed(() => {
+  let result = 0;
+  if (addOnList.value != null) {
+    for (let i = 0; i < addOnList.value.length; i++) {
+      if (addOnList.value[i].select == true) {
+        result += addOnList.value[i].cost_price * addOnList.value[i].quantity;
+      }
+    }
+  }
+  return result;
+});
 
 const goInfoModal = () => {
   console.log("====================================");
@@ -217,21 +256,32 @@ const todayCheck = () => {
 const getFunction = () => {
   if (formitem.value.days != undefined && formitem.value.days != "") {
     formitem.value.total_amount =
-      formitem.value.selling_price *
-        formitem.value.days *
-        formitem.value.quantity -
-      formitem.value.discount;
+      formitem.value.quantity *
+        formitem.value.selling_price *
+        formitem.value.days -
+      formitem.value.discount +
+      addOnSellingPrice.value;
+    formitem.value.total_cost_price =
+      formitem.value.quantity *
+        formitem.value.cost_price *
+        formitem.value.days +
+      addOnCostPrice.value;
   } else {
     formitem.value.total_amount =
       formitem.value.selling_price * formitem.value.quantity -
-      formitem.value.discount;
+      formitem.value.discount +
+      addOnSellingPrice.value +
+      (formitem.value.individual_pricing?.child?.amount * 1 || 0);
+
+    formitem.value.total_cost_price =
+      formitem.value.quantity * formitem.value.cost_price +
+      addOnCostPrice.value +
+      (formitem.value.individual_pricing?.child?.total_cost_price * 1 || 0);
   }
 
   console.log("====================================");
   console.log(formitem.value, "thsi is ");
   console.log("====================================");
-  // emit("formData", formitem.value);
-  // cancelAction();
 };
 
 const cancelAction = () => {
@@ -333,6 +383,78 @@ watch(
     }
   },
   { deep: true, immediate: true } // Optional: immediate triggers the callback initially
+);
+
+watch(
+  () => formitem.value.quantity, // Watch the quantity property
+  (newValue) => {
+    // Ensure newValue is a valid number
+    if (typeof newValue !== "number" || isNaN(newValue)) {
+      console.error("Invalid quantity value:", newValue);
+      return;
+    }
+
+    // Ensure cost_price and selling_price are valid numbers
+    const costPrice = parseFloat(formitem.value.cost_price) || 0;
+    const sellingPrice = parseFloat(formitem.value.selling_price) || 0;
+
+    // Create a new object for individual_pricing.adult
+    const updatedAdultPricing = {
+      quantity: newValue,
+      selling_price: sellingPrice,
+      cost_price: costPrice,
+      total_cost_price: newValue * costPrice,
+      amount: newValue * sellingPrice,
+    };
+
+    // Update formitem.value.individual_pricing.adult
+    formitem.value.individual_pricing.adult = updatedAdultPricing;
+
+    // Debugging logs (optional)
+    console.log("====================================");
+    console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
+    console.log("====================================");
+  },
+  { immediate: true } // Optional: Trigger the watcher immediately on setup
+);
+
+watch(
+  () => formitem.value.individual_pricing?.child?.quantity, // Watch the quantity property
+  (newValue) => {
+    // Ensure newValue is a valid number
+    if (typeof newValue !== "number" || isNaN(newValue)) {
+      console.error("Invalid quantity value:", newValue);
+      return;
+    }
+
+    // Ensure cost_price and selling_price are valid numbers
+    const costPrice =
+      formitem.value.child_info.length > 0
+        ? parseFloat(formitem.value.child_info[0]?.child_cost_price)
+        : 0;
+    const sellingPrice =
+      formitem.value.child_info.length > 0
+        ? parseFloat(formitem.value.child_info[0]?.child_price)
+        : 0;
+
+    // Create a new object for individual_pricing.adult
+    const updatedChildPricing = {
+      quantity: newValue,
+      selling_price: sellingPrice,
+      cost_price: costPrice,
+      total_cost_price: newValue * costPrice,
+      amount: newValue * sellingPrice,
+    };
+
+    // Update formitem.value.individual_pricing.adult
+    formitem.value.individual_pricing.child = updatedChildPricing;
+
+    // Debugging logs (optional)
+    console.log("====================================");
+    console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
+    console.log("====================================");
+  },
+  { immediate: true } // Optional: Trigger the watcher immediately on setup
 );
 
 onMounted(() => {
@@ -789,7 +911,8 @@ onMounted(() => {
               </div>
               <div class="space-y-1" v-if="formitem.product_type != 7">
                 <label for="" class="text-[12px] text-gray-500"
-                  >Qty <span class="text-red-800">*</span></label
+                  >Qty - selling : {{ formitem.selling_price }}
+                  <span class="text-red-800">*</span></label
                 >
                 <input
                   type="number"
@@ -798,6 +921,23 @@ onMounted(() => {
                   name=""
                   class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                   id=""
+                />
+              </div>
+              <div
+                class="relative space-y-1"
+                v-for="i in formitem.child_info"
+                :key="i"
+              >
+                <label for="" class="text-xs text-gray-500"
+                  >{{ i.info }} Qty - selling : {{ i.child_price
+                  }}<span class="text-red-800">*</span></label
+                >
+                <input
+                  type="number"
+                  v-model="formitem.individual_pricing.child.quantity"
+                  name=""
+                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id="adult_pricing"
                 />
               </div>
               <div class="space-y-1 col-span-2">
@@ -925,6 +1065,44 @@ onMounted(() => {
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
               id=""
             />
+          </div>
+          <div>
+            <label for="" class="text-[12px] text-gray-500"
+              >Add on <span class="text-red-800">*</span></label
+            >
+            <div>
+              <AddonListOnBooking
+                :id="formitem.product_id"
+                :type="'hotel'"
+                :addOnList="addOnList"
+                @cleanAddOnList="changeAddOnList"
+              />
+            </div>
+          </div>
+
+          <div>
+            <p class="text-xs text-end px-2">
+              selling price {{ addOnSellingPrice }} :
+              <span class="font-medium text-[#ff613c]"
+                >{{
+                  formitem.selling_price * formitem.quantity -
+                  formitem.discount +
+                  (formitem.individual_pricing.child?.amount || 0) +
+                  addOnSellingPrice
+                }}
+                ฿</span
+              >
+              - cost price :
+              <span class="font-medium text-[#ff613c]"
+                >{{
+                  formitem.cost_price * formitem.quantity -
+                  formitem.discount +
+                  (formitem.individual_pricing.child?.total_cost_price || 0) +
+                  addOnCostPrice
+                }}
+                ฿</span
+              >
+            </p>
           </div>
           <div class="space-y-1" v-if="formitem.product_type == 1">
             <label for="" class="text-[12px] text-gray-500"

@@ -447,10 +447,22 @@ const hide = ref(false);
             <div>
               <p class="text-[10px] text-gray-500">Total Adult :</p>
               <p class="text-[12px] text-[#FF613c] pb-2">
-                {{ detail?.quantity }} x {{ detail?.selling_price }}
+                {{ detail?.quantity }} x {{ detail?.cost_price }}
               </p>
               <p class="text-[10px] text-gray-500">Total Child :</p>
-              <p class="text-[12px] text-[#FF613c] pb-2">-</p>
+              <p
+                class="text-[12px] text-[#FF613c] pb-2"
+                v-if="detail?.individual_pricing"
+              >
+                {{ detail?.individual_pricing?.child?.quantity }} x
+                {{ detail?.individual_pricing?.child?.cost_price }}
+              </p>
+              <p
+                class="text-[12px] text-[#FF613c] pb-2"
+                v-if="!detail?.individual_pricing"
+              >
+                -
+              </p>
               <p class="text-[10px] text-gray-500">Reser Expense :</p>
               <p class="text-[12px] text-[#FF613c]">
                 {{ detail?.total_cost_price }} thb

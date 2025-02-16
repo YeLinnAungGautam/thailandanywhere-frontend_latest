@@ -35,7 +35,12 @@
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
       >
         <p class="text-[10px] text-gray-500">Total Quantity</p>
-        <p class="text-sm">{{ detail?.quantity }}</p>
+        <p class="text-sm">
+          {{
+            detail?.quantity +
+            (detail?.individual_pricing?.child?.quantity ?? 0) * 1
+          }}
+        </p>
       </div>
       <div
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
@@ -59,7 +64,9 @@
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
       >
         <p class="text-[10px] text-gray-500">Child Qty</p>
-        <p class="text-sm">-</p>
+        <p class="text-sm">
+          {{ detail?.individual_pricing?.child?.quantity ?? 0 }}
+        </p>
       </div>
     </div>
     <div>

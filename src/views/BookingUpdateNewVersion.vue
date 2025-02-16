@@ -585,22 +585,10 @@ const onSubmitHandler = async () => {
         frmData.append("items[" + x + "][is_inclusive]", 0);
       }
 
-      if (formData.value.items[x].product_type != "6") {
-        frmData.append(
-          "items[" + x + "][amount]",
-          formData.value.items[x].selling_price *
-            formData.value.items[x].quantity -
-            formData.value.items[x].discount
-        );
-      } else if (formData.value.items[x].product_type == "6") {
-        frmData.append(
-          "items[" + x + "][amount]",
-          formData.value.items[x].selling_price *
-            formData.value.items[x].quantity *
-            formData.value.items[x].days -
-            formData.value.items[x].discount
-        );
-      }
+      frmData.append(
+        "items[" + x + "][amount]",
+        formData.value.items[x].total_amount
+      );
 
       formData.value.items[x].pickup_location
         ? frmData.append(
@@ -638,7 +626,48 @@ const onSubmitHandler = async () => {
           formData.value.items[x].cost_price
         );
       }
-      frmData.append("items[" + x + "][individual_pricing]", null);
+      if (formData.value.items[x].individual_pricing) {
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][quantity]",
+          formData.value.items[x].individual_pricing.adult.quantity
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][selling_price]",
+          formData.value.items[x].individual_pricing.adult.selling_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][cost_price]",
+          formData.value.items[x].individual_pricing.adult.cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][total_cost_price]",
+          formData.value.items[x].individual_pricing.adult.total_cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][amount]",
+          formData.value.items[x].individual_pricing.adult.amount
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][quantity]",
+          formData.value.items[x].individual_pricing.child.quantity
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][selling_price]",
+          formData.value.items[x].individual_pricing.child.selling_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][cost_price]",
+          formData.value.items[x].individual_pricing.child.cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][total_cost_price]",
+          formData.value.items[x].individual_pricing.child.total_cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][amount]",
+          formData.value.items[x].individual_pricing.child.amount
+        );
+      }
 
       if (formData.value.items[x].discount) {
         frmData.append(
@@ -649,23 +678,10 @@ const onSubmitHandler = async () => {
         frmData.append("items[" + x + "][discount]", 0);
       }
 
-      if (
-        formData.value.items[x].cost_price &&
-        formData.value.items[x].quantity
-      ) {
-        if (formData.value.items[x].product_type != "6") {
-          frmData.append(
-            "items[" + x + "][total_cost_price]",
-            formData.value.items[x].cost_price *
-              formData.value.items[x].quantity
-          );
-        } else {
-          "items[" + x + "][total_cost_price]",
-            formData.value.items[x].cost_price *
-              formData.value.items[x].quantity *
-              formData.value.items[x].days;
-        }
-      }
+      frmData.append(
+        "items[" + x + "][total_cost_price]",
+        formData.value.items[x].total_cost_price
+      );
       if (formData.value.items[x].dropoff_location) {
         frmData.append(
           "items[" + x + "][dropoff_location]",
@@ -1059,18 +1075,13 @@ const getDetail = async () => {
           ? data.items[x].checkout_date
           : "",
         room_number: data.items[x].room_number ? data.items[x].room_number : "",
-        total_amount: data.items[x].checkin_date
-          ? totalAmountCheck(
-              data.items[x].quantity,
-              data.items[x].selling_price,
-              daysBetween(
-                data.items[x].checkin_date,
-                data.items[x].checkout_date
-              ),
-              data.items[x].discount
-            )
-          : data.items[x].selling_price * data.items[x].quantity -
-            data.items[x].discount,
+        total_amount: data.items[x].amount * 1,
+        total_cost_price: data.items[x].total_cost_price * 1,
+        individual_pricing: data.items[x].individual_pricing,
+        child_info:
+          data.items[x].variation && data.items[x].variation?.child_info
+            ? JSON.parse(data.items[x].variation?.child_info)
+            : [],
         payment_status: data.items[x].payment_status,
         associated_customer: data.items[x].associated_customer,
         customer_passport: data.items[x].customer_passports,

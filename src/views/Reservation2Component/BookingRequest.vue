@@ -272,8 +272,17 @@ const editorOptions = {
 
 const mailBodyChange = () => {
   if (props?.detail?.product_type == "App\\Models\\EntranceTicket") {
-    emailData.value.mail_body = `<p>Dear Reservation Manager<b> of ${props?.detail?.product?.name}</b>,</p><p>Greetings from Thailand Anywhere travel and tour.</p><p>We are pleased to book the tickets for our customers as per following description ka.</p>
-      <p>Date :<b>${props?.detail?.service_date}</b></p><p>Ticket :<b>${props?.detail?.variation?.name}</b></p><p>Total :<b>${props?.detail?.quantity}</b></p><p>Name :<b>${props?.detail?.associated_customer[0]?.name}</b></p><p>Special Request :<b>${props?.detail?.special_request}</b></p>
+    emailData.value.mail_body = `<p>Dear Reservation Manager<b> of ${
+      props?.detail?.product?.name
+    }</b>,</p><p>Greetings from Thailand Anywhere travel and tour.</p><p>We are pleased to book the tickets for our customers as per following description ka.</p>
+      <p>Date :<b>${props?.detail?.service_date}</b></p><p>Ticket :<b>${
+      props?.detail?.variation?.name
+    }</b></p><p>Total :<b>${
+      props?.detail?.quantity +
+      (props?.detail?.individual_pricing?.child?.quantity ?? 0) * 1
+    }</b></p><p>Name :<b>${
+      props?.detail?.associated_customer[0]?.name
+    }</b></p><p>Special Request :<b>${props?.detail?.special_request}</b></p>
       <p>Passport and payment slips are attached with this email .</p><b><em>Please kindly arrange and invoice & voucher for our clients accordingly .</em></b><p>Should there be anything more required you can call us at +66983498197 and LINE ID 58858380 .</p>`;
   } else if (props?.detail?.product_type == "App\\Models\\Hotel") {
     emailData.value.mail_body = `<p>Dear Reservation Manager<b> of ${

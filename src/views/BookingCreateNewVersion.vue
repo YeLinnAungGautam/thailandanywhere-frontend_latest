@@ -130,7 +130,7 @@ const sub_total = computed(() => {
       // if (!formData.value.items[i].is_inclusive) {
       //   totalsub = totalsub + formData.value.items[i].total_amount;
       // }
-      totalsub = totalsub + formData.value.items[i].total_amount;
+      totalsub = totalsub + formData.value.items[i].total_amount * 1;
     }
     return totalsub + sub_total_discount.value * 1;
   } else {
@@ -144,7 +144,7 @@ const sub_total_real = computed(() => {
     for (let i = 0; i < formData.value.items.length; i++) {
       if (!formData.value.items[i].is_inclusive) {
         if (formData.value.items[i].product_type != "7") {
-          totalsub = totalsub + formData.value.items[i].total_amount;
+          totalsub = totalsub + formData.value.items[i].total_amount * 1;
         }
       }
     }
@@ -430,12 +430,6 @@ const onSubmitHandler = async () => {
     } else {
       frmData.append("money_exchange_rate", 0);
     }
-
-    // if (formData.value.discount == "" || formData.value.discount == 0) {
-    //   frmData.append("discount", 0);
-    // } else {
-    //   frmData.append("discount", percentageValue.value);
-    // }
     sub_total_discount.value
       ? frmData.append("discount", sub_total_discount.value)
       : frmData.append("discount", 0);
@@ -531,22 +525,10 @@ const onSubmitHandler = async () => {
         frmData.append("items[" + x + "][is_inclusive]", 0);
       }
 
-      if (formData.value.items[x].product_type != "6") {
-        frmData.append(
-          "items[" + x + "][amount]",
-          formData.value.items[x].selling_price *
-            formData.value.items[x].quantity -
-            formData.value.items[x].discount
-        );
-      } else if (formData.value.items[x].product_type == "6") {
-        frmData.append(
-          "items[" + x + "][amount]",
-          formData.value.items[x].selling_price *
-            formData.value.items[x].quantity *
-            formData.value.items[x].days -
-            formData.value.items[x].discount
-        );
-      }
+      frmData.append(
+        "items[" + x + "][amount]",
+        formData.value.items[x].total_amount
+      );
 
       formData.value.items[x].pickup_location
         ? frmData.append(
@@ -578,7 +560,49 @@ const onSubmitHandler = async () => {
           formData.value.items[x].cost_price
         );
       }
-      frmData.append("items[" + x + "][individual_pricing]", null);
+
+      if (formData.value.items[x].individual_pricing) {
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][quantity]",
+          formData.value.items[x].individual_pricing.adult.quantity
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][selling_price]",
+          formData.value.items[x].individual_pricing.adult.selling_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][cost_price]",
+          formData.value.items[x].individual_pricing.adult.cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][total_cost_price]",
+          formData.value.items[x].individual_pricing.adult.total_cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][adult][amount]",
+          formData.value.items[x].individual_pricing.adult.amount
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][quantity]",
+          formData.value.items[x].individual_pricing.child.quantity
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][selling_price]",
+          formData.value.items[x].individual_pricing.child.selling_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][cost_price]",
+          formData.value.items[x].individual_pricing.child.cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][total_cost_price]",
+          formData.value.items[x].individual_pricing.child.total_cost_price
+        );
+        frmData.append(
+          "items[" + x + "][individual_pricing][child][amount]",
+          formData.value.items[x].individual_pricing.child.amount
+        );
+      }
 
       if (formData.value.items[x].discount) {
         frmData.append(
@@ -588,24 +612,10 @@ const onSubmitHandler = async () => {
       } else {
         frmData.append("items[" + x + "][discount]", 0);
       }
-
-      if (
-        formData.value.items[x].cost_price &&
-        formData.value.items[x].quantity
-      ) {
-        if (formData.value.items[x].product_type != "6") {
-          frmData.append(
-            "items[" + x + "][total_cost_price]",
-            formData.value.items[x].cost_price *
-              formData.value.items[x].quantity
-          );
-        } else {
-          "items[" + x + "][total_cost_price]",
-            formData.value.items[x].cost_price *
-              formData.value.items[x].quantity *
-              formData.value.items[x].days;
-        }
-      }
+      frmData.append(
+        "items[" + x + "][total_cost_price]",
+        formData.value.items[x].total_cost_price
+      );
       if (formData.value.items[x].dropoff_location) {
         frmData.append(
           "items[" + x + "][dropoff_location]",
@@ -751,7 +761,7 @@ const onSubmitHandler = async () => {
       errors.value = null;
       toast.success(response.message);
       featureImagePreview.value = [];
-      router.push("/bookings/new-update/" + response.result.id);
+      // router.push("/bookings/new-update/" + response.result.id);
       // bookings/update/65/edit
     } catch (error) {
       console.log(

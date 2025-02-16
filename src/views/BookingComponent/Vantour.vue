@@ -43,29 +43,29 @@ const changeAddOnList = (message) => {
   addOnList.value = [];
 };
 
-const addOnSellingPrice = computed(() => {
-  let result = 0;
-  if (addOnList.value != null) {
-    for (let i = 0; i < addOnList.value.length; i++) {
-      if (addOnList.value[i].select == true) {
-        result += addOnList.value[i].price * addOnList.value[i].quantity;
-      }
-    }
-  }
-  return result;
-});
+// const addOnSellingPrice = computed(() => {
+//   let result = 0;
+//   if (addOnList.value != null) {
+//     for (let i = 0; i < addOnList.value.length; i++) {
+//       if (addOnList.value[i].select == true) {
+//         result += addOnList.value[i].price * addOnList.value[i].quantity;
+//       }
+//     }
+//   }
+//   return result;
+// });
 
-const addOnCostPrice = computed(() => {
-  let result = 0;
-  if (addOnList.value != null) {
-    for (let i = 0; i < addOnList.value.length; i++) {
-      if (addOnList.value[i].select == true) {
-        result += addOnList.value[i].cost_price * addOnList.value[i].quantity;
-      }
-    }
-  }
-  return result;
-});
+// const addOnCostPrice = computed(() => {
+//   let result = 0;
+//   if (addOnList.value != null) {
+//     for (let i = 0; i < addOnList.value.length; i++) {
+//       if (addOnList.value[i].select == true) {
+//         result += addOnList.value[i].cost_price * addOnList.value[i].quantity;
+//       }
+//     }
+//   }
+//   return result;
+// });
 
 const viewDetail = (data) => {
   console.log(data, "this is data");
@@ -258,10 +258,9 @@ const clearAction = () => {
 const getFunction = () => {
   formitem.value.total_amount =
     formitem.value.selling_price * formitem.value.quantity -
-    formitem.value.discount +
-    addOnSellingPrice.value;
+    formitem.value.discount;
   formitem.value.total_cost_price =
-    formitem.value.quantity * formitem.value.cost_price + addOnCostPrice.value;
+    formitem.value.quantity * formitem.value.cost_price;
   if (addOnList.value != null) {
     let data = {
       addon_id: "",
@@ -770,7 +769,7 @@ onMounted(async () => {
               id=""
             />
           </div>
-          <div>
+          <!-- <div>
             <label for="" class="text-[12px] text-gray-500"
               >Add on <span class="text-red-800">*</span></label
             >
@@ -782,25 +781,16 @@ onMounted(async () => {
                 @cleanAddOnList="changeAddOnList"
               />
             </div>
-          </div>
+          </div> -->
 
+          <p class="text-xs text-gray-500">Total Price</p>
           <div>
-            <p class="text-xs text-end px-2">
-              selling price {{ addOnSellingPrice }} :
+            <p
+              class="text-sm text-start border border-gray-300 py-1.5 rounded-lg px-2"
+            >
               <span class="font-medium text-[#ff613c]"
                 >{{
-                  formitem.selling_price * formitem.quantity -
-                  formitem.discount +
-                  addOnSellingPrice
-                }}
-                ฿</span
-              >
-              - cost price :
-              <span class="font-medium text-[#ff613c]"
-                >{{
-                  formitem.cost_price * formitem.quantity -
-                  formitem.discount +
-                  addOnCostPrice
+                  formitem.selling_price * formitem.quantity - formitem.discount
                 }}
                 ฿</span
               >

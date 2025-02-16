@@ -8,6 +8,7 @@ import {
   PlusIcon,
   XCircleIcon,
   XMarkIcon,
+  DocumentCheckIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, defineProps, ref, watch } from "vue";
 import Modal from "../../components/Modal.vue";
@@ -371,8 +372,8 @@ function checkAndOpenModal(crmId) {
           >
             {{ i?.crm_id }}
           </p>
-          <ArrowsPointingOutIcon
-            class="w-5 h-5 text-[#ff613c] bg-gray-100 p-0.5 rounded-full"
+          <DocumentCheckIcon
+            class="w-5 h-5 text-[#ff613c] shadow-lg bg-white p-0.5 rounded-full"
           />
         </div>
         <div class="space-y-1 py-2">

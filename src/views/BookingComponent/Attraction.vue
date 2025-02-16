@@ -35,29 +35,29 @@ const changeAddOnList = (message) => {
   addOnList.value = [];
 };
 
-const addOnSellingPrice = computed(() => {
-  let result = 0;
-  if (addOnList.value != null) {
-    for (let i = 0; i < addOnList.value.length; i++) {
-      if (addOnList.value[i].select == true) {
-        result += addOnList.value[i].price * addOnList.value[i].quantity;
-      }
-    }
-  }
-  return result;
-});
+// const addOnSellingPrice = computed(() => {
+//   let result = 0;
+//   if (addOnList.value != null) {
+//     for (let i = 0; i < addOnList.value.length; i++) {
+//       if (addOnList.value[i].select == true) {
+//         result += addOnList.value[i].price * addOnList.value[i].quantity;
+//       }
+//     }
+//   }
+//   return result;
+// });
 
-const addOnCostPrice = computed(() => {
-  let result = 0;
-  if (addOnList.value != null) {
-    for (let i = 0; i < addOnList.value.length; i++) {
-      if (addOnList.value[i].select == true) {
-        result += addOnList.value[i].cost_price * addOnList.value[i].quantity;
-      }
-    }
-  }
-  return result;
-});
+// const addOnCostPrice = computed(() => {
+//   let result = 0;
+//   if (addOnList.value != null) {
+//     for (let i = 0; i < addOnList.value.length; i++) {
+//       if (addOnList.value[i].select == true) {
+//         result += addOnList.value[i].cost_price * addOnList.value[i].quantity;
+//       }
+//     }
+//   }
+//   return result;
+// });
 
 const viewDetail = (data) => {
   console.log(data, "this is data");
@@ -280,11 +280,9 @@ const getFunction = () => {
   formitem.value.total_amount =
     formitem.value.selling_price * formitem.value.quantity -
     formitem.value.discount +
-    addOnSellingPrice.value +
     (formitem.value.individual_pricing?.child?.amount || 0);
   formitem.value.total_cost_price =
     formitem.value.quantity * formitem.value.cost_price +
-    addOnCostPrice.value +
     (formitem.value.individual_pricing?.child?.total_cost_price || 0);
   if (addOnList.value != null) {
     let data = {
@@ -360,10 +358,10 @@ watch(
   () => formitem.value.quantity, // Watch the quantity property
   (newValue) => {
     // Ensure newValue is a valid number
-    if (typeof newValue !== "number" || isNaN(newValue)) {
-      console.error("Invalid quantity value:", newValue);
-      return;
-    }
+    // if (typeof newValue !== "number" || isNaN(newValue)) {
+    //   console.error("Invalid quantity value:", newValue);
+    //   return;
+    // }
 
     // Ensure cost_price and selling_price are valid numbers
     const costPrice = parseFloat(formitem.value.cost_price) || 0;
@@ -371,11 +369,11 @@ watch(
 
     // Create a new object for individual_pricing.adult
     const updatedAdultPricing = {
-      quantity: newValue,
+      quantity: newValue * 1,
       selling_price: sellingPrice,
       cost_price: costPrice,
-      total_cost_price: newValue * costPrice,
-      amount: newValue * sellingPrice,
+      total_cost_price: newValue * 1 * costPrice,
+      amount: newValue * 1 * sellingPrice,
     };
 
     // Update formitem.value.individual_pricing.adult
@@ -393,10 +391,10 @@ watch(
   () => formitem.value.individual_pricing.child.quantity, // Watch the quantity property
   (newValue) => {
     // Ensure newValue is a valid number
-    if (typeof newValue !== "number" || isNaN(newValue)) {
-      console.error("Invalid quantity value:", newValue);
-      return;
-    }
+    // if (typeof newValue !== "number" || isNaN(newValue)) {
+    //   console.error("Invalid quantity value:", newValue);
+    //   return;
+    // }
 
     // Ensure cost_price and selling_price are valid numbers
     const costPrice =
@@ -410,11 +408,11 @@ watch(
 
     // Create a new object for individual_pricing.adult
     const updatedChildPricing = {
-      quantity: newValue,
+      quantity: newValue * 1,
       selling_price: sellingPrice,
       cost_price: costPrice,
-      total_cost_price: newValue * costPrice,
-      amount: newValue * sellingPrice,
+      total_cost_price: newValue * 1 * costPrice,
+      amount: newValue * 1 * sellingPrice,
     };
 
     // Update formitem.value.individual_pricing.adult
@@ -735,7 +733,7 @@ onMounted(async () => {
               <div class="grid-cols-2 grid gap-2">
                 <div class="relative space-y-1">
                   <label for="" class="text-xs text-gray-500"
-                    >Adult Qty - selling : {{ formitem.selling_price }}
+                    >Adult Qty - selling: {{ formitem.selling_price }}
                     <span class="text-red-800">*</span></label
                   >
                   <input
@@ -770,13 +768,63 @@ onMounted(async () => {
                   v-for="i in formitem.child_info"
                   :key="i"
                 >
-                  <label for="" class="text-xs text-gray-500"
-                    >{{ i.info }} Qty - selling : {{ i.child_price
-                    }}<span class="text-red-800">*</span></label
-                  >
+                  <div class="flex justify-between items-center pb-1">
+                    <label for="" class="text-xs text-gray-500 relative"
+                      >Child Qty - selling : {{ i.child_price
+                      }}<span class="text-red-800">*</span>
+                    </label>
+                    <p
+                      :title="i?.info"
+                      class="absolute top-0 cursor-pointer text-[10px] bg-[#FF613c] shadow-xl border border-white px-1 text-white rounded-full w-5 h-5 right-1 flex justify-center items-center custom-tooltip"
+                    >
+                      ?
+                    </p>
+                  </div>
                   <input
                     type="number"
                     v-model="formitem.individual_pricing.child.quantity"
+                    name=""
+                    class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    id="adult_pricing"
+                  />
+                  <p
+                    @click="formitem.individual_pricing.child.quantity++"
+                    class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-8"
+                  >
+                    +
+                  </p>
+                  <p
+                    @click="formitem.individual_pricing.child.quantity--"
+                    v-if="formitem.individual_pricing.child.quantity > 0"
+                    class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
+                  >
+                    -
+                  </p>
+                  <p
+                    v-if="formitem.individual_pricing.child.quantity == 0"
+                    class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
+                  >
+                    -
+                  </p>
+                </div>
+                <div
+                  class="relative space-y-1"
+                  v-if="formitem.child_info.length == 0"
+                >
+                  <div class="flex justify-between items-center pb-1">
+                    <label for="" class="text-xs text-gray-500 relative"
+                      >Child Qty N/A <span class="text-red-800">*</span>
+                    </label>
+                    <p
+                      title="empty"
+                      class="absolute top-0 cursor-pointer text-[10px] bg-[#FF613c] shadow-xl border border-white px-1 text-white rounded-full w-5 h-5 right-1 flex justify-center items-center custom-tooltip"
+                    >
+                      ?
+                    </p>
+                  </div>
+                  <input
+                    type="number"
+                    disabled
                     name=""
                     class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                     id="adult_pricing"
@@ -795,7 +843,7 @@ onMounted(async () => {
               id=""
             />
           </div>
-          <div>
+          <!-- <div>
             <label for="" class="text-[12px] text-gray-500"
               >Add on <span class="text-red-800">*</span></label
             >
@@ -807,21 +855,22 @@ onMounted(async () => {
                 @cleanAddOnList="changeAddOnList"
               />
             </div>
-          </div>
+          </div> -->
 
+          <p class="text-xs text-gray-500">Total Price</p>
           <div>
-            <p class="text-xs text-end px-2">
-              selling price {{ addOnSellingPrice }} :
+            <p
+              class="text-sm text-start border border-gray-300 py-1.5 rounded-lg px-2"
+            >
               <span class="font-medium text-[#ff613c]"
                 >{{
                   formitem.selling_price * formitem.quantity -
                   formitem.discount +
-                  (formitem.individual_pricing.child?.amount || 0) +
-                  addOnSellingPrice
+                  (formitem.individual_pricing.child?.amount || 0)
                 }}
                 ฿</span
               >
-              - cost price :
+              <!-- - cost price :
               <span class="font-medium text-[#ff613c]"
                 >{{
                   formitem.cost_price * formitem.quantity -
@@ -830,7 +879,7 @@ onMounted(async () => {
                   addOnCostPrice
                 }}
                 ฿</span
-              >
+              > -->
             </p>
           </div>
           <!-- <div class="space-y-1">
@@ -999,3 +1048,25 @@ onMounted(async () => {
     </Modal>
   </div>
 </template>
+
+<style scoped>
+.custom-tooltip {
+  position: relative;
+}
+
+.custom-tooltip:hover::after {
+  content: attr(title);
+  position: absolute;
+  top: 100%;
+  left: -100%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10;
+  margin-top: 5px;
+}
+</style>

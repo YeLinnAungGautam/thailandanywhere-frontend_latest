@@ -481,7 +481,7 @@ const hide = ref(false);
 
             <!-- Rest of the Content -->
             <div>
-              <p class="text-[10px] text-gray-500">Reser Discount :</p>
+              <p class="text-[10px] text-gray-500">Item Discount :</p>
               <p class="text-[12px] text-[#FF613c] pb-2">
                 {{ detail?.discount }} thb
               </p>

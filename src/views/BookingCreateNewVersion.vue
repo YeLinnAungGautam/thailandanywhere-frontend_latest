@@ -761,7 +761,7 @@ const onSubmitHandler = async () => {
       errors.value = null;
       toast.success(response.message);
       featureImagePreview.value = [];
-      // router.push("/bookings/new-update/" + response.result.id);
+      router.push("/bookings/new-update/" + response.result.id);
       // bookings/update/65/edit
     } catch (error) {
       console.log(

@@ -32,6 +32,7 @@ import { useAuthStore } from "../stores/auth";
 import FacilitoryStoreVue from "../components/FacilitoryStore.vue";
 import { useHotelCategoryStore } from "../stores/hotelcategory";
 import { usePlaceStore } from "../stores/place";
+import AddonPage from "./Addon/AddonPage.vue";
 // import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const createModalOpen = ref(false);
@@ -854,6 +855,16 @@ onMounted(async () => {
             >
               location & more details
             </p>
+            <p
+              v-if="formData.id"
+              class="px-4 py-2 cursor-pointer rounded-md"
+              @click="quiteSwitch = 5"
+              :class="
+                quiteSwitch == 5 ? 'bg-[#ff613c] text-white' : 'bg-gray-200'
+              "
+            >
+              add on
+            </p>
           </div>
         </div>
         <div class="px-4">
@@ -1441,7 +1452,14 @@ onMounted(async () => {
                 ></iframe> -->
               </div>
             </div>
-            <div class="text-end flex justify-end items-center col-span-3">
+            <!-- add on page -->
+            <div v-if="quiteSwitch == 5" class="col-span-3">
+              <AddonPage :id="formData.id" :type="'hotel'" />
+            </div>
+            <div
+              class="text-end flex justify-end items-center col-span-3"
+              v-if="quiteSwitch != 5"
+            >
               <p
                 class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
                 @click="cancelButtonAction"

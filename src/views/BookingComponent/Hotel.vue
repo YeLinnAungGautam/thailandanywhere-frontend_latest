@@ -12,6 +12,7 @@ import { InformationCircleIcon } from "@heroicons/vue/24/solid";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRouter } from "vue-router";
+import AddonListOnBooking from "../Addon/AddonListOnBooking.vue";
 // import { useCityStore } from "../../stores/city";
 
 const bottomOfWindow = ref(false);
@@ -26,6 +27,37 @@ const addInfoModal = ref(false);
 const detailModal = ref(false);
 const details = ref(null);
 const details_images = ref([]);
+const addOnList = ref([]);
+
+const changeAddOnList = (message) => {
+  console.log(message, "this is message");
+
+  addOnList.value = [];
+};
+
+// const addOnSellingPrice = computed(() => {
+//   let result = 0;
+//   if (addOnList.value != null) {
+//     for (let i = 0; i < addOnList.value.length; i++) {
+//       if (addOnList.value[i].select == true) {
+//         result += addOnList.value[i].price * addOnList.value[i].quantity;
+//       }
+//     }
+//   }
+//   return result;
+// });
+
+// const addOnCostPrice = computed(() => {
+//   let result = 0;
+//   if (addOnList.value != null) {
+//     for (let i = 0; i < addOnList.value.length; i++) {
+//       if (addOnList.value[i].select == true) {
+//         result += addOnList.value[i].cost_price * addOnList.value[i].quantity;
+//       }
+//     }
+//   }
+//   return result;
+// });
 
 const viewDetail = (data) => {
   console.log(data, "this is data");
@@ -75,6 +107,7 @@ const formitem = ref({
   cost_price: "",
   special_request: "",
   total_amount: "",
+  total_cost_price: "",
   pickup_location: "",
   pickup_time: "",
   is_driver_collect: false,
@@ -84,6 +117,7 @@ const formitem = ref({
   room_number: "",
   checkout_date: "",
   customer_attachment: "",
+  addons: [],
 });
 
 // add item function
@@ -212,6 +246,7 @@ const clearAction = () => {
     cost_price: "",
     special_request: "",
     total_amount: "",
+    total_cost_price: "",
     pickup_location: "",
     pickup_time: "",
     is_driver_collect: false,
@@ -221,6 +256,7 @@ const clearAction = () => {
     room_number: "",
     checkout_date: "",
     customer_attachment: "",
+    addons: [],
   };
   todayVali.value = false;
   addInfoModal.value = false;
@@ -233,6 +269,27 @@ const getFunction = () => {
       formitem.value.selling_price *
       formitem.value.days -
     formitem.value.discount;
+  formitem.value.total_cost_price =
+    formitem.value.quantity * formitem.value.cost_price * formitem.value.days;
+  if (addOnList.value != null) {
+    let data = {
+      addon_id: "",
+      quantity: "",
+    };
+    for (let i = 0; i < addOnList.value.length; i++) {
+      if (addOnList.value[i].select == true) {
+        data = {
+          addon_id: addOnList.value[i].id,
+          quantity: addOnList.value[i].quantity,
+        };
+        formitem.value.addons.push(data);
+        data = {
+          addon_id: "",
+          quantity: "",
+        };
+      }
+    }
+  }
   emit("formData", formitem.value);
   clearAction();
 };
@@ -578,13 +635,34 @@ onMounted(async () => {
               <label for="" class="text-[12px] text-gray-500"
                 >Total Rooms <span class="text-red-800">*</span></label
               >
-              <input
-                type="number"
-                v-model="formitem.quantity"
-                name=""
-                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                id=""
-              />
+              <div class="relative">
+                <input
+                  type="number"
+                  v-model="formitem.quantity"
+                  name=""
+                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id=""
+                />
+                <p
+                  @click="formitem.quantity++"
+                  class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-1 right-8"
+                >
+                  +
+                </p>
+                <p
+                  @click="formitem.quantity--"
+                  v-if="formitem.quantity > 1"
+                  class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-1 right-1"
+                >
+                  -
+                </p>
+                <p
+                  v-if="formitem.quantity == 1"
+                  class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-1 right-1"
+                >
+                  -
+                </p>
+              </div>
             </div>
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
@@ -596,17 +674,6 @@ onMounted(async () => {
                 {{ formitem.days }} Night x {{ formitem.quantity }} Rooms
               </p>
             </div>
-            <!-- <div class="space-y-1 col-span-2">
-              <label for="" class="text-[12px] text-gray-500"
-                >Total Amount</label
-              >
-              <p
-                class="border border-gray-300 bg-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-              >
-                {{ formitem.selling_price }} thb X {{ formitem.quantity }} Rooms
-                = {{ formitem.selling_price * formitem.quantity }} thb
-              </p>
-            </div> -->
           </div>
 
           <div class="space-y-1">
@@ -618,6 +685,47 @@ onMounted(async () => {
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
               id=""
             />
+          </div>
+
+          <!-- <div>
+            <label for="" class="text-[12px] text-gray-500"
+              >Add on <span class="text-red-800">*</span></label
+            >
+            <div>
+              <AddonListOnBooking
+                :id="formitem.product_id"
+                :type="'hotel'"
+                :addOnList="addOnList"
+                @cleanAddOnList="changeAddOnList"
+              />
+            </div>
+          </div> -->
+
+          <div class="space-y-2">
+            <!-- <p class="text-xs text-start px-2 pt-2">
+              selling price :
+              <span class="font-medium text-[#ff613c]"
+                >{{
+                  formitem.selling_price * formitem.quantity * formitem.days -
+                  formitem.discount
+                }}
+                ฿</span
+              >
+            </p> -->
+            <p class="text-xs text-gray-500">Total Price</p>
+            <div>
+              <p
+                class="text-sm text-start border border-gray-300 py-1.5 rounded-lg px-2"
+              >
+                <span class="font-medium text-[#ff613c]"
+                  >{{
+                    formitem.selling_price * formitem.quantity * formitem.days -
+                    formitem.discount
+                  }}
+                  ฿</span
+                >
+              </p>
+            </div>
           </div>
 
           <div class="space-y-1">

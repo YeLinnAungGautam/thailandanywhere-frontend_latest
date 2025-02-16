@@ -90,14 +90,14 @@ const formatDate = (datePut) => {
 };
 
 const setStartAndEndDate = () => {
-  const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const now = new Date(); // Today's date
+  const startDate = new Date(now); // Start date is today
 
-  // Add 90 days to startOfMonth to get the end date
-  const endOfMonth = new Date(startOfMonth); // Create a copy of startOfMonth
-  endOfMonth.setDate(endOfMonth.getDate() + 90);
+  // Add 90 days to the start date to get the end date
+  const endDate = new Date(now);
+  endDate.setDate(endDate.getDate() + 90);
 
-  dateRange.value = [startOfMonth, endOfMonth];
+  dateRange.value = [startDate, endDate];
 };
 
 const watchSystem = computed(() => {
@@ -147,6 +147,9 @@ const watchSystem = computed(() => {
   }
   if (sorting.value != "") {
     result.order_direction = sorting.value;
+  }
+  if (sale_daterange.value != undefined && !dateOnlyToggle.value) {
+    result.sale_daterange = sale_daterange.value;
   }
 
   console.log(result);
@@ -335,7 +338,7 @@ watch(dateRange, async (newValue) => {
                   <div
                     class="flex items-center justify-start gap-1 overflow-x-scroll no-sidebar-container"
                   >
-                    <p
+                    <!-- <p
                       class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
                       @click="searchValue('App\\Models\\Hotel')"
                       :class="
@@ -345,7 +348,7 @@ watch(dateRange, async (newValue) => {
                       "
                     >
                       Hotel
-                    </p>
+                    </p> -->
                     <p
                       class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border whitespace-nowrap border-gray-200 rounded-lg"
                       @click="searchValue('App\\Models\\EntranceTicket')"
@@ -357,7 +360,7 @@ watch(dateRange, async (newValue) => {
                     >
                       Entrance Ticket
                     </p>
-                    <p
+                    <!-- <p
                       class="text-[10px] px-2 whitespace-nowrap cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
                       @click="searchValue('App\\Models\\PrivateVanTour')"
                       :class="
@@ -378,7 +381,7 @@ watch(dateRange, async (newValue) => {
                       "
                     >
                       Airline
-                    </p>
+                    </p> -->
                   </div>
                 </div>
                 <p class="text-[10px]">User</p>

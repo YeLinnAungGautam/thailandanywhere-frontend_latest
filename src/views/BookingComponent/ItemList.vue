@@ -3,6 +3,7 @@ import {
   TrashIcon,
   PencilSquareIcon,
   XCircleIcon,
+  DocumentCheckIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, defineProps, ref, defineEmits, watch } from "vue";
 import Modal from "../../components/Modal.vue";
@@ -12,6 +13,9 @@ import saloon from "../../../public/2.png";
 import deluxe from "../../../public/3.png";
 import { useAuthStore } from "../../stores/auth";
 import { useHotelStore } from "../../stores/hotel";
+import AddonListOnBooking from "../Addon/AddonListOnBooking.vue";
+import { computed } from "vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
   data: Object,
@@ -33,10 +37,11 @@ const formitem = ref({
   room_id: "",
   room: null,
   service_date: "",
-  quantity: "1",
+  quantity: 0,
   days: "",
   cancellation: null,
   duration: "",
+  individual_pricing: {},
   selling_price: "",
   comment: "",
   reservation_status: "",
@@ -69,6 +74,8 @@ const getRemoveFunction = (id, index) => {
   emit("remove", data);
   cancellationModal.value = false;
 };
+
+const router = useRouter();
 
 const cancellationModal = ref(false);
 const cancellationAction = (data, index) => {
@@ -111,7 +118,7 @@ const closeModalAction = () => {
     room_id: "",
     room: null,
     service_date: "",
-    quantity: "1",
+    quantity: 0,
     days: "",
     duration: "",
     selling_price: "",
@@ -124,6 +131,7 @@ const closeModalAction = () => {
     cost_price: "",
     special_request: "",
     total_amount: "",
+    individual_pricing: {},
     pickup_location: "",
     pickup_time: "",
     is_driver_collect: false,
@@ -172,6 +180,9 @@ const selectAction = (item) => {
     if (formitem.value.product_type == 4) {
       formitem.value.cost_price = item.cost_price ? item.cost_price : 0;
       formitem.value.comment = `Variation : ${formitem.value.item_name}`;
+      formitem.value.child_info = item.child_info
+        ? JSON.parse(item.child_info)
+        : [];
     }
   }
   if (formitem.value.product_type == 7) {
@@ -181,6 +192,38 @@ const selectAction = (item) => {
   console.log(formitem.value, "this is formItem");
   getFunction();
 };
+
+const addOnList = ref([]);
+
+const changeAddOnList = (message) => {
+  console.log(message, "this is message");
+
+  addOnList.value = [];
+};
+
+// const addOnSellingPrice = computed(() => {
+//   let result = 0;
+//   if (addOnList.value != null) {
+//     for (let i = 0; i < addOnList.value.length; i++) {
+//       if (addOnList.value[i].select == true) {
+//         result += addOnList.value[i].price * addOnList.value[i].quantity;
+//       }
+//     }
+//   }
+//   return result;
+// });
+
+// const addOnCostPrice = computed(() => {
+//   let result = 0;
+//   if (addOnList.value != null) {
+//     for (let i = 0; i < addOnList.value.length; i++) {
+//       if (addOnList.value[i].select == true) {
+//         result += addOnList.value[i].cost_price * addOnList.value[i].quantity;
+//       }
+//     }
+//   }
+//   return result;
+// });
 
 const goInfoModal = () => {
   console.log("====================================");
@@ -217,21 +260,26 @@ const todayCheck = () => {
 const getFunction = () => {
   if (formitem.value.days != undefined && formitem.value.days != "") {
     formitem.value.total_amount =
-      formitem.value.selling_price *
-        formitem.value.days *
-        formitem.value.quantity -
+      formitem.value.quantity *
+        formitem.value.selling_price *
+        formitem.value.days -
       formitem.value.discount;
+    formitem.value.total_cost_price =
+      formitem.value.quantity * formitem.value.cost_price * formitem.value.days;
   } else {
     formitem.value.total_amount =
       formitem.value.selling_price * formitem.value.quantity -
-      formitem.value.discount;
+      formitem.value.discount +
+      (formitem.value.individual_pricing?.child?.amount * 1 || 0);
+
+    formitem.value.total_cost_price =
+      formitem.value.quantity * formitem.value.cost_price +
+      (formitem.value.individual_pricing?.child?.total_cost_price * 1 || 0);
   }
 
   console.log("====================================");
   console.log(formitem.value, "thsi is ");
   console.log("====================================");
-  // emit("formData", formitem.value);
-  // cancelAction();
 };
 
 const cancelAction = () => {
@@ -335,6 +383,82 @@ watch(
   { deep: true, immediate: true } // Optional: immediate triggers the callback initially
 );
 
+watch(
+  () => formitem.value.quantity, // Watch the quantity property
+  (newValue) => {
+    if (formitem.value.product_type == 4) {
+      // Ensure newValue is a valid number
+      // if (typeof newValue !== "number" || isNaN(newValue)) {
+      //   console.error("Invalid quantity value:", newValue);
+      //   return;
+      // }
+
+      // Ensure cost_price and selling_price are valid numbers
+      const costPrice = parseFloat(formitem.value.cost_price) || 0;
+      const sellingPrice = parseFloat(formitem.value.selling_price) || 0;
+
+      // Create a new object for individual_pricing.adult
+      const updatedAdultPricing = {
+        quantity: newValue * 1,
+        selling_price: sellingPrice,
+        cost_price: costPrice,
+        total_cost_price: newValue * 1 * costPrice,
+        amount: newValue * 1 * sellingPrice,
+      };
+
+      // Update formitem.value.individual_pricing.adult
+      formitem.value.individual_pricing.adult = updatedAdultPricing;
+
+      // Debugging logs (optional)
+      console.log("====================================");
+      console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
+      console.log("====================================");
+    }
+  },
+  { immediate: true } // Optional: Trigger the watcher immediately on setup
+);
+
+watch(
+  () => formitem.value.individual_pricing?.child?.quantity, // Watch the quantity property
+  (newValue) => {
+    if (formitem.value.product_type == 4) {
+      // Ensure newValue is a valid number
+      // if (typeof newValue !== "number" || isNaN(newValue)) {
+      //   console.error("Invalid quantity value:", newValue);
+      //   return;
+      // }
+
+      // Ensure cost_price and selling_price are valid numbers
+      const costPrice =
+        formitem.value.child_info?.length > 0
+          ? parseFloat(formitem.value.child_info[0]?.child_cost_price)
+          : 0;
+      const sellingPrice =
+        formitem.value.child_info?.length > 0
+          ? parseFloat(formitem.value.child_info[0]?.child_price)
+          : 0;
+
+      // Create a new object for individual_pricing.adult
+      const updatedChildPricing = {
+        quantity: newValue * 1,
+        selling_price: sellingPrice,
+        cost_price: costPrice,
+        total_cost_price: newValue * 1 * costPrice,
+        amount: newValue * 1 * sellingPrice,
+      };
+
+      // Update formitem.value.individual_pricing.adult
+      formitem.value.individual_pricing.child = updatedChildPricing;
+
+      // Debugging logs (optional)
+      console.log("====================================");
+      console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
+      console.log("====================================");
+    }
+  },
+  { immediate: true } // Optional: Trigger the watcher immediately on setup
+);
+
 onMounted(() => {
   console.log("====================================");
   console.log(props.data, "this is props");
@@ -395,12 +519,24 @@ onMounted(() => {
               />
             </div>
           </div>
-          <p
-            v-if="i?.crm_id"
-            class="text-[10px] mt-1 bg-[#ff613c] py-0.5 text-white px-2 inline-block rounded-md"
+          <div
+            class="flex justify-start items-center gap-x-2 pt-1"
+            @click="
+              router.push(
+                `/reservation/update/${i?.reservation_id}/${i?.crm_id}`
+              )
+            "
           >
-            {{ i?.crm_id }}
-          </p>
+            <DocumentCheckIcon
+              class="w-5 h-5 text-[#ff613c] shadow-lg bg-white p-0.5 rounded-full"
+            />
+            <p
+              v-if="i?.crm_id"
+              class="text-[10px] cursor-pointer bg-[#ff613c] py-0.5 text-white px-2 inline-block rounded-md"
+            >
+              {{ i?.crm_id }}
+            </p>
+          </div>
           <p class="text-[10px] pt-1">{{ i?.item_name }}</p>
           <div class="flex justify-between items-center">
             <p class="text-[10px]">{{ i?.service_date }}</p>
@@ -410,8 +546,13 @@ onMounted(() => {
             </p>
           </div>
           <div class="flex justify-between items-center">
-            <p class="text-[10px]">
+            <p class="text-[10px]" v-if="i?.product_type != 4">
               {{ i?.quantity }} x {{ i?.selling_price }} ฿
+            </p>
+            <p class="text-[10px]" v-if="i?.product_type == 4">
+              {{ i?.quantity }} x {{ i?.selling_price }} +
+              {{ i?.individual_pricing?.child?.quantity }} x
+              {{ i?.individual_pricing?.child?.selling_price }} ฿
             </p>
             <p class="text-[10px]">
               Amount :
@@ -789,7 +930,8 @@ onMounted(() => {
               </div>
               <div class="space-y-1" v-if="formitem.product_type != 7">
                 <label for="" class="text-[12px] text-gray-500"
-                  >Qty <span class="text-red-800">*</span></label
+                  >Qty - selling : {{ formitem.selling_price }}
+                  <span class="text-red-800">*</span></label
                 >
                 <input
                   type="number"
@@ -798,6 +940,31 @@ onMounted(() => {
                   name=""
                   class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                   id=""
+                />
+              </div>
+              <div
+                class="relative space-y-1"
+                v-for="i in formitem.child_info"
+                :key="i"
+              >
+                <div class="flex justify-between items-center pb-1 pt-1">
+                  <label for="" class="text-xs text-gray-500 relative"
+                    >Child Qty - selling : {{ i.child_price
+                    }}<span class="text-red-800">*</span>
+                  </label>
+                  <p
+                    :title="i?.info"
+                    class="absolute top-0 cursor-pointer text-[10px] bg-[#FF613c] shadow-xl border border-white px-1 text-white rounded-full w-5 h-5 right-1 flex justify-center items-center custom-tooltip"
+                  >
+                    ?
+                  </p>
+                </div>
+                <input
+                  type="number"
+                  v-model="formitem.individual_pricing.child.quantity"
+                  name=""
+                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id="adult_pricing"
                 />
               </div>
               <div class="space-y-1 col-span-2">
@@ -925,6 +1092,57 @@ onMounted(() => {
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
               id=""
             />
+          </div>
+          <!-- <div>
+            <label for="" class="text-[12px] text-gray-500"
+              >Add on <span class="text-red-800">*</span></label
+            >
+            <div>
+              <AddonListOnBooking
+                :id="formitem.product_id"
+                :type="'hotel'"
+                :addOnList="addOnList"
+                @cleanAddOnList="changeAddOnList"
+              />
+            </div>
+          </div> -->
+
+          <!-- <div>
+            <p class="text-xs text-end px-2">
+              selling price :
+              <span class="font-medium text-[#ff613c]"
+                >{{
+                  formitem.selling_price * 1 * formitem.quantity -
+                  formitem.discount * 1 +
+                  (formitem.individual_pricing.child?.amount || 0) * 1
+                }}
+                ฿</span
+              >
+              - cost price :
+              <span class="font-medium text-[#ff613c]"
+                >{{
+                  formitem.selling_price * 1 * formitem.quantity -
+                  formitem.discount * 1 +
+                  (formitem.individual_pricing.child?.total_cost_price || 0) * 1
+                }}
+                ฿</span
+              >
+            </p>
+          </div> -->
+          <p class="text-xs text-gray-500">Total Price</p>
+          <div>
+            <p
+              class="text-sm text-start border border-gray-300 py-1.5 rounded-lg px-2"
+            >
+              <span class="font-medium text-[#ff613c]"
+                >{{
+                  formitem.selling_price * 1 * formitem.quantity -
+                  formitem.discount * 1 +
+                  (formitem.individual_pricing?.child?.amount || 0) * 1
+                }}
+                ฿</span
+              >
+            </p>
           </div>
           <div class="space-y-1" v-if="formitem.product_type == 1">
             <label for="" class="text-[12px] text-gray-500"
@@ -1086,3 +1304,25 @@ onMounted(() => {
     </Modal>
   </div>
 </template>
+
+<style scoped>
+.custom-tooltip {
+  position: relative;
+}
+
+.custom-tooltip:hover::after {
+  content: attr(title);
+  position: absolute;
+  top: 100%;
+  left: -100%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10;
+  margin-top: 5px;
+}
+</style>

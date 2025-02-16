@@ -12,9 +12,9 @@ import { useRestaurantStore } from "../../stores/restaurant";
 const cityStore = useCityStore();
 const { cities } = storeToRefs(cityStore);
 const destinationStore = useDestinationStore();
+const { dests } = storeToRefs(destinationStore);
 const restaurantStore = useRestaurantStore();
 const { restaurant } = storeToRefs(restaurantStore);
-const { dests } = storeToRefs(destinationStore);
 
 const session = ref(1);
 const finish = ref({

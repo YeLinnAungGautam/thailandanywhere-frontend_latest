@@ -12,12 +12,12 @@ import { InformationCircleIcon } from "@heroicons/vue/24/solid";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRouter } from "vue-router";
+import AddonListOnBooking from "../Addon/AddonListOnBooking.vue";
 // import { useCityStore } from "../../stores/city";
 
 const bottomOfWindow = ref(false);
+const addOnList = ref([]);
 const entranceStore = useEntranceStore();
-// const cityStore = useCityStore();
-// const { cities } = storeToRefs(cityStore);
 const { entrances, loading } = storeToRefs(entranceStore);
 const destsList = ref([]);
 const search = ref("");
@@ -28,6 +28,36 @@ const addInfoModal = ref(false);
 const detailModal = ref(false);
 const details = ref(null);
 const details_images = ref([]);
+
+const changeAddOnList = (message) => {
+  console.log(message, "this is message");
+
+  addOnList.value = [];
+};
+
+// const addOnSellingPrice = computed(() => {
+//   let result = 0;
+//   if (addOnList.value != null) {
+//     for (let i = 0; i < addOnList.value.length; i++) {
+//       if (addOnList.value[i].select == true) {
+//         result += addOnList.value[i].price * addOnList.value[i].quantity;
+//       }
+//     }
+//   }
+//   return result;
+// });
+
+// const addOnCostPrice = computed(() => {
+//   let result = 0;
+//   if (addOnList.value != null) {
+//     for (let i = 0; i < addOnList.value.length; i++) {
+//       if (addOnList.value[i].select == true) {
+//         result += addOnList.value[i].cost_price * addOnList.value[i].quantity;
+//       }
+//     }
+//   }
+//   return result;
+// });
 
 const viewDetail = (data) => {
   console.log(data, "this is data");
@@ -60,9 +90,10 @@ const formitem = ref({
   item_name: "",
   car_id: "",
   car_list: [],
+  child_info: [],
   individual_pricing: {
     adult: {
-      quantity: 1,
+      quantity: 0,
       selling_price: 0,
       cost_price: 0,
       total_cost_price: 0,
@@ -79,7 +110,7 @@ const formitem = ref({
   room_id: "",
   room: null,
   service_date: "",
-  quantity: "1",
+  quantity: 0,
   discount: 0,
   days: "",
   duration: "",
@@ -102,6 +133,7 @@ const formitem = ref({
   room_number: "",
   checkout_date: "",
   customer_attachment: "",
+  addons: [],
 });
 
 // add item function
@@ -134,9 +166,12 @@ const selectAction = (item) => {
   formitem.value.car_id = item.id;
   formitem.value.item_name = item.name;
   formitem.value.selling_price = item.price;
+  formitem.value.child_info = item.child_info
+    ? JSON.parse(item.child_info)
+    : [];
   formitem.value.cost_price = item.cost_price ? item.cost_price : 0;
   formitem.value.comment = `Variation : ${formitem.value.item_name}`;
-  console.log(formitem.value, "this is formItem");
+  console.log(formitem.value, "this is formItem", item);
 };
 const goInfoModal = () => {
   if (formitem.value.car_id != "") {
@@ -191,12 +226,13 @@ const clearAction = () => {
     product_name: "",
     car_id: "",
     car_list: [],
+    child_info: [],
     room_id: "",
     room: null,
     service_date: "",
     individual_pricing: {
       adult: {
-        quantity: 1,
+        quantity: 0,
         selling_price: 0,
         cost_price: 0,
         total_cost_price: 0,
@@ -210,7 +246,7 @@ const clearAction = () => {
         amount: 0,
       },
     },
-    quantity: "1",
+    quantity: 0,
     discount: 0,
     days: "",
     duration: "",
@@ -233,6 +269,7 @@ const clearAction = () => {
     room_number: "",
     checkout_date: "",
     customer_attachment: "",
+    addons: [],
   };
   todayVali.value = false;
   addInfoModal.value = false;
@@ -242,7 +279,30 @@ const clearAction = () => {
 const getFunction = () => {
   formitem.value.total_amount =
     formitem.value.selling_price * formitem.value.quantity -
-    formitem.value.discount;
+    formitem.value.discount +
+    (formitem.value.individual_pricing?.child?.amount || 0);
+  formitem.value.total_cost_price =
+    formitem.value.quantity * formitem.value.cost_price +
+    (formitem.value.individual_pricing?.child?.total_cost_price || 0);
+  if (addOnList.value != null) {
+    let data = {
+      addon_id: "",
+      quantity: "",
+    };
+    for (let i = 0; i < addOnList.value.length; i++) {
+      if (addOnList.value[i].select == true) {
+        data = {
+          addon_id: addOnList.value[i].id,
+          quantity: addOnList.value[i].quantity,
+        };
+        formitem.value.addons.push(data);
+        data = {
+          addon_id: "",
+          quantity: "",
+        };
+      }
+    }
+  }
   emit("formData", formitem.value);
   clearAction();
 };
@@ -293,6 +353,78 @@ watch(entrances, async (newValue) => {
     // console.log(destsList.value, "this is add new");
   }
 });
+
+watch(
+  () => formitem.value.quantity, // Watch the quantity property
+  (newValue) => {
+    // Ensure newValue is a valid number
+    // if (typeof newValue !== "number" || isNaN(newValue)) {
+    //   console.error("Invalid quantity value:", newValue);
+    //   return;
+    // }
+
+    // Ensure cost_price and selling_price are valid numbers
+    const costPrice = parseFloat(formitem.value.cost_price) || 0;
+    const sellingPrice = parseFloat(formitem.value.selling_price) || 0;
+
+    // Create a new object for individual_pricing.adult
+    const updatedAdultPricing = {
+      quantity: newValue * 1,
+      selling_price: sellingPrice,
+      cost_price: costPrice,
+      total_cost_price: newValue * 1 * costPrice,
+      amount: newValue * 1 * sellingPrice,
+    };
+
+    // Update formitem.value.individual_pricing.adult
+    formitem.value.individual_pricing.adult = updatedAdultPricing;
+
+    // Debugging logs (optional)
+    console.log("====================================");
+    console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
+    console.log("====================================");
+  },
+  { immediate: true } // Optional: Trigger the watcher immediately on setup
+);
+
+watch(
+  () => formitem.value.individual_pricing.child.quantity, // Watch the quantity property
+  (newValue) => {
+    // Ensure newValue is a valid number
+    // if (typeof newValue !== "number" || isNaN(newValue)) {
+    //   console.error("Invalid quantity value:", newValue);
+    //   return;
+    // }
+
+    // Ensure cost_price and selling_price are valid numbers
+    const costPrice =
+      formitem.value.child_info.length > 0
+        ? parseFloat(formitem.value.child_info[0]?.child_cost_price)
+        : 0;
+    const sellingPrice =
+      formitem.value.child_info.length > 0
+        ? parseFloat(formitem.value.child_info[0]?.child_price)
+        : 0;
+
+    // Create a new object for individual_pricing.adult
+    const updatedChildPricing = {
+      quantity: newValue * 1,
+      selling_price: sellingPrice,
+      cost_price: costPrice,
+      total_cost_price: newValue * 1 * costPrice,
+      amount: newValue * 1 * sellingPrice,
+    };
+
+    // Update formitem.value.individual_pricing.adult
+    formitem.value.individual_pricing.child = updatedChildPricing;
+
+    // Debugging logs (optional)
+    console.log("====================================");
+    console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
+    console.log("====================================");
+  },
+  { immediate: true } // Optional: Trigger the watcher immediately on setup
+);
 
 watch(
   [search],
@@ -601,7 +733,8 @@ onMounted(async () => {
               <div class="grid-cols-2 grid gap-2">
                 <div class="relative space-y-1">
                   <label for="" class="text-xs text-gray-500"
-                    >Adult Qty <span class="text-red-800">*</span></label
+                    >Adult Qty - selling: {{ formitem.selling_price }}
+                    <span class="text-red-800">*</span></label
                   >
                   <input
                     type="number"
@@ -630,16 +763,29 @@ onMounted(async () => {
                     -
                   </p>
                 </div>
-                <div class="relative space-y-1">
-                  <label for="" class="text-xs text-gray-500"
-                    >Child Qty <span class="text-red-800">*</span></label
-                  >
+                <div
+                  class="relative space-y-1"
+                  v-for="i in formitem.child_info"
+                  :key="i"
+                >
+                  <div class="flex justify-between items-center pb-1">
+                    <label for="" class="text-xs text-gray-500 relative"
+                      >Child Qty - selling : {{ i.child_price
+                      }}<span class="text-red-800">*</span>
+                    </label>
+                    <p
+                      :title="i?.info"
+                      class="absolute top-0 cursor-pointer text-[10px] bg-[#FF613c] shadow-xl border border-white px-1 text-white rounded-full w-5 h-5 right-1 flex justify-center items-center custom-tooltip"
+                    >
+                      ?
+                    </p>
+                  </div>
                   <input
                     type="number"
                     v-model="formitem.individual_pricing.child.quantity"
                     name=""
                     class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                    id="child_qty"
+                    id="adult_pricing"
                   />
                   <p
                     @click="formitem.individual_pricing.child.quantity++"
@@ -661,6 +807,29 @@ onMounted(async () => {
                     -
                   </p>
                 </div>
+                <div
+                  class="relative space-y-1"
+                  v-if="formitem.child_info.length == 0"
+                >
+                  <div class="flex justify-between items-center pb-1">
+                    <label for="" class="text-xs text-gray-500 relative"
+                      >Child Qty N/A <span class="text-red-800">*</span>
+                    </label>
+                    <p
+                      title="empty"
+                      class="absolute top-0 cursor-pointer text-[10px] bg-[#FF613c] shadow-xl border border-white px-1 text-white rounded-full w-5 h-5 right-1 flex justify-center items-center custom-tooltip"
+                    >
+                      ?
+                    </p>
+                  </div>
+                  <input
+                    type="number"
+                    disabled
+                    name=""
+                    class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    id="adult_pricing"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -673,6 +842,45 @@ onMounted(async () => {
               class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
               id=""
             />
+          </div>
+          <!-- <div>
+            <label for="" class="text-[12px] text-gray-500"
+              >Add on <span class="text-red-800">*</span></label
+            >
+            <div>
+              <AddonListOnBooking
+                :id="formitem.product_id"
+                :type="'hotel'"
+                :addOnList="addOnList"
+                @cleanAddOnList="changeAddOnList"
+              />
+            </div>
+          </div> -->
+
+          <p class="text-xs text-gray-500">Total Price</p>
+          <div>
+            <p
+              class="text-sm text-start border border-gray-300 py-1.5 rounded-lg px-2"
+            >
+              <span class="font-medium text-[#ff613c]"
+                >{{
+                  formitem.selling_price * formitem.quantity -
+                  formitem.discount +
+                  (formitem.individual_pricing.child?.amount || 0)
+                }}
+                ฿</span
+              >
+              <!-- - cost price :
+              <span class="font-medium text-[#ff613c]"
+                >{{
+                  formitem.cost_price * formitem.quantity -
+                  formitem.discount +
+                  (formitem.individual_pricing.child?.total_cost_price || 0) +
+                  addOnCostPrice
+                }}
+                ฿</span
+              > -->
+            </p>
           </div>
           <!-- <div class="space-y-1">
             <label for="" class="text-[12px] text-gray-500">Route Plan</label>
@@ -840,3 +1048,25 @@ onMounted(async () => {
     </Modal>
   </div>
 </template>
+
+<style scoped>
+.custom-tooltip {
+  position: relative;
+}
+
+.custom-tooltip:hover::after {
+  content: attr(title);
+  position: absolute;
+  top: 100%;
+  left: -100%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10;
+  margin-top: 5px;
+}
+</style>

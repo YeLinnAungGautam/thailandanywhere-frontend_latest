@@ -35,10 +35,10 @@
             class="text-[10px] text-[#ff613c] space-x-1 flex justify-end items-center"
             v-if="data?.product_type != 'App\\Models\\Hotel'"
           >
-            <p class="font-medium">E-{{ data?.cost_price * data?.quantity }}</p>
+            <p class="font-medium">E-{{ data?.total_cost_price }}</p>
 
             <p class="font-medium" v-if="authStore.isSuperAdmin">
-              : P-{{ data?.selling_price * data?.quantity }}
+              : P-{{ data?.amount }}
             </p>
             <p
               class="text-white bg-gray-800 px-1 rounded-md"

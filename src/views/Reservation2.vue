@@ -53,7 +53,7 @@ const customer_name = ref("service_date");
 const sorting = ref("");
 const dateOnlyToggle = ref(false);
 const searchA = ref("");
-const showSide = ref(3);
+const showSide = ref(1);
 const changeDate = ref(null);
 const oldCrmId = ref("");
 const filterShow = ref(false);
@@ -169,7 +169,7 @@ const watchSystem = computed(() => {
     result.hotel_name = hotel_name.value;
   }
   if (attraction_name.value != "" && attraction_name.value != undefined) {
-    result.attraction_name = attraction_name.value;
+    result.hotel_name = attraction_name.value;
   }
   if (
     customerPaymentStatus.value != "" &&

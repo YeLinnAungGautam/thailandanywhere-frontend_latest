@@ -146,16 +146,35 @@ onMounted(async () => {
           </div>
           <div class="space-y-1.5">
             <p class="text-xs text-black/40">Quantity:</p>
-            <p class="text-sm">{{ details?.quantity }}</p>
+            <p class="text-sm">
+              {{
+                details?.quantity +
+                (details?.individual_pricing != null
+                  ? JSON.parse(details?.individual_pricing.child.quantity)
+                  : 0)
+              }}
+            </p>
           </div>
           <div class="grid grid-cols-2 gap-x-2">
             <div class="space-y-1.5">
               <p class="text-xs text-black/40">Adult:</p>
-              <p class="text-sm">-</p>
+              <p class="text-sm">
+                {{
+                  details?.individual_pricing != null
+                    ? JSON.parse(details?.individual_pricing.adult.quantity)
+                    : "-"
+                }}
+              </p>
             </div>
             <div class="space-y-1.5">
               <p class="text-xs text-black/40">Child:</p>
-              <p class="text-sm">-</p>
+              <p class="text-sm">
+                {{
+                  details?.individual_pricing != null
+                    ? JSON.parse(details?.individual_pricing.child.quantity)
+                    : "-"
+                }}
+              </p>
             </div>
           </div>
           <div class="space-y-1.5 col-span-2">

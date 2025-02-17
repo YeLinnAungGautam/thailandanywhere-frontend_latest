@@ -12,7 +12,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   FunnelIcon,
-  XCircleIcon,
+  MagnifyingGlassIcon,
   XMarkIcon,
 } from "@heroicons/vue/24/outline";
 import ReservationDetail from "./Reservation2Component/ReservationDetail.vue";
@@ -25,6 +25,8 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useEntranceStore } from "../stores/entrance";
 import AttractionUnlimited from "./Reservation2Component/AttractionUnlimited.vue";
 import HotelUnlimited from "./Reservation2Component/HotelUnlimited.vue";
+import { XCircleIcon } from "@heroicons/vue/24/solid";
+import { format } from "date-fns";
 const reservationStore = useReservationStore();
 const { reservations, loading } = storeToRefs(reservationStore);
 const authStore = useAuthStore();
@@ -269,6 +271,40 @@ const getListUser = async () => {
     console.log(error);
     console.log("====================================");
   }
+};
+
+const showFormat = (dateStr) => {
+  // Regular expression for matching a single date (YYYY-MM-DD)
+  const singleDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+  // Regular expression for multiple comma-separated dates (YYYY-MM-DD,YYYY-MM-DD,...)
+  const multipleDatesPattern = /^(\d{4}-\d{2}-\d{2})(,\d{4}-\d{2}-\d{2})*$/;
+
+  if (singleDatePattern.test(dateStr)) {
+    return format(new Date(dateStr), "MMM, dd");
+  } else if (multipleDatesPattern.test(dateStr)) {
+    const dateArray = dateStr.split(",");
+
+    // Format each date and join them with " to "
+    const formattedDates = dateArray.map((date) => {
+      return format(new Date(date), "MMM, dd");
+    });
+
+    return formattedDates.join(" to ");
+  } else {
+    return "Invalid format";
+  }
+  // if (date ) {
+  //   const dateArray = date.split(',');
+
+  //   // Format each date and join them with " to "
+  //   const formattedDates = dateArray.map((date) => {
+  //     return format(new Date(date), 'MMM, dd');
+  //   });
+
+  //   return formattedDates.join(' to ');
+  // }
+  // return format(new Date(date), "MMM, dd");
 };
 
 onMounted(async () => {
@@ -556,7 +592,14 @@ watch(dateRange, async (newValue) => {
                   @click="searchModel = !searchModel"
                   class="text-[10px] text-gray-500 cursor-pointer px-4 py-2 border border-gray-300 rounded-lg"
                 >
-                  Select Date
+                  <!-- Select Date -->
+                  <span v-if="searchTime">{{
+                    searchTime ? showFormat(formatDate(searchTime)) : ""
+                  }}</span>
+                  <span v-if="!searchTime">{{
+                    sale_daterange ? showFormat(sale_daterange) : ""
+                  }}</span>
+                  <span v-if="!searchTime && !sale_daterange">Select Date</span>
                 </p>
 
                 <div class="" v-if="search == 'App\\Models\\Hotel'">
@@ -829,21 +872,29 @@ watch(dateRange, async (newValue) => {
                   "
                   class="bg-[#FF613c] text-white px-1.5 cursor-pointer inline-block rounded-lg text-sm w-full py-1.5 text-center"
                 >
-                  soft
+                  sort
                 </div>
               </div>
             </transition>
-            <input
-              type="search"
-              name=""
-              v-model="searchId"
-              placeholder="Search CRM ID"
-              class="w-full px-4 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-              id=""
-            />
+            <div class="relative w-full">
+              <input
+                type="search"
+                name=""
+                v-model="searchId"
+                placeholder="Search CRM ID"
+                class="w-full px-4 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                id=""
+              />
+              <div
+                @click="searchAction"
+                class="absolute right-1 top-1 rounded-lg text-xs p-1 bg-[#FF613c]"
+              >
+                <MagnifyingGlassIcon class="w-4 h-4 text-white" />
+              </div>
+            </div>
           </div>
           <div
-            class="flex justify-start items-center overflow-x-scroll no-sidebar-container space-x-2 pb-4"
+            class="flex justify-start items-center overflow-x-scroll no-sidebar-container pt-0.5 space-x-3 pb-2"
           >
             <p
               @click="clearFilter"
@@ -876,22 +927,64 @@ watch(dateRange, async (newValue) => {
               Airline
             </p>
             <p
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
-              v-if="userName != undefined"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              v-if="searchId != ''"
             >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    searchId = '';
+                    searchAction();
+                  }
+                "
+              />
+              {{ searchId }}
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              v-if="userName != '' && userName != undefined"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    userFilter = '';
+                    searchAction();
+                  }
+                "
+              />
               {{ userName }}
             </p>
             <p
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
-              v-if="!searchTime"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              v-if="!searchTime && !sale_daterange == ''"
             >
-              {{ sale_daterange }}
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    sale_daterange = '';
+                    searchAction();
+                  }
+                "
+              />
+              {{ showFormat(sale_daterange) }}
             </p>
             <p
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
               v-if="searchTime"
             >
-              {{ formatDate(searchTime) }}
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    searchTime = '';
+                    searchAction();
+                  }
+                "
+              />
+              {{ showFormat(formatDate(searchTime)) }}
             </p>
             <p
               class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
@@ -906,9 +999,16 @@ watch(dateRange, async (newValue) => {
               {{ attraction_name }}
             </p>
           </div>
+          <div class="flex justify-end items-center pb-2">
+            <div
+              class="text-[10px] rounded-lg px-2 py-1 text-white bg-[#FF613c]"
+            >
+              Search Results: {{ reservations?.meta?.total }} reser
+            </div>
+          </div>
           <div
             v-if="!loading"
-            class="bg-white shadow rounded-lg divide-y divide-gray-100 max-h-[65vh] overflow-y-scroll"
+            class="bg-white shadow rounded-lg divide-y divide-gray-100 max-h-[62vh] overflow-y-scroll"
           >
             <div
               class=""

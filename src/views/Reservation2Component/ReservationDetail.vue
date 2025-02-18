@@ -160,7 +160,9 @@ const copyReservation = async (id) => {
     formattedOutput = `
 💰 Total Cost: ${
       res.result.total_cost +
-      (res.result.individual_pricing != null
+      ((res.result.individual_pricing != null) &
+      ((res.result.individual_pricing.length > 0) &
+        res.result.individual_pricing?.child?.total_cost_price)
         ? JSON.parse(res.result.individual_pricing?.child?.total_cost_price)
         : 0)
     } THB
@@ -179,13 +181,17 @@ const copyReservation = async (id) => {
       res.result.selling_price ? res.result.selling_price : "-"
     } THB
 👶🏻 Child : ${
-      res.result.individual_pricing != null
+      (res.result.individual_pricing != null) &
+      (res.result.individual_pricing.length > 0) &
+      res.result.individual_pricing?.child
         ? JSON.parse(res.result.individual_pricing?.child?.quantity)
-        : "-"
+        : 0
     } x ${
-      res.result.individual_pricing != null
+      (res.result.individual_pricing != null) &
+      (res.result.individual_pricing.length > 0) &
+      res.result.individual_pricing?.child
         ? JSON.parse(res.result.individual_pricing?.child?.cost_price)
-        : "-"
+        : 0
     } THB
 💵 Price: ${res.result.sale_price} THB
 💵 Total Sale Amount: ${res.result.total_sale_amount} THB

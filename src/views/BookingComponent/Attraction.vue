@@ -388,7 +388,7 @@ watch(
 );
 
 watch(
-  () => formitem.value.individual_pricing.child.quantity, // Watch the quantity property
+  () => formitem.value.individual_pricing?.child?.quantity, // Watch the quantity property
   (newValue) => {
     // Ensure newValue is a valid number
     // if (typeof newValue !== "number" || isNaN(newValue)) {

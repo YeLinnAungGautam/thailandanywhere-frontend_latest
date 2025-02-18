@@ -115,7 +115,7 @@
             {{ i?.created_at }}
           </p>
         </div>
-        <div class="h-[180px] w-full">
+        <div class="h-[180px] w-full" @click="openModal(i)">
           <img
             :src="i?.image"
             class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"

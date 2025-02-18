@@ -509,34 +509,45 @@ watch(
 );
 
 watch(
-  () => formitem.value.individual_pricing.child.quantity, // Watch the quantity property
+  () => formitem.value.individual_pricing?.child?.quantity, // Watch the quantity property
   (newValue) => {
     // Ensure cost_price and selling_price are valid numbers
-    const costPrice =
-      formitem.value.child_info.length > 0
-        ? parseFloat(formitem.value.child_info[0]?.child_cost_price)
-        : 0;
-    const sellingPrice =
-      formitem.value.child_info.length > 0
-        ? parseFloat(formitem.value.child_info[0]?.child_price)
-        : 0;
 
-    // Create a new object for individual_pricing.adult
-    const updatedChildPricing = {
-      quantity: newValue * 1,
-      selling_price: sellingPrice,
-      cost_price: costPrice,
-      total_cost_price: newValue * 1 * costPrice,
-      amount: newValue * 1 * sellingPrice,
-    };
+    if (formitem.value.product_type == 4) {
+      let costPrice = 0;
+      let sellingPrice = 0;
 
-    // Update formitem.value.individual_pricing.adult
-    formitem.value.individual_pricing.child = updatedChildPricing;
+      if (formitem.value.child_info != null && formitem.value.child_info) {
+        costPrice =
+          formitem.value.child_info.length > 0
+            ? parseFloat(formitem.value.child_info[0]?.child_cost_price)
+            : 0;
+        sellingPrice =
+          formitem.value.child_info.length > 0
+            ? parseFloat(formitem.value.child_info[0]?.child_price)
+            : 0;
+      } else {
+        costPrice = 0;
+        sellingPrice = 0;
+      }
 
-    // Debugging logs (optional)
-    console.log("====================================");
-    console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
-    console.log("====================================");
+      // Create a new object for individual_pricing.adult
+      const updatedChildPricing = {
+        quantity: newValue * 1,
+        selling_price: sellingPrice,
+        cost_price: costPrice,
+        total_cost_price: newValue * 1 * costPrice,
+        amount: newValue * 1 * sellingPrice,
+      };
+
+      // Update formitem.value.individual_pricing.adult
+      formitem.value.individual_pricing.child = updatedChildPricing;
+
+      // Debugging logs (optional)
+      console.log("====================================");
+      console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
+      console.log("====================================");
+    }
   },
   { immediate: true } // Optional: Trigger the watcher immediately on setup
 );
@@ -1034,7 +1045,7 @@ onMounted(() => {
               </div>
               <div
                 class="relative space-y-1"
-                v-for="i in formitem.child_info"
+                v-for="i in formitem.child_info ?? []"
                 :key="i"
               >
                 <div class="flex justify-between items-center pb-1 pt-1">
@@ -1057,6 +1068,29 @@ onMounted(() => {
                   id="adult_pricing"
                 />
               </div>
+              <!-- <div
+                class="relative space-y-1"
+                v-if="formitem.child_info.length == 0"
+              >
+                <div class="flex justify-between items-center pb-1">
+                  <label for="" class="text-xs text-gray-500 relative"
+                    >Child Qty N/A <span class="text-red-800">*</span>
+                  </label>
+                  <p
+                    title="empty"
+                    class="absolute top-0 cursor-pointer text-[10px] bg-[#FF613c] shadow-xl border border-white px-1 text-white rounded-full w-5 h-5 right-1 flex justify-center items-center custom-tooltip"
+                  >
+                    ?
+                  </p>
+                </div>
+                <input
+                  type="number"
+                  disabled
+                  name=""
+                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id="adult_pricing"
+                />
+              </div> -->
               <div class="space-y-1 col-span-2">
                 <label for="" class="text-[12px] text-gray-500"
                   >Ticket Info <span class="text-red-800">*</span></label

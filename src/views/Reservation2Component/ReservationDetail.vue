@@ -158,14 +158,7 @@ const copyReservation = async (id) => {
     `;
   } else if (res.result.entrance_ticket_variation_name) {
     formattedOutput = `
-💰 Total Cost: ${
-      res.result.total_cost +
-      ((res.result.individual_pricing != null) &
-      ((res.result.individual_pricing.length > 0) &
-        res.result.individual_pricing?.child?.total_cost_price)
-        ? JSON.parse(res.result.individual_pricing?.child?.total_cost_price)
-        : 0)
-    } THB
+💰 Total Cost: ${res.result.total_cost_price} THB
 🏦 Bank Name: ${res.result.bank_name != "null" ? res.result.bank_name : "-"}
 🔢 Bank Account Number: ${
       res.result.bank_account_number != "null"
@@ -177,20 +170,22 @@ const copyReservation = async (id) => {
 #️⃣ Reservation Code: ${res.result.reservation_code}
 🎫 Attraction : ${res.result.product_name}
 🎫 Entrance Ticket Name : ${res.result.entrance_ticket_variation_name}
-👨🏻 Adult : ${res.result.quantity ? res.result.quantity : "-"} x ${
-      res.result.selling_price ? res.result.selling_price : "-"
+👨🏻 Adult : ${
+      res.result.individual_pricing?.adult?.quantity
+        ? res.result.individual_pricing?.adult?.quantity
+        : res.result.quantity
+    } x ${
+      res.result.individual_pricing?.adult?.cost_price
+        ? res.result.individual_pricing?.adult?.cost_price
+        : res.result.total_cost / res.result.quantity
     } THB
 👶🏻 Child : ${
-      (res.result.individual_pricing != null) &
-      (res.result.individual_pricing.length > 0) &
-      res.result.individual_pricing?.child
-        ? JSON.parse(res.result.individual_pricing?.child?.quantity)
+      res.result.individual_pricing?.child?.quantity
+        ? res.result.individual_pricing?.child?.quantity
         : 0
     } x ${
-      (res.result.individual_pricing != null) &
-      (res.result.individual_pricing.length > 0) &
-      res.result.individual_pricing?.child
-        ? JSON.parse(res.result.individual_pricing?.child?.cost_price)
+      res.result.individual_pricing?.child?.cost_price
+        ? res.result.individual_pricing?.child?.cost_price
         : 0
     } THB
 💵 Price: ${res.result.sale_price} THB

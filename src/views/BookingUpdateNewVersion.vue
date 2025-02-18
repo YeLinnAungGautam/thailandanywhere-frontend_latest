@@ -623,7 +623,7 @@ const onSubmitHandler = async () => {
       }
       if (
         formData.value.items[x].individual_pricing?.adult &&
-        formData.value.items[x].individual_pricing.child
+        formData.value.items[x].individual_pricing?.child
       ) {
         frmData.append(
           "items[" + x + "][individual_pricing][adult][quantity]",

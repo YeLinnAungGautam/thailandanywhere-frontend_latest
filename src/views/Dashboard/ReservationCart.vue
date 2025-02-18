@@ -809,7 +809,7 @@ const copyReservation = async (id) => {
     `;
   } else if (res.result.entrance_ticket_variation_name) {
     formattedOutput = `
-💰 Total Cost: ${res.result.total_cost} THB
+💰 Total Cost: ${res.result.total_cost_price} THB
 🏦 Bank Name: ${res.result.bank_name != "null" ? res.result.bank_name : "-"}
 🔢 Bank Account Number: ${
       res.result.bank_account_number != "null"
@@ -821,6 +821,24 @@ const copyReservation = async (id) => {
 #️⃣ Reservation Code: ${res.result.reservation_code}
 🎫 Attraction : ${res.result.product_name}
 🎫 Entrance Ticket Name : ${res.result.entrance_ticket_variation_name}
+👨🏻 Adult : ${
+      res.result.individual_pricing?.adult?.quantity
+        ? res.result.individual_pricing?.adult?.quantity
+        : res.result.quantity
+    } x ${
+      res.result.individual_pricing?.adult?.cost_price
+        ? res.result.individual_pricing?.adult?.cost_price
+        : res.result.total_cost / res.result.quantity
+    } THB
+👶🏻 Child : ${
+      res.result.individual_pricing?.child?.quantity
+        ? res.result.individual_pricing?.child?.quantity
+        : 0
+    } x ${
+      res.result.individual_pricing?.child?.cost_price
+        ? res.result.individual_pricing?.child?.cost_price
+        : 0
+    } THB
 💵 Price: ${res.result.sale_price} THB
 💵 Total Sale Amount: ${res.result.total_sale_amount} THB
 💸 Discount : ${res.result.discount} THB
@@ -831,7 +849,7 @@ const copyReservation = async (id) => {
       res.result.service_date != "null" ? res.result.service_date : "-"
     }
 🤑 Score : ${res.result.score}
-    `;
+        `;
   } else if (res.result.ticket_type) {
     formattedOutput = `
 💰 Total Cost: ${res.result.total_cost} THB

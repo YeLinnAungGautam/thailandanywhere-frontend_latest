@@ -46,7 +46,7 @@
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
       >
         <p class="text-[10px] text-gray-500">Total Cost</p>
-        <p class="text-sm">{{ detail?.total_cost_price }}</p>
+        <p class="text-sm">{{ detail?.total_cost_price ?? 0 }}</p>
       </div>
       <div
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
@@ -69,22 +69,28 @@
         </p>
       </div>
     </div>
-    <div>
+    <div class="flex justify-between items-center">
       <p
         class="px-2 py-1 bg-[#FF613c] text-white inline-block text-xs rounded-lg"
       >
         {{ detail?.crm_id }}
       </p>
+      <p
+        @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
+        class="text-[12px] bg-[#FF613c] px-3 py-1 rounded-lg text-white"
+      >
+        + click to add payment
+      </p>
     </div>
     <div class="pt-2 grid grid-cols-4 gap-4">
-      <div
+      <!-- <div
         @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
         class="w-full min-h-[230px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c] cursor-pointer"
       >
         <p class="px-2 py-1 text-[10px] text-[#FF613c] rounded-lg">
           Click to add payment
         </p>
-      </div>
+      </div> -->
       <div
         v-for="i in detail?.booking?.receipts ?? []"
         :key="i"

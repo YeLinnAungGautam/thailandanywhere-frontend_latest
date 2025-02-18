@@ -149,8 +149,9 @@ onMounted(async () => {
             <p class="text-sm">
               {{
                 details?.quantity +
-                (details?.individual_pricing != null
-                  ? JSON.parse(details?.individual_pricing.child.quantity)
+                (details?.individual_pricing != "null" &&
+                details?.individual_pricing?.adult?.quantity
+                  ? JSON.parse(details?.individual_pricing?.child?.quantity)
                   : 0)
               }}
             </p>
@@ -159,18 +160,15 @@ onMounted(async () => {
             <div class="space-y-1.5">
               <p class="text-xs text-black/40">Adult:</p>
               <p class="text-sm">
-                {{
-                  details?.individual_pricing != null
-                    ? JSON.parse(details?.individual_pricing.adult.quantity)
-                    : "-"
-                }}
+                {{ details?.quantity }}
               </p>
             </div>
             <div class="space-y-1.5">
               <p class="text-xs text-black/40">Child:</p>
               <p class="text-sm">
                 {{
-                  details?.individual_pricing != null
+                  details?.individual_pricing != null &&
+                  details?.individual_pricing?.child
                     ? JSON.parse(details?.individual_pricing.child.quantity)
                     : "-"
                 }}

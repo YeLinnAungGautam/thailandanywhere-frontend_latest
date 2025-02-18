@@ -41,8 +41,8 @@ const formitem = ref({
   days: "",
   cancellation: null,
   duration: "",
-  individual_pricing: {},
   selling_price: "",
+  child_info: [],
   comment: "",
   reservation_status: "",
   payment_method: "",
@@ -61,6 +61,22 @@ const formitem = ref({
   room_number: "",
   checkout_date: "",
   customer_attachment: "",
+  individual_pricing: {
+    adult: {
+      quantity: 0,
+      selling_price: 0,
+      cost_price: 0,
+      total_cost_price: 0,
+      amount: 0,
+    },
+    child: {
+      quantity: 0,
+      selling_price: 0,
+      cost_price: 0,
+      total_cost_price: 0,
+      amount: 0,
+    },
+  },
 });
 
 const getRemoveFunction = (id, index) => {
@@ -131,7 +147,22 @@ const closeModalAction = () => {
     cost_price: "",
     special_request: "",
     total_amount: "",
-    individual_pricing: {},
+    individual_pricing: {
+      adult: {
+        quantity: 0,
+        selling_price: 0,
+        cost_price: 0,
+        total_cost_price: 0,
+        amount: 0,
+      },
+      child: {
+        quantity: 0,
+        selling_price: 0,
+        cost_price: 0,
+        total_cost_price: 0,
+        amount: 0,
+      },
+    },
     pickup_location: "",
     pickup_time: "",
     is_driver_collect: false,
@@ -383,6 +414,42 @@ watch(
   { deep: true, immediate: true } // Optional: immediate triggers the callback initially
 );
 
+// watch(
+//   () => formitem.value.quantity, // Watch the quantity property
+//   (newValue) => {
+//     if (formitem.value.product_type == 4) {
+//       // Ensure newValue is a valid number
+//       // if (typeof newValue !== "number" || isNaN(newValue)) {
+//       //   console.error("Invalid quantity value:", newValue);
+//       //   return;
+//       // }
+
+//       // Ensure cost_price and selling_price are valid numbers
+//       const costPrice = parseFloat(formitem.value.cost_price) || 0;
+//       const sellingPrice = parseFloat(formitem.value.selling_price) || 0;
+
+//       // Create a new object for individual_pricing.adult
+//       const updatedAdultPricing = {
+//         quantity: newValue * 1,
+//         selling_price: sellingPrice,
+//         cost_price: costPrice,
+//         total_cost_price: newValue * 1 * costPrice,
+//         amount: newValue * 1 * sellingPrice,
+//       };
+
+//       // Update formitem.value.individual_pricing.adult
+//       formitem.value.individual_pricing.adult =
+//         updatedAdultPricing != null ? updatedAdultPricing : "";
+
+//       // Debugging logs (optional)
+//       console.log("====================================");
+//       console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
+//       console.log("====================================");
+//     }
+//   },
+//   { immediate: true } // Optional: Trigger the watcher immediately on setup
+// );
+
 watch(
   () => formitem.value.quantity, // Watch the quantity property
   (newValue) => {
@@ -396,6 +463,29 @@ watch(
       // Ensure cost_price and selling_price are valid numbers
       const costPrice = parseFloat(formitem.value.cost_price) || 0;
       const sellingPrice = parseFloat(formitem.value.selling_price) || 0;
+
+      // Ensure individual_pricing is an object
+      if (
+        !formitem.value.individual_pricing ||
+        typeof formitem.value.individual_pricing !== "object"
+      ) {
+        formitem.value.individual_pricing = {
+          adult: {
+            quantity: 0,
+            selling_price: 0,
+            cost_price: 0,
+            total_cost_price: 0,
+            amount: 0,
+          },
+          child: {
+            quantity: 0,
+            selling_price: 0,
+            cost_price: 0,
+            total_cost_price: 0,
+            amount: 0,
+          },
+        }; // Initialize as an empty object
+      }
 
       // Create a new object for individual_pricing.adult
       const updatedAdultPricing = {
@@ -419,42 +509,34 @@ watch(
 );
 
 watch(
-  () => formitem.value.individual_pricing?.child?.quantity, // Watch the quantity property
+  () => formitem.value.individual_pricing.child.quantity, // Watch the quantity property
   (newValue) => {
-    if (formitem.value.product_type == 4) {
-      // Ensure newValue is a valid number
-      // if (typeof newValue !== "number" || isNaN(newValue)) {
-      //   console.error("Invalid quantity value:", newValue);
-      //   return;
-      // }
+    // Ensure cost_price and selling_price are valid numbers
+    const costPrice =
+      formitem.value.child_info.length > 0
+        ? parseFloat(formitem.value.child_info[0]?.child_cost_price)
+        : 0;
+    const sellingPrice =
+      formitem.value.child_info.length > 0
+        ? parseFloat(formitem.value.child_info[0]?.child_price)
+        : 0;
 
-      // Ensure cost_price and selling_price are valid numbers
-      const costPrice =
-        formitem.value.child_info?.length > 0
-          ? parseFloat(formitem.value.child_info[0]?.child_cost_price)
-          : 0;
-      const sellingPrice =
-        formitem.value.child_info?.length > 0
-          ? parseFloat(formitem.value.child_info[0]?.child_price)
-          : 0;
+    // Create a new object for individual_pricing.adult
+    const updatedChildPricing = {
+      quantity: newValue * 1,
+      selling_price: sellingPrice,
+      cost_price: costPrice,
+      total_cost_price: newValue * 1 * costPrice,
+      amount: newValue * 1 * sellingPrice,
+    };
 
-      // Create a new object for individual_pricing.adult
-      const updatedChildPricing = {
-        quantity: newValue * 1,
-        selling_price: sellingPrice,
-        cost_price: costPrice,
-        total_cost_price: newValue * 1 * costPrice,
-        amount: newValue * 1 * sellingPrice,
-      };
+    // Update formitem.value.individual_pricing.adult
+    formitem.value.individual_pricing.child = updatedChildPricing;
 
-      // Update formitem.value.individual_pricing.adult
-      formitem.value.individual_pricing.child = updatedChildPricing;
-
-      // Debugging logs (optional)
-      console.log("====================================");
-      console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
-      console.log("====================================");
-    }
+    // Debugging logs (optional)
+    console.log("====================================");
+    console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
+    console.log("====================================");
   },
   { immediate: true } // Optional: Trigger the watcher immediately on setup
 );

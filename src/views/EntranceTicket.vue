@@ -312,23 +312,7 @@
                   {{ errors.location_map[0] }}
                 </p>
               </div>
-              <div
-                v-if="formData.location_map"
-                class="mb-2 space-y-1"
-                :class="formData.location_map == 'null' ? 'hidden' : ''"
-              >
-                <label for="name" class="text-sm text-gray-800"
-                  >Location map preview</label
-                >
-                <iframe
-                  :src="formData?.location_map"
-                  class="w-[100%] h-[400px] rounded-2xl"
-                  style="border: 0"
-                  allowfullscreen=""
-                  loading="lazy"
-                  referrerpolicy="no-referrer-when-downgrade"
-                ></iframe>
-              </div>
+
               <div class="mb-2 space-y-1">
                 <label for="name" class="text-sm text-gray-800"
                   >Location Map Title</label
@@ -378,6 +362,49 @@
                   id="name"
                   class="w-full h-10 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
                 />
+              </div>
+            </div>
+            <div class="col-span-2 grid grid-cols-2 gap-x-4">
+              <div
+                v-if="formData.location_map"
+                class="mb-2 space-y-1"
+                :class="formData.location_map == 'null' ? 'hidden' : ''"
+              >
+                <label for="name" class="text-sm text-gray-800"
+                  >Location map preview</label
+                >
+                <iframe
+                  :src="formData?.location_map"
+                  class="w-[100%] h-[400px] rounded-2xl"
+                  style="border: 0"
+                  allowfullscreen=""
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                ></iframe>
+              </div>
+              <div
+                v-if="formData.youtube_link.how_link"
+                class="mb-2 space-y-1"
+                :class="
+                  formData.youtube_link.how_link == 'null' ? 'hidden' : ''
+                "
+              >
+                <label for="name" class="text-sm text-gray-800"
+                  >How to preview</label
+                >
+                <iframe
+                  class="w-full rounded-xl"
+                  height="400"
+                  :src="
+                    'https://www.youtube.com/embed/' +
+                    formData.youtube_link.how_link +
+                    '?vq=hd1080'
+                  "
+                  title="YouTube video player"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                ></iframe>
               </div>
             </div>
             <div class="col-span-2">

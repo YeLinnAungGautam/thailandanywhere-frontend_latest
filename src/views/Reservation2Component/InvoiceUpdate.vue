@@ -81,12 +81,12 @@
             <div class="grid grid-cols-2 gap-8">
               <div
                 v-if="!featureImagePreview"
-                class="w-[200px] h-[250px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+                class="w-[220px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
                 @click="openFileFeaturePicker"
               >
                 +
               </div>
-              <div v-if="featureImagePreview" class="w-[200px] h-[250px]">
+              <div v-if="featureImagePreview" class="w-[220px] h-[300px]">
                 <img
                   :src="featureImagePreview"
                   class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
@@ -101,52 +101,66 @@
                 accept="image/*"
               />
               <div class="space-y-4 relative pt-4">
-                <div class="space-x-6">
+                <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium">Amount</label>
                   <input
                     type="number"
                     name=""
+                    disabled
                     placeholder="xxxx"
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
                 </div>
-                <div class="space-x-6">
+                <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium"
-                    >Date <span class="opacity-0">.....</span></label
+                    >Invoice <span class="opacity-0">.</span></label
                   >
                   <input
                     type="date"
                     name=""
+                    disabled
                     placeholder=""
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
                 </div>
-                <div class="space-x-2.5">
-                  <label for="" class="text-[12px] font-medium">Company</label>
+                <div class="flex justify-between items-center">
+                  <label for="" class="text-[12px] font-medium">Due </label>
+                  <input
+                    type="date"
+                    name=""
+                    disabled
+                    placeholder=""
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+                <div class="flex justify-between items-center">
+                  <label for="" class="text-[12px] font-medium"
+                    >Customer
+                  </label>
+                  <select
+                    name=""
+                    disabled
+                    id=""
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  >
+                    <option value="">Select</option>
+                    <option value="1">TH Anyhwere</option>
+                    <option value="2">Other</option>
+                  </select>
+                </div>
+                <div class="flex justify-between items-center">
+                  <label for="" class="text-[12px] font-medium">Sender</label>
                   <input
                     type="text"
+                    disabled
                     name=""
-                    placeholder=""
+                    placeholder="xxxx"
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
-                </div>
-                <div class="space-x-6 flex justify-start">
-                  <label for="" class="text-[12px] font-medium"
-                    >Bank ? <span class="opacity-0">..</span></label
-                  >
-                  <div class="flex justify-start items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      name=""
-                      placeholder="name"
-                      class="py-1.5 focus:outline-none text-xs"
-                      id=""
-                    />
-                    <p class="text-[12px]">Is Corporate ?</p>
-                  </div>
                 </div>
 
                 <div

@@ -149,11 +149,12 @@
                 alt=""
               />
             </div>
-            <div class="space-y-4 relative pt-4">
-              <div class="space-x-6">
+            <div class="space-y-4 relative pt-4 pr-2">
+              <div class="flex justify-between items-center">
                 <label for="" class="text-[12px] font-medium">Amount</label>
                 <input
                   type="text"
+                  disabled
                   name=""
                   v-model="save.amount"
                   placeholder="Search CRM ID"
@@ -161,23 +162,23 @@
                   id=""
                 />
               </div>
-              <div class="space-x-6">
-                <label for="" class="text-[12px] font-medium"
-                  >Date <span class="opacity-0">......</span></label
-                >
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Date </label>
                 <input
                   type="date"
                   name=""
+                  disabled
                   v-model="save.created_at"
                   placeholder="Search CRM ID"
                   class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   id=""
                 />
               </div>
-              <div class="space-x-6">
-                <label for="" class="text-[12px] font-medium">Bank List</label>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Bank </label>
                 <select
                   name=""
+                  disabled
                   id=""
                   class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                 >
@@ -186,6 +187,39 @@
                   <option value="2">Bank B</option>
                   <option value="3">Bank C</option>
                 </select>
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Sender </label>
+                <input
+                  type="text"
+                  name=""
+                  disabled
+                  placeholder="sender name"
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  id=""
+                />
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Bank ? </label>
+                <div class="flex justify-start items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name=""
+                    disabled
+                    placeholder="name"
+                    class="py-1.5 focus:outline-none text-xs"
+                    id=""
+                  />
+                  <p class="text-[12px]">Is Corporate ?</p>
+                </div>
+              </div>
+              <div class="flex justify-between items-start">
+                <label for="" class="text-[12px] font-medium">Comment</label>
+                <textarea
+                  disabled
+                  class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[160px]"
+                >
+                </textarea>
               </div>
               <div
                 class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"

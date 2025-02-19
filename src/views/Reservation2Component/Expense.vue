@@ -120,19 +120,15 @@
           <p class="text-gray-800 text-[10px]">Total Cost</p>
           <p
             class="h-9 w-full bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-            v-if="!detail?.checkin_date"
           >
-            {{
-              formData.cost_price * formData.quantity +
-              formData.child_price * formData.child_quantity
-            }}
+            {{ detail?.total_cost_price }}
           </p>
-          <p
+          <!-- <p
             class="h-9 w-full bg-white border rounded-md border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
             v-if="detail?.checkin_date"
           >
             {{ formData.cost_price * formData.hotalQuantity }}
-          </p>
+          </p> -->
         </div>
       </div>
       <div class="space-y-2 col-span-2 w-full">
@@ -249,7 +245,7 @@
               </div>
 
               <div class="space-y-4 relative pt-4">
-                <div class="space-x-6">
+                <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium"
                     >Bank <span class="opacity-0">.....</span></label
                   >
@@ -262,7 +258,7 @@
                     id=""
                   />
                 </div>
-                <div class="space-x-6 flex justify-start">
+                <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium"
                     >Bank ? <span class="opacity-0">..</span></label
                   >
@@ -278,7 +274,7 @@
                     <p class="text-[12px]">Is Corporate ?</p>
                   </div>
                 </div>
-                <div class="space-x-6">
+                <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium">Amount</label>
                   <input
                     type="number"
@@ -289,7 +285,7 @@
                     id=""
                   />
                 </div>
-                <div class="space-x-6">
+                <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium"
                     >Date <span class="opacity-0">......</span></label
                   >
@@ -302,7 +298,7 @@
                     id=""
                   />
                 </div>
-                <div class="space-x-3 flex justify-start items-start">
+                <div class="flex justify-between items-start">
                   <label for="" class="text-[12px] font-medium">Comment</label>
                   <textarea
                     disabled

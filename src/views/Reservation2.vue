@@ -56,7 +56,6 @@ const sorting = ref("");
 const dateOnlyToggle = ref(false);
 const searchA = ref("");
 const showSide = ref(1);
-const changeDate = ref(null);
 const oldCrmId = ref("");
 const filterShow = ref(false);
 const softShow = ref(false);
@@ -250,6 +249,37 @@ const ChangeHotelName = (data) => {
   if (data) {
     hotel_name.value = data;
   }
+};
+
+const changeDate = ref("");
+const changeServiceDate = async (data) => {
+  console.log(data);
+  changeDate.value = data;
+  if (data == "today") {
+    let startDate = formatDate(new Date());
+    let endDate = formatDate(new Date());
+    sale_daterange.value = `${startDate},${endDate}`;
+  } else if (data == "tomorrow") {
+    let tomorrowDate = new Date();
+    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+    let startDate = formatDate(tomorrowDate);
+    let endDate = formatDate(tomorrowDate);
+    sale_daterange.value = `${startDate},${endDate}`;
+  } else if (data == "7day") {
+    let startDate = formatDate(new Date());
+    let endDate = formatDate(
+      new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+    );
+    sale_daterange.value = `${startDate},${endDate}`;
+  } else if (data == "30day") {
+    let startDate = formatDate(new Date());
+    let endDate = formatDate(
+      new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
+    );
+    sale_daterange.value = `${startDate},${endDate}`;
+  }
+
+  await searchAction();
 };
 
 const getListUser = async () => {
@@ -999,7 +1029,52 @@ watch(dateRange, async (newValue) => {
               {{ attraction_name }}
             </p>
           </div>
-          <div class="flex justify-end items-center pb-2">
+          <div class="flex justify-between items-center pb-2">
+            <div class="col-span-2">
+              <div
+                class="flex w-full text-[10px] justify-end items-center gap-4"
+              >
+                <p
+                  @click="changeServiceDate('today')"
+                  class="flex gap-2 justify-start items-center cursor-pointer"
+                  :class="
+                    changeDate == 'today' ? ' text-[#FF5B00]' : 'text-black'
+                  "
+                >
+                  <span
+                    class="w-2 h-2 rounded-full bg-[#FF5B00]"
+                    v-if="changeDate == 'today'"
+                  ></span
+                  >Today
+                </p>
+                <p
+                  @click="changeServiceDate('tomorrow')"
+                  class="flex gap-2 justify-start items-center cursor-pointer"
+                  :class="
+                    changeDate == 'tomorrow' ? ' text-[#FF5B00]' : 'text-black'
+                  "
+                >
+                  <span
+                    class="w-2 h-2 rounded-full bg-[#FF5B00]"
+                    v-if="changeDate == 'tomorrow'"
+                  ></span
+                  >Tomorrow
+                </p>
+                <p
+                  @click="changeServiceDate('7day')"
+                  class="flex gap-2 justify-start items-center cursor-pointer"
+                  :class="
+                    changeDate == '7day' ? ' text-[#FF5B00]' : 'text-black'
+                  "
+                >
+                  <span
+                    class="w-2 h-2 rounded-full whitespace-nowrap bg-[#FF5B00]"
+                    v-if="changeDate == '7day'"
+                  ></span
+                  >Next 7 Days
+                </p>
+              </div>
+            </div>
             <div
               class="text-[10px] rounded-lg px-2 py-1 text-white bg-[#FF613c]"
             >

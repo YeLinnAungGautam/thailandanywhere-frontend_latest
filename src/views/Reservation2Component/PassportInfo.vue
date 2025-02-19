@@ -158,10 +158,8 @@
                 accept="image/*"
               />
               <div class="space-y-4 relative pt-4">
-                <div class="space-x-6">
-                  <label for="" class="text-[12px] font-medium"
-                    >Name <span class="opacity-0">....</span></label
-                  >
+                <div class="flex justify-between items-center">
+                  <label for="" class="text-[12px] font-medium">Name </label>
                   <input
                     type="text"
                     name=""
@@ -171,7 +169,7 @@
                     id=""
                   />
                 </div>
-                <div class="space-x-6">
+                <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium">Passport</label>
                   <input
                     type="text"
@@ -182,10 +180,8 @@
                     id=""
                   />
                 </div>
-                <div class="space-x-6">
-                  <label for="" class="text-[12px] font-medium"
-                    >DOB <span class="opacity-0">.........</span></label
-                  >
+                <div class="flex justify-between items-center">
+                  <label for="" class="text-[12px] font-medium">DOB </label>
                   <input
                     type="date"
                     disabled

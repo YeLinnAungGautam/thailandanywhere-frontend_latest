@@ -26,29 +26,9 @@
                 type="text"
                 v-model="emailData.mail_subject"
                 class="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none text-xs w-full"
-                placeholder="Subject"
+                placeholder="Booking for"
               />
             </div>
-
-            <!-- <div class="flex justify-start items-center gap-2">
-              <input
-                type="checkbox"
-                v-model="emailData.send_to_default"
-                name=""
-                id=""
-                class="w-6 h-6 rounded-lg border border-gray-200 focus:outline-none"
-              />
-              <p class="text-xs">default email send ?</p>
-            </div>
-            <div class="flex justify-start items-center gap-2">
-              <input
-                type="checkbox"
-                name=""
-                id=""
-                class="w-6 h-6 rounded-lg border border-gray-200 focus:outline-none"
-              />
-              <p class="text-xs">Is booking send?</p>
-            </div> -->
             <div class="">
               <QuillEditor
                 ref="textEditor"
@@ -64,12 +44,6 @@
               <p class="text-[10px] text-[#FF6300]">
                 Attachment Files must be under 25mb .
               </p>
-              <!-- <input
-                type="file"
-                multiple
-                @change="addAttracted"
-                class="border px-4 py-2 border-gray-200 focus:outline-none rounded-lg text-xs w-full"
-              /> -->
               <div
                 @click="showModal = true"
                 class="w-full h-[50px] border border-[#FF613c] border-dashed flex justify-center items-center rounded-lg text-[#FF613c] cursor-pointer"
@@ -80,6 +54,23 @@
                 >
               </div>
             </div>
+            <div class="grid grid-cols-8 gap-2">
+              <div
+                class="w-full h-auto relative"
+                v-for="(i, index) in previewFile ?? []"
+                :key="i"
+              >
+                <XCircleIcon
+                  @click="removeFeatureSelectImage(index)"
+                  class="w-5 h-5 absolute top-2 right-2 text-2xl cursor-pointer"
+                />
+                <img
+                  :src="i"
+                  class="rounded-lg w-full h-[270px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
+                  alt=""
+                />
+              </div>
+            </div>
             <div class="space-x-2 flex justify-end items-center gap-x-2">
               <button
                 class="text-xs px-3 py-1.5 border rounded-lg shadow border-gray-100/50 bg-transfer text-[#FF613c]"
@@ -88,15 +79,8 @@
                 Clear Email
               </button>
               <button
-                v-if="detail?.payment_status == 'fully_paid'"
                 class="text-xs px-3 py-1.5 border rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
                 @click="sendEmailFunction"
-              >
-                Send Email
-              </button>
-              <button
-                v-if="detail?.payment_status != 'fully_paid'"
-                class="text-xs px-3 py-1.5 border rounded-lg shadow border-gray-100 bg-white"
               >
                 Send Email
               </button>
@@ -114,12 +98,20 @@
           class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
         >
           <p>Attachments: Passports</p>
-          <XCircleIcon class="w-5 h-5 text-white" @click="showModal = false" />
+          <XCircleIcon class="w-5 h-5 text-white" @click="cancelAction" />
         </DialogTitle>
         <!-- show date  -->
         <div class="p-4">
           <div class="grid grid-cols-3 gap-4">
-            <div class="space-y-2">
+            <input
+              type="file"
+              ref="featureImageInput"
+              class="hidden"
+              multiple
+              @change="handlerFeatureFileChange"
+              accept="image/*"
+            />
+            <div class="space-y-2" @click="openFileFeaturePicker">
               <div
                 class="w-full h-[180px] border border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
               >
@@ -133,6 +125,21 @@
                   mb
                 </p>
               </div>
+            </div>
+            <div
+              class="w-full h-auto relative"
+              v-for="(i, index) in previewFile ?? []"
+              :key="i"
+            >
+              <XCircleIcon
+                @click="removeFeatureSelectImage(index)"
+                class="w-5 h-5 absolute top-2 right-2 text-2xl cursor-pointer"
+              />
+              <img
+                :src="i"
+                class="rounded-lg w-full h-[270px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
+                alt=""
+              />
             </div>
             <div
               class="w-full h-auto relative"
@@ -165,6 +172,20 @@
               </div>
             </div>
           </div>
+          <div class="text-center pt-5 space-x-2">
+            <p
+              @click="showModal = false"
+              class="px-4 py-2 rounded-full text-xs inline-block bg-[#FF613c] text-white"
+            >
+              Save Attachment
+            </p>
+            <p
+              @click="cancelAction"
+              class="px-4 py-2 rounded-full text-xs inline-block bg-white border border-[#FF613c] text-[#FF613c]"
+            >
+              Cancel Attachment
+            </p>
+          </div>
         </div>
       </DialogPanel>
     </Modal>
@@ -182,6 +203,7 @@ import Swal from "sweetalert2";
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/vue/24/outline";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import { format } from "date-fns";
 
 const reservationStore = useReservationStore();
 const toast = useToast();
@@ -192,6 +214,34 @@ const showModal = ref(false);
 const props = defineProps({
   detail: Object,
 });
+
+const featureImageInput = ref(null);
+const openFileFeaturePicker = () => {
+  featureImageInput.value.click();
+};
+
+const emailData = ref({
+  mail_subject: "",
+  mail_to: "",
+  send_to_default: false,
+  attachments: [],
+});
+
+const previewFile = ref([]);
+
+const handlerFeatureFileChange = (e) => {
+  let selectedFile = e.target.files;
+  if (selectedFile.length > 0) {
+    for (let i = 0; i < selectedFile.length; i++) {
+      emailData.value.attachments.push(selectedFile[i]);
+      previewFile.value.push(URL.createObjectURL(selectedFile[i]));
+    }
+  }
+
+  console.log("====================================");
+  console.log(emailData.value.attachments);
+  console.log("====================================");
+};
 
 const cancelEmailFunction = () => {
   emailData.value = {
@@ -251,39 +301,50 @@ const sendEmailFunction = async () => {
   });
 };
 
-const emailData = ref({
-  mail_subject: "",
-  mail_to: "",
-  send_to_default: false,
-  mail_body: "",
-  attachments: [],
-});
-
-const addAttracted = (e) => {
-  for (let i = 0; i < e.target.files.length; i++) {
-    emailData.value.attachments.push(e.target.files[i]);
-    console.log(e.target.files[i], "this is att");
-  }
-};
+// const addAttracted = (e) => {
+//   for (let i = 0; i <br e.target.files.length; i++) {
+//     emailData.value.attachments.push(e.target.files[i]);
+//     console.log(e.target.files[i], "this is att");
+//   }
+// };
 
 const editorOptions = {
   placeholder: "Write an awesome mail here ...",
 };
 
 const mailBodyChange = () => {
+  emailData.value.mail_subject = `Booking for ${showFormat(
+    props?.detail?.service_date
+  )}: ${props?.detail?.crm_id}`;
+
   if (props?.detail?.product_type == "App\\Models\\EntranceTicket") {
-    emailData.value.mail_body = `<p>Dear Reservation Manager<b> of ${
+    emailData.value.mail_body = `<p class="p1">Dear ${
       props?.detail?.product?.name
-    }</b>,</p><p>Greetings from Thailand Anywhere travel and tour.</p><p>We are pleased to book the tickets for our customers as per following description ka.</p>
-      <p>Date :<b>${props?.detail?.service_date}</b></p><p>Ticket :<b>${
+    },</p>
+    <p class="p1">Greetings from TH Anywhere Travel and Tour. We would like to book the tickets for our customers as per following detail.</p>
+    <p class="p1">&nbsp;</p>
+    <p class="p1">Service Date: <strong>${
+      props?.detail?.service_date
+    }</strong><br />Ticket Variation: <strong>${
       props?.detail?.variation?.name
-    }</b></p><p>Total :<b>${
-      props?.detail?.quantity +
-      (props?.detail?.individual_pricing?.child?.quantity ?? 0) * 1
-    }</b></p><p>Name :<b>${
-      props?.detail?.associated_customer[0]?.name
-    }</b></p><p>Special Request :<b>${props?.detail?.special_request}</b></p>
-      <p>Passport and payment slips are attached with this email .</p><b><em>Please kindly arrange and invoice & voucher for our clients accordingly .</em></b><p>Should there be anything more required you can call us at +66983498197 and LINE ID 58858380 .</p>`;
+    }</strong><br />Adult Quantity : <strong>${
+      props?.detail?.quantity
+    } Adults</strong><br />Child Quantity: <strong>${
+      props?.detail?.individual_pricing?.child?.quantity ?? 0
+    } Child</strong><br />Customer Name: <strong>${
+      props?.detail?.customer_info.name
+    }</strong><br />Booking Code: <strong>${
+      props?.detail?.crm_id
+    }</strong><br /><br /></p>
+    <p class="p1">Passports for the bookings are attached in the email. Please arrange for the customer accordingly. Payment transaction will be done soon.</p>
+    <p class="p1">Once the payment is received, Please kindly issue receipt with tax ID and send to us by post or mail. Tax ID. : 0105565081822 TH ANYWHERE CO.LTD.</p>
+    <p class="p1">Invoice Date: <strong>${format(
+      new Date(),
+      "dd/MM/yyyy"
+    )}</strong></p>
+    <p class="p1">If you may have any questions or concerns, please feel free to call us at 0950423254 LINE ID 0983498197.</p>
+    <p class="p1">Thank you,<br />Negyi @ Sunshine<br /><strong>(Reservation Manager)</strong></p>
+    <p class="p1">The Palladium Shopping Mall 4th floor, Zone B, Room IT 4-95, 555, Ratchaprarop Rd., Makkasan, Ratchathewi, Bangkok 10400</p>`;
   } else if (props?.detail?.product_type == "App\\Models\\Hotel") {
     emailData.value.mail_body = `<p>Dear Reservation Manager<b> of ${
       props?.detail?.product?.name
@@ -310,6 +371,12 @@ const mailBodyChange = () => {
   }
 };
 
+const removeFeatureSelectImage = (index) => {
+  emailData.value.attachments.splice(index, 1);
+  previewFile.value.splice(index, 1);
+  // console.log(editData.value.customer_passport, "this is remove");
+};
+
 const daysBetween = (a, b) => {
   console.log(a, b);
   if (a && b) {
@@ -322,6 +389,16 @@ const daysBetween = (a, b) => {
     // console.log(formData.value.checkin_date, result, "this is result");
     return result;
   }
+};
+
+const showFormat = (dateStr) => {
+  return format(new Date(dateStr), "dd MMMM, YYY");
+};
+
+const cancelAction = () => {
+  emailData.value.attachments = [];
+  previewFile.value = [];
+  showModal.value = false;
 };
 
 onMounted(() => {

@@ -903,15 +903,6 @@ onMounted(async () => {
                 @click="cityAction = true"
                 class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
               >
-                <!-- <div class="flex justify-start items-center gap-2 flex-wrap" v-if="city_list_array">
-                  <p
-                    v-for="i in city_list_array"
-                    :key="i.id"
-                    class="text-xs py-1 px-2 bg-gray-100 rounded-md whitespace-nowrap"
-                  >
-                    {{ i.name }}
-                  </p>
-                </div> -->
                 <p class="text-sm">
                   {{ cityName == "" ? "choose city" : cityName }}
                 </p>
@@ -998,6 +989,15 @@ onMounted(async () => {
               <p v-if="errors?.name" class="mt-1 text-sm text-red-600">
                 {{ errors.place[0] }}
               </p>
+            </div>
+            <div v-if="quiteSwitch == 1" class="mb-2 space-y-1">
+              <label for="name" class="text-sm text-gray-800">Email</label>
+              <input
+                type="email"
+                id="name"
+                placeholder="email"
+                class="w-full h-10 text-xs px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
             </div>
             <div v-if="quiteSwitch == 1" class="mb-2 space-y-1">
               <label for="name" class="text-sm text-gray-800">Legal Name</label>

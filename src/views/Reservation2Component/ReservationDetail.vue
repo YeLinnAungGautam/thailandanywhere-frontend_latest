@@ -715,7 +715,7 @@ const hide = ref(false);
               state.invoice ? 'text-[#04BA00]' : '',
             ]"
           >
-            invoice<span
+            Invoice<span
               v-if="part == 'invoice' && state.invoice"
               class="w-1 h-1 rounded-full inline-block bg-[#04BA00] ml-2"
             ></span>
@@ -728,7 +728,7 @@ const hide = ref(false);
               part === 'expense' ? 'text-[#FF613c]' : 'text-gray-500',
             ]"
           >
-            expense<span
+            Expense<span
               v-if="part == 'expense' && state.expense"
               class="w-1 h-1 rounded-full inline-block bg-[#04BA00] ml-2"
             ></span>
@@ -741,7 +741,7 @@ const hide = ref(false);
               part === 'confirmation' ? 'text-[#FF613c]' : 'text-gray-500',
             ]"
           >
-            confirm<span
+            Confirm<span
               v-if="part == 'confirmation' && state.confirmation"
               class="w-1 h-1 rounded-full inline-block bg-[#04BA00] ml-2"
             ></span>

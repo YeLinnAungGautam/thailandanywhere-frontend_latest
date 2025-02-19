@@ -25,7 +25,9 @@
           class="mt-2 grid grid-cols-2 gap-2"
         >
           <div class="mb-2 space-y-1">
-            <label for="name" class="text-sm text-gray-800">Name</label>
+            <label for="name" class="text-sm text-gray-800"
+              >Option Name *</label
+            >
             <input
               type="text"
               v-model="formData.name"
@@ -37,7 +39,7 @@
             </p>
           </div>
           <div>
-            <p class="mb-2 text-sm text-gray-800">Restaurant</p>
+            <p class="mb-2 text-sm text-gray-800">Restaurant *</p>
             <v-select
               v-model="formData.restaurant_id"
               class="style-chooser"
@@ -63,7 +65,7 @@
               {{ errors.meal_price[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1">
+          <!-- <div class="mb-2 space-y-1">
             <label for="meal_price" class="text-sm text-gray-800"
               >Extra Price</label
             >
@@ -76,8 +78,8 @@
             <p v-if="errors?.extra_price" class="mt-1 text-sm text-red-600">
               {{ errors.extra_price[0] }}
             </p>
-          </div>
-          <div class="mb-2 space-y-1">
+          </div> -->
+          <!-- <div class="mb-2 space-y-1">
             <label for="extra_price" class="text-sm text-gray-800"
               >Max Preson</label
             >
@@ -90,7 +92,7 @@
             <p v-if="errors?.max_person" class="mt-1 text-sm text-red-600">
               {{ errors.max_person[0] }}
             </p>
-          </div>
+          </div> -->
           <div class="mb-2 space-y-1">
             <label for="meal_price" class="text-sm text-gray-800">Cost</label>
             <input
@@ -103,7 +105,7 @@
               {{ errors.cost[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1 flex justify-start items-center gap-3">
+          <!-- <div class="mb-2 space-y-1 flex justify-start items-center gap-3">
             <label for="meal_price" class="text-sm text-gray-800"
               >Is Extra ?</label
             >
@@ -119,133 +121,8 @@
                 class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
               />
             </Switch>
-          </div>
-          <!-- <div class="col-span-2">
-            <div class="">
-              <div class="flex items-center justify-start mb-2">
-                <label class="text-sm block text-red-500 mr-3" for="">
-                  Period (don't forget to click add button)</label
-                >
-              </div>
-              <div class="flex items-center justify-between gap-3 mb-3">
-                <div class="flex-1">
-                  <input
-                    v-model="formPeriod.period_name"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter name"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="formPeriod.start_date"
-                    type="date"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter prices"
-                    title="start date"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="formPeriod.end_date"
-                    type="date"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    title="end date"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="formPeriod.sale_price"
-                    type="number"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="sale price"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="formPeriod.cost_price"
-                    type="number"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="cost price"
-                  />
-                </div>
-                <div>
-                  <button @click.prevent="addNewPerid" class="">
-                    <i
-                      class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
-                    ></i>
-                  </button>
-                </div>
-              </div>
-              <div
-                v-for="(p, index) in formData.period"
-                :key="index"
-                class="flex items-center justify-between gap-3 mb-3"
-              >
-                <div class="flex-1">
-                  <input
-                    v-model="p.period_name"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter name"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="p.start_date"
-                    type="date"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter prices"
-                    title="start date"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="p.end_date"
-                    type="date"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    title="end date"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="p.sale_price"
-                    type="number"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="sale price"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="p.cost_price"
-                    type="number"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="cost price"
-                  />
-                </div>
-                <div>
-                  <button
-                    class="text-sm text-red-600"
-                    @click.prevent="removeFromPerid(index)"
-                  >
-                    <i
-                      class="fa-solid fa-minus text-sm font-semibold px-2 py-1 bg-red-500 rounded-full shadow text-white"
-                    ></i>
-                  </button>
-                </div>
-              </div>
-            </div>
           </div> -->
+
           <div class="mb-2 space-y-1">
             <label for="description" class="text-sm text-gray-800"
               >Description</label
@@ -260,7 +137,7 @@
               {{ errors.description[0] }}
             </p>
           </div>
-          <div class="mb-2 space-y-1">
+          <div class="mb-2 space-y-1 col-span-2">
             <label for="description" class="text-sm text-gray-800"
               >Images</label
             >
@@ -283,7 +160,7 @@
               ></i>
             </button>
             <div
-              class="grid grid-cols-3 gap-2"
+              class="grid grid-cols-4 gap-2"
               v-if="imagesPreview.length != 0"
             >
               <div
@@ -302,7 +179,7 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-3 gap-2"
+              class="grid grid-cols-4 gap-2"
               v-if="editImagesPreview.length != 0 && imagesPreview.length == 0"
             >
               <div
@@ -352,21 +229,7 @@
           :reduce="(hotel) => hotel.id"
           placeholder="Choose Restaurant"
         ></v-select>
-        <!-- <AdjustmentsHorizontalIcon
-          class="inline-block w-6 h-6 mx-2 text-gray-600 cursor-pointer"
-        /> -->
-        <!-- <input
-          type="date"
-          v-model="start_date"
-          class="w-3/5 sm:w-3/5 md:w-[200px] border px-4 py-1.5 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
-          title="start date"
-        />
-        <input
-          type="date"
-          v-model="end_date"
-          class="w-3/5 sm:w-3/5 md:w-[200px] border px-4 py-1.5 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
-          title="end date"
-        /> -->
+
         <button
           class="px-2 py-1.5 bg-[#ff613c] rounded-md text-white"
           @click="searchFunction"
@@ -395,7 +258,7 @@
         </Button>
         <Button
           :leftIcon="PlusIcon"
-          @click.prevent="createModalOpen = true"
+          @click.prevent="openModal"
           v-if="!authStore.isAgent"
         >
           Create
@@ -412,14 +275,12 @@
             <th class="p-3 text-xs font-medium tracking-wide text-left">
               Name
             </th>
+
             <th class="p-3 text-xs font-medium tracking-wide text-left">
-              Description
+              Restaurant
             </th>
             <th class="p-3 text-xs font-medium tracking-wide text-left">
-              Hotel
-            </th>
-            <th class="p-3 text-xs font-medium tracking-wide text-left">
-              Room Price
+              Meal Price
             </th>
 
             <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
@@ -440,10 +301,7 @@
               {{ r.name }}
             </td>
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-              {{ limitedText(r.description) }}
-            </td>
-            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-              {{ r.hotel?.name }}
+              {{ r.restaurant?.name }}
             </td>
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               {{ r.meal_price }}
@@ -558,7 +416,6 @@ const errors = ref([]);
 
 const { restaurant } = storeToRefs(restaurantStore);
 
-const hotelList = ref([]);
 const enabled = ref(false);
 
 const formData = ref({
@@ -595,6 +452,12 @@ const closeModal = () => {
   createModalOpen.value = false;
   imagesPreview.value = [];
   editImagesPreview.value = [];
+};
+
+const openModal = () => {
+  closeModal();
+
+  createModalOpen.value = true;
 };
 
 const limitedText = (text) => {
@@ -691,30 +554,6 @@ const updateHandler = async () => {
       frmData.append("images[" + i + "]", file);
     }
   }
-  if (formData.value.period.length > 0) {
-    for (let x = 0; x < formData.value.period.length; x++) {
-      frmData.append(
-        "periods[" + x + "][period_name]",
-        formData.value.period[x].period_name
-      );
-      frmData.append(
-        "periods[" + x + "][start_date]",
-        formData.value.period[x].start_date
-      );
-      frmData.append(
-        "periods[" + x + "][end_date]",
-        formData.value.period[x].end_date
-      );
-      frmData.append(
-        "periods[" + x + "][sale_price]",
-        formData.value.period[x].sale_price
-      );
-      frmData.append(
-        "periods[" + x + "][cost_price]",
-        formData.value.period[x].cost_price
-      );
-    }
-  }
   frmData.append("meal_price", formData.value.meal_price);
   frmData.append("extra_price", formData.value.extra_price);
   frmData.append("cost", formData.value.cost);
@@ -802,19 +641,6 @@ const editModalOpenHandler = (data) => {
       editImagesPreview.value.push(data.images[i]);
     }
   }
-  if (data.room_periods.length > 0) {
-    for (let i = 0; i < data.room_periods.length; i++) {
-      // editImagesPreview.value.push(data.images[i]);
-      let dataArray = {
-        period_name: data.room_periods[i].period_name,
-        start_date: data.room_periods[i].start_date,
-        end_date: data.room_periods[i].end_date,
-        sale_price: data.room_periods[i].sale_price,
-        cost_price: data.room_periods[i].cost_price,
-      };
-      formData.value.period.push(dataArray);
-    }
-  }
 };
 
 const changePage = async (url) => {
@@ -822,7 +648,6 @@ const changePage = async (url) => {
   let data = {
     search: search.value,
     restaurant_id: restaurant_id.value,
-    period: periodAjj.value,
   };
   await mealStore.getChangePage(url, data);
 };

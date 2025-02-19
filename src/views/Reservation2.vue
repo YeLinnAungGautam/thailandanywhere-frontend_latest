@@ -395,6 +395,71 @@ const searchAction = async () => {
 watch(searchTime, async (newValue) => {
   await searchAction();
   searchModel.value = false;
+  changeDate.value = "";
+});
+
+const getDateRangeCategory = (dateRange) => {
+  if (!dateRange) return "other";
+
+  const [startDateStr, endDateStr] = dateRange.split(",");
+  const startDate = new Date(startDateStr);
+  const endDate = new Date(endDateStr);
+
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const isToday =
+    formatDate(startDate) === formatDate(today) &&
+    formatDate(endDate) === formatDate(today);
+
+  const isTomorrow =
+    formatDate(startDate) === formatDate(tomorrow) &&
+    formatDate(endDate) === formatDate(tomorrow);
+
+  const isNext7Days =
+    formatDate(startDate) === formatDate(today) &&
+    endDate.getTime() ===
+      new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).getTime();
+
+  const isNext30Days =
+    formatDate(startDate) === formatDate(today) &&
+    endDate.getTime() ===
+      new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000).getTime();
+
+  if (isToday) return "today";
+  if (isTomorrow) return "tomorrow";
+  if (isNext7Days) return "7day";
+  if (isNext30Days) return "30day";
+
+  return "other";
+};
+
+watch(sale_daterange, (newValue) => {
+  const category = getDateRangeCategory(newValue);
+
+  switch (category) {
+    case "today":
+      console.log("The date range is today.");
+      // Perform actions for today
+      break;
+    case "tomorrow":
+      console.log("The date range is tomorrow.");
+      // Perform actions for tomorrow
+      break;
+    case "7day":
+      console.log("The date range is the next 7 days.");
+      // Perform actions for the next 7 days
+      break;
+    case "30day":
+      console.log("The date range is the next 30 days.");
+      // Perform actions for the next 30 days
+      break;
+    default:
+      changeDate.value = "";
+      // Perform actions for other cases
+      break;
+  }
 });
 
 watch(dateRange, async (newValue) => {

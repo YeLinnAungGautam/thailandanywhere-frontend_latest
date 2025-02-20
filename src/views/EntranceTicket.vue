@@ -208,6 +208,7 @@
               <input
                 type="email"
                 id="name"
+                v-model="formData.email"
                 class="w-full h-10 px-4 py-2 text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
               />
             </div>
@@ -1206,6 +1207,7 @@ const formData = ref({
   account_name: "",
   place: "",
   legal_name: "",
+  email: "",
   location_map_title: "",
   location_map: "",
   youtube_link: {
@@ -1235,6 +1237,7 @@ const VantourCreate = () => {
   formData.value.bank_account_number = "";
   formData.value.place = "";
   formData.value.legal_name = "";
+  formData.value.email = "";
   formData.value.location_map_title = "";
   formData.value.location_map = "";
   formData.value.vat_inclusion = "";
@@ -1272,6 +1275,7 @@ const clearAction = () => {
     account_name: "",
     place: "",
     legal_name: "",
+    email: "",
     location_map: "",
     location_map_title: "",
     youtube_link: {
@@ -1395,6 +1399,7 @@ const addNewHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
+  frmData.append("email", formData.value.email);
   formData.value.location_map &&
     frmData.append("location_map", formData.value.location_map);
   formData.value.location_map_title &&
@@ -1484,6 +1489,7 @@ const addNewHandler = async () => {
       place: "",
       contracts: [],
       legal_name: "",
+      email: "",
       location_map: "",
       location_map_title: "",
       youtube_link: {
@@ -1544,6 +1550,7 @@ const updateHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
+  frmData.append("email", formData.value.email);
   formData.value.location_map &&
     frmData.append("location_map", formData.value.location_map);
   formData.value.location_map_title &&
@@ -1639,6 +1646,7 @@ const updateHandler = async () => {
       account_name: "",
       place: "",
       legal_name: "",
+      email: "",
       location_map: "",
       location_map_title: "",
       youtube_link: {
@@ -1705,6 +1713,7 @@ const editModalOpenHandler = async (id) => {
     formData.value.bank_account_number = response.result.bank_account_number;
     // formData.value.place = response.result.place;
     formData.value.legal_name = response.result.legal_name;
+    formData.value.email = response.result.email;
     formData.value.location_map = response.result.location_map;
     formData.value.vat_inclusion = response.result.vat_inclusion;
     formData.value.location_map_title = response.result.location_map_title;

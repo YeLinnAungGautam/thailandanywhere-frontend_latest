@@ -124,6 +124,7 @@ const formData = ref({
   account_name: "",
   place: "",
   legal_name: "",
+  email: "",
   description: "",
   full_description: null,
   full_description_en: null,
@@ -191,6 +192,7 @@ const closeModal = () => {
     account_name: "",
     place: "",
     legal_name: "",
+    email: "",
     description: "",
     full_description: null,
     full_description_en: null,
@@ -295,6 +297,7 @@ const addNewHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
+  frmData.append("email", formData.value.email);
   frmData.append("description", formData.value.description);
   frmData.append("full_description", formData.value.full_description);
   frmData.append("full_description_en", formData.value.full_description_en);
@@ -375,6 +378,7 @@ const addNewHandler = async () => {
       bank_account_number: "",
       place: "",
       legal_name: "",
+      email: "",
       description: "",
       full_description: null,
       full_description_en: null,
@@ -431,6 +435,7 @@ const openCreate = () => {
   formData.value.bank_account_number = "";
   formData.value.place = "";
   formData.value.legal_name = "";
+  formData.value.email = "";
   formData.value.description = "";
   formData.value.full_description = "";
   formData.value.full_description_en = "";
@@ -487,6 +492,7 @@ const updateHandler = async () => {
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("account_name", formData.value.account_name);
   frmData.append("legal_name", formData.value.legal_name);
+  frmData.append("email", formData.value.email);
   frmData.append("description", formData.value.description);
   frmData.append("full_description", formData.value.full_description);
   frmData.append("full_description_en", formData.value.full_description_en);
@@ -588,6 +594,7 @@ const updateHandler = async () => {
       bank_account_number: "",
       account_name: "",
       legal_name: "",
+      email: "",
       contract_due: "",
       description: "",
       full_description: null,
@@ -666,6 +673,7 @@ const getDetail = async (params) => {
     formData.value.type = data.type;
     formData.value.place = data.place;
     formData.value.legal_name = data.legal_name;
+    formData.value.email = data.email;
     formData.value.description = data.description;
     formData.value.full_description = data.full_description;
     formData.value.full_description_en = data.full_description_en;
@@ -994,6 +1002,7 @@ onMounted(async () => {
               <label for="name" class="text-sm text-gray-800">Email</label>
               <input
                 type="email"
+                v-model="formData.email"
                 id="name"
                 placeholder="email"
                 class="w-full h-10 text-xs px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"

@@ -133,6 +133,20 @@
               {{ errors.location_map_address[0] }}
             </p>
           </div>
+          <div class="col-span-2" v-if="formData.location_map_link">
+            <label for="address" class="text-xs text-gray-800"
+              >Location map preview</label
+            >
+            <iframe
+              :src="formData.location_map_link"
+              class="w-[100%] h-[300px] mt-2 rounded-2xl"
+              style="border: 0"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+            <!-- <p>{{ formData.location_map_link }}</p> -->
+          </div>
 
           <div>
             <p class="mb-2 mt-2 text-xs text-gray-800 space-y-1">

@@ -8,9 +8,26 @@
       >
         +
       </p> -->
-      <div class="flex justify-end w-full pt-2.5 items-center col-span-2">
-        <div class="flex justify-end items-center space-x-2">
+      <div class="w-full pt-2.5 items-center col-span-2">
+        <div class="flex justify-between items-center space-x-2 pb-2">
+          <div class="flex justify-start items-center">
+            <p
+              @click="emailBooking = !emailBooking"
+              :class="!emailBooking ? '' : 'bg-[#FF613c] text-white'"
+              class="border border-gray-300 px-3 py-1 rounded-s-lg text-[10px] cursor-pointer"
+            >
+              Expense Email
+            </p>
+            <p
+              @click="emailBooking = !emailBooking"
+              :class="emailBooking ? '' : 'bg-[#FF613c] text-white'"
+              class="border border-gray-300 px-3 py-1 rounded-e-lg text-[10px] cursor-pointer"
+            >
+              Expense Update
+            </p>
+          </div>
           <p
+            v-if="!emailBooking"
             @click="expenseUpdateAction"
             class="bg-green-500 text-white border border-gray-300 px-3 py-1 rounded-lg text-[10px] cursor-pointer"
           >
@@ -22,7 +39,7 @@
     <div class="col-span-2 h-1 overflow-hidden">
       <input type="text" class="opacity-0" name="" />
     </div>
-    <div class="rounded-xl grid grid-cols-2 gap-4">
+    <div class="rounded-xl grid grid-cols-2 gap-4" v-if="!emailBooking">
       <div class="space-y-2">
         <p class="text-gray-800 text-[10px]">Expense Method:</p>
 
@@ -209,6 +226,9 @@
         </div>
       </div>
     </div>
+    <div v-if="emailBooking">
+      <ExpenseBooking :detail="detail" />
+    </div>
     <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
       <DialogPanel
         class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
@@ -350,6 +370,7 @@ import { useReservationStore } from "../../stores/reservation";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute } from "vue-router";
+import ExpenseBooking from "./ExpenseBooking.vue";
 
 const toast = useToast();
 const reservationStore = useReservationStore();
@@ -515,6 +536,8 @@ const removeFeatureDeleteImage = async (index, id) => {
     await props.getDetailAction(route.query.id);
   }, 1000);
 };
+
+const emailBooking = ref(false);
 
 const daysBetween = (a, b) => {
   console.log(a, b);

@@ -1,23 +1,27 @@
 <template>
   <div>
-    <div class="flex justify-start items-center gap-x-2">
-      <!-- <p class="font-medium pb-2">Booking Request</p> -->
-      <CheckCircleIcon
-        class="w-4 h-4"
-        :class="
-          detail?.is_booking_request == 1 ? 'text-green-500' : 'text-red-500'
-        "
-      />
-      <p
-        class="text-xs"
-        :class="
-          detail?.is_booking_request == 1 ? 'text-green-500' : 'text-red-500'
-        "
-      >
-        Is Booking Request Sent ?
-      </p>
-    </div>
     <div>
+      <div class="flex justify-start items-center gap-x-2">
+        <!-- <p class="font-medium pb-2">Booking Request</p> -->
+        <CheckCircleIcon
+          class="w-4 h-4"
+          :class="
+            detail?.payment_status == 'fully_paid'
+              ? 'text-green-500'
+              : 'text-red-500'
+          "
+        />
+        <p
+          class="text-xs"
+          :class="
+            detail?.payment_status == 'fully_paid'
+              ? 'text-green-500'
+              : 'text-red-500'
+          "
+        >
+          Is Expense Status Finish ?
+        </p>
+      </div>
       <div class="grid grid-cols-1 gap-4 py-4 overflow-hidden rounded-xl">
         <div class="text-center" v-if="emailLoading">
           Email sending , Please wait loading .....
@@ -116,16 +120,16 @@
         </DialogTitle>
         <!-- show date  -->
         <div class="p-4">
-          <p class="pb-4 text-sm font-medium">Passports</p>
+          <p class="pb-4 text-sm font-medium">Expense</p>
           <div class="grid grid-cols-5 gap-2">
             <div
               class="w-full h-auto relative"
-              v-for="i in detail?.customer_passports ?? []"
+              v-for="i in detail?.receipt_images ?? []"
               :key="i"
             >
               <img
                 :src="i.file"
-                class="rounded-lg w-full h-[100px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
+                class="rounded-lg w-full h-[130px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
                 alt=""
               />
               <div
@@ -218,7 +222,6 @@ const showModal = ref(false);
 
 const props = defineProps({
   detail: Object,
-  getDetailAction: Function,
 });
 
 const featureImageInput = ref(null);
@@ -296,9 +299,6 @@ const sendEmailFunction = async () => {
           previewFile.value = [];
           mailBodyChange();
           toast.success(res.data.message);
-          setTimeout(async () => {
-            await props.getDetailAction(route.query.id);
-          }, 1000);
         }
       } catch (error) {
         emailLoading.value = false;
@@ -350,29 +350,6 @@ const mailBodyChange = () => {
     <p class="p1">Thank you, <strong><br /></strong>Negyi @ Sunshine (Reservation Manager)
     </p>
     <p class="p1">The Palladium Shopping Mall 4th floor, Zone B, Room IT 4-95, 555, Ratchaprarop Rd., Makkasan, Ratchathewi, Bangkok 10400</p>`;
-  } else if (props?.detail?.product_type == "App\\Models\\Hotel") {
-    emailData.value.mail_body = `<p>Dear Reservation Manager<b> of ${
-      props?.detail?.product?.name
-    }</b>,</p><p>Greetings from Thailand Anywhere travel and tour. Good day to you ka.</p><p>We are pleased to book the room for our customers as per following description checks availability by phone.</p>
-      <p>Check In :<strong>${
-        props?.detail?.checkin_date
-      }</strong></p><p>Check Out :<strong>${
-      props?.detail?.checkout_date
-    }</strong></p><p>Total :<strong>${
-      props?.detail?.quantity
-    } rooms & ${daysBetween(
-      props?.detail?.checkin_date,
-      props?.detail?.checkout_date
-    )} nights</strong></p><p>Name :<strong>${
-      props?.detail?.associated_customer[0]?.name
-    } & ${
-      props?.detail?.customer_passport?.length
-    } passports</strong></p><p>Room Type :<strong>${
-      props?.detail?.room?.name
-    }</strong></p><p>Special Request :<strong>${
-      props?.detail?.special_request
-    }</strong></p>
-      <p>Passport and payment slips are attached with this email .</p><b><em>Please arrange the invoice and confirmation letter ka.</em></b><p>Should there be anything more required you can call us at +66983498197 and LINE ID 58858380 .</p>`;
   }
 };
 

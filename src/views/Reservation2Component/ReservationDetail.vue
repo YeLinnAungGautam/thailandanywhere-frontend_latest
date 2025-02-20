@@ -242,6 +242,11 @@ watch(
     } else {
       state.value.passport = false;
     }
+    if (detail.value.is_booking_request == 1) {
+      state.value.booking = true;
+    } else {
+      state.value.booking = false;
+    }
     if (detail.value.booking_confirm_letters.length > 0) {
       state.value.invoice = true;
     } else {
@@ -588,14 +593,24 @@ const hide = ref(false);
             class="w-30 h-[2px] rounded-full relative z-10"
             :class="state.passport ? 'bg-[#04BA00]' : 'bg-gray-200'"
           ></div>
+
           <div
+            v-if="!state.booking"
             @click="part = 'booking'"
-            class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+            class="w-6 h-6 flex justify-center cursor-pointer items-center text-[10px] rounded-full relative z-10"
             :class="
               part == 'booking' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
             "
           >
             3
+          </div>
+          <div
+            v-if="state.booking"
+            @click="part = 'booking'"
+            class="w-6 h-6 flex justify-center cursor-pointer shadow hover:shadow-none items-center text-[10px] rounded-full relative z-10"
+            :class="part == 'booking' ? 'bg-white text-white' : ''"
+          >
+            <img :src="checkImage" alt="" />
           </div>
           <div
             class="w-30 h-[2px] rounded-full relative z-10 bg-gray-200"
@@ -701,7 +716,9 @@ const hide = ref(false);
           <div
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'booking'"
-            :class="part == 'booking' ? 'text-[#FF613c]' : ''"
+            :class="[
+              state.booking && part == 'booking' ? 'text-[#04BA00]' : '',
+            ]"
           >
             Booking<span
               v-if="part == 'booking'"

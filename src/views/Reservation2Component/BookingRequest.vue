@@ -46,6 +46,7 @@
               </p>
               <div
                 @click="showModal = true"
+                v-if="!previewFile || previewFile.length === 0"
                 class="w-full h-[50px] border border-[#FF613c] border-dashed flex justify-center items-center rounded-lg text-[#FF613c] cursor-pointer"
               >
                 <span

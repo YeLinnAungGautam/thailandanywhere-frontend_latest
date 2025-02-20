@@ -678,26 +678,24 @@ const hide = ref(false);
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'general'"
             :class="[
-              state.general ? 'text-[#04BA00]' : '',
-              part === 'general' ? 'text-[#FF613c]' : 'text-gray-500',
+              state.general && part == 'general' ? 'text-[#04BA00]' : '',
             ]"
           >
             Payment<span
-              v-if="part == 'general' && state.general"
-              class="w-1 h-1 rounded-full inline-block bg-[#04BA00] ml-2"
+              v-if="part == 'general'"
+              class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
             ></span>
           </div>
           <div
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'passport'"
             :class="[
-              state.passport ? 'text-[#04BA00]' : '',
-              part === 'passport' ? 'text-[#FF613c]' : 'text-gray-500',
+              state.passport && part == 'passport' ? 'text-[#04BA00]' : '',
             ]"
           >
             Passport<span
-              v-if="part == 'passport' && state.passport"
-              class="w-1 h-1 rounded-full inline-block bg-[#04BA00] ml-2"
+              v-if="part == 'passport'"
+              class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
             ></span>
           </div>
           <div
@@ -705,45 +703,47 @@ const hide = ref(false);
             @click="part = 'booking'"
             :class="part == 'booking' ? 'text-[#FF613c]' : ''"
           >
-            Booking
+            Booking<span
+              v-if="part == 'booking'"
+              class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
+            ></span>
           </div>
           <div
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'invoice'"
             :class="[
-              part === 'invoice' ? 'text-[#FF613c]' : 'text-gray-500',
-              state.invoice ? 'text-[#04BA00]' : '',
+              part === 'invoice' && state.invoice ? 'text-[#04BA00]' : '',
             ]"
           >
             Invoice<span
-              v-if="part == 'invoice' && state.invoice"
-              class="w-1 h-1 rounded-full inline-block bg-[#04BA00] ml-2"
+              v-if="part == 'invoice'"
+              class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
             ></span>
           </div>
           <div
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'expense'"
             :class="[
-              state.expense ? 'text-[#04BA00]' : 'text-gray-500',
-              part === 'expense' ? 'text-[#FF613c]' : 'text-gray-500',
+              state.expense && part == 'expense' ? 'text-[#04BA00]' : '',
             ]"
           >
             Expense<span
-              v-if="part == 'expense' && state.expense"
-              class="w-1 h-1 rounded-full inline-block bg-[#04BA00] ml-2"
+              v-if="part == 'expense'"
+              class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
             ></span>
           </div>
           <div
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'confirmation'"
             :class="[
-              state.confirmation ? 'text-[#04BA00]' : 'text-gray-500',
-              part === 'confirmation' ? 'text-[#FF613c]' : 'text-gray-500',
+              state.confirmation && part == 'confirmation'
+                ? 'text-[#04BA00]'
+                : '',
             ]"
           >
             Confirm<span
-              v-if="part == 'confirmation' && state.confirmation"
-              class="w-1 h-1 rounded-full inline-block bg-[#04BA00] ml-2"
+              v-if="part == 'confirmation'"
+              class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
             ></span>
           </div>
         </div>

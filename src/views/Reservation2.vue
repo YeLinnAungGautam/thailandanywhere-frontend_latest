@@ -1143,7 +1143,7 @@ watch(dateRange, async (newValue) => {
             <div
               class="text-[10px] rounded-lg px-2 py-1 text-white bg-[#FF613c]"
             >
-              Search Results: {{ reservations?.meta?.total }} reser
+              {{ reservations?.meta?.total }} reser
             </div>
           </div>
           <div

@@ -54,7 +54,7 @@
                 >
               </div>
             </div>
-            <div class="grid grid-cols-8 gap-2">
+            <div class="grid grid-cols-6 gap-2">
               <div
                 class="w-full h-auto relative"
                 v-for="(i, index) in previewFile ?? []"
@@ -62,11 +62,12 @@
               >
                 <XCircleIcon
                   @click="removeFeatureSelectImage(index)"
-                  class="w-5 h-5 absolute top-2 right-2 text-2xl cursor-pointer"
+                  class="w-5 h-5 absolute top-2 right-2 text-2xl text-red-500 bg-white rounded-2xl cursor-pointer"
                 />
                 <img
+                  @click="showModal = true"
                   :src="i"
-                  class="rounded-lg w-full h-[270px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
+                  class="rounded-lg w-full h-[130px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
                   alt=""
                 />
               </div>
@@ -102,7 +103,28 @@
         </DialogTitle>
         <!-- show date  -->
         <div class="p-4">
-          <div class="grid grid-cols-3 gap-4">
+          <p class="pb-4 text-sm font-medium">Passports</p>
+          <div class="grid grid-cols-5 gap-2">
+            <div
+              class="w-full h-auto relative"
+              v-for="i in detail?.customer_passports ?? []"
+              :key="i"
+            >
+              <img
+                :src="i.file"
+                class="rounded-lg w-full h-[100px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
+                alt=""
+              />
+              <div
+                @click="imageAddToAttachment(i.file)"
+                class="w-full px-4 py-1 mt-2 text-center border-dashed bg-[#FF613c] text-white space-y-2 hover:shadow-none rounded-xl"
+              >
+                <p class="text-xs">+ add</p>
+              </div>
+            </div>
+          </div>
+          <p class="py-4 text-sm font-medium">All Attachments</p>
+          <div class="grid grid-cols-5 gap-2">
             <input
               type="file"
               ref="featureImageInput"
@@ -113,7 +135,7 @@
             />
             <div class="space-y-2" @click="openFileFeaturePicker">
               <div
-                class="w-full h-[180px] border border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
+                class="w-full h-[100px] border border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
               >
                 +
               </div>
@@ -121,8 +143,7 @@
                 class="w-full px-4 pb-1 border-dashed border border-[#FF613c] space-y-2 text-red-600 hover:shadow-none rounded-lg"
               >
                 <p class="text-[10px] flex justify-start items-center py-4">
-                  That is attachments file that you need to send, max size is 25
-                  mb
+                  max size is 25 mb
                 </p>
               </div>
             </div>
@@ -133,43 +154,13 @@
             >
               <XCircleIcon
                 @click="removeFeatureSelectImage(index)"
-                class="w-5 h-5 absolute top-2 right-2 text-2xl cursor-pointer"
+                class="w-5 h-5 absolute top-2 text-red-600 right-2 bg-white rounded-full text-2xl cursor-pointer"
               />
               <img
                 :src="i"
-                class="rounded-lg w-full h-[270px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
+                class="rounded-lg w-full h-[175px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
                 alt=""
               />
-            </div>
-            <div
-              class="w-full h-auto relative"
-              v-for="i in detail?.customer_passports ?? []"
-              :key="i"
-            >
-              <input
-                type="checkbox"
-                name=""
-                class="custom-checkbox-input absolute top-0 left-0"
-                id=""
-              />
-              <img
-                :src="i.file"
-                class="rounded-lg w-full h-[180px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
-                alt=""
-              />
-              <div
-                class="w-full px-4 pb-1 mt-2 border-dashed border border-[#FF613c] space-y-2 text-[#FF613c] hover:shadow-none rounded-lg"
-              >
-                <p class="text-[10px] flex justify-start items-center pt-2">
-                  Name
-                </p>
-                <p class="text-[10px] flex justify-start items-center">
-                  Passport No.
-                </p>
-                <p class="text-[10px] flex justify-start items-center pb-2">
-                  DOB
-                </p>
-              </div>
             </div>
           </div>
           <div class="text-center pt-5 space-x-2">
@@ -200,7 +191,8 @@ import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
 import { useRoute } from "vue-router";
 import Swal from "sweetalert2";
-import { CheckCircleIcon, XCircleIcon } from "@heroicons/vue/24/outline";
+import { CheckCircleIcon } from "@heroicons/vue/24/outline";
+import { XCircleIcon } from "@heroicons/vue/24/solid";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { format } from "date-fns";
@@ -237,10 +229,6 @@ const handlerFeatureFileChange = (e) => {
       previewFile.value.push(URL.createObjectURL(selectedFile[i]));
     }
   }
-
-  console.log("====================================");
-  console.log(emailData.value.attachments);
-  console.log("====================================");
 };
 
 const cancelEmailFunction = () => {
@@ -291,6 +279,8 @@ const sendEmailFunction = async () => {
             send_to_default: false,
             attachments: [],
           };
+          previewFile.value = [];
+          mailBodyChange();
           toast.success(res.data.message);
         }
       } catch (error) {
@@ -322,20 +312,17 @@ const mailBodyChange = () => {
       props?.detail?.product?.name
     },</p>
     <p class="p1">Greetings from TH Anywhere Travel and Tour. We would like to book the tickets for our customers as per following detail.</p>
-    <p class="p1">&nbsp;</p>
     <p class="p1">Service Date: <strong>${
       props?.detail?.service_date
-    }</strong><br />Ticket Variation: <strong>${
+    }<br /></strong>Ticket Variation: <strong>${
       props?.detail?.variation?.name
-    }</strong><br />Adult Quantity : <strong>${
+    }<br /></strong>Adult Quantity : <strong>${
       props?.detail?.quantity
-    } Adults</strong><br />Child Quantity: <strong>${
+    } Adults<br /></strong>Child Quantity: <strong>${
       props?.detail?.individual_pricing?.child?.quantity ?? 0
-    } Child</strong><br />Customer Name: <strong>${
+    } Child<br /></strong>Customer Name: <strong>${
       props?.detail?.customer_info.name
-    }</strong><br />Booking Code: <strong>${
-      props?.detail?.crm_id
-    }</strong><br /><br /></p>
+    }<br /></strong>Booking Code: <strong>${props?.detail?.crm_id}</strong></p>
     <p class="p1">Passports for the bookings are attached in the email. Please arrange for the customer accordingly. Payment transaction will be done soon.</p>
     <p class="p1">Once the payment is received, Please kindly issue receipt with tax ID and send to us by post or mail. Tax ID. : 0105565081822 TH ANYWHERE CO.LTD.</p>
     <p class="p1">Invoice Date: <strong>${format(
@@ -343,7 +330,8 @@ const mailBodyChange = () => {
       "dd/MM/yyyy"
     )}</strong></p>
     <p class="p1">If you may have any questions or concerns, please feel free to call us at 0950423254 LINE ID 0983498197.</p>
-    <p class="p1">Thank you,<br />Negyi @ Sunshine<br /><strong>(Reservation Manager)</strong></p>
+    <p class="p1">Thank you, <strong><br /></strong>Negyi @ Sunshine (Reservation Manager)
+    </p>
     <p class="p1">The Palladium Shopping Mall 4th floor, Zone B, Room IT 4-95, 555, Ratchaprarop Rd., Makkasan, Ratchathewi, Bangkok 10400</p>`;
   } else if (props?.detail?.product_type == "App\\Models\\Hotel") {
     emailData.value.mail_body = `<p>Dear Reservation Manager<b> of ${
@@ -368,6 +356,36 @@ const mailBodyChange = () => {
       props?.detail?.special_request
     }</strong></p>
       <p>Passport and payment slips are attached with this email .</p><b><em>Please arrange the invoice and confirmation letter ka.</em></b><p>Should there be anything more required you can call us at +66983498197 and LINE ID 58858380 .</p>`;
+  }
+};
+
+const imageAddToAttachment = async (fileUrl) => {
+  try {
+    // Fetch the image from the URL
+    const response = await fetch(fileUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
+
+    // Convert the response to a Blob
+    const blob = await response.blob();
+
+    // Create a File object from the Blob (optional, if you need a File object)
+    const file = new File([blob], "image.png", { type: blob.type });
+
+    // Push the File or Blob to your attachments array
+    emailData.value.attachments.push(file); // or push(blob) if you don't need a File object
+
+    // Generate a preview URL and push it to the previewFile array
+    const previewUrl = URL.createObjectURL(blob);
+    previewFile.value.push(previewUrl);
+
+    console.log("====================================");
+    console.log("File added:", file);
+    console.log("Preview URL:", previewUrl);
+    console.log("====================================");
+  } catch (error) {
+    console.error("Error adding image to attachments:", error);
   }
 };
 

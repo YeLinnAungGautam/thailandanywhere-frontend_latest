@@ -128,15 +128,15 @@
         <div class="p-4">
           <div class="p-4">
             <div class="grid grid-cols-2 gap-8">
-              <div v-if="save.data" class="w-[200px] h-[200px]">
+              <div v-if="formData.file" class="w-[200px] h-[200px]">
                 <img
-                  :src="save.data.file"
+                  :src="formData.file"
                   class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
                   alt=""
                 />
               </div>
               <div
-                v-if="!save.data && !passportPreview"
+                v-if="!formData.file && !passportPreview"
                 @click="openFileFeaturePicker"
                 class="w-[200px] h-[200px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
               >
@@ -162,8 +162,8 @@
                   <label for="" class="text-[12px] font-medium">Name </label>
                   <input
                     type="text"
+                    v-model="formData.name"
                     name=""
-                    disabled
                     placeholder="name"
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
@@ -173,7 +173,7 @@
                   <label for="" class="text-[12px] font-medium">Passport</label>
                   <input
                     type="text"
-                    disabled
+                    v-model="formData.passport"
                     name=""
                     placeholder="passport"
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
@@ -184,7 +184,7 @@
                   <label for="" class="text-[12px] font-medium">DOB </label>
                   <input
                     type="date"
-                    disabled
+                    v-model="formData.dob"
                     name=""
                     placeholder=""
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
@@ -196,16 +196,17 @@
                   class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
                 >
                   <p
-                    v-if="!save.data"
-                    @click="addAction"
+                    @click="
+                      formData.id ? addTravellerUpdateAction() : addAction()
+                    "
                     class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
                   >
-                    {{ save.data ? "Update" : "Save" }}
+                    {{ formData.id ? "Update" : "Save" }}
                   </p>
 
                   <p
-                    v-if="save.data"
-                    @click="removeFeatureDeleteImage(save.index, save.data.id)"
+                    v-if="formData.id"
+                    @click="removeFeatureDeleteImage(save.index, formData.id)"
                     class="px-3 py-1 bg-red-600 text-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
                   >
                     Delete
@@ -241,17 +242,16 @@ const toast = useToast();
 const route = useRoute();
 
 const editData = ref({
-  name: "",
-  passport: "",
-  phone: "",
-  email: "",
   customer_passport: [],
   customer_passport_have: [],
 });
 
-const save = ref({
-  data: "",
-  index: "",
+const formData = ref({
+  id: "",
+  name: "",
+  passport: "",
+  dob: "",
+  file: "",
 });
 
 const loading = ref(false);
@@ -263,11 +263,11 @@ const openModal = () => {
 };
 
 const openPassportModal = (data, index) => {
-  save.value.data = data;
-  save.value.index = index;
-  console.log("====================================");
-  console.log(save.value, "this is save");
-  console.log("====================================");
+  formData.value.id = data.id;
+  formData.value.file = data.file;
+  formData.value.name = data.name;
+  formData.value.passport = data.passport;
+  formData.value.dob = data.dob;
   carModalOpen.value = true;
 };
 
@@ -299,11 +299,12 @@ const addAction = () => {
 };
 
 const cancelAction = () => {
-  // passportFile.value = "";
-  // passportPreview.value = "";
-  save.value = {
-    data: "",
-    index: "",
+  formData.value = {
+    id: "",
+    name: "",
+    passport: "",
+    dob: "",
+    file: "",
   };
   carModalOpen.value = false;
 };
@@ -322,9 +323,12 @@ const removeFeatureDeleteImage = async (index, id) => {
   carModalOpen.value = false;
   // console.log(editData.value.customer_passport, "this is remove");
 
-  save.value = {
-    data: "",
-    index: "",
+  formData.value = {
+    id: "",
+    name: "",
+    passport: "",
+    dob: "",
+    file: "",
   };
 };
 
@@ -336,24 +340,52 @@ const removeFeatureSelectImage = (index) => {
 
 const addTravellerAction = async () => {
   const frmData = new FormData();
-  frmData.append("name", editData.value.name ? editData.value.name : "-");
+  frmData.append("name", formData.value.name ? formData.value.name : "-");
   frmData.append(
     "passport",
-    editData.value.passport ? editData.value.passport : "-"
+    formData.value.passport ? formData.value.passport : "-"
   );
-  frmData.append("phone", editData.value.phone ? editData.value.phone : "09");
-  editData.value.email && frmData.append("email", editData.value.email);
+  frmData.append("dob", formData.value.dob);
   if (editData.value.customer_passport.length != 0) {
     for (let x = 0; x < editData.value.customer_passport.length; x++) {
-      frmData.append(
-        "customer_passport[" + x + "]",
-        editData.value.customer_passport[x]
-      );
+      frmData.append("file", editData.value.customer_passport[0]);
     }
   }
-  const res = await reservationStore.updateTravellerAction(
-    frmData,
-    props.detail?.id
+  const res = await reservationStore.customerPassportAction(
+    props.detail?.id,
+    frmData
+  );
+
+  console.log(res, "this is res");
+  if (res.message == "success") {
+    toast.success(res.message);
+  } else {
+    toast.error(res.message);
+  }
+  // props.closeTravellerModal();
+  setTimeout(async () => {
+    await props.getDetailAction(route.query.id);
+  }, 1000);
+};
+
+const addTravellerUpdateAction = async () => {
+  const frmData = new FormData();
+  frmData.append("_method", "PUT");
+  frmData.append("name", formData.value.name ? formData.value.name : "-");
+  frmData.append(
+    "passport",
+    formData.value.passport ? formData.value.passport : "-"
+  );
+  frmData.append("dob", formData.value.dob);
+  if (editData.value.customer_passport.length != 0) {
+    for (let x = 0; x < editData.value.customer_passport.length; x++) {
+      frmData.append("file", editData.value.customer_passport[0]);
+    }
+  }
+  const res = await reservationStore.customerPassportUpdateAction(
+    props.detail?.id,
+    formData.value.id,
+    frmData
   );
 
   console.log(res, "this is res");
@@ -371,22 +403,7 @@ const addTravellerAction = async () => {
 onMounted(() => {
   if (props.detail) {
     loading.value = true;
-    editData.value.name =
-      props.detail?.associated_customer.length > 0
-        ? props.detail?.associated_customer[0]?.name
-        : "";
-    editData.value.passport =
-      props.detail?.associated_customer.length > 0
-        ? props.detail?.associated_customer[0]?.passport
-        : "";
-    editData.value.phone =
-      props.detail?.associated_customer.length > 0
-        ? props.detail?.associated_customer[0]?.phone
-        : "";
-    editData.value.email =
-      props.detail?.associated_customer.length > 0
-        ? props.detail?.associated_customer[0]?.email
-        : "";
+
     editData.value.customer_passport_have =
       props.detail?.customer_passports.length > 0
         ? props.detail?.customer_passports

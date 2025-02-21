@@ -64,7 +64,7 @@
         </div>
       </div>
     </div>
-    <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
+    <Modal :isOpen="carModalOpen" @closeModal="closeAction">
       <DialogPanel
         class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
       >
@@ -167,15 +167,18 @@
                   class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
                 >
                   <p
-                    v-if="edit == null"
-                    @click="addInvoiceAction"
+                    @click="
+                      formData.id
+                        ? addInvoiceUpdateAction()
+                        : addInvoiceAction()
+                    "
                     class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
                   >
-                    Save
+                    {{ formData.id ? "Update" : "Save" }}
                   </p>
                   <p
-                    v-if="edit != null"
-                    @click="deleteAction(edit.id)"
+                    v-if="formData.id"
+                    @click="deleteAction(formData.id)"
                     class="px-3 py-1 bg-red-500 text-white text-[12px] cursor-pointer rounded-lg"
                   >
                     Delete
@@ -221,6 +224,15 @@ const props = defineProps({
   getDetailAction: Function,
 });
 
+const formData = ref({
+  id: "",
+  amount: "",
+  invoice: "",
+  due_date: "",
+  customer: "",
+  sender_name: "",
+});
+
 const carModalOpen = ref(false);
 
 const featureImageInput = ref(null);
@@ -238,9 +250,16 @@ const openFileFeaturePicker = () => {
 
 const closeAction = async () => {
   editData.value.car_photo = null;
+  formData.value = {
+    id: "",
+    amount: "",
+    invoice: "",
+    due_date: "",
+    customer: "",
+    sender_name: "",
+  };
   featureImagePreview.value = null;
   carModalOpen.value = false;
-  edit.value = null;
 };
 
 const deleteAction = async (id) => {
@@ -249,39 +268,76 @@ const deleteAction = async (id) => {
   featureImagePreview.value = null;
   carModalOpen.value = false;
   toast.success("delete successfully");
-  edit.value = null;
 
   setTimeout(async () => {
     await props.getDetailAction(route.query.id);
   }, 1000);
 };
 
-const edit = ref(null);
-
 const openPassportModal = (data) => {
   // open passport modal
   featureImagePreview.value = data.file;
-  edit.value = data;
+  formData.value.id = data.id;
+  formData.value.amount = data.amount;
+  formData.value.invoice = data.invoice;
+  formData.value.due_date = data.due_date;
+  formData.value.customer = data.customer;
+  formData.value.sender_name = data.sender_name;
   carModalOpen.value = true;
 };
 
 const addInvoiceAction = async () => {
   const frmData = new FormData();
-  frmData.append("_method", "PUT");
-
+  frmData.append("amount", formData.value.amount);
+  frmData.append("invoice", formData.value.invoice);
+  frmData.append("due_date", formData.value.due_date);
+  frmData.append("customer", formData.value.customer);
+  frmData.append("sender_name", formData.value.sender_name);
   if (
     props.detail?.product_type == "App\\Models\\EntranceTicket" ||
     props.detail?.product_type == "App\\Models\\Hotel"
   ) {
-    frmData.append("booking_confirm_letter", editData.value.car_photo);
+    frmData.append("file", editData.value.car_photo);
   }
 
-  const res = await reservationStore.updateInfoAction(
-    frmData,
-    props.detail?.id
+  const res = await reservationStore.bookingConfirmationAction(
+    props.detail?.id,
+    frmData
   );
 
   console.log(res, "this is res");
+  closeAction();
+
+  toast.success(res.message);
+
+  // props.closeTravellerModal();
+  setTimeout(async () => {
+    await props.getDetailAction(route.query.id);
+  }, 1000);
+};
+
+const addInvoiceUpdateAction = async () => {
+  const frmData = new FormData();
+  frmData.append("amount", formData.value.amount);
+  frmData.append("invoice", formData.value.invoice);
+  frmData.append("due_date", formData.value.due_date);
+  frmData.append("customer", formData.value.customer);
+  frmData.append("sender_name", formData.value.sender_name);
+  if (
+    props.detail?.product_type == "App\\Models\\EntranceTicket" ||
+    props.detail?.product_type == "App\\Models\\Hotel"
+  ) {
+    frmData.append("file", editData.value.car_photo);
+  }
+
+  const res = await reservationStore.bookingConfirmationUpdateAction(
+    props.detail?.id,
+    formData.value.id,
+    frmData
+  );
+
+  console.log(res, "this is res");
+  closeAction();
 
   toast.success(res.message);
 

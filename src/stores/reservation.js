@@ -220,7 +220,7 @@ export const useReservationStore = defineStore("reservation", {
           data
         );
         console.log(response);
-        return response;
+        return response.data;
       } catch (error) {
         throw error;
       }
@@ -231,7 +231,7 @@ export const useReservationStore = defineStore("reservation", {
           "/reservations/report/export?sale_daterange=" + data
         );
         console.log(response);
-        return response;
+        return response.data;
       } catch (error) {
         throw error;
       }
@@ -242,7 +242,73 @@ export const useReservationStore = defineStore("reservation", {
           params: params,
         });
         console.log(response);
-        return response;
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async customerPassportAction(id, data) {
+      try {
+        const response = await axios.post(
+          `/reservations/${id}/passports`,
+          data
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async customerPassportUpdateAction(id, passport_id, data) {
+      try {
+        const response = await axios.post(
+          `/reservations/${id}/passports/${passport_id}`,
+          data
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async bookingConfirmationAction(id, data) {
+      try {
+        const response = await axios.post(
+          `/reservations/${id}/booking-confirm-letter`,
+          data
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async bookingConfirmationUpdateAction(id, confirm_id, data) {
+      try {
+        const response = await axios.post(
+          `/reservations/${id}/booking-confirm-letter/${confirm_id}`,
+          data
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async paidSlipAction(id, data) {
+      try {
+        const response = await axios.post(
+          `/reservations/${id}/paid-slips`,
+          data
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async paidSlipUpdateAction(id, slip_id, data) {
+      try {
+        const response = await axios.post(
+          `/reservations/${id}/paid-slips/${slip_id}`,
+          data
+        );
+        return response.data;
       } catch (error) {
         throw error;
       }

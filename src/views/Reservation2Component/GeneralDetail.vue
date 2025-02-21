@@ -125,7 +125,7 @@
       </div>
     </div>
 
-    <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
+    <Modal :isOpen="carModalOpen" @closeModal="clearAction">
       <DialogPanel
         class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
       >
@@ -134,18 +134,15 @@
           class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
         >
           <p>Payment Slip Audit</p>
-          <XCircleIcon
-            class="w-5 h-5 text-white"
-            @click="carModalOpen = false"
-          />
+          <XCircleIcon class="w-5 h-5 text-white" @click="clearAction" />
         </DialogTitle>
         <!-- show date  -->
         <div class="p-4">
           <div class="grid grid-cols-2 gap-8">
             <div>
               <img
-                :src="save?.image"
-                class="rounded-lg shadow hover:shadow-none h-auto w-full"
+                :src="formData?.file"
+                class="rounded-lg shadow hover:shadow-none min-h-[400px] w-full"
                 alt=""
               />
             </div>
@@ -154,9 +151,8 @@
                 <label for="" class="text-[12px] font-medium">Amount</label>
                 <input
                   type="text"
-                  disabled
                   name=""
-                  v-model="save.amount"
+                  v-model="formData.amount"
                   placeholder="Search CRM ID"
                   class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   id=""
@@ -167,9 +163,7 @@
                 <input
                   type="date"
                   name=""
-                  disabled
-                  v-model="save.created_at"
-                  placeholder="Search CRM ID"
+                  v-model="formData.date"
                   class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   id=""
                 />
@@ -178,22 +172,22 @@
                 <label for="" class="text-[12px] font-medium">Bank </label>
                 <select
                   name=""
-                  disabled
+                  v-model="formData.bank_name"
                   id=""
                   class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                 >
                   <option value="">Select Bank</option>
-                  <option value="1">Bank A</option>
-                  <option value="2">Bank B</option>
-                  <option value="3">Bank C</option>
+                  <option :value="b.name" v-for="b in bankList" :key="b.id">
+                    {{ b.name }}
+                  </option>
                 </select>
               </div>
               <div class="flex justify-between items-center">
                 <label for="" class="text-[12px] font-medium">Sender </label>
                 <input
+                  v-model="formData.sender"
                   type="text"
                   name=""
-                  disabled
                   placeholder="sender name"
                   class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   id=""
@@ -204,8 +198,8 @@
                 <div class="flex justify-start items-center space-x-2">
                   <input
                     type="checkbox"
+                    v-model="formData.is_corporate"
                     name=""
-                    disabled
                     placeholder="name"
                     class="py-1.5 focus:outline-none text-xs"
                     id=""
@@ -216,7 +210,7 @@
               <div class="flex justify-between items-start">
                 <label for="" class="text-[12px] font-medium">Comment</label>
                 <textarea
-                  disabled
+                  v-model="formData.comment"
                   class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[160px]"
                 >
                 </textarea>
@@ -225,12 +219,13 @@
                 class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
               >
                 <p
-                  class="px-3 py-1 bg-gray-500 text-white text-[12px] cursor-pointer rounded-lg"
+                  @click.prevent="submit"
+                  class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
                 >
                   save
                 </p>
                 <p
-                  @click="carModalOpen = false"
+                  @click="clearAction"
                   class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
                 >
                   close
@@ -252,19 +247,119 @@ import bathImage from "../../assets/baht.png";
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/vue/24/outline";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
+import { useBookingStore } from "../../stores/booking";
+import { useToast } from "vue-toastification";
+
+const bookingStore = useBookingStore();
+const route = useRoute();
 
 const props = defineProps({
   detail: Object,
+  getDetailAction: Function,
 });
 
-const router = useRouter();
+const bankList = ref([
+  { id: "1", name: "KPAY" },
+  { id: "2", name: "AYAPAY" },
+  { id: "3", name: "CBPAY" },
+  { id: "4", name: "KBZ BANKING" },
+  { id: "5", name: "CB BANKING" },
+  { id: "6", name: "MAB BANKING" },
+  { id: "7", name: "YOMA BANK" },
+  { id: "8", name: "Kasikorn" },
+  { id: "9", name: "Bangkok Bank" },
+  { id: "10", name: "Bank of Ayudhaya" },
+  { id: "11", name: "SCB Bank" },
+  { id: "12", name: "KPAY" },
+  { id: "13", name: "AYAPAY" },
+  { id: "14", name: "CBPAY" },
+  { id: "15", name: "KBZ BANKING" },
+  { id: "16", name: "CB BANKING" },
+  { id: "17", name: "MAB BANKING" },
+  { id: "18", name: "YOMA BANK" },
+  { id: "19", name: "Kasikorn" },
+  { id: "20", name: "Bangkok Bank" },
+  { id: "21", name: "Bank of Ayudhaya" },
+  { id: "22", name: "SCB Bank" },
+  { id: "23", name: "Others..." },
+]);
 
+const router = useRouter();
+const toast = useToast();
 const carModalOpen = ref(false);
-const save = ref(null);
+
+const formData = ref({
+  file: null,
+  amount: 0,
+  date: "",
+  bank_name: "",
+  sender: "",
+  is_corporate: false,
+  comment: "",
+});
 
 const openModal = (data) => {
   carModalOpen.value = true;
-  save.value = data;
+  // save.value = data;
+  formData.value = {
+    file: data.image,
+    amount: data.amount,
+    date: data.date,
+    bank_name: data.bank_name,
+    sender: data.sender,
+    is_corporate: data.is_corporate,
+    comment: data.comment,
+  };
+};
+
+const clearAction = () => {
+  formData.value = {
+    file: null,
+    amount: 0,
+    date: "",
+    bank_name: "",
+    sender: "",
+    is_corporate: false,
+    comment: "",
+  };
+  carModalOpen.value = false;
+};
+
+const loading = ref(false);
+
+const submit = async () => {
+  // console.log(formData.value);
+  loading.value = true;
+  try {
+    const frmData = new FormData();
+    frmData.append("_method", "PUT");
+    frmData.append("amount", formData.value.amount);
+    frmData.append("date", formData.value.date);
+    frmData.append("bank_name", formData.value.bank_name);
+    frmData.append("sender", formData.value.sender);
+    frmData.append("is_corporate", formData.value.is_corporate);
+    frmData.append("comment", formData.value.comment);
+
+    const res = await bookingStore.receiptImageAction(
+      props.detail.booking.id,
+      props.detail.id,
+      frmData
+    );
+    console.log(res);
+    toast.success({
+      title: "Success",
+      description: "Update success",
+    });
+
+    setTimeout(async () => {
+      await props.getDetailAction(route.query.id);
+    }, 1000);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loading.value = false;
+    carModalOpen.value = false;
+  }
 };
 </script>

@@ -290,6 +290,7 @@ const toast = useToast();
 const carModalOpen = ref(false);
 
 const formData = ref({
+  id: "",
   file: null,
   amount: 0,
   date: "",
@@ -303,6 +304,7 @@ const openModal = (data) => {
   carModalOpen.value = true;
   // save.value = data;
   formData.value = {
+    id: data.id,
     file: data.image,
     amount: data.amount,
     date: data.date,
@@ -316,6 +318,7 @@ const openModal = (data) => {
 const clearAction = () => {
   formData.value = {
     file: null,
+    id: "",
     amount: 0,
     date: "",
     bank_name: "",
@@ -343,7 +346,7 @@ const submit = async () => {
 
     const res = await bookingStore.receiptImageAction(
       props.detail.booking.id,
-      props.detail.id,
+      formData.value.id,
       frmData
     );
     console.log(res);

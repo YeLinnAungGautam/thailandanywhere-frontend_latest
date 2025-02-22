@@ -433,7 +433,12 @@ const hide = ref(false);
               />
             </div>
             <div>
-              <p class="text-[10px] text-gray-500">Attraction Name</p>
+              <p
+                class="text-[10px] text-gray-500"
+                v-if="detail?.product_type == ''"
+              >
+                Attraction Name
+              </p>
               <p class="text-[12px] text-[#FF613c] pb-2">
                 {{ detail?.product?.name }}
               </p>

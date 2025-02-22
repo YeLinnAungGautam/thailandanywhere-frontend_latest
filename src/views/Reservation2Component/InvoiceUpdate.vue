@@ -99,8 +99,8 @@
                   <label for="" class="text-[12px] font-medium">Amount</label>
                   <input
                     type="number"
+                    v-model="formData.amount"
                     name=""
-                    disabled
                     placeholder="xxxx"
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
@@ -113,7 +113,7 @@
                   <input
                     type="date"
                     name=""
-                    disabled
+                    v-model="formData.invoice"
                     placeholder=""
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
@@ -123,8 +123,8 @@
                   <label for="" class="text-[12px] font-medium">Due </label>
                   <input
                     type="date"
+                    v-model="formData.due_date"
                     name=""
-                    disabled
                     placeholder=""
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
@@ -135,8 +135,8 @@
                     >Customer
                   </label>
                   <select
+                    v-model="formData.customer"
                     name=""
-                    disabled
                     id=""
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   >
@@ -149,7 +149,7 @@
                   <label for="" class="text-[12px] font-medium">Sender</label>
                   <input
                     type="text"
-                    disabled
+                    v-model="formData.sender_name"
                     name=""
                     placeholder="xxxx"
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
@@ -221,6 +221,7 @@ const props = defineProps({
 const formData = ref({
   id: "",
   amount: "",
+  file: "",
   invoice: "",
   due_date: "",
   customer: "",

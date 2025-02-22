@@ -74,7 +74,7 @@ const productArray = [
   },
   {
     id: 4,
-    name: "Airline Tickets",
+    name: "Airlines",
     image: AirlineImage,
   },
   // {
@@ -90,6 +90,7 @@ const componentsMap = {
   Attractions: Attraction,
   Hotels: Hotel,
   Restaurants: Vantour,
+  Airlines: Airline,
 };
 
 // Compute the current component based on the tag

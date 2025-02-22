@@ -540,7 +540,7 @@ watch(dateRange, async (newValue) => {
                   <div
                     class="flex items-center justify-start gap-1 overflow-x-scroll no-sidebar-container"
                   >
-                    <!-- <p
+                    <p
                       class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
                       @click="searchValue('App\\Models\\Hotel')"
                       :class="
@@ -550,7 +550,7 @@ watch(dateRange, async (newValue) => {
                       "
                     >
                       Hotel
-                    </p> -->
+                    </p>
                     <p
                       class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border whitespace-nowrap border-gray-200 rounded-lg"
                       @click="searchValue('App\\Models\\EntranceTicket')"

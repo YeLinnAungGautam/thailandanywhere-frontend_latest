@@ -272,7 +272,7 @@ export const useReservationStore = defineStore("reservation", {
     async bookingConfirmationAction(id, data) {
       try {
         const response = await axios.post(
-          `/reservations/${id}/booking-confirm-letter`,
+          `/reservations/${id}/booking-confirm-letters`,
           data
         );
         return response.data;
@@ -283,7 +283,7 @@ export const useReservationStore = defineStore("reservation", {
     async bookingConfirmationUpdateAction(id, confirm_id, data) {
       try {
         const response = await axios.post(
-          `/reservations/${id}/booking-confirm-letter/${confirm_id}`,
+          `/reservations/${id}/booking-confirm-letters/${confirm_id}`,
           data
         );
         return response.data;

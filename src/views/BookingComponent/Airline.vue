@@ -72,6 +72,7 @@ const formitem = ref({
   payment_method: "",
   payment_status: "",
   amount: "",
+  total_cost_price: "",
   exchange_rate: "",
   cost_price: "",
   special_request: "",
@@ -190,6 +191,7 @@ const clearAction = () => {
     payment_method: "",
     payment_status: "",
     amount: "",
+    total_cost_price: "",
     exchange_rate: "",
     cost_price: "",
     special_request: "",
@@ -211,6 +213,9 @@ const clearAction = () => {
 // send item
 const getFunction = () => {
   formitem.value.total_amount =
+    formitem.value.selling_price * formitem.value.quantity -
+    formitem.value.discount;
+  formitem.value.total_cost_price =
     formitem.value.selling_price * formitem.value.quantity -
     formitem.value.discount;
   emit("formData", formitem.value);

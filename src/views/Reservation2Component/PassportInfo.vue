@@ -266,7 +266,7 @@ const openPassportModal = (data, index) => {
   formData.value.id = data.id;
   formData.value.file = data.file;
   formData.value.name = data.name;
-  formData.value.passport = data.passport;
+  formData.value.passport = data.passport_number;
   formData.value.dob = data.dob;
   carModalOpen.value = true;
 };
@@ -373,7 +373,7 @@ const addTravellerUpdateAction = async () => {
   frmData.append("_method", "PUT");
   frmData.append("name", formData.value.name ? formData.value.name : "-");
   frmData.append(
-    "passport",
+    "passport_number",
     formData.value.passport ? formData.value.passport : "-"
   );
   frmData.append("dob", formData.value.dob);

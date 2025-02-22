@@ -112,7 +112,7 @@
           </p>
           <p class="text-[12px] flex justify-start items-center">
             <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-            {{ i?.created_at }}
+            {{ i?.date ? i?.date : "--/--/--" }}
           </p>
         </div>
         <div class="h-[180px] w-full" @click="openModal(i)">
@@ -290,6 +290,7 @@ const toast = useToast();
 const carModalOpen = ref(false);
 
 const formData = ref({
+  id: "",
   file: null,
   amount: 0,
   date: "",
@@ -303,18 +304,20 @@ const openModal = (data) => {
   carModalOpen.value = true;
   // save.value = data;
   formData.value = {
+    id: data.id,
     file: data.image,
     amount: data.amount,
     date: data.date,
     bank_name: data.bank_name,
     sender: data.sender,
-    is_corporate: data.is_corporate,
+    is_corporate: data.is_corporate == 1 ? true : false,
     comment: data.comment,
   };
 };
 
 const clearAction = () => {
   formData.value = {
+    id: "",
     file: null,
     amount: 0,
     date: "",
@@ -338,12 +341,12 @@ const submit = async () => {
     frmData.append("date", formData.value.date);
     frmData.append("bank_name", formData.value.bank_name);
     frmData.append("sender", formData.value.sender);
-    frmData.append("is_corporate", formData.value.is_corporate);
+    frmData.append("is_corporate", formData.value.is_corporate ? 1 : 0);
     frmData.append("comment", formData.value.comment);
 
     const res = await bookingStore.receiptImageAction(
       props.detail.booking.id,
-      props.detail.id,
+      formData.value.id,
       frmData
     );
     console.log(res);

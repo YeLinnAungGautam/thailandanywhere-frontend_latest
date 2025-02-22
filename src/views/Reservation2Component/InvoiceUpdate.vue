@@ -14,15 +14,12 @@
             class="w-full px-4 pb-1 border-dashed border border-[#FF613c] space-y-2 text-[#FF613c] hover:shadow-none rounded-lg"
           >
             <p class="text-[10px] flex justify-start items-center pt-2">
-              <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
               Invoice Date
             </p>
             <p class="text-[10px] flex justify-start items-center">
-              <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
               Company Name
             </p>
             <p class="text-[10px] flex justify-start items-center pb-2">
-              <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
               Invoice Amount
             </p>
           </div>
@@ -49,15 +46,12 @@
             class="w-full px-4 pb-1 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
           >
             <p class="text-[10px] flex justify-start items-center pt-2">
-              <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
               Invoice Date
             </p>
             <p class="text-[10px] flex justify-start items-center">
-              <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
               Company Name
             </p>
             <p class="text-[10px] flex justify-start items-center pb-2">
-              <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
               Invoice Amount
             </p>
           </div>

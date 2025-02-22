@@ -404,6 +404,21 @@ watch(
 );
 
 watch(
+  () => [
+    formitem.value.quantity,
+    formitem.value.individual_pricing?.child?.quantity,
+  ],
+  ([newData, secData]) => {
+    if (formitem.value.product_type == 4) {
+      if (newData || secData) {
+        // checkRoomPrice();
+        formitem.value.comment = `Variation : ${formitem.value.item_name}. Adult : ${formitem.value.quantity}, Child : ${formitem.value.individual_pricing?.child?.quantity}`;
+      }
+    }
+  }
+);
+
+watch(
   () => props.data?.items, // Watch for changes in items
   (newItems) => {
     console.log("props.data.items changed:", newItems);

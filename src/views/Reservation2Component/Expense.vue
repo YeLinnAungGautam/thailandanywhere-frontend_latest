@@ -87,7 +87,10 @@
           class="h-9 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
         />
       </div>
-      <div class="space-y-2">
+      <div
+        class="space-y-2"
+        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
+      >
         <p class="text-gray-800 text-[10px]">Adult Unit Cost</p>
         <div class="grid grid-cols-3 gap-x-2">
           <input
@@ -105,7 +108,10 @@
           />
         </div>
       </div>
-      <div class="space-y-2">
+      <div
+        class="space-y-2"
+        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
+      >
         <p class="text-gray-800 text-[10px]">Child Unit Cost</p>
         <div class="grid grid-cols-3 gap-x-2">
           <input
@@ -123,6 +129,55 @@
           />
         </div>
       </div>
+      <div
+        class="space-y-2"
+        v-if="detail?.product_type == 'App\\Models\\Hotel'"
+      >
+        <p class="text-gray-800 text-[10px]">Unit Cost</p>
+        <div class="flex justify-start items-center gap-x-2 text-xs">
+          <input
+            v-model="formData.quantity"
+            type="number"
+            id="title"
+            disabled
+            class="h-9 rounded-lg w-[40px] bg-white border border-gray-300 text-center py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+          />
+          R
+          <input
+            :value="daysBetween(detail?.checkin_date, detail?.checkout_date)"
+            type="number"
+            id="title"
+            disabled
+            class="h-9 rounded-lg w-[40px] bg-white border border-gray-300 text-center py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+          />
+          N
+          <input
+            v-model="formData.cost_price"
+            type="number"
+            id="title"
+            class="h-9 col-span-1 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+          />
+        </div>
+      </div>
+      <!-- <div
+        class="space-y-2"
+        v-if="detail?.product_type == 'App\\Models\\Hotel'"
+      >
+        <p class="text-gray-800 text-[10px]">Extra Bed Unit Cost</p>
+        <div class="grid grid-cols-3 gap-x-2">
+          <input
+            type="number"
+            id="title"
+            disabled
+            class="h-9 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+          />
+          <input
+            type="number"
+            id="title"
+            class="h-9 col-span-2 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+          />
+        </div>
+      </div> -->
       <div
         class="space-y-2"
         v-if="

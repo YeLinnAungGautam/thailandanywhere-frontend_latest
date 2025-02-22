@@ -115,6 +115,19 @@ const getDetailAction = async (id) => {
   getLoading.value = false;
 };
 
+const calculateDaysBetween = (a, b) => {
+  if (a && b) {
+    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    const startDateTimestamp = new Date(a).getTime();
+    const endDateTimestamp = new Date(b).getTime();
+    let result = Math.abs(
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+    );
+    // formitem.value.days = result;
+    return result;
+  }
+};
+
 const copyReservation = async (id) => {
   const res = await reservationStore.copyReservationDetail(id);
   console.log(res, "this is cpy reservation");
@@ -423,6 +436,7 @@ const hide = ref(false);
           <div class="flex justify-start items-start gap-x-4 pt-3">
             <div>
               <img
+                v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
                 :src="
                   detail?.product?.cover_image
                     ? detail?.product?.cover_image
@@ -431,24 +445,92 @@ const hide = ref(false);
                 class="min-w-[120px] max-w-[120px] shadow object-cover rounded-lg h-[130px]"
                 alt=""
               />
+              <img
+                v-if="detail?.product_type == 'App\\Models\\Hotel'"
+                :src="
+                  detail?.product?.images?.length > 0
+                    ? detail?.product?.images[0]?.image
+                    : 'https://placehold.co/400'
+                "
+                class="min-w-[120px] max-w-[120px] shadow object-cover rounded-lg h-[150px]"
+                alt=""
+              />
             </div>
             <div>
               <p
                 class="text-[10px] text-gray-500"
-                v-if="detail?.product_type == ''"
+                v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
               >
                 Attraction Name
+              </p>
+              <p
+                class="text-[10px] text-gray-500"
+                v-if="detail?.product_type == 'App\\Models\\Hotel'"
+              >
+                Hotel Name
               </p>
               <p class="text-[12px] text-[#FF613c] pb-2">
                 {{ detail?.product?.name }}
               </p>
-              <p class="text-[10px] text-gray-500">Variation</p>
-              <p class="text-[12px] text-[#FF613c] pb-2">
+              <p
+                class="text-[10px] text-gray-500"
+                v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
+              >
+                Variation
+              </p>
+              <p
+                class="text-[12px] text-[#FF613c] pb-2"
+                v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
+              >
                 {{ detail?.variation?.name }}
               </p>
-              <p class="text-[10px] text-gray-500">Service Date :</p>
-              <p class="text-[12px] text-[#FF613c] pb-2">
+              <p
+                class="text-[10px] text-gray-500"
+                v-if="detail?.product_type == 'App\\Models\\Hotel'"
+              >
+                Room
+              </p>
+              <p
+                class="text-[12px] text-[#FF613c] pb-2"
+                v-if="detail?.product_type == 'App\\Models\\Hotel'"
+              >
+                {{ detail?.room?.name }}
+              </p>
+              <p
+                class="text-[10px] text-gray-500"
+                v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
+              >
+                Service Date :
+              </p>
+              <p
+                class="text-[12px] text-[#FF613c] pb-2"
+                v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
+              >
                 {{ detail?.service_date }}
+              </p>
+              <p
+                class="text-[10px] text-gray-500"
+                v-if="detail?.product_type == 'App\\Models\\Hotel'"
+              >
+                Checkin Date :
+              </p>
+              <p
+                class="text-[12px] text-[#FF613c] pb-2"
+                v-if="detail?.product_type == 'App\\Models\\Hotel'"
+              >
+                {{ detail?.checkin_date }}
+              </p>
+              <p
+                class="text-[10px] text-gray-500"
+                v-if="detail?.product_type == 'App\\Models\\Hotel'"
+              >
+                Checkout Date :
+              </p>
+              <p
+                class="text-[12px] text-[#FF613c] pb-2"
+                v-if="detail?.product_type == 'App\\Models\\Hotel'"
+              >
+                {{ detail?.checkout_date }}
               </p>
             </div>
           </div>
@@ -466,18 +548,47 @@ const hide = ref(false);
           <div class="relative grid grid-cols-[auto_1fr] gap-4">
             <!-- Vertical "Invoice Information" Text -->
             <p
-              class="text-xs font-semibold text-[#FF613c] writing-mode-vertical-lr absolute bottom-[50%] text-nowrap transform -rotate-90 -left-[80px]"
+              class="text-xs font-semibold text-[#FF613c] writing-mode-vertical-lr absolute bottom-[40%] text-nowrap transform -rotate-90 -left-[80px]"
             >
-              Booking Information
+              Cost Information
             </p>
 
             <!-- Rest of the Content -->
             <div>
-              <p class="text-[10px] text-gray-500">Total Adult :</p>
-              <p class="text-[12px] text-[#FF613c] pb-2">
-                {{ detail?.quantity }} x {{ detail?.cost_price }}
+              <p
+                class="text-[10px] text-gray-500"
+                v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
+              >
+                Total Adult :
               </p>
-              <p class="text-[10px] text-gray-500">Total Child :</p>
+              <p
+                class="text-[10px] text-gray-500"
+                v-if="detail?.product_type == 'App\\Models\\Hotel'"
+              >
+                Total Qty :
+              </p>
+              <p class="text-[12px] text-[#FF613c] pb-2">
+                {{ detail?.quantity }} R x
+                {{
+                  calculateDaysBetween(
+                    detail?.checkin_date,
+                    detail?.checkout_date
+                  )
+                }}
+                N x {{ detail?.cost_price }}
+              </p>
+              <p
+                class="text-[10px] text-gray-500"
+                v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
+              >
+                Total Child :
+              </p>
+              <p
+                class="text-[10px] text-gray-500"
+                v-if="detail?.product_type == 'App\\Models\\Hotel'"
+              >
+                Total Extra Bed :
+              </p>
               <p
                 class="text-[12px] text-[#FF613c] pb-2"
                 v-if="detail?.individual_pricing"

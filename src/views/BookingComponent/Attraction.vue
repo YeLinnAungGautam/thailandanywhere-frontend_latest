@@ -427,6 +427,19 @@ watch(
 );
 
 watch(
+  () => [
+    formitem.value.quantity,
+    formitem.value.individual_pricing?.child?.quantity,
+  ],
+  ([newData, secData]) => {
+    if (newData || secData) {
+      // checkRoomPrice();
+      formitem.value.comment = `Variation : ${formitem.value.item_name}. Adult : ${formitem.value.quantity}, Child : ${formitem.value.individual_pricing?.child?.quantity}`;
+    }
+  }
+);
+
+watch(
   [search],
   debounce(async (newValue) => {
     destsList.value = [];

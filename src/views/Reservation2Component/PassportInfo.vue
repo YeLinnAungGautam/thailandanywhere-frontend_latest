@@ -9,18 +9,34 @@
           save
         </p> -->
         <div
+          v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
           class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
         >
           <p class="text-[10px] text-gray-500">Adult Qty</p>
           <p class="text-sm">{{ detail?.quantity }}</p>
         </div>
         <div
+          v-if="detail?.product_type == 'App\\Models\\Hotel'"
+          class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+        >
+          <p class="text-[10px] text-gray-500">Room Qty</p>
+          <p class="text-sm">{{ detail?.quantity }}</p>
+        </div>
+        <div
+          v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
           class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
         >
           <p class="text-[10px] text-gray-500">Child Qty</p>
           <p class="text-sm">
             {{ detail?.individual_pricing?.child?.quantity ?? 0 }}
           </p>
+        </div>
+        <div
+          v-if="detail?.product_type == 'App\\Models\\Hotel'"
+          class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+        >
+          <p class="text-[10px] text-gray-500">Extra Bed Qty</p>
+          <p class="text-sm">-</p>
         </div>
       </div>
 

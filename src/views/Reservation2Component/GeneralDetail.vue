@@ -32,6 +32,7 @@
         <p class="text-sm">{{ detail?.booking?.payment_method }}</p>
       </div>
       <div
+        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
       >
         <p class="text-[10px] text-gray-500">Total Quantity</p>
@@ -40,6 +41,19 @@
             detail?.quantity +
             (detail?.individual_pricing?.child?.quantity ?? 0) * 1
           }}
+        </p>
+      </div>
+      <div
+        v-if="detail?.product_type == 'App\\Models\\Hotel'"
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Rooms & Nights</p>
+        <p class="text-sm">
+          {{ detail?.quantity }} R x
+          {{
+            calculateDaysBetween(detail?.checkin_date, detail?.checkout_date)
+          }}
+          N
         </p>
       </div>
       <div
@@ -55,18 +69,39 @@
         <p class="text-sm">{{ detail?.discount }}</p>
       </div>
       <div
+        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
       >
         <p class="text-[10px] text-gray-500">Adult Qty</p>
         <p class="text-sm">{{ detail?.quantity }}</p>
       </div>
       <div
+        v-if="detail?.product_type == 'App\\Models\\Hotel'"
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Total Qty</p>
+        <p class="text-sm">
+          {{
+            detail?.quantity *
+            calculateDaysBetween(detail?.checkin_date, detail?.checkout_date)
+          }}
+        </p>
+      </div>
+      <div
+        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
       >
         <p class="text-[10px] text-gray-500">Child Qty</p>
         <p class="text-sm">
           {{ detail?.individual_pricing?.child?.quantity ?? 0 }}
         </p>
+      </div>
+      <div
+        v-if="detail?.product_type == 'App\\Models\\Hotel'"
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Extra Bed Qty</p>
+        <p class="text-sm">-</p>
       </div>
     </div>
     <div class="flex justify-between items-center">
@@ -313,6 +348,19 @@ const openModal = (data) => {
     is_corporate: data.is_corporate == 1 ? true : false,
     comment: data.comment,
   };
+};
+
+const calculateDaysBetween = (a, b) => {
+  if (a && b) {
+    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    const startDateTimestamp = new Date(a).getTime();
+    const endDateTimestamp = new Date(b).getTime();
+    let result = Math.abs(
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+    );
+    // formitem.value.days = result;
+    return result;
+  }
 };
 
 const clearAction = () => {

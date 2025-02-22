@@ -46,13 +46,13 @@
             class="w-full px-4 pb-1 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
           >
             <p class="text-[10px] flex justify-start items-center pt-2">
-              Invoice Date
+              {{ image.invoice }}
             </p>
             <p class="text-[10px] flex justify-start items-center">
-              Company Name
+              {{ image.customer }}
             </p>
             <p class="text-[10px] flex justify-start items-center pb-2">
-              Invoice Amount
+              {{ image.amount }} thb
             </p>
           </div>
         </div>
@@ -141,8 +141,8 @@
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   >
                     <option value="">Select</option>
-                    <option value="1">TH Anyhwere</option>
-                    <option value="2">Other</option>
+                    <option value="TH Anywhere">TH Anyhwere</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
                 <div class="flex justify-between items-center">
@@ -270,6 +270,7 @@ const deleteAction = async (id) => {
 };
 
 const openPassportModal = (data) => {
+  console.log(data, "this is data");
   // open passport modal
   featureImagePreview.value = data.file;
   formData.value.id = data.id;
@@ -313,17 +314,19 @@ const addInvoiceAction = async () => {
 
 const addInvoiceUpdateAction = async () => {
   const frmData = new FormData();
+  frmData.append("_method", "PUT");
   frmData.append("amount", formData.value.amount);
   frmData.append("invoice", formData.value.invoice);
   frmData.append("due_date", formData.value.due_date);
   frmData.append("customer", formData.value.customer);
   frmData.append("sender_name", formData.value.sender_name);
-  if (
-    props.detail?.product_type == "App\\Models\\EntranceTicket" ||
-    props.detail?.product_type == "App\\Models\\Hotel"
-  ) {
-    frmData.append("file", editData.value.car_photo);
-  }
+  // if (
+  //   (props.detail?.product_type == "App\\Models\\EntranceTicket" ||
+  //     props.detail?.product_type == "App\\Models\\Hotel") &&
+  //   editData.value.car_photo != null
+  // ) {
+  //   frmData.append("file", editData.value.car_photo);
+  // }
 
   const res = await reservationStore.bookingConfirmationUpdateAction(
     props.detail?.id,

@@ -346,7 +346,7 @@ const openModal = (data) => {
     bank_name: data.bank_name,
     sender: data.sender,
     is_corporate: data.is_corporate == 1 ? true : false,
-    comment: data.comment,
+    comment: data.note,
   };
 };
 
@@ -390,7 +390,7 @@ const submit = async () => {
     frmData.append("bank_name", formData.value.bank_name);
     frmData.append("sender", formData.value.sender);
     frmData.append("is_corporate", formData.value.is_corporate ? 1 : 0);
-    frmData.append("comment", formData.value.comment);
+    frmData.append("note", formData.value.comment);
 
     const res = await bookingStore.receiptImageAction(
       props.detail.booking.id,

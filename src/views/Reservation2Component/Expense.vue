@@ -251,7 +251,7 @@
               class="relative"
             >
               <p
-                @click="openPassportModal(image, index)"
+                @click="openModal(image, index)"
                 class="absolute top-4 cursor-pointer text-[8px] shadow right-2 text-xs text-white bg-[#FF613c] px-2 py-0.5 rounded-lg"
               >
                 <span class="text-[10px]">edit</span>
@@ -267,13 +267,13 @@
                 class="w-full px-4 pb-1 mt-2 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
               >
                 <p class="text-[10px] flex justify-start items-center pt-2">
-                  Bank Name
+                  {{ image.bank_name }}
                 </p>
                 <p class="text-[10px] flex justify-start items-center">
-                  Amount
+                  {{ image.amount }}
                 </p>
                 <p class="text-[10px] flex justify-start items-center pb-2">
-                  Date
+                  {{ image.date }}
                 </p>
               </div>
             </div>
@@ -301,22 +301,22 @@
             <div class="grid grid-cols-2 gap-8">
               <div
                 @click="openFilePickerThree"
-                v-if="uploadRecePreview.length == 0 && save?.index == ''"
+                v-if="uploadRecePreview.length == 0 && !expenseData.file"
                 class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
               >
                 +
               </div>
               <div
-                v-if="uploadRecePreview.length != 0 && save?.index == ''"
+                v-if="uploadRecePreview.length != 0 && !expenseData.file"
                 class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
               >
                 <img :src="uploadRecePreview[0]" alt="" class="rounded-lg" />
               </div>
               <div
-                v-if="save?.index != ''"
+                v-if="expenseData.file"
                 class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
               >
-                <img :src="save?.data.file" alt="" class="rounded-lg" />
+                <img :src="expenseData.file" alt="" class="rounded-lg" />
               </div>
 
               <div class="space-y-4 relative pt-4">
@@ -324,14 +324,17 @@
                   <label for="" class="text-[12px] font-medium"
                     >Bank <span class="opacity-0">.....</span></label
                   >
-                  <input
-                    type="text"
+                  <select
                     name=""
-                    placeholder="name"
-                    disabled
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    v-model="expenseData.bank_name"
                     id=""
-                  />
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  >
+                    <option value="">Select Bank</option>
+                    <option :value="b.name" v-for="b in bankList" :key="b.id">
+                      {{ b.name }}
+                    </option>
+                  </select>
                 </div>
                 <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium"
@@ -340,8 +343,8 @@
                   <div class="flex justify-start items-center space-x-2">
                     <input
                       type="checkbox"
+                      v-model="expenseData.is_corporate"
                       name=""
-                      disabled
                       placeholder="name"
                       class="py-1.5 focus:outline-none text-xs"
                       id=""
@@ -353,7 +356,7 @@
                   <label for="" class="text-[12px] font-medium">Amount</label>
                   <input
                     type="number"
-                    disabled
+                    v-model="expenseData.amount"
                     name=""
                     placeholder="xxx"
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
@@ -367,7 +370,7 @@
                   <input
                     type="date"
                     name=""
-                    disabled
+                    v-model="expenseData.date"
                     placeholder=""
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
@@ -376,7 +379,7 @@
                 <div class="flex justify-between items-start">
                   <label for="" class="text-[12px] font-medium">Comment</label>
                   <textarea
-                    disabled
+                    v-model="expenseData.comment"
                     class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[160px]"
                   >
                   </textarea>
@@ -386,16 +389,26 @@
                   class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
                 >
                   <p
-                    v-if="save?.index == ''"
-                    @click="expenseUpdateAction"
+                    v-if="!expenseData?.id"
+                    @click="createExpense"
                     class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
                   >
                     Save
                   </p>
                   <p
-                    v-if="save?.index != ''"
+                    v-if="expenseData?.id"
+                    @click="updateExpense"
+                    class="px-3 py-1 bg-blue-500 text-white text-[12px] cursor-pointer rounded-lg"
+                  >
+                    Update
+                  </p>
+                  <p
+                    v-if="expenseData?.id"
                     @click="
-                      removeFeatureDeleteImage(save?.index, save?.data.id)
+                      removeFeatureDeleteImage(
+                        expenseData.index,
+                        expenseData.id
+                      )
                     "
                     class="px-3 py-1 bg-red-500 text-white text-[12px] cursor-pointer rounded-lg"
                   >
@@ -457,9 +470,80 @@ const formData = ref({
   child_price: "",
 });
 
+const expenseData = ref({
+  index: "",
+  id: "",
+  file: null,
+  amount: 0,
+  date: "",
+  bank_name: "",
+  sender: "",
+  is_corporate: false,
+  comment: "",
+});
+
+const openModal = (data, index) => {
+  carModalOpen.value = true;
+  console.log(data, index, "this is data");
+
+  // save.value = data;
+  expenseData.value = {
+    index: index,
+    id: data.id,
+    file: data.file,
+    amount: data.amount,
+    date: data.date,
+    bank_name: data.bank_name,
+    sender: data.sender,
+    is_corporate: data.is_corporate == 1 ? true : false,
+    comment: data.comment,
+  };
+};
+
+const clearAction = () => {
+  expenseData.value = {
+    index: "",
+    id: "",
+    file: null,
+    amount: 0,
+    date: "",
+    bank_name: "",
+    sender: "",
+    is_corporate: false,
+    comment: "",
+  };
+  carModalOpen.value = false;
+};
+
 const openFilePickerThree = () => {
   fileInputThree.value.click();
 };
+
+const bankList = ref([
+  { id: "1", name: "KPAY" },
+  { id: "2", name: "AYAPAY" },
+  { id: "3", name: "CBPAY" },
+  { id: "4", name: "KBZ BANKING" },
+  { id: "5", name: "CB BANKING" },
+  { id: "6", name: "MAB BANKING" },
+  { id: "7", name: "YOMA BANK" },
+  { id: "8", name: "Kasikorn" },
+  { id: "9", name: "Bangkok Bank" },
+  { id: "10", name: "Bank of Ayudhaya" },
+  { id: "11", name: "SCB Bank" },
+  { id: "12", name: "KPAY" },
+  { id: "13", name: "AYAPAY" },
+  { id: "14", name: "CBPAY" },
+  { id: "15", name: "KBZ BANKING" },
+  { id: "16", name: "CB BANKING" },
+  { id: "17", name: "MAB BANKING" },
+  { id: "18", name: "YOMA BANK" },
+  { id: "19", name: "Kasikorn" },
+  { id: "20", name: "Bangkok Bank" },
+  { id: "21", name: "Bank of Ayudhaya" },
+  { id: "22", name: "SCB Bank" },
+  { id: "23", name: "Others..." },
+]);
 
 const recehandleFileChange = (e) => {
   let selectedFile = e.target.files;
@@ -478,20 +562,8 @@ const cancelAction = () => {
   formData.value.receipt_image = [];
   uploadRecePreview.value = [];
   carModalOpen.value = false;
-};
 
-const save = ref({
-  data: {},
-  index: 0,
-});
-
-const openPassportModal = (data, index) => {
-  save.value.data = data;
-  save.value.index = index;
-  console.log("====================================");
-  console.log(save.value, "this is save");
-  console.log("====================================");
-  carModalOpen.value = true;
+  clearAction();
 };
 
 const expenseUpdateAction = async () => {
@@ -537,14 +609,14 @@ const expenseUpdateAction = async () => {
     if (formData.value.bank_account_number) {
       secfrm.append("bank_account_number", formData.value.bank_account_number);
     }
-    if (formData.value.receipt_image.length != 0) {
-      if (formData.value.receipt_image.length > 0) {
-        for (let i = 0; i < formData.value.receipt_image.length; i++) {
-          let file = formData.value.receipt_image[i];
-          secfrm.append("receipt_image[" + i + "]", file);
-        }
-      }
-    }
+    // if (formData.value.receipt_image.length != 0) {
+    //   if (formData.value.receipt_image.length > 0) {
+    //     for (let i = 0; i < formData.value.receipt_image.length; i++) {
+    //       let file = formData.value.receipt_image[i];
+    //       secfrm.append("receipt_image[" + i + "]", file);
+    //     }
+    //   }
+    // }
 
     await reservationStore.updateInfoAction(secfrm, formData.value.id);
 
@@ -582,10 +654,7 @@ const removeFeatureDeleteImage = async (index, id) => {
   carModalOpen.value = false;
   // console.log(editData.value.customer_passport, "this is remove");
 
-  save.value = {
-    data: "",
-    index: "",
-  };
+  cancelAction();
 
   setTimeout(async () => {
     await props.getDetailAction(route.query.id);
@@ -605,6 +674,83 @@ const daysBetween = (a, b) => {
     );
     console.log(formData.value.checkin_date, result, "this is result");
     return result;
+  }
+};
+
+const loading = ref(false);
+
+const createExpense = async () => {
+  // console.log(formData.value);
+  loading.value = true;
+  try {
+    const frmData = new FormData();
+    frmData.append("amount", expenseData.value.amount);
+    frmData.append("date", expenseData.value.date);
+    frmData.append("bank_name", expenseData.value.bank_name);
+    frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
+    frmData.append("comment", expenseData.value.comment);
+
+    if (formData.value.receipt_image.length != 0) {
+      if (formData.value.receipt_image.length > 0) {
+        for (let i = 0; i < formData.value.receipt_image.length; i++) {
+          let file = formData.value.receipt_image[0];
+          frmData.append("file", file);
+        }
+      }
+    }
+
+    const res = await reservationStore.ReservationExpenseReceiptAction(
+      props.detail.id,
+      frmData
+    );
+    console.log(res);
+    toast.success({
+      title: "Success",
+      description: "Create success",
+    });
+
+    setTimeout(async () => {
+      await props.getDetailAction(route.query.id);
+    }, 1000);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loading.value = false;
+    carModalOpen.value = false;
+  }
+};
+
+const updateExpense = async () => {
+  // console.log(formData.value);
+  loading.value = true;
+  try {
+    const frmData = new FormData();
+    frmData.append("_method", "PUT");
+    frmData.append("amount", expenseData.value.amount);
+    frmData.append("date", expenseData.value.date);
+    frmData.append("bank_name", expenseData.value.bank_name);
+    frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
+    frmData.append("comment", expenseData.value.comment);
+
+    const res = await reservationStore.ReservationExpenseReceiptUpdateAction(
+      props.detail.id,
+      expenseData.value.id,
+      frmData
+    );
+    console.log(res);
+    toast.success({
+      title: "Success",
+      description: "Update success",
+    });
+
+    setTimeout(async () => {
+      await props.getDetailAction(route.query.id);
+    }, 1000);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loading.value = false;
+    carModalOpen.value = false;
   }
 };
 

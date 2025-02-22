@@ -26,7 +26,8 @@
             v-if="data?.product_type == 'App\\Models\\Hotel'"
           >
             <span class="font-medium"
-              >{{ data?.checkin_date }} / {{ data?.checkout_date }}</span
+              >In: {{ data?.checkin_date }} / Out:
+              {{ data?.checkout_date }}</span
             >
           </p>
         </div>
@@ -120,13 +121,7 @@
             data.car?.name
           }}</span>
         </p>
-        <p
-          class="text-[10px] space-x-2 text-gray-500 whitespace-nowrap"
-          v-if="data?.product_type == 'App\\Models\\Hotel'"
-        >
-          {{ data?.quantity }} rooms,
-          {{ daysBetween(data?.checkin_date, data?.checkout_date) }} nights
-        </p>
+
         <p
           class="text-[10px] space-x-2 text-gray-500 whitespace-nowrap"
           v-if="data?.product_type == 'App\\Models\\EntranceTicket'"
@@ -141,6 +136,13 @@
         </p>
       </div>
     </div>
+    <p
+      class="text-[10px] space-x-2 px-5 pt-1 text-gray-900 whitespace-nowrap"
+      v-if="data?.product_type == 'App\\Models\\Hotel'"
+    >
+      {{ data?.quantity }} rooms,
+      {{ daysBetween(data?.checkin_date, data?.checkout_date) }} nights
+    </p>
     <div
       class="flex justify-start overflow-x-scroll no-sidebar-container space-x-4 pt-2 pl-4 items-center transition-all duration-150"
     >

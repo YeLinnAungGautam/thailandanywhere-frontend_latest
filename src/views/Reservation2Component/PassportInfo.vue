@@ -115,15 +115,15 @@
           >
             <p class="text-[10px] flex justify-start items-center pt-2">
               <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
-              Name
+              {{ i?.name }}
             </p>
             <p class="text-[10px] flex justify-start items-center">
               <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-              Passport No.
+              {{ i?.passport_number }}
             </p>
             <p class="text-[10px] flex justify-start items-center pb-2">
               <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-              DOB
+              {{ i?.dob }}
             </p>
           </div>
         </div>
@@ -222,7 +222,7 @@
 
                   <p
                     v-if="formData.id"
-                    @click="removeFeatureDeleteImage(save.index, formData.id)"
+                    @click="removeFeatureDeleteImage(formData.id)"
                     class="px-3 py-1 bg-red-600 text-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
                   >
                     Delete
@@ -329,12 +329,9 @@ const openFileFeaturePicker = () => {
   featureImageInput.value.click();
 };
 
-const removeFeatureDeleteImage = async (index, id) => {
+const removeFeatureDeleteImage = async (id) => {
   const res = await reservationStore.deleteTravellerImageAction(id);
-  if (res) {
-    editData.value.customer_passport_have.splice(index, 1);
-    // featureImagePreview.value.splice(index, 1);
-  }
+
   toast.success("detected successfully");
   carModalOpen.value = false;
   // console.log(editData.value.customer_passport, "this is remove");
@@ -346,6 +343,10 @@ const removeFeatureDeleteImage = async (index, id) => {
     dob: "",
     file: "",
   };
+
+  setTimeout(async () => {
+    await props.getDetailAction(route.query.id);
+  }, 1000);
 };
 
 const removeFeatureSelectImage = (index) => {
@@ -358,7 +359,7 @@ const addTravellerAction = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name ? formData.value.name : "-");
   frmData.append(
-    "passport",
+    "passport_number",
     formData.value.passport ? formData.value.passport : "-"
   );
   frmData.append("dob", formData.value.dob);

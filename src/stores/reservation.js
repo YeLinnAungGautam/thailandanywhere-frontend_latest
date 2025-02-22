@@ -313,5 +313,27 @@ export const useReservationStore = defineStore("reservation", {
         throw error;
       }
     },
+    async ReservationExpenseReceiptAction(id, data) {
+      try {
+        const response = await axios.post(
+          `/reservations/${id}/receipt-images`,
+          data
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async ReservationExpenseReceiptUpdateAction(id, receipt_id, data) {
+      try {
+        const response = await axios.post(
+          `/reservations/${id}/receipt-images/${receipt_id}`,
+          data
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

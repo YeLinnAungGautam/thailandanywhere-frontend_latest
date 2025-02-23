@@ -107,8 +107,8 @@ onMounted(async () => {
     </div>
 
     <div class="p-6 bg-[#edecec] max-w-[400px] mx-auto" ref="captureArea">
-      <div id="mySvg" class="bg-white rounded-xl px-5 pt-4 pb-5 mt-4">
-        <div class="flex justify-between items-center pb-4">
+      <div id="mySvg" class="bg-white rounded-xl pt-4 mt-4">
+        <div class="flex justify-between items-center pb-4 px-5">
           <img :src="logoIcon" class="w-8 h-8" alt="" />
           <div
             class="bg-[#FF613c] h-[25px] w-[120px] relative overflow-hidden px-3 rounded-lg"
@@ -119,13 +119,15 @@ onMounted(async () => {
           </div>
         </div>
 
-        <img
-          :src="details?.product?.cover_image"
-          class="rounded-lg w-full h-[160px] object-cover"
-          alt=""
-        />
+        <div class="px-5">
+          <img
+            :src="details?.product?.cover_image"
+            class="rounded-lg w-full h-[160px] object-cover"
+            alt=""
+          />
+        </div>
 
-        <div class="py-3 border-b border-black/10 space-y-1">
+        <div class="py-3 border-b px-5 border-black/10 space-y-1">
           <p class="font-medium text-[#ff613c]">{{ details?.product?.name }}</p>
           <div class="flex justify-start items-center gap-x-1">
             <p class="text-sm">
@@ -135,7 +137,7 @@ onMounted(async () => {
             <p class="text-sm">{{ details?.product?.cities[0]?.name }}</p>
           </div>
         </div>
-        <div class="py-3 grid grid-cols-2 gap-4">
+        <div class="py-3 grid px-5 grid-cols-2 gap-4">
           <div class="space-y-1.5">
             <p class="text-xs text-black/40">Booking ID:</p>
             <p class="text-sm">{{ details?.crm_id }}</p>
@@ -194,11 +196,14 @@ onMounted(async () => {
             {{ details?.customer_info.name }}
           </p>
         </div>
-        <div class="pt-4 flex justify-center items-center">
+        <div class="pt-4 flex px-5 justify-center items-center">
           <QrCode :id="route.params.id" />
         </div>
-        <p class="text-[10px] font-medium text-center text-[#FF613c]">
-          Validate your ticket at www.thanywhere.com
+        <p
+          class="text-[12px] font-medium text-start px-5 pt-1 mt-4 pb-5 leading-6 rounded-b-2xl bg-[#FF613c] text-white"
+        >
+          မှတ်ချက်။ ။ လက်မှတ် ထုတ်ပုံ ထုတ်နည်း ၊ သွားရမည့်နေရာ ၊မှန်ကန်ကြောင်း ၊
+          နှင့် အထင်ကရနေရာ ၏ Video ကို QR Scan လုပ်ပြီး ကြည့်ရှု နိုင်ပါပြီ။
         </p>
       </div>
     </div>

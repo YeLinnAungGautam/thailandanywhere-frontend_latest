@@ -52,8 +52,18 @@
               <SidebarItem
                 name="Dashboard"
                 :icon="Squares2X2Icon"
+                to="/sales_dashboard"
+                v-show="authStore.isSaleAdmin"
+              />
+              <SidebarItem
+                name="Dashboard"
+                :icon="Squares2X2Icon"
                 to="/user_dashboard"
-                v-show="!authStore.isSuperAdmin && !authStore.isAuditor"
+                v-show="
+                  !authStore.isSuperAdmin &&
+                  !authStore.isAuditor &&
+                  !authStore.isSaleAdmin
+                "
               />
               <SidebarItem
                 name="Sales"
@@ -61,7 +71,7 @@
                   authStore.isSuperAdmin ||
                   authStore.isCashier ||
                   authStore.isAdmin ||
-                  authStore.isAgent
+                  authStore.isSaleAdmin
                 "
                 :icon="CalendarIcon"
                 to="/bookings/%25/%25/%25"
@@ -127,13 +137,13 @@
                 />
               </div>
 
-              <SidebarItem
+              <!-- <SidebarItem
                 v-if="!authStore.isAuditor"
                 name="Expenses"
                 :icon="WalletIcon"
                 to="/expenses"
                 :activePaths="['expenses']"
-              />
+              /> -->
               <SidebarItem
                 name="Products"
                 :icon="ArchiveBoxIcon"
@@ -185,7 +195,7 @@
               />
               <SidebarItem
                 name="Users"
-                v-if="!authStore.isAgent && !authStore.isAuditor"
+                v-if="authStore.isSuperAdmin"
                 :icon="UsersIcon"
                 to="/users"
                 :activePaths="['users']"

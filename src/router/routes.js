@@ -40,6 +40,7 @@ import InclusiveView from "../views/InclusiveCreate.vue";
 import InclusiveDetailView from "../views/InclusiveUpdate.vue";
 import ReservationViewView from "../views/ReservationView.vue";
 import DashboardView from "../views/UserDashboard.vue";
+import SaleDashboardView from "../views/SaleDashboard.vue";
 import CarBookingView from "../views/PrivateVanTourCar.vue";
 import AvailabilityView from "../views/Availability.vue";
 import UserView from "../views/UserView.vue";
@@ -75,6 +76,11 @@ const routes = [
     path: "/auditor_dashboard",
     name: "auditor_dashboard",
     component: AuditorDashboardView,
+  },
+  {
+    path: "/sales_dashboard",
+    name: "sales_dashboard",
+    component: SaleDashboardView,
   },
   {
     path: "/components",

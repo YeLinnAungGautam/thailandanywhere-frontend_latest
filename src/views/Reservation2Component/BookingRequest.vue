@@ -24,13 +24,42 @@
         </div>
         <div class="w-full mb-4 space-y-3 text-xs">
           <div class="space-y-4">
-            <div>
+            <!-- <div>
               <input
                 type="email"
                 v-model="emailData.mail_to"
                 class="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none text-xs w-full"
                 placeholder="Send to Email"
               />
+            </div> -->
+            <div
+              class="flex justify-start p-2 rounded-xl relative border border-gray-200 items-center gap-2 overflow-x-scroll no-sidebar-container"
+            >
+              <div
+                v-for="(i, index) in emailData.mail_to_array"
+                :key="index"
+                class="px-2 py-1 rounded-lg bg-[#FF613c] text-white focus:outline-none text-[11px] relative"
+              >
+                <XCircleIcon
+                  class="w-4 h-4 text-red-500 bg-white rounded-full absolute -top-2 -right-2 cursor-pointer"
+                  @click="removeMailAction(index)"
+                />
+                <p>{{ i }}</p>
+              </div>
+              <div class="relative">
+                <input
+                  type="email"
+                  v-model="mail_name"
+                  class="px-4 py-1 rounded-lg focus:outline-none text-[11px] max-w-[200px]"
+                  placeholder="Send to Email"
+                />
+              </div>
+              <button
+                class="absolute top-2 right-2 bg-[#FF613c] px-1 py-1 text-white rounded-full text-xs"
+                @click="addMailAction"
+              >
+                <PlusIcon class="w-4 h-4" />
+              </button>
             </div>
 
             <div>
@@ -204,7 +233,11 @@ import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
 import { useRoute } from "vue-router";
 import Swal from "sweetalert2";
-import { CheckCircleIcon } from "@heroicons/vue/24/outline";
+import {
+  CheckCircleIcon,
+  PlusCircleIcon,
+  PlusIcon,
+} from "@heroicons/vue/24/outline";
 import { XCircleIcon } from "@heroicons/vue/24/solid";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
@@ -227,11 +260,32 @@ const openFileFeaturePicker = () => {
 };
 
 const emailData = ref({
+  mail_to_array: [],
   mail_subject: "",
   mail_to: "",
   send_to_default: false,
   attachments: [],
 });
+
+const mail_name = ref("");
+
+const addMailAction = () => {
+  // Regular expression for basic email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // Check if mail_name.value is a valid email
+  if (emailRegex.test(mail_name.value)) {
+    emailData.value.mail_to_array.push(mail_name.value);
+    mail_name.value = ""; // Clear the input after adding
+  } else {
+    alert("Please enter a valid email address.");
+    // Alternatively, you can handle the error in a more user-friendly way
+  }
+};
+
+const removeMailAction = (index) => {
+  emailData.value.mail_to_array.splice(index, 1);
+};
 
 const previewFile = ref([]);
 

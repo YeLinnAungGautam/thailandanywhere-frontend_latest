@@ -117,15 +117,15 @@
           <input
             v-model="formData.child_quantity"
             type="number"
-            id="title"
             disabled
-            class="h-9 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+            id="title"
+            class="h-9 rounded-lg w-full bg-gray-2000 border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
           />
           <input
             v-model="formData.child_price"
             type="number"
             id="title"
-            class="h-9 col-span-2 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+            class="h-9 col-span-2 rounded-lg w-full bg-gray-2000 border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
           />
         </div>
       </div>
@@ -578,11 +578,56 @@ const expenseUpdateAction = async () => {
     frmData.append("quantity", formData.value.quantity);
   formData.value.payment_status &&
     frmData.append("payment_status", formData.value.payment_status);
+  if (props.detail?.product_type == "App\\Models\\EntranceTicket") {
+    // const individualPricing = {
+    //   child: {
+    //     quantity: formData.value.child_quantity,
+    //     selling_price:
+    //       props.detail?.individual_pricing?.child?.selling_price ?? 0,
+    //     cost_price: formData.value.child_price,
+    //     total_cost_price:
+    //       formData.value.child_price * formData.value.child_quantity,
+    //     amount: props.detail?.individual_pricing?.child?.selling_price
+    //       ? props.detail?.individual_pricing?.child?.selling_price *
+    //         formData.value.child_quantity
+    //       : 0,
+    //   },
+    // };
+
+    // Stringify the individual_pricing object before appending it to FormData
+    frmData.append(
+      "individual_pricing[child][quantity]",
+      formData.value.child_quantity
+    );
+    frmData.append(
+      "individual_pricing[child][selling_price]",
+      props.detail?.individual_pricing?.child?.selling_price ?? 0
+    );
+    frmData.append(
+      "individual_pricing[child][cost_price]",
+      formData.value.child_price
+    );
+    frmData.append(
+      "individual_pricing[child][total_cost_price]",
+      formData.value.child_price * formData.value.child_quantity
+    );
+    frmData.append(
+      "individual_pricing[child][amount]",
+      props.detail?.individual_pricing?.child?.selling_price
+        ? props.detail?.individual_pricing?.child?.selling_price *
+            formData.value.child_quantity
+        : 0
+    );
+  }
   if (formData.value.cost_price) {
     if (!formData.value.hotalQuantity) {
       frmData.append(
         "total_cost_price",
-        formData.value.cost_price * formData.value.quantity
+        formData.value.cost_price * formData.value.quantity +
+          (formData.value.child_price ??
+            0 * formData.value.child_quantity ??
+            0) *
+            1
       );
     } else {
       frmData.append(
@@ -783,6 +828,7 @@ onMounted(() => {
     formData.value.product_type = props.detail?.product_type;
     formData.value.customer_feedback =
       props.detail?.reservation_info?.customer_feedback || "";
+
     formData.value.child_quantity = props.detail?.individual_pricing
       ? props?.detail?.individual_pricing?.child?.quantity
       : 0;

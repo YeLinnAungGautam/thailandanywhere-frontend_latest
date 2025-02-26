@@ -773,7 +773,9 @@ const homeSectionPartView = ref("sale");
 <template>
   <Layout :title="`Welcome back, ${authStore.user.name.split(' ')[0]}!`">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 mb-3">
-      <div class="flex justify-start items-center space-x-10 col-span-3 pb-1">
+      <div
+        class="space-x-8 col-span-3 left-[220px] flex justify-start items-center gap-2 text-sm pb-4 absolute top-8"
+      >
         <HomeFirstPartVue
           :title="'Sales analysis'"
           :isActive="homeSectionPartView == 'sale'"

@@ -19,6 +19,7 @@ import HomeFirstPartVue from "../components/HomeFirstPart.vue";
 import HomeSecondPartVue from "../components/HomeSecondPart.vue";
 import SaleAgentReportByDate from "../components/SaleAgentReportByDate.vue";
 import TopSellingProductVue from "../components/TopSellingProduct.vue";
+import VueApexCharts from "vue3-apexcharts";
 
 import {
   endOfMonth,
@@ -774,17 +775,17 @@ const homeSectionPartView = ref("sale");
     <div class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 mb-3">
       <div class="flex justify-start items-center space-x-10 col-span-3 pb-1">
         <HomeFirstPartVue
-          :title="'Sales'"
+          :title="'Sales analysis'"
           :isActive="homeSectionPartView == 'sale'"
           @click="homeSectionPartView = 'sale'"
         />
         <HomeFirstPartVue
-          :title="'Sales analysis'"
+          :title="'Calendar'"
           :isActive="homeSectionPartView == 'sale-analysis'"
           @click="homeSectionPartView = 'sale-analysis'"
         />
 
-        <HomeFirstPartVue
+        <!-- <HomeFirstPartVue
           :title="'Reservations'"
           :isActive="homeSectionPartView == 'reservation'"
           @click="homeSectionPartView = 'reservation'"
@@ -796,7 +797,7 @@ const homeSectionPartView = ref("sale");
         <HomeFirstPartVue
           :title="'Products'"
           :isActive="homeSectionPartView == 'product'"
-        />
+        /> -->
       </div>
       <!-- filter -->
       <div
@@ -1017,7 +1018,10 @@ const homeSectionPartView = ref("sale");
           </div>
         </div>
       </div>
-      <div class="col-span-3 grid grid-cols-4 gap-4">
+      <div
+        class="col-span-3 grid grid-cols-4 gap-4"
+        v-if="homeSectionPartView == 'sale'"
+      >
         <div class="bg-white p-2">
           <p class="text-sm font-semibold py-2">Channels Sold From</p>
           <BarChart :chartData="reportChannalData" :options="reportOptions" />
@@ -1048,7 +1052,10 @@ const homeSectionPartView = ref("sale");
           />
         </div>
       </div>
-      <div class="col-span-3 grid grid-cols-4 gap-4">
+      <div
+        class="col-span-3 grid grid-cols-4 gap-4"
+        v-if="homeSectionPartView == 'sale'"
+      >
         <div class="col-span-4">
           <TopSellingProductVue />
         </div>

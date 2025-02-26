@@ -32,6 +32,8 @@ import {
 
 const dashboardReservation = ref("sale");
 
+const userSalesShow = ref(false);
+
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
 const dashboardStore = useDashboardStore();
@@ -40,6 +42,9 @@ const homeStore = useHomeStore();
 const dataTest = reactive({ items: [] });
 const dataAmount = reactive({ items: [] });
 const dataAmountLimit = reactive({ items: [] });
+
+const companyAmount = reactive({ items: [] });
+const companyAmountLimit = reactive({ items: [] });
 
 const saleData = {
   labels: dataTest.items,
@@ -53,6 +58,23 @@ const saleData = {
     {
       label: "Target",
       data: dataAmountLimit.items,
+      backgroundColor: ["#F9FFF6"],
+      borderColor: ["#55FF00"],
+    },
+  ],
+};
+const saleDataCompany = {
+  labels: dataTest.items,
+  datasets: [
+    {
+      label: "Daily Sale",
+      data: companyAmount.items,
+      backgroundColor: ["#F9FFF6"],
+      borderColor: ["#FF0000"],
+    },
+    {
+      label: "Target",
+      data: companyAmountLimit.items,
       backgroundColor: ["#F9FFF6"],
       borderColor: ["#55FF00"],
     },
@@ -224,6 +246,22 @@ const getAllDays = async (monthGet) => {
     dataAmount.items.push(dataArr);
     dataAmountLimit.items.push(authStore.target);
     dataTest.items.push(res.result.sales[x].date);
+  }
+
+  const response = await homeStore.getTimeFilterArray(monthGet);
+  companyAmount.items.splice(0);
+  companyAmountLimit.items.splice(0);
+  for (let x = 0; x < response.result.sales.length; x++) {
+    let dataArr = 0;
+
+    for (let i = 0; i < response.result.sales[x].agents.length; i++) {
+      const agent = response.result.sales[x].agents[i];
+
+      dataArr += agent.total;
+    }
+
+    companyAmount.items.push(dataArr);
+    companyAmountLimit.items.push(275000);
   }
 };
 
@@ -482,8 +520,37 @@ watch(dateForUnpaid, async (newValue) => {
               </div>
             </div>
           </div>
-          <div class="bg-white/60 shadow rounded-md pt-2 pb-6 px-4 my-4">
-            <LineChart :chartData="saleData" :options="chartOptions" />
+          <div>
+            <div
+              class="mt-4 bg-white/60 flex justify-between items-center rounded-md shadow-sm p-4"
+            >
+              <p class="text-xs font-semibold">
+                {{ userSalesShow ? "Company Sales" : "My Sales" }}
+              </p>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  @click="userSalesShow = !userSalesShow"
+                  value=""
+                  class="sr-only peer"
+                />
+                <div
+                  class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
+                ></div>
+              </label>
+            </div>
+            <div
+              class="bg-white/60 shadow rounded-md pb-6 px-4 my-4"
+              v-if="!userSalesShow"
+            >
+              <LineChart :chartData="saleData" :options="chartOptions" />
+            </div>
+            <div
+              class="bg-white/60 shadow rounded-md pb-6 px-4 my-4"
+              v-if="userSalesShow"
+            >
+              <LineChart :chartData="saleDataCompany" :options="chartOptions" />
+            </div>
           </div>
         </div>
         <div class="pl-2 pb-4">

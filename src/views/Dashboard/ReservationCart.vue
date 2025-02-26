@@ -590,7 +590,7 @@
       </DialogPanel>
     </Modal>
 
-    <Modal :isOpen="openPassportInfoModal" @closeModal="goToPassportInfo">
+    <!-- <Modal :isOpen="openPassportInfoModal" @closeModal="goToPassportInfo">
       <DialogPanel
         class="w-full max-w-lg transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
       >
@@ -607,7 +607,7 @@
           />
         </div>
       </DialogPanel>
-    </Modal>
+    </Modal> -->
   </div>
 </template>
 
@@ -675,7 +675,9 @@ const goToExpense = () => {
 };
 
 const goToPassportInfo = () => {
-  openPassportInfoModal.value = !openPassportInfoModal.value;
+  // openPassportInfoModal.value = !openPassportInfoModal.value;
+  // console.log("passport info", props.data);
+  router.push("/reservation-second?id=" + props.data.id + "&part=passport");
 };
 
 const formData = ref({

@@ -84,7 +84,7 @@
                   'update_new_bookings',
                 ]"
               />
-              <div
+              <!-- <div
                 v-if="!authStore.isAuditor"
                 @click="toggleReservationShow"
                 class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
@@ -106,8 +106,8 @@
                     v-if="isReservationShow"
                   />
                 </p>
-              </div>
-              <div
+              </div> -->
+              <!-- <div
                 v-if="isReservationShow"
                 class="transition-all duration-500 ease-in-out overflow-hidden"
                 :class="
@@ -116,34 +116,27 @@
                     : 'opacity-0 max-h-0'
                 "
               >
-                <!-- Reservation items here -->
                 <SidebarItem
                   name="v2"
                   :icon="DocumentCheckIcon"
                   to="/reservation-second"
                   :activePaths="['reservation-second']"
                 />
-                <!-- <SidebarItem
-                  name="new"
-                  :icon="DocumentCheckIcon"
-                  to="/reservation-new/%25/%25/%25"
-                  :activePaths="['reservation-new']"
-                /> -->
                 <SidebarItem
                   name="stable"
                   :icon="DocumentCheckIcon"
                   to="/reservation/%25/%25/%25"
                   :activePaths="['reservation', 'reservation-update']"
                 />
-              </div>
+              </div> -->
 
-              <!-- <SidebarItem
+              <SidebarItem
                 v-if="!authStore.isAuditor"
-                name="Expenses"
-                :icon="WalletIcon"
-                to="/expenses"
-                :activePaths="['expenses']"
-              /> -->
+                name="Reservation"
+                :icon="DocumentCheckIcon"
+                to="/reservation-second"
+                :activePaths="['reservation-second']"
+              />
               <SidebarItem
                 name="Products"
                 :icon="ArchiveBoxIcon"

@@ -18,6 +18,7 @@ import { useHomeStore } from "../stores/home";
 import HomeFirstPartVue from "../components/HomeFirstPart.vue";
 import HomeSecondPartVue from "../components/HomeSecondPart.vue";
 import SaleAgentReportByDate from "../components/SaleAgentReportByDate.vue";
+import TopSellingProductVue from "../components/TopSellingProduct.vue";
 
 import {
   endOfMonth,
@@ -632,6 +633,7 @@ const presetDates = ref([
 
 const saleAgentDataRes = ref(null);
 const allSaleList = ref(null);
+const dateForSaleAgent = ref("");
 
 const createdByList = ref(null);
 const mamberList = ref(null);
@@ -652,9 +654,83 @@ const getAdminList = async () => {
   console.log(res, "this is sale manager", mamberList.value);
 };
 
-onMounted(async () => {
-  // console.log(authStore.isSuperAdmin, "hello");
+const getDataRangeChangeFunction = async (date) => {
+  let first = date[0];
+  let second = date[1];
+  console.log(dateFormat(first), "this is date", dateFormat(second));
+  let data = {
+    first: dateFormat(first),
+    second: dateFormat(second),
+  };
 
+  // channel
+  const res = await homeStore.getReportByChannel(data);
+  // console.log(res, "this is channel report");
+  dataReportChannal.items.splice(0);
+  dataReportChannalAmount.items.splice(0);
+  for (let i = 0; i < res.result.length; i++) {
+    dataReportChannal.items.push(res.result[i].sold_from);
+    dataReportChannalAmount.items.push(res.result[i].total_amount);
+  }
+
+  allSaleList.value = await homeStore.getSaleCount(data);
+
+  // method
+  const resMethod = await homeStore.getReportByMethod(data);
+  // console.log(resMethod, "this is channel report");
+  dataReportMethod.items.splice(0);
+  dataReportMethodAmount.items.splice(0);
+  for (let i = 0; i < resMethod.result.length; i++) {
+    dataReportMethod.items.push(resMethod.result[i].payment_method);
+    dataReportMethodAmount.items.push(resMethod.result[i].total_amount);
+  }
+
+  // status
+  const resStatus = await homeStore.getReportByStatus(data);
+  // console.log(resStatus, "this is channel report");
+  dataReportStatus.items.splice(0);
+  dataReportStatusAmount.items.splice(0);
+  for (let i = 0; i < resStatus.result.length; i++) {
+    if (
+      resStatus.result[i].payment_status == "fully_paid" ||
+      resStatus.result[i].payment_status == "not_paid"
+    ) {
+      dataReportStatus.items.push(resStatus.result[i].payment_status);
+      dataReportStatusAmount.items.push(resStatus.result[i].total_amount);
+    }
+  }
+
+  // sale method
+  // status
+  const resSaleMethod = await homeStore.getReportByPaymentMethod(data);
+  console.log(resSaleMethod, "this is channel report");
+  series.value[0].data = [];
+  for (let i = 0; i < resSaleMethod.result.length; i++) {
+    series.value[0].data.push({
+      x: `${resSaleMethod.result[i].payment_currency}-${resSaleMethod.result[
+        i
+      ].product_type
+        .split("\\")
+        .pop()}`,
+      y: resSaleMethod.result[i].total_selling_amount,
+    });
+  }
+};
+
+const getSaleAgentData = async (date) => {
+  let first = date[0];
+  let second = date[1];
+  console.log(dateFormat(first), "this is date", dateFormat(second));
+  let data = {
+    first: dateFormat(first),
+    second: dateFormat(second),
+  };
+  const resSaleAgent = await homeStore.getAgentSales(data);
+  console.log(resSaleAgent, "this is sale agent report");
+  saleAgentDataRes.value = resSaleAgent;
+};
+
+onMounted(async () => {
   if (route.query.day) {
     homeSectionPartView.value = "sale-analysis";
   }
@@ -664,10 +740,25 @@ onMounted(async () => {
   await getAdminList();
 
   currentMonth();
+
+  dateForSaleAgent.value = [startOfMonth(new Date()), endOfMonth(new Date())];
+  dateFilterRange.value = [startOfMonth(new Date()), endOfMonth(new Date())];
 });
 
 watch(monthForGraph, async (newValue) => {
   getAllDays(monthForGraph.value);
+});
+
+watch(dateFilterRange, async (newValue) => {
+  if (dateFilterRange.value != "" && dateFilterRange.value != null) {
+    await getDataRangeChangeFunction(dateFilterRange.value);
+  }
+});
+
+watch(dateForSaleAgent, async (newValue) => {
+  if (dateForSaleAgent.value != "" && dateForSaleAgent.value != null) {
+    await getSaleAgentData(dateForSaleAgent.value);
+  }
 });
 
 watch(priceSalesGraphAgent, async (newValue) => {
@@ -852,6 +943,7 @@ const homeSectionPartView = ref("sale");
             v-if="priceSalesGraph == '0' && priceSalesGraphAgent != ''"
           />
         </div>
+        <!-- admin target side -->
         <div
           class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[520px] px-3 bg-white"
         >
@@ -861,12 +953,33 @@ const homeSectionPartView = ref("sale");
             </p> -->
             <div class="bg-white px-4 w-full space-y-4">
               <div class="flex justify-between items-center tracking-wide">
-                <p class="text-sm font-medium mr-2">Your Subsidiaries</p>
+                <p class="text-sm font-medium mr-2">AgentSales</p>
+                <VueDatePicker
+                  v-model="dateForSaleAgent"
+                  :format="'yyyy-MM-dd'"
+                  range
+                  :preset-dates="presetDates"
+                  placeholder="select date range"
+                >
+                  <template
+                    #preset-date-range-button="{ label, value, presetDate }"
+                  >
+                    <span
+                      role="button"
+                      :tabindex="0"
+                      @click="presetDate(value)"
+                      @keyup.enter.prevent="presetDate(value)"
+                      @keyup.space.prevent="presetDate(value)"
+                    >
+                      {{ label }}
+                    </span>
+                  </template>
+                </VueDatePicker>
               </div>
               <div
-                class="border border-gray-300 rounded-md divide-x-2 divide-gray-300"
+                class="grid grid-cols-2 border border-gray-300 rounded-md divide-x-2 divide-gray-300"
               >
-                <!-- <p
+                <p
                   class="text-xs text-center py-1.5 rounded-s-lg"
                   @click="partOfAgent = 'sale'"
                   :class="
@@ -874,64 +987,70 @@ const homeSectionPartView = ref("sale");
                   "
                 >
                   amount
-                </p> -->
-                <p class="text-xs text-center py-1.5 rounded-e-lg">
-                  Today target
+                </p>
+                <p
+                  class="text-xs text-center py-1.5 rounded-e-lg"
+                  @click="partOfAgent = 'average'"
+                  :class="
+                    partOfAgent == 'average' ? 'bg-[#FF5B00] text-white' : ''
+                  "
+                >
+                  target
                 </p>
               </div>
 
-              <div class="space-y-2">
-                <div class="" v-for="m in mamberList ?? []" :key="m.id">
-                  <div
-                    v-for="a in allMemberTodaySales"
-                    :key="a"
-                    class="flex justify-start items-center space-y-1 gap-x-8"
-                  >
-                    <img
-                      v-show="m.name == a.name && m.target_amount < a.amount"
-                      src="https://cdn-icons-png.flaticon.com/128/4138/4138902.png"
-                      class="w-16 h-16"
-                      alt=""
-                    />
-                    <img
-                      v-show="m.name == a.name && m.target_amount > a.amount"
-                      src="https://cdn-icons-png.flaticon.com/128/4138/4138765.png"
-                      class="w-16 h-16"
-                      alt=""
-                    />
-                    <!-- https://cdn-icons-png.flaticon.com/128/4138/4138765.png -->
-                    <div
-                      class="flex flex-col space-y-1 w-[30%] justify-center items-start"
-                    >
-                      <p class="text-sm text-[#Ff613c]" v-if="m.name == a.name">
-                        {{ m.name }}
-                      </p>
-                      <p class="text-sm" v-if="m.name == a.name">
-                        TG: {{ m.target_amount }} thb
-                      </p>
-                      <p class="text-sm" v-if="m.name == a.name">
-                        <span>TS: {{ a.amount }} thb</span>
-                      </p>
-                    </div>
-                    <div class="flex justify-end items-center w-[35%]">
-                      <img
-                        v-show="m.name == a.name && m.target_amount < a.amount"
-                        src="https://cdn-icons-png.flaticon.com/128/7518/7518748.png"
-                        class="w-10 h-10 ml-auto"
-                        alt=""
-                      />
-                      <img
-                        v-show="m.name == a.name && m.target_amount > a.amount"
-                        src="https://cdn-icons-png.flaticon.com/128/15287/15287001.png"
-                        class="w-10 h-10 ml-auto"
-                        alt=""
-                      />
-                    </div>
-                  </div>
-                </div>
+              <div
+                class=""
+                v-for="(s, index) in saleAgentDataRes?.result"
+                :key="index"
+                :class="
+                  createdByList.includes(s.created_by?.name) ? '' : 'hidden'
+                "
+              >
+                <SaleAgentReportByDate
+                  :data="s"
+                  :part="partOfAgent"
+                  :date="dateForSaleAgent"
+                />
               </div>
             </div>
           </div>
+        </div>
+      </div>
+      <div class="col-span-3 grid grid-cols-4 gap-4">
+        <div class="bg-white p-2">
+          <p class="text-sm font-semibold py-2">Channels Sold From</p>
+          <BarChart :chartData="reportChannalData" :options="reportOptions" />
+        </div>
+        <div class="bg-white p-2">
+          <p class="text-sm font-semibold py-2">Payment Method</p>
+          <!-- <DoughnutChart :chartData="reportStatusData" /> -->
+          <!-- <CombineBarLineVue /> -->
+          <VueApexCharts
+            :options="chartOptions"
+            :series="series"
+            type="treemap"
+          />
+        </div>
+        <div class="bg-white p-2">
+          <p class="text-sm font-semibold py-2">Method of Payment</p>
+          <DoughnutChart
+            :chartData="reportMethodData"
+            :options="methodOptions"
+          />
+        </div>
+
+        <div class="bg-white p-2">
+          <p class="text-sm font-semibold py-2">Payment Statuses</p>
+          <DoughnutChart
+            :chartData="reportStatusData"
+            :options="paymentOptions"
+          />
+        </div>
+      </div>
+      <div class="col-span-3 grid grid-cols-4 gap-4">
+        <div class="col-span-4">
+          <TopSellingProductVue />
         </div>
       </div>
     </div>

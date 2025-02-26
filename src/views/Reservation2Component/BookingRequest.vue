@@ -24,15 +24,15 @@
         </div>
         <div class="w-full mb-4 space-y-3 text-xs">
           <div class="space-y-4">
-            <!-- <div>
+            <div>
               <input
                 type="email"
                 v-model="emailData.mail_to"
                 class="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none text-xs w-full"
                 placeholder="Send to Email"
               />
-            </div> -->
-            <div
+            </div>
+            <!-- <div
               class="flex justify-start p-2 rounded-xl relative border border-gray-200 items-center gap-2 overflow-x-scroll no-sidebar-container"
             >
               <div
@@ -60,7 +60,7 @@
               >
                 <PlusIcon class="w-4 h-4" />
               </button>
-            </div>
+            </div> -->
 
             <div>
               <input
@@ -339,7 +339,7 @@ const sendEmailFunction = async () => {
           route.query.id,
           frmData
         );
-        if (res.data.status) {
+        if (res?.status == 200) {
           emailLoading.value = false;
           emailData.value = {
             mail_subject: "",
@@ -356,7 +356,8 @@ const sendEmailFunction = async () => {
         }
       } catch (error) {
         emailLoading.value = false;
-        toast.error(error.response.data.message);
+        // toast.error(error.response.data.message);
+        console.log(error);
       }
     }
   });

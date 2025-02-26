@@ -128,6 +128,15 @@ const calculateDaysBetween = (a, b) => {
   }
 };
 
+const printHotelConfirm = () => {
+  window.open(
+    import.meta.env.VITE_API_URL +
+      "/hotel-reservation/" +
+      route.query.id +
+      "/receipt"
+  );
+};
+
 const copyReservation = async (id) => {
   const res = await reservationStore.copyReservationDetail(id);
   console.log(res, "this is cpy reservation");
@@ -372,7 +381,11 @@ const hide = ref(false);
           </p>
           <p
             class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
-            @click="generateConfirmation"
+            @click="
+              detail?.product_type == 'App\\Models\\EntranceTicket'
+                ? generateConfirmation()
+                : printHotelConfirm()
+            "
           >
             Generate Confirmation
           </p>

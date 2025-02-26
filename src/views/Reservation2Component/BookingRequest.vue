@@ -339,7 +339,9 @@ const sendEmailFunction = async () => {
           route.query.id,
           frmData
         );
-        if (res?.status == 200) {
+        console.log(res, "this is email res");
+
+        if (res?.status == "Request was successful.") {
           emailLoading.value = false;
           emailData.value = {
             mail_subject: "",
@@ -349,7 +351,7 @@ const sendEmailFunction = async () => {
           };
           previewFile.value = [];
           mailBodyChange();
-          toast.success(res.data.message);
+          toast.success(res.message);
           setTimeout(async () => {
             await props.getDetailAction(route.query.id);
           }, 1000);

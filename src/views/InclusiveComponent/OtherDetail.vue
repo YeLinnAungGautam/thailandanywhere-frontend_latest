@@ -24,6 +24,7 @@ const openDayDetail = ref(1);
 
 const props = defineProps({
   formData: Object,
+  detail: Object,
 });
 
 const hasData = (data) => {
@@ -150,20 +151,27 @@ const setupDetailsWatcher = () => {
 };
 
 // Check for `details` on component mount
+watch(openDayDetail, (newValue) => {
+  if (newValue) {
+    // console.log("openDayDetail", newValue, props.formData);
+    items.value = [];
+    if (props.detail) {
+      console.log("props.detail", props.detail);
+      for (let i = 0; i < props.detail.entrance_tickets.length; i++) {
+        if (props.detail.entrance_tickets[i].day == newValue) {
+          items.value.push({
+            id: props.detail.entrance_tickets[i].id,
+            name: props.detail.entrance_tickets[i].product?.name,
+            type: "Entrance Ticket",
+          });
+        }
+      }
+    }
+  }
+});
 
 // Sample data - you can replace this with your own data
-const items = ref([
-  { id: "001", name: "Item One", type: "Attraction" },
-  { id: "002", name: "Item Two", type: "Destination" },
-  { id: "003", name: "Item Three", type: "Attraction" },
-  { id: "004", name: "Item Four", type: "Lunch" },
-  { id: "005", name: "Item Five", type: "Destination" },
-  { id: "006", name: "Item Six", type: "Attraction" },
-  { id: "007", name: "Item Seven", type: "Destination" },
-  { id: "008", name: "Item Eight", type: "Attraction" },
-  { id: "009", name: "Item Nine", type: "Lunch" },
-  { id: "010", name: "Item Ten", type: "Destination" },
-]);
+const items = ref([{ id: 1, name: "Item 1", type: "Type 1" }]);
 
 // Track the currently dragged item
 const draggedItem = ref(null);

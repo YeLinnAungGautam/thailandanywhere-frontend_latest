@@ -1295,6 +1295,17 @@ onMounted(async () => {
         <!-- create -->
         <div class="flex justify-end items-center space-x-2">
           <button
+            @click="
+              router.push({
+                name: 'bookings_png',
+                query: { id: route.params.id },
+              })
+            "
+            class="text-center bg-orange-600 px-4 py-2 text-xs text-white rounded-xl"
+          >
+            <PrinterIcon class="w-4 h-4 text-white" />
+          </button>
+          <button
             @click="openPaid"
             class="text-center bg-gray-600 px-4 py-2 text-xs text-white rounded-xl"
           >

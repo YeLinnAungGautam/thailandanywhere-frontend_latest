@@ -15,7 +15,7 @@ import {
   MagnifyingGlassIcon,
   XMarkIcon,
 } from "@heroicons/vue/24/outline";
-import ReservationDetail from "./Reservation2Component/ReservationDetail.vue";
+import ReservationDetail from "./AccountingComponent/ReservationDetail.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter, useRoute } from "vue-router";
 import { useAdminStore } from "../stores/admin";
@@ -232,7 +232,7 @@ const detailId = ref("");
 const getDetailAction = async (id) => {
   detailId.value = id;
   router.push({
-    name: "reservation-second",
+    name: "accounting",
     query: {
       id: detailId.value,
     },

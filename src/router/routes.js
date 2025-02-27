@@ -52,6 +52,8 @@ import ReservationEntranceConfirmationsView from "../views/ReservationEntranceCo
 import AuditorDashboardView from "../views/Auditor.vue";
 import ReservationEntranceConfirmationsSvgView from "../views/ReservationEntranceConfirmationSvg.vue";
 import ReservationSecondView from "../views/Reservation2.vue";
+import PngUsage from "../views/PngGenerate/PngUsage.vue";
+import Accounting from "../views/Accounting.vue";
 
 const routes = [
   {
@@ -183,6 +185,11 @@ const routes = [
     component: UpdateBookingView,
   },
   {
+    path: "/bookings/png",
+    name: "bookings_png",
+    component: PngUsage,
+  },
+  {
     path: "/database/:page",
     name: "database",
     component: DatabaseView,
@@ -261,6 +268,11 @@ const routes = [
     path: "/reservation-second",
     name: "reservation-second",
     component: ReservationSecondView,
+  },
+  {
+    path: "/accounting",
+    name: "accounting",
+    component: Accounting,
   },
   {
     path: "/reservation/update/:id/:crm",

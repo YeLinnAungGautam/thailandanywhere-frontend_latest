@@ -131,11 +131,16 @@
               </div> -->
 
               <SidebarItem
-                v-if="!authStore.isAuditor"
                 name="Reservation"
                 :icon="DocumentCheckIcon"
                 to="/reservation-second"
                 :activePaths="['reservation-second']"
+              />
+              <SidebarItem
+                name="Accounting"
+                :icon="CalculatorIcon"
+                to="/accounting"
+                :activePaths="['accounting']"
               />
               <SidebarItem
                 name="Products"
@@ -230,11 +235,12 @@
               >
                 <SidebarItem
                   name="Partners"
-                  v-if="!authStore.isAgent"
+                  v-if="!authStore.isAgent && !authStore.isAuditor"
                   :icon="UserGroupIcon"
                   to="/partners"
                 />
                 <SidebarItem
+                  v-if="!authStore.isAgent && !authStore.isAuditor"
                   name="Calendar"
                   :icon="CalendarDaysIcon"
                   to="/calendar"
@@ -288,6 +294,7 @@ import {
   NewspaperIcon,
   CheckBadgeIcon,
   ChevronUpIcon,
+  CalculatorIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";

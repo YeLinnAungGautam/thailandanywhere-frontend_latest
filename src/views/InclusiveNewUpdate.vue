@@ -291,11 +291,13 @@ const onSubmitHandler = async () => {
 };
 
 const getDetailLoading = ref(false);
+const detailValue = ref(null);
 
 const getDetail = async () => {
   try {
     getDetailLoading.value = true;
     const response = await inclusiveStore.getDetailAction(route.params.id);
+    detailValue.value = response.result;
     console.log(response, "this is response");
     formData.value.name = response.result.name;
     formData.value.description = response.result.description;
@@ -713,7 +715,7 @@ onMounted(async () => {
           </div>
         </div>
         <div>
-          <OtherDetail :formData="formData" />
+          <OtherDetail :formData="formData" :detail="detailValue" />
         </div>
       </div>
       <div class="px-8 py-6 bg-white" v-if="session == 4">

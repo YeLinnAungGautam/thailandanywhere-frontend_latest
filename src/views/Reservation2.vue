@@ -768,6 +768,7 @@ watch(dateRange, async (newValue) => {
                   <!-- customer payment status -->
                   <select
                     name=""
+                    v-model="customerPaymentStatus"
                     id=""
                     class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
                   >
@@ -787,6 +788,7 @@ watch(dateRange, async (newValue) => {
                   <p class="text-[10px] pb-2">Expense Status</p>
                   <!-- expense status -->
                   <select
+                    v-model="expenseStatus"
                     name=""
                     id=""
                     class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"

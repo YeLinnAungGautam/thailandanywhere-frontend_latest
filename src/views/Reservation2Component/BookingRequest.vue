@@ -24,15 +24,15 @@
         </div>
         <div class="w-full mb-4 space-y-3 text-xs">
           <div class="space-y-4">
-            <div>
+            <!-- <div>
               <input
                 type="email"
                 v-model="emailData.mail_to"
                 class="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none text-xs w-full"
                 placeholder="Send to Email"
               />
-            </div>
-            <!-- <div
+            </div> -->
+            <div
               class="flex justify-start p-2 rounded-xl relative border border-gray-200 items-center gap-2 overflow-x-scroll no-sidebar-container"
             >
               <div
@@ -60,7 +60,7 @@
               >
                 <PlusIcon class="w-4 h-4" />
               </button>
-            </div> -->
+            </div>
 
             <div>
               <input
@@ -303,6 +303,7 @@ const cancelEmailFunction = () => {
   emailData.value = {
     mail_subject: "",
     mail_to: "",
+    mail_to_array: [],
     send_to_default: false,
     attachments: [],
   };
@@ -312,7 +313,7 @@ const emailLoading = ref(false);
 const sendEmailFunction = async () => {
   Swal.fire({
     title: "Are you sure ?",
-    text: `Send email to ${emailData.value.mail_to} `,
+    text: `Send email to ${emailData.value.mail_to_array} `,
     icon: "question",
     showCancelButton: true,
     confirmButtonColor: "#FF6300",
@@ -324,7 +325,7 @@ const sendEmailFunction = async () => {
         emailLoading.value = true;
         console.log(emailData.value);
         const frmData = new FormData();
-        frmData.append("mail_to", emailData.value.mail_to);
+        frmData.append("mail_to", emailData.value.mail_to_array);
         frmData.append("mail_subject", emailData.value.mail_subject);
         frmData.append("mail_body", emailData.value.mail_body);
         frmData.append("send_to_default", emailData.value.send_to_default);
@@ -346,6 +347,7 @@ const sendEmailFunction = async () => {
           emailData.value = {
             mail_subject: "",
             mail_to: "",
+            mail_to_array: [],
             send_to_default: false,
             attachments: [],
           };
@@ -537,5 +539,20 @@ onMounted(() => {
   border: solid rgb(255, 255, 255);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
+}
+
+div:where(.swal2-container) .swal2-html-container {
+  z-index: 1;
+  justify-content: center;
+  margin: 0;
+  padding: 1em 1.6em 0.3em;
+  overflow: auto;
+  color: inherit;
+  font-size: 1em !important;
+  font-weight: normal;
+  line-height: normal;
+  text-align: center;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 </style>

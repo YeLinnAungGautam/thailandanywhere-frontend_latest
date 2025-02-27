@@ -43,10 +43,23 @@
                 <div class="p-4">
                   <div>
                     <div class="gap-8">
+                      <div class="flex justify-between items-center">
+                        <label for="" class="text-[12px] font-medium"
+                          >Date <span class="opacity-0">......</span></label
+                        >
+                        <input
+                          type="date"
+                          name=""
+                          v-model="image.date"
+                          placeholder=""
+                          class="w-[260px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                          id=""
+                        />
+                      </div>
                       <div class="space-y-4 relative pt-4">
                         <div class="flex justify-between items-center">
                           <label for="" class="text-[12px] font-medium"
-                            >Bank Name</label
+                            >Receiver Bank</label
                           >
                           <select
                             name=""
@@ -66,7 +79,19 @@
                         </div>
                         <div class="flex justify-between items-center">
                           <label for="" class="text-[12px] font-medium"
-                            >Received At</label
+                            >Receiver Name</label
+                          >
+                          <input
+                            type="text"
+                            name=""
+                            placeholder=""
+                            class="w-[260px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                            id=""
+                          />
+                        </div>
+                        <div class="flex justify-between items-center">
+                          <label for="" class="text-[12px] font-medium"
+                            >Send From</label
                           >
                           <div
                             class="flex justify-start items-center w-[260px] space-x-2"
@@ -82,6 +107,7 @@
                             </select>
                           </div>
                         </div>
+
                         <div class="flex justify-between items-center">
                           <label for="" class="text-[12px] font-medium"
                             >Amount</label
@@ -95,19 +121,7 @@
                             id=""
                           />
                         </div>
-                        <div class="flex justify-between items-center">
-                          <label for="" class="text-[12px] font-medium"
-                            >Date <span class="opacity-0">......</span></label
-                          >
-                          <input
-                            type="date"
-                            name=""
-                            v-model="image.date"
-                            placeholder=""
-                            class="w-[260px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                            id=""
-                          />
-                        </div>
+
                         <div class="flex justify-between items-start">
                           <label for="" class="text-[12px] font-medium"
                             >Comment</label

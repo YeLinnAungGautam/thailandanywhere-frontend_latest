@@ -278,7 +278,7 @@ const changeCopyText = (response) => {
 1. Pick up customer at their hotel in ${response.cities[0]?.name}
 ${destinationsText}${lastText}
   
-  Include total driving hours. Note the total driving hour is 5 hours.
+  Include total driving hours.
   
   Make sure some of the descriptions include how customers would feel while traveling with this package.
   Make sure the content is short, concise and interesting for users to read.
@@ -288,8 +288,7 @@ ${destinationsText}${lastText}
   Do not use pronouns.
   Write so that customers are willing to purchase this package.
   Include advice on how much time a customer should spend on each destination.
-  Make sure the total time spent on this tour including driving hours and time spent on each destination is about 10 hours.
-  Note that Bangkok to Pattaya drive is only about 2 hours. Total driving hour is at least 5 hours.`;
+  Make sure the total time spent on this tour including driving hours and time spent on each destination is about 10 hours.`;
 };
 
 const changeCopyTextMM = (response) => {
@@ -311,7 +310,7 @@ const changeCopyTextMM = (response) => {
 1. Pick up customer at their hotel in ${response.cities[0]?.name}
 ${destinationsText}${lastText}
   
-  Include total driving hours. Note the total driving hour is 5 hours.
+  Include total driving hours.
   
   Make sure some of the descriptions include how customers would feel while traveling with this package.
   Make sure the content is short, concise and interesting for users to read.
@@ -322,7 +321,6 @@ ${destinationsText}${lastText}
   Write so that customers are willing to purchase this package.
   Include advice on how much time a customer should spend on each destination.
   Make sure the total time spent on this tour including driving hours and time spent on each destination is about 10 hours.
-  Note that Bangkok to Pattaya drive is only about 2 hours. Total driving hour is at least 5 hours.
   Please give with Burmese Language.`;
 };
 

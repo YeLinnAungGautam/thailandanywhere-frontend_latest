@@ -325,7 +325,7 @@ const sendEmailFunction = async () => {
         emailLoading.value = true;
         console.log(emailData.value);
         const frmData = new FormData();
-        frmData.append("mail_to", emailData.value.mail_to_array);
+        frmData.append("mail_tos", emailData.value.mail_to_array);
         frmData.append("mail_subject", emailData.value.mail_subject);
         frmData.append("mail_body", emailData.value.mail_body);
         frmData.append("send_to_default", emailData.value.send_to_default);

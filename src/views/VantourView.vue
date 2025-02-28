@@ -357,11 +357,31 @@ const generateAction = (lang) => {
 const generateMessage = async (message) => {
   if (message) {
     console.log(message, "this is message");
+
+    // Split the message into paragraphs
+    const paragraphs = message.split("\n").filter((p) => p.trim() !== "");
+
+    // Function to wrap English words with <strong> tags
+    const wrapEnglishWords = (text) => {
+      // Regular expression to match English words (Latin alphabet)
+      const englishWordRegex = /\b[A-Za-z0-9]+\b/g;
+      return text.replace(englishWordRegex, "<strong>$&</strong>");
+    };
+
+    // Process each paragraph with CSS margin for spacing
+    const formattedMessage = paragraphs
+      .map(
+        (paragraph) =>
+          `<p style="margin-bottom: 1em;">${wrapEnglishWords(paragraph)}</p>`
+      )
+      .join("");
+
     if (language.value == "mm") {
-      formData.value.long_description = message;
+      formData.value.long_description = formattedMessage;
     } else {
-      formData.value.full_description_en = message;
+      formData.value.full_description_en = formattedMessage;
     }
+
     userInput.value = "";
     language.value = "";
     loading.value = false;

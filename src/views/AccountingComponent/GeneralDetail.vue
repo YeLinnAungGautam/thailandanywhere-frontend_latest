@@ -29,12 +29,18 @@
                     >Date & Time
                   </label>
                   <div class="flex justify-between items-center w-[260px]">
-                    <p class="text-start text-sm">{{ formatDate(i.date) }}</p>
+                    <p class="text-start text-sm" v-if="i?.date">
+                      {{
+                        i.date.includes("T")
+                          ? formatDate(i.date)
+                          : formatDateFromDb(i.date)
+                      }}
+                    </p>
                     <input
                       type="datetime-local"
                       name=""
                       v-model="i.date"
-                      format="YYYY-MM-DDTHH:mm"
+                      format="YYYY-MM-DD HH:mm:ss"
                       class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                       id=""
                     />
@@ -242,6 +248,44 @@ const formatDate = (dateString) => {
   return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 };
 
+const formatDateFromDb = (dateString) => {
+  // Split the input string into date and time parts
+  const [datePart, timePart] = dateString.split(" ");
+
+  // Split the date part into day, month, year
+  const [day, month, year] = datePart.split("-");
+
+  // Define month names
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Get the month name
+  const monthName = monthNames[parseInt(month) - 1]; // Subtract 1 because months are 0-indexed
+
+  // Return the formatted date
+  return `${day}/${monthName}/${year} ${timePart}`;
+};
+
+const formatDateDb = (dateString) => {
+  // Parse the input string into a Date object
+  return dateString.replace("T", " ");
+};
+
+// Example usage:
+// console.log(formatDate("2025-12-02T12:15:00")); // Output: "12/02/25 12:15:00"
+
 const calculateDaysBetween = (a, b) => {
   if (a && b) {
     const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
@@ -278,7 +322,7 @@ const submit = async () => {
     const frmData = new FormData();
     frmData.append("_method", "PUT");
     frmData.append("amount", formData.value.amount);
-    frmData.append("date", formData.value.date);
+    frmData.append("date", formatDateDb(formData.value.date));
     frmData.append("bank_name", formData.value.bank_name);
     frmData.append("sender", formData.value.sender);
     frmData.append("is_corporate", formData.value.is_corporate ? 1 : 0);

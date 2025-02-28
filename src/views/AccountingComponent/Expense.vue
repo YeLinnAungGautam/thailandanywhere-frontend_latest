@@ -47,14 +47,25 @@
                         <label for="" class="text-[12px] font-medium"
                           >Date <span class="opacity-0">......</span></label
                         >
-                        <input
-                          type="date"
-                          name=""
-                          v-model="image.date"
-                          placeholder=""
-                          class="w-[260px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                          id=""
-                        />
+                        <div
+                          class="flex justify-between items-center w-[260px]"
+                        >
+                          <p class="text-start text-sm" v-if="image?.date">
+                            {{
+                              image?.date?.includes("T")
+                                ? formatDate(image.date)
+                                : formatDateFromDb(image.date)
+                            }}
+                          </p>
+                          <input
+                            type="datetime-local"
+                            name=""
+                            v-model="image.date"
+                            format="YYYY-MM-DD HH:mm:ss"
+                            class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                            id=""
+                          />
+                        </div>
                       </div>
                       <div class="space-y-4 relative pt-4">
                         <div class="flex justify-between items-center">
@@ -158,137 +169,6 @@
         </div>
       </div>
     </div>
-    <!-- <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
-      <DialogPanel
-        class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
-      >
-        <DialogTitle
-          as="div"
-          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
-        >
-          <p>Expense Add</p>
-          <XCircleIcon class="w-5 h-5 text-white" @click="cancelAction" />
-        </DialogTitle>
-        <div class="p-4">
-          <div class="p-4">
-            <div class="grid grid-cols-2 gap-8">
-              <div
-                @click="openFilePickerThree"
-                v-if="uploadRecePreview.length == 0 && !expenseData.file"
-                class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
-              >
-                +
-              </div>
-              <div
-                v-if="uploadRecePreview.length != 0 && !expenseData.file"
-                class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
-              >
-                <img :src="uploadRecePreview[0]" alt="" class="rounded-lg" />
-              </div>
-              <div
-                v-if="expenseData.file"
-                class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
-              >
-                <img :src="expenseData.file" alt="" class="rounded-lg" />
-              </div>
-
-              <div class="space-y-4 relative pt-4">
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium"
-                    >Bank <span class="opacity-0">.....</span></label
-                  >
-                  <select
-                    name=""
-                    v-model="expenseData.bank_name"
-                    id=""
-                    class="w-[260px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                  >
-                    <option value="">Select Bank</option>
-                    <option :value="b.name" v-for="b in bankList" :key="b.id">
-                      {{ b.name }}
-                    </option>
-                  </select>
-                </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium"
-                    >Bank ? <span class="opacity-0">..</span></label
-                  >
-                  <div class="flex justify-start items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      v-model="expenseData.is_corporate"
-                      name=""
-                      placeholder="name"
-                      class="py-1.5 focus:outline-none text-xs"
-                      id=""
-                    />
-                    <p class="text-[12px]">Is Corporate ?</p>
-                  </div>
-                </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium">Amount</label>
-                  <input
-                    type="number"
-                    v-model="expenseData.amount"
-                    name=""
-                    placeholder="xxx"
-                    class="w-[260px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                    id=""
-                  />
-                </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium"
-                    >Date <span class="opacity-0">......</span></label
-                  >
-                  <input
-                    type="date"
-                    name=""
-                    v-model="expenseData.date"
-                    placeholder=""
-                    class="w-[260px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                    id=""
-                  />
-                </div>
-                <div class="flex justify-between items-start">
-                  <label for="" class="text-[12px] font-medium">Comment</label>
-                  <textarea
-                    v-model="expenseData.comment"
-                    class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[260px]"
-                  >
-                  </textarea>
-                </div>
-
-                <div
-                  class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
-                >
-                  <p
-                    v-if="!expenseData?.id"
-                    @click="createExpense"
-                    class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
-                  >
-                    Save
-                  </p>
-                  <p
-                    v-if="expenseData?.id"
-                    @click="updateExpense"
-                    class="px-3 py-1 bg-blue-500 text-white text-[12px] cursor-pointer rounded-lg"
-                  >
-                    Update
-                  </p>
-
-                  <p
-                    @click="cancelAction"
-                    class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
-                  >
-                    Close
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </DialogPanel>
-    </Modal> -->
   </div>
 </template>
 
@@ -430,112 +310,6 @@ const cancelAction = () => {
   clearAction();
 };
 
-const expenseUpdateAction = async () => {
-  // your logic to update the expense data goes here
-  const frmData = new FormData();
-  frmData.append("_method", "PUT");
-  formData.value.cost_price &&
-    frmData.append("cost_price", formData.value.cost_price);
-  formData.value.payment_method &&
-    frmData.append("payment_method", formData.value.payment_method);
-  formData.value.quantity &&
-    frmData.append("quantity", formData.value.quantity);
-  formData.value.payment_status &&
-    frmData.append("payment_status", formData.value.payment_status);
-  if (props.detail?.product_type == "App\\Models\\EntranceTicket") {
-    // const individualPricing = {
-    //   child: {
-    //     quantity: formData.value.child_quantity,
-    //     selling_price:
-    //       props.detail?.individual_pricing?.child?.selling_price ?? 0,
-    //     cost_price: formData.value.child_price,
-    //     total_cost_price:
-    //       formData.value.child_price * formData.value.child_quantity,
-    //     amount: props.detail?.individual_pricing?.child?.selling_price
-    //       ? props.detail?.individual_pricing?.child?.selling_price *
-    //         formData.value.child_quantity
-    //       : 0,
-    //   },
-    // };
-
-    // Stringify the individual_pricing object before appending it to FormData
-    frmData.append(
-      "individual_pricing[child][quantity]",
-      formData.value.child_quantity
-    );
-    frmData.append(
-      "individual_pricing[child][selling_price]",
-      props.detail?.individual_pricing?.child?.selling_price ?? 0
-    );
-    frmData.append(
-      "individual_pricing[child][cost_price]",
-      formData.value.child_price
-    );
-    frmData.append(
-      "individual_pricing[child][total_cost_price]",
-      formData.value.child_price * formData.value.child_quantity
-    );
-    frmData.append(
-      "individual_pricing[child][amount]",
-      props.detail?.individual_pricing?.child?.selling_price
-        ? props.detail?.individual_pricing?.child?.selling_price *
-            formData.value.child_quantity
-        : 0
-    );
-  }
-  if (formData.value.cost_price) {
-    if (!formData.value.hotalQuantity) {
-      frmData.append(
-        "total_cost_price",
-        formData.value.cost_price * formData.value.quantity +
-          (formData.value.child_price ??
-            0 * formData.value.child_quantity ??
-            0) *
-            1
-      );
-    } else {
-      frmData.append(
-        "total_cost_price",
-        formData.value.cost_price * formData.value.hotalQuantity
-      );
-    }
-  }
-  const response = await reservationStore.updateAction(
-    frmData,
-    formData.value.id
-  );
-
-  if (response.status) {
-    const secfrm = new FormData();
-    secfrm.append("_method", "PUT");
-    if (formData.value.customer_feedback) {
-      secfrm.append("customer_feedback", formData.value.customer_feedback);
-    }
-
-    if (formData.value.bank_name) {
-      secfrm.append("bank_name", formData.value.bank_name);
-    }
-    if (formData.value.bank_account_number) {
-      secfrm.append("bank_account_number", formData.value.bank_account_number);
-    }
-    // if (formData.value.receipt_image.length != 0) {
-    //   if (formData.value.receipt_image.length > 0) {
-    //     for (let i = 0; i < formData.value.receipt_image.length; i++) {
-    //       let file = formData.value.receipt_image[i];
-    //       secfrm.append("receipt_image[" + i + "]", file);
-    //     }
-    //   }
-    // }
-
-    await reservationStore.updateInfoAction(secfrm, formData.value.id);
-
-    toast.success(response.message);
-    setTimeout(async () => {
-      await props.getDetailAction(route.query.id);
-    }, 1000);
-  }
-};
-
 const paymentArray = [
   // Bank Transfer, International Remittance, Cash, etc
   { id: "1", name: "Bank Transfer" },
@@ -556,19 +330,6 @@ const payment_status = [
   { id: "2", name: "not_paid" },
   { id: "3", name: "partially_paid" },
 ];
-
-const removeFeatureDeleteImage = async (index, id) => {
-  const res = await reservationStore.deleteResImage(id);
-  toast.success("detected successfully");
-  carModalOpen.value = false;
-  // console.log(editData.value.customer_passport, "this is remove");
-
-  cancelAction();
-
-  setTimeout(async () => {
-    await props.getDetailAction(route.query.id);
-  }, 1000);
-};
 
 const emailBooking = ref(false);
 
@@ -636,7 +397,7 @@ const updateExpense = async () => {
     const frmData = new FormData();
     frmData.append("_method", "PUT");
     frmData.append("amount", expenseData.value.amount);
-    frmData.append("date", expenseData.value.date);
+    frmData.append("date", formatDateDb(expenseData.value.date));
     frmData.append("bank_name", expenseData.value.bank_name);
     frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
     frmData.append("comment", expenseData.value.comment);
@@ -661,6 +422,79 @@ const updateExpense = async () => {
     loading.value = false;
     carModalOpen.value = false;
   }
+};
+
+const formatDate = (dateString) => {
+  // Parse the input string into a Date object
+  const date = new Date(dateString);
+
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    return "Invalid Date"; // Handle invalid dates
+  }
+
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Extract date components
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+
+  // Extract time components
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  // Return formatted date and time
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+};
+
+const formatDateFromDb = (dateString) => {
+  // Split the input string into date and time parts
+  const [datePart, timePart] = dateString.split(" ");
+
+  // Split the date part into day, month, year
+  const [day, month, year] = datePart.split("-");
+
+  // Define month names
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Get the month name
+  const monthName = monthNames[parseInt(month) - 1]; // Subtract 1 because months are 0-indexed
+
+  // Return the formatted date
+  return `${day}/${monthName}/${year} ${timePart}`;
+};
+
+const formatDateDb = (dateString) => {
+  // Parse the input string into a Date object
+  return dateString.replace("T", " ");
 };
 
 onMounted(() => {

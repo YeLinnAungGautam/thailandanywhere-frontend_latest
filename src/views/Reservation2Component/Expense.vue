@@ -367,14 +367,23 @@
                   <label for="" class="text-[12px] font-medium"
                     >Date <span class="opacity-0">......</span></label
                   >
-                  <input
-                    type="date"
-                    name=""
-                    v-model="expenseData.date"
-                    placeholder=""
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                    id=""
-                  />
+                  <div class="flex justify-between items-center w-[160px]">
+                    <p class="text-start text-xs" v-if="expenseData?.date">
+                      {{
+                        expenseData.date.includes("T")
+                          ? formatDate(expenseData.date)
+                          : formatDateFromDb(expenseData.date)
+                      }}
+                    </p>
+                    <input
+                      type="datetime-local"
+                      name=""
+                      v-model="expenseData.date"
+                      format="YYYY-MM-DD HH:mm:ss"
+                      class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                      id=""
+                    />
+                  </div>
                 </div>
                 <div class="flex justify-between items-start">
                   <label for="" class="text-[12px] font-medium">Comment</label>
@@ -517,6 +526,79 @@ const clearAction = () => {
 
 const openFilePickerThree = () => {
   fileInputThree.value.click();
+};
+
+const formatDate = (dateString) => {
+  // Parse the input string into a Date object
+  const date = new Date(dateString);
+
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    return "Invalid Date"; // Handle invalid dates
+  }
+
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Extract date components
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+
+  // Extract time components
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  // Return formatted date and time
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+};
+
+const formatDateFromDb = (dateString) => {
+  // Split the input string into date and time parts
+  const [datePart, timePart] = dateString.split(" ");
+
+  // Split the date part into day, month, year
+  const [day, month, year] = datePart.split("-");
+
+  // Define month names
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Get the month name
+  const monthName = monthNames[parseInt(month) - 1]; // Subtract 1 because months are 0-indexed
+
+  // Return the formatted date
+  return `${day}/${monthName}/${year} ${timePart}`;
+};
+
+const formatDateDb = (dateString) => {
+  // Parse the input string into a Date object
+  return dateString.replace("T", " ");
 };
 
 const bankList = ref([
@@ -730,7 +812,7 @@ const createExpense = async () => {
   try {
     const frmData = new FormData();
     frmData.append("amount", expenseData.value.amount);
-    frmData.append("date", expenseData.value.date);
+    frmData.append("date", formatDateDb(expenseData.value.date));
     frmData.append("bank_name", expenseData.value.bank_name);
     frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
     frmData.append("comment", expenseData.value.comment);
@@ -772,7 +854,7 @@ const updateExpense = async () => {
     const frmData = new FormData();
     frmData.append("_method", "PUT");
     frmData.append("amount", expenseData.value.amount);
-    frmData.append("date", expenseData.value.date);
+    frmData.append("date", formatDateDb(expenseData.value.date));
     frmData.append("bank_name", expenseData.value.bank_name);
     frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
     frmData.append("comment", expenseData.value.comment);

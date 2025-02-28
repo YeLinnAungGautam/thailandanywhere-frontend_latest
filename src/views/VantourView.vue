@@ -21,6 +21,7 @@ import { useVantourStore } from "../stores/vantour";
 import { useAuthStore } from "../stores/auth";
 import { QuillEditor } from "@vueup/vue-quill";
 import Swal from "sweetalert2";
+import { useReservationStore } from "../stores/reservation";
 
 const editorOptions = {
   placeholder: "Description with editor ...",
@@ -35,6 +36,7 @@ const destinationStore = useDestinationStore();
 const carStore = useCarStore();
 const vantourStore = useVantourStore();
 const authStore = useAuthStore();
+const reservationStore = useReservationStore();
 
 const { cities } = storeToRefs(cityStore);
 const { tags } = storeToRefs(productStore);
@@ -255,6 +257,7 @@ const tag_list_array = ref(null);
 const dest_list_array = ref(null);
 
 const copyText = ref(``);
+const copyText_mm = ref(``);
 
 const changeCopyText = (response) => {
   console.log(response, "this is response");
@@ -289,8 +292,47 @@ ${destinationsText}${lastText}
   Note that Bangkok to Pattaya drive is only about 2 hours. Total driving hour is at least 5 hours.`;
 };
 
+const changeCopyTextMM = (response) => {
+  console.log(response, "this is response");
+
+  // First, build the destinations text outside the template string
+  let destinationsText = "";
+  for (let i = 0; i < response.destinations.length; i++) {
+    destinationsText += `${i + 2}. Drive to ${
+      response.destinations[i]?.name
+    }, ${response.destinations[i]?.city?.name}, Thailand .\n`;
+  }
+
+  let lastText = `${
+    response.destinations.length + 2
+  }. Back to customer's hotel .\n`;
+
+  copyText_mm.value = `Write a trip summary about this route plan:
+1. Pick up customer at their hotel in ${response.cities[0]?.name}
+${destinationsText}${lastText}
+  
+  Include total driving hours. Note the total driving hour is 5 hours.
+  
+  Make sure some of the descriptions include how customers would feel while traveling with this package.
+  Make sure the content is short, concise and interesting for users to read.
+  Do not use bullet points or lists.
+  Do not use more than 150 words but divide content to at least three paragraphs.
+  Feel free to use emojis within the paragraph.
+  Do not use pronouns.
+  Write so that customers are willing to purchase this package.
+  Include advice on how much time a customer should spend on each destination.
+  Make sure the total time spent on this tour including driving hours and time spent on each destination is about 10 hours.
+  Note that Bangkok to Pattaya drive is only about 2 hours. Total driving hour is at least 5 hours.
+  Please give with Burmese Language.`;
+};
+
 const copyTextAction = () => {
   navigator.clipboard.writeText(copyText.value);
+  toast.success("Copied to clipboard");
+};
+
+const copyTextMMAction = () => {
+  navigator.clipboard.writeText(copyText_mm.value);
   toast.success("Copied to clipboard");
 };
 
@@ -316,6 +358,7 @@ const getDetail = async () => {
     dest_list_array.value = response.result.destinations;
     console.log(response.result.tags);
     changeCopyText(response.result, "this is response");
+    changeCopyTextMM(response.result, "this is response");
     // editData.value.prices = response.result.cars;
     for (const x in response.result.cars) {
       const item = {
@@ -404,15 +447,47 @@ watch(
 );
 
 const getSameRoute = ref(null);
+const getSameRouteCount = ref([]);
 
 const getSameRouteList = async () => {
-  getSameRoute.value = await vantourStore.getListAction({
+  const res = await vantourStore.getListAction({
     destination_ids: editData.value.destination
       .map((item) => item.id)
       .join(","),
   });
+  // console.log(getSameRoute.value, "this is same route");
+  // Get the destination IDs from your form data for comparison
+  const formDestinationIds = editData.value.destination.map((item) => item.id);
+
+  // Filter the results to find items with matching destination IDs
+  const filteredRoutes = res.result.data.filter((route) => {
+    // Extract IDs from the destinations array of objects
+    const routeDestinationIds = route.destinations.map((dest) => dest.id);
+
+    // Check if the route has the same destinations as in formData
+    // This checks if all form destination IDs are included in this route
+    return (
+      formDestinationIds.length === routeDestinationIds.length &&
+      formDestinationIds.every((id) => routeDestinationIds.includes(id))
+    );
+  });
+
+  // Update the getSameRoute ref with the filtered results
+  getSameRoute.value = filteredRoutes;
+
   console.log(getSameRoute.value, "this is same route");
 };
+
+watch(getSameRoute, async (newValue) => {
+  for (let i = 0; i < newValue.length; i++) {
+    const res = await reservationStore.getListAction({
+      hotel_name: newValue[i]?.name,
+    });
+
+    getSameRouteCount.value.push(res.result.data);
+    console.log(res, "this is res");
+  }
+});
 
 onMounted(async () => {
   await getDetail();
@@ -765,9 +840,15 @@ onMounted(async () => {
           </div> -->
           <p
             @click="copyTextAction"
-            class="px-2 py-1 bg-[#FF613c] text-xs cursor-pointer inline-block rounded-lg text-white"
+            class="px-2 py-1 mr-2 bg-[#FF613c] text-xs cursor-pointer inline-block rounded-lg text-white"
           >
             Copy Text Button
+          </p>
+          <p
+            @click="copyTextMMAction"
+            class="px-2 py-1 bg-[#FF613c] text-xs cursor-pointer inline-block rounded-lg text-white"
+          >
+            Copy Text MM Button
           </p>
           <div class="">
             <p class="text-gray-800 text-sm mb-2">Summary (mm)</p>
@@ -898,22 +979,38 @@ onMounted(async () => {
           </p>
         </div>
         <p class="pb-3">Same Route List</p>
-        <div v-for="a in getSameRoute?.result?.data" :key="a.id">
+        <div v-for="(a, index) in getSameRoute" :key="a.id" class="mb-3">
           <div
-            class="space-y-2 p-4 bg-white rounded-lg"
-            v-if="a.id != formData.id"
+            class="space-y-2 p-4 rounded-lg"
+            :class="a.id == formData.id ? 'bg-[#FF613c]/30' : 'bg-white'"
           >
             <img
               :src="a.cover_image ? a.cover_image : 'https://placehold.co/400'"
               alt=""
               class="w-full h-40 object-cover rounded-lg"
             />
-            <p class="text-xs">{{ a.name }}</p>
-            <p
-              @click="onDeleteHandler(a.id)"
-              class="text-xs bg-red-600 text-white px-2 py-1 rounded-lg text-center"
+            <p class="text-sm font-medium">{{ a.name }}, {{ a.sku_code }}</p>
+            <p v-for="d in a.destinations" :key="d.id" class="text-[10px]">
+              <span
+                class="w-2 h-2 bg-gray-600 inline-block rounded-full mr-2"
+              ></span
+              >{{ d.name }}
+            </p>
+            <div
+              class="flex items-center justify-between text-sm font-semibold"
             >
-              delete this vantour ?
+              <p>reservation</p>
+              <p>{{ getSameRouteCount[index].length }}</p>
+            </div>
+            <p
+              class="text-[10px]"
+              v-for="r in getSameRouteCount[index]"
+              :key="r"
+            >
+              <span
+                class="w-2 h-2 bg-gray-600 inline-block rounded-full mr-2"
+              ></span>
+              {{ r.crm_id }}
             </p>
           </div>
         </div>

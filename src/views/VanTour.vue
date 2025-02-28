@@ -332,7 +332,7 @@ const onDeleteHandler = async (id) => {
   });
 };
 
-const forSale = ref(true);
+const forSale = ref(false);
 
 const toggleSale = () => {
   forSale.value = !forSale.value;
@@ -355,7 +355,7 @@ const exportAction = async () => {
 
 onMounted(async () => {
   search.value = route.query.search ? route.query.search : "";
-  forSale.value = route.query.type == "van_tour" ? false : true;
+  // forSale.value = route.query.type == "van_tour" ? false : true;
   if (!route.query.type) {
     await vantourStore.getListAction({
       search: search.value,
@@ -364,20 +364,6 @@ onMounted(async () => {
   }
 });
 
-// watch(search, async (newValue) => {
-//   await vantourStore.getListAction({
-//     search: search.value,
-//     type: forSale.value ? "car_rental" : "van_tour",
-//   });
-//   router.push({
-//     name: "products",
-//     params: { id: 0 },
-//     query: {
-//       search: search.value,
-//       type: forSale.value ? "car_rental" : "van_tour",
-//     },
-//   });
-// });
 watch(
   search,
   debounce(async (newValue) => {

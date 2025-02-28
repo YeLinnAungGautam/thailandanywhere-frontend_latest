@@ -26,6 +26,7 @@
     "date-fns": "^2.30.0",
     "esbuild": "^0.19.11",
     "file-saver": "^2.0.5",
+    "flatpickr": "^4.6.13",
     "html2canvas": "^1.4.1",
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",

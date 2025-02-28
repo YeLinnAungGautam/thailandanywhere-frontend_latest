@@ -150,23 +150,49 @@ const setupDetailsWatcher = () => {
   );
 };
 
-// Check for `details` on component mount
-watch(openDayDetail, (newValue) => {
-  if (newValue) {
-    // console.log("openDayDetail", newValue, props.formData);
-    items.value = [];
-    if (props.detail) {
-      console.log("props.detail", props.detail);
-      for (let i = 0; i < props.detail.entrance_tickets.length; i++) {
-        if (props.detail.entrance_tickets[i].day == newValue) {
+const itemListRefresh = (newValue) => {
+  items.value = [];
+  if (props.detail) {
+    console.log("props.detail", props.detail);
+    for (let i = 0; i < props.detail.entrance_tickets.length; i++) {
+      if (
+        props.detail.entrance_tickets[i].day == newValue &&
+        props.detail.entrance_tickets[i].product?.name !== "Meal" &&
+        props.detail.entrance_tickets[i].product?.name !== "Guide"
+      ) {
+        items.value.push({
+          id: props.detail.entrance_tickets[i].id,
+          name: props.detail.entrance_tickets[i].product?.name,
+          type: "Entrance Ticket",
+        });
+      }
+    }
+    for (let d = 0; d < props.detail.details.length; d++) {
+      if (props.detail.details[d].day_name == newValue) {
+        for (let a = 0; a < props.detail.details[d].destinations.length; a++) {
           items.value.push({
-            id: props.detail.entrance_tickets[i].id,
-            name: props.detail.entrance_tickets[i].product?.name,
-            type: "Entrance Ticket",
+            id: props.detail.details[d].destinations[a].id,
+            name: props.detail.details[d].destinations[a].name,
+            type: "Destination",
+          });
+        }
+        for (let r = 0; r < props.detail.details[d].restaurants.length; r++) {
+          items.value.push({
+            id: props.detail.details[d].restaurants[r].id,
+            name: props.detail.details[d].restaurants[r].name,
+            type: "Restaurant",
           });
         }
       }
     }
+  }
+};
+
+// Check for `details` on component mount
+watch(openDayDetail, (newValue) => {
+  if (newValue) {
+    // console.log("openDayDetail", newValue, props.detail);
+    itemListRefresh(newValue);
   }
 });
 
@@ -343,15 +369,23 @@ onMounted(async () => {
         class="w-full max-h-[800px] overflow-y-scroll p-4 bg-white border border-gray-300 rounded-2xl"
       >
         <div class="max-w-4xl mx-auto">
-          <h2 class="font-medium mb-4">Sequence: Day 1</h2>
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="font-medium">Sequence: Day {{ openDayDetail }}</h2>
+            <p
+              class="px-2 py-1 text-xs bg-[#FF613c] rounded-lg text-white cursor-pointer"
+              @click="itemListRefresh(openDayDetail)"
+            >
+              refresh
+            </p>
+          </div>
 
           <!-- List Header -->
           <div
-            class="grid grid-cols-4 gap-2 border-b border-gray-200 pb-2 font-semibold"
+            class="grid grid-cols-6 gap-2 border-b border-gray-200 pb-2 font-semibold"
           >
             <div class="px-2 py-2 text-xs">Index</div>
             <div class="px-2 py-2 text-xs">ID</div>
-            <div class="px-2 py-2 text-xs">Name</div>
+            <div class="px-2 py-2 col-span-2 text-xs">Name</div>
             <div class="px-2 py-2 text-xs">Type</div>
           </div>
 
@@ -360,7 +394,7 @@ onMounted(async () => {
             <div
               v-for="(item, index) in items"
               :key="item.id"
-              class="grid grid-cols-4 gap-2 cursor-move"
+              class="grid grid-cols-6 gap-2 cursor-move"
               :class="{
                 'bg-blue-50': draggedItem === index,
                 'hover:bg-gray-50': draggedItem !== index,
@@ -379,7 +413,7 @@ onMounted(async () => {
               <div class="px-2 py-3 flex items-center text-xs">
                 {{ item.id }}
               </div>
-              <div class="px-2 py-3 flex items-center text-xs">
+              <div class="px-2 py-3 flex col-span-2 items-center text-xs">
                 {{ item.name }}
               </div>
               <div class="px-2 py-3 flex items-center text-xs">
@@ -389,7 +423,14 @@ onMounted(async () => {
           </div>
 
           <!-- Instruction -->
-          <div class="mt-4 text-sm text-gray-500">
+          <div
+            class="mt-4 text-sm text-gray-500"
+            @click="
+              () => {
+                console.log(items);
+              }
+            "
+          >
             Drag and drop items to reorder them
           </div>
         </div>

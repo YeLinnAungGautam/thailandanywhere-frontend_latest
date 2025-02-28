@@ -20,6 +20,7 @@ import { useCarStore } from "../stores/car";
 import { useVantourStore } from "../stores/vantour";
 import { useAuthStore } from "../stores/auth";
 import { QuillEditor } from "@vueup/vue-quill";
+import Swal from "sweetalert2";
 
 const editorOptions = {
   placeholder: "Description with editor ...",
@@ -253,6 +254,46 @@ const city_list_array = ref(null);
 const tag_list_array = ref(null);
 const dest_list_array = ref(null);
 
+const copyText = ref(``);
+
+const changeCopyText = (response) => {
+  console.log(response, "this is response");
+
+  // First, build the destinations text outside the template string
+  let destinationsText = "";
+  for (let i = 0; i < response.destinations.length; i++) {
+    destinationsText += `${i + 2}. Drive to ${
+      response.destinations[i]?.name
+    }, ${response.destinations[i]?.city?.name}, Thailand .\n`;
+  }
+
+  let lastText = `${
+    response.destinations.length + 2
+  }. Back to customer's hotel .\n`;
+
+  copyText.value = `Write a trip summary about this route plan:
+1. Pick up customer at their hotel in ${response.cities[0]?.name}
+${destinationsText}${lastText}
+  
+  Include total driving hours. Note the total driving hour is 5 hours.
+  
+  Make sure some of the descriptions include how customers would feel while traveling with this package.
+  Make sure the content is short, concise and interesting for users to read.
+  Do not use bullet points or lists.
+  Do not use more than 150 words but divide content to at least three paragraphs.
+  Feel free to use emojis within the paragraph.
+  Do not use pronouns.
+  Write so that customers are willing to purchase this package.
+  Include advice on how much time a customer should spend on each destination.
+  Make sure the total time spent on this tour including driving hours and time spent on each destination is about 10 hours.
+  Note that Bangkok to Pattaya drive is only about 2 hours. Total driving hour is at least 5 hours.`;
+};
+
+const copyTextAction = () => {
+  navigator.clipboard.writeText(copyText.value);
+  toast.success("Copied to clipboard");
+};
+
 const getDetail = async () => {
   try {
     const response = await vantourStore.getDetailAction(route.params.id);
@@ -274,6 +315,7 @@ const getDetail = async () => {
     tag_list_array.value = response.result.tags;
     dest_list_array.value = response.result.destinations;
     console.log(response.result.tags);
+    changeCopyText(response.result, "this is response");
     // editData.value.prices = response.result.cars;
     for (const x in response.result.cars) {
       const item = {
@@ -307,6 +349,38 @@ const productAction = ref(false);
 const carAction = ref(false);
 const destinationAction = ref(false);
 
+const onDeleteHandler = async (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await vantourStore.deleteAction(id);
+        toast.success(response.message);
+      } catch (error) {
+        console.log(
+          "🚀 ~ file: BlogView.vue:65 ~ onDeleteHandler ~ error:",
+          error
+        );
+        if (error.response.data.errors) {
+          errors.value = error.response.data.errors;
+        }
+        toast.error(error.response.data.message);
+      }
+      await vantourStore.getListAction({
+        search: search.value,
+        type: forSale.value ? "car_rental" : "van_tour",
+      });
+    }
+  });
+};
+
 watch(
   [cityAction, productAction, carAction, destinationAction],
   async ([cityValue, productValue, carValue, destinationValue]) => {
@@ -329,8 +403,20 @@ watch(
   }
 );
 
+const getSameRoute = ref(null);
+
+const getSameRouteList = async () => {
+  getSameRoute.value = await vantourStore.getListAction({
+    destination_ids: editData.value.destination
+      .map((item) => item.id)
+      .join(","),
+  });
+  console.log(getSameRoute.value, "this is same route");
+};
+
 onMounted(async () => {
   await getDetail();
+  await getSameRouteList();
 });
 </script>
 
@@ -514,6 +600,7 @@ onMounted(async () => {
               placeholder="Choose Destination"
             ></v-select>
           </div>
+
           <div class="">
             <p class="text-gray-800 text-sm mb-2">Ticket Price</p>
             <input
@@ -676,6 +763,12 @@ onMounted(async () => {
               {{ errors.long_description[0] }}
             </p>
           </div> -->
+          <p
+            @click="copyTextAction"
+            class="px-2 py-1 bg-[#FF613c] text-xs cursor-pointer inline-block rounded-lg text-white"
+          >
+            Copy Text Button
+          </p>
           <div class="">
             <p class="text-gray-800 text-sm mb-2">Summary (mm)</p>
             <!-- <textarea
@@ -803,6 +896,26 @@ onMounted(async () => {
           <p v-if="errors?.image" class="mt-1 text-sm text-red-600">
             {{ errors.image[0] }}
           </p>
+        </div>
+        <p class="pb-3">Same Route List</p>
+        <div v-for="a in getSameRoute?.result?.data" :key="a.id">
+          <div
+            class="space-y-2 p-4 bg-white rounded-lg"
+            v-if="a.id != formData.id"
+          >
+            <img
+              :src="a.cover_image ? a.cover_image : 'https://placehold.co/400'"
+              alt=""
+              class="w-full h-40 object-cover rounded-lg"
+            />
+            <p class="text-xs">{{ a.name }}</p>
+            <p
+              @click="onDeleteHandler(a.id)"
+              class="text-xs bg-red-600 text-white px-2 py-1 rounded-lg text-center"
+            >
+              delete this vantour ?
+            </p>
+          </div>
         </div>
       </div>
     </div>

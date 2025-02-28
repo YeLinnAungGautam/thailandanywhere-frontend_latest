@@ -291,7 +291,7 @@ const changePage = async (url) => {
   };
   router.push({
     name: "products",
-    params: { id: 1 },
+    params: { id: 0 },
     query: {
       search: search.value,
       type: forSale.value ? "car_rental" : "van_tour",

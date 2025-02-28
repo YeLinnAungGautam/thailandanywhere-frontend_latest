@@ -28,13 +28,17 @@
                   <label for="" class="text-[12px] font-medium"
                     >Date & Time
                   </label>
-                  <input
-                    type="date"
-                    name=""
-                    v-model="i.date"
-                    class="w-[260px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                    id=""
-                  />
+                  <div class="flex justify-between items-center w-[260px]">
+                    <p class="text-start text-sm">{{ formatDate(i.date) }}</p>
+                    <input
+                      type="datetime-local"
+                      name=""
+                      v-model="i.date"
+                      format="YYYY-MM-DDTHH:mm"
+                      class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                      id=""
+                    />
+                  </div>
                 </div>
                 <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium">Amount</label>
@@ -122,7 +126,7 @@
 
 <script setup>
 import invoice from "../../assets/invoice_exp.jpg";
-import { defineProps, ref } from "vue";
+import { defineProps, onMounted, ref } from "vue";
 import dateImage from "../../assets/date.png";
 import bathImage from "../../assets/baht.png";
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/vue/24/outline";
@@ -198,6 +202,44 @@ const openModal = async (data) => {
   };
 
   await submit();
+};
+
+const formatDate = (dateString) => {
+  // Parse the input string into a Date object
+  const date = new Date(dateString);
+
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    return "Invalid Date"; // Handle invalid dates
+  }
+
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Extract date components
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+
+  // Extract time components
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  // Return formatted date and time
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 };
 
 const calculateDaysBetween = (a, b) => {

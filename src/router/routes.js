@@ -42,7 +42,7 @@ import ReservationViewView from "../views/ReservationView.vue";
 import DashboardView from "../views/UserDashboard.vue";
 import SaleDashboardView from "../views/SaleDashboard.vue";
 import CarBookingView from "../views/PrivateVanTourCar.vue";
-import AvailabilityView from "../views/Availability.vue";
+import AvailabilityView from "../views/GenerateAI/TestAi.vue";
 import UserView from "../views/UserView.vue";
 import HotelEditView from "../views/HotelEditPage.vue";
 import UpdateBookingNewView from "../views/BookingUpdateNewVersion.vue";

@@ -391,7 +391,9 @@ const mailBodyChange = () => {
     <p class="p1">Service Date: <strong>${
       props?.detail?.service_date
     }<br /></strong>Ticket Variation: <strong>${
-      props?.detail?.variation?.name
+      props?.detail?.variation?.contract_name
+        ? props?.detail?.variation?.contract_name
+        : props?.detail?.variation?.name
     }<br /></strong>Adult Quantity : <strong>${
       props?.detail?.quantity
     } Adults<br /></strong>Child Quantity: <strong>${
@@ -497,6 +499,10 @@ const cancelAction = () => {
 
 onMounted(() => {
   mailBodyChange();
+
+  if (props?.detail) {
+    emailData.value.mail_to_array = props.detail?.product?.email;
+  }
 });
 </script>
 

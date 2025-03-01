@@ -37,6 +37,20 @@
             </p>
           </div>
           <div class="mb-2 space-y-1">
+            <label for="price" class="text-sm text-gray-800"
+              >Contract Name</label
+            >
+            <input
+              type="text"
+              v-model="formData.contract_name"
+              id="contract name"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.contract_name" class="mt-1 text-sm text-red-600">
+              {{ errors.contract_name[0] }}
+            </p>
+          </div>
+          <div class="mb-2 space-y-1">
             <label for="name" class="text-sm text-gray-800"
               >Attraction Name</label
             >
@@ -642,6 +656,7 @@ const openModal = () => {
     entrance_name: "",
     price: "",
     price_name: "",
+    contract_name: "",
     cost_price: "",
     agent_price: "",
     owner_price: "",
@@ -704,6 +719,7 @@ const closeModal = () => {
     entrance_name: "",
     price: "",
     price_name: "",
+    contract_name: "",
     cost_price: "",
     agent_price: "",
     owner_price: "",
@@ -754,6 +770,7 @@ const formData = ref({
     youtube_en_link: "",
   },
   price_name: "",
+  contract_name: "",
   adult_info: "",
   // child_price: "",
   // child_cost_price: "",
@@ -923,6 +940,7 @@ const addNewHandler = async () => {
     : frmData.append("meta_data[0][is_show]", 0);
 
   frmData.append("name", formData.value.price_name);
+  frmData.append("contract_name", formData.value.contract_name);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -962,6 +980,7 @@ const addNewHandler = async () => {
         youtube_en_link: "",
       },
       price_name: "",
+      contract_name: "",
       price: "",
       description: "",
       images: [],
@@ -1055,6 +1074,7 @@ const updateHandler = async () => {
     ? frmData.append("meta_data[0][is_show]", 1)
     : frmData.append("meta_data[0][is_show]", 0);
   frmData.append("name", formData.value.price_name);
+  frmData.append("contract_name", formData.value.contract_name);
 
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
@@ -1103,6 +1123,7 @@ const updateHandler = async () => {
       },
       price_name: "",
       price: "",
+      contract_name: "",
       description: "",
       images: [],
       services: [],
@@ -1175,6 +1196,7 @@ const editModalOpenHandler = (data) => {
       data.meta_data[0]?.youtube_en_link;
   }
   formData.value.price_name = data.name;
+  formData.value.contract_name = data.contract_name;
   formData.value.price = data.price;
   formData.value.description = data.description;
   createModalOpen.value = true;

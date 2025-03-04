@@ -220,9 +220,11 @@ const watchSystem = computed(() => {
   } else {
     result.order_by = "";
   }
-  // if (sorting.value != "") {
-  result.order_direction = "desc";
-  // }
+  if (sorting.value != "") {
+    result.order_direction = sorting.value;
+  } else {
+    result.order_direction = "desc";
+  }
 
   console.log(result);
   return result;
@@ -903,7 +905,7 @@ watch(dateRange, async (newValue) => {
             <transition name="slide">
               <div
                 v-if="softShow"
-                class="absolute top-full pb-3 px-4 left-0 w-[200px] transition-all duration-150 bg-white rounded-lg shadow-lg z-50 border border-gray-100 space-y-2 max-h-[70vh] overflow-y-scroll"
+                class="absolute top-full pb-3 px-4 left-0 w-[250px] transition-all duration-150 bg-white rounded-lg shadow-lg z-50 border border-gray-100 space-y-2 max-h-[70vh] overflow-y-scroll"
               >
                 <div
                   class="flex justify-between items-center pt-4 border-b border-gray-100 pb-1 sticky top-0 bg-white"
@@ -926,17 +928,35 @@ watch(dateRange, async (newValue) => {
                   </p>
                 </div>
                 <div class="space-y-1">
+                  <div class="flex justify-between items-center">
+                    <p class="text-[10px]">Sort By</p>
+                    <select
+                      name=""
+                      id=""
+                      v-model="sorting"
+                      class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-[50%] py-2 text-[10px] rounded-lg"
+                    >
+                      <option class="text-[10px]" value="desc">
+                        Last to First
+                      </option>
+                      <option class="text-[10px]" value="asc">
+                        First to Last
+                      </option>
+                    </select>
+                  </div>
                   <div
-                    class="flex justify-start items-center"
+                    class="flex justify-between items-center"
                     @click="customer_name = 'service_date'"
                   >
-                    <input
-                      type="checkbox"
-                      name="sort-by"
-                      id="id"
-                      :checked="customer_name == 'service_date'"
-                    />
-                    <p class="text-xs py-2 px-4">Service Date</p>
+                    <div class="flex justify-start items-center">
+                      <input
+                        type="checkbox"
+                        name="sort-by"
+                        id="id"
+                        :checked="customer_name == 'service_date'"
+                      />
+                      <p class="text-xs py-2 px-4">Service Date</p>
+                    </div>
                   </div>
                   <div
                     class="flex justify-start items-center"

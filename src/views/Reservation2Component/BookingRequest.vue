@@ -412,7 +412,7 @@ const mailBodyChange = () => {
     <p class="p1">If you may have any questions or concerns, please feel free to call us at 0950423254 LINE ID 0983498197.</p>
     <p class="p1">Thank you, <strong><br /></strong>Negyi @ Sunshine (Reservation Manager)
     </p>
-    <p class="p1">The Palladium Shopping Mall 4th floor, Zone B, Room IT 4-95, 555, Ratchaprarop Rd., Makkasan, Ratchathewi, Bangkok 10400</p>`;
+    <p class="p1">143/51, Thepprasit Rd, Pattaya City, Bang Lamung District, Chon Buri 20150</p>`;
   } else if (props?.detail?.product_type == "App\\Models\\Hotel") {
     emailData.value.mail_body = `
 <p class="p1">Dear ${props?.detail?.product?.name},</p>
@@ -436,8 +436,7 @@ const mailBodyChange = () => {
 <strong>Invoice Date:</strong>${format(new Date(), "dd/MM/yyyy")}</p>
 <p>If you may have any questions or concerns, please feel free to call us a <strong>0950423254</strong> LINE ID <strong>0983498197</strong>.</p>
 <p>Thank you,</p>
-<p><strong>Negyi @ Sunshine</strong> (Reservation Manager)<br>
-The Palladium Shopping Mall 4th floor, Zone B, Room IT 4-95, 555, Ratchaprarop Rd., Makkasan, Ratchathewi, Bangkok 10400</p>
+<p><strong>Negyi @ Sunshine</strong> (Reservation Manager)</p><p>143/51, Thepprasit Rd, Pattaya City, Bang Lamung District, Chon Buri 20150</p>
     `;
   }
 };

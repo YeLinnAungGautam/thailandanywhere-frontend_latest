@@ -379,6 +379,8 @@ const editorOptions = {
 };
 
 const mailBodyChange = () => {
+  console.log(props.detail.customer_passports, "customer_passports");
+
   emailData.value.mail_subject = `Booking for ${showFormat(
     props?.detail?.service_date
   )}: ${props?.detail?.crm_id}`;
@@ -412,28 +414,31 @@ const mailBodyChange = () => {
     </p>
     <p class="p1">The Palladium Shopping Mall 4th floor, Zone B, Room IT 4-95, 555, Ratchaprarop Rd., Makkasan, Ratchathewi, Bangkok 10400</p>`;
   } else if (props?.detail?.product_type == "App\\Models\\Hotel") {
-    emailData.value.mail_body = `<p>Dear Reservation Manager<b> of ${
-      props?.detail?.product?.name
-    }</b>,</p><p>Greetings from Thailand Anywhere travel and tour. Good day to you ka.</p><p>We are pleased to book the room for our customers as per following description checks availability by phone.</p>
-      <p>Check In :<strong>${
-        props?.detail?.checkin_date
-      }</strong></p><p>Check Out :<strong>${
-      props?.detail?.checkout_date
-    }</strong></p><p>Total :<strong>${
-      props?.detail?.quantity
-    } rooms & ${daysBetween(
-      props?.detail?.checkin_date,
-      props?.detail?.checkout_date
-    )} nights</strong></p><p>Name :<strong>${
-      props?.detail?.associated_customer[0]?.name
-    } & ${
-      props?.detail?.customer_passport?.length
-    } passports</strong></p><p>Room Type :<strong>${
-      props?.detail?.room?.name
-    }</strong></p><p>Special Request :<strong>${
-      props?.detail?.special_request
-    }</strong></p>
-      <p>Passport and payment slips are attached with this email .</p><b><em>Please arrange the invoice and confirmation letter ka.</em></b><p>Should there be anything more required you can call us at +66983498197 and LINE ID 58858380 .</p>`;
+    emailData.value.mail_body = `
+<p class="p1">Dear ${props?.detail?.product?.name},</p>
+<p><strong>Greetings from ThAnywhere Co., Ltd.</strong></p>
+<p>We would like to book the accommodation as per the following description. Please note thbooking is already checked and confirmed by phone.</p>
+<p><strong>Room Type:</strong> ${props?.detail?.room?.name}</p>
+<p><strong>Check In Date:</strong> ${props?.detail?.checkin_date}</p>
+<p><strong>Check Out Date:</strong> ${props?.detail?.checkout_date}</p>
+<p><strong>Other Items:</strong></p>
+<p><strong>Total Pax:</strong> ${props?.detail?.customer_passports.length}</p>
+<p><strong>Name:</strong></p><p>   
+  ${props?.detail?.customer_passports
+    .map((passport) => `<p>${passport.name}</p>`)
+    .join("")}</p> 
+<p><strong>Special request:</strong> ${props?.detail?.special_request}</p>
+<p><strong>Booking Code:</strong> ${props?.detail?.crm_id}</p>
+<p>Passports for the bookings are attached in the email. Please arrange for the custome accordingly.</p>
+<p>Payment transaction will be done soon. Once the payment is received, Please kindly issureceipt with tax ID and send to us by post or mail.</p>
+<p><strong>Tax ID:</strong> 0105565081822<br>
+<strong>TH ANYWHERE CO.LTD.</strong><br>
+<strong>Invoice Date:</strong>${format(new Date(), "dd/MM/yyyy")}</p>
+<p>If you may have any questions or concerns, please feel free to call us a <strong>0950423254</strong> LINE ID <strong>0983498197</strong>.</p>
+<p>Thank you,</p>
+<p><strong>Negyi @ Sunshine</strong> (Reservation Manager)<br>
+The Palladium Shopping Mall 4th floor, Zone B, Room IT 4-95, 555, Ratchaprarop Rd., Makkasan, Ratchathewi, Bangkok 10400</p>
+    `;
   }
 };
 
@@ -501,7 +506,7 @@ onMounted(() => {
   mailBodyChange();
 
   if (props?.detail) {
-    emailData.value.mail_to_array = props.detail?.product?.email;
+    emailData.value.mail_to_array = props.detail?.product?.email || [];
   }
 });
 </script>

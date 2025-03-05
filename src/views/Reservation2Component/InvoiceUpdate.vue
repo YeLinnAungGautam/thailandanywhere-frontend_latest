@@ -4,7 +4,7 @@
       <div class="flex justify-between items-center"></div>
 
       <div class="pt-2 grid grid-cols-4 gap-x-4">
-        <div class="space-y-2 pt-2" @click="carModalOpen = true">
+        <div class="space-y-2 pt-2" @click="openPassportModal">
           <div
             class="w-full h-[180px] border border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
           >
@@ -290,13 +290,27 @@ const deleteAction = async (id) => {
 const openPassportModal = (data) => {
   console.log(data, "this is data");
   // open passport modal
-  featureImagePreview.value = data.file;
-  formData.value.id = data.id;
-  formData.value.amount = data.amount;
-  formData.value.invoice = data.invoice;
-  formData.value.due_date = data.due_date;
-  formData.value.customer = data.customer;
-  formData.value.sender_name = data.sender_name;
+  if (data) {
+    featureImagePreview.value = data.file;
+    formData.value.id = data.id;
+    formData.value.amount = data.amount;
+    formData.value.invoice = data.invoice;
+    formData.value.due_date = data.due_date;
+    formData.value.customer = data.customer;
+    formData.value.sender_name = data.sender_name
+      ? data.sender_name
+      : props?.detail?.product?.legal_name;
+  } else {
+    formData.value = {
+      id: "",
+      amount: "",
+      invoice: "",
+      due_date: "",
+      customer: "",
+      sender_name: props?.detail?.product?.legal_name,
+    };
+    featureImagePreview.value = null;
+  }
   carModalOpen.value = true;
 };
 

@@ -54,6 +54,7 @@ import ReservationEntranceConfirmationsSvgView from "../views/ReservationEntranc
 import ReservationSecondView from "../views/Reservation2.vue";
 import PngUsage from "../views/PngGenerate/PngUsage.vue";
 import Accounting from "../views/Accounting.vue";
+import ReservationHotelView from '../views/Reservationhotel.vue'
 
 const routes = [
   {
@@ -268,6 +269,11 @@ const routes = [
     path: "/reservation-second",
     name: "reservation-second",
     component: ReservationSecondView,
+  },
+  {
+    path: "/reservation-hotel",
+    name: "reservation-hotel",
+    component: ReservationHotelView,
   },
   {
     path: "/accounting",

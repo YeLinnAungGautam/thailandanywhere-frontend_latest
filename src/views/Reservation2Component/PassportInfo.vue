@@ -129,6 +129,9 @@
         </div>
       </div>
     </div>
+    <!-- <div>
+      <PassportGenerate />
+    </div> -->
     <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
       <DialogPanel
         class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
@@ -252,6 +255,7 @@ import invoice from "../../assets/invoice_exp.jpg";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute } from "vue-router";
+// import PassportGenerate from "./PassportGenerate.vue";
 
 const reservationStore = useReservationStore();
 const toast = useToast();

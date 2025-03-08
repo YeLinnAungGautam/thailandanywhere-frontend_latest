@@ -137,6 +137,12 @@
                 :activePaths="['reservation-second']"
               />
               <SidebarItem
+                name="Res Group"
+                :icon="DocumentCheckIcon"
+                to="/reservation-hotel"
+                :activePaths="['reservation-hotel']"
+              />
+              <SidebarItem
                 name="Accounting"
                 :icon="CalculatorIcon"
                 to="/accounting"

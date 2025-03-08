@@ -147,13 +147,13 @@
           </p>
           <p class="text-[12px] flex justify-start items-center">
             <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-            {{ i?.date ? i?.date : "--/--/--" }}
+            {{ i?.date ? formatDateFromDb(i?.date) : "--/--/--" }}
           </p>
         </div>
-        <div class="h-[180px] w-full" @click="openModal(i)">
+        <div class="h-auto w-full" @click="openModal(i)">
           <img
             :src="i?.image"
-            class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
+            class="rounded-lg shadow hover:shadow-none h-full object-contain w-full"
             alt=""
           />
         </div>

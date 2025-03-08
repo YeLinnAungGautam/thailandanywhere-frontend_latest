@@ -28,13 +28,42 @@
         </div>
         <div class="w-full mb-4 space-y-3 text-xs">
           <div class="space-y-4">
-            <div>
+            <!-- <div>
               <input
                 type="email"
                 v-model="emailData.mail_to"
                 class="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none text-xs w-full"
                 placeholder="Send to Email"
               />
+            </div> -->
+            <div
+              class="flex justify-start p-2 rounded-xl relative border border-gray-200 items-center gap-2 overflow-x-scroll no-sidebar-container"
+            >
+              <div
+                v-for="(i, index) in emailData.mail_to_array"
+                :key="index"
+                class="px-2 py-1 rounded-lg bg-[#FF613c] text-white focus:outline-none text-[11px] relative"
+              >
+                <XCircleIcon
+                  class="w-4 h-4 text-red-500 bg-white rounded-full absolute -top-2 -right-2 cursor-pointer"
+                  @click="removeMailAction(index)"
+                />
+                <p>{{ i }}</p>
+              </div>
+              <div class="relative">
+                <input
+                  type="email"
+                  v-model="mail_name"
+                  class="px-4 py-1 rounded-lg focus:outline-none text-[11px] max-w-[200px]"
+                  placeholder="Send to Email"
+                />
+              </div>
+              <button
+                class="absolute top-2 right-2 bg-[#FF613c] px-1 py-1 text-white rounded-full text-xs"
+                @click="addMailAction"
+              >
+                <PlusIcon class="w-4 h-4" />
+              </button>
             </div>
 
             <div>
@@ -208,7 +237,7 @@ import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
 import { useRoute } from "vue-router";
 import Swal from "sweetalert2";
-import { CheckCircleIcon } from "@heroicons/vue/24/outline";
+import { CheckCircleIcon, PlusIcon } from "@heroicons/vue/24/outline";
 import { XCircleIcon } from "@heroicons/vue/24/solid";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
@@ -230,11 +259,32 @@ const openFileFeaturePicker = () => {
 };
 
 const emailData = ref({
+  mail_to_array: [],
   mail_subject: "",
   mail_to: "",
   send_to_default: false,
   attachments: [],
 });
+
+const mail_name = ref("");
+
+const addMailAction = () => {
+  // Regular expression for basic email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // Check if mail_name.value is a valid email
+  if (emailRegex.test(mail_name.value)) {
+    emailData.value.mail_to_array.push(mail_name.value);
+    mail_name.value = ""; // Clear the input after adding
+  } else {
+    alert("Please enter a valid email address.");
+    // Alternatively, you can handle the error in a more user-friendly way
+  }
+};
+
+const removeMailAction = (index) => {
+  emailData.value.mail_to_array.splice(index, 1);
+};
 
 const previewFile = ref([]);
 
@@ -251,6 +301,7 @@ const handlerFeatureFileChange = (e) => {
 const cancelEmailFunction = () => {
   emailData.value = {
     mail_subject: "",
+    mail_to_array: [],
     mail_to: "",
     send_to_default: false,
     attachments: [],
@@ -261,7 +312,7 @@ const emailLoading = ref(false);
 const sendEmailFunction = async () => {
   Swal.fire({
     title: "Are you sure ?",
-    text: `Send email to ${emailData.value.mail_to} `,
+    text: `Send email to ${emailData.value.mail_to_array} `,
     icon: "question",
     showCancelButton: true,
     confirmButtonColor: "#FF6300",
@@ -273,7 +324,7 @@ const sendEmailFunction = async () => {
         emailLoading.value = true;
         console.log(emailData.value);
         const frmData = new FormData();
-        frmData.append("mail_to", emailData.value.mail_to);
+        frmData.append("mail_tos", emailData.value.mail_to_array);
         frmData.append("mail_subject", emailData.value.mail_subject);
         frmData.append("mail_body", emailData.value.mail_body);
         frmData.append("send_to_default", emailData.value.send_to_default);
@@ -293,16 +344,21 @@ const sendEmailFunction = async () => {
           emailData.value = {
             mail_subject: "",
             mail_to: "",
+            mail_to_array: [],
             send_to_default: false,
             attachments: [],
           };
           previewFile.value = [];
           mailBodyChange();
-          toast.success(res.data.message);
+          toast.success(res.message);
+          setTimeout(async () => {
+            await props.getDetailAction(route.query.id);
+          }, 1000);
         }
       } catch (error) {
         emailLoading.value = false;
-        toast.error(error.response.data.message);
+        // toast.error(error.response.data.message);
+        console.log(error);
       }
     }
   });
@@ -325,31 +381,13 @@ const mailBodyChange = () => {
   )}: ${props?.detail?.crm_id}`;
 
   if (props?.detail?.product_type == "App\\Models\\EntranceTicket") {
-    emailData.value.mail_body = `<p class="p1">Dear ${
-      props?.detail?.product?.name
-    },</p>
-    <p class="p1">Greetings from TH Anywhere Travel and Tour. We would like to book the tickets for our customers as per following detail.</p>
-    <p class="p1">Service Date: <strong>${
-      props?.detail?.service_date
-    }<br /></strong>Ticket Variation: <strong>${
-      props?.detail?.variation?.name
-    }<br /></strong>Adult Quantity : <strong>${
-      props?.detail?.quantity
-    } Adults<br /></strong>Child Quantity: <strong>${
-      props?.detail?.individual_pricing?.child?.quantity ?? 0
-    } Child<br /></strong>Customer Name: <strong>${
-      props?.detail?.customer_info.name
-    }<br /></strong>Booking Code: <strong>${props?.detail?.crm_id}</strong></p>
-    <p class="p1">Passports for the bookings are attached in the email. Please arrange for the customer accordingly. Payment transaction will be done soon.</p>
-    <p class="p1">Once the payment is received, Please kindly issue receipt with tax ID and send to us by post or mail. Tax ID. : 0105565081822 TH ANYWHERE CO.LTD.</p>
-    <p class="p1">Invoice Date: <strong>${format(
-      new Date(),
-      "dd/MM/yyyy"
-    )}</strong></p>
-    <p class="p1">If you may have any questions or concerns, please feel free to call us at 0950423254 LINE ID 0983498197.</p>
-    <p class="p1">Thank you, <strong><br /></strong>Negyi @ Sunshine (Reservation Manager)
-    </p>
-    <p class="p1">The Palladium Shopping Mall 4th floor, Zone B, Room IT 4-95, 555, Ratchaprarop Rd., Makkasan, Ratchathewi, Bangkok 10400</p>`;
+    emailData.value.mail_body = `<p class="p1">Dear ${props?.detail?.product?.name},</p>
+    <p class="p1">Please see our payment slip in the attached file. We would like to kindly request a confirmation letter as soon as possible. Please kindly issue a receipt with Tax ID and send it to us by email.</p>
+    <p class="p1">Phone: 0950423254, 0637602448.</p>
+    <p class="p1">TAX ID : 0105565081822 TH Anywhere Co.,Ltd.</p>
+    <p class="p1">For any requirement you may contact us at 0637602448, 0983498197, 0950423254.</p>
+    <p class="p1">Regards<br /> Negyi@Sunshine<br /> Reservation Manager</p>
+<p class="p1">143/50, Thepprasit Rd, Pattaya City, Bang Lamung District, Chon Buri 20150</p>`;
   }
 };
 
@@ -415,6 +453,9 @@ const cancelAction = () => {
 
 onMounted(() => {
   mailBodyChange();
+  if (props?.detail) {
+    emailData.value.mail_to_array = props.detail?.product?.email || [];
+  }
 });
 </script>
 

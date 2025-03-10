@@ -32,6 +32,7 @@
         <p class="text-sm">{{ detail?.booking?.payment_method }}</p>
       </div>
       <div
+        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
       >
         <p class="text-[10px] text-gray-500">Total Quantity</p>
@@ -40,6 +41,19 @@
             detail?.quantity +
             (detail?.individual_pricing?.child?.quantity ?? 0) * 1
           }}
+        </p>
+      </div>
+      <div
+        v-if="detail?.product_type == 'App\\Models\\Hotel'"
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Rooms & Nights</p>
+        <p class="text-sm">
+          {{ detail?.quantity }} R x
+          {{
+            calculateDaysBetween(detail?.checkin_date, detail?.checkout_date)
+          }}
+          N
         </p>
       </div>
       <div
@@ -55,18 +69,39 @@
         <p class="text-sm">{{ detail?.discount }}</p>
       </div>
       <div
+        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
       >
         <p class="text-[10px] text-gray-500">Adult Qty</p>
         <p class="text-sm">{{ detail?.quantity }}</p>
       </div>
       <div
+        v-if="detail?.product_type == 'App\\Models\\Hotel'"
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Total Qty</p>
+        <p class="text-sm">
+          {{
+            detail?.quantity *
+            calculateDaysBetween(detail?.checkin_date, detail?.checkout_date)
+          }}
+        </p>
+      </div>
+      <div
+        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
       >
         <p class="text-[10px] text-gray-500">Child Qty</p>
         <p class="text-sm">
           {{ detail?.individual_pricing?.child?.quantity ?? 0 }}
         </p>
+      </div>
+      <div
+        v-if="detail?.product_type == 'App\\Models\\Hotel'"
+        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+      >
+        <p class="text-[10px] text-gray-500">Extra Bed Qty</p>
+        <p class="text-sm">-</p>
       </div>
     </div>
     <div class="flex justify-between items-center">
@@ -112,13 +147,13 @@
           </p>
           <p class="text-[12px] flex justify-start items-center">
             <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-            {{ i?.created_at }}
+            {{ i?.date ? formatDateFromDb(i?.date) : "--/--/--" }}
           </p>
         </div>
-        <div class="h-[180px] w-full" @click="openModal(i)">
+        <div class="h-auto w-full" @click="openModal(i)">
           <img
             :src="i?.image"
-            class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
+            class="rounded-lg shadow hover:shadow-none h-full object-contain w-full"
             alt=""
           />
         </div>
@@ -159,14 +194,31 @@
                 />
               </div>
               <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Date </label>
-                <input
+                <label for="" class="text-[12px] font-medium">Date&Time </label>
+                <!-- <input
                   type="date"
                   name=""
                   v-model="formData.date"
                   class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   id=""
-                />
+                /> -->
+                <div class="flex justify-between items-center w-[160px]">
+                  <p class="text-start text-xs" v-if="formData?.date">
+                    {{
+                      formData.date.includes("T")
+                        ? formatDate(formData.date)
+                        : formatDateFromDb(formData.date)
+                    }}
+                  </p>
+                  <input
+                    type="datetime-local"
+                    name=""
+                    v-model="formData.date"
+                    format="YYYY-MM-DD HH:mm:ss"
+                    class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
               </div>
               <div class="flex justify-between items-center">
                 <label for="" class="text-[12px] font-medium">Bank </label>
@@ -310,13 +362,121 @@ const openModal = (data) => {
     date: data.date,
     bank_name: data.bank_name,
     sender: data.sender,
-    is_corporate: data.is_corporate,
-    comment: data.comment,
+    is_corporate: data.is_corporate == 1 ? true : false,
+    comment: data.note,
   };
+};
+
+const calculateDaysBetween = (a, b) => {
+  if (a && b) {
+    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    const startDateTimestamp = new Date(a).getTime();
+    const endDateTimestamp = new Date(b).getTime();
+    let result = Math.abs(
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+    );
+    // formitem.value.days = result;
+    return result;
+  }
+};
+
+const formatDate = (dateString) => {
+  // Parse the input string into a Date object
+  const date = new Date(dateString);
+
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    return "Invalid Date"; // Handle invalid dates
+  }
+
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Extract date components
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+
+  // Extract time components
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  // Return formatted date and time
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+};
+
+const formatDateFromDb = (dateString) => {
+  // Split the input string into date and time parts
+  const [datePart, timePart] = dateString.split(" ");
+
+  // Split the date part into day, month, year
+  const [day, month, year] = datePart.split("-");
+
+  // Define month names
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Get the month name
+  const monthName = monthNames[parseInt(month) - 1]; // Subtract 1 because months are 0-indexed
+
+  // Return the formatted date
+  return `${year}-${monthName}-${day} ${timePart}`;
+};
+
+// const formatDateDb = (dateString) => {
+//   // Parse the input string into a Date object
+//   return dateString.replace("T", " ");
+// };
+
+const formatDateDb = (dateString) => {
+  if (!dateString) return "";
+
+  // Case 1: Replace 'T' with space
+  if (dateString.includes("T")) {
+    return dateString.replace("T", " ");
+  }
+
+  // Case 2: Check if it's in DD-MM-YYYY format with regex
+  const ddmmyyyyRegex = /^(\d{2})-(\d{2})-(\d{4})\s(.*)$/;
+  const match = dateString.match(ddmmyyyyRegex);
+
+  if (match) {
+    // match[1] = day, match[2] = month, match[3] = year, match[4] = time part
+    return `${match[3]}-${match[2]}-${match[1]} ${match[4]}`;
+  }
+
+  // If it doesn't match any of our cases, return as-is
+  return dateString;
 };
 
 const clearAction = () => {
   formData.value = {
+    id: "",
     file: null,
     id: "",
     amount: 0,
@@ -338,11 +498,11 @@ const submit = async () => {
     const frmData = new FormData();
     frmData.append("_method", "PUT");
     frmData.append("amount", formData.value.amount);
-    frmData.append("date", formData.value.date);
+    frmData.append("date", formatDateDb(formData.value.date));
     frmData.append("bank_name", formData.value.bank_name);
     frmData.append("sender", formData.value.sender);
-    frmData.append("is_corporate", formData.value.is_corporate);
-    frmData.append("comment", formData.value.comment);
+    frmData.append("is_corporate", formData.value.is_corporate ? 1 : 0);
+    frmData.append("note", formData.value.comment);
 
     const res = await bookingStore.receiptImageAction(
       props.detail.booking.id,

@@ -47,9 +47,6 @@ const changeTab = (index) => {
     params: {
       id: index,
     },
-    query: {
-      edit: route.query.edit,
-    },
   });
 };
 

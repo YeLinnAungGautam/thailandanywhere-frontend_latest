@@ -37,6 +37,20 @@
             </p>
           </div>
           <div class="mb-2 space-y-1">
+            <label for="price" class="text-sm text-gray-800"
+              >Contract Name</label
+            >
+            <input
+              type="text"
+              v-model="formData.contract_name"
+              id="contract name"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.contract_name" class="mt-1 text-sm text-red-600">
+              {{ errors.contract_name[0] }}
+            </p>
+          </div>
+          <div class="mb-2 space-y-1">
             <label for="name" class="text-sm text-gray-800"
               >Attraction Name</label
             >
@@ -128,10 +142,7 @@
                   Child Price</label
                 >
               </div>
-              <div
-                class="flex items-center justify-between gap-3 mb-3"
-                v-if="formData.child_info.length != 1"
-              >
+              <div class="flex items-center justify-between gap-3 mb-3">
                 <div class="flex-1">
                   <input
                     v-model="child_info_default.info"
@@ -176,71 +187,6 @@
                     class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="agent prices"
                   />
-                </div>
-                <div>
-                  <button @click.prevent="addChildInfo" class="">
-                    <i
-                      class="fa-solid fa-plus text-sm font-semibold px-2 py-1 bg-blue-600 rounded-full shadow text-white"
-                    ></i>
-                  </button>
-                </div>
-              </div>
-              <div
-                class="flex items-center justify-between gap-3 mb-3"
-                v-for="(p, index) in formData.child_info"
-                :key="index"
-              >
-                <div class="flex-1">
-                  <input
-                    v-model="p.info"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="child info"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="p.child_price"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="enter prices"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="p.child_cost_price"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="cost prices"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="p.child_owner_price"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="owner prices"
-                  />
-                </div>
-                <div class="flex-1">
-                  <input
-                    v-model="p.child_agent_price"
-                    type="text"
-                    id="title"
-                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-                    placeholder="agent prices"
-                  />
-                </div>
-                <div>
-                  <button @click.prevent="removeChildInfo(index)" class="">
-                    <i
-                      class="fa-solid fa-minus text-sm font-semibold px-2 py-1 bg-red-600 rounded-full shadow text-white"
-                    ></i>
-                  </button>
                 </div>
               </div>
             </div>
@@ -474,7 +420,7 @@
           @click="entAction = true"
           class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
         >
-          <p>choose airline</p>
+          <p>choose variation</p>
           <ArrowDownTrayIcon class="w-4 h-4" />
         </div>
         <v-select
@@ -710,6 +656,7 @@ const openModal = () => {
     entrance_name: "",
     price: "",
     price_name: "",
+    contract_name: "",
     cost_price: "",
     agent_price: "",
     owner_price: "",
@@ -732,6 +679,13 @@ const openModal = () => {
     services: [],
   };
   enabled.value = false;
+  child_info_default.value = {
+    info: "",
+    child_price: "",
+    child_cost_price: "",
+    child_owner_price: "",
+    child_agent_price: "",
+  };
   imagesPreview.value = [];
   editImagesPreview.value = [];
 };
@@ -744,19 +698,19 @@ const child_info_default = ref({
   child_agent_price: "",
 });
 
-const addChildInfo = () => {
-  formData.value.child_info.push(child_info_default.value);
-  child_info_default.value = {
-    info: "",
-    child_price: "",
-    child_cost_price: "",
-    child_owner_price: "",
-    child_agent_price: "",
-  };
-};
-const removeChildInfo = (index) => {
-  formData.value.child_info.splice(index, 1);
-};
+// const addChildInfo = () => {
+//   formData.value.child_info.push(child_info_default.value);
+//   child_info_default.value = {
+//     info: "",
+//     child_price: "",
+//     child_cost_price: "",
+//     child_owner_price: "",
+//     child_agent_price: "",
+//   };
+// };
+// const removeChildInfo = (index) => {
+//   formData.value.child_info.splice(index, 1);
+// };
 
 const closeModal = () => {
   formData.value = {
@@ -765,6 +719,7 @@ const closeModal = () => {
     entrance_name: "",
     price: "",
     price_name: "",
+    contract_name: "",
     cost_price: "",
     agent_price: "",
     owner_price: "",
@@ -785,6 +740,13 @@ const closeModal = () => {
     description: "",
     images: [],
     services: [],
+  };
+  child_info_default.value = {
+    info: "",
+    child_price: "",
+    child_cost_price: "",
+    child_owner_price: "",
+    child_agent_price: "",
   };
   enabled.value = false;
   imagesPreview.value = [];
@@ -808,6 +770,7 @@ const formData = ref({
     youtube_en_link: "",
   },
   price_name: "",
+  contract_name: "",
   adult_info: "",
   // child_price: "",
   // child_cost_price: "",
@@ -933,29 +896,26 @@ const addNewHandler = async () => {
   //   : 0;
   // formData.value.child_info &&
   //   frmData.append("child_info", formData.value.child_info);
-  if (formData.value.child_info.length > 0) {
-    for (var x = 0; x < formData.value.child_info.length; x++) {
-      frmData.append(
-        "child_info[" + x + "][info]",
-        formData.value.child_info[x].info
-      );
-      frmData.append(
-        "child_info[" + x + "][child_price]",
-        formData.value.child_info[x].child_price
-      );
-      frmData.append(
-        "child_info[" + x + "][child_owner_price]",
-        formData.value.child_info[x].child_owner_price
-      );
-      frmData.append(
-        "child_info[" + x + "][child_cost_price]",
-        formData.value.child_info[x].child_cost_price
-      );
-      frmData.append(
-        "child_info[" + x + "][child_agent_price]",
-        formData.value.child_info[x].child_agent_price
-      );
-    }
+  if (child_info_default.value.child_price != "") {
+    // for (var x = 0; x < formData.value.child_info.length; x++) {
+    frmData.append("child_info[0][info]", child_info_default.value.info);
+    frmData.append(
+      "child_info[0][child_price]",
+      child_info_default.value.child_price
+    );
+    frmData.append(
+      "child_info[0][child_owner_price]",
+      child_info_default.value.child_owner_price
+    );
+    frmData.append(
+      "child_info[0][child_cost_price]",
+      child_info_default.value.child_cost_price
+    );
+    frmData.append(
+      "child_info[0][child_agent_price]",
+      child_info_default.value.child_agent_price
+    );
+    // }
   }
 
   frmData.append("is_add_on", enabled.value ? 1 : 0);
@@ -980,6 +940,7 @@ const addNewHandler = async () => {
     : frmData.append("meta_data[0][is_show]", 0);
 
   frmData.append("name", formData.value.price_name);
+  frmData.append("contract_name", formData.value.contract_name);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -1019,6 +980,7 @@ const addNewHandler = async () => {
         youtube_en_link: "",
       },
       price_name: "",
+      contract_name: "",
       price: "",
       description: "",
       images: [],
@@ -1027,6 +989,13 @@ const addNewHandler = async () => {
     errors.value = null;
     enabled.value = false;
     createModalOpen.value = false;
+    child_info_default.value = {
+      info: "",
+      child_price: "",
+      child_owner_price: "",
+      child_cost_price: "",
+      child_agent_price: "",
+    };
     imagesPreview.value = [];
     editImagesPreview.value = [];
     await variationStore.getListAction({
@@ -1063,30 +1032,27 @@ const updateHandler = async () => {
   //   : 0;
   // formData.value.child_info &&
   //   frmData.append("child_info", formData.value.child_info);
-  if (formData.value.child_info.length > 0) {
-    for (var x = 0; x < formData.value.child_info.length; x++) {
-      frmData.append(
-        "child_info[" + x + "][info]",
-        formData.value.child_info[x].info
-      );
-      frmData.append(
-        "child_info[" + x + "][child_price]",
-        formData.value.child_info[x].child_price
-      );
-      frmData.append(
-        "child_info[" + x + "][child_owner_price]",
-        formData.value.child_info[x].child_owner_price
-      );
-      frmData.append(
-        "child_info[" + x + "][child_cost_price]",
-        formData.value.child_info[x].child_cost_price
-      );
-      frmData.append(
-        "child_info[" + x + "][child_agent_price]",
-        formData.value.child_info[x].child_agent_price
-      );
-    }
-  }
+  // if (formData.value.child_info.length > 0 && formData.value.child_info[0].child_price != '') {
+  // for (var x = 0; x < formData.value.child_info.length; x++) {
+  frmData.append("child_info[0][info]", child_info_default.value.info);
+  frmData.append(
+    "child_info[0][child_price]",
+    child_info_default.value.child_price
+  );
+  frmData.append(
+    "child_info[0][child_owner_price]",
+    child_info_default.value.child_owner_price
+  );
+  frmData.append(
+    "child_info[0][child_cost_price]",
+    child_info_default.value.child_cost_price
+  );
+  frmData.append(
+    "child_info[0][child_agent_price]",
+    child_info_default.value.child_agent_price
+  );
+  // }
+  // }
   frmData.append("is_add_on", enabled.value ? 1 : 0);
   if (
     formData.value.meta_data?.youtube_en_link ||
@@ -1108,6 +1074,7 @@ const updateHandler = async () => {
     ? frmData.append("meta_data[0][is_show]", 1)
     : frmData.append("meta_data[0][is_show]", 0);
   frmData.append("name", formData.value.price_name);
+  frmData.append("contract_name", formData.value.contract_name);
 
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
@@ -1156,12 +1123,20 @@ const updateHandler = async () => {
       },
       price_name: "",
       price: "",
+      contract_name: "",
       description: "",
       images: [],
       services: [],
     };
     errors.value = null;
     enabled.value = false;
+    child_info_default.value = {
+      info: "",
+      child_price: "",
+      child_cost_price: "",
+      child_owner_price: "",
+      child_agent_price: "",
+    };
     createModalOpen.value = false;
     imagesPreview.value = [];
     editImagesPreview.value = [];
@@ -1200,6 +1175,16 @@ const editModalOpenHandler = (data) => {
   // formData.value.child_owner_price = data.child_owner_price;
   // formData.value.child_info = data.child_info;
   formData.value.child_info = data.child_info != null ? data.child_info : [];
+  child_info_default.value = {
+    info: data.child_info != null ? data.child_info[0]?.info : "",
+    child_price: data.child_info != null ? data.child_info[0]?.child_price : "",
+    child_cost_price:
+      data.child_info != null ? data.child_info[0]?.child_cost_price : "",
+    child_owner_price:
+      data.child_info != null ? data.child_info[0]?.child_owner_price : "",
+    child_agent_price:
+      data.child_info != null ? data.child_info[0]?.child_agent_price : "",
+  };
 
   enabled.value = data.is_add_on == 1;
   if (data.meta_data != null && data?.meta_data?.length > 0) {
@@ -1211,6 +1196,7 @@ const editModalOpenHandler = (data) => {
       data.meta_data[0]?.youtube_en_link;
   }
   formData.value.price_name = data.name;
+  formData.value.contract_name = data.contract_name;
   formData.value.price = data.price;
   formData.value.description = data.description;
   createModalOpen.value = true;

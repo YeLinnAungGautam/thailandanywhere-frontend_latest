@@ -25,6 +25,9 @@ export const useAuthStore = defineStore("auth", {
     isAuditor: (state) => {
       return state.user.role === "auditor";
     },
+    isSaleAdmin: (state) => {
+      return state.user.role === "sale_manager";
+    },
     target: (state) => {
       return state.user.target_amount;
     },

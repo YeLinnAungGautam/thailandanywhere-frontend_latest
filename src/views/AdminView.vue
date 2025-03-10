@@ -46,18 +46,11 @@ const roleList = [
   { id: "5", name: "Agent", value: "agent" },
   { id: "6", name: "Car Supplier", value: "car_supplier" },
   { id: "7", name: "Auditor", value: "auditor" },
+  { id: "8", name: "Sale Manager", value: "sale_manager" },
 ];
 const errors = ref([]);
 
 // when open with modal , detail can get
-const editModalOpenHandler = (data) => {
-  formData.value.id = data.id;
-  formData.value.name = data.name;
-  formData.value.email = data.email;
-  formData.value.target_amount = data.target_amount;
-  formData.value.role = data.role;
-  adminModalOpen.value = true;
-};
 
 // delete action
 const onDeleteHandler = async (id) => {
@@ -86,6 +79,9 @@ const onDeleteHandler = async (id) => {
 };
 
 const search = ref("");
+
+const member = ref([]);
+const add_member = ref(false);
 
 const formData = ref({
   id: null,
@@ -179,9 +175,75 @@ const onSubmitHandler = async () => {
   }
 };
 
+const addMemberShow = ref(false);
+
+const adminLists = ref([]);
+
+const subsidiaries = ref([]);
+
+const getListUser = async () => {
+  try {
+    const res = await adminStore.getSimpleListAction();
+    console.log(res, "this is admin list");
+
+    adminLists.value = res.result.data
+      .filter((item) => item.role === "admin")
+      .map((item) => {
+        // Return desired structure or transformation here
+        return {
+          id: item.id,
+          name: item.name,
+        };
+      });
+  } catch (error) {
+    console.log("====================================");
+    console.log(error);
+    console.log("====================================");
+  }
+};
+
+const addMemberAction = async () => {
+  console.log("add member action", subsidiaries.value);
+  const resultString = subsidiaries.value.join(", "); // Join with a comma
+
+  console.log(resultString, "this is result string");
+
+  const frmData = new FormData();
+  frmData.append("sale_manager_id", formData.value.id);
+  frmData.append("subsidiary_ids", resultString);
+
+  const res = await adminStore.assignSaleManager(frmData);
+  console.log(res, "this is res");
+  if (res.status == "Request was successful.") {
+    toast.success(res.message);
+    adminModalOpen.value = false;
+    await adminStore.getListAction();
+  } else {
+    toast.error(res.message);
+  }
+};
+
+const editModalOpenHandler = (data) => {
+  console.log(data);
+  formData.value.id = data.id;
+  formData.value.name = data.name;
+  formData.value.email = data.email;
+  formData.value.target_amount = data.target_amount;
+  formData.value.role = data.role;
+  // formData.value.member = data.member;
+
+  if (data.subsidiaries.length > 0) {
+    subsidiaries.value = data.subsidiaries.map((item) => item.id);
+  }
+
+  adminModalOpen.value = true;
+};
+
 onMounted(async () => {
   await adminStore.getListAction();
   console.log(admin.value, "this is admin");
+
+  await getListUser();
 });
 
 // search action with debounce when search
@@ -196,62 +258,84 @@ watch(
 <template>
   <Layout>
     <!-- admin modal open  -->
-    <Modal :isOpen="adminModalOpen" @closeModal="adminModalOpen = false">
+    <Modal
+      :isOpen="adminModalOpen"
+      @closeModal="
+        () => {
+          adminModalOpen = false;
+          addMemberShow = false;
+          formData = {
+            name: '',
+            email: '',
+            password: '',
+            password_confirmation: '',
+            role: '',
+            target_amount: '',
+          };
+        }
+      "
+    >
       <DialogPanel
-        class="w-full max-w-md p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
+        class="w-full max-w-xl p-4 text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
       >
         <DialogTitle
-          as="h3"
-          class="mb-5 text-lg font-medium leading-6 text-gray-900"
+          as="div"
+          class="mb-5 flex justify-between items-center text-base font-medium leading-6 text-gray-900"
         >
-          {{ formData.id ? "Edit Admin" : "Add New Admin" }}
+          <p>{{ formData.id ? "Edit System User" : "Add New System User" }}</p>
         </DialogTitle>
-        <form @submit.prevent="onSubmitHandler" class="mt-2">
+        <form
+          @submit.prevent="onSubmitHandler"
+          class="mt-2 grid grid-cols-2 gap-2"
+          v-if="!addMemberShow"
+        >
           <div class="mb-2 space-y-1">
-            <label for="name" class="text-sm text-gray-800">Name</label>
+            <label for="name" class="text-[10px] text-gray-800">Name</label>
             <input
               type="text"
               v-model="formData.name"
               id="name"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              class="w-full px-4 py-1.5 text-xs text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
             <p v-if="errors?.name" class="mt-1 text-sm text-red-600">
               {{ errors.name[0] }}
             </p>
           </div>
           <div class="mb-2 space-y-1">
-            <label for="email" class="text-sm text-gray-800">Email</label>
+            <label for="email" class="text-[10px] text-gray-800">Email</label>
             <input
               type="text"
               v-model="formData.email"
               id="email"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              class="w-full px-4 py-1.5 text-xs text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
             <p v-if="errors?.email" class="mt-1 text-sm text-red-600">
               {{ errors.email[0] }}
             </p>
           </div>
           <div class="mb-2 space-y-1">
-            <label for="password" class="text-sm text-gray-800">Password</label>
+            <label for="password" class="text-[10px] text-gray-800"
+              >Password</label
+            >
             <input
               type="text"
               v-model="formData.password"
               id="password"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              class="w-full px-4 py-1.5 text-xs text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
             <p v-if="errors?.password" class="mt-1 text-sm text-red-600">
               {{ errors.password[0] }}
             </p>
           </div>
           <div class="mb-2 space-y-1">
-            <label for="password_confirmation" class="text-sm text-gray-800"
+            <label for="password_confirmation" class="text-[10px] text-gray-800"
               >Confirm Password</label
             >
             <input
               type="text"
               v-model="formData.password_confirmation"
               id="password_confirmation"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              class="w-full px-4 py-1.5 text-xs text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
             <p
               v-if="errors?.password_confirmation"
@@ -261,7 +345,7 @@ watch(
             </p>
           </div>
           <div class="mb-2 space-y-1">
-            <label for="password_confirmation" class="text-sm text-gray-800"
+            <label for="password_confirmation" class="text-[10px] text-gray-800"
               >Role</label
             >
             <v-select
@@ -273,22 +357,48 @@ watch(
               :reduce="(d) => d.value"
             ></v-select>
           </div>
+
           <div class="mb-2 space-y-1">
-            <label for="email" class="text-sm text-gray-800"
+            <label for="email" class="text-[10px] text-gray-800"
               >Target Amount</label
             >
             <input
               type="number"
               v-model="formData.target_amount"
               id="target_amount"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              class="w-full px-4 py-1.5 text-xs text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
             <p v-if="errors?.target_amount" class="mt-1 text-sm text-red-600">
               {{ errors.target_amount[0] }}
             </p>
           </div>
-          <div class="text-end">
-            <Button type="submit"> Submit </Button>
+          <div
+            v-if="formData.role == 'sale_manager'"
+            class="col-span-2 space-y-3"
+          >
+            <div class="flex items-center justify-between">
+              <label for="email" class="text-[10px] text-gray-800"
+                >Add Subsidiaries</label
+              >
+              <p
+                @click="addMemberAction"
+                class="text-[10px] bg-[#ff613c] text-white rounded-md px-2 py-1"
+              >
+                Add Subsidiaries
+              </p>
+            </div>
+            <v-select
+              class="bg-white rounded-lg style-chooser placeholder-sm"
+              v-model="subsidiaries"
+              :options="adminLists ?? []"
+              label="name"
+              multiple
+              :clearable="false"
+              :reduce="(member) => member.id"
+            ></v-select>
+          </div>
+          <div class="text-end col-span-2 pt-2">
+            <Button type="submit" class="text-xs"> Submit </Button>
           </div>
         </form>
       </DialogPanel>
@@ -313,19 +423,6 @@ watch(
             placeholder="Search for admins.."
           />
         </div>
-        <!-- <div>
-          <p class="inline-block mr-2 font-medium text-gray-500">Show</p>
-          <select
-            class="w-16 p-2 border-2 rounded-md focus:outline-none focus:ring-0"
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="30">30</option>
-            <option value="40">40</option>
-            <option value="50">50</option>
-          </select>
-          <p class="inline-block ml-2 font-medium text-gray-500">entries</p>
-        </div> -->
       </div>
       <div class="mb-5 overflow-auto rounded-lg shadow">
         <table class="w-full">

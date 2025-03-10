@@ -432,7 +432,11 @@ watch(
   ) => {
     // Correctly destructured variables
     router.push({
-      name: authStore.isSuperAdmin ? "home" : "dashboard",
+      name: authStore.isSuperAdmin
+        ? "home"
+        : authStore.isSaleAdmin
+        ? "sales_dashboard"
+        : "dashboard",
       query: {
         day: newSelectedDay != null ? newSelectedDay : "",
         productType: newProductType,

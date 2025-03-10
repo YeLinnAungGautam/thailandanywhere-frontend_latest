@@ -40,8 +40,9 @@ import InclusiveView from "../views/InclusiveCreate.vue";
 import InclusiveDetailView from "../views/InclusiveUpdate.vue";
 import ReservationViewView from "../views/ReservationView.vue";
 import DashboardView from "../views/UserDashboard.vue";
+import SaleDashboardView from "../views/SaleDashboard.vue";
 import CarBookingView from "../views/PrivateVanTourCar.vue";
-import AvailabilityView from "../views/Availability.vue";
+import AvailabilityView from "../views/GenerateAI/TestAi.vue";
 import UserView from "../views/UserView.vue";
 import HotelEditView from "../views/HotelEditPage.vue";
 import UpdateBookingNewView from "../views/BookingUpdateNewVersion.vue";
@@ -51,6 +52,9 @@ import ReservationEntranceConfirmationsView from "../views/ReservationEntranceCo
 import AuditorDashboardView from "../views/Auditor.vue";
 import ReservationEntranceConfirmationsSvgView from "../views/ReservationEntranceConfirmationSvg.vue";
 import ReservationSecondView from "../views/Reservation2.vue";
+import PngUsage from "../views/PngGenerate/PngUsage.vue";
+import Accounting from "../views/Accounting.vue";
+import ReservationHotelView from '../views/Reservationhotel.vue'
 
 const routes = [
   {
@@ -75,6 +79,11 @@ const routes = [
     path: "/auditor_dashboard",
     name: "auditor_dashboard",
     component: AuditorDashboardView,
+  },
+  {
+    path: "/sales_dashboard",
+    name: "sales_dashboard",
+    component: SaleDashboardView,
   },
   {
     path: "/components",
@@ -177,6 +186,11 @@ const routes = [
     component: UpdateBookingView,
   },
   {
+    path: "/bookings/png",
+    name: "bookings_png",
+    component: PngUsage,
+  },
+  {
     path: "/database/:page",
     name: "database",
     component: DatabaseView,
@@ -255,6 +269,16 @@ const routes = [
     path: "/reservation-second",
     name: "reservation-second",
     component: ReservationSecondView,
+  },
+  {
+    path: "/reservation-hotel",
+    name: "reservation-hotel",
+    component: ReservationHotelView,
+  },
+  {
+    path: "/accounting",
+    name: "accounting",
+    component: Accounting,
   },
   {
     path: "/reservation/update/:id/:crm",

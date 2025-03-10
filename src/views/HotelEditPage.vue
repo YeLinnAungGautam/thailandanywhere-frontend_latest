@@ -124,7 +124,7 @@ const formData = ref({
   account_name: "",
   place: "",
   legal_name: "",
-  email: "",
+  email: [],
   description: "",
   full_description: null,
   full_description_en: null,
@@ -141,6 +141,17 @@ const formData = ref({
     en_link: "",
   },
 });
+
+const addEmail = ref("");
+
+const addEmailAction = () => {
+  formData.value.email.push(addEmail.value);
+  addEmail.value = "";
+};
+
+const removeEmail = (index) => {
+  formData.value.email.splice(index, 1);
+};
 
 const onGetArray = (data) => {
   formData.value.facilities = [];
@@ -192,7 +203,7 @@ const closeModal = () => {
     account_name: "",
     place: "",
     legal_name: "",
-    email: "",
+    email: [],
     description: "",
     full_description: null,
     full_description_en: null,
@@ -297,7 +308,6 @@ const addNewHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
-  frmData.append("email", formData.value.email);
   frmData.append("description", formData.value.description);
   frmData.append("full_description", formData.value.full_description);
   frmData.append("full_description_en", formData.value.full_description_en);
@@ -343,6 +353,11 @@ const addNewHandler = async () => {
       );
     }
   }
+  if (formData.value.email.length > 0) {
+    for (let i = 0; i < formData.value.email.length; i++) {
+      frmData.append("email[" + i + "]", formData.value.email[i]);
+    }
+  }
   if (formData.value.facilities.length > 0) {
     for (let f = 0; f < formData.value.facilities.length; f++) {
       frmData.append("facilities[" + f + "]", formData.value.facilities[f]);
@@ -378,7 +393,7 @@ const addNewHandler = async () => {
       bank_account_number: "",
       place: "",
       legal_name: "",
-      email: "",
+      email: [],
       description: "",
       full_description: null,
       full_description_en: null,
@@ -435,7 +450,7 @@ const openCreate = () => {
   formData.value.bank_account_number = "";
   formData.value.place = "";
   formData.value.legal_name = "";
-  formData.value.email = "";
+  formData.value.email = [];
   formData.value.description = "";
   formData.value.full_description = "";
   formData.value.full_description_en = "";
@@ -492,7 +507,7 @@ const updateHandler = async () => {
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("account_name", formData.value.account_name);
   frmData.append("legal_name", formData.value.legal_name);
-  frmData.append("email", formData.value.email);
+  // frmData.append("email", formData.value.email);
   frmData.append("description", formData.value.description);
   frmData.append("full_description", formData.value.full_description);
   frmData.append("full_description_en", formData.value.full_description_en);
@@ -515,6 +530,11 @@ const updateHandler = async () => {
     for (let i = 0; i < formData.value.contracts.length; i++) {
       let file = formData.value.contracts[i];
       frmData.append("contracts[" + i + "]", file);
+    }
+  }
+  if (formData.value.email.length > 0) {
+    for (let i = 0; i < formData.value.email.length; i++) {
+      frmData.append("email[" + i + "]", formData.value.email[i]);
     }
   }
   // if (
@@ -594,7 +614,7 @@ const updateHandler = async () => {
       bank_account_number: "",
       account_name: "",
       legal_name: "",
-      email: "",
+      email: [],
       contract_due: "",
       description: "",
       full_description: null,
@@ -673,7 +693,7 @@ const getDetail = async (params) => {
     formData.value.type = data.type;
     formData.value.place = data.place;
     formData.value.legal_name = data.legal_name;
-    formData.value.email = data.email;
+    formData.value.email = data.email == null ? [] : data.email;
     formData.value.description = data.description;
     formData.value.full_description = data.full_description;
     formData.value.full_description_en = data.full_description_en;
@@ -998,16 +1018,7 @@ onMounted(async () => {
                 {{ errors.place[0] }}
               </p>
             </div>
-            <div v-if="quiteSwitch == 1" class="mb-2 space-y-1">
-              <label for="name" class="text-sm text-gray-800">Email</label>
-              <input
-                type="email"
-                v-model="formData.email"
-                id="name"
-                placeholder="email"
-                class="w-full h-10 text-xs px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-              />
-            </div>
+
             <div v-if="quiteSwitch == 1" class="mb-2 space-y-1">
               <label for="name" class="text-sm text-gray-800">Legal Name</label>
               <input
@@ -1090,6 +1101,54 @@ onMounted(async () => {
               <p v-if="errors?.contracts" class="mt-1 text-sm text-red-600">
                 {{ errors.contracts[0] }}
               </p>
+            </div>
+            <div
+              v-if="quiteSwitch == 1"
+              class="mb-2 space-y-1 col-span-3 grid grid-cols-3 gap-4"
+            >
+              <div class="space-y-1">
+                <div class="space-y-1">
+                  <label for="name" class="text-sm text-gray-800"
+                    >Email For Booking</label
+                  >
+                  <div class="flex justify-between items-center">
+                    <input
+                      type="email"
+                      v-model="addEmail"
+                      id="name"
+                      placeholder="email"
+                      class="w-full h-10 text-xs px-4 py-2 text-gray-900 border border-gray-300 rounded-s-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                    />
+                    <p
+                      @click="addEmailAction"
+                      class="text-xs h-10 shadow-sm cursor-pointer flex justify-center items-center bg-blue-600 whitespace-nowrap border px-3 py-2 rounded-e-lg text-white"
+                    >
+                      + add
+                    </p>
+                  </div>
+                </div>
+                <div class="space-y-1">
+                  <div
+                    class="flex justify-between items-center"
+                    v-for="(email, index) in formData.email"
+                    :key="index"
+                  >
+                    <input
+                      type="email"
+                      v-model="formData.email[index]"
+                      id="name"
+                      placeholder="email"
+                      class="w-full h-10 text-xs px-4 py-2 text-gray-900 border border-gray-300 rounded-s-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                    />
+                    <p
+                      @click="removeEmail(index)"
+                      class="text-xs h-10 shadow-sm cursor-pointer flex justify-center items-center bg-red-600 whitespace-nowrap border px-3 py-2 rounded-e-lg text-white"
+                    >
+                      - dele
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
             <div
               class="mb-2 space-y-3 gap-4"

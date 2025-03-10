@@ -24,13 +24,42 @@
         </div>
         <div class="w-full mb-4 space-y-3 text-xs">
           <div class="space-y-4">
-            <div>
+            <!-- <div>
               <input
                 type="email"
                 v-model="emailData.mail_to"
                 class="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none text-xs w-full"
                 placeholder="Send to Email"
               />
+            </div> -->
+            <div
+              class="flex justify-start p-2 rounded-xl relative border border-gray-200 items-center gap-2 overflow-x-scroll no-sidebar-container"
+            >
+              <div
+                v-for="(i, index) in emailData.mail_to_array"
+                :key="index"
+                class="px-2 py-1 rounded-lg bg-[#FF613c] text-white focus:outline-none text-[11px] relative"
+              >
+                <XCircleIcon
+                  class="w-4 h-4 text-red-500 bg-white rounded-full absolute -top-2 -right-2 cursor-pointer"
+                  @click="removeMailAction(index)"
+                />
+                <p>{{ i }}</p>
+              </div>
+              <div class="relative">
+                <input
+                  type="email"
+                  v-model="mail_name"
+                  class="px-4 py-1 rounded-lg focus:outline-none text-[11px] max-w-[200px]"
+                  placeholder="Send to Email"
+                />
+              </div>
+              <button
+                class="absolute top-2 right-2 bg-[#FF613c] px-1 py-1 text-white rounded-full text-xs"
+                @click="addMailAction"
+              >
+                <PlusIcon class="w-4 h-4" />
+              </button>
             </div>
 
             <div>
@@ -204,7 +233,11 @@ import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
 import { useRoute } from "vue-router";
 import Swal from "sweetalert2";
-import { CheckCircleIcon } from "@heroicons/vue/24/outline";
+import {
+  CheckCircleIcon,
+  PlusCircleIcon,
+  PlusIcon,
+} from "@heroicons/vue/24/outline";
 import { XCircleIcon } from "@heroicons/vue/24/solid";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
@@ -227,11 +260,32 @@ const openFileFeaturePicker = () => {
 };
 
 const emailData = ref({
+  mail_to_array: [],
   mail_subject: "",
   mail_to: "",
   send_to_default: false,
   attachments: [],
 });
+
+const mail_name = ref("");
+
+const addMailAction = () => {
+  // Regular expression for basic email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // Check if mail_name.value is a valid email
+  if (emailRegex.test(mail_name.value)) {
+    emailData.value.mail_to_array.push(mail_name.value);
+    mail_name.value = ""; // Clear the input after adding
+  } else {
+    alert("Please enter a valid email address.");
+    // Alternatively, you can handle the error in a more user-friendly way
+  }
+};
+
+const removeMailAction = (index) => {
+  emailData.value.mail_to_array.splice(index, 1);
+};
 
 const previewFile = ref([]);
 
@@ -249,6 +303,7 @@ const cancelEmailFunction = () => {
   emailData.value = {
     mail_subject: "",
     mail_to: "",
+    mail_to_array: [],
     send_to_default: false,
     attachments: [],
   };
@@ -258,7 +313,7 @@ const emailLoading = ref(false);
 const sendEmailFunction = async () => {
   Swal.fire({
     title: "Are you sure ?",
-    text: `Send email to ${emailData.value.mail_to} `,
+    text: `Send email to ${emailData.value.mail_to_array} `,
     icon: "question",
     showCancelButton: true,
     confirmButtonColor: "#FF6300",
@@ -270,7 +325,7 @@ const sendEmailFunction = async () => {
         emailLoading.value = true;
         console.log(emailData.value);
         const frmData = new FormData();
-        frmData.append("mail_to", emailData.value.mail_to);
+        frmData.append("mail_tos", emailData.value.mail_to_array);
         frmData.append("mail_subject", emailData.value.mail_subject);
         frmData.append("mail_body", emailData.value.mail_body);
         frmData.append("send_to_default", emailData.value.send_to_default);
@@ -285,24 +340,28 @@ const sendEmailFunction = async () => {
           route.query.id,
           frmData
         );
-        if (res.data.status) {
+        console.log(res, "this is email res");
+
+        if (res?.status == "Request was successful.") {
           emailLoading.value = false;
           emailData.value = {
             mail_subject: "",
             mail_to: "",
+            mail_to_array: [],
             send_to_default: false,
             attachments: [],
           };
           previewFile.value = [];
           mailBodyChange();
-          toast.success(res.data.message);
+          toast.success(res.message);
           setTimeout(async () => {
             await props.getDetailAction(route.query.id);
           }, 1000);
         }
       } catch (error) {
         emailLoading.value = false;
-        toast.error(error.response.data.message);
+        // toast.error(error.response.data.message);
+        console.log(error);
       }
     }
   });
@@ -320,6 +379,8 @@ const editorOptions = {
 };
 
 const mailBodyChange = () => {
+  console.log(props.detail.customer_passports, "customer_passports");
+
   emailData.value.mail_subject = `Booking for ${showFormat(
     props?.detail?.service_date
   )}: ${props?.detail?.crm_id}`;
@@ -332,7 +393,9 @@ const mailBodyChange = () => {
     <p class="p1">Service Date: <strong>${
       props?.detail?.service_date
     }<br /></strong>Ticket Variation: <strong>${
-      props?.detail?.variation?.name
+      props?.detail?.variation?.contract_name
+        ? props?.detail?.variation?.contract_name
+        : props?.detail?.variation?.name
     }<br /></strong>Adult Quantity : <strong>${
       props?.detail?.quantity
     } Adults<br /></strong>Child Quantity: <strong>${
@@ -349,30 +412,32 @@ const mailBodyChange = () => {
     <p class="p1">If you may have any questions or concerns, please feel free to call us at 0950423254 LINE ID 0983498197.</p>
     <p class="p1">Thank you, <strong><br /></strong>Negyi @ Sunshine (Reservation Manager)
     </p>
-    <p class="p1">The Palladium Shopping Mall 4th floor, Zone B, Room IT 4-95, 555, Ratchaprarop Rd., Makkasan, Ratchathewi, Bangkok 10400</p>`;
+    <p class="p1">143/51, Thepprasit Rd, Pattaya City, Bang Lamung District, Chon Buri 20150</p>`;
   } else if (props?.detail?.product_type == "App\\Models\\Hotel") {
-    emailData.value.mail_body = `<p>Dear Reservation Manager<b> of ${
-      props?.detail?.product?.name
-    }</b>,</p><p>Greetings from Thailand Anywhere travel and tour. Good day to you ka.</p><p>We are pleased to book the room for our customers as per following description checks availability by phone.</p>
-      <p>Check In :<strong>${
-        props?.detail?.checkin_date
-      }</strong></p><p>Check Out :<strong>${
-      props?.detail?.checkout_date
-    }</strong></p><p>Total :<strong>${
-      props?.detail?.quantity
-    } rooms & ${daysBetween(
-      props?.detail?.checkin_date,
-      props?.detail?.checkout_date
-    )} nights</strong></p><p>Name :<strong>${
-      props?.detail?.associated_customer[0]?.name
-    } & ${
-      props?.detail?.customer_passport?.length
-    } passports</strong></p><p>Room Type :<strong>${
-      props?.detail?.room?.name
-    }</strong></p><p>Special Request :<strong>${
-      props?.detail?.special_request
-    }</strong></p>
-      <p>Passport and payment slips are attached with this email .</p><b><em>Please arrange the invoice and confirmation letter ka.</em></b><p>Should there be anything more required you can call us at +66983498197 and LINE ID 58858380 .</p>`;
+    emailData.value.mail_body = `
+<p class="p1">Dear ${props?.detail?.product?.name},</p>
+<p><strong>Greetings from ThAnywhere Co., Ltd.</strong></p>
+<p>We would like to book the accommodation as per the following description. Please note thbooking is already checked and confirmed by phone.</p>
+<p><strong>Room Type:</strong> ${props?.detail?.room?.name}</p>
+<p><strong>Check In Date:</strong> ${props?.detail?.checkin_date}</p>
+<p><strong>Check Out Date:</strong> ${props?.detail?.checkout_date}</p>
+<p><strong>Other Items:</strong></p>
+<p><strong>Total Pax:</strong> ${props?.detail?.customer_passports.length}</p>
+<p><strong>Name:</strong></p><p>   
+  ${props?.detail?.customer_passports
+    .map((passport) => `<p>${passport.name}</p>`)
+    .join("")}</p> 
+<p><strong>Special request:</strong> ${props?.detail?.special_request}</p>
+<p><strong>Booking Code:</strong> ${props?.detail?.crm_id}</p>
+<p>Passports for the bookings are attached in the email. Please arrange for the custome accordingly.</p>
+<p>Payment transaction will be done soon. Once the payment is received, Please kindly issureceipt with tax ID and send to us by post or mail.</p>
+<p><strong>Tax ID:</strong> 0105565081822<br>
+<strong>TH ANYWHERE CO.LTD.</strong><br>
+<strong>Invoice Date:</strong>${format(new Date(), "dd/MM/yyyy")}</p>
+<p>If you may have any questions or concerns, please feel free to call us a <strong>0950423254</strong> LINE ID <strong>0983498197</strong>.</p>
+<p>Thank you,</p>
+<p><strong>Negyi @ Sunshine</strong> (Reservation Manager)</p><p>143/51, Thepprasit Rd, Pattaya City, Bang Lamung District, Chon Buri 20150</p>
+    `;
   }
 };
 
@@ -438,6 +503,10 @@ const cancelAction = () => {
 
 onMounted(() => {
   mailBodyChange();
+
+  if (props?.detail) {
+    emailData.value.mail_to_array = props.detail?.product?.email || [];
+  }
 });
 </script>
 
@@ -480,5 +549,20 @@ onMounted(() => {
   border: solid rgb(255, 255, 255);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
+}
+
+div:where(.swal2-container) .swal2-html-container {
+  z-index: 1;
+  justify-content: center;
+  margin: 0;
+  padding: 1em 1.6em 0.3em;
+  overflow: auto;
+  color: inherit;
+  font-size: 1em !important;
+  font-weight: normal;
+  line-height: normal;
+  text-align: center;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 </style>

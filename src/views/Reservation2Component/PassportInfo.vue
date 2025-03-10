@@ -9,18 +9,34 @@
           save
         </p> -->
         <div
+          v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
           class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
         >
           <p class="text-[10px] text-gray-500">Adult Qty</p>
           <p class="text-sm">{{ detail?.quantity }}</p>
         </div>
         <div
+          v-if="detail?.product_type == 'App\\Models\\Hotel'"
+          class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+        >
+          <p class="text-[10px] text-gray-500">Room Qty</p>
+          <p class="text-sm">{{ detail?.quantity }}</p>
+        </div>
+        <div
+          v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
           class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
         >
           <p class="text-[10px] text-gray-500">Child Qty</p>
           <p class="text-sm">
             {{ detail?.individual_pricing?.child?.quantity ?? 0 }}
           </p>
+        </div>
+        <div
+          v-if="detail?.product_type == 'App\\Models\\Hotel'"
+          class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+        >
+          <p class="text-[10px] text-gray-500">Extra Bed Qty</p>
+          <p class="text-sm">-</p>
         </div>
       </div>
 
@@ -99,20 +115,23 @@
           >
             <p class="text-[10px] flex justify-start items-center pt-2">
               <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
-              Name
+              {{ i?.name }}
             </p>
             <p class="text-[10px] flex justify-start items-center">
               <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-              Passport No.
+              {{ i?.passport_number }}
             </p>
             <p class="text-[10px] flex justify-start items-center pb-2">
               <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-              DOB
+              {{ i?.dob }}
             </p>
           </div>
         </div>
       </div>
     </div>
+    <!-- <div>
+      <PassportGenerate />
+    </div> -->
     <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
       <DialogPanel
         class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
@@ -206,7 +225,7 @@
 
                   <p
                     v-if="formData.id"
-                    @click="removeFeatureDeleteImage(save.index, formData.id)"
+                    @click="removeFeatureDeleteImage(formData.id)"
                     class="px-3 py-1 bg-red-600 text-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
                   >
                     Delete
@@ -236,6 +255,7 @@ import invoice from "../../assets/invoice_exp.jpg";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute } from "vue-router";
+// import PassportGenerate from "./PassportGenerate.vue";
 
 const reservationStore = useReservationStore();
 const toast = useToast();
@@ -266,7 +286,7 @@ const openPassportModal = (data, index) => {
   formData.value.id = data.id;
   formData.value.file = data.file;
   formData.value.name = data.name;
-  formData.value.passport = data.passport;
+  formData.value.passport = data.passport_number;
   formData.value.dob = data.dob;
   carModalOpen.value = true;
 };
@@ -313,12 +333,9 @@ const openFileFeaturePicker = () => {
   featureImageInput.value.click();
 };
 
-const removeFeatureDeleteImage = async (index, id) => {
+const removeFeatureDeleteImage = async (id) => {
   const res = await reservationStore.deleteTravellerImageAction(id);
-  if (res) {
-    editData.value.customer_passport_have.splice(index, 1);
-    // featureImagePreview.value.splice(index, 1);
-  }
+
   toast.success("detected successfully");
   carModalOpen.value = false;
   // console.log(editData.value.customer_passport, "this is remove");
@@ -330,6 +347,10 @@ const removeFeatureDeleteImage = async (index, id) => {
     dob: "",
     file: "",
   };
+
+  setTimeout(async () => {
+    await props.getDetailAction(route.query.id);
+  }, 1000);
 };
 
 const removeFeatureSelectImage = (index) => {
@@ -342,7 +363,7 @@ const addTravellerAction = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name ? formData.value.name : "-");
   frmData.append(
-    "passport",
+    "passport_number",
     formData.value.passport ? formData.value.passport : "-"
   );
   frmData.append("dob", formData.value.dob);
@@ -373,7 +394,7 @@ const addTravellerUpdateAction = async () => {
   frmData.append("_method", "PUT");
   frmData.append("name", formData.value.name ? formData.value.name : "-");
   frmData.append(
-    "passport",
+    "passport_number",
     formData.value.passport ? formData.value.passport : "-"
   );
   frmData.append("dob", formData.value.dob);

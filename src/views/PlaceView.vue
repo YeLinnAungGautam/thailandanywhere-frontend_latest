@@ -1,11 +1,14 @@
 <template>
+  <!-- Main container for places management -->
   <div
     class="bg-white/60 p-6 rounded-lg shadow-sm mb-5 md:col-span-3 hidden md:block"
   >
     <h3 class="text-xl font-medium text-gray-600 tracking-wide mb-3">Places</h3>
-    <!-- search input sort filter -->
+
+    <!-- Search and action buttons section -->
     <div class="flex items-center justify-between mb-8">
-      <div class="">
+      <!-- Search input -->
+      <div>
         <input
           v-model="search"
           type="text"
@@ -13,16 +16,21 @@
           placeholder="Search for places.."
         />
       </div>
+
+      <!-- Action buttons -->
       <div class="space-x-3">
-        <Button :leftIcon="ShareIcon" intent="text"> Export </Button>
+        <Button :leftIcon="ShareIcon" intent="text">Export</Button>
         <Button :leftIcon="PlusIcon" @click.prevent="carModalOpen = true">
           Add places
         </Button>
       </div>
     </div>
+
+    <!-- Places table section -->
     <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
       <div class="overflow-auto rounded-lg shadow mb-5" v-if="!loading">
         <table class="w-full">
+          <!-- Table header -->
           <thead class="bg-gray-50 border-b-2 border-gray-200">
             <tr>
               <th class="p-4 text-xs font-medium tracking-wide text-left">
@@ -31,7 +39,6 @@
               <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Name
               </th>
-
               <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Address
               </th>
@@ -40,31 +47,33 @@
               </th>
             </tr>
           </thead>
+
+          <!-- Table body -->
           <tbody class="divide-y divide-gray-100">
             <tr
-              v-for="tag in places?.data ?? []"
-              :key="tag.id"
+              v-for="place in places?.data ?? []"
+              :key="place.id"
               class="bg-white even:bg-gray-50 hover:bg-gray-50"
             >
               <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
-                {{ tag.id }}
+                {{ place.id }}
               </td>
               <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
-                {{ tag.name }}
+                {{ place.name }}
               </td>
               <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
-                {{ tag.address }}
+                {{ place.address }}
               </td>
               <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
                   <button
-                    @click.prevent="editModalOpenHandler(tag)"
+                    @click.prevent="editModalOpenHandler(place)"
                     class="hover:bg-yellow-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
                   >
                     <PencilSquareIcon class="w-5 h-5" />
                   </button>
                   <button
-                    @click.prevent="onDeleteHandler(tag.id)"
+                    @click.prevent="onDeleteHandler(place.id)"
                     class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
                   >
                     <TrashIcon class="w-5 h-5" />
@@ -75,14 +84,16 @@
           </tbody>
         </table>
       </div>
-      <!-- pagination -->
+
+      <!-- Pagination component -->
       <Pagination
         v-if="!loading && places != null"
         :data="places"
         @change-page="changePage"
       />
     </div>
-    <!-- modal -->
+
+    <!-- Add/Edit Modal -->
     <Modal :isOpen="carModalOpen" @closeModal="closeAction">
       <DialogPanel
         class="w-full max-w-md transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
@@ -93,7 +104,10 @@
         >
           {{ formData.id ? "Edit places" : "Add places" }}
         </DialogTitle>
+
+        <!-- Place form -->
         <form @submit.prevent="onSubmitHandler" class="mt-2">
+          <!-- Name input -->
           <div class="space-y-1 mb-2">
             <label for="name" class="text-gray-800 text-sm">Name</label>
             <input
@@ -106,6 +120,8 @@
               {{ errors.name[0] }}
             </p>
           </div>
+
+          <!-- City select -->
           <div class="space-y-1 mb-2">
             <label for="city_id" class="text-gray-800 text-sm">City</label>
             <v-select
@@ -116,8 +132,10 @@
               :clearable="false"
               :reduce="(d) => d.id"
               placeholder="Choose City"
-            ></v-select>
+            />
           </div>
+
+          <!-- Address input -->
           <div class="space-y-1 mb-2">
             <label for="address" class="text-gray-800 text-sm">Address</label>
             <input
@@ -130,8 +148,10 @@
               {{ errors.address[0] }}
             </p>
           </div>
+
+          <!-- Submit button -->
           <div class="text-end">
-            <Button type="submit"> Submit </Button>
+            <Button type="submit">Submit</Button>
           </div>
         </form>
       </DialogPanel>
@@ -140,39 +160,52 @@
 </template>
 
 <script setup>
-import Layout from "./Layout.vue";
-import Input from "../components/Input.vue";
-import Button from "../components/Button.vue";
-import Pagination from "../components/Pagination.vue";
+import { onMounted, ref, watch } from "vue";
+import { storeToRefs } from "pinia";
+import debounce from "lodash/debounce";
+import { useToast } from "vue-toastification";
+import Swal from "sweetalert2";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import {
   PencilSquareIcon,
   TrashIcon,
   ShareIcon,
-  EyeIcon,
-  TicketIcon,
-  BuildingOfficeIcon,
   PlusIcon,
-  UserGroupIcon,
-  UsersIcon,
-  AdjustmentsHorizontalIcon,
 } from "@heroicons/vue/24/outline";
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import { onMounted, ref, watch } from "vue";
+
+// Component imports
+import Layout from "./Layout.vue";
+import Input from "../components/Input.vue";
+import Button from "../components/Button.vue";
+import Pagination from "../components/Pagination.vue";
 import Modal from "../components/Modal.vue";
-import { storeToRefs } from "pinia";
-import axios from "axios";
-import { useToast } from "vue-toastification";
-import Swal from "sweetalert2";
+
+// Store imports
 import { usePlaceStore } from "../stores/place";
 import { useCityStore } from "../stores/city";
-import debounce from "lodash/debounce";
 
+// Initialize stores and services
 const placeStore = usePlaceStore();
 const cityStore = useCityStore();
 const toast = useToast();
 
+// Component state
 const carModalOpen = ref(false);
+const formData = ref({
+  name: "",
+  city_id: "",
+  address: "",
+  id: "",
+});
+const showEntries = ref(10);
+const errors = ref(null);
+const search = ref("");
 
+// Store refs
+const { places, loading } = storeToRefs(placeStore);
+const { cities } = storeToRefs(cityStore);
+
+// Methods for modal handling
 const closeAction = () => {
   formData.value = {
     name: "",
@@ -184,36 +217,16 @@ const closeAction = () => {
   carModalOpen.value = false;
 };
 
-const formData = ref({
-  name: "",
-  city_id: "",
-  address: "",
-  id: "",
-});
-const showEntries = ref(10);
-const errors = ref(null);
-const search = ref("");
-const { places, loading } = storeToRefs(placeStore);
-const { cities } = storeToRefs(cityStore);
-
-const changePage = async (url) => {
-  await placeStore.getChangePage(url);
-};
-
+// CRUD operations
 const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
   frmData.append("city_id", formData.value.city_id);
   frmData.append("address", formData.value.address);
+
   try {
     const response = await placeStore.addNewAction(frmData);
-    formData.value = {
-      name: "",
-      city_id: "",
-      address: "",
-    };
-    errors.value = null;
-    carModalOpen.value = false;
+    closeAction();
     await placeStore.getListAction();
     toast.success(response.message);
   } catch (error) {
@@ -230,16 +243,10 @@ const updateHandler = async () => {
   frmData.append("city_id", formData.value.city_id);
   frmData.append("address", formData.value.address);
   frmData.append("_method", "PUT");
+
   try {
     const response = await placeStore.updateAction(frmData, formData.value.id);
-    formData.value = {
-      name: "",
-      city_id: "",
-      address: "",
-      id: "",
-    };
-    errors.value = null;
-    carModalOpen.value = false;
+    closeAction();
     await placeStore.getListAction();
     toast.success(response.message);
   } catch (error) {
@@ -259,10 +266,12 @@ const onSubmitHandler = async () => {
 };
 
 const editModalOpenHandler = (data) => {
-  formData.value.id = data.id;
-  formData.value.name = data.name;
-  formData.value.city_id = data.city_id * 1;
-  formData.value.address = data.address;
+  formData.value = {
+    id: data.id,
+    name: data.name,
+    city_id: data.city_id * 1,
+    address: data.address,
+  };
   carModalOpen.value = true;
 };
 
@@ -280,30 +289,33 @@ const onDeleteHandler = async (id) => {
       try {
         const response = await placeStore.deleteAction(id);
         toast.success(response.message);
+        await placeStore.getListAction();
       } catch (error) {
         if (error.response.data.errors) {
           errors.value = error.response.data.errors;
         }
         toast.error(error.response.data.message);
       }
-      await placeStore.getListAction();
     }
   });
 };
 
+// Pagination handler
+const changePage = async (url) => {
+  await placeStore.getChangePage(url);
+};
+
+// Lifecycle hooks and watchers
 onMounted(async () => {
   await placeStore.getListAction();
   await cityStore.getSimpleListAction();
-  console.log(places.value, "this is value");
 });
 
 watch(showEntries, async (newValue) => {
   await placeStore.getListAction({ limit: showEntries.value });
 });
 
-// watch(search, async (newValue) => {
-//   await placeStore.getListTagAction({ search: search.value });
-// });
+// Debounced search
 watch(
   search,
   debounce(async (newValue) => {

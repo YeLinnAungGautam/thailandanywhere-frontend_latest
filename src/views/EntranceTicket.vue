@@ -204,13 +204,61 @@
               </p>
             </div>
             <div class="mb-2 space-y-1">
-              <label for="name" class="text-sm text-gray-800">Email</label>
+              <label for="name" class="text-sm text-gray-800"
+                >Contract Name</label
+              >
               <input
-                type="email"
+                type="text"
+                v-model="formData.contract_name"
                 id="name"
-                v-model="formData.email"
-                class="w-full h-10 px-4 py-2 text-gray-900 border border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                class="w-full h-10 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
               />
+              <p v-if="errors?.contract_name" class="mt-1 text-sm text-red-600">
+                {{ errors.contract_name[0] }}
+              </p>
+            </div>
+            <div class="space-y-1">
+              <div class="space-y-1">
+                <label for="name" class="text-sm text-gray-800"
+                  >Email For Booking</label
+                >
+                <div class="flex justify-between items-center">
+                  <input
+                    type="email"
+                    v-model="addEmail"
+                    id="name"
+                    placeholder="email"
+                    class="w-full h-10 text-xs px-4 py-2 text-gray-900 border border-gray-300 rounded-s-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                  />
+                  <p
+                    @click="addEmailAction"
+                    class="text-xs h-10 shadow-sm cursor-pointer flex justify-center items-center bg-blue-600 whitespace-nowrap border px-3 py-2 rounded-e-lg text-white"
+                  >
+                    + add
+                  </p>
+                </div>
+              </div>
+              <div class="space-y-1 mb-2">
+                <div
+                  class="flex justify-between items-center"
+                  v-for="(email, index) in formData.email"
+                  :key="index"
+                >
+                  <input
+                    type="email"
+                    v-model="formData.email[index]"
+                    id="name"
+                    placeholder="email"
+                    class="w-full h-10 text-xs px-4 py-2 text-gray-900 border border-gray-300 rounded-s-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                  />
+                  <p
+                    @click="removeEmail(index)"
+                    class="text-xs h-10 shadow-sm cursor-pointer flex justify-center items-center bg-red-600 whitespace-nowrap border px-3 py-2 rounded-e-lg text-white"
+                  >
+                    - dele
+                  </p>
+                </div>
+              </div>
             </div>
             <div>
               <p class="mb-2 text-sm text-gray-800 space-y-1">Bank Name</p>
@@ -1207,7 +1255,8 @@ const formData = ref({
   account_name: "",
   place: "",
   legal_name: "",
-  email: "",
+  email: [],
+  contract_name: "",
   location_map_title: "",
   location_map: "",
   youtube_link: {
@@ -1237,7 +1286,8 @@ const VantourCreate = () => {
   formData.value.bank_account_number = "";
   formData.value.place = "";
   formData.value.legal_name = "";
-  formData.value.email = "";
+  formData.value.email = [];
+  formData.value.contract_name = "";
   formData.value.location_map_title = "";
   formData.value.location_map = "";
   formData.value.vat_inclusion = "";
@@ -1275,7 +1325,8 @@ const clearAction = () => {
     account_name: "",
     place: "",
     legal_name: "",
-    email: "",
+    email: [],
+    contract_name: "",
     location_map: "",
     location_map_title: "",
     youtube_link: {
@@ -1399,24 +1450,18 @@ const addNewHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
-  frmData.append("email", formData.value.email);
+  frmData.append("contract_name", formData.value.contract_name);
   formData.value.location_map &&
     frmData.append("location_map", formData.value.location_map);
   formData.value.location_map_title &&
     frmData.append("location_map_title", formData.value.location_map_title);
-  // if (
-  //   formData.value.youtube_link.mm_link ||
-  //   formData.value.youtube_link.en_link
-  // ) {
-  //   frmData.append(
-  //     "youtube_link[0][mm_link]",
-  //     formData.value.youtube_link.mm_link
-  //   );
-  //   frmData.append(
-  //     "youtube_link[0][en_link]",
-  //     formData.value.youtube_link.en_link
-  //   );
-  // }
+
+  if (formData.value.email.length > 0) {
+    for (let i = 0; i < formData.value.email.length; i++) {
+      frmData.append("email[" + i + "]", formData.value.email[i]);
+    }
+  }
+
   frmData.append(
     "youtube_link[0][mm_link]",
     formData.value.youtube_link.mm_link
@@ -1489,7 +1534,8 @@ const addNewHandler = async () => {
       place: "",
       contracts: [],
       legal_name: "",
-      email: "",
+      email: [],
+      contract_name: "",
       location_map: "",
       location_map_title: "",
       youtube_link: {
@@ -1550,24 +1596,18 @@ const updateHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
-  frmData.append("email", formData.value.email);
+  frmData.append("contract_name", formData.value.contract_name);
   formData.value.location_map &&
     frmData.append("location_map", formData.value.location_map);
   formData.value.location_map_title &&
     frmData.append("location_map_title", formData.value.location_map_title);
-  // if (
-  //   formData.value.youtube_link.mm_link ||
-  //   formData.value.youtube_link.en_link
-  // ) {
-  //   frmData.append(
-  //     "youtube_link[0][mm_link]",
-  //     formData.value.youtube_link.mm_link
-  //   );
-  //   frmData.append(
-  //     "youtube_link[0][en_link]",
-  //     formData.value.youtube_link.en_link
-  //   );
-  // }
+
+  if (formData.value.email.length > 0) {
+    for (let i = 0; i < formData.value.email.length; i++) {
+      frmData.append("email[" + i + "]", formData.value.email[i]);
+    }
+  }
+
   frmData.append(
     "youtube_link[0][mm_link]",
     formData.value.youtube_link.mm_link
@@ -1646,7 +1686,8 @@ const updateHandler = async () => {
       account_name: "",
       place: "",
       legal_name: "",
-      email: "",
+      email: [],
+      contract_name: "",
       location_map: "",
       location_map_title: "",
       youtube_link: {
@@ -1697,6 +1738,17 @@ const updateEditCategoryData = () => {
   console.log(formData.value.category_id, "form category");
 };
 
+const addEmail = ref("");
+
+const addEmailAction = () => {
+  formData.value.email.push(addEmail.value);
+  addEmail.value = "";
+};
+
+const removeEmail = (index) => {
+  formData.value.email.splice(index, 1);
+};
+
 // const linkContract = ref({});
 const editModalOpenHandler = async (id) => {
   try {
@@ -1713,10 +1765,12 @@ const editModalOpenHandler = async (id) => {
     formData.value.bank_account_number = response.result.bank_account_number;
     // formData.value.place = response.result.place;
     formData.value.legal_name = response.result.legal_name;
-    formData.value.email = response.result.email;
+    formData.value.contract_name = response.result.contract_name;
     formData.value.location_map = response.result.location_map;
     formData.value.vat_inclusion = response.result.vat_inclusion;
     formData.value.location_map_title = response.result.location_map_title;
+    formData.value.email =
+      response.result.email == null ? [] : response.result.email;
     // formData.value.youtube_link = response.result.location_map;
     if (
       response.result.youtube_link != null &&

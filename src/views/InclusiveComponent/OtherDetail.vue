@@ -24,6 +24,7 @@ const openDayDetail = ref(1);
 
 const props = defineProps({
   formData: Object,
+  detail: Object,
 });
 
 const hasData = (data) => {
@@ -149,7 +150,112 @@ const setupDetailsWatcher = () => {
   );
 };
 
+const itemListRefresh = (newValue) => {
+  items.value = [];
+  if (props.detail) {
+    console.log("props.detail", props.detail);
+    for (let i = 0; i < props.detail.entrance_tickets.length; i++) {
+      if (
+        props.detail.entrance_tickets[i].day == newValue &&
+        props.detail.entrance_tickets[i].product?.name !== "Meal" &&
+        props.detail.entrance_tickets[i].product?.name !== "Guide"
+      ) {
+        items.value.push({
+          id: props.detail.entrance_tickets[i].id,
+          name: props.detail.entrance_tickets[i].product?.name,
+          type: "Entrance Ticket",
+        });
+      }
+    }
+    for (let d = 0; d < props.detail.details.length; d++) {
+      if (props.detail.details[d].day_name == newValue) {
+        for (let a = 0; a < props.detail.details[d].destinations.length; a++) {
+          items.value.push({
+            id: props.detail.details[d].destinations[a].id,
+            name: props.detail.details[d].destinations[a].name,
+            type: "Destination",
+          });
+        }
+        for (let r = 0; r < props.detail.details[d].restaurants.length; r++) {
+          items.value.push({
+            id: props.detail.details[d].restaurants[r].id,
+            name: props.detail.details[d].restaurants[r].name,
+            type: "Restaurant",
+          });
+        }
+      }
+    }
+  }
+};
+
 // Check for `details` on component mount
+watch(openDayDetail, (newValue) => {
+  if (newValue) {
+    // console.log("openDayDetail", newValue, props.detail);
+    itemListRefresh(newValue);
+  }
+});
+
+// Sample data - you can replace this with your own data
+const items = ref([{ id: 1, name: "Item 1", type: "Type 1" }]);
+
+// Track the currently dragged item
+const draggedItem = ref(null);
+
+// Start drag operation
+const startDrag = (event, index) => {
+  // Set the data being dragged
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.dropEffect = "move";
+  event.dataTransfer.setData("itemIndex", index);
+
+  // Set which item is being dragged
+  draggedItem.value = index;
+
+  // Add a slight delay for better visual feedback
+  setTimeout(() => {
+    event.target.classList.add("opacity-50");
+  }, 0);
+};
+
+// Handle dragenter event
+const onDragEnter = (event, index) => {
+  // Only react if we're dragging onto a different item
+  if (draggedItem.value !== index) {
+    event.currentTarget.classList.add("border-t-2", "border-blue-400");
+  }
+};
+
+// Handle dragleave event
+const onDragLeave = (event) => {
+  event.currentTarget.classList.remove("border-t-2", "border-blue-400");
+};
+
+// Handle drop event
+const onDrop = (event, dropIndex) => {
+  event.currentTarget.classList.remove("border-t-2", "border-blue-400");
+  const dragIndex = event.dataTransfer.getData("itemIndex");
+
+  // Move item from dragIndex to dropIndex
+  if (dragIndex !== dropIndex) {
+    moveItem(parseInt(dragIndex), dropIndex);
+  }
+
+  // Reset opacity on dragged element
+  event.target.classList.remove("opacity-50");
+};
+
+// Function to move an item from one position to another
+const moveItem = (fromIndex, toIndex) => {
+  if (toIndex < 0 || toIndex >= items.value.length) return;
+
+  // Remove the item from its current position
+  const itemToMove = items.value.splice(fromIndex, 1)[0];
+
+  // Insert the item at the new position
+  items.value.splice(toIndex, 0, itemToMove);
+};
+
 onMounted(async () => {
   nextTick(() => {
     // Ensure DOM updates and prop values are resolved
@@ -258,11 +364,76 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-    <div class="pt-4">
+    <div class="pt-3">
       <div
-        class="w-full h-[500px] bg-gray-300 rounded-lg flex justify-center items-center"
+        class="w-full max-h-[800px] overflow-y-scroll p-4 bg-white border border-gray-300 rounded-2xl"
       >
-        <p class="text-gray-500">preview</p>
+        <div class="max-w-4xl mx-auto">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="font-medium">Sequence: Day {{ openDayDetail }}</h2>
+            <p
+              class="px-2 py-1 text-xs bg-[#FF613c] rounded-lg text-white cursor-pointer"
+              @click="itemListRefresh(openDayDetail)"
+            >
+              refresh
+            </p>
+          </div>
+
+          <!-- List Header -->
+          <div
+            class="grid grid-cols-6 gap-2 border-b border-gray-200 pb-2 font-semibold"
+          >
+            <div class="px-2 py-2 text-xs">Index</div>
+            <div class="px-2 py-2 text-xs">ID</div>
+            <div class="px-2 py-2 col-span-2 text-xs">Name</div>
+            <div class="px-2 py-2 text-xs">Type</div>
+          </div>
+
+          <!-- List Items -->
+          <div class="divide-y divide-gray-100">
+            <div
+              v-for="(item, index) in items"
+              :key="item.id"
+              class="grid grid-cols-6 gap-2 cursor-move"
+              :class="{
+                'bg-blue-50': draggedItem === index,
+                'hover:bg-gray-50': draggedItem !== index,
+              }"
+              draggable="true"
+              @dragstart="startDrag($event, index)"
+              @dragover.prevent
+              @dragenter.prevent="onDragEnter($event, index)"
+              @dragleave.prevent="onDragLeave($event)"
+              @drop.prevent="onDrop($event, index)"
+              @dragend="draggedItem = null"
+            >
+              <div class="px-2 py-3 flex items-center text-xs">
+                {{ index + 1 }}
+              </div>
+              <div class="px-2 py-3 flex items-center text-xs">
+                {{ item.id }}
+              </div>
+              <div class="px-2 py-3 flex col-span-2 items-center text-xs">
+                {{ item.name }}
+              </div>
+              <div class="px-2 py-3 flex items-center text-xs">
+                {{ item.type }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Instruction -->
+          <div
+            class="mt-4 text-sm text-gray-500"
+            @click="
+              () => {
+                console.log(items);
+              }
+            "
+          >
+            Drag and drop items to reorder them
+          </div>
+        </div>
       </div>
     </div>
   </div>

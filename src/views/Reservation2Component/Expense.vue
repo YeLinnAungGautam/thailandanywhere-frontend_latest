@@ -87,7 +87,10 @@
           class="h-9 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
         />
       </div>
-      <div class="space-y-2">
+      <div
+        class="space-y-2"
+        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
+      >
         <p class="text-gray-800 text-[10px]">Adult Unit Cost</p>
         <div class="grid grid-cols-3 gap-x-2">
           <input
@@ -105,24 +108,76 @@
           />
         </div>
       </div>
-      <div class="space-y-2">
+      <div
+        class="space-y-2"
+        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
+      >
         <p class="text-gray-800 text-[10px]">Child Unit Cost</p>
         <div class="grid grid-cols-3 gap-x-2">
           <input
             v-model="formData.child_quantity"
+            type="number"
+            disabled
+            id="title"
+            class="h-9 rounded-lg w-full bg-gray-2000 border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+          />
+          <input
+            v-model="formData.child_price"
+            type="number"
+            id="title"
+            class="h-9 col-span-2 rounded-lg w-full bg-gray-2000 border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+          />
+        </div>
+      </div>
+      <div
+        class="space-y-2"
+        v-if="detail?.product_type == 'App\\Models\\Hotel'"
+      >
+        <p class="text-gray-800 text-[10px]">Unit Cost</p>
+        <div class="flex justify-start items-center gap-x-2 text-xs">
+          <input
+            v-model="formData.quantity"
+            type="number"
+            id="title"
+            disabled
+            class="h-9 rounded-lg w-[40px] bg-white border border-gray-300 text-center py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+          />
+          R
+          <input
+            :value="daysBetween(detail?.checkin_date, detail?.checkout_date)"
+            type="number"
+            id="title"
+            disabled
+            class="h-9 rounded-lg w-[40px] bg-white border border-gray-300 text-center py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+          />
+          N
+          <input
+            v-model="formData.cost_price"
+            type="number"
+            id="title"
+            class="h-9 col-span-1 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+          />
+        </div>
+      </div>
+      <!-- <div
+        class="space-y-2"
+        v-if="detail?.product_type == 'App\\Models\\Hotel'"
+      >
+        <p class="text-gray-800 text-[10px]">Extra Bed Unit Cost</p>
+        <div class="grid grid-cols-3 gap-x-2">
+          <input
             type="number"
             id="title"
             disabled
             class="h-9 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
           />
           <input
-            v-model="formData.child_price"
             type="number"
             id="title"
             class="h-9 col-span-2 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
           />
         </div>
-      </div>
+      </div> -->
       <div
         class="space-y-2"
         v-if="
@@ -196,7 +251,7 @@
               class="relative"
             >
               <p
-                @click="openPassportModal(image, index)"
+                @click="openModal(image, index)"
                 class="absolute top-4 cursor-pointer text-[8px] shadow right-2 text-xs text-white bg-[#FF613c] px-2 py-0.5 rounded-lg"
               >
                 <span class="text-[10px]">edit</span>
@@ -212,13 +267,13 @@
                 class="w-full px-4 pb-1 mt-2 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
               >
                 <p class="text-[10px] flex justify-start items-center pt-2">
-                  Bank Name
+                  {{ image.bank_name }}
                 </p>
                 <p class="text-[10px] flex justify-start items-center">
-                  Amount
+                  {{ image.amount }}
                 </p>
                 <p class="text-[10px] flex justify-start items-center pb-2">
-                  Date
+                  {{ image.date }}
                 </p>
               </div>
             </div>
@@ -246,22 +301,22 @@
             <div class="grid grid-cols-2 gap-8">
               <div
                 @click="openFilePickerThree"
-                v-if="uploadRecePreview.length == 0 && save?.index == ''"
+                v-if="uploadRecePreview.length == 0 && !expenseData.file"
                 class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
               >
                 +
               </div>
               <div
-                v-if="uploadRecePreview.length != 0 && save?.index == ''"
+                v-if="uploadRecePreview.length != 0 && !expenseData.file"
                 class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
               >
                 <img :src="uploadRecePreview[0]" alt="" class="rounded-lg" />
               </div>
               <div
-                v-if="save?.index != ''"
+                v-if="expenseData.file"
                 class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
               >
-                <img :src="save?.data.file" alt="" class="rounded-lg" />
+                <img :src="expenseData.file" alt="" class="rounded-lg" />
               </div>
 
               <div class="space-y-4 relative pt-4">
@@ -269,14 +324,17 @@
                   <label for="" class="text-[12px] font-medium"
                     >Bank <span class="opacity-0">.....</span></label
                   >
-                  <input
-                    type="text"
+                  <select
                     name=""
-                    placeholder="name"
-                    disabled
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    v-model="expenseData.bank_name"
                     id=""
-                  />
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  >
+                    <option value="">Select Bank</option>
+                    <option :value="b.name" v-for="b in bankList" :key="b.id">
+                      {{ b.name }}
+                    </option>
+                  </select>
                 </div>
                 <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium"
@@ -285,8 +343,8 @@
                   <div class="flex justify-start items-center space-x-2">
                     <input
                       type="checkbox"
+                      v-model="expenseData.is_corporate"
                       name=""
-                      disabled
                       placeholder="name"
                       class="py-1.5 focus:outline-none text-xs"
                       id=""
@@ -298,7 +356,7 @@
                   <label for="" class="text-[12px] font-medium">Amount</label>
                   <input
                     type="number"
-                    disabled
+                    v-model="expenseData.amount"
                     name=""
                     placeholder="xxx"
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
@@ -309,19 +367,28 @@
                   <label for="" class="text-[12px] font-medium"
                     >Date <span class="opacity-0">......</span></label
                   >
-                  <input
-                    type="date"
-                    name=""
-                    disabled
-                    placeholder=""
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                    id=""
-                  />
+                  <div class="flex justify-between items-center w-[160px]">
+                    <p class="text-start text-xs" v-if="expenseData?.date">
+                      {{
+                        expenseData.date.includes("T")
+                          ? formatDate(expenseData.date)
+                          : formatDateFromDb(expenseData.date)
+                      }}
+                    </p>
+                    <input
+                      type="datetime-local"
+                      name=""
+                      v-model="expenseData.date"
+                      format="YYYY-MM-DD HH:mm:ss"
+                      class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                      id=""
+                    />
+                  </div>
                 </div>
                 <div class="flex justify-between items-start">
                   <label for="" class="text-[12px] font-medium">Comment</label>
                   <textarea
-                    disabled
+                    v-model="expenseData.comment"
                     class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[160px]"
                   >
                   </textarea>
@@ -331,16 +398,26 @@
                   class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
                 >
                   <p
-                    v-if="save?.index == ''"
-                    @click="expenseUpdateAction"
+                    v-if="!expenseData?.id"
+                    @click="createExpense"
                     class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
                   >
                     Save
                   </p>
                   <p
-                    v-if="save?.index != ''"
+                    v-if="expenseData?.id"
+                    @click="updateExpense"
+                    class="px-3 py-1 bg-blue-500 text-white text-[12px] cursor-pointer rounded-lg"
+                  >
+                    Update
+                  </p>
+                  <p
+                    v-if="expenseData?.id"
                     @click="
-                      removeFeatureDeleteImage(save?.index, save?.data.id)
+                      removeFeatureDeleteImage(
+                        expenseData.index,
+                        expenseData.id
+                      )
                     "
                     class="px-3 py-1 bg-red-500 text-white text-[12px] cursor-pointer rounded-lg"
                   >
@@ -402,9 +479,169 @@ const formData = ref({
   child_price: "",
 });
 
+const expenseData = ref({
+  index: "",
+  id: "",
+  file: null,
+  amount: 0,
+  date: "",
+  bank_name: "",
+  sender: "",
+  is_corporate: false,
+  comment: "",
+});
+
+const openModal = (data, index) => {
+  carModalOpen.value = true;
+  console.log(data, index, "this is data");
+
+  // save.value = data;
+  expenseData.value = {
+    index: index,
+    id: data.id,
+    file: data.file,
+    amount: data.amount,
+    date: data.date,
+    bank_name: data.bank_name,
+    sender: data.sender,
+    is_corporate: data.is_corporate == 1 ? true : false,
+    comment: data.comment,
+  };
+};
+
+const clearAction = () => {
+  expenseData.value = {
+    index: "",
+    id: "",
+    file: null,
+    amount: 0,
+    date: "",
+    bank_name: "",
+    sender: "",
+    is_corporate: false,
+    comment: "",
+  };
+  carModalOpen.value = false;
+};
+
 const openFilePickerThree = () => {
   fileInputThree.value.click();
 };
+
+const formatDate = (dateString) => {
+  // Parse the input string into a Date object
+  const date = new Date(dateString);
+
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    return "Invalid Date"; // Handle invalid dates
+  }
+
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Extract date components
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+
+  // Extract time components
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  // Return formatted date and time
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+};
+
+const formatDateFromDb = (dateString) => {
+  // Split the input string into date and time parts
+  const [datePart, timePart] = dateString.split(" ");
+
+  // Split the date part into day, month, year
+  const [day, month, year] = datePart.split("-");
+
+  // Define month names
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Get the month name
+  const monthName = monthNames[parseInt(month) - 1]; // Subtract 1 because months are 0-indexed
+
+  // Return the formatted date
+  return `${day}/${monthName}/${year} ${timePart}`;
+};
+
+const formatDateDb = (dateString) => {
+  if (!dateString) return "";
+
+  // Case 1: Replace 'T' with space
+  if (dateString.includes("T")) {
+    return dateString.replace("T", " ");
+  }
+
+  // Case 2: Check if it's in DD-MM-YYYY format with regex
+  const ddmmyyyyRegex = /^(\d{2})-(\d{2})-(\d{4})\s(.*)$/;
+  const match = dateString.match(ddmmyyyyRegex);
+
+  if (match) {
+    // match[1] = day, match[2] = month, match[3] = year, match[4] = time part
+    return `${match[3]}-${match[2]}-${match[1]} ${match[4]}`;
+  }
+
+  // If it doesn't match any of our cases, return as-is
+  return dateString;
+};
+
+const bankList = ref([
+  { id: "1", name: "KPAY" },
+  { id: "2", name: "AYAPAY" },
+  { id: "3", name: "CBPAY" },
+  { id: "4", name: "KBZ BANKING" },
+  { id: "5", name: "CB BANKING" },
+  { id: "6", name: "MAB BANKING" },
+  { id: "7", name: "YOMA BANK" },
+  { id: "8", name: "Kasikorn" },
+  { id: "9", name: "Bangkok Bank" },
+  { id: "10", name: "Bank of Ayudhaya" },
+  { id: "11", name: "SCB Bank" },
+  { id: "12", name: "KPAY" },
+  { id: "13", name: "AYAPAY" },
+  { id: "14", name: "CBPAY" },
+  { id: "15", name: "KBZ BANKING" },
+  { id: "16", name: "CB BANKING" },
+  { id: "17", name: "MAB BANKING" },
+  { id: "18", name: "YOMA BANK" },
+  { id: "19", name: "Kasikorn" },
+  { id: "20", name: "Bangkok Bank" },
+  { id: "21", name: "Bank of Ayudhaya" },
+  { id: "22", name: "SCB Bank" },
+  { id: "23", name: "Others..." },
+]);
 
 const recehandleFileChange = (e) => {
   let selectedFile = e.target.files;
@@ -423,20 +660,8 @@ const cancelAction = () => {
   formData.value.receipt_image = [];
   uploadRecePreview.value = [];
   carModalOpen.value = false;
-};
 
-const save = ref({
-  data: {},
-  index: 0,
-});
-
-const openPassportModal = (data, index) => {
-  save.value.data = data;
-  save.value.index = index;
-  console.log("====================================");
-  console.log(save.value, "this is save");
-  console.log("====================================");
-  carModalOpen.value = true;
+  clearAction();
 };
 
 const expenseUpdateAction = async () => {
@@ -451,11 +676,56 @@ const expenseUpdateAction = async () => {
     frmData.append("quantity", formData.value.quantity);
   formData.value.payment_status &&
     frmData.append("payment_status", formData.value.payment_status);
+  if (props.detail?.product_type == "App\\Models\\EntranceTicket") {
+    // const individualPricing = {
+    //   child: {
+    //     quantity: formData.value.child_quantity,
+    //     selling_price:
+    //       props.detail?.individual_pricing?.child?.selling_price ?? 0,
+    //     cost_price: formData.value.child_price,
+    //     total_cost_price:
+    //       formData.value.child_price * formData.value.child_quantity,
+    //     amount: props.detail?.individual_pricing?.child?.selling_price
+    //       ? props.detail?.individual_pricing?.child?.selling_price *
+    //         formData.value.child_quantity
+    //       : 0,
+    //   },
+    // };
+
+    // Stringify the individual_pricing object before appending it to FormData
+    frmData.append(
+      "individual_pricing[child][quantity]",
+      formData.value.child_quantity
+    );
+    frmData.append(
+      "individual_pricing[child][selling_price]",
+      props.detail?.individual_pricing?.child?.selling_price ?? 0
+    );
+    frmData.append(
+      "individual_pricing[child][cost_price]",
+      formData.value.child_price
+    );
+    frmData.append(
+      "individual_pricing[child][total_cost_price]",
+      formData.value.child_price * formData.value.child_quantity
+    );
+    frmData.append(
+      "individual_pricing[child][amount]",
+      props.detail?.individual_pricing?.child?.selling_price
+        ? props.detail?.individual_pricing?.child?.selling_price *
+            formData.value.child_quantity
+        : 0
+    );
+  }
   if (formData.value.cost_price) {
     if (!formData.value.hotalQuantity) {
       frmData.append(
         "total_cost_price",
-        formData.value.cost_price * formData.value.quantity
+        formData.value.cost_price * formData.value.quantity +
+          (formData.value.child_price ??
+            0 * formData.value.child_quantity ??
+            0) *
+            1
       );
     } else {
       frmData.append(
@@ -482,14 +752,14 @@ const expenseUpdateAction = async () => {
     if (formData.value.bank_account_number) {
       secfrm.append("bank_account_number", formData.value.bank_account_number);
     }
-    if (formData.value.receipt_image.length != 0) {
-      if (formData.value.receipt_image.length > 0) {
-        for (let i = 0; i < formData.value.receipt_image.length; i++) {
-          let file = formData.value.receipt_image[i];
-          secfrm.append("receipt_image[" + i + "]", file);
-        }
-      }
-    }
+    // if (formData.value.receipt_image.length != 0) {
+    //   if (formData.value.receipt_image.length > 0) {
+    //     for (let i = 0; i < formData.value.receipt_image.length; i++) {
+    //       let file = formData.value.receipt_image[i];
+    //       secfrm.append("receipt_image[" + i + "]", file);
+    //     }
+    //   }
+    // }
 
     await reservationStore.updateInfoAction(secfrm, formData.value.id);
 
@@ -527,10 +797,7 @@ const removeFeatureDeleteImage = async (index, id) => {
   carModalOpen.value = false;
   // console.log(editData.value.customer_passport, "this is remove");
 
-  save.value = {
-    data: "",
-    index: "",
-  };
+  cancelAction();
 
   setTimeout(async () => {
     await props.getDetailAction(route.query.id);
@@ -550,6 +817,83 @@ const daysBetween = (a, b) => {
     );
     console.log(formData.value.checkin_date, result, "this is result");
     return result;
+  }
+};
+
+const loading = ref(false);
+
+const createExpense = async () => {
+  // console.log(formData.value);
+  loading.value = true;
+  try {
+    const frmData = new FormData();
+    frmData.append("amount", expenseData.value.amount);
+    frmData.append("date", formatDateDb(expenseData.value.date));
+    frmData.append("bank_name", expenseData.value.bank_name);
+    frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
+    frmData.append("comment", expenseData.value.comment);
+
+    if (formData.value.receipt_image.length != 0) {
+      if (formData.value.receipt_image.length > 0) {
+        for (let i = 0; i < formData.value.receipt_image.length; i++) {
+          let file = formData.value.receipt_image[0];
+          frmData.append("file", file);
+        }
+      }
+    }
+
+    const res = await reservationStore.ReservationExpenseReceiptAction(
+      props.detail.id,
+      frmData
+    );
+    console.log(res);
+    toast.success({
+      title: "Success",
+      description: "Create success",
+    });
+
+    setTimeout(async () => {
+      await props.getDetailAction(route.query.id);
+    }, 1000);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loading.value = false;
+    carModalOpen.value = false;
+  }
+};
+
+const updateExpense = async () => {
+  // console.log(formData.value);
+  loading.value = true;
+  try {
+    const frmData = new FormData();
+    frmData.append("_method", "PUT");
+    frmData.append("amount", expenseData.value.amount);
+    frmData.append("date", formatDateDb(expenseData.value.date));
+    frmData.append("bank_name", expenseData.value.bank_name);
+    frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
+    frmData.append("comment", expenseData.value.comment);
+
+    const res = await reservationStore.ReservationExpenseReceiptUpdateAction(
+      props.detail.id,
+      expenseData.value.id,
+      frmData
+    );
+    console.log(res);
+    toast.success({
+      title: "Success",
+      description: "Update success",
+    });
+
+    setTimeout(async () => {
+      await props.getDetailAction(route.query.id);
+    }, 1000);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loading.value = false;
+    carModalOpen.value = false;
   }
 };
 
@@ -582,6 +926,7 @@ onMounted(() => {
     formData.value.product_type = props.detail?.product_type;
     formData.value.customer_feedback =
       props.detail?.reservation_info?.customer_feedback || "";
+
     formData.value.child_quantity = props.detail?.individual_pricing
       ? props?.detail?.individual_pricing?.child?.quantity
       : 0;

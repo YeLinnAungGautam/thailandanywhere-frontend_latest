@@ -4,7 +4,7 @@
       <div class="flex justify-between items-center"></div>
 
       <div class="pt-2 grid grid-cols-4 gap-x-4">
-        <div class="space-y-2 pt-2" @click="carModalOpen = true">
+        <div class="space-y-2 pt-2" @click="openPassportModal">
           <div
             class="w-full h-[180px] border border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
           >
@@ -14,15 +14,12 @@
             class="w-full px-4 pb-1 border-dashed border border-[#FF613c] space-y-2 text-[#FF613c] hover:shadow-none rounded-lg"
           >
             <p class="text-[10px] flex justify-start items-center pt-2">
-              <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
               Invoice Date
             </p>
             <p class="text-[10px] flex justify-start items-center">
-              <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
               Company Name
             </p>
             <p class="text-[10px] flex justify-start items-center pb-2">
-              <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
               Invoice Amount
             </p>
           </div>
@@ -49,16 +46,13 @@
             class="w-full px-4 pb-1 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
           >
             <p class="text-[10px] flex justify-start items-center pt-2">
-              <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
-              Invoice Date
+              {{ image.invoice }}
             </p>
             <p class="text-[10px] flex justify-start items-center">
-              <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
-              Company Name
+              {{ image.customer }}
             </p>
             <p class="text-[10px] flex justify-start items-center pb-2">
-              <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-              Invoice Amount
+              {{ image.amount }} thb
             </p>
           </div>
         </div>
@@ -105,8 +99,8 @@
                   <label for="" class="text-[12px] font-medium">Amount</label>
                   <input
                     type="number"
+                    v-model="formData.amount"
                     name=""
-                    disabled
                     placeholder="xxxx"
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
@@ -116,46 +110,64 @@
                   <label for="" class="text-[12px] font-medium"
                     >Invoice <span class="opacity-0">.</span></label
                   >
-                  <input
-                    type="date"
-                    name=""
-                    disabled
-                    placeholder=""
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                    id=""
-                  />
+                  <div class="flex justify-between items-center w-[160px]">
+                    <p class="text-start text-xs" v-if="formData?.invoice">
+                      {{
+                        formData.invoice.includes("T")
+                          ? formatDate(formData.invoice)
+                          : formatDateFromDb(formData.invoice)
+                      }}
+                    </p>
+                    <input
+                      type="datetime-local"
+                      name=""
+                      v-model="formData.invoice"
+                      format="YYYY-MM-DD HH:mm:ss"
+                      class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                      id=""
+                    />
+                  </div>
                 </div>
                 <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium">Due </label>
-                  <input
-                    type="date"
-                    name=""
-                    disabled
-                    placeholder=""
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                    id=""
-                  />
+                  <div class="flex justify-between items-center w-[160px]">
+                    <p class="text-start text-xs" v-if="formData?.due_date">
+                      {{
+                        formData.due_date.includes("T")
+                          ? formatDate(formData.due_date)
+                          : formatDateFromDb(formData.due_date)
+                      }}
+                    </p>
+                    <input
+                      type="datetime-local"
+                      name=""
+                      v-model="formData.due_date"
+                      format="YYYY-MM-DD HH:mm:ss"
+                      class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                      id=""
+                    />
+                  </div>
                 </div>
                 <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium"
                     >Customer
                   </label>
                   <select
+                    v-model="formData.customer"
                     name=""
-                    disabled
                     id=""
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   >
                     <option value="">Select</option>
-                    <option value="1">TH Anyhwere</option>
-                    <option value="2">Other</option>
+                    <option value="TH Anywhere">TH Anyhwere</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
                 <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium">Sender</label>
                   <input
                     type="text"
-                    disabled
+                    v-model="formData.sender_name"
                     name=""
                     placeholder="xxxx"
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
@@ -227,6 +239,7 @@ const props = defineProps({
 const formData = ref({
   id: "",
   amount: "",
+  file: "",
   invoice: "",
   due_date: "",
   customer: "",
@@ -275,22 +288,126 @@ const deleteAction = async (id) => {
 };
 
 const openPassportModal = (data) => {
+  console.log(data, "this is data");
   // open passport modal
-  featureImagePreview.value = data.file;
-  formData.value.id = data.id;
-  formData.value.amount = data.amount;
-  formData.value.invoice = data.invoice;
-  formData.value.due_date = data.due_date;
-  formData.value.customer = data.customer;
-  formData.value.sender_name = data.sender_name;
+  if (data) {
+    featureImagePreview.value = data.file;
+    formData.value.id = data.id;
+    formData.value.amount = data.amount;
+    formData.value.invoice = data.invoice;
+    formData.value.due_date = data.due_date;
+    formData.value.customer = data.customer;
+    formData.value.sender_name = data.sender_name
+      ? data.sender_name
+      : props?.detail?.product?.legal_name;
+  } else {
+    formData.value = {
+      id: "",
+      amount: "",
+      invoice: "",
+      due_date: "",
+      customer: "",
+      sender_name: props?.detail?.product?.legal_name,
+    };
+    featureImagePreview.value = null;
+  }
   carModalOpen.value = true;
+};
+
+const formatDate = (dateString) => {
+  // Parse the input string into a Date object
+  const date = new Date(dateString);
+
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    return "Invalid Date"; // Handle invalid dates
+  }
+
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Extract date components
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+
+  // Extract time components
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  // Return formatted date and time
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+};
+
+const formatDateFromDb = (dateString) => {
+  // Split the input string into date and time parts
+  const [datePart, timePart] = dateString.split(" ");
+
+  // Split the date part into day, month, year
+  const [day, month, year] = datePart.split("-");
+
+  // Define month names
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Get the month name
+  const monthName = monthNames[parseInt(month) - 1]; // Subtract 1 because months are 0-indexed
+
+  // Return the formatted date
+  return `${day}/${monthName}/${year} ${timePart}`;
+};
+
+const formatDateDb = (dateString) => {
+  if (!dateString) return "";
+
+  // Case 1: Replace 'T' with space
+  if (dateString.includes("T")) {
+    return dateString.replace("T", " ");
+  }
+
+  // Case 2: Check if it's in DD-MM-YYYY format with regex
+  const ddmmyyyyRegex = /^(\d{2})-(\d{2})-(\d{4})\s(.*)$/;
+  const match = dateString.match(ddmmyyyyRegex);
+
+  if (match) {
+    // match[1] = day, match[2] = month, match[3] = year, match[4] = time part
+    return `${match[3]}-${match[2]}-${match[1]} ${match[4]}`;
+  }
+
+  // If it doesn't match any of our cases, return as-is
+  return dateString;
 };
 
 const addInvoiceAction = async () => {
   const frmData = new FormData();
   frmData.append("amount", formData.value.amount);
-  frmData.append("invoice", formData.value.invoice);
-  frmData.append("due_date", formData.value.due_date);
+  frmData.append("invoice", formatDateDb(formData.value.invoice));
+  frmData.append("due_date", formatDateDb(formData.value.due_date));
   frmData.append("customer", formData.value.customer);
   frmData.append("sender_name", formData.value.sender_name);
   if (
@@ -318,17 +435,19 @@ const addInvoiceAction = async () => {
 
 const addInvoiceUpdateAction = async () => {
   const frmData = new FormData();
+  frmData.append("_method", "PUT");
   frmData.append("amount", formData.value.amount);
-  frmData.append("invoice", formData.value.invoice);
-  frmData.append("due_date", formData.value.due_date);
+  frmData.append("invoice", formatDateDb(formData.value.invoice));
+  frmData.append("due_date", formatDateDb(formData.value.due_date));
   frmData.append("customer", formData.value.customer);
   frmData.append("sender_name", formData.value.sender_name);
-  if (
-    props.detail?.product_type == "App\\Models\\EntranceTicket" ||
-    props.detail?.product_type == "App\\Models\\Hotel"
-  ) {
-    frmData.append("file", editData.value.car_photo);
-  }
+  // if (
+  //   (props.detail?.product_type == "App\\Models\\EntranceTicket" ||
+  //     props.detail?.product_type == "App\\Models\\Hotel") &&
+  //   editData.value.car_photo != null
+  // ) {
+  //   frmData.append("file", editData.value.car_photo);
+  // }
 
   const res = await reservationStore.bookingConfirmationUpdateAction(
     props.detail?.id,

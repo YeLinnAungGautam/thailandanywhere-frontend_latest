@@ -76,5 +76,21 @@ export const useAdminStore = defineStore("admin", {
         throw error;
       }
     },
+    async getSaleManager() {
+      try {
+        const response = await axios.get("/sale-managers");
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async assignSaleManager(data) {
+      try {
+        const response = await axios.post("/sale-managers/assign", data);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

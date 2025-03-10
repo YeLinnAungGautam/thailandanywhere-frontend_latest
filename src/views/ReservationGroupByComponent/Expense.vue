@@ -87,120 +87,55 @@
           class="h-9 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
         />
       </div>
+
       <div
-        class="space-y-2"
-        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
-      >
-        <p class="text-gray-800 text-[10px]">Adult Unit Cost</p>
-        <div class="grid grid-cols-3 gap-x-2">
-          <input
-            v-model="formData.quantity"
-            type="number"
-            id="title"
-            disabled
-            class="h-9 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-          <input
-            v-model="formData.cost_price"
-            type="number"
-            id="title"
-            class="h-9 col-span-2 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-        </div>
-      </div>
-      <div
-        class="space-y-2"
-        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
-      >
-        <p class="text-gray-800 text-[10px]">Child Unit Cost</p>
-        <div class="grid grid-cols-3 gap-x-2">
-          <input
-            v-model="formData.child_quantity"
-            type="number"
-            disabled
-            id="title"
-            class="h-9 rounded-lg w-full bg-gray-2000 border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-          <input
-            v-model="formData.child_price"
-            type="number"
-            id="title"
-            class="h-9 col-span-2 rounded-lg w-full bg-gray-2000 border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-        </div>
-      </div>
-      <div
-        class="space-y-2"
-        v-if="detail?.product_type == 'App\\Models\\Hotel'"
-      >
-        <p class="text-gray-800 text-[10px]">Unit Cost</p>
-        <div class="flex justify-start items-center gap-x-2 text-xs">
-          <input
-            v-model="formData.quantity"
-            type="number"
-            id="title"
-            disabled
-            class="h-9 rounded-lg w-[40px] bg-white border border-gray-300 text-center py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-          R
-          <input
-            :value="daysBetween(detail?.checkin_date, detail?.checkout_date)"
-            type="number"
-            id="title"
-            disabled
-            class="h-9 rounded-lg w-[40px] bg-white border border-gray-300 text-center py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-          N
-          <input
-            v-model="formData.cost_price"
-            type="number"
-            id="title"
-            class="h-9 col-span-1 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-        </div>
-      </div>
-      <!-- <div
-        class="space-y-2"
-        v-if="detail?.product_type == 'App\\Models\\Hotel'"
-      >
-        <p class="text-gray-800 text-[10px]">Extra Bed Unit Cost</p>
-        <div class="grid grid-cols-3 gap-x-2">
-          <input
-            type="number"
-            id="title"
-            disabled
-            class="h-9 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-          <input
-            type="number"
-            id="title"
-            class="h-9 col-span-2 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-        </div>
-      </div> -->
-      <div
-        class="space-y-2"
-        v-if="
-          detail?.product_type == 'App\\Models\\EntranceTicket' ||
-          detail?.product_type == 'App\\Models\\Hotel' ||
-          detail?.product_type == 'App\\Models\\PrivateVanTour' ||
-          detail?.product_type == 'App\\Models\\GroupTour' ||
-          detail?.product_type == 'App\\Models\\Airline'
-        "
+        class="col-span-2 grid grid-cols-2 gap-4"
+        v-for="(item, index) in formData.multiple_id"
+        :key="index"
       >
         <div class="space-y-2">
-          <p class="text-gray-800 text-[10px]">Total Cost</p>
+          <p class="text-gray-800 text-[10px]">
+            Unit Cost for {{ formData.multiple_crm_id[index] }}
+          </p>
+          <div class="flex justify-start items-center gap-x-2 text-xs">
+            <input
+              v-model="formData.multiple_quantity[index]"
+              type="number"
+              id="title"
+              disabled
+              class="h-9 rounded-lg w-[40px] bg-white border border-gray-300 text-center py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+            />
+            R
+            <input
+              :value="
+                daysBetween(
+                  detail?.booking?.items[index]?.checkin_date,
+                  detail?.booking?.items[index]?.checkout_date
+                )
+              "
+              type="number"
+              id="title"
+              disabled
+              class="h-9 rounded-lg w-[40px] bg-white border border-gray-300 text-center py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+            />
+            N
+            <input
+              v-model="formData.multiple_cost_price[index]"
+              type="number"
+              id="title"
+              class="h-9 col-span-1 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+            />
+          </div>
+        </div>
+        <div class="space-y-2">
+          <p class="text-gray-800 text-[10px]">
+            Total Cost for {{ formData.multiple_crm_id[index] }}
+          </p>
           <p
             class="h-9 w-full bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
           >
-            {{ detail?.total_cost_price }}
+            {{ detail?.booking?.items[index]?.total_cost_price }}
           </p>
-          <!-- <p
-            class="h-9 w-full bg-white border rounded-md border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-            v-if="detail?.checkin_date"
-          >
-            {{ formData.cost_price * formData.hotalQuantity }}
-          </p> -->
         </div>
       </div>
       <div class="space-y-2 col-span-2 w-full">
@@ -215,10 +150,7 @@
             accept="image/*"
           />
 
-          <p
-            class="text-[10px]"
-            v-if="formData.booking_receipt_image?.length != 0"
-          >
+          <p class="text-[10px]" v-if="editData.expenses?.length != 0">
             receipt slip
           </p>
           <div class="grid grid-cols-4 gap-4">
@@ -245,11 +177,23 @@
                 </p>
               </div>
             </div>
+          </div>
+          <div
+            v-for="i in editData.reservation_ids"
+            :key="i"
+            class="grid grid-cols-4 gap-4"
+          >
             <div
-              v-for="(image, index) in formData.booking_receipt_image ?? []"
+              v-for="(image, index) in editData.expenses ?? []"
               :key="index"
-              class="relative"
+              class="relative space-y-1"
+              :class="i.crm_id === image.crm_id ? '' : 'hidden'"
             >
+              <p
+                class="text-[10px] px-2 py-1 bg-[#FF613c] rounded-lg text-white"
+              >
+                {{ i.crm_id }}
+              </p>
               <p
                 @click="openModal(image, index)"
                 class="absolute top-4 cursor-pointer text-[8px] shadow right-2 text-xs text-white bg-[#FF613c] px-2 py-0.5 rounded-lg"
@@ -299,6 +243,9 @@
         <div class="p-4">
           <div class="p-4">
             <div class="grid grid-cols-2 gap-8">
+              <p class="text-[10px] text-gray-500 col-span-2">
+                Before save, Please make sure for which reservation.
+              </p>
               <div
                 @click="openFilePickerThree"
                 v-if="uploadRecePreview.length == 0 && !expenseData.file"
@@ -399,14 +346,14 @@
                 >
                   <p
                     v-if="!expenseData?.id"
-                    @click="createExpense"
+                    @click="askForReservationId()"
                     class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
                   >
                     Save
                   </p>
                   <p
                     v-if="expenseData?.id"
-                    @click="updateExpense"
+                    @click="updateExpense(expenseData.reservation_id)"
                     class="px-3 py-1 bg-blue-500 text-white text-[12px] cursor-pointer rounded-lg"
                   >
                     Update
@@ -431,6 +378,34 @@
                   </p>
                 </div>
               </div>
+              <div class="col-span-2" v-if="!expenseData.id">
+                <label for="" class="text-[12px] font-medium"
+                  >For Which ?
+                </label>
+                <div>
+                  <input
+                    type="checkbox"
+                    v-model="allReservation"
+                    id="car"
+                    name="for_which"
+                  />
+                  <label for="car" class="text-[12px] ml-2"
+                    >For all reservations.</label
+                  >
+                </div>
+                <div v-for="i in editData.reservation_ids" :key="i">
+                  <input
+                    type="checkbox"
+                    v-model="i.selected"
+                    id="car"
+                    name="for_which"
+                  />
+                  <label for="car" class="text-[12px] ml-2">
+                    <span class="text-[#FF613c]">{{ i.crm_id }}</span
+                    >: {{ i.name }}</label
+                  >
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -441,7 +416,7 @@
 
 <script setup>
 import { XCircleIcon } from "@heroicons/vue/24/outline";
-import { ref, defineProps, onMounted } from "vue";
+import { ref, defineProps, onMounted, watch, computed } from "vue";
 import { useToast } from "vue-toastification";
 import { useReservationStore } from "../../stores/reservation";
 import Modal from "../../components/Modal.vue";
@@ -462,26 +437,31 @@ const route = useRoute();
 const fileInputThree = ref(null);
 
 const formData = ref({
-  id: "",
-  reservation_id: "",
-  cost_price: "",
+  multiple_id: [],
+  multiple_id_reservation: [],
+  multiple_crm_id: [],
+  multiple_cost_price: [],
   payment_method: "",
   bank_name: "",
   bank_account_number: "",
   payment_status: "",
-  hotalQuantity: "",
-  quantity: "",
+  hotalQuantity: [],
+  multiple_quantity: [],
   receipt_image: [],
   booking_receipt_image: [],
   product_type: "",
   customer_feedback: "",
-  child_quantity: "",
-  child_price: "",
+});
+
+const editData = ref({
+  reservation_ids: [],
+  expenses: [],
 });
 
 const expenseData = ref({
   index: "",
   id: "",
+  reservation_id: "",
   file: null,
   amount: 0,
   date: "",
@@ -499,6 +479,7 @@ const openModal = (data, index) => {
   expenseData.value = {
     index: index,
     id: data.id,
+    reservation_id: data.reservation_id,
     file: data.file,
     amount: data.amount,
     date: data.date,
@@ -513,6 +494,7 @@ const clearAction = () => {
   expenseData.value = {
     index: "",
     id: "",
+    reservation_id: "",
     file: null,
     amount: 0,
     date: "",
@@ -665,108 +647,138 @@ const cancelAction = () => {
 };
 
 const expenseUpdateAction = async () => {
-  // your logic to update the expense data goes here
-  const frmData = new FormData();
-  frmData.append("_method", "PUT");
-  formData.value.cost_price &&
-    frmData.append("cost_price", formData.value.cost_price);
-  formData.value.payment_method &&
-    frmData.append("payment_method", formData.value.payment_method);
-  formData.value.quantity &&
-    frmData.append("quantity", formData.value.quantity);
-  formData.value.payment_status &&
-    frmData.append("payment_status", formData.value.payment_status);
-  if (props.detail?.product_type == "App\\Models\\EntranceTicket") {
-    // const individualPricing = {
-    //   child: {
-    //     quantity: formData.value.child_quantity,
-    //     selling_price:
-    //       props.detail?.individual_pricing?.child?.selling_price ?? 0,
-    //     cost_price: formData.value.child_price,
-    //     total_cost_price:
-    //       formData.value.child_price * formData.value.child_quantity,
-    //     amount: props.detail?.individual_pricing?.child?.selling_price
-    //       ? props.detail?.individual_pricing?.child?.selling_price *
-    //         formData.value.child_quantity
-    //       : 0,
-    //   },
-    // };
+  loading.value = true;
+  let successCount = 0;
+  let failCount = 0;
 
-    // Stringify the individual_pricing object before appending it to FormData
-    frmData.append(
-      "individual_pricing[child][quantity]",
-      formData.value.child_quantity
-    );
-    frmData.append(
-      "individual_pricing[child][selling_price]",
-      props.detail?.individual_pricing?.child?.selling_price ?? 0
-    );
-    frmData.append(
-      "individual_pricing[child][cost_price]",
-      formData.value.child_price
-    );
-    frmData.append(
-      "individual_pricing[child][total_cost_price]",
-      formData.value.child_price * formData.value.child_quantity
-    );
-    frmData.append(
-      "individual_pricing[child][amount]",
-      props.detail?.individual_pricing?.child?.selling_price
-        ? props.detail?.individual_pricing?.child?.selling_price *
-            formData.value.child_quantity
-        : 0
-    );
-  }
-  if (formData.value.cost_price) {
-    if (!formData.value.hotalQuantity) {
-      frmData.append(
-        "total_cost_price",
-        formData.value.cost_price * formData.value.quantity +
-          (formData.value.child_price ??
-            0 * formData.value.child_quantity ??
-            0) *
-            1
-      );
+  try {
+    // Get the array of IDs to update
+    const itemIds = formData.value.multiple_id || [];
+
+    if (itemIds.length === 0) {
+      toast.error("No items found to update");
+      loading.value = false;
+      return;
+    }
+
+    // Process each item ID
+    for (let i = 0; i < itemIds.length; i++) {
+      try {
+        const itemId = itemIds[i];
+
+        // Create form data for the first update (reservation)
+        const frmData = new FormData();
+        frmData.append("_method", "PUT");
+
+        // Get item-specific data if available, otherwise use general data
+        const costPrice =
+          formData.value.multiple_cost_price &&
+          formData.value.multiple_cost_price[i]
+            ? formData.value.multiple_cost_price[i]
+            : formData.value.cost_price;
+
+        const quantity =
+          formData.value.multiple_quantity &&
+          formData.value.multiple_quantity[i]
+            ? formData.value.multiple_quantity[i]
+            : formData.value.quantity;
+
+        const hotelQuantity =
+          formData.value.hotalQuantity && formData.value.hotalQuantity[i]
+            ? formData.value.hotalQuantity[i]
+            : formData.value.hotalQuantity;
+
+        const childPrice =
+          formData.value.child_price && formData.value.child_price[i]
+            ? formData.value.child_price[i]
+            : formData.value.child_price || 0;
+
+        const childQuantity =
+          formData.value.child_quantity && formData.value.child_quantity[i]
+            ? formData.value.child_quantity[i]
+            : formData.value.child_quantity || 0;
+
+        // Append data to form
+        if (costPrice) frmData.append("cost_price", costPrice);
+        if (formData.value.payment_method)
+          frmData.append("payment_method", formData.value.payment_method);
+        if (quantity) frmData.append("quantity", quantity);
+        if (formData.value.payment_status)
+          frmData.append("payment_status", formData.value.payment_status);
+
+        // Calculate and append total cost price
+        if (costPrice) {
+          if (!hotelQuantity) {
+            const totalCostPrice =
+              costPrice * quantity + childPrice * childQuantity;
+            frmData.append("total_cost_price", totalCostPrice);
+          } else {
+            const totalCostPrice = costPrice * hotelQuantity;
+            frmData.append("total_cost_price", totalCostPrice);
+          }
+        }
+
+        // Send first update request
+        const response = await reservationStore.updateAction(frmData, itemId);
+
+        // If first update was successful, send second update
+        if (response.status) {
+          const secfrm = new FormData();
+          secfrm.append("_method", "PUT");
+
+          if (formData.value.customer_feedback) {
+            secfrm.append(
+              "customer_feedback",
+              formData.value.customer_feedback
+            );
+          }
+
+          if (formData.value.bank_name) {
+            secfrm.append("bank_name", formData.value.bank_name);
+          }
+
+          if (formData.value.bank_account_number) {
+            secfrm.append(
+              "bank_account_number",
+              formData.value.bank_account_number
+            );
+          }
+
+          // Send second update request
+          await reservationStore.updateInfoAction(secfrm, itemId);
+
+          console.log(`Successfully updated item ${itemId}`);
+          successCount++;
+        } else {
+          console.error(`Failed to update item ${itemId}: ${response.message}`);
+          failCount++;
+        }
+      } catch (error) {
+        console.error(`Error updating item ${itemIds[i]}:`, error);
+        failCount++;
+      }
+    }
+
+    // Show appropriate toast based on results
+    if (failCount === 0) {
+      toast.success(`Successfully updated ${successCount} items`);
+    } else if (successCount === 0) {
+      toast.error(`Failed to update all ${failCount} items`);
     } else {
-      frmData.append(
-        "total_cost_price",
-        formData.value.cost_price * formData.value.hotalQuantity
+      toast.info(
+        `Updated ${successCount} items, failed to update ${failCount} items`
       );
     }
-  }
-  const response = await reservationStore.updateAction(
-    frmData,
-    formData.value.id
-  );
 
-  if (response.status) {
-    const secfrm = new FormData();
-    secfrm.append("_method", "PUT");
-    if (formData.value.customer_feedback) {
-      secfrm.append("customer_feedback", formData.value.customer_feedback);
-    }
-
-    if (formData.value.bank_name) {
-      secfrm.append("bank_name", formData.value.bank_name);
-    }
-    if (formData.value.bank_account_number) {
-      secfrm.append("bank_account_number", formData.value.bank_account_number);
-    }
-    // if (formData.value.receipt_image.length != 0) {
-    //   if (formData.value.receipt_image.length > 0) {
-    //     for (let i = 0; i < formData.value.receipt_image.length; i++) {
-    //       let file = formData.value.receipt_image[i];
-    //       secfrm.append("receipt_image[" + i + "]", file);
-    //     }
-    //   }
-    // }
-
-    await reservationStore.updateInfoAction(secfrm, formData.value.id);
-
-    toast.success(response.message);
+    // Refresh the data
+  } catch (error) {
+    console.error("Error in expenseUpdateAction:", error);
+    toast.error("An unexpected error occurred");
+  } finally {
     setTimeout(async () => {
       await props.getDetailAction(route.query.id);
     }, 1000);
+    loading.value = false;
   }
 };
 
@@ -822,7 +834,7 @@ const daysBetween = (a, b) => {
 
 const loading = ref(false);
 
-const createExpense = async () => {
+const createExpense = async (id) => {
   // console.log(formData.value);
   loading.value = true;
   try {
@@ -843,7 +855,7 @@ const createExpense = async () => {
     }
 
     const res = await reservationStore.ReservationExpenseReceiptAction(
-      props.detail.id,
+      id,
       frmData
     );
     console.log(res);
@@ -852,18 +864,15 @@ const createExpense = async () => {
       description: "Create success",
     });
 
-    setTimeout(async () => {
-      await props.getDetailAction(route.query.id);
-    }, 1000);
+    // setTimeout(async () => {
+    //   await props.getDetailAction(route.query.id);
+    // }, 1000);
   } catch (error) {
     console.log(error);
-  } finally {
-    loading.value = false;
-    carModalOpen.value = false;
   }
 };
 
-const updateExpense = async () => {
+const updateExpense = async (id) => {
   // console.log(formData.value);
   loading.value = true;
   try {
@@ -876,7 +885,7 @@ const updateExpense = async () => {
     frmData.append("comment", expenseData.value.comment);
 
     const res = await reservationStore.ReservationExpenseReceiptUpdateAction(
-      props.detail.id,
+      id,
       expenseData.value.id,
       frmData
     );
@@ -885,54 +894,167 @@ const updateExpense = async () => {
       title: "Success",
       description: "Update success",
     });
-
-    setTimeout(async () => {
-      await props.getDetailAction(route.query.id);
-    }, 1000);
   } catch (error) {
     console.log(error);
   } finally {
     loading.value = false;
     carModalOpen.value = false;
+    setTimeout(async () => {
+      await props.getDetailAction(route.query.id);
+    }, 1000);
   }
 };
 
-onMounted(() => {
-  // Your initial data setup
-  if (props.detail) {
-    console.log(props.detail, "cart value");
-  }
-  if (props.detail) {
-    formData.value.id = props.detail?.id;
-    formData.value.cost_price = props.detail?.cost_price;
-    formData.value.payment_method = props.detail?.payment_method;
+const populateFormData = () => {
+  if (
+    props.detail &&
+    props.detail.booking &&
+    props.detail.booking.items &&
+    props.detail.booking.items.length > 0
+  ) {
+    // Reset arrays to avoid duplicate data if this function is called multiple times
+    formData.value.multiple_id = [];
+    formData.value.multiple_id_reservation = [];
+    formData.value.multiple_crm_id = [];
+    formData.value.multiple_cost_price = [];
+    formData.value.hotalQuantity = [];
+    formData.value.multiple_quantity = [];
+    formData.value.child_quantity = [];
+    formData.value.child_price = [];
+    editData.value.reservation_ids = [];
+    editData.value.expenses = [];
+
+    // Get common data from the first item (assuming common data is the same across items)
+    const firstItem = props.detail.booking.items[0];
+    formData.value.payment_method = firstItem?.payment_method || "";
     formData.value.bank_name =
-      props.detail?.reservation_info?.bank_name ||
-      props.detail?.bank_name ||
-      props.detail?.product.bank_name ||
+      firstItem?.reservation_info?.bank_name ||
+      firstItem?.bank_name ||
+      firstItem?.product?.bank_name ||
       "";
     formData.value.bank_account_number =
-      props.detail?.reservation_info?.bank_account_number ||
-      props.detail?.bank_account_number ||
-      props.detail?.product.bank_account_number ||
+      firstItem?.reservation_info?.bank_account_number ||
+      firstItem?.bank_account_number ||
+      firstItem?.product?.bank_account_number ||
       "";
-    formData.value.payment_status = props.detail?.payment_status;
-    formData.value.hotalQuantity =
-      props.detail?.quantity *
-      daysBetween(props.detail?.checkin_date, props.detail?.checkout_date);
-    formData.value.quantity = props.detail?.quantity;
-    // formData.value.receipt_image = props.detail?.receipt_image;
-    formData.value.booking_receipt_image = props.detail?.receipt_images;
-    formData.value.product_type = props.detail?.product_type;
+    formData.value.payment_status = firstItem?.payment_status || "";
+    formData.value.booking_receipt_image = firstItem?.receipt_images || [];
+    formData.value.product_type = firstItem?.product_type || "";
     formData.value.customer_feedback =
-      props.detail?.reservation_info?.customer_feedback || "";
+      firstItem?.reservation_info?.customer_feedback || "";
 
-    formData.value.child_quantity = props.detail?.individual_pricing
-      ? props?.detail?.individual_pricing?.child?.quantity
-      : 0;
-    formData.value.child_price = props.detail?.individual_pricing
-      ? props?.detail?.individual_pricing?.child?.cost_price
-      : 0;
+    // Loop through each item and collect data
+    props.detail.booking.items.forEach((item) => {
+      // Push item-specific data to arrays
+      formData.value.multiple_id.push(item.id);
+      formData.value.multiple_id_reservation.push(item.id); // Or any other reservation ID if needed
+      formData.value.multiple_crm_id.push(item.crm_id);
+      formData.value.multiple_cost_price.push(item.cost_price);
+      editData.value.reservation_ids.push({
+        id: item.id,
+        crm_id: item.crm_id,
+        name: item.room?.name,
+        selected: false,
+      });
+
+      item.receipt_images.forEach((a) => {
+        editData.value.expenses.push({
+          id: a.id,
+          crm_id: item.crm_id,
+          reservation_id: item.id,
+          file: a.file,
+          amount: a.amount,
+          date: a.date,
+          bank_name: a.bank_name,
+          is_corporate: a.is_corporate,
+          comment: a.comment,
+        });
+      });
+
+      // Calculate hotel quantity (nights × room quantity)
+      const nights = daysBetween(item.checkin_date, item.checkout_date);
+      formData.value.hotalQuantity.push(item.quantity * nights);
+      formData.value.multiple_quantity.push(item.quantity);
+    });
+
+    console.log(
+      "Form data populated with multiple items:",
+      formData.value,
+      editData.value
+    );
+  }
+};
+
+const allReservation = ref(false);
+
+const selectedReservationIds = computed(() => {
+  return editData.value.reservation_ids
+    .filter((item) => item.selected)
+    .map((item) => item.id);
+});
+
+const askForReservationId = () => {
+  console.log(
+    allReservation.value,
+    editData.value.reservation_ids,
+    "this is reservation"
+  );
+  processTravellerAction();
+};
+
+const processTravellerAction = async () => {
+  try {
+    loading.value = true;
+
+    // Determine which reservation IDs to use
+    let targetReservationIds = [];
+
+    if (allReservation.value) {
+      // Use all reservation IDs
+      targetReservationIds = editData.value.reservation_ids.map(
+        (item) => item.id
+      );
+    } else {
+      // Use only selected reservation IDs
+      targetReservationIds = selectedReservationIds.value;
+    }
+
+    // Process each reservation ID
+    for (const reservationId of targetReservationIds) {
+      if (!expenseData.value.id) {
+        await createExpense(reservationId);
+      }
+      console.log("====================================");
+      console.log(expenseData.value, "this is a valid reservation");
+      console.log("====================================");
+    }
+
+    // Refresh data after all operations
+  } catch (error) {
+    console.error("Error processing traveller actions:", error);
+    toast.error("An error occurred while processing");
+  } finally {
+    loading.value = false;
+    setTimeout(async () => {
+      await props.getDetailAction(route.query.id);
+    }, 3000);
+  }
+};
+
+watch(
+  () => props.detail,
+  (newValue) => {
+    if (newValue) {
+      populateFormData();
+    }
+  },
+  { immediate: true }
+);
+
+// Or call it in onMounted if props are available immediately
+onMounted(() => {
+  if (props.detail) {
+    populateFormData();
   }
 });
 </script>

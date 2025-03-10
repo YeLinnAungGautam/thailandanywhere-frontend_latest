@@ -24,11 +24,21 @@
             </p>
           </div>
         </div>
+      </div>
+      <div
+        v-for="a in editData.reservation_ids ?? []"
+        :key="a"
+        class="grid grid-cols-4 gap-4"
+      >
         <div
-          v-for="image in detail?.booking_confirm_letters"
+          v-for="image in editData.invoices ?? []"
           :key="image"
+          :class="a.crm_id == image.crm_id ? '' : 'hidden'"
           class="flex flex-col relative justify-stretch group space-y-2 w-full"
         >
+          <p class="text-[10px] px-2 py-1 bg-[#FF613c] rounded-lg text-white">
+            {{ a.crm_id }}
+          </p>
           <p
             @click="openPassportModal(image)"
             class="absolute top-4 cursor-pointer text-[8px] shadow right-2 text-xs text-white bg-[#FF613c] px-2 py-0.5 rounded-lg"
@@ -73,6 +83,9 @@
         <div class="p-4">
           <div class="p-4">
             <div class="grid grid-cols-2 gap-8">
+              <p class="text-[10px] text-gray-500 col-span-2">
+                Before save, Please make sure for which reservation.
+              </p>
               <div
                 v-if="!featureImagePreview"
                 class="w-[220px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
@@ -181,8 +194,8 @@
                   <p
                     @click="
                       formData.id
-                        ? addInvoiceUpdateAction()
-                        : addInvoiceAction()
+                        ? addInvoiceUpdateAction(formData.reservation_id)
+                        : askForReservationId()
                     "
                     class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
                   >
@@ -203,6 +216,34 @@
                   </p>
                 </div>
               </div>
+              <div class="col-span-2" v-if="!formData.id">
+                <label for="" class="text-[12px] font-medium"
+                  >For Which ?
+                </label>
+                <div>
+                  <input
+                    type="checkbox"
+                    v-model="allReservation"
+                    id="car"
+                    name="for_which"
+                  />
+                  <label for="car" class="text-[12px] ml-2"
+                    >For all reservations.</label
+                  >
+                </div>
+                <div v-for="i in editData.reservation_ids" :key="i">
+                  <input
+                    type="checkbox"
+                    v-model="i.selected"
+                    id="car"
+                    name="for_which"
+                  />
+                  <label for="car" class="text-[12px] ml-2">
+                    <span class="text-[#FF613c]">{{ i.crm_id }}</span
+                    >: {{ i.name }}</label
+                  >
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -213,7 +254,7 @@
 
 <script setup>
 import { XCircleIcon } from "@heroicons/vue/24/outline";
-import { ref, defineProps, onMounted } from "vue";
+import { ref, defineProps, onMounted, computed } from "vue";
 import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
 import invoice from "../../assets/invoice_exp.jpg";
@@ -227,6 +268,8 @@ const route = useRoute();
 
 const editData = ref({
   car_photo: null,
+  reservation_ids: [],
+  invoices: [],
 });
 
 const loading = ref(false);
@@ -238,6 +281,7 @@ const props = defineProps({
 
 const formData = ref({
   id: "",
+  reservation_id: "",
   amount: "",
   file: "",
   invoice: "",
@@ -265,6 +309,7 @@ const closeAction = async () => {
   editData.value.car_photo = null;
   formData.value = {
     id: "",
+    reservation_id: "",
     amount: "",
     invoice: "",
     due_date: "",
@@ -293,6 +338,7 @@ const openPassportModal = (data) => {
   if (data) {
     featureImagePreview.value = data.file;
     formData.value.id = data.id;
+    formData.value.reservation_id = data.reservation_id;
     formData.value.amount = data.amount;
     formData.value.invoice = data.invoice;
     formData.value.due_date = data.due_date;
@@ -403,37 +449,86 @@ const formatDateDb = (dateString) => {
   return dateString;
 };
 
-const addInvoiceAction = async () => {
+const allReservation = ref(false);
+
+const selectedReservationIds = computed(() => {
+  return editData.value.reservation_ids
+    .filter((item) => item.selected)
+    .map((item) => item.id);
+});
+
+const askForReservationId = () => {
+  // if (formData.value.id) {
+  //   addTravellerUpdateAction();
+  // } else {
+  //   addAction();
+  // }
+  console.log(
+    allReservation.value,
+    editData.value.reservation_ids,
+    "this is reservation"
+  );
+  processTravellerAction();
+};
+
+const processTravellerAction = async () => {
+  try {
+    loading.value = true;
+
+    // Determine which reservation IDs to use
+    let targetReservationIds = [];
+
+    if (allReservation.value) {
+      // Use all reservation IDs
+      targetReservationIds = editData.value.reservation_ids.map(
+        (item) => item.id
+      );
+    } else {
+      // Use only selected reservation IDs
+      targetReservationIds = selectedReservationIds.value;
+    }
+
+    // Process each reservation ID
+    for (const reservationId of targetReservationIds) {
+      if (!formData.value.id) {
+        await addInvoiceAction(reservationId);
+      }
+      console.log("====================================");
+      console.log(formData.value, "this is a valid reservation");
+      console.log("====================================");
+    }
+
+    // Refresh data after all operations
+  } catch (error) {
+    console.error("Error processing traveller actions:", error);
+    toast.error("An error occurred while processing");
+  } finally {
+    closeAction();
+    loading.value = false;
+    setTimeout(async () => {
+      await props.getDetailAction(route.query.id);
+    }, 3000);
+  }
+};
+
+const addInvoiceAction = async (id) => {
   const frmData = new FormData();
   frmData.append("amount", formData.value.amount);
   frmData.append("invoice", formatDateDb(formData.value.invoice));
   frmData.append("due_date", formatDateDb(formData.value.due_date));
   frmData.append("customer", formData.value.customer);
   frmData.append("sender_name", formData.value.sender_name);
-  if (
-    props.detail?.product_type == "App\\Models\\EntranceTicket" ||
-    props.detail?.product_type == "App\\Models\\Hotel"
-  ) {
-    frmData.append("file", editData.value.car_photo);
-  }
 
-  const res = await reservationStore.bookingConfirmationAction(
-    props.detail?.id,
-    frmData
-  );
+  frmData.append("file", editData.value.car_photo);
+
+  const res = await reservationStore.bookingConfirmationAction(id, frmData);
 
   console.log(res, "this is res");
-  closeAction();
 
   toast.success(res.message);
-
-  // props.closeTravellerModal();
-  setTimeout(async () => {
-    await props.getDetailAction(route.query.id);
-  }, 1000);
 };
 
-const addInvoiceUpdateAction = async () => {
+const addInvoiceUpdateAction = async (id) => {
   const frmData = new FormData();
   frmData.append("_method", "PUT");
   frmData.append("amount", formData.value.amount);
@@ -450,7 +545,7 @@ const addInvoiceUpdateAction = async () => {
   // }
 
   const res = await reservationStore.bookingConfirmationUpdateAction(
-    props.detail?.id,
+    id,
     formData.value.id,
     frmData
   );
@@ -467,8 +562,47 @@ const addInvoiceUpdateAction = async () => {
 };
 
 onMounted(() => {
-  if (props.data) {
+  if (props.detail) {
     loading.value = true;
+    for (let i = 0; i < props.detail?.booking?.items.length; i++) {
+      editData.value.reservation_ids.push({
+        id: props.detail?.booking?.items[i].id,
+        crm_id: props.detail?.booking?.items[i].crm_id,
+        name: props.detail?.booking?.items[i].room?.name,
+        selected: false,
+      });
+      if (props.detail?.booking?.items[i].booking_confirm_letters.length > 0) {
+        for (
+          let a = 0;
+          a < props.detail?.booking?.items[i].booking_confirm_letters.length;
+          a++
+        ) {
+          editData.value.invoices.push({
+            id: props.detail?.booking?.items[i].booking_confirm_letters[a].id,
+            reservation_id: props.detail?.booking?.items[i].id,
+            crm_id: props.detail?.booking?.items[i].crm_id,
+            amount:
+              props.detail?.booking?.items[i].booking_confirm_letters[a].amount,
+            invoice:
+              props.detail?.booking?.items[i].booking_confirm_letters[a]
+                .invoice,
+            due_date:
+              props.detail?.booking?.items[i].booking_confirm_letters[a]
+                .due_date,
+            customer:
+              props.detail?.booking?.items[i].booking_confirm_letters[a]
+                .customer,
+            sender_name: props.detail?.booking?.items[i]
+              .booking_confirm_letters[a].sender_name
+              ? props.detail?.booking?.items[i].booking_confirm_letters[a]
+                  .sender_name
+              : props?.detail?.booking?.items[i].product?.legal_name,
+            file: props.detail?.booking?.items[i].booking_confirm_letters[a]
+              .file,
+          });
+        }
+      }
+    }
     loading.value = false;
   }
 });

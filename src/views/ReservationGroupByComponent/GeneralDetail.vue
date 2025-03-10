@@ -11,13 +11,13 @@
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
       >
         <p class="text-[10px] text-gray-500">Item Sale Amount</p>
-        <p class="text-sm">{{ detail?.amount }} thb</p>
+        <p class="text-sm">{{ itemSaleAmount }} thb</p>
       </div>
       <div
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
       >
         <p class="text-[10px] text-gray-500">Total Discount</p>
-        <p class="text-sm">{{ detail?.booking?.discount }}</p>
+        <p class="text-sm">{{ itemSaleDiscount }}</p>
       </div>
       <div
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
@@ -31,84 +31,19 @@
         <p class="text-[10px] text-gray-500">Payment Method</p>
         <p class="text-sm">{{ detail?.booking?.payment_method }}</p>
       </div>
-      <div
-        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
-        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-      >
-        <p class="text-[10px] text-gray-500">Total Quantity</p>
-        <p class="text-sm">
-          {{
-            detail?.quantity +
-            (detail?.individual_pricing?.child?.quantity ?? 0) * 1
-          }}
-        </p>
-      </div>
-      <div
-        v-if="detail?.product_type == 'App\\Models\\Hotel'"
-        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-      >
-        <p class="text-[10px] text-gray-500">Rooms & Nights</p>
-        <p class="text-sm">
-          {{ detail?.quantity }} R x
-          {{
-            calculateDaysBetween(detail?.checkin_date, detail?.checkout_date)
-          }}
-          N
-        </p>
-      </div>
+
       <div
         class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
       >
         <p class="text-[10px] text-gray-500">Total Cost</p>
-        <p class="text-sm">{{ detail?.total_cost_price ?? 0 }}</p>
-      </div>
-      <div
-        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-      >
-        <p class="text-[10px] text-gray-500">Item Discount</p>
-        <p class="text-sm">{{ detail?.discount }}</p>
-      </div>
-      <div
-        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
-        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-      >
-        <p class="text-[10px] text-gray-500">Adult Qty</p>
-        <p class="text-sm">{{ detail?.quantity }}</p>
-      </div>
-      <div
-        v-if="detail?.product_type == 'App\\Models\\Hotel'"
-        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-      >
-        <p class="text-[10px] text-gray-500">Total Qty</p>
-        <p class="text-sm">
-          {{
-            detail?.quantity *
-            calculateDaysBetween(detail?.checkin_date, detail?.checkout_date)
-          }}
-        </p>
-      </div>
-      <div
-        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
-        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-      >
-        <p class="text-[10px] text-gray-500">Child Qty</p>
-        <p class="text-sm">
-          {{ detail?.individual_pricing?.child?.quantity ?? 0 }}
-        </p>
-      </div>
-      <div
-        v-if="detail?.product_type == 'App\\Models\\Hotel'"
-        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-      >
-        <p class="text-[10px] text-gray-500">Extra Bed Qty</p>
-        <p class="text-sm">-</p>
+        <p class="text-sm">{{ itemSaleCost }}</p>
       </div>
     </div>
     <div class="flex justify-between items-center">
       <p
         class="px-2 py-1 bg-[#FF613c] text-white inline-block text-xs rounded-lg"
       >
-        {{ detail?.crm_id }}
+        {{ detail?.booking?.crm_id }}
       </p>
       <p
         @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
@@ -293,7 +228,7 @@
 
 <script setup>
 import invoice from "../../assets/invoice_exp.jpg";
-import { defineProps, ref } from "vue";
+import { computed, defineProps, ref } from "vue";
 import dateImage from "../../assets/date.png";
 import bathImage from "../../assets/baht.png";
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/vue/24/outline";
@@ -380,6 +315,28 @@ const calculateDaysBetween = (a, b) => {
   }
 };
 
+const itemSaleAmount = computed(() => {
+  let total = 0;
+  props.detail?.booking?.items.forEach((item) => {
+    total += item.amount * 1;
+  });
+  return total;
+});
+const itemSaleDiscount = computed(() => {
+  let total = 0;
+  props.detail?.booking?.items.forEach((item) => {
+    total += item.discount * 1;
+  });
+  return total;
+});
+const itemSaleCost = computed(() => {
+  let total = 0;
+  props.detail?.booking?.items.forEach((item) => {
+    total += item.total_cost_price * 1;
+  });
+  return total;
+});
+
 const formatDate = (dateString) => {
   // Parse the input string into a Date object
   const date = new Date(dateString);
@@ -445,13 +402,8 @@ const formatDateFromDb = (dateString) => {
   const monthName = monthNames[parseInt(month) - 1]; // Subtract 1 because months are 0-indexed
 
   // Return the formatted date
-  return `${year}-${monthName}-${day} ${timePart}`;
+  return `${day}/${monthName}/${year} ${timePart}`;
 };
-
-// const formatDateDb = (dateString) => {
-//   // Parse the input string into a Date object
-//   return dateString.replace("T", " ");
-// };
 
 const formatDateDb = (dateString) => {
   if (!dateString) return "";

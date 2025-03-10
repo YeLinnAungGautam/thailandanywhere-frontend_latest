@@ -23,8 +23,8 @@ export const useGroupByStore = defineStore("groupby", {
     },
     async ReservationHotelDetailAction(id) {
       try {
-        const response = await axios.get("/reservations-hotel" + id);
-        return response.data;
+        const response = await axios.get("/reservations-hotel/" + id);
+        return response.data.result;
       } catch (error) {
         throw error;
       }

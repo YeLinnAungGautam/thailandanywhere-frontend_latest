@@ -138,7 +138,7 @@
               />
               <SidebarItem
                 name="Res Group"
-                :icon="DocumentCheckIcon"
+                :icon="ClipboardDocumentListIcon"
                 to="/reservation-hotel"
                 :activePaths="['reservation-hotel']"
               />
@@ -298,6 +298,7 @@ import {
   ClockIcon,
   ChevronDownIcon,
   NewspaperIcon,
+  ClipboardDocumentListIcon,
   CheckBadgeIcon,
   ChevronUpIcon,
   CalculatorIcon,

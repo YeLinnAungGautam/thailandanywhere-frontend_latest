@@ -123,13 +123,14 @@
         v-if="showList"
         class="transition-all duration-200 ease-in bg-gray-50 shadow rounded-md px-3 mt-3"
       >
-        <div v-for="item in data?.bookings[0]?.items" :key="item.id">
+        <div v-for="(item, index) in data?.bookings[0]?.items" :key="item.id">
           <div
-            class="text-[12px] font-medium space-x-2 text-gray-900 flex justify-start items-center overflow-x-scroll no-sidebar-container border-t border-gray-200 pt-2"
+            class="text-[12px] font-medium space-x-2 text-gray-900 flex justify-start items-center overflow-x-scroll no-sidebar-container pt-2"
+            :class="index == 0 ? '' : ' border-t border-gray-200'"
           >
             <p
               v-if="item.product_type == 'App\\Models\\Hotel'"
-              class="whitespace-nowrap text-[#FF613c] text-[10px]"
+              class="whitespace-nowrap font-medium text-[10px]"
             >
               {{ item.room?.name }}
             </p>
@@ -242,6 +243,14 @@
           </div>
         </div>
       </div>
+      <div class="text-center pt-2" v-if="showList">
+        <p
+          @click="goReservationDetail(data?.bookings[0]?.id)"
+          class="text-[10px] rounded-lg px-2 py-1 shadow text-white bg-[#FF613c] inline-block"
+        >
+          Reservation Detail
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -264,9 +273,11 @@ import {
 
 import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
+import { useRouter } from "vue-router";
 
 const authStore = useAuthStore();
 const toast = useToast();
+const router = useRouter();
 const showList = ref(false);
 const reservationStore = useReservationStore();
 const props = defineProps({
@@ -289,10 +300,17 @@ const daysBetween = (a, b) => {
   }
 };
 
-const formatDate = (date) => {
-  const [datePart] = date.split(" ");
-  const [day, month, year] = datePart.split("-");
-  return `${day}/${month}/${year}`;
+const emit = defineEmits("detailId");
+
+const goReservationDetail = (id) => {
+  // router.push({
+  //   name: "reservation-hotel",
+  //   query: {
+  //     id: id,
+  //   },
+  // });
+
+  emit("detailId", id);
 };
 
 const expense = (data) => {

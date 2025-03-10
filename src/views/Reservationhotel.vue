@@ -15,7 +15,7 @@ import {
   MagnifyingGlassIcon,
   XMarkIcon,
 } from "@heroicons/vue/24/outline";
-import ReservationDetail from "./Reservation2Component/ReservationDetail.vue";
+import ReservationDetail from "./ReservationGroupByComponent/ReservationDetail.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter, useRoute } from "vue-router";
 import { useAdminStore } from "../stores/admin";
@@ -229,12 +229,15 @@ const watchSystem = computed(() => {
 const detailId = ref("");
 const getDetailAction = async (id) => {
   detailId.value = id;
-  router.push({
-    name: "reservation-hotel",
-    query: {
-      id: detailId.value,
-    },
-  });
+  // router.push({
+  //   name: "reservation-hotel",
+  //   query: {
+  //     id: detailId.value,
+  //   },
+  // });
+  if (detailId.value) {
+    router.push("reservation-hotel?id=" + detailId.value);
+  }
 
   // showSide.value = false;
 };
@@ -384,9 +387,15 @@ watch([adminAction], async ([newValue]) => {
 const getReservationListAction = async () => {
   const res = await groupByStore.ReservationHotelList(watchSystem.value);
   console.log(res, "this is reservation list");
-  if (detailId.value == "") {
-    await getDetailAction(res.result?.data[0]?.id);
-  }
+  // if (detailId.value == "") {
+  //   await getDetailAction(res.result?.data[0]?.id);
+  // }
+};
+
+const detailGetAction = (id) => {
+  // detailId.value = id;
+  getDetailAction(id);
+  console.log(detailId.value);
 };
 
 const searchAction = async () => {
@@ -1178,7 +1187,11 @@ watch(dateRange, async (newValue) => {
               :key="i"
               @click="getDetailAction(i.id)"
             >
-              <ListReservation :data="i" :detailId="detailId" />
+              <ListReservation
+                :data="i"
+                :detailId="detailId"
+                @detailId="detailGetAction"
+              />
             </div>
           </div>
           <div class="overflow-x-scroll no-sidebar-container py-2">

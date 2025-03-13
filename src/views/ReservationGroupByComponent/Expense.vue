@@ -88,7 +88,102 @@
         />
       </div>
 
-      <div
+      <table
+        class="w-full rounded-xl col-span-2 overflow-hidden border border-gray-700 shadow-sm"
+      >
+        <thead class="bg-[#FF613c] text-white border-b-2 border-gray-200">
+          <tr>
+            <th
+              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              CRM ID
+            </th>
+            <th
+              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              Qty
+            </th>
+            <th
+              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              Check-in
+            </th>
+            <th
+              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              Check-out
+            </th>
+            <th
+              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              Days
+            </th>
+            <th
+              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              Unit Cost *
+            </th>
+            <th
+              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              Total Cost
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr
+            v-for="(item, index) in formData.multiple_id ?? []"
+            :key="item"
+            class="bg-white even:bg-gray-50 hover:bg-gray-50"
+          >
+            <td
+              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              {{ formData.multiple_crm_id[index] }}
+            </td>
+            <td class="py-1 px-4 text-[10px] font-normal text-left">
+              {{ formData.multiple_quantity[index] }}
+            </td>
+            <td
+              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              {{ detail?.booking?.items[index]?.checkin_date }}
+            </td>
+            <td
+              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              {{ detail?.booking?.items[index]?.checkout_date }}
+            </td>
+            <td
+              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              {{
+                daysBetween(
+                  detail?.booking?.items[index]?.checkin_date,
+                  detail?.booking?.items[index]?.checkout_date
+                )
+              }}
+            </td>
+            <td
+              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              <input
+                v-model="formData.multiple_cost_price[index]"
+                type="number"
+                id="title"
+                class="h-8 col-span-1 rounded-lg bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+              />
+            </td>
+            <td
+              class="py-1 px-4 text-[12px] whitespace-nowrap font-normal text-left"
+            >
+              {{ detail?.booking?.items[index]?.total_cost_price }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- <div
         class="col-span-2 grid grid-cols-2 gap-4"
         v-for="(item, index) in formData.multiple_id"
         :key="index"
@@ -137,7 +232,7 @@
             {{ detail?.booking?.items[index]?.total_cost_price }}
           </p>
         </div>
-      </div>
+      </div> -->
       <div class="space-y-2 col-span-2 w-full">
         <!-- <p class="text-gray-800 text-[10px]">Receipt</p> -->
         <div class="space-y-4 mb-2">

@@ -150,7 +150,7 @@
         <!-- show date  -->
         <div class="p-4">
           <p class="pb-4 text-sm font-medium">Expense</p>
-          <div class="grid grid-cols-5 gap-2">
+          <!-- <div class="grid grid-cols-5 gap-2">
             <div
               class="w-full h-auto relative"
               v-for="i in detail?.receipt_images ?? []"
@@ -159,6 +159,35 @@
               <img
                 :src="i.file"
                 class="rounded-lg w-full h-[130px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
+                alt=""
+              />
+              <div
+                @click="imageAddToAttachment(i.file)"
+                class="w-full px-4 py-1 mt-2 text-center border-dashed bg-[#FF613c] text-white space-y-2 hover:shadow-none rounded-xl"
+              >
+                <p class="text-xs">+ add</p>
+              </div>
+            </div>
+          </div> -->
+          <div
+            class="grid grid-cols-5 gap-2"
+            v-for="a in editData.reservation_ids ?? []"
+            :key="a"
+          >
+            <div
+              class="w-full h-auto relative"
+              v-for="i in editData.attachments ?? []"
+              :key="i"
+              :class="{ hidden: i.crm_id !== a.crm_id }"
+            >
+              <p
+                class="text-[10px] bg-gray-600 px-2 py-1 text-white rounded-lg"
+              >
+                {{ i.crm_id }}
+              </p>
+              <img
+                :src="i.file"
+                class="rounded-lg w-full h-[100px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
                 alt=""
               />
               <div
@@ -377,18 +406,18 @@ const editorOptions = {
 
 const mailBodyChange = () => {
   emailData.value.mail_subject = `Booking for ${showFormat(
-    props?.detail?.service_date
-  )}: ${props?.detail?.crm_id}`;
+    props?.detail?.booking?.items[0].service_date
+  )}: ${props?.detail?.booking.crm_id}`;
 
-  if (props?.detail?.product_type == "App\\Models\\EntranceTicket") {
-    emailData.value.mail_body = `<p class="p1">Dear ${props?.detail?.product?.name},</p>
+  let detail = props?.detail?.booking;
+
+  emailData.value.mail_body = `<p class="p1">Dear ${detail.items[0].product?.name},</p>
     <p class="p1">Please see our payment slip in the attached file. We would like to kindly request a confirmation letter as soon as possible. Please kindly issue a receipt with Tax ID and send it to us by email.</p>
     <p class="p1">Phone: 0950423254, 0637602448.</p>
     <p class="p1">TAX ID : 0105565081822 TH Anywhere Co.,Ltd.</p>
     <p class="p1">For any requirement you may contact us at 0637602448, 0983498197, 0950423254.</p>
     <p class="p1">Regards<br /> Negyi@Sunshine<br /> Reservation Manager</p>
 <p class="p1">143/50, Thepprasit Rd, Pattaya City, Bang Lamung District, Chon Buri 20150</p>`;
-  }
 };
 
 const imageAddToAttachment = async (fileUrl) => {
@@ -451,10 +480,44 @@ const cancelAction = () => {
   showModal.value = false;
 };
 
+const editData = ref({
+  reservation_ids: [],
+  attachments: [],
+});
+
 onMounted(() => {
   mailBodyChange();
   if (props?.detail) {
-    emailData.value.mail_to_array = props.detail?.product?.email || [];
+    emailData.value.mail_to_array =
+      props.detail?.booking?.items[0]?.product?.email || [];
+
+    for (let i = 0; i < props.detail?.booking?.items.length; i++) {
+      editData.value.reservation_ids.push({
+        id: props.detail?.booking?.items[i].id,
+        crm_id: props.detail?.booking?.items[i].crm_id,
+        name: props.detail?.booking?.items[i].room?.name,
+        selected: false,
+      });
+      if (props.detail?.booking?.items[i].receipt_images.length > 0) {
+        for (
+          let a = 0;
+          a < props.detail?.booking?.items[i].receipt_images.length;
+          a++
+        ) {
+          editData.value.attachments.push({
+            id: props.detail?.booking?.items[i].receipt_images[a].id,
+            reservation_id: props.detail?.booking?.items[i].id,
+            crm_id: props.detail?.booking?.items[i].crm_id,
+
+            file: props.detail?.booking?.items[i].receipt_images[a].file,
+          });
+        }
+      }
+    }
+
+    console.log("====================================");
+    console.log(editData.value.attachments);
+    console.log("====================================");
   }
 });
 </script>

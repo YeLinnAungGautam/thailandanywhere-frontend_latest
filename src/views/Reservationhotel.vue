@@ -202,7 +202,7 @@ const watchSystem = computed(() => {
     result.booking_date = formatDate(booking_date.value);
   }
   if (sale_daterange.value != undefined && !dateOnlyToggle.value) {
-    result.sale_daterange = sale_daterange.value;
+    result.booking_daterange = sale_daterange.value;
   }
   if (booking_daterange.value != undefined && !dateOnlyToggle.value) {
     result.booking_daterange = booking_daterange.value;
@@ -634,44 +634,7 @@ watch(dateRange, async (newValue) => {
                       as="div"
                       class="text-xs flex justify-between items-center font-medium leading-6 text-gray-900 mb-5"
                     >
-                      Select Date
-                      <div
-                        @click="dateOnlyToggle = !dateOnlyToggle"
-                        class="flex justify-end items-center gap-2"
-                      >
-                        <p class="text-xs">date only filter</p>
-                        <label
-                          class="inline-flex items-center cursor-pointer"
-                          v-if="dateOnlyToggle"
-                        >
-                          <input
-                            type="checkbox"
-                            value=""
-                            class="sr-only peer"
-                            disabled
-                          />
-                          <div
-                            class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
-                          ></div>
-                        </label>
-
-                        <label
-                          class="inline-flex items-center cursor-pointer"
-                          v-if="!dateOnlyToggle"
-                        >
-                          <input
-                            type="checkbox"
-                            value=""
-                            class="sr-only peer"
-                            checked
-                            disabled
-                          />
-                          <div
-                            class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
-                          ></div>
-                        </label>
-                        <p class="text-xs">date range filter</p>
-                      </div>
+                      Select Date filter for booking date
                     </DialogTitle>
                     <div v-if="dateOnlyToggle">
                       <VueDatePicker
@@ -708,7 +671,7 @@ watch(dateRange, async (newValue) => {
                   <span v-if="!searchTime && !sale_daterange">Select Date</span>
                 </p>
 
-                <div class="" v-if="search == 'App\\Models\\Hotel'">
+                <div class="">
                   <div class="flex justify-between items-center pb-2">
                     <p class="text-[10px]">Hotel</p>
 
@@ -740,40 +703,7 @@ watch(dateRange, async (newValue) => {
                     <HotelUnlimited @selectAction="ChangeHotelName" />
                   </div>
                 </div>
-                <div class="" v-if="search == 'App\\Models\\EntranceTicket'">
-                  <div class="flex justify-between items-center pb-2">
-                    <p class="text-[10px]">Attraction</p>
 
-                    <div class="flex justify-end items-center space-x-2">
-                      <p
-                        class="text-[10px] cursor-pointer"
-                        @click="attraction_name = ''"
-                      >
-                        clear
-                      </p>
-                      <p
-                        class="text-[10px] cursor-pointer"
-                        @click="entranceAction = !entranceAction"
-                      >
-                        {{ !entranceAction ? "show" : "hide" }}
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    v-if="!entranceAction"
-                    @click="entranceAction = true"
-                    class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-lg bg-white px-4 py-1.5 w-full"
-                  >
-                    <p class="text-[10px]">
-                      {{
-                        attraction_name ? attraction_name : "Attraction search"
-                      }}
-                    </p>
-                  </div>
-                  <div v-if="entranceAction" class="w-full">
-                    <AttractionUnlimited @selectAction="ChangeAttractionName" />
-                  </div>
-                </div>
                 <div>
                   <p class="text-[10px] pb-2">Customer Payment Status</p>
                   <!-- customer payment status -->

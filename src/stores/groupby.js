@@ -5,16 +5,18 @@ export const useGroupByStore = defineStore("groupby", {
   state: () => ({ results: null, loading: false }),
   getters: {},
   actions: {
-    async getChangePage(url) {
+    async getChangePage(url, params) {
       this.loading = true;
-      const response = await axios.get(url);
+      const response = await axios.get(url, params);
       this.results = response.data.result;
       this.loading = false;
       return response.data;
     },
-    async ReservationHotelList() {
+    async ReservationHotelList(params) {
       try {
-        const response = await axios.get("/reservations-hotel");
+        const response = await axios.get("/reservations-hotel", {
+          params: params,
+        });
         this.results = response.data.result;
         return response.data;
       } catch (error) {
@@ -24,6 +26,14 @@ export const useGroupByStore = defineStore("groupby", {
     async ReservationHotelDetailAction(id) {
       try {
         const response = await axios.get("/reservations-hotel/" + id);
+        return response.data.result;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async ReservationHotelDetailCopyAction(id) {
+      try {
+        const response = await axios.get("/reservations-hotel/" + id + "/copy");
         return response.data.result;
       } catch (error) {
         throw error;

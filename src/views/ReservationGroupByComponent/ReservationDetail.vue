@@ -140,117 +140,87 @@ const printHotelConfirm = () => {
 };
 
 const copyReservation = async (id) => {
-  const res = await groupbyStore.copyReservationDetail(id);
-  console.log(res, "this is cpy reservation");
-  let formattedOutput;
-  if (res.result.checkin_date != undefined) {
-    formattedOutput = `
-💰 Total Cost: ${res.result.total_cost} THB 🏦 Bank Name: ${
-      res.result.bank_name != "null" ? res.result.bank_name : "-"
+  try {
+    const res = await groupbyStore.ReservationHotelDetailCopyAction(id);
+    console.log(res, "this is cpy reservation");
+
+    // Check if we have data and items
+    if (!res || !res.items || res.items.length === 0) {
+      toast.error("No reservation items found");
+      return;
     }
+
+    // Create formatted output for all items
+    let allFormattedOutput = "";
+
+    // Add booking header
+    allFormattedOutput += `📋 BOOKING #${res.booking_id} | CRM ID: ${res.crm_id} | CUSTOMER: ${res.customer_name}\n\n`;
+
+    // Process each hotel item
+    res.items.forEach((item, index) => {
+      // Add item header
+      allFormattedOutput += `--- HOTEL RESERVATION ${index + 1} ---\n`;
+
+      // Format based on the type of item (hotel room)
+      let itemOutput = `
+💰 Total Cost: ${item.total_cost} THB 🏦 Bank Name: ${
+        item.bank_name != "null" ? item.bank_name : "-"
+      }
 🔢 Bank Account Number: ${
-      res.result.bank_account_number != "null"
-        ? `➖${res.result.bank_account_number}`
-        : "-"
+        item.bank_account_number != "null"
+          ? `➖${item.bank_account_number}`
+          : "-"
+      }
+🧑‍💼 Account Name: ${item.account_name != "null" ? item.account_name : "-"}
+#️⃣ CRM ID: ${item.crm_id}
+#️⃣ Reservation Code: ${item.reservation_code}
+🏨 Hotel Name: ${item.product_name}
+🏩 Room Name : ${item.room_name != "null" ? item.room_name : "-"}
+🛌 Total Rooms: ${item.total_rooms != "null" ? item.total_rooms : item.quantity}
+🌙 Total Nights: ${item.total_nights != "null" ? item.total_nights : "-"}
+💵 Price: ${item.sale_price} THB
+💵 Total Sale Amount: ${item.total_sale_amount} THB
+💸 Discount : ${item.discount} THB
+💵 Balance Due: ${item.balance_due} THB
+📝 Payment Status: ${item.payment_status}
+📅 Sale Date: ${item.sale_date != "null" ? item.sale_date : "-"}
+📅 Check-in Date: ${item.checkin_date != "null" ? item.checkin_date : "-"}
+📅 Checkout Date: ${item.checkout_date != "null" ? item.checkout_date : "-"}
+🤑 Score : ${item.score}
+`;
+
+      // Add to all formatted output
+      allFormattedOutput += itemOutput;
+
+      // Add separator between items
+      if (index < res.items.length - 1) {
+        allFormattedOutput += "\n----------------------------------------\n\n";
+      }
+    });
+
+    // Add summary section
+    if (res.summary) {
+      allFormattedOutput += `
+\n----------------------------------------
+📊 SUMMARY
+Total Rooms: ${res.summary.total_rooms}
+Total Nights: ${res.summary.total_nights}
+Total Amount: ${res.summary.total_amount} THB
+Total Cost: ${res.summary.total_cost} THB
+`;
     }
-🧑‍💼 Account Name: ${
-      res.result.account_name != "null" ? res.result.account_name : "-"
-    }
-#️⃣ CRM ID: ${res.result.crm_id}
-#️⃣ Reservation Code: ${res.result.reservation_code}
-🏨 Hotel Name: ${res.result.product_name}
-🏩 Room Name : ${res.result.room_name != "null" ? res.result.room_name : "-"}
-🛌 Total Rooms: ${
-      res.result.total_rooms != "null" ? res.result.total_rooms : "-"
-    }
-🌙 Total Nights: ${
-      res.result.total_nights != "null" ? res.result.total_nights : "-"
-    }
-💵 Price: ${res.result.sale_price} THB
-💵 Total Sale Amount: ${res.result.total_sale_amount} THB
-💸 Discount : ${res.result.discount} THB
-💵 Balance Due: ${res.result.balance_due} THB
-📝 Payment Status: ${res.result.payment_status}
-📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
-📅 Check-in Date: ${
-      res.result.checkin_date != "null" ? res.result.checkin_date : "-"
-    }
-📅 Checkout Date: ${
-      res.result.checkout_date != "null" ? res.result.checkout_date : "-"
-    }
-🤑 Score : ${res.result.score}
-    `;
-  } else if (res.result.entrance_ticket_variation_name) {
-    formattedOutput = `
-💰 Total Cost: ${res.result.total_cost_price} THB
-🏦 Bank Name: ${res.result.bank_name != "null" ? res.result.bank_name : "-"}
-🔢 Bank Account Number: ${
-      res.result.bank_account_number != "null"
-        ? `➖${res.result.bank_account_number}`
-        : "-"
-    }
-🧑‍💼 Account Name: ${res.result.account_name}
-#️⃣ CRM ID: ${res.result.crm_id}
-#️⃣ Reservation Code: ${res.result.reservation_code}
-🎫 Attraction : ${res.result.product_name}
-🎫 Entrance Ticket Name : ${res.result.entrance_ticket_variation_name}
-👨🏻 Adult : ${
-      res.result.individual_pricing?.adult?.quantity
-        ? res.result.individual_pricing?.adult?.quantity
-        : res.result.quantity
-    } x ${
-      res.result.individual_pricing?.adult?.cost_price
-        ? res.result.individual_pricing?.adult?.cost_price
-        : res.result.total_cost / res.result.quantity
-    } THB
-👶🏻 Child : ${
-      res.result.individual_pricing?.child?.quantity
-        ? res.result.individual_pricing?.child?.quantity
-        : 0
-    } x ${
-      res.result.individual_pricing?.child?.cost_price
-        ? res.result.individual_pricing?.child?.cost_price
-        : 0
-    } THB
-💵 Price: ${res.result.sale_price} THB
-💵 Total Sale Amount: ${res.result.total_sale_amount} THB
-💸 Discount : ${res.result.discount} THB
-💵 Balance Due: ${res.result.balance_due} THB
-📝 Payment Status: ${res.result.payment_status}
-📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
-🗓️ Service Date: ${
-      res.result.service_date != "null" ? res.result.service_date : "-"
-    }
-🤑 Score : ${res.result.score}
-    `;
-  } else if (res.result.ticket_type) {
-    formattedOutput = `
-💰 Total Cost: ${res.result.total_cost} THB
-#️⃣ CRM ID: ${res.result.crm_id}
-#️⃣ Reservation Code: ${res.result.reservation_code}
-✈️ Airline Name : ${res.result.product_name}
-🎫 Ticket Type : ${res.result.ticket_type}
-🎫 Total Tickets : ${res.result.total_ticket}
-💵 Price: ${res.result.sale_price} THB
-💵 Total Sale Amount: ${res.result.total_sale_amount} THB
-💸 Discount : ${res.result.discount} THB
-💵 Balance Due: ${res.result.balance_due} THB
-📝 Payment Status: ${res.result.payment_status}
-📅 Sale Date: ${res.result.sale_date != "null" ? res.result.sale_date : "-"}
-🗓️ Service Date: ${
-      res.result.service_date != "null" ? res.result.service_date : "-"
-    }
-🧾 Payment Status: ${res.result.payment_status}
-🤑 Score : ${res.result.score}
-📝 Expense Comment:
-  `;
+
+    // Copy to clipboard with a short timeout to ensure UI isn't blocked
+    setTimeout(() => {
+      navigator.clipboard.writeText(allFormattedOutput);
+      toast.success("success copy reservation");
+    }, 0);
+
+    return allFormattedOutput;
+  } catch (error) {
+    console.error("Error copying reservations:", error);
+    toast.error("Failed to copy reservation");
   }
-
-  setTimeout(() => {
-    navigator.clipboard.writeText(formattedOutput);
-  }, 0);
-
-  toast.success("success copy reservation");
 };
 
 // watch(
@@ -377,7 +347,7 @@ const hide = ref(false);
         <div class="flex justify-end items-center gap-x-2">
           <p
             class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
-            @click="copyReservation(detail?.id)"
+            @click="copyReservation(detail?.booking?.id)"
           >
             Copy Expense
           </p>

@@ -1112,11 +1112,17 @@ watch(dateRange, async (newValue) => {
             class="bg-white shadow rounded-lg divide-y divide-gray-100 max-h-[62vh] overflow-y-scroll"
           >
             <div
-              class=""
+              class="relative"
               v-for="i in results?.data ?? []"
               :key="i"
               @click="getDetailAction(i.id)"
             >
+              <div
+                @click="detailGetAction(i.bookings[0]?.id)"
+                class="absolute top-7 text-[10px] z-30 cursor-pointer right-2 px-2 py-0.5 rounded-lg bg-[#FF613c] text-white"
+              >
+                Detial
+              </div>
               <ListReservation
                 :data="i"
                 :detailId="detailId"

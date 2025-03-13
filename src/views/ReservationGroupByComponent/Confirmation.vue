@@ -93,7 +93,7 @@
         class="border p-3 rounded-lg mb-4"
       >
         <div class="flex justify-between items-center mb-2">
-          <h3 class="font-medium text-sm">
+          <h3 class="font-medium text-xs">
             {{ reservationItem.name || "Item" }} ({{ reservationItem.crm_id }})
           </h3>
           <div class="form-check flex justify-center items-center">

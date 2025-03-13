@@ -1,5 +1,11 @@
 <template>
-  <div class="px-4 pb-2 relative cursor-pointer" @click="showList = !showList">
+  <div
+    class="px-4 pb-2 relative cursor-pointer"
+    @click="showList = !showList"
+    :class="
+      data?.bookings[0]?.id == route.query.id ? 'bg-[#FF613c]/20 shadow-lg' : ''
+    "
+  >
     <div
       class="absolute top-[36px] left-3 rounded-full w-2 h-2"
       :class="{
@@ -121,7 +127,7 @@
       </div>
       <div
         v-if="showList"
-        class="transition-all duration-200 ease-in bg-gray-50 shadow rounded-md px-3 mt-3"
+        class="transition-all mb-2 duration-200 ease-in bg-gray-50 shadow rounded-md px-3 mt-3"
       >
         <div v-for="(item, index) in data?.bookings[0]?.items" :key="item.id">
           <div
@@ -243,7 +249,7 @@
           </div>
         </div>
       </div>
-      <div class="text-center pt-2" v-if="showList">
+      <div class="text-center pt-2 hidden" v-if="showList">
         <p
           @click="goReservationDetail(data?.bookings[0]?.id)"
           class="text-[10px] rounded-lg px-2 py-1 shadow text-white bg-[#FF613c] inline-block"
@@ -273,11 +279,11 @@ import {
 
 import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
-import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 
 const authStore = useAuthStore();
 const toast = useToast();
-const router = useRouter();
+const route = useRoute();
 const showList = ref(false);
 const reservationStore = useReservationStore();
 const props = defineProps({

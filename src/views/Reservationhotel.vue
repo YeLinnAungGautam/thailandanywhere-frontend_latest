@@ -229,12 +229,7 @@ const watchSystem = computed(() => {
 const detailId = ref("");
 const getDetailAction = async (id) => {
   detailId.value = id;
-  // router.push({
-  //   name: "reservation-hotel",
-  //   query: {
-  //     id: detailId.value,
-  //   },
-  // });
+
   if (detailId.value) {
     router.push("reservation-hotel?id=" + detailId.value);
   }
@@ -1115,14 +1110,14 @@ watch(dateRange, async (newValue) => {
               class="relative"
               v-for="i in results?.data ?? []"
               :key="i"
-              @click="getDetailAction(i.id)"
+              @click="detailGetAction(i.bookings[0]?.id)"
             >
-              <div
-                @click="detailGetAction(i.bookings[0]?.id)"
+              <!-- <div
+                @click="getDetailAction(i.bookings[0]?.id)"
                 class="absolute top-7 text-[10px] z-30 cursor-pointer right-2 px-2 py-0.5 rounded-lg bg-[#FF613c] text-white"
               >
                 Detial
-              </div>
+              </div> -->
               <ListReservation
                 :data="i"
                 :detailId="detailId"

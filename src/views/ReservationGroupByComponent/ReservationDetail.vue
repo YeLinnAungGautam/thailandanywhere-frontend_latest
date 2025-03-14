@@ -154,61 +154,29 @@ const copyReservation = async (id) => {
     let allFormattedOutput = "";
 
     // Add booking header
-    allFormattedOutput += `📋 BOOKING #${res.booking_id} | CRM ID: ${res.crm_id} | CUSTOMER: ${res.customer_name}\n\n`;
-
-    // Process each hotel item
-    res.items.forEach((item, index) => {
-      // Add item header
-      allFormattedOutput += `--- HOTEL RESERVATION ${index + 1} ---\n`;
-
-      // Format based on the type of item (hotel room)
-      let itemOutput = `
-💰 Total Cost: ${item.total_cost} THB 🏦 Bank Name: ${
-        item.bank_name != "null" ? item.bank_name : "-"
-      }
+    allFormattedOutput += `💰 Total Cost: ${res.summary.total_cost} THB
+🏦 Bank Name: ${res.items[0].bank_name != "null" ? res.items[0].bank_name : "-"}
 🔢 Bank Account Number: ${
-        item.bank_account_number != "null"
-          ? `➖${item.bank_account_number}`
-          : "-"
-      }
-🧑‍💼 Account Name: ${item.account_name != "null" ? item.account_name : "-"}
-#️⃣ CRM ID: ${item.crm_id}
-#️⃣ Reservation Code: ${item.reservation_code}
-🏨 Hotel Name: ${item.product_name}
-🏩 Room Name : ${item.room_name != "null" ? item.room_name : "-"}
-🛌 Total Rooms: ${item.total_rooms != "null" ? item.total_rooms : item.quantity}
-🌙 Total Nights: ${item.total_nights != "null" ? item.total_nights : "-"}
-💵 Price: ${item.sale_price} THB
-💵 Total Sale Amount: ${item.total_sale_amount} THB
-💸 Discount : ${item.discount} THB
-💵 Balance Due: ${item.balance_due} THB
-📝 Payment Status: ${item.payment_status}
-📅 Sale Date: ${item.sale_date != "null" ? item.sale_date : "-"}
-📅 Check-in Date: ${item.checkin_date != "null" ? item.checkin_date : "-"}
-📅 Checkout Date: ${item.checkout_date != "null" ? item.checkout_date : "-"}
-🤑 Score : ${item.score}
-`;
+      res.items[0].bank_account_number != "null"
+        ? `➖${res.items[0].bank_account_number}`
+        : "-"
+    }
+🧑‍💼 Account Name: ${
+      res.items[0].account_name != "null" ? res.items[0].account_name : "-"
+    }
+#️⃣ CRM ID: ${res.crm_id}\n`;
 
-      // Add to all formatted output
-      allFormattedOutput += itemOutput;
-
-      // Add separator between items
-      if (index < res.items.length - 1) {
-        allFormattedOutput += "\n----------------------------------------\n\n";
-      }
+    res.items.forEach((item, index) => {
+      allFormattedOutput += `#️⃣ Reservation Code: ${item.reservation_code}\n`;
     });
 
-    // Add summary section
-    if (res.summary) {
-      allFormattedOutput += `
-\n----------------------------------------
-📊 SUMMARY
-Total Rooms: ${res.summary.total_rooms}
-Total Nights: ${res.summary.total_nights}
-Total Amount: ${res.summary.total_amount} THB
-Total Cost: ${res.summary.total_cost} THB
-`;
-    }
+    allFormattedOutput += `🏨 ${res.items[0].product_name}\n`;
+
+    res.items.forEach((a, index) => {
+      allFormattedOutput += `🏩 Room Name: ${a.room_name}\n`;
+    });
+
+    allFormattedOutput += `💵 Total Sale Amount: ${res.summary.total_amount} THB \n`;
 
     // Copy to clipboard with a short timeout to ensure UI isn't blocked
     setTimeout(() => {

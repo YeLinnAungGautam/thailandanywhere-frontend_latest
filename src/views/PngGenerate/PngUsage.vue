@@ -10,7 +10,7 @@
 import { ref, onMounted } from "vue";
 import A4PaginatedRenderer from "./A4PaginatorComponent.vue";
 
-const itemsPerPage = ref(5); // Adjust based on your content size
+const itemsPerPage = ref(4); // Adjust based on your content size
 const itemsArray = ref([]);
 
 onMounted(() => {

@@ -91,38 +91,41 @@
       class="max-w-4xl mx-auto bg-white shadow-lg mb-10"
       v-for="(page, index) in pages"
       :key="index"
+      ref="pageRefs"
     >
       <!-- Header -->
       <div
         class="bg-orange-500 text-white py-6 px-8 flex justify-between items-center"
       >
         <div class="space-y-2">
-          <h1 class="text-2xl font-bold">Thailand Anywhere</h1>
+          <h1 class="text-2xl font-bold">
+            Thailand <span class="font-normal">Anywhere</span>
+          </h1>
           <p class="text-sm">View on: www.thanywhere.com/scan</p>
         </div>
         <div class="text-right">
-          <div class="flex justify-end mb-2">
+          <div class="flex justify-end item-center mb-2">
             <span class="w-32 font-medium">Invoice to:</span>
-            <span class="w-40">{{ invoice.customer }}</span>
+            <span class="w-40 text-sm">{{ invoice.customer }}</span>
           </div>
-          <div class="flex justify-end mb-2">
+          <div class="flex justify-end item-center mb-2">
             <span class="w-32 font-medium">Sales date:</span>
-            <span class="w-40">{{ invoice.salesDate }}</span>
+            <span class="w-40 text-sm">{{ invoice.salesDate }}</span>
           </div>
-          <div class="flex justify-end">
+          <div class="flex justify-end item-center">
             <span class="w-32 font-medium">Due Date:</span>
-            <span class="w-40">{{ invoice.dueDate }}</span>
+            <span class="w-40 text-sm">{{ invoice.dueDate }}</span>
           </div>
         </div>
       </div>
 
       <!-- Items Header -->
       <div class="flex justify-between mt-6">
-        <div class="bg-orange-500 text-white py-3 px-8 font-medium text-sm">
+        <div class="bg-orange-500 text-white py-2 px-8 font-medium text-sm">
           Items
         </div>
         <div
-          class="bg-orange-500 text-white py-2.5 px-6 mr-8 rounded-xl font-medium"
+          class="bg-orange-500 text-white py-1.5 px-4 mr-8 rounded-xl font-medium"
         >
           {{ invoice.invoiceNumber }}
         </div>
@@ -149,14 +152,14 @@
             <p class="text-sm">{{ item.details }}</p>
           </div>
           <div class="w-1/5 text-right">
-            <p class="mb-1">
-              <span class="inline-block w-24 font-semibold">Discount:</span>
+            <p class="mb-1 flex justify-center items-center">
+              <span class="inline-block w-24 text-xs pr-3">Discount:</span>
               <span class="inline-block w-20 text-right"
                 >{{ item.discount }} ฿</span
               >
             </p>
-            <p>
-              <span class="inline-block w-24 font-semibold">Amount:</span>
+            <p class="flex justify-center items-center">
+              <span class="inline-block w-24 text-xs pr-3">Amount:</span>
               <span class="inline-block w-20 text-right font-bold text-xl"
                 >{{ item.amount }} ฿</span
               >

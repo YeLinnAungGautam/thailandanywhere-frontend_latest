@@ -150,6 +150,14 @@ const copyReservation = async (id) => {
       return;
     }
 
+    let discount = 0;
+    for (let i = 0; i < res.items.length; i++) {
+      discount += res.items[i].discount;
+    }
+    let score =
+      (res.summary.total_amount * 1 - res.summary.total_cost * 1) /
+      (res.summary.total_cost * 1);
+
     // Create formatted output for all items
     let allFormattedOutput = "";
 
@@ -167,7 +175,7 @@ const copyReservation = async (id) => {
 #️⃣ CRM ID: ${res.crm_id}\n`;
 
     res.items.forEach((item, index) => {
-      allFormattedOutput += `#️⃣ Reservation Code: ${item.reservation_code}\n`;
+      allFormattedOutput += `#️⃣ Reservation Code: ${item.reservation_code}: (${item.selling_price})\n`;
     });
 
     allFormattedOutput += `🏨 ${res.items[0].product_name}\n`;
@@ -176,7 +184,14 @@ const copyReservation = async (id) => {
       allFormattedOutput += `🏩 Room Name: ${a.room_name}\n`;
     });
 
-    allFormattedOutput += `💵 Total Sale Amount: ${res.summary.total_amount} THB \n`;
+    allFormattedOutput += `💵 Price: ${res.summary.total_amount} THB
+💵 Total Sale Amount: ${res.selling_price} THB
+💸 Discount : ${discount} THB
+💵 Balance Due: ${res.balance_due} THB
+📝 Payment Status: ${res.payment_status}
+📅 Sale Date: ${res.booking_date}
+🤑 Score : ${score.toFixed(2)}
+    \n`;
 
     // Copy to clipboard with a short timeout to ensure UI isn't blocked
     setTimeout(() => {
@@ -448,11 +463,7 @@ const hide = ref(false);
                     >
                       Price
                     </th>
-                    <th
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      Discount
-                    </th>
+
                     <th
                       class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                     >
@@ -462,6 +473,11 @@ const hide = ref(false);
                       class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                     >
                       Expense
+                    </th>
+                    <th
+                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                    >
+                      Discount
                     </th>
                   </tr>
                 </thead>
@@ -507,11 +523,7 @@ const hide = ref(false);
                     >
                       {{ item.selling_price }}
                     </td>
-                    <td
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      {{ item.discount }}
-                    </td>
+
                     <td
                       class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                     >
@@ -521,6 +533,11 @@ const hide = ref(false);
                       class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                     >
                       {{ item.total_cost_price }}
+                    </td>
+                    <td
+                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                    >
+                      {{ item.discount }}
                     </td>
                   </tr>
                 </tbody>

@@ -125,6 +125,60 @@
           >
         </div>
       </div>
+      <div class="pt-1 flex justify-start items-center gap-x-3">
+        <div
+          class="flex justify-start space-x-1 items-center"
+          v-if="data.bookings[0]?.payment_status == 'fully_paid'"
+        >
+          <CurrencyDollarIcon class="w-3 h-3 text-green-600" />
+          <p class="text-[10px] whitespace-nowrap text-green-600">
+            Customer paid
+          </p>
+        </div>
+        <div
+          class="flex justify-start space-x-1 items-center"
+          v-if="data.bookings[0]?.payment_status == 'partially_paid'"
+        >
+          <CurrencyDollarIcon class="w-3 h-3 text-yellow-600" />
+          <p class="text-[10px] whitespace-nowrap text-yellow-600">
+            C.partially paid
+          </p>
+        </div>
+        <div
+          class="flex justify-start space-x-1 items-center"
+          v-if="data.bookings[0]?.payment_status == 'not_paid'"
+        >
+          <CurrencyDollarIcon class="w-3 h-3 text-red-600" />
+          <p class="text-[10px] whitespace-nowrap text-red-600">C.not paid</p>
+        </div>
+        <div
+          class="flex justify-start space-x-1 items-center"
+          v-if="expenseStatus(data) == 'fully_paid'"
+        >
+          <CreditCardIcon class="w-3 h-3 text-green-600" />
+          <p class="text-[10px] whitespace-nowrap text-green-600">
+            Expense paid
+          </p>
+        </div>
+        <div
+          class="flex justify-start space-x-1 items-center"
+          v-if="expenseStatus(data) == 'partially_paid'"
+        >
+          <CreditCardIcon class="w-3 h-3 text-yellow-600" />
+          <p class="text-[10px] whitespace-nowrap text-yellow-600">
+            E.partially paid
+          </p>
+        </div>
+        <div
+          class="flex justify-start space-x-1 items-center"
+          v-if="expenseStatus(data) == 'not_paid'"
+        >
+          <CreditCardIcon class="w-3 h-3 text-red-600" />
+          <p class="text-[10px] whitespace-nowrap text-red-600">
+            Expense not paid
+          </p>
+        </div>
+      </div>
       <div
         v-if="showList"
         class="transition-all mb-2 duration-200 ease-in bg-gray-50 shadow rounded-md px-3 mt-3"
@@ -262,7 +316,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, onMounted } from "vue";
+import { ref, defineProps, onMounted, computed } from "vue";
 import {
   CurrencyDollarIcon,
   CreditCardIcon,
@@ -325,6 +379,42 @@ const expense = (data) => {
     result = result + data[i].total_cost_price * 1;
   }
   return result;
+};
+
+const expenseStatus = (i) => {
+  // If no bookings or items exist, return 'not_paid' as default
+  if (
+    !i.bookings ||
+    !i.bookings[0] ||
+    !i.bookings[0].items || // This was 'i' instead of 'items'
+    !i.bookings[0].items.length
+  ) {
+    return "not_paid";
+  }
+
+  const items = i.bookings[0].items;
+  let hasFullyPaid = false;
+  let hasNotPaid = false;
+
+  // Check the status of each item
+  for (let a = 0; a < items.length; a++) {
+    const item_status = items[a].payment_status;
+
+    if (item_status === "fully_paid") {
+      hasFullyPaid = true;
+    } else if (item_status === "not_paid") {
+      hasNotPaid = true;
+    }
+  }
+
+  // Determine overall status based on individual item statuses
+  if (hasFullyPaid && hasNotPaid) {
+    return "partially_paid";
+  } else if (hasFullyPaid && !hasNotPaid) {
+    return "fully_paid";
+  } else {
+    return "not_paid";
+  }
 };
 
 const selling = (data) => {

@@ -151,12 +151,7 @@ const watchSystem = computed(() => {
   } else {
     result.user_id = authStore.user.id;
   }
-  if (search.value != "" && search.value != undefined) {
-    result.product_type = search.value;
-  } else {
-    search.value = "App\\Models\\EntranceTicket";
-    result.product_type = "App\\Models\\EntranceTicket";
-  }
+
   if (searchId.value != "" && searchId.value != undefined) {
     result.crm_id = searchId.value;
   }
@@ -541,57 +536,7 @@ watch(dateRange, async (newValue) => {
                     clear
                   </p>
                 </div>
-                <p class="text-[10px] pt-1">Product Type</p>
-                <div class="">
-                  <div
-                    class="flex items-center justify-start gap-1 overflow-x-scroll no-sidebar-container"
-                  >
-                    <p
-                      class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
-                      @click="searchValue('App\\Models\\Hotel')"
-                      :class="
-                        search == 'App\\Models\\Hotel'
-                          ? 'bg-[#ff613c] text-white'
-                          : ''
-                      "
-                    >
-                      Hotel
-                    </p>
-                    <p
-                      class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border whitespace-nowrap border-gray-200 rounded-lg"
-                      @click="searchValue('App\\Models\\EntranceTicket')"
-                      :class="
-                        search == 'App\\Models\\EntranceTicket'
-                          ? 'bg-[#ff613c] text-white'
-                          : ''
-                      "
-                    >
-                      Entrance Ticket
-                    </p>
-                    <!-- <p
-                      class="text-[10px] px-2 whitespace-nowrap cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
-                      @click="searchValue('App\\Models\\PrivateVanTour')"
-                      :class="
-                        search == 'App\\Models\\PrivateVanTour'
-                          ? 'bg-[#ff613c] text-white'
-                          : ''
-                      "
-                    >
-                      Private Van tour
-                    </p>
-                    <p
-                      class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
-                      @click="searchValue('App\\Models\\Airline')"
-                      :class="
-                        search == 'App\\Models\\Airline'
-                          ? 'bg-[#ff613c] text-white'
-                          : ''
-                      "
-                    >
-                      Airline
-                    </p> -->
-                  </div>
-                </div>
+
                 <p class="text-[10px]">User</p>
                 <select
                   name=""

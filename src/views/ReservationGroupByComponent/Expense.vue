@@ -1080,7 +1080,7 @@ const populateFormData = () => {
   }
 };
 
-const allReservation = ref(false);
+const allReservation = ref(true);
 
 const selectedReservationIds = computed(() => {
   return editData.value.reservation_ids

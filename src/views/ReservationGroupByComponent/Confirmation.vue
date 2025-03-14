@@ -366,7 +366,7 @@ onMounted(() => {
         id: item.id,
         crm_id: item.crm_id,
         name: item.room?.name || "Unnamed Item",
-        selected: false,
+        selected: true,
       })
     );
 

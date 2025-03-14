@@ -39,6 +39,7 @@ const route = useRoute();
 const limit = ref(10);
 const search = ref("");
 const searchId = ref("");
+const customerName = ref("");
 const hotel_name = ref("");
 const attraction_name = ref("");
 const userFilter = ref("");
@@ -76,6 +77,7 @@ const clearFilter = () => {
   expenseStatus.value = "";
   customerPaymentStatus.value = "";
   searchId.value = "";
+  customerName.value = "";
   hotel_name.value = "";
   limit.value = 10;
   searchA.value = "";
@@ -154,6 +156,9 @@ const watchSystem = computed(() => {
 
   if (searchId.value != "" && searchId.value != undefined) {
     result.crm_id = searchId.value;
+  }
+  if (customerName.value != "" && customerName.value != undefined) {
+    result.customer_name = customerName.value;
   }
   if (bookingStatus.value != "" && bookingStatus.value != undefined) {
     result.booking_status = bookingStatus.value;
@@ -611,6 +616,24 @@ watch(dateRange, async (newValue) => {
                   <span v-if="!searchTime && !sale_daterange">Select Date</span>
                 </p>
 
+                <div class="relative w-full">
+                  <p class="text-[10px] pb-2">Customer Name</p>
+                  <input
+                    type="search"
+                    name=""
+                    v-model="customerName"
+                    placeholder="Search Customer name"
+                    class="text-[10px] text-gray-500 focus:outline-none hover:text-gray-600 border border-gray-300 rounded-lg bg-white px-4 py-2 w-full"
+                    id=""
+                  />
+                  <div
+                    @click="searchAction"
+                    class="absolute right-1 top-7 rounded-lg text-xs p-1 bg-[#FF613c]"
+                  >
+                    <MagnifyingGlassIcon class="w-4 h-4 text-white" />
+                  </div>
+                </div>
+
                 <div class="">
                   <div class="flex justify-between items-center pb-2">
                     <p class="text-[10px]">Hotel</p>
@@ -936,6 +959,21 @@ watch(dateRange, async (newValue) => {
                 "
               />
               {{ searchId }}
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              v-if="customerName != ''"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    customerName = '';
+                    searchAction();
+                  }
+                "
+              />
+              {{ customerName }}
             </p>
             <p
               class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"

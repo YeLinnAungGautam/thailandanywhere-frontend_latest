@@ -412,7 +412,7 @@ const removeFeatureSelectImage = (index) => {
   // console.log(editData.value.customer_passport, "this is remove");
 };
 
-const allReservation = ref(false);
+const allReservation = ref(true);
 
 const selectedReservationIds = computed(() => {
   return editData.value.reservation_ids

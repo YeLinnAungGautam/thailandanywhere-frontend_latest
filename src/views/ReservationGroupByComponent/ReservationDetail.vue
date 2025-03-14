@@ -206,41 +206,41 @@ const copyReservation = async (id) => {
   }
 };
 
-// watch(
-//   () => detail.value,
-//   () => {
-//     if (detail.value.booking.payment_status == "fully_paid") {
-//       state.value.general = true;
-//     } else {
-//       state.value.general = false;
-//     }
-//     if (detail.value.customer_passports.length > 0) {
-//       state.value.passport = true;
-//     } else {
-//       state.value.passport = false;
-//     }
-//     if (detail.value.is_booking_request == 1) {
-//       state.value.booking = true;
-//     } else {
-//       state.value.booking = false;
-//     }
-//     if (detail.value.booking_confirm_letters.length > 0) {
-//       state.value.invoice = true;
-//     } else {
-//       state.value.invoice = false;
-//     }
-//     if (detail.value.payment_status == "fully_paid") {
-//       state.value.expense = true;
-//     } else {
-//       state.value.expense = false;
-//     }
-//     if (detail.value.reservation_status == "confirmed") {
-//       state.value.confirmation = true;
-//     } else {
-//       state.value.confirmation = false;
-//     }
-//   }
-// );
+watch(
+  () => detail.value,
+  () => {
+    if (detail.value.booking.payment_status == "fully_paid") {
+      state.value.general = true;
+    } else {
+      state.value.general = false;
+    }
+    if (detail.value.booking.items[0].customer_passports.length > 0) {
+      state.value.passport = true;
+    } else {
+      state.value.passport = false;
+    }
+    if (detail.value.booking.items[0].is_booking_request == 1) {
+      state.value.booking = true;
+    } else {
+      state.value.booking = false;
+    }
+    if (detail.value.booking.items[0].booking_confirm_letters.length > 0) {
+      state.value.invoice = true;
+    } else {
+      state.value.invoice = false;
+    }
+    if (detail.value.booking.items[0].payment_status == "fully_paid") {
+      state.value.expense = true;
+    } else {
+      state.value.expense = false;
+    }
+    if (detail.value.booking.items[0].reservation_status == "confirmed") {
+      state.value.confirmation = true;
+    } else {
+      state.value.confirmation = false;
+    }
+  }
+);
 
 watch(
   () => route.query.id,

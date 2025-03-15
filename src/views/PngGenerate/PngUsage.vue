@@ -1,27 +1,183 @@
-// App.vue example
 <template>
-  <div class="max-w-6xl mx-auto p-5">
-    <h1 class="text-3xl font-bold text-center mb-8">A4 PNG Generator</h1>
-    <A4PaginatedRenderer :items="itemsArray" :itemsPerPage="itemsPerPage" />
+  <div class="w-full mx-auto bg-white p-5">
+    <h1 class="text-2xl font-bold text-center mb-8">Invoice PNG Generator</h1>
+    <A4PaginatedRenderer :items="invoice" :itemsPerPage="itemsPerPage" />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import A4PaginatedRenderer from "./A4PaginatorComponent.vue";
+import { useRoute } from "vue-router";
+import { useBookingStore } from "../../stores/booking";
+import defaultImage from "../../assets/download.jpeg";
+
+const route = useRoute();
+const bookingStore = useBookingStore();
 
 const itemsPerPage = ref(4); // Adjust based on your content size
 const itemsArray = ref([]);
 
-onMounted(() => {
-  // Generate sample data - replace with your actual data
-  const sampleData = [];
-  for (let i = 1; i <= 25; i++) {
-    sampleData.push({
-      id: i,
-      content: `This is the content for item ${i}. You can add any data here that you want to display on your A4 pages.`,
-    });
+const invoice = ref({
+  customer: "",
+  salesDate: "",
+  dueDate: "",
+  invoiceNumber: "",
+  items: [],
+  subtotal: "",
+  totalDiscount: "",
+  total: "",
+  deposit: "",
+  balanceDue: "",
+  paymentStatus: "",
+});
+
+const daysBetween = (a, b) => {
+  console.log(a, b);
+  if (a && b) {
+    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
+    const startDateTimestamp = new Date(a).getTime();
+    const endDateTimestamp = new Date(b).getTime();
+    let result = Math.abs(
+      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
+    );
+    // console.log(formData.value.checkin_date, result, "this is result");
+    return result;
   }
-  itemsArray.value = sampleData;
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+
+  // Parse the input date string
+  const date = new Date(dateString);
+
+  // Check if date is valid
+  if (isNaN(date.getTime())) {
+    return "";
+  }
+
+  // Array of month names
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  // Get the day, month name, and year
+  const day = date.getDate();
+  const monthName = months[date.getMonth()];
+  const year = date.getFullYear();
+
+  // Return formatted date
+  return `${day} ${monthName} ${year}`;
+};
+
+const formatNumber = (value) => {
+  if (value === null || value === undefined || isNaN(value)) {
+    return "";
+  }
+
+  // Convert to number if it's a string
+  const number = typeof value === "string" ? parseFloat(value) : value;
+
+  // Format with thousand separators
+  return number.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+};
+
+const getDetailAction = async () => {
+  const response = await bookingStore.getDetailAction(route.query.id);
+  console.log(response);
+  invoice.value.items = [];
+  invoice.value.customer = response.result.customer.name;
+  invoice.value.salesDate = formatDate(response.result.booking_date);
+  invoice.value.dueDate = formatDate(response.result.balance_due_date);
+  invoice.value.invoiceNumber = response.result.crm_id;
+  invoice.value.subtotal = formatNumber(response.result.sub_total);
+  invoice.value.totalDiscount = formatNumber(response.result.discount);
+  invoice.value.total = formatNumber(response.result.grand_total);
+  invoice.value.deposit = formatNumber(response.result.deposit);
+  invoice.value.balanceDue = formatNumber(response.result.balance_due);
+  invoice.value.paymentStatus = response.result.payment_status;
+  for (let i = 0; i <= response.result.items.length; i++) {
+    if (response.result.items[i]?.product_type == "App\\Models\\Hotel") {
+      invoice.value.items.push({
+        image:
+          response.result.items[i]?.product?.images[0]?.image || defaultImage,
+        name: response.result.items[i]?.product?.name,
+        description: response.result.items[i]?.room?.name,
+        period: `In: ${formatDate(
+          response.result.items[i]?.checkin_date
+        )} - Out: ${formatDate(response.result.items[i]?.checkout_date)}`,
+        details: `${daysBetween(
+          response.result.items[i]?.checkin_date,
+          response.result.items[i]?.checkout_date
+        )} Nights x ${response.result.items[i]?.quantity} Rooms x ${
+          response.result.items[i]?.selling_price
+        }`,
+        discount: response.result.items[i]?.discount,
+        amount: formatNumber(response.result.items[i]?.amount),
+      });
+    }
+    if (
+      response.result.items[i]?.product_type == "App\\Models\\EntranceTicket"
+    ) {
+      invoice.value.items.push({
+        image: response.result.items[i]?.product?.cover_image || defaultImage,
+        name: response.result.items[i]?.product?.name,
+        description: response.result.items[i]?.variation?.name,
+        period: `${formatDate(response.result.items[i]?.service_date)}`,
+        details: ` ${response.result.items[i]?.quantity} Qty x ${response.result.items[i]?.selling_price}`,
+        discount: response.result.items[i]?.discount,
+        amount: formatNumber(response.result.items[i]?.amount),
+      });
+    }
+    if (
+      response.result.items[i]?.product_type == "App\\Models\\PrivateVanTour"
+    ) {
+      invoice.value.items.push({
+        image:
+          response.result.items[i]?.product?.images[0]?.image || defaultImage,
+        name: response.result.items[i]?.product?.name,
+        description: response.result.items[i]?.car?.name,
+        period: `${formatDate(response.result.items[i]?.service_date)}`,
+        details: ` ${response.result.items[i]?.quantity} Qty x ${response.result.items[i]?.selling_price}`,
+        discount: response.result.items[i]?.discount,
+        amount: formatNumber(response.result.items[i]?.amount),
+      });
+    }
+    if (response.result.items[i]?.product_type == "App\\Models\\Airline") {
+      invoice.value.items.push({
+        image:
+          response.result.items[i]?.product?.images[0]?.image || defaultImage,
+        name: response.result.items[i]?.product?.name,
+        description: response.result.items[i]?.ticket?.name,
+        period: `${formatDate(response.result.items[i]?.service_date)}`,
+        details: ` ${response.result.items[i]?.quantity} Qty x ${response.result.items[i]?.selling_price}`,
+        discount: response.result.items[i]?.discount,
+        amount: formatNumber(response.result.items[i]?.amount),
+      });
+    }
+  }
+  // invoice.value.items = sampleData;
+
+  console.log(invoice.value);
+};
+
+onMounted(async () => {
+  // Generate sample data - replace with your actual data
+  await getDetailAction();
 });
 </script>

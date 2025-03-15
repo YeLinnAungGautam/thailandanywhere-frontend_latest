@@ -11,14 +11,39 @@ export default {
   props: {
     id: {
       type: String,
-      required: true,
+      required: false,
+    },
+    size: {
+      type: Number,
+      default: 150,
+    },
+    type: {
+      type: String,
+      default: "confirm",
+    },
+    color: {
+      type: String,
+      default: "#000000", // Default black color for QR code
     },
   },
   mounted() {
-    const url = `https://thanywhere.com/ticket-checker/${this.id}?language=myanmar`;
+    let url = "";
+    if (this.type == "confirm") {
+      url = `https://thanywhere.com/ticket-checker/${this.id}?language=myanmar`;
+    } else {
+      url = `https://thanywhere.com`;
+    }
     const canvas = this.$refs.qrCanvas;
 
-    QRCode.toCanvas(canvas, url, { width: 150 }, (error) => {
+    // Options with custom colors
+    const options = {
+      width: this.size,
+      color: {
+        dark: this.color, // Color of the QR code squares
+      },
+    };
+
+    QRCode.toCanvas(canvas, url, options, (error) => {
       if (error) console.error("QR Code generation error:", error);
     });
   },

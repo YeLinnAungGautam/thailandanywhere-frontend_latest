@@ -1,24 +1,30 @@
 // A4PaginatedRenderer.vue
 <template>
   <div class="flex flex-col gap-5">
-    <div class="flex gap-3 mb-5">
+    <div class="flex justify-center items-center gap-3 mb-5">
+      <button
+        @click="router.back()"
+        class="px-4 py-2 text-sm text-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition-colors"
+      >
+        Go Back
+      </button>
       <button
         @click="generatePNGs"
-        class="px-4 py-2 font-semibold text-white bg-green-500 rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition-colors"
+        class="px-4 py-2 text-sm text-white bg-green-500 rounded-lg shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition-colors"
       >
         Generate PNG Images
       </button>
       <button
         @click="downloadAll"
         :disabled="!pngUrls.length"
-        class="px-4 py-2 font-semibold text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+        class="px-4 py-2 text-sm text-white bg-blue-500 rounded-lg shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
       >
         Download All As Zip
       </button>
       <button
         @click="downloadAsSinglePage()"
         :disabled="!pngUrls.length"
-        class="px-4 py-2 font-semibold text-white bg-orange-500 rounded hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-opacity-50 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+        class="px-4 py-2 text-sm text-white bg-orange-500 rounded-lg shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-opacity-50 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
       >
         Download All As Png
       </button>
@@ -55,38 +61,6 @@
       </div>
     </div>
 
-    <!-- Preview container -->
-    <!-- <div class="flex-col gap-8 flex">
-      <div v-for="(page, index) in pages" :key="index" class="mb-10">
-        <h3 class="text-xl font-bold mb-3">Page {{ index + 1 }}</h3>
-        <div
-          :id="`page-${index}`"
-          class="w-[210mm] h-[297mm] p-[20mm] mx-auto bg-white shadow-md overflow-hidden"
-          ref="pageRefs"
-        >
-          <div class="flex justify-between items-center bg-red-500">
-            <div>
-              <h2 class="font-bold text-3xl">Page {{ index + 1 }}</h2>
-              <p class="text-gray-700">This is page {{ index + 1 }}</p>
-            </div>
-            <div>
-              <h3 class="font-bold text-2xl text-center">Footer</h3>
-            </div>
-          </div>
-          <div
-            v-for="(item, itemIndex) in page"
-            :key="itemIndex"
-            class="mb-3 p-3 border-b border-gray-200"
-          >
-            <div>
-              <h4 class="font-bold text-lg">Item {{ item.id }}</h4>
-              <p class="text-gray-700">{{ item.content }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div> -->
-
     <div
       class="max-w-4xl mx-auto bg-white shadow-lg mb-10"
       v-for="(page, index) in pages"
@@ -104,49 +78,49 @@
           <p class="text-sm">View on: www.thanywhere.com/scan</p>
         </div>
         <div class="text-right">
-          <div class="flex justify-end item-center mb-2">
-            <span class="w-32 font-medium">Invoice to:</span>
-            <span class="w-40 text-sm">{{ invoice.customer }}</span>
+          <div class="flex justify-center items-end mb-2">
+            <span class="w-32 font-medium text-left">Invoice to:</span>
+            <span class="w-40 text-[25px] font-semibold">{{
+              items.customer
+            }}</span>
           </div>
           <div class="flex justify-end item-center mb-2">
-            <span class="w-32 font-medium">Sales date:</span>
-            <span class="w-40 text-sm">{{ invoice.salesDate }}</span>
+            <span class="w-32 font-medium text-left">Sales date:</span>
+            <span class="w-40 text-sm">{{ items.salesDate }}</span>
           </div>
           <div class="flex justify-end item-center">
-            <span class="w-32 font-medium">Due Date:</span>
-            <span class="w-40 text-sm">{{ invoice.dueDate }}</span>
+            <span class="w-32 font-medium text-left">Due Date:</span>
+            <span class="w-40 text-sm">{{ items.dueDate }}</span>
           </div>
         </div>
       </div>
 
       <!-- Items Header -->
       <div class="flex justify-between mt-6">
-        <div class="bg-orange-500 text-white py-2 px-8 font-medium text-sm">
-          Items
+        <div class="bg-orange-500 text-white px-8 font-medium text-sm">
+          <p class="pb-4">Items</p>
         </div>
-        <div
-          class="bg-orange-500 text-white py-1.5 px-4 mr-8 rounded-xl font-medium"
-        >
-          {{ invoice.invoiceNumber }}
+        <div class="bg-orange-500 text-white px-4 mr-8 rounded-xl font-medium">
+          <p class="pb-4">{{ items.invoiceNumber }}</p>
         </div>
       </div>
 
       <!-- Items List -->
       <div class="p-4 mt-4">
         <div
-          v-for="(item, index) in invoice.items"
-          :key="index"
-          class="flex mb-4 px-2"
+          v-for="(item, itemIndex) in page"
+          :key="itemIndex"
+          class="flex mb-6 px-2"
         >
-          <div class="w-1/6">
+          <div class="w-1/7 flex justify-center items-center">
             <img
-              src="https://media-cdn.tripadvisor.com/media/photo-s/12/d7/ca/34/rooftop-pool.jpg"
+              :src="item.image"
               alt="Item image"
               class="w-24 h-24 rounded-xl object-cover"
             />
           </div>
-          <div class="w-3/5 pl-2">
-            <h3 class="text-lg font-bold">{{ item.name }}</h3>
+          <div class="w-3/4 pl-7">
+            <h3 class="text-lg font-bold pb-1">{{ item.name }}</h3>
             <p class="text-sm">{{ item.description }}</p>
             <p class="font-semibold text-sm">{{ item.period }}</p>
             <p class="text-sm">{{ item.details }}</p>
@@ -154,7 +128,7 @@
           <div class="w-1/5 text-right">
             <p class="mb-1 flex justify-center items-center">
               <span class="inline-block w-24 text-xs pr-3">Discount:</span>
-              <span class="inline-block w-20 text-right"
+              <span class="inline-block w-20 text-right font-medium text-xl"
                 >{{ item.discount }} ฿</span
               >
             </p>
@@ -169,64 +143,89 @@
       </div>
 
       <!-- QR Code and Summary -->
-      <div class="flex mt-8 border-t-2 border-orange-500 pt-4 pb-8 px-6">
-        <div class="w-1/2 flex">
-          <div class="w-1/3">
-            <!-- <img src="/qr-code.png" alt="QR Code" class="w-32 h-32" /> -->
+      <div class="flex mt-4 pt-4 pb-8 px-6 relative">
+        <div class="w-2/6 bg-[#FF613c] h-1 absolute -top-2 right-0"></div>
+        <div class="flex">
+          <div class="w-1/3 relative">
+            <!-- <div
+              class="absolute flex justify-center w-48 h-48 items-center bg-gray-900 opacity-50 text-white"
+            >
+              <p class="bg-white text-black font-semibold">coming soon</p>
+            </div> -->
+            <!-- <img
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuIy6HNc3zXzJ9-y-rNEfnaSdhcgeXytmnQg&s"
+              alt="QR Code"
+              class="w-48 h-48"
+            /> -->
+            <div
+              class="flex justify-center w-48 h-48 overflow-hidden items-center"
+            >
+              <QrCode
+                :id="route.query.id"
+                :size="250"
+                :type="'Invoice'"
+                :color="'#f97315'"
+              />
+            </div>
           </div>
-          <div class="w-2/3">
-            <p class="font-semibold mb-2">
+          <div class="w-3/5 pr-8 pl-8 py-2">
+            <p class="font-semibold text-sm mb-2">
               Validate your tickets on our official website:
             </p>
-            <ul class="list-disc pl-5">
+            <ul class="list-disc pl-5 text-xs">
               <li>Scan the above QR</li>
               <li>Login / Signup to thanywhere.com</li>
               <li>Confirm to connect invoice to profile.</li>
               <li>View tickets, booking status and a lot more!</li>
             </ul>
-            <p class="mt-4 text-sm">
+            <p class="mt-4 text-xs">
               Note QR can only be connected once. Please protect your invoice by
               connecting to your profile as soon as possible.
             </p>
           </div>
         </div>
         <div class="w-1/2">
-          <div class="text-right">
-            <div class="flex justify-end mb-2">
+          <div class="text-left">
+            <div class="flex justify-end mb-2 font-semibold">
               <span class="inline-block w-32 font-semibold">Subtotal:</span>
-              <span class="inline-block w-32 text-right"
-                >{{ invoice.subtotal }} ฿</span
+              <span class="inline-block w-36 text-right"
+                >{{ items.subtotal }} ฿</span
               >
             </div>
-            <div class="flex justify-end mb-2">
+            <div class="flex justify-end mb-2 font-semibold">
               <span class="inline-block w-32 font-semibold">Discount:</span>
-              <span class="inline-block w-32 text-right"
-                >{{ invoice.totalDiscount }} ฿</span
+              <span class="inline-block w-36 text-right"
+                >{{ items.totalDiscount }} ฿</span
               >
             </div>
-            <div class="flex justify-end mb-2 text-lg font-bold">
+            <div class="flex justify-end mb-2 font-semibold">
               <span class="inline-block w-32">Total:</span>
-              <span class="inline-block w-32 text-right"
-                >{{ invoice.total }} ฿</span
+              <span class="inline-block w-36 text-right"
+                >{{ items.total }} ฿</span
               >
             </div>
-            <div class="flex justify-end mb-2">
+            <div class="flex justify-end mb-2 font-semibold">
               <span class="inline-block w-32 font-semibold">Deposit:</span>
-              <span class="inline-block w-32 text-right"
-                >{{ invoice.deposit }} ฿</span
+              <span class="inline-block w-36 text-right"
+                >{{ items.deposit }} ฿</span
               >
             </div>
-            <div class="flex justify-end mb-2 font-bold">
+            <div class="flex justify-end mb-2 font-semibold">
               <span class="inline-block w-32">Balance Due:</span>
-              <span class="inline-block w-32 text-right"
-                >{{ invoice.balanceDue }} ฿</span
+              <span class="inline-block w-36 text-right"
+                >{{ items.balanceDue }} ฿</span
               >
             </div>
-            <div class="flex justify-end mb-2">
+            <div class="flex justify-end mb-2 font-semibold">
               <span class="inline-block w-32 font-semibold">Payment Due:</span>
               <span
-                class="inline-block w-32 text-right text-red-500 font-bold"
-                >{{ invoice.paymentStatus }}</span
+                :class="{
+                  'text-orange-600': items.paymentStatus == 'partially_paid',
+                  'text-green-600': items.paymentStatus == 'fully_paid',
+                  'text-red-600': items.paymentStatus == 'not_paid',
+                }"
+                class="inline-block w-36 text-right font-semibold"
+                >{{ items.paymentStatus }}</span
               >
             </div>
           </div>
@@ -235,8 +234,8 @@
 
       <!-- Footer -->
       <div class="bg-orange-500 text-white p-6">
-        <div class="flex justify-between">
-          <div class="w-1/2">
+        <div class="grid grid-cols-4">
+          <div class="">
             <div class="flex items-center mb-3">
               <div class="mr-2">
                 <svg
@@ -254,50 +253,33 @@
                   />
                 </svg>
               </div>
-              <span>+959 250 794 945</span>
-            </div>
-            <div class="flex items-center mb-3">
-              <div class="mr-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                  />
-                </svg>
-              </div>
-              <span>+959 250 794 945</span>
-            </div>
-            <div class="flex items-center">
-              <div class="mr-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                  />
-                </svg>
-              </div>
-              <span>+959 250 794 945</span>
+              <span>0637602448</span>
             </div>
           </div>
-          <div class="w-1/2">
+          <div class="">
+            <div class="flex items-center mb-3">
+              <div class="mr-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-4 w-4"
+                >
+                  <path
+                    d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"
+                  />
+                </svg>
+              </div>
+              <span>/ThAnywhereYgn</span>
+            </div>
+          </div>
+          <div class="col-span-2">
             <div class="flex">
-              <div class="w-1/2">
+              <div class="">
                 <div class="mb-3">
                   <div class="flex items-start">
                     <div class="mr-2 mt-1">
@@ -323,97 +305,178 @@
                       </svg>
                     </div>
                     <div>
-                      <p class="font-bold">Yangon Branch</p>
+                      <p class="font-bold pb-1">Yangon Branch</p>
                       <p class="text-xs">
-                        66/3C, 69th St (bet: 28-29th), Mandalay
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <div class="flex items-start">
-                    <div class="mr-2 mt-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                    </div>
-                    <div>
-                      <p class="font-bold">Mandalay Branch</p>
-                      <p class="text-xs">
-                        66/3C, 69th St (bet: 28-29th), Mandalay
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div class="flex items-start">
-                    <div class="mr-2 mt-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                    </div>
-                    <div>
-                      <p class="font-bold">Pattaya Branch</p>
-                      <p class="text-xs">
-                        66/3C, 69th St (bet: 28-29th), Mandalay
+                        အမှတ်-၃၉ (မြေညီ)၊ United Condo၊ အလံပြဘုရားလမ်း၊
+                        ဒဂုံမြို့နယ်၊ ရန်ကုန်။
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="w-1/2 flex items-center justify-center">
-                <div class="text-center">
-                  <div class="mb-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-6 w-6 mx-auto"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
-                      />
-                    </svg>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-4">
+          <div class="">
+            <div class="flex items-center mb-3">
+              <div class="mr-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                  />
+                </svg>
+              </div>
+              <span>09250794945</span>
+            </div>
+          </div>
+          <div class="">
+            <div class="flex items-center mb-3">
+              <div class="mr-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-4 w-4"
+                >
+                  <path
+                    d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"
+                  />
+                </svg>
+              </div>
+              <span>/ThAnywhereMdy</span>
+            </div>
+          </div>
+          <div class="col-span-2">
+            <div class="flex">
+              <div class="">
+                <div class="mb-3">
+                  <div class="flex items-start">
+                    <div class="mr-2 mt-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-bold pb-1">Mandalay Branch</p>
+                      <p class="text-xs">
+                        အမှတ်-74၊ 84-လမ်း 28 နဲ့ 29 လမ်းကြား၊
+                        ချမ်းအေးသာဇံမြို့နယ်၊ မန္တလေး။
+                      </p>
+                    </div>
                   </div>
-                  <span>/ThAnywhereYgn</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-4">
+          <div class="">
+            <div class="flex items-center mb-3">
+              <div class="mr-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                  />
+                </svg>
+              </div>
+              <span>09972185129 </span>
+            </div>
+          </div>
+          <div class="">
+            <div class="flex items-center mb-3">
+              <div class="mr-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-4 w-4"
+                >
+                  <path
+                    d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"
+                  />
+                </svg>
+              </div>
+              <span>/ThAnywherePattaya</span>
+            </div>
+          </div>
+          <div class="col-span-2">
+            <div class="flex">
+              <div class="">
+                <div class="mb-3">
+                  <div class="flex items-start">
+                    <div class="mr-2 mt-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="font-bold pb-1">Pattaya Branch</p>
+                      <p class="text-xs">
+                        143/50, Thepprasit Rd, Pattaya City, Chon Buri 20150
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -429,7 +492,11 @@ import { ref, onMounted, computed, watch } from "vue";
 import html2canvas from "html2canvas";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import QrCode from "../../components/QrCode.vue";
+import { useRoute, useRouter } from "vue-router";
 
+const route = useRoute();
+const router = useRouter();
 // Props definition
 const props = defineProps({
   // Array of data items to render
@@ -444,57 +511,6 @@ const props = defineProps({
   },
 });
 
-const invoice = ref({
-  customer: "Kumar Bhusal",
-  salesDate: "23 March 2025",
-  dueDate: "30 March 2025",
-  invoiceNumber: "HN-2545",
-  items: [
-    {
-      image: "/hotel.jpg", // Replace with actual image path
-      name: "Asia Hotel Pattaya",
-      description: "Superior Seaview Room with Breakfast",
-      period: "In: 07-March-2025 - Out: 09-March-2025",
-      details: "2 Nights x 2 Rooms x 1900",
-      discount: "0",
-      amount: "3800",
-    },
-    {
-      image: "/frost.jpg", // Replace with actual image path
-      name: "Frost Magical Garden",
-      description: "Entrance Ticket Plus Boots",
-      period: "2025-02-19",
-      details: "Adult - 2 x 550 ฿ · Child - 0 x 350฿",
-      discount: "0",
-      amount: "3800",
-    },
-    {
-      image: "/package.jpg", // Replace with actual image path
-      name: "Pattaya Package 45",
-      description: "Saloon",
-      period: "2025-02-19",
-      details: "1 Saloon x 4500 ฿",
-      discount: "0",
-      amount: "3800",
-    },
-    {
-      image: "/frost.jpg", // Replace with actual image path
-      name: "Frost Magical Garden",
-      description: "Entrance Ticket Plus Boots",
-      period: "2025-02-19",
-      details: "Adult - 2 x 550 ฿ · Child - 0 x 350฿",
-      discount: "0",
-      amount: "3800",
-    },
-  ],
-  subtotal: "23,800",
-  totalDiscount: "0",
-  total: "23,800",
-  deposit: "16,800",
-  balanceDue: "7,000",
-  paymentStatus: "Not Paid",
-});
-
 // Reactive state
 const pngUrls = ref([]);
 const pageRefs = ref([]);
@@ -504,17 +520,19 @@ const pages = computed(() => {
   const result = [];
   let currentPage = [];
 
-  for (let i = 0; i < props.items.length; i++) {
-    currentPage.push(props.items[i]);
+  for (let i = 0; i < props.items?.items.length; i++) {
+    currentPage.push(props.items?.items[i]);
 
     if (
       currentPage.length >= props.itemsPerPage ||
-      i === props.items.length - 1
+      i === props.items.items.length - 1
     ) {
       result.push([...currentPage]);
       currentPage = [];
     }
   }
+
+  console.log(result);
 
   return result;
 });

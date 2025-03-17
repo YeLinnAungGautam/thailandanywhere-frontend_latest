@@ -227,11 +227,18 @@ const watchSystem = computed(() => {
 });
 
 const detailId = ref("");
-const getDetailAction = async (id) => {
+const productId = ref("");
+const getDetailAction = async (id, product_id) => {
   detailId.value = id;
+  productId.value = product_id;
 
   if (detailId.value) {
-    router.push("reservation-hotel?id=" + detailId.value);
+    router.push(
+      "reservation-hotel?id=" +
+        detailId.value +
+        "&product_id=" +
+        productId.value
+    );
   }
 
   // showSide.value = false;
@@ -388,9 +395,11 @@ const getReservationListAction = async () => {
 };
 
 const detailGetAction = (id) => {
-  // detailId.value = id;
-  getDetailAction(id);
+  getDetailAction(id.id, id.product_id);
   console.log(detailId.value);
+  console.log("====================================");
+  console.log(id);
+  console.log("====================================");
 };
 
 const searchAction = async () => {
@@ -1089,12 +1098,7 @@ watch(dateRange, async (newValue) => {
             v-if="!loading"
             class="bg-white shadow rounded-lg divide-y divide-gray-100 max-h-[62vh] overflow-y-scroll"
           >
-            <div
-              class="relative"
-              v-for="i in results?.data ?? []"
-              :key="i"
-              @click="detailGetAction(i.bookings[0]?.id)"
-            >
+            <div class="relative" v-for="i in results?.data ?? []" :key="i">
               <!-- <div
                 @click="getDetailAction(i.bookings[0]?.id)"
                 class="absolute top-7 text-[10px] z-30 cursor-pointer right-2 px-2 py-0.5 rounded-lg bg-[#FF613c] text-white"

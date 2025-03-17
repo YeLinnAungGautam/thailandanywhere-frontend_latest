@@ -23,17 +23,21 @@ export const useGroupByStore = defineStore("groupby", {
         throw error;
       }
     },
-    async ReservationHotelDetailAction(id) {
+    async ReservationHotelDetailAction(id, product_id) {
       try {
-        const response = await axios.get("/reservations-hotel/" + id);
+        const response = await axios.get(
+          "/reservations-hotel/" + id + "/" + product_id
+        );
         return response.data.result;
       } catch (error) {
         throw error;
       }
     },
-    async ReservationHotelDetailCopyAction(id) {
+    async ReservationHotelDetailCopyAction(id, product_id) {
       try {
-        const response = await axios.get("/reservations-hotel/" + id + "/copy");
+        const response = await axios.get(
+          "/reservations-hotel/" + id + "/copy/" + product_id
+        );
         return response.data.result;
       } catch (error) {
         throw error;

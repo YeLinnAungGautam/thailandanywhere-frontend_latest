@@ -4,9 +4,9 @@
     <div class="flex justify-center items-center gap-3 mb-5">
       <button
         @click="router.back()"
-        class="px-4 py-2 text-sm text-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition-colors"
+        class="p-2 border border-gray-500 text-sm text-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition-colors"
       >
-        Go Back
+        <ChevronLeftIcon class="w-6 h-6" />
       </button>
       <button
         @click="generatePNGs"
@@ -494,6 +494,7 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import QrCode from "../../components/QrCode.vue";
 import { useRoute, useRouter } from "vue-router";
+import { ChevronLeftIcon } from "@heroicons/vue/24/outline";
 
 const route = useRoute();
 const router = useRouter();

@@ -108,9 +108,9 @@ const getComponent = (part) => {
   return components[part];
 };
 
-const getDetailAction = async (id) => {
+const getDetailAction = async (id, product_id) => {
   getLoading.value = true;
-  const res = await groupbyStore.ReservationHotelDetailAction(id);
+  const res = await groupbyStore.ReservationHotelDetailAction(id, product_id);
   detail.value = res;
   console.log(detail.value, "this is detail");
 
@@ -141,7 +141,10 @@ const printHotelConfirm = () => {
 
 const copyReservation = async (id) => {
   try {
-    const res = await groupbyStore.ReservationHotelDetailCopyAction(id);
+    const res = await groupbyStore.ReservationHotelDetailCopyAction(
+      id,
+      route.query.product_id
+    );
     console.log(res, "this is cpy reservation");
 
     // Check if we have data and items
@@ -163,6 +166,7 @@ const copyReservation = async (id) => {
 
     // Add booking header
     allFormattedOutput += `💰 Total Cost: ${res.summary.total_cost} THB
+💵 Price: ${res.summary.total_amount} THB
 🏦 Bank Name: ${res.items[0].bank_name != "null" ? res.items[0].bank_name : "-"}
 🔢 Bank Account Number: ${
       res.items[0].bank_account_number != "null"
@@ -175,7 +179,7 @@ const copyReservation = async (id) => {
 #️⃣ CRM ID: ${res.crm_id}\n`;
 
     res.items.forEach((item, index) => {
-      allFormattedOutput += `#️⃣ Reservation Code: ${item.reservation_code}: (${item.selling_price})\n`;
+      allFormattedOutput += `#️⃣ Reservation Code: ${item.reservation_code}: (${item.sale_price})\n`;
     });
 
     allFormattedOutput += `🏨 ${res.items[0].product_name}\n`;
@@ -184,8 +188,7 @@ const copyReservation = async (id) => {
       allFormattedOutput += `🏩 Room Name: ${a.room_name}\n`;
     });
 
-    allFormattedOutput += `💵 Price: ${res.summary.total_amount} THB
-💵 Total Sale Amount: ${res.selling_price} THB
+    allFormattedOutput += `💵 Total Sale Amount: ${res.selling_price} THB
 💸 Discount : ${discount} THB
 💵 Balance Due: ${res.balance_due} THB
 📝 Payment Status: ${res.payment_status}
@@ -243,10 +246,10 @@ watch(
 );
 
 watch(
-  () => route.query.id,
-  async (newId) => {
-    if (newId) {
-      getDetailAction(newId);
+  () => [route.query.id, route.query.product_id],
+  async ([newId, newProductId]) => {
+    if (newId || newProductId) {
+      getDetailAction(newId, newProductId);
       // console.log(detail.value, "this is get detail value");
     }
   },
@@ -256,7 +259,13 @@ watch(
 watch(
   () => part.value,
   (newPart) => {
-    router.push({ query: { id: route.query.id, part: newPart } });
+    router.push({
+      query: {
+        id: route.query.id,
+        product_id: route.query.product_id,
+        part: newPart,
+      },
+    });
   }
 );
 

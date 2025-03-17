@@ -227,11 +227,18 @@ const watchSystem = computed(() => {
 });
 
 const detailId = ref("");
+const product_id = ref("");
 const getDetailAction = async (id) => {
-  detailId.value = id;
+  detailId.value = id.id;
+  product_id.value = id.product_id;
 
   if (detailId.value) {
-    router.push("reservation-hotel?id=" + detailId.value);
+    router.push(
+      "reservation-hotel?id=" +
+        detailId.value +
+        "&product_id=" +
+        product_id.value
+    );
   }
 
   // showSide.value = false;

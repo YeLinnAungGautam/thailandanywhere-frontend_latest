@@ -1096,12 +1096,7 @@ watch(dateRange, async (newValue) => {
             v-if="!loading"
             class="bg-white shadow rounded-lg divide-y divide-gray-100 max-h-[62vh] overflow-y-scroll"
           >
-            <div
-              class="relative"
-              v-for="i in results?.data ?? []"
-              :key="i"
-              @click="detailGetAction(i.bookings[0]?.id)"
-            >
+            <div class="relative" v-for="i in results?.data ?? []" :key="i">
               <!-- <div
                 @click="getDetailAction(i.bookings[0]?.id)"
                 class="absolute top-7 text-[10px] z-30 cursor-pointer right-2 px-2 py-0.5 rounded-lg bg-[#FF613c] text-white"

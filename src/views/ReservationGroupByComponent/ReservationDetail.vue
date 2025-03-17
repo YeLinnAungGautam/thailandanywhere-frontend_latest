@@ -212,35 +212,51 @@ const copyReservation = async (id) => {
 watch(
   () => detail.value,
   () => {
+    // Check payment status for general state
     if (detail.value.booking.payment_status == "fully_paid") {
       state.value.general = true;
     } else {
       state.value.general = false;
     }
-    if (detail.value.booking.items[0].customer_passports.length > 0) {
-      state.value.passport = true;
-    } else {
-      state.value.passport = false;
-    }
-    if (detail.value.booking.items[0].is_booking_request == 1) {
-      state.value.booking = true;
-    } else {
-      state.value.booking = false;
-    }
-    if (detail.value.booking.items[0].booking_confirm_letters.length > 0) {
-      state.value.invoice = true;
-    } else {
-      state.value.invoice = false;
-    }
-    if (detail.value.booking.items[0].payment_status == "fully_paid") {
-      state.value.expense = true;
-    } else {
-      state.value.expense = false;
-    }
-    if (detail.value.booking.items[0].reservation_status == "confirmed") {
-      state.value.confirmation = true;
-    } else {
-      state.value.confirmation = false;
+
+    // Initialize all states to false
+    state.value.passport = false;
+    state.value.booking = false;
+    state.value.invoice = false;
+    state.value.expense = false;
+    state.value.confirmation = false;
+
+    // Loop through all booking items
+    if (detail.value.booking.items && detail.value.booking.items.length > 0) {
+      detail.value.booking.items.forEach((item) => {
+        // Check passport condition
+        if (item.customer_passports && item.customer_passports.length > 0) {
+          state.value.passport = true;
+        }
+
+        // Check booking request condition
+        if (item.is_booking_request == 1) {
+          state.value.booking = true;
+        }
+
+        // Check invoice condition
+        if (
+          item.booking_confirm_letters &&
+          item.booking_confirm_letters.length > 0
+        ) {
+          state.value.invoice = true;
+        }
+
+        // Check expense condition
+        if (item.payment_status == "fully_paid") {
+          state.value.expense = true;
+        }
+
+        // Check confirmation condition
+        if (item.reservation_status == "confirmed") {
+          state.value.confirmation = true;
+        }
+      });
     }
   }
 );

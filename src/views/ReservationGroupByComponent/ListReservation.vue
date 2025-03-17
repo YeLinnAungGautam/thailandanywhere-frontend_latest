@@ -1,27 +1,32 @@
 <template>
-  <div>
+  <div class="">
     <div
-      class="px-4 pb-2 relative cursor-pointer"
+      v-for="i in data.bookings[0]?.grouped_items"
+      :key="i.product_id"
+      class="px-4 pb-2 relative cursor-pointer border-b border-gray-100"
       :class="
-        data?.bookings[0]?.id == route.query.id
+        data?.bookings[0]?.id == route.query.id &&
+        i.product_id == route.query.product_id
           ? 'bg-[#FF613c]/20 shadow-lg'
           : ''
+      "
+      @click="
+        () => {
+          goReservationDetail(data?.bookings[0]?.id, i.product_id);
+          showList = !showList;
+        }
       "
     >
       <div
         class="absolute top-[36px] left-3 rounded-full w-2 h-2"
         :class="{
           'bg-blue-600':
-            data?.bookings[0]?.items[0]?.product_type ===
-            'App\\Models\\EntranceTicket',
-          'bg-green-600':
-            data?.bookings[0]?.items[0]?.product_type === 'App\\Models\\Hotel',
+            i?.items[0]?.product_type === 'App\\Models\\EntranceTicket',
+          'bg-green-600': i?.items[0]?.product_type === 'App\\Models\\Hotel',
           'bg-yellow-600':
-            data?.bookings[0]?.items[0]?.product_type ===
-            'App\\Models\\PrivateVanTour',
+            i?.items[0]?.product_type === 'App\\Models\\PrivateVanTour',
           'bg-red-600':
-            data?.bookings[0]?.items[0]?.product_type ===
-            'App\\Models\\AirportPickup',
+            i?.items[0]?.product_type === 'App\\Models\\AirportPickup',
         }"
       ></div>
       <div class="pl-5 pt-2 gap-y-4 gap-x-3">
@@ -29,10 +34,7 @@
           <div>
             <p
               class="text-[10px] space-x-1"
-              v-if="
-                data?.bookings[0]?.items[0]?.product_type ==
-                'App\\Models\\Hotel'
-              "
+              v-if="i?.items[0]?.product_type == 'App\\Models\\Hotel'"
             >
               <span class="font-medium"
                 >Book: {{ data?.bookings[0]?.booking_date }} / Due:
@@ -44,12 +46,10 @@
             <div
               class="text-[10px] text-[#ff613c] space-x-1 flex justify-end items-center"
             >
-              <p class="font-medium">
-                E-{{ expense(data?.bookings[0]?.items) }}
-              </p>
+              <p class="font-medium">E-{{ expense(i?.items) }}</p>
 
               <p class="font-medium" v-if="authStore.isSuperAdmin">
-                : S-{{ selling(data?.bookings[0]?.items) }}
+                : S-{{ selling(i?.items) }}
               </p>
               <p
                 class="text-white bg-gray-800 px-1 rounded-md"
@@ -67,39 +67,30 @@
             class="text-[10px] px-1 py-0.5 text-white inline-block rounded-lg"
             :class="{
               'bg-blue-600':
-                data?.bookings[0]?.items[0]?.product_type ===
-                'App\\Models\\EntranceTicket',
+                i?.items[0]?.product_type === 'App\\Models\\EntranceTicket',
               'bg-green-600':
-                data?.bookings[0]?.items[0]?.product_type ===
-                'App\\Models\\Hotel',
+                i?.items[0]?.product_type === 'App\\Models\\Hotel',
               'bg-yellow-600':
-                data?.bookings[0]?.items[0]?.product_type ===
-                'App\\Models\\PrivateVanTour',
+                i?.items[0]?.product_type === 'App\\Models\\PrivateVanTour',
               'bg-red-600':
-                data?.bookings[0]?.items[0]?.product_type ===
-                'App\\Models\\AirportPickup',
+                i?.items[0]?.product_type === 'App\\Models\\AirportPickup',
             }"
           >
             {{
-              data?.bookings[0]?.items[0]?.product_type ==
-              "App\\Models\\EntranceTicket"
+              i?.items[0]?.product_type == "App\\Models\\EntranceTicket"
                 ? "Ticket"
                 : ""
             }}
             {{
-              data?.bookings[0]?.items[0]?.product_type == "App\\Models\\Hotel"
-                ? "Hotel"
-                : ""
+              i?.items[0]?.product_type == "App\\Models\\Hotel" ? "Hotel" : ""
             }}
             {{
-              data?.bookings[0]?.items[0]?.product_type ==
-              "App\\Models\\PrivateVanTour"
+              i?.items[0]?.product_type == "App\\Models\\PrivateVanTour"
                 ? "Vantour"
                 : ""
             }}
             {{
-              data?.bookings[0]?.items[0]?.product_type ==
-              "App\\Models\\AirportPickup"
+              i?.items[0]?.product_type == "App\\Models\\AirportPickup"
                 ? "Pickup"
                 : ""
             }}
@@ -114,31 +105,19 @@
           >
             {{ data?.bookings[0]?.customer?.name }}
           </p>
-          <p
-            @click="showList = !showList"
-            class="text-[10px] bg-gray-600 px-1 py-0.5 text-white whitespace-nowrap inline-block rounded-lg"
-          >
-            <ChevronDownIcon class="w-4 h-4" v-if="!showList" />
-            <ChevronUpIcon class="w-4 h-4" v-if="showList" />
-          </p>
         </div>
-        <div
-          class="flex justify-start items-center"
-          v-for="(i, index) in data?.bookings[0]?.grouped_items"
-          :key="i.product_id"
-        >
+        <div class="flex justify-start items-center">
           <div
             class="text-[12px] font-medium space-x-2 text-gray-900 line-clamp-1"
           >
             <span class="whitespace-nowrap">{{
-              data?.bookings[0]?.grouped_items[index]?.items[0]?.product?.name
+              i?.items[0].product?.name
             }}</span>
             <span
               class="bg-gray-900 w-1 h-1 mb-0.5 rounded-full inline-block"
             ></span
             ><span class="whitespace-nowrap"
-              >{{ data?.bookings[0]?.grouped_items[index]?.items.length }} items
-              in hotel.</span
+              >{{ i?.items.length }} items in hotel.</span
             >
           </div>
         </div>
@@ -199,15 +178,9 @@
         <div v-if="showList" class="">
           <div
             class="transition-all mb-2 relative duration-200 ease-in bg-gray-50 shadow rounded-md px-3 mt-3"
-            v-for="i in data.bookings[0]?.grouped_items"
-            :key="i.product_id"
           >
             <div v-for="item in i.items" :key="item.id" class="">
-              <div
-                @click="
-                  goReservationDetail(data?.bookings[0]?.id, i.product_id)
-                "
-              >
+              <div>
                 <div
                   class="text-[12px] font-medium space-x-2 text-gray-900 flex justify-start items-center overflow-x-scroll no-sidebar-container pt-2"
                   :class="index == 0 ? '' : ' border-t border-gray-200'"

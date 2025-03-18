@@ -1,20 +1,20 @@
 // A4PaginatedRenderer.vue
 <template>
   <div class="flex flex-col gap-5">
-    <div class="flex justify-center items-center gap-3 mb-5">
-      <button
+    <div class="flex justify-start items-center gap-3">
+      <!-- <button
         @click="router.back()"
         class="p-2 border border-gray-500 text-sm text-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition-colors"
       >
-        <ChevronLeftIcon class="w-6 h-6" />
-      </button>
+        <ChevronLeftIcon class="w-5 h-5" />
+      </button> -->
       <button
         @click="generatePNGs"
         class="px-4 py-2 text-sm text-white bg-green-500 rounded-lg shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition-colors"
       >
-        Generate PNG Images
+        Generate PNG Images & Download All as Png
       </button>
-      <button
+      <!-- <button
         @click="downloadAll"
         :disabled="!pngUrls.length"
         class="px-4 py-2 text-sm text-white bg-blue-500 rounded-lg shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
@@ -27,13 +27,13 @@
         class="px-4 py-2 text-sm text-white bg-orange-500 rounded-lg shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-opacity-50 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
       >
         Download All As Png
-      </button>
+      </button> -->
     </div>
 
     <!-- Generated PNG previews -->
     <div v-if="pngUrls.length" class="mt-8">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold">Generated PNG Images</h3>
+        <h3 class="text-sm">Generated PNG Images</h3>
       </div>
       <div
         class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"
@@ -106,7 +106,7 @@
       </div>
 
       <!-- Items List -->
-      <div class="p-4 mt-4">
+      <div class="p-4 mt-4 h-[510px]">
         <div
           v-for="(item, itemIndex) in page"
           :key="itemIndex"
@@ -128,13 +128,13 @@
           <div class="w-1/5 text-right">
             <p class="mb-1 flex justify-center items-center">
               <span class="inline-block w-24 text-xs pr-3">Discount:</span>
-              <span class="inline-block w-20 text-right font-medium text-xl"
+              <span class="inline-block w-24 text-right font-medium text-xl"
                 >{{ item.discount }} ฿</span
               >
             </p>
             <p class="flex justify-center items-center">
               <span class="inline-block w-24 text-xs pr-3">Amount:</span>
-              <span class="inline-block w-20 text-right font-bold text-xl"
+              <span class="inline-block w-24 text-right font-bold text-xl"
                 >{{ item.amount }} ฿</span
               >
             </p>
@@ -253,7 +253,7 @@
                   />
                 </svg>
               </div>
-              <span>0637602448</span>
+              <span class="pb-4">0637602448</span>
             </div>
           </div>
           <div class="">
@@ -274,15 +274,15 @@
                   />
                 </svg>
               </div>
-              <span>/ThAnywhereYgn</span>
+              <span class="pb-4">/ThAnywhereYgn</span>
             </div>
           </div>
           <div class="col-span-2">
             <div class="flex">
               <div class="">
                 <div class="mb-3">
-                  <div class="flex items-start">
-                    <div class="mr-2 mt-1">
+                  <div class="flex items-center">
+                    <div class="mr-2 mt-1 pb-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         class="h-4 w-4"
@@ -304,7 +304,7 @@
                         />
                       </svg>
                     </div>
-                    <div>
+                    <div class="">
                       <p class="font-bold pb-1">Yangon Branch</p>
                       <p class="text-xs">
                         အမှတ်-၃၉ (မြေညီ)၊ United Condo၊ အလံပြဘုရားလမ်း၊
@@ -336,7 +336,7 @@
                   />
                 </svg>
               </div>
-              <span>09250794945</span>
+              <span class="pb-4">09250794945</span>
             </div>
           </div>
           <div class="">
@@ -357,15 +357,15 @@
                   />
                 </svg>
               </div>
-              <span>/ThAnywhereMdy</span>
+              <span class="pb-4">/ThAnywhereMdy</span>
             </div>
           </div>
           <div class="col-span-2">
             <div class="flex">
               <div class="">
                 <div class="mb-3">
-                  <div class="flex items-start">
-                    <div class="mr-2 mt-1">
+                  <div class="flex items-center">
+                    <div class="mr-2 mt-1 pb-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         class="h-4 w-4"
@@ -419,7 +419,7 @@
                   />
                 </svg>
               </div>
-              <span>09972185129 </span>
+              <span class="pb-4">09972185129 </span>
             </div>
           </div>
           <div class="">
@@ -440,15 +440,15 @@
                   />
                 </svg>
               </div>
-              <span>/ThAnywherePattaya</span>
+              <span class="pb-4">/ThAnywherePattaya</span>
             </div>
           </div>
           <div class="col-span-2">
             <div class="flex">
               <div class="">
                 <div class="mb-3">
-                  <div class="flex items-start">
-                    <div class="mr-2 mt-1">
+                  <div class="flex items-center">
+                    <div class="mr-2 mt-1 pb-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         class="h-4 w-4"
@@ -561,6 +561,10 @@ const generatePNGs = async () => {
 
       const pngUrl = canvas.toDataURL("image/png");
       pngUrls.value.push(pngUrl);
+
+      if (pngUrls.value.length === pages.value.length) {
+        await downloadAsSinglePage();
+      }
     } catch (error) {
       console.error(`Error generating PNG for page ${i + 1}:`, error);
     }
@@ -595,8 +599,13 @@ const downloadSinglePage = (pageIndex) => {
       ia[i] = byteString.charCodeAt(i);
     }
 
+    // Customize filename here
+    const customFileName = `${props.items.invoiceNumber} - Page ${
+      pageIndex + 1
+    }.png`;
+
     const blob = new Blob([ab], { type: mimeString });
-    saveAs(blob, `page-${pageIndex + 1}.png`);
+    saveAs(blob, customFileName);
   } catch (error) {
     console.error(`Error downloading page ${pageIndex + 1}:`, error);
   }

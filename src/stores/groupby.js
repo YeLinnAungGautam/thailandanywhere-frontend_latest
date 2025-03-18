@@ -7,7 +7,9 @@ export const useGroupByStore = defineStore("groupby", {
   actions: {
     async getChangePage(url, params) {
       this.loading = true;
-      const response = await axios.get(url, params);
+      const response = await axios.get(url, {
+        params: params,
+      });
       this.results = response.data.result;
       this.loading = false;
       return response.data;

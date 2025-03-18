@@ -1,12 +1,11 @@
 <template>
   <div class="w-full mx-auto bg-white p-5">
-    <h1 class="text-2xl font-bold text-center mb-8">Invoice PNG Generator</h1>
     <A4PaginatedRenderer :items="invoice" :itemsPerPage="itemsPerPage" />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, defineProps } from "vue";
 import A4PaginatedRenderer from "./A4PaginatorComponent.vue";
 import { useRoute } from "vue-router";
 import { useBookingStore } from "../../stores/booking";
@@ -14,6 +13,10 @@ import defaultImage from "../../assets/download.jpeg";
 
 const route = useRoute();
 const bookingStore = useBookingStore();
+
+const props = defineProps({
+  invoice_id: Number,
+});
 
 const itemsPerPage = ref(4); // Adjust based on your content size
 const itemsArray = ref([]);
@@ -98,7 +101,7 @@ const formatNumber = (value) => {
 };
 
 const getDetailAction = async () => {
-  const response = await bookingStore.getDetailAction(route.query.id);
+  const response = await bookingStore.getDetailAction(props.invoice_id);
   console.log(response);
   invoice.value.items = [];
   invoice.value.customer = response.result.customer.name;

@@ -708,82 +708,15 @@ watch(dateRange, async (newValue) => {
                     <option class="text-[10px]" value="fully_paid">
                       Fully paid
                     </option>
-
+                    <option class="text-[10px]" value="partially_paid">
+                      Partially paid
+                    </option>
                     <option class="text-[10px]" value="not_paid">
                       Not paid
                     </option>
                   </select>
                 </div>
-                <div>
-                  <p class="text-[10px] pb-2">Passport Status</p>
-                  <!-- passport status -->
-                  <select
-                    name=""
-                    id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-                  >
-                    <option class="text-[10px]" value=""></option>
-                    <option class="text-[10px]" value="missing">Missing</option>
 
-                    <option class="text-[10px]" value="included">
-                      Included
-                    </option>
-                  </select>
-                </div>
-                <div>
-                  <p class="text-[10px] pb-2">Booking Status</p>
-                  <!-- passport status -->
-                  <select
-                    name=""
-                    id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-                  >
-                    <option class="text-[10px]" value=""></option>
-                    <option class="text-[10px]" value="email_sent">
-                      Email Sent
-                    </option>
-
-                    <option class="text-[10px]" value="email_not_sent">
-                      Email not Sent
-                    </option>
-                  </select>
-                </div>
-                <div>
-                  <p class="text-[10px] pb-2">Confirmation</p>
-                  <!-- passport status -->
-                  <select
-                    name=""
-                    id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-                  >
-                    <option class="text-[10px]" value=""></option>
-                    <option class="text-[10px]" value="included">
-                      Included
-                    </option>
-
-                    <option class="text-[10px]" value="not_included">
-                      Not Included
-                    </option>
-                  </select>
-                </div>
-                <div class="">
-                  <p class="text-[10px] pb-2">Invoice</p>
-                  <!-- passport status -->
-                  <select
-                    name=""
-                    id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-                  >
-                    <option class="text-[10px]" value=""></option>
-                    <option class="text-[10px]" value="included">
-                      Included
-                    </option>
-
-                    <option class="text-[10px]" value="not_included">
-                      Not Included
-                    </option>
-                  </select>
-                </div>
                 <div
                   class="sticky bottom-0 w-full pb-4 pt-2 border-t border-gray-200 bg-white"
                 >

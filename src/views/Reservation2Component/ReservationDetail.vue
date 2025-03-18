@@ -6,12 +6,14 @@ import BookingRequest from "./BookingRequest.vue";
 import InvoiceUpdate from "./InvoiceUpdate.vue";
 import Expense from "./Expense.vue";
 import Confirmation from "./Confirmation.vue";
+import HotelConfrimationPng from "../PngGenerate/HotelConfirmationPng.vue";
 import {
   ChevronDoubleRightIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   XCircleIcon,
+  XMarkIcon,
 } from "@heroicons/vue/24/outline";
 import { useRoute, useRouter } from "vue-router";
 import { useReservationStore } from "../../stores/reservation";
@@ -27,6 +29,7 @@ const props = defineProps({
 });
 
 const part = ref("general");
+const showConfirmation = ref(false);
 const route = useRoute();
 const router = useRouter();
 const reservationStore = useReservationStore();
@@ -381,13 +384,19 @@ const hide = ref(false);
           </p>
           <p
             class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+            @click="showConfirmation = !showConfirmation"
+          >
+            Generate Confirmation
+          </p>
+          <p
+            class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
             @click="
               detail?.product_type == 'App\\Models\\EntranceTicket'
                 ? generateConfirmation()
                 : printHotelConfirm()
             "
           >
-            Generate Confirmation
+            Generate Confirmation System
           </p>
         </div>
       </div>
@@ -947,6 +956,25 @@ const hide = ref(false);
               Go To Fill Data
             </p>
           </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+    <Modal :isOpen="showConfirmation" @closeModal="showConfirmation = false">
+      <DialogPanel
+        class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-lg font-medium leading-6 text-gray-900 flex justify-between items-center"
+        >
+          <span class="">Hotel Confirmation as PNG</span>
+          <XMarkIcon
+            class="w-6 h-6 text-black cursor-pointer"
+            @click="showConfirmation = false"
+          />
+        </DialogTitle>
+        <div>
+          <HotelConfrimationPng />
         </div>
       </DialogPanel>
     </Modal>

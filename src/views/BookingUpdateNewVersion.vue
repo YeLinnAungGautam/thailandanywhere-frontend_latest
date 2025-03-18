@@ -42,6 +42,7 @@ import DetailListVue from "./BookingComponent/DetailList.vue";
 import { useAuthStore } from "../stores/auth";
 import { useUserStore } from "../stores/user";
 import TaxInfo from "./BookingComponent/TaxInfo.vue";
+import PngUsage from "./PngGenerate/PngUsage.vue";
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
 // for tag
@@ -424,6 +425,7 @@ const updatingLoading = ref(false);
 const required_archive = ref(false);
 
 const openModalArchive = ref(false);
+const openPrintModal = ref(false);
 
 const updateAuthAction = async () => {
   if (authStore.isSuperAdmin) {
@@ -1294,22 +1296,23 @@ onMounted(async () => {
       >
         <!-- create -->
         <div class="flex justify-end items-center space-x-2">
+          <!-- router.push({
+            name: 'bookings_png',
+            query: { id: route.params.id },
+          }) -->
           <button
-            @click="
-              router.push({
-                name: 'bookings_png',
-                query: { id: route.params.id },
-              })
-            "
-            class="text-center bg-orange-600 px-4 py-2 text-xs text-white rounded-xl"
+            @click="openPrintModal = !openPrintModal"
+            class="text-center bg-orange-600 px-4 py-2 text-xs flex justify-center items-center text-white rounded-xl"
           >
             <PrinterIcon class="w-4 h-4 text-white" />
+            <span class="pl-2">PNG</span>
           </button>
           <button
             @click="openPaid"
-            class="text-center bg-gray-600 px-4 py-2 text-xs text-white rounded-xl"
+            class="text-center bg-gray-600 px-4 py-2 text-xs flex justify-center items-center text-white rounded-xl"
           >
             <PrinterIcon class="w-4 h-4 text-white" />
+            <span class="pl-2">PDF</span>
           </button>
           <div
             @click="openAddUserModal = true"
@@ -1724,6 +1727,25 @@ onMounted(async () => {
               Normal Update
             </p>
           </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+    <Modal :isOpen="openPrintModal" @closeModal="openPrintModal = false">
+      <DialogPanel
+        class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-lg font-medium leading-6 text-gray-900 mb-5 flex justify-between items-center"
+        >
+          <span class="pl-4">Print Invoice as PNG</span>
+          <XMarkIcon
+            class="w-6 h-6 text-black cursor-pointer"
+            @click="openPrintModal = false"
+          />
+        </DialogTitle>
+        <div>
+          <PngUsage :invoice_id="route.params.id" />
         </div>
       </DialogPanel>
     </Modal>

@@ -37,7 +37,7 @@
               v-if="i?.items[0]?.product_type == 'App\\Models\\Hotel'"
             >
               <span class="font-medium"
-                >Book: {{ data?.bookings[0]?.booking_date }} / Due:
+                >Book: {{ i?.items[0]?.service_date }} / Due:
                 {{ data?.bookings[0]?.balance_due_date }}</span
               >
             </p>
@@ -433,6 +433,6 @@ const selling = (data) => {
 };
 
 onMounted(() => {
-  console.log(props.data);
+  // console.log(props.data);
 });
 </script>

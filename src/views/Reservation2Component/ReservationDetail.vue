@@ -383,10 +383,25 @@ const hide = ref(false);
             Copy Expense
           </p>
           <p
+            v-if="
+              detail?.product_type == 'App\\Models\\Hotel' &&
+              detail?.payment_status == 'fully_paid' &&
+              detail?.receipt_images.length > 0
+            "
             class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
             @click="showConfirmation = !showConfirmation"
           >
-            Generate Confirmation
+            Generate Confirmation PNG
+          </p>
+          <p
+            v-if="
+              detail?.product_type != 'App\\Models\\Hotel' ||
+              detail?.payment_status != 'fully_paid' ||
+              detail?.receipt_images.length == 0
+            "
+            class="text-[10px] bg-gray-300 whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+          >
+            Generate Confirmation PNG
           </p>
           <p
             class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"

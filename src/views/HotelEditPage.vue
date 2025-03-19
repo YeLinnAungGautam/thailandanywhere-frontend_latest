@@ -15,6 +15,7 @@ import {
   UsersIcon,
   ArrowDownTrayIcon,
   AdjustmentsHorizontalIcon,
+  XMarkIcon,
 } from "@heroicons/vue/24/outline";
 import { QuillEditor } from "@vueup/vue-quill";
 import Pagination from "../components/Pagination.vue";
@@ -33,6 +34,7 @@ import FacilitoryStoreVue from "../components/FacilitoryStore.vue";
 import { useHotelCategoryStore } from "../stores/hotelcategory";
 import { usePlaceStore } from "../stores/place";
 import AddonPage from "./Addon/AddonPage.vue";
+import HotelConfrimationDemo from "./PngGenerate/HotelConfirmationDemo.vue";
 // import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const createModalOpen = ref(false);
@@ -51,6 +53,8 @@ const { hotels, loading, importLoading } = storeToRefs(hotelStore);
 
 const search = ref("");
 const errors = ref([]);
+
+const showConfirmation = ref(false);
 
 const editorOptions = {
   placeholder: "Description with editor ...",
@@ -1617,6 +1621,14 @@ onMounted(async () => {
               v-if="quiteSwitch == 6"
               class="col-span-3 grid grid-cols-3 gap-4"
             >
+              <div class="space-y-1 col-span-3 text-right">
+                <p
+                  class="text-[10px] inline-block bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+                  @click="showConfirmation = !showConfirmation"
+                >
+                  Generate Confirmation PNG (DEMO)
+                </p>
+              </div>
               <div class="col-span-2 grid grid-cols-2 gap-4">
                 <div class="space-y-1">
                   <label for="name" class="text-sm text-gray-800"
@@ -1773,5 +1785,24 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+    <Modal :isOpen="showConfirmation" @closeModal="showConfirmation = false">
+      <DialogPanel
+        class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-lg font-medium leading-6 text-gray-900 flex justify-between items-center"
+        >
+          <span class="">Hotel Confirmation DEMO</span>
+          <XMarkIcon
+            class="w-6 h-6 text-black cursor-pointer"
+            @click="showConfirmation = false"
+          />
+        </DialogTitle>
+        <div>
+          <HotelConfrimationDemo :data="formData" />
+        </div>
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>

@@ -90,30 +90,24 @@ onMounted(async () => {
           <div class="flex justify-between items-start">
             <div class="space-y-2">
               <p class="text-lg font-medium text-black">
-                {{ data?.product?.name }}
+                {{ data?.name }}
               </p>
               <p class="w-[217px] text-sm text-gray-700">
-                {{ data?.product?.official_address }}
+                {{ data?.official_address }}
               </p>
               <p class="text-sm text-gray-700">
-                Tel: {{ data?.product?.official_phone_number }} Email:
-                {{ data?.product?.official_email }}
+                Tel: {{ data?.official_phone_number }} Email:
+                {{ data?.official_email }}
               </p>
             </div>
             <div>
-              <img
-                :src="data?.product?.official_logo"
-                class="w-[100px]"
-                alt=""
-              />
+              <img :src="data?.official_logo" class="w-[100px]" alt="" />
             </div>
           </div>
           <p class="text-xl text-black pt-2 pb-2 font-bold">
             Hotel Confirmation Letter
           </p>
-          <p class="font-semibold text-red-500 pb-5">
-            Submitted on {{ data?.receipt_images[0].date }}
-          </p>
+          <p class="font-semibold text-red-500 pb-5">Submitted on --/--/----</p>
           <div class="">
             <div class="relative flex flex-col w-full h-full">
               <table class="w-full text-left table-auto min-w-max">
@@ -142,11 +136,8 @@ onMounted(async () => {
                       <div
                         class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                       >
-                        <p
-                          v-for="(i, index) in data?.customer_passports"
-                          :key="index"
-                        >
-                          {{ index + 1 }}. {{ i.name }}
+                        <p v-for="(i, index) in 4" :key="index">
+                          {{ index + 1 }}. User {{ i }}
                         </p>
                       </div>
                     </td>
@@ -163,7 +154,7 @@ onMounted(async () => {
                       <p
                         class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                       >
-                        {{ data?.checkin_date }}
+                        --/--/----
                       </p>
                     </td>
                   </tr>
@@ -179,7 +170,7 @@ onMounted(async () => {
                       <p
                         class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                       >
-                        {{ data.checkout_date }}
+                        --/--/----
                       </p>
                     </td>
                   </tr>
@@ -195,7 +186,7 @@ onMounted(async () => {
                       <p
                         class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                       >
-                        {{ data?.quantity }} room
+                        - room
                       </p>
                     </td>
                   </tr>
@@ -211,7 +202,7 @@ onMounted(async () => {
                       <p
                         class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                       >
-                        {{ data?.payment_status }}
+                        not paid
                       </p>
                     </td>
                   </tr>
@@ -227,7 +218,7 @@ onMounted(async () => {
                       <p
                         class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                       >
-                        {{ data?.product?.official_remark }}
+                        {{ data?.official_remark }}
                       </p>
                     </td>
                   </tr>
@@ -242,14 +233,14 @@ onMounted(async () => {
                 class="w-1.5 h-1.5 bg-black rounded-full inline-block mr-2"
               ></span>
               Check-In time: Our check-in time is from
-              {{ data?.product?.check_in }}
+              {{ data?.check_in }}
             </p>
             <p>
               <span
                 class="w-1.5 h-1.5 bg-black rounded-full inline-block mr-2"
               ></span>
               Check-Out time: Our check-out time is before
-              {{ data?.product?.check_out }}
+              {{ data?.check_out }}
             </p>
             <p>
               <span
@@ -258,11 +249,11 @@ onMounted(async () => {
               Passport/ID card: Government-issued photo identification (must be
               same person on room reservation) upon check-in.
             </p>
-            <p v-if="data?.product?.cancellation_policy">
+            <p v-if="data?.cancellation_policy">
               <span
                 class="w-1.5 h-1.5 bg-black rounded-full inline-block mr-2"
               ></span>
-              {{ data?.product?.cancellation_policy }}
+              {{ data?.cancellation_policy }}
             </p>
             <p>We look forward to welcoming you soon.</p>
             <p>

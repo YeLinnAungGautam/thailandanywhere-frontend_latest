@@ -116,7 +116,7 @@ onMounted(async () => {
           </p>
           <div class="">
             <div class="relative flex flex-col w-full h-full">
-              <table class="w-full text-left table-auto min-w-max">
+              <table class="w-full text-left">
                 <thead>
                   <tr>
                     <th class="p-1 border border-black">
@@ -223,7 +223,7 @@ onMounted(async () => {
                         Remark:
                       </p>
                     </td>
-                    <td class="p-1 border border-black">
+                    <td class="p-1 border border-black w-full">
                       <p
                         class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                       >

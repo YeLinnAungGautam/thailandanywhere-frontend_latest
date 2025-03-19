@@ -25,7 +25,7 @@ const saveAsJpeg = async () => {
     });
 
     const link = document.createElement("a");
-    link.download = `confirmation-${props.data.crm_id}.jpeg`; // Name of the saved file
+    link.download = `confirmation-demo.jpeg`; // Name of the saved file
     link.href = canvas.toDataURL("image/jpeg");
     link.click();
   } catch (error) {
@@ -47,7 +47,7 @@ const saveAsPng = async () => {
     });
 
     const link = document.createElement("a");
-    link.download = `confirmation-${props.data.crm_id}.png`; // Name of the saved file
+    link.download = `confirmation-demo.png`; // Name of the saved file
     link.href = canvas.toDataURL("image/png");
     link.click();
   } catch (error) {
@@ -101,7 +101,7 @@ onMounted(async () => {
               </p>
             </div>
             <div>
-              <img :src="data?.official_logo" class="w-[100px]" alt="" />
+              <img :src="data?.official_logo_has" class="w-[100px]" alt="" />
             </div>
           </div>
           <p class="text-xl text-black pt-2 pb-2 font-bold">
@@ -110,7 +110,7 @@ onMounted(async () => {
           <p class="font-semibold text-red-500 pb-5">Submitted on --/--/----</p>
           <div class="">
             <div class="relative flex flex-col w-full h-full">
-              <table class="w-full text-left table-auto min-w-max">
+              <table class="w-full text-left">
                 <thead>
                   <tr>
                     <th class="p-1 border border-black">
@@ -214,7 +214,7 @@ onMounted(async () => {
                         Remark:
                       </p>
                     </td>
-                    <td class="p-1 border border-black">
+                    <td class="p-1 border border-black w-full">
                       <p
                         class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                       >

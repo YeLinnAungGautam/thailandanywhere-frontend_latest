@@ -974,7 +974,7 @@ const hide = ref(false);
           />
         </DialogTitle>
         <div>
-          <HotelConfrimationPng />
+          <HotelConfrimationPng :data="detail" />
         </div>
       </DialogPanel>
     </Modal>

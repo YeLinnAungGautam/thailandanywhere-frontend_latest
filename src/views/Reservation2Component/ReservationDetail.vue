@@ -376,7 +376,7 @@ const hide = ref(false);
         </div>
         <div class="flex justify-end items-center gap-x-2">
           <p
-            class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
+            class="text-[10px] bg-[#FF613c] shadow hover:shadow-none text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
             @click="copyReservation(detail?.id)"
           >
             Copy Expense
@@ -388,14 +388,14 @@ const hide = ref(false);
                 detail?.payment_status == 'fully_paid' &&
                 detail?.receipt_images.length > 0
               "
-              class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+              class="text-[10px] bg-[#FF613c] shadow hover:shadow-none whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
               @click="
                 router.push(
                   `/reservation/confirmations/hotel/png?id=${route.query.id}`
                 )
               "
             >
-              Generate Confirmation PNG
+              Hotel Confirmation
             </p>
             <p
               v-if="
@@ -405,11 +405,11 @@ const hide = ref(false);
               "
               class="text-[10px] bg-gray-300 whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
             >
-              Generate Confirmation PNG
+              Hotel Confirmation
             </p>
           </div>
           <p
-            class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+            class="text-[10px] bg-[#FF613c] shadow hover:shadow-none whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
             @click="
               detail?.product_type == 'App\\Models\\EntranceTicket'
                 ? generateConfirmation()

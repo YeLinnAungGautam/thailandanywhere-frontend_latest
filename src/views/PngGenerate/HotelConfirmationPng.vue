@@ -288,7 +288,8 @@ watch(
                         <p
                           class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                         >
-                          {{ detail?.quantity }} room
+                          {{ detail?.quantity }}
+                          {{ detail?.quantity > 1 ? "rooms" : "room" }}
                         </p>
                       </td>
                     </tr>
@@ -320,7 +321,11 @@ watch(
                         <p
                           class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                         >
-                          {{ detail?.product?.official_remark }}
+                          {{
+                            detail?.product?.official_remark != "null"
+                              ? detail.product?.official_remark
+                              : ""
+                          }}
                         </p>
                       </td>
                     </tr>
@@ -369,7 +374,7 @@ watch(
           </div>
         </div>
       </div>
-      <Modal :isOpen="showFirst" @closeModal="showFirst = false">
+      <Modal :isOpen="showFirst">
         <DialogPanel
           class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
         >
@@ -378,10 +383,6 @@ watch(
             class="text-lg font-medium leading-6 pb-4 text-gray-900 flex justify-between items-center"
           >
             <span class="">Customize confirmation</span>
-            <XMarkIcon
-              class="w-6 h-6 text-black cursor-pointer"
-              @click="showFirst = false"
-            />
           </DialogTitle>
           <div>
             <div class="flex justify-between items-start pb-2">
@@ -397,13 +398,13 @@ watch(
                 class="px-4 py-2 text-xs inline-block font-medium text-white bg-[#FF613C] border-none rounded-lg hover:bg-[#FF4A3C] focus:outline-none cursor-pointer"
                 @click="generateConfirmationRebuild"
               >
-                Generate Confirmation rebuild
+                Hotel Confirmation rebuild
               </p>
             </div>
           </div>
         </DialogPanel>
       </Modal>
-      <Modal :isOpen="showFailModal" @closeModal="showFailModal = false">
+      <Modal :isOpen="showFailModal">
         <DialogPanel
           class="w-full max-w-sm transform overflow-hidden rounded-lg mt-10 bg-white text-left align-middle shadow-xl transition-all"
         >
@@ -412,10 +413,6 @@ watch(
             class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start pb-20 pt-4 px-4"
           >
             <p></p>
-            <XCircleIcon
-              class="w-5 h-5 text-white"
-              @click="showFailModal = false"
-            />
           </DialogTitle>
           <!-- show date  -->
           <div class="relative">

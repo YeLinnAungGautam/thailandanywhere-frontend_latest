@@ -819,36 +819,38 @@ const onSubmitHandler = async () => {
         route.params.id
       );
       console.log(response, "create response");
-      formData.value = {
-        customer_id: "",
-        sold_from: "",
-        user_id: "",
-        user_name: "",
-        payment_method: "",
-        bank_name: "",
-        payment_status: "",
-        booking_date: "",
-        items: [],
-        receipt_image: [],
-        receipt_images: [],
-        money_exchange_rate: "",
-        crm_id: "",
-        discount: "",
-        comment: "",
-        past_user_id: "",
-        is_past_info: "",
-        past_crm_id: "",
-      };
+      if (response.status == "Request was successful.") {
+        formData.value = {
+          customer_id: "",
+          sold_from: "",
+          user_id: "",
+          user_name: "",
+          payment_method: "",
+          bank_name: "",
+          payment_status: "",
+          booking_date: "",
+          items: [],
+          receipt_image: [],
+          receipt_images: [],
+          money_exchange_rate: "",
+          crm_id: "",
+          discount: "",
+          comment: "",
+          past_user_id: "",
+          is_past_info: "",
+          past_crm_id: "",
+        };
 
-      errors.value = null;
-      toast.success(response.message);
-      featureImagePreview.value = [];
-      router.push("/bookings/new-update/" + response.result.id);
+        errors.value = null;
+        toast.success(response.message);
+        featureImagePreview.value = [];
+        router.push("/bookings/new-update/" + response.result.id);
 
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000);
-      updatingLoading.value = false;
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+        updatingLoading.value = false;
+      }
       // bookings/update/65/edit
     } catch (error) {
       console.log(

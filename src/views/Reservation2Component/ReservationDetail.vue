@@ -29,7 +29,6 @@ const props = defineProps({
 });
 
 const part = ref("general");
-const showConfirmation = ref(false);
 const route = useRoute();
 const router = useRouter();
 const reservationStore = useReservationStore();
@@ -377,19 +376,40 @@ const hide = ref(false);
         </div>
         <div class="flex justify-end items-center gap-x-2">
           <p
-            class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
+            class="text-[10px] bg-[#FF613c] shadow hover:shadow-none text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
             @click="copyReservation(detail?.id)"
           >
             Copy Expense
           </p>
+          <div v-if="detail?.product_type == 'App\\Models\\Hotel'">
+            <p
+              v-if="
+                detail?.product_type == 'App\\Models\\Hotel' &&
+                detail?.payment_status == 'fully_paid' &&
+                detail?.receipt_images.length > 0
+              "
+              class="text-[10px] bg-[#FF613c] shadow hover:shadow-none whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+              @click="
+                router.push(
+                  `/reservation/confirmations/hotel/png?id=${route.query.id}`
+                )
+              "
+            >
+              Hotel Confirmation
+            </p>
+            <p
+              v-if="
+                detail?.product_type != 'App\\Models\\Hotel' ||
+                detail?.payment_status != 'fully_paid' ||
+                detail?.receipt_images.length == 0
+              "
+              class="text-[10px] bg-gray-300 whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+            >
+              Hotel Confirmation
+            </p>
+          </div>
           <p
-            class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
-            @click="showConfirmation = !showConfirmation"
-          >
-            Generate Confirmation
-          </p>
-          <p
-            class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+            class="text-[10px] bg-[#FF613c] shadow hover:shadow-none whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
             @click="
               detail?.product_type == 'App\\Models\\EntranceTicket'
                 ? generateConfirmation()
@@ -959,7 +979,7 @@ const hide = ref(false);
         </div>
       </DialogPanel>
     </Modal>
-    <Modal :isOpen="showConfirmation" @closeModal="showConfirmation = false">
+    <!-- <Modal :isOpen="showConfirmation" @closeModal="showConfirmation = false">
       <DialogPanel
         class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
       >
@@ -974,10 +994,13 @@ const hide = ref(false);
           />
         </DialogTitle>
         <div>
-          <HotelConfrimationPng />
+          <HotelConfrimationPng
+            :detail="detail"
+            :getDetailAction="getDetailGenAction"
+          />
         </div>
       </DialogPanel>
-    </Modal>
+    </Modal> -->
   </div>
 </template>
 

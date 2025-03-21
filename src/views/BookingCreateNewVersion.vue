@@ -739,29 +739,31 @@ const onSubmitHandler = async () => {
     try {
       const response = await bookingStore.addNewAction(frmData);
       console.log(response, "create response");
-      formData.value = {
-        customer_id: "",
-        transfer_code: "",
-        sold_from: "",
-        payment_method: "",
-        bank_name: "",
-        payment_status: "",
-        booking_date: "",
-        items: [],
-        receipt_image: [],
-        money_exchange_rate: "",
-        crm_id: "",
-        discount: "",
-        comment: "",
-        past_user_id: "",
-        is_past_info: false,
-        past_crm_id: "",
-      };
+      if (response.status == "Request was successful.") {
+        formData.value = {
+          customer_id: "",
+          transfer_code: "",
+          sold_from: "",
+          payment_method: "",
+          bank_name: "",
+          payment_status: "",
+          booking_date: "",
+          items: [],
+          receipt_image: [],
+          money_exchange_rate: "",
+          crm_id: "",
+          discount: "",
+          comment: "",
+          past_user_id: "",
+          is_past_info: false,
+          past_crm_id: "",
+        };
 
-      errors.value = null;
-      toast.success(response.message);
-      featureImagePreview.value = [];
-      router.push("/bookings/new-update/" + response.result.id);
+        errors.value = null;
+        toast.success(response.message);
+        featureImagePreview.value = [];
+        router.push("/bookings/new-update/" + response.result.id);
+      }
       // bookings/update/65/edit
     } catch (error) {
       console.log(

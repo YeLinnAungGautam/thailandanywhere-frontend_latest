@@ -49,12 +49,13 @@ import UpdateBookingNewView from "../views/BookingUpdateNewVersion.vue";
 import InclusiveNewCreateView from "../views/InclusiveNewCreate.vue";
 import InclusiveNewDetailView from "../views/InclusiveNewUpdate.vue";
 import ReservationEntranceConfirmationsView from "../views/ReservationEntranceConfirmationsView.vue";
+import ReservationHotelConfirmationsView from "../views/PngGenerate/HotelConfirmationPng.vue";
 import AuditorDashboardView from "../views/Auditor.vue";
 import ReservationEntranceConfirmationsSvgView from "../views/ReservationEntranceConfirmationSvg.vue";
 import ReservationSecondView from "../views/Reservation2.vue";
 import PngUsage from "../views/PngGenerate/PngUsage.vue";
 import Accounting from "../views/Accounting.vue";
-import ReservationHotelView from '../views/Reservationhotel.vue'
+import ReservationHotelView from "../views/Reservationhotel.vue";
 
 const routes = [
   {
@@ -294,6 +295,11 @@ const routes = [
     path: "/reservation/confirmations/entrance/:id",
     name: "reservation-entrance-confirmations",
     component: ReservationEntranceConfirmationsView,
+  },
+  {
+    path: "/reservation/confirmations/hotel/png",
+    name: "reservation-hotel-confirmations",
+    component: ReservationHotelConfirmationsView,
   },
   {
     path: "/reservation/confirmations/svg/entrance/:id",

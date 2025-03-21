@@ -15,6 +15,7 @@ import {
   UsersIcon,
   ArrowDownTrayIcon,
   AdjustmentsHorizontalIcon,
+  XMarkIcon,
 } from "@heroicons/vue/24/outline";
 import { QuillEditor } from "@vueup/vue-quill";
 import Pagination from "../components/Pagination.vue";
@@ -33,6 +34,7 @@ import FacilitoryStoreVue from "../components/FacilitoryStore.vue";
 import { useHotelCategoryStore } from "../stores/hotelcategory";
 import { usePlaceStore } from "../stores/place";
 import AddonPage from "./Addon/AddonPage.vue";
+import HotelConfrimationDemo from "./PngGenerate/HotelConfirmationDemo.vue";
 // import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const createModalOpen = ref(false);
@@ -51,6 +53,8 @@ const { hotels, loading, importLoading } = storeToRefs(hotelStore);
 
 const search = ref("");
 const errors = ref([]);
+
+const showConfirmation = ref(false);
 
 const editorOptions = {
   placeholder: "Description with editor ...",
@@ -121,6 +125,15 @@ const formData = ref({
   payment_method: "",
   bank_name: "",
   bank_account_number: "",
+  check_in: "",
+  check_out: "",
+  cancellation_policy: "",
+  official_address: "",
+  official_phone_number: "",
+  official_email: "",
+  official_remark: "",
+  official_logo: "",
+  official_logo_has: "",
   account_name: "",
   place: "",
   legal_name: "",
@@ -164,6 +177,20 @@ const onGetArray = (data) => {
 const editImagesPreview = ref([]);
 const imagesPreview = ref([]);
 const imagesInput = ref(null);
+const official_logo_preview = ref(null);
+const official_logo_input = ref(null);
+
+const openOfficialLogoImagePicker = () => {
+  official_logo_input.value.click();
+};
+
+const handlerOfficialLogoFileChange = (e) => {
+  let selectedFile = e.target.files;
+  if (selectedFile) {
+    formData.value.official_logo = selectedFile[0];
+    official_logo_preview.value = URL.createObjectURL(selectedFile[0]);
+  }
+};
 
 const openFileImagePicker = () => {
   imagesInput.value.click();
@@ -201,6 +228,15 @@ const closeModal = () => {
     bank_name: "",
     bank_account_number: "",
     account_name: "",
+    check_in: "",
+    check_out: "",
+    cancellation_policy: "",
+    official_address: "",
+    official_phone_number: "",
+    official_email: "",
+    official_remark: "",
+    official_logo: "",
+    official_logo_has: "",
     place: "",
     legal_name: "",
     email: [],
@@ -303,6 +339,18 @@ const addNewHandler = async () => {
   }
   frmData.append("type", formData.value.type);
   frmData.append("account_name", formData.value.account_name);
+
+  frmData.append("official_address", formData.value.official_address);
+  frmData.append("official_phone_number", formData.value.official_phone_number);
+  frmData.append("official_email", formData.value.official_email);
+  frmData.append("official_remark", formData.value.official_remark);
+  if (formData.value.official_logo) {
+    frmData.append("official_logo", formData.value.official_logo);
+  }
+  frmData.append("check_in", formData.value.check_in);
+  frmData.append("check_out", formData.value.check_out);
+  frmData.append("cancellation_policy", formData.value.cancellation_policy);
+
   frmData.append("place", formData.value.place);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
@@ -390,6 +438,14 @@ const addNewHandler = async () => {
       payment_method: "",
       bank_name: "",
       account_name: "",
+      check_in: "",
+      check_out: "",
+      cancellation_policy: "",
+      official_address: "",
+      official_phone_number: "",
+      official_email: "",
+      official_remark: "",
+      official_logo: "",
       bank_account_number: "",
       place: "",
       legal_name: "",
@@ -447,6 +503,14 @@ const openCreate = () => {
   formData.value.payment_method = "";
   formData.value.bank_name = "";
   formData.value.account_name = "";
+  formData.value.check_in = "";
+  formData.value.check_out = "";
+  formData.value.cancellation_policy = "";
+  formData.value.official_address = "";
+  formData.value.official_phone_number = "";
+  formData.value.official_email = "";
+  formData.value.official_remark = "";
+  formData.value.official_logo = "";
   formData.value.bank_account_number = "";
   formData.value.place = "";
   formData.value.legal_name = "";
@@ -506,6 +570,18 @@ const updateHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("account_name", formData.value.account_name);
+
+  frmData.append("official_address", formData.value.official_address);
+  frmData.append("official_phone_number", formData.value.official_phone_number);
+  frmData.append("official_email", formData.value.official_email);
+  frmData.append("official_remark", formData.value.official_remark);
+  if (formData.value.official_logo) {
+    frmData.append("official_logo", formData.value.official_logo);
+  }
+  frmData.append("check_in", formData.value.check_in);
+  frmData.append("check_out", formData.value.check_out);
+  frmData.append("cancellation_policy", formData.value.cancellation_policy);
+
   frmData.append("legal_name", formData.value.legal_name);
   // frmData.append("email", formData.value.email);
   frmData.append("description", formData.value.description);
@@ -613,6 +689,14 @@ const updateHandler = async () => {
       bank_name: "",
       bank_account_number: "",
       account_name: "",
+      check_in: "",
+      check_out: "",
+      cancellation_policy: "",
+      official_address: "",
+      official_phone_number: "",
+      official_email: "",
+      official_remark: "",
+      official_logo: "",
       legal_name: "",
       email: [],
       contract_due: "",
@@ -708,6 +792,14 @@ const getDetail = async (params) => {
     formData.value.contract_due = formatDate(data.contract_due);
     formData.value.bank_account_number = data.bank_account_number;
     formData.value.account_name = data.account_name;
+    formData.value.check_in = data.check_in;
+    formData.value.check_out = data.check_out;
+    formData.value.cancellation_policy = data.cancellation_policy;
+    formData.value.official_address = data.official_address;
+    formData.value.official_phone_number = data.official_phone_number;
+    formData.value.official_email = data.official_email;
+    formData.value.official_remark = data.official_remark;
+    formData.value.official_logo_has = data.official_logo;
     formData.value.payment_method = data.payment_method;
     formData.value.bank_name = data.bank_name;
     formData.value.contracts = [];
@@ -892,6 +984,16 @@ onMounted(async () => {
               "
             >
               add on
+            </p>
+            <p
+              v-if="formData.id"
+              class="px-4 py-2 cursor-pointer rounded-md"
+              @click="quiteSwitch = 6"
+              :class="
+                quiteSwitch == 6 ? 'bg-[#ff613c] text-white' : 'bg-gray-200'
+              "
+            >
+              confirmation
             </p>
           </div>
         </div>
@@ -1509,20 +1611,158 @@ onMounted(async () => {
                   </p>
                   <p class="text-xs text-red-600">get behind v= code</p>
                 </div>
-                <!-- <iframe
-                  width="560"
-                  height="315"
-                  src="https://www.youtube.com/embed/yjMEIq7A0Gk"
-                  title="YouTube video player"
-                  frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen
-                ></iframe> -->
               </div>
             </div>
             <!-- add on page -->
             <div v-if="quiteSwitch == 5" class="col-span-3">
               <AddonPage :id="formData.id" :type="'hotel'" />
+            </div>
+            <div
+              v-if="quiteSwitch == 6"
+              class="col-span-3 grid grid-cols-3 gap-4"
+            >
+              <div class="space-y-1 col-span-3 text-right">
+                <p
+                  class="text-[10px] inline-block bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+                  @click="showConfirmation = !showConfirmation"
+                >
+                  Generate Confirmation PNG (DEMO)
+                </p>
+              </div>
+              <div class="col-span-2 grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                  <label for="name" class="text-sm text-gray-800"
+                    >Checkin (time)</label
+                  >
+                  <input
+                    v-model="formData.check_in"
+                    type="text"
+                    class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <label for="name" class="text-sm text-gray-800"
+                    >Checkout (time)</label
+                  >
+                  <input
+                    v-model="formData.check_out"
+                    type="text"
+                    class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <label for="name" class="text-sm text-gray-800"
+                    >Official phone number</label
+                  >
+                  <input
+                    v-model="formData.official_phone_number"
+                    type="text"
+                    class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <label for="name" class="text-sm text-gray-800"
+                    >Official email</label
+                  >
+                  <input
+                    v-model="formData.official_email"
+                    type="text"
+                    class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <label for="name" class="text-sm text-gray-800"
+                    >Cancellation Policy</label
+                  >
+                  <textarea
+                    v-model="formData.cancellation_policy"
+                    name=""
+                    class="w-full h-32 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                    id=""
+                  ></textarea>
+                </div>
+                <div class="space-y-1">
+                  <label for="name" class="text-sm text-gray-800"
+                    >Official Address</label
+                  >
+                  <textarea
+                    v-model="formData.official_address"
+                    name=""
+                    class="w-full h-32 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                    id=""
+                  ></textarea>
+                </div>
+                <div class="space-y-1">
+                  <label for="name" class="text-sm text-gray-800">Remark</label>
+                  <textarea
+                    v-model="formData.official_remark"
+                    name=""
+                    class="w-full h-32 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                    id=""
+                  ></textarea>
+                </div>
+              </div>
+              <div class="mb-2 space-y-1">
+                <label for="image" class="relative text-sm text-gray-800"
+                  >Official Logo
+                </label>
+                <input
+                  type="file"
+                  id="image"
+                  ref="official_logo_input"
+                  class="hidden"
+                  @change="handlerOfficialLogoFileChange"
+                  accept="image/*"
+                />
+                <div
+                  v-if="official_logo_preview"
+                  class="w-full h-auto relative"
+                  @click.prevent="
+                    () => {
+                      openOfficialLogoImagePicker();
+                      formData.official_logo = null;
+                    }
+                  "
+                >
+                  <p
+                    class="absolute top-2 bg-white shadow px-2 py-0.5 rounded-lg right-2 text-xs text-red-600"
+                  >
+                    change
+                  </p>
+                  <img
+                    :src="official_logo_preview"
+                    alt="Image preview"
+                    class="w-full h-auto rounded"
+                  />
+                </div>
+                <div
+                  v-if="formData.official_logo_has && !official_logo_preview"
+                  @click.prevent="openOfficialLogoImagePicker"
+                  class="w-full h-auto relative"
+                >
+                  <p
+                    class="absolute top-2 bg-white shadow px-2 py-0.5 rounded-lg right-2 text-xs text-red-600"
+                  >
+                    change
+                  </p>
+                  <img
+                    :src="formData.official_logo_has"
+                    alt="Image preview"
+                    class="w-full h-auto rounded"
+                  />
+                </div>
+                <div
+                  v-if="!formData.official_logo_has && !official_logo_preview"
+                  @click.prevent="openOfficialLogoImagePicker"
+                  class="cursor-pointer w-full h-[250px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
+                >
+                  <span class="text-xs"
+                    ><i
+                      class="fa-solid fa-plus text-4xl font-semibold py-4 px-5 bg-[#ff613c] rounded-full shadow text-white"
+                    ></i
+                  ></span>
+                </div>
+              </div>
             </div>
             <div
               class="text-end flex justify-end items-center col-span-3"
@@ -1545,5 +1785,24 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+    <Modal :isOpen="showConfirmation" @closeModal="showConfirmation = false">
+      <DialogPanel
+        class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-lg font-medium leading-6 text-gray-900 flex justify-between items-center"
+        >
+          <span class="">Hotel Confirmation DEMO</span>
+          <XMarkIcon
+            class="w-6 h-6 text-black cursor-pointer"
+            @click="showConfirmation = false"
+          />
+        </DialogTitle>
+        <div>
+          <HotelConfrimationDemo :data="formData" />
+        </div>
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>

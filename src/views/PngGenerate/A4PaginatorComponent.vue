@@ -78,19 +78,19 @@
           <p class="text-sm">View on: www.thanywhere.com/scan</p>
         </div>
         <div class="text-right">
-          <div class="flex justify-center items-end mb-2">
+          <div class="flex items-end justify-center mb-2">
             <span class="w-32 font-medium text-left">Invoice to:</span>
-            <span class="w-40 text-[25px] font-semibold">{{
+            <span class="min-w-40 text-[25px] font-semibold">{{
               items.customer
             }}</span>
           </div>
-          <div class="flex justify-end item-center mb-2">
+          <div class="flex items-end justify-between mb-2">
             <span class="w-32 font-medium text-left">Sales date:</span>
-            <span class="w-40 text-sm">{{ items.salesDate }}</span>
+            <span class="min-w-40 text-end text-sm">{{ items.salesDate }}</span>
           </div>
-          <div class="flex justify-end item-center">
+          <div class="flex items-end justify-between mb-2">
             <span class="w-32 font-medium text-left">Due Date:</span>
-            <span class="w-40 text-sm">{{ items.dueDate }}</span>
+            <span class="min-w-40 text-sm">{{ items.dueDate }}</span>
           </div>
         </div>
       </div>
@@ -229,6 +229,22 @@
               >
             </div>
           </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="bg-[#FF613c] h-1"></div>
+        <div class="py-4">
+          <p class="text-start pl-6 font-semibold text-[#FF613c] text-sm">
+            လူကြီးမင်း၏ ခရီးတစ်လျှောက် အရေးပေါ်ကိစ္စများ နှင့် အခြား အခက်ခဲများ
+            အတွက် ဆက်သွယ်ရန်။
+          </p>
+          <p
+            class="text-start pl-6 pt-3 pb-4 font-semibold text-[#FF613c] text-sm"
+          >
+            ဖုန်းနံပါတ်။ ။​ <span class="pl-4">🇲🇲 +09963394746</span>
+            <span class="pl-4">🇹🇭 +66614367473</span>
+          </p>
         </div>
       </div>
 

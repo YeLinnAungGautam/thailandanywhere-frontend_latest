@@ -33,6 +33,7 @@ const groupbyStore = useGroupByStore();
 const detail = ref(null);
 const getLoading = ref(false);
 const toast = useToast();
+const hasRouteId = ref(false);
 
 const state = ref({
   general: false,
@@ -334,6 +335,7 @@ watch(
   () => [route.query.id, route.query.product_id],
   async ([newId, newProductId]) => {
     if (newId || newProductId) {
+      hasRouteId.value = false;
       getDetailAction(newId, newProductId);
       // console.log(detail.value, "this is get detail value");
     }
@@ -356,7 +358,7 @@ watch(
 
 onMounted(() => {
   if (!route.query.id) {
-    getLoading.value = true;
+    hasRouteId.value = true;
   }
   if (route.query.part) {
     part.value = route.query.part;
@@ -368,6 +370,11 @@ const hide = ref(false);
 
 <template>
   <div>
+    <div v-if="hasRouteId">
+      <div class="flex justify-center text-xs items-center h-[70vh]">
+        <p>Please select one reservation group.</p>
+      </div>
+    </div>
     <div v-if="getLoading">
       <div class="flex justify-center text-xs items-center h-[70vh]">
         <svg
@@ -397,7 +404,7 @@ const hide = ref(false);
         <p>loading</p>
       </div>
     </div>
-    <div class="space-y-4" v-if="!getLoading">
+    <div class="space-y-4" v-if="!getLoading && !hasRouteId">
       <div
         class="flex justify-between items-center space-x-2 overflow-x-scroll no-sidebar-container"
       >

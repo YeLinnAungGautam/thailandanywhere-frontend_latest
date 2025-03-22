@@ -16,6 +16,7 @@ export const useGroupByStore = defineStore("groupby", {
     },
     async ReservationHotelList(params) {
       try {
+        this.loading = true;
         const response = await axios.get("/reservations-hotel", {
           params: params,
         });
@@ -23,6 +24,8 @@ export const useGroupByStore = defineStore("groupby", {
         return response.data;
       } catch (error) {
         throw error;
+      } finally {
+        this.loading = false;
       }
     },
     async ReservationHotelDetailAction(id, product_id) {

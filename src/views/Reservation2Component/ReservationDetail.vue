@@ -170,10 +170,58 @@ const goToGenerate = () => {
 const copyReservation = async (id) => {
   const res = await reservationStore.copyReservationDetail(id);
   console.log(res, "this is cpy reservation");
+
+  // Helper function to check if a date is today, tomorrow, or the day after tomorrow
+  function getUrgencyLabel(dateString) {
+    if (!dateString || dateString === "null" || dateString === "-") return "";
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const dayAfterTomorrow = new Date(today);
+    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+
+    // Parse the service date
+    const serviceDateParts = dateString.split("-");
+    // Assuming format is YYYY-MM-DD or DD-MM-YYYY
+    let serviceDate;
+
+    if (serviceDateParts[0].length === 4) {
+      // YYYY-MM-DD format
+      serviceDate = new Date(dateString);
+    } else {
+      // DD-MM-YYYY format
+      serviceDate = new Date(
+        `${serviceDateParts[2]}-${serviceDateParts[1]}-${serviceDateParts[0]}`
+      );
+    }
+
+    serviceDate.setHours(0, 0, 0, 0);
+
+    if (serviceDate.getTime() === today.getTime()) {
+      return "*Urgent: Today*  \n";
+    } else if (serviceDate.getTime() === tomorrow.getTime()) {
+      return "*Urgent: Tomorrow*  \n";
+    } else if (serviceDate.getTime() === dayAfterTomorrow.getTime()) {
+      return "*Urgent: Day After Tomorrow*  \n";
+    }
+
+    return "";
+  }
+
   let formattedOutput;
+  let urgencyLabel = "";
+
   if (res.result.checkin_date != undefined) {
-    formattedOutput = `
-💰 Total Cost: ${res.result.total_cost} THB 🏦 Bank Name: ${
+    // For hotel reservations, check check-in date
+    urgencyLabel = getUrgencyLabel(res.result.checkin_date);
+
+    formattedOutput = `${urgencyLabel}💰 Total Cost: ${
+      res.result.total_cost
+    } THB 🏦 Bank Name: ${
       res.result.bank_name != "null" ? res.result.bank_name : "-"
     }
 🔢 Bank Account Number: ${
@@ -209,8 +257,12 @@ const copyReservation = async (id) => {
 🤑 Score : ${res.result.score}
     `;
   } else if (res.result.entrance_ticket_variation_name) {
-    formattedOutput = `
-💰 Total Cost: ${res.result.total_cost_price} THB
+    // For attraction tickets, check service date
+    urgencyLabel = getUrgencyLabel(res.result.service_date);
+
+    formattedOutput = `${urgencyLabel}💰 Total Cost: ${
+      res.result.total_cost_price
+    } THB
 🏦 Bank Name: ${res.result.bank_name != "null" ? res.result.bank_name : "-"}
 🔢 Bank Account Number: ${
       res.result.bank_account_number != "null"
@@ -252,8 +304,12 @@ const copyReservation = async (id) => {
 🤑 Score : ${res.result.score}
     `;
   } else if (res.result.ticket_type) {
-    formattedOutput = `
-💰 Total Cost: ${res.result.total_cost} THB
+    // For airline tickets, check service date
+    urgencyLabel = getUrgencyLabel(res.result.service_date);
+
+    formattedOutput = `${urgencyLabel}💰 Total Cost: ${
+      res.result.total_cost
+    } THB
 #️⃣ CRM ID: ${res.result.crm_id}
 #️⃣ Reservation Code: ${res.result.reservation_code}
 ✈️ Airline Name : ${res.result.product_name}

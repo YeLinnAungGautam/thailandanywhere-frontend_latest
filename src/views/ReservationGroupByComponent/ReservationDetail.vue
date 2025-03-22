@@ -153,6 +153,47 @@ const copyReservation = async (id) => {
       return;
     }
 
+    // Helper function to check if a date is today, tomorrow, or the day after tomorrow
+    function getUrgencyLabel(dateString) {
+      if (!dateString || dateString === "null" || dateString === "-") return "";
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const dayAfterTomorrow = new Date(today);
+      dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+
+      // Parse the service date
+      const serviceDateParts = dateString.split("-");
+      // Assuming format is YYYY-MM-DD or DD-MM-YYYY
+      let serviceDate;
+
+      if (serviceDateParts[0].length === 4) {
+        // YYYY-MM-DD format
+        serviceDate = new Date(dateString);
+      } else {
+        // DD-MM-YYYY format
+        serviceDate = new Date(
+          `${serviceDateParts[2]}-${serviceDateParts[1]}-${serviceDateParts[0]}`
+        );
+      }
+
+      serviceDate.setHours(0, 0, 0, 0);
+
+      if (serviceDate.getTime() === today.getTime()) {
+        return "*Urgent: Today*  \n";
+      } else if (serviceDate.getTime() === tomorrow.getTime()) {
+        return "*Urgent: Tomorrow*  \n";
+      } else if (serviceDate.getTime() === dayAfterTomorrow.getTime()) {
+        return "*Urgent: Day After Tomorrow*  \n";
+      }
+
+      return "";
+    }
+
     let discount = 0;
     for (let i = 0; i < res.items.length; i++) {
       discount += res.items[i].discount;
@@ -161,22 +202,41 @@ const copyReservation = async (id) => {
       (res.summary.total_amount * 1 - res.summary.total_cost * 1) /
       (res.summary.total_cost * 1);
 
+    // Check for earliest check-in date across all items
+    let earliestCheckinDate = null;
+    for (const item of res.items) {
+      if (item.checkin_date && item.checkin_date !== "null") {
+        if (!earliestCheckinDate || item.checkin_date < earliestCheckinDate) {
+          earliestCheckinDate = item.checkin_date;
+        }
+      }
+    }
+
+    // Get urgency label based on earliest check-in date
+    const urgencyLabel = earliestCheckinDate
+      ? getUrgencyLabel(earliestCheckinDate)
+      : "";
+
     // Create formatted output for all items
     let allFormattedOutput = "";
 
+    // Add urgency label at the top if needed
+    if (urgencyLabel) {
+      allFormattedOutput += urgencyLabel;
+    }
+
     // Add booking header
-    allFormattedOutput += `💰 Total Cost: ${res.summary.total_cost} THB
-💵 Price: ${res.summary.total_amount} THB
-🏦 Bank Name: ${res.items[0].bank_name != "null" ? res.items[0].bank_name : "-"}
-🔢 Bank Account Number: ${
+    allFormattedOutput += `💰 Total Cost: ${
+      res.summary.total_cost
+    } THB 💵 Price: ${res.summary.total_amount} THB 🏦 Bank Name: ${
+      res.items[0].bank_name != "null" ? res.items[0].bank_name : "-"
+    } 🔢 Bank Account Number: ${
       res.items[0].bank_account_number != "null"
         ? `➖${res.items[0].bank_account_number}`
         : "-"
-    }
-🧑‍💼 Account Name: ${
+    } 🧑‍💼 Account Name: ${
       res.items[0].account_name != "null" ? res.items[0].account_name : "-"
-    }
-#️⃣ CRM ID: ${res.crm_id}\n`;
+    } #️⃣ CRM ID: ${res.crm_id}\n`;
 
     res.items.forEach((item, index) => {
       allFormattedOutput += `#️⃣ Reservation Code: ${item.reservation_code}: (${item.sale_price})\n`;
@@ -188,13 +248,22 @@ const copyReservation = async (id) => {
       allFormattedOutput += `🏩 Room Name: ${a.room_name}\n`;
     });
 
-    allFormattedOutput += `💵 Total Sale Amount: ${res.selling_price} THB
-💸 Discount : ${discount} THB
-💵 Balance Due: ${res.balance_due} THB
-📝 Payment Status: ${res.payment_status}
-📅 Sale Date: ${res.booking_date}
-🤑 Score : ${score.toFixed(2)}
-    \n`;
+    // Add check-in dates with individual urgency indicators
+    res.items.forEach((item, index) => {
+      if (item.checkin_date && item.checkin_date !== "null") {
+        const itemUrgencyLabel = getUrgencyLabel(item.checkin_date).trim();
+        const urgencyPrefix = itemUrgencyLabel ? `[${itemUrgencyLabel}] ` : "";
+        allFormattedOutput += `📅 Check-in Date: ${urgencyPrefix}${item.checkin_date}\n`;
+      }
+    });
+
+    allFormattedOutput += `💵 Total Sale Amount: ${
+      res.selling_price
+    } THB 💸 Discount : ${discount} THB 💵 Balance Due: ${
+      res.balance_due
+    } THB 📝 Payment Status: ${res.payment_status} 📅 Sale Date: ${
+      res.booking_date
+    } 🤑 Score : ${score.toFixed(2)}     \n`;
 
     // Copy to clipboard with a short timeout to ensure UI isn't blocked
     setTimeout(() => {

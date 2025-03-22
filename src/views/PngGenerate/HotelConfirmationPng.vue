@@ -281,6 +281,22 @@ watch(
                         <p
                           class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                         >
+                          room type:
+                        </p>
+                      </td>
+                      <td class="p-1 border border-black">
+                        <p
+                          class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
+                        >
+                          {{ detail?.room?.name }}
+                        </p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="p-1 border border-black">
+                        <p
+                          class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
+                        >
                           Number of room:
                         </p>
                       </td>

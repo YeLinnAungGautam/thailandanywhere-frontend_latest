@@ -139,6 +139,34 @@ const printHotelConfirm = () => {
   );
 };
 
+const showWarningModal = ref(false);
+const customerPassportLength = ref(false);
+
+const goToHotelConfirmation = () => {
+  if (detail.value.customer_passports.length > 2) {
+    router.push(`/reservation/confirmations/hotel/png?id=${route.query.id}`);
+  } else {
+    if (detail.value.customer_passports.length == 0) {
+      showWarningModal.value = true;
+    } else if (detail.value.customer_passports.length > 0) {
+      showWarningModal.value = true;
+      customerPassportLength.value = true;
+    }
+  }
+};
+
+const goToFillPassport = () => {
+  part.value = "passport";
+  showWarningModal.value = false;
+  customerPassportLength.value = false;
+};
+
+const goToGenerate = () => {
+  router.push(`/reservation/confirmations/hotel/png?id=${route.query.id}`);
+  showWarningModal.value = false;
+  customerPassportLength.value = false;
+};
+
 const copyReservation = async (id) => {
   const res = await reservationStore.copyReservationDetail(id);
   console.log(res, "this is cpy reservation");
@@ -389,11 +417,7 @@ const hide = ref(false);
                 detail?.receipt_images.length > 0
               "
               class="text-[10px] bg-[#FF613c] shadow hover:shadow-none whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
-              @click="
-                router.push(
-                  `/reservation/confirmations/hotel/png?id=${route.query.id}`
-                )
-              "
+              @click="goToHotelConfirmation()"
             >
               Hotel Confirmation
             </p>
@@ -979,9 +1003,9 @@ const hide = ref(false);
         </div>
       </DialogPanel>
     </Modal>
-    <!-- <Modal :isOpen="showConfirmation" @closeModal="showConfirmation = false">
+    <!-- <Modal :isOpen="showWarningModal" @closeModal="showWarningModal = false">
       <DialogPanel
-        class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
@@ -990,17 +1014,68 @@ const hide = ref(false);
           <span class="">Hotel Confirmation as PNG</span>
           <XMarkIcon
             class="w-6 h-6 text-black cursor-pointer"
-            @click="showConfirmation = false"
+            @click="showWarningModal = false"
           />
         </DialogTitle>
         <div>
-          <HotelConfrimationPng
-            :detail="detail"
-            :getDetailAction="getDetailGenAction"
-          />
+          <p>Hello {{ customerPassportLength }}</p>
         </div>
       </DialogPanel>
     </Modal> -->
+    <Modal :isOpen="showWarningModal">
+      <DialogPanel
+        class="w-full max-w-sm transform overflow-hidden rounded-lg mt-10 bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start pb-20 pt-4 px-4"
+        >
+          <p></p>
+        </DialogTitle>
+        <!-- show date  -->
+        <div class="relative">
+          <div class="absolute -top-8 left-[43%]">
+            <img
+              :src="logo"
+              class="w-16 h-16 bg-white rounded-full p-3"
+              alt=""
+            />
+          </div>
+          <div class="py-10 text-center space-y-4">
+            <p class="font-medium text-lg text-[#FF613c]">
+              Passports Warning !
+            </p>
+            <p class="text-xs">
+              Please sure customer passport is filled before generate
+              confirmation,
+              {{
+                customerPassportLength
+                  ? `only ${detail.customer_passports.length} passport do you wanna go generate confirmation?`
+                  : "please fill customer passport"
+              }}
+            </p>
+            <p
+              @click="goToGenerate"
+              class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
+            >
+              Go To Generate
+            </p>
+            <p
+              @click="goToFillPassport"
+              class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
+            >
+              Go To Fill
+            </p>
+            <p
+              @click="showWarningModal = false"
+              class="cursor-pointer inline-block text-[#FF613c] border border-[#FF613c] text-[10px] bg-white px-2 py-1 rounded-lg"
+            >
+              Cancel
+            </p>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 

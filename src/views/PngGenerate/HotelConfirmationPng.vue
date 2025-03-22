@@ -32,6 +32,8 @@ const generateConfirmationRebuild = () => {
   } else {
     showFirst.value = false;
   }
+
+  showFirst.value = false;
 };
 
 const saveAsJpeg = async () => {
@@ -447,16 +449,16 @@ watch(
               </p>
               <p
                 @click="goToFill"
-                class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
+                class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-2 rounded-lg"
               >
                 Use Reservation ID
               </p>
-              <p
+              <!-- <p
                 @click="showFailModal = false"
                 class="cursor-pointer inline-block text-[#FF613c] border border-[#FF613c] text-[10px] bg-white px-2 py-1 rounded-lg"
               >
                 Cancel
-              </p>
+              </p> -->
             </div>
           </div>
         </DialogPanel>

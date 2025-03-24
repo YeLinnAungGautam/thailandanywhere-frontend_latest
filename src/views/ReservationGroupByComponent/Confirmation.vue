@@ -352,7 +352,7 @@ const addConfirmationAction = async () => {
 
   // Refresh data
   setTimeout(async () => {
-    await props.getDetailAction(route.query.id);
+    await props.getDetailAction(route.query.id, route.query.product_id);
   }, 1000);
 };
 

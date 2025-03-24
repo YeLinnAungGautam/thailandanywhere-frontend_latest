@@ -381,7 +381,7 @@ const sendEmailFunction = async () => {
           mailBodyChange();
           toast.success(res.message);
           setTimeout(async () => {
-            await props.getDetailAction(route.query.id);
+            await props.getDetailAction(route.query.id, route.query.product_id);
           }, 1000);
         }
       } catch (error) {

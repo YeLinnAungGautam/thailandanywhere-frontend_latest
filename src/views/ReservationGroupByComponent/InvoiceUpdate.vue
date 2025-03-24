@@ -328,7 +328,7 @@ const deleteAction = async (id) => {
   toast.success("delete successfully");
 
   setTimeout(async () => {
-    await props.getDetailAction(route.query.id);
+    await props.getDetailAction(route.query.id, route.query.product_id);
   }, 1000);
 };
 
@@ -506,7 +506,7 @@ const processTravellerAction = async () => {
     closeAction();
     loading.value = false;
     setTimeout(async () => {
-      await props.getDetailAction(route.query.id);
+      await props.getDetailAction(route.query.id, route.query.product_id);
     }, 3000);
   }
 };
@@ -557,7 +557,7 @@ const addInvoiceUpdateAction = async (id) => {
 
   // props.closeTravellerModal();
   setTimeout(async () => {
-    await props.getDetailAction(route.query.id);
+    await props.getDetailAction(route.query.id, route.query.product_id);
   }, 1000);
 };
 

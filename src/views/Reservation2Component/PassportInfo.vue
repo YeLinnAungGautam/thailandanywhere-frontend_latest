@@ -116,7 +116,7 @@
 
     <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
       <DialogPanel
-        class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-3xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
@@ -128,26 +128,26 @@
 
         <div class="p-4">
           <div class="p-4">
-            <div class="grid grid-cols-2 gap-8">
-              <div v-if="formData.file" class="w-[200px] h-[200px]">
+            <div class="grid grid-cols-5 gap-8">
+              <div v-if="formData.file" class="w-full h-[400px] col-span-3">
                 <img
                   :src="formData.file"
-                  class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
+                  class="rounded-lg shadow hover:shadow-none h-full object-contain w-full"
                   alt=""
                 />
               </div>
               <div
                 v-if="!formData.file && !passportPreview"
                 @click="openFileFeaturePicker"
-                class="w-[200px] h-[200px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+                class="w-full h-[400px] col-span-3 border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
               >
                 +
               </div>
-              <div v-if="passportPreview" class="w-[200px] h-[200px]">
+              <div v-if="passportPreview" class="w-full h-[400px] col-span-3">
                 <img
                   :src="passportPreview"
                   @click="openFileFeaturePicker"
-                  class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
+                  class="rounded-lg shadow hover:shadow-none h-full object-contain w-full"
                   alt=""
                 />
               </div>
@@ -159,44 +159,50 @@
                 accept="image/*"
               />
 
-              <div class="space-y-4 relative pt-4">
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium">Name </label>
+              <div class="space-y-4 relative col-span-2">
+                <div class="space-y-2">
+                  <label for="" class="text-[12px] font-medium block"
+                    >Name
+                  </label>
                   <input
                     type="text"
                     v-model="formData.name"
                     name=""
                     placeholder="name"
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
                     id=""
                   />
                 </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium">Passport</label>
+                <div class="space-y-2">
+                  <label for="" class="text-[12px] font-medium block"
+                    >Passport</label
+                  >
                   <input
                     type="text"
                     v-model="formData.passport"
                     name=""
                     placeholder="passport"
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
                     id=""
                   />
                 </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium">DOB </label>
+                <div class="space-y-2">
+                  <label for="" class="text-[12px] font-medium block"
+                    >DOB
+                  </label>
                   <input
                     type="date"
                     v-model="formData.dob"
                     name=""
                     placeholder=""
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
                     id=""
                   />
                 </div>
 
                 <!-- Scan Controls -->
                 <div
-                  v-if="passportPreview && !isScanning && !formData.name"
+                  v-if="(passportPreview || formData.file) && !isScanning"
                   class="absolute -top-8 right-0 flex items-center"
                 >
                   <button
@@ -230,6 +236,45 @@
                   <span class="text-[12px] text-blue-500">Scanning...</span>
                 </div>
 
+                <!-- Debugging Raw Text Output (hidden by default) -->
+                <div
+                  v-if="rawOcrText && showDebug"
+                  class="mt-4 p-4 bg-gray-100 rounded-lg"
+                >
+                  <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-sm font-medium text-gray-700">
+                      Raw OCR Text
+                    </h4>
+                    <button
+                      @click="showDebug = false"
+                      class="text-[10px] text-gray-500 hover:text-gray-700"
+                    >
+                      Hide
+                    </button>
+                  </div>
+                  <pre
+                    class="text-[10px] text-gray-600 whitespace-pre-wrap max-h-32 overflow-y-auto"
+                    >{{ rawOcrText }}</pre
+                  >
+                </div>
+
+                <!-- Debug toggle -->
+                <div class="flex justify-end items-center mt-2">
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      v-model="showDebug"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"
+                    ></div>
+                    <span class="ml-2 text-[10px] text-gray-500"
+                      >Show Debug Info</span
+                    >
+                  </label>
+                </div>
+
                 <div
                   class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
                 >
@@ -257,43 +302,6 @@
                   </p>
                 </div>
               </div>
-            </div>
-
-            <!-- Debugging Raw Text Output (hidden by default) -->
-            <div
-              v-if="rawOcrText && showDebug"
-              class="mt-4 p-4 bg-gray-100 rounded-lg"
-            >
-              <div class="flex justify-between items-center mb-2">
-                <h4 class="text-sm font-medium text-gray-700">Raw OCR Text</h4>
-                <button
-                  @click="showDebug = false"
-                  class="text-[10px] text-gray-500 hover:text-gray-700"
-                >
-                  Hide
-                </button>
-              </div>
-              <pre
-                class="text-[10px] text-gray-600 whitespace-pre-wrap max-h-32 overflow-y-auto"
-                >{{ rawOcrText }}</pre
-              >
-            </div>
-
-            <!-- Debug toggle -->
-            <div class="flex justify-end items-center mt-2">
-              <label class="inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  v-model="showDebug"
-                  class="sr-only peer"
-                />
-                <div
-                  class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"
-                ></div>
-                <span class="ml-2 text-[10px] text-gray-500"
-                  >Show Debug Info</span
-                >
-              </label>
             </div>
           </div>
         </div>
@@ -378,14 +386,33 @@ const handlerFeatureFileChange = (e) => {
 
 // Scan passport using Tesseract OCR
 const scanPassport = async () => {
-  if (!passportPreview.value) return;
+  // Check if we have either a local preview or a remote URL to scan
+  if (
+    !passportPreview.value &&
+    (!formData.value.file || !formData.value.file.includes("http"))
+  ) {
+    return;
+  }
 
   isScanning.value = true;
   rawOcrText.value = "";
 
   try {
+    let imageSource;
+
+    // Determine which source to use for scanning
+    if (passportPreview.value) {
+      // Use the local file preview
+      imageSource = passportPreview.value;
+    } else if (formData.value.file && formData.value.file.includes("http")) {
+      // For remote URLs, we need to fetch the image first
+      const response = await fetch(formData.value.file);
+      const blob = await response.blob();
+      imageSource = URL.createObjectURL(blob);
+    }
+
     // Process the image with Tesseract
-    const result = await Tesseract.recognize(passportPreview.value, "eng", {
+    const result = await Tesseract.recognize(imageSource, "eng", {
       logger: (m) => console.log(m),
     });
 
@@ -395,6 +422,11 @@ const scanPassport = async () => {
 
     // Extract passport data
     extractPassportData(text);
+
+    // Clean up object URL if we created one
+    if (imageSource !== passportPreview.value) {
+      URL.revokeObjectURL(imageSource);
+    }
 
     // Show debug info if extracted data is incomplete
     if (

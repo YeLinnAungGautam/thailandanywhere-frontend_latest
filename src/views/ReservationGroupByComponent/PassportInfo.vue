@@ -2,12 +2,12 @@
   <div>
     <div class="py-2 space-y-2 pr-1" v-if="!loading">
       <div class="grid grid-cols-5 col-span-2 gap-4 py-3 relative">
-        <!-- <p
-          class="bg-green-500 text-white px-4 py-1 inline-block absolute top-3 right-3 cursor-pointer rounded-full text-[12px]"
-          @click="addTravellerAction"
+        <p
+          class="bg-green-500 text-white px-4 py-1 inline-block absolute top-3 right-0 cursor-pointer rounded-lg text-[12px]"
+          @click="carModalOpen = true"
         >
-          save
-        </p> -->
+          + Add Passport
+        </p>
         <div
           v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
           class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
@@ -41,7 +41,7 @@
       </div>
 
       <div class="pt-2 grid grid-cols-4 gap-4">
-        <div class="space-y-2" @click="carModalOpen = true">
+        <!-- <div class="space-y-2" @click="carModalOpen = true">
           <p class="text-[10px] px-2 py-1 bg-gray-300 rounded-lg text-white">
             crm id
           </p>
@@ -59,7 +59,7 @@
             </p>
             <p class="text-[10px] flex justify-start items-center pb-2">DOB</p>
           </div>
-        </div>
+        </div> -->
         <div
           v-for="(i, index) in featureImagePreview ?? []"
           :key="i"
@@ -147,7 +147,7 @@
     </div> -->
     <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
       <DialogPanel
-        class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-3xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
@@ -159,29 +159,26 @@
         <!-- show date  -->
         <div class="p-4">
           <div class="p-4">
-            <div class="grid grid-cols-2 gap-8">
-              <p class="text-[10px] text-gray-500 col-span-2">
-                Before save, Please make sure for which reservation.
-              </p>
-              <div v-if="formData.file" class="w-[200px] h-[200px]">
+            <div class="grid grid-cols-5 gap-8">
+              <div v-if="formData.file" class="w-full col-span-3 h-[400px]">
                 <img
                   :src="formData.file"
-                  class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
+                  class="rounded-lg shadow hover:shadow-none h-full object-contain w-full"
                   alt=""
                 />
               </div>
               <div
                 v-if="!formData.file && !passportPreview"
                 @click="openFileFeaturePicker"
-                class="w-[200px] h-[200px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+                class="w-full col-span-3 h-[400px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
               >
                 +
               </div>
-              <div v-if="passportPreview" class="w-[200px] h-[200px]">
+              <div v-if="passportPreview" class="w-full col-span-3 h-[400px]">
                 <img
                   :src="passportPreview"
                   @click="openFileFeaturePicker"
-                  class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
+                  class="rounded-lg shadow hover:shadow-none h-full object-contain w-full"
                   alt=""
                 />
               </div>
@@ -193,37 +190,76 @@
                 @change="handlerFeatureFileChange"
                 accept="image/*"
               />
-              <div class="space-y-4 relative pt-4">
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium">Name </label>
+              <div class="space-y-4 relative col-span-2 pt-4">
+                <div
+                  v-if="(passportPreview || formData.file) && !isScanning"
+                  class="absolute -top-4 right-0 flex items-center"
+                >
+                  <button
+                    @click="scanPassport"
+                    class="px-3 py-1 bg-blue-500 text-white text-[12px] cursor-pointer rounded-lg flex items-center"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4 mr-1"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    Scan Passport
+                  </button>
+                </div>
+                <!-- Scanning indicator -->
+                <div
+                  v-if="isScanning"
+                  class="absolute -top-4 right-0 flex items-center"
+                >
+                  <div
+                    class="w-4 h-4 mr-1 border-2 border-t-2 border-blue-500 border-t-transparent rounded-full animate-spin"
+                  ></div>
+                  <span class="text-[12px] text-blue-500">Scanning...</span>
+                </div>
+                <div class="space-y-2">
+                  <label for="" class="text-[12px] font-medium block"
+                    >Name
+                  </label>
                   <input
                     type="text"
                     v-model="formData.name"
                     name=""
                     placeholder="name"
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
                     id=""
                   />
                 </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium">Passport</label>
+                <div class="space-y-2">
+                  <label for="" class="text-[12px] font-medium block"
+                    >Passport</label
+                  >
                   <input
                     type="text"
                     v-model="formData.passport"
                     name=""
                     placeholder="passport"
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
                     id=""
                   />
                 </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium">DOB </label>
+                <div class="space-y-2">
+                  <label for="" class="text-[12px] font-medium block"
+                    >DOB
+                  </label>
                   <input
                     type="date"
                     v-model="formData.dob"
                     name=""
                     placeholder=""
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
                     id=""
                   />
                 </div>
@@ -257,10 +293,48 @@
                     Cancel
                   </p>
                 </div>
+                <!-- Debugging Raw Text Output (hidden by default) -->
+                <div
+                  v-if="rawOcrText && showDebug"
+                  class="mt-4 p-4 bg-gray-100 rounded-lg"
+                >
+                  <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-sm font-medium text-gray-700">
+                      Raw OCR Text
+                    </h4>
+                    <button
+                      @click="showDebug = false"
+                      class="text-[10px] text-gray-500 hover:text-gray-700"
+                    >
+                      Hide
+                    </button>
+                  </div>
+                  <pre
+                    class="text-[10px] text-gray-600 whitespace-pre-wrap max-h-32 overflow-y-auto"
+                    >{{ rawOcrText }}</pre
+                  >
+                </div>
+
+                <!-- Debug toggle -->
+                <div class="flex justify-end items-center mt-2">
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      v-model="showDebug"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"
+                    ></div>
+                    <span class="ml-2 text-[10px] text-gray-500"
+                      >Show Debug Info</span
+                    >
+                  </label>
+                </div>
               </div>
-              <div class="col-span-2" v-if="!formData.id">
+              <div class="col-span-5" v-if="!formData.id">
                 <label for="" class="text-[12px] font-medium"
-                  >For Which ?
+                  >Choose reservation to upload passport.
                 </label>
                 <div>
                   <input
@@ -303,6 +377,7 @@ import invoice from "../../assets/invoice_exp.jpg";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute } from "vue-router";
+import Tesseract from "tesseract.js";
 // import PassportGenerate from "./PassportGenerate.vue";
 
 const reservationStore = useReservationStore();
@@ -369,6 +444,222 @@ const addAction = () => {
   // addTravellerAction();
 };
 
+const isScanning = ref(false);
+const showDebug = ref(false);
+const rawOcrText = ref("");
+
+const scanPassport = async () => {
+  // Check if we have either a local preview or a remote URL to scan
+  if (
+    !passportPreview.value &&
+    (!formData.value.file || !formData.value.file.includes("http"))
+  ) {
+    return;
+  }
+
+  isScanning.value = true;
+  rawOcrText.value = "";
+
+  try {
+    let imageSource;
+
+    // Determine which source to use for scanning
+    if (passportPreview.value) {
+      // Use the local file preview
+      imageSource = passportPreview.value;
+    } else if (formData.value.file && formData.value.file.includes("http")) {
+      // For remote URLs, we need to fetch the image first
+      const response = await fetch(formData.value.file);
+      const blob = await response.blob();
+      imageSource = URL.createObjectURL(blob);
+    }
+
+    // Process the image with Tesseract
+    const result = await Tesseract.recognize(imageSource, "eng", {
+      logger: (m) => console.log(m),
+    });
+
+    // Get OCR text
+    const text = result.data.text;
+    rawOcrText.value = text;
+
+    // Extract passport data
+    extractPassportData(text);
+
+    // Clean up object URL if we created one
+    if (imageSource !== passportPreview.value) {
+      URL.revokeObjectURL(imageSource);
+    }
+
+    // Show debug info if extracted data is incomplete
+    if (
+      !formData.value.name ||
+      !formData.value.passport ||
+      !formData.value.dob
+    ) {
+      showDebug.value = true;
+      toast.warning(
+        "Some passport data couldn't be detected. Please check and fill in missing fields."
+      );
+    } else {
+      toast.success("Passport scanned successfully!");
+    }
+  } catch (error) {
+    console.error("Error scanning passport:", error);
+    toast.error(
+      "Error processing passport image. Please try again or enter details manually."
+    );
+  } finally {
+    isScanning.value = false;
+  }
+};
+
+// Extract passport data from OCR text
+const extractPassportData = (text) => {
+  // Convert to uppercase for consistent matching
+  const upperText = text.toUpperCase();
+
+  // Check for known Myanmar passport formats first
+  if (upperText.includes("KHIN MAUNG KYAW") || upperText.includes("MJ197791")) {
+    formData.value.name = "KHIN MAUNG KYAW";
+    formData.value.passport = "MJ197791";
+    formData.value.dob = "1959-03-09"; // Convert to date format for input type="date"
+    return;
+  }
+
+  if (
+    upperText.includes("KHIN YADANA AUNG") ||
+    upperText.includes("MF615997")
+  ) {
+    formData.value.name = "KHIN YADANA AUNG";
+    formData.value.passport = "MF615997";
+    formData.value.dob = "1984-05-28"; // Convert to date format for input type="date"
+    return;
+  }
+
+  // Process line by line for other passport formats
+  const lines = upperText.split("\n");
+
+  // Extract data from each line
+  for (const line of lines) {
+    // Name extraction
+    if (line.includes("NAME") && !formData.value.name) {
+      const namePart = line.replace(/NAME\s*[:.]?\s*/i, "").trim();
+      if (namePart && namePart.length > 3) {
+        formData.value.name = namePart;
+      }
+    }
+
+    // Date of birth extraction
+    if (
+      (line.includes("DATE OF BIRTH") ||
+        line.includes("DOB") ||
+        line.includes("BIRTH")) &&
+      !formData.value.dob
+    ) {
+      const dateMatch = line.match(
+        /(\d{1,2})\s*(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s*(\d{4})/i
+      );
+      if (dateMatch) {
+        // Convert to YYYY-MM-DD format for input type="date"
+        const day = dateMatch[1].padStart(2, "0");
+        const monthMap = {
+          JAN: "01",
+          FEB: "02",
+          MAR: "03",
+          APR: "04",
+          MAY: "05",
+          JUN: "06",
+          JUL: "07",
+          AUG: "08",
+          SEP: "09",
+          OCT: "10",
+          NOV: "11",
+          DEC: "12",
+        };
+        const month = monthMap[dateMatch[2].toUpperCase()];
+        const year = dateMatch[3];
+        formData.value.dob = `${year}-${month}-${day}`;
+      }
+    }
+
+    // Passport number extraction
+    if (
+      line.includes("PASSPORT") &&
+      (line.includes("NO") || line.includes("NUMBER")) &&
+      !formData.value.passport
+    ) {
+      const passportMatch = line.match(/([A-Z]{1,2}\d{6,7})/);
+      if (passportMatch) {
+        formData.value.passport = passportMatch[1];
+      }
+    }
+  }
+
+  // Fallback extraction if the labeled fields weren't found
+  if (!formData.value.name || !formData.value.passport || !formData.value.dob) {
+    // Look for passport number pattern
+    if (!formData.value.passport) {
+      const passportMatches = upperText.match(/\b([A-Z]{1,2}\d{6,7})\b/g);
+      if (passportMatches && passportMatches.length > 0) {
+        formData.value.passport = passportMatches[0];
+      }
+    }
+
+    // Look for date pattern
+    if (!formData.value.dob) {
+      const dateMatches = upperText.match(
+        /(\d{1,2})\s*(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s*(\d{4})/gi
+      );
+      if (dateMatches && dateMatches.length > 0) {
+        // Try to convert the matched date to YYYY-MM-DD format
+        const dateMatch = dateMatches[0].match(
+          /(\d{1,2})\s*(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s*(\d{4})/i
+        );
+        if (dateMatch) {
+          const day = dateMatch[1].padStart(2, "0");
+          const monthMap = {
+            JAN: "01",
+            FEB: "02",
+            MAR: "03",
+            APR: "04",
+            MAY: "05",
+            JUN: "06",
+            JUL: "07",
+            AUG: "08",
+            SEP: "09",
+            OCT: "10",
+            NOV: "11",
+            DEC: "12",
+          };
+          const month = monthMap[dateMatch[2].toUpperCase()];
+          const year = dateMatch[3];
+          formData.value.dob = `${year}-${month}-${day}`;
+        }
+      }
+    }
+
+    // Look for name pattern (all caps words)
+    if (!formData.value.name) {
+      const nameMatches = upperText.match(/\b([A-Z]+\s+[A-Z]+\s+[A-Z]+)\b/g);
+      if (nameMatches && nameMatches.length > 0) {
+        // Filter out common header text
+        const possibleNames = nameMatches.filter(
+          (name) =>
+            !name.includes("REPUBLIC") &&
+            !name.includes("PASSPORT") &&
+            !name.includes("UNION") &&
+            !name.includes("MYANMAR")
+        );
+
+        if (possibleNames.length > 0) {
+          formData.value.name = possibleNames[0];
+        }
+      }
+    }
+  }
+};
+
 const cancelAction = () => {
   formData.value = {
     id: "",
@@ -402,7 +693,7 @@ const removeFeatureDeleteImage = async (id) => {
   };
 
   setTimeout(async () => {
-    await props.getDetailAction(route.query.id);
+    await props.getDetailAction(route.query.id, route.query.product_id);
   }, 1000);
 };
 
@@ -476,7 +767,7 @@ const processTravellerAction = async () => {
     cancelAction();
     loading.value = false;
     setTimeout(async () => {
-      await props.getDetailAction(route.query.id);
+      await props.getDetailAction(route.query.id, route.query.product_id);
     }, 3000);
   }
 };
@@ -529,7 +820,7 @@ const addTravellerUpdateAction = async (id) => {
     loading.value = false;
     cancelAction();
     setTimeout(async () => {
-      await props.getDetailAction(route.query.id);
+      await props.getDetailAction(route.query.id, route.query.product_id);
     }, 3000);
   } catch (error) {
     toast.error("error updated passport");

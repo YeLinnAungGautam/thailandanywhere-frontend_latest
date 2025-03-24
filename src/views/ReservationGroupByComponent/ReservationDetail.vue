@@ -21,6 +21,7 @@ import { useToast } from "vue-toastification";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import logo from "../../assets/web-logo.png";
+import { useAuthStore } from "../../stores/auth";
 
 const props = defineProps({
   show: Number,
@@ -30,6 +31,7 @@ const part = ref("general");
 const route = useRoute();
 const router = useRouter();
 const groupbyStore = useGroupByStore();
+const authStore = useAuthStore();
 const detail = ref(null);
 const getLoading = ref(false);
 const toast = useToast();
@@ -138,6 +140,62 @@ const printHotelConfirm = () => {
       route.query.id +
       "/receipt"
   );
+};
+
+const expenseStatus = (i) => {
+  // If no bookings or items exist, return 'not_paid' as default
+  if (!i?.booking || !i?.booking.items || i?.booking.items.length === 0) {
+    return "not_paid";
+  }
+
+  const items = i?.booking.items;
+  let hasFullyPaid = false;
+  let hasNotPaid = false;
+
+  // Check the status of each item
+  for (let a = 0; a < items.length; a++) {
+    const item_status = items[a].payment_status;
+
+    if (item_status === "fully_paid") {
+      hasFullyPaid = true;
+    } else if (item_status === "not_paid") {
+      hasNotPaid = true;
+    }
+  }
+
+  console.log(hasFullyPaid, hasNotPaid, "this is has fully paid");
+
+  // Determine overall status based on individual item statuses
+  if (hasFullyPaid && hasNotPaid) {
+    return "partially_paid";
+  } else if (hasFullyPaid && !hasNotPaid) {
+    return "fully_paid";
+  } else {
+    return "not_paid";
+  }
+};
+
+const showWarningModal = ref(false);
+const customerPassportLength = ref(false);
+
+const goToHotelConfirmation = () => {
+  router.push(
+    `/reservation/confirmations/group/hotel/png?id=${route.query.id}&product_id=${route.query.product_id}`
+  );
+};
+
+const goToFillPassport = () => {
+  part.value = "passport";
+  showWarningModal.value = false;
+  customerPassportLength.value = false;
+};
+
+const goToGenerate = () => {
+  router.push(
+    `/reservation/confirmations/group/hotel/png?id=${route.query.id}&product_id=${route.query.product_id}`
+  );
+  showWarningModal.value = false;
+  customerPassportLength.value = false;
 };
 
 const copyReservation = async (id) => {
@@ -281,52 +339,54 @@ const copyReservation = async (id) => {
 
 watch(
   () => detail.value,
-  () => {
-    // Check payment status for general state
-    if (detail.value.booking.payment_status == "fully_paid") {
-      state.value.general = true;
-    } else {
-      state.value.general = false;
-    }
+  (newValue) => {
+    if (newValue != null) {
+      // Check payment status for general state
+      if (detail.value.booking.payment_status == "fully_paid") {
+        state.value.general = true;
+      } else {
+        state.value.general = false;
+      }
 
-    // Initialize all states to false
-    state.value.passport = false;
-    state.value.booking = false;
-    state.value.invoice = false;
-    state.value.expense = false;
-    state.value.confirmation = false;
+      // Initialize all states to false
+      state.value.passport = false;
+      state.value.booking = false;
+      state.value.invoice = false;
+      state.value.expense = false;
+      state.value.confirmation = false;
 
-    // Loop through all booking items
-    if (detail.value.booking.items && detail.value.booking.items.length > 0) {
-      detail.value.booking.items.forEach((item) => {
-        // Check passport condition
-        if (item.customer_passports && item.customer_passports.length > 0) {
-          state.value.passport = true;
-        }
+      // Loop through all booking items
+      if (detail.value.booking.items && detail.value.booking.items.length > 0) {
+        detail.value.booking.items.forEach((item) => {
+          // Check passport condition
+          if (item.customer_passports && item.customer_passports.length > 0) {
+            state.value.passport = true;
+          }
 
-        // Check booking request condition
-        if (item.is_booking_request == 1) {
-          state.value.booking = true;
-        }
+          // Check booking request condition
+          if (item.is_booking_request == 1) {
+            state.value.booking = true;
+          }
 
-        // Check invoice condition
-        if (
-          item.booking_confirm_letters &&
-          item.booking_confirm_letters.length > 0
-        ) {
-          state.value.invoice = true;
-        }
+          // Check invoice condition
+          if (
+            item.booking_confirm_letters &&
+            item.booking_confirm_letters.length > 0
+          ) {
+            state.value.invoice = true;
+          }
 
-        // Check expense condition
-        if (item.payment_status == "fully_paid") {
-          state.value.expense = true;
-        }
+          // Check expense condition
+          if (item.payment_status == "fully_paid") {
+            state.value.expense = true;
+          }
 
-        // Check confirmation condition
-        if (item.reservation_status == "confirmed") {
-          state.value.confirmation = true;
-        }
-      });
+          // Check confirmation condition
+          if (item.reservation_status == "confirmed") {
+            state.value.confirmation = true;
+          }
+        });
+      }
     }
   }
 );
@@ -435,6 +495,31 @@ const hide = ref(false);
           >
             Copy Expense
           </p>
+          <div
+            v-if="
+              detail?.booking?.items[0]?.product_type == 'App\\Models\\Hotel'
+            "
+          >
+            <p
+              v-if="
+                detail?.booking?.payment_status == 'fully_paid' &&
+                expenseStatus(detail) == 'fully_paid'
+              "
+              class="text-[10px] bg-[#FF613c] shadow hover:shadow-none whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+              @click="goToHotelConfirmation()"
+            >
+              Hotel Confirmation
+            </p>
+            <p
+              v-if="
+                !detail?.booking?.payment_status == 'fully_paid' &&
+                !expenseStatus(detail) == 'fully_paid'
+              "
+              class="text-[10px] bg-gray-300 whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+            >
+              Hotel Confirmation {{ expenseStatus(detail) }}
+            </p>
+          </div>
           <p
             class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
             @click="
@@ -469,7 +554,7 @@ const hide = ref(false);
               <p
                 class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-green-600"
               >
-                Hotel: {{ detail?.booking?.items[0].product?.name }}
+                Hotel: {{ detail?.booking?.items[0]?.product?.name }}
               </p>
               <p
                 class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-black"
@@ -515,7 +600,8 @@ const hide = ref(false);
               />
               <img
                 v-if="
-                  detail?.booking?.items[0].product_type == 'App\\Models\\Hotel'
+                  detail?.booking?.items[0]?.product_type ==
+                  'App\\Models\\Hotel'
                 "
                 :src="
                   detail?.booking?.items[0]?.product?.images?.length > 0
@@ -697,7 +783,7 @@ const hide = ref(false);
           ></div>
 
           <div
-            v-if="!state.booking"
+            v-if="!state.booking && authStore.isReservation"
             @click="part = 'booking'"
             class="w-6 h-6 flex justify-center cursor-pointer items-center text-[10px] rounded-full relative z-10"
             :class="
@@ -707,7 +793,7 @@ const hide = ref(false);
             3
           </div>
           <div
-            v-if="state.booking"
+            v-if="state.booking && authStore.isReservation"
             @click="part = 'booking'"
             class="w-6 h-6 flex justify-center cursor-pointer shadow hover:shadow-none items-center text-[10px] rounded-full relative z-10"
             :class="part == 'booking' ? 'bg-white text-white' : ''"
@@ -715,10 +801,11 @@ const hide = ref(false);
             <img :src="checkImage" alt="" />
           </div>
           <div
+            v-if="authStore.isReservation"
             class="w-30 h-[2px] rounded-full relative z-10 bg-gray-200"
           ></div>
           <div
-            v-if="!state.invoice"
+            v-if="!state.invoice && authStore.isReservation"
             @click="part = 'invoice'"
             class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
             :class="
@@ -728,7 +815,7 @@ const hide = ref(false);
             4
           </div>
           <div
-            v-if="state.invoice"
+            v-if="state.invoice && authStore.isReservation"
             @click="part = 'invoice'"
             class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
             :class="part == 'invoice' ? 'bg-white text-white' : ''"
@@ -736,11 +823,12 @@ const hide = ref(false);
             <img :src="checkImage" alt="" />
           </div>
           <div
+            v-if="authStore.isReservation"
             class="w-30 h-[2px] rounded-full relative z-10"
             :class="state.invoice ? 'bg-[#04BA00]' : 'bg-gray-200'"
           ></div>
           <div
-            v-if="!state.expense"
+            v-if="!state.expense && authStore.isReservation"
             @click="part = 'expense'"
             class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
             :class="
@@ -750,7 +838,7 @@ const hide = ref(false);
             5
           </div>
           <div
-            v-if="state.expense"
+            v-if="state.expense && authStore.isReservation"
             @click="part = 'expense'"
             class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
             :class="part == 'expense' ? 'bg-white text-white' : ''"
@@ -758,18 +846,10 @@ const hide = ref(false);
             <img :src="checkImage" alt="" />
           </div>
           <div
+            v-if="authStore.isReservation"
             class="w-30 h-[2px] rounded-full relative z-10"
             :class="state.invoice ? 'bg-[#04BA00]' : 'bg-gray-200'"
           ></div>
-          <!-- <div
-            @click="part = 'confirmation'"
-            class="w-6 h-6 flex justify-center items-center text-[10px] shadow hover:shadow-none cursor-pointer rounded-full relative z-10"
-            :class="
-              part == 'confirmation' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
-            "
-          >
-            6
-          </div> -->
           <div
             v-if="!state.confirmation"
             @click="part = 'confirmation'"
@@ -778,7 +858,7 @@ const hide = ref(false);
               part == 'confirmation' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
             "
           >
-            5
+            6
           </div>
           <div
             v-if="state.confirmation"
@@ -816,6 +896,7 @@ const hide = ref(false);
             ></span>
           </div>
           <div
+            v-if="authStore.isReservation"
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'booking'"
             :class="[
@@ -828,6 +909,7 @@ const hide = ref(false);
             ></span>
           </div>
           <div
+            v-if="authStore.isReservation"
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'invoice'"
             :class="[
@@ -840,6 +922,7 @@ const hide = ref(false);
             ></span>
           </div>
           <div
+            v-if="authStore.isReservation"
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'expense'"
             :class="[
@@ -918,6 +1001,60 @@ const hide = ref(false);
               class="cursor-pointer inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
             >
               Go To Fill Data
+            </p>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+    <Modal :isOpen="showWarningModal">
+      <DialogPanel
+        class="w-full max-w-sm transform overflow-hidden rounded-lg mt-10 bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start pb-20 pt-4 px-4"
+        >
+          <p></p>
+        </DialogTitle>
+        <!-- show date  -->
+        <div class="relative">
+          <div class="absolute -top-8 left-[43%]">
+            <img
+              :src="logo"
+              class="w-16 h-16 bg-white rounded-full p-3"
+              alt=""
+            />
+          </div>
+          <div class="py-10 text-center space-y-4">
+            <p class="font-medium text-lg text-[#FF613c]">
+              Passports Warning !
+            </p>
+            <p class="text-xs">
+              Please sure customer passport is filled before generate
+              confirmation,
+              {{
+                customerPassportLength
+                  ? `only ${detail.booking?.items[0]?.customer_passports.length} passport do you wanna go generate confirmation?`
+                  : "please fill customer passport"
+              }}
+            </p>
+            <p
+              @click="goToGenerate"
+              class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
+            >
+              Go To Generate
+            </p>
+            <p
+              @click="goToFillPassport"
+              class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
+            >
+              Go To Fill
+            </p>
+            <p
+              @click="showWarningModal = false"
+              class="cursor-pointer inline-block text-[#FF613c] border border-[#FF613c] text-[10px] bg-white px-2 py-1 rounded-lg"
+            >
+              Cancel
             </p>
           </div>
         </div>

@@ -174,6 +174,24 @@
               Expense not paid
             </p>
           </div>
+          <div
+            class="flex justify-start space-x-1 items-center"
+            v-if="customerPassportStatus(data) == true"
+          >
+            <IdentificationIcon class="w-3 h-3 text-green-600" />
+            <p class="text-[10px] whitespace-nowrap text-green-600">
+              Passport recieved
+            </p>
+          </div>
+          <div
+            class="flex justify-start space-x-1 items-center"
+            v-if="customerPassportStatus(data) == false"
+          >
+            <IdentificationIcon class="w-3 h-3 text-yellow-600" />
+            <p class="text-[10px] whitespace-nowrap text-yellow-600">
+              Passport missing
+            </p>
+          </div>
         </div>
         <div v-if="showList" class="">
           <div
@@ -327,6 +345,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   CheckBadgeIcon,
+  IdentificationIcon,
 } from "@heroicons/vue/24/solid";
 import { useAuthStore } from "../../stores/auth";
 import {
@@ -421,6 +440,42 @@ const expenseStatus = (i) => {
     return "fully_paid";
   } else {
     return "not_paid";
+  }
+};
+
+const customerPassportStatus = (i) => {
+  // If no bookings or items exist, return 'not_paid' as default
+  if (
+    !i.bookings ||
+    !i.bookings[0] ||
+    !i.bookings[0].items || // This was 'i' instead of 'items'
+    !i.bookings[0].items.length
+  ) {
+    return false;
+  }
+
+  const items = i.bookings[0].items;
+  let hasPassport = false;
+  let hasNotPassport = false;
+
+  // Check the status of each item
+  for (let a = 0; a < items.length; a++) {
+    const item_status = items[a].customer_passports.length > 0 ? true : false;
+
+    if (item_status === true) {
+      hasPassport = true;
+    } else if (item_status === false) {
+      hasNotPassport = false;
+    }
+  }
+
+  // Determine overall status based on individual item statuses
+  if (hasPassport && hasNotPassport) {
+    return true;
+  } else if (hasPassport && !hasNotPassport) {
+    return true;
+  } else {
+    return false;
   }
 };
 

@@ -56,6 +56,7 @@ import ReservationSecondView from "../views/Reservation2.vue";
 import PngUsage from "../views/PngGenerate/PngUsage.vue";
 import Accounting from "../views/Accounting.vue";
 import ReservationHotelView from "../views/Reservationhotel.vue";
+import ReservationHotelGroupConfirmationsView from "../views/PngGenerate/HotelGroupConfirmationPng.vue";
 
 const routes = [
   {
@@ -300,6 +301,11 @@ const routes = [
     path: "/reservation/confirmations/hotel/png",
     name: "reservation-hotel-confirmations",
     component: ReservationHotelConfirmationsView,
+  },
+  {
+    path: "/reservation/confirmations/group/hotel/png",
+    name: "reservation-hotel-group-confirmations",
+    component: ReservationHotelGroupConfirmationsView,
   },
   {
     path: "/reservation/confirmations/svg/entrance/:id",

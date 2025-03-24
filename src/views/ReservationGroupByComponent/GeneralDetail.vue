@@ -467,7 +467,7 @@ const submit = async () => {
     });
 
     setTimeout(async () => {
-      await props.getDetailAction(route.query.id);
+      await props.getDetailAction(route.query.id, route.query.product_id);
     }, 1000);
   } catch (error) {
     console.log(error);

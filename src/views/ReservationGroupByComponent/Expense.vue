@@ -871,7 +871,7 @@ const expenseUpdateAction = async () => {
     toast.error("An unexpected error occurred");
   } finally {
     setTimeout(async () => {
-      await props.getDetailAction(route.query.id);
+      await props.getDetailAction(route.query.id, route.query.product_id);
     }, 1000);
     loading.value = false;
   }
@@ -907,7 +907,7 @@ const removeFeatureDeleteImage = async (index, id) => {
   cancelAction();
 
   setTimeout(async () => {
-    await props.getDetailAction(route.query.id);
+    await props.getDetailAction(route.query.id, route.query.product_id);
   }, 1000);
 };
 
@@ -960,7 +960,7 @@ const createExpense = async (id) => {
     });
 
     // setTimeout(async () => {
-    //   await props.getDetailAction(route.query.id);
+    //   await props.getDetailAction(route.query.id,route.query.product_id);
     // }, 1000);
   } catch (error) {
     console.log(error);
@@ -995,7 +995,7 @@ const updateExpense = async (id) => {
     loading.value = false;
     carModalOpen.value = false;
     setTimeout(async () => {
-      await props.getDetailAction(route.query.id);
+      await props.getDetailAction(route.query.id, route.query.product_id);
     }, 1000);
   }
 };
@@ -1131,7 +1131,7 @@ const processTravellerAction = async () => {
   } finally {
     loading.value = false;
     setTimeout(async () => {
-      await props.getDetailAction(route.query.id);
+      await props.getDetailAction(route.query.id, route.query.product_id);
     }, 3000);
   }
 };

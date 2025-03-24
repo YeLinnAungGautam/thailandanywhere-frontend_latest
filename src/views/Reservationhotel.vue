@@ -26,6 +26,10 @@ import HotelUnlimited from "./Reservation2Component/HotelUnlimited.vue";
 import { XCircleIcon } from "@heroicons/vue/24/solid";
 import { format } from "date-fns";
 import { useGroupByStore } from "../stores/groupby";
+import { useSidebarStore } from "../stores/sidebar";
+
+const sidebarStore = useSidebarStore();
+const { isShowSidebar } = storeToRefs(sidebarStore);
 
 const groupByStore = useGroupByStore();
 const { results, loading } = storeToRefs(groupByStore);
@@ -507,10 +511,19 @@ watch(dateRange, async (newValue) => {
 
 <template>
   <Layout :is_white="true">
+    <div
+      :class="isShowSidebar ? 'left-[390px]' : 'left-[250px]'"
+      class="space-x-8 col-span-3 flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
+    >
+      <p class="text-3xl font-medium text-[#FF613c]">
+        Hotel Reservations
+        <span class="w-2 h-2 bg-[#FF613c] rounded-full inline-block"></span>
+      </p>
+    </div>
     <div class="grid gap-4 relative grid-cols-3">
       <transition name="slide">
         <div
-          class="border shadow-sm rounded-lg p-4"
+          class="border shadow-sm rounded-lg px-4 py-2"
           :class="{
             hidden: showSide == 2,
             'col-span-1': showSide == 1,

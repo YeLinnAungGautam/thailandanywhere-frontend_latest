@@ -20,7 +20,7 @@
         />
       </button>
       <p
-        class="p-2 rounded-full shadow cursor-pointer bg-white/60"
+        class="py-2 pr-4 pl-2 rounded-full flex justify-start items-center gap-x-2 shadow cursor-pointer bg-white/60"
         @click="goBack()"
       >
         <!-- <ArrowUturnLeftIcon class="w-6 h-6" /> -->
@@ -29,6 +29,7 @@
           alt=""
           class="w-5 h-5"
         />
+        Back
       </p>
       <!-- <p class="text-sm font-poppins text-[#ff613c] font-medium">
         Welcome back, {{ authStore.user.name.split(" ")[0] }} !

@@ -1,8 +1,12 @@
 <script setup>
 import { useRoute, useRouter } from "vue-router";
-import { useReservationStore } from "../../stores/reservation";
 import { onMounted, ref, defineProps, watch } from "vue";
-import { ArrowLeftCircleIcon } from "@heroicons/vue/24/outline";
+import {
+  ArrowLeftCircleIcon,
+  ArrowPathIcon,
+  PlusCircleIcon,
+  XCircleIcon,
+} from "@heroicons/vue/24/outline";
 import html2canvas from "html2canvas";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
@@ -12,28 +16,42 @@ import Swal from "sweetalert2";
 import PassportAddUpdate from "./PassportAddUpdate.vue";
 import logo from "../../assets/web-logo.png";
 import Layout from "../Layout.vue";
+import { useGroupByStore } from "../../stores/groupby";
 
 const captureArea = ref(null);
 const router = useRouter();
 const route = useRoute();
 const detail = ref("");
 const getLoading = ref(true);
-const reservationStore = useReservationStore();
+const groupbyStore = useGroupByStore();
 
 const showFirst = ref(true);
 
+const reload = () => {
+  router.push(
+    `/reservation-hotel?id=${route.query.id}&product_id=${route.query.product_id}&part=passport`
+  );
+};
+
 const customer_passport_list = ref([]);
+const item_list = ref([]);
 const use_ref = ref(false);
 const showFailModal = ref(false);
+const showListModal = ref(false);
 
 const generateConfirmationRebuild = () => {
-  if (!detail.value?.slip_code) {
+  if (!detail.value?.booking?.items[0].slip_code) {
     showFailModal.value = true;
   } else {
-    showFirst.value = false;
+    showListModal.value = false;
   }
 
+  showListModal.value = false;
+};
+
+const nextCustomize = () => {
   showFirst.value = false;
+  showListModal.value = true;
 };
 
 const saveAsJpeg = async () => {
@@ -50,7 +68,7 @@ const saveAsJpeg = async () => {
     });
 
     const link = document.createElement("a");
-    link.download = `confirmation-${detail.value.crm_id}.jpeg`; // Name of the saved file
+    link.download = `confirmation-${detail.value.booking.crm_id}.jpeg`; // Name of the saved file
     link.href = canvas.toDataURL("image/jpeg");
     link.click();
   } catch (error) {
@@ -72,7 +90,7 @@ const saveAsPng = async () => {
     });
 
     const link = document.createElement("a");
-    link.download = `confirmation-${detail.value.crm_id}.png`; // Name of the saved file
+    link.download = `confirmation-${detail.value.booking.crm_id}.png`; // Name of the saved file
     link.href = canvas.toDataURL("image/png");
     link.click();
   } catch (error) {
@@ -88,17 +106,35 @@ const goToFill = () => {
 
 const customerListGet = () => {
   customer_passport_list.value = [];
-  if (detail.value && detail.value.customer_passports.length > 0) {
-    for (let i = 0; i < detail.value.customer_passports.length; i++) {
-      customer_passport_list.value.push({
-        name: detail.value.customer_passports[i].name,
-        passport_number: detail.value.customer_passports[i].passport_number,
-        passport: detail.value.customer_passports[i].file,
-        dob: detail.value.customer_passports[i].dob,
-        id: detail.value.customer_passports[i].id,
-        selected: true,
-      });
-    }
+
+  // Check if details and booking items exist
+  if (detail.value && detail.value.booking.items.length > 0) {
+    const uniquePassports = new Map();
+
+    // Loop through all booking items
+    detail.value.booking.items.forEach((item) => {
+      // Check if the item has customer_passports
+      if (item.customer_passports && item.customer_passports.length > 0) {
+        // Process each passport in the current item
+        item.customer_passports.forEach((passport) => {
+          if (!uniquePassports.has(passport.passport_number)) {
+            uniquePassports.set(passport.passport_number, {
+              id: passport.id,
+              reservation_id: item.id,
+              name: passport.name,
+              passport_number: passport.passport_number,
+              passport: passport.file,
+              dob: passport.dob,
+              id: passport.id,
+              selected: true,
+            });
+          }
+        });
+      }
+    });
+
+    // Convert map values to array
+    customer_passport_list.value = Array.from(uniquePassports.values());
 
     console.log("====================================");
     console.log(customer_passport_list.value);
@@ -106,10 +142,63 @@ const customerListGet = () => {
   }
 };
 
-const getDetailAction = async (id) => {
+function changeFormat(checkinDate, checkoutDate) {
+  try {
+    // Parse the input dates
+    const checkin = new Date(checkinDate);
+    const checkout = new Date(checkoutDate);
+
+    // Format options
+    const dayOptions = { day: "numeric" };
+    const monthOptions = { month: "short" };
+    const weekdayOptions = { weekday: "short" };
+
+    // Get day, month, and weekday for both dates
+    const checkinDay = checkin.toLocaleDateString("en-US", dayOptions);
+    const checkinMonth = checkin.toLocaleDateString("en-US", monthOptions);
+
+    const checkoutDay = checkout.toLocaleDateString("en-US", dayOptions);
+    const checkoutMonth = checkout.toLocaleDateString("en-US", monthOptions);
+
+    // Get year (last 2 digits) from checkout date
+    const year = checkout.getFullYear().toString().slice(-2);
+
+    // If same month, only show month once
+
+    return `${checkinDay} ${checkinMonth} - ${checkoutDay} ${checkoutMonth} ${year}`;
+  } catch (error) {
+    console.error("Error formatting dates:", error);
+    return "Invalid date format";
+  }
+}
+
+const roomListGet = () => {
+  item_list.value = [];
+  if (detail.value && detail.value.booking.items.length > 0) {
+    for (let i = 0; i < detail.value.booking.items?.length; i++) {
+      item_list.value.push({
+        name: detail.value.booking.items[i]?.room?.name,
+        id: detail.value.booking.items[i].id,
+        checkin_date: detail.value.booking.items[i].checkin_date,
+        checkout_date: detail.value.booking.items[i].checkout_date,
+        quantity: detail.value.booking.items[i].quantity,
+        selected: true,
+      });
+    }
+
+    console.log("====================================");
+    console.log(item_list.value);
+    console.log("====================================");
+  }
+};
+
+const getDetailAction = async (id, product_id) => {
   getLoading.value = true;
-  const res = await reservationStore.getDetailAction(id);
-  detail.value = res.result;
+  const res = await groupbyStore.ReservationHotelDetailAction(id, product_id);
+  detail.value = res;
+  console.log("Detail value:", res);
+  customerListGet();
+  roomListGet();
   getLoading.value = false;
 };
 
@@ -119,21 +208,12 @@ onMounted(async () => {
 });
 
 watch(
-  () => route.query.id,
-  async (newId) => {
-    if (newId) {
-      getDetailAction(newId);
-      console.log(detail.value, "this is get detail value");
-    }
-  },
-  { immediate: true } // This will run the watcher immediately when the component is created
-);
-
-watch(
-  () => detail.value,
-  async (newId) => {
-    if (newId) {
-      customerListGet();
+  () => [route.query.id, route.query.product_id],
+  async ([newId, newProductId]) => {
+    if (newId || newProductId) {
+      // hasRouteId.value = false;
+      getDetailAction(newId, newProductId);
+      // console.log(detail.value, "this is get detail value");
     }
   },
   { immediate: true } // This will run the watcher immediately when the component is created
@@ -176,19 +256,23 @@ watch(
             <div class="flex justify-between items-start">
               <div class="space-y-2">
                 <p class="text-lg font-medium text-black">
-                  {{ detail?.product?.name }}
+                  {{ detail?.booking?.items[0]?.product?.name }}
                 </p>
                 <p class="w-[217px] text-sm text-gray-700">
-                  {{ detail?.product?.official_address }}
+                  {{ detail?.booking?.items[0]?.product?.official_address }}
                 </p>
                 <p class="text-sm text-gray-700">
-                  Tel: {{ detail?.product?.official_phone_number }} Email:
-                  {{ detail?.product?.official_email }}
+                  Tel:
+                  {{
+                    detail?.booking?.items[0]?.product?.official_phone_number
+                  }}
+                  Email:
+                  {{ detail?.booking?.items[0]?.product?.official_email }}
                 </p>
               </div>
               <div>
                 <img
-                  :src="detail?.product?.official_logo"
+                  :src="detail?.booking?.items[0]?.product?.official_logo"
                   class="w-[100px]"
                   alt=""
                 />
@@ -200,10 +284,13 @@ watch(
             <p class="font-semibold text-red-500 pb-5">
               Submitted on
               {{
-                detail?.receipt_images
-                  ? detail?.receipt_images[0]?.date.split(" ")[0]
-                  : ""
+                detail?.booking?.items[0]?.receipt_images?.[0]?.date
+                  ? detail?.booking?.items[0]?.receipt_images[0].date.split(
+                      " "
+                    )[0]
+                  : new Date().toLocaleDateString("en-GB")
               }}
+              ; Agent TH ANYWHERE CO.,LTD.
             </p>
             <div class="">
               <div class="relative flex flex-col w-full h-full">
@@ -217,7 +304,11 @@ watch(
                       </th>
                       <th class="p-1 border border-black w-3/5">
                         <p class="block pb-3 px-1">
-                          {{ use_ref ? detail?.crm_id : detail?.slip_code }}
+                          {{
+                            use_ref
+                              ? detail?.booking?.crm_id
+                              : detail?.booking?.items[0]?.slip_code
+                          }}
                         </p>
                       </th>
                     </tr>
@@ -248,71 +339,36 @@ watch(
                         </div>
                       </td>
                     </tr>
+
                     <tr>
                       <td class="p-1 border border-black">
                         <p
                           class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                         >
-                          Check in date:
+                          Room type<span class="text-xs"> (in - out)</span>:
                         </p>
                       </td>
                       <td class="p-1 border border-black">
-                        <p
-                          class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
+                        <div
+                          class="block text-sm font-normal felx pb-3 px-1 leading-normal text-blue-gray-900"
                         >
-                          {{ detail?.checkin_date }}
-                        </p>
+                          <p
+                            v-for="(i, index) in item_list"
+                            :key="index"
+                            class="flex justify-start items-end"
+                            :class="i.selected == true ? '' : 'hidden'"
+                          >
+                            <span
+                              class="w-1 h-1 flex mr-2 justify-end items-end bg-black rounded-full"
+                            ></span
+                            >{{ i.quantity }} x {{ i.name }}(
+                            {{ changeFormat(i.checkin_date, i.checkout_date) }}
+                            )
+                          </p>
+                        </div>
                       </td>
                     </tr>
-                    <tr>
-                      <td class="p-1 border border-black">
-                        <p
-                          class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
-                        >
-                          Check out date:
-                        </p>
-                      </td>
-                      <td class="p-1 border border-black">
-                        <p
-                          class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
-                        >
-                          {{ detail?.checkout_date }}
-                        </p>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="p-1 border border-black">
-                        <p
-                          class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
-                        >
-                          Room type:
-                        </p>
-                      </td>
-                      <td class="p-1 border border-black">
-                        <p
-                          class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
-                        >
-                          {{ detail?.room?.name }}
-                        </p>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="p-1 border border-black">
-                        <p
-                          class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
-                        >
-                          Number of room:
-                        </p>
-                      </td>
-                      <td class="p-1 border border-black">
-                        <p
-                          class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
-                        >
-                          {{ detail?.quantity }}
-                          {{ detail?.quantity > 1 ? "rooms" : "room" }}
-                        </p>
-                      </td>
-                    </tr>
+
                     <tr>
                       <td class="p-1 border border-black">
                         <p
@@ -325,7 +381,7 @@ watch(
                         <p
                           class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                         >
-                          {{ detail?.payment_status }}
+                          {{ detail?.booking?.items[0]?.payment_status }}
                         </p>
                       </td>
                     </tr>
@@ -342,7 +398,8 @@ watch(
                           class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                         >
                           {{
-                            detail?.product?.official_remark != "null"
+                            detail?.booking?.items[0]?.product
+                              ?.official_remark != "null"
                               ? detail.product?.official_remark
                               : ""
                           }}
@@ -360,14 +417,14 @@ watch(
                   class="w-1.5 h-1.5 bg-black rounded-full inline-block mr-2"
                 ></span>
                 Check-In time: Our check-in time is from
-                {{ detail?.product?.check_in }}
+                {{ detail?.booking?.items[0]?.product?.check_in }}
               </p>
               <p>
                 <span
                   class="w-1.5 h-1.5 bg-black rounded-full inline-block mr-2"
                 ></span>
                 Check-Out time: Our check-out time is before
-                {{ detail?.product?.check_out }}
+                {{ detail?.booking?.items[0]?.product?.check_out }}
               </p>
               <p>
                 <span
@@ -376,11 +433,11 @@ watch(
                 Passport/ID card: Government-issued photo identification (must
                 be same person on room reservation) upon check-in.
               </p>
-              <p v-if="detail?.product?.cancellation_policy">
+              <p v-if="detail?.booking?.items[0]?.product?.cancellation_policy">
                 <span
                   class="w-1.5 h-1.5 bg-black rounded-full inline-block mr-2"
                 ></span>
-                {{ detail?.product?.cancellation_policy }}
+                {{ detail?.booking?.items[0]?.product?.cancellation_policy }}
               </p>
               <p>We look forward to welcoming you soon.</p>
               <p>
@@ -396,29 +453,93 @@ watch(
       </div>
       <Modal :isOpen="showFirst">
         <DialogPanel
-          class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+          class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
         >
           <DialogTitle
             as="div"
-            class="text-lg font-medium leading-6 pb-4 text-gray-900 flex justify-between items-center"
+            class="font-medium bg-[#FF613C] leading-6 px-4 py-4 text-white flex justify-between items-center"
           >
-            <span class="">Customize confirmation</span>
-          </DialogTitle>
-          <div>
-            <div class="flex justify-between items-start pb-2">
-              <p>Customers Infomation</p>
+            <span class="text-lg pl-6">Step 1: Choose a Passport.</span>
+            <div
+              class="flex justify-end items-center gap-x-3 cursor-pointer"
+              @click="reload"
+            >
+              <PlusCircleIcon class="w-5 h-5 text-white" />Add Passport
             </div>
+          </DialogTitle>
+          <div class="p-10">
+            <!-- <div class="flex justify-between items-start pb-2">
+              <p class="text-sm pb-2">Customers Infomation</p>
+            </div> -->
             <PassportAddUpdate
-              :detail_id="detail?.id"
+              :detail_id="item_list"
               :customer_passport_list="customer_passport_list"
               :getDetailAction="getDetailAction"
             />
-            <div class="text-end">
+            <div class="text-end space-x-4 pt-4">
               <p
-                class="px-4 py-2 text-xs inline-block font-medium text-white bg-[#FF613C] border-none rounded-lg hover:bg-[#FF4A3C] focus:outline-none cursor-pointer"
+                class="px-4 py-2 inline-block font-medium text-[#FF613C] bg-white border border-[#FF613c] rounded-lg focus:outline-none cursor-pointer"
+                @click="showFirst = false"
+              >
+                Cancel
+              </p>
+              <p
+                class="px-4 py-2 inline-block font-medium text-white bg-[#FF613C] border-none rounded-lg hover:bg-[#FF4A3C] focus:outline-none cursor-pointer"
+                @click="nextCustomize"
+              >
+                Next: Step 2
+              </p>
+            </div>
+          </div>
+        </DialogPanel>
+      </Modal>
+      <Modal :isOpen="showListModal">
+        <DialogPanel
+          class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+        >
+          <DialogTitle
+            as="div"
+            class="font-medium bg-[#FF613C] leading-6 px-4 py-4 text-white flex justify-between items-center"
+          >
+            <span class="text-lg pl-5">Step 2: Choose Room Type.</span>
+          </DialogTitle>
+          <div class="p-8">
+            <div v-for="(i, index) in item_list" :key="index" class="">
+              <div
+                class="flex justify-between px-5 items-center py-2 border-b border-gray-200"
+              >
+                <p class="">
+                  <input
+                    type="checkbox"
+                    name=""
+                    class="w-6 h-6"
+                    v-model="i.selected"
+                    id=""
+                  />
+                </p>
+                <p class="w-[500px]">{{ i.name }}</p>
+                <p>{{ i.checkin_date }}</p>
+                <p>{{ i.checkout_date }}</p>
+                <p>{{ i.quantity }}</p>
+              </div>
+            </div>
+            <div class="text-end pt-8 space-x-4">
+              <p
+                class="px-4 py-2 inline-block font-medium text-[#FF613C] bg-white border border-[#FF613c] rounded-lg focus:outline-none cursor-pointer"
+                @click="
+                  () => {
+                    showListModal = false;
+                    showFirst = true;
+                  }
+                "
+              >
+                Back
+              </p>
+              <p
+                class="px-4 py-2 inline-block font-medium text-white bg-[#FF613C] border-none rounded-lg hover:bg-[#FF4A3C] focus:outline-none cursor-pointer"
                 @click="generateConfirmationRebuild"
               >
-                Hotel Confirmation rebuild
+                Next: Step 3
               </p>
             </div>
           </div>
@@ -426,41 +547,36 @@ watch(
       </Modal>
       <Modal :isOpen="showFailModal">
         <DialogPanel
-          class="w-full max-w-sm transform overflow-hidden rounded-lg mt-10 bg-white text-left align-middle shadow-xl transition-all"
+          class="w-full max-w-6xl transform overflow-hidden rounded-lg mt-10 bg-white text-left align-middle shadow-xl transition-all"
         >
           <DialogTitle
             as="div"
-            class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start pb-20 pt-4 px-4"
+            class="font-medium bg-[#FF613C] leading-6 px-4 py-4 text-white flex justify-between items-center"
           >
-            <p></p>
+            <span class="text-lg pl-5">Step 3: Choose Refference No.</span>
           </DialogTitle>
           <!-- show date  -->
           <div class="relative">
-            <div class="absolute -top-8 left-[43%]">
-              <img
-                :src="logo"
-                class="w-16 h-16 bg-white rounded-full p-3"
-                alt=""
-              />
-            </div>
             <div class="py-10 text-center space-y-4">
-              <p class="font-medium text-lg text-[#FF613c]">Data Missing !</p>
-              <p class="text-xs">
+              <p class="font-medium text-lg text-[#FF613c]">
+                Refference No. is Missing !
+              </p>
+              <p class="text-base">
                 Hotel booking reference is missing. Would you like to use
                 Reservation ID?
               </p>
               <p
                 @click="goToFill"
-                class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-2 rounded-lg"
+                class="px-4 py-2 inline-block font-medium text-white bg-[#FF613C] border-none rounded-lg hover:bg-[#FF4A3C] focus:outline-none cursor-pointer"
               >
-                Use Reservation ID
+                Use Reservation ID: {{ detail?.booking?.crm_id }}
               </p>
-              <!-- <p
+              <p
                 @click="showFailModal = false"
-                class="cursor-pointer inline-block text-[#FF613c] border border-[#FF613c] text-[10px] bg-white px-2 py-1 rounded-lg"
+                class="px-4 py-2 ml-4 inline-block font-medium text-[#FF613C] bg-white border border-[#FF613c] rounded-lg focus:outline-none cursor-pointer"
               >
                 Cancel
-              </p> -->
+              </p>
             </div>
           </div>
         </DialogPanel>

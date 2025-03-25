@@ -157,11 +157,10 @@
               alt="QR Code"
               class="w-48 h-48"
             /> -->
-            <div
-              class="flex justify-center w-48 h-48 overflow-hidden items-center"
-            >
+            <div class="flex justify-center w-60 h-48 items-center">
               <QrCode
                 :id="route.query.id"
+                :crm_id="items.invoiceNumber"
                 :size="250"
                 :type="'Invoice'"
                 :color="'#f97315'"

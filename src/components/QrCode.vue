@@ -13,6 +13,10 @@ export default {
       type: String,
       required: false,
     },
+    crm_id: {
+      type: String,
+      required: false,
+    },
     size: {
       type: Number,
       default: 150,
@@ -31,7 +35,7 @@ export default {
     if (this.type == "confirm") {
       url = `https://thanywhere.com/ticket-checker/${this.id}?language=myanmar`;
     } else {
-      url = `https://thanywhere.com`;
+      url = `https://thanywhere.com/scan/${this.id}/${this.crm_id}`;
     }
     const canvas = this.$refs.qrCanvas;
 

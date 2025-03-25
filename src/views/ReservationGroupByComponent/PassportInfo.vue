@@ -250,7 +250,7 @@
                     id=""
                   />
                 </div>
-                <div class="space-y-2">
+                <!-- <div class="space-y-2">
                   <label for="" class="text-[12px] font-medium block"
                     >DOB
                   </label>
@@ -262,7 +262,8 @@
                     class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
                     id=""
                   />
-                </div>
+                </div> -->
+                <DOBInput v-model:formData="formData" />
 
                 <div
                   class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
@@ -378,6 +379,7 @@ import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute } from "vue-router";
 import Tesseract from "tesseract.js";
+import DOBInput from "../Reservation2Component/DOBInput.vue";
 // import PassportGenerate from "./PassportGenerate.vue";
 
 const reservationStore = useReservationStore();

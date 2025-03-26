@@ -1,6 +1,27 @@
 <template>
   <div>
-    <div class="flex justify-start items-center gap-x-2">
+    <div class="pb-4 border-b border-gray-200">
+      <p class="pb-2 text-xs">Booking Request</p>
+      <div class="flex justify-between items-center gap-x-2">
+        <select
+          name=""
+          id=""
+          v-model="is_booking_request"
+          class="w-full border border-gray-200 px-4 py-1 text-sm rounded-lg"
+        >
+          <option value="">Select Booking Status</option>
+          <option value="true">Finish send Booking Request</option>
+          <option value="false">Not Yet !</option>
+        </select>
+        <button
+          class="text-xs px-3 py-1.5 border rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
+          @click="updateAction"
+        >
+          Update
+        </button>
+      </div>
+    </div>
+    <div class="flex justify-start items-center gap-x-2 pt-3">
       <!-- <p class="font-medium pb-2">Booking Request</p> -->
       <CheckCircleIcon
         class="w-4 h-4"
@@ -254,6 +275,19 @@ const props = defineProps({
   getDetailAction: Function,
 });
 
+const is_booking_request = ref(false);
+
+const updateAction = async () => {
+  const frmData = new FormData();
+  frmData.append("is_booking_request", is_booking_request.value ? 1 : 0);
+  frmData.append("_method", "PUT");
+  const res = await reservationStore.updateAction(frmData, route.query.id);
+  toast.success(res.message);
+  setTimeout(async () => {
+    await props.getDetailAction(route.query.id);
+  }, 1000);
+};
+
 const featureImageInput = ref(null);
 const openFileFeaturePicker = () => {
   featureImageInput.value.click();
@@ -380,6 +414,9 @@ const editorOptions = {
 
 const mailBodyChange = () => {
   console.log(props.detail.customer_passports, "customer_passports");
+
+  is_booking_request.value =
+    props?.detail?.is_booking_request == 1 ? true : false;
 
   emailData.value.mail_subject = `Booking for ${showFormat(
     props?.detail?.service_date

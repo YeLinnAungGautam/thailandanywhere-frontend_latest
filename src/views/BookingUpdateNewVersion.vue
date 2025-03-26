@@ -1087,8 +1087,8 @@ const getDetail = async () => {
             ? data.items[x].individual_pricing
             : {},
         child_info:
-          data.items[x].variation && data.items[x].variation?.child_info
-            ? JSON.parse(data.items[x].variation?.child_info)
+          data.items[x]?.variation && data.items[x]?.variation?.child_info
+            ? JSON.parse(data.items[x]?.variation?.child_info)
             : [],
         payment_status: data.items[x].payment_status,
         associated_customer: data.items[x].associated_customer,

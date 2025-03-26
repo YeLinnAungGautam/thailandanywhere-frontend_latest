@@ -26,6 +26,7 @@ const invoice = ref({
   salesDate: "",
   dueDate: "",
   invoiceNumber: "",
+  invoiceId: "",
   items: [],
   subtotal: "",
   totalDiscount: "",
@@ -104,6 +105,7 @@ const getDetailAction = async () => {
   const response = await bookingStore.getDetailAction(props.invoice_id);
   console.log(response);
   invoice.value.items = [];
+  invoice.value.invoiceId = response.result.id;
   invoice.value.customer = response.result.customer.name;
   invoice.value.salesDate = formatDate(response.result.booking_date);
   invoice.value.dueDate = formatDate(response.result.balance_due_date);

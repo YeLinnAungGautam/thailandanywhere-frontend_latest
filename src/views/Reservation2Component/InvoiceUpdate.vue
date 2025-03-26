@@ -1,7 +1,27 @@
 <template>
   <div>
     <div class="py-2 space-y-2 pr-1" v-if="!loading">
-      <div class="flex justify-between items-center"></div>
+      <div class="pb-4 border-b border-gray-200">
+        <p class="pb-2 text-xs">Booking Status</p>
+        <div class="flex justify-between items-center gap-x-2">
+          <select
+            name=""
+            id=""
+            v-model="booking_status"
+            class="w-full border border-gray-200 px-4 py-1 text-sm rounded-lg"
+          >
+            <option value="">Select Booking Status</option>
+            <option value="confirm">Confirm</option>
+            <option value="pending">Pending</option>
+          </select>
+          <button
+            class="text-xs px-3 py-1.5 border rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
+            @click="updateAction"
+          >
+            Update
+          </button>
+        </div>
+      </div>
 
       <div class="pt-2 grid grid-cols-4 gap-x-4">
         <div class="space-y-2 pt-2" @click="openPassportModal">
@@ -466,9 +486,23 @@ const addInvoiceUpdateAction = async () => {
   }, 1000);
 };
 
+const booking_status = ref(false);
+
+const updateAction = async () => {
+  const frmData = new FormData();
+  frmData.append("booking_status", booking_status.value);
+  frmData.append("_method", "PUT");
+  const res = await reservationStore.updateAction(frmData, route.query.id);
+  toast.success(res.message);
+  setTimeout(async () => {
+    await props.getDetailAction(route.query.id);
+  }, 1000);
+};
+
 onMounted(() => {
-  if (props.data) {
+  if (props.detail) {
     loading.value = true;
+    booking_status.value = props?.detail?.booking_status;
     loading.value = false;
   }
 });

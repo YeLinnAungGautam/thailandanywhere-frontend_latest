@@ -159,7 +159,7 @@
             /> -->
             <div class="flex justify-center w-60 h-48 items-center">
               <QrCode
-                :id="route.query.id"
+                :id="items.invoiceId"
                 :crm_id="items.invoiceNumber"
                 :size="250"
                 :type="'Invoice'"

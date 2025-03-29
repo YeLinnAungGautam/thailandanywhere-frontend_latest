@@ -1,7 +1,7 @@
 <script setup>
 import { useRoute, useRouter } from "vue-router";
 import { useReservationStore } from "../stores/reservation";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, nextTick } from "vue";
 import { ArrowLeftCircleIcon } from "@heroicons/vue/24/outline";
 import QrCode from "../components/QrCode.vue";
 import html2canvas from "html2canvas";
@@ -13,12 +13,46 @@ const router = useRouter();
 const reservationStore = useReservationStore();
 
 const details = ref(null);
+const customerNames = ref([]);
+const currentCustomerIndex = ref(0);
 
 const getDetail = async () => {
   try {
     const response = await reservationStore.getDetailAction(route.params.id);
     console.log(response.result, "this is response");
     details.value = response.result;
+
+    // Extract customer names from customer_passports array
+    if (
+      details.value?.customer_passports &&
+      details.value.customer_passports.length > 0
+    ) {
+      // Extract names from each passport entry
+      customerNames.value = details.value.customer_passports.map(
+        (passport) => passport.name
+      );
+      console.log("Customer Names from passports:", customerNames.value);
+    } else if (details.value?.customer_info?.name) {
+      // Fallback to splitting the customer name if no passport entries
+      customerNames.value = details.value.customer_info.name
+        .split(", ")
+        .map((name) => name.trim());
+      // If only one name or not comma separated, ensure we still have an array
+      if (
+        customerNames.value.length === 0 ||
+        (customerNames.value.length === 1 &&
+          customerNames.value[0] === details.value.customer_info.name)
+      ) {
+        customerNames.value = [details.value.customer_info.name];
+      }
+      console.log("Customer Names from name field:", customerNames.value);
+    }
+
+    // If we still don't have any names, use the main customer name as fallback
+    if (!customerNames.value.length && details.value?.customer_info?.name) {
+      customerNames.value = [details.value.customer_info.name];
+      console.log("Using main customer name as fallback:", customerNames.value);
+    }
   } catch (error) {
     console.log(error);
   }
@@ -26,25 +60,57 @@ const getDetail = async () => {
 
 const captureArea = ref(null);
 
+// Function to update the displayed customer name
+const updateCustomerName = (index) => {
+  currentCustomerIndex.value = index;
+  // This temporarily modifies the details for the current render
+  // We're updating just the customer name property for display purpose
+  if (details.value && details.value.customer_info) {
+    // Get the name directly from the passport array if available
+    const customerName =
+      details.value?.customer_passports &&
+      details.value.customer_passports[index]
+        ? details.value.customer_passports[index].name
+        : customerNames.value[index];
+
+    details.value.customer_info.currentDisplayName = customerName;
+  }
+};
+
 const saveAsJpeg = async () => {
   if (!captureArea.value) {
     console.error("Capture area not found!");
     return;
   }
 
-  try {
-    const canvas = await html2canvas(captureArea.value, {
-      backgroundColor: "#fff", // Ensure a white background for the image
-      useCORS: true,
-      allowTaint: true,
-    });
+  // Save images for all customers
+  for (let i = 0; i < customerNames.value.length; i++) {
+    updateCustomerName(i);
 
-    const link = document.createElement("a");
-    link.download = `${details?.value.crm_id}.jpeg`; // Name of the saved file
-    link.href = canvas.toDataURL("image/jpeg");
-    link.click();
-  } catch (error) {
-    console.error("Error capturing the view:", error);
+    // Force a re-render
+    await nextTick();
+
+    try {
+      const canvas = await html2canvas(captureArea.value, {
+        backgroundColor: "#fff",
+        useCORS: true,
+        allowTaint: true,
+      });
+
+      const link = document.createElement("a");
+      const customerName = customerNames.value[i].replace(/\s+/g, "_");
+      link.download = `${details.value.crm_id}_${customerName}.jpeg`;
+      link.href = canvas.toDataURL("image/jpeg");
+      link.click();
+
+      // Small delay between downloads to prevent browser issues
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    } catch (error) {
+      console.error(
+        `Error capturing the view for ${customerNames.value[i]}:`,
+        error
+      );
+    }
   }
 };
 
@@ -54,20 +120,63 @@ const saveAsPng = async () => {
     return;
   }
 
-  try {
-    const canvas = await html2canvas(captureArea.value, {
-      backgroundColor: "#fff", // Ensure a white background for the image
-      useCORS: true,
-      allowTaint: true,
-    });
+  // If there are multiple customers
+  if (customerNames.value.length > 1) {
+    for (let i = 0; i < customerNames.value.length; i++) {
+      updateCustomerName(i);
 
-    const link = document.createElement("a");
-    link.download = `${details?.value.crm_id}.png`; // Name of the saved file
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  } catch (error) {
-    console.error("Error capturing the view:", error);
+      // Force a re-render
+      await nextTick();
+
+      try {
+        const canvas = await html2canvas(captureArea.value, {
+          backgroundColor: "#fff",
+          useCORS: true,
+          allowTaint: true,
+        });
+
+        const link = document.createElement("a");
+        const customerName = customerNames.value[i].replace(/\s+/g, "_");
+        link.download = `${details.value.crm_id}_${customerName}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+
+        // Small delay between downloads to prevent browser issues
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      } catch (error) {
+        console.error(
+          `Error capturing the view for ${customerNames.value[i]}:`,
+          error
+        );
+      }
+    }
+  } else {
+    // Original single download behavior
+    try {
+      const canvas = await html2canvas(captureArea.value, {
+        backgroundColor: "#fff",
+        useCORS: true,
+        allowTaint: true,
+      });
+
+      const link = document.createElement("a");
+      link.download = `${details?.value.crm_id}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (error) {
+      console.error("Error capturing the view:", error);
+    }
   }
+};
+
+const downloadAllAsPng = async () => {
+  if (customerNames.value.length <= 1) {
+    // If only one customer, use the regular function
+    saveAsPng();
+    return;
+  }
+
+  await saveAsPng(); // Use the modified function that handles multiple customers
 };
 
 const goToSvg = () => {
@@ -85,19 +194,18 @@ onMounted(async () => {
   <Layout>
     <div class="bg-[#edecec] min-h-screen px-6">
       <div class="flex justify-end items-center">
-        <!-- <ArrowLeftCircleIcon class="w-8 h-8" @click="router.back()" /> -->
         <div class="flex justify-center items-center mt-4 gap-x-3">
           <button
             @click="saveAsJpeg()"
             class="py-3 px-4 mt-4 rounded-lg text-white bg-[#FF613c] hover:bg-[#ff613c]/70 text-xs font-medium"
           >
-            Save as JPEG
+            Save all as JPEG
           </button>
           <button
-            @click="saveAsPng()"
+            @click="downloadAllAsPng()"
             class="py-3 px-4 mt-4 rounded-lg text-white bg-[#FF613c] hover:bg-[#ff613c]/70 text-xs font-medium"
           >
-            Save as PNG
+            Save all as PNG
           </button>
           <button
             @click="goToSvg()"
@@ -197,7 +305,10 @@ onMounted(async () => {
             ></div>
             <p class="text-center text-xs text-black/40">Customer Name:</p>
             <p class="text-xl font-semibold text-[#ff613c] text-center">
-              {{ details?.customer_info.name }}
+              {{
+                details?.customer_info.currentDisplayName ||
+                details?.customer_info.name
+              }}
             </p>
           </div>
           <div class="pt-4 flex px-5 justify-center items-center">

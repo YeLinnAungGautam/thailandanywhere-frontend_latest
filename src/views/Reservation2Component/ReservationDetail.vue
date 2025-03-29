@@ -946,7 +946,7 @@ const hide = ref(false);
               state.passport && part == 'passport' ? 'text-[#04BA00]' : '',
             ]"
           >
-            Passport<span
+            Traveller<span
               v-if="part == 'passport'"
               class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
             ></span>

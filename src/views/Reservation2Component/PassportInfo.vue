@@ -308,6 +308,50 @@
         </div>
       </DialogPanel>
     </Modal>
+
+    <Modal
+      :isOpen="showErrorMessage"
+      @closeModal="
+        () => {
+          cancelAction();
+          showErrorMessage = false;
+        }
+      "
+    >
+      <DialogPanel
+        class="w-full max-w-md mt-20 transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
+        >
+          <p>Passport Data Missing</p>
+          <XCircleIcon
+            class="w-5 h-5 text-white"
+            @click="
+              () => {
+                cancelAction();
+                showErrorMessage = false;
+              }
+            "
+          />
+        </DialogTitle>
+
+        <div>
+          <img
+            src="https://img.freepik.com/free-vector/flat-design-no-data-illustration_23-2150527130.jpg?ga=GA1.1.1089812566.1730379095&semt=ais_hybrid"
+            alt=""
+            class="w-32 h-32 mx-auto"
+          />
+          <div class="px-8 py-10 text-sm">
+            <p>
+              Passport Data များမပြည့်စုံပါ ။ ကျေးဇူးပြု၍ Data များပြည့်စုံအောင်
+              ဖြည့်ပါ။
+            </p>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
@@ -600,13 +644,16 @@ const extractPassportData = (text) => {
 };
 
 const addAction = () => {
-  editData.value.customer_passport.push(passportFile.value);
-  featureImagePreview.value.push(passportPreview.value);
-  passportFile.value = "";
-  passportPreview.value = "";
-  carModalOpen.value = false;
+  checkAction();
+  if (showErrorMessage.value == false) {
+    editData.value.customer_passport.push(passportFile.value);
+    featureImagePreview.value.push(passportPreview.value);
+    passportFile.value = "";
+    passportPreview.value = "";
+    carModalOpen.value = false;
 
-  addTravellerAction();
+    addTravellerAction();
+  }
 };
 
 const cancelAction = () => {
@@ -651,6 +698,15 @@ const removeFeatureSelectImage = (index) => {
   featureImagePreview.value.splice(index, 1);
 };
 
+const showErrorMessage = ref(false);
+const checkAction = () => {
+  if (!formData.value.name) {
+    showErrorMessage.value = true;
+  } else {
+    showErrorMessage.value = false;
+  }
+};
+
 const addTravellerAction = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name ? formData.value.name : "-");
@@ -682,35 +738,38 @@ const addTravellerAction = async () => {
 };
 
 const addTravellerUpdateAction = async () => {
-  const frmData = new FormData();
-  frmData.append("_method", "PUT");
-  frmData.append("name", formData.value.name ? formData.value.name : "-");
-  frmData.append(
-    "passport_number",
-    formData.value.passport ? formData.value.passport : "-"
-  );
-  frmData.append("dob", formData.value.dob);
-  if (editData.value.customer_passport.length != 0) {
-    for (let x = 0; x < editData.value.customer_passport.length; x++) {
-      frmData.append("file", editData.value.customer_passport[0]);
+  checkAction();
+  if (showErrorMessage.value == false) {
+    const frmData = new FormData();
+    frmData.append("_method", "PUT");
+    frmData.append("name", formData.value.name ? formData.value.name : "-");
+    frmData.append(
+      "passport_number",
+      formData.value.passport ? formData.value.passport : "-"
+    );
+    frmData.append("dob", formData.value.dob);
+    if (editData.value.customer_passport.length != 0) {
+      for (let x = 0; x < editData.value.customer_passport.length; x++) {
+        frmData.append("file", editData.value.customer_passport[0]);
+      }
     }
-  }
-  const res = await reservationStore.customerPassportUpdateAction(
-    props.detail?.id,
-    formData.value.id,
-    frmData
-  );
+    const res = await reservationStore.customerPassportUpdateAction(
+      props.detail?.id,
+      formData.value.id,
+      frmData
+    );
 
-  console.log(res, "this is res");
-  if (res.message == "success") {
-    toast.success(res.message);
-  } else {
-    toast.error(res.message);
-  }
+    console.log(res, "this is res");
+    if (res.message == "success") {
+      toast.success(res.message);
+    } else {
+      toast.error(res.message);
+    }
 
-  setTimeout(async () => {
-    await props.getDetailAction(route.query.id);
-  }, 1000);
+    setTimeout(async () => {
+      await props.getDetailAction(route.query.id);
+    }, 1000);
+  }
 };
 
 onMounted(() => {

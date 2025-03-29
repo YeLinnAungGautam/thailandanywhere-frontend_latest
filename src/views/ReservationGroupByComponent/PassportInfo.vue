@@ -366,6 +366,49 @@
         </div>
       </DialogPanel>
     </Modal>
+    <Modal
+      :isOpen="showErrorMessage"
+      @closeModal="
+        () => {
+          cancelAction();
+          showErrorMessage = false;
+        }
+      "
+    >
+      <DialogPanel
+        class="w-full max-w-md mt-20 transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
+        >
+          <p>Passport Data Missing</p>
+          <XCircleIcon
+            class="w-5 h-5 text-white"
+            @click="
+              () => {
+                cancelAction();
+                showErrorMessage = false;
+              }
+            "
+          />
+        </DialogTitle>
+
+        <div>
+          <img
+            src="https://img.freepik.com/free-vector/flat-design-no-data-illustration_23-2150527130.jpg?ga=GA1.1.1089812566.1730379095&semt=ais_hybrid"
+            alt=""
+            class="w-32 h-32 mx-auto"
+          />
+          <div class="px-8 py-10 text-sm">
+            <p>
+              Passport Data များမပြည့်စုံပါ ။ ကျေးဇူးပြု၍ Data များပြည့်စုံအောင်
+              ဖြည့်ပါ။
+            </p>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
@@ -449,6 +492,15 @@ const addAction = () => {
 const isScanning = ref(false);
 const showDebug = ref(false);
 const rawOcrText = ref("");
+
+const showErrorMessage = ref(false);
+const checkAction = () => {
+  if (!formData.value.name || !formData.value.passport || !formData.value.dob) {
+    showErrorMessage.value = true;
+  } else {
+    showErrorMessage.value = false;
+  }
+};
 
 const scanPassport = async () => {
   // Check if we have either a local preview or a remote URL to scan
@@ -672,6 +724,8 @@ const cancelAction = () => {
     file: "",
   };
   carModalOpen.value = false;
+  editData.value.customer_passport = [];
+  passportPreview.value = "";
 };
 
 const openFileFeaturePicker = () => {
@@ -714,17 +768,15 @@ const selectedReservationIds = computed(() => {
 });
 
 const askForReservationId = () => {
-  // if (formData.value.id) {
-  //   addTravellerUpdateAction();
-  // } else {
-  //   addAction();
-  // }
-  console.log(
-    allReservation.value,
-    editData.value.reservation_ids,
-    "this is reservation"
-  );
-  processTravellerAction();
+  checkAction();
+  if (showErrorMessage.value == false) {
+    console.log(
+      allReservation.value,
+      editData.value.reservation_ids,
+      "this is reservation"
+    );
+    processTravellerAction();
+  }
 };
 
 const processTravellerAction = async () => {
@@ -797,35 +849,38 @@ const addTravellerAction = async (id) => {
 };
 
 const addTravellerUpdateAction = async (id) => {
-  try {
-    const frmData = new FormData();
-    frmData.append("_method", "PUT");
-    frmData.append("name", formData.value.name ? formData.value.name : "-");
-    frmData.append(
-      "passport_number",
-      formData.value.passport ? formData.value.passport : "-"
-    );
-    frmData.append("dob", formData.value.dob);
-    if (editData.value.customer_passport.length != 0) {
-      for (let x = 0; x < editData.value.customer_passport.length; x++) {
-        frmData.append("file", editData.value.customer_passport[0]);
+  checkAction();
+  if (showErrorMessage.value == false) {
+    try {
+      const frmData = new FormData();
+      frmData.append("_method", "PUT");
+      frmData.append("name", formData.value.name ? formData.value.name : "-");
+      frmData.append(
+        "passport_number",
+        formData.value.passport ? formData.value.passport : "-"
+      );
+      frmData.append("dob", formData.value.dob);
+      if (editData.value.customer_passport.length != 0) {
+        for (let x = 0; x < editData.value.customer_passport.length; x++) {
+          frmData.append("file", editData.value.customer_passport[0]);
+        }
       }
-    }
-    const res = await reservationStore.customerPassportUpdateAction(
-      id,
-      formData.value.id,
-      frmData
-    );
+      const res = await reservationStore.customerPassportUpdateAction(
+        id,
+        formData.value.id,
+        frmData
+      );
 
-    toast.success("passport successfully updated");
-    carModalOpen.value = false;
-    loading.value = false;
-    cancelAction();
-    setTimeout(async () => {
-      await props.getDetailAction(route.query.id, route.query.product_id);
-    }, 3000);
-  } catch (error) {
-    toast.error("error updated passport");
+      toast.success("passport successfully updated");
+      carModalOpen.value = false;
+      loading.value = false;
+      cancelAction();
+      setTimeout(async () => {
+        await props.getDetailAction(route.query.id, route.query.product_id);
+      }, 3000);
+    } catch (error) {
+      toast.error("error updated passport");
+    }
   }
 };
 

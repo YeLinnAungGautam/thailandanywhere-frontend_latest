@@ -783,7 +783,10 @@ const hide = ref(false);
           ></div>
 
           <div
-            v-if="!state.booking && authStore.isReservation"
+            v-if="
+              !state.booking &&
+              (authStore.isReservation || authStore.isSuperAdmin)
+            "
             @click="part = 'booking'"
             class="w-6 h-6 flex justify-center cursor-pointer items-center text-[10px] rounded-full relative z-10"
             :class="
@@ -793,7 +796,10 @@ const hide = ref(false);
             3
           </div>
           <div
-            v-if="state.booking && authStore.isReservation"
+            v-if="
+              state.booking &&
+              (authStore.isReservation || authStore.isSuperAdmin)
+            "
             @click="part = 'booking'"
             class="w-6 h-6 flex justify-center cursor-pointer shadow hover:shadow-none items-center text-[10px] rounded-full relative z-10"
             :class="part == 'booking' ? 'bg-white text-white' : ''"
@@ -801,11 +807,14 @@ const hide = ref(false);
             <img :src="checkImage" alt="" />
           </div>
           <div
-            v-if="authStore.isReservation"
+            v-if="authStore.isReservation || authStore.isSuperAdmin"
             class="w-30 h-[2px] rounded-full relative z-10 bg-gray-200"
           ></div>
           <div
-            v-if="!state.invoice && authStore.isReservation"
+            v-if="
+              !state.invoice &&
+              (authStore.isReservation || authStore.isSuperAdmin)
+            "
             @click="part = 'invoice'"
             class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
             :class="
@@ -815,7 +824,10 @@ const hide = ref(false);
             4
           </div>
           <div
-            v-if="state.invoice && authStore.isReservation"
+            v-if="
+              state.invoice &&
+              (authStore.isReservation || authStore.isSuperAdmin)
+            "
             @click="part = 'invoice'"
             class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
             :class="part == 'invoice' ? 'bg-white text-white' : ''"
@@ -823,12 +835,15 @@ const hide = ref(false);
             <img :src="checkImage" alt="" />
           </div>
           <div
-            v-if="authStore.isReservation"
+            v-if="authStore.isReservation || authStore.isSuperAdmin"
             class="w-30 h-[2px] rounded-full relative z-10"
             :class="state.invoice ? 'bg-[#04BA00]' : 'bg-gray-200'"
           ></div>
           <div
-            v-if="!state.expense && authStore.isReservation"
+            v-if="
+              !state.expense &&
+              (authStore.isReservation || authStore.isSuperAdmin)
+            "
             @click="part = 'expense'"
             class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
             :class="
@@ -838,7 +853,10 @@ const hide = ref(false);
             5
           </div>
           <div
-            v-if="state.expense && authStore.isReservation"
+            v-if="
+              state.expense &&
+              (authStore.isReservation || authStore.isSuperAdmin)
+            "
             @click="part = 'expense'"
             class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
             :class="part == 'expense' ? 'bg-white text-white' : ''"
@@ -846,7 +864,7 @@ const hide = ref(false);
             <img :src="checkImage" alt="" />
           </div>
           <div
-            v-if="authStore.isReservation"
+            v-if="authStore.isReservation || authStore.isSuperAdmin"
             class="w-30 h-[2px] rounded-full relative z-10"
             :class="state.invoice ? 'bg-[#04BA00]' : 'bg-gray-200'"
           ></div>
@@ -896,7 +914,7 @@ const hide = ref(false);
             ></span>
           </div>
           <div
-            v-if="authStore.isReservation"
+            v-if="authStore.isReservation || authStore.isSuperAdmin"
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'booking'"
             :class="[
@@ -909,7 +927,7 @@ const hide = ref(false);
             ></span>
           </div>
           <div
-            v-if="authStore.isReservation"
+            v-if="authStore.isReservation || authStore.isSuperAdmin"
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'invoice'"
             :class="[
@@ -922,7 +940,7 @@ const hide = ref(false);
             ></span>
           </div>
           <div
-            v-if="authStore.isReservation"
+            v-if="authStore.isReservation || authStore.isSuperAdmin"
             class="text-xs cursor-pointer flex justify-center items-center"
             @click="part = 'expense'"
             :class="[

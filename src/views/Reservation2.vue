@@ -546,7 +546,7 @@ watch(dateRange, async (newValue) => {
                   <div
                     class="flex items-center justify-start gap-1 overflow-x-scroll no-sidebar-container"
                   >
-                    <p
+                    <!-- <p
                       class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
                       @click="searchValue('App\\Models\\Hotel')"
                       :class="
@@ -556,7 +556,7 @@ watch(dateRange, async (newValue) => {
                       "
                     >
                       Hotel
-                    </p>
+                    </p> -->
                     <p
                       class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border whitespace-nowrap border-gray-200 rounded-lg"
                       @click="searchValue('App\\Models\\EntranceTicket')"
@@ -702,39 +702,6 @@ watch(dateRange, async (newValue) => {
                   }}</span>
                   <span v-if="!searchTime && !sale_daterange">Select Date</span>
                 </p>
-
-                <div class="" v-if="search == 'App\\Models\\Hotel'">
-                  <div class="flex justify-between items-center pb-2">
-                    <p class="text-[10px]">Hotel</p>
-
-                    <div class="flex justify-end items-center space-x-2">
-                      <p
-                        class="text-[10px] cursor-pointer"
-                        @click="hotel_name = ''"
-                      >
-                        clear
-                      </p>
-                      <p
-                        class="text-[10px] cursor-pointer"
-                        @click="hotelAction = !hotelAction"
-                      >
-                        {{ !hotelAction ? "show" : "hide" }}
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    v-if="!hotelAction"
-                    @click="hotelAction = true"
-                    class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-lg bg-white px-4 py-1.5 w-full"
-                  >
-                    <p class="text-[10px]">
-                      {{ hotel_name ? hotel_name : "Hotel search" }}
-                    </p>
-                  </div>
-                  <div v-if="hotelAction" class="w-full">
-                    <HotelUnlimited @selectAction="ChangeHotelName" />
-                  </div>
-                </div>
                 <div class="" v-if="search == 'App\\Models\\EntranceTicket'">
                   <div class="flex justify-between items-center pb-2">
                     <p class="text-[10px]">Attraction</p>
@@ -1028,12 +995,6 @@ watch(dateRange, async (newValue) => {
               class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
             >
               Van Tour
-            </p>
-            <p
-              v-if="search == 'App\\Models\\Hotel'"
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
-            >
-              Hotel
             </p>
             <p
               v-if="search == 'App\\Models\\EntranceTicket'"

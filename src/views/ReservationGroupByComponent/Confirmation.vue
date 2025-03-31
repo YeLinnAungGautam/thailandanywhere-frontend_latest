@@ -87,6 +87,10 @@
       </div>
 
       <!-- Reservation Items List -->
+      <p class="text-[12px] text-gray-600 py-4">
+        အောက်ပါ Data များ Change ချင်ပါက Confirmation photo အနည်းဆုံး
+        တစ်ပုံထည့်ရန် လိုအပ်ပါသည်။
+      </p>
       <div
         v-for="(reservationItem, index) in editDataArray.reservation_ids"
         :key="index"

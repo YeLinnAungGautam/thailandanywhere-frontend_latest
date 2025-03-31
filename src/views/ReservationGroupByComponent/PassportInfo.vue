@@ -153,7 +153,7 @@
           as="div"
           class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
         >
-          <p>Passport Infomation Add</p>
+          <p>Passport Infomation Add (Data များအားလုံးဖြည့်ရန်လိုအပ်ပါသည်။ )</p>
           <XCircleIcon class="w-5 h-5 text-white" @click="cancelAction" />
         </DialogTitle>
         <!-- show date  -->
@@ -335,7 +335,7 @@
               </div>
               <div class="col-span-5" v-if="!formData.id">
                 <label for="" class="text-[12px] font-medium"
-                  >Choose reservation to upload passport.
+                  >မည်သည့် Hotel Item အတွက်ကို အတည်ပြုပါ။
                 </label>
                 <div>
                   <input
@@ -345,8 +345,8 @@
                     name="for_which"
                   />
                   <label for="car" class="text-[12px] ml-2"
-                    >For all reservations.</label
-                  >
+                    >Hotel Items အားလုံးအတွက်
+                  </label>
                 </div>
                 <div v-for="i in editData.reservation_ids" :key="i">
                   <input

@@ -459,7 +459,9 @@ watch(
             as="div"
             class="font-medium bg-[#FF613C] leading-6 px-4 py-4 text-white flex justify-between items-center"
           >
-            <span class="text-lg pl-6">Step 1: Choose a Passport.</span>
+            <span class="text-lg pl-6"
+              >Step 1: ဖော်ပြလိုသော Passport များအမှန်ခြစ်ပြီး ရွေးချယ်ပါ။</span
+            >
             <div
               class="flex justify-end items-center gap-x-3 cursor-pointer"
               @click="reload"
@@ -501,7 +503,9 @@ watch(
             as="div"
             class="font-medium bg-[#FF613C] leading-6 px-4 py-4 text-white flex justify-between items-center"
           >
-            <span class="text-lg pl-5">Step 2: Choose Room Type.</span>
+            <span class="text-lg pl-5"
+              >Step 2: ဖော်ပြလိုသော Room များအမှန်ခြစ်ပြီး ရွေးချယ်ပါ။</span
+            >
           </DialogTitle>
           <div class="p-8">
             <div v-for="(i, index) in item_list" :key="index" class="">
@@ -553,23 +557,25 @@ watch(
             as="div"
             class="font-medium bg-[#FF613C] leading-6 px-4 py-4 text-white flex justify-between items-center"
           >
-            <span class="text-lg pl-5">Step 3: Choose Refference No.</span>
+            <span class="text-lg pl-5"
+              >Step 3: Refference No. ရွေးချယ်ခြင်း</span
+            >
           </DialogTitle>
           <!-- show date  -->
           <div class="relative">
             <div class="py-10 text-center space-y-4">
               <p class="font-medium text-lg text-[#FF613c]">
-                Refference No. is Missing !
+                Booking ၏ Reference No. မရှိနေပါ။
               </p>
               <p class="text-base">
-                Hotel booking reference is missing. Would you like to use
-                Reservation ID?
+                Hotel Booking ၏ Reference No. မရှိနေသောကြောင့် CRM Id ကို
+                အသုံးပြုလိုပါသလား။
               </p>
               <p
                 @click="goToFill"
                 class="px-4 py-2 inline-block font-medium text-white bg-[#FF613C] border-none rounded-lg hover:bg-[#FF4A3C] focus:outline-none cursor-pointer"
               >
-                Use Reservation ID: {{ detail?.booking?.crm_id }}
+                အသုံးပြုပါမည် : {{ detail?.booking?.crm_id }}
               </p>
               <p
                 @click="showFailModal = false"

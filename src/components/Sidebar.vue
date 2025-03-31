@@ -132,13 +132,13 @@
 
               <SidebarItem
                 name="Reservation"
-                :icon="DocumentCheckIcon"
+                :icon="TicketIcon"
                 to="/reservation-second"
                 :activePaths="['reservation-second']"
               />
               <SidebarItem
                 name="Res Group"
-                :icon="ClipboardDocumentListIcon"
+                :icon="HomeModernIcon"
                 to="/reservation-hotel"
                 :activePaths="['reservation-hotel']"
               />
@@ -302,6 +302,8 @@ import {
   CheckBadgeIcon,
   ChevronUpIcon,
   CalculatorIcon,
+  HomeModernIcon,
+  TicketIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";

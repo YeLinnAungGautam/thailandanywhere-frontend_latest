@@ -747,7 +747,10 @@ const addTravellerUpdateAction = async () => {
       "passport_number",
       formData.value.passport ? formData.value.passport : "-"
     );
-    frmData.append("dob", formData.value.dob);
+    frmData.append(
+      "dob",
+      formData.value.dob ? formData.value.dob : "1900-01-01"
+    );
     if (editData.value.customer_passport.length != 0) {
       for (let x = 0; x < editData.value.customer_passport.length; x++) {
         frmData.append("file", editData.value.customer_passport[0]);

@@ -543,7 +543,8 @@
         <div class="flex justify-start items-center space-x-2">
           <p
             @click="
-              router.push(`/reservation/update/${data.id}/${data.crm_id}`)
+              // router.push(`/reservation/update/${data.id}/${data.crm_id}`)
+              goToReservationDetail(data)
             "
             class="text-[10px] bg-blue-600 shadow-lg rounded-lg text-white px-3 py-1 cursor-pointer"
           >
@@ -760,6 +761,23 @@ const expenseUpdateAction = async () => {
     setTimeout(() => {
       window.location.reload();
     }, 3000);
+  }
+};
+
+const goToReservationDetail = (data) => {
+  // console.log("====================================");
+  // console.log(data);
+  // console.log("====================================");
+  if (data.product_type == "App\\Models\\EntranceTicket") {
+    router.push("/reservation-second?id=" + data.id);
+  }
+  if (data.product_type == "App\\Models\\Hotel") {
+    router.push(
+      "/reservation-hotel?id=" +
+        data?.booking?.id +
+        "&product_id=" +
+        data?.product?.id
+    );
   }
 };
 

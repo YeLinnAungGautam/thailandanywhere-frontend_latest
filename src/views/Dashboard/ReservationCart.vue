@@ -423,7 +423,17 @@
                 : "--/--/--"
             }}
           </p>
-          <p class="text-[10px] text-gray-600" @click="goToExpense">
+          <p
+            class="text-[10px] text-gray-600"
+            @click="goToExpense"
+            v-if="data?.product_type == 'App\\Models\\EntranceTicket'"
+          >
+            <PencilSquareIcon class="w-4 h-4" />
+          </p>
+          <p
+            class="text-[10px] text-gray-300"
+            v-if="data?.product_type != 'App\\Models\\EntranceTicket'"
+          >
             <PencilSquareIcon class="w-4 h-4" />
           </p>
         </div>
@@ -567,7 +577,7 @@
 
     <Modal :isOpen="openExpenseModal" @closeModal="goToExpense">
       <DialogPanel
-        class="w-full max-w-lg transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-4xl transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
@@ -584,6 +594,7 @@
         <div>
           <ExpensePartVue
             :data="formData"
+            :info="data"
             :expenseUpdateAction="expenseUpdateAction"
             :expenseCancelAction="expenseCancelAction"
           />
@@ -695,6 +706,9 @@ const formData = ref({
   booking_receipt_image: [],
   product_type: "",
   customer_feedback: "",
+  child_quantity: "",
+  child_price: 0,
+  total_cost_price: 0,
 });
 
 const formatDate = (date) => {
@@ -715,11 +729,40 @@ const expenseUpdateAction = async () => {
     frmData.append("quantity", formData.value.quantity);
   formData.value.payment_status &&
     frmData.append("payment_status", formData.value.payment_status);
+  if (props.data?.product_type == "App\\Models\\EntranceTicket") {
+    frmData.append(
+      "individual_pricing[child][quantity]",
+      formData.value.child_quantity
+    );
+    frmData.append(
+      "individual_pricing[child][selling_price]",
+      props.data?.individual_pricing?.child?.selling_price ?? 0
+    );
+    frmData.append(
+      "individual_pricing[child][cost_price]",
+      formData.value.child_price ?? 0
+    );
+    frmData.append(
+      "individual_pricing[child][total_cost_price]",
+      formData.value.child_price ?? 0 * formData.value.child_quantity
+    );
+    frmData.append(
+      "individual_pricing[child][amount]",
+      props.data?.individual_pricing?.child?.selling_price
+        ? props.data?.individual_pricing?.child?.selling_price *
+            formData.value.child_quantity
+        : 0
+    );
+  }
   if (formData.value.cost_price) {
     if (!formData.value.hotalQuantity) {
       frmData.append(
         "total_cost_price",
-        formData.value.cost_price * formData.value.quantity
+        formData.value.cost_price * formData.value.quantity +
+          (formData.value.child_price ??
+            0 * formData.value.child_quantity ??
+            0) *
+            1
       );
     } else {
       frmData.append(
@@ -746,14 +789,14 @@ const expenseUpdateAction = async () => {
     if (formData.value.bank_account_number) {
       secfrm.append("bank_account_number", formData.value.bank_account_number);
     }
-    if (formData.value.receipt_image.length != 0) {
-      if (formData.value.receipt_image.length > 0) {
-        for (let i = 0; i < formData.value.receipt_image.length; i++) {
-          let file = formData.value.receipt_image[i];
-          secfrm.append("receipt_image[" + i + "]", file);
-        }
-      }
-    }
+    // if (formData.value.receipt_image.length != 0) {
+    //   if (formData.value.receipt_image.length > 0) {
+    //     for (let i = 0; i < formData.value.receipt_image.length; i++) {
+    //       let file = formData.value.receipt_image[i];
+    //       secfrm.append("receipt_image[" + i + "]", file);
+    //     }
+    //   }
+    // }
 
     await reservationStore.updateInfoAction(secfrm, formData.value.id);
 
@@ -981,6 +1024,15 @@ onMounted(async () => {
     formData.value.product_type = props.data?.product_type;
     formData.value.customer_feedback =
       props.data?.reservation_info?.customer_feedback || "";
+    formData.value.child_quantity =
+      props.data?.individual_pricing && props.data?.individual_pricing?.child
+        ? props?.data?.individual_pricing?.child?.quantity
+        : 0;
+    formData.value.child_price =
+      props.data?.individual_pricing && props.data?.individual_pricing?.child
+        ? props?.data?.individual_pricing?.child?.cost_price
+        : 0;
+    formData.value.total_cost_price = props.data?.total_cost_price;
   }
 });
 </script>

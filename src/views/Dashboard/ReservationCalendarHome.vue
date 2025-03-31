@@ -164,7 +164,7 @@
       </div>
       <div
         v-if="!loading"
-        class="bg-white shadow rounded-lg divide-y-2 divide-gray-300 max-h-[405px] overflow-scroll"
+        class="bg-white shadow rounded-lg divide-y-2 divide-gray-300 max-h-[455px] overflow-scroll"
       >
         <div class="" v-for="i in getListing ?? []" :key="i">
           <ReservationCartVue :backgroundCustom="backgroundCustom" :data="i" />
@@ -172,7 +172,7 @@
       </div>
       <div
         v-if="loading"
-        class="bg-white shadow rounded-lg divide-y-4 divide-gray-200 max-h-[405px] overflow-scroll"
+        class="bg-white shadow rounded-lg divide-y-4 divide-gray-200 max-h-[455px] overflow-scroll"
       >
         <div class="" v-for="i in 5 ?? []" :key="i">
           <ReservationCartLoadingVue :backgroundCustom="backgroundCustom" />

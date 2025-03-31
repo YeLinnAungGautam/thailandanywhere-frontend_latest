@@ -280,6 +280,7 @@
                   class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
                 >
                   <p
+                    v-if="!loading"
                     @click="
                       formData.id ? addTravellerUpdateAction() : addAction()
                     "
@@ -287,7 +288,17 @@
                   >
                     {{ formData.id ? "Update" : "Save" }}
                   </p>
-
+                  <p
+                    v-if="loading"
+                    class="px-3 py-1 flex justify-center items-center gap-x-2 bg-gray-500 text-white text-[12px] cursor-pointer rounded-lg"
+                  >
+                    <img
+                      src="https://cdn-icons-png.flaticon.com/128/25/25220.png"
+                      class="animate-spin w-4 h-4"
+                      alt=""
+                    />
+                    Loading
+                  </p>
                   <p
                     v-if="formData.id"
                     @click="removeFeatureDeleteImage(formData.id)"
@@ -708,6 +719,7 @@ const checkAction = () => {
 };
 
 const addTravellerAction = async () => {
+  loading.value = true;
   const frmData = new FormData();
   frmData.append("name", formData.value.name ? formData.value.name : "-");
   frmData.append(
@@ -732,12 +744,15 @@ const addTravellerAction = async () => {
     toast.error(res.message);
   }
 
+  loading.value = false;
+
   setTimeout(async () => {
     await props.getDetailAction(route.query.id);
   }, 1000);
 };
 
 const addTravellerUpdateAction = async () => {
+  loading.value = true;
   checkAction();
   if (showErrorMessage.value == false) {
     const frmData = new FormData();
@@ -768,6 +783,8 @@ const addTravellerUpdateAction = async () => {
     } else {
       toast.error(res.message);
     }
+
+    loading.value = false;
 
     setTimeout(async () => {
       await props.getDetailAction(route.query.id);

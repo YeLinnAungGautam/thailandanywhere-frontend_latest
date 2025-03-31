@@ -91,7 +91,7 @@
         class="space-y-2"
         v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
       >
-        <p class="text-gray-800 text-[10px]">Adult Unit Cost</p>
+        <p class="text-gray-800 text-[10px]">Adult Unit Cost *</p>
         <div class="grid grid-cols-3 gap-x-2">
           <input
             v-model="formData.quantity"
@@ -107,12 +107,13 @@
             class="h-9 col-span-2 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
           />
         </div>
+        <p class="text-xs text-red-500">! Unit cost can't be empty</p>
       </div>
       <div
         class="space-y-2"
         v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
       >
-        <p class="text-gray-800 text-[10px]">Child Unit Cost</p>
+        <p class="text-gray-800 text-[10px]">Child Unit Cost *</p>
         <div class="grid grid-cols-3 gap-x-2">
           <input
             v-model="formData.child_quantity"
@@ -128,6 +129,7 @@
             class="h-9 col-span-2 rounded-lg w-full bg-gray-2000 border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
           />
         </div>
+        <p class="text-xs text-red-500">! Unit cost can't be empty</p>
       </div>
       <div
         class="space-y-2"
@@ -398,18 +400,29 @@
                   class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
                 >
                   <p
-                    v-if="!expenseData?.id"
+                    v-if="!expenseData?.id && !loading"
                     @click="createExpense"
                     class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
                   >
                     Save
                   </p>
                   <p
-                    v-if="expenseData?.id"
+                    v-if="expenseData?.id && !loading"
                     @click="updateExpense"
                     class="px-3 py-1 bg-blue-500 text-white text-[12px] cursor-pointer rounded-lg"
                   >
                     Update
+                  </p>
+                  <p
+                    v-if="loading"
+                    class="px-3 py-1 flex justify-center items-center gap-x-2 bg-gray-500 text-white text-[12px] cursor-pointer rounded-lg"
+                  >
+                    <img
+                      src="https://cdn-icons-png.flaticon.com/128/25/25220.png"
+                      class="animate-spin w-4 h-4"
+                      alt=""
+                    />
+                    Loading
                   </p>
                   <p
                     v-if="expenseData?.id"
@@ -476,7 +489,7 @@ const formData = ref({
   product_type: "",
   customer_feedback: "",
   child_quantity: "",
-  child_price: "",
+  child_price: 0,
 });
 
 const expenseData = ref({
@@ -664,7 +677,10 @@ const cancelAction = () => {
   clearAction();
 };
 
+const loadingUpdateExpense = ref(false);
+
 const expenseUpdateAction = async () => {
+  loadingUpdateExpense.value = true;
   // your logic to update the expense data goes here
   const frmData = new FormData();
   frmData.append("_method", "PUT");
@@ -677,22 +693,6 @@ const expenseUpdateAction = async () => {
   formData.value.payment_status &&
     frmData.append("payment_status", formData.value.payment_status);
   if (props.detail?.product_type == "App\\Models\\EntranceTicket") {
-    // const individualPricing = {
-    //   child: {
-    //     quantity: formData.value.child_quantity,
-    //     selling_price:
-    //       props.detail?.individual_pricing?.child?.selling_price ?? 0,
-    //     cost_price: formData.value.child_price,
-    //     total_cost_price:
-    //       formData.value.child_price * formData.value.child_quantity,
-    //     amount: props.detail?.individual_pricing?.child?.selling_price
-    //       ? props.detail?.individual_pricing?.child?.selling_price *
-    //         formData.value.child_quantity
-    //       : 0,
-    //   },
-    // };
-
-    // Stringify the individual_pricing object before appending it to FormData
     frmData.append(
       "individual_pricing[child][quantity]",
       formData.value.child_quantity
@@ -703,11 +703,11 @@ const expenseUpdateAction = async () => {
     );
     frmData.append(
       "individual_pricing[child][cost_price]",
-      formData.value.child_price
+      formData.value.child_price ?? 0
     );
     frmData.append(
       "individual_pricing[child][total_cost_price]",
-      formData.value.child_price * formData.value.child_quantity
+      formData.value.child_price ?? 0 * formData.value.child_quantity
     );
     frmData.append(
       "individual_pricing[child][amount]",
@@ -764,6 +764,7 @@ const expenseUpdateAction = async () => {
     await reservationStore.updateInfoAction(secfrm, formData.value.id);
 
     toast.success(response.message);
+    const loadingUpdateExpense = ref(false);
     setTimeout(async () => {
       await props.getDetailAction(route.query.id);
     }, 1000);

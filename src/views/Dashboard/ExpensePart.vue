@@ -275,7 +275,7 @@
         </div>
       </div>
     </div>
-    <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
+    <Modal :isOpen="carModalOpen" @closeModal="clearAction">
       <DialogPanel
         class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
       >
@@ -284,7 +284,7 @@
           class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
         >
           <p>Expense Add</p>
-          <XCircleIcon class="w-5 h-5 text-white" @click="cancelAction" />
+          <XCircleIcon class="w-5 h-5 text-white" @click="clearAction" />
         </DialogTitle>
         <!-- show date  -->
         <div class="p-4">
@@ -426,7 +426,7 @@
                     delete
                   </p>
                   <p
-                    @click="cancelAction"
+                    @click="clearAction"
                     class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
                   >
                     Close
@@ -674,6 +674,7 @@ const clearAction = () => {
     is_corporate: false,
     comment: "",
   };
+  props.data.receipt_image = [];
   carModalOpen.value = false;
 };
 

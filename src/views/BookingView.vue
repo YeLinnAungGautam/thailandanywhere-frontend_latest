@@ -204,6 +204,24 @@ const getListUser = async () => {
   }
 };
 
+const goReservationUpdate = (data) => {
+  console.log(data, "this is update");
+  if (data.product_type == "App\\Models\\EntranceTicket") {
+    router.push(`/reservation-second?id=${data.id}`);
+  }
+  if (data.product_type == "App\\Models\\Hotel") {
+    router.push(
+      `/reservation-hotel?id=${data?.booking?.id}&product_id=${data?.product?.id}`
+    );
+  }
+  if (
+    data.product_type != "App\\Models\\EntranceTicket" &&
+    data.product_type != "App\\Models\\Hotel"
+  ) {
+    router.push("/reservation/update/" + data.id + "/" + data.crm_id);
+  }
+};
+
 onMounted(async () => {
   (sale_date_order_by.value = "desc"),
     // console.log(route.params);
@@ -779,15 +797,16 @@ watch(
                   <div
                     class="col-span-1 p-3 text-xs text-center text-gray-700 whitespace-nowrap"
                   >
-                    <router-link
+                    <!-- <router-link
                       :to="'/reservation/update/' + d.id + '/' + d.crm_id"
+                    > -->
+                    <button
+                      @click="goReservationUpdate(d)"
+                      class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
                     >
-                      <button
-                        class="p-2 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
-                      >
-                        <PencilSquareIcon class="w-5 h-5" />
-                      </button>
-                    </router-link>
+                      <PencilSquareIcon class="w-5 h-5" />
+                    </button>
+                    <!-- </router-link> -->
                   </div>
                   <div
                     class="col-span-2 py-3 pl-10 text-xs text-gray-700 whitespace-nowrap"

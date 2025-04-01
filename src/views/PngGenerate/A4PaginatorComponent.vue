@@ -167,7 +167,7 @@
               />
             </div>
           </div>
-          <div class="w-3/5 pr-8 pl-8 py-2">
+          <div class="w-3/5 pr-5 pl-16 py-2">
             <p class="font-semibold text-sm mb-2">
               Validate your tickets on our official website:
             </p>

@@ -139,12 +139,24 @@ const getDetailAction = async () => {
     if (
       response.result.items[i]?.product_type == "App\\Models\\EntranceTicket"
     ) {
+      let detailsText = `${response.result.items[i].quantity} Adult x ${response.result.items[i].selling_price}`;
+
+      // Check if individual_pricing exists and if it has child data with both quantity and selling_price
+      if (
+        response.result.items[i]?.individual_pricing &&
+        response.result.items[i]?.individual_pricing?.child &&
+        response.result.items[i]?.individual_pricing?.child?.quantity != "0" &&
+        response.result.items[i]?.individual_pricing?.child?.selling_price !=
+          "0"
+      ) {
+        detailsText += ` / ${response.result.items[i]?.individual_pricing?.child?.quantity} Child x ${response.result.items[i]?.individual_pricing?.child?.selling_price}`;
+      }
       invoice.value.items.push({
         image: response.result.items[i]?.product?.cover_image || defaultImage,
         name: response.result.items[i]?.product?.name,
         description: response.result.items[i]?.variation?.name,
         period: `${formatDate(response.result.items[i]?.service_date)}`,
-        details: ` ${response.result.items[i]?.quantity} Qty x ${response.result.items[i]?.selling_price}`,
+        details: detailsText,
         discount: response.result.items[i]?.discount,
         amount: formatNumber(response.result.items[i]?.amount),
       });

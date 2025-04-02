@@ -154,7 +154,7 @@
           <p class="text-[9px] whitespace-nowrap text-red-600">C.not paid</p>
         </div>
 
-        <ChevronRightIcon class="w-3 h-3" />
+        <!-- <ChevronRightIcon class="w-3 h-3" /> -->
 
         <!-- changes -->
 

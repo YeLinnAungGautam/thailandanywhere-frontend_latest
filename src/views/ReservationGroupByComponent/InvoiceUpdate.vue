@@ -1,7 +1,26 @@
 <template>
   <div>
     <div class="py-2 space-y-2 pr-1" v-if="!loading">
-      <div class="flex justify-between items-center"></div>
+      <div class="pb-4 border-b border-gray-200">
+        <p class="pb-2 text-xs">Booking Status</p>
+        <div class="flex justify-between items-center gap-x-2">
+          <select
+            name=""
+            id=""
+            v-model="booking_status"
+            class="w-full border border-gray-200 px-4 py-1 text-sm rounded-lg"
+          >
+            <option value="receive">receive</option>
+            <option value="not_receive">not_receive</option>
+          </select>
+          <button
+            class="text-xs px-3 py-1.5 border rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
+            @click="updateAction"
+          >
+            Update
+          </button>
+        </div>
+      </div>
 
       <div class="pt-2 grid grid-cols-4 gap-x-4">
         <div class="space-y-2 pt-2" @click="openPassportModal">
@@ -290,6 +309,26 @@ const formData = ref({
   sender_name: "",
 });
 
+const booking_status = ref("");
+
+const updateAction = async () => {
+  const frmData = new FormData();
+  frmData.append("booking_status", booking_status.value);
+  frmData.append("_method", "PUT");
+
+  for (let index = 0; index < editData.value.reservation_ids.length; index++) {
+    const res = await reservationStore.updateAction(
+      frmData,
+      editData.value.reservation_ids[index].id
+    );
+    toast.success(res.message);
+  }
+
+  setTimeout(async () => {
+    await props.getDetailAction(route.query.id, route.query.product_id);
+  }, 1000);
+};
+
 const carModalOpen = ref(false);
 
 const featureImageInput = ref(null);
@@ -564,11 +603,15 @@ const addInvoiceUpdateAction = async (id) => {
 onMounted(() => {
   if (props.detail) {
     loading.value = true;
+    booking_status.value = props?.detail?.booking?.items[0]?.booking_status;
     for (let i = 0; i < props.detail?.booking?.items.length; i++) {
       editData.value.reservation_ids.push({
         id: props.detail?.booking?.items[i].id,
         crm_id: props.detail?.booking?.items[i].crm_id,
-        name: props.detail?.booking?.items[i].room?.name,
+        name:
+          props.detail?.booking?.items[i].product_type == "App\\Models\\Hotel"
+            ? props.detail?.booking?.items[i].room?.name
+            : props.detail?.booking?.items[i].variation?.name,
         selected: false,
       });
       if (props.detail?.booking?.items[i].booking_confirm_letters.length > 0) {

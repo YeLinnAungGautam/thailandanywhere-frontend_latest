@@ -9,8 +9,8 @@
         +
       </p> -->
       <div class="w-full pt-2.5 items-center col-span-2">
-        <div class="flex justify-between items-center space-x-2 pb-2">
-          <div class="flex justify-start items-center">
+        <div class="flex justify-end items-center space-x-2 pb-2">
+          <!-- <div class="flex justify-start items-center">
             <p
               @click="emailBooking = !emailBooking"
               :class="!emailBooking ? '' : 'bg-[#FF613c] text-white'"
@@ -25,7 +25,7 @@
             >
               Expense Update
             </p>
-          </div>
+          </div> -->
           <p
             v-if="!emailBooking"
             @click="expenseUpdateAction"
@@ -283,9 +283,9 @@
         </div>
       </div>
     </div>
-    <div v-if="emailBooking">
-      <ExpenseBooking :detail="detail" />
-    </div>
+    <!-- <div v-if="emailBooking">
+      <ExpenseBooking :detail="detail" :getDetailAction="getDetailAction" />
+    </div> -->
     <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
       <DialogPanel
         class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
@@ -692,6 +692,7 @@ const expenseUpdateAction = async () => {
     frmData.append("quantity", formData.value.quantity);
   formData.value.payment_status &&
     frmData.append("payment_status", formData.value.payment_status);
+
   if (props.detail?.product_type == "App\\Models\\EntranceTicket") {
     frmData.append(
       "individual_pricing[child][quantity]",
@@ -764,7 +765,9 @@ const expenseUpdateAction = async () => {
     await reservationStore.updateInfoAction(secfrm, formData.value.id);
 
     toast.success(response.message);
+
     const loadingUpdateExpense = ref(false);
+
     setTimeout(async () => {
       await props.getDetailAction(route.query.id);
     }, 1000);

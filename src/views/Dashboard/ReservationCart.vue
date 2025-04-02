@@ -125,7 +125,7 @@
         </p>
       </div>
       <div
-        class="flex justify-start space-x-4 pt-2 items-center transition-all duration-150"
+        class="flex justify-start overflow-x-scroll no-sidebar-container space-x-4 pt-2 items-center transition-all duration-150"
         v-if="!open"
       >
         <div
@@ -133,22 +133,89 @@
           v-if="data?.booking?.payment_status == 'fully_paid'"
         >
           <CurrencyDollarIcon class="w-4 h-4 text-green-600" />
-          <p class="text-[9px] text-green-600">Customer paid</p>
+          <p class="text-[9px] whitespace-nowrap text-green-600">
+            Customer paid
+          </p>
         </div>
         <div
           class="flex justify-start space-x-1 items-center"
           v-if="data?.booking?.payment_status == 'partially_paid'"
         >
           <CurrencyDollarIcon class="w-4 h-4 text-yellow-600" />
-          <p class="text-[9px] text-yellow-600">C.partially paid</p>
+          <p class="text-[9px] whitespace-nowrap text-yellow-600">
+            C.partially paid
+          </p>
         </div>
         <div
           class="flex justify-start space-x-1 items-center"
           v-if="data?.booking?.payment_status == 'not_paid'"
         >
           <CurrencyDollarIcon class="w-4 h-4 text-red-600" />
-          <p class="text-[9px] text-red-600">C.not paid</p>
+          <p class="text-[9px] whitespace-nowrap text-red-600">C.not paid</p>
         </div>
+
+        <ChevronRightIcon class="w-3 h-3" />
+
+        <!-- changes -->
+
+        <div class="flex justify-start space-x-1 items-center">
+          <CurrencyDollarIcon
+            class="w-4 h-4"
+            :class="
+              data?.customer_passports.length > 0
+                ? 'text-green-600'
+                : 'text-red-600'
+            "
+          />
+          <p
+            class="text-[9px] whitespace-nowrap"
+            :class="
+              data?.customer_passports.length > 0
+                ? 'text-green-600'
+                : 'text-red-600'
+            "
+          >
+            Passport
+          </p>
+        </div>
+        <div class="flex justify-start space-x-1 items-center">
+          <CurrencyDollarIcon
+            class="w-4 h-4"
+            :class="
+              data?.is_booking_request == 1 ? 'text-green-600' : 'text-red-600'
+            "
+          />
+          <p
+            class="text-[9px] whitespace-nowrap"
+            :class="
+              data?.is_booking_request == 1 ? 'text-green-600' : 'text-red-600'
+            "
+          >
+            Request Sent
+          </p>
+        </div>
+        <div class="flex justify-start space-x-1 items-center">
+          <CurrencyDollarIcon
+            class="w-4 h-4"
+            :class="
+              data?.booking_status == 'receive'
+                ? 'text-green-600'
+                : 'text-red-600'
+            "
+          />
+          <p
+            class="text-[9px] whitespace-nowrap"
+            :class="
+              data?.booking_status == 'receive'
+                ? 'text-green-600'
+                : 'text-red-600'
+            "
+          >
+            Invoice
+          </p>
+        </div>
+
+        <!-- changes -->
         <div
           class="flex justify-start space-x-1 items-center"
           v-if="
@@ -157,7 +224,9 @@
           "
         >
           <CreditCardIcon class="w-4 h-4 text-green-600" />
-          <p class="text-[9px] text-green-600">Expense paid</p>
+          <p class="text-[9px] whitespace-nowrap text-green-600">
+            Expense paid
+          </p>
         </div>
         <div
           class="flex justify-start space-x-1 items-center"
@@ -167,7 +236,9 @@
           "
         >
           <CreditCardIcon class="w-4 h-4 text-yellow-600" />
-          <p class="text-[9px] text-yellow-600">E.partially paid</p>
+          <p class="text-[9px] whitespace-nowrap text-yellow-600">
+            E.partially paid
+          </p>
         </div>
         <div
           class="flex justify-start space-x-1 items-center"
@@ -177,38 +248,33 @@
           "
         >
           <CreditCardIcon class="w-4 h-4 text-red-600" />
-          <p class="text-[9px] text-red-600">Expense not paid</p>
+          <p class="text-[9px] whitespace-nowrap text-red-600">
+            Expense not paid
+          </p>
         </div>
         <div
           class="flex justify-start space-x-1 items-center"
           v-if="
-            data?.reservation_status == 'confirmed' &&
+            data?.is_expense_email_sent == 1 &&
             data.product_type != 'App\\Models\\PrivateVanTour'
           "
         >
-          <CurrencyDollarIcon class="w-4 h-4 text-green-600" />
-          <p class="text-[9px] text-green-600">Confirmation recieved</p>
+          <EnvelopeIcon class="w-4 h-4 text-green-600" />
+          <p class="text-[9px] whitespace-nowrap text-green-600">Email sent</p>
         </div>
         <div
           class="flex justify-start space-x-1 items-center"
           v-if="
-            data?.reservation_status == 'awaiting' &&
+            data?.is_expense_email_sent == 0 &&
             data.product_type != 'App\\Models\\PrivateVanTour'
           "
         >
-          <CurrencyDollarIcon class="w-4 h-4 text-yellow-600" />
-          <p class="text-[9px] text-yellow-600">Confirmation awaiting</p>
+          <EnvelopeIcon class="w-4 h-4 text-yellow-600" />
+          <p class="text-[9px] whitespace-nowrap text-yellow-600">
+            Email not sent
+          </p>
         </div>
-        <div
-          class="flex justify-start space-x-1 items-center"
-          v-if="
-            data?.reservation_status == 'declined' &&
-            data.product_type != 'App\\Models\\PrivateVanTour'
-          "
-        >
-          <CurrencyDollarIcon class="w-4 h-4 text-red-600" />
-          <p class="text-[9px] text-red-600">Confirmation not recieved</p>
-        </div>
+
         <div
           class="flex justify-start space-x-1 items-center"
           v-if="
@@ -217,7 +283,7 @@
           "
         >
           <TruckIcon class="w-4 h-4 text-green-600" />
-          <p class="text-[9px] text-green-600">Supplier</p>
+          <p class="text-[9px] whitespace-nowrap text-green-600">Supplier</p>
         </div>
         <div
           class="flex justify-start space-x-1 items-center"
@@ -227,7 +293,9 @@
           "
         >
           <TruckIcon class="w-4 h-4 text-yellow-600" />
-          <p class="text-[9px] text-yellow-600">Supplier Missing</p>
+          <p class="text-[9px] whitespace-nowrap text-yellow-600">
+            Supplier Missing
+          </p>
         </div>
         <div
           class="flex justify-start space-x-1 items-center"
@@ -237,7 +305,7 @@
           "
         >
           <TruckIcon class="w-4 h-4 text-green-600" />
-          <p class="text-[9px] text-green-600">Driver</p>
+          <p class="text-[9px] whitespace-nowrap text-green-600">Driver</p>
         </div>
         <div
           class="flex justify-start space-x-1 items-center"
@@ -247,7 +315,9 @@
           "
         >
           <TruckIcon class="w-4 h-4 text-yellow-600" />
-          <p class="text-[9px] text-yellow-600">Driver Missing</p>
+          <p class="text-[9px] whitespace-nowrap text-yellow-600">
+            Driver Missing
+          </p>
         </div>
       </div>
     </div>
@@ -363,27 +433,100 @@
         </div>
       </div>
       <div
+        v-if="data?.product_type != 'App\\Models\\PrivateVanTour'"
         class="flex justify-start items-center px-5 gap-x-2 z-2 bg-white relative"
       >
-        <CheckCircleIcon class="w-4 h-4 text-gray-300" />
+        <div
+          v-if="data?.is_booking_request == 1"
+          class="h-[30px] w-[1px] bg-green-500 absolute top-1 z-1 left-[27px]"
+        ></div>
+        <CurrencyDollarIcon
+          class="w-4 h-4 text-green-600 bg-white z-4 relative"
+          v-if="data?.is_booking_request == 1"
+        />
+        <CurrencyDollarIcon
+          class="w-4 h-4 text-yellow-600 bg-white z-4 relative"
+          v-if="data?.is_booking_request == 0"
+        />
         <div class="grid grid-cols-6 gap-x-4 w-full">
           <p class="text-[10px] text-gray-600 col-span-2">Booking Request</p>
-          <p class="text-[10px] text-gray-600 col-span-2">pending</p>
-          <p class="text-[10px] text-gray-600 flex justify-end">--/--/--</p>
-          <p class="text-[10px] text-gray-600">
+          <p
+            class="text-[10px] col-span-2"
+            :class="{
+              'text-green-600': data?.is_booking_request == 1,
+              'text-red-600': data?.is_booking_request == 0,
+            }"
+          >
+            {{ data?.is_booking_request == 1 ? "email sent" : "not sent" }}
+          </p>
+          <p class="text-[10px] text-gray-600 flex justify-end">
+            {{
+              data?.paid_slip.length > 0
+                ? formatDate(data?.paid_slip[0]?.created_at)
+                : "--/--/--"
+            }}
+          </p>
+          <p
+            class="text-[10px] text-gray-300"
+            v-if="data?.product_type == 'App\\Models\\EntranceTicket'"
+          >
+            <PencilSquareIcon class="w-4 h-4" />
+          </p>
+          <p
+            class="text-[10px] text-gray-300"
+            v-if="data?.product_type != 'App\\Models\\EntranceTicket'"
+          >
             <PencilSquareIcon class="w-4 h-4" />
           </p>
         </div>
       </div>
       <div
+        v-if="data?.product_type != 'App\\Models\\PrivateVanTour'"
         class="flex justify-start items-center px-5 gap-x-2 z-2 bg-white relative"
       >
-        <CheckCircleIcon class="w-4 h-4 text-gray-300" />
+        <div
+          v-if="data?.booking_status == 'receive'"
+          class="h-[30px] w-[1px] bg-green-500 absolute top-1 z-1 left-[27px]"
+        ></div>
+        <CurrencyDollarIcon
+          class="w-4 h-4 text-green-600 bg-white z-4 relative"
+          v-if="data?.booking_status == 'receive'"
+        />
+        <CurrencyDollarIcon
+          class="w-4 h-4 text-yellow-600 bg-white z-4 relative"
+          v-if="
+            data?.booking_status == 'not_receive' ||
+            data?.booking_status == null
+          "
+        />
         <div class="grid grid-cols-6 gap-x-4 w-full">
           <p class="text-[10px] text-gray-600 col-span-2">Invoice Update</p>
-          <p class="text-[10px] text-gray-600 col-span-2">pending</p>
-          <p class="text-[10px] text-gray-600 flex justify-end">--/--/--</p>
-          <p class="text-[10px] text-gray-600">
+          <p
+            class="text-[10px] col-span-2"
+            :class="{
+              'text-green-600': data?.booking_status == 'receive',
+              'text-red-600': data?.booking_status == 'not_receive',
+            }"
+          >
+            {{ data?.booking_status == "receive" ? "receive" : "not receive" }}
+          </p>
+          <p class="text-[10px] text-gray-600 flex justify-end">
+            {{
+              data?.paid_slip.length > 0
+                ? formatDate(data?.paid_slip[0]?.created_at)
+                : "--/--/--"
+            }}
+          </p>
+          <p
+            class="text-[10px] text-gray-300"
+            v-if="data?.product_type == 'App\\Models\\EntranceTicket'"
+          >
+            <PencilSquareIcon class="w-4 h-4" />
+          </p>
+          <p
+            class="text-[10px] text-gray-300"
+            v-if="data?.product_type != 'App\\Models\\EntranceTicket'"
+          >
             <PencilSquareIcon class="w-4 h-4" />
           </p>
         </div>
@@ -426,6 +569,54 @@
           <p
             class="text-[10px] text-gray-600"
             @click="goToExpense"
+            v-if="data?.product_type == 'App\\Models\\EntranceTicket'"
+          >
+            <PencilSquareIcon class="w-4 h-4" />
+          </p>
+          <p
+            class="text-[10px] text-gray-300"
+            v-if="data?.product_type != 'App\\Models\\EntranceTicket'"
+          >
+            <PencilSquareIcon class="w-4 h-4" />
+          </p>
+        </div>
+      </div>
+      <div
+        v-if="data?.product_type != 'App\\Models\\PrivateVanTour'"
+        class="flex justify-start items-center px-5 gap-x-2 z-2 bg-white relative"
+      >
+        <div
+          v-if="data?.is_expense_email_sent == 1"
+          class="h-[30px] w-[1px] bg-green-500 absolute top-1 z-1 left-[27px]"
+        ></div>
+        <CurrencyDollarIcon
+          class="w-4 h-4 text-green-600 bg-white z-4 relative"
+          v-if="data?.is_expense_email_sent == 1"
+        />
+        <CurrencyDollarIcon
+          class="w-4 h-4 text-yellow-600 bg-white z-4 relative"
+          v-if="data?.is_expense_email_sent == 0"
+        />
+        <div class="grid grid-cols-6 gap-x-4 w-full">
+          <p class="text-[10px] text-gray-600 col-span-2">Expense Mail</p>
+          <p
+            class="text-[10px] col-span-2"
+            :class="{
+              'text-green-600': data?.is_expense_email_sent == 1,
+              'text-red-600': data?.is_expense_email_sent == 0,
+            }"
+          >
+            {{ data?.is_expense_email_sent == 1 ? "email sent" : "not sent" }}
+          </p>
+          <p class="text-[10px] text-gray-600 flex justify-end">
+            {{
+              data?.paid_slip.length > 0
+                ? formatDate(data?.paid_slip[0]?.created_at)
+                : "--/--/--"
+            }}
+          </p>
+          <p
+            class="text-[10px] text-gray-300"
             v-if="data?.product_type == 'App\\Models\\EntranceTicket'"
           >
             <PencilSquareIcon class="w-4 h-4" />
@@ -632,11 +823,15 @@ import {
   XCircleIcon,
   PencilSquareIcon,
   TruckIcon,
+  EnvelopeIcon,
 } from "@heroicons/vue/24/solid";
 import { useAuthStore } from "../../stores/auth";
 import {
   PencilIcon,
   ClipboardDocumentCheckIcon,
+  ArrowRightCircleIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from "@heroicons/vue/24/outline";
 import router from "../../router";
 import ExpensePartVue from "./ExpensePart.vue";
@@ -1007,12 +1202,12 @@ onMounted(async () => {
     formData.value.bank_name =
       props.data?.reservation_info?.bank_name ||
       props.data?.bank_name ||
-      props.data?.product.bank_name ||
+      props.data?.product?.bank_name ||
       "";
     formData.value.bank_account_number =
       props.data?.reservation_info?.bank_account_number ||
       props.data?.bank_account_number ||
-      props.data?.product.bank_account_number ||
+      props.data?.product?.bank_account_number ||
       "";
     formData.value.payment_status = props.data?.payment_status;
     formData.value.hotalQuantity =

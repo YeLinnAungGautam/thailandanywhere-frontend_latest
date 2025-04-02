@@ -369,7 +369,10 @@ onMounted(() => {
       (item) => ({
         id: item.id,
         crm_id: item.crm_id,
-        name: item.room?.name || "Unnamed Item",
+        name:
+          item.product_type == "App\\Models\\Hotel"
+            ? item.room?.name
+            : item?.variation?.name || "Unnamed Item",
         selected: true,
       })
     );

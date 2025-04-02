@@ -5,6 +5,7 @@ import PassportInfo from "./PassportInfo.vue";
 import BookingRequest from "./BookingRequest.vue";
 import InvoiceUpdate from "./InvoiceUpdate.vue";
 import Expense from "./Expense.vue";
+import ExpenseBooking from "./ExpenseBooking.vue";
 import Confirmation from "./Confirmation.vue";
 import {
   ChevronDoubleRightIcon,
@@ -43,8 +44,11 @@ const state = ref({
   booking: false,
   invoice: false,
   expense: false,
+  expensemail: false,
   confirmation: false,
 });
+
+const showCommentPropup = ref(false);
 
 const partArray = ref([
   { id: 1, name: "general" },
@@ -52,7 +56,8 @@ const partArray = ref([
   { id: 3, name: "booking" },
   { id: 4, name: "invoice" },
   { id: 5, name: "expense" },
-  { id: 6, name: "confirmation" },
+  { id: 6, name: "expensemail" },
+  { id: 7, name: "confirmation" },
 ]);
 
 const transition = ref("slide-right");
@@ -79,13 +84,24 @@ const score = computed(() => {
   return 0;
 });
 
+const reservation_ids = ref({
+  id: null,
+  name: null,
+});
 const showFailModal = ref(false);
+const selectTicketModal = ref(false);
 const generateConfirmation = () => {
   if (detail.value?.booking?.payment_status != "not_paid") {
-    router.push(`/reservation/confirmations/entrance/${route.query.id}`);
+    selectTicketModal.value = true;
   } else {
     showFailModal.value = true;
   }
+};
+
+const goToPrint = () => {
+  router.push(
+    `/reservation/confirmations/entrance/${reservation_ids.value.id}?variation_name=${reservation_ids.value.name}`
+  );
 };
 
 const goToFill = () => {
@@ -106,6 +122,7 @@ const getComponent = (part) => {
     booking: BookingRequest,
     invoice: InvoiceUpdate,
     expense: Expense,
+    expensemail: ExpenseBooking,
     confirmation: Confirmation,
   };
   return components[part];
@@ -113,7 +130,19 @@ const getComponent = (part) => {
 
 const getDetailAction = async (id, product_id) => {
   getLoading.value = true;
-  const res = await groupbyStore.ReservationHotelDetailAction(id, product_id);
+  reservation_ids.value = [];
+  const productType = route.path.includes("reservation-attraction")
+    ? "App\\Models\\EntranceTicket"
+    : "App\\Models\\Hotel"; // Default to Hotel
+
+  let data = {
+    product_type: productType,
+  };
+  const res = await groupbyStore.ReservationHotelDetailAction(
+    id,
+    product_id,
+    data
+  );
   detail.value = res;
   console.log(detail.value, "this is detail");
 
@@ -200,9 +229,17 @@ const goToGenerate = () => {
 
 const copyReservation = async (id) => {
   try {
+    const productType = route.path.includes("reservation-attraction")
+      ? "App\\Models\\EntranceTicket"
+      : "App\\Models\\Hotel"; // Default to Hotel
+
+    let data = {
+      product_type: productType,
+    };
     const res = await groupbyStore.ReservationHotelDetailCopyAction(
       id,
-      route.query.product_id
+      route.query.product_id,
+      data
     );
     console.log(res, "this is cpy reservation");
 
@@ -301,11 +338,21 @@ const copyReservation = async (id) => {
       allFormattedOutput += `#️⃣ Reservation Code: ${item.reservation_code}: (${item.sale_price})\n`;
     });
 
-    allFormattedOutput += `🏨 ${res.items[0].product_name}\n`;
+    if (res.product_type == "App\\Models\\Hotel") {
+      allFormattedOutput += `🏨 ${res.items[0].product_name}\n`;
+    } else {
+      allFormattedOutput += `🎟️ ${res.items[0].product_name}\n`;
+    }
 
-    res.items.forEach((a, index) => {
-      allFormattedOutput += `🏩 Room Name: ${a.room_name}\n`;
-    });
+    if (res.product_type == "App\\Models\\Hotel") {
+      res.items.forEach((a, index) => {
+        allFormattedOutput += `🏩 Room Name: ${a.room_name}\n`;
+      });
+    } else {
+      res.items.forEach((a, index) => {
+        allFormattedOutput += `🎫 Ticket Name: ${a.entrance_ticket_variation_name}\n`;
+      });
+    }
 
     // Add check-in dates with individual urgency indicators
     res.items.forEach((item, index) => {
@@ -353,6 +400,7 @@ watch(
       state.value.booking = false;
       state.value.invoice = false;
       state.value.expense = false;
+      state.value.expensemail = false;
       state.value.confirmation = false;
 
       // Loop through all booking items
@@ -379,6 +427,10 @@ watch(
           // Check expense condition
           if (item.payment_status == "fully_paid") {
             state.value.expense = true;
+          }
+
+          if (item.is_expense_email_sent == 1) {
+            state.value.expensemail = true;
           }
 
           // Check confirmation condition
@@ -523,7 +575,8 @@ const hide = ref(false);
           <p
             class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
             @click="
-              detail?.product_type == 'App\\Models\\EntranceTicket'
+              detail?.booking?.items[0]?.product_type ==
+              'App\\Models\\EntranceTicket'
                 ? generateConfirmation()
                 : printHotelConfirm()
             "
@@ -554,7 +607,12 @@ const hide = ref(false);
               <p
                 class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-green-600"
               >
-                Hotel: {{ detail?.booking?.items[0]?.product?.name }}
+                {{
+                  detail?.booking?.items[0]?.product_type ==
+                  "App\\Models\\Hotel"
+                    ? "Hotel"
+                    : "Ticket"
+                }}: {{ detail?.booking?.items[0]?.product?.name }}
               </p>
               <p
                 class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-black"
@@ -568,7 +626,13 @@ const hide = ref(false);
             <p class="text-lg text-red-500 font-medium pb-2 text-end">
               {{ score }}
             </p>
-            <div class="flex justify-start items-center gap-x-2">
+            <div class="flex justify-end items-center gap-x-2">
+              <p
+                @click="showCommentPropup = true"
+                class="text-[10px] cursor-pointer px-3 py-0.5 flex justify-center gap-x-1.5 items-center text-white rounded-lg bg-[#FF613c]"
+              >
+                <img :src="productIcon" alt="" class="w-3 h-3" />Note
+              </p>
               <p
                 class="text-[10px] cursor-pointer px-2 py-0.5 flex justify-center gap-x-1.5 items-center text-white rounded-lg bg-[#FF613c]"
               >
@@ -589,10 +653,13 @@ const hide = ref(false);
           <div class="flex justify-between items-start gap-x-4 pt-3">
             <div>
               <img
-                v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
+                v-if="
+                  detail?.booking?.items[0]?.product_type ==
+                  'App\\Models\\EntranceTicket'
+                "
                 :src="
-                  detail?.product?.cover_image
-                    ? detail?.product?.cover_image
+                  detail?.booking?.items[0]?.product?.cover_image
+                    ? detail?.booking?.items[0]?.product?.cover_image
                     : 'https://placehold.co/400'
                 "
                 class="min-w-[120px] max-w-[120px] shadow object-cover rounded-lg h-[130px]"
@@ -631,14 +698,31 @@ const hide = ref(false);
                       Item Name
                     </th>
                     <th
+                      v-if="
+                        detail?.booking?.items[0]?.product_type ==
+                        'App\\Models\\Hotel'
+                      "
                       class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                     >
                       Check-in
                     </th>
                     <th
+                      v-if="
+                        detail?.booking?.items[0]?.product_type ==
+                        'App\\Models\\Hotel'
+                      "
                       class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                     >
                       Check-out
+                    </th>
+                    <th
+                      v-if="
+                        detail?.booking?.items[0]?.product_type ==
+                        'App\\Models\\EntranceTicket'
+                      "
+                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                    >
+                      Service Date
                     </th>
                     <th
                       class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
@@ -649,6 +733,15 @@ const hide = ref(false);
                       class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                     >
                       Price
+                    </th>
+                    <th
+                      v-if="
+                        detail?.booking?.items[0]?.product_type ==
+                        'App\\Models\\EntranceTicket'
+                      "
+                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                    >
+                      Child Price
                     </th>
 
                     <th
@@ -680,35 +773,68 @@ const hide = ref(false);
                       {{ item.crm_id }}
                     </td>
                     <td
+                      v-if="item?.product_type == 'App\\Models\\Hotel'"
                       class="py-1 px-4 text-[10px] w-[300px] font-normal text-left"
                     >
                       {{ item?.room?.name }}
                     </td>
                     <td
+                      v-if="item?.product_type == 'App\\Models\\EntranceTicket'"
+                      class="py-1 px-4 text-[10px] w-[300px] font-normal text-left"
+                    >
+                      {{ item?.variation?.name }}
+                    </td>
+                    <td
+                      v-if="item?.product_type == 'App\\Models\\Hotel'"
                       class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                     >
                       {{ item.checkin_date }}
                     </td>
                     <td
+                      v-if="item?.product_type == 'App\\Models\\Hotel'"
                       class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                     >
                       {{ item.checkout_date }}
                     </td>
                     <td
+                      v-if="item?.product_type == 'App\\Models\\EntranceTicket'"
                       class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                     >
-                      {{ item.quantity }} x
+                      {{ item?.service_date }}
+                    </td>
+                    <td
+                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                    >
+                      {{ item.quantity }}
                       {{
-                        calculateDaysBetween(
-                          item.checkin_date,
-                          item.checkout_date
-                        )
+                        item?.product_type != "App\\Models\\EntranceTicket"
+                          ? `x ${calculateDaysBetween(
+                              item.checkin_date,
+                              item.checkout_date
+                            )}`
+                          : `, ${
+                              item.individual_pricing != "null" &&
+                              item.individual_pricing?.child
+                                ? item.individual_pricing?.child?.quantity
+                                : 0
+                            }`
                       }}
                     </td>
                     <td
                       class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                     >
                       {{ item.selling_price }}
+                    </td>
+                    <td
+                      v-if="item?.product_type == 'App\\Models\\EntranceTicket'"
+                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                    >
+                      {{
+                        item.individual_pricing != "null" &&
+                        item.individual_pricing?.child
+                          ? item.individual_pricing.child.selling_price
+                          : 0
+                      }}
                     </td>
 
                     <td
@@ -866,7 +992,36 @@ const hide = ref(false);
           <div
             v-if="authStore.isReservation || authStore.isSuperAdmin"
             class="w-30 h-[2px] rounded-full relative z-10"
-            :class="state.invoice ? 'bg-[#04BA00]' : 'bg-gray-200'"
+            :class="state.expensemail ? 'bg-[#04BA00]' : 'bg-gray-200'"
+          ></div>
+          <div
+            v-if="
+              !state.expensemail &&
+              (authStore.isReservation || authStore.isSuperAdmin)
+            "
+            @click="part = 'expensemail'"
+            class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
+            :class="
+              part == 'expensemail' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+            "
+          >
+            6
+          </div>
+          <div
+            v-if="
+              state.expensemail &&
+              (authStore.isReservation || authStore.isSuperAdmin)
+            "
+            @click="part = 'expensemail'"
+            class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+            :class="part == 'expensemail' ? 'bg-white text-white' : ''"
+          >
+            <img :src="checkImage" alt="" />
+          </div>
+          <div
+            v-if="authStore.isReservation || authStore.isSuperAdmin"
+            class="w-30 h-[2px] rounded-full relative z-10"
+            :class="state.expensemail ? 'bg-[#04BA00]' : 'bg-gray-200'"
           ></div>
           <div
             v-if="!state.confirmation"
@@ -876,7 +1031,7 @@ const hide = ref(false);
               part == 'confirmation' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
             "
           >
-            6
+            7
           </div>
           <div
             v-if="state.confirmation"
@@ -949,6 +1104,21 @@ const hide = ref(false);
           >
             Expense<span
               v-if="part == 'expense'"
+              class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
+            ></span>
+          </div>
+          <div
+            v-if="authStore.isReservation || authStore.isSuperAdmin"
+            class="text-xs cursor-pointer flex justify-center items-center"
+            @click="part = 'expensemail'"
+            :class="[
+              state.expensemail && part == 'expensemail'
+                ? 'text-[#04BA00]'
+                : '',
+            ]"
+          >
+            E. mail<span
+              v-if="part == 'expensemail'"
               class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
             ></span>
           </div>
@@ -1074,6 +1244,113 @@ const hide = ref(false);
             >
               Cancel
             </p>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+    <Modal :isOpen="selectTicketModal">
+      <DialogPanel
+        class="w-full max-w-lg transform overflow-hidden rounded-lg mt-10 bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start pb-20 pt-4 px-4"
+        >
+          <p></p>
+        </DialogTitle>
+        <!-- show date  -->
+        <div class="relative">
+          <div class="absolute -top-8 left-[43%]">
+            <img
+              :src="logo"
+              class="w-16 h-16 bg-white rounded-full p-3"
+              alt=""
+            />
+          </div>
+          <div class="py-10 text-center space-y-4">
+            <p class="font-medium text-lg text-[#FF613c]">Select Ticket Type</p>
+            <p class="text-xs">
+              မည်သည့် ticket အတွက် confirmation ထုတ်မည်ကို အတည်ပြုပေးပါ။,
+            </p>
+            <div class="space-y-2">
+              <div
+                v-for="item in detail?.booking?.items"
+                class="flex justify-center items-center"
+                :key="item"
+              >
+                <input
+                  type="radio"
+                  class="w-5 h-5 text-white border border-[#FF613c] rounded-full"
+                />
+                <label
+                  :for="item.id"
+                  class="ml-2 text-sm font-medium text-[#FF613c]"
+                >
+                  {{ item.variation?.name }}
+                </label>
+              </div>
+            </div>
+            <p
+              @click="goToGenerate"
+              class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
+            >
+              Go To Generate
+            </p>
+            <p
+              @click="selectTicketModal = false"
+              class="cursor-pointer inline-block text-[#FF613c] border border-[#FF613c] text-[10px] bg-white px-2 py-1 rounded-lg"
+            >
+              Cancel
+            </p>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+    <Modal :isOpen="showCommentPropup" @closeModal="showCommentPropup = false">
+      <DialogPanel
+        class="w-full max-w-3xl transform overflow-hidden rounded-lg mt-10 bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start pb-20 pt-4 px-4"
+        >
+          <p></p>
+        </DialogTitle>
+        <!-- show date  -->
+        <div class="relative">
+          <div class="absolute -top-8 left-[45%]">
+            <img
+              :src="logo"
+              class="w-16 h-16 bg-white rounded-full p-3"
+              alt=""
+            />
+          </div>
+          <div class="py-10 text-center space-y-4">
+            <p class="font-medium text-lg text-[#FF613c]">Reservation Note</p>
+            <div class="grid grid-cols-3 gap-4 px-4">
+              <div v-for="i in 3" :key="i">
+                <p class="text-xs font-medium pb-2">
+                  For CRM ID: SA-0023_00{{ i }}
+                </p>
+                <textarea
+                  name=""
+                  class="w-full min-h-[100px] border border-[#FF613c] rounded-lg px-4 py-2 focus:outline-none"
+                  id=""
+                ></textarea>
+                <p
+                  @click="showCommentPropup = false"
+                  class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
+                >
+                  Save Note
+                </p>
+                <p
+                  @click="showCommentPropup = false"
+                  class="cursor-pointer inline-block text-[#FF613c] border border-[#FF613c] text-[10px] bg-white px-2 py-1 rounded-lg"
+                >
+                  Cancel
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </DialogPanel>

@@ -28,20 +28,24 @@ export const useGroupByStore = defineStore("groupby", {
         this.loading = false;
       }
     },
-    async ReservationHotelDetailAction(id, product_id) {
+    async ReservationHotelDetailAction(id, product_id, params) {
       try {
         const response = await axios.get(
-          "/reservations-hotel/" + id + "/" + product_id
+          "/reservations-hotel/" + id + "/" + product_id,
+          {
+            params: params,
+          }
         );
         return response.data.result;
       } catch (error) {
         throw error;
       }
     },
-    async ReservationHotelDetailCopyAction(id, product_id) {
+    async ReservationHotelDetailCopyAction(id, product_id, params) {
       try {
         const response = await axios.get(
-          "/reservations-hotel/" + id + "/copy/" + product_id
+          "/reservations-hotel/" + id + "/copy/" + product_id,
+          { params: params }
         );
         return response.data.result;
       } catch (error) {

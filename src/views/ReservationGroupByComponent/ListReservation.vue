@@ -32,10 +32,7 @@
       <div class="pl-5 pt-2 gap-y-4 gap-x-3">
         <div class="flex justify-between items-center">
           <div>
-            <p
-              class="text-[10px] space-x-1"
-              v-if="i?.items[0]?.product_type == 'App\\Models\\Hotel'"
-            >
+            <p class="text-[10px] space-x-1">
               <span class="font-medium"
                 >Book: {{ i?.items[0]?.service_date }} / Due:
                 {{ data?.bookings[0]?.balance_due_date }}</span
@@ -117,7 +114,12 @@
               class="bg-gray-900 w-1 h-1 mb-0.5 rounded-full inline-block"
             ></span
             ><span class="whitespace-nowrap"
-              >{{ i?.items.length }} items in hotel.</span
+              >{{ i?.items.length }} items in
+              {{
+                i?.items[0]?.product_type == "App\\Models\\Hotel"
+                  ? "hotels"
+                  : "attractions"
+              }}.</span
             >
           </div>
         </div>
@@ -208,6 +210,12 @@
                     class="whitespace-nowrap font-medium text-[10px]"
                   >
                     {{ item.room?.name }}
+                  </p>
+                  <p
+                    v-if="item.product_type == 'App\\Models\\EntranceTicket'"
+                    class="whitespace-nowrap font-medium text-[10px]"
+                  >
+                    {{ item.variation?.name }}
                   </p>
                   <p class="whitespace-nowrap text-[#FF613c] text-[10px]">
                     ({{ item.product?.name }})

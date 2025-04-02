@@ -9,8 +9,8 @@
         +
       </p> -->
       <div class="w-full pt-2.5 items-center col-span-2">
-        <div class="flex justify-between items-center space-x-2 pb-2">
-          <div class="flex justify-start items-center">
+        <div class="flex justify-end items-center space-x-2 pb-2">
+          <!-- <div class="flex justify-start items-center">
             <p
               @click="emailBooking = !emailBooking"
               :class="!emailBooking ? '' : 'bg-[#FF613c] text-white'"
@@ -25,7 +25,7 @@
             >
               Expense Update
             </p>
-          </div>
+          </div> -->
           <p
             v-if="!emailBooking"
             @click="expenseUpdateAction"
@@ -94,37 +94,69 @@
         <thead class="bg-[#FF613c] text-white border-b-2 border-gray-200">
           <tr>
             <th
-              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
-              CRM ID
+              Code
             </th>
             <th
-              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
-              Qty
+              Name
             </th>
             <th
-              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+              v-if="
+                detail?.booking?.items[0]?.product_type ==
+                'App\\Models\\EntranceTicket'
+              "
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              Service Date
+            </th>
+            <th
+              v-if="
+                detail?.booking?.items[0]?.product_type == 'App\\Models\\Hotel'
+              "
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
               Check-in
             </th>
             <th
-              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+              v-if="
+                detail?.booking?.items[0]?.product_type == 'App\\Models\\Hotel'
+              "
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
               Check-out
             </th>
+
             <th
-              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-            >
-              Days
-            </th>
-            <th
-              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+              v-if="
+                detail?.booking?.items[0]?.product_type == 'App\\Models\\Hotel'
+              "
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
               Unit Cost *
             </th>
             <th
-              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+              v-if="
+                detail?.booking?.items[0]?.product_type ==
+                'App\\Models\\EntranceTicket'
+              "
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              Adult Unit Cost *
+            </th>
+            <th
+              v-if="
+                detail?.booking?.items[0]?.product_type ==
+                'App\\Models\\EntranceTicket'
+              "
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              Child Unit Cost *
+            </th>
+            <th
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-end"
             >
               Total Cost
             </th>
@@ -137,25 +169,61 @@
             class="bg-white even:bg-gray-50 hover:bg-gray-50"
           >
             <td
-              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
-              {{ formData.multiple_crm_id[index] }}
-            </td>
-            <td class="py-1 px-4 text-[10px] font-normal text-left">
-              {{ formData.multiple_quantity[index] }}
+              {{ formData.multiple_crm_id[index].split("_")[1] }}
             </td>
             <td
-              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+              v-if="
+                detail?.booking?.items[index]?.product_type ==
+                'App\\Models\\EntranceTicket'
+              "
+              class="py-2 px-4 text-[10px] font-normal max-w-[120px] text-left"
+            >
+              {{ detail?.booking?.items[index]?.variation?.name }}
+            </td>
+            <td
+              v-if="
+                detail?.booking?.items[index]?.product_type ==
+                'App\\Models\\Hotel'
+              "
+              class="py-2 px-4 text-[10px] font-normal min-w-[120px] text-left"
+            >
+              {{ detail?.booking?.items[index]?.room?.name }}
+            </td>
+            <td
+              class="py-2 px-4 text-[10px] font-normal text-left"
+              v-if="
+                detail?.booking?.items[index]?.product_type ==
+                'App\\Models\\EntranceTicket'
+              "
+            >
+              {{ detail?.booking?.items[index]?.service_date }}
+            </td>
+            <td
+              v-if="
+                detail?.booking?.items[index]?.product_type ==
+                'App\\Models\\Hotel'
+              "
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
               {{ detail?.booking?.items[index]?.checkin_date }}
             </td>
             <td
-              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+              v-if="
+                detail?.booking?.items[index]?.product_type ==
+                'App\\Models\\Hotel'
+              "
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
               {{ detail?.booking?.items[index]?.checkout_date }}
             </td>
-            <td
-              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            <!-- <td
+              v-if="
+                detail?.booking?.items[index]?.product_type ==
+                'App\\Models\\Hotel'
+              "
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
               {{
                 daysBetween(
@@ -163,21 +231,60 @@
                   detail?.booking?.items[index]?.checkout_date
                 )
               }}
-            </td>
+            </td> -->
             <td
-              class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
+              {{
+                detail?.booking?.items[index]?.product_type ==
+                "App\\Models\\Hotel"
+                  ? ` ${daysBetween(
+                      detail?.booking?.items[index]?.checkin_date,
+                      detail?.booking?.items[index]?.checkout_date
+                    )}N, ${detail?.booking?.items[index]?.quantity} Rooms`
+                  : `${detail?.booking?.items[index]?.quantity} x `
+              }}
               <input
                 v-model="formData.multiple_cost_price[index]"
                 type="number"
                 id="title"
-                class="h-8 col-span-1 rounded-lg bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                class="h-8 ml-2 col-span-1 rounded-lg bg-white border border-gray-300 px-2 w-[80px] py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
               />
             </td>
             <td
-              class="py-1 px-4 text-[12px] whitespace-nowrap font-normal text-left"
+              v-if="
+                detail?.booking?.items[index]?.product_type ==
+                'App\\Models\\EntranceTicket'
+              "
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
-              {{ detail?.booking?.items[index]?.total_cost_price }}
+              {{ formData.multiple_individual[index]?.child?.quantity }} x
+              <input
+                v-if="formData.multiple_individual[index]?.child?.cost_price"
+                v-model="formData.multiple_individual[index].child.cost_price"
+                type="number"
+                id="title"
+                class="h-8 ml-2 col-span-1 rounded-lg bg-white border border-gray-300 px-2 w-[80px] py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+              />
+            </td>
+            <td
+              class="py-2 px-4 text-[12px] whitespace-nowrap font-normal text-end"
+            >
+              {{ detail?.booking?.items[index]?.total_cost_price }} thb
+            </td>
+          </tr>
+          <tr class="bg-[#FF613c]/40">
+            <td
+              colspan="5"
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              Total Cost
+            </td>
+            <td
+              colspan="1"
+              class="py-2 px-4 text-[14px] whitespace-nowrap font-normal text-end"
+            >
+              {{ total_cost_calculate }} thb
             </td>
           </tr>
         </tbody>
@@ -320,9 +427,9 @@
         </div>
       </div>
     </div>
-    <div v-if="emailBooking">
+    <!-- <div v-if="emailBooking">
       <ExpenseBooking :detail="detail" />
-    </div>
+    </div> -->
     <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
       <DialogPanel
         class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
@@ -517,7 +624,7 @@ import { useReservationStore } from "../../stores/reservation";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute } from "vue-router";
-import ExpenseBooking from "./ExpenseBooking.vue";
+// import ExpenseBooking from "./ExpenseBooking.vue";
 
 const toast = useToast();
 const reservationStore = useReservationStore();
@@ -536,6 +643,7 @@ const formData = ref({
   multiple_id_reservation: [],
   multiple_crm_id: [],
   multiple_cost_price: [],
+  multiple_individual: [],
   payment_method: "",
   bank_name: "",
   bank_account_number: "",
@@ -546,6 +654,14 @@ const formData = ref({
   booking_receipt_image: [],
   product_type: "",
   customer_feedback: "",
+});
+
+const total_cost_calculate = computed(() => {
+  let result = 0;
+  for (let i = 0; i < props?.detail?.booking?.items.length; i++) {
+    result += props?.detail?.booking?.items[i]?.total_cost_price;
+  }
+  return result;
 });
 
 const editData = ref({
@@ -776,22 +892,43 @@ const expenseUpdateAction = async () => {
           formData.value.multiple_quantity &&
           formData.value.multiple_quantity[i]
             ? formData.value.multiple_quantity[i]
-            : formData.value.quantity;
+            : 0;
 
-        const hotelQuantity =
+        const hotalQuantity =
           formData.value.hotalQuantity && formData.value.hotalQuantity[i]
             ? formData.value.hotalQuantity[i]
-            : formData.value.hotalQuantity;
+            : 0;
 
-        const childPrice =
-          formData.value.child_price && formData.value.child_price[i]
-            ? formData.value.child_price[i]
-            : formData.value.child_price || 0;
-
-        const childQuantity =
-          formData.value.child_quantity && formData.value.child_quantity[i]
-            ? formData.value.child_quantity[i]
-            : formData.value.child_quantity || 0;
+        if (
+          props.detail?.booking?.items[0]?.product_type ==
+            "App\\Models\\EntranceTicket" &&
+          formData.value.multiple_individual[i] != "null"
+        ) {
+          frmData.append(
+            "individual_pricing[child][quantity]",
+            formData.value.multiple_individual[i]?.child?.quantity ?? 0
+          );
+          frmData.append(
+            "individual_pricing[child][selling_price]",
+            formData.value.multiple_individual[i]?.child?.selling_price ?? 0
+          );
+          frmData.append(
+            "individual_pricing[child][cost_price]",
+            formData.value.multiple_individual[i]?.child?.cost_price ?? 0
+          );
+          frmData.append(
+            "individual_pricing[child][total_cost_price]",
+            formData.value.multiple_individual[i]?.child?.cost_price ??
+              0 * formData.value.multiple_individual[i]?.child?.quantity
+          );
+          frmData.append(
+            "individual_pricing[child][amount]",
+            formData.value.multiple_individual[i]?.child?.selling_price
+              ? formData.value.multiple_individual[i]?.child?.selling_price *
+                  formData.value.multiple_individual[i]?.child?.quantity
+              : 0
+          );
+        }
 
         // Append data to form
         if (costPrice) frmData.append("cost_price", costPrice);
@@ -803,12 +940,30 @@ const expenseUpdateAction = async () => {
 
         // Calculate and append total cost price
         if (costPrice) {
-          if (!hotelQuantity) {
-            const totalCostPrice =
-              costPrice * quantity + childPrice * childQuantity;
+          if (hotalQuantity == 0) {
+            // This is for tickets (non-hotel products)
+            let childCostTotal = 0;
+
+            // Only calculate child costs if the data exists
+            if (
+              formData.value.multiple_individual &&
+              formData.value.multiple_individual[i] &&
+              formData.value.multiple_individual[i].child
+            ) {
+              const childCost =
+                formData.value.multiple_individual[i].child.cost_price * 1 || 0;
+              const childQty =
+                formData.value.multiple_individual[i].child.quantity * 1 || 0;
+
+              childCostTotal = childCost * childQty;
+            }
+
+            // Calculate total cost as adult cost + child cost
+            const totalCostPrice = costPrice * quantity + childCostTotal;
             frmData.append("total_cost_price", totalCostPrice);
           } else {
-            const totalCostPrice = costPrice * hotelQuantity;
+            // This is for hotels
+            const totalCostPrice = costPrice * hotalQuantity;
             frmData.append("total_cost_price", totalCostPrice);
           }
         }
@@ -1012,6 +1167,7 @@ const populateFormData = () => {
     formData.value.multiple_id_reservation = [];
     formData.value.multiple_crm_id = [];
     formData.value.multiple_cost_price = [];
+    formData.value.multiple_individual = [];
     formData.value.hotalQuantity = [];
     formData.value.multiple_quantity = [];
     formData.value.child_quantity = [];
@@ -1045,6 +1201,7 @@ const populateFormData = () => {
       formData.value.multiple_id_reservation.push(item.id); // Or any other reservation ID if needed
       formData.value.multiple_crm_id.push(item.crm_id);
       formData.value.multiple_cost_price.push(item.cost_price);
+      formData.value.multiple_individual.push(item.individual_pricing);
       editData.value.reservation_ids.push({
         id: item.id,
         crm_id: item.crm_id,
@@ -1067,8 +1224,10 @@ const populateFormData = () => {
       });
 
       // Calculate hotel quantity (nights × room quantity)
-      const nights = daysBetween(item.checkin_date, item.checkout_date);
-      formData.value.hotalQuantity.push(item.quantity * nights);
+      if (item.product_type == "App\\Models\\Hotel") {
+        const nights = daysBetween(item.checkin_date, item.checkout_date);
+        formData.value.hotalQuantity.push(item.quantity * nights);
+      }
       formData.value.multiple_quantity.push(item.quantity);
     });
 

@@ -48,6 +48,35 @@
       </div>
       <div
         v-if="backgroundCustom != 'bg-yellow-600'"
+        class="p-3 hover:bg-[#ff613c] hover:rounded-b-lg hover:text-white"
+        :class="
+          filterType == 'passport missing'
+            ? 'bg-[#ff613c] rounded-b-lg text-white'
+            : ''
+        "
+        @click="filterTypeChange('passport missing')"
+      >
+        <div class=" ">
+          <div class="text-xs font-medium flex justify-between items-center">
+            <p>Passport Missing</p>
+            <p
+              class="text-xs w-2 h-2 mr-2 inline-block rounded-lg"
+              :class="backgroundCustom"
+            ></p>
+          </div>
+        </div>
+        <p
+          class="font-semibold text-2xl pt-2"
+          :class="loading ? 'animate-bounce' : ''"
+        >
+          {{ loading ? "..." : passport_missing_count }}
+          <span class="text-lg"
+            >/ {{ loading ? "..." : reservationTotal }}</span
+          >
+        </p>
+      </div>
+      <div
+        v-if="backgroundCustom != 'bg-yellow-600'"
         class="p-3 hover:bg-[#ff613c] hover:text-white"
         :class="
           filterType == 'expense not paid' ? 'bg-[#ff613c]  text-white' : ''
@@ -102,19 +131,20 @@
           >
         </p>
       </div>
+
       <div
         v-if="backgroundCustom != 'bg-yellow-600'"
         class="p-3 hover:bg-[#ff613c] hover:rounded-b-lg hover:text-white"
         :class="
-          filterType == 'passport missing'
+          filterType == 'booking requests'
             ? 'bg-[#ff613c] rounded-b-lg text-white'
             : ''
         "
-        @click="filterTypeChange('passport missing')"
+        @click="filterTypeChange('booking requests')"
       >
         <div class=" ">
           <div class="text-xs font-medium flex justify-between items-center">
-            <p>Passport Missing</p>
+            <p>Booking Requests</p>
             <p
               class="text-xs w-2 h-2 mr-2 inline-block rounded-lg"
               :class="backgroundCustom"
@@ -125,7 +155,36 @@
           class="font-semibold text-2xl pt-2"
           :class="loading ? 'animate-bounce' : ''"
         >
-          {{ loading ? "..." : passport_missing_count }}
+          {{ loading ? "..." : booking_request_count }}
+          <span class="text-lg"
+            >/ {{ loading ? "..." : reservationTotal }}</span
+          >
+        </p>
+      </div>
+      <div
+        v-if="backgroundCustom != 'bg-yellow-600'"
+        class="p-3 hover:bg-[#ff613c] hover:rounded-b-lg hover:text-white"
+        :class="
+          filterType == 'expense mails'
+            ? 'bg-[#ff613c] rounded-b-lg text-white'
+            : ''
+        "
+        @click="filterTypeChange('expense mails')"
+      >
+        <div class=" ">
+          <div class="text-xs font-medium flex justify-between items-center">
+            <p>Expense mails</p>
+            <p
+              class="text-xs w-2 h-2 mr-2 inline-block rounded-lg"
+              :class="backgroundCustom"
+            ></p>
+          </div>
+        </div>
+        <p
+          class="font-semibold text-2xl pt-2"
+          :class="loading ? 'animate-bounce' : ''"
+        >
+          {{ loading ? "..." : expense_mail_count }}
           <span class="text-lg"
             >/ {{ loading ? "..." : reservationTotal }}</span
           >
@@ -226,6 +285,14 @@ const props = defineProps({
     required: true,
   },
   passport_missing_count: {
+    type: Number,
+    required: true,
+  },
+  booking_request_count: {
+    type: Number,
+    required: true,
+  },
+  expense_mail_count: {
     type: Number,
     required: true,
   },

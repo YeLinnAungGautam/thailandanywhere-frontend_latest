@@ -1,7 +1,36 @@
 <template>
   <div>
-    <div class="flex justify-start items-center gap-x-2">
-      <!-- <p class="font-medium pb-2">Booking Request</p> -->
+    <div class="pb-4 border-b border-[#FF613c]">
+      <p class="pb-2 text-xs">Booking Request</p>
+      <div class="flex justify-between items-center gap-x-2">
+        <select
+          name=""
+          id=""
+          v-model="is_booking_request"
+          class="w-full border border-gray-200 px-4 py-2 text-xs rounded-lg"
+        >
+          <option :value="true">Email Sent</option>
+          <option :value="false">Not Sent</option>
+        </select>
+        <button
+          class="text-xs px-3 py-1.5 border rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
+          @click="updateAction"
+        >
+          Update
+        </button>
+      </div>
+      <div class="grid grid-cols-4 gap-2">
+        <div class="pt-2 space-y-2">
+          <label for="mail_to" class="pb-2 text-xs">Proof of Booking</label>
+          <div
+            class="w-full h-[100px] border border-dashed border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg"
+          >
+            +
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="flex justify-start items-center gap-x-2">
       <CheckCircleIcon
         class="w-4 h-4"
         :class="
@@ -16,7 +45,7 @@
       >
         Is Booking Request Sent ?
       </p>
-    </div>
+    </div> -->
     <div>
       <div class="grid grid-cols-1 gap-4 py-4 overflow-hidden rounded-xl">
         <div class="text-center" v-if="emailLoading">
@@ -75,7 +104,7 @@
                 ref="textEditor"
                 :options="editorOptions"
                 theme="snow"
-                class="!bg-white/50 !border-1 !border-gray-200 !rounded-bl-md !rounded-br-md !text-xs !text-gray-900 !h-[200px]"
+                class="!bg-white/50 !border-1 !border-gray-200 !rounded-bl-md !rounded-br-md !text-xs !text-gray-900 !h-[300px]"
                 toolbar="essential"
                 contentType="html"
                 v-model:content="emailData.mail_body"
@@ -269,6 +298,28 @@ const openFileFeaturePicker = () => {
   featureImageInput.value.click();
 };
 
+const is_booking_request = ref(false);
+const reservation_ids = ref([]);
+
+const updateAction = async () => {
+  const frmData = new FormData();
+  frmData.append("is_booking_request", is_booking_request.value ? 1 : 0);
+
+  frmData.append("_method", "PUT");
+
+  for (let a = 0; a < reservation_ids.value.length; a++) {
+    const res = await reservationStore.updateAction(
+      frmData,
+      reservation_ids.value[a]
+    );
+    toast.success(res.message);
+  }
+
+  setTimeout(async () => {
+    await props.getDetailAction(route.query.id, route.query.product_id);
+  }, 1000);
+};
+
 const emailData = ref({
   mail_to_array: [],
   mail_subject: "",
@@ -391,45 +442,111 @@ const editorOptions = {
 const mailBodyChange = () => {
   console.log(props.detail.customer_passports, "customer_passports");
 
+  // Determine if this is a hotel or ticket (entrance ticket)
+  const isTicket =
+    props?.detail?.booking?.items[0]?.product_type ===
+    "App\\Models\\EntranceTicket";
+
   emailData.value.mail_subject = `Booking for ${showFormat(
     props?.detail?.booking?.items[0].service_date
   )}: ${props?.detail?.booking.crm_id}`;
 
+  is_booking_request.value =
+    props?.detail?.booking?.items[0].is_booking_request == 1 ? true : false;
+
+  reservation_ids.value = [];
+  for (let i = 0; i < props?.detail?.booking?.items.length; i++) {
+    reservation_ids.value.push(props?.detail?.booking?.items[i].id);
+  }
+
+  console.log("====================================");
+  console.log(reservation_ids.value);
+  console.log("====================================");
+
   let detail = props?.detail?.booking;
 
-  emailData.value.mail_body = `
-  <p class="p1">Dear ${detail.items[0].product?.name},</p>
-  <p><strong>Greetings from ThAnywhere Co., Ltd.</strong></p>
-  <p>We would like to book the accommodation as per the following description. Please note the booking is already checked and confirmed by phone.</p>
-  <p>
+  // Create a different template based on product type
+  if (isTicket) {
+    // Template for Entrance Tickets
+    emailData.value.mail_body = `
+    <p class="p1">Dear ${detail.items[0].product?.name},</p>
+    <p><strong>Greetings from ThAnywhere Co., Ltd.</strong></p>
+    <p>We would like to book the accommodation as per the following description. Please note the booking is already checked and confirmed by phone.</p>
+    <p>
     ${detail?.items
       .map(
         (item) => `
-<p><strong>Room Type:</strong> ${item.room?.name}</p>
-<p><strong>Check In Date:</strong> ${item.checkin_date}</p>
-<p><strong>Check Out Date:</strong> ${item.checkout_date}</p>
-<p><strong>Total Pax:</strong> ${item.customer_passports.length}</p>
-<p><strong>Name:</strong></p><p>   
-        ${item.customer_passports
-          .map((passport) => `<p>${passport.name}</p>`)
-          .join("")}</p> 
-<p><strong>Special request:</strong> ${item.special_request}</p>`
+        <p><strong>Ticket Type:</strong> ${item.variation?.name}</p>
+        <p><strong>Service Date:</strong> ${item.service}</p>
+        <p><strong>Ticket Qty:</strong> ${item.quantity} Adult, ${
+          item.individual_pricing?.child?.quantity
+            ? item.individual_pricing?.child?.quantity
+            : 0
+        } Child</p>
+        <p><strong>Special request:</strong> ${item.special_request}</p>`
       )
       .join(
         "------------------------------------------------------------------------------------------------"
-      )}   
+      )}
   </p>
   <p><strong>Booking Code:</strong> ${detail?.crm_id}</p>
+  <p><strong>Guest Name:</strong></p>
+  <p>
+          ${detail.items[0].customer_passports
+            .map((passport) => `<p>${passport.name}</p>`)
+            .join("")}
+  </p>
   <p>Passports for the bookings are attached in the email. Please arrange for the customer accordingly.</p>
   <p>Payment transaction will be done soon. Once the payment is received, Please kindly issue receipt with tax ID and send to us by post or mail.</p>
   <p><strong>Tax ID:</strong> 0105565081822<br>
-  <strong>TH ANYWHERE CO.LTD.</strong><br>
-  <strong>Invoice Date:</strong> ${format(new Date(), "dd/MM/yyyy")}</p>
+<strong>TH ANYWHERE CO.LTD.</strong><br>
+<strong>Invoice Date:</strong> ${format(new Date(), "dd/MM/yyyy")}</p>
   <p>If you may have any questions or concerns, please feel free to call us at <strong>0950423254</strong> LINE ID <strong>0983498197</strong>.</p>
   <p>Thank you,</p>
   <p><strong>Negyi @ Sunshine</strong> (Reservation Manager)</p>
   <p>143/51, Thepprasit Rd, Pattaya City, Bang Lamung District, Chon Buri 20150</p>
-  `;
+        `;
+  } else {
+    // Original template for Hotels
+    emailData.value.mail_body = `
+    <p class="p1">Dear ${detail.items[0].product?.name},</p>
+    <p><strong>Greetings from ThAnywhere Co., Ltd.</strong></p>
+    <p>We would like to book the accommodation as per the following description. Please note the booking is already checked and confirmed by phone.</p>
+    <p>
+      ${detail?.items
+        .map(
+          (item) => `
+          <p><strong>Room Type:</strong> ${item.room?.name}</p>
+          <p><strong>Check In Date:</strong> ${item.checkin_date}</p>
+          <p><strong>Check Out Date:</strong> ${item.checkout_date}</p>
+          <p><strong>Room Count:</strong> ${item.quantity} Rooms, ${daysBetween(
+            item.checkin_date,
+            item.checkout_date
+          )} Nights</p>
+          <p><strong>Special request:</strong> ${item.special_request}</p>`
+        )
+        .join(
+          "------------------------------------------------------------------------------------------------"
+        )}
+    </p>
+    <p><strong>Booking Code:</strong> ${detail?.crm_id}</p>
+    <p><strong>Guest Name:</strong></p>
+    <p>
+      ${detail.items[0].customer_passports
+        .map((passport) => `<p>${passport.name}</p>`)
+        .join("")}
+    </p>
+    <p>Passports for the bookings are attached in the email. Please arrange for the customer accordingly.</p>
+    <p>Payment transaction will be done soon. Once the payment is received, Please kindly issue receipt with tax ID and send to us by post or mail.</p>
+    <p><strong>Tax ID:</strong> 0105565081822<br> 
+<strong>TH ANYWHERE CO.LTD.</strong><br> 
+<strong>Invoice Date:</strong> ${format(new Date(), "dd/MM/yyyy")}</p>
+    <p>If you may have any questions or concerns, please feel free to call us at <strong>0950423254</strong> LINE ID <strong>0983498197</strong>.</p>
+    <p>Thank you,</p>
+    <p><strong>Negyi @ Sunshine</strong> (Reservation Manager)</p>
+    <p>143/51, Thepprasit Rd, Pattaya City, Bang Lamung District, Chon Buri 20150</p>
+    `;
+  }
 };
 
 const imageAddToAttachment = async (fileUrl) => {

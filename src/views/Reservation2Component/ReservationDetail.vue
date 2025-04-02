@@ -7,6 +7,8 @@ import InvoiceUpdate from "./InvoiceUpdate.vue";
 import Expense from "./Expense.vue";
 import Confirmation from "./Confirmation.vue";
 import HotelConfrimationPng from "../PngGenerate/HotelConfirmationPng.vue";
+import bookingstatus from "../../helper/bookingstatus";
+import Progressbar from "../../helper/progressbar.vue";
 import {
   ChevronDoubleRightIcon,
   ChevronDownIcon,
@@ -23,6 +25,7 @@ import { useToast } from "vue-toastification";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import logo from "../../assets/web-logo.png";
+import ExpenseBooking from "./ExpenseBooking.vue";
 
 const props = defineProps({
   show: Number,
@@ -42,6 +45,7 @@ const state = ref({
   booking: false,
   invoice: false,
   expense: false,
+  expensemail: false,
   confirmation: false,
 });
 
@@ -51,7 +55,8 @@ const partArray = ref([
   { id: 3, name: "booking" },
   { id: 4, name: "invoice" },
   { id: 5, name: "expense" },
-  { id: 6, name: "confirmation" },
+  { id: 6, name: "expensemail" },
+  { id: 7, name: "confirmation" },
 ]);
 
 const transition = ref("slide-right");
@@ -105,6 +110,7 @@ const getComponent = (part) => {
     booking: BookingRequest,
     invoice: InvoiceUpdate,
     expense: Expense,
+    expensemail: ExpenseBooking,
     confirmation: Confirmation,
   };
   return components[part];
@@ -140,6 +146,7 @@ const printHotelConfirm = () => {
 };
 
 const showWarningModal = ref(false);
+const showCommentPropup = ref(false);
 const customerPassportLength = ref(false);
 
 const goToHotelConfirmation = () => {
@@ -355,7 +362,7 @@ watch(
     } else {
       state.value.booking = false;
     }
-    if (detail.value.booking_confirm_letters.length > 0) {
+    if (detail.value.booking_status == "receive") {
       state.value.invoice = true;
     } else {
       state.value.invoice = false;
@@ -364,6 +371,11 @@ watch(
       state.value.expense = true;
     } else {
       state.value.expense = false;
+    }
+    if (detail.value.is_expense_email_sent == 1) {
+      state.value.expensemail = true;
+    } else {
+      state.value.expensemail = false;
     }
     if (detail.value.reservation_status == "confirmed") {
       state.value.confirmation = true;
@@ -404,7 +416,7 @@ const hide = ref(false);
 </script>
 
 <template>
-  <div>
+  <div class="relative">
     <div v-if="getLoading">
       <div class="flex justify-center text-xs items-center h-[70vh]">
         <svg
@@ -434,7 +446,10 @@ const hide = ref(false);
         <p>loading</p>
       </div>
     </div>
-    <div class="space-y-4" v-if="!getLoading">
+    <div class="space-y-4 relative" v-if="!getLoading">
+      <!-- <div class="absolute -top-5 z-30 left-0 w-full">
+        <Progressbar :rate="detail?.booking_status" />
+      </div> -->
       <div
         class="flex justify-between items-center space-x-2 overflow-x-scroll no-sidebar-container"
       >
@@ -457,6 +472,16 @@ const hide = ref(false);
             ></span
             >{{ detail?.booking?.payment_status }}
           </p>
+          <!-- <select
+            name=""
+            id=""
+            v-model="detail.booking_status"
+            class="w-[150px] border border-gray-200 px-4 py-1.5 text-xs rounded-lg"
+          >
+            <option :value="i.value" v-for="i in bookingstatus" :key="i">
+              {{ i.name }}
+            </option>
+          </select> -->
         </div>
         <div class="flex justify-end items-center gap-x-2">
           <p
@@ -537,7 +562,19 @@ const hide = ref(false);
             <p class="text-lg text-red-500 font-medium pb-2 text-end">
               {{ score }}
             </p>
-            <div class="flex justify-start items-center gap-x-2">
+            <div class="flex justify-end items-center group gap-x-2 relative">
+              <!-- <p
+                class="text-[12px] group-hover:block hidden text-end absolute -top-2 bg-white shadow p-2 rounded-lg"
+              >
+                note: : Lorem ipsum, dolor sit amet consectetur adipisicing
+                elit. Quos dicta eius necessitatibus nisi
+              </p> -->
+              <p
+                @click="showCommentPropup = true"
+                class="text-[10px] cursor-pointer px-3 py-0.5 flex justify-center gap-x-1.5 items-center text-white rounded-lg bg-[#FF613c]"
+              >
+                <img :src="productIcon" alt="" class="w-3 h-3" />Note
+              </p>
               <p
                 class="text-[10px] cursor-pointer px-2 py-0.5 flex justify-center gap-x-1.5 items-center text-white rounded-lg bg-[#FF613c]"
               >
@@ -895,6 +932,28 @@ const hide = ref(false);
           </div>
           <div
             class="w-30 h-[2px] rounded-full relative z-10"
+            :class="state.expense ? 'bg-[#04BA00]' : 'bg-gray-200'"
+          ></div>
+          <div
+            v-if="!state.expensemail"
+            @click="part = 'expensemail'"
+            class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
+            :class="
+              part == 'expensemail' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+            "
+          >
+            6
+          </div>
+          <div
+            v-if="state.expensemail"
+            @click="part = 'expensemail'"
+            class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+            :class="part == 'expensemail' ? 'bg-white text-white' : ''"
+          >
+            <img :src="checkImage" alt="" />
+          </div>
+          <div
+            class="w-30 h-[2px] rounded-full relative z-10"
             :class="state.invoice ? 'bg-[#04BA00]' : 'bg-gray-200'"
           ></div>
           <!-- <div
@@ -914,7 +973,7 @@ const hide = ref(false);
               part == 'confirmation' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
             "
           >
-            5
+            7
           </div>
           <div
             v-if="state.confirmation"
@@ -984,6 +1043,20 @@ const hide = ref(false);
           >
             Expense<span
               v-if="part == 'expense'"
+              class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
+            ></span>
+          </div>
+          <div
+            class="text-xs cursor-pointer flex justify-center items-center"
+            @click="part = 'expensemail'"
+            :class="[
+              state.expensemail && part == 'expensemail'
+                ? 'text-[#04BA00]'
+                : '',
+            ]"
+          >
+            E. mail<span
+              v-if="part == 'expensemail'"
               class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
             ></span>
           </div>
@@ -1124,6 +1197,48 @@ const hide = ref(false);
             </p>
             <p
               @click="showWarningModal = false"
+              class="cursor-pointer inline-block text-[#FF613c] border border-[#FF613c] text-[10px] bg-white px-2 py-1 rounded-lg"
+            >
+              Cancel
+            </p>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+    <Modal :isOpen="showCommentPropup" @closeModal="showCommentPropup = false">
+      <DialogPanel
+        class="w-full max-w-sm transform overflow-hidden rounded-lg mt-10 bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start pb-20 pt-4 px-4"
+        >
+          <p></p>
+        </DialogTitle>
+        <!-- show date  -->
+        <div class="relative">
+          <div class="absolute -top-8 left-[43%]">
+            <img
+              :src="logo"
+              class="w-16 h-16 bg-white rounded-full p-3"
+              alt=""
+            />
+          </div>
+          <div class="py-10 text-center space-y-4">
+            <p class="font-medium text-lg text-[#FF613c]">Reservation Note</p>
+            <textarea
+              name=""
+              class="w-[90%] min-h-[100px] border border-[#FF613c] rounded-lg px-4 py-2 focus:outline-none"
+              id=""
+            ></textarea>
+            <p
+              @click="showCommentPropup = false"
+              class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
+            >
+              Save Note
+            </p>
+            <p
+              @click="showCommentPropup = false"
               class="cursor-pointer inline-block text-[#FF613c] border border-[#FF613c] text-[10px] bg-white px-2 py-1 rounded-lg"
             >
               Cancel

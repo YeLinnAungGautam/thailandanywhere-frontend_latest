@@ -1,8 +1,8 @@
 <script setup>
 import { storeToRefs } from "pinia";
-import { useReservationStore } from "../stores/reservation";
+// import { usegroupByStore } from "../stores/reservation";
 import Layout from "./Layout.vue";
-import ListReservation from "./Reservation2Component/ListReservation.vue";
+import ListReservation from "./ReservationGroupByComponent/ListReservation.vue";
 import ReservationCartLoadingVue from "./Dashboard/ReservationCartLoading.vue";
 import { onMounted, ref, watch, computed } from "vue";
 import Pagination from "../components/PaginationExpense.vue";
@@ -15,34 +15,35 @@ import {
   MagnifyingGlassIcon,
   XMarkIcon,
 } from "@heroicons/vue/24/outline";
-import ReservationDetail from "./Reservation2Component/ReservationDetail.vue";
+import ReservationDetail from "./ReservationGroupByComponent/ReservationDetail.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter, useRoute } from "vue-router";
 import { useAdminStore } from "../stores/admin";
-import { useHotelStore } from "../stores/hotel";
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import { useEntranceStore } from "../stores/entrance";
 import AttractionUnlimited from "./Reservation2Component/AttractionUnlimited.vue";
 import HotelUnlimited from "./Reservation2Component/HotelUnlimited.vue";
 import { XCircleIcon } from "@heroicons/vue/24/solid";
 import { format } from "date-fns";
-const reservationStore = useReservationStore();
-const { reservations, loading } = storeToRefs(reservationStore);
+import { useGroupByStore } from "../stores/groupby";
+import { useSidebarStore } from "../stores/sidebar";
+
+const sidebarStore = useSidebarStore();
+const { isShowSidebar } = storeToRefs(sidebarStore);
+
+const groupByStore = useGroupByStore();
+const { results, loading } = storeToRefs(groupByStore);
 const authStore = useAuthStore();
 
 const router = useRouter();
 const adminStore = useAdminStore();
-const hotelStore = useHotelStore();
-const entranceStore = useEntranceStore();
 const route = useRoute();
-const { hotels } = storeToRefs(hotelStore);
-const { entrances } = storeToRefs(entranceStore);
 
 // filter keys
 const limit = ref(10);
 const search = ref("");
 const searchId = ref("");
+const customerName = ref("");
 const hotel_name = ref("");
 const attraction_name = ref("");
 const userFilter = ref("");
@@ -80,6 +81,7 @@ const clearFilter = () => {
   expenseStatus.value = "";
   customerPaymentStatus.value = "";
   searchId.value = "";
+  customerName.value = "";
   hotel_name.value = "";
   limit.value = 10;
   searchA.value = "";
@@ -111,7 +113,7 @@ const searchValue = (val) => {
 };
 
 const changePage = async (url) => {
-  await reservationStore.getChangePage(url, watchSystem.value);
+  await groupByStore.getChangePage(url, watchSystem.value);
 };
 
 // format action
@@ -155,14 +157,14 @@ const watchSystem = computed(() => {
   } else {
     result.user_id = authStore.user.id;
   }
-  if (search.value != "" && search.value != undefined) {
-    result.product_type = search.value;
-  } else {
-    search.value = "App\\Models\\EntranceTicket";
-    result.product_type = "App\\Models\\EntranceTicket";
-  }
+
+  result.product_type = "App\\Models\\EntranceTicket";
+
   if (searchId.value != "" && searchId.value != undefined) {
     result.crm_id = searchId.value;
+  }
+  if (customerName.value != "" && customerName.value != undefined) {
+    result.customer_name = customerName.value;
   }
   if (bookingStatus.value != "" && bookingStatus.value != undefined) {
     result.booking_status = bookingStatus.value;
@@ -206,7 +208,7 @@ const watchSystem = computed(() => {
     result.booking_date = formatDate(booking_date.value);
   }
   if (sale_daterange.value != undefined && !dateOnlyToggle.value) {
-    result.sale_daterange = sale_daterange.value;
+    result.booking_daterange = sale_daterange.value;
   }
   if (booking_daterange.value != undefined && !dateOnlyToggle.value) {
     result.booking_daterange = booking_daterange.value;
@@ -231,14 +233,19 @@ const watchSystem = computed(() => {
 });
 
 const detailId = ref("");
+const product_id = ref("");
 const getDetailAction = async (id) => {
-  detailId.value = id;
-  router.push({
-    name: "reservation-second",
-    query: {
-      id: detailId.value,
-    },
-  });
+  detailId.value = id.id;
+  product_id.value = id.product_id;
+
+  if (detailId.value) {
+    router.push(
+      "reservation-attraction?id=" +
+        detailId.value +
+        "&product_id=" +
+        product_id.value
+    );
+  }
 
   // showSide.value = false;
 };
@@ -330,24 +337,13 @@ const showFormat = (dateStr) => {
   } else {
     return "Invalid format";
   }
-  // if (date ) {
-  //   const dateArray = date.split(',');
-
-  //   // Format each date and join them with " to "
-  //   const formattedDates = dateArray.map((date) => {
-  //     return format(new Date(date), 'MMM, dd');
-  //   });
-
-  //   return formattedDates.join(' to ');
-  // }
-  // return format(new Date(date), "MMM, dd");
 };
 
 onMounted(async () => {
   if (route.query.id) {
     detailId.value = route.query.id;
   }
-  console.log(reservations.value);
+  console.log(results.value);
   setStartAndEndDate();
   await getListUser();
 });
@@ -386,16 +382,22 @@ watch([adminAction], async ([newValue]) => {
 });
 
 const getReservationListAction = async () => {
-  const res = await reservationStore.getListAction(watchSystem.value);
+  const res = await groupByStore.ReservationHotelList(watchSystem.value);
   console.log(res, "this is reservation list");
-  if (detailId.value == "") {
-    await getDetailAction(res.result?.data[0]?.id);
-  }
+  // if (detailId.value == "") {
+  //   await getDetailAction(res.result?.data[0]?.id);
+  // }
+};
+
+const detailGetAction = (id) => {
+  // detailId.value = id;
+  getDetailAction(id);
+  console.log(detailId.value);
 };
 
 const searchAction = async () => {
   filterShow.value = false;
-  await reservationStore.getListAction(watchSystem.value);
+  await groupByStore.ReservationHotelList(watchSystem.value);
 };
 
 watch(searchTime, async (newValue) => {
@@ -500,10 +502,19 @@ watch(dateRange, async (newValue) => {
 
 <template>
   <Layout :is_white="true">
+    <div
+      :class="isShowSidebar ? 'left-[390px]' : 'left-[250px]'"
+      class="space-x-8 col-span-3 flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
+    >
+      <p class="text-3xl font-medium text-[#FF613c]">
+        Attraction Reservations
+        <span class="w-2 h-2 bg-[#FF613c] rounded-full inline-block"></span>
+      </p>
+    </div>
     <div class="grid gap-4 relative grid-cols-3">
       <transition name="slide">
         <div
-          class="border shadow-sm rounded-lg p-4"
+          class="border shadow-sm rounded-lg px-4 py-2"
           :class="{
             hidden: showSide == 2,
             'col-span-1': showSide == 1,
@@ -541,57 +552,7 @@ watch(dateRange, async (newValue) => {
                     clear
                   </p>
                 </div>
-                <p class="text-[10px] pt-1">Product Type</p>
-                <div class="">
-                  <div
-                    class="flex items-center justify-start gap-1 overflow-x-scroll no-sidebar-container"
-                  >
-                    <!-- <p
-                      class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
-                      @click="searchValue('App\\Models\\Hotel')"
-                      :class="
-                        search == 'App\\Models\\Hotel'
-                          ? 'bg-[#ff613c] text-white'
-                          : ''
-                      "
-                    >
-                      Hotel
-                    </p> -->
-                    <p
-                      class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border whitespace-nowrap border-gray-200 rounded-lg"
-                      @click="searchValue('App\\Models\\EntranceTicket')"
-                      :class="
-                        search == 'App\\Models\\EntranceTicket'
-                          ? 'bg-[#ff613c] text-white'
-                          : ''
-                      "
-                    >
-                      Entrance Ticket
-                    </p>
-                    <!-- <p
-                      class="text-[10px] px-2 whitespace-nowrap cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
-                      @click="searchValue('App\\Models\\PrivateVanTour')"
-                      :class="
-                        search == 'App\\Models\\PrivateVanTour'
-                          ? 'bg-[#ff613c] text-white'
-                          : ''
-                      "
-                    >
-                      Private Van tour
-                    </p>
-                    <p
-                      class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border border-gray-200 rounded-lg"
-                      @click="searchValue('App\\Models\\Airline')"
-                      :class="
-                        search == 'App\\Models\\Airline'
-                          ? 'bg-[#ff613c] text-white'
-                          : ''
-                      "
-                    >
-                      Airline
-                    </p> -->
-                  </div>
-                </div>
+
                 <p class="text-[10px]">User</p>
                 <select
                   name=""
@@ -629,44 +590,7 @@ watch(dateRange, async (newValue) => {
                       as="div"
                       class="text-xs flex justify-between items-center font-medium leading-6 text-gray-900 mb-5"
                     >
-                      Select Date
-                      <div
-                        @click="dateOnlyToggle = !dateOnlyToggle"
-                        class="flex justify-end items-center gap-2"
-                      >
-                        <p class="text-xs">date only filter</p>
-                        <label
-                          class="inline-flex items-center cursor-pointer"
-                          v-if="dateOnlyToggle"
-                        >
-                          <input
-                            type="checkbox"
-                            value=""
-                            class="sr-only peer"
-                            disabled
-                          />
-                          <div
-                            class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
-                          ></div>
-                        </label>
-
-                        <label
-                          class="inline-flex items-center cursor-pointer"
-                          v-if="!dateOnlyToggle"
-                        >
-                          <input
-                            type="checkbox"
-                            value=""
-                            class="sr-only peer"
-                            checked
-                            disabled
-                          />
-                          <div
-                            class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
-                          ></div>
-                        </label>
-                        <p class="text-xs">date range filter</p>
-                      </div>
+                      Select Date filter for booking date
                     </DialogTitle>
                     <div v-if="dateOnlyToggle">
                       <VueDatePicker
@@ -702,7 +626,26 @@ watch(dateRange, async (newValue) => {
                   }}</span>
                   <span v-if="!searchTime && !sale_daterange">Select Date</span>
                 </p>
-                <div class="" v-if="search == 'App\\Models\\EntranceTicket'">
+
+                <div class="relative w-full">
+                  <p class="text-[10px] pb-2">Customer Name</p>
+                  <input
+                    type="search"
+                    name=""
+                    v-model="customerName"
+                    placeholder="Search Customer name"
+                    class="text-[10px] text-gray-500 focus:outline-none hover:text-gray-600 border border-gray-300 rounded-lg bg-white px-4 py-2 w-full"
+                    id=""
+                  />
+                  <div
+                    @click="searchAction"
+                    class="absolute right-1 top-7 rounded-lg text-xs p-1 bg-[#FF613c]"
+                  >
+                    <MagnifyingGlassIcon class="w-4 h-4 text-white" />
+                  </div>
+                </div>
+
+                <div class="">
                   <div class="flex justify-between items-center pb-2">
                     <p class="text-[10px]">Attraction</p>
 
@@ -736,6 +679,7 @@ watch(dateRange, async (newValue) => {
                     <AttractionUnlimited @selectAction="ChangeAttractionName" />
                   </div>
                 </div>
+
                 <div>
                   <p class="text-[10px] pb-2">Customer Payment Status</p>
                   <!-- customer payment status -->
@@ -770,82 +714,15 @@ watch(dateRange, async (newValue) => {
                     <option class="text-[10px]" value="fully_paid">
                       Fully paid
                     </option>
-
+                    <option class="text-[10px]" value="partially_paid">
+                      Partially paid
+                    </option>
                     <option class="text-[10px]" value="not_paid">
                       Not paid
                     </option>
                   </select>
                 </div>
-                <div>
-                  <p class="text-[10px] pb-2">Passport Status</p>
-                  <!-- passport status -->
-                  <select
-                    name=""
-                    id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-                  >
-                    <option class="text-[10px]" value=""></option>
-                    <option class="text-[10px]" value="missing">Missing</option>
 
-                    <option class="text-[10px]" value="included">
-                      Included
-                    </option>
-                  </select>
-                </div>
-                <div>
-                  <p class="text-[10px] pb-2">Booking Status</p>
-                  <!-- passport status -->
-                  <select
-                    name=""
-                    id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-                  >
-                    <option class="text-[10px]" value=""></option>
-                    <option class="text-[10px]" value="email_sent">
-                      Email Sent
-                    </option>
-
-                    <option class="text-[10px]" value="email_not_sent">
-                      Email not Sent
-                    </option>
-                  </select>
-                </div>
-                <div>
-                  <p class="text-[10px] pb-2">Confirmation</p>
-                  <!-- passport status -->
-                  <select
-                    name=""
-                    id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-                  >
-                    <option class="text-[10px]" value=""></option>
-                    <option class="text-[10px]" value="included">
-                      Included
-                    </option>
-
-                    <option class="text-[10px]" value="not_included">
-                      Not Included
-                    </option>
-                  </select>
-                </div>
-                <div class="">
-                  <p class="text-[10px] pb-2">Invoice</p>
-                  <!-- passport status -->
-                  <select
-                    name=""
-                    id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
-                  >
-                    <option class="text-[10px]" value=""></option>
-                    <option class="text-[10px]" value="included">
-                      Included
-                    </option>
-
-                    <option class="text-[10px]" value="not_included">
-                      Not Included
-                    </option>
-                  </select>
-                </div>
                 <div
                   class="sticky bottom-0 w-full pb-4 pt-2 border-t border-gray-200 bg-white"
                 >
@@ -997,6 +874,12 @@ watch(dateRange, async (newValue) => {
               Van Tour
             </p>
             <p
+              v-if="search == 'App\\Models\\Hotel'"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
+            >
+              Hotel
+            </p>
+            <p
               v-if="search == 'App\\Models\\EntranceTicket'"
               class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
             >
@@ -1022,6 +905,21 @@ watch(dateRange, async (newValue) => {
                 "
               />
               {{ searchId }}
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              v-if="customerName != ''"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    customerName = '';
+                    searchAction();
+                  }
+                "
+              />
+              {{ customerName }}
             </p>
             <p
               class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
@@ -1130,26 +1028,31 @@ watch(dateRange, async (newValue) => {
             <div
               class="text-[10px] rounded-lg px-2 py-1 text-white bg-[#FF613c]"
             >
-              {{ reservations?.meta?.total }} reser
+              {{ results?.meta?.total }} reser
             </div>
           </div>
           <div
             v-if="!loading"
             class="bg-white shadow rounded-lg divide-y divide-gray-100 max-h-[62vh] overflow-y-scroll"
           >
-            <div
-              class=""
-              v-for="i in reservations?.data ?? []"
-              :key="i"
-              @click="getDetailAction(i.id)"
-            >
-              <ListReservation :data="i" :detailId="detailId" />
+            <div class="relative" v-for="i in results?.data ?? []" :key="i">
+              <!-- <div
+                @click="getDetailAction(i.bookings[0]?.id)"
+                class="absolute top-7 text-[10px] z-30 cursor-pointer right-2 px-2 py-0.5 rounded-lg bg-[#FF613c] text-white"
+              >
+                Detial
+              </div> -->
+              <ListReservation
+                :data="i"
+                :detailId="detailId"
+                @detailId="detailGetAction"
+              />
             </div>
           </div>
           <div class="overflow-x-scroll no-sidebar-container py-2">
             <Pagination
               v-if="!loading"
-              :data="reservations"
+              :data="results"
               @change-page="changePage"
             />
           </div>
@@ -1205,7 +1108,7 @@ watch(dateRange, async (newValue) => {
           </div>
 
           <div
-            class="border shadow-sm relative rounded-lg p-4 h-[85vh] transition duration-150 overflow-y-scroll no-scrollbar"
+            class="border shadow-sm rounded-lg p-4 h-[85vh] transition duration-150 overflow-y-scroll no-scrollbar"
           >
             <ReservationDetail :show="showSide" />
           </div>

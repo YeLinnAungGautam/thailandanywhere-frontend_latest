@@ -10,9 +10,8 @@
             v-model="booking_status"
             class="w-full border border-gray-200 px-4 py-1 text-sm rounded-lg"
           >
-            <option value="">Select Booking Status</option>
-            <option value="confirm">Confirm</option>
-            <option value="pending">Pending</option>
+            <option value="receive">receive</option>
+            <option value="not_receive">not_receive</option>
           </select>
           <button
             class="text-xs px-3 py-1.5 border rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
@@ -475,6 +474,8 @@ const addInvoiceUpdateAction = async () => {
     frmData
   );
 
+  // await updateAction();
+
   console.log(res, "this is res");
   closeAction();
 
@@ -486,7 +487,7 @@ const addInvoiceUpdateAction = async () => {
   }, 1000);
 };
 
-const booking_status = ref(false);
+const booking_status = ref("");
 
 const updateAction = async () => {
   const frmData = new FormData();

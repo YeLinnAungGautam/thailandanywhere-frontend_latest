@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-11 gap-4 relative">
+  <div class="grid grid-cols-12 gap-4 relative">
     <!-- <div
       v-if="loading"
       class="absolute top-[30%] left-[30%] rounded-2xl bg-black/50 z-20 w-[300px] h-[300px]"
@@ -88,6 +88,8 @@
             :loading="loading"
             :customer_not_paid="customer_not_paid"
             :passport_missing_count="passport_missing_count"
+            :booking_request_count="booking_request_count"
+            :expense_mail_count="expense_mail_count"
             :filterType="filterType"
             :supplier_not="supplier_not"
             :driver_not="driver_not"
@@ -114,13 +116,13 @@
           }}</span>
         </p>
       </div>
-      <div class="bg-white shadow p-2 rounded-lg">
+      <div class="bg-white h-[579px] shadow p-2 rounded-lg">
         <div class="h-auto font-poppins">
           <CalendarPartVue @change="changesFromCalendar" />
         </div>
       </div>
     </div>
-    <div class="col-span-5 space-y-2">
+    <div class="col-span-6 space-y-2">
       <div
         class="text-xs font-medium shadow flex justify-between items-center bg-white px-4 rounded-lg"
         :class="filterType != '' || chooseType != '' ? 'py-3' : 'py-4'"
@@ -164,7 +166,7 @@
       </div>
       <div
         v-if="!loading"
-        class="bg-white shadow rounded-lg divide-y-2 divide-gray-300 max-h-[455px] overflow-scroll"
+        class="bg-white shadow rounded-lg divide-y-2 divide-gray-300 max-h-[579px] overflow-scroll"
       >
         <div class="" v-for="i in getListing ?? []" :key="i">
           <ReservationCartVue :backgroundCustom="backgroundCustom" :data="i" />
@@ -172,7 +174,7 @@
       </div>
       <div
         v-if="loading"
-        class="bg-white shadow rounded-lg divide-y-4 divide-gray-200 max-h-[455px] overflow-scroll"
+        class="bg-white shadow rounded-lg divide-y-4 divide-gray-200 max-h-[579px] overflow-scroll"
       >
         <div class="" v-for="i in 5 ?? []" :key="i">
           <ReservationCartLoadingVue :backgroundCustom="backgroundCustom" />
@@ -290,6 +292,10 @@ const reservation_list = ref([]);
 const customer_not_paid = ref(0);
 const passport_missing_count = ref(0);
 const passport_missing = ref([]);
+const booking_request_count = ref(0);
+const booking_request = ref([]);
+const expense_mail_count = ref(0);
+const expense_mail = ref([]);
 
 const getTodaySale = async () => {
   loading.value = true;
@@ -332,10 +338,18 @@ const getListing = computed(() => {
     return reservation_data.value;
   } else if (filterType.value == "passport missing") {
     return passport_missing.value;
+  } else if (filterType.value == "booking request") {
+    return passport_missing.value;
+  } else if (filterType.value == "expense mail") {
+    return passport_missing.value;
   } else if (filterType.value == "missing supplier") {
     return supplier_not_list.value;
   } else if (filterType.value == "missing driver") {
     return driver_not_list.value;
+  } else if (filterType.value == "booking requests") {
+    return booking_request.value;
+  } else if (filterType.value == "expense mails") {
+    return expense_mail.value;
   }
 });
 
@@ -381,6 +395,16 @@ const filterGetTodaySale = (data) => {
     (item) => item.customer_passports.length == 0
   );
   passport_missing_count.value = passport_missing.value.length;
+
+  booking_request.value = getData.filter(
+    (item) => item.is_booking_request == 0
+  );
+  booking_request_count.value = booking_request.value.length;
+
+  expense_mail.value = getData.filter(
+    (item) => item.is_expense_email_sent == 0
+  );
+  expense_mail_count.value = expense_mail.value.length;
 
   supplier_not_list.value = getData.filter(
     (item) =>

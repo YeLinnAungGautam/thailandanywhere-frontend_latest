@@ -1,27 +1,39 @@
 <template>
   <div>
     <div>
-      <div class="flex justify-start items-center gap-x-2">
-        <!-- <p class="font-medium pb-2">Booking Request</p> -->
-        <CheckCircleIcon
-          class="w-4 h-4"
-          :class="
-            detail?.payment_status == 'fully_paid'
-              ? 'text-green-500'
-              : 'text-red-500'
-          "
-        />
-        <p
-          class="text-xs"
-          :class="
-            detail?.payment_status == 'fully_paid'
-              ? 'text-green-500'
-              : 'text-red-500'
-          "
-        >
-          Is Expense Status Finish ?
-        </p>
+      <div class="pb-4 border-b border-[#FF613c]">
+        <p class="pb-2 text-xs">Expense Mail Status</p>
+        <div class="flex justify-between items-center gap-x-2">
+          <select
+            name=""
+            id=""
+            v-model="is_expense_email_sent"
+            class="w-full border border-gray-200 px-4 py-1 text-sm rounded-lg"
+          >
+            <option :value="true">Email Sent</option>
+            <option :value="false">Not Sent</option>
+          </select>
+          <button
+            class="text-xs px-3 py-1.5 border rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
+            @click="updateAction"
+          >
+            Update
+          </button>
+        </div>
+        <div class="grid grid-cols-4 gap-2">
+          <div class="pt-2 space-y-2">
+            <label for="mail_to" class="pb-2 text-xs"
+              >Proof of Expense Sent</label
+            >
+            <div
+              class="w-full h-[100px] border border-dashed border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg"
+            >
+              +
+            </div>
+          </div>
+        </div>
       </div>
+
       <div class="grid grid-cols-1 gap-4 py-4 overflow-hidden rounded-xl">
         <div class="text-center" v-if="emailLoading">
           Email sending , Please wait loading .....
@@ -280,6 +292,7 @@ const showModal = ref(false);
 
 const props = defineProps({
   detail: Object,
+  getDetailAction: Function,
 });
 
 const featureImageInput = ref(null);
@@ -335,6 +348,28 @@ const cancelEmailFunction = () => {
     send_to_default: false,
     attachments: [],
   };
+};
+
+const is_expense_email_sent = ref(false);
+
+const reservation_ids = ref([]);
+
+const updateAction = async () => {
+  const frmData = new FormData();
+  frmData.append("is_expense_email_sent", is_expense_email_sent.value ? 1 : 0);
+  frmData.append("_method", "PUT");
+
+  for (let a = 0; a < reservation_ids.value.length; a++) {
+    const res = await reservationStore.updateAction(
+      frmData,
+      reservation_ids.value[a]
+    );
+    toast.success(res.message);
+  }
+
+  setTimeout(async () => {
+    await props.getDetailAction(route.query.id, route.query.product_id);
+  }, 1000);
 };
 
 const emailLoading = ref(false);
@@ -409,10 +444,20 @@ const mailBodyChange = () => {
     props?.detail?.booking?.items[0].service_date
   )}: ${props?.detail?.booking.crm_id}`;
 
+  is_expense_email_sent.value =
+    props?.detail?.booking?.items[0].is_expense_email_sent == 1 ? true : false;
+
+  for (let i = 0; i < props?.detail?.booking?.items.length; i++) {
+    reservation_ids.value.push(props?.detail?.booking?.items[i].id);
+  }
+  console.log("====================================");
+  console.log(reservation_ids.value);
+  console.log("====================================");
+
   let detail = props?.detail?.booking;
 
   emailData.value.mail_body = `<p class="p1">Dear ${detail.items[0].product?.name},</p>
-    <p class="p1">Please see our payment slip in the attached file. We would like to kindly request a confirmation letter as soon as possible. Please kindly issue a receipt with Tax ID and send it to us by email.</p>
+    <p class="p1">Please see our payment slip in the attached file for ${detail.crm_id}. </p><p class="p1">We would like to kindly request a confirmation letter as soon as possible. Please kindly issue a receipt with Tax ID and send it to us by email.</p>
     <p class="p1">Phone: 0950423254, 0637602448.</p>
     <p class="p1">TAX ID : 0105565081822 TH Anywhere Co.,Ltd.</p>
     <p class="p1">For any requirement you may contact us at 0637602448, 0983498197, 0950423254.</p>

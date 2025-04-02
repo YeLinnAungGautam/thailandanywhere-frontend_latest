@@ -57,6 +57,7 @@ import PngUsage from "../views/PngGenerate/PngUsage.vue";
 import Accounting from "../views/Accounting.vue";
 import ReservationHotelView from "../views/Reservationhotel.vue";
 import ReservationHotelGroupConfirmationsView from "../views/PngGenerate/HotelGroupConfirmationPng.vue";
+import ReservationAttractionView from "../views/ReservationAttraction.vue";
 
 const routes = [
   {
@@ -276,6 +277,11 @@ const routes = [
     path: "/reservation-hotel",
     name: "reservation-hotel",
     component: ReservationHotelView,
+  },
+  {
+    path: "/reservation-attraction",
+    name: "reservation-attraction",
+    component: ReservationAttractionView,
   },
   {
     path: "/accounting",

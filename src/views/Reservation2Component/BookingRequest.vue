@@ -1,17 +1,16 @@
 <template>
   <div>
-    <div class="pb-4 border-b border-gray-200">
+    <div class="pb-4 border-b border-[#FF613c]">
       <p class="pb-2 text-xs">Booking Request</p>
       <div class="flex justify-between items-center gap-x-2">
         <select
           name=""
           id=""
           v-model="is_booking_request"
-          class="w-full border border-gray-200 px-4 py-1 text-sm rounded-lg"
+          class="w-full border border-gray-200 px-4 py-2 text-xs rounded-lg"
         >
-          <option value="">Select Booking Status</option>
-          <option value="true">Finish send Booking Request</option>
-          <option value="false">Not Yet !</option>
+          <option :value="true">Email Sent</option>
+          <option :value="false">Not Sent</option>
         </select>
         <button
           class="text-xs px-3 py-1.5 border rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
@@ -20,24 +19,18 @@
           Update
         </button>
       </div>
+      <div class="grid grid-cols-4 gap-2">
+        <div class="pt-2 space-y-2">
+          <label for="mail_to" class="pb-2 text-xs">Proof of Booking</label>
+          <div
+            class="w-full h-[100px] border border-dashed border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg"
+          >
+            +
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="flex justify-start items-center gap-x-2 pt-3">
-      <!-- <p class="font-medium pb-2">Booking Request</p> -->
-      <CheckCircleIcon
-        class="w-4 h-4"
-        :class="
-          detail?.is_booking_request == 1 ? 'text-green-500' : 'text-red-500'
-        "
-      />
-      <p
-        class="text-xs"
-        :class="
-          detail?.is_booking_request == 1 ? 'text-green-500' : 'text-red-500'
-        "
-      >
-        Is Booking Request Sent ?
-      </p>
-    </div>
+
     <div>
       <div class="grid grid-cols-1 gap-4 py-4 overflow-hidden rounded-xl">
         <div class="text-center" v-if="emailLoading">
@@ -280,6 +273,7 @@ const is_booking_request = ref(false);
 const updateAction = async () => {
   const frmData = new FormData();
   frmData.append("is_booking_request", is_booking_request.value ? 1 : 0);
+
   frmData.append("_method", "PUT");
   const res = await reservationStore.updateAction(frmData, route.query.id);
   toast.success(res.message);
@@ -362,6 +356,7 @@ const sendEmailFunction = async () => {
         frmData.append("mail_tos", emailData.value.mail_to_array);
         frmData.append("mail_subject", emailData.value.mail_subject);
         frmData.append("mail_body", emailData.value.mail_body);
+        frmData.append("email_type", "booking");
         frmData.append("send_to_default", emailData.value.send_to_default);
         // frmData.append("attachments", emailData.value.attachments);
         if (emailData.value.attachments.length > 0) {

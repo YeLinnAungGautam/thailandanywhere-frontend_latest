@@ -335,7 +335,14 @@
               </div>
               <div class="col-span-5" v-if="!formData.id">
                 <label for="" class="text-[12px] font-medium"
-                  >မည်သည့် Hotel Item အတွက်ကို အတည်ပြုပါ။
+                  >မည်သည့်
+                  {{
+                    detail?.booking?.items[0]?.product_type ==
+                    "App\\Models\\Hotel"
+                      ? "Hotel"
+                      : "Ticket"
+                  }}
+                  Item အတွက်ကို အတည်ပြုပါ။
                 </label>
                 <div>
                   <input
@@ -345,7 +352,13 @@
                     name="for_which"
                   />
                   <label for="car" class="text-[12px] ml-2"
-                    >Hotel Items အားလုံးအတွက်
+                    >{{
+                      detail?.booking?.items[0]?.product_type ==
+                      "App\\Models\\Hotel"
+                        ? "Hotel"
+                        : "Ticket"
+                    }}
+                    Items အားလုံးအတွက်
                   </label>
                 </div>
                 <div v-for="i in editData.reservation_ids" :key="i">
@@ -493,12 +506,31 @@ const isScanning = ref(false);
 const showDebug = ref(false);
 const rawOcrText = ref("");
 
+const isHotelProduct = computed(() => {
+  // Get from route, props, or store depending on your setup
+  return !route.path.includes("reservation-attraction");
+});
+
 const showErrorMessage = ref(false);
 const checkAction = () => {
-  if (!formData.value.name || !formData.value.passport || !formData.value.dob) {
-    showErrorMessage.value = true;
+  if (isHotelProduct.value) {
+    // For hotel product type - validate all fields
+    if (
+      !formData.value.name ||
+      !formData.value.passport ||
+      !formData.value.dob
+    ) {
+      showErrorMessage.value = true;
+    } else {
+      showErrorMessage.value = false;
+    }
   } else {
-    showErrorMessage.value = false;
+    // For ticket product type - validate only name
+    if (!formData.value.name) {
+      showErrorMessage.value = true;
+    } else {
+      showErrorMessage.value = false;
+    }
   }
 };
 
@@ -897,7 +929,10 @@ onMounted(() => {
       editData.value.reservation_ids.push({
         id: props.detail?.booking?.items[i].id,
         crm_id: props.detail?.booking?.items[i].crm_id,
-        name: props.detail?.booking?.items[i].room?.name,
+        name:
+          props.detail?.booking?.items[i].product_type == "App\\Models\\Hotel"
+            ? props.detail?.booking?.items[i].room?.name
+            : props.detail?.booking?.items[i].variation?.name,
         selected: false,
       });
       if (props.detail?.booking?.items[i].customer_passports.length > 0) {

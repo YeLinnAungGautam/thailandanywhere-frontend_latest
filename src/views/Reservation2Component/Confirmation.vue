@@ -193,6 +193,7 @@ const addConfirmationAction = async () => {
   frmData.append("_method", "PUT");
   editData.value.reservation_status &&
     frmData.append("reservation_status", editData.value.reservation_status);
+
   editData.value.reservation_slip_code &&
     frmData.append("slip_code", editData.value.reservation_slip_code);
 

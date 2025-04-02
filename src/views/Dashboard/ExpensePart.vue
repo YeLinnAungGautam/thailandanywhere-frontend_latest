@@ -168,7 +168,7 @@
               @click="carModalOpen = true"
               class="bg-green-500 px-3 py-1 text-xs text-white inline-block rounded-lg"
             >
-              add expense receipt
+              + add expense receipt
             </div>
             <p class="text-[10px]" v-if="uploadRecePreview.length != 0">
               preview

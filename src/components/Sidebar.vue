@@ -137,10 +137,16 @@
                 :activePaths="['reservation-second']"
               />
               <SidebarItem
-                name="Res Group"
+                name="Res Hotel"
                 :icon="HomeModernIcon"
                 to="/reservation-hotel"
                 :activePaths="['reservation-hotel']"
+              />
+              <SidebarItem
+                name="Res Attraction"
+                :icon="TicketIcon"
+                to="/reservation-attraction"
+                :activePaths="['reservation-attraction']"
               />
               <SidebarItem
                 name="Accounting"

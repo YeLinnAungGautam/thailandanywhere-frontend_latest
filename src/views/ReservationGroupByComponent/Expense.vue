@@ -260,7 +260,9 @@
             >
               {{ formData.multiple_individual[index]?.child?.quantity }} x
               <input
-                v-if="formData.multiple_individual[index]?.child?.cost_price"
+                v-if="
+                  formData.multiple_individual[index]?.child?.cost_price != null
+                "
                 v-model="formData.multiple_individual[index].child.cost_price"
                 type="number"
                 id="title"

@@ -1279,7 +1279,14 @@ const hide = ref(false);
                 :key="item"
               >
                 <input
+                  @click="
+                    () => {
+                      reservation_ids.id = item.id;
+                      reservation_ids.name = item.variation?.name;
+                    }
+                  "
                   type="radio"
+                  :checked="reservation_ids.id == item.id"
                   class="w-5 h-5 text-white border border-[#FF613c] rounded-full"
                 />
                 <label
@@ -1291,8 +1298,15 @@ const hide = ref(false);
               </div>
             </div>
             <p
-              @click="goToGenerate"
+              v-if="reservation_ids.id != null"
+              @click="goToPrint"
               class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
+            >
+              Go To Generate
+            </p>
+            <p
+              v-if="reservation_ids.id == null"
+              class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-gray-200 px-2 py-1 rounded-lg"
             >
               Go To Generate
             </p>

@@ -67,6 +67,7 @@ const booking_date = ref("");
 const searchReservation = ref("");
 const bookingStatus = ref("");
 const expenseStatus = ref("");
+const invoiceStatus = ref("");
 const customerPaymentStatus = ref("");
 const showFilter = ref(false);
 
@@ -79,6 +80,7 @@ const clearFilter = () => {
   booking_daterange.value = "";
   bookingStatus.value = "";
   expenseStatus.value = "";
+  invoiceStatus.value = "";
   customerPaymentStatus.value = "";
   searchId.value = "";
   customerName.value = "";
@@ -169,6 +171,9 @@ const watchSystem = computed(() => {
   }
   if (expenseStatus.value != "" && expenseStatus.value != undefined) {
     result.expense_status = expenseStatus.value;
+  }
+  if (invoiceStatus.value != "" && invoiceStatus.value != undefined) {
+    result.invoice_status = invoiceStatus.value;
   }
   if (hotel_name.value != "" && hotel_name.value != undefined) {
     result.hotel_name = hotel_name.value;
@@ -512,7 +517,7 @@ watch(dateRange, async (newValue) => {
 <template>
   <Layout :is_white="true">
     <div
-      :class="isShowSidebar ? 'left-[390px]' : 'left-[250px]'"
+      :class="isShowSidebar ? 'left-[300px]' : 'left-[100px]'"
       class="space-x-8 col-span-3 flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
     >
       <p class="text-3xl font-medium text-[#FF613c]">
@@ -726,6 +731,22 @@ watch(dateRange, async (newValue) => {
                     </option>
                     <option class="text-[10px]" value="not_paid">
                       Not paid
+                    </option>
+                  </select>
+                </div>
+                <div>
+                  <p class="text-[10px] pb-2">Invoice Status</p>
+                  <!-- expense status -->
+                  <select
+                    v-model="invoiceStatus"
+                    name=""
+                    id=""
+                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option class="text-[10px]" value=""></option>
+                    <option class="text-[10px]" value="receive">Receive</option>
+                    <option class="text-[10px]" value="not_receive">
+                      Not Receive
                     </option>
                   </select>
                 </div>
@@ -1113,9 +1134,8 @@ watch(dateRange, async (newValue) => {
               v-if="showSide == 3"
             />
           </div>
-
           <div
-            class="border shadow-sm rounded-lg p-4 h-[85vh] transition duration-150 overflow-y-scroll no-scrollbar"
+            class="rounded-lg h-[85vh] transition duration-150 overflow-y-scroll no-scrollbar"
           >
             <ReservationDetail :show="showSide" />
           </div>

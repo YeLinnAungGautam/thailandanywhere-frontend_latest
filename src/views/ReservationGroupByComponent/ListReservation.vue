@@ -113,14 +113,7 @@
             <span
               class="bg-gray-900 w-1 h-1 mb-0.5 rounded-full inline-block"
             ></span
-            ><span class="whitespace-nowrap"
-              >{{ i?.items.length }} items in
-              {{
-                i?.items[0]?.product_type == "App\\Models\\Hotel"
-                  ? "hotels"
-                  : "attractions"
-              }}.</span
-            >
+            ><span class="whitespace-nowrap">{{ i?.items.length }} items</span>
           </div>
         </div>
         <div class="pt-1 flex justify-start items-center gap-x-3">

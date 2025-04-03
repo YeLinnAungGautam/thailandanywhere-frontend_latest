@@ -444,15 +444,17 @@ watch(
 );
 
 watch(
-  () => [route.query.id, route.query.product_id],
-  async ([newId, newProductId]) => {
-    if (newId || newProductId) {
+  [() => route.query.id, () => route.query.product_id],
+  async ([newId, newProductId], [oldId, oldProductId]) => {
+    if (
+      (newId && newId !== oldId) ||
+      (newProductId && newProductId !== oldProductId)
+    ) {
       hasRouteId.value = false;
       getDetailAction(newId, newProductId);
-      // console.log(detail.value, "this is get detail value");
     }
   },
-  { immediate: true } // This will run the watcher immediately when the component is created
+  { immediate: true }
 );
 
 watch(
@@ -477,7 +479,7 @@ onMounted(() => {
   }
 });
 
-const hide = ref(false);
+const hide = ref(true);
 </script>
 
 <template>
@@ -517,344 +519,354 @@ const hide = ref(false);
       </div>
     </div>
     <div class="space-y-4" v-if="!getLoading && !hasRouteId">
-      <div
-        class="flex justify-between items-center space-x-2 overflow-x-scroll no-sidebar-container"
-      >
-        <div class="flex justify-start items-center gap-x-2">
-          <p
-            @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
-            class="text-[10px] bg-[#FF613c] whitespace-nowrap cursor-pointer shadow text-white px-3 py-1.5 rounded-lg"
-          >
-            View invoice
-          </p>
-          <p
-            class="text-[10px] shadow flex justify-center items-center gap-x-2 text-white px-3 py-1.5 rounded-lg"
-            :class="{
-              'bg-green-500': detail?.booking?.payment_status == 'fully_paid',
-              'bg-red-500': detail?.booking?.payment_status != 'fully_paid',
-            }"
-          >
-            <span
-              class="h-1 mr-0.5 w-1 bg-white rounded-full inline-block"
-            ></span
-            >{{ detail?.booking?.payment_status }}
-          </p>
-        </div>
-        <div class="flex justify-end items-center gap-x-2">
-          <p
-            class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
-            @click="copyReservation(detail?.booking?.id)"
-          >
-            Copy Expense
-          </p>
-          <div
-            v-if="
-              detail?.booking?.items[0]?.product_type == 'App\\Models\\Hotel'
-            "
-          >
+      <div class="space-y-4 border border-gray-200 p-3 rounded-lg">
+        <div
+          class="flex justify-between items-center space-x-2 overflow-x-scroll no-sidebar-container"
+        >
+          <div class="flex justify-start items-center gap-x-2">
             <p
-              v-if="
-                detail?.booking?.payment_status == 'fully_paid' &&
-                expenseStatus(detail) == 'fully_paid'
+              @click="
+                router.push(`/bookings/new-update/${detail?.booking?.id}`)
               "
-              class="text-[10px] bg-[#FF613c] shadow hover:shadow-none whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
-              @click="goToHotelConfirmation()"
+              class="text-[10px] bg-[#FF613c] whitespace-nowrap cursor-pointer shadow text-white px-3 py-1.5 rounded-lg"
             >
-              Hotel Confirmation
+              View invoice
             </p>
             <p
-              v-if="
-                !detail?.booking?.payment_status == 'fully_paid' &&
-                !expenseStatus(detail) == 'fully_paid'
-              "
-              class="text-[10px] bg-gray-300 whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+              class="text-[10px] shadow flex justify-center items-center gap-x-2 text-white px-3 py-1.5 rounded-lg"
+              :class="{
+                'bg-green-500': detail?.booking?.payment_status == 'fully_paid',
+                'bg-red-500': detail?.booking?.payment_status != 'fully_paid',
+              }"
             >
-              Hotel Confirmation {{ expenseStatus(detail) }}
+              <span
+                class="h-1 mr-0.5 w-1 bg-white rounded-full inline-block"
+              ></span
+              >{{ detail?.booking?.payment_status }}
             </p>
           </div>
-          <p
-            class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
-            @click="
-              detail?.booking?.items[0]?.product_type ==
-              'App\\Models\\EntranceTicket'
-                ? generateConfirmation()
-                : printHotelConfirm()
-            "
-          >
-            Generate Confirmation
-          </p>
-        </div>
-      </div>
-      <div class="grid grid-cols-5 gap-2">
-        <div class="col-span-5 flex justify-between items-center">
-          <div>
-            <p class="text-[10px] text-gray-500">customer name</p>
-            <p class="text-[18px] text-[#FF613c] font-medium pb-2">
-              {{ detail?.booking.customer_info?.name }}
+          <div class="flex justify-end items-center gap-x-2">
+            <p
+              class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
+              @click="copyReservation(detail?.booking?.id)"
+            >
+              Copy Expense
             </p>
-            <div class="flex justify-start items-center gap-x-2">
+            <div
+              v-if="
+                detail?.booking?.items[0]?.product_type == 'App\\Models\\Hotel'
+              "
+            >
               <p
-                class="text-[10px] px-1.5 whitespace-nowrap py-0.5 text-white rounded-lg bg-[#FF613c]"
+                v-if="
+                  detail?.booking?.payment_status == 'fully_paid' &&
+                  expenseStatus(detail) == 'fully_paid'
+                "
+                class="text-[10px] bg-[#FF613c] shadow hover:shadow-none whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+                @click="goToHotelConfirmation()"
               >
-                {{ detail?.booking?.crm_id }}
-              </p>
-              <!-- <p
-                class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-blue-600"
-                v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
-              >
-                Ticket
-              </p> -->
-              <p
-                class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-green-600"
-              >
-                {{
-                  detail?.booking?.items[0]?.product_type ==
-                  "App\\Models\\Hotel"
-                    ? "Hotel"
-                    : "Ticket"
-                }}: {{ detail?.booking?.items[0]?.product?.name }}
+                Hotel Confirmation
               </p>
               <p
-                class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-black"
+                v-if="
+                  !detail?.booking?.payment_status == 'fully_paid' &&
+                  !expenseStatus(detail) == 'fully_paid'
+                "
+                class="text-[10px] bg-gray-300 whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
               >
-                Contact
+                Hotel Confirmation {{ expenseStatus(detail) }}
               </p>
             </div>
-          </div>
-          <div class="">
-            <p class="text-[10px] text-gray-500 text-end">score</p>
-            <p class="text-lg text-red-500 font-medium pb-2 text-end">
-              {{ score }}
+            <p
+              class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+              @click="
+                detail?.booking?.items[0]?.product_type ==
+                'App\\Models\\EntranceTicket'
+                  ? generateConfirmation()
+                  : printHotelConfirm()
+              "
+            >
+              Generate Confirmation
             </p>
-            <div class="flex justify-end items-center gap-x-2">
-              <p
-                @click="showCommentPropup = true"
-                class="text-[10px] cursor-pointer px-3 py-0.5 flex justify-center gap-x-1.5 items-center text-white rounded-lg bg-[#FF613c]"
-              >
-                <img :src="productIcon" alt="" class="w-3 h-3" />Note
-              </p>
-              <p
-                class="text-[10px] cursor-pointer px-2 py-0.5 flex justify-center gap-x-1.5 items-center text-white rounded-lg bg-[#FF613c]"
-              >
-                <img :src="productIcon" alt="" class="w-3 h-3" />Product
-              </p>
-              <p
-                @click="hide = !hide"
-                class="text-[10px] cursor-pointer px-2 py-0.5 flex justify-center gap-x-1 items-center text-white rounded-lg bg-black"
-              >
-                <ChevronDownIcon class="w-3 h-3 text-white" />{{
-                  !hide ? "Hide" : "Show"
-                }}
-              </p>
-            </div>
           </div>
         </div>
-        <div :class="show != 3 ? 'col-span-5' : 'col-span-5'" v-if="!hide">
-          <div class="flex justify-between items-start gap-x-4 pt-3">
+        <div class="grid grid-cols-5 gap-2">
+          <div class="col-span-5 flex justify-between items-center">
             <div>
-              <img
-                v-if="
-                  detail?.booking?.items[0]?.product_type ==
-                  'App\\Models\\EntranceTicket'
-                "
-                :src="
-                  detail?.booking?.items[0]?.product?.cover_image
-                    ? detail?.booking?.items[0]?.product?.cover_image
-                    : 'https://placehold.co/400'
-                "
-                class="min-w-[120px] max-w-[120px] shadow object-cover rounded-lg h-[130px]"
-                alt=""
-              />
-              <img
-                v-if="
-                  detail?.booking?.items[0]?.product_type ==
-                  'App\\Models\\Hotel'
-                "
-                :src="
-                  detail?.booking?.items[0]?.product?.images?.length > 0
-                    ? detail?.booking?.items[0]?.product?.images[0]?.image
-                    : 'https://placehold.co/400'
-                "
-                class="min-w-[120px] max-w-[120px] shadow object-cover rounded-lg h-[150px]"
-                alt=""
-              />
-            </div>
-            <div class="w-full overflow-scroll max-h-[200px]">
-              <table
-                class="w-full rounded-xl overflow-hidden border border-gray-700 shadow-sm"
-              >
-                <thead
-                  class="bg-[#FF613c] text-white border-b-2 border-gray-200"
+              <p class="text-[10px] text-gray-500">customer name</p>
+              <p class="text-[18px] text-[#FF613c] font-medium pb-2">
+                {{ detail?.booking.customer_info?.name }}
+              </p>
+              <div class="flex justify-start items-center gap-x-2">
+                <p
+                  class="text-[10px] px-1.5 whitespace-nowrap py-0.5 text-white rounded-lg bg-[#FF613c]"
                 >
-                  <tr>
-                    <th
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      Code
-                    </th>
-                    <th
-                      class="py-1 px-4 text-[10px] whitespace-nowrap min-w-[120px] font-normal text-left"
-                    >
-                      Item Name
-                    </th>
-                    <th
-                      v-if="
-                        detail?.booking?.items[0]?.product_type ==
-                        'App\\Models\\Hotel'
-                      "
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      Check-in
-                    </th>
-                    <th
-                      v-if="
-                        detail?.booking?.items[0]?.product_type ==
-                        'App\\Models\\Hotel'
-                      "
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      Check-out
-                    </th>
-                    <th
-                      v-if="
-                        detail?.booking?.items[0]?.product_type ==
-                        'App\\Models\\EntranceTicket'
-                      "
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      Service Date
-                    </th>
-                    <th
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      Qty
-                    </th>
-                    <th
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      Price
-                    </th>
-                    <th
-                      v-if="
-                        detail?.booking?.items[0]?.product_type ==
-                        'App\\Models\\EntranceTicket'
-                      "
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      Child Price
-                    </th>
-
-                    <th
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      Total
-                    </th>
-                    <th
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      Expense
-                    </th>
-                    <th
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      Discount
-                    </th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                  <tr
-                    v-for="item in detail?.booking?.items ?? []"
-                    :key="item"
-                    class="bg-white even:bg-gray-50 hover:bg-gray-50"
+                  {{ detail?.booking?.crm_id }}
+                </p>
+                <!-- <p
+                  class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-blue-600"
+                  v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
+                >
+                  Ticket
+                </p> -->
+                <p
+                  class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-green-600"
+                >
+                  {{
+                    detail?.booking?.items[0]?.product_type ==
+                    "App\\Models\\Hotel"
+                      ? "Hotel"
+                      : "Ticket"
+                  }}: {{ detail?.booking?.items[0]?.product?.name }}
+                </p>
+                <p
+                  class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-black"
+                >
+                  Contact
+                </p>
+              </div>
+            </div>
+            <div class="">
+              <p class="text-[10px] text-gray-500 text-end">score</p>
+              <p class="text-lg text-red-500 font-medium pb-2 text-end">
+                {{ score }}
+              </p>
+              <div class="flex justify-end items-center gap-x-2">
+                <p
+                  @click="showCommentPropup = true"
+                  class="text-[10px] cursor-pointer px-3 py-0.5 flex justify-center gap-x-1.5 items-center text-white rounded-lg bg-[#FF613c]"
+                >
+                  <img :src="productIcon" alt="" class="w-3 h-3" />Note
+                </p>
+                <p
+                  class="text-[10px] cursor-pointer px-2 py-0.5 flex justify-center gap-x-1.5 items-center text-white rounded-lg bg-[#FF613c]"
+                >
+                  <img :src="productIcon" alt="" class="w-3 h-3" />Product
+                </p>
+                <p
+                  @click="hide = !hide"
+                  class="text-[10px] cursor-pointer px-2 py-0.5 flex justify-center gap-x-1 items-center text-white rounded-lg bg-black"
+                >
+                  <ChevronDownIcon class="w-3 h-3 text-white" />{{
+                    !hide ? "Hide" : "Show"
+                  }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div :class="show != 3 ? 'col-span-5' : 'col-span-5'" v-if="!hide">
+            <div class="flex justify-between items-start gap-x-4 pt-3">
+              <div>
+                <img
+                  v-if="
+                    detail?.booking?.items[0]?.product_type ==
+                    'App\\Models\\EntranceTicket'
+                  "
+                  :src="
+                    detail?.booking?.items[0]?.product?.cover_image
+                      ? detail?.booking?.items[0]?.product?.cover_image
+                      : 'https://placehold.co/400'
+                  "
+                  class="min-w-[120px] max-w-[120px] shadow object-cover rounded-lg h-[130px]"
+                  alt=""
+                />
+                <img
+                  v-if="
+                    detail?.booking?.items[0]?.product_type ==
+                    'App\\Models\\Hotel'
+                  "
+                  :src="
+                    detail?.booking?.items[0]?.product?.images?.length > 0
+                      ? detail?.booking?.items[0]?.product?.images[0]?.image
+                      : 'https://placehold.co/400'
+                  "
+                  class="min-w-[120px] max-w-[120px] shadow object-cover rounded-lg h-[150px]"
+                  alt=""
+                />
+              </div>
+              <div class="w-full overflow-scroll max-h-[200px]">
+                <table
+                  class="w-full rounded-xl overflow-hidden border border-gray-700 shadow-sm"
+                >
+                  <thead
+                    class="bg-[#FF613c] text-white border-b-2 border-gray-200"
                   >
-                    <td
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      {{ item.crm_id }}
-                    </td>
-                    <td
-                      v-if="item?.product_type == 'App\\Models\\Hotel'"
-                      class="py-1 px-4 text-[10px] w-[300px] font-normal text-left"
-                    >
-                      {{ item?.room?.name }}
-                    </td>
-                    <td
-                      v-if="item?.product_type == 'App\\Models\\EntranceTicket'"
-                      class="py-1 px-4 text-[10px] w-[300px] font-normal text-left"
-                    >
-                      {{ item?.variation?.name }}
-                    </td>
-                    <td
-                      v-if="item?.product_type == 'App\\Models\\Hotel'"
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      {{ item.checkin_date }}
-                    </td>
-                    <td
-                      v-if="item?.product_type == 'App\\Models\\Hotel'"
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      {{ item.checkout_date }}
-                    </td>
-                    <td
-                      v-if="item?.product_type == 'App\\Models\\EntranceTicket'"
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      {{ item?.service_date }}
-                    </td>
-                    <td
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      {{ item.quantity }}
-                      {{
-                        item?.product_type != "App\\Models\\EntranceTicket"
-                          ? `x ${calculateDaysBetween(
-                              item.checkin_date,
-                              item.checkout_date
-                            )}`
-                          : `, ${
-                              item.individual_pricing != "null" &&
-                              item.individual_pricing?.child
-                                ? item.individual_pricing?.child?.quantity
-                                : 0
-                            }`
-                      }}
-                    </td>
-                    <td
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      {{ item.selling_price }}
-                    </td>
-                    <td
-                      v-if="item?.product_type == 'App\\Models\\EntranceTicket'"
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      {{
-                        item.individual_pricing != "null" &&
-                        item.individual_pricing?.child
-                          ? item.individual_pricing.child.selling_price
-                          : 0
-                      }}
-                    </td>
+                    <tr>
+                      <th
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        Code
+                      </th>
+                      <th
+                        class="py-1 px-4 text-[10px] whitespace-nowrap min-w-[120px] font-normal text-left"
+                      >
+                        Item Name
+                      </th>
+                      <th
+                        v-if="
+                          detail?.booking?.items[0]?.product_type ==
+                          'App\\Models\\Hotel'
+                        "
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        Check-in
+                      </th>
+                      <th
+                        v-if="
+                          detail?.booking?.items[0]?.product_type ==
+                          'App\\Models\\Hotel'
+                        "
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        Check-out
+                      </th>
+                      <th
+                        v-if="
+                          detail?.booking?.items[0]?.product_type ==
+                          'App\\Models\\EntranceTicket'
+                        "
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        Service Date
+                      </th>
+                      <th
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        Qty
+                      </th>
+                      <th
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        Price
+                      </th>
+                      <th
+                        v-if="
+                          detail?.booking?.items[0]?.product_type ==
+                          'App\\Models\\EntranceTicket'
+                        "
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        Child Price
+                      </th>
 
-                    <td
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      <th
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        Total
+                      </th>
+                      <th
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        Expense
+                      </th>
+                      <th
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        Discount
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-100">
+                    <tr
+                      v-for="item in detail?.booking?.items ?? []"
+                      :key="item"
+                      class="bg-white even:bg-gray-50 hover:bg-gray-50"
                     >
-                      {{ item.amount }}
-                    </td>
-                    <td
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      {{ item.total_cost_price }}
-                    </td>
-                    <td
-                      class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-                    >
-                      {{ item.discount }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                      <td
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        {{ item.crm_id }}
+                      </td>
+                      <td
+                        v-if="item?.product_type == 'App\\Models\\Hotel'"
+                        class="py-1 px-4 text-[10px] w-[300px] font-normal text-left"
+                      >
+                        {{ item?.room?.name }}
+                      </td>
+                      <td
+                        v-if="
+                          item?.product_type == 'App\\Models\\EntranceTicket'
+                        "
+                        class="py-1 px-4 text-[10px] w-[300px] font-normal text-left"
+                      >
+                        {{ item?.variation?.name }}
+                      </td>
+                      <td
+                        v-if="item?.product_type == 'App\\Models\\Hotel'"
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        {{ item.checkin_date }}
+                      </td>
+                      <td
+                        v-if="item?.product_type == 'App\\Models\\Hotel'"
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        {{ item.checkout_date }}
+                      </td>
+                      <td
+                        v-if="
+                          item?.product_type == 'App\\Models\\EntranceTicket'
+                        "
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        {{ item?.service_date }}
+                      </td>
+                      <td
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        {{ item.quantity }}
+                        {{
+                          item?.product_type != "App\\Models\\EntranceTicket"
+                            ? `x ${calculateDaysBetween(
+                                item.checkin_date,
+                                item.checkout_date
+                              )}`
+                            : `, ${
+                                item.individual_pricing != "null" &&
+                                item.individual_pricing?.child
+                                  ? item.individual_pricing?.child?.quantity
+                                  : 0
+                              }`
+                        }}
+                      </td>
+                      <td
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        {{ item.selling_price }}
+                      </td>
+                      <td
+                        v-if="
+                          item?.product_type == 'App\\Models\\EntranceTicket'
+                        "
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        {{
+                          item.individual_pricing != "null" &&
+                          item.individual_pricing?.child
+                            ? item.individual_pricing.child.selling_price
+                            : 0
+                        }}
+                      </td>
+
+                      <td
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        {{ item.amount }}
+                      </td>
+                      <td
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        {{ item.total_cost_price }}
+                      </td>
+                      <td
+                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                      >
+                        {{ item.discount }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -862,290 +874,337 @@ const hide = ref(false);
       <div>
         <div class="pt-2 relative flex justify-between items-center">
           <!-- line -->
-          <div class="w-full h-[3px] absolute bottom-2.5 bg-gray-200"></div>
+          <!-- <div class="w-full h-[3px] absolute bottom-2.5 bg-gray-200"></div> -->
           <div
-            v-if="!state.general"
-            @click="part = 'general'"
-            class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
-            :class="
-              part == 'general' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
-            "
-          >
-            1
-          </div>
-          <div
-            v-if="state.general"
-            class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
-            :class="part == 'general' ? 'bg-white text-white' : ''"
+            class="flex justify-start items-center gap-x-3 cursor-pointer"
             @click="part = 'general'"
           >
-            <img :src="checkImage" alt="" />
+            <div
+              v-if="!state.general"
+              @click="part = 'general'"
+              class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+              :class="
+                part == 'general' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+              "
+            >
+              1
+            </div>
+            <div
+              v-if="state.general"
+              class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+              :class="part == 'general' ? 'bg-white text-white' : ''"
+              @click="part = 'general'"
+            >
+              <img :src="checkImage" alt="" />
+            </div>
+            <p
+              class="text-xs"
+              :class="state.general ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              Review
+            </p>
           </div>
           <div
-            class="w-30 h-[2px] rounded-full relative z-10"
-            :class="state.general ? 'bg-[#04BA00]' : 'bg-gray-200'"
-          ></div>
-          <div
-            v-if="!state.passport"
-            @click="part = 'passport'"
-            class="w-6 h-6 flex justify-center cursor-pointer items-center text-[10px] rounded-full relative z-10"
-            :class="
-              part == 'passport' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
-            "
+            class="relative z-10"
+            :class="state.general ? 'text-[#04BA00]' : 'text-gray-800'"
           >
-            2
+            <ChevronRightIcon class="w-4 h-4" />
           </div>
           <div
-            v-if="state.passport"
+            class="flex justify-start items-center gap-x-3 cursor-pointer"
             @click="part = 'passport'"
-            class="w-6 h-6 flex justify-center cursor-pointer shadow hover:shadow-none items-center text-[10px] rounded-full relative z-10"
-            :class="part == 'passport' ? 'bg-white text-white' : ''"
           >
-            <img :src="checkImage" alt="" />
+            <div
+              v-if="!state.passport"
+              @click="part = 'passport'"
+              class="w-6 h-6 flex justify-center cursor-pointer items-center text-[10px] rounded-full relative z-10"
+              :class="
+                part == 'passport' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+              "
+            >
+              2
+            </div>
+            <div
+              v-if="state.passport"
+              @click="part = 'passport'"
+              class="w-6 h-6 flex justify-center cursor-pointer shadow hover:shadow-none items-center text-[10px] rounded-full relative z-10"
+              :class="part == 'passport' ? 'bg-white text-white' : ''"
+            >
+              <img :src="checkImage" alt="" />
+            </div>
+            <p
+              class="text-xs"
+              :class="state.passport ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              Passport
+            </p>
           </div>
           <div
-            class="w-30 h-[2px] rounded-full relative z-10"
-            :class="state.passport ? 'bg-[#04BA00]' : 'bg-gray-200'"
-          ></div>
+            class="relative z-10"
+            :class="state.passport ? 'text-[#04BA00]' : 'text-gray-800'"
+          >
+            <ChevronRightIcon class="w-4 h-4" />
+          </div>
 
           <div
-            v-if="
-              !state.booking &&
-              (authStore.isReservation || authStore.isSuperAdmin)
-            "
+            class="flex justify-start items-center gap-x-3 cursor-pointer"
             @click="part = 'booking'"
-            class="w-6 h-6 flex justify-center cursor-pointer items-center text-[10px] rounded-full relative z-10"
-            :class="
-              part == 'booking' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
-            "
           >
-            3
+            <div
+              v-if="
+                !state.booking &&
+                (authStore.isReservation || authStore.isSuperAdmin)
+              "
+              @click="part = 'booking'"
+              class="w-6 h-6 flex justify-center cursor-pointer items-center text-[10px] rounded-full relative z-10"
+              :class="
+                part == 'booking' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+              "
+            >
+              3
+            </div>
+            <div
+              v-if="
+                state.booking &&
+                (authStore.isReservation || authStore.isSuperAdmin)
+              "
+              @click="part = 'booking'"
+              class="w-6 h-6 flex justify-center cursor-pointer shadow hover:shadow-none items-center text-[10px] rounded-full relative z-10"
+              :class="part == 'booking' ? 'bg-white text-white' : ''"
+            >
+              <img :src="checkImage" alt="" />
+            </div>
+            <p
+              class="text-xs"
+              :class="state.booking ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              Booking
+            </p>
           </div>
           <div
-            v-if="
-              state.booking &&
-              (authStore.isReservation || authStore.isSuperAdmin)
-            "
-            @click="part = 'booking'"
-            class="w-6 h-6 flex justify-center cursor-pointer shadow hover:shadow-none items-center text-[10px] rounded-full relative z-10"
-            :class="part == 'booking' ? 'bg-white text-white' : ''"
+            class="relative z-10"
+            :class="state.booking ? 'text-[#04BA00]' : 'text-gray-800'"
           >
-            <img :src="checkImage" alt="" />
+            <ChevronRightIcon class="w-4 h-4" />
           </div>
           <div
-            v-if="authStore.isReservation || authStore.isSuperAdmin"
-            class="w-30 h-[2px] rounded-full relative z-10 bg-gray-200"
-          ></div>
-          <div
-            v-if="
-              !state.invoice &&
-              (authStore.isReservation || authStore.isSuperAdmin)
-            "
+            class="flex justify-start items-center gap-x-3 cursor-pointer"
             @click="part = 'invoice'"
-            class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
-            :class="
-              part == 'invoice' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
-            "
           >
-            4
+            <div
+              v-if="
+                !state.invoice &&
+                (authStore.isReservation || authStore.isSuperAdmin)
+              "
+              @click="part = 'invoice'"
+              class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
+              :class="
+                part == 'invoice' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+              "
+            >
+              4
+            </div>
+            <div
+              v-if="
+                state.invoice &&
+                (authStore.isReservation || authStore.isSuperAdmin)
+              "
+              @click="part = 'invoice'"
+              class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+              :class="part == 'invoice' ? 'bg-white text-white' : ''"
+            >
+              <img :src="checkImage" alt="" />
+            </div>
+            <p
+              class="text-xs"
+              :class="state.invoice ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              Invoice
+            </p>
           </div>
           <div
-            v-if="
-              state.invoice &&
-              (authStore.isReservation || authStore.isSuperAdmin)
-            "
-            @click="part = 'invoice'"
-            class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
-            :class="part == 'invoice' ? 'bg-white text-white' : ''"
+            class="relative z-10"
+            :class="state.invoice ? 'text-[#04BA00]' : 'text-gray-800'"
           >
-            <img :src="checkImage" alt="" />
+            <ChevronRightIcon class="w-4 h-4" />
           </div>
           <div
-            v-if="authStore.isReservation || authStore.isSuperAdmin"
-            class="w-30 h-[2px] rounded-full relative z-10"
-            :class="state.invoice ? 'bg-[#04BA00]' : 'bg-gray-200'"
-          ></div>
-          <div
-            v-if="
-              !state.expense &&
-              (authStore.isReservation || authStore.isSuperAdmin)
-            "
+            class="flex justify-start items-center gap-x-3 cursor-pointer"
             @click="part = 'expense'"
-            class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
-            :class="
-              part == 'expense' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
-            "
           >
-            5
+            <div
+              v-if="
+                !state.expense &&
+                (authStore.isReservation || authStore.isSuperAdmin)
+              "
+              @click="part = 'expense'"
+              class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
+              :class="
+                part == 'expense' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+              "
+            >
+              5
+            </div>
+            <div
+              v-if="
+                state.expense &&
+                (authStore.isReservation || authStore.isSuperAdmin)
+              "
+              @click="part = 'expense'"
+              class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+              :class="part == 'expense' ? 'bg-white text-white' : ''"
+            >
+              <img :src="checkImage" alt="" />
+            </div>
+            <p
+              class="text-xs"
+              :class="state.expense ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              Expense
+            </p>
           </div>
           <div
-            v-if="
-              state.expense &&
-              (authStore.isReservation || authStore.isSuperAdmin)
-            "
-            @click="part = 'expense'"
-            class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
-            :class="part == 'expense' ? 'bg-white text-white' : ''"
+            class="relative z-10"
+            :class="state.expense ? 'text-[#04BA00]' : 'text-gray-800'"
           >
-            <img :src="checkImage" alt="" />
+            <ChevronRightIcon class="w-4 h-4" />
           </div>
           <div
-            v-if="authStore.isReservation || authStore.isSuperAdmin"
-            class="w-30 h-[2px] rounded-full relative z-10"
-            :class="state.expensemail ? 'bg-[#04BA00]' : 'bg-gray-200'"
-          ></div>
-          <div
-            v-if="
-              !state.expensemail &&
-              (authStore.isReservation || authStore.isSuperAdmin)
-            "
+            class="flex justify-start items-center gap-x-3 cursor-pointer"
             @click="part = 'expensemail'"
-            class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
-            :class="
-              part == 'expensemail' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
-            "
           >
-            6
+            <div
+              v-if="
+                !state.expensemail &&
+                (authStore.isReservation || authStore.isSuperAdmin)
+              "
+              @click="part = 'expensemail'"
+              class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
+              :class="
+                part == 'expensemail'
+                  ? 'bg-[#FF613c] text-white'
+                  : 'bg-gray-200'
+              "
+            >
+              6
+            </div>
+            <div
+              v-if="
+                state.expensemail &&
+                (authStore.isReservation || authStore.isSuperAdmin)
+              "
+              @click="part = 'expensemail'"
+              class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+              :class="part == 'expensemail' ? 'bg-white text-white' : ''"
+            >
+              <img :src="checkImage" alt="" />
+            </div>
+            <p
+              class="text-xs"
+              :class="state.expensemail ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              Exp. Mail
+            </p>
           </div>
           <div
-            v-if="
-              state.expensemail &&
-              (authStore.isReservation || authStore.isSuperAdmin)
-            "
-            @click="part = 'expensemail'"
-            class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
-            :class="part == 'expensemail' ? 'bg-white text-white' : ''"
+            class="relative z-10"
+            :class="state.expensemail ? 'text-[#04BA00]' : 'text-gray-800'"
           >
-            <img :src="checkImage" alt="" />
+            <ChevronRightIcon class="w-4 h-4" />
           </div>
           <div
-            v-if="authStore.isReservation || authStore.isSuperAdmin"
-            class="w-30 h-[2px] rounded-full relative z-10"
-            :class="state.expensemail ? 'bg-[#04BA00]' : 'bg-gray-200'"
-          ></div>
-          <div
-            v-if="!state.confirmation"
+            class="flex justify-start items-center gap-x-3 cursor-pointer"
             @click="part = 'confirmation'"
-            class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
-            :class="
-              part == 'confirmation' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
-            "
           >
-            7
-          </div>
-          <div
-            v-if="state.confirmation"
-            @click="part = 'confirmation'"
-            class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
-            :class="part == 'confirmation' ? 'bg-white text-white' : ''"
-          >
-            <img :src="checkImage" alt="" />
+            <div
+              v-if="!state.confirmation"
+              @click="part = 'confirmation'"
+              class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
+              :class="
+                part == 'confirmation'
+                  ? 'bg-[#FF613c] text-white'
+                  : 'bg-gray-200'
+              "
+            >
+              7
+            </div>
+            <div
+              v-if="state.confirmation"
+              @click="part = 'confirmation'"
+              class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+              :class="part == 'confirmation' ? 'bg-white text-white' : ''"
+            >
+              <img :src="checkImage" alt="" />
+            </div>
+            <p
+              class="text-xs"
+              :class="state.confirmation ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              Confirmation
+            </p>
           </div>
         </div>
-        <div class="flex justify-between pt-2 items-center">
-          <!-- line -->
-          <div
-            class="text-xs cursor-pointer flex justify-center items-center"
-            @click="part = 'general'"
-            :class="[
-              state.general && part == 'general' ? 'text-[#04BA00]' : '',
-            ]"
-          >
-            Payment<span
-              v-if="part == 'general'"
-              class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
-            ></span>
-          </div>
-          <div
-            class="text-xs cursor-pointer flex justify-center items-center"
-            @click="part = 'passport'"
-            :class="[
-              state.passport && part == 'passport' ? 'text-[#04BA00]' : '',
-            ]"
-          >
-            Passport<span
-              v-if="part == 'passport'"
-              class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
-            ></span>
-          </div>
-          <div
-            v-if="authStore.isReservation || authStore.isSuperAdmin"
-            class="text-xs cursor-pointer flex justify-center items-center"
-            @click="part = 'booking'"
-            :class="[
-              state.booking && part == 'booking' ? 'text-[#04BA00]' : '',
-            ]"
-          >
-            Booking<span
-              v-if="part == 'booking'"
-              class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
-            ></span>
-          </div>
-          <div
-            v-if="authStore.isReservation || authStore.isSuperAdmin"
-            class="text-xs cursor-pointer flex justify-center items-center"
-            @click="part = 'invoice'"
-            :class="[
-              part === 'invoice' && state.invoice ? 'text-[#04BA00]' : '',
-            ]"
-          >
-            Invoice<span
-              v-if="part == 'invoice'"
-              class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
-            ></span>
-          </div>
-          <div
-            v-if="authStore.isReservation || authStore.isSuperAdmin"
-            class="text-xs cursor-pointer flex justify-center items-center"
-            @click="part = 'expense'"
-            :class="[
-              state.expense && part == 'expense' ? 'text-[#04BA00]' : '',
-            ]"
-          >
-            Expense<span
-              v-if="part == 'expense'"
-              class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
-            ></span>
-          </div>
-          <div
-            v-if="authStore.isReservation || authStore.isSuperAdmin"
-            class="text-xs cursor-pointer flex justify-center items-center"
-            @click="part = 'expensemail'"
-            :class="[
-              state.expensemail && part == 'expensemail'
-                ? 'text-[#04BA00]'
-                : '',
-            ]"
-          >
-            E. mail<span
-              v-if="part == 'expensemail'"
-              class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
-            ></span>
-          </div>
-          <div
-            class="text-xs cursor-pointer flex justify-center items-center"
-            @click="part = 'confirmation'"
-            :class="[
-              state.confirmation && part == 'confirmation'
-                ? 'text-[#04BA00]'
-                : '',
-            ]"
-          >
-            Confirm<span
-              v-if="part == 'confirmation'"
-              class="w-1 h-1 rounded-full inline-block bg-[#FF613c] ml-2"
-            ></span>
-          </div>
+
+        <div class="pt-2 flex justify-between items-center gap-x-2">
+          <p
+            class="w-full rounded-lg h-1"
+            :class="{
+              'bg-green-500': part === 'general' && state.general,
+              'bg-[#FF613c]': part === 'general' && !state.general,
+              'opacity-0': part !== 'general',
+            }"
+          ></p>
+          <p
+            class="w-full rounded-lg h-1"
+            :class="{
+              'bg-green-500': part === 'passport' && state.passport,
+              'bg-[#FF613c]': part === 'passport' && !state.passport,
+              'opacity-0': part !== 'passport',
+            }"
+          ></p>
+          <p
+            class="w-full rounded-lg h-1"
+            :class="{
+              'bg-green-500': part === 'booking' && state.booking,
+              'bg-[#FF613c]': part === 'booking' && !state.booking,
+              'opacity-0': part !== 'booking',
+            }"
+          ></p>
+          <p
+            class="w-full rounded-lg h-1"
+            :class="{
+              'bg-green-500': part === 'invoice' && state.invoice,
+              'bg-[#FF613c]': part === 'invoice' && !state.invoice,
+              'opacity-0': part !== 'invoice',
+            }"
+          ></p>
+          <p
+            class="w-full rounded-lg h-1"
+            :class="{
+              'bg-green-500': part === 'expense' && state.expense,
+              'bg-[#FF613c]': part === 'expense' && !state.expense,
+              'opacity-0': part !== 'expense',
+            }"
+          ></p>
+          <p
+            class="w-full rounded-lg h-1"
+            :class="{
+              'bg-green-500': part === 'expensemail' && state.expensemail,
+              'bg-[#FF613c]': part === 'expensemail' && !state.expensemail,
+              'opacity-0': part !== 'expensemail',
+            }"
+          ></p>
+          <p
+            class="w-full rounded-lg h-1"
+            :class="{
+              'bg-green-500': part === 'confirmation' && state.confirmation,
+              'bg-[#FF613c]': part === 'confirmation' && !state.confirmation,
+              'opacity-0': part !== 'confirmation',
+            }"
+          ></p>
         </div>
-        <div class="px-16 relative" v-if="show != 3">
-          <ChevronRightIcon
-            @click="rightButtonAction"
-            class="w-6 cursor-pointer h-6 bg-[#FF613c] text-white shadow p-1.5 rounded-full absolute right-0 top-[35px]"
-          />
-          <ChevronLeftIcon
-            @click="leftButtonAction"
-            class="w-6 cursor-pointer h-6 bg-[#FF613c] text-white shadow p-1.5 rounded-full absolute left-0 top-[35px]"
-          />
+
+        <div class="relative" v-if="show != 3">
           <Transition :name="transition" mode="out-in">
             <div class="pt-6" :key="part">
               <component

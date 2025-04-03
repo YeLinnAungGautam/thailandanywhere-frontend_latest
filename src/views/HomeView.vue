@@ -49,6 +49,7 @@ import {
   UsersIcon,
 } from "@heroicons/vue/24/outline";
 import ReservationCalendarHome from "./Dashboard/ReservationCalendarHome.vue";
+import { useSidebarStore } from "../stores/sidebar";
 
 Chart.register(...registerables);
 
@@ -61,6 +62,8 @@ const bookingStore = useBookingStore();
 const homeStore = useHomeStore();
 const router = useRouter();
 const route = useRoute();
+const sidebarStore = useSidebarStore();
+const { isShowSidebar } = storeToRefs(sidebarStore);
 
 const { loading } = storeToRefs(homeStore);
 
@@ -828,7 +831,8 @@ watch(homeSectionPartView, (newValue) => {
   <Layout :title="`Welcome back, ${authStore.user.name.split(' ')[0]}!`">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 mb-3">
       <div
-        class="space-x-8 col-span-3 left-[250px] flex justify-start items-center gap-2 text-sm pb-4 absolute top-8"
+        :class="isShowSidebar ? 'left-[250px]' : 'left-[100px]'"
+        class="space-x-8 col-span-3 flex justify-start transistion-all duration-200 items-center gap-2 text-sm pb-4 absolute top-8"
       >
         <HomeFirstPartVue
           :title="'Sales Analysis'"

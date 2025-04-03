@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="py-2 space-y-2 pr-1" v-if="!loading">
-      <div class="pb-4 border-b border-gray-200">
-        <p class="pb-2 text-xs">Booking Status</p>
+    <div class="grid grid-cols-3 gap-4">
+      <div class="pb-4 border-b border-gray-200 col-span-3">
+        <p class="pb-2 text-lg font-medium text-[#FF613c]">Invoice Status</p>
         <div class="flex justify-between items-center gap-x-2">
           <select
             name=""
@@ -14,265 +14,220 @@
             <option value="not_receive">not_receive</option>
           </select>
           <button
-            class="text-xs px-3 py-1.5 border rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
+            class="text-xs px-3 py-1.5 border whitespace-nowrap rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
             @click="updateAction"
           >
-            Update
+            Update Status
           </button>
         </div>
       </div>
+      <div
+        class="rounded-lg py-3 relative border space-y-3 border-gray-200 h-auto"
+      >
+        <p class="text-lg font-medium text-[#FF613c] px-4">Add Invoice</p>
 
-      <div class="pt-2 grid grid-cols-4 gap-x-4">
-        <div class="space-y-2 pt-2" @click="openPassportModal">
-          <div
-            class="w-full h-[180px] border border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
-          >
-            +
+        <div
+          class="flex justify-between px-4 items-center"
+          v-for="i in editData.invoices ?? []"
+          :key="i"
+        >
+          <div class="flex justify-start items-center space-x-4">
+            <div class="bg-[#FF613c]/30 rounded-lg p-2 inline-block">
+              <DocumentTextIcon class="w-4 text-[#FF613c] h-4" />
+            </div>
+            <p class="text-[12px] font-medium">
+              invoice: {{ i.invoice }} for {{ i.crm_id }}
+            </p>
           </div>
+          <p @click="openPassportModal(i)">
+            <PencilSquareIcon class="w-5 text-blue-500 h-5" />
+          </p>
+        </div>
+
+        <div class="w-full pt-4 px-4">
           <div
-            class="w-full px-4 pb-1 border-dashed border border-[#FF613c] space-y-2 text-[#FF613c] hover:shadow-none rounded-lg"
+            @click="closeAction"
+            class="bg-[#FF613c] text-white rounded-xl text-center text-xs py-3"
           >
-            <p class="text-[10px] flex justify-start items-center pt-2">
-              Invoice Date
-            </p>
-            <p class="text-[10px] flex justify-start items-center">
-              Company Name
-            </p>
-            <p class="text-[10px] flex justify-start items-center pb-2">
-              Invoice Amount
-            </p>
+            + New Invoice
           </div>
         </div>
       </div>
       <div
-        v-for="a in editData.reservation_ids ?? []"
-        :key="a"
-        class="grid grid-cols-4 gap-4"
+        class="col-span-2 py-3 rounded-lg relative border h-auto border-gray-200"
       >
-        <div
-          v-for="image in editData.invoices ?? []"
-          :key="image"
-          :class="a.crm_id == image.crm_id ? '' : 'hidden'"
-          class="flex flex-col relative justify-stretch group space-y-2 w-full"
-        >
-          <p class="text-[10px] px-2 py-1 bg-[#FF613c] rounded-lg text-white">
-            {{ a.crm_id }}
-          </p>
-          <p
-            @click="openPassportModal(image)"
-            class="absolute top-4 cursor-pointer text-[8px] shadow right-2 text-xs text-white bg-[#FF613c] px-2 py-0.5 rounded-lg"
-          >
-            <span class="text-[10px]">edit</span>
-          </p>
-          <div class="h-[180px] w-full">
-            <img
-              :src="image.file"
-              class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
-              alt=""
+        <p class="text-lg font-medium text-[#FF613c] px-4 pb-4">
+          Invoice Detail
+        </p>
+        <div class="grid grid-cols-2 px-4 gap-4">
+          <div class="space-y-4">
+            <div>
+              <p class="text-xs pb-1.5 font-medium">Company Name (Sender) *</p>
+              <select
+                v-model="formData.customer"
+                name=""
+                id=""
+                class="border text-xs border-gray-200 px-4 py-2 rounded-lg w-full"
+              >
+                <option value="">Select</option>
+                <option value="TH Anywhere">TH Anyhwere</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <p class="text-xs pb-1.5 font-medium">Invoice Date</p>
+              <div
+                class="flex justify-between border text-xs border-gray-200 pl-4 items-center rounded-lg w-full"
+              >
+                <p class="text-start text-xs" v-if="formData?.invoice">
+                  {{
+                    formData.invoice.includes("T")
+                      ? formatDate(formData.invoice)
+                      : formatDateFromDb(formData.invoice)
+                  }}
+                </p>
+                <p></p>
+                <input
+                  type="datetime-local"
+                  name=""
+                  v-model="formData.invoice"
+                  format="YYYY-MM-DD HH:mm:ss"
+                  class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  id=""
+                />
+              </div>
+            </div>
+            <div>
+              <p class="text-xs pb-1.5 font-medium">Due Date</p>
+              <div
+                class="flex justify-between border text-xs border-gray-200 pl-4 items-center rounded-lg w-full"
+              >
+                <p class="text-start text-xs" v-if="formData?.due_date">
+                  {{
+                    formData.due_date.includes("T")
+                      ? formatDate(formData.due_date)
+                      : formatDateFromDb(formData.due_date)
+                  }}
+                </p>
+                <p></p>
+                <input
+                  type="datetime-local"
+                  name=""
+                  v-model="formData.due_date"
+                  format="YYYY-MM-DD HH:mm:ss"
+                  class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  id=""
+                />
+              </div>
+            </div>
+            <div class="col-span-2" v-if="!formData.id">
+              <label for="" class="text-[12px] font-medium">For Which ? </label>
+              <div>
+                <input
+                  type="checkbox"
+                  v-model="allReservation"
+                  id="car"
+                  name="for_which"
+                />
+                <label for="car" class="text-[12px] ml-2"
+                  >For all reservations.</label
+                >
+              </div>
+              <div v-for="i in editData.reservation_ids" :key="i">
+                <input
+                  type="checkbox"
+                  v-model="i.selected"
+                  id="car"
+                  name="for_which"
+                />
+                <label for="car" class="text-[12px] ml-2">
+                  <span class="text-[#FF613c]">{{ i.crm_id }}</span
+                  >: {{ i.name }}</label
+                >
+              </div>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <p class="text-xs pb-1.5 font-medium">Amount</p>
+              <input
+                type="number"
+                v-model="formData.amount"
+                name=""
+                placeholder="xxxx"
+                class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
+                id=""
+              />
+            </div>
+            <!-- <div
+              class="flex justify-center text-[#FF613c] w-full h-[150px] border-dotted items-center border-2 border-[#FF613c] rounded-lg"
+            >
+              <PlusCircleIcon class="w-8 h-8 text-[#FF613c]" />
+            </div> -->
+            <div
+              v-if="!featureImagePreview"
+              class="w-full h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+              @click="openFileFeaturePicker"
+            >
+              <PlusCircleIcon class="w-8 h-8 text-[#FF613c]" />
+            </div>
+            <div v-if="featureImagePreview" class="w-full h-[300px]">
+              <img
+                :src="featureImagePreview"
+                class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
+                alt=""
+              />
+            </div>
+            <input
+              type="file"
+              ref="featureImageInput"
+              class="hidden"
+              @change="handlerFeatureFileChange"
+              accept="image/*"
             />
           </div>
           <div
-            class="w-full px-4 pb-1 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
+            class="flex justify-end text-[#FF613c] items-center w-full col-span-2 border-t pt-3 space-x-3 px-6"
           >
-            <p class="text-[10px] flex justify-start items-center pt-2">
-              {{ image.invoice }}
-            </p>
-            <p class="text-[10px] flex justify-start items-center">
-              {{ image.customer }}
-            </p>
-            <p class="text-[10px] flex justify-start items-center pb-2">
-              {{ image.amount }} thb
-            </p>
+            <div class="flex justify-end items-center space-x-2">
+              <p
+                @click="
+                  formData.id
+                    ? addInvoiceUpdateAction(formData.reservation_id)
+                    : askForReservationId()
+                "
+                class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
+              >
+                {{ formData.id ? "Update" : "Save" }}
+              </p>
+              <p
+                v-if="formData.id"
+                @click="deleteAction(formData.id)"
+                class="px-3 py-1 bg-red-500 text-white text-[12px] cursor-pointer rounded-lg"
+              >
+                Delete
+              </p>
+              <p
+                @click="closeAction"
+                class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
+              >
+                Close
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <Modal :isOpen="carModalOpen" @closeModal="closeAction">
-      <DialogPanel
-        class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
-      >
-        <DialogTitle
-          as="div"
-          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
-        >
-          <p>Invoice Update</p>
-          <XCircleIcon class="w-5 h-5 text-white" @click="closeAction" />
-        </DialogTitle>
-        <!-- show date  -->
-        <div class="p-4">
-          <div class="p-4">
-            <div class="grid grid-cols-2 gap-8">
-              <p class="text-[10px] text-gray-500 col-span-2">
-                Before save, Please make sure for which reservation.
-              </p>
-              <div
-                v-if="!featureImagePreview"
-                class="w-[220px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
-                @click="openFileFeaturePicker"
-              >
-                +
-              </div>
-              <div v-if="featureImagePreview" class="w-[220px] h-[300px]">
-                <img
-                  :src="featureImagePreview"
-                  class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
-                  alt=""
-                />
-              </div>
-              <input
-                type="file"
-                ref="featureImageInput"
-                class="hidden"
-                @change="handlerFeatureFileChange"
-                accept="image/*"
-              />
-              <div class="space-y-4 relative pt-4">
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium">Amount</label>
-                  <input
-                    type="number"
-                    v-model="formData.amount"
-                    name=""
-                    placeholder="xxxx"
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                    id=""
-                  />
-                </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium"
-                    >Invoice <span class="opacity-0">.</span></label
-                  >
-                  <div class="flex justify-between items-center w-[160px]">
-                    <p class="text-start text-xs" v-if="formData?.invoice">
-                      {{
-                        formData.invoice.includes("T")
-                          ? formatDate(formData.invoice)
-                          : formatDateFromDb(formData.invoice)
-                      }}
-                    </p>
-                    <input
-                      type="datetime-local"
-                      name=""
-                      v-model="formData.invoice"
-                      format="YYYY-MM-DD HH:mm:ss"
-                      class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                      id=""
-                    />
-                  </div>
-                </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium">Due </label>
-                  <div class="flex justify-between items-center w-[160px]">
-                    <p class="text-start text-xs" v-if="formData?.due_date">
-                      {{
-                        formData.due_date.includes("T")
-                          ? formatDate(formData.due_date)
-                          : formatDateFromDb(formData.due_date)
-                      }}
-                    </p>
-                    <input
-                      type="datetime-local"
-                      name=""
-                      v-model="formData.due_date"
-                      format="YYYY-MM-DD HH:mm:ss"
-                      class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                      id=""
-                    />
-                  </div>
-                </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium"
-                    >Customer
-                  </label>
-                  <select
-                    v-model="formData.customer"
-                    name=""
-                    id=""
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                  >
-                    <option value="">Select</option>
-                    <option value="TH Anywhere">TH Anyhwere</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium">Sender</label>
-                  <input
-                    type="text"
-                    v-model="formData.sender_name"
-                    name=""
-                    placeholder="xxxx"
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                    id=""
-                  />
-                </div>
-
-                <div
-                  class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
-                >
-                  <p
-                    @click="
-                      formData.id
-                        ? addInvoiceUpdateAction(formData.reservation_id)
-                        : askForReservationId()
-                    "
-                    class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
-                  >
-                    {{ formData.id ? "Update" : "Save" }}
-                  </p>
-                  <p
-                    v-if="formData.id"
-                    @click="deleteAction(formData.id)"
-                    class="px-3 py-1 bg-red-500 text-white text-[12px] cursor-pointer rounded-lg"
-                  >
-                    Delete
-                  </p>
-                  <p
-                    @click="closeAction"
-                    class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
-                  >
-                    Close
-                  </p>
-                </div>
-              </div>
-              <div class="col-span-2" v-if="!formData.id">
-                <label for="" class="text-[12px] font-medium"
-                  >For Which ?
-                </label>
-                <div>
-                  <input
-                    type="checkbox"
-                    v-model="allReservation"
-                    id="car"
-                    name="for_which"
-                  />
-                  <label for="car" class="text-[12px] ml-2"
-                    >For all reservations.</label
-                  >
-                </div>
-                <div v-for="i in editData.reservation_ids" :key="i">
-                  <input
-                    type="checkbox"
-                    v-model="i.selected"
-                    id="car"
-                    name="for_which"
-                  />
-                  <label for="car" class="text-[12px] ml-2">
-                    <span class="text-[#FF613c]">{{ i.crm_id }}</span
-                    >: {{ i.name }}</label
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </DialogPanel>
-    </Modal>
   </div>
 </template>
 
 <script setup>
-import { XCircleIcon } from "@heroicons/vue/24/outline";
+import {
+  DocumentTextIcon,
+  PencilSquareIcon,
+  UserCircleIcon,
+  XCircleIcon,
+} from "@heroicons/vue/24/outline";
 import { ref, defineProps, onMounted, computed } from "vue";
 import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
@@ -280,6 +235,7 @@ import invoice from "../../assets/invoice_exp.jpg";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute } from "vue-router";
+import { CheckCircleIcon, PlusCircleIcon } from "@heroicons/vue/24/solid";
 
 const reservationStore = useReservationStore();
 const toast = useToast();
@@ -356,14 +312,14 @@ const closeAction = async () => {
     sender_name: "",
   };
   featureImagePreview.value = null;
-  carModalOpen.value = false;
+  // carModalOpen.value = false;
 };
 
 const deleteAction = async (id) => {
   const res = await reservationStore.deleteConfirmationLetterAction(id);
   editData.value.car_photo = null;
   featureImagePreview.value = null;
-  carModalOpen.value = false;
+  // carModalOpen.value = false;
   toast.success("delete successfully");
 
   setTimeout(async () => {
@@ -396,7 +352,7 @@ const openPassportModal = (data) => {
     };
     featureImagePreview.value = null;
   }
-  carModalOpen.value = true;
+  // carModalOpen.value = true;
 };
 
 const formatDate = (dateString) => {

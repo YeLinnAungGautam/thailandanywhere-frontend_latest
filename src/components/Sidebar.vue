@@ -8,6 +8,7 @@
         <div class="flex items-center">
           <h3 class="text-sm font-medium md:text-sm lg:text-base">
             <img
+              @click.prevent="toggleSidebarHandler"
               src="../../public/web-logo.png"
               class="min-w-10 max-w-10 max-h-10 min-h-10 rounded"
               alt=""
@@ -84,51 +85,6 @@
                   'update_new_bookings',
                 ]"
               />
-              <!-- <div
-                v-if="!authStore.isAuditor"
-                @click="toggleReservationShow"
-                class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
-              >
-                <DocumentCheckIcon class="w-4 h-4" />
-                <p
-                  class="flex justify-between w-[80%] text-[12px] ml-[1.2rem] items-center"
-                  v-if="isShowSidebar"
-                >
-                  Reservations
-                  <ChevronDownIcon
-                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
-                    :class="isReservationShow ? 'opacity-0' : 'opacity-100'"
-                    v-if="!isReservationShow"
-                  />
-                  <ChevronUpIcon
-                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
-                    :class="isReservationShow ? 'opacity-100' : 'opacity-0'"
-                    v-if="isReservationShow"
-                  />
-                </p>
-              </div> -->
-              <!-- <div
-                v-if="isReservationShow"
-                class="transition-all duration-500 ease-in-out overflow-hidden"
-                :class="
-                  isReservationShow
-                    ? 'ml-5 opacity-100 max-h-[500px]'
-                    : 'opacity-0 max-h-0'
-                "
-              >
-                <SidebarItem
-                  name="v2"
-                  :icon="DocumentCheckIcon"
-                  to="/reservation-second"
-                  :activePaths="['reservation-second']"
-                />
-                <SidebarItem
-                  name="stable"
-                  :icon="DocumentCheckIcon"
-                  to="/reservation/%25/%25/%25"
-                  :activePaths="['reservation', 'reservation-update']"
-                />
-              </div> -->
 
               <SidebarItem
                 name="Reservation"

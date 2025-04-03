@@ -1,337 +1,69 @@
 <template>
   <div>
-    <div class="py-2 space-y-2 pr-1" v-if="!loading">
-      <div class="grid grid-cols-5 col-span-2 gap-4 py-3 relative">
-        <p
-          class="bg-green-500 text-white px-4 py-1 inline-block absolute top-3 right-0 cursor-pointer rounded-lg text-[12px]"
-          @click="carModalOpen = true"
-        >
-          + Add Passport
-        </p>
+    <div class="" v-if="!loading">
+      <div class="grid grid-cols-3 gap-4">
         <div
-          v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
-          class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
+          class="rounded-lg py-3 relative border space-y-3 border-gray-200 h-auto"
         >
-          <p class="text-[10px] text-gray-500">Adult Qty</p>
-          <p class="text-sm">{{ detail?.quantity }}</p>
-        </div>
-        <div
-          v-if="detail?.product_type == 'App\\Models\\Hotel'"
-          class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-        >
-          <p class="text-[10px] text-gray-500">Room Qty</p>
-          <p class="text-sm">{{ detail?.quantity }}</p>
-        </div>
-        <div
-          v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
-          class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-        >
-          <p class="text-[10px] text-gray-500">Child Qty</p>
-          <p class="text-sm">
-            {{ detail?.individual_pricing?.child?.quantity ?? 0 }}
-          </p>
-        </div>
-        <div
-          v-if="detail?.product_type == 'App\\Models\\Hotel'"
-          class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-        >
-          <p class="text-[10px] text-gray-500">Extra Bed Qty</p>
-          <p class="text-sm">-</p>
-        </div>
-      </div>
+          <p class="text-lg font-medium text-[#FF613c] px-4">Add Traveller</p>
 
-      <div class="pt-2 grid grid-cols-4 gap-4">
-        <!-- <div class="space-y-2" @click="carModalOpen = true">
-          <p class="text-[10px] px-2 py-1 bg-gray-300 rounded-lg text-white">
-            crm id
-          </p>
           <div
-            class="w-full h-[180px] border border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
+            class="flex justify-between px-4 items-center"
+            v-for="i in editData.customer_passport_have ?? []"
+            :key="i"
           >
-            +
-          </div>
-          <div
-            class="w-full px-4 pb-1 border-dashed border border-[#FF613c] space-y-2 text-[#FF613c] hover:shadow-none rounded-lg"
-          >
-            <p class="text-[10px] flex justify-start items-center pt-2">Name</p>
-            <p class="text-[10px] flex justify-start items-center">
-              Passport No.
-            </p>
-            <p class="text-[10px] flex justify-start items-center pb-2">DOB</p>
-          </div>
-        </div> -->
-        <div
-          v-for="(i, index) in featureImagePreview ?? []"
-          :key="i"
-          class="flex flex-col relative justify-stretch group space-y-2 w-full"
-        >
-          <p
-            @click="removeFeatureSelectImage(index)"
-            class="absolute top-4 cursor-pointer text-[8px] shadow right-2 text-xs text-white bg-red-600 px-2 py-0.5 rounded-lg"
-          >
-            <span class="text-[10px]">remove</span>
-          </p>
-          <div class="h-[180px] w-full">
-            <img
-              :src="i"
-              class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
-              alt=""
-            />
-          </div>
-          <div
-            class="w-full px-4 pb-1 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
-          >
-            <p class="text-[10px] flex justify-start items-center pt-2">
-              <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
-              Name
-            </p>
-            <p class="text-[10px] flex justify-start items-center">
-              <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-              Passport No.
-            </p>
-            <p class="text-[10px] flex justify-start items-center pb-2">
-              <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-              DOB
-            </p>
-          </div>
-        </div>
-      </div>
-      <div
-        v-for="a in editData.reservation_ids ?? []"
-        :key="a"
-        class="grid grid-cols-4 gap-4"
-      >
-        <div
-          v-for="(i, index) in editData.customer_passport_have ?? []"
-          :key="i"
-          :class="a.crm_id == i.crm_id ? '' : 'hidden'"
-          class="flex flex-col relative justify-stretch group space-y-2 w-full"
-        >
-          <p class="text-[10px] px-2 py-1 bg-[#FF613c] rounded-lg text-white">
-            {{ a.crm_id }}
-          </p>
-          <p
-            @click="openPassportModal(i, index)"
-            class="absolute top-8 cursor-pointer text-[8px] shadow right-2 text-xs text-white bg-[#FF613c] px-2 py-0.5 rounded-lg"
-          >
-            <span class="text-[10px]">edit</span>
-          </p>
-          <div class="h-[180px] w-full">
-            <img
-              :src="i?.file"
-              class="rounded-lg shadow hover:shadow-none h-full object-cover w-full"
-              alt=""
-            />
-          </div>
-          <div
-            class="w-full px-4 pb-1 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
-          >
-            <p class="text-[10px] flex justify-start items-center pt-2">
-              <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
-              {{ i?.name }}
-            </p>
-            <p class="text-[10px] flex justify-start items-center">
-              <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-              {{ i?.passport_number }}
-            </p>
-            <p class="text-[10px] flex justify-start items-center pb-2">
-              <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-              {{ i?.dob }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- <div>
-      <PassportGenerate />
-    </div> -->
-    <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
-      <DialogPanel
-        class="w-full max-w-3xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
-      >
-        <DialogTitle
-          as="div"
-          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
-        >
-          <p>Passport Infomation Add (Data များအားလုံးဖြည့်ရန်လိုအပ်ပါသည်။ )</p>
-          <XCircleIcon class="w-5 h-5 text-white" @click="cancelAction" />
-        </DialogTitle>
-        <!-- show date  -->
-        <div class="p-4">
-          <div class="p-4">
-            <div class="grid grid-cols-5 gap-8">
-              <div v-if="formData.file" class="w-full col-span-3 h-[400px]">
-                <img
-                  :src="formData.file"
-                  class="rounded-lg shadow hover:shadow-none h-full object-contain w-full"
-                  alt=""
-                />
+            <div class="flex justify-start items-center space-x-4">
+              <div class="bg-[#FF613c]/30 rounded-lg p-2 inline-block">
+                <UserCircleIcon class="w-4 text-[#FF613c] h-4" />
               </div>
-              <div
-                v-if="!formData.file && !passportPreview"
-                @click="openFileFeaturePicker"
-                class="w-full col-span-3 h-[400px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
-              >
-                +
-              </div>
-              <div v-if="passportPreview" class="w-full col-span-3 h-[400px]">
-                <img
-                  :src="passportPreview"
-                  @click="openFileFeaturePicker"
-                  class="rounded-lg shadow hover:shadow-none h-full object-contain w-full"
-                  alt=""
-                />
-              </div>
-
-              <input
-                type="file"
-                ref="featureImageInput"
-                class="hidden"
-                @change="handlerFeatureFileChange"
-                accept="image/*"
+              <p class="text-[12px] font-medium">
+                {{ i.name }}: {{ i.crm_id }}
+              </p>
+            </div>
+            <p>
+              <PencilSquareIcon
+                class="w-5 text-blue-500 h-5"
+                @click="openPassportModal(i, index)"
               />
-              <div class="space-y-4 relative col-span-2 pt-4">
-                <div
-                  v-if="(passportPreview || formData.file) && !isScanning"
-                  class="absolute -top-4 right-0 flex items-center"
-                >
-                  <button
-                    @click="scanPassport"
-                    class="px-3 py-1 bg-blue-500 text-white text-[12px] cursor-pointer rounded-lg flex items-center"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-4 w-4 mr-1"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                    Scan Passport
-                  </button>
-                </div>
-                <!-- Scanning indicator -->
-                <div
-                  v-if="isScanning"
-                  class="absolute -top-4 right-0 flex items-center"
-                >
-                  <div
-                    class="w-4 h-4 mr-1 border-2 border-t-2 border-blue-500 border-t-transparent rounded-full animate-spin"
-                  ></div>
-                  <span class="text-[12px] text-blue-500">Scanning...</span>
-                </div>
-                <div class="space-y-2">
-                  <label for="" class="text-[12px] font-medium block"
-                    >Name
-                  </label>
-                  <input
-                    type="text"
-                    v-model="formData.name"
-                    name=""
-                    placeholder="name"
-                    class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
-                    id=""
-                  />
-                </div>
-                <div class="space-y-2">
-                  <label for="" class="text-[12px] font-medium block"
-                    >Passport</label
-                  >
-                  <input
-                    type="text"
-                    v-model="formData.passport"
-                    name=""
-                    placeholder="passport"
-                    class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
-                    id=""
-                  />
-                </div>
-                <!-- <div class="space-y-2">
-                  <label for="" class="text-[12px] font-medium block"
-                    >DOB
-                  </label>
-                  <input
-                    type="date"
-                    v-model="formData.dob"
-                    name=""
-                    placeholder=""
-                    class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
-                    id=""
-                  />
-                </div> -->
+            </p>
+          </div>
+          <div class="w-full pt-4 px-4">
+            <div
+              @click="cancelAction()"
+              class="bg-[#FF613c] cursor-pointer text-white rounded-xl text-center text-xs py-3"
+            >
+              + New Traveller
+            </div>
+          </div>
+        </div>
+        <div class="col-span-2 py-3 rounded-lg relative border border-gray-200">
+          <p class="text-lg font-medium text-[#FF613c] px-4 pb-4">Details</p>
+          <div class="grid grid-cols-2 px-4 gap-4">
+            <div class="space-y-4">
+              <div>
+                <p class="text-xs pb-1.5 font-medium">Name *</p>
+                <input
+                  type="text"
+                  v-model="formData.name"
+                  name=""
+                  placeholder="name"
+                  class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
+                  id=""
+                />
+              </div>
+              <div>
+                <p class="text-xs pb-1.5 font-medium">Passport</p>
+                <input
+                  type="text"
+                  v-model="formData.passport"
+                  name=""
+                  placeholder="passport"
+                  class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
+                  id=""
+                />
+              </div>
+              <div>
                 <DOBInput v-model:formData="formData" />
-
-                <div
-                  class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
-                >
-                  <!-- formData.id ? addTravellerUpdateAction() : addAction() -->
-                  <p
-                    @click="
-                      formData.id
-                        ? addTravellerUpdateAction(formData.reservation_id)
-                        : askForReservationId()
-                    "
-                    class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
-                  >
-                    {{ formData.id ? "Update" : "Save" }}
-                  </p>
-
-                  <p
-                    v-if="formData.id"
-                    @click="removeFeatureDeleteImage(formData.id)"
-                    class="px-3 py-1 bg-red-600 text-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
-                  >
-                    Delete
-                  </p>
-                  <p
-                    @click="cancelAction"
-                    class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
-                  >
-                    Cancel
-                  </p>
-                </div>
-                <!-- Debugging Raw Text Output (hidden by default) -->
-                <div
-                  v-if="rawOcrText && showDebug"
-                  class="mt-4 p-4 bg-gray-100 rounded-lg"
-                >
-                  <div class="flex justify-between items-center mb-2">
-                    <h4 class="text-sm font-medium text-gray-700">
-                      Raw OCR Text
-                    </h4>
-                    <button
-                      @click="showDebug = false"
-                      class="text-[10px] text-gray-500 hover:text-gray-700"
-                    >
-                      Hide
-                    </button>
-                  </div>
-                  <pre
-                    class="text-[10px] text-gray-600 whitespace-pre-wrap max-h-32 overflow-y-auto"
-                    >{{ rawOcrText }}</pre
-                  >
-                </div>
-
-                <!-- Debug toggle -->
-                <div class="flex justify-end items-center mt-2">
-                  <label class="inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      v-model="showDebug"
-                      class="sr-only peer"
-                    />
-                    <div
-                      class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"
-                    ></div>
-                    <span class="ml-2 text-[10px] text-gray-500"
-                      >Show Debug Info</span
-                    >
-                  </label>
-                </div>
               </div>
               <div class="col-span-5" v-if="!formData.id">
                 <label for="" class="text-[12px] font-medium"
@@ -344,7 +76,7 @@
                   }}
                   Item အတွက်ကို အတည်ပြုပါ။
                 </label>
-                <div>
+                <div class="pt-2">
                   <input
                     type="checkbox"
                     v-model="allReservation"
@@ -375,10 +107,74 @@
                 </div>
               </div>
             </div>
+            <div>
+              <div v-if="formData.file" class="w-full col-span-3 h-[300px]">
+                <img
+                  :src="formData.file"
+                  class="rounded-lg shadow hover:shadow-none h-full object-contain w-full"
+                  alt=""
+                />
+              </div>
+              <div
+                v-if="!formData.file && !passportPreview"
+                @click="openFileFeaturePicker"
+                class="w-full col-span-3 h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+              >
+                <PlusCircleIcon class="w-8 h-8 text-[#FF613c]" />
+              </div>
+              <div v-if="passportPreview" class="w-full col-span-3 h-[300px]">
+                <img
+                  :src="passportPreview"
+                  @click="openFileFeaturePicker"
+                  class="rounded-lg shadow hover:shadow-none h-full object-contain w-full"
+                  alt=""
+                />
+              </div>
+
+              <input
+                type="file"
+                ref="featureImageInput"
+                class="hidden"
+                @change="handlerFeatureFileChange"
+                accept="image/*"
+              />
+            </div>
+            <div
+              class="flex justify-end text-[#FF613c] items-center w-full col-span-2 border-t pt-3 space-x-3 px-6"
+            >
+              <div class="flex justify-end items-center space-x-2">
+                <!-- formData.id ? addTravellerUpdateAction() : addAction() -->
+                <p
+                  @click="
+                    formData.id
+                      ? addTravellerUpdateAction(formData.reservation_id)
+                      : askForReservationId()
+                  "
+                  class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
+                >
+                  {{ formData.id ? "Update" : "Save" }}
+                </p>
+
+                <p
+                  v-if="formData.id"
+                  @click="removeFeatureDeleteImage(formData.id)"
+                  class="px-3 py-1 bg-red-600 text-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
+                >
+                  Delete
+                </p>
+                <p
+                  @click="cancelAction"
+                  class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
+                >
+                  Cancel
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </DialogPanel>
-    </Modal>
+      </div>
+    </div>
+
     <Modal
       :isOpen="showErrorMessage"
       @closeModal="
@@ -426,7 +222,13 @@
 </template>
 
 <script setup>
-import { XCircleIcon } from "@heroicons/vue/24/outline";
+import {
+  UserCircleIcon,
+  CheckCircleIcon,
+  UserIcon,
+  XCircleIcon,
+  PencilSquareIcon,
+} from "@heroicons/vue/24/outline";
 import { ref, defineProps, onMounted, computed } from "vue";
 import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
@@ -436,7 +238,7 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute } from "vue-router";
 import Tesseract from "tesseract.js";
 import DOBInput from "../Reservation2Component/DOBInput.vue";
-// import PassportGenerate from "./PassportGenerate.vue";
+import { PlusCircleIcon } from "@heroicons/vue/24/solid";
 
 const reservationStore = useReservationStore();
 const toast = useToast();
@@ -472,7 +274,7 @@ const openPassportModal = (data, index) => {
   formData.value.passport = data.passport_number;
   formData.value.dob = data.dob;
   formData.value.reservation_id = data.reservation_id;
-  carModalOpen.value = true;
+  // carModalOpen.value = true;
 };
 
 const props = defineProps({

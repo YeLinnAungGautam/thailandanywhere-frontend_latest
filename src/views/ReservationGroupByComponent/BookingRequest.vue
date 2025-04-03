@@ -1,7 +1,14 @@
 <template>
-  <div>
-    <div class="pb-4 border-b border-[#FF613c]">
-      <p class="pb-2 text-xs">Booking Request</p>
+  <div class="grid grid-cols-5 gap-4">
+    <div class="pb-4 border col-span-2 border-gray-200 p-3 rounded-lg">
+      <p class="pb-1 text-lg font-medium text-[#FF613c]">
+        Is Booking Request Sent ?
+      </p>
+      <p
+        class="text-[10px] text-white bg-[#FF613c] px-2 py-1 rounded-lg inline-block mb-3"
+      >
+        {{ is_booking_request ? "Email Sent" : "Not Sent" }}
+      </p>
       <div class="flex justify-between items-center gap-x-2">
         <select
           name=""
@@ -12,55 +19,51 @@
           <option :value="true">Email Sent</option>
           <option :value="false">Not Sent</option>
         </select>
+      </div>
+      <div class="grid grid-cols-1 gap-2">
+        <div class="pt-2 space-y-2">
+          <label for="mail_to" class="pb-2 text-xs">Proof of Booking</label>
+          <div
+            class="w-full h-[100px] border border-dashed border-gray-300 text-gray-300 text-lg flex justify-center items-center rounded-lg"
+          >
+            <PlusCircleIcon class="w-6 h-6" />
+          </div>
+        </div>
+      </div>
+      <div class="w-full flex justify-center items-center pt-4">
         <button
           class="text-xs px-3 py-1.5 border rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
           @click="updateAction"
         >
-          Update
+          Update Status
         </button>
       </div>
-      <div class="grid grid-cols-4 gap-2">
-        <div class="pt-2 space-y-2">
-          <label for="mail_to" class="pb-2 text-xs">Proof of Booking</label>
-          <div
-            class="w-full h-[100px] border border-dashed border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg"
+    </div>
+
+    <div class="col-span-3 border border-gray-200 p-3 rounded-lg">
+      <div class="flex justify-between items-center">
+        <p class="text-lg font-medium text-[#FF613c]">Send Booking Request:</p>
+        <div class="space-x-2 flex justify-end items-center gap-x-2">
+          <button
+            class="text-xs px-3 py-1.5 border rounded-lg border-gray-300 bg-transfer text-black"
+            @click="cancelEmailFunction"
           >
-            +
-          </div>
+            Clear Email
+          </button>
+          <button
+            class="text-xs px-3 py-1.5 border rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
+            @click="sendEmailFunction"
+          >
+            Send Email
+          </button>
         </div>
       </div>
-    </div>
-    <!-- <div class="flex justify-start items-center gap-x-2">
-      <CheckCircleIcon
-        class="w-4 h-4"
-        :class="
-          detail?.is_booking_request == 1 ? 'text-green-500' : 'text-red-500'
-        "
-      />
-      <p
-        class="text-xs"
-        :class="
-          detail?.is_booking_request == 1 ? 'text-green-500' : 'text-red-500'
-        "
-      >
-        Is Booking Request Sent ?
-      </p>
-    </div> -->
-    <div>
       <div class="grid grid-cols-1 gap-4 py-4 overflow-hidden rounded-xl">
         <div class="text-center" v-if="emailLoading">
           Email sending , Please wait loading .....
         </div>
         <div class="w-full mb-4 space-y-3 text-xs">
           <div class="space-y-4">
-            <!-- <div>
-              <input
-                type="email"
-                v-model="emailData.mail_to"
-                class="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none text-xs w-full"
-                placeholder="Send to Email"
-              />
-            </div> -->
             <div
               class="flex justify-start p-2 rounded-xl relative border border-gray-200 items-center gap-2 overflow-x-scroll no-sidebar-container"
             >
@@ -80,7 +83,7 @@
                   type="email"
                   v-model="mail_name"
                   class="px-4 py-1 rounded-lg focus:outline-none text-[11px] max-w-[200px]"
-                  placeholder="Send to Email"
+                  placeholder="To:"
                 />
               </div>
               <button
@@ -95,7 +98,7 @@
               <input
                 type="text"
                 v-model="emailData.mail_subject"
-                class="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none text-xs w-full"
+                class="px-4 py-3 rounded-xl border border-gray-200 focus:outline-none text-xs w-full"
                 placeholder="Booking for"
               />
             </div>
@@ -117,7 +120,7 @@
               <div
                 @click="showModal = true"
                 v-if="!previewFile || previewFile.length === 0"
-                class="w-full h-[50px] border border-[#FF613c] border-dashed flex justify-center items-center rounded-lg text-[#FF613c] cursor-pointer"
+                class="w-full h-[50px] border border-gray-200 border-dashed flex justify-center items-center rounded-lg text-[#FF613c] cursor-pointer"
               >
                 <span
                   class="ml-4 px-2 py-1 text-[10px] text-[#ff613c] rounded-lg"
@@ -138,24 +141,10 @@
                 <img
                   @click="showModal = true"
                   :src="i"
-                  class="rounded-lg w-full h-[130px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
+                  class="rounded-lg w-full h-[130px] bg-gray-100 border border-dashed border-gray-200 object-cover"
                   alt=""
                 />
               </div>
-            </div>
-            <div class="space-x-2 flex justify-end items-center gap-x-2">
-              <button
-                class="text-xs px-3 py-1.5 border rounded-lg shadow border-gray-100/50 bg-transfer text-[#FF613c]"
-                @click="cancelEmailFunction"
-              >
-                Clear Email
-              </button>
-              <button
-                class="text-xs px-3 py-1.5 border rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
-                @click="sendEmailFunction"
-              >
-                Send Email
-              </button>
             </div>
           </div>
         </div>
@@ -193,7 +182,7 @@
               </p>
               <img
                 :src="i.file"
-                class="rounded-lg w-full h-[100px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
+                class="rounded-lg w-full h-[100px] bg-gray-100 border border-dashed border-gray-200 object-cover"
                 alt=""
               />
               <div
@@ -216,12 +205,12 @@
             />
             <div class="space-y-2" @click="openFileFeaturePicker">
               <div
-                class="w-full h-[100px] border border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
+                class="w-full h-[100px] border border-gray-200 text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
               >
                 +
               </div>
               <div
-                class="w-full px-4 pb-1 border-dashed border border-[#FF613c] space-y-2 text-red-600 hover:shadow-none rounded-lg"
+                class="w-full px-4 pb-1 border-dashed border border-gray-200 space-y-2 text-red-600 hover:shadow-none rounded-lg"
               >
                 <p class="text-[10px] flex justify-start items-center py-4">
                   max size is 25 mb
@@ -239,7 +228,7 @@
               />
               <img
                 :src="i"
-                class="rounded-lg w-full h-[175px] bg-gray-100 border border-dashed border-[#FF613c] object-cover"
+                class="rounded-lg w-full h-[175px] bg-gray-100 border border-dashed border-gray-200 object-cover"
                 alt=""
               />
             </div>
@@ -253,7 +242,7 @@
             </p>
             <p
               @click="cancelAction"
-              class="px-4 py-2 rounded-full text-xs inline-block bg-white border border-[#FF613c] text-[#FF613c]"
+              class="px-4 py-2 rounded-full text-xs inline-block bg-white border border-gray-200 text-[#FF613c]"
             >
               Cancel Attachment
             </p>
@@ -272,12 +261,8 @@ import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
 import { useRoute } from "vue-router";
 import Swal from "sweetalert2";
-import {
-  CheckCircleIcon,
-  PlusCircleIcon,
-  PlusIcon,
-} from "@heroicons/vue/24/outline";
-import { XCircleIcon } from "@heroicons/vue/24/solid";
+import { CheckCircleIcon, PlusIcon } from "@heroicons/vue/24/outline";
+import { XCircleIcon, PlusCircleIcon } from "@heroicons/vue/24/solid";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { format } from "date-fns";
@@ -440,7 +425,7 @@ const editorOptions = {
 };
 
 const mailBodyChange = () => {
-  console.log(props.detail.customer_passports, "customer_passports");
+  console.log(props?.detail?.customer_passports, "customer_passports");
 
   // Determine if this is a hotel or ticket (entrance ticket)
   const isTicket =

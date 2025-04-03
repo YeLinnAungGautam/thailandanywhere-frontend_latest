@@ -1,11 +1,10 @@
 <template>
   <div class="h-[80px] flex items-center justify-between px-[20px] w-full">
     <div class="flex items-center gap-3">
-      <button
+      <!-- <button
         class="p-2 rounded-full shadow cursor-pointer bg-white/60"
         @click.prevent="toggleSidebarHandler"
       >
-        <!-- <Bars3Icon class="w-6 h-6" /> -->
         <img
           v-if="isShowSidebar"
           src="https://cdn-icons-png.flaticon.com/128/10042/10042228.png"
@@ -18,19 +17,18 @@
           alt=""
           class="w-5 h-5"
         />
-      </button>
-      <p
+      </button> -->
+      <!-- <p
         class="py-2 pr-4 pl-2 rounded-full flex justify-start items-center gap-x-2 shadow cursor-pointer bg-white/60"
         @click="goBack()"
       >
-        <!-- <ArrowUturnLeftIcon class="w-6 h-6" /> -->
         <img
           src="https://cdn-icons-png.flaticon.com/128/2722/2722991.png"
           alt=""
           class="w-5 h-5"
         />
         Back
-      </p>
+      </p> -->
       <!-- <p class="text-sm font-poppins text-[#ff613c] font-medium">
         Welcome back, {{ authStore.user.name.split(" ")[0] }} !
       </p> -->

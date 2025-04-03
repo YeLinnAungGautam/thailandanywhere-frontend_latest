@@ -1,96 +1,107 @@
 <template>
-  <div class="space-y-3">
-    <div class="grid grid-cols-5 col-span-2 gap-4 py-3">
-      <div
-        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-      >
-        <p class="text-[10px] text-gray-500">Sales Date</p>
-        <p class="text-sm">{{ detail?.booking.booking_date }}</p>
-      </div>
-      <div
-        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-      >
-        <p class="text-[10px] text-gray-500">Item Sale Amount</p>
-        <p class="text-sm">{{ itemSaleAmount }} thb</p>
-      </div>
-      <div
-        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-      >
-        <p class="text-[10px] text-gray-500">Total Discount</p>
-        <p class="text-sm">{{ itemSaleDiscount }}</p>
-      </div>
-      <div
-        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-      >
-        <p class="text-[10px] text-gray-500">Balance Due</p>
-        <p class="text-sm">{{ detail?.booking?.balance_due }}</p>
-      </div>
-      <div
-        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-      >
-        <p class="text-[10px] text-gray-500">Payment Method</p>
-        <p class="text-sm">{{ detail?.booking?.payment_method }}</p>
-      </div>
-
-      <div
-        class="w-full space-y-1 border border-black/10 rounded-lg px-3 py-2 shadow hover:shadow-none"
-      >
-        <p class="text-[10px] text-gray-500">Total Cost</p>
-        <p class="text-sm">{{ itemSaleCost }}</p>
-      </div>
-    </div>
-    <div class="flex justify-between items-center">
-      <p
-        class="px-2 py-1 bg-[#FF613c] text-white inline-block text-xs rounded-lg"
-      >
-        {{ detail?.booking?.crm_id }}
-      </p>
-      <p
-        @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
-        class="text-[12px] bg-[#FF613c] px-3 py-1 rounded-lg text-white"
-      >
-        + click to add payment
-      </p>
-    </div>
-    <div class="pt-2 grid grid-cols-4 gap-4">
-      <!-- <div
-        @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
-        class="w-full min-h-[230px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c] cursor-pointer"
-      >
-        <p class="px-2 py-1 text-[10px] text-[#FF613c] rounded-lg">
-          Click to add payment
-        </p>
-      </div> -->
-      <div
-        v-for="i in detail?.booking?.receipts ?? []"
-        :key="i"
-        class="flex flex-col relative justify-stretch group space-y-2 w-full"
-      >
-        <p
-          @click="openModal(i)"
-          class="absolute top-4 cursor-pointer text-[8px] shadow right-2 text-xs text-white bg-[#FF613c] px-2 py-0.5 rounded-lg"
-        >
-          <span class="text-[10px]">edit</span>
-        </p>
-        <div
-          @click="openModal(i)"
-          class="w-full px-4 pb-1 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
-        >
-          <p class="text-[12px] flex justify-start items-center pt-2">
-            <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
-            {{ i?.amount }} thb
+  <div class="grid grid-cols-3 gap-4">
+    <div>
+      <div class="p-3 rounded-lg border border-gray-200">
+        <div class="grid grid-cols-2 text-xs gap-2">
+          <p class="text-sm font-semibold text-[#FF613c]">Booking Detail</p>
+          <div class="flex justify-end items-center"></div>
+          <p>Due Detail</p>
+          <p class="text-end">
+            {{ changeFormat(detail?.booking?.balance_due_date) }}
           </p>
-          <p class="text-[12px] flex justify-start items-center">
-            <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-            {{ i?.date ? formatDateFromDb(i?.date) : "--/--/--" }}
+          <p>Total Items</p>
+          <p class="text-end">{{ detail?.booking?.items?.length }} items</p>
+          <p>Total Item Price</p>
+          <p class="text-end">{{ formattedNumber(total_item_price) }} thb</p>
+          <p>Total Discount</p>
+          <p class="text-end">{{ total_discount_price }} thb</p>
+          <p>Total Sale</p>
+          <p class="text-end">{{ formattedNumber(total_sale_price) }} thb</p>
+
+          <p class="text-sm font-semibold text-[#FF613c] pt-5">Sale Detail</p>
+          <p class="text-end pt-5"></p>
+          <p>Sales Detail</p>
+          <p class="text-end">
+            {{ changeFormat(detail?.booking?.booking_date) }}
+          </p>
+          <p>Subtotal</p>
+          <p class="text-end">
+            {{ formattedNumber(detail?.booking?.sub_total) }} thb
+          </p>
+          <p>Total Discount</p>
+          <p class="text-end">{{ detail?.booking?.discount }} thb</p>
+          <p>Total Sale</p>
+          <p class="text-end">
+            {{ formattedNumber(detail?.booking?.grand_total) }} thb
+          </p>
+          <p>All Items</p>
+          <p class="text-end">_ items</p>
+          <p>Payment Method</p>
+          <p class="text-end">{{ detail?.booking?.payment_method }}</p>
+          <div class="col-span-2 py-3 flex justify-center items-center">
+            <p
+              @click="
+                router.push(`/bookings/new-update/${detail?.booking?.id}`)
+              "
+              class="px-3 py-1.5 text-[10px] rounded-lg cursor-pointer bg-[#FF613c] text-white"
+            >
+              View Invoice
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-2 p-3 rounded-lg border border-gray-200">
+      <div class="flex justify-between items-center">
+        <div class="flex justify-start items-center gap-x-2">
+          <p class="text-sm font-semibold text-[#FF613c]">Payment Recieved</p>
+          <p
+            class="text-center rounded-lg text-[10px] bg-[#FF613c] text-white px-3 py-0.5"
+          >
+            {{ detail?.booking?.crm_id }}
+          </p>
+          <p
+            class="text-center rounded-lg text-[8px] text-white px-3 py-1"
+            :class="{
+              'bg-green-500': detail?.booking?.payment_status == 'fully_paid',
+              'bg-red-500': detail?.booking?.payment_status != 'fully_paid',
+            }"
+          >
+            {{ detail?.booking?.payment_status }}
           </p>
         </div>
-        <div class="h-auto w-full" @click="openModal(i)">
-          <img
-            :src="i?.image"
-            class="rounded-lg shadow hover:shadow-none h-full object-contain w-full"
-            alt=""
-          />
+      </div>
+      <div class="pt-2 grid grid-cols-3 gap-4">
+        <div
+          v-for="i in detail?.booking?.receipts ?? []"
+          :key="i"
+          class="flex flex-col relative justify-stretch group space-y-2 w-full"
+        >
+          <p
+            @click="openModal(i)"
+            class="absolute top-4 cursor-pointer text-[8px] shadow right-2 text-xs text-white bg-[#FF613c] px-2 py-0.5 rounded-lg"
+          >
+            <span class="text-[10px]">edit</span>
+          </p>
+
+          <div class="h-[286px] w-full" @click="openModal(i)">
+            <img
+              :src="i?.image"
+              class="rounded-lg shadow hover:shadow-none h-full object-cover object-top w-full"
+              alt=""
+            />
+          </div>
+          <div
+            @click="openModal(i)"
+            class="w-full px-4 pb-1 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
+          >
+            <p class="text-[12px] flex justify-start items-center pt-2">
+              {{ i?.amount }} thb
+            </p>
+            <p class="text-[12px] flex justify-start items-center">
+              {{ i?.date ? formatDateFromDb(i?.date) : "--/--/--" }}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -237,6 +248,7 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRouter, useRoute } from "vue-router";
 import { useBookingStore } from "../../stores/booking";
 import { useToast } from "vue-toastification";
+import { format } from "date-fns";
 
 const bookingStore = useBookingStore();
 const route = useRoute();
@@ -287,6 +299,41 @@ const formData = ref({
   comment: "",
 });
 
+const total_item_price = computed(() => {
+  let total = 0;
+  props.detail?.booking?.items.forEach((item) => {
+    total += item.total_cost_price * 1;
+  });
+  return total;
+});
+const total_sale_price = computed(() => {
+  let total = 0;
+  props.detail?.booking?.items.forEach((item) => {
+    total += item.amount * 1;
+  });
+  return total;
+});
+
+const total_discount_price = computed(() => {
+  let total = 0;
+  props.detail?.booking?.items.forEach((item) => {
+    total += item.discount * 1;
+  });
+  return total;
+});
+
+const changeFormat = (dateStr) => {
+  if (dateStr) {
+    return format(new Date(dateStr), "dd MMMM, YYY");
+  } else {
+    return "";
+  }
+};
+
+const formattedNumber = (number) => {
+  return new Intl.NumberFormat().format(number);
+};
+
 const openModal = (data) => {
   carModalOpen.value = true;
   // save.value = data;
@@ -314,28 +361,6 @@ const calculateDaysBetween = (a, b) => {
     return result;
   }
 };
-
-const itemSaleAmount = computed(() => {
-  let total = 0;
-  props.detail?.booking?.items.forEach((item) => {
-    total += item.amount * 1;
-  });
-  return total;
-});
-const itemSaleDiscount = computed(() => {
-  let total = 0;
-  props.detail?.booking?.items.forEach((item) => {
-    total += item.discount * 1;
-  });
-  return total;
-});
-const itemSaleCost = computed(() => {
-  let total = 0;
-  props.detail?.booking?.items.forEach((item) => {
-    total += item.total_cost_price * 1;
-  });
-  return total;
-});
 
 const formatDate = (dateString) => {
   // Parse the input string into a Date object

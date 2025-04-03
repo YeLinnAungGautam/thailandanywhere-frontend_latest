@@ -10,7 +10,7 @@
     <component v-if="icon" :is="icon" class="w-4 h-4"></component>
     <p
       v-show="isShowSidebar"
-      class="transition-all text-[12px] ml-[1.2rem] duration-150"
+      class="transition-all text-[12px] ml-[1.2rem] whitespace-nowrap duration-150"
     >
       {{ name }}
     </p>

@@ -241,8 +241,8 @@
           <p
             class="text-start pl-6 pt-3 pb-4 font-semibold text-[#FF613c] text-sm"
           >
-            ဖုန်းနံပါတ်။ ။​ <span class="pl-4">🇲🇲 +09963394746</span>
-            <span class="pl-4">🇹🇭 +66614367473</span>
+            ဖုန်းနံပါတ်။ ။​ <span class="pl-4">🇲🇲 +959 963394746</span>
+            <span class="pl-4">🇹🇭 +66 614367473</span>
           </p>
         </div>
       </div>
@@ -268,7 +268,7 @@
                   />
                 </svg>
               </div>
-              <span class="pb-4">0637602448</span>
+              <span class="pb-4">+959 972185129</span>
             </div>
           </div>
           <div class="">
@@ -351,7 +351,7 @@
                   />
                 </svg>
               </div>
-              <span class="pb-4">09250794945</span>
+              <span class="pb-4">+959 250794945</span>
             </div>
           </div>
           <div class="">
@@ -434,7 +434,7 @@
                   />
                 </svg>
               </div>
-              <span class="pb-4">09972185129 </span>
+              <span class="pb-4">+66 637602448</span>
             </div>
           </div>
           <div class="">

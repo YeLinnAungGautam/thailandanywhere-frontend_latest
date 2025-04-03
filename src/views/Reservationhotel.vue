@@ -517,7 +517,7 @@ watch(dateRange, async (newValue) => {
 <template>
   <Layout :is_white="true">
     <div
-      :class="isShowSidebar ? 'left-[300px]' : 'left-[100px]'"
+      :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
       class="space-x-8 col-span-3 flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
     >
       <p class="text-3xl font-medium text-[#FF613c]">

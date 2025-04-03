@@ -87,7 +87,7 @@
                 />
               </div>
               <button
-                class="absolute top-2 right-2 bg-[#FF613c] px-1 py-1 text-white rounded-full text-xs"
+                class="bg-[#FF613c] px-1 py-1 text-white rounded-full text-xs"
                 @click="addMailAction"
               >
                 <PlusIcon class="w-4 h-4" />

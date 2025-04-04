@@ -12,7 +12,11 @@
       "
       @click="
         () => {
-          goReservationDetail(data?.bookings[0]?.id, i.product_id);
+          goReservationDetail(
+            data?.bookings[0]?.id,
+            i.product_id,
+            data?.bookings[0]?.crm_id
+          );
           showList = !showList;
         }
       "
@@ -385,16 +389,11 @@ const daysBetween = (a, b) => {
 
 const emit = defineEmits("detailId");
 
-const goReservationDetail = (id, product_id) => {
-  // router.push({
-  //   name: "reservation-hotel",
-  //   query: {
-  //     id: id,
-  //   },
-  // });
+const goReservationDetail = (id, product_id, crm_id) => {
   let result = {
     id: id,
     product_id: product_id,
+    crm_id: crm_id,
   };
 
   emit("detailId", result);

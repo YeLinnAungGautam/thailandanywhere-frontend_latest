@@ -86,11 +86,17 @@
                 ]"
               />
 
-              <SidebarItem
+              <!-- <SidebarItem
                 name="Reservation"
                 :icon="TicketIcon"
                 to="/reservation-second"
                 :activePaths="['reservation-second']"
+              /> -->
+              <SidebarItem
+                name="Res Attraction"
+                :icon="TicketIcon"
+                to="/reservation-attraction"
+                :activePaths="['reservation-attraction']"
               />
               <SidebarItem
                 name="Res Hotel"
@@ -98,12 +104,7 @@
                 to="/reservation-hotel"
                 :activePaths="['reservation-hotel']"
               />
-              <SidebarItem
-                name="Res Attraction"
-                :icon="TicketIcon"
-                to="/reservation-attraction"
-                :activePaths="['reservation-attraction']"
-              />
+
               <SidebarItem
                 name="Accounting"
                 :icon="CalculatorIcon"

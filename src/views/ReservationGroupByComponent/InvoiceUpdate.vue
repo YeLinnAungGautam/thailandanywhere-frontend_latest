@@ -26,22 +26,24 @@
       >
         <p class="text-lg font-medium text-[#FF613c] px-4">Add Invoice</p>
 
-        <div
-          class="flex justify-between px-4 items-center"
-          v-for="i in editData.invoices ?? []"
-          :key="i"
-        >
-          <div class="flex justify-start items-center space-x-4">
-            <div class="bg-[#FF613c]/30 rounded-lg p-2 inline-block">
-              <DocumentTextIcon class="w-4 text-[#FF613c] h-4" />
+        <div class="h-[34vh] overflow-y-auto space-y-3">
+          <div
+            class="flex justify-between px-4 items-center"
+            v-for="i in editData.invoices ?? []"
+            :key="i"
+          >
+            <div class="flex justify-start items-center space-x-4">
+              <div class="bg-[#FF613c]/30 rounded-lg p-2 inline-block">
+                <DocumentTextIcon class="w-4 text-[#FF613c] h-4" />
+              </div>
+              <p class="text-[12px] font-medium">
+                invoice: {{ i.invoice }} for {{ i.crm_id }}
+              </p>
             </div>
-            <p class="text-[12px] font-medium">
-              invoice: {{ i.invoice }} for {{ i.crm_id }}
+            <p @click="openPassportModal(i)">
+              <PencilSquareIcon class="w-5 text-blue-500 h-5" />
             </p>
           </div>
-          <p @click="openPassportModal(i)">
-            <PencilSquareIcon class="w-5 text-blue-500 h-5" />
-          </p>
         </div>
 
         <div class="w-full pt-4 px-4">
@@ -59,7 +61,7 @@
         <p class="text-lg font-medium text-[#FF613c] px-4 pb-4">
           Invoice Detail
         </p>
-        <div class="grid grid-cols-2 px-4 gap-4">
+        <div class="grid grid-cols-2 h-[34vh] overflow-y-auto px-4 gap-4">
           <div class="space-y-4">
             <div>
               <p class="text-xs pb-1.5 font-medium">Company Name (Sender) *</p>
@@ -187,7 +189,7 @@
             />
           </div>
           <div
-            class="flex justify-end text-[#FF613c] items-center w-full col-span-2 border-t pt-3 space-x-3 px-6"
+            class="flex justify-end text-[#FF613c] absolute bottom-2 items-center w-full col-span-2 border-t pt-3 space-x-3 px-7"
           >
             <div class="flex justify-end items-center space-x-2">
               <p

@@ -7,25 +7,27 @@
         >
           <p class="text-lg font-medium text-[#FF613c] px-4">Add Traveller</p>
 
-          <div
-            class="flex justify-between px-4 items-center"
-            v-for="i in editData.customer_passport_have ?? []"
-            :key="i"
-          >
-            <div class="flex justify-start items-center space-x-4">
-              <div class="bg-[#FF613c]/30 rounded-lg p-2 inline-block">
-                <UserCircleIcon class="w-4 text-[#FF613c] h-4" />
+          <div class="h-[46vh] overflow-y-auto space-y-3">
+            <div
+              class="flex justify-between px-4 items-center"
+              v-for="i in editData.customer_passport_have ?? []"
+              :key="i"
+            >
+              <div class="flex justify-start items-center space-x-4">
+                <div class="bg-[#FF613c]/30 rounded-lg p-2 inline-block">
+                  <UserCircleIcon class="w-4 text-[#FF613c] h-4" />
+                </div>
+                <p class="text-[12px] font-medium">
+                  {{ i.name }}: {{ i.crm_id }}
+                </p>
               </div>
-              <p class="text-[12px] font-medium">
-                {{ i.name }}: {{ i.crm_id }}
+              <p>
+                <PencilSquareIcon
+                  class="w-5 text-blue-500 h-5"
+                  @click="openPassportModal(i, index)"
+                />
               </p>
             </div>
-            <p>
-              <PencilSquareIcon
-                class="w-5 text-blue-500 h-5"
-                @click="openPassportModal(i, index)"
-              />
-            </p>
           </div>
           <div class="w-full pt-4 px-4">
             <div
@@ -38,7 +40,7 @@
         </div>
         <div class="col-span-2 py-3 rounded-lg relative border border-gray-200">
           <p class="text-lg font-medium text-[#FF613c] px-4 pb-4">Details</p>
-          <div class="grid grid-cols-2 px-4 gap-4">
+          <div class="grid grid-cols-2 h-[46vh] overflow-y-auto px-4 gap-4">
             <div class="space-y-4">
               <div>
                 <p class="text-xs pb-1.5 font-medium">Name *</p>
@@ -111,7 +113,7 @@
               <div v-if="formData.file" class="w-full col-span-3 h-[300px]">
                 <img
                   :src="formData.file"
-                  class="rounded-lg shadow hover:shadow-none h-full object-contain w-full"
+                  class="rounded-lg shadow hover:shadow-none h-full object-cover object-bottom w-full"
                   alt=""
                 />
               </div>
@@ -140,7 +142,7 @@
               />
             </div>
             <div
-              class="flex justify-end text-[#FF613c] items-center w-full col-span-2 border-t pt-3 space-x-3 px-6"
+              class="flex justify-end text-[#FF613c] absolute bottom-2 items-center w-full col-span-2 border-t pt-3 space-x-3 px-7"
             >
               <div class="flex justify-end items-center space-x-2">
                 <!-- formData.id ? addTravellerUpdateAction() : addAction() -->

@@ -1,6 +1,8 @@
 <template>
   <div class="grid grid-cols-5 gap-4">
-    <div class="pb-4 border col-span-2 border-gray-200 p-3 rounded-lg">
+    <div
+      class="pb-4 border col-span-2 h-[62vh] overflow-y-auto border-gray-200 p-3 rounded-lg"
+    >
       <p class="pb-1 text-lg font-medium text-[#FF613c]">
         Is Booking Request Sent ?
       </p>
@@ -40,7 +42,9 @@
       </div>
     </div>
 
-    <div class="col-span-3 border border-gray-200 p-3 rounded-lg">
+    <div
+      class="col-span-3 border border-gray-200 p-3 h-[62vh] overflow-y-auto rounded-lg"
+    >
       <div class="flex justify-between items-center">
         <p class="text-lg font-medium text-[#FF613c]">Send Booking Request:</p>
         <div class="space-x-2 flex justify-end items-center gap-x-2">

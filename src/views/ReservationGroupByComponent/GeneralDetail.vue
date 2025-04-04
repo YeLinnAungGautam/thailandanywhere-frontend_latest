@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-3 gap-4">
     <div>
-      <div class="p-3 rounded-lg border border-gray-200">
+      <div class="p-3 rounded-lg border border-gray-200 h-[62vh]">
         <div class="grid grid-cols-2 text-xs gap-2">
           <p class="text-sm font-semibold text-[#FF613c]">Booking Detail</p>
           <div class="flex justify-end items-center"></div>
@@ -71,7 +71,7 @@
           </p>
         </div>
       </div>
-      <div class="pt-2 grid grid-cols-3 gap-4">
+      <div class="pt-2 grid grid-cols-3 gap-4 h-[55vh] overflow-y-auto">
         <div
           v-for="i in detail?.booking?.receipts ?? []"
           :key="i"

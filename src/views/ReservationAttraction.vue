@@ -248,7 +248,9 @@ const getDetailAction = async (id) => {
       "reservation-attraction?id=" +
         detailId.value +
         "&product_id=" +
-        product_id.value
+        product_id.value +
+        "&crm_id=" +
+        id.crm_id
     );
   }
 
@@ -514,6 +516,7 @@ watch(dateRange, async (newValue) => {
       <p class="text-3xl font-medium text-[#FF613c]">
         Attraction Reservations
         <span class="w-2 h-2 bg-[#FF613c] rounded-full inline-block"></span>
+        <span class="pl-2">{{ route.query.crm_id }}</span>
       </p>
     </div>
     <div class="grid gap-4 relative grid-cols-3">

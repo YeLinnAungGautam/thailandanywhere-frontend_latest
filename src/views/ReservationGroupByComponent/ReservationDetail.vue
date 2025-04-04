@@ -520,7 +520,7 @@ const hide = ref(true);
     </div>
     <div class="space-y-4" v-if="!getLoading && !hasRouteId">
       <div class="space-y-4 border border-gray-200 p-3 rounded-lg">
-        <div
+        <!-- <div
           class="flex justify-between items-center space-x-2 overflow-x-scroll no-sidebar-container"
         >
           <div class="flex justify-start items-center gap-x-2">
@@ -589,7 +589,7 @@ const hide = ref(true);
               Generate Confirmation
             </p>
           </div>
-        </div>
+        </div> -->
         <div class="grid grid-cols-5 gap-2">
           <div class="col-span-5 flex justify-between items-center">
             <div>
@@ -599,18 +599,12 @@ const hide = ref(true);
               </p>
               <div class="flex justify-start items-center gap-x-2">
                 <p
-                  class="text-[10px] px-1.5 whitespace-nowrap py-0.5 text-white rounded-lg bg-[#FF613c]"
+                  class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
                 >
                   {{ detail?.booking?.crm_id }}
                 </p>
-                <!-- <p
-                  class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-blue-600"
-                  v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
-                >
-                  Ticket
-                </p> -->
                 <p
-                  class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-green-600"
+                  class="text-[10px] bg-green-500 text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
                 >
                   {{
                     detail?.booking?.items[0]?.product_type ==
@@ -619,11 +613,49 @@ const hide = ref(true);
                       : "Ticket"
                   }}: {{ detail?.booking?.items[0]?.product?.name }}
                 </p>
-                <p
-                  class="text-[10px] px-1.5 py-0.5 text-white rounded-lg bg-black"
-                >
-                  Contact
-                </p>
+                <div>
+                  <div
+                    v-if="
+                      detail?.booking?.items[0]?.product_type ==
+                      'App\\Models\\Hotel'
+                    "
+                  >
+                    <p
+                      v-if="
+                        detail?.booking?.payment_status == 'fully_paid' &&
+                        expenseStatus(detail) == 'fully_paid'
+                      "
+                      class="text-[10px] bg-[#FF613c] shadow hover:shadow-none whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+                      @click="goToHotelConfirmation()"
+                    >
+                      Hotel Confirmation
+                    </p>
+                    <p
+                      v-if="
+                        !detail?.booking?.payment_status == 'fully_paid' &&
+                        !expenseStatus(detail) == 'fully_paid'
+                      "
+                      class="text-[10px] bg-gray-300 whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+                    >
+                      Hotel Confirmation {{ expenseStatus(detail) }}
+                    </p>
+                  </div>
+                  <p
+                    class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
+                    v-if="
+                      detail?.booking?.items[0]?.product_type ==
+                      'App\\Models\\EntranceTicket'
+                    "
+                    @click="
+                      detail?.booking?.items[0]?.product_type ==
+                      'App\\Models\\EntranceTicket'
+                        ? generateConfirmation()
+                        : printHotelConfirm()
+                    "
+                  >
+                    Generate Confirmation
+                  </p>
+                </div>
               </div>
             </div>
             <div class="">
@@ -634,18 +666,19 @@ const hide = ref(true);
               <div class="flex justify-end items-center gap-x-2">
                 <p
                   @click="showCommentPropup = true"
-                  class="text-[10px] cursor-pointer px-3 py-0.5 flex justify-center gap-x-1.5 items-center text-white rounded-lg bg-[#FF613c]"
+                  class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg flex justify-center items-center gap-x-1"
                 >
                   <img :src="productIcon" alt="" class="w-3 h-3" />Note
                 </p>
                 <p
-                  class="text-[10px] cursor-pointer px-2 py-0.5 flex justify-center gap-x-1.5 items-center text-white rounded-lg bg-[#FF613c]"
+                  class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
+                  @click="copyReservation(detail?.booking?.id)"
                 >
-                  <img :src="productIcon" alt="" class="w-3 h-3" />Product
+                  Copy Expense
                 </p>
                 <p
                   @click="hide = !hide"
-                  class="text-[10px] cursor-pointer px-2 py-0.5 flex justify-center gap-x-1 items-center text-white rounded-lg bg-black"
+                  class="text-[10px] bg-black text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg flex justify-center items-center gap-x-1"
                 >
                   <ChevronDownIcon class="w-3 h-3 text-white" />{{
                     !hide ? "Hide" : "Show"

@@ -7,21 +7,30 @@
         >
           <p class="text-lg font-medium text-[#FF613c] px-4">Add Traveller</p>
 
-          <div class="h-[46vh] overflow-y-auto space-y-3">
+          <div class="h-[46vh] overflow-y-auto space-y-1">
+            <!-- Loop through the grouped customers by CRM ID -->
             <div
-              class="flex justify-between px-4 items-center"
-              v-for="i in editData.customer_passport_have ?? []"
-              :key="i"
+              v-for="(customers, crm_id) in groupedCustomers"
+              :key="crm_id"
+              class="flex flex-col px-4 py-2 bg-white rounded-lg shadow-sm"
             >
+              <!-- CRM ID header -->
+              <div class="text-xs font-medium text-gray-500 mb-2">
+                For CRM ID: {{ crm_id }}
+              </div>
+
+              <!-- List of customers with the same CRM ID -->
               <div
-                class="flex justify-start items-center space-x-4 cursor-pointer"
-                @click="openPassportModal(i, index)"
+                v-for="(customer, index) in customers"
+                :key="index"
+                class="flex justify-start items-center space-x-4 cursor-pointer py-1"
+                @click="openPassportModal(customer, index)"
               >
                 <div class="bg-[#FF613c]/30 rounded-lg p-2 inline-block">
                   <UserCircleIcon class="w-4 text-[#FF613c] h-4" />
                 </div>
                 <p class="text-[12px] font-medium">
-                  {{ i.name }}: {{ i.crm_id }}
+                  <span class="text-[#FF613c]">{{ customer.name }}</span>
                 </p>
               </div>
             </div>
@@ -312,6 +321,25 @@ const openPassportModal = (data, index) => {
 const props = defineProps({
   detail: Object,
   getDetailAction: Function,
+});
+
+const groupedCustomers = computed(() => {
+  const grouped = {};
+
+  if (editData.value?.customer_passport_have) {
+    editData.value.customer_passport_have.forEach((customer) => {
+      if (!grouped[customer.crm_id]) {
+        grouped[customer.crm_id] = [];
+      }
+      grouped[customer.crm_id].push(customer);
+    });
+  }
+
+  console.log("====================================");
+  console.log(grouped, "this is grouped");
+  console.log("====================================");
+
+  return grouped;
 });
 
 const featureImageInput = ref(null);

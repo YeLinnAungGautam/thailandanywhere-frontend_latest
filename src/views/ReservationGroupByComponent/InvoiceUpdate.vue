@@ -28,7 +28,7 @@
         </div>
         <p class="text-lg font-medium text-[#FF613c] px-4">Add Invoice</p>
 
-        <div class="h-[27vh] overflow-y-auto space-y-3">
+        <!-- <div class="h-[27vh] overflow-y-auto space-y-3">
           <div
             class="flex justify-between px-4 items-center"
             v-for="i in editData.invoices ?? []"
@@ -43,6 +43,34 @@
               </div>
               <p class="text-[12px] font-medium">
                 invoice: {{ i.invoice }} for {{ i.crm_id }}
+              </p>
+            </div>
+          </div>
+        </div> -->
+        <div class="h-[29vh] overflow-y-auto space-y-1">
+          <!-- Loop through the grouped customers by CRM ID -->
+          <div
+            v-for="(invoices, crm_id) in groupedInvoices"
+            :key="crm_id"
+            class="flex flex-col px-4 py-2 bg-white rounded-lg shadow-sm"
+          >
+            <!-- CRM ID header -->
+            <div class="text-xs font-medium text-gray-500 mb-2">
+              For CRM ID: {{ crm_id }}
+            </div>
+
+            <!-- List of invoices with the same CRM ID -->
+            <div
+              v-for="(invoice, index) in invoices"
+              :key="index"
+              class="flex justify-start items-center space-x-4 cursor-pointer py-1"
+              @click="openPassportModal(invoice)"
+            >
+              <div class="bg-[#FF613c]/30 rounded-lg p-2 inline-block">
+                <UserCircleIcon class="w-4 text-[#FF613c] h-4" />
+              </div>
+              <p class="text-[12px] font-medium">
+                <span class="text-[#FF613c]">{{ invoice.invoice }}</span>
               </p>
             </div>
           </div>
@@ -270,6 +298,21 @@ const formData = ref({
 });
 
 const booking_status = ref("");
+
+const groupedInvoices = computed(() => {
+  const grouped = {};
+
+  if (editData.value?.invoices) {
+    editData.value.invoices.forEach((invoice) => {
+      if (!grouped[invoice.crm_id]) {
+        grouped[invoice.crm_id] = [];
+      }
+      grouped[invoice.crm_id].push(invoice);
+    });
+  }
+
+  return grouped;
+});
 
 const updateAction = async () => {
   const frmData = new FormData();

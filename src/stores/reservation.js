@@ -335,5 +335,48 @@ export const useReservationStore = defineStore("reservation", {
         throw error;
       }
     },
+
+    async ReservationBookingRequestAction(id, data) {
+      try {
+        const response = await axios.post(
+          `/reservations/${id}/booking-request`,
+          data
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async ReservationBookingRequestDeleteAction(item_id, id) {
+      try {
+        const response = await axios.delete(
+          `/reservations/${item_id}/booking-request/${id}`
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async ReservationExpenseMailAction(id, data) {
+      try {
+        const response = await axios.post(
+          `/reservations/${id}/expense-mails`,
+          data
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async ReservationExpenseMailDeleteAction(item_id, id) {
+      try {
+        const response = await axios.delete(
+          `/reservations/${item_id}/expense-mails/${id}`
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

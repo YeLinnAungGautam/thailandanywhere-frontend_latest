@@ -1,38 +1,43 @@
 <template>
   <div>
     <div class="grid grid-cols-3 gap-4">
-      <div class="pb-4 border-b border-gray-200 col-span-3">
-        <p class="pb-2 text-lg font-medium text-[#FF613c]">Invoice Status</p>
-        <div class="flex justify-between items-center gap-x-2">
-          <select
-            name=""
-            id=""
-            v-model="booking_status"
-            class="w-full border border-gray-200 px-4 py-1 text-sm rounded-lg"
-          >
-            <option value="receive">receive</option>
-            <option value="not_receive">not_receive</option>
-          </select>
-          <button
-            class="text-xs px-3 py-1.5 border whitespace-nowrap rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
-            @click="updateAction"
-          >
-            Update Status
-          </button>
-        </div>
-      </div>
       <div
         class="rounded-lg py-3 relative border space-y-3 border-gray-200 h-auto"
       >
+        <div class="pb-4 border-b border-gray-200">
+          <p class="pb-2 text-lg font-medium text-[#FF613c] px-4">
+            Invoice Status
+          </p>
+          <div class="px-4 gap-2">
+            <select
+              name=""
+              id=""
+              v-model="booking_status"
+              class="w-full border border-gray-200 px-4 py-1 text-sm rounded-lg"
+            >
+              <option value="receive">receive</option>
+              <option value="not_receive">not_receive</option>
+            </select>
+            <button
+              class="text-[12px] px-3 mt-2 w-full py-1.5 border whitespace-nowrap rounded-lg shadow border-[#FF6300] bg-[#FF6300] text-white"
+              @click="updateAction"
+            >
+              Update Status
+            </button>
+          </div>
+        </div>
         <p class="text-lg font-medium text-[#FF613c] px-4">Add Invoice</p>
 
-        <div class="h-[34vh] overflow-y-auto space-y-3">
+        <div class="h-[27vh] overflow-y-auto space-y-3">
           <div
             class="flex justify-between px-4 items-center"
             v-for="i in editData.invoices ?? []"
             :key="i"
           >
-            <div class="flex justify-start items-center space-x-4">
+            <div
+              class="flex justify-start items-center cursor-pointer space-x-4"
+              @click="openPassportModal(i)"
+            >
               <div class="bg-[#FF613c]/30 rounded-lg p-2 inline-block">
                 <DocumentTextIcon class="w-4 text-[#FF613c] h-4" />
               </div>
@@ -40,9 +45,6 @@
                 invoice: {{ i.invoice }} for {{ i.crm_id }}
               </p>
             </div>
-            <p @click="openPassportModal(i)">
-              <PencilSquareIcon class="w-5 text-blue-500 h-5" />
-            </p>
           </div>
         </div>
 
@@ -61,7 +63,7 @@
         <p class="text-lg font-medium text-[#FF613c] px-4 pb-4">
           Invoice Detail
         </p>
-        <div class="grid grid-cols-2 h-[34vh] overflow-y-auto px-4 gap-4">
+        <div class="grid grid-cols-2 h-[45vh] overflow-y-auto px-4 gap-4">
           <div class="space-y-4">
             <div>
               <p class="text-xs pb-1.5 font-medium">Company Name (Sender) *</p>

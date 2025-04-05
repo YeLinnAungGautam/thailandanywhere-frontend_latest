@@ -5,20 +5,20 @@
         <div class="grid grid-cols-2 text-xs gap-2">
           <p class="text-sm font-semibold text-[#FF613c]">Booking Detail</p>
           <div class="flex justify-end items-center"></div>
-          <p>Due Detail</p>
+          <p>Total Expense</p>
+          <p class="text-end">{{ formattedNumber(total_item_price) }} thb</p>
+          <p>Total Items</p>
+          <p class="text-end">{{ detail?.booking?.items?.length }} items</p>
+          <p>Service Date</p>
           <p class="text-end">
             {{ changeFormat(detail?.booking?.balance_due_date) }}
           </p>
-          <p>Total Items</p>
-          <p class="text-end">{{ detail?.booking?.items?.length }} items</p>
           <p>Total Item Price</p>
-          <p class="text-end">{{ formattedNumber(total_item_price) }} thb</p>
+          <p class="text-end">{{ formattedNumber(total_sale_price) }} thb</p>
           <p>Total Discount</p>
           <p class="text-end">{{ total_discount_price }} thb</p>
-          <p>Total Sale</p>
-          <p class="text-end">{{ formattedNumber(total_sale_price) }} thb</p>
-
           <p class="text-sm font-semibold text-[#FF613c] pt-5">Sale Detail</p>
+
           <p class="text-end pt-5"></p>
           <p>Sales Detail</p>
           <p class="text-end">
@@ -27,6 +27,10 @@
           <p>Subtotal</p>
           <p class="text-end">
             {{ formattedNumber(detail?.booking?.sub_total) }} thb
+          </p>
+          <p>Total Balance Due</p>
+          <p class="text-end">
+            {{ formattedNumber(detail?.booking?.balance_due) }} thb
           </p>
           <p>Total Discount</p>
           <p class="text-end">{{ detail?.booking?.discount }} thb</p>

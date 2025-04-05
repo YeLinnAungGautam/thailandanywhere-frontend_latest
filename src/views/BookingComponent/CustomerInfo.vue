@@ -105,6 +105,14 @@ const customerClose = async () => {
   await customerStore.getSimpleListAction();
 };
 
+const getResponse = (message) => {
+  console.log("====================================");
+  console.log(message, "this is customer new response");
+  console.log("====================================");
+
+  change(message.result);
+};
+
 watch(
   () => [
     sold_from.value,
@@ -352,7 +360,7 @@ watch(
       <DialogPanel
         class="w-full max-w-[600px] transform overflow-hidden rounded-lg bg-white pt-4 text-left align-middle shadow-xl transition-all"
       >
-        <CustomerCreate action="sales" />
+        <CustomerCreate action="sales" @response="getResponse" />
         <!-- <div class="flex items-center justify-end">
           <button @click="customerClose" class="text-sm">close</button>
         </div> -->

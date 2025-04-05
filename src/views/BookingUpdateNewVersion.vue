@@ -970,6 +970,7 @@ const getProductName = (item) => {
 
 const getDetail = async () => {
   try {
+    updatingLoading.value = true;
     const response = await bookingStore.getDetailAction(route.params.id);
     console.log(response, "this is response get");
     let data = response.result;
@@ -1100,6 +1101,8 @@ const getDetail = async () => {
     console.log(formData.value, "this is formData");
   } catch (error) {
     console.log(error);
+  } finally {
+    updatingLoading.value = false;
   }
 };
 
@@ -1587,7 +1590,7 @@ onMounted(async () => {
       v-if="updatingLoading"
       class="absolute w-full bg-black/80 text-white z-50 h-full top-0 left-0 flex justify-center items-center text-3xl"
     >
-      Please wait updating process ...
+      Please wait loading process ...
     </p>
     <Modal :isOpen="openAddUserModal" @closeModal="openAddUserModal = false">
       <DialogPanel

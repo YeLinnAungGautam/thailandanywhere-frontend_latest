@@ -53,7 +53,7 @@ const empty_unit_cost = ref("");
 const sale_daterange = ref(null);
 const booking_daterange = ref(null);
 const customer_name = ref("service_date");
-const sorting = ref("");
+const sorting = ref("asc");
 const dateOnlyToggle = ref(false);
 const searchA = ref("");
 const showSide = ref(1);
@@ -230,7 +230,7 @@ const watchSystem = computed(() => {
   if (sorting.value != "") {
     result.order_direction = sorting.value;
   } else {
-    result.order_direction = "desc";
+    result.order_direction = "asc";
   }
 
   console.log(result);

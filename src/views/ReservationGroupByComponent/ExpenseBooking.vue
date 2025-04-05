@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div class="grid grid-cols-5 gap-4">
+    <div class="grid grid-cols-6 gap-4">
       <div
         class="pb-4 border col-span-2 h-[62vh] overflow-y-auto border-gray-200 p-3 rounded-lg"
       >
         <p class="pb-1 text-lg font-medium text-[#FF613c]">
-          Is Booking Request Sent ?
+          Is Expense Email Sent:
         </p>
         <p
           class="text-[10px] text-white bg-[#FF613c] px-2 py-1 rounded-lg inline-block mb-3"
@@ -30,14 +30,74 @@
           </button> -->
         </div>
         <div class="grid grid-cols-1 gap-2">
-          <div class="pt-2 space-y-2">
-            <label for="mail_to" class="pb-2 text-xs"
-              >Proof of Expense Sent</label
-            >
+          <!-- <div class="pt-2 space-y-2">
+            <label for="mail_to" class="pb-2 text-xs">Proof of Booking</label>
             <div
               class="w-full h-[100px] border border-dashed border-gray-300 text-gray-300 text-lg flex justify-center items-center rounded-lg"
             >
               <PlusCircleIcon class="w-6 h-6" />
+            </div>
+          </div> -->
+          <div class="mb-2 space-y-1 col-span-2">
+            <!-- <label for="description" class="text-sm text-gray-800">Images</label> -->
+            <input
+              multiple
+              type="file"
+              name=""
+              ref="imagesInput"
+              id=""
+              @change="handlerImagesFileChange"
+              class="hidden w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              accept="image/*"
+            />
+            <div class="pt-2 space-y-2" @click.prevent="openFileImagePicker">
+              <label for="mail_to" class="pb-2 text-xs">Proof of Expense</label>
+              <div
+                class="w-full h-[100px] border border-dashed border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg"
+              >
+                <PlusCircleIcon class="w-6 h-6" />
+              </div>
+            </div>
+            <div
+              class="grid grid-cols-4 gap-2 pt-4"
+              v-if="imagesPreview.length != 0"
+            >
+              <div
+                class="relative"
+                v-for="(image, index) in imagesPreview"
+                :key="index"
+              >
+                <button
+                  @click.prevent="removeImageSelectImage(index)"
+                  class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                >
+                  <XCircleIcon class="w-6 h-6 font-semibold" />
+                </button>
+
+                <img class="h-auto w-full rounded" :src="image" alt="" />
+              </div>
+            </div>
+            <div
+              class="grid grid-cols-4 gap-2 pt-4"
+              v-if="
+                formData.editImagesPreview.length != 0 &&
+                imagesPreview.length == 0
+              "
+            >
+              <div
+                class="relative"
+                v-for="(image, index) in formData.editImagesPreview"
+                :key="index"
+              >
+                <button
+                  @click.prevent="removeImageUpdateImage(formData.id, image.id)"
+                  class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
+                >
+                  <XCircleIcon class="w-6 h-6 font-semibold" />
+                </button>
+                <img class="h-auto w-full rounded" :src="image.file" alt="" />
+                <!-- <p>{{ image.file }}</p> -->
+              </div>
             </div>
           </div>
         </div>
@@ -52,12 +112,10 @@
       </div>
 
       <div
-        class="col-span-3 border h-[62vh] overflow-y-auto border-gray-200 p-3 rounded-lg"
+        class="col-span-4 border h-[62vh] overflow-y-auto border-gray-200 p-3 rounded-lg"
       >
         <div class="flex justify-between items-center pb-4">
-          <p class="text-lg font-medium text-[#FF613c]">
-            Send Booking Request:
-          </p>
+          <p class="text-lg font-medium text-[#FF613c]">Send Expense Email:</p>
           <div class="space-x-2 flex justify-end items-center gap-x-2">
             <button
               class="text-xs px-3 py-1.5 border rounded-lg border-gray-300 bg-transfer text-black"
@@ -308,6 +366,34 @@ const emailData = ref({
 
 const mail_name = ref("");
 
+const imagesPreview = ref([]);
+const imagesInput = ref(null);
+const openFileImagePicker = () => {
+  imagesInput.value.click();
+};
+
+const formData = ref({
+  images: [],
+  editImagesPreview: [],
+});
+
+const handlerImagesFileChange = (e) => {
+  console.log(e.target.files);
+  let selectedFile = e.target.files;
+  if (selectedFile) {
+    for (let index = 0; index < selectedFile.length; index++) {
+      formData.value.images.push(selectedFile[index]);
+      imagesPreview.value.push(URL.createObjectURL(selectedFile[index]));
+    }
+  }
+};
+
+const removeImageSelectImage = (index) => {
+  formData.value.images.splice(index, 1);
+  imagesPreview.value.splice(index, 1);
+  console.log(imagesPreview.value);
+};
+
 const addMailAction = () => {
   // Regular expression for basic email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -353,18 +439,73 @@ const is_expense_email_sent = ref(false);
 const reservation_ids = ref([]);
 
 const updateAction = async () => {
+  // Create form data for reservation update
   const frmData = new FormData();
   frmData.append("is_expense_email_sent", is_expense_email_sent.value ? 1 : 0);
   frmData.append("_method", "PUT");
 
-  for (let a = 0; a < reservation_ids.value.length; a++) {
-    const res = await reservationStore.updateAction(
-      frmData,
-      reservation_ids.value[a]
-    );
-    toast.success(res.message);
+  // Create separate form data for file uploads
+  const secData = new FormData();
+  if (formData.value.images.length > 0) {
+    for (let i = 0; i < formData.value.images.length; i++) {
+      let file = formData.value.images[i];
+      secData.append("files[]", file); // Fixed: Use files[] instead of files[i]
+    }
   }
 
+  // Store for responses
+  let responses = [];
+
+  // Loop through each reservation ID
+  for (let a = 0; a < reservation_ids.value.length; a++) {
+    try {
+      // Update main reservation data
+      const updateRes = await reservationStore.updateAction(
+        frmData,
+        reservation_ids.value[a]
+      );
+      responses.push(updateRes);
+
+      // Only proceed with file upload if there are files
+      if (formData.value.images.length > 0) {
+        try {
+          // Upload files for this reservation
+          const uploadRes = await reservationStore.ReservationExpenseMailAction(
+            reservation_ids.value[a],
+            secData
+          );
+          responses.push(uploadRes);
+        } catch (error) {
+          console.error("File upload error:", error);
+        }
+      }
+    } catch (error) {
+      console.error("Reservation update error:", error);
+    }
+  }
+
+  // Show success message if any operation was successful
+  if (responses.length > 0) {
+    toast.success("Update completed successfully");
+  }
+
+  // Refresh data after a short delay
+  setTimeout(async () => {
+    await props.getDetailAction(route.query.id, route.query.product_id);
+  }, 1000);
+};
+
+const removeImageUpdateImage = async (id, imageID) => {
+  try {
+    const res = reservationStore.ReservationExpenseMailDeleteAction(
+      id,
+      imageID
+    );
+    console.log(res, "delete image res");
+    toast.success("deleted image");
+  } catch (error) {
+    log.error(error, "delete image error");
+  }
   setTimeout(async () => {
     await props.getDetailAction(route.query.id, route.query.product_id);
   }, 1000);
@@ -389,6 +530,7 @@ const sendEmailFunction = async () => {
         frmData.append("mail_tos", emailData.value.mail_to_array);
         frmData.append("mail_subject", emailData.value.mail_subject);
         frmData.append("mail_body", emailData.value.mail_body);
+        frmData.append("email_type", "expense");
         frmData.append("send_to_default", emailData.value.send_to_default);
         // frmData.append("attachments", emailData.value.attachments);
         if (emailData.value.attachments.length > 0) {
@@ -533,6 +675,9 @@ onMounted(() => {
   if (props?.detail) {
     emailData.value.mail_to_array =
       props.detail?.booking?.items[0]?.product?.email || [];
+
+    formData.value.editImagesPreview =
+      props?.detail?.booking?.items[0]?.expense_mail ?? [];
 
     for (let i = 0; i < props.detail?.booking?.items.length; i++) {
       editData.value.reservation_ids.push({

@@ -13,7 +13,10 @@
               v-for="i in editData.customer_passport_have ?? []"
               :key="i"
             >
-              <div class="flex justify-start items-center space-x-4">
+              <div
+                class="flex justify-start items-center space-x-4 cursor-pointer"
+                @click="openPassportModal(i, index)"
+              >
                 <div class="bg-[#FF613c]/30 rounded-lg p-2 inline-block">
                   <UserCircleIcon class="w-4 text-[#FF613c] h-4" />
                 </div>
@@ -21,12 +24,6 @@
                   {{ i.name }}: {{ i.crm_id }}
                 </p>
               </div>
-              <p>
-                <PencilSquareIcon
-                  class="w-5 text-blue-500 h-5"
-                  @click="openPassportModal(i, index)"
-                />
-              </p>
             </div>
           </div>
           <div class="w-full pt-4 px-4">
@@ -115,6 +112,7 @@
                   :src="formData.file"
                   class="rounded-lg shadow hover:shadow-none h-full object-cover object-bottom w-full"
                   alt=""
+                  @click="showPassport = true"
                 />
               </div>
               <div
@@ -220,6 +218,38 @@
         </div>
       </DialogPanel>
     </Modal>
+
+    <Modal
+      :isOpen="showPassport"
+      @closeModal="
+        () => {
+          showPassport = false;
+        }
+      "
+    >
+      <DialogPanel
+        class="w-full max-w-xl mt-2 transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
+        >
+          <p>Passport</p>
+          <XCircleIcon
+            class="w-5 h-5 text-white"
+            @click="
+              () => {
+                showPassport = false;
+              }
+            "
+          />
+        </DialogTitle>
+
+        <div>
+          <img :src="formData.file" alt="" />
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
@@ -316,6 +346,8 @@ const isHotelProduct = computed(() => {
 });
 
 const showErrorMessage = ref(false);
+const showPassport = ref(false);
+
 const checkAction = () => {
   if (isHotelProduct.value) {
     // For hotel product type - validate all fields

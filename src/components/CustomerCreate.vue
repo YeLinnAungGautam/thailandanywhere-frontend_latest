@@ -1,7 +1,7 @@
 <script setup>
 import { XCircleIcon } from "@heroicons/vue/24/outline";
 import { PlusIcon, ListBulletIcon } from "@heroicons/vue/24/outline";
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, defineEmits } from "vue";
 import Button from "./Button.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
@@ -54,6 +54,8 @@ const removeFeatureSelectImage = () => {
   featureImagePreview.value = null;
 };
 
+const emit = defineEmits(["response"]);
+
 const onSubmitHandler = async () => {
   console.log(enabled.value);
   const frmData = new FormData();
@@ -98,6 +100,7 @@ const onSubmitHandler = async () => {
     toast.success(response.message);
     if (props.action == "sales") {
       sidebar.toggleCustomerCreate();
+      emit("response", response);
       await customerStore.getSimpleListAction();
     } else {
       router.push("/customers");

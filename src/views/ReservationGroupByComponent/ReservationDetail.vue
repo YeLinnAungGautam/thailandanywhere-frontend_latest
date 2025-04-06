@@ -301,9 +301,9 @@ const copyReservation = async (id) => {
     // Check for earliest check-in date across all items
     let earliestCheckinDate = null;
     for (const item of res.items) {
-      if (item.checkin_date && item.checkin_date !== "null") {
-        if (!earliestCheckinDate || item.checkin_date < earliestCheckinDate) {
-          earliestCheckinDate = item.checkin_date;
+      if (item.service_date && item.service_date !== "null") {
+        if (!earliestCheckinDate || item.service_date < earliestCheckinDate) {
+          earliestCheckinDate = item.service_date;
         }
       }
     }
@@ -322,21 +322,24 @@ const copyReservation = async (id) => {
     }
 
     // Add booking header
-    allFormattedOutput += `💰 Total Cost: ${
-      res.summary.total_cost
-    } THB 💵 Price: ${res.summary.total_amount} THB 🏦 Bank Name: ${
+    allFormattedOutput += `💰 Total Cost: ${res.summary.total_cost} THB 
+💵 Price: ${res.summary.total_amount} THB 
+🏦 Bank Name: ${
       res.items[0].bank_name != "null" ? res.items[0].bank_name : "-"
-    } 🔢 Bank Account Number: ${
+    } 
+🔢 Bank Account Number: ${
       res.items[0].bank_account_number != "null"
         ? `➖${res.items[0].bank_account_number}`
         : "-"
-    } 🧑‍💼 Account Name: ${
+    }
+🧑‍💼 Account Name: ${
       res.items[0].account_name != "null" ? res.items[0].account_name : "-"
-    } #️⃣ CRM ID: ${res.crm_id}\n`;
+    } 
+#️⃣ CRM ID: ${res.crm_id}\n`;
 
-    res.items.forEach((item, index) => {
-      allFormattedOutput += `#️⃣ Reservation Code: ${item.reservation_code}: (${item.sale_price})\n`;
-    });
+    // res.items.forEach((item, index) => {
+    //   allFormattedOutput += `#️⃣ Reservation Code: ${item.reservation_code}: (${item.sale_price})\n`;
+    // });
 
     if (res.product_type == "App\\Models\\Hotel") {
       allFormattedOutput += `🏨 ${res.items[0].product_name}\n`;
@@ -346,30 +349,39 @@ const copyReservation = async (id) => {
 
     if (res.product_type == "App\\Models\\Hotel") {
       res.items.forEach((a, index) => {
-        allFormattedOutput += `🏩 Room Name: ${a.room_name}\n`;
+        const itemUrgencyLabel = getUrgencyLabel(a.checkin_date).trim();
+        const urgencyPrefix = itemUrgencyLabel ? `[${itemUrgencyLabel}] ` : "";
+        allFormattedOutput += `🏩 Room Name: ${a.room_name}
+📆 Check-in Date: ${urgencyPrefix}${a.checkin_date}-${a.checkout_date}
+#️⃣ Reservation Code: ${a.reservation_code}: S: (${a.sale_price})
+---------------------\n`;
       });
     } else {
       res.items.forEach((a, index) => {
-        allFormattedOutput += `🎫 Ticket Name: ${a.entrance_ticket_variation_name}\n`;
+        const itemUrgencyLabel = getUrgencyLabel(a.checkin_date).trim();
+        const urgencyPrefix = itemUrgencyLabel ? `[${itemUrgencyLabel}] ` : "";
+        allFormattedOutput += `🎫 Ticket Name: ${a.entrance_ticket_variation_name}
+📆 Service Date: ${urgencyPrefix}${a.service_date}
+#️⃣ Reservation Code: ${a.reservation_code}: S: (${a.sale_price})
+---------------------\n`;
       });
     }
 
     // Add check-in dates with individual urgency indicators
-    res.items.forEach((item, index) => {
-      if (item.checkin_date && item.checkin_date !== "null") {
-        const itemUrgencyLabel = getUrgencyLabel(item.checkin_date).trim();
-        const urgencyPrefix = itemUrgencyLabel ? `[${itemUrgencyLabel}] ` : "";
-        allFormattedOutput += `📅 Check-in Date: ${urgencyPrefix}${item.checkin_date}\n`;
-      }
-    });
+    // res.items.forEach((item, index) => {
+    //   if (item.checkin_date && item.checkin_date !== "null") {
+    //     const itemUrgencyLabel = getUrgencyLabel(item.checkin_date).trim();
+    //     const urgencyPrefix = itemUrgencyLabel ? `[${itemUrgencyLabel}] ` : "";
+    //     allFormattedOutput += `📅 Check-in Date: ${urgencyPrefix}${item.checkin_date}\n`;
+    //   }
+    // });
 
-    allFormattedOutput += `💵 Total Sale Amount: ${
-      res.selling_price
-    } THB 💸 Discount : ${discount} THB 💵 Balance Due: ${
-      res.balance_due
-    } THB 📝 Payment Status: ${res.payment_status} 📅 Sale Date: ${
-      res.booking_date
-    } 🤑 Score : ${score.toFixed(2)}     \n`;
+    allFormattedOutput += `💵 Total Sale Amount: ${res.selling_price} THB 
+💸 Discount : ${discount} THB 
+💵 Balance Due: ${res.balance_due} THB 
+📝 Payment Status: ${res.payment_status}
+📅 Sale Date: ${res.booking_date}
+🤑 Score : ${score.toFixed(2)}\n`;
 
     // Copy to clipboard with a short timeout to ensure UI isn't blocked
     setTimeout(() => {

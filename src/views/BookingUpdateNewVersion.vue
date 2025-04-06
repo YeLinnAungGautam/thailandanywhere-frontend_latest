@@ -1312,13 +1312,14 @@ onMounted(async () => {
             <PrinterIcon class="w-4 h-4 text-white" />
             <span class="pl-2">PNG</span>
           </button>
-          <!-- <button
+          <button
+            v-if="formData.is_inclusive == 1"
             @click="openPaid"
             class="text-center bg-gray-600 px-4 py-2 text-xs flex justify-center items-center text-white rounded-xl"
           >
             <PrinterIcon class="w-4 h-4 text-white" />
             <span class="pl-2">PDF</span>
-          </button> -->
+          </button>
           <div
             @click="openAddUserModal = true"
             class="text-center cursor-pointer relative max-w-[200px] bg-green-500 py-2 px-4 text-xs text-white rounded-xl flex justify-start items-center gap-x-2"

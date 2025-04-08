@@ -324,6 +324,9 @@ const copyReservation = async (id) => {
     // Add booking header
     allFormattedOutput += `💰 Total Cost: ${res.summary.total_cost} THB 
 💵 Price: ${res.summary.total_amount} THB 
+💵 Balance Due: ${res.balance_due} THB 
+📝 Payment Status: ${res.payment_status}
+---------------------
 🏦 Bank Name: ${
       res.items[0].bank_name != "null" ? res.items[0].bank_name : "-"
     } 
@@ -337,14 +340,12 @@ const copyReservation = async (id) => {
     } 
 #️⃣ CRM ID: ${res.crm_id}\n`;
 
-    // res.items.forEach((item, index) => {
-    //   allFormattedOutput += `#️⃣ Reservation Code: ${item.reservation_code}: (${item.sale_price})\n`;
-    // });
-
     if (res.product_type == "App\\Models\\Hotel") {
-      allFormattedOutput += `🏨 ${res.items[0].product_name}\n`;
+      allFormattedOutput += `🏨 ${res.items[0].product_name}
+---------------------\n`;
     } else {
-      allFormattedOutput += `🎟️ ${res.items[0].product_name}\n`;
+      allFormattedOutput += `🎟️ ${res.items[0].product_name}
+---------------------\n`;
     }
 
     if (res.product_type == "App\\Models\\Hotel") {
@@ -367,19 +368,8 @@ const copyReservation = async (id) => {
       });
     }
 
-    // Add check-in dates with individual urgency indicators
-    // res.items.forEach((item, index) => {
-    //   if (item.checkin_date && item.checkin_date !== "null") {
-    //     const itemUrgencyLabel = getUrgencyLabel(item.checkin_date).trim();
-    //     const urgencyPrefix = itemUrgencyLabel ? `[${itemUrgencyLabel}] ` : "";
-    //     allFormattedOutput += `📅 Check-in Date: ${urgencyPrefix}${item.checkin_date}\n`;
-    //   }
-    // });
-
     allFormattedOutput += `💵 Total Sale Amount: ${res.selling_price} THB 
 💸 Discount : ${discount} THB 
-💵 Balance Due: ${res.balance_due} THB 
-📝 Payment Status: ${res.payment_status}
 📅 Sale Date: ${res.booking_date}
 🤑 Score : ${score.toFixed(2)}\n`;
 

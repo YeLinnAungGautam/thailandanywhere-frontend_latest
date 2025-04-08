@@ -20,7 +20,7 @@
       </div>
 
       <div class="w-10 h-10 z-10 relative flex items-center justify-center">
-        <span class="text-xs font-medium text-gray-600"
+        <span class="text-xs font-medium text-gray-600" v-if="saleToday > 0"
           >{{ Math.round((saleToday / average) * 100) }}%</span
         >
       </div>
@@ -48,9 +48,9 @@ const homeStore = useHomeStore();
 const authStore = useAuthStore();
 const saleAgentDataRes = ref([]);
 
-const saleToday = ref("");
-const saleCount = ref("");
-const average = ref("");
+const saleToday = ref(0);
+const saleCount = ref(0);
+const average = ref(0);
 
 const getSaleAgentData = async (date) => {
   let first = date[0];
@@ -66,7 +66,7 @@ const getSaleAgentData = async (date) => {
 
   if (saleAgentDataRes.value) {
     saleAgentDataRes.value.result.map((item) => {
-      if (item?.created_by?.name === authStore?.user?.name) {
+      if (item?.created_by?.name == authStore?.user?.name) {
         saleToday.value = item?.total;
         average.value = item?.target_amount;
         saleCount.value = item?.total_booking;

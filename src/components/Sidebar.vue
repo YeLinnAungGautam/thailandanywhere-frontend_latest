@@ -75,6 +75,18 @@
                   authStore.isSaleAdmin
                 "
                 :icon="CalendarIcon"
+                to="/bookings-old/%25/%25/%25"
+                :activePaths="['bookings-old']"
+              />
+              <SidebarItem
+                name="Sales (v2)"
+                v-if="
+                  authStore.isSuperAdmin ||
+                  authStore.isCashier ||
+                  authStore.isAdmin ||
+                  authStore.isSaleAdmin
+                "
+                :icon="CalendarIcon"
                 to="/bookings/%25/%25/%25"
                 :activePaths="[
                   'bookings',

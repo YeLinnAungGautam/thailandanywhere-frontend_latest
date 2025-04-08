@@ -3,6 +3,7 @@ import ComponentView from "../views/ComponentView.vue";
 import TableView from "../views/TableView.vue";
 import ProductView from "../views/ProductView.vue";
 import BookingView from "../views/BookingView.vue";
+import BookingOldView from "../views/BookingOldVersion.vue";
 import BookingCreateView from "../views/BookingCreate.vue";
 import BookingNewCreateView from "../views/BookingCreateNewVersion.vue";
 import NewBookingView from "../views/NewBookingView.vue";
@@ -152,6 +153,11 @@ const routes = [
     path: "/bookings/:crm_id/:customer_name/:sale_date",
     name: "bookings",
     component: BookingView,
+  },
+  {
+    path: "/bookings-old/:crm_id/:customer_name/:sale_date",
+    name: "bookingsOld",
+    component: BookingOldView,
   },
   {
     path: "/bookings/create",

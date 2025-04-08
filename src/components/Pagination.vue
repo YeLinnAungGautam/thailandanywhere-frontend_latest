@@ -19,7 +19,7 @@
       </nav>
     </div>
     <div>
-      <p class="inline-block mr-2 text-gray-500 font-medium">
+      <p class="inline-block mr-2 text-gray-500 text-xs font-medium">
         Showing {{ data.meta.from }} to {{ data.meta.to }} of
         {{ data.meta.total }} records
       </p>

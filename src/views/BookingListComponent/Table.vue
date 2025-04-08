@@ -22,6 +22,9 @@
             INCLUSIVE
           </th>
           <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
+            CONNECTED
+          </th>
+          <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
             ACTIONS
           </th>
         </tr>
@@ -84,6 +87,17 @@
             class="text-[11px] font-medium text-[#FF613c] px-3 py-3 border-l border-gray-400/20"
           >
             {{ l?.is_inclusive == 1 ? "Inclusive" : "" }}
+          </td>
+          <td
+            scope="col"
+            class="text-[11px] font-medium text-[#FF613c] text-center px-3 py-3 border-l border-gray-400/20"
+          >
+            <!-- {{ l?.user?.name ? l?.user?.name : "Not Connected" }} -->
+            <CheckBadgeIcon
+              v-if="l?.user?.name"
+              class="w-5 h-5 text-green-500 inline-block"
+            />
+            <XCircleIcon v-else class="w-5 h-5 text-red-500 inline-block" />
           </td>
           <td
             scope="col"
@@ -160,6 +174,14 @@
           >
             <p
               class="w-[80px] animate-pulse h-3 bg-gray-300 inline-block rounded-lg"
+            ></p>
+          </td>
+          <td
+            scope="col"
+            class="text-[11px] font-medium text-[#FF613c] px-3 py-3 border-l border-gray-400/20"
+          >
+            <p
+              class="w-[50px] animate-pulse h-3 bg-gray-300 inline-block rounded-lg"
             ></p>
           </td>
           <td
@@ -354,6 +376,8 @@ import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import { useBookingStore } from "../../stores/booking";
 import { useAuthStore } from "../../stores/auth";
+import { CalendarDaysIcon } from "@heroicons/vue/24/outline";
+import { CheckBadgeIcon, XCircleIcon } from "@heroicons/vue/24/solid";
 
 const router = useRouter();
 const toast = useToast();

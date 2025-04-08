@@ -18,6 +18,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { useAdminStore } from "../stores/admin";
 import { useSidebarStore } from "../stores/sidebar";
+import SalesToday from "./BookingListComponent/SalesToday.vue";
 
 const bookingStore = useBookingStore();
 const { bookings, loading } = storeToRefs(bookingStore);
@@ -181,13 +182,14 @@ onMounted(async () => {
     <div class="flex justify-start items-center gap-x-4">
       <AvgCard
         :title="'Daily Avg. Sales'"
-        :value="'-'"
+        :value="authStore?.user?.target_amount"
         :is_value="true"
         :is_show="true"
       />
-      <AvgCard :title="'Daily Avg. Booking'" :value="'-'" :is_value="false" />
-      <AvgCard :title="'Sales Today'" :value="'-'" :is_value="true" />
-      <AvgCard :title="'Booking Today'" :value="'-'" :is_value="false" />
+      <AvgCard :title="'Daily Avg. Booking'" :value="'--'" :is_value="false" />
+      <!-- <AvgCard :title="'Sales Today'" :value="'-'" :is_value="true" /> -->
+      <SalesToday />
+      <!-- <AvgCard :title="'Booking Today'" :value="'-'" :is_value="false" /> -->
     </div>
     <!-- div -->
     <div

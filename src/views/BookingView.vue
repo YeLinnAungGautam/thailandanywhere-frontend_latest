@@ -180,13 +180,13 @@ onMounted(async () => {
       <p class="text-xs">Manage your daily sales easily.</p>
     </div>
     <div class="flex justify-start items-center gap-x-4">
-      <AvgCard
+      <!-- <AvgCard
         :title="'Daily Avg. Sales'"
         :value="authStore?.user?.target_amount"
         :is_value="true"
         :is_show="true"
       />
-      <AvgCard :title="'Daily Avg. Booking'" :value="'--'" :is_value="false" />
+      <AvgCard :title="'Daily Avg. Booking'" :value="'--'" :is_value="false" /> -->
       <!-- <AvgCard :title="'Sales Today'" :value="'-'" :is_value="true" /> -->
       <SalesToday />
       <!-- <AvgCard :title="'Booking Today'" :value="'-'" :is_value="false" /> -->

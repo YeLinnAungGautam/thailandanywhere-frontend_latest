@@ -543,7 +543,7 @@ const sendEmailFunction = async () => {
           route.query.id,
           frmData
         );
-        if (res.data.status) {
+        if (res?.status) {
           emailLoading.value = false;
           emailData.value = {
             mail_subject: "",

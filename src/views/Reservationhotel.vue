@@ -591,14 +591,6 @@ watch(dateRange, async (newValue) => {
                   </option>
                 </select>
                 <p class="text-[10px]">Service Date</p>
-                <!-- <div>
-                  <VueDatePicker
-                    v-model="searchTime"
-                    :format="'yyyy-MM-dd'"
-                    placeholder="Service Date"
-                    text-input
-                  />
-                </div> -->
                 <Modal :isOpen="searchModel" @closeModal="searchModel = false">
                   <DialogPanel
                     class="w-full max-w-lg transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"

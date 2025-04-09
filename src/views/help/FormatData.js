@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 export function getFormatDate(dateInput) {
   // Handle string date input by converting to Date object
   if (dateInput != null) {
@@ -43,3 +44,19 @@ export function formattedDate(dateInput) {
   }
   return null;
 }
+
+export function changeFormat(dateStr) {
+  if (dateStr) {
+    return format(new Date(dateStr), "dd MMMM, YYY");
+  } else {
+    return "";
+  }
+};
+
+export const formattedNumber = (number) => {
+  if(number){
+    return new Intl.NumberFormat().format(number);
+  }else{
+    return 0;
+  }
+};

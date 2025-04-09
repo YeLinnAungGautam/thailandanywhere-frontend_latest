@@ -300,15 +300,6 @@ onMounted(async () => {
                 class="flex items-center justify-between gap-3 mb-3"
               >
                 <div class="flex-1">
-                  <!-- <v-select
-                    v-model="price.car"
-                    class="style-chooser"
-                    :options="carlist ?? []"
-                    label="name"
-                    :clearable="false"
-                    :reduce="(car) => car.id"
-                    placeholder="Choose car type"
-                  ></v-select> -->
                   <v-select
                     v-if="carList"
                     label="name"

@@ -13,6 +13,7 @@ import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRouter } from "vue-router";
 import AddonListOnBooking from "../Addon/AddonListOnBooking.vue";
+import { daysBetween } from "../help/DateBetween";
 // import { useCityStore } from "../../stores/city";
 
 const bottomOfWindow = ref(false);
@@ -294,22 +295,9 @@ const getFunction = () => {
   clearAction();
 };
 
-const calculateDaysBetween = (a, b) => {
-  if (a && b) {
-    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
-    const startDateTimestamp = new Date(a).getTime();
-    const endDateTimestamp = new Date(b).getTime();
-    let result = Math.abs(
-      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
-    );
-    // formitem.value.days = result;
-    return result;
-  }
-};
-
 const calculateRateRoom = () => {
   if (formitem.value.checkin_date && formitem.value.checkout_date) {
-    formitem.value.days = calculateDaysBetween(
+    formitem.value.days = daysBetween(
       formitem.value.checkin_date,
       formitem.value.checkout_date
     );

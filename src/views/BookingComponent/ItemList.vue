@@ -16,6 +16,7 @@ import { useHotelStore } from "../../stores/hotel";
 import AddonListOnBooking from "../Addon/AddonListOnBooking.vue";
 import { computed } from "vue";
 import { useRouter } from "vue-router";
+import { daysBetween } from "../help/DateBetween";
 
 const props = defineProps({
   data: Object,
@@ -343,19 +344,6 @@ const getCarImage = (type) => {
   }
 };
 
-const calculateDaysBetween = (a, b) => {
-  if (a && b) {
-    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
-    const startDateTimestamp = new Date(a).getTime();
-    const endDateTimestamp = new Date(b).getTime();
-    let result = Math.abs(
-      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
-    );
-    // formitem.value.days = result;
-    return result;
-  }
-};
-
 const checkRoomPrice = async () => {
   if (
     formitem.value.car_id != "" &&
@@ -380,7 +368,7 @@ const checkRoomPrice = async () => {
 
 const calculateRateRoom = () => {
   if (formitem.value.checkin_date && formitem.value.checkout_date) {
-    formitem.value.days = calculateDaysBetween(
+    formitem.value.days = daysBetween(
       formitem.value.checkin_date,
       formitem.value.checkout_date
     );
@@ -428,42 +416,6 @@ watch(
   },
   { deep: true, immediate: true } // Optional: immediate triggers the callback initially
 );
-
-// watch(
-//   () => formitem.value.quantity, // Watch the quantity property
-//   (newValue) => {
-//     if (formitem.value.product_type == 4) {
-//       // Ensure newValue is a valid number
-//       // if (typeof newValue !== "number" || isNaN(newValue)) {
-//       //   console.error("Invalid quantity value:", newValue);
-//       //   return;
-//       // }
-
-//       // Ensure cost_price and selling_price are valid numbers
-//       const costPrice = parseFloat(formitem.value.cost_price) || 0;
-//       const sellingPrice = parseFloat(formitem.value.selling_price) || 0;
-
-//       // Create a new object for individual_pricing.adult
-//       const updatedAdultPricing = {
-//         quantity: newValue * 1,
-//         selling_price: sellingPrice,
-//         cost_price: costPrice,
-//         total_cost_price: newValue * 1 * costPrice,
-//         amount: newValue * 1 * sellingPrice,
-//       };
-
-//       // Update formitem.value.individual_pricing.adult
-//       formitem.value.individual_pricing.adult =
-//         updatedAdultPricing != null ? updatedAdultPricing : "";
-
-//       // Debugging logs (optional)
-//       console.log("====================================");
-//       console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
-//       console.log("====================================");
-//     }
-//   },
-//   { immediate: true } // Optional: Trigger the watcher immediately on setup
-// );
 
 watch(
   () => formitem.value.quantity, // Watch the quantity property

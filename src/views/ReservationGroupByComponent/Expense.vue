@@ -626,6 +626,7 @@ import { useReservationStore } from "../../stores/reservation";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute } from "vue-router";
+import { daysBetween } from "../help/DateBetween";
 // import ExpenseBooking from "./ExpenseBooking.vue";
 
 const toast = useToast();
@@ -1069,20 +1070,6 @@ const removeFeatureDeleteImage = async (index, id) => {
 };
 
 const emailBooking = ref(false);
-
-const daysBetween = (a, b) => {
-  console.log(a, b);
-  if (a && b) {
-    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
-    const startDateTimestamp = new Date(a).getTime();
-    const endDateTimestamp = new Date(b).getTime();
-    let result = Math.abs(
-      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
-    );
-    console.log(formData.value.checkin_date, result, "this is result");
-    return result;
-  }
-};
 
 const loading = ref(false);
 

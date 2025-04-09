@@ -252,7 +252,8 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRouter, useRoute } from "vue-router";
 import { useBookingStore } from "../../stores/booking";
 import { useToast } from "vue-toastification";
-import { format } from "date-fns";
+import { changeFormat } from "../help/FormatData";
+import {formattedNumber} from "../help/FormatData"
 
 const bookingStore = useBookingStore();
 const route = useRoute();
@@ -325,18 +326,6 @@ const total_discount_price = computed(() => {
   });
   return total;
 });
-
-const changeFormat = (dateStr) => {
-  if (dateStr) {
-    return format(new Date(dateStr), "dd MMMM, YYY");
-  } else {
-    return "";
-  }
-};
-
-const formattedNumber = (number) => {
-  return new Intl.NumberFormat().format(number);
-};
 
 const openModal = (data) => {
   carModalOpen.value = true;

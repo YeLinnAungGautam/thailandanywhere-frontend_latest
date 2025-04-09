@@ -23,6 +23,7 @@ import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import logo from "../../assets/web-logo.png";
 import { useAuthStore } from "../../stores/auth";
+import {daysBetween} from "../help/DateBetween"
 
 const props = defineProps({
   show: Number,
@@ -147,19 +148,6 @@ const getDetailAction = async (id, product_id) => {
   console.log(detail.value, "this is detail");
 
   getLoading.value = false;
-};
-
-const calculateDaysBetween = (a, b) => {
-  if (a && b) {
-    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
-    const startDateTimestamp = new Date(a).getTime();
-    const endDateTimestamp = new Date(b).getTime();
-    let result = Math.abs(
-      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
-    );
-    // formitem.value.days = result;
-    return result;
-  }
 };
 
 const printHotelConfirm = () => {
@@ -852,7 +840,7 @@ const hide = ref(true);
                         {{ item.quantity }}
                         {{
                           item?.product_type != "App\\Models\\EntranceTicket"
-                            ? `x ${calculateDaysBetween(
+                            ? `x ${daysBetween(
                                 item.checkin_date,
                                 item.checkout_date
                               )}`

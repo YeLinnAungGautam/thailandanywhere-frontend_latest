@@ -141,7 +141,7 @@ const clearFilter = async () => {
 
 const SearchFunction = () => {
   router.push({
-    name: `bookings`,
+    name: `bookingsOld`,
     params: {
       crm_id: search.value ? search.value : "%",
       customer_name: customerName.value ? customerName.value : "%",

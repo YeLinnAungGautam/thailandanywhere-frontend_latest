@@ -113,6 +113,15 @@ const modelInclusive = computed({
   },
 });
 
+const filterCount = computed(() => {
+  let count = 0;
+  if (selectedDate.value) count++;
+  if (payment_status.value) count++;
+  if (inclusive.value) count++;
+  if (createdBy.value) count++;
+  return count;
+})
+
 function parseDate(dateString) {
   if (!dateString) return null;
 
@@ -199,13 +208,13 @@ watch(
             CLEAR
           </p>
           <p class="bg-[#FF613c] text-white cursor-pointer rounded-lg px-2 py-1 text-[10px]" @click="searchHandler">
-            FILTER
+            FILTER {{ filterCount }}
           </p>
         </div>
       </div>
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
         <div class="flex justify-between items-center w-full">
-          <p class="text-xs font-semibold">Sales Date</p>
+          <p class="text-xs font-semibold"><span class="w-2 h-2  inline-block rounded-full mr-2" :class="selectedDate ? 'bg-[#FF613c]' : 'bg-gray-200'"></span>Sales Date</p>
           <ChevronDownIcon @click="dateFilter = !dateFilter"
             class="w-4 h-4 text-[#FF5B00] font-bold transition-all duration-150 cursor-pointer"
             :class="{ 'rotate-180': dateFilter }"
@@ -217,7 +226,7 @@ watch(
       </div>
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
         <div class="flex justify-between items-center w-full">
-          <p class="text-xs font-semibold">Select Agent</p>
+          <p class="text-xs font-semibold"><span class="w-2 h-2 inline-block rounded-full mr-2" :class="createdBy ? 'bg-[#FF613c]' : 'bg-gray-200'"></span> Select Agent </p>
           <ChevronDownIcon @click="agentFilter =!agentFilter"
             :class="{ 'rotate-180': agentFilter }"
             class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
@@ -249,7 +258,7 @@ watch(
       </div>
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
         <div class="flex justify-between items-center w-full">
-          <p class="text-xs font-semibold">Payment Status</p>
+          <p class="text-xs font-semibold"><span class="w-2 h-2 inline-block rounded-full mr-2" :class="payment_status ? 'bg-[#FF613c]' : 'bg-gray-200'"></span>Payment Status</p>
           <ChevronDownIcon @click="paymentFilter = !paymentFilter"
             :class="{ 'rotate-180': paymentFilter }"
             class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
@@ -300,7 +309,7 @@ watch(
       </div>
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
         <div class="flex justify-between items-center w-full">
-          <p class="text-xs font-semibold">Price Range</p>
+          <p class="text-xs font-semibold"><span class="w-2 h-2 inline-block rounded-full mr-2" :class="false ? 'bg-[#FF613c]' : 'bg-gray-200'"></span>Price Range</p>
           <ChevronDownIcon @click="priceFilter =!priceFilter"
             :class="{ 'rotate-180': priceFilter }"
             class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
@@ -323,7 +332,7 @@ watch(
 
       <div class="gap-x-4 w-full px-4 py-3">
         <div class="flex justify-between items-center w-full">
-          <p class="text-xs font-semibold">Inclusive</p>
+          <p class="text-xs font-semibold"><span class="w-2 h-2 inline-block rounded-full mr-2" :class="inclusive ? 'bg-[#FF613c]' : 'bg-gray-200'"></span>Inclusive</p>
           <ChevronDownIcon @click="inclusiveFilter = !inclusiveFilter"
             :class="{ 'rotate-180': inclusiveFilter }"
             class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"

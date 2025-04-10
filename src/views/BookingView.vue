@@ -4,6 +4,8 @@ import AvgCard from "./BookingListComponent/AvgCard.vue";
 import FilterPart from "./BookingListComponent/FilterPart.vue";
 import Table from "./BookingListComponent/Table.vue";
 import {
+  CheckIcon,
+  ChevronLeftIcon,
   ChevronUpDownIcon,
   FunnelIcon,
   LanguageIcon,
@@ -11,7 +13,7 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/vue/24/outline";
 import { useBookingStore } from "../stores/booking";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -19,6 +21,7 @@ import { useAuthStore } from "../stores/auth";
 import { useAdminStore } from "../stores/admin";
 import { useSidebarStore } from "../stores/sidebar";
 import SalesToday from "./BookingListComponent/SalesToday.vue";
+import debounce from "lodash/debounce";
 
 const bookingStore = useBookingStore();
 const { bookings, loading } = storeToRefs(bookingStore);
@@ -149,6 +152,16 @@ const searchHandler = async () => {
   await bookingStore.getListAction(watchSystem.value);
 };
 
+watch(
+  [search, customerName, sale_date_order_by],
+  debounce(async ([newValue, secValue, thirdValue]) => {
+    
+      showFilter.value = true;
+      await searchHandler();
+    
+  }, 500)
+);
+
 onMounted(async () => {
   (sale_date_order_by.value = "desc"),
     // console.log(route.params);
@@ -180,16 +193,8 @@ onMounted(async () => {
       <p class="text-xs">Manage your daily sales easily.</p>
     </div>
     <div class="flex justify-start items-center gap-x-4">
-      <!-- <AvgCard
-        :title="'Daily Avg. Sales'"
-        :value="authStore?.user?.target_amount"
-        :is_value="true"
-        :is_show="true"
-      />
-      <AvgCard :title="'Daily Avg. Booking'" :value="'--'" :is_value="false" /> -->
-      <!-- <AvgCard :title="'Sales Today'" :value="'-'" :is_value="true" /> -->
+
       <SalesToday />
-      <!-- <AvgCard :title="'Booking Today'" :value="'-'" :is_value="false" /> -->
     </div>
     <!-- div -->
     <div
@@ -207,6 +212,10 @@ onMounted(async () => {
             v-model:saleDate="saleDate"
             v-model:searchP="searchP"
             v-model:inclusive_only="inclusive_only"
+            v-model:createdBy="createdBy"
+            :adminLists="adminLists"
+            :searchHandler="searchHandler"
+            :clearFilter="clearFilter"
           />
         </div>
       </transition>
@@ -220,48 +229,12 @@ onMounted(async () => {
         >
           <div class="flex justify-between items-start w-full">
             <div class="flex justify-start w-full items-center gap-x-2">
-              <p
-                @click="router.push(`/bookings/new-create`)"
-                class="bg-[#FF613c] whitespace-nowrap cursor-pointer text-white px-3 text-xs py-1.5 rounded-lg inline-block"
-              >
-                + New
-              </p>
-              <div v-if="authStore.isSuperAdmin">
-                <div>
-                  <select
-                    name=""
-                    id=""
-                    v-model="createdBy"
-                    class="border border-coral-200 py-1 px-2 text-gray-400 bg-white text-xs rounded-lg min-w-[100px] w-full"
-                  >
-                    <option value="" class="text-xs">Select Agent</option>
-                    <option
-                      v-for="admin in adminLists"
-                      :key="admin.id"
-                      :value="admin.id"
-                    >
-                      {{ admin.name }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-              <div class="relative">
-                <input
-                  type="text"
-                  class="w-[180px] pl-8 pr-4 py-1.5 text-xs border border-coral-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-coral-500 text-gray-500"
-                  v-model="search"
-                  placeholder="Search by CRM ID"
-                />
-                <MagnifyingGlassIcon
-                  class="h-4 w-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
-                />
-              </div>
               <div
-                class="p-2 bg-[#FF613c]/10 rounded-lg transition-all duration-150"
-                :class="customFilter ? 'bg-[#FF613c]/20' : 'bg-[#FF613c]/10'"
+                class="p-2 rounded-lg transition-all duration-150"
+                :class="customFilter ? 'bg-[#FF613c]' : 'bg-[#FF613c]'"
                 @click="customFilter = !customFilter"
               >
-                <FunnelIcon class="h-4 w-4 text-[#FF613c] cursor-pointer" />
+                <ChevronLeftIcon class="h-4 w-4 text-white cursor-pointer transition-all duration-150" :class="{ 'rotate-180': !customFilter }"/>
               </div>
               <div class="p-2 bg-[#FF613c]/10 rounded-lg relative group">
                 <ChevronUpDownIcon
@@ -271,22 +244,22 @@ onMounted(async () => {
                   class="absolute group-hover:block hidden -bottom-20 left-0 bg-white shadow-lg rounded-lg p-2"
                 >
                   <p
-                    class="whitespace-nowrap cursor-pointer py-2 px-4 text-xs hover:text-[#FF613c]"
+                    class="whitespace-nowrap flex justify-start items-center cursor-pointer py-2 px-4 text-xs hover:text-[#FF613c]"
                     :class="
                       sale_date_order_by === 'desc' ? 'text-[#FF613c]' : ''
                     "
                     @click="sale_date_order_by = `desc`"
                   >
-                    Latest to First
+                    <CheckIcon class="w-4 h-4 mr-3" :class="sale_date_order_by == 'desc' ? '' : 'opacity-0'"/> Latest to First
                   </p>
                   <p
-                    class="whitespace-nowrap cursor-pointer py-2 px-4 text-xs hover:text-[#FF613c]"
+                    class="whitespace-nowrap cursor-pointer py-2 px-4 flex justify-start items-center text-xs hover:text-[#FF613c]"
                     :class="
                       sale_date_order_by === 'asc' ? 'text-[#FF613c]' : ''
                     "
                     @click="sale_date_order_by = `asc`"
                   >
-                    Fast to Latest
+                  <CheckIcon class="w-4 h-4 mr-3" :class="sale_date_order_by == 'asc' ? '' : 'opacity-0'"/> First to Latest
                   </p>
                 </div>
               </div>
@@ -303,17 +276,22 @@ onMounted(async () => {
                   class="h-4 w-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
                 />
               </div>
+              <div class="relative">
+                <input
+                  type="text"
+                  class="w-[180px] pl-8 pr-4 py-1.5 text-xs border border-coral-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-coral-500 text-gray-500"
+                  v-model="search"
+                  placeholder="Search by CRM ID"
+                />
+                <MagnifyingGlassIcon
+                  class="h-4 w-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
+                />
+              </div>
               <p
-                @click="clearFilter"
-                class="bg-[#FF613c] cursor-pointer text-white px-3 py-1 rounded-lg text-sm font-semibold"
+                @click="router.push(`/bookings/new-create`)"
+                class="bg-[#FF613c] whitespace-nowrap cursor-pointer text-white px-3 text-xs py-1.5 rounded-lg inline-block"
               >
-                CLEAR
-              </p>
-              <p
-                @click="searchHandler"
-                class="bg-[#FF613c] cursor-pointer text-white px-3 py-1 rounded-lg text-sm font-semibold"
-              >
-                FILTER
+                + New
               </p>
             </div>
           </div>

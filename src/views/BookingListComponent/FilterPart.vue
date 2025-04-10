@@ -4,10 +4,12 @@ import PriceRangeSlider from "./PriceRangeSlider.vue";
 import DatePicker from "./DatePicker.vue";
 import { ref, defineProps, defineEmits, computed, onMounted, watch } from "vue";
 import { formattedDate } from "../help/FormatData";
+import { useAuthStore } from "../../stores/auth";
 
 const selectedDate = ref(null);
 const payment_status = ref("");
 const inclusive = ref(false);
+const authStore = useAuthStore();
 
 const props = defineProps({
   saleDate: {
@@ -22,13 +24,37 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  createdBy : {
+    type: String,
+    default: "",
+  },
+  adminLists : {
+    type: Array,
+    default: () => [],
+  },
+  searchHandler: {
+    type: Function,
+    default: () => {},
+  },
+  clearFilter : {
+    type: Function,
+    default: () => {},
+  }
 });
 
 const emit = defineEmits([
   "update:saleDate",
   "update:searchP",
   "update:inclusive_only",
+  "update:createdBy"
 ]);
+
+// filter open close
+const dateFilter = ref(false);
+const paymentFilter = ref(false);
+const priceFilter = ref(false);
+const inclusiveFilter = ref(false);
+const agentFilter = ref(false);
 
 // Add these functions to your script section
 const selectToday = () => {
@@ -69,6 +95,13 @@ const modelPaymentStatus = computed({
   set: (value) => {
     payment_status.value = value;
     emit("update:searchP", value);
+  },
+});
+
+const createdBy = computed({
+  get: () => props.createdBy,
+  set: (value) => {
+    emit("update:createdBy", value);
   },
 });
 
@@ -151,7 +184,7 @@ watch(
     </div>
     <div class="border border-gray-100 rounded-lg mt-4 py-3">
       <div
-        class="w-full border-b-2 border-gray-300 flex justify-between items-center px-4 pb-3"
+        class="w-full border-b border-gray-300 flex justify-between items-center px-4 pb-3"
       >
         <div class="flex justify-start items-center gap-x-4">
           <img
@@ -161,48 +194,87 @@ watch(
           />
           <p class="text-sm font-semibold">FILTER</p>
         </div>
-        <!-- <p class="bg-[#FF613c] text-white rounded-lg px-2 py-1 text-[10px]">
-          FILTER
-        </p> -->
+        <div class=" flex justify-end items-center gap-x-2">
+          <p class="bg-[#FF613c] text-white cursor-pointer rounded-lg px-2 py-1 text-[10px]" @click="clearFilter">
+            CLEAR
+          </p>
+          <p class="bg-[#FF613c] text-white cursor-pointer rounded-lg px-2 py-1 text-[10px]" @click="searchHandler">
+            FILTER
+          </p>
+        </div>
       </div>
-      <div class="gap-x-4 w-full border-b-2 border-gray-300 px-4 py-3">
+      <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
         <div class="flex justify-between items-center w-full">
           <p class="text-xs font-semibold">Sales Date</p>
-          <ChevronDownIcon
-            class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer"
+          <ChevronDownIcon @click="dateFilter = !dateFilter"
+            class="w-4 h-4 text-[#FF5B00] font-bold transition-all duration-150 cursor-pointer"
+            :class="{ 'rotate-180': dateFilter }"
           />
         </div>
-        <div class="max-w-md mx-auto pt-4">
+        <div class="max-w-md mx-auto pt-4 transition-all duration-150" v-if="dateFilter">
           <DatePicker v-model="modelDate" />
         </div>
       </div>
-      <div class="gap-x-4 w-full border-b-2 border-gray-300 px-4 py-3">
+      <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
         <div class="flex justify-between items-center w-full">
-          <p class="text-xs font-semibold">Payment Status</p>
-          <ChevronDownIcon
-            class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer"
+          <p class="text-xs font-semibold">Select Agent</p>
+          <ChevronDownIcon @click="agentFilter =!agentFilter"
+            :class="{ 'rotate-180': agentFilter }"
+            class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
           />
         </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="flex gap-x-2 items-center pt-4 w-full">
+        <div v-if="authStore.isSuperAdmin && agentFilter" class=" pt-4">
+          <div class=" space-y-2">
+            <div class="flex gap-x-2 items-center w-full">
+              <input
+                type="checkbox"
+                @click="createdBy = ''"
+                :checked="createdBy == ''"
+                class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
+              />
+              <p class="text-[11px] whitespace-nowrap font-medium">All</p>
+            </div>
+            <div class="flex gap-x-2 items-center w-full" v-for="admin in adminLists"
+            :key="admin.id">
+              <input
+                type="checkbox"
+                @click="createdBy = admin.id"
+                :checked="admin.id == createdBy"
+                class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
+              />
+              <p class="text-[11px] whitespace-nowrap font-medium">{{ admin.name }}</p>
+            </div>
+          </div>
+        </div> 
+      </div>
+      <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
+        <div class="flex justify-between items-center w-full">
+          <p class="text-xs font-semibold">Payment Status</p>
+          <ChevronDownIcon @click="paymentFilter = !paymentFilter"
+            :class="{ 'rotate-180': paymentFilter }"
+            class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
+          />
+        </div>
+        <div class="grid grid-cols-2 gap-4 pt-4" v-if="paymentFilter">
+          <div class="flex gap-x-2 items-center w-full">
             <input
               type="checkbox"
-              @click="modelPaymentStatus = 'all'"
-              :checked="modelPaymentStatus === 'all'"
+              @click="modelPaymentStatus = ''"
+              :checked="modelPaymentStatus === ''"
               class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
             />
-            <p class="text-[10px] whitespace-nowrap font-medium">
+            <p class="text-[11px] whitespace-nowrap font-medium">
               All Bookings
             </p>
           </div>
-          <div class="flex gap-x-2 items-center pt-2 w-full">
+          <div class="flex gap-x-2 items-center w-full">
             <input
               type="checkbox"
               :checked="modelPaymentStatus === 'fully_paid'"
               @click="modelPaymentStatus = 'fully_paid'"
               class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
             />
-            <p class="text-[10px] whitespace-nowrap font-medium">Fully Paid</p>
+            <p class="text-[11px] whitespace-nowrap font-medium">Fully Paid</p>
           </div>
           <div class="flex gap-x-2 items-center w-full">
             <input
@@ -211,7 +283,7 @@ watch(
               :checked="modelPaymentStatus === 'partially_paid'"
               class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
             />
-            <p class="text-[10px] whitespace-nowrap font-medium">
+            <p class="text-[11px] whitespace-nowrap font-medium">
               Partially Paid
             </p>
           </div>
@@ -222,18 +294,19 @@ watch(
               :checked="modelPaymentStatus === 'not_paid'"
               class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
             />
-            <p class="text-[10px] whitespace-nowrap font-medium">Not Paid</p>
+            <p class="text-[11px] whitespace-nowrap font-medium">Not Paid</p>
           </div>
         </div>
       </div>
-      <div class="gap-x-4 w-full border-b-2 border-gray-300 px-4 py-3">
+      <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
         <div class="flex justify-between items-center w-full">
           <p class="text-xs font-semibold">Price Range</p>
-          <ChevronDownIcon
-            class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer"
+          <ChevronDownIcon @click="priceFilter =!priceFilter"
+            :class="{ 'rotate-180': priceFilter }"
+            class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
           />
         </div>
-        <div class="w-full max-w-md mx-auto">
+        <div class="w-full max-w-md mx-auto" v-if="priceFilter">
           <div class="pt-3">
             <PriceRangeSlider
               :initial-min="minValue"
@@ -251,27 +324,30 @@ watch(
       <div class="gap-x-4 w-full px-4 py-3">
         <div class="flex justify-between items-center w-full">
           <p class="text-xs font-semibold">Inclusive</p>
-          <ChevronDownIcon
-            class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer"
+          <ChevronDownIcon @click="inclusiveFilter = !inclusiveFilter"
+            :class="{ 'rotate-180': inclusiveFilter }"
+            class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
           />
         </div>
-        <div class="flex gap-x-2 items-center pt-4 w-full">
-          <input
-            type="checkbox"
-            @click="modelInclusive = false"
-            :checked="!modelInclusive"
-            class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
-          />
-          <p class="text-xs font-medium">Regular</p>
-        </div>
-        <div class="flex gap-x-2 items-center pt-2 w-full">
-          <input
-            type="checkbox"
-            @click="modelInclusive = true"
-            :checked="modelInclusive"
-            class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
-          />
-          <p class="text-xs font-medium">Inclusive</p>
+        <div v-if="inclusiveFilter"> 
+          <div class="flex gap-x-2 items-center pt-4 w-full">
+            <input
+              type="checkbox"
+              @click="modelInclusive = false"
+              :checked="!modelInclusive"
+              class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
+            />
+            <p class="text-[11px] font-medium">Regular</p>
+          </div>
+          <div class="flex gap-x-2 items-center pt-2 w-full">
+            <input
+              type="checkbox"
+              @click="modelInclusive = true"
+              :checked="modelInclusive"
+              class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
+            />
+            <p class="text-[11px] font-medium">Inclusive</p>
+          </div>
         </div>
       </div>
     </div>

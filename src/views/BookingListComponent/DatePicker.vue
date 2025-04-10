@@ -26,6 +26,24 @@
         </svg>
       </div>
 
+      <!-- Selection type toggle -->
+      <div class="flex mb-4 space-x-2">
+        <button
+          class="flex-1 py-1.5 text-xs rounded-md transition-colors"
+          :class="selectionMode === 'single' ? 'bg-coral-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+          @click="setSelectionMode('single')"
+        >
+          Single Date
+        </button>
+        <button
+          class="flex-1 py-1.5 text-xs rounded-md transition-colors"
+          :class="selectionMode === 'range' ? 'bg-coral-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+          @click="setSelectionMode('range')"
+        >
+          Date Range
+        </button>
+      </div>
+
       <!-- Calendar -->
       <div v-if="showCalendar" class="mb-4">
         <!-- Month navigation -->
@@ -106,23 +124,7 @@
         </div>
       </div>
 
-      <!-- Selection type toggle -->
-      <div class="flex mb-4 space-x-2">
-        <button
-          class="flex-1 py-1.5 text-xs rounded-md transition-colors"
-          :class="selectionMode === 'single' ? 'bg-coral-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
-          @click="setSelectionMode('single')"
-        >
-          Single Date
-        </button>
-        <button
-          class="flex-1 py-1.5 text-xs rounded-md transition-colors"
-          :class="selectionMode === 'range' ? 'bg-coral-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
-          @click="setSelectionMode('range')"
-        >
-          Date Range
-        </button>
-      </div>
+      
 
       <!-- Clear button -->
       <button

@@ -14,14 +14,18 @@ const reservationStore = useReservationStore();
 
 const details = ref(null);
 const captureArea = ref(null);
+const loading = ref(false);
 
 const getDetail = async () => {
   try {
+    loading.value = true;
     const response = await reservationStore.getDetailAction(route.params.id);
     console.log(response.result, "this is response");
     details.value = response.result;
   } catch (error) {
     console.log(error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -114,7 +118,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="p-6 bg-[#edecec] max-w-[400px] mx-auto" ref="captureArea">
+      <div class="p-6 bg-[#edecec] max-w-[400px] mx-auto" v-if="!loading" ref="captureArea">
         <div id="mySvg" class="bg-white rounded-xl pt-4 mt-4">
           <div class="flex justify-between items-center pb-4 px-5">
             <img :src="logoIcon" class="w-8 h-8" alt="" />
@@ -159,12 +163,11 @@ onMounted(async () => {
             <div class="space-y-1.5">
               <p class="text-xs text-black/40">Quantity:</p>
               <p class="text-sm">
-                {{
-                  details?.quantity +
-                  (details?.individual_pricing != "null" &&
-                  details?.individual_pricing?.adult?.quantity
-                    ? JSON.parse(details?.individual_pricing?.child?.quantity)
-                    : 0)
+                {{ 
+                  (details?.quantity || 0) + 
+                  (details?.individual_pricing && 
+                  details?.individual_pricing.child ? 
+                  Number(details?.individual_pricing.child.quantity) || 0 : 0)
                 }}
               </p>
             </div>
@@ -178,11 +181,10 @@ onMounted(async () => {
               <div class="space-y-1.5">
                 <p class="text-xs text-black/40">Child:</p>
                 <p class="text-sm">
-                  {{
-                    details?.individual_pricing != null &&
-                    details?.individual_pricing?.child
-                      ? JSON.parse(details?.individual_pricing.child.quantity)
-                      : "-"
+                  {{ 
+                    (details?.individual_pricing && 
+                    details?.individual_pricing.child ? 
+                    details?.individual_pricing.child.quantity : "-")
                   }}
                 </p>
               </div>

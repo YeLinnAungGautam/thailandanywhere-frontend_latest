@@ -43,6 +43,7 @@ import { useAuthStore } from "../stores/auth";
 import { useUserStore } from "../stores/user";
 import TaxInfo from "./BookingComponent/TaxInfo.vue";
 import PngUsage from "./PngGenerate/PngUsage.vue";
+import { daysBetween } from "./help/DateBetween";
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
 // for tag
@@ -445,9 +446,103 @@ const normalUpdate = async () => {
   openModalArchive.value = false;
 };
 
+const validateItemByType = (item) => {
+  switch(item.product_type) {
+    case "1": // PrivateVanTour
+    case "2": // GroupTour
+    case "3": // AirportPickup
+      if (!item.service_date) {
+        toast.warning("ပစ္စည်းတစ်ခု၏ ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      if (!item.car_id) {
+        toast.warning("ကားအမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      break;
+    case "4": // EntranceTicket
+      if (!item.car_id) {
+        toast.warning("Variation ကို ရွေးချယ်ရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      if (!item.service_date) {
+        toast.warning("ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      break;
+    case "5": // Inclusive
+      if (!item.service_date) {
+        toast.warning("Inclusive ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      break;
+    case "6": // Hotel
+      if (!item.car_id) {
+        toast.warning("အခန်းအမျိုးအစားကို ရွေးချယ်ရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      if (!item.checkin_date || !item.checkout_date) {
+        toast.warning("ဟိုတယ်အတွက် Check-in နှင့် Check-out ရက်စွဲများ ထည့်သွင်းရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      break;
+    case "7": // Airline
+      if (!item.car_id) {
+        toast.warning("လက်မှတ်အမျိုးအစားကို ရွေးချယ်ရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      if (!item.service_date) {
+        toast.warning("ခရီးစဉ်ရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      break;
+  }
+  
+  if (!item.total_amount || item.total_amount <= 0) {
+    toast.warning("စုစုပေါင်းတန်ဖိုး ထည့်သွင်းရန် လိုအပ်ပါသည်");
+    return false;
+  }
+  
+  return true;
+};
+
+const validateBasicInfo = () => {
+  if (!formData.value.customer_id) {
+    toast.warning("ဖောက်သည် ရွေးချယ်ရန် လိုအပ်ပါသည်");
+    return false;
+  }
+  
+  if (!formData.value.payment_method) {
+    toast.warning("ငွေပေးချေမှု နည်းလမ်း ရွေးရန် လိုအပ်ပါသည်");
+    return false;
+  }
+  
+  if (!formData.value.booking_date) {
+    toast.warning("စာရင်းသွင်းသည့်ရက်စွဲ ထည့်သွင်းရန် လိုအပ်ပါသည်");
+    return false;
+  }
+  
+  if (!formData.value.payment_status) {
+    toast.warning("ငွေပေးချေမှု အခြေအနေ ရွေးချယ်ရန် လိုအပ်ပါသည်");
+    return false;
+  }
+  
+  if (formData.value.items.length === 0) {
+    toast.warning("အနည်းဆုံး ပစ္စည်းတစ်ခု ထည့်သွင်းရန် လိုအပ်ပါသည်");
+    return false;
+  }
+  
+  return true;
+};
+
 const onSubmitHandler = async () => {
   updatingLoading.value = true;
-  if (sub_total_real.value != NaN || sub_total_real.value != null) {
+  if (!isNaN(sub_total_real.value) && sub_total_real.value !== null) {
+
+    if (!validateBasicInfo()) {
+      return
+    }
+
     const frmData = new FormData();
     frmData.append("_method", "PUT");
     formData.value.customer_id &&
@@ -521,13 +616,10 @@ const onSubmitHandler = async () => {
     formData.value.balance_due_date &&
       frmData.append("balance_due_date", formData.value.balance_due_date);
 
-    // if (formData.value.confirmation_letter.length > 0) {
-    //   for (let i = 0; i < formData.value.confirmation_letter.length; i++) {
-    //     let file = formData.value.confirmation_letter[i];
-    //     frmData.append("items[" + i + "][confirmation_letter]", file);
-    //   }
-    // }
     for (var x = 0; x < formData.value.items.length; x++) {
+
+      
+
       if (formData.value.items[x].product_type == "1") {
         frmData.append(
           "items[" + x + "][product_type]",
@@ -573,6 +665,9 @@ const onSubmitHandler = async () => {
     }
 
     for (var x = 0; x < formData.value?.items.length; x++) {
+      if (!validateItemByType(formData.value.items[x])) {
+        return;
+      }
       frmData.append(
         "items[" + x + "][product_id]",
         formData.value.items[x].product_id
@@ -722,7 +817,7 @@ const onSubmitHandler = async () => {
         );
 
       if (
-        formData.value.items[x].product_type === "6" &&
+        formData.value.items[x].product_type == "6" &&
         formData.value.items[x].car_id
       ) {
         frmData.append(
@@ -761,8 +856,6 @@ const onSubmitHandler = async () => {
           "items[" + x + "][quantity]",
           formData.value.items[x].quantity
         );
-      // formData.value.days &&
-      //   frmData.append("items[" + x + "][days]", formData.value.items[x].days);
       if (formData.value.items[x].duration) {
         frmData.append(
           "items[" + x + "][duration]",
@@ -844,11 +937,10 @@ const onSubmitHandler = async () => {
         errors.value = null;
         toast.success(response.message);
         featureImagePreview.value = [];
+        
         router.push("/bookings/new-update/" + response.result.id);
 
-        setTimeout(() => {
-          window.location.reload();
-        }, 3000);
+        await getDetail();
         updatingLoading.value = false;
       }
       // bookings/update/65/edit
@@ -888,20 +980,6 @@ const choiceProductType = (type) => {
   }
   if (type == "App\\Models\\Airline") {
     return "7";
-  }
-};
-
-const daysBetween = (a, b) => {
-  console.log(a, b);
-  if (a && b) {
-    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
-    const startDateTimestamp = new Date(a).getTime();
-    const endDateTimestamp = new Date(b).getTime();
-    let result = Math.abs(
-      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
-    );
-    console.log(formData.value.checkin_date, result, "this is result");
-    return result;
   }
 };
 
@@ -961,45 +1039,245 @@ const getProductName = (item) => {
       return item.room?.name || "";
 
     case "App\\Models\\Airline":
-      return item.ticket?.name || "";
+      return item.ticket?.price || "";
 
     default:
       return ""; // Handle unknown product_type
   }
 };
 
+// const getDetail = async () => {
+//   try {
+//     updatingLoading.value = true;
+//     const response = await bookingStore.getDetailAction(route.params.id);
+//     console.log(response, "this is response get");
+//     let data = response.result;
+//     formData.value = {
+//       id: data.id,
+//       payment_notes: data.payment_notes ? data.payment_notes : "",
+//       transfer_code: data.transfer_code,
+//       customer_id: data.customer.id,
+//       user_id: response.result.user?.id,
+//       user_name: response.result.user?.name,
+//       customer_name: data.customer?.name,
+//       customer_email: data.customer?.email ? data.customer?.email : "",
+//       customer_phone: data.customer?.phone_number
+//         ? data.customer?.phone_number
+//         : "",
+//       is_corporate: data.customer?.is_corporate_customer,
+//       sold_from: data?.sold_from,
+//       is_past_info: data.is_past_info,
+//       past_crm_id: data.past_crm_id,
+//       past_user_id: data.past_user_id,
+//       payment_method: data.payment_method ? data.payment_method : "",
+//       payment_currency: data.payment_currency ? data.payment_currency : "",
+//       bank_name: data.bank_name ? data.bank_name : "",
+//       payment_status: data.payment_status ? data.payment_status : "",
+//       booking_date: data.booking_date ? data.booking_date : "",
+//       money_exchange_rate: data.money_exchange_rate
+//         ? data.money_exchange_rate
+//         : "",
+//       crm_id: data.crm_id ? data.crm_id : "",
+//       items: [],
+//       receipt_image: [],
+//       receipt_images: [],
+//       balance_due_date: data.balance_due_date,
+//       deposit: data.deposit,
+//       is_inclusive: data.is_inclusive,
+//       inclusive_name: data.inclusive_name,
+//       inclusive_quantity: data.inclusive_quantity,
+//       inclusive_rate: data.inclusive_rate,
+//       inclusive_start_date: data.inclusive_start_date,
+//       inclusive_end_date: data.inclusive_end_date,
+//       inclusive_description: data.inclusive_description,
+//       comment: data.comment,
+//     };
+//     for (let i = 0; i < data.receipts.length; i++) {
+//       let dataAdd = {
+//         id: data.receipts[i].id,
+//         image: data.receipts[i].image,
+//       };
+//       formData.value.receipt_images.push(dataAdd);
+//     }
+//     for (const x in data.items) {
+//       const car_id = getProductId(data.items[x]);
+//       const item_name = getProductName(data.items[x]);
+
+//       const itemData = {
+//         reservation_id: data.items[x].id,
+//         product_type: choiceProductType(data.items[x].product_type),
+//         crm_id: data.items[x].crm_id,
+//         product_id: data.items[x].product_id,
+//         product_name: data.items[x].product?.name,
+//         product_image:
+//           data.items[x].product?.cover_image ||
+//           data.items[x].product?.images?.[0]?.image ||
+//           "",
+//         service_date: data.items[x].service_date,
+//         is_inclusive: data.is_inclusive ? 1 : 0,
+//         cancellation: data.items[x].cancellation ?? null,
+//         discount: data.items[x].discount,
+//         quantity: data.items[x].quantity,
+//         days: data.items[x].days ? data.items[x].days : "",
+//         duration: data.items[x].duration,
+//         selling_price: data.items[x].selling_price,
+//         comment: data.items[x].comment != "null" ? data.items[x].comment : "",
+//         special_request:
+//           data.items[x].special_request != "null"
+//             ? data.items[x].special_request
+//             : "",
+//         reservation_status: data.items[x].reservation_status,
+//         payment_method: data.items[x].payment_method,
+//         payment_status: data.items[x].payment_status,
+//         exchange_rate: data.items[x].exchange_rate,
+//         cost_price: data.items[x].cost_price,
+//         pickup_location:
+//           data.items[x].pickup_location != "null"
+//             ? data.items[x].pickup_location
+//             : "",
+//         pickup_time:
+//           data.items[x].pickup_time != "null" ? data.items[x].pickup_time : "",
+//         is_driver_collect: data.items[x].is_driver_collect == 1 ? true : false,
+//         dropoff_location:
+//           data.items[x].dropoff_location != "null"
+//             ? data.items[x].dropoff_location
+//             : "",
+//         route_plan:
+//           data.items[x].route_plan != "null" ? data.items[x].route_plan : "",
+
+//         days: daysBetween(
+//           data.items[x].checkin_date,
+//           data.items[x].checkout_date
+//         ),
+//         car_list: checkType(data.items[x].product),
+//         car_id: car_id || "",
+//         item_name: item_name || "",
+//         checkin_date: data.items[x].checkin_date
+//           ? data.items[x].checkin_date
+//           : "",
+//         checkout_date: data.items[x].checkout_date
+//           ? data.items[x].checkout_date
+//           : "",
+//         room_number: data.items[x].room_number ? data.items[x].room_number : "",
+//         total_amount: data.items[x].amount * 1,
+//         total_cost_price: data.items[x].total_cost_price * 1,
+//         individual_pricing:
+//           data.items[x].individual_pricing != null
+//             ? data.items[x].individual_pricing
+//             : {},
+//         child_info:
+//           data.items[x]?.variation && data.items[x]?.variation?.child_info
+//             ? JSON.parse(data.items[x]?.variation?.child_info)
+//             : [],
+//         payment_status: data.items[x].payment_status,
+//         associated_customer: data.items[x].associated_customer,
+//         customer_passport: data.items[x].customer_passports,
+//         reservation_status: data.items[x].reservation_status,
+//       };
+//       formData.value.items.push(itemData);
+//     }
+//     console.log(formData.value, "this is formData");
+//   } catch (error) {
+//     console.log(error);
+//   } finally {
+//     updatingLoading.value = false;
+//   }
+// };
+
+// Helper functions - move these outside component or to a separate utility file
+const formatNullValue = (value, defaultValue = "") => {
+  return value === null || value === "null" || value === undefined ? defaultValue : value;
+};
+
+const processItem = (item, isInclusive) => {
+  const productType = choiceProductType(item.product_type);
+  const car_id = getProductId(item);
+  const item_name = getProductName(item);
+  
+  return {
+    reservation_id: item.id,
+    product_type: productType,
+    crm_id: item.crm_id,
+    product_id: item.product_id,
+    product_name: item.product?.name,
+    product_image: item.product?.cover_image || item.product?.images?.[0]?.image || "",
+    service_date: item.service_date,
+    is_inclusive: isInclusive ? 1 : 0,
+    cancellation: item.cancellation ?? null,
+    discount: item.discount,
+    quantity: item.quantity,
+    days: formatNullValue(item.days),
+    duration: item.duration,
+    selling_price: item.selling_price,
+    comment: formatNullValue(item.comment),
+    special_request: formatNullValue(item.special_request),
+    reservation_status: item.reservation_status,
+    payment_method: item.payment_method,
+    payment_status: item.payment_status,
+    exchange_rate: item.exchange_rate,
+    cost_price: item.cost_price,
+    pickup_location: formatNullValue(item.pickup_location),
+    pickup_time: formatNullValue(item.pickup_time),
+    is_driver_collect: item.is_driver_collect == 1,
+    dropoff_location: formatNullValue(item.dropoff_location),
+    route_plan: formatNullValue(item.route_plan),
+    days: daysBetween(item.checkin_date, item.checkout_date),
+    car_list: checkType(item.product),
+    car_id: car_id || "",
+    item_name: item_name || "",
+    checkin_date: formatNullValue(item.checkin_date),
+    checkout_date: formatNullValue(item.checkout_date),
+    room_number: formatNullValue(item.room_number),
+    total_amount: Number(item.amount),
+    total_cost_price: Number(item.total_cost_price),
+    individual_pricing: item.individual_pricing ?? {},
+    child_info: item?.variation?.child_info ? JSON.parse(item.variation.child_info) : [],
+    payment_status: item.payment_status,
+    associated_customer: item.associated_customer,
+    customer_passport: item.customer_passports,
+    reservation_status: item.reservation_status,
+  };
+};
+
+const processReceipt = (receipt) => {
+  return {
+    id: receipt.id,
+    image: receipt.image,
+  };
+};
+
+// Main function
 const getDetail = async () => {
   try {
     updatingLoading.value = true;
     const response = await bookingStore.getDetailAction(route.params.id);
-    console.log(response, "this is response get");
-    let data = response.result;
+    console.log("Booking detail response:", response);
+    
+    const data = response.result;
+    
+    // Process basic information first
     formData.value = {
       id: data.id,
-      payment_notes: data.payment_notes ? data.payment_notes : "",
+      payment_notes: formatNullValue(data.payment_notes),
       transfer_code: data.transfer_code,
       customer_id: data.customer.id,
       user_id: response.result.user?.id,
       user_name: response.result.user?.name,
       customer_name: data.customer?.name,
-      customer_email: data.customer?.email ? data.customer?.email : "",
-      customer_phone: data.customer?.phone_number
-        ? data.customer?.phone_number
-        : "",
+      customer_email: formatNullValue(data.customer?.email),
+      customer_phone: formatNullValue(data.customer?.phone_number),
       is_corporate: data.customer?.is_corporate_customer,
       sold_from: data?.sold_from,
       is_past_info: data.is_past_info,
       past_crm_id: data.past_crm_id,
       past_user_id: data.past_user_id,
-      payment_method: data.payment_method ? data.payment_method : "",
-      payment_currency: data.payment_currency ? data.payment_currency : "",
-      bank_name: data.bank_name ? data.bank_name : "",
-      payment_status: data.payment_status ? data.payment_status : "",
-      booking_date: data.booking_date ? data.booking_date : "",
-      money_exchange_rate: data.money_exchange_rate
-        ? data.money_exchange_rate
-        : "",
-      crm_id: data.crm_id ? data.crm_id : "",
+      payment_method: formatNullValue(data.payment_method),
+      payment_currency: formatNullValue(data.payment_currency),
+      bank_name: formatNullValue(data.bank_name),
+      payment_status: formatNullValue(data.payment_status),
+      booking_date: formatNullValue(data.booking_date),
+      money_exchange_rate: formatNullValue(data.money_exchange_rate),
+      crm_id: formatNullValue(data.crm_id),
       items: [],
       receipt_image: [],
       receipt_images: [],
@@ -1014,93 +1292,17 @@ const getDetail = async () => {
       inclusive_description: data.inclusive_description,
       comment: data.comment,
     };
-    for (let i = 0; i < data.receipts.length; i++) {
-      let dataAdd = {
-        id: data.receipts[i].id,
-        image: data.receipts[i].image,
-      };
-      formData.value.receipt_images.push(dataAdd);
-    }
-    for (const x in data.items) {
-      const car_id = getProductId(data.items[x]);
-      const item_name = getProductName(data.items[x]);
-
-      const itemData = {
-        reservation_id: data.items[x].id,
-        product_type: choiceProductType(data.items[x].product_type),
-        crm_id: data.items[x].crm_id,
-        product_id: data.items[x].product_id,
-        product_name: data.items[x].product?.name,
-        product_image:
-          data.items[x].product?.cover_image ||
-          data.items[x].product?.images?.[0]?.image ||
-          "",
-        service_date: data.items[x].service_date,
-        is_inclusive: data.is_inclusive ? 1 : 0,
-        cancellation: data.items[x].cancellation ?? null,
-        discount: data.items[x].discount,
-        quantity: data.items[x].quantity,
-        days: data.items[x].days ? data.items[x].days : "",
-        duration: data.items[x].duration,
-        selling_price: data.items[x].selling_price,
-        comment: data.items[x].comment != "null" ? data.items[x].comment : "",
-        special_request:
-          data.items[x].special_request != "null"
-            ? data.items[x].special_request
-            : "",
-        reservation_status: data.items[x].reservation_status,
-        payment_method: data.items[x].payment_method,
-        payment_status: data.items[x].payment_status,
-        exchange_rate: data.items[x].exchange_rate,
-        cost_price: data.items[x].cost_price,
-        pickup_location:
-          data.items[x].pickup_location != "null"
-            ? data.items[x].pickup_location
-            : "",
-        pickup_time:
-          data.items[x].pickup_time != "null" ? data.items[x].pickup_time : "",
-        is_driver_collect: data.items[x].is_driver_collect == 1 ? true : false,
-        dropoff_location:
-          data.items[x].dropoff_location != "null"
-            ? data.items[x].dropoff_location
-            : "",
-        route_plan:
-          data.items[x].route_plan != "null" ? data.items[x].route_plan : "",
-
-        days: daysBetween(
-          data.items[x].checkin_date,
-          data.items[x].checkout_date
-        ),
-        car_list: checkType(data.items[x].product),
-        car_id: car_id || "",
-        item_name: item_name || "",
-        checkin_date: data.items[x].checkin_date
-          ? data.items[x].checkin_date
-          : "",
-        checkout_date: data.items[x].checkout_date
-          ? data.items[x].checkout_date
-          : "",
-        room_number: data.items[x].room_number ? data.items[x].room_number : "",
-        total_amount: data.items[x].amount * 1,
-        total_cost_price: data.items[x].total_cost_price * 1,
-        individual_pricing:
-          data.items[x].individual_pricing != null
-            ? data.items[x].individual_pricing
-            : {},
-        child_info:
-          data.items[x]?.variation && data.items[x]?.variation?.child_info
-            ? JSON.parse(data.items[x]?.variation?.child_info)
-            : [],
-        payment_status: data.items[x].payment_status,
-        associated_customer: data.items[x].associated_customer,
-        customer_passport: data.items[x].customer_passports,
-        reservation_status: data.items[x].reservation_status,
-      };
-      formData.value.items.push(itemData);
-    }
-    console.log(formData.value, "this is formData");
+    
+    // Process receipts using map
+    formData.value.receipt_images = data.receipts.map(processReceipt);
+    
+    // Process items using map
+    formData.value.items = data.items.map(item => processItem(item, data.is_inclusive));
+    
+    console.log("Processed form data:", formData.value);
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching booking details:", error);
+    toast.error("စာရင်းအသေးစိတ် ရယူရာတွင် အမှားဖြစ်ပွားခဲ့သည်။");
   } finally {
     updatingLoading.value = false;
   }

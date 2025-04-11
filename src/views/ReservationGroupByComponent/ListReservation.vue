@@ -38,8 +38,8 @@
           <div>
             <p class="text-[10px] space-x-1">
               <span class="font-medium"
-                >Book: {{ i?.items[0]?.service_date }} / Due:
-                {{ data?.bookings[0]?.balance_due_date }}</span
+                >Book: {{ getFormatDate(i?.items[0]?.service_date) }} / Due:
+                {{ getFormatDate(data?.bookings[0]?.balance_due_date) }}</span
               >
             </p>
           </div>
@@ -361,6 +361,7 @@ import {
 import { useReservationStore } from "../../stores/reservation";
 import { useToast } from "vue-toastification";
 import { useRoute } from "vue-router";
+import { getFormatDate } from "../help/FormatData";
 
 const authStore = useAuthStore();
 const toast = useToast();

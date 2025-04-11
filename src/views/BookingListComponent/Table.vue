@@ -314,7 +314,7 @@
                       class="text-[11px] max-w-[200px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                     >
                       {{ item?.variation?.name }} {{ item?.room?.name }}
-                      {{ item?.car?.name }}
+                      {{ item?.car?.name }} {{ item?.ticket?.price }}
                     </td>
                     <td
                       scope="col"

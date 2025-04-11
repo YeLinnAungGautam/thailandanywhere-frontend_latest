@@ -24,6 +24,8 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import logo from "../../assets/web-logo.png";
 import { useAuthStore } from "../../stores/auth";
 import {daysBetween} from "../help/DateBetween"
+import { getFormatDate } from "../help/FormatData";
+import { get } from "lodash";
 
 const props = defineProps({
   show: Number,
@@ -510,76 +512,7 @@ const hide = ref(true);
     </div>
     <div class="space-y-4" v-if="!getLoading && !hasRouteId">
       <div class="space-y-4 border border-gray-200 p-3 rounded-lg">
-        <!-- <div
-          class="flex justify-between items-center space-x-2 overflow-x-scroll no-sidebar-container"
-        >
-          <div class="flex justify-start items-center gap-x-2">
-            <p
-              @click="
-                router.push(`/bookings/new-update/${detail?.booking?.id}`)
-              "
-              class="text-[10px] bg-[#FF613c] whitespace-nowrap cursor-pointer shadow text-white px-3 py-1.5 rounded-lg"
-            >
-              View invoice
-            </p>
-            <p
-              class="text-[10px] shadow flex justify-center items-center gap-x-2 text-white px-3 py-1.5 rounded-lg"
-              :class="{
-                'bg-green-500': detail?.booking?.payment_status == 'fully_paid',
-                'bg-red-500': detail?.booking?.payment_status != 'fully_paid',
-              }"
-            >
-              <span
-                class="h-1 mr-0.5 w-1 bg-white rounded-full inline-block"
-              ></span
-              >{{ detail?.booking?.payment_status }}
-            </p>
-          </div>
-          <div class="flex justify-end items-center gap-x-2">
-            <p
-              class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
-              @click="copyReservation(detail?.booking?.id)"
-            >
-              Copy Expense
-            </p>
-            <div
-              v-if="
-                detail?.booking?.items[0]?.product_type == 'App\\Models\\Hotel'
-              "
-            >
-              <p
-                v-if="
-                  detail?.booking?.payment_status == 'fully_paid' &&
-                  expenseStatus(detail) == 'fully_paid'
-                "
-                class="text-[10px] bg-[#FF613c] shadow hover:shadow-none whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
-                @click="goToHotelConfirmation()"
-              >
-                Hotel Confirmation
-              </p>
-              <p
-                v-if="
-                  !detail?.booking?.payment_status == 'fully_paid' &&
-                  !expenseStatus(detail) == 'fully_paid'
-                "
-                class="text-[10px] bg-gray-300 whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
-              >
-                Hotel Confirmation {{ expenseStatus(detail) }}
-              </p>
-            </div>
-            <p
-              class="text-[10px] bg-[#FF613c] whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
-              @click="
-                detail?.booking?.items[0]?.product_type ==
-                'App\\Models\\EntranceTicket'
-                  ? generateConfirmation()
-                  : printHotelConfirm()
-              "
-            >
-              Generate Confirmation
-            </p>
-          </div>
-        </div> -->
+        
         <div class="grid grid-cols-5 gap-2">
           <div class="col-span-5 flex justify-between items-center">
             <div>
@@ -818,13 +751,13 @@ const hide = ref(true);
                         v-if="item?.product_type == 'App\\Models\\Hotel'"
                         class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                       >
-                        {{ item.checkin_date }}
+                        {{ getFormatDate(item.checkin_date) }}
                       </td>
                       <td
                         v-if="item?.product_type == 'App\\Models\\Hotel'"
                         class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                       >
-                        {{ item.checkout_date }}
+                        {{ getFormatDate(item.checkout_date) }}
                       </td>
                       <td
                         v-if="
@@ -832,7 +765,7 @@ const hide = ref(true);
                         "
                         class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                       >
-                        {{ item?.service_date }}
+                        {{ getFormatDate(item?.service_date) }}
                       </td>
                       <td
                         class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"

@@ -50,6 +50,7 @@ import {
 } from "@heroicons/vue/24/outline";
 import ReservationCalendarHome from "./Dashboard/ReservationCalendarHome.vue";
 import { useSidebarStore } from "../stores/sidebar";
+import { formattedDate } from "./help/FormatData";
 
 Chart.register(...registerables);
 
@@ -207,16 +208,6 @@ const saleDataByAgentOption = {
       beginAtZero: true,
     },
   },
-  // plugins: {
-  //   tooltip: {
-  //     callbacks: {
-  //       footer: function (a) {
-  //         console.log(a, "this is a footer");
-  //         return `Booking - ${a[0].dataset.footerForCount[a[0].dataIndex]}`;
-  //       },
-  //     },
-  //   },
-  // },
 };
 
 const totalBookingsForShow = ref(0);
@@ -567,51 +558,13 @@ const onlyMonth = (dateString) => {
   return dateString.slice(0, 7); // Extracts the substring from index 0 to 6
 };
 
-const dateFormat = (inputDateString) => {
-  if (inputDateString != null) {
-    const inputDate = new Date(inputDateString);
-
-    // Get the year, month, and day components
-    const year = inputDate.getFullYear();
-    const month = String(inputDate.getMonth() + 1).padStart(2, "0"); // Adding 1 because months are zero-based
-    const day = String(inputDate.getDate()).padStart(2, "0");
-
-    // Format the date in "YYYY-MM-DD" format
-    const formattedDate = `${year}-${month}-${day}`;
-    return formattedDate;
-  } else {
-    return null;
-  }
-};
-
-const change = (a) => {
-  let rate = `${sales.value.agents[Object.keys(sales.value.agents)[a]]}`;
-  return rate;
-};
-const changeValue = (a) => {
-  let ratev = `${sales.value.amount[Object.keys(sales.value.amount)[a]]}`;
-  return ratev;
-};
-const changer = (a) => {
-  let rate = `${
-    reservationsHome.value.agents[Object.keys(reservationsHome.value.agents)[a]]
-  }`;
-  return rate;
-};
-const changeValuer = (a) => {
-  let ratev = `${
-    reservationsHome.value.prices[Object.keys(reservationsHome.value.prices)[a]]
-  }`;
-  return ratev;
-};
-
 const dateArrFromSelect = ref([]);
 const loopData = ref([]);
 const monthForGraph = ref("");
 
 const currentMonth = () => {
   const currentDate = new Date();
-  hotelSaleDate.value = dateFormat(currentDate);
+  hotelSaleDate.value = formattedDate(currentDate);
   const year = currentDate.getFullYear();
   const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
 
@@ -691,10 +644,10 @@ const unpaidDataList = ref(null);
 const getUnpaidHandler = async (date) => {
   let first = date[0];
   let second = date[1];
-  console.log(dateFormat(first), "this is date", dateFormat(second));
+  console.log(formattedDate(first), "this is date", formattedDate(second));
   let data = {
-    first: dateFormat(first),
-    second: dateFormat(second),
+    first: formattedDate(first),
+    second: formattedDate(second),
   };
   unpaidDataList.value = await homeStore.getUnpaidSales(data);
   console.log(unpaidDataList.value, "this is unpaid");
@@ -703,10 +656,10 @@ const getUnpaidHandler = async (date) => {
 const getDataRangeChangeFunction = async (date) => {
   let first = date[0];
   let second = date[1];
-  console.log(dateFormat(first), "this is date", dateFormat(second));
+  console.log(formattedDate(first), "this is date", formattedDate(second));
   let data = {
-    first: dateFormat(first),
-    second: dateFormat(second),
+    first: formattedDate(first),
+    second: formattedDate(second),
   };
 
   // channel
@@ -766,10 +719,10 @@ const getDataRangeChangeFunction = async (date) => {
 const getSaleAgentData = async (date) => {
   let first = date[0];
   let second = date[1];
-  console.log(dateFormat(first), "this is date", dateFormat(second));
+  console.log(formattedDate(first), "this is date", formattedDate(second));
   let data = {
-    first: dateFormat(first),
-    second: dateFormat(second),
+    first: formattedDate(first),
+    second: formattedDate(second),
   };
   const resSaleAgent = await homeStore.getAgentSales(data);
   console.log(resSaleAgent, "this is sale agent report");
@@ -844,19 +797,6 @@ watch(homeSectionPartView, (newValue) => {
           :isActive="homeSectionPartView == 'sale-analysis'"
           @click="homeSectionPartView = 'sale-analysis'"
         />
-        <!-- <HomeFirstPartVue
-          :title="'Reservations'"
-          :isActive="homeSectionPartView == 'reservation'"
-          @click="homeSectionPartView = 'reservation'"
-        />
-        <HomeFirstPartVue
-          :title="'Expenses'"
-          :isActive="homeSectionPartView == 'expense'"
-        />
-        <HomeFirstPartVue
-          :title="'Products'"
-          :isActive="homeSectionPartView == 'product'"
-        /> -->
       </div>
       <!-- filter -->
       <div

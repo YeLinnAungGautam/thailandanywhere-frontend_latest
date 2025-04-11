@@ -269,7 +269,7 @@ const removeItemList = (message) => {
 
   // Validate the index and item
   const itemAtIndex = items[message.index];
-  if (itemAtIndex && itemAtIndex.product_id === message.id) {
+  if (itemAtIndex && itemAtIndex.product_id == message.id) {
     items.splice(message.index, 1); // Remove the item if the conditions match
   } else {
     console.warn("No matching item found at the provided index.");
@@ -396,8 +396,104 @@ const allowCreate = computed(() => {
 });
 
 const errors = ref(null);
+
+// Helper functions for validation and FormData management
+const validateItemByType = (item) => {
+  switch(item.product_type) {
+    case "1": // PrivateVanTour
+    case "2": // GroupTour
+    case "3": // AirportPickup
+      if (!item.service_date) {
+        toast.warning("ပစ္စည်းတစ်ခု၏ ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      if (!item.car_id) {
+        toast.warning("ကားအမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      break;
+    case "4": // EntranceTicket
+      if (!item.car_id) {
+        toast.warning("Variation ကို ရွေးချယ်ရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      if (!item.service_date) {
+        toast.warning("ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      break;
+    case "5": // Inclusive
+      if (!item.service_date) {
+        toast.warning("Inclusive ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      break;
+    case "6": // Hotel
+      if (!item.car_id) {
+        toast.warning("အခန်းအမျိုးအစားကို ရွေးချယ်ရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      if (!item.checkin_date || !item.checkout_date) {
+        toast.warning("ဟိုတယ်အတွက် Check-in နှင့် Check-out ရက်စွဲများ ထည့်သွင်းရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      break;
+    case "7": // Airline
+      if (!item.car_id) {
+        toast.warning("လက်မှတ်အမျိုးအစားကို ရွေးချယ်ရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      if (!item.service_date) {
+        toast.warning("ခရီးစဉ်ရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်");
+        return false;
+      }
+      break;
+  }
+  
+  if (!item.total_amount || item.total_amount <= 0) {
+    toast.warning("စုစုပေါင်းတန်ဖိုး ထည့်သွင်းရန် လိုအပ်ပါသည်");
+    return false;
+  }
+  
+  return true;
+};
+
+const validateBasicInfo = () => {
+  if (!formData.value.customer_id) {
+    toast.warning("ဖောက်သည် ရွေးချယ်ရန် လိုအပ်ပါသည်");
+    return false;
+  }
+  
+  if (!formData.value.payment_method) {
+    toast.warning("ငွေပေးချေမှု နည်းလမ်း ရွေးရန် လိုအပ်ပါသည်");
+    return false;
+  }
+  
+  if (!formData.value.booking_date) {
+    toast.warning("စာရင်းသွင်းသည့်ရက်စွဲ ထည့်သွင်းရန် လိုအပ်ပါသည်");
+    return false;
+  }
+  
+  if (!formData.value.payment_status) {
+    toast.warning("ငွေပေးချေမှု အခြေအနေ ရွေးချယ်ရန် လိုအပ်ပါသည်");
+    return false;
+  }
+  
+  if (formData.value.items.length === 0) {
+    toast.warning("အနည်းဆုံး ပစ္စည်းတစ်ခု ထည့်သွင်းရန် လိုအပ်ပါသည်");
+    return false;
+  }
+  
+  return true;
+};
+
 const onSubmitHandler = async () => {
-  if (sub_total_real.value != NaN || sub_total_real.value != null) {
+  if (!isNaN(sub_total_real.value) && sub_total_real.value !== null) {
+
+    if (!validateBasicInfo()) {
+      return
+    }
+
     const frmData = new FormData();
     formData.value.customer_id &&
       frmData.append("customer_id", formData.value.customer_id);
@@ -470,6 +566,11 @@ const onSubmitHandler = async () => {
       }
     }
     for (var x = 0; x < formData.value.items.length; x++) {
+
+      if (!validateItemByType(formData.value.items[x])) {
+        return;
+      }
+
       if (formData.value.items[x].product_type == "1") {
         frmData.append(
           "items[" + x + "][product_type]",

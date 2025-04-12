@@ -47,6 +47,17 @@
       </div>
       <div class="w-10 h-10"></div>
     </div>
+    <div v-if="authStore.isSuperAdmin"
+      class="bg-white border-l-4 border-[#FF613c] shadow gap-x-4 rounded-r-lg px-4 py-2 flex justify-between items-center"
+    >
+      <div class="space-y-2">
+        <p class="text-xs">For Super Admin </p>
+        <p class="text-2xl text-black font-semibold">
+          Process
+        </p>
+      </div>
+      <div class="w-10 h-10"></div>
+    </div>
   </div>
 </template>
 

@@ -217,6 +217,12 @@ const goToGenerate = () => {
   customerPassportLength.value = false;
 };
 
+const goToProduct = () => {
+  if(route.path.includes("reservation-hotel")){
+    router.push(`/product/hotel/edit/${route.query.product_id}`)
+  }
+}
+
 const copyReservation = async (id) => {
   try {
     const productType = route.path.includes("reservation-attraction")
@@ -521,12 +527,12 @@ const hide = ref(true);
                 {{ detail?.booking.customer_info?.name }}
               </p>
               <div class="flex justify-start items-center gap-x-2">
-                <p
+                <p @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
                   class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
                 >
                   {{ detail?.booking?.crm_id }}
                 </p>
-                <p
+                <p @click="goToProduct()"
                   class="text-[10px] bg-green-500 text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
                 >
                   {{

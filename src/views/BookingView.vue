@@ -152,15 +152,15 @@ const searchHandler = async () => {
   await bookingStore.getListAction(watchSystem.value);
 };
 
-watch(
-  [search, customerName, sale_date_order_by],
-  debounce(async ([newValue, secValue, thirdValue]) => {
+// watch(
+//   [search, customerName, sale_date_order_by],
+//   debounce(async ([newValue, secValue, thirdValue]) => {
     
-      showFilter.value = true;
-      await searchHandler();
+//       showFilter.value = true;
+//       await searchHandler();
     
-  }, 500)
-);
+//   }, 500)
+// );
 
 onMounted(async () => {
   (sale_date_order_by.value = "desc"),
@@ -287,6 +287,12 @@ onMounted(async () => {
                   class="h-4 w-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
                 />
               </div>
+              <p
+                @click="searchHandler"
+                class="bg-[#FF613c] whitespace-nowrap cursor-pointer text-white px-3 text-xs py-1.5 rounded-lg inline-block"
+              >
+                Search
+              </p>
               <p
                 @click="router.push(`/bookings/new-create`)"
                 class="bg-[#FF613c] whitespace-nowrap cursor-pointer text-white px-3 text-xs py-1.5 rounded-lg inline-block"

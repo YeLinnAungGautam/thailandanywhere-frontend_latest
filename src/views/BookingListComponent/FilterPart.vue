@@ -56,6 +56,14 @@ const priceFilter = ref(false);
 const inclusiveFilter = ref(false);
 const agentFilter = ref(false);
 
+const isDateSelected = (date) => {
+  if (!selectedDate.value && date == '') return true;
+  if (!date || !selectedDate.value) return false;
+  
+  const compareDate = new Date(date);
+  return compareDate.toDateString() === selectedDate.value.toDateString();
+};
+
 // Add these functions to your script section
 const selectToday = () => {
   const today = new Date();
@@ -65,14 +73,14 @@ const selectToday = () => {
 
 const selectYesterday = () => {
   const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() + 1);
+  yesterday.setDate(yesterday.getDate() - 1);
   selectedDate.value = yesterday;
   emit("update:saleDate", formattedDate(yesterday));
 };
 
 const selectDayBefore = () => {
   const dayBefore = new Date();
-  dayBefore.setDate(dayBefore.getDate() + 2);
+  dayBefore.setDate(dayBefore.getDate() - 2);
   selectedDate.value = dayBefore;
   emit("update:saleDate", formattedDate(dayBefore));
 };
@@ -179,13 +187,14 @@ watch(
     <div
       class="flex justify-start overflow-x-auto cursor-pointer items-center no-scrollbar gap-x-4"
     >
-      <p class="px-2 py-1 text-xs text-[#FF613c]" @click="selectAll">All</p>
-      <p class="px-2 py-1 text-xs text-[#FF613c]" @click="selectToday">Today</p>
-      <p class="px-2 py-1 text-xs text-[#FF613c]" @click="selectYesterday">
+      <p class="px-2 py-1 text-xs text-[#FF613c]" :class="[!selectedDate ? 'bg-[#FF613c] text-white rounded-lg' : 'text-[#FF613c]']" @click="selectAll">All</p>
+      <p class="px-2 py-1 text-xs text-[#FF613c]" :class="[isDateSelected(new Date()) ? 'bg-[#FF613c] text-white rounded-lg' : 'text-[#FF613c]']"  @click="selectToday">Today</p>
+      <p class="px-2 py-1 text-xs text-[#FF613c]" :class="[isDateSelected(new Date(new Date().setDate(new Date().getDate() - 1))) ? 'bg-[#FF613c] text-white rounded-lg' : 'text-[#FF613c]']" @click="selectYesterday">
         Yesterday
       </p>
       <p
-        class="whitespace-nowrap text-xs text-[#FF613c]"
+        class="px-2 py-1 text-xs text-[#FF613c] whitespace-nowrap"
+        :class="[isDateSelected(new Date(new Date().setDate(new Date().getDate() - 2))) ? 'bg-[#FF613c] text-white rounded-lg' : 'text-[#FF613c]']"
         @click="selectDayBefore"
       >
         Day Before
@@ -213,9 +222,9 @@ watch(
         </div>
       </div>
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
-        <div class="flex justify-between items-center w-full">
+        <div class="flex justify-between items-center w-full" @click="dateFilter = !dateFilter">
           <p class="text-xs font-semibold"><span class="w-2 h-2  inline-block rounded-full mr-2" :class="selectedDate ? 'bg-[#FF613c]' : 'bg-gray-200'"></span>Sales Date</p>
-          <ChevronDownIcon @click="dateFilter = !dateFilter"
+          <ChevronDownIcon 
             class="w-4 h-4 text-[#FF5B00] font-bold transition-all duration-150 cursor-pointer"
             :class="{ 'rotate-180': dateFilter }"
           />
@@ -225,9 +234,9 @@ watch(
         </div>
       </div>
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
-        <div class="flex justify-between items-center w-full">
+        <div class="flex justify-between items-center w-full" @click="agentFilter =!agentFilter">
           <p class="text-xs font-semibold"><span class="w-2 h-2 inline-block rounded-full mr-2" :class="createdBy ? 'bg-[#FF613c]' : 'bg-gray-200'"></span> Select Agent </p>
-          <ChevronDownIcon @click="agentFilter =!agentFilter"
+          <ChevronDownIcon 
             :class="{ 'rotate-180': agentFilter }"
             class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
           />
@@ -257,9 +266,9 @@ watch(
         </div> 
       </div>
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
-        <div class="flex justify-between items-center w-full">
+        <div class="flex justify-between items-center w-full" @click="paymentFilter = !paymentFilter">
           <p class="text-xs font-semibold"><span class="w-2 h-2 inline-block rounded-full mr-2" :class="payment_status ? 'bg-[#FF613c]' : 'bg-gray-200'"></span>Payment Status</p>
-          <ChevronDownIcon @click="paymentFilter = !paymentFilter"
+          <ChevronDownIcon 
             :class="{ 'rotate-180': paymentFilter }"
             class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
           />
@@ -308,9 +317,9 @@ watch(
         </div>
       </div>
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
-        <div class="flex justify-between items-center w-full">
+        <div class="flex justify-between items-center w-full" @click="priceFilter =!priceFilter">
           <p class="text-xs font-semibold"><span class="w-2 h-2 inline-block rounded-full mr-2" :class="false ? 'bg-[#FF613c]' : 'bg-gray-200'"></span>Price Range</p>
-          <ChevronDownIcon @click="priceFilter =!priceFilter"
+          <ChevronDownIcon 
             :class="{ 'rotate-180': priceFilter }"
             class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
           />
@@ -331,9 +340,9 @@ watch(
       </div>
 
       <div class="gap-x-4 w-full px-4 py-3">
-        <div class="flex justify-between items-center w-full">
+        <div class="flex justify-between items-center w-full" @click="inclusiveFilter = !inclusiveFilter">
           <p class="text-xs font-semibold"><span class="w-2 h-2 inline-block rounded-full mr-2" :class="inclusive ? 'bg-[#FF613c]' : 'bg-gray-200'"></span>Inclusive</p>
-          <ChevronDownIcon @click="inclusiveFilter = !inclusiveFilter"
+          <ChevronDownIcon 
             :class="{ 'rotate-180': inclusiveFilter }"
             class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
           />

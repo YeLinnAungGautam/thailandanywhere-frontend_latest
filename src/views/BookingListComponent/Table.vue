@@ -63,17 +63,17 @@
             <span
               v-if="l?.payment_status === 'fully_paid'"
               class="text-[10px] font-medium text-green-600 px-3 py-1 rounded-lg bg-green-600/10"
-              >Succeeded</span
+              >Fully Paid</span
             >
             <span
               v-if="l?.payment_status === 'partially_paid'"
               class="text-[10px] font-medium text-yellow-800 px-3 py-1 rounded-lg bg-yellow-500/10"
-              >Pending</span
+              >Partially Paid</span
             >
             <span
               v-if="l?.payment_status === 'not_paid'"
               class="text-[10px] font-medium text-gray-600 px-3 py-1 rounded-lg bg-gray-600/10"
-              >Incomplete</span
+              >Not Paid</span
             >
           </td>
           <td

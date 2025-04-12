@@ -44,6 +44,7 @@ const search = ref("");
 const searchA = ref("");
 const searchP = ref("");
 const limit = ref(10);
+const connection_status = ref("");
 const selectedDate = ref(null);
 const customFilter = ref(true);
 
@@ -54,6 +55,7 @@ const clearFilter = async () => {
     search.value = "";
     searchA.value = "";
     searchP.value = "";
+    connection_status.value = "";
     customerName.value = "";
     balanceDueDate.value = "";
     createdBy.value = "";
@@ -118,6 +120,9 @@ const watchSystem = computed(() => {
   }
   if (searchP.value != "" && searchP.value != undefined) {
     result.status = searchP.value;
+  }
+  if (connection_status.value!= "" && connection_status.value!= undefined) {
+    result.connection_status = connection_status.value;
   }
   if (sale_date_order_by.value) {
     result.sale_date_order_by = sale_date_order_by.value;
@@ -211,6 +216,7 @@ onMounted(async () => {
           <FilterPart
             v-model:saleDate="saleDate"
             v-model:searchP="searchP"
+            v-model:connection_status="connection_status"
             v-model:inclusive_only="inclusive_only"
             v-model:createdBy="createdBy"
             :adminLists="adminLists"

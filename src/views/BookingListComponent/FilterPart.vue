@@ -20,6 +20,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  connection_status: {
+    type: String,
+    default: "",
+  },
   inclusive_only: {
     type: Boolean,
     default: false,
@@ -45,6 +49,7 @@ const props = defineProps({
 const emit = defineEmits([
   "update:saleDate",
   "update:searchP",
+  "update:connection_status",
   "update:inclusive_only",
   "update:createdBy"
 ]);
@@ -54,6 +59,7 @@ const dateFilter = ref(false);
 const paymentFilter = ref(false);
 const priceFilter = ref(false);
 const inclusiveFilter = ref(false);
+const connectionFilter = ref(false);
 const agentFilter = ref(false);
 
 const isDateSelected = (date) => {
@@ -106,6 +112,13 @@ const modelPaymentStatus = computed({
   },
 });
 
+const modelConnectionStatus = computed({
+  get: () => props.connection_status,
+  set: (value) => {
+    emit("update:connection_status", value);
+  },
+});
+
 const createdBy = computed({
   get: () => props.createdBy,
   set: (value) => {
@@ -148,6 +161,9 @@ onMounted(() => {
 
   if (props.searchP) {
     payment_status.value = props.searchP;
+  }
+  if (props.connection_status) {
+    modelConnectionStatus.value = props.connection_status;
   }
 
   // Set inclusive based on inclusive_only prop
@@ -339,7 +355,7 @@ watch(
         </div>
       </div>
 
-      <div class="gap-x-4 w-full px-4 py-3">
+      <div class="gap-x-4 w-full px-4 py-3 border-b border-gray-300 ">
         <div class="flex justify-between items-center w-full" @click="inclusiveFilter = !inclusiveFilter">
           <p class="text-xs font-semibold"><span class="w-2 h-2 inline-block rounded-full mr-2" :class="inclusive ? 'bg-[#FF613c]' : 'bg-gray-200'"></span>Inclusive</p>
           <ChevronDownIcon 
@@ -365,6 +381,36 @@ watch(
               class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
             />
             <p class="text-[11px] font-medium">Inclusive</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="gap-x-4 w-full px-4 py-3">
+        <div class="flex justify-between items-center w-full" @click="connectionFilter = !connectionFilter">
+          <p class="text-xs font-semibold"><span class="w-2 h-2 inline-block rounded-full mr-2" :class="connection_status ? 'bg-[#FF613c]' : 'bg-gray-200'"></span>Connected</p>
+          <ChevronDownIcon 
+            :class="{ 'rotate-180': connectionFilter }"
+            class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
+          />
+        </div>
+        <div v-if="connectionFilter"> 
+          <div class="flex gap-x-2 items-center pt-4 w-full">
+            <input
+              type="checkbox"
+              @click="modelConnectionStatus = 'connected'"
+              :checked="modelConnectionStatus == 'connected'"
+              class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
+            />
+            <p class="text-[11px] font-medium">Connected</p>
+          </div>
+          <div class="flex gap-x-2 items-center pt-2 w-full">
+            <input
+              type="checkbox"
+              @click="modelConnectionStatus = 'not_connected'"
+              :checked="modelConnectionStatus == 'not_connected'"
+              class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
+            />
+            <p class="text-[11px] font-medium">Not Connected</p>
           </div>
         </div>
       </div>

@@ -381,7 +381,7 @@ watch(
                         <p
                           class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                         >
-                          {{ detail?.booking?.items[0]?.payment_status }}
+                          {{ detail?.booking?.payment_status }}
                         </p>
                       </td>
                     </tr>

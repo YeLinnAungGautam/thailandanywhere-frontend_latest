@@ -37,24 +37,62 @@
       :is_value="false"
     />
     <div
-      class="bg-white border-l-4 border-[#FF613c] shadow gap-x-4 rounded-r-lg px-4 py-2 flex justify-between items-center"
+      class="bg-white border-l-4 border-[#FF613c] shadow gap-x-4 rounded-r-lg px-4 py-2 flex justify-between items-center relative overflow-hidden"
     >
-      <div class="space-y-2">
+      <!-- Background fill based on progress -->
+      <div
+        class="absolute top-0 left-0 bottom-0 bg-[#FF613c]/20 z-0"
+        :style="{
+          width: `${Math.min((saleCount / monthlyAvgBookingCount) * 100, 100)}%`,
+        }"
+      ></div>
+    
+      <!-- Content (on top of the fill) -->
+      <div class="space-y-2 z-10 relative">
         <p class="text-xs">Bookings Today</p>
         <p class="text-2xl text-black font-semibold">
           {{ saleCount ? saleCount : 0 }}
         </p>
       </div>
-      <div class="w-10 h-10"></div>
+    
+      <div class="w-10 h-10 z-10 relative flex items-center justify-center">
+        <span class="text-xs font-medium text-gray-600" v-if="saleCount > 0"
+          >{{ Math.round((saleCount / monthlyAvgBookingCount) * 100) }}%</span
+        >
+      </div>
     </div>
     <div v-if="authStore.isSuperAdmin"
-      class="bg-white border-l-4 border-[#FF613c] shadow gap-x-4 rounded-r-lg px-4 py-2 flex justify-between items-center"
+      class="bg-white group relative border-l-4 border-[#FF613c] shadow gap-x-4 rounded-r-lg px-4 py-2 flex justify-between items-center"
     >
       <div class="space-y-2">
         <p class="text-xs">For Super Admin </p>
         <p class="text-2xl text-black font-semibold">
-          Process
+          {{ !createdByName ? 'select user' : createdByName }}
         </p>
+      </div>
+         
+      <div class="hidden group-hover:block absolute -bottom-[260px] p-4 bg-white left-0 w-full max-h-[400px] z-30">
+        <div class=" space-y-2">
+          <div class="flex gap-x-2 items-center w-full">
+            <input
+              type="checkbox"
+              @click="createdByName = ''"
+              :checked="createdByName == ''"
+              class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
+            />
+            <p class="text-[11px] whitespace-nowrap font-medium">none</p>
+          </div>
+          <div class="flex gap-x-2 items-center w-full" v-for="admin in adminLists"
+          :key="admin.id">
+            <input
+              type="checkbox"
+              @click="()=>{createdByName = admin.name ; createdBy = admin.id}"
+              :checked="admin.name == createdByName"
+              class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
+            />
+            <p class="text-[11px] whitespace-nowrap font-medium">{{ admin.name }}</p>
+          </div>
+        </div>
       </div>
       <div class="w-10 h-10"></div>
     </div>
@@ -62,18 +100,42 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useHomeStore } from "../../stores/home";
 import { useAuthStore } from "../../stores/auth";
 import AvgCard from "./AvgCard.vue";
+import { computed } from "vue";
 
 const homeStore = useHomeStore();
 const authStore = useAuthStore();
 const saleAgentDataRes = ref([]);
 
+const props = defineProps({
+  adminLists : {
+    type: Array,
+    required: true
+  },
+  createdBy : {
+    type: String,
+    required: true
+  }
+});
+
+const emit = defineEmits([
+  "update:createdBy"
+]);
+
+const createdByName = ref('');
 const saleToday = ref(0);
 const saleCount = ref(0);
 const average = ref(0);
+
+const createdBy = computed({
+  get: () => props.createdBy,
+  set: (value) => {
+    emit("update:createdBy", value);
+  },
+});
 
 // New refs for monthly averages
 const monthlyAvgSaleTotal = ref(0);
@@ -92,13 +154,23 @@ const getSaleAgentData = async (date) => {
   saleAgentDataRes.value = resSaleAgent;
 
   if (saleAgentDataRes.value) {
-    saleAgentDataRes.value.result.map((item) => {
-      if (item?.created_by?.name == authStore?.user?.name) {
-        saleToday.value = item?.total;
-        average.value = item?.target_amount;
-        saleCount.value = item?.total_booking;
-      }
-    });
+    if(authStore?.isSuperAdmin && createdByName.value != ''){
+      saleAgentDataRes.value.result.map((item) => {
+        if (item?.created_by?.name == createdByName.value) {
+          saleToday.value = item?.total;
+          average.value = item?.target_amount;
+          saleCount.value = item?.total_booking;
+        }
+      });
+    }else{
+      saleAgentDataRes.value.result.map((item) => {
+        if (item?.created_by?.name == authStore?.user?.name) {
+          saleToday.value = item?.total;
+          average.value = item?.target_amount;
+          saleCount.value = item?.total_booking;
+        }
+      });
+    }
   }
 };
 
@@ -125,9 +197,16 @@ const getSaleAverageData = async () => {
 
   if (resSaleAgent && resSaleAgent.result) {
     // Find current user's data
-    const currentUserData = resSaleAgent.result.find(
-      (item) => item?.created_by?.name === authStore?.user?.name
-    );
+    let currentUserData;
+    if(authStore?.isSuperAdmin && createdByName.value!= ''){
+      currentUserData = resSaleAgent.result.find(
+        (item) => item?.created_by?.name == createdByName.value
+      );
+    }else{
+      currentUserData = resSaleAgent.result.find(
+        (item) => item?.created_by?.name == authStore?.user?.name
+      );
+    }
 
     if (currentUserData) {
       // Calculate average per day in the current month
@@ -152,6 +231,23 @@ const getSaleAverageData = async () => {
 };
 
 onMounted(() => {
+  // For daily data
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+  const date = [today, tomorrow];
+  getSaleAgentData(date);
+
+  // For monthly average data
+  getSaleAverageData();
+});
+
+watch(createdByName, () => {
+  monthlyAvgBookingCount.value = 0;
+  monthlyAvgSaleTotal.value = 0;
+  saleToday.value = 0;
+  saleCount.value = 0;
+  average.value = 0;
   // For daily data
   const today = new Date();
   const tomorrow = new Date();

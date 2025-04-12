@@ -152,15 +152,15 @@ const searchHandler = async () => {
   await bookingStore.getListAction(watchSystem.value);
 };
 
-// watch(
-//   [search, customerName, sale_date_order_by],
-//   debounce(async ([newValue, secValue, thirdValue]) => {
+watch(
+  [createdBy, sale_date_order_by],
+  debounce(async ([newValue, secValue]) => {
     
-//       showFilter.value = true;
-//       await searchHandler();
+      showFilter.value = true;
+      await searchHandler();
     
-//   }, 500)
-// );
+  }, 500)
+);
 
 onMounted(async () => {
   (sale_date_order_by.value = "desc"),
@@ -194,7 +194,7 @@ onMounted(async () => {
     </div>
     <div class="flex justify-start items-center gap-x-4">
 
-      <SalesToday />
+      <SalesToday :adminLists="adminLists" v-model:createdBy="createdBy"/>
     </div>
     <!-- div -->
     <div

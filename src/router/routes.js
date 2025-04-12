@@ -59,6 +59,9 @@ import Accounting from "../views/Accounting.vue";
 import ReservationHotelView from "../views/Reservationhotel.vue";
 import ReservationHotelGroupConfirmationsView from "../views/PngGenerate/HotelGroupConfirmationPng.vue";
 import ReservationAttractionView from "../views/ReservationAttraction.vue";
+import AccountHead from "../views/AccountHead.vue";
+import AccountClass from "../views/AccountClass.vue";
+import ChartOfAccount from "../views/ChartOfAccount.vue";
 
 const routes = [
   {
@@ -370,6 +373,21 @@ const routes = [
     name: "UserView",
     component: UserView,
   },
+  {
+    path: "/account_head",
+    name: "accountHead",
+    component : AccountHead
+  },
+  {
+    path: "/account_class",
+    name: "accountClass",
+    component : AccountClass
+  },
+  {
+    path: "/chart_of_account",
+    name: "chartOfAccount",
+    component : ChartOfAccount
+  }
 ];
 
 export default routes;

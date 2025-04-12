@@ -545,8 +545,7 @@ const hide = ref(true);
                   >
                     <p
                       v-if="
-                        detail?.booking?.payment_status == 'fully_paid' &&
-                        expenseStatus(detail) == 'fully_paid'
+                        detail?.booking?.payment_status == 'fully_paid'
                       "
                       class="text-[10px] bg-[#FF613c] shadow hover:shadow-none whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
                       @click="goToHotelConfirmation()"
@@ -555,8 +554,7 @@ const hide = ref(true);
                     </p>
                     <p
                       v-if="
-                        detail?.booking?.payment_status != 'fully_paid' ||
-                        expenseStatus(detail) != 'fully_paid'
+                        detail?.booking?.payment_status != 'fully_paid'
                       "
                       class="text-[10px] bg-gray-400 whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
                     >

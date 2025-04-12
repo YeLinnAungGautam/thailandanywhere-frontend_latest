@@ -15,13 +15,14 @@ import { useAuthStore } from "../../stores/auth";
 import { useHotelStore } from "../../stores/hotel";
 import AddonListOnBooking from "../Addon/AddonListOnBooking.vue";
 import { computed } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { daysBetween } from "../help/DateBetween";
 
 const props = defineProps({
   data: Object,
 });
 const emit = defineEmits(["remove"]);
+const route = useRoute();
 const itemList = ref([]);
 const editIndex = ref("");
 const openModal = ref(false);
@@ -584,12 +585,12 @@ onMounted(() => {
             class="flex justify-start items-center gap-x-2 pt-1"
             @click="
               () => {
-                if (i?.product_type != 4) {
+                if (i?.product_type == 4) {
                   router.push(
-                    `/reservation/update/${i?.reservation_id}/${i?.crm_id}`
+                    `/reservation-attraction?id=${route.params.id}&product_id=${i?.product_id}&crm_id=${i?.crm_id}`
                   );
-                } else {
-                  router.push(`/reservation-second?id=${i?.reservation_id}`);
+                } else if (i?.product_type == 6)  {
+                  router.push(`/reservation-hotel?id=${route.params.id}&product_id=${i?.product_id}&crm_id=${i?.crm_id}`)
                 }
               }
             "

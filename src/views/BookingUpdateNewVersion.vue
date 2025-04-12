@@ -498,7 +498,7 @@ const validateItemByType = (item) => {
       break;
   }
   
-  if (!item.total_amount || item.total_amount <= 0) {
+  if (!item.total_amount) {
     toast.warning("စုစုပေါင်းတန်ဖိုး ထည့်သွင်းရန် လိုအပ်ပါသည်");
     return false;
   }

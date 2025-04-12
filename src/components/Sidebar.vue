@@ -98,12 +98,7 @@
                 ]"
               />
 
-              <!-- <SidebarItem
-                name="Reservation"
-                :icon="TicketIcon"
-                to="/reservation-second"
-                :activePaths="['reservation-second']"
-              /> -->
+
               <SidebarItem
                 name="Res Attraction"
                 :icon="TicketIcon"
@@ -123,6 +118,53 @@
                 to="/accounting"
                 :activePaths="['accounting']"
               />
+              <div
+                v-if="!authStore.isAuditor"
+                @click="sidebarStore.toggleAccount"
+                class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
+              >
+                <FolderIcon class="w-4 h-4" />
+                <p
+                  class="flex justify-between w-[80%] text-[12px] ml-[1.2rem] items-center"
+                  v-if="isShowSidebar"
+                >
+                Accountance
+                  <ChevronDownIcon
+                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                    :class="isShowAccount ? 'opacity-0' : 'opacity-100'"
+                    v-if="!isShowAccount"
+                  />
+                  <ChevronUpIcon
+                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                    :class="isShowAccount ? 'opacity-100' : 'opacity-0'"
+                    v-if="isShowAccount"
+                  />
+                </p>
+              </div>
+              <div
+                class="transition-all duration-150"
+                :class="isShowAccount ? 'ml-5' : ''"
+                v-if="isShowAccount"
+              >
+              <SidebarItem
+                  name="Chart of Accounts"
+                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  :icon="FolderIcon"
+                  to="/chart_of_account"
+                />
+                <SidebarItem
+                  name="Account Class"
+                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  :icon="FolderIcon"
+                  to="/account_class"
+                />
+                <SidebarItem
+                  name="Account Head"
+                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  :icon="FolderIcon"
+                  to="/account_head"
+                />
+              </div>
               <SidebarItem
                 name="Products"
                 :icon="ArchiveBoxIcon"
@@ -279,6 +321,7 @@ import {
   CalculatorIcon,
   HomeModernIcon,
   TicketIcon,
+  FolderIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";
@@ -286,7 +329,7 @@ import { useAuthStore } from "../stores/auth";
 const sidebarStore = useSidebarStore();
 import { useRouter } from "vue-router";
 const router = useRouter();
-const { isShowSidebar, isShowSetting, isReservationShow } =
+const { isShowSidebar, isShowSetting, isReservationShow, isShowAccount } =
   storeToRefs(sidebarStore);
 const authStore = useAuthStore();
 const toggleSidebarHandler = () => {

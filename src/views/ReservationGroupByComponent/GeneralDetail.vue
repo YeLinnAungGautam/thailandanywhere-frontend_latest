@@ -30,7 +30,7 @@
           </p>
           <p>Total Balance Due</p>
           <p class="text-end">
-            {{ formattedNumber(detail?.booking?.balance_due) }} thb
+            {{ formattedNumber(detail?.booking?.grand_total - detail?.booking?.deposit) }} thb
           </p>
           <p>Total Discount</p>
           <p class="text-end">{{ detail?.booking?.discount }} thb</p>
@@ -59,7 +59,7 @@
       <div class="flex justify-between items-center">
         <div class="flex justify-start items-center gap-x-2">
           <p class="text-sm font-semibold text-[#FF613c]">Payment Recieved</p>
-          <p
+          <p @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
             class="text-center rounded-lg text-[10px] bg-[#FF613c] text-white px-3 py-0.5"
           >
             {{ detail?.booking?.crm_id }}

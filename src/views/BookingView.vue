@@ -43,6 +43,7 @@ const createdBy = ref("");
 const search = ref("");
 const searchA = ref("");
 const searchP = ref("");
+const sort_by = ref("");
 const limit = ref(10);
 const connection_status = ref("");
 const selectedDate = ref(null);
@@ -62,6 +63,7 @@ const clearFilter = async () => {
     bookingStatus.value = "";
     saleDate.value = "";
     sale_date_order_by.value = "";
+    sort_by.value = "";
     inclusive_only.value = false;
   }
   console.log(showFilter.value, "this is showfilter");
@@ -126,6 +128,10 @@ const watchSystem = computed(() => {
   }
   if (sale_date_order_by.value) {
     result.sale_date_order_by = sale_date_order_by.value;
+  }
+  if (sort_by.value) {
+    result.sort_by = sort_by.value;
+    result.sort_direction = sale_date_order_by.value;
   }
   if (inclusive_only.value) {
     result.inclusive_only = inclusive_only.value;
@@ -243,9 +249,57 @@ onMounted(async () => {
                 <ChevronLeftIcon class="h-4 w-4 text-white cursor-pointer transition-all duration-150" :class="{ 'rotate-180': !customFilter }"/>
               </div>
               <div class="p-2 bg-[#FF613c]/10 rounded-lg relative group">
-                <ChevronUpDownIcon
-                  class="h-4 w-4 text-[#FF613c] cursor-pointer"
-                />
+                <div class=" flex justify-center items-center cursor-pointer gap-x-1">
+                  <ChevronUpDownIcon
+                    class="h-4 w-4 text-[#FF613c] cursor-pointer"
+                  /> <span class=" text-xs text-[#FF613c] uppercase">{{ sort_by ? sort_by : 'TYPE' }}</span>
+                </div>
+                <div
+                  class="absolute group-hover:block hidden -bottom-30 left-0 bg-white shadow-lg rounded-lg p-2"
+                ><p
+                    class="whitespace-nowrap flex justify-start items-center cursor-pointer py-2 px-4 text-xs hover:text-[#FF613c]"
+                    :class="
+                      sort_by === '' ? 'text-[#FF613c]' : ''
+                    "
+                    @click="sort_by = ``"
+                  >
+                    <CheckIcon class="w-4 h-4 mr-3" :class="sort_by == '' ? '' : 'opacity-0'"/> None
+                  </p>
+                  <p
+                    class="whitespace-nowrap flex justify-start items-center cursor-pointer py-2 px-4 text-xs hover:text-[#FF613c]"
+                    :class="
+                      sort_by === 'name' ? 'text-[#FF613c]' : ''
+                    "
+                    @click="sort_by = `name`"
+                  >
+                    <CheckIcon class="w-4 h-4 mr-3" :class="sort_by == 'name' ? '' : 'opacity-0'"/> Customer Name
+                  </p>
+                  <p
+                    class="whitespace-nowrap cursor-pointer py-2 px-4 flex justify-start items-center text-xs hover:text-[#FF613c]"
+                    :class="
+                      sort_by === 'booking_date' ? 'text-[#FF613c]' : ''
+                    "
+                    @click="sort_by = `booking_date`"
+                  >
+                  <CheckIcon class="w-4 h-4 mr-3" :class="sort_by == 'booking_date' ? '' : 'opacity-0'"/> Booking Date
+                  </p>
+                  <p
+                    class="whitespace-nowrap cursor-pointer py-2 px-4 flex justify-start items-center text-xs hover:text-[#FF613c]"
+                    :class="
+                      sort_by === 'amount' ? 'text-[#FF613c]' : ''
+                    "
+                    @click="sort_by = `amount`"
+                  >
+                  <CheckIcon class="w-4 h-4 mr-3" :class="sort_by == 'amount' ? '' : 'opacity-0'"/> Amount
+                  </p>
+                </div>
+              </div>
+              <div class="p-2 bg-[#FF613c]/10 rounded-lg relative group">
+                <div class=" flex justify-center items-center cursor-pointer gap-x-1">
+                  <ChevronUpDownIcon
+                    class="h-4 w-4 text-[#FF613c] cursor-pointer"
+                  /> <span class=" text-xs text-[#FF613c]">{{ sale_date_order_by && sale_date_order_by == 'desc' ? 'ZA' : 'AZ' }}</span>
+                </div>
                 <div
                   class="absolute group-hover:block hidden -bottom-20 left-0 bg-white shadow-lg rounded-lg p-2"
                 >

@@ -66,7 +66,7 @@
                   !authStore.isSaleAdmin
                 "
               />
-              <SidebarItem
+              <!-- <SidebarItem
                 name="Sales"
                 v-if="
                   authStore.isSuperAdmin ||
@@ -77,9 +77,9 @@
                 :icon="CalendarIcon"
                 to="/bookings-old/%25/%25/%25"
                 :activePaths="['bookings-old']"
-              />
+              /> -->
               <SidebarItem
-                name="Sales (v2)"
+                name="Sales"
                 v-if="
                   authStore.isSuperAdmin ||
                   authStore.isCashier ||

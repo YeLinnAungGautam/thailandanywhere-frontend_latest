@@ -44,6 +44,7 @@ import { useUserStore } from "../stores/user";
 import TaxInfo from "./BookingComponent/TaxInfo.vue";
 import PngUsage from "./PngGenerate/PngUsage.vue";
 import { daysBetween } from "./help/DateBetween";
+import ArchiveConfirmationModal from "./BookingComponent/ConfirmationModel.vue"
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
 // for tag
@@ -426,25 +427,10 @@ const updatingLoading = ref(false);
 const required_archive = ref(false);
 
 const openModalArchive = ref(false);
+const openModalArchiveConfirmation = ref(false);
 const openPrintModal = ref(false);
 
-const updateAuthAction = async () => {
-  if (authStore.isSuperAdmin) {
-    openModalArchive.value = true;
-  } else {
-    await onSubmitHandler();
-  }
-};
-const archiveUpdate = async () => {
-  required_archive.value = true;
-  await onSubmitHandler();
-  openModalArchive.value = false;
-};
-const normalUpdate = async () => {
-  required_archive.value = false;
-  await onSubmitHandler();
-  openModalArchive.value = false;
-};
+
 
 const validateItemByType = (item) => {
   switch(item.product_type) {
@@ -536,6 +522,50 @@ const validateBasicInfo = () => {
 };
 
 const onSubmitHandler = async () => {
+  if (!isNaN(sub_total_real.value) && sub_total_real.value !== null) {
+    // Show the confirmation modal instead of immediately submitting
+    openModalArchiveConfirmation.value = true;
+  } else {
+    toast.warning("please check again, item have issue!");
+  }
+};
+
+// Event handlers for the modal
+const handleArchiveUpdate = () => {
+  // Handle archive update
+  updateAuthAction();
+  openModalArchiveConfirmation.value = false;
+};
+
+const handleNormalUpdate = () => {
+  // Handle normal update 
+  updateAuthAction();
+  openModalArchiveConfirmation.value = false;
+};
+
+const closeModal = () => {
+  openModalArchiveConfirmation.value = false;
+};
+
+const updateAuthAction = async () => {
+  if (authStore.isSuperAdmin) {
+    openModalArchive.value = true;
+  } else {
+    await processSubmission();
+  }
+};
+const archiveUpdate = async () => {
+  required_archive.value = true;
+  await processSubmission();
+  openModalArchive.value = false;
+};
+const normalUpdate = async () => {
+  required_archive.value = false;
+  await processSubmission();
+  openModalArchive.value = false;
+};
+
+const processSubmission = async () => {
   updatingLoading.value = true;
   if (!isNaN(sub_total_real.value) && sub_total_real.value !== null) {
 
@@ -816,36 +846,81 @@ const onSubmitHandler = async () => {
           formData.value.items[x].reservation_id
         );
 
-      if (
-        formData.value.items[x].product_type == "6" &&
-        formData.value.items[x].car_id
-      ) {
-        frmData.append(
-          "items[" + x + "][room_id]",
-          formData.value.items[x].car_id
-        );
+        if (formData.value.items[x].product_type == "6") {
+        if(formData.value.items[x].car_id){
+          frmData.append(
+            "items[" + x + "][room_id]",
+            formData.value.items[x].car_id
+          );
+        }else{
+          toast.warning("အခန်းအမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
+          return;
+        }
       }
-      if (
-        formData.value.items[x].product_type != "4" &&
-        formData.value.items[x].product_type != "7"
-      ) {
-        if (formData.value.items[x].car_id) {
+      if (formData.value.items[x].product_type == "1" || formData.value.items[x].product_type == "2" || formData.value.items[x].product_type == "3") {
+        if(formData.value.items[x].car_id){
           frmData.append(
             "items[" + x + "][car_id]",
             formData.value.items[x].car_id
           );
+        }else{
+          toast.warning("အခန်းအမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
+          return;
         }
-      } else if (formData.value.items[x].product_type == "4") {
-        frmData.append(
-          "items[" + x + "][variation_id]",
-          formData.value.items[x].car_id
-        );
-      } else if (formData.value.items[x].product_type == "7") {
-        frmData.append(
-          "items[" + x + "][ticket_id]",
-          formData.value.items[x].car_id
-        );
       }
+      if (formData.value.items[x].product_type == "4") {
+        if(formData.value.items[x].car_id){
+          frmData.append(
+            "items[" + x + "][variation_id]",
+            formData.value.items[x].car_id
+          );
+        }else{
+          toast.warning("ticket အမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
+          return;
+        }
+      }
+      if (formData.value.items[x].product_type == "7") {
+        if(formData.value.items[x].car_id){
+          frmData.append(
+            "items[" + x + "][ticket_id]",
+            formData.value.items[x].car_id
+          );
+        }else{
+          toast.warning("ticket အမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
+          return;
+        }
+      }
+
+      // if (
+      //   formData.value.items[x].product_type == "6" &&
+      //   formData.value.items[x].car_id
+      // ) {
+      //   frmData.append(
+      //     "items[" + x + "][room_id]",
+      //     formData.value.items[x].car_id
+      //   );
+      // }
+      // if (
+      //   formData.value.items[x].product_type != "4" &&
+      //   formData.value.items[x].product_type != "7"
+      // ) {
+      //   if (formData.value.items[x].car_id) {
+      //     frmData.append(
+      //       "items[" + x + "][car_id]",
+      //       formData.value.items[x].car_id
+      //     );
+      //   }
+      // } else if (formData.value.items[x].product_type == "4") {
+      //   frmData.append(
+      //     "items[" + x + "][variation_id]",
+      //     formData.value.items[x].car_id
+      //   );
+      // } else if (formData.value.items[x].product_type == "7") {
+      //   frmData.append(
+      //     "items[" + x + "][ticket_id]",
+      //     formData.value.items[x].car_id
+      //   );
+      // }
       formData.value.items[x].service_date &&
         frmData.append(
           "items[" + x + "][service_date]",
@@ -1045,144 +1120,6 @@ const getProductName = (item) => {
       return ""; // Handle unknown product_type
   }
 };
-
-// const getDetail = async () => {
-//   try {
-//     updatingLoading.value = true;
-//     const response = await bookingStore.getDetailAction(route.params.id);
-//     console.log(response, "this is response get");
-//     let data = response.result;
-//     formData.value = {
-//       id: data.id,
-//       payment_notes: data.payment_notes ? data.payment_notes : "",
-//       transfer_code: data.transfer_code,
-//       customer_id: data.customer.id,
-//       user_id: response.result.user?.id,
-//       user_name: response.result.user?.name,
-//       customer_name: data.customer?.name,
-//       customer_email: data.customer?.email ? data.customer?.email : "",
-//       customer_phone: data.customer?.phone_number
-//         ? data.customer?.phone_number
-//         : "",
-//       is_corporate: data.customer?.is_corporate_customer,
-//       sold_from: data?.sold_from,
-//       is_past_info: data.is_past_info,
-//       past_crm_id: data.past_crm_id,
-//       past_user_id: data.past_user_id,
-//       payment_method: data.payment_method ? data.payment_method : "",
-//       payment_currency: data.payment_currency ? data.payment_currency : "",
-//       bank_name: data.bank_name ? data.bank_name : "",
-//       payment_status: data.payment_status ? data.payment_status : "",
-//       booking_date: data.booking_date ? data.booking_date : "",
-//       money_exchange_rate: data.money_exchange_rate
-//         ? data.money_exchange_rate
-//         : "",
-//       crm_id: data.crm_id ? data.crm_id : "",
-//       items: [],
-//       receipt_image: [],
-//       receipt_images: [],
-//       balance_due_date: data.balance_due_date,
-//       deposit: data.deposit,
-//       is_inclusive: data.is_inclusive,
-//       inclusive_name: data.inclusive_name,
-//       inclusive_quantity: data.inclusive_quantity,
-//       inclusive_rate: data.inclusive_rate,
-//       inclusive_start_date: data.inclusive_start_date,
-//       inclusive_end_date: data.inclusive_end_date,
-//       inclusive_description: data.inclusive_description,
-//       comment: data.comment,
-//     };
-//     for (let i = 0; i < data.receipts.length; i++) {
-//       let dataAdd = {
-//         id: data.receipts[i].id,
-//         image: data.receipts[i].image,
-//       };
-//       formData.value.receipt_images.push(dataAdd);
-//     }
-//     for (const x in data.items) {
-//       const car_id = getProductId(data.items[x]);
-//       const item_name = getProductName(data.items[x]);
-
-//       const itemData = {
-//         reservation_id: data.items[x].id,
-//         product_type: choiceProductType(data.items[x].product_type),
-//         crm_id: data.items[x].crm_id,
-//         product_id: data.items[x].product_id,
-//         product_name: data.items[x].product?.name,
-//         product_image:
-//           data.items[x].product?.cover_image ||
-//           data.items[x].product?.images?.[0]?.image ||
-//           "",
-//         service_date: data.items[x].service_date,
-//         is_inclusive: data.is_inclusive ? 1 : 0,
-//         cancellation: data.items[x].cancellation ?? null,
-//         discount: data.items[x].discount,
-//         quantity: data.items[x].quantity,
-//         days: data.items[x].days ? data.items[x].days : "",
-//         duration: data.items[x].duration,
-//         selling_price: data.items[x].selling_price,
-//         comment: data.items[x].comment != "null" ? data.items[x].comment : "",
-//         special_request:
-//           data.items[x].special_request != "null"
-//             ? data.items[x].special_request
-//             : "",
-//         reservation_status: data.items[x].reservation_status,
-//         payment_method: data.items[x].payment_method,
-//         payment_status: data.items[x].payment_status,
-//         exchange_rate: data.items[x].exchange_rate,
-//         cost_price: data.items[x].cost_price,
-//         pickup_location:
-//           data.items[x].pickup_location != "null"
-//             ? data.items[x].pickup_location
-//             : "",
-//         pickup_time:
-//           data.items[x].pickup_time != "null" ? data.items[x].pickup_time : "",
-//         is_driver_collect: data.items[x].is_driver_collect == 1 ? true : false,
-//         dropoff_location:
-//           data.items[x].dropoff_location != "null"
-//             ? data.items[x].dropoff_location
-//             : "",
-//         route_plan:
-//           data.items[x].route_plan != "null" ? data.items[x].route_plan : "",
-
-//         days: daysBetween(
-//           data.items[x].checkin_date,
-//           data.items[x].checkout_date
-//         ),
-//         car_list: checkType(data.items[x].product),
-//         car_id: car_id || "",
-//         item_name: item_name || "",
-//         checkin_date: data.items[x].checkin_date
-//           ? data.items[x].checkin_date
-//           : "",
-//         checkout_date: data.items[x].checkout_date
-//           ? data.items[x].checkout_date
-//           : "",
-//         room_number: data.items[x].room_number ? data.items[x].room_number : "",
-//         total_amount: data.items[x].amount * 1,
-//         total_cost_price: data.items[x].total_cost_price * 1,
-//         individual_pricing:
-//           data.items[x].individual_pricing != null
-//             ? data.items[x].individual_pricing
-//             : {},
-//         child_info:
-//           data.items[x]?.variation && data.items[x]?.variation?.child_info
-//             ? JSON.parse(data.items[x]?.variation?.child_info)
-//             : [],
-//         payment_status: data.items[x].payment_status,
-//         associated_customer: data.items[x].associated_customer,
-//         customer_passport: data.items[x].customer_passports,
-//         reservation_status: data.items[x].reservation_status,
-//       };
-//       formData.value.items.push(itemData);
-//     }
-//     console.log(formData.value, "this is formData");
-//   } catch (error) {
-//     console.log(error);
-//   } finally {
-//     updatingLoading.value = false;
-//   }
-// };
 
 // Helper functions - move these outside component or to a separate utility file
 const formatNullValue = (value, defaultValue = "") => {
@@ -1549,7 +1486,7 @@ onMounted(async () => {
             </div>
           </div>
           <button
-            @click="updateAuthAction"
+            @click="onSubmitHandler"
             v-show="allowCreate"
             class="text-center bg-[#ff613c] py-2 px-4 text-xs text-white rounded-xl flex justify-center items-center gap-x-2"
           >
@@ -1789,6 +1726,16 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+    <ArchiveConfirmationModal
+      :openModalArchive="openModalArchiveConfirmation"
+      :formData="formData"
+      :sub_total_discount="sub_total_discount"
+      :grand_total_real="grand_total_real"
+      :sub_total_real="sub_total_real"
+      @closeModal="closeModal"
+      @archiveUpdate="handleArchiveUpdate"
+      @normalUpdate="handleNormalUpdate"
+    />
     <p
       v-if="updatingLoading"
       class="absolute w-full bg-black/80 text-white z-50 h-full top-0 left-0 flex justify-center items-center text-3xl"

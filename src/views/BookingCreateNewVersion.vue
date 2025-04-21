@@ -33,6 +33,7 @@ import Hotel from "./BookingComponent/Hotel.vue";
 import Airline from "./BookingComponent/Airline.vue";
 import TaxInfo from "./BookingComponent/TaxInfo.vue";
 import { useAdminStore } from "../stores/admin";
+import ArchiveConfirmationModal from "./BookingComponent/ConfirmationModel.vue"
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
 // for tag
@@ -487,7 +488,35 @@ const validateBasicInfo = () => {
   return true;
 };
 
+const openModalArchive = ref(false);
+
 const onSubmitHandler = async () => {
+  if (!isNaN(sub_total_real.value) && sub_total_real.value !== null) {
+    // Show the confirmation modal instead of immediately submitting
+    openModalArchive.value = true;
+  } else {
+    toast.warning("please check again, item have issue!");
+  }
+};
+
+// Event handlers for the modal
+const handleArchiveUpdate = () => {
+  // Handle archive update
+  processSubmission();
+  openModalArchive.value = false;
+};
+
+const handleNormalUpdate = () => {
+  // Handle normal update 
+  processSubmission();
+  openModalArchive.value = false;
+};
+
+const closeModal = () => {
+  openModalArchive.value = false;
+};
+
+const processSubmission = async () => {
   if (!isNaN(sub_total_real.value) && sub_total_real.value !== null) {
 
     if (!validateBasicInfo()) {
@@ -747,34 +776,52 @@ const onSubmitHandler = async () => {
           formData.value.items[x].route_plan
         );
       }
-
+      
       if (formData.value.items[x].product_type == "6") {
-        frmData.append(
-          "items[" + x + "][room_id]",
-          formData.value.items[x].car_id
-        );
+        if(formData.value.items[x].car_id){
+          frmData.append(
+            "items[" + x + "][room_id]",
+            formData.value.items[x].car_id
+          );
+        }else{
+          toast.warning("အခန်းအမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
+          return;
+        }
       }
-      if (
-        formData.value.items[x].product_type != "4" &&
-        formData.value.items[x].product_type != "7"
-      ) {
-        if (formData.value.items[x].car_id) {
+      if (formData.value.items[x].product_type == "1" || formData.value.items[x].product_type == "2" || formData.value.items[x].product_type == "3") {
+        if(formData.value.items[x].car_id){
           frmData.append(
             "items[" + x + "][car_id]",
             formData.value.items[x].car_id
           );
+        }else{
+          toast.warning("အခန်းအမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
+          return;
         }
-      } else if (formData.value.items[x].product_type == "4") {
-        frmData.append(
-          "items[" + x + "][variation_id]",
-          formData.value.items[x].car_id
-        );
-      } else if (formData.value.items[x].product_type == "7") {
-        frmData.append(
-          "items[" + x + "][ticket_id]",
-          formData.value.items[x].car_id
-        );
       }
+      if (formData.value.items[x].product_type == "4") {
+        if(formData.value.items[x].car_id){
+          frmData.append(
+            "items[" + x + "][variation_id]",
+            formData.value.items[x].car_id
+          );
+        }else{
+          toast.warning("ticket အမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
+          return;
+        }
+      }
+      if (formData.value.items[x].product_type == "7") {
+        if(formData.value.items[x].car_id){
+          frmData.append(
+            "items[" + x + "][ticket_id]",
+            formData.value.items[x].car_id
+          );
+        }else{
+          toast.warning("ticket အမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
+          return;
+        }
+      }
+
       formData.value.items[x].service_date &&
         frmData.append(
           "items[" + x + "][service_date]",
@@ -1149,6 +1196,17 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+
+    <ArchiveConfirmationModal
+      :openModalArchive="openModalArchive"
+      :formData="formData"
+      :sub_total_discount="sub_total_discount"
+      :grand_total_real="grand_total_real"
+      :sub_total_real="sub_total_real"
+      @closeModal="closeModal"
+      @archiveUpdate="handleArchiveUpdate"
+      @normalUpdate="handleNormalUpdate"
+    />
   </Layout>
 </template>
 

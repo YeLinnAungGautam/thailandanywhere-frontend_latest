@@ -241,10 +241,11 @@ const onSubmitHandler = async () => {
       } else {
         frmData2.append(`details[${i}][destinations]`, "");
       }
-      frmData2.append(
-        `details[${i}][restaurants]`,
-        formData.value.details[i].restaurants
-      );
+      if (formData.value.details[i].restaurants && formData.value.details[i].restaurants.length > 0) {
+        frmData2.append(`details[${i}][restaurants]`, formData.value.details[i].restaurants);
+      } else {
+        frmData2.append(`details[${i}][restaurants]`, "");
+      }
       if (formData.value.details[i].image) {
         frmData2.append(
           `details[${i}][image]`,

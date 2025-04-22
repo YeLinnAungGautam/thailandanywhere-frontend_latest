@@ -106,12 +106,13 @@
             <th
               v-if="
                 detail?.booking?.items[0]?.product_type ==
-                'App\\Models\\EntranceTicket'
+                'App\\Models\\EntranceTicket' || detail?.booking?.items[0]?.product_type == 'App\\Models\\PrivateVanTour'
               "
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
               Service Date
             </th>
+
             <th
               v-if="
                 detail?.booking?.items[0]?.product_type == 'App\\Models\\Hotel'
@@ -131,7 +132,7 @@
 
             <th
               v-if="
-                detail?.booking?.items[0]?.product_type == 'App\\Models\\Hotel'
+                detail?.booking?.items[0]?.product_type == 'App\\Models\\Hotel' || detail?.booking?.items[0]?.product_type == 'App\\Models\\PrivateVanTour'
               "
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
@@ -192,10 +193,19 @@
               {{ detail?.booking?.items[index]?.room?.name }}
             </td>
             <td
+              v-if="
+                detail?.booking?.items[index]?.product_type ==
+                'App\\Models\\PrivateVanTour'
+              "
+              class="py-2 px-4 text-[10px] font-normal min-w-[120px] text-left"
+            >
+              {{ detail?.booking?.items[index]?.car?.name }}
+            </td>
+            <td
               class="py-2 px-4 text-[10px] font-normal text-left"
               v-if="
                 detail?.booking?.items[index]?.product_type ==
-                'App\\Models\\EntranceTicket'
+                'App\\Models\\EntranceTicket' || detail?.booking?.items[index]?.product_type == 'App\\Models\\PrivateVanTour'
               "
             >
               {{ detail?.booking?.items[index]?.service_date }}
@@ -276,7 +286,13 @@
             </td>
           </tr>
           <tr class="bg-[#FF613c]/40">
-            <td
+            <td v-if="detail?.booking?.items[0]?.product_type == 'App\\Models\\PrivateVanTour'"
+              colspan="4"
+              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+            >
+              Total Cost
+            </td>
+            <td v-if="detail?.booking?.items[0]?.product_type != 'App\\Models\\PrivateVanTour'"
               colspan="5"
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >

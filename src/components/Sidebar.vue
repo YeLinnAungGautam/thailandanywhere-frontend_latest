@@ -111,6 +111,12 @@
                 to="/reservation-hotel"
                 :activePaths="['reservation-hotel']"
               />
+              <SidebarItem
+                name="Res Vantour"
+                :icon="TruckIcon"
+                to="/reservation-vantour"
+                :activePaths="['reservation-vantour']"
+              />
 
               <SidebarItem
                 name="Accounting"
@@ -322,6 +328,7 @@ import {
   HomeModernIcon,
   TicketIcon,
   FolderIcon,
+  TruckIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";

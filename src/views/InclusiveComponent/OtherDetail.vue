@@ -176,6 +176,7 @@ const itemListRefresh = (newValue) => {
             type: "Destination",
           });
         }
+        // This loop exists but might not be working as expected
         for (let r = 0; r < props.detail.details[d].restaurants.length; r++) {
           items.value.push({
             id: props.detail.details[d].restaurants[r].id,

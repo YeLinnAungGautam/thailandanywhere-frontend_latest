@@ -62,6 +62,7 @@ import ReservationAttractionView from "../views/ReservationAttraction.vue";
 import AccountHead from "../views/AccountHead.vue";
 import AccountClass from "../views/AccountClass.vue";
 import ChartOfAccount from "../views/ChartOfAccount.vue";
+import ReservationVantourView from "../views/ReservationVantour.vue";
 
 const routes = [
   {
@@ -291,6 +292,11 @@ const routes = [
     path: "/reservation-attraction",
     name: "reservation-attraction",
     component: ReservationAttractionView,
+  },
+  {
+    path: "/reservation-vantour",
+    name: "reservation-vantour",
+    component: ReservationVantourView,
   },
   {
     path: "/accounting",

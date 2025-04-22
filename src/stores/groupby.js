@@ -41,6 +41,16 @@ export const useGroupByStore = defineStore("groupby", {
         throw error;
       }
     },
+    async ReservationVantourDetailAction(id) {
+      try {
+        const response = await axios.get(
+          "/reservations-vantour/" + id
+        );
+        return response.data.result;
+      } catch (error) {
+        throw error;
+      }
+    },
     async ReservationHotelDetailCopyAction(id, product_id, params) {
       try {
         const response = await axios.get(

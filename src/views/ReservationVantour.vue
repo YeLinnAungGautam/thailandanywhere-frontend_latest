@@ -512,7 +512,7 @@ watch(dateRange, async (newValue) => {
       class="space-x-8 col-span-3 flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
     >
       <p class="text-3xl font-medium text-[#FF613c]">
-        Attraction Vantours
+        Vantour Reservations
         <span class="w-2 h-2 bg-[#FF613c] rounded-full inline-block"></span>
         <span class="pl-2">{{ route.query.crm_id }}</span>
       </p>

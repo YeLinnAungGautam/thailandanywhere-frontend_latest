@@ -661,7 +661,7 @@ const hide = ref(true);
                 part == 'booking' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
               "
             >
-              3
+              2
             </div>
             <div
               v-if="
@@ -702,7 +702,7 @@ const hide = ref(true);
                 part == 'assign' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
               "
             >
-              4
+              3
             </div>
             <div
               v-if="
@@ -743,7 +743,7 @@ const hide = ref(true);
                 part == 'expense' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
               "
             >
-              5
+              4
             </div>
             <div
               v-if="

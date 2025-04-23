@@ -1,37 +1,6 @@
 <template>
   <div class="h-[80px] flex items-center justify-between px-[20px] w-full">
     <div class="flex items-center gap-3">
-      <!-- <button
-        class="p-2 rounded-full shadow cursor-pointer bg-white/60"
-        @click.prevent="toggleSidebarHandler"
-      >
-        <img
-          v-if="isShowSidebar"
-          src="https://cdn-icons-png.flaticon.com/128/10042/10042228.png"
-          alt=""
-          class="w-5 h-5"
-        />
-        <img
-          v-if="!isShowSidebar"
-          src="https://cdn-icons-png.flaticon.com/128/12561/12561773.png"
-          alt=""
-          class="w-5 h-5"
-        />
-      </button> -->
-      <!-- <p
-        class="py-2 pr-4 pl-2 rounded-full flex justify-start items-center gap-x-2 shadow cursor-pointer bg-white/60"
-        @click="goBack()"
-      >
-        <img
-          src="https://cdn-icons-png.flaticon.com/128/2722/2722991.png"
-          alt=""
-          class="w-5 h-5"
-        />
-        Back
-      </p> -->
-      <!-- <p class="text-sm font-poppins text-[#ff613c] font-medium">
-        Welcome back, {{ authStore.user.name.split(" ")[0] }} !
-      </p> -->
     </div>
     <div class="">
       <div class="flex items-center justify-start space-x-6 cursor-pointer">
@@ -158,9 +127,9 @@ const logoutHandlerAllUser = async () => {
   }
 };
 
-const goBack = () => {
-  router.go(-1);
-};
+// const goBack = () => {
+//   router.go(-1);
+// };
 
 onMounted(() => {
   const screenWidth = window.innerWidth;

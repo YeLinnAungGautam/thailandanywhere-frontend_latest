@@ -66,18 +66,6 @@
                   !authStore.isSaleAdmin
                 "
               />
-              <!-- <SidebarItem
-                name="Sales"
-                v-if="
-                  authStore.isSuperAdmin ||
-                  authStore.isCashier ||
-                  authStore.isAdmin ||
-                  authStore.isSaleAdmin
-                "
-                :icon="CalendarIcon"
-                to="/bookings-old/%25/%25/%25"
-                :activePaths="['bookings-old']"
-              /> -->
               <SidebarItem
                 name="Sales"
                 v-if="
@@ -97,25 +85,58 @@
                   'update_new_bookings',
                 ]"
               />
-
-
+              <div
+                v-if="!authStore.isAuditor"
+                @click="toggleReservationShow"
+                class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
+              >
+                <ClipboardDocumentListIcon class="w-4 h-4" />
+                <p
+                  class="flex justify-between w-[80%] text-[12px] ml-[1.2rem] items-center"
+                  v-if="isShowSidebar"
+                >
+                Reservations
+                  <ChevronDownIcon
+                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                    :class="isReservationShow ? 'opacity-0' : 'opacity-100'"
+                    v-if="!isReservationShow"
+                  />
+                  <ChevronUpIcon
+                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                    :class="isReservationShow ? 'opacity-100' : 'opacity-0'"
+                    v-if="isReservationShow"
+                  />
+                </p>
+              </div>
+              <div
+                class="transition-all duration-150"
+                :class="isReservationShow ? 'ml-5' : ''"
+                v-if="isReservationShow"
+              >
               <SidebarItem
-                name="Res Attraction"
-                :icon="TicketIcon"
-                to="/reservation-attraction"
-                :activePaths="['reservation-attraction']"
-              />
+                  name="Res Attraction"
+                  :icon="TicketIcon"
+                  to="/reservation-attraction"
+                  :activePaths="['reservation-attraction']"
+                />
+                <SidebarItem
+                  name="Res Hotel"
+                  :icon="HomeModernIcon"
+                  to="/reservation-hotel"
+                  :activePaths="['reservation-hotel']"
+                />
+                <SidebarItem
+                  name="Res Vantour"
+                  :icon="TruckIcon"
+                  to="/reservation-vantour"
+                  :activePaths="['reservation-vantour']"
+                />
+              </div>
               <SidebarItem
-                name="Res Hotel"
-                :icon="HomeModernIcon"
-                to="/reservation-hotel"
-                :activePaths="['reservation-hotel']"
-              />
-              <SidebarItem
-                name="Res Vantour"
-                :icon="TruckIcon"
-                to="/reservation-vantour"
-                :activePaths="['reservation-vantour']"
+                name="Amend"
+                :icon="ChatBubbleBottomCenterTextIcon"
+                to="/amend"
+                :activePaths="['amend']"
               />
 
               <SidebarItem
@@ -329,6 +350,7 @@ import {
   TicketIcon,
   FolderIcon,
   TruckIcon,
+  ChatBubbleBottomCenterTextIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";
@@ -336,7 +358,7 @@ import { useAuthStore } from "../stores/auth";
 const sidebarStore = useSidebarStore();
 import { useRouter } from "vue-router";
 const router = useRouter();
-const { isShowSidebar, isShowSetting, isReservationShow, isShowAccount } =
+const { isShowSidebar, isShowSetting, isReservationShow, isShowAccount, isShowReservation } =
   storeToRefs(sidebarStore);
 const authStore = useAuthStore();
 const toggleSidebarHandler = () => {

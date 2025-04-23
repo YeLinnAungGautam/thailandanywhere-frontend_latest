@@ -63,6 +63,7 @@ import AccountHead from "../views/AccountHead.vue";
 import AccountClass from "../views/AccountClass.vue";
 import ChartOfAccount from "../views/ChartOfAccount.vue";
 import ReservationVantourView from "../views/ReservationVantour.vue";
+import AmendView from "../views/Amend.vue";
 
 const routes = [
   {
@@ -393,6 +394,11 @@ const routes = [
     path: "/chart_of_account",
     name: "chartOfAccount",
     component : ChartOfAccount
+  },
+  {
+    path: "/amend",
+    name: "amend",
+    component: AmendView,
   }
 ];
 

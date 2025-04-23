@@ -9,6 +9,7 @@ export const useSidebarStore = defineStore("sidebar", {
     isOpenCustomerCreate: false,
     isShowSetting: false,
     isShowAccount: false,
+    isShowReservation: false,
   }),
   getters: {},
   actions: {

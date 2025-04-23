@@ -83,7 +83,28 @@
       </div>
       <div class="grid grid-cols-2 h-[46vh] overflow-y-auto px-4 gap-4" v-if="formData.id && !showPreview">
         <div class="space-y-4">
-          
+          <div v-if="user && (user.role !== 'reservation')" class="space-y-1">
+            <div class="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                v-model="formData.is_driver_collect"
+                id="is_driver_collect"
+                class="w-4 h-4 text-[#FF613c] rounded"
+              />
+              <label for="is_driver_collect" class="text-xs font-medium">Is Driver Collect?</label>
+            </div>
+          </div>
+            
+          <div v-if="formData.is_driver_collect && user && (user.role !== 'reservation')" class="space-y-1">
+            <label for="extra_collect_amount" class="text-xs pb-1.5 font-medium">Extra Collect Amount</label>
+            <input
+              type="number"
+              v-model="formData.extra_collect_amount"
+              id="extra_collect_amount"
+              placeholder="Extra amount"
+              class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
+            />
+          </div>
           
           <div v-if="user && (user.role === 'super_admin' || user.role === 'reservation')" class="space-y-1">
             <label for="cost_price" class="text-xs pb-1.5 font-medium">Cost Price</label>

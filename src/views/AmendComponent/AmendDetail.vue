@@ -1,9 +1,5 @@
 <script setup>
 import { ref, watch, onMounted, computed, defineProps } from "vue";
-import GeneralDetailPage from "./GeneralDetail.vue";
-import BookingRequest from "./BookingVantour.vue";
-import Assign from "./Assign.vue";
-import Expense from "./Expense.vue";
 import {
   ChevronDoubleRightIcon,
   ChevronDownIcon,
@@ -22,7 +18,10 @@ import logo from "../../assets/web-logo.png";
 import { useAuthStore } from "../../stores/auth";
 import {daysBetween} from "../help/DateBetween"
 import { getFormatDate } from "../help/FormatData";
-import Extra from "./Extra.vue";
+import AmendGenral from "./AmendGenral.vue";
+import AmendRequest from "./AmendRequest.vue";
+import AmendMailSent from "./AmendMailSent.vue";
+import AmendApprove from "./AmendApprove.vue";
 
 const props = defineProps({
   show: Number,
@@ -40,35 +39,21 @@ const hasRouteId = ref(false);
 
 const state = ref({
   general: false,
-  extra: false,
-  booking: false,
-  assign: false,
-  expense: false,
+  request: false,
+  sent: false,
+  approve: false,
 });
 
 const showCommentPropup = ref(false);
 
 const partArray = ref([
   { id: 1, name: "general" },
-  { id: 2, name: "extra" },
-  { id: 3, name: "booking" },
-  { id: 4, name: "assign" },
-  { id: 5, name: "expense" },
+  { id: 2, name: "request" },
+  { id: 3, name: "sent" },
+  { id: 4, name: "approve" },
 ]);
 
 const transition = ref("slide-right");
-
-const rightButtonAction = () => {
-  transition.value = "slide-right";
-  const index = partArray.value.findIndex((item) => item.name == part.value);
-  part.value = partArray.value[index + 1].name;
-};
-
-const leftButtonAction = () => {
-  transition.value = "slide-left";
-  const index = partArray.value.findIndex((item) => item.name == part.value);
-  part.value = partArray.value[index - 1].name;
-};
 
 const score = computed(() => {
   if (detail.value?.amount && detail.value?.total_cost_price) {
@@ -113,10 +98,10 @@ const goToFill = () => {
 
 const getComponent = (part) => {
   const components = {
-    general: GeneralDetailPage,
-    booking: BookingRequest,
-    assign: Assign,
-    expense: Expense,
+    general: AmendGenral,
+    request: AmendRequest,
+    sent: AmendMailSent,
+    approve: AmendApprove,
   };
   return components[part];
 };
@@ -317,6 +302,7 @@ watch(
       }
 
       // Initialize all states to false
+      state.value.extra = false;
       state.value.booking = false;
       state.value.assign = false;
       state.value.expense = false;
@@ -470,34 +456,6 @@ const hide = ref(true);
           </div>
           <div :class="show != 3 ? 'col-span-5' : 'col-span-5'" v-if="!hide">
             <div class="flex justify-between items-start gap-x-4 pt-3">
-              <!-- <div>
-                <img
-                  v-if="
-                    detail?.booking?.items[0]?.product_type ==
-                    'App\\Models\\EntranceTicket'
-                  "
-                  :src="
-                    detail?.booking?.items[0]?.product?.cover_image
-                      ? detail?.booking?.items[0]?.product?.cover_image
-                      : 'https://placehold.co/400'
-                  "
-                  class="min-w-[120px] max-w-[120px] shadow object-cover rounded-lg h-[130px]"
-                  alt=""
-                />
-                <img
-                  v-if="
-                    detail?.booking?.items[0]?.product_type ==
-                    'App\\Models\\Hotel'
-                  "
-                  :src="
-                    detail?.booking?.items[0]?.product?.images?.length > 0
-                      ? detail?.booking?.items[0]?.product?.images[0]?.image
-                      : 'https://placehold.co/400'
-                  "
-                  class="min-w-[120px] max-w-[120px] shadow object-cover rounded-lg h-[150px]"
-                  alt=""
-                />
-              </div> -->
               <div class="w-full overflow-scroll max-h-[200px]">
                 <table
                   class="w-full rounded-xl overflow-hidden border border-gray-700 shadow-sm"
@@ -644,124 +602,123 @@ const hide = ref(true);
           >
             <ChevronRightIcon class="w-4 h-4" />
           </div>
-          
+          <div
+            class="flex justify-start items-center gap-x-3 cursor-pointer"
+            @click="part = 'request'"
+          >
+            <div
+              v-if="!state.request"
+              @click="part = 'request'"
+              class="w-6 h-6 flex justify-center cursor-pointer items-center text-[10px] rounded-full relative z-10"
+              :class="
+                part == 'request' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+              "
+            >
+              2
+            </div>
+            <div
+              v-if="state.request"
+              @click="part = 'request'"
+              class="w-6 h-6 flex justify-center cursor-pointer shadow hover:shadow-none items-center text-[10px] rounded-full relative z-10"
+              :class="part == 'request' ? 'bg-white text-white' : ''"
+            >
+              <img :src="checkImage" alt="" />
+            </div>
+            <p
+              class="text-xs"
+              :class="state.request ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              Amend Request
+            </p>
+          </div>
+          <div
+            class="relative z-10"
+            :class="state.request ? 'text-[#04BA00]' : 'text-gray-800'"
+          >
+            <ChevronRightIcon class="w-4 h-4" />
+          </div>
 
           <div
             class="flex justify-start items-center gap-x-3 cursor-pointer"
-            @click="part = 'booking'"
+            @click="part = 'sent'"
           >
             <div
               v-if="
-                !state.booking &&
+                !state.sent &&
                 (authStore.isReservation || authStore.isSuperAdmin)
               "
-              @click="part = 'booking'"
+              @click="part = 'sent'"
               class="w-6 h-6 flex justify-center cursor-pointer items-center text-[10px] rounded-full relative z-10"
               :class="
-                part == 'booking' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+                part == 'sent' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
               "
             >
               3
             </div>
             <div
               v-if="
-                state.booking &&
+                state.sent &&
                 (authStore.isReservation || authStore.isSuperAdmin)
               "
-              @click="part = 'booking'"
+              @click="part = 'sent'"
               class="w-6 h-6 flex justify-center cursor-pointer shadow hover:shadow-none items-center text-[10px] rounded-full relative z-10"
-              :class="part == 'booking' ? 'bg-white text-white' : ''"
+              :class="part == 'sent' ? 'bg-white text-white' : ''"
             >
               <img :src="checkImage" alt="" />
             </div>
             <p
               class="text-xs"
-              :class="state.booking ? 'text-[#04BA00]' : 'text-gray-800'"
+              :class="state.sent ? 'text-[#04BA00]' : 'text-gray-800'"
             >
-              Booking
+              Amend Mail Sent
             </p>
           </div>
           <div
             class="relative z-10"
-            :class="state.booking ? 'text-[#04BA00]' : 'text-gray-800'"
+            :class="state.sent ? 'text-[#04BA00]' : 'text-gray-800'"
           >
             <ChevronRightIcon class="w-4 h-4" />
           </div>
           <div
             class="flex justify-start items-center gap-x-3 cursor-pointer"
-            @click="part = 'assign'"
+            @click="part = 'approve'"
           >
             <div
               v-if="
-                !state.assign &&
+                !state.approve &&
                 (authStore.isReservation || authStore.isSuperAdmin)
               "
-              @click="part = 'assign'"
+              @click="part = 'approve'"
               class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
               :class="
-                part == 'assign' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+                part == 'approve' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
               "
             >
               4
             </div>
             <div
               v-if="
-                state.assign &&
+                state.approve &&
                 (authStore.isReservation || authStore.isSuperAdmin)
               "
-              @click="part = 'assign'"
+              @click="part = 'approve'"
               class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
-              :class="part == 'assign' ? 'bg-white text-white' : ''"
+              :class="part == 'approve' ? 'bg-white text-white' : ''"
             >
               <img :src="checkImage" alt="" />
             </div>
             <p
               class="text-xs"
-              :class="state.assign ? 'text-[#04BA00]' : 'text-gray-800'"
+              :class="state.approve ? 'text-[#04BA00]' : 'text-gray-800'"
             >
-              Assign Driver
+              Amend Approve
             </p>
           </div>
           <div
             class="relative z-10"
-            :class="state.assign ? 'text-[#04BA00]' : 'text-gray-800'"
+            :class="state.approve ? 'text-[#04BA00]' : 'text-gray-800'"
           >
             <ChevronRightIcon class="w-4 h-4" />
-          </div>
-          <div
-            class="flex justify-start items-center gap-x-3 cursor-pointer"
-            @click="part = 'expense'"
-          >
-            <div
-              v-if="
-                !state.expense &&
-                (authStore.isReservation || authStore.isSuperAdmin)
-              "
-              @click="part = 'expense'"
-              class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
-              :class="
-                part == 'expense' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
-              "
-            >
-              5
-            </div>
-            <div
-              v-if="
-                state.expense &&
-                (authStore.isReservation || authStore.isSuperAdmin)
-              "
-              @click="part = 'expense'"
-              class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
-              :class="part == 'expense' ? 'bg-white text-white' : ''"
-            >
-              <img :src="checkImage" alt="" />
-            </div>
-            <p
-              class="text-xs"
-              :class="state.expense ? 'text-[#04BA00]' : 'text-gray-800'"
-            >
-              Expense
-            </p>
           </div>
         </div>
 
@@ -774,7 +731,14 @@ const hide = ref(true);
               'opacity-0': part !== 'general',
             }"
           ></p>
-          
+          <p
+            class="w-full rounded-lg h-1"
+            :class="{
+              'bg-green-500': part === 'extra' && state.extra,
+              'bg-[#FF613c]': part === 'extra' && !state.extra,
+              'opacity-0': part !== 'extra',
+            }"
+          ></p>
           <p
             class="w-full rounded-lg h-1"
             :class="{

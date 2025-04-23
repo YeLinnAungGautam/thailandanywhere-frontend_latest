@@ -4,6 +4,8 @@ import {
   PencilSquareIcon,
   XCircleIcon,
   DocumentCheckIcon,
+  ChatBubbleBottomCenterIcon,
+  ChatBubbleBottomCenterTextIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, defineProps, ref, defineEmits, watch } from "vue";
 import Modal from "../../components/Modal.vue";
@@ -96,6 +98,19 @@ const getRemoveFunction = (id, index) => {
 const router = useRouter();
 
 const cancellationModal = ref(false);
+
+const amendModal = ref(false);
+const amendData = ref(null);
+
+const amendModalAction = (data, index) => {
+  amendData.value = data;
+  amendModal.value = true;
+}
+const amendCloseAction = () => {
+  amendModal.value = false;
+  amendData.value = null;
+}
+
 const cancellationAction = (data, index) => {
   editIndex.value = index;
   formitem.value = data;
@@ -564,6 +579,11 @@ onMounted(() => {
           <div class="flex justify-between items-center">
             <p class="text-xs font-medium">{{ i?.product_name }}</p>
             <div class="flex justify-end items-center gap-x-2">
+              <ChatBubbleBottomCenterTextIcon
+                v-if="i?.reservation_id"
+                class="w-4 h-4 cursor-pointer text-red-600"
+                @click="amendModalAction(i, index)"
+              />
               <PencilSquareIcon
                 class="w-4 h-4 cursor-pointer text-blue-800"
                 @click="editAction(index, i)"
@@ -1390,6 +1410,624 @@ onMounted(() => {
             class="bg-white border border-gray-300 px-3 py-1.5 shadow-lg rounded-md text-xs"
           >
             Close Modal
+          </button>
+        </div>
+      </DialogPanel>
+    </Modal>
+
+    <Modal :isOpen="amendModal" @closeModal="amendCloseAction">
+      <DialogPanel
+        class="w-full max-w-4xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-1"
+        >
+          Amend: {{ amendData?.crm_id }}
+        </DialogTitle>
+        <div class="space-y-2.5 pb-3 border-b border-gray-300">
+          <p class="text-xs text-gray-500">Please Choose amend .</p>
+        </div>
+        <div class=" grid grid-cols-2 gap-4">
+          <div class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1" v-if="amendData != null">
+            <p class=" text-sm font-medium">Current Data</p>
+            <div v-if="amendData.product_type != 6" class="space-y-2">
+              <div class="grid grid-cols-2 gap-x-2">
+                <div class="space-y-1" v-if="amendData.product_type == 1">
+                  <label for="" class="text-[12px] text-gray-500"
+                    >Pick up time <span class="text-red-800">*</span></label
+                  >
+                  <input
+                    type="time"
+                    disabled
+                    v-model="amendData.pickup_time"
+                    name=""
+                    class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    id=""
+                  />
+                </div>
+                <div class="space-y-1">
+                  <label for="" class="text-[12px] text-gray-500"
+                    >Service date <span class="text-red-800">*</span></label
+                  >
+                  <input
+                    type="date"
+                    disabled
+                    v-model="amendData.service_date"
+                    @change="todayCheck"
+                    name=""
+                    class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    :class="
+                      todayVali
+                        ? ''
+                        : ''
+                    "
+                    id=""
+                  />
+                  <p v-if="!todayVali" class="text-[8px] text-red-600">
+                    ! please change date
+                  </p>
+                </div>
+              </div>
+              <div class="space-y-1" v-if="amendData.product_type == 1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Pick up location <span class="text-red-800">*</span></label
+                >
+                <input
+                  type="text"
+                  disabled
+                  v-model="amendData.pickup_location"
+                  name=""
+                  class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id=""
+                />
+              </div>
+              <div class="grid grid-cols-2 gap-x-2">
+                <div class="space-y-1" v-if="amendData.product_type == 1">
+                  <label for="" class="text-[12px] text-gray-500"
+                    >Payment Method <span class="text-red-800">*</span></label
+                  >
+                  <div class="flex justify-start items-center gap-x-2">
+                    <input
+                      type="checkbox"
+                      disabled
+                      name=""
+                      v-model="amendData.is_driver_collect"
+                      class="px-4 w-6 h-6 py-4 text-sm rounded-sm focus:outline-none"
+                      id=""
+                    />
+                    <p class="text-xs">
+                      Is Driver Collect ? <span class="text-red-800">*</span>
+                    </p>
+                  </div>
+                </div>
+                <div class="space-y-1" v-if="amendData.product_type != 7">
+                  <label for="" class="text-[12px] text-gray-500"
+                    >Qty - selling : {{ amendData.selling_price }}
+                    <span class="text-red-800">*</span></label
+                  >
+                  <input
+                    type="number"
+                    disabled
+                    v-model="amendData.quantity"
+                    name=""
+                    class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    id=""
+                  />
+                </div>
+                <div
+                  class="relative space-y-1"
+                  v-for="i in amendData.child_info ?? []"
+                  :key="i"
+                >
+                  <div class="flex justify-between items-center pb-1 pt-1">
+                    <label for="" class="text-xs text-gray-500 relative"
+                      >Child Qty - selling : {{ i.child_price
+                      }}<span class="text-red-800">*</span>
+                    </label>
+                    <p
+                      :title="i?.info"
+                      class="absolute top-0 cursor-pointer text-[10px] bg-[#FF613c] shadow-xl border border-white px-1 text-white rounded-full w-5 h-5 right-1 flex justify-center items-center custom-tooltip"
+                    >
+                      ?
+                    </p>
+                  </div>
+                  <input
+                    type="number"
+                    v-model="amendData.individual_pricing.child.quantity"
+                    disabled
+                    name=""
+                    class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    id="adult_pricing"
+                  />
+                </div>
+                <div class="space-y-1 col-span-2">
+                  <label for="" class="text-[12px] text-gray-500"
+                    >Ticket Info <span class="text-red-800">*</span></label
+                  >
+                  <div class="grid-cols-2 grid gap-2">
+                    <div class="relative space-y-1">
+                      <label for="" class="text-xs text-gray-500"
+                        >Selling Price <span class="text-red-800">*</span></label
+                      >
+                      <input
+                        type="number"
+                        v-model="amendData.selling_price"
+                        disabled
+                        name=""
+                        class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                        id=""
+                      />
+                    </div>
+                    <div
+                      class="relative space-y-1"
+                      v-if="amendData.product_type == 7"
+                    >
+                      <label for="" class="text-xs text-gray-500"
+                        >Ticket Qty <span class="text-red-800">*</span></label
+                      >
+                      <input
+                        type="number"
+                        v-model="amendData.quantity"
+                        disabled
+                        name=""
+                        class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                        id=""
+                      />
+                      <p
+                        @click="amendData.quantity++"
+                        class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-8"
+                      >
+                        +
+                      </p>
+                      <p
+                        @click="amendData.quantity--"
+                        v-if="amendData.quantity > 1"
+                        class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
+                      >
+                        -
+                      </p>
+                      <p
+                        v-if="amendData.quantity == 1"
+                        class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
+                      >
+                        -
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2" v-if="amendData.product_type == 6">
+              <div class="space-y-1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Check in date <span class="text-red-800">*</span></label
+                >
+                <input
+                  type="date"
+                  disabled
+                  v-model="amendData.service_date"
+                  @change="todayCheck"
+                  name=""
+                  class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  :class="
+                    todayVali ? 'border-gray-300' : 'border-red-600 text-red-600'
+                  "
+                  id=""
+                />
+                <p v-if="!todayVali" class="text-[8px] text-red-600">
+                  ! please change date
+                </p>
+              </div>
+              <div class="space-y-1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Check out date <span class="text-red-800">*</span></label
+                >
+                <input
+                  type="date"
+                  disabled
+                  v-model="amendData.checkout_date"
+                  name=""
+                  class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id=""
+                />
+              </div>
+              <div class="space-y-1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Total Rooms <span class="text-red-800">*</span></label
+                >
+                <input
+                  type="number"
+                  disabled
+                  v-model="amendData.quantity"
+                  name=""
+                  class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id=""
+                />
+              </div>
+              <div class="space-y-1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Qty <span class="text-red-800">*</span></label
+                >
+                <p
+                  class=" bg-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                >
+                  {{ amendData.days }} Night x {{ amendData.quantity }} Rooms
+                </p>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500">Discount</label>
+              <input
+                type="number"
+                disabled
+                v-model="amendData.discount"
+                name=""
+                class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              />
+            </div>
+            <p class="text-xs text-gray-500">Total Price</p>
+            <div>
+              <p
+                class="text-sm text-start  py-1.5 rounded-lg px-2"
+              >
+                <span class="font-medium text-[#ff613c]"
+                  >{{
+                    amendData.selling_price * 1 * amendData.quantity -
+                    amendData.discount * 1 +
+                    (amendData.individual_pricing?.child?.amount || 0) * 1
+                  }}
+                  ฿</span
+                >
+              </p>
+            </div>
+            <div class="space-y-1" v-if="amendData.product_type == 1">
+              <label for="" class="text-[12px] text-gray-500"
+                >Route Plan <span class="text-red-800">*</span></label
+              >
+              <textarea
+                name=""
+                disabled
+                v-model="amendData.route_plan"
+                class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              ></textarea>
+            </div>
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500"
+                >Special Request <span class="text-red-800">*</span></label
+              >
+              <textarea
+                name=""
+                disabled
+                v-model="amendData.special_request"
+                class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              ></textarea>
+            </div>
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500"
+                >Description <span class="text-red-800">*</span></label
+              >
+              <textarea
+                name=""
+                disabled
+                v-model="amendData.comment"
+                class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              ></textarea>
+            </div>
+          </div>
+          <div class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1" v-if="amendData != null">
+            <p class=" text-sm font-medium">Amend Data</p>
+            <div v-if="amendData.product_type != 6" class="space-y-2">
+              <div class="grid grid-cols-2 gap-x-2">
+                <div class="space-y-1" v-if="amendData.product_type == 1">
+                  <label for="" class="text-[12px] text-gray-500"
+                    >Pick up time <span class="text-red-800">*</span></label
+                  >
+                  <input
+                    type="time"
+                    disabled
+                    v-model="amendData.pickup_time"
+                    name=""
+                    class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    id=""
+                  />
+                </div>
+                <div class="space-y-1">
+                  <label for="" class="text-[12px] text-gray-500"
+                    >Service date <span class="text-red-800">*</span></label
+                  >
+                  <input
+                    type="date"
+                    disabled
+                    v-model="amendData.service_date"
+                    @change="todayCheck"
+                    name=""
+                    class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    :class="
+                      todayVali
+                        ? 'border-gray-300'
+                        : 'border-red-600 text-red-600'
+                    "
+                    id=""
+                  />
+                  <p v-if="!todayVali" class="text-[8px] text-red-600">
+                    ! please change date
+                  </p>
+                </div>
+              </div>
+              <div class="space-y-1" v-if="amendData.product_type == 1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Pick up location <span class="text-red-800">*</span></label
+                >
+                <input
+                  type="text"
+                  disabled
+                  v-model="amendData.pickup_location"
+                  name=""
+                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id=""
+                />
+              </div>
+              <div class="grid grid-cols-2 gap-x-2">
+                <div class="space-y-1" v-if="amendData.product_type == 1">
+                  <label for="" class="text-[12px] text-gray-500"
+                    >Payment Method <span class="text-red-800">*</span></label
+                  >
+                  <div class="flex justify-start items-center gap-x-2">
+                    <input
+                      type="checkbox"
+                      disabled
+                      name=""
+                      v-model="amendData.is_driver_collect"
+                      class="px-4 w-6 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
+                      id=""
+                    />
+                    <p class="text-xs">
+                      Is Driver Collect ? <span class="text-red-800">*</span>
+                    </p>
+                  </div>
+                </div>
+                <div class="space-y-1" v-if="amendData.product_type != 7">
+                  <label for="" class="text-[12px] text-gray-500"
+                    >Qty - selling : {{ amendData.selling_price }}
+                    <span class="text-red-800">*</span></label
+                  >
+                  <input
+                    type="number"
+                    disabled
+                    v-model="amendData.quantity"
+                    name=""
+                    class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    id=""
+                  />
+                </div>
+                <div
+                  class="relative space-y-1"
+                  v-for="i in amendData.child_info ?? []"
+                  :key="i"
+                >
+                  <div class="flex justify-between items-center pb-1 pt-1">
+                    <label for="" class="text-xs text-gray-500 relative"
+                      >Child Qty - selling : {{ i.child_price
+                      }}<span class="text-red-800">*</span>
+                    </label>
+                    <p
+                      :title="i?.info"
+                      class="absolute top-0 cursor-pointer text-[10px] bg-[#FF613c] shadow-xl border border-white px-1 text-white rounded-full w-5 h-5 right-1 flex justify-center items-center custom-tooltip"
+                    >
+                      ?
+                    </p>
+                  </div>
+                  <input
+                    type="number"
+                    v-model="amendData.individual_pricing.child.quantity"
+                    disabled
+                    name=""
+                    class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    id="adult_pricing"
+                  />
+                </div>
+                <div class="space-y-1 col-span-2">
+                  <label for="" class="text-[12px] text-gray-500"
+                    >Ticket Info <span class="text-red-800">*</span></label
+                  >
+                  <div class="grid-cols-2 grid gap-2">
+                    <div class="relative space-y-1">
+                      <label for="" class="text-xs text-gray-500"
+                        >Selling Price <span class="text-red-800">*</span></label
+                      >
+                      <input
+                        type="number"
+                        v-model="amendData.selling_price"
+                        disabled
+                        name=""
+                        class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                        id=""
+                      />
+                    </div>
+                    <div
+                      class="relative space-y-1"
+                      v-if="amendData.product_type == 7"
+                    >
+                      <label for="" class="text-xs text-gray-500"
+                        >Ticket Qty <span class="text-red-800">*</span></label
+                      >
+                      <input
+                        type="number"
+                        v-model="amendData.quantity"
+                        disabled
+                        name=""
+                        class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                        id=""
+                      />
+                      <p
+                        @click="amendData.quantity++"
+                        class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-8"
+                      >
+                        +
+                      </p>
+                      <p
+                        @click="amendData.quantity--"
+                        v-if="amendData.quantity > 1"
+                        class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
+                      >
+                        -
+                      </p>
+                      <p
+                        v-if="amendData.quantity == 1"
+                        class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-7 right-1"
+                      >
+                        -
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2" v-if="amendData.product_type == 6">
+              <div class="space-y-1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Check in date <span class="text-red-800">*</span></label
+                >
+                <input
+                  type="date"
+                  disabled
+                  v-model="amendData.service_date"
+                  @change="todayCheck"
+                  name=""
+                  class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  :class="
+                    todayVali ? 'border-gray-300' : 'border-red-600 text-red-600'
+                  "
+                  id=""
+                />
+                <p v-if="!todayVali" class="text-[8px] text-red-600">
+                  ! please change date
+                </p>
+              </div>
+              <div class="space-y-1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Check out date <span class="text-red-800">*</span></label
+                >
+                <input
+                  type="date"
+                  disabled
+                  v-model="amendData.checkout_date"
+                  name=""
+                  class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id=""
+                />
+              </div>
+              <div class="space-y-1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Total Rooms <span class="text-red-800">*</span></label
+                >
+                <input
+                  type="number"
+                  disabled
+                  v-model="amendData.quantity"
+                  name=""
+                  class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  id=""
+                />
+              </div>
+              <div class="space-y-1">
+                <label for="" class="text-[12px] text-gray-500"
+                  >Qty <span class="text-red-800">*</span></label
+                >
+                <p
+                  class="border border-gray-300 bg-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                >
+                  {{ amendData.days }} Night x {{ amendData.quantity }} Rooms
+                </p>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500">Discount</label>
+              <input
+                type="number"
+                disabled
+                v-model="amendData.discount"
+                name=""
+                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              />
+            </div>
+            <p class="text-xs text-gray-500">Total Price</p>
+            <div>
+              <p
+                class="text-sm text-start border border-gray-300 py-1.5 rounded-lg px-2"
+              >
+                <span class="font-medium text-[#ff613c]"
+                  >{{
+                    amendData.selling_price * 1 * amendData.quantity -
+                    amendData.discount * 1 +
+                    (amendData.individual_pricing?.child?.amount || 0) * 1
+                  }}
+                  ฿</span
+                >
+              </p>
+            </div>
+            <div class="space-y-1" v-if="amendData.product_type == 1">
+              <label for="" class="text-[12px] text-gray-500"
+                >Route Plan <span class="text-red-800">*</span></label
+              >
+              <textarea
+                name=""
+                disabled
+                v-model="amendData.route_plan"
+                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              ></textarea>
+            </div>
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500"
+                >Special Request <span class="text-red-800">*</span></label
+              >
+              <textarea
+                name=""
+                disabled
+                v-model="amendData.special_request"
+                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              ></textarea>
+            </div>
+            <div class="space-y-1">
+              <label for="" class="text-[12px] text-gray-500"
+                >Description <span class="text-red-800">*</span></label
+              >
+              <textarea
+                name=""
+                disabled
+                v-model="amendData.comment"
+                class="border border-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                id=""
+              ></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end items-center gap-x-2 pt-4">
+          <button
+            @click="amendCloseAction"
+            class="bg-[#ff613c] text-white px-4 py-1.5 rounded-lg text-xs"
+          >
+            Amend Request
+          </button>
+          <button
+            @click="amendCloseAction"
+            class="bg-red-500 text-white px-4 py-1.5 rounded-lg text-xs"
+          >
+            Delete Request
+          </button>
+          <button
+            @click="amendCloseAction"
+            class="bg-white text-[#FF613c] border border-[#FF613c] px-4 py-1.5 rounded-lg text-xs"
+          >
+            Cancel
           </button>
         </div>
       </DialogPanel>

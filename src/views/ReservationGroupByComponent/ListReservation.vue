@@ -38,8 +38,7 @@
           <div>
             <p class="text-[10px] space-x-1">
               <span class="font-medium"
-                >Book: {{ getFormatDate(i?.items[0]?.service_date) }} / Due:
-                {{ getFormatDate(data?.bookings[0]?.balance_due_date) }}</span
+                >Book: {{ getFormatDate(i?.items[0]?.service_date) }}</span
               >
             </p>
           </div>

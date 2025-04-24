@@ -15,22 +15,49 @@
               class="flex flex-col px-4 py-2 bg-white rounded-lg shadow-sm"
             >
               <!-- CRM ID header -->
-              <div class="text-xs font-medium text-gray-500 mb-2">
-                For CRM ID: {{ crm_id }}
-              </div>
+              <!-- <div class="text-[10px]">
+                <p
+                  class="bg-[#FF613c] inline-block px-2 font-medium text-white mb-2"
+                >
+                  {{ crm_id }}
+                </p>
+              </div> -->
 
               <!-- List of customers with the same CRM ID -->
               <div
                 v-for="(customer, index) in customers"
                 :key="index"
-                class="flex justify-start items-center space-x-4 cursor-pointer py-1"
+                class="flex justify-start items-center space-x-4 rounded-lg cursor-pointer py-1"
                 @click="openPassportModal(customer, index)"
+                :class="customer.id == formData.id ? 'bg-[#FF613c]' : ''"
               >
-                <div class="bg-[#FF613c]/30 rounded-lg p-2 inline-block">
-                  <UserCircleIcon class="w-4 text-[#FF613c] h-4" />
+                <div
+                  class="rounded-lg p-2 inline-block"
+                  :class="
+                    customer.id == formData.id
+                      ? 'bg-[#FF613c]/30'
+                      : 'bg-[#FF613c]/5'
+                  "
+                >
+                  <UserCircleIcon
+                    class="w-4 h-4"
+                    :class="
+                      customer.id == formData.id
+                        ? 'text-white'
+                        : 'text-[#FF613c]'
+                    "
+                  />
                 </div>
                 <p class="text-[12px] font-medium">
-                  <span class="text-[#FF613c]">{{ customer.name }}</span>
+                  <span
+                    class=""
+                    :class="
+                      customer.id == formData.id
+                        ? 'text-white'
+                        : 'text-[#FF613c]'
+                    "
+                    >{{ customer.name }}</span
+                  >
                 </p>
               </div>
             </div>
@@ -47,7 +74,7 @@
         <div class="col-span-2 py-3 rounded-lg relative border border-gray-200">
           <p class="text-lg font-medium text-[#FF613c] px-4 pb-4">Details</p>
           <div class="grid grid-cols-2 h-[46vh] overflow-y-auto px-4 gap-4">
-            <div class="space-y-4">
+            <div class="col-span-2 grid grid-cols-2 gap-3">
               <div>
                 <p class="text-xs pb-1.5 font-medium">Name *</p>
                 <input
@@ -115,11 +142,11 @@
                 </div>
               </div>
             </div>
-            <div>
-              <div v-if="formData.file" class="w-full col-span-3 h-[300px]">
+            <div class="col-span-2">
+              <div v-if="formData.file" class="w- col-span-4 w-full h-[200px]">
                 <img
                   :src="formData.file"
-                  class="rounded-lg shadow hover:shadow-none h-full object-cover object-bottom w-full"
+                  class="rounded-lg shadow hover:shadow-none h-full object-contain object-left w-full"
                   alt=""
                   @click="showPassport = true"
                 />

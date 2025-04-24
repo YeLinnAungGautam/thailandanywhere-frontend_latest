@@ -3,7 +3,6 @@ import { ref, watch, onMounted, computed, defineProps } from "vue";
 import GeneralDetailPage from "./GeneralDetail.vue";
 import BookingRequest from "./BookingVantour.vue";
 import Assign from "./Assign.vue";
-import Expense from "./Expense.vue";
 import {
   ChevronDoubleRightIcon,
   ChevronDownIcon,
@@ -20,7 +19,7 @@ import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import logo from "../../assets/web-logo.png";
 import { useAuthStore } from "../../stores/auth";
-import {daysBetween} from "../help/DateBetween"
+import { daysBetween } from "../help/DateBetween";
 import { getFormatDate } from "../help/FormatData";
 import Extra from "./Extra.vue";
 
@@ -43,7 +42,6 @@ const state = ref({
   extra: false,
   booking: false,
   assign: false,
-  expense: false,
 });
 
 const showCommentPropup = ref(false);
@@ -53,7 +51,6 @@ const partArray = ref([
   { id: 2, name: "extra" },
   { id: 3, name: "booking" },
   { id: 4, name: "assign" },
-  { id: 5, name: "expense" },
 ]);
 
 const transition = ref("slide-right");
@@ -114,9 +111,9 @@ const goToFill = () => {
 const getComponent = (part) => {
   const components = {
     general: GeneralDetailPage,
+    extra: Extra,
     booking: BookingRequest,
     assign: Assign,
-    expense: Expense,
   };
   return components[part];
 };
@@ -124,10 +121,8 @@ const getComponent = (part) => {
 const getDetailAction = async (id) => {
   getLoading.value = true;
   reservation_ids.value = [];
-  
-  const res = await groupbyStore.ReservationVantourDetailAction(
-    id
-  );
+
+  const res = await groupbyStore.ReservationVantourDetailAction(id);
   detail.value = res;
   console.log(detail.value, "this is detail");
 
@@ -208,7 +203,7 @@ const copyReservation = async () => {
     for (let i = 0; i < res.items.length; i++) {
       discount += parseFloat(res.items[i].discount || 0);
     }
-    
+
     // Calculate score safely
     let score = 0;
 
@@ -242,19 +237,20 @@ const copyReservation = async () => {
     const totalAmount = res.grand_total || "0";
     const balanceDue = res.balance_due || "0";
     const paymentStatus = res.payment_status || "Unknown";
-    
+
     allFormattedOutput += `💰 Total Cost: ${totalCost} THB 
 💵 Price: ${totalAmount} THB 
 💵 Balance Due: ${balanceDue} THB 
 📝 Payment Status: ${paymentStatus}
 ---------------------
 🏦 Bank Name: ${
-      res.items[0]?.bank_name !== "null" && res.items[0]?.bank_name 
-        ? res.items[0].bank_name 
+      res.items[0]?.bank_name !== "null" && res.items[0]?.bank_name
+        ? res.items[0].bank_name
         : "-"
     } 
 🔢 Bank Account Number: ${
-      res.items[0]?.bank_account_number !== "null" && res.items[0]?.bank_account_number
+      res.items[0]?.bank_account_number !== "null" &&
+      res.items[0]?.bank_account_number
         ? `➖${res.items[0].bank_account_number}`
         : "-"
     }
@@ -271,7 +267,7 @@ const copyReservation = async () => {
       const serviceDate = item.service_date || item.serivce_date || "-";
       const itemUrgencyLabel = getUrgencyLabel(serviceDate).trim();
       const urgencyPrefix = itemUrgencyLabel ? `[${itemUrgencyLabel}] ` : "";
-      
+
       allFormattedOutput += `🏩 Name: ${item.product?.name || "-"}
 📆 Service Date: ${urgencyPrefix}${serviceDate}
 #️⃣ Reservation Code: ${item.crm_id || "-"}: S: (${item.selling_price || "-"})
@@ -319,7 +315,6 @@ watch(
       // Initialize all states to false
       state.value.booking = false;
       state.value.assign = false;
-      state.value.expense = false;
 
       // Loop through all booking items
       if (detail.value.booking.items && detail.value.booking.items.length > 0) {
@@ -343,21 +338,25 @@ watch(
           // }
 
           // Check expense condition
-          if (item.payment_status == "fully_paid") {
-            state.value.expense = true;
-          }
+          // if (item.payment_status == "fully_paid") {
+          //   state.value.expense = true;
+          // }
         });
       }
     }
   }
 );
 
-watch(() => route.query.id, (newId) => {
-  if (newId) {
-    hasRouteId.value = false;
-    getDetailAction(newId);
-  }
-},{ immediate: true });
+watch(
+  () => route.query.id,
+  (newId) => {
+    if (newId) {
+      hasRouteId.value = false;
+      getDetailAction(newId);
+    }
+  },
+  { immediate: true }
+);
 
 watch(
   () => part.value,
@@ -365,7 +364,7 @@ watch(
     router.push({
       query: {
         id: route.query.id,
-        crm_id : route.query.crm_id,
+        crm_id: route.query.crm_id,
         part: newPart,
       },
     });
@@ -422,7 +421,6 @@ const hide = ref(true);
     </div>
     <div class="space-y-4" v-if="!getLoading && !hasRouteId">
       <div class="space-y-4 border border-gray-200 p-3 rounded-lg">
-        
         <div class="grid grid-cols-5 gap-2">
           <div class="col-span-5 flex justify-between items-center">
             <div>
@@ -431,12 +429,14 @@ const hide = ref(true);
                 {{ detail?.booking.customer_info?.name }}
               </p>
               <div class="flex justify-start items-center gap-x-2">
-                <p @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
+                <p
+                  @click="
+                    router.push(`/bookings/new-update/${detail?.booking?.id}`)
+                  "
                   class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
                 >
                   {{ detail?.booking?.crm_id }}
                 </p>
-                
               </div>
             </div>
             <div class="">
@@ -521,9 +521,8 @@ const hide = ref(true);
                       >
                         Item Name
                       </th>
-                      
+
                       <th
-                        
                         class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                       >
                         Service Date
@@ -567,9 +566,7 @@ const hide = ref(true);
                       >
                         {{ item?.product?.name }}
                       </td>
-                      <td
-                        class="py-1 px-4 text-[10px] font-normal text-left"
-                      >
+                      <td class="py-1 px-4 text-[10px] font-normal text-left">
                         {{ item?.car?.name }}
                       </td>
                       <top-destination-cart
@@ -644,8 +641,48 @@ const hide = ref(true);
           >
             <ChevronRightIcon class="w-4 h-4" />
           </div>
-          
 
+          <div
+            class="flex justify-start items-center gap-x-3 cursor-pointer"
+            @click="part = 'extra'"
+          >
+            <div
+              v-if="
+                !state.extra &&
+                (authStore.isReservation || authStore.isSuperAdmin)
+              "
+              @click="part = 'extra'"
+              class="w-6 h-6 flex justify-center cursor-pointer items-center text-[10px] rounded-full relative z-10"
+              :class="
+                part == 'extra' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+              "
+            >
+              2
+            </div>
+            <div
+              v-if="
+                state.extra &&
+                (authStore.isReservation || authStore.isSuperAdmin)
+              "
+              @click="part = 'extra'"
+              class="w-6 h-6 flex justify-center cursor-pointer shadow hover:shadow-none items-center text-[10px] rounded-full relative z-10"
+              :class="part == 'extra' ? 'bg-white text-white' : ''"
+            >
+              <img :src="checkImage" alt="" />
+            </div>
+            <p
+              class="text-xs"
+              :class="state.extra ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              Payment Detail
+            </p>
+          </div>
+          <div
+            class="relative z-10"
+            :class="state.extra ? 'text-[#04BA00]' : 'text-gray-800'"
+          >
+            <ChevronRightIcon class="w-4 h-4" />
+          </div>
           <div
             class="flex justify-start items-center gap-x-3 cursor-pointer"
             @click="part = 'booking'"
@@ -661,7 +698,7 @@ const hide = ref(true);
                 part == 'booking' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
               "
             >
-              2
+              3
             </div>
             <div
               v-if="
@@ -702,7 +739,7 @@ const hide = ref(true);
                 part == 'assign' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
               "
             >
-              3
+              4
             </div>
             <div
               v-if="
@@ -722,47 +759,6 @@ const hide = ref(true);
               Assign Driver
             </p>
           </div>
-          <div
-            class="relative z-10"
-            :class="state.assign ? 'text-[#04BA00]' : 'text-gray-800'"
-          >
-            <ChevronRightIcon class="w-4 h-4" />
-          </div>
-          <div
-            class="flex justify-start items-center gap-x-3 cursor-pointer"
-            @click="part = 'expense'"
-          >
-            <div
-              v-if="
-                !state.expense &&
-                (authStore.isReservation || authStore.isSuperAdmin)
-              "
-              @click="part = 'expense'"
-              class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
-              :class="
-                part == 'expense' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
-              "
-            >
-              4
-            </div>
-            <div
-              v-if="
-                state.expense &&
-                (authStore.isReservation || authStore.isSuperAdmin)
-              "
-              @click="part = 'expense'"
-              class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
-              :class="part == 'expense' ? 'bg-white text-white' : ''"
-            >
-              <img :src="checkImage" alt="" />
-            </div>
-            <p
-              class="text-xs"
-              :class="state.expense ? 'text-[#04BA00]' : 'text-gray-800'"
-            >
-              Expense
-            </p>
-          </div>
         </div>
 
         <div class="pt-2 flex justify-between items-center gap-x-6">
@@ -774,7 +770,14 @@ const hide = ref(true);
               'opacity-0': part !== 'general',
             }"
           ></p>
-          
+          <p
+            class="w-full rounded-lg h-1"
+            :class="{
+              'bg-green-500': part === 'extra' && state.extra,
+              'bg-[#FF613c]': part === 'extra' && !state.extra,
+              'opacity-0': part !== 'extra',
+            }"
+          ></p>
           <p
             class="w-full rounded-lg h-1"
             :class="{
@@ -789,14 +792,6 @@ const hide = ref(true);
               'bg-green-500': part === 'assign' && state.assign,
               'bg-[#FF613c]': part === 'assign' && !state.assign,
               'opacity-0': part !== 'assign',
-            }"
-          ></p>
-          <p
-            class="w-full rounded-lg h-1"
-            :class="{
-              'bg-green-500': part === 'expense' && state.expense,
-              'bg-[#FF613c]': part === 'expense' && !state.expense,
-              'opacity-0': part !== 'expense',
             }"
           ></p>
         </div>

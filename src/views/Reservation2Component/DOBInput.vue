@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-2">
-    <label for="" class="text-[12px] font-medium block">DOB</label>
+    <label for="" class="text-[12px] font-medium block">Date Of Birth</label>
     <div class="flex space-x-2">
       <!-- Day input -->
       <div class="w-1/4">
@@ -16,8 +16,8 @@
       </div>
 
       <!-- Month input -->
-      <div class="w-1/4">
-        <input
+      <div class="w-2/4">
+        <!-- <input
           type="number"
           v-model="month"
           @input="updateDOB"
@@ -25,7 +25,17 @@
           max="12"
           placeholder="MM"
           class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
-        />
+        /> -->
+        <select
+          v-model="month"
+          @change="updateDOB"
+          class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
+        >
+          <option value="" disabled selected>MM</option>
+          <option v-for="m in monthOptions" :key="m" :value="m.value">
+            {{ m.text }}
+          </option>
+        </select>
       </div>
 
       <!-- Year input -->
@@ -62,6 +72,22 @@ const emit = defineEmits(["update:formData"]);
 const day = ref("");
 const month = ref("");
 const year = ref("");
+
+const monthOptions = [
+  { value: "", text: "MM" },
+  { value: 1, text: "Jan" },
+  { value: 2, text: "Feb" },
+  { value: 3, text: "Mar" },
+  { value: 4, text: "Apr" },
+  { value: 5, text: "May" },
+  { value: 6, text: "Jun" },
+  { value: 7, text: "Jul" },
+  { value: 8, text: "Aug" },
+  { value: 9, text: "Sep" },
+  { value: 10, text: "Oct" },
+  { value: 11, text: "Nov" },
+  { value: 12, text: "Dec" },
+];
 
 // Function to parse date from formData.dob
 const parseDateFromDOB = () => {

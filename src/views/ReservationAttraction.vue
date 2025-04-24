@@ -660,12 +660,6 @@ watch(dateRange, async (newValue) => {
                     <div class="flex justify-end items-center space-x-2">
                       <p
                         class="text-[10px] cursor-pointer"
-                        @click="attraction_name = ''"
-                      >
-                        clear
-                      </p>
-                      <p
-                        class="text-[10px] cursor-pointer"
                         @click="entranceAction = !entranceAction"
                       >
                         {{ !entranceAction ? "show" : "hide" }}
@@ -695,7 +689,7 @@ watch(dateRange, async (newValue) => {
                     name=""
                     v-model="customerPaymentStatus"
                     id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
                   >
                     <option class="text-[10px]" value=""></option>
                     <option class="text-[10px]" value="fully_paid">
@@ -716,7 +710,7 @@ watch(dateRange, async (newValue) => {
                     v-model="expenseStatus"
                     name=""
                     id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
                   >
                     <option class="text-[10px]" value=""></option>
                     <option class="text-[10px]" value="fully_paid">
@@ -737,7 +731,7 @@ watch(dateRange, async (newValue) => {
                     v-model="invoiceStatus"
                     name=""
                     id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
                   >
                     <option class="text-[10px]" value=""></option>
                     <option class="text-[10px]" value="receive">Receive</option>
@@ -802,7 +796,7 @@ watch(dateRange, async (newValue) => {
                       name=""
                       id=""
                       v-model="sorting"
-                      class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-[50%] py-2 text-[10px] rounded-lg"
+                      class="border border-gray-300 px-4 focus:outline-none w-[50%] py-2 text-[10px] rounded-lg"
                     >
                       <option class="text-[10px]" value="desc">
                         Last to First

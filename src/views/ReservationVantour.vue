@@ -137,10 +137,9 @@ const setStartAndEndDate = () => {
   const startDate = new Date(now); // Start date is today
 
   // Add 90 days to the start date to get the end date
-  const endDate = new Date(now);
-  endDate.setDate(endDate.getDate() + 90);
+  // const endDate = new Date(now);
 
-  dateRange.value = [startDate, endDate];
+  searchTime.value = startDate;
 };
 
 const watchSystem = computed(() => {
@@ -245,10 +244,7 @@ const getDetailAction = async (id) => {
 
   if (detailId.value) {
     router.push(
-      "reservation-vantour?id=" +
-        detailId.value +
-        "&crm_id=" +
-        id.crm_id
+      "reservation-vantour?id=" + detailId.value + "&crm_id=" + id.crm_id
     );
   }
 
@@ -348,7 +344,7 @@ onMounted(async () => {
   if (route.query.id) {
     detailId.value = route.query.id;
   }
-  console.log(results.value,'this is results of vantour');
+  console.log(results.value, "this is results of vantour");
   setStartAndEndDate();
   await getListUser();
 });
@@ -404,12 +400,6 @@ const searchAction = async () => {
   filterShow.value = false;
   await groupByStore.ReservationHotelList(watchSystem.value);
 };
-
-watch(searchTime, async (newValue) => {
-  await searchAction();
-  searchModel.value = false;
-  changeDate.value = "";
-});
 
 const getDateRangeCategory = (dateRange) => {
   if (!dateRange) return "other";
@@ -475,9 +465,9 @@ watch(sale_daterange, (newValue) => {
   }
 });
 
-watch(dateRange, async (newValue) => {
-  console.log(dateRange.value, "this is date");
-  if (dateRange.value != "" && dateRange.value != null) {
+watch(searchTime, async (newValue) => {
+  console.log(searchTime.value, "this is date");
+  if (searchTime.value != "" && searchTime.value != null) {
     const options = { day: "2-digit", month: "2-digit", year: "numeric" };
 
     // Custom function to format date as dd-MM-yyyy
@@ -491,14 +481,13 @@ watch(dateRange, async (newValue) => {
     };
 
     // Format start and end dates
-    const formattedStartDate = formatDateAsDDMMYYYY(dateRange.value[0]);
-    const formattedEndDate = formatDateAsDDMMYYYY(dateRange.value[1]);
+    const formattedStartDate = formatDateAsDDMMYYYY(searchTime.value);
 
-    sale_daterange.value = `${formattedStartDate},${formattedEndDate}`;
+    sale_daterange.value = `${formattedStartDate},${formattedStartDate}`;
   } else {
     sale_daterange.value = "";
   }
-  // console.log(sale_daterange.value, "this is daterange");
+  console.log(sale_daterange.value, "this is daterange");
   getReservationListAction();
 
   searchModel.value = false;
@@ -598,7 +587,7 @@ watch(dateRange, async (newValue) => {
                     >
                       Select Date filter for booking date
                     </DialogTitle>
-                    <div v-if="dateOnlyToggle">
+                    <div v-if="!dateOnlyToggle">
                       <VueDatePicker
                         v-model="searchTime"
                         multi-calendars
@@ -607,7 +596,7 @@ watch(dateRange, async (newValue) => {
                         text-input
                       />
                     </div>
-                    <div v-if="!dateOnlyToggle">
+                    <div v-if="dateOnlyToggle">
                       <VueDatePicker
                         v-model="dateRange"
                         range
@@ -648,41 +637,6 @@ watch(dateRange, async (newValue) => {
                     class="absolute right-1 top-7 rounded-lg text-xs p-1 bg-[#FF613c]"
                   >
                     <MagnifyingGlassIcon class="w-4 h-4 text-white" />
-                  </div>
-                </div>
-
-                <div class="">
-                  <div class="flex justify-between items-center pb-2">
-                    <p class="text-[10px]">Attraction</p>
-
-                    <div class="flex justify-end items-center space-x-2">
-                      <p
-                        class="text-[10px] cursor-pointer"
-                        @click="attraction_name = ''"
-                      >
-                        clear
-                      </p>
-                      <p
-                        class="text-[10px] cursor-pointer"
-                        @click="entranceAction = !entranceAction"
-                      >
-                        {{ !entranceAction ? "show" : "hide" }}
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    v-if="!entranceAction"
-                    @click="entranceAction = true"
-                    class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-lg bg-white px-4 py-1.5 w-full"
-                  >
-                    <p class="text-[10px]">
-                      {{
-                        attraction_name ? attraction_name : "Attraction search"
-                      }}
-                    </p>
-                  </div>
-                  <div v-if="entranceAction" class="w-full">
-                    <AttractionUnlimited @selectAction="ChangeAttractionName" />
                   </div>
                 </div>
 

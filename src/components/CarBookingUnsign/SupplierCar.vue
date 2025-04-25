@@ -73,7 +73,7 @@ const openModel = async (id) => {
     special_request: data.special_request,
     pickup_location: data.pickup_location,
     dropoff_location: data.dropoff_location,
-    is_driver_collect: data.is_driver_collect == 0 ? false : true,
+    is_driver_collect: data.is_driver_collect == 1 ? true : false,
     pickup_time: data.pickup_time,
   };
   await supplierAction();
@@ -192,7 +192,7 @@ const onSubmitHandler = async () => {
     ) {
       frmData.append("total_cost_price", total_cost_price.value);
     }
-    if (formData.value.is_driver_collect) {
+    if (formData.value.is_driver_collect == true) {
       frmData.append("is_driver_collect", "1");
       frmData.append(
         "extra_collect_amount",

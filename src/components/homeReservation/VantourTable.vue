@@ -136,13 +136,14 @@ const onSubmitHandler = async () => {
     }
 
     if (formData.value.is_driver_collect) {
-      frmData.append("is_driver_collect", true);
+      frmData.append("is_driver_collect", "1");
       frmData.append(
         "extra_collect_amount",
         formData.value.extra_collect_amount ?? 0
       );
     } else {
-      frmData.append("is_driver_collect", false);
+      frmData.append("is_driver_collect", "0");
+      frmData.append("extra_collect_amount", 0);
     }
     frmData.append("route_plan", formData.value.route_plan);
     frmData.append("special_request", formData.value.special_request);

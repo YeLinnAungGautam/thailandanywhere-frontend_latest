@@ -51,6 +51,7 @@ const openModel = async (id) => {
     car_number: data.car_number,
     quantity: data.quantity,
     cost_price: data.cost_price,
+    is_driver_collect: data.is_driver_collect == 1 ? true : false,
     total_cost_price: data.quantity * data.cost_price,
     extra_collect_amount: data.extra_collect,
     route_plan:

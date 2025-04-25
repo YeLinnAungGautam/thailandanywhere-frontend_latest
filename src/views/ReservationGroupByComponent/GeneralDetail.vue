@@ -7,8 +7,35 @@
           <div class="flex justify-end items-center"></div>
           <p>Total Expense</p>
           <p class="text-end">{{ formattedNumber(total_item_price) }} thb</p>
-          <p>Total Items</p>
-          <p class="text-end">{{ detail?.booking?.items?.length }} items</p>
+          <p>Total Items Qty</p>
+          <p
+            class="text-end"
+            v-if="
+              detail?.booking?.items[0].product_type ==
+              'App\\Models\\PrivateVanTour'
+            "
+          >
+            {{ carQty }} Car Qty
+          </p>
+          <p
+            class="text-end"
+            v-if="
+              detail?.booking?.items[0].product_type == 'App\\Models\\Hotel'
+            "
+          >
+            {{ hotelQty }} D {{ hotelDay }} N
+          </p>
+
+          <p
+            class="text-end"
+            v-if="
+              detail?.booking?.items[0].product_type ==
+              'App\\Models\\EntranceTicket'
+            "
+          >
+            {{ ticketAdultQty }} Adult {{ ticketChildQty }} Child
+          </p>
+
           <p>Service Date</p>
           <p class="text-end">
             {{ changeFormat(detail?.booking?.balance_due_date) }}
@@ -30,7 +57,12 @@
           </p>
           <p>Total Balance Due</p>
           <p class="text-end">
-            {{ formattedNumber(detail?.booking?.grand_total - detail?.booking?.deposit) }} thb
+            {{
+              formattedNumber(
+                detail?.booking?.grand_total - detail?.booking?.deposit
+              )
+            }}
+            thb
           </p>
           <p>Total Discount</p>
           <p class="text-end">{{ detail?.booking?.discount }} thb</p>
@@ -59,7 +91,8 @@
       <div class="flex justify-between items-center">
         <div class="flex justify-start items-center gap-x-2">
           <p class="text-sm font-semibold text-[#FF613c]">Payment Recieved</p>
-          <p @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
+          <p
+            @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
             class="text-center rounded-lg text-[10px] bg-[#FF613c] text-white px-3 py-0.5"
           >
             {{ detail?.booking?.crm_id }}
@@ -253,7 +286,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useBookingStore } from "../../stores/booking";
 import { useToast } from "vue-toastification";
 import { changeFormat } from "../help/FormatData";
-import {formattedNumber} from "../help/FormatData"
+import { formattedNumber } from "../help/FormatData";
 
 const bookingStore = useBookingStore();
 const route = useRoute();
@@ -459,6 +492,60 @@ const clearAction = () => {
 };
 
 const loading = ref(false);
+
+const hotelQty = computed(() => {
+  let total = 0;
+  props.detail?.booking?.items.forEach((item) => {
+    if (item.product_type == "App\\Models\\Hotel") {
+      total += item.quantity * 1;
+    }
+  });
+  return total;
+});
+
+const carQty = computed(() => {
+  let total = 0;
+  props.detail?.booking?.items.forEach((item) => {
+    if (item.product_type == "App\\Models\\PrivateVanTour") {
+      total += item.quantity * 1;
+    }
+  });
+  return total;
+});
+
+const hotelDay = computed(() => {
+  let total = 0;
+  props.detail?.booking?.items.forEach((item) => {
+    if (item.product_type == "App\\Models\\Hotel") {
+      total += calculateDaysBetween(item.checkin_date, item.checkout_date) * 1;
+    }
+  });
+  return total;
+});
+
+const ticketAdultQty = computed(() => {
+  let total = 0;
+  props.detail?.booking?.items.forEach((item) => {
+    if (item.product_type == "App\\Models\\EntranceTicket") {
+      total += item.quantity * 1;
+    }
+  });
+  return total;
+});
+
+const ticketChildQty = computed(() => {
+  let total = 0;
+  props.detail?.booking?.items.forEach((item) => {
+    if (item.product_type == "App\\Models\\EntranceTicket") {
+      total +=
+        (item.individual_pricing?.child?.quantity != "NaN" &&
+        item.individual_pricing?.child?.quantity
+          ? item.individual_pricing?.child?.quantity
+          : 0) * 1;
+    }
+  });
+  return total;
+});
 
 const submit = async () => {
   // console.log(formData.value);

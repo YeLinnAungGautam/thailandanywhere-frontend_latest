@@ -37,11 +37,14 @@ export const useSidebarStore = defineStore("sidebar", {
     toggleReservation() {
       this.isReservationShow = !this.isReservationShow;
     },
+    toggleShowReservation() {
+      this.isReservationShow = true;
+    },
     toggleSideBarDropdown() {
       this.isSideBarDropdownShow = !this.isSideBarDropdownShow;
     },
     toggleAccount() {
-      this.isShowAccount =!this.isShowAccount;
+      this.isShowAccount = !this.isShowAccount;
     },
     toggleTopBarDropdown() {
       this.isTopBarDropdownShow = !this.isTopBarDropdownShow;

@@ -1,101 +1,126 @@
 <template>
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-    <!-- Items selection section -->
-    <div class="border border-gray-200 rounded-lg p-4 col-span-1">
-      <div class="flex justify-between items-center mb-4 gap-x-3">
-        <h2 class="text-sm font-medium text-[#FF613c]">Items</h2>
-        <div class="flex items-center space-x-2" v-if="commonShow">
-          <button
-            @click="selectAll"
-            class="px-3 py-1 border border-gray-300 rounded-lg text-xs"
+  <div class="grid grid-cols-3 gap-x-4">
+    <div
+      class="rounded-lg py-3 relative border space-y-3 border-gray-200 h-auto"
+    >
+      <p class="text-lg font-medium text-[#FF613c] px-4">Reservation Items</p>
+
+      <div class="h-[54vh] w-full overflow-y-auto space-y-1" v-if="!loading">
+        <!-- Loop through the grouped items by CRM ID -->
+        <div
+          v-for="(items, crm_id) in groupedItems"
+          :key="crm_id"
+          class="px-4 py-2 bg-white rounded-lg shadow-sm"
+        >
+          <!-- CRM ID header -->
+          <!-- <div class="text-xs font-medium text-gray-500 mb-2">
+            For CRM ID: {{ crm_id }}
+          </div> -->
+
+          <!-- List of items with the same CRM ID -->
+          <div
+            v-for="(item, index) in items"
+            :key="index"
+            class="flex justify-start items-center w-full space-x-4 px-2 cursor-pointer py-2"
+            @click="selectItem(item)"
+            :class="{
+              'bg-[#FF613c]/20 text-white rounded-lg': item.id === formData.id,
+            }"
           >
-            Select All
-          </button>
-          <button
-            @click="clearSelection"
-            class="px-3 py-1 border border-gray-300 rounded-lg text-xs"
-          >
-            Clear
-          </button>
+            <div class="rounded-lg p-2 inline-block bg-[#FF613c] text-white">
+              <TruckIcon class="w-4 h-4" />
+            </div>
+            <div class="text-[12px] w-[100%] space-y-1 font-medium">
+              <div
+                v-if="item.service_date"
+                class="text-[8px] flex justify-between items-center"
+                :class="
+                  item.id == formData.id ? 'text-black' : ' text-gray-400'
+                "
+              >
+                <p>{{ item.service_date }}</p>
+                <p>{{ item.crm_id.split("_")[1] }}</p>
+              </div>
+              <p class="text-black text-[10px] font-medium">
+                {{ item.product?.product_type }}
+                {{ item.product?.name }}
+              </p>
+
+              <div class="flex justify-start items-center">
+                <p
+                  :class="
+                    item.reservation_car_info?.driver_id
+                      ? ' text-green-600 '
+                      : ' text-red-500 '
+                  "
+                  class="rounded-lg flex justify-start items-center text-[10px]"
+                >
+                  <CurrencyDollarIcon class="w-3 h-3 mr-1" />
+                  {{
+                    item.reservation_car_info?.driver_id ? "assign" : "unassign"
+                  }}
+                </p>
+                <p class="pl-2" v-if="item.reservation_car_info?.driver_id">
+                  <span
+                    class="w-1 h-1 rounded-full bg-[#FF613c] mb-0.5 inline-block"
+                  ></span>
+                  <span class="pl-2 text-[#FF613c] font-medium">
+                    {{ item.cost_price }} thb
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div class="h-[54vh] overflow-y-auto border border-gray-200 rounded-lg">
+      <div
+        v-if="loading"
+        class="h-[54vh] flex justify-center items-center text-xs"
+      >
+        <p>loading</p>
+        <img
+          src="https://endlessicons.com/wp-content/uploads/2012/11/loading-icon-614x460.png"
+          class="animate-spin w-10 h-10"
+          alt=""
+        />
+      </div>
+      <!-- <div class="w-full pt-4 px-4">
         <div
-          v-for="item in allItems"
-          :key="item.id"
-          :class="{ 'bg-[#FF613c]/20': selectedItems.includes(item.id) }"
-          @click="toggleItemSelection(item.id)"
-          class="cursor-pointer hover:bg-gray-50 border-b border-gray-200 py-2 pl-10 pr-4 space-y-2 relative"
+          @click="resetForm()"
+          class="bg-[#FF613c] cursor-pointer text-white rounded-xl text-center text-xs py-3"
         >
-          <input
-            type="checkbox"
-            v-model="selectedItems"
-            :value="item.id"
-            class="h-4 w-4 text-[#FF613c] rounded absolute top-4 left-2"
-            @click.stop
-          />
-          <div class="flex justify-between items-center">
-            <p class="text-[10px]">{{ item.service_date }}</p>
-            <p class="text-[10px]">{{ item.crm_id?.split("_")[1] }}</p>
-          </div>
-
-          <p class="text-xs text-black font-medium">{{ item.product?.name }}</p>
-
-          <p class="rounded-lg text-[10px]" :class="getStatusClass(item)">
-            {{ getAssignmentStatus(item) }}
+          Reset
+        </div>
+      </div> -->
+    </div>
+    <div class="col-span-2 py-3 rounded-lg relative border border-gray-200">
+      <div class="flex justify-between items-center">
+        <p class="text-lg font-medium text-[#FF613c] px-4 pb-4">
+          Car Booking Details
+        </p>
+        <div class="flex justify-end items-center space-x-2 px-4">
+          <p class="text-xs text-white bg-[#FF613c] px-4 py-1 rounded-lg">
+            {{ formData?.service_date }}
+          </p>
+          <p class="text-xs text-white bg-[#FF613c] px-4 py-1 rounded-lg">
+            {{ formData?.crm_id?.split("_")[1] }}
           </p>
         </div>
       </div>
-
-      <!-- Common settings toggle -->
-      <!-- <button
-        class="px-3 py-2 mt-4 w-full border border-gray-300 rounded-lg text-xs bg-[#FF613c] text-white"
-        @click="commonShow = !commonShow"
+      <div
+        class="grid grid-cols-2 overflow-y-auto px-4 gap-4"
+        v-if="formData.id"
       >
-        {{ commonShow ? "Hide Common Assign Change"" : "Show Common Settings" }}
-      </button> -->
-    </div>
-
-    <!-- Configuration section -->
-    <div
-      class="flex flex-col space-y-6 col-span-2 h-[55vh] relative overflow-y-auto"
-    >
-      <!-- Common Settings Section -->
-      <div class="border border-gray-200 rounded-lg p-4" v-if="commonShow">
-        <div class="flex justify-between items-start pb-4">
-          <div class="space-y-1 pb-4">
-            <h2 class="text-sm font-medium text-[#FF613c]">
-              Assign Driver/Supplier
-            </h2>
-            <p class="text-xs text-gray-500">
-              Selected {{ selectedItems.length }} item(s)
-            </p>
-          </div>
-          <div>
-            <button
-              class="px-3 py-1 w-full underline rounded-lg text-xs text-[#FF613c]"
-              @click="commonShow = !commonShow"
-            >
-              {{
-                commonShow
-                  ? "Hide Common Assign Change"
-                  : "Show Common Assign Change"
-              }}
-            </button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 col-span-2 gap-4 mb-4">
           <div class="space-y-1">
-            <label for="common_supplier" class="text-xs pb-1.5 font-medium"
-              >Supplier</label
-            >
+            <label :for="`supplier`" class="text-xs pb-1.5 font-medium">
+              Supplier <span class="text-red-600">*</span>
+            </label>
             <select
-              v-model="commonData.supplier_id"
-              id="common_supplier"
+              v-model="formData.supplier_id"
+              :id="`supplier`"
               class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
-              @change="onCommonSupplierChange"
+              @change="() => onSupplierChange(formData.supplier_id)"
             >
               <option value="">Select Supplier</option>
               <option
@@ -107,20 +132,32 @@
               </option>
             </select>
           </div>
+          <div class="space-y-1">
+            <label :for="`cost_price`" class="text-xs pb-1.5 font-medium"
+              >Cost Price</label
+            >
+            <input
+              type="text"
+              v-model="formData.cost_price"
+              :id="`cost_price`"
+              placeholder="Cost Price"
+              class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
+            />
+          </div>
 
           <div class="space-y-1">
-            <label for="common_driver" class="text-xs pb-1.5 font-medium"
-              >Driver</label
-            >
+            <label :for="`driver`" class="text-xs pb-1.5 font-medium">
+              Driver <span class="text-red-600">*</span>
+            </label>
             <select
-              v-model="commonData.driver_id"
-              id="common_driver"
+              v-model="formData.driver_id"
+              :id="`driver`"
               class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
-              @change="onCommonDriverChange"
+              @change="() => onDriverChange(formData.driver_id)"
             >
               <option value="">Select Driver</option>
               <option
-                v-for="driver in commonDrivers"
+                v-for="driver in drivers?.data || []"
                 :key="driver.id"
                 :value="driver.id"
               >
@@ -128,19 +165,31 @@
               </option>
             </select>
           </div>
+          <div class="space-y-1">
+            <label :for="`driver_contact`" class="text-xs pb-1.5 font-medium"
+              >Driver Contact</label
+            >
+            <input
+              type="text"
+              v-model="formData.driver_contact"
+              :id="`driver_contact`"
+              placeholder="Driver contact"
+              class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
+            />
+          </div>
 
           <div class="space-y-1">
-            <label for="common_car_number" class="text-xs pb-1.5 font-medium"
+            <label :for="`car_number`" class="text-xs pb-1.5 font-medium"
               >Car Number</label
             >
             <select
-              v-model="commonData.car_number"
-              id="common_car_number"
+              v-model="formData.car_number"
+              :id="`car_number`"
               class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
             >
               <option value="">Select Car Number</option>
               <option
-                v-for="car in commonCarNumbers"
+                v-for="car in carNumbers || []"
                 :key="car.id"
                 :value="car.id"
               >
@@ -148,671 +197,383 @@
               </option>
             </select>
           </div>
-
-          <div class="space-y-1">
-            <label
-              for="common_driver_contact"
-              class="text-xs pb-1.5 font-medium"
-              >Driver Contact</label
+          <div class="col-span-2 space-y-4 pb-10">
+            <label :for="`pickup_location`" class="text-xs pb-4 font-medium"
+              >car photo</label
             >
-            <input
-              type="text"
-              v-model="commonData.driver_contact"
-              id="common_driver_contact"
-              placeholder="Driver contact"
-              class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
+            <img
+              :src="formData.car_photo"
+              class="object-contain object-left w-full h-[300px]"
+              alt=""
             />
           </div>
-          <div class="space-y-1">
-            <label for="common_cost_price" class="text-xs pb-1.5 font-medium"
-              >Cost Price</label
-            >
-            <input
-              type="text"
-              v-model="commonData.cost_price"
-              id="common_cost_price"
-              placeholder="Cost Price"
-              class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
-            />
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <button
-            @click="applyToSelected"
-            class="px-4 py-2 bg-[#FF613c] text-white rounded-lg text-xs"
-            :disabled="selectedItems.length === 0"
-          >
-            Selected Items Assign Same Driver ({{ selectedItems.length }})
-          </button>
         </div>
       </div>
 
-      <!-- Item configuration -->
       <div
-        v-if="selectedItems.length > 0 && !commonShow"
-        class="border border-gray-200 rounded-lg p-4 flex-1 overflow-y-auto"
+        class="flex justify-center items-center h-[54vh] overflow-y-auto px-4 gap-4"
+        v-if="!formData.id"
       >
-        <div class="flex justify-between items-start pb-4">
-          <div class="space-y-1">
-            <h2 class="text-sm font-medium text-[#FF613c]">
-              Assign Driver/Supplier
-            </h2>
-            <p class="text-xs text-gray-500">
-              Selected {{ selectedItems.length }} item(s)
-            </p>
-          </div>
-          <div>
-            <button
-              class="px-3 py-1 w-full underline rounded-lg text-xs text-[#FF613c]"
-              @click="commonShow = !commonShow"
-            >
-              {{
-                commonShow
-                  ? "Hide Common Assign Change"
-                  : "Show Common Assign Change"
-              }}
-            </button>
-          </div>
-        </div>
+        <p class="text-sm text-gray-500">Need to select one item</p>
+      </div>
 
-        <div class="space-y-6 overflow-y-auto pr-2">
-          <div
-            v-for="itemId in selectedItems"
-            :key="itemId"
-            class="border border-gray-200 rounded-lg p-4"
-          >
-            <div class="flex justify-between items-center mb-3">
-              <h3 class="text-xs font-medium text-[#FF613c]">
-                {{ getItemById(itemId)?.product?.name }} -
-                {{ getItemById(itemId)?.service_date }}
-              </h3>
-            </div>
-
-            <!-- Item-specific fields -->
-            <div class="grid grid-cols-2 gap-4 mb-4">
-              <div class="space-y-1">
-                <label
-                  :for="`supplier_${itemId}`"
-                  class="text-xs pb-1.5 font-medium"
-                >
-                  Supplier <span class="text-red-600">*</span>
-                </label>
-                <select
-                  v-model="itemConfigs[itemId].supplier_id"
-                  :id="`supplier_${itemId}`"
-                  class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
-                  @change="() => onItemSupplierChange(itemId)"
-                >
-                  <option value="">Select Supplier</option>
-                  <option
-                    v-for="supplier in suppliers?.data"
-                    :key="supplier.id"
-                    :value="supplier.id"
-                  >
-                    {{ supplier.name }}
-                  </option>
-                </select>
-              </div>
-
-              <div class="space-y-1">
-                <label
-                  :for="`driver_${itemId}`"
-                  class="text-xs pb-1.5 font-medium"
-                >
-                  Driver <span class="text-red-600">*</span>
-                </label>
-                <select
-                  v-model="itemConfigs[itemId].driver_id"
-                  :id="`driver_${itemId}`"
-                  class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
-                  @change="() => onItemDriverChange(itemId)"
-                >
-                  <option value="">Select Driver</option>
-                  <option
-                    v-for="driver in itemDrivers[itemId] || []"
-                    :key="driver.id"
-                    :value="driver.id"
-                  >
-                    {{ driver.name }}
-                  </option>
-                </select>
-              </div>
-
-              <div class="space-y-1">
-                <label
-                  :for="`car_number_${itemId}`"
-                  class="text-xs pb-1.5 font-medium"
-                  >Car Number</label
-                >
-                <select
-                  v-model="itemConfigs[itemId].car_number"
-                  :id="`car_number_${itemId}`"
-                  class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
-                >
-                  <option value="">Select Car Number</option>
-                  <option
-                    v-for="car in itemCarNumbers[itemId] || []"
-                    :key="car.id"
-                    :value="car.id"
-                  >
-                    {{ car.car_number }}
-                  </option>
-                </select>
-              </div>
-
-              <div class="space-y-1">
-                <label
-                  :for="`driver_contact_${itemId}`"
-                  class="text-xs pb-1.5 font-medium"
-                  >Driver Contact</label
-                >
-                <input
-                  type="text"
-                  v-model="itemConfigs[itemId].driver_contact"
-                  :id="`driver_contact_${itemId}`"
-                  placeholder="Driver contact"
-                  class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
-                />
-              </div>
-              <div class="space-y-1">
-                <label
-                  :for="`cost_price_${itemId}`"
-                  class="text-xs pb-1.5 font-medium"
-                  >Cost Price</label
-                >
-                <input
-                  type="text"
-                  v-model="itemConfigs[itemId].cost_price"
-                  :id="`cost_price_${itemId}`"
-                  placeholder="Cost Price"
-                  class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="flex justify-end items-center fixed bottom-8 space-x-4">
+      <div
+        v-if="formData.id"
+        class="flex justify-end text-[#FF613c] absolute bottom-2 items-center w-full border-t pt-3 space-x-3 px-7"
+      >
+        <div class="flex justify-end items-center space-x-2">
           <button
-            @click="saveAllAssignments"
-            class="px-4 py-2 bg-green-500 whitespace-nowrap text-white rounded-lg text-xs"
-            :disabled="selectedItems.length === 0 || loading || !canSave"
+            @click="saveCarBooking"
+            class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
           >
-            {{
-              loading
-                ? "Saving..."
-                : `Save ${selectedItems.length}
-            Assignments`
-            }}
+            <!-- {{ formData.id ? "Update" : "=" }} -->
+            Save: {{ formData?.crm_id?.split("_")[1] }}
+          </button>
+
+          <button
+            @click="resetForm"
+            class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
+          >
+            Cancel
           </button>
         </div>
       </div>
     </div>
+    <Modal :isOpen="showErrorPopup" @closeModal="showErrorPopup = false">
+      <DialogPanel
+        class="w-full max-w-md transform overflow-hidden rounded-lg mt-10 bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start pb-20 pt-4 px-4"
+        >
+          <p></p>
+        </DialogTitle>
+        <!-- show date  -->
+        <div class="relative">
+          <div class="absolute -top-8 left-[45%]">
+            <img
+              :src="logo"
+              class="w-16 h-16 bg-white rounded-full p-3"
+              alt=""
+            />
+          </div>
+          <div class="py-10 text-center space-y-4">
+            <p class="font-medium text-base text-[#FF613c]">
+              Collect Amount ကို ဖော်ပြပေးပါရန် !
+            </p>
+          </div>
+          <div>
+            <div class="flex justify-center items-center space-x-2 pb-5">
+              <button
+                @click="showErrorPopup = false"
+                class="px-5 py-1 bg-[#FF613c] text-white text-[12px] cursor-pointer rounded-lg"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, defineProps, watch } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { defineProps, ref, onMounted, computed } from "vue";
 import { useCarBookingStore } from "../../stores/carbooking";
 import { useSupplierStore } from "../../stores/supplier";
 import { useDriverStore } from "../../stores/driver";
 import { useAuthStore } from "../../stores/auth";
 import { useToast } from "vue-toastification";
 import { storeToRefs } from "pinia";
+import { useRoute } from "vue-router";
+import { TruckIcon } from "@heroicons/vue/24/outline";
+import { DialogPanel, DialogTitle } from "@headlessui/vue";
+import Modal from "../../components/Modal.vue";
+import logo from "../../assets/web-logo.png";
+import { CurrencyDollarIcon } from "@heroicons/vue/24/solid";
 
-// Router and route
-const router = useRouter();
 const route = useRoute();
 
-// Stores
+// Define your car icon component
+
+const props = defineProps({
+  detail: Object,
+  getDetailAction: Function,
+});
+
+// Initialize stores
 const carBookingStore = useCarBookingStore();
 const supplierStore = useSupplierStore();
 const driverStore = useDriverStore();
 const authStore = useAuthStore();
 const toast = useToast();
 
-// Store refs
+// Get reactive state from stores
 const { suppliers } = storeToRefs(supplierStore);
 const { drivers } = storeToRefs(driverStore);
 const { user } = storeToRefs(authStore);
 
-// Props
-const props = defineProps({
-  detail: Object,
-  getDetailAction: Function,
-});
-
-// State
+// Local state
+const carNumbers = ref([]);
 const loading = ref(false);
 const allItems = ref([]);
-const selectedItems = ref([]);
-const selectAllChecked = ref(false);
-const commonShow = ref(false);
-const commonCarNumbers = ref([]);
-const commonDrivers = ref([]);
-const itemConfigs = ref({});
-const itemDrivers = ref({});
-const itemCarNumbers = ref({});
 
-// Common data initialization
-const commonData = ref({
+// Form data for the selected car booking
+const formData = ref({
+  id: "",
   supplier_id: "",
   driver_id: "",
+  quantity: 1,
   car_number: "",
   cost_price: "",
+  extra_collect_amount: 0,
+  is_driver_collect: 0,
+  route_plan: "",
+  special_request: "",
   driver_contact: "",
   car_photo: "",
+  pickup_location: "",
+  dropoff_location: "",
+  pickup_time: "",
+  service_date: "",
+  crm_id: "",
 });
 
-// Computed
-const canSave = computed(() => {
-  return (
-    selectedItems.value.length > 0 &&
-    selectedItems.value.every((itemId) => {
-      const config = itemConfigs.value[itemId];
-      return config?.supplier_id && config?.driver_id;
-    })
-  );
+// Group items by CRM ID
+const groupedItems = computed(() => {
+  const grouped = {};
+
+  if (allItems.value && allItems.value.length > 0) {
+    allItems.value.forEach((item) => {
+      if (!grouped[item.crm_id]) {
+        grouped[item.crm_id] = [];
+      }
+      grouped[item.crm_id].push(item);
+    });
+  }
+
+  return grouped;
 });
 
-// Initialize on mount
+// Actions
+const onSupplierChange = async () => {
+  if (formData.value.supplier_id) {
+    try {
+      const res = await driverStore.getSimpleListAction({
+        supplier_id: formData.value.supplier_id,
+      });
+    } catch (error) {
+      console.error("Error fetching drivers:", error);
+      toast.error("Failed to load drivers");
+    }
+  }
+};
+
+const onDriverChange = async (id) => {
+  if (formData.value.driver_id) {
+    try {
+      const res = await driverStore.getDetailAction(formData.value.driver_id);
+      if (res && res.result) {
+        const data = res.result;
+        formData.value.driver_contact = data.contact || "";
+        formData.value.car_photo = data.car_photo || "";
+        carNumbers.value = data.infos || [];
+
+        // Set default car number if available
+        if (data.infos && data.infos.length > 0) {
+          data.infos.forEach((car) => {
+            if (car.is_default === 1) {
+              formData.value.car_number = car.id;
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching driver details:", error);
+      toast.error("Failed to load driver details");
+    }
+  }
+};
+
+const selectItem = async (item) => {
+  resetForm();
+
+  try {
+    loading.value = true;
+    const res = await carBookingStore.getDetailAction(item.id);
+
+    if (res && res.result) {
+      const data = res.result;
+
+      formData.value = {
+        id: data.id,
+        supplier_id: data.supplier_id || "",
+        driver_id: data.driver_id || "",
+        quantity: data.quantity || 1,
+        car_number: data.driver_info_id || "",
+        cost_price: data.cost_price || "",
+        extra_collect_amount: data.extra_collect || 0,
+        is_driver_collect: data.is_driver_collect,
+        route_plan: data.route_plan === "null" ? "" : data.route_plan,
+        special_request: data.special_request || "",
+        driver_contact: data.driver_contact || "",
+        car_photo: data.car_photo || "",
+        pickup_location: data.pickup_location || "",
+        dropoff_location: data.dropoff_location || "",
+        pickup_time: data.pickup_time || "",
+        service_date: item.service_date || "",
+        crm_id: item.crm_id || "",
+      };
+
+      // Load related data
+      if (formData.value.supplier_id) {
+        await onSupplierChange();
+      }
+
+      if (formData.value.driver_id) {
+        await onDriverChange();
+      }
+
+      console.log("Selected item:", formData.value);
+    }
+  } catch (error) {
+    console.error("Error fetching item details:", error);
+    toast.error("Failed to load item details");
+  } finally {
+    loading.value = false;
+  }
+};
+
+const showErrorPopup = ref(false);
+
+const saveCarBooking = async () => {
+  try {
+    loading.value = true;
+
+    const frmData = new FormData();
+    frmData.append("supplier_id", formData.value.supplier_id || "");
+    frmData.append("driver_id", formData.value.driver_id || "");
+    frmData.append("driver_contact", formData.value.driver_contact || "");
+    frmData.append("driver_info_id", formData.value.car_number || "");
+    frmData.append("pickup_location", formData.value.pickup_location || "");
+    frmData.append("dropoff_location", formData.value.dropoff_location || "");
+    frmData.append("pickup_time", formData.value.pickup_time || "");
+
+    if (formData.value.cost_price) {
+      frmData.append("cost_price", formData.value.cost_price);
+
+      // Calculate total cost price
+      const totalCostPrice =
+        formData.value.cost_price * formData.value.quantity;
+      if (totalCostPrice) {
+        frmData.append("total_cost_price", totalCostPrice);
+      }
+    }
+
+    frmData.append(
+      "is_driver_collect",
+      formData.value.is_driver_collect == 1 ? "1" : "0"
+    );
+    if (formData.value.is_driver_collect == 1) {
+      frmData.append(
+        "extra_collect_amount",
+        formData.value.extra_collect_amount || ""
+      );
+    }
+
+    frmData.append("route_plan", formData.value.route_plan || "");
+    frmData.append("special_request", formData.value.special_request || "");
+
+    const res = await carBookingStore.addNewAction(frmData, formData.value.id);
+
+    if (res && res.status === "Request was successful.") {
+      toast.success(res.message || "Car booking saved successfully");
+      resetForm();
+
+      // Refresh data
+      if (props.getDetailAction) {
+        await props.getDetailAction(route.query.id);
+      }
+    }
+  } catch (error) {
+    console.error("Error saving car booking:", error);
+    toast.error(error.message || "Failed to save car booking");
+  } finally {
+    loading.value = false;
+  }
+};
+
+const deleteCarBooking = async () => {
+  if (!formData.value.id) return;
+
+  try {
+    loading.value = true;
+    const res = await carBookingStore.deleteAction(formData.value.id);
+
+    if (res && res.status === "Request was successful.") {
+      toast.success("Car booking deleted successfully");
+      resetForm();
+
+      // Refresh data
+      if (props.getDetailAction) {
+        await props.getDetailAction(route.query.id);
+      }
+    }
+  } catch (error) {
+    console.error("Error deleting car booking:", error);
+    toast.error("Failed to delete car booking");
+  } finally {
+    loading.value = false;
+  }
+};
+
+const resetForm = () => {
+  formData.value = {
+    id: "",
+    supplier_id: "",
+    driver_id: "",
+    quantity: 1,
+    car_number: "",
+    cost_price: "",
+    extra_collect_amount: "",
+    is_driver_collect: 0,
+    route_plan: "",
+    special_request: "",
+    driver_contact: "",
+    car_photo: "",
+    pickup_location: "",
+    dropoff_location: "",
+    pickup_time: "",
+    service_date: "",
+    crm_id: "",
+  };
+  carNumbers.value = [];
+};
+
 onMounted(async () => {
   try {
     loading.value = true;
 
-    await Promise.all([
-      supplierStore.getSimpleListAction(),
-      driverStore.getSimpleListAction(),
-    ]);
+    // Load initial data
+    await supplierStore.getSimpleListAction();
+    await driverStore.getSimpleListAction();
 
-    await fetchItems();
+    // Extract booking items from props
+    if (props.detail && props.detail.booking && props.detail.booking.items) {
+      // Filter items for PrivateVanTour type
+      allItems.value = props.detail.booking.items.filter(
+        (item) => item.product_type === "App\\Models\\PrivateVanTour"
+      );
+    }
+
+    selectItem(allItems.value[0]);
   } catch (error) {
-    console.error("Initialization error:", error);
-    toast.error("Failed to initialize");
+    console.error("Error loading initial data:", error);
+    toast.error("Failed to load initial data");
   } finally {
     loading.value = false;
   }
 });
-
-// Watch for changes in selected items
-watch(
-  selectedItems,
-  (newVal) => {
-    selectAllChecked.value =
-      newVal.length === allItems.value.length && allItems.value.length > 0;
-  },
-  { deep: true }
-);
-
-// Helper functions
-const getStatusClass = (item) => {
-  return item.driver_id ? "text-green-500" : "text-red-500";
-};
-
-const getAssignmentStatus = (item) => {
-  return item.driver_id ? "Assigned" : "Unassigned";
-};
-
-const getItemById = (id) => {
-  return allItems.value.find((item) => item.id === id);
-};
-
-// Selection handlers
-const toggleItemSelection = (itemId) => {
-  const index = selectedItems.value.indexOf(itemId);
-  if (index === -1) {
-    selectedItems.value.push(itemId);
-  } else {
-    selectedItems.value.splice(index, 1);
-  }
-};
-
-const selectAll = () => {
-  selectedItems.value = allItems.value.map((item) => item.id);
-};
-
-const clearSelection = () => {
-  selectedItems.value = [];
-};
-
-const toggleSelectAll = () => {
-  selectAllChecked.value ? selectAll() : clearSelection();
-};
-
-// Navigation
-const goBack = () => {
-  router.back();
-};
-
-// Data fetching
-const fetchItems = async () => {
-  try {
-    if (!props.detail?.booking?.items) {
-      toast.warning("No items found");
-      return;
-    }
-
-    const privateVanTourItems = props.detail.booking.items.filter(
-      (item) => item.product_type === "App\\Models\\PrivateVanTour"
-    );
-
-    if (privateVanTourItems.length === 0) {
-      toast.warning("No private van tour items found");
-      return;
-    }
-
-    allItems.value = privateVanTourItems;
-    await fetchItemDetails(privateVanTourItems);
-  } catch (error) {
-    console.error("Error fetching items:", error);
-    toast.error("Failed to load items");
-  }
-};
-
-const fetchItemDetails = async (items) => {
-  for (const item of items) {
-    if (!item.id) continue;
-
-    try {
-      const res = await carBookingStore.getDetailAction(item.id);
-
-      if (res?.result) {
-        const data = res.result;
-        const itemIndex = allItems.value.findIndex((i) => i.id === item.id);
-
-        if (itemIndex !== -1) {
-          allItems.value[itemIndex] = { ...allItems.value[itemIndex], ...data };
-          initializeItemConfig(item.id, data);
-        }
-      }
-    } catch (error) {
-      console.error(`Error fetching details for item ${item.id}:`, error);
-    }
-  }
-};
-
-const initializeItemConfig = (itemId, data) => {
-  itemConfigs.value[itemId] = {
-    supplier_id: data.supplier_id || "",
-    driver_id: data.driver_id || "",
-    car_number: data.driver_info_id || "",
-    driver_contact: data.driver_contact || "",
-    pickup_time: data.pickup_time || "",
-    pickup_location: data.pickup_location || "",
-    dropoff_location: data.dropoff_location || "",
-    route_plan: data.route_plan === "null" ? "" : data.route_plan || "",
-    special_request: data.special_request || "",
-    is_driver_collect: data.is_driver_collect === 1,
-    extra_collect_amount: data.extra_collect || "",
-    cost_price: data.cost_price || "",
-  };
-
-  if (data.supplier_id) {
-    onItemSupplierChange(itemId);
-  }
-
-  if (data.driver_id) {
-    onItemDriverChange(itemId);
-  }
-};
-
-// Common data handlers
-const onCommonSupplierChange = async () => {
-  if (!commonData.value.supplier_id) {
-    commonDrivers.value = [];
-    return;
-  }
-
-  try {
-    const res = await driverStore.getSimpleListAction({
-      supplier_id: commonData.value.supplier_id,
-    });
-
-    if (res?.result?.data) {
-      commonDrivers.value = res.result.data;
-    }
-  } catch (error) {
-    console.error("Error fetching common drivers:", error);
-    toast.error("Failed to load drivers");
-  }
-};
-
-const onCommonDriverChange = async () => {
-  if (!commonData.value.driver_id) {
-    commonCarNumbers.value = [];
-    return;
-  }
-
-  try {
-    const res = await driverStore.getDetailAction(commonData.value.driver_id);
-
-    if (res?.result) {
-      const data = res.result;
-      commonData.value.driver_contact = data.contact || "";
-      commonCarNumbers.value = data.infos || [];
-
-      if (data.infos?.length) {
-        const defaultCar = data.infos.find((car) => car.is_default === 1);
-        if (defaultCar) {
-          commonData.value.car_number = defaultCar.id;
-        }
-      }
-    }
-  } catch (error) {
-    console.error("Error fetching common driver details:", error);
-    toast.error("Failed to load driver details");
-  }
-};
-
-// Item-specific handlers
-const onItemSupplierChange = async (itemId) => {
-  const supplierId = itemConfigs.value[itemId]?.supplier_id;
-  if (!supplierId) {
-    itemDrivers.value[itemId] = [];
-    return;
-  }
-
-  try {
-    const res = await driverStore.getSimpleListAction({
-      supplier_id: supplierId,
-    });
-
-    if (res?.result?.data) {
-      itemDrivers.value[itemId] = res.result.data;
-
-      // Clear driver selection if supplier changed
-      if (itemConfigs.value[itemId].driver_id) {
-        const driverExists = res.result.data.some(
-          (driver) => driver.id === itemConfigs.value[itemId].driver_id
-        );
-
-        if (!driverExists) {
-          itemConfigs.value[itemId].driver_id = "";
-          itemConfigs.value[itemId].car_number = "";
-          itemCarNumbers.value[itemId] = [];
-        }
-      }
-    }
-  } catch (error) {
-    console.error(`Error fetching drivers for item ${itemId}:`, error);
-    toast.error("Failed to load drivers");
-  }
-};
-
-const onItemDriverChange = async (itemId) => {
-  const driverId = itemConfigs.value[itemId]?.driver_id;
-  if (!driverId) {
-    itemCarNumbers.value[itemId] = [];
-    return;
-  }
-
-  try {
-    const res = await driverStore.getDetailAction(driverId);
-
-    if (res?.result) {
-      const data = res.result;
-      itemConfigs.value[itemId].driver_contact = data.contact || "";
-      itemCarNumbers.value[itemId] = data.infos || [];
-
-      if (data.infos?.length) {
-        const defaultCar = data.infos.find((car) => car.is_default === 1);
-        if (defaultCar) {
-          itemConfigs.value[itemId].car_number = defaultCar.id;
-        }
-      }
-    }
-  } catch (error) {
-    console.error(`Error fetching driver details for item ${itemId}:`, error);
-    toast.error("Failed to load driver details");
-  }
-};
-
-// Actions
-const applyToSelected = () => {
-  if (selectedItems.value.length === 0) {
-    toast.warning("No items selected");
-    return;
-  }
-
-  selectedItems.value.forEach((itemId) => {
-    const config = itemConfigs.value[itemId];
-    if (!config) return;
-
-    // Apply supplier if provided
-    if (commonData.value.supplier_id) {
-      config.supplier_id = commonData.value.supplier_id;
-      onItemSupplierChange(itemId);
-    }
-
-    // Apply driver if provided (after supplier drivers are loaded)
-    if (commonData.value.driver_id) {
-      config.driver_id = commonData.value.driver_id;
-      onItemDriverChange(itemId);
-    }
-
-    // Apply car number if provided
-    if (commonData.value.car_number) {
-      config.car_number = commonData.value.car_number;
-    }
-
-    // Apply driver contact if provided
-    if (commonData.value.driver_contact) {
-      config.driver_contact = commonData.value.driver_contact;
-    }
-  });
-
-  toast.success(`Applied settings to ${selectedItems.value.length} items`);
-  commonShow.value = false; // Hide common Assign Change" after applying
-};
-
-const saveAllAssignments = async () => {
-  if (selectedItems.value.length === 0) {
-    toast.warning("No items selected");
-    return;
-  }
-
-  // Validate required fields
-  const invalidItems = selectedItems.value.filter((itemId) => {
-    const config = itemConfigs.value[itemId];
-    return !config?.supplier_id || !config?.driver_id;
-  });
-
-  if (invalidItems.length > 0) {
-    toast.warning(`${invalidItems.length} item(s) missing required fields`);
-    return;
-  }
-
-  try {
-    loading.value = true;
-
-    // Process each item
-    const results = await Promise.allSettled(
-      selectedItems.value.map(async (itemId) => {
-        const itemConfig = itemConfigs.value[itemId];
-        const item = getItemById(itemId);
-        const formData = new FormData();
-
-        // Required fields
-        formData.append("supplier_id", itemConfig.supplier_id);
-        formData.append("driver_id", itemConfig.driver_id);
-
-        // Optional fields with null checks
-        if (itemConfig.driver_contact)
-          formData.append("driver_contact", itemConfig.driver_contact);
-
-        if (itemConfig.car_number)
-          formData.append("driver_info_id", itemConfig.car_number);
-
-        if (itemConfig.pickup_location)
-          formData.append("pickup_location", itemConfig.pickup_location);
-
-        if (itemConfig.dropoff_location)
-          formData.append("dropoff_location", itemConfig.dropoff_location);
-
-        if (itemConfig.pickup_time)
-          formData.append("pickup_time", itemConfig.pickup_time);
-
-        // Cost price calculation
-        if (itemConfig.cost_price) {
-          formData.append("cost_price", itemConfig.cost_price);
-          const quantity = item?.quantity || 1;
-          formData.append("total_cost_price", itemConfig.cost_price * quantity);
-        }
-
-        // Driver collection handling
-        formData.append(
-          "is_driver_collect",
-          itemConfig.is_driver_collect ? 1 : 0
-        );
-        if (itemConfig.is_driver_collect && itemConfig.extra_collect_amount) {
-          formData.append(
-            "extra_collect_amount",
-            itemConfig.extra_collect_amount
-          );
-        }
-
-        // Additional info
-        if (itemConfig.route_plan)
-          formData.append("route_plan", itemConfig.route_plan);
-
-        if (itemConfig.special_request)
-          formData.append("special_request", itemConfig.special_request);
-
-        try {
-          return await carBookingStore.addNewAction(formData, itemId);
-        } catch (err) {
-          console.error(`Error saving item ${itemId}:`, err);
-          throw err;
-        }
-      })
-    );
-
-    // Count successes
-    const successCount = results.filter(
-      (res) =>
-        res.status === "fulfilled" &&
-        res.value?.status === "Request was successful."
-    ).length;
-
-    if (successCount === selectedItems.value.length) {
-      toast.success(`Successfully assigned ${successCount} items`);
-
-      // Refresh parent data if callback provided
-      if (props.getDetailAction && route.query.id) {
-        await props.getDetailAction(route.query.id);
-      }
-
-      goBack();
-    } else {
-      const failCount = selectedItems.value.length - successCount;
-      toast.warning(`Assigned ${successCount} items (${failCount} failed)`);
-    }
-  } catch (error) {
-    console.error("Error saving assignments:", error);
-    toast.error("Failed to save assignments");
-  } finally {
-    loading.value = false;
-  }
-};
 </script>

@@ -694,7 +694,7 @@ watch(dateRange, async (newValue) => {
                     name=""
                     v-model="customerPaymentStatus"
                     id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
                   >
                     <option class="text-[10px]" value=""></option>
                     <option class="text-[10px]" value="fully_paid">
@@ -715,7 +715,7 @@ watch(dateRange, async (newValue) => {
                     v-model="expenseStatus"
                     name=""
                     id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
                   >
                     <option class="text-[10px]" value=""></option>
                     <option class="text-[10px]" value="fully_paid">
@@ -736,7 +736,7 @@ watch(dateRange, async (newValue) => {
                     v-model="invoiceStatus"
                     name=""
                     id=""
-                    class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-full py-2 text-[10px] rounded-lg"
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
                   >
                     <option class="text-[10px]" value=""></option>
                     <option class="text-[10px]" value="receive">Receive</option>
@@ -994,6 +994,51 @@ watch(dateRange, async (newValue) => {
               v-if="customer_name"
             >
               sort: {{ customer_name }}
+            </p>
+            <p
+              class="text-[12px] shadow px-2 relative py-0.5 rounded-lg whitespace-nowrap"
+              v-if="customerPaymentStatus"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    customerPaymentStatus = '';
+                    searchAction();
+                  }
+                "
+              />
+              C: {{ customerPaymentStatus }}
+            </p>
+            <p
+              class="text-[12px] relative shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
+              v-if="expenseStatus"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    expenseStatus = '';
+                    searchAction();
+                  }
+                "
+              />
+              E: {{ expenseStatus }}
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 relative rounded-lg whitespace-nowrap"
+              v-if="invoiceStatus"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    invoiceStatus = '';
+                    searchAction();
+                  }
+                "
+              />
+              I: {{ invoiceStatus }}
             </p>
             <p
               class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"

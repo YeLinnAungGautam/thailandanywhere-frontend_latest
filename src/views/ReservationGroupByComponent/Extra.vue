@@ -114,11 +114,11 @@
           <div class="">
             <div class="space-y-1">
               <!-- <input
-                  type="checkbox"
-                  v-model="formData.is_driver_collect"
-                  id="is_driver_collect"
-                  class="w-5 h-5 text-[#FF613c] rounded"
-                /> -->
+                type="checkbox"
+                v-model="formData.is_driver_collect"
+                id="is_driver_collect"
+                class="w-5 h-5 text-[#FF613c] rounded"
+              /> -->
               <label for="is_driver_collect" class="text-xs font-medium"
                 >Is Driver Collect?</label
               >
@@ -128,8 +128,8 @@
                 v-model="formData.is_driver_collect"
                 id=""
               >
-                <option :value="false">No</option>
-                <option :value="true">Yes</option>
+                <option value="0">No</option>
+                <option value="1">Yes</option>
               </select>
             </div>
           </div>
@@ -290,8 +290,8 @@ const formData = ref({
   quantity: 1,
   car_number: "",
   cost_price: "",
-  extra_collect_amount: "",
-  is_driver_collect: false,
+  extra_collect_amount: 0,
+  is_driver_collect: 0,
   route_plan: "",
   special_request: "",
   driver_contact: "",
@@ -376,8 +376,8 @@ const selectItem = async (item) => {
         quantity: data.quantity || 1,
         car_number: data.driver_info_id || "",
         cost_price: data.cost_price || "",
-        extra_collect_amount: data.extra_collect || "",
-        is_driver_collect: data.is_driver_collect === 1,
+        extra_collect_amount: data.extra_collect || 0,
+        is_driver_collect: data.is_driver_collect,
         route_plan: data.route_plan === "null" ? "" : data.route_plan,
         special_request: data.special_request || "",
         driver_contact: data.driver_contact || "",
@@ -397,6 +397,8 @@ const selectItem = async (item) => {
       if (formData.value.driver_id) {
         await onDriverChange();
       }
+
+      console.log("Selected item:", formData.value);
     }
   } catch (error) {
     console.error("Error fetching item details:", error);
@@ -410,9 +412,9 @@ const showErrorPopup = ref(false);
 
 const saveCarBooking = async () => {
   if (
-    formData.value.is_driver_collect &&
-    formData.value.extra_collect_amount != 0 &&
-    formData.value.extra_collect_amount > 0
+    (formData.value.is_driver_collect == 1 &&
+      formData.value.extra_collect_amount) ||
+    formData.value.is_driver_collect == 0
   ) {
     try {
       loading.value = true;
@@ -439,12 +441,13 @@ const saveCarBooking = async () => {
 
       frmData.append(
         "is_driver_collect",
-        formData.value.is_driver_collect ? true : false
+        formData.value.is_driver_collect == 1 ? "1" : "0"
       );
-      if (formData.value.is_driver_collect) {
+
+      if (formData.value.is_driver_collect == 1) {
         frmData.append(
           "extra_collect_amount",
-          formData.value.extra_collect_amount || 0
+          formData.value.extra_collect_amount || ""
         );
       }
 
@@ -510,7 +513,7 @@ const resetForm = () => {
     car_number: "",
     cost_price: "",
     extra_collect_amount: "",
-    is_driver_collect: false,
+    is_driver_collect: 0,
     route_plan: "",
     special_request: "",
     driver_contact: "",

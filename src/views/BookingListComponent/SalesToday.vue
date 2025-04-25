@@ -1,17 +1,20 @@
 <template>
   <div class="flex justify-start items-center gap-x-4">
-    <div v-if="authStore.isSuperAdmin"
+    <div
+      v-if="authStore.isSuperAdmin"
       class="bg-white group relative border-l-4 border-[#FF613c] shadow gap-x-4 rounded-r-lg px-4 py-2 flex justify-between items-center"
     >
       <div class="space-y-2">
-        <p class="text-xs">For Super Admin </p>
+        <p class="text-xs">For Super Admin</p>
         <p class="text-2xl text-black font-semibold">
-          {{ !createdByName ? 'select user' : createdByName }}
+          {{ !createdByName ? "select user" : createdByName }}
         </p>
       </div>
-         
-      <div class="hidden group-hover:block absolute -bottom-[260px] p-4 bg-white left-0 w-full max-h-[400px] z-30">
-        <div class=" space-y-2">
+
+      <div
+        class="hidden group-hover:block absolute -bottom-[260px] p-4 bg-white left-0 w-full max-h-[400px] z-30"
+      >
+        <div class="space-y-2">
           <div class="flex gap-x-2 items-center w-full">
             <input
               type="checkbox"
@@ -21,26 +24,64 @@
             />
             <p class="text-[11px] whitespace-nowrap font-medium">none</p>
           </div>
-          <div class="flex gap-x-2 items-center w-full" v-for="admin in adminLists"
-          :key="admin.id">
+          <div
+            class="flex gap-x-2 items-center w-full"
+            v-for="admin in adminLists"
+            :key="admin.id"
+          >
             <input
               type="checkbox"
-              @click="()=>{createdByName = admin.name ; createdBy = admin.id}"
+              @click="
+                () => {
+                  createdByName = admin.name;
+                  createdBy = admin.id;
+                  targetAmount = admin.target_amount;
+                }
+              "
               :checked="admin.name == createdByName"
               class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
             />
-            <p class="text-[11px] whitespace-nowrap font-medium">{{ admin.name }}</p>
+            <p class="text-[11px] whitespace-nowrap font-medium">
+              {{ admin.name }}
+            </p>
           </div>
         </div>
       </div>
       <div class="w-10 h-10"></div>
     </div>
-    <AvgCard
+    <!-- <AvgCard
       :title="'Daily Avg. Sales'"
       :value="monthlyAvgSaleTotal"
       :is_value="true"
       :is_show="true"
-    />
+    /> -->
+    <div
+      class="bg-white border-l-4 border-[#FF613c] shadow gap-x-4 rounded-r-lg px-4 py-2 flex justify-between items-center relative overflow-hidden"
+    >
+      <!-- Background fill based on progress -->
+      <div
+        class="absolute top-0 left-0 bottom-0 bg-[#FF613c]/20 z-0"
+        :style="{
+          width: `${Math.min((monthlyAvgSaleTotal / average) * 100, 100)}%`,
+        }"
+      ></div>
+
+      <!-- Content (on top of the fill) -->
+      <div class="space-y-2 z-10 relative">
+        <p class="text-xs">Daily Avg. Sales</p>
+        <p class="text-2xl text-black font-semibold">
+          ฿ {{ monthlyAvgSaleTotal ? monthlyAvgSaleTotal : 0 }}
+        </p>
+      </div>
+
+      <div class="w-10 h-10 z-10 relative flex items-center justify-center">
+        <span
+          class="text-xs font-medium text-gray-600"
+          v-if="monthlyAvgSaleTotal > 0 && average > 0"
+          >{{ Math.round((monthlyAvgSaleTotal / average) * 100) }}%</span
+        >
+      </div>
+    </div>
     <AvgCard
       :title="'Daily Avg. Booking'"
       :value="monthlyAvgBookingCount"
@@ -71,7 +112,7 @@
         >
       </div>
     </div>
-    
+
     <div
       class="bg-white border-l-4 border-[#FF613c] shadow gap-x-4 rounded-r-lg px-4 py-2 flex justify-between items-center relative overflow-hidden"
     >
@@ -79,10 +120,13 @@
       <div
         class="absolute top-0 left-0 bottom-0 bg-[#FF613c]/20 z-0"
         :style="{
-          width: `${Math.min((saleCount / monthlyAvgBookingCount) * 100, 100)}%`,
+          width: `${Math.min(
+            (saleCount / monthlyAvgBookingCount) * 100,
+            100
+          )}%`,
         }"
       ></div>
-    
+
       <!-- Content (on top of the fill) -->
       <div class="space-y-2 z-10 relative">
         <p class="text-xs">Bookings Today</p>
@@ -90,14 +134,13 @@
           {{ saleCount ? saleCount : 0 }}
         </p>
       </div>
-    
+
       <div class="w-10 h-10 z-10 relative flex items-center justify-center">
         <span class="text-xs font-medium text-gray-600" v-if="saleCount > 0"
           >{{ Math.round((saleCount / monthlyAvgBookingCount) * 100) }}%</span
         >
       </div>
     </div>
-    
   </div>
 </template>
 
@@ -113,21 +156,19 @@ const authStore = useAuthStore();
 const saleAgentDataRes = ref([]);
 
 const props = defineProps({
-  adminLists : {
+  adminLists: {
     type: Array,
-    required: true
+    required: true,
   },
-  createdBy : {
+  createdBy: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
 
-const emit = defineEmits([
-  "update:createdBy"
-]);
+const emit = defineEmits(["update:createdBy"]);
 
-const createdByName = ref('');
+const createdByName = ref("");
 const saleToday = ref(0);
 const saleCount = ref(0);
 const average = ref(0);
@@ -138,6 +179,8 @@ const createdBy = computed({
     emit("update:createdBy", value);
   },
 });
+
+const targetAmount = ref(0);
 
 // New refs for monthly averages
 const monthlyAvgSaleTotal = ref(0);
@@ -156,7 +199,7 @@ const getSaleAgentData = async (date) => {
   saleAgentDataRes.value = resSaleAgent;
 
   if (saleAgentDataRes.value) {
-    if(authStore?.isSuperAdmin && createdByName.value != ''){
+    if (authStore?.isSuperAdmin && createdByName.value != "") {
       saleAgentDataRes.value.result.map((item) => {
         if (item?.created_by?.name == createdByName.value) {
           saleToday.value = item?.total;
@@ -164,7 +207,7 @@ const getSaleAgentData = async (date) => {
           saleCount.value = item?.total_booking;
         }
       });
-    }else{
+    } else {
       saleAgentDataRes.value.result.map((item) => {
         if (item?.created_by?.name == authStore?.user?.name) {
           saleToday.value = item?.total;
@@ -200,11 +243,11 @@ const getSaleAverageData = async () => {
   if (resSaleAgent && resSaleAgent.result) {
     // Find current user's data
     let currentUserData;
-    if(authStore?.isSuperAdmin && createdByName.value!= ''){
+    if (authStore?.isSuperAdmin && createdByName.value != "") {
       currentUserData = resSaleAgent.result.find(
         (item) => item?.created_by?.name == createdByName.value
       );
-    }else{
+    } else {
       currentUserData = resSaleAgent.result.find(
         (item) => item?.created_by?.name == authStore?.user?.name
       );
@@ -214,6 +257,8 @@ const getSaleAverageData = async () => {
       // Calculate average per day in the current month
       const daysInMonth = lastDay.getDate();
       const currentDay = date.getDate();
+
+      average.value = currentUserData.target_amount;
 
       // Calculate averages based on days elapsed in the month so far
       monthlyAvgSaleTotal.value = (currentUserData.total / currentDay).toFixed(

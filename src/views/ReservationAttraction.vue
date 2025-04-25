@@ -991,6 +991,51 @@ watch(dateRange, async (newValue) => {
               sort: {{ customer_name }}
             </p>
             <p
+              class="text-[12px] shadow px-2 relative py-0.5 rounded-lg whitespace-nowrap"
+              v-if="customerPaymentStatus"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    customerPaymentStatus = '';
+                    searchAction();
+                  }
+                "
+              />
+              C: {{ customerPaymentStatus }}
+            </p>
+            <p
+              class="text-[12px] relative shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
+              v-if="expenseStatus"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    expenseStatus = '';
+                    searchAction();
+                  }
+                "
+              />
+              E: {{ expenseStatus }}
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 relative rounded-lg whitespace-nowrap"
+              v-if="invoiceStatus"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    invoiceStatus = '';
+                    searchAction();
+                  }
+                "
+              />
+              I: {{ invoiceStatus }}
+            </p>
+            <p
               class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
               v-if="attraction_name"
             >

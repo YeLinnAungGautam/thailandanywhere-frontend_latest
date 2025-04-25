@@ -2,7 +2,13 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 export const useGroupByStore = defineStore("groupby", {
-  state: () => ({ results: null, loading: false }),
+  state: () => ({
+    results: null,
+    resultHotels: null,
+    resultVantours: null,
+    resultTickets: null,
+    loading: false,
+  }),
   getters: {},
   actions: {
     async getChangePage(url, params) {
@@ -43,9 +49,7 @@ export const useGroupByStore = defineStore("groupby", {
     },
     async ReservationVantourDetailAction(id) {
       try {
-        const response = await axios.get(
-          "/reservations-vantour/" + id
-        );
+        const response = await axios.get("/reservations-vantour/" + id);
         return response.data.result;
       } catch (error) {
         throw error;

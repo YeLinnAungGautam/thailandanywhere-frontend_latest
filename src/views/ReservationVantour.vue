@@ -194,13 +194,13 @@ const watchSystem = computed(() => {
   if (searchReservation.value != "" && searchReservation.value != undefined) {
     result.reservation_status = searchReservation.value;
   }
-  if (
-    searchTime.value != "" &&
-    searchTime.value != undefined &&
-    dateOnlyToggle.value
-  ) {
-    result.service_date = formatDate(searchTime.value);
-  }
+  // if (
+  //   searchTime.value != "" &&
+  //   searchTime.value != undefined &&
+  //   dateOnlyToggle.value
+  // ) {
+  //   result.service_date = formatDate(searchTime.value);
+  // }
   if (empty_unit_cost.value != "" && empty_unit_cost.value != false) {
     result.empty_unit_cost = empty_unit_cost.value;
   }
@@ -211,11 +211,8 @@ const watchSystem = computed(() => {
   ) {
     result.booking_date = formatDate(booking_date.value);
   }
-  if (sale_daterange.value != undefined && !dateOnlyToggle.value) {
+  if (sale_daterange.value != undefined) {
     result.booking_daterange = sale_daterange.value;
-  }
-  if (booking_daterange.value != undefined && !dateOnlyToggle.value) {
-    result.booking_daterange = booking_daterange.value;
   }
   if (userFilter.value != undefined) {
     result.user_id = userFilter.value;
@@ -271,26 +268,24 @@ const changeServiceDate = async (data) => {
   changeDate.value = data;
   if (data == "today") {
     let startDate = formatDate(new Date());
-    let endDate = formatDate(new Date());
-    sale_daterange.value = `${startDate},${endDate}`;
+    searchTime.value = startDate;
   } else if (data == "tomorrow") {
     let tomorrowDate = new Date();
     tomorrowDate.setDate(tomorrowDate.getDate() + 1);
     let startDate = formatDate(tomorrowDate);
-    let endDate = formatDate(tomorrowDate);
-    sale_daterange.value = `${startDate},${endDate}`;
+    searchTime.value = startDate;
   } else if (data == "7day") {
     let startDate = formatDate(new Date());
     let endDate = formatDate(
       new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
     );
-    sale_daterange.value = `${startDate},${endDate}`;
+    searchTime.value = endDate;
   } else if (data == "30day") {
     let startDate = formatDate(new Date());
     let endDate = formatDate(
       new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
     );
-    sale_daterange.value = `${startDate},${endDate}`;
+    searchTime.value = endDate;
   }
 
   await searchAction();
@@ -465,33 +460,45 @@ watch(sale_daterange, (newValue) => {
   }
 });
 
-watch(searchTime, async (newValue) => {
-  console.log(searchTime.value, "this is date");
-  if (searchTime.value != "" && searchTime.value != null) {
-    const options = { day: "2-digit", month: "2-digit", year: "numeric" };
+watch(
+  searchTime,
+  (newValue) => {
+    console.log(searchTime.value, "this is date");
+
+    if (!newValue || newValue === "") {
+      sale_daterange.value = "";
+      getReservationListAction();
+      searchModel.value = false;
+      return;
+    }
+
+    // Ensure newValue is a Date object
+    const date = new Date(newValue);
+    if (isNaN(date.getTime())) {
+      console.error("Invalid date provided");
+      return;
+    }
 
     // Custom function to format date as dd-MM-yyyy
     const formatDateAsDDMMYYYY = (date) => {
-      if (date) {
-        const dd = String(date.getDate()).padStart(2, "0");
-        const mm = String(date.getMonth() + 1).padStart(2, "0");
-        const yyyy = date.getFullYear();
-        return `${yyyy}-${mm}-${dd}`;
-      }
+      const dd = String(date.getDate()).padStart(2, "0");
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      const yyyy = date.getFullYear();
+      return `${yyyy}-${mm}-${dd}`; // Changed to match comment
     };
 
-    // Format start and end dates
-    const formattedStartDate = formatDateAsDDMMYYYY(searchTime.value);
+    // Format the date
+    const formattedDate = formatDateAsDDMMYYYY(date);
 
-    sale_daterange.value = `${formattedStartDate},${formattedStartDate}`;
-  } else {
-    sale_daterange.value = "";
-  }
-  console.log(sale_daterange.value, "this is daterange");
-  getReservationListAction();
+    // For single date, use the same date for start and end
+    sale_daterange.value = `${formattedDate}`;
 
-  searchModel.value = false;
-});
+    console.log(sale_daterange.value, "this is daterange");
+    getReservationListAction();
+    searchModel.value = false;
+  },
+  { immediate: true }
+);
 </script>
 
 <template>

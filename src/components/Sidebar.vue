@@ -95,7 +95,7 @@
                   class="flex justify-between w-[80%] text-[12px] ml-[1.2rem] items-center"
                   v-if="isShowSidebar"
                 >
-                Reservations
+                  Reservations
                   <ChevronDownIcon
                     class="w-4 h-4 transition-opacity duration-500 ease-in-out"
                     :class="isReservationShow ? 'opacity-0' : 'opacity-100'"
@@ -113,7 +113,7 @@
                 :class="isReservationShow ? 'ml-5' : ''"
                 v-if="isReservationShow"
               >
-              <SidebarItem
+                <SidebarItem
                   name="Res Attraction"
                   :icon="TicketIcon"
                   to="/reservation-attraction"
@@ -155,7 +155,7 @@
                   class="flex justify-between w-[80%] text-[12px] ml-[1.2rem] items-center"
                   v-if="isShowSidebar"
                 >
-                Accountance
+                  Accountance
                   <ChevronDownIcon
                     class="w-4 h-4 transition-opacity duration-500 ease-in-out"
                     :class="isShowAccount ? 'opacity-0' : 'opacity-100'"
@@ -173,7 +173,7 @@
                 :class="isShowAccount ? 'ml-5' : ''"
                 v-if="isShowAccount"
               >
-              <SidebarItem
+                <SidebarItem
                   name="Chart of Accounts"
                   v-if="!authStore.isAgent && !authStore.isAuditor"
                   :icon="FolderIcon"
@@ -356,10 +356,16 @@ import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useAuthStore } from "../stores/auth";
 const sidebarStore = useSidebarStore();
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 const router = useRouter();
-const { isShowSidebar, isShowSetting, isReservationShow, isShowAccount, isShowReservation } =
-  storeToRefs(sidebarStore);
+const route = useRoute();
+const {
+  isShowSidebar,
+  isShowSetting,
+  isReservationShow,
+  isShowAccount,
+  isShowReservation,
+} = storeToRefs(sidebarStore);
 const authStore = useAuthStore();
 const toggleSidebarHandler = () => {
   sidebarStore.toggleSidebar();
@@ -384,6 +390,14 @@ onMounted(() => {
     sidebarStore.customSideBar();
   }
   console.log(authStore.isAdmin);
+
+  if (
+    route.name == "reservation-attraction" ||
+    route.name == "reservation-hotel" ||
+    route.name == "reservation-vantour"
+  ) {
+    sidebarStore.toggleShowReservation();
+  }
 });
 </script>
 

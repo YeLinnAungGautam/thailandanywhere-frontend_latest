@@ -147,7 +147,7 @@
           </div>
           <div
             class="flex justify-start space-x-1 items-center"
-            v-if="expenseStatus(data) == 'fully_paid'"
+            v-if="expenseStatus(i) == 'fully_paid'"
           >
             <CreditCardIcon class="w-3 h-3 text-green-600" />
             <p class="text-[10px] whitespace-nowrap text-green-600">
@@ -156,7 +156,7 @@
           </div>
           <div
             class="flex justify-start space-x-1 items-center"
-            v-if="expenseStatus(data) == 'partially_paid'"
+            v-if="expenseStatus(i) == 'partially_paid'"
           >
             <CreditCardIcon class="w-3 h-3 text-yellow-600" />
             <p class="text-[10px] whitespace-nowrap text-yellow-600">
@@ -165,7 +165,7 @@
           </div>
           <div
             class="flex justify-start space-x-1 items-center"
-            v-if="expenseStatus(data) == 'not_paid'"
+            v-if="expenseStatus(i) == 'not_paid'"
           >
             <CreditCardIcon class="w-3 h-3 text-red-600" />
             <p class="text-[10px] whitespace-nowrap text-red-600">
@@ -409,16 +409,8 @@ const expense = (data) => {
 
 const expenseStatus = (i) => {
   // If no bookings or items exist, return 'not_paid' as default
-  if (
-    !i.bookings ||
-    !i.bookings[0] ||
-    !i.bookings[0].items || // This was 'i' instead of 'items'
-    !i.bookings[0].items.length
-  ) {
-    return "not_paid";
-  }
 
-  const items = i.bookings[0].items;
+  const items = i.items;
   let hasFullyPaid = false;
   let hasNotPaid = false;
 

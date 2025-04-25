@@ -500,7 +500,7 @@ const saveCarBooking = async () => {
 
     frmData.append(
       "is_driver_collect",
-      formData.value.is_driver_collect ? true : false
+      formData.value.is_driver_collect ? "1" : "0"
     );
     if (formData.value.is_driver_collect) {
       frmData.append(

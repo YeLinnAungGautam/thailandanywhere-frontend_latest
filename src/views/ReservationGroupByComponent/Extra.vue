@@ -56,7 +56,11 @@
                   class="rounded-lg flex justify-start items-center text-[10px]"
                 >
                   <CurrencyDollarIcon class="w-3 h-3 mr-1" />{{
-                    item.is_driver_collect == 1 ? "Collect" : "Not Collect"
+                    item.is_driver_collect == null
+                      ? "Empty"
+                      : item.is_driver_collect == 1
+                      ? "Collect"
+                      : "No Collect"
                   }}
                 </p>
                 <p class="pl-2" v-if="item.is_driver_collect">
@@ -128,6 +132,7 @@
                 v-model="formData.is_driver_collect"
                 id=""
               >
+                <option value="">Empty State</option>
                 <option value="0">No</option>
                 <option value="1">Yes</option>
               </select>
@@ -147,7 +152,7 @@
               class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
             />
           </div>
-          <div v-if="!formData.is_driver_collect" class="space-y-1">
+          <div v-if="formData.is_driver_collect == 0" class="space-y-1">
             <label for="extra_collect_amount" class="text-xs pb-1.5 font-medium"
               >Collect Amount</label
             >
@@ -162,13 +167,15 @@
           </div>
         </div>
         <div class="space-y-1 col-span-2">
-          <label for="extra_collect_amount" class="text-xs pb-1.5 font-medium"
+          <label for="collect_comment" class="text-xs pb-1.5 font-medium"
             >Collect Comment</label
           >
-          <Textarea
-            class="w-full h-40 text-xs border border-gray-200 px-4 py-3 rounded-lg"
-          >
-          </Textarea>
+          <textarea
+            v-model="formData.collect_comment"
+            id="collect_comment"
+            placeholder="Collect comment details"
+            class="border text-sm border-gray-200 h-[150px] px-4 py-3 rounded-lg w-full"
+          ></textarea>
         </div>
       </div>
 
@@ -291,7 +298,10 @@ const formData = ref({
   car_number: "",
   cost_price: "",
   extra_collect_amount: 0,
-  is_driver_collect: 0,
+  is_driver_collect: "",
+  contact_number: "",
+  total_pax: "",
+  collect_comment: "",
   route_plan: "",
   special_request: "",
   driver_contact: "",
@@ -377,7 +387,11 @@ const selectItem = async (item) => {
         car_number: data.driver_info_id || "",
         cost_price: data.cost_price || "",
         extra_collect_amount: data.extra_collect || 0,
-        is_driver_collect: data.is_driver_collect,
+        is_driver_collect:
+          data.is_driver_collect == null ? "" : data.is_driver_collect,
+        contact_number: data.contact_number || "",
+        total_pax: data.total_pax || "",
+        collect_comment: data.collect_comment || "",
         route_plan: data.route_plan === "null" ? "" : data.route_plan,
         special_request: data.special_request || "",
         driver_contact: data.driver_contact || "",
@@ -414,7 +428,8 @@ const saveCarBooking = async () => {
   if (
     (formData.value.is_driver_collect == 1 &&
       formData.value.extra_collect_amount) ||
-    formData.value.is_driver_collect == 0
+    formData.value.is_driver_collect == 0 ||
+    !formData.value.is_driver_collect
   ) {
     try {
       loading.value = true;
@@ -427,6 +442,9 @@ const saveCarBooking = async () => {
       frmData.append("pickup_location", formData.value.pickup_location || "");
       frmData.append("dropoff_location", formData.value.dropoff_location || "");
       frmData.append("pickup_time", formData.value.pickup_time || "");
+      frmData.append("contact_number", formData.value.contact_number);
+      frmData.append("total_pax", formData.value.total_pax);
+      frmData.append("collect_comment", formData.value.collect_comment);
 
       if (formData.value.cost_price) {
         frmData.append("cost_price", formData.value.cost_price);
@@ -439,10 +457,14 @@ const saveCarBooking = async () => {
         }
       }
 
-      frmData.append(
-        "is_driver_collect",
-        formData.value.is_driver_collect == 1 ? "1" : "0"
-      );
+      if (formData.value.is_driver_collect != "") {
+        frmData.append(
+          "is_driver_collect",
+          formData.value.is_driver_collect == 1 ? "1" : "0"
+        );
+      } else {
+        frmData.append("is_driver_collect", "");
+      }
 
       if (formData.value.is_driver_collect == 1) {
         frmData.append(
@@ -513,7 +535,10 @@ const resetForm = () => {
     car_number: "",
     cost_price: "",
     extra_collect_amount: "",
-    is_driver_collect: 0,
+    is_driver_collect: "",
+    contact_number: "",
+    total_pax: "",
+    collect_comment: "",
     route_plan: "",
     special_request: "",
     driver_contact: "",

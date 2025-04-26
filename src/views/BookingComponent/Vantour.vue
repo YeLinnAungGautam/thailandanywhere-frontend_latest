@@ -117,7 +117,7 @@ const formitem = ref({
   total_amount: "",
   pickup_location: "",
   pickup_time: "",
-  is_driver_collect: false,
+  is_driver_collect: "",
   dropoff_location: "",
   route_plan: "",
   checkin_date: "",
@@ -241,7 +241,7 @@ const clearAction = () => {
     total_amount: "",
     pickup_location: "",
     pickup_time: "",
-    is_driver_collect: false,
+    is_driver_collect: "",
     dropoff_location: "",
     route_plan: "",
     checkin_date: "",
@@ -729,23 +729,26 @@ onMounted(async () => {
             />
           </div>
           <div class="grid grid-cols-2 gap-x-2">
-            <div class="space-y-1">
+            <!-- <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
                 >Payment Method <span class="text-red-800">*</span></label
               >
-              <div class="flex justify-start items-center gap-x-2">
-                <input
-                  type="checkbox"
+              <div class="flex justify-start flex-col items-start gap-x-2">
+                <select
                   name=""
                   v-model="formitem.is_driver_collect"
-                  class="px-4 w-6 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                   id=""
-                />
-                <p class="text-xs">
+                  class="px-2 py-1.5 w-full rounded-lg text-xs border border-gray-300 focus:outline-none"
+                >
+                  <option value=""></option>
+                  <option :value="true">Driver Collect</option>
+                  <option :value="false">Driver Not Collect</option>
+                </select>
+                <p class="text-xs pt-2">
                   Is Driver Collect ? <span class="text-red-800">*</span>
                 </p>
               </div>
-            </div>
+            </div> -->
             <div class="space-y-1">
               <label for="" class="text-[12px] text-gray-500"
                 >Qty <span class="text-red-800">*</span></label

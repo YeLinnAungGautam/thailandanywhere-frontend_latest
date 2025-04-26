@@ -223,28 +223,63 @@
                   </div>
                   <div
                     class="flex justify-start space-x-1 items-center"
-                    v-if="item?.reservation_car_info?.driver_id"
+                    v-if="item?.reservation_car_info != null"
                   >
-                    <CurrencyDollarIcon class="w-3 h-3 text-green-600" />
-                    <p class="text-[10px] whitespace-nowrap text-green-600">
+                    <CurrencyDollarIcon
+                      class="w-3 h-3"
+                      :class="
+                        item?.reservation_car_info?.supplier_name
+                          ? 'text-green-600'
+                          : 'text-red-500'
+                      "
+                    />
+                    <p
+                      class="text-[10px] whitespace-nowrap w-[50px] line-clamp-1"
+                      :class="
+                        item?.reservation_car_info?.supplier_name
+                          ? 'text-green-600'
+                          : 'text-red-500'
+                      "
+                    >
                       {{
-                        item?.reservation_car_info?.driver_id
-                          ? "Assigned"
-                          : "Unassigned"
+                        item?.reservation_car_info?.supplier_name
+                          ? item?.reservation_car_info?.supplier_name
+                          : "unassigned"
                       }}
                     </p>
                   </div>
                   <div
                     class="flex justify-start space-x-1 items-center"
-                    v-if="item?.reservation_car_info == null"
+                    v-if="item?.is_driver_collect != null"
                   >
-                    <CurrencyDollarIcon class="w-3 h-3 text-red-600" />
-                    <p class="text-[10px] whitespace-nowrap text-red-600">
+                    <CurrencyDollarIcon
+                      class="w-3 h-3"
+                      :class="
+                        item?.is_driver_collect == 1
+                          ? 'text-green-600'
+                          : 'text-red-500'
+                      "
+                    />
+                    <p
+                      class="text-[10px] whitespace-nowrap"
+                      :class="
+                        item?.is_driver_collect == 1
+                          ? 'text-green-600'
+                          : 'text-red-500'
+                      "
+                    >
                       {{
-                        item?.reservation_car_info?.driver_id
-                          ? "Assigned"
-                          : "Unassigned"
+                        item?.is_driver_collect == 1 ? "Collect" : "Not collect"
                       }}
+                    </p>
+                  </div>
+                  <div
+                    class="flex justify-start space-x-1 items-center"
+                    v-if="item?.is_driver_collect == null"
+                  >
+                    <CurrencyDollarIcon class="w-3 h-3 text-red-500" />
+                    <p class="text-[10px] whitespace-nowrap text-red-500">
+                      Empty Collect
                     </p>
                   </div>
                 </div>

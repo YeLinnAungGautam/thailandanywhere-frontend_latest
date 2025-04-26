@@ -51,7 +51,10 @@ const formData = ref({
   car_number: "",
   cost_price: "",
   extra_collect_amount: "",
-  is_driver_collect: false,
+  is_driver_collect: "",
+  contact_number: "",
+  total_pax: "",
+  collect_comment: "",
   route_plan: "",
   special_request: "",
   driver_contact: "",
@@ -100,7 +103,10 @@ const closeFunction = () => {
     cost_price: "",
     total_cost_price: "",
     extra_collect_amount: "",
-    is_driver_collect: false,
+    is_driver_collect: "",
+    contact_number: "",
+    total_pax: "",
+    collect_comment: "",
     route_plan: "",
     special_request: "",
     driver_contact: "",
@@ -123,6 +129,9 @@ const onSubmitHandler = async () => {
     frmData.append("driver_info_id", formData.value.car_number ?? "");
     frmData.append("pickup_location", formData.value.pickup_location ?? "");
     frmData.append("dropoff_location", formData.value.dropoff_location ?? "");
+    frmData.append("contact_number", formData.value.contact_number ?? "");
+    frmData.append("total_pax", formData.value.total_pax ?? "");
+    frmData.append("collect_comment", formData.value.collect_comment ?? "");
     frmData.append("pickup_time", formData.value.pickup_time ?? "");
     if (formData.value.cost_price != "" && formData.value.cost_price != null) {
       frmData.append("cost_price", formData.value.cost_price);
@@ -135,15 +144,20 @@ const onSubmitHandler = async () => {
       frmData.append("total_cost_price", total_cost_price.value);
     }
 
-    if (formData.value.is_driver_collect) {
-      frmData.append("is_driver_collect", "1");
+    if (formData.value.is_driver_collect != "") {
       frmData.append(
-        "extra_collect_amount",
-        formData.value.extra_collect_amount ?? 0
+        "is_driver_collect",
+        formData.value.is_driver_collect == 1 ? "1" : "0"
       );
     } else {
-      frmData.append("is_driver_collect", "0");
-      frmData.append("extra_collect_amount", 0);
+      frmData.append("is_driver_collect", "");
+    }
+
+    if (formData.value.is_driver_collect == 1) {
+      frmData.append(
+        "extra_collect_amount",
+        formData.value.extra_collect_amount || ""
+      );
     }
     frmData.append("route_plan", formData.value.route_plan);
     frmData.append("special_request", formData.value.special_request);
@@ -189,7 +203,11 @@ const openModel = async () => {
     special_request: data.special_request,
     pickup_location: data.pickup_location,
     dropoff_location: data.dropoff_location,
-    is_driver_collect: data.is_driver_collect == 0 ? false : true,
+    contact_number: data.contact_number,
+    total_pax: data.total_pax,
+    collect_comment: data.collect_comment,
+    is_driver_collect:
+      data.is_driver_collect == null ? "" : data.is_driver_collect,
     pickup_time: data.pickup_time,
   };
 
@@ -246,7 +264,13 @@ const openInfoModal = async () => {
     supplier_name: data.supplier_name,
     phone: data.driver_contact,
     car_number: data.car_number,
-    driver_collect: data.is_driver_collect == 1 ? "Yes" : "No",
+    // driver_collect: data.is_driver_collect == 1 ? "Yes" : "No",
+    is_driver_collect:
+      data.is_driver_collect == null
+        ? "Empty"
+        : data.is_driver_collect == 1
+        ? "Yes"
+        : "No",
     extra_collect: data.extra_collect,
     total_collect: 0,
     supplier_id: data.supplier_id,
@@ -349,7 +373,13 @@ const copyFunction = async () => {
     🧑‍✈️ Driver Name : ${resDriver?.result.name}
     ☎️ Driver Contact : ${resDriver?.result.contact}
     🚗 Car Number : ${resDriver?.result.infos[0]?.car_number}
-    💸 Driver Collect : ${props?.data.is_driver_collect == 1 ? "Yes" : "No"}
+    💸 Driver Collect : ${
+      props?.data.is_driver_collect == null
+        ? "Empty"
+        : props?.data.is_driver_collect == 1
+        ? "Yes"
+        : "No"
+    }
     💰 Total Collect : ${
       props?.data.selling_price * 1 + props?.data.extra_collect_amount * 1
     } thb

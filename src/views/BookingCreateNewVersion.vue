@@ -33,7 +33,7 @@ import Hotel from "./BookingComponent/Hotel.vue";
 import Airline from "./BookingComponent/Airline.vue";
 import TaxInfo from "./BookingComponent/TaxInfo.vue";
 import { useAdminStore } from "../stores/admin";
-import ArchiveConfirmationModal from "./BookingComponent/ConfirmationModel.vue"
+import ArchiveConfirmationModal from "./BookingComponent/ConfirmationModel.vue";
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
 // for tag
@@ -400,12 +400,14 @@ const errors = ref(null);
 
 // Helper functions for validation and FormData management
 const validateItemByType = (item) => {
-  switch(item.product_type) {
+  switch (item.product_type) {
     case "1": // PrivateVanTour
     case "2": // GroupTour
     case "3": // AirportPickup
       if (!item.service_date) {
-        toast.warning("ပစ္စည်းတစ်ခု၏ ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်");
+        toast.warning(
+          "ပစ္စည်းတစ်ခု၏ ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်"
+        );
         return false;
       }
       if (!item.car_id) {
@@ -425,7 +427,9 @@ const validateItemByType = (item) => {
       break;
     case "5": // Inclusive
       if (!item.service_date) {
-        toast.warning("Inclusive ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်");
+        toast.warning(
+          "Inclusive ဝန်ဆောင်မှုရက်စွဲကို ထည့်သွင်းရန် လိုအပ်ပါသည်"
+        );
         return false;
       }
       break;
@@ -435,7 +439,9 @@ const validateItemByType = (item) => {
         return false;
       }
       if (!item.checkin_date || !item.checkout_date) {
-        toast.warning("ဟိုတယ်အတွက် Check-in နှင့် Check-out ရက်စွဲများ ထည့်သွင်းရန် လိုအပ်ပါသည်");
+        toast.warning(
+          "ဟိုတယ်အတွက် Check-in နှင့် Check-out ရက်စွဲများ ထည့်သွင်းရန် လိုအပ်ပါသည်"
+        );
         return false;
       }
       break;
@@ -450,12 +456,12 @@ const validateItemByType = (item) => {
       }
       break;
   }
-  
+
   if (!item.total_amount) {
     toast.warning("စုစုပေါင်းတန်ဖိုး ထည့်သွင်းရန် လိုအပ်ပါသည်");
     return false;
   }
-  
+
   return true;
 };
 
@@ -464,27 +470,27 @@ const validateBasicInfo = () => {
     toast.warning("ဖောက်သည် ရွေးချယ်ရန် လိုအပ်ပါသည်");
     return false;
   }
-  
+
   if (!formData.value.payment_method) {
     toast.warning("ငွေပေးချေမှု နည်းလမ်း ရွေးရန် လိုအပ်ပါသည်");
     return false;
   }
-  
+
   if (!formData.value.booking_date) {
     toast.warning("စာရင်းသွင်းသည့်ရက်စွဲ ထည့်သွင်းရန် လိုအပ်ပါသည်");
     return false;
   }
-  
+
   if (!formData.value.payment_status) {
     toast.warning("ငွေပေးချေမှု အခြေအနေ ရွေးချယ်ရန် လိုအပ်ပါသည်");
     return false;
   }
-  
+
   if (formData.value.items.length === 0) {
     toast.warning("အနည်းဆုံး ပစ္စည်းတစ်ခု ထည့်သွင်းရန် လိုအပ်ပါသည်");
     return false;
   }
-  
+
   return true;
 };
 
@@ -507,7 +513,7 @@ const handleArchiveUpdate = () => {
 };
 
 const handleNormalUpdate = () => {
-  // Handle normal update 
+  // Handle normal update
   processSubmission();
   openModalArchive.value = false;
 };
@@ -518,9 +524,8 @@ const closeModal = () => {
 
 const processSubmission = async () => {
   if (!isNaN(sub_total_real.value) && sub_total_real.value !== null) {
-
     if (!validateBasicInfo()) {
-      return
+      return;
     }
 
     const frmData = new FormData();
@@ -595,7 +600,6 @@ const processSubmission = async () => {
       }
     }
     for (var x = 0; x < formData.value.items.length; x++) {
-
       if (!validateItemByType(formData.value.items[x])) {
         return;
       }
@@ -673,10 +677,12 @@ const processSubmission = async () => {
           formData.value.items[x].pickup_time
         );
       }
-      frmData.append(
-        "items[" + x + "][is_driver_collect]",
-        formData.value.items[x].is_driver_collect ? 1 : 0
-      );
+      // if (formData.value.items[x].is_driver_collect) {
+      //   frmData.append(
+      //     "items[" + x + "][is_driver_collect]",
+      //     formData.value.items[x].is_driver_collect ? 1 : 0
+      //   );
+      // }
       if (formData.value.items[x].customer_attachment) {
         frmData.append(
           "items[" + x + "][customer_attachment]",
@@ -776,47 +782,51 @@ const processSubmission = async () => {
           formData.value.items[x].route_plan
         );
       }
-      
+
       if (formData.value.items[x].product_type == "6") {
-        if(formData.value.items[x].car_id){
+        if (formData.value.items[x].car_id) {
           frmData.append(
             "items[" + x + "][room_id]",
             formData.value.items[x].car_id
           );
-        }else{
+        } else {
           toast.warning("အခန်းအမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
           return;
         }
       }
-      if (formData.value.items[x].product_type == "1" || formData.value.items[x].product_type == "2" || formData.value.items[x].product_type == "3") {
-        if(formData.value.items[x].car_id){
+      if (
+        formData.value.items[x].product_type == "1" ||
+        formData.value.items[x].product_type == "2" ||
+        formData.value.items[x].product_type == "3"
+      ) {
+        if (formData.value.items[x].car_id) {
           frmData.append(
             "items[" + x + "][car_id]",
             formData.value.items[x].car_id
           );
-        }else{
+        } else {
           toast.warning("အခန်းအမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
           return;
         }
       }
       if (formData.value.items[x].product_type == "4") {
-        if(formData.value.items[x].car_id){
+        if (formData.value.items[x].car_id) {
           frmData.append(
             "items[" + x + "][variation_id]",
             formData.value.items[x].car_id
           );
-        }else{
+        } else {
           toast.warning("ticket အမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
           return;
         }
       }
       if (formData.value.items[x].product_type == "7") {
-        if(formData.value.items[x].car_id){
+        if (formData.value.items[x].car_id) {
           frmData.append(
             "items[" + x + "][ticket_id]",
             formData.value.items[x].car_id
           );
-        }else{
+        } else {
           toast.warning("ticket အမျိုးအစား ရွေးချယ်ရန် လိုအပ်ပါသည်");
           return;
         }

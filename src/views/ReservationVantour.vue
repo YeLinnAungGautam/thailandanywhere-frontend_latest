@@ -27,6 +27,10 @@ import { XCircleIcon } from "@heroicons/vue/24/solid";
 import { format } from "date-fns";
 import { useGroupByStore } from "../stores/groupby";
 import { useSidebarStore } from "../stores/sidebar";
+import { useSupplierStore } from "../stores/supplier";
+import { useReservationStore } from "../stores/reservation";
+import { formattedDate } from "./help/FormatData";
+import GenerateVaildation from "./ReservationGroupByComponent/GenerateVaildation.vue";
 
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
@@ -34,6 +38,9 @@ const { isShowSidebar } = storeToRefs(sidebarStore);
 const groupByStore = useGroupByStore();
 const { results, loading } = storeToRefs(groupByStore);
 const authStore = useAuthStore();
+const supplierStore = useSupplierStore();
+const reservationStore = useReservationStore();
+const { suppliers } = storeToRefs(supplierStore);
 
 const router = useRouter();
 const adminStore = useAdminStore();
@@ -109,6 +116,8 @@ const userName = computed(() => {
 });
 
 const searchModel = ref(false);
+const accountingGenerate = ref(false);
+const accountingVariation = ref(false);
 
 const searchValue = (val) => {
   search.value = val;
@@ -342,6 +351,7 @@ onMounted(async () => {
   console.log(results.value, "this is results of vantour");
   setStartAndEndDate();
   await getListUser();
+  await supplierStore.getSimpleListAction();
 });
 
 const searchCount = computed(() => {
@@ -460,6 +470,28 @@ watch(sale_daterange, (newValue) => {
   }
 });
 
+const generateDate = ref("");
+const supplier_id = ref("");
+const getGenerateResult = ref(null);
+
+const getAction = async () => {
+  console.log("====================================");
+  console.log(generateDate.value, supplier_id.value, "this is generate date");
+  console.log("====================================");
+  const res = await reservationStore.getListAction({
+    service_date: formattedDate(generateDate.value),
+    supplier_id: supplier_id.value,
+    limit: 100,
+  });
+
+  console.log(res.result.data, "this is generate date");
+  if (res.result.data) {
+    getGenerateResult.value = res.result.data;
+    accountingGenerate.value = false;
+    accountingVariation.value = true;
+  }
+};
+
 watch(
   searchTime,
   (newValue) => {
@@ -511,6 +543,12 @@ watch(
         Vantour Reservations
         <span class="w-2 h-2 bg-[#FF613c] rounded-full inline-block"></span>
         <span class="pl-2">{{ route.query.crm_id }}</span>
+      </p>
+      <p
+        class="px-2 py-1 bg-[#FF613c] text-white rounded-lg"
+        @click="accountingGenerate = true"
+      >
+        Accounting Generate
       </p>
     </div>
     <div class="grid gap-4 relative grid-cols-3">
@@ -1097,6 +1135,60 @@ watch(
           </div>
         </div>
       </transition>
+
+      <Modal
+        :isOpen="accountingGenerate"
+        @closeModal="accountingGenerate = false"
+      >
+        <DialogPanel
+          class="w-full max-w-lg transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+        >
+          <DialogTitle
+            as="div"
+            class="text-xs flex justify-between items-center font-medium leading-6 text-gray-900 mb-5"
+          >
+            Select Date & Supplier for Generate
+          </DialogTitle>
+          <div class="space-y-4">
+            <VueDatePicker
+              v-model="generateDate"
+              multi-calendars
+              :format="'yyyy-MM-dd'"
+              placeholder="Service Date"
+              text-input
+            />
+            <select
+              class="w-full mt-2 border broder-gray-200 rounded px-4 py-2"
+              v-model="supplier_id"
+            >
+              <option
+                v-for="(item, index) in suppliers?.data"
+                :key="index"
+                :value="item.id"
+              >
+                {{ item.name }}
+              </option>
+            </select>
+            <p
+              @click="getAction"
+              class="text-center shadow px-2 py-3 rounded text-sm whitespace-nowrap bg-[#FF613c] text-white cursor-pointer"
+            >
+              Generate Search
+            </p>
+          </div>
+        </DialogPanel>
+      </Modal>
+
+      <GenerateVaildation
+        :openModalArchive="accountingVariation"
+        :bookingItems="getGenerateResult"
+        @closeModal="
+          () => {
+            accountingVariation = false;
+            getGenerateResult = null;
+          }
+        "
+      />
     </div>
   </Layout>
 </template>

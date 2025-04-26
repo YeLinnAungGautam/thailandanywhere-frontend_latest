@@ -329,7 +329,7 @@ const formData = ref({
   car_number: "",
   cost_price: "",
   extra_collect_amount: 0,
-  is_driver_collect: 0,
+  is_driver_collect: "",
   route_plan: "",
   special_request: "",
   driver_contact: "",
@@ -337,6 +337,9 @@ const formData = ref({
   pickup_location: "",
   dropoff_location: "",
   pickup_time: "",
+  contact_number: "",
+  total_pax: "",
+  collect_comment: "",
   service_date: "",
   crm_id: "",
 });
@@ -415,7 +418,8 @@ const selectItem = async (item) => {
         car_number: data.driver_info_id || "",
         cost_price: data.cost_price || "",
         extra_collect_amount: data.extra_collect || 0,
-        is_driver_collect: data.is_driver_collect,
+        is_driver_collect:
+          data.is_driver_collect == null ? "" : data.is_driver_collect,
         route_plan: data.route_plan === "null" ? "" : data.route_plan,
         special_request: data.special_request || "",
         driver_contact: data.driver_contact || "",
@@ -423,6 +427,9 @@ const selectItem = async (item) => {
         pickup_location: data.pickup_location || "",
         dropoff_location: data.dropoff_location || "",
         pickup_time: data.pickup_time || "",
+        contact_number: data.contact_number || "",
+        total_pax: data.total_pax || "",
+        collect_comment: data.collect_comment || "",
         service_date: item.service_date || "",
         crm_id: item.crm_id || "",
       };
@@ -460,6 +467,9 @@ const saveCarBooking = async () => {
     frmData.append("pickup_location", formData.value.pickup_location || "");
     frmData.append("dropoff_location", formData.value.dropoff_location || "");
     frmData.append("pickup_time", formData.value.pickup_time || "");
+    frmData.append("contact_number", formData.value.contact_number || "");
+    frmData.append("total_pax", formData.value.total_pax || "");
+    frmData.append("collect_comment", formData.value.collect_comment || "");
 
     if (formData.value.cost_price) {
       frmData.append("cost_price", formData.value.cost_price);
@@ -472,10 +482,14 @@ const saveCarBooking = async () => {
       }
     }
 
-    frmData.append(
-      "is_driver_collect",
-      formData.value.is_driver_collect == 1 ? "1" : "0"
-    );
+    if (formData.value.is_driver_collect != "") {
+      frmData.append(
+        "is_driver_collect",
+        formData.value.is_driver_collect == 1 ? "1" : "0"
+      );
+    } else {
+      frmData.append("is_driver_collect", "");
+    }
     if (formData.value.is_driver_collect == 1) {
       frmData.append(
         "extra_collect_amount",
@@ -546,6 +560,9 @@ const resetForm = () => {
     pickup_location: "",
     dropoff_location: "",
     pickup_time: "",
+    contact_number: "",
+    total_pax: "",
+    collect_comment: "",
     service_date: "",
     crm_id: "",
   };

@@ -58,7 +58,7 @@ const formitem = ref({
   total_amount: "",
   pickup_location: "",
   pickup_time: "",
-  is_driver_collect: false,
+  is_driver_collect: "",
   dropoff_location: "",
   route_plan: "",
   checkin_date: "",
@@ -105,11 +105,11 @@ const amendData = ref(null);
 const amendModalAction = (data, index) => {
   amendData.value = data;
   amendModal.value = true;
-}
+};
 const amendCloseAction = () => {
   amendModal.value = false;
   amendData.value = null;
-}
+};
 
 const cancellationAction = (data, index) => {
   editIndex.value = index;
@@ -182,7 +182,7 @@ const closeModalAction = () => {
     },
     pickup_location: "",
     pickup_time: "",
-    is_driver_collect: false,
+    is_driver_collect: "",
     dropoff_location: "",
     route_plan: "",
     checkin_date: "",
@@ -609,8 +609,10 @@ onMounted(() => {
                   router.push(
                     `/reservation-attraction?id=${route.params.id}&product_id=${i?.product_id}&crm_id=${i?.crm_id}`
                   );
-                } else if (i?.product_type == 6)  {
-                  router.push(`/reservation-hotel?id=${route.params.id}&product_id=${i?.product_id}&crm_id=${i?.crm_id}`)
+                } else if (i?.product_type == 6) {
+                  router.push(
+                    `/reservation-hotel?id=${route.params.id}&product_id=${i?.product_id}&crm_id=${i?.crm_id}`
+                  );
                 }
               }
             "
@@ -999,24 +1001,26 @@ onMounted(() => {
               />
             </div>
             <div class="grid grid-cols-2 gap-x-2">
-              <div class="space-y-1" v-if="formitem.product_type == 1">
+              <!-- <div class="space-y-1" v-if="formitem.product_type == 1">
                 <label for="" class="text-[12px] text-gray-500"
                   >Payment Method <span class="text-red-800">*</span></label
                 >
-                <div class="flex justify-start items-center gap-x-2">
-                  <input
-                    type="checkbox"
-                    :disabled="authStore?.isSuperAdmin ? false : true"
+                <div class="flex justify-start flex-col items-start gap-x-2">
+                  <select
                     name=""
                     v-model="formitem.is_driver_collect"
-                    class="px-4 w-6 h-6 py-4 text-sm border border-gray-300 rounded-sm focus:outline-none"
                     id=""
-                  />
-                  <p class="text-xs">
+                    class="px-2 py-1.5 w-full rounded-lg text-xs border border-gray-300 focus:outline-none"
+                  >
+                    <option value=""></option>
+                    <option :value="true">Driver Collect</option>
+                    <option :value="false">Driver Not Collect</option>
+                  </select>
+                  <p class="text-xs pt-2">
                     Is Driver Collect ? <span class="text-red-800">*</span>
                   </p>
                 </div>
-              </div>
+              </div> -->
               <div class="space-y-1" v-if="formitem.product_type != 7">
                 <label for="" class="text-[12px] text-gray-500"
                   >Qty - selling : {{ formitem.selling_price }}
@@ -1428,9 +1432,12 @@ onMounted(() => {
         <div class="space-y-2.5 pb-3 border-b border-gray-300">
           <p class="text-xs text-gray-500">Please Choose amend .</p>
         </div>
-        <div class=" grid grid-cols-2 gap-4">
-          <div class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1" v-if="amendData != null">
-            <p class=" text-sm font-medium">Current Data</p>
+        <div class="grid grid-cols-2 gap-4">
+          <div
+            class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1"
+            v-if="amendData != null"
+          >
+            <p class="text-sm font-medium">Current Data</p>
             <div v-if="amendData.product_type != 6" class="space-y-2">
               <div class="grid grid-cols-2 gap-x-2">
                 <div class="space-y-1" v-if="amendData.product_type == 1">
@@ -1442,7 +1449,7 @@ onMounted(() => {
                     disabled
                     v-model="amendData.pickup_time"
                     name=""
-                    class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    class="w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                     id=""
                   />
                 </div>
@@ -1456,12 +1463,8 @@ onMounted(() => {
                     v-model="amendData.service_date"
                     @change="todayCheck"
                     name=""
-                    class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-                    :class="
-                      todayVali
-                        ? ''
-                        : ''
-                    "
+                    class="w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    :class="todayVali ? '' : ''"
                     id=""
                   />
                   <p v-if="!todayVali" class="text-[8px] text-red-600">
@@ -1478,7 +1481,7 @@ onMounted(() => {
                   disabled
                   v-model="amendData.pickup_location"
                   name=""
-                  class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  class="w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                   id=""
                 />
               </div>
@@ -1511,7 +1514,7 @@ onMounted(() => {
                     disabled
                     v-model="amendData.quantity"
                     name=""
-                    class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    class="w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                     id=""
                   />
                 </div>
@@ -1537,7 +1540,7 @@ onMounted(() => {
                     v-model="amendData.individual_pricing.child.quantity"
                     disabled
                     name=""
-                    class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                    class="w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                     id="adult_pricing"
                   />
                 </div>
@@ -1548,14 +1551,15 @@ onMounted(() => {
                   <div class="grid-cols-2 grid gap-2">
                     <div class="relative space-y-1">
                       <label for="" class="text-xs text-gray-500"
-                        >Selling Price <span class="text-red-800">*</span></label
+                        >Selling Price
+                        <span class="text-red-800">*</span></label
                       >
                       <input
                         type="number"
                         v-model="amendData.selling_price"
                         disabled
                         name=""
-                        class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                        class="w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                         id=""
                       />
                     </div>
@@ -1571,7 +1575,7 @@ onMounted(() => {
                         v-model="amendData.quantity"
                         disabled
                         name=""
-                        class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                        class="w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                         id=""
                       />
                       <p
@@ -1598,7 +1602,10 @@ onMounted(() => {
                 </div>
               </div>
             </div>
-            <div class="grid grid-cols-2 gap-2" v-if="amendData.product_type == 6">
+            <div
+              class="grid grid-cols-2 gap-2"
+              v-if="amendData.product_type == 6"
+            >
               <div class="space-y-1">
                 <label for="" class="text-[12px] text-gray-500"
                   >Check in date <span class="text-red-800">*</span></label
@@ -1611,7 +1618,9 @@ onMounted(() => {
                   name=""
                   class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                   :class="
-                    todayVali ? 'border-gray-300' : 'border-red-600 text-red-600'
+                    todayVali
+                      ? 'border-gray-300'
+                      : 'border-red-600 text-red-600'
                   "
                   id=""
                 />
@@ -1641,7 +1650,7 @@ onMounted(() => {
                   disabled
                   v-model="amendData.quantity"
                   name=""
-                  class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  class="w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                   id=""
                 />
               </div>
@@ -1650,7 +1659,7 @@ onMounted(() => {
                   >Qty <span class="text-red-800">*</span></label
                 >
                 <p
-                  class=" bg-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                  class="bg-gray-300 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                 >
                   {{ amendData.days }} Night x {{ amendData.quantity }} Rooms
                 </p>
@@ -1663,15 +1672,13 @@ onMounted(() => {
                 disabled
                 v-model="amendData.discount"
                 name=""
-                class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                class="w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                 id=""
               />
             </div>
             <p class="text-xs text-gray-500">Total Price</p>
             <div>
-              <p
-                class="text-sm text-start  py-1.5 rounded-lg px-2"
-              >
+              <p class="text-sm text-start py-1.5 rounded-lg px-2">
                 <span class="font-medium text-[#ff613c]"
                   >{{
                     amendData.selling_price * 1 * amendData.quantity -
@@ -1690,7 +1697,7 @@ onMounted(() => {
                 name=""
                 disabled
                 v-model="amendData.route_plan"
-                class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                class="w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                 id=""
               ></textarea>
             </div>
@@ -1702,7 +1709,7 @@ onMounted(() => {
                 name=""
                 disabled
                 v-model="amendData.special_request"
-                class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                class="w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                 id=""
               ></textarea>
             </div>
@@ -1714,13 +1721,16 @@ onMounted(() => {
                 name=""
                 disabled
                 v-model="amendData.comment"
-                class=" w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                class="w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                 id=""
               ></textarea>
             </div>
           </div>
-          <div class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1" v-if="amendData != null">
-            <p class=" text-sm font-medium">Amend Data</p>
+          <div
+            class="h-[450px] overflow-y-scroll py-2 space-y-2 pr-1"
+            v-if="amendData != null"
+          >
+            <p class="text-sm font-medium">Amend Data</p>
             <div v-if="amendData.product_type != 6" class="space-y-2">
               <div class="grid grid-cols-2 gap-x-2">
                 <div class="space-y-1" v-if="amendData.product_type == 1">
@@ -1838,7 +1848,8 @@ onMounted(() => {
                   <div class="grid-cols-2 grid gap-2">
                     <div class="relative space-y-1">
                       <label for="" class="text-xs text-gray-500"
-                        >Selling Price <span class="text-red-800">*</span></label
+                        >Selling Price
+                        <span class="text-red-800">*</span></label
                       >
                       <input
                         type="number"
@@ -1888,7 +1899,10 @@ onMounted(() => {
                 </div>
               </div>
             </div>
-            <div class="grid grid-cols-2 gap-2" v-if="amendData.product_type == 6">
+            <div
+              class="grid grid-cols-2 gap-2"
+              v-if="amendData.product_type == 6"
+            >
               <div class="space-y-1">
                 <label for="" class="text-[12px] text-gray-500"
                   >Check in date <span class="text-red-800">*</span></label
@@ -1901,7 +1915,9 @@ onMounted(() => {
                   name=""
                   class="border w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
                   :class="
-                    todayVali ? 'border-gray-300' : 'border-red-600 text-red-600'
+                    todayVali
+                      ? 'border-gray-300'
+                      : 'border-red-600 text-red-600'
                   "
                   id=""
                 />

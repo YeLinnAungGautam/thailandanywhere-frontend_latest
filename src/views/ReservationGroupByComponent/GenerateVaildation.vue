@@ -109,17 +109,6 @@
                   class="w-4 h-4 text-red-500 ml-1"
                 />
               </div>
-
-              <div class="flex">
-                <span class="font-medium mr-1">Car Number:</span>
-                <span>{{
-                  item.reservation_car_info?.car_number || "Not specified"
-                }}</span>
-                <ExclamationCircleIcon
-                  v-if="!item.reservation_car_info?.car_number"
-                  class="w-4 h-4 text-red-500 ml-1"
-                />
-              </div>
             </div>
 
             <!-- Display validation errors if any -->
@@ -190,18 +179,6 @@
               ></div>
               <span>Driver Information</span>
             </div>
-
-            <div class="flex items-center">
-              <div
-                v-if="validationStatus.car"
-                class="bg-green-500 w-3 h-3 mr-2 inline-block rounded-full"
-              ></div>
-              <div
-                v-else
-                class="bg-orange-400 w-3 h-3 mr-2 inline-block rounded-full"
-              ></div>
-              <span>Car Information</span>
-            </div>
           </div>
         </div>
 
@@ -246,6 +223,9 @@ import {
   ExclamationCircleIcon,
   InformationCircleIcon,
 } from "@heroicons/vue/24/outline";
+import { useToast } from "vue-toastification";
+
+const toast = useToast();
 
 const props = defineProps({
   openModalArchive: Boolean,
@@ -285,10 +265,6 @@ const getItemValidationErrors = (item) => {
     errors.push("Driver name is required");
   }
 
-  if (!item.reservation_car_info?.car_number) {
-    errors.push("Car number is required");
-  }
-
   return errors;
 };
 
@@ -301,8 +277,7 @@ const validateItem = (item, index) => {
     !item.reservation_car_info?.supplier_name ||
     item.is_driver_collect === null ||
     !item.cost_price ||
-    !item.reservation_car_info?.driver_name ||
-    !item.reservation_car_info?.car_number
+    !item.reservation_car_info?.driver_name
   ) {
     isValid = false;
   }
@@ -390,18 +365,6 @@ const runValidation = () => {
       }
       validationStatus.value.driver = allDrivers;
     }, 1100);
-
-    setTimeout(() => {
-      let allCars = true;
-      if (props.bookingItems && props.bookingItems.length > 0) {
-        props.bookingItems.forEach((item) => {
-          if (!item.reservation_car_info?.car_number) allCars = false;
-        });
-      } else {
-        allCars = false;
-      }
-      validationStatus.value.car = allCars;
-    }, 1300);
   }, 200);
 };
 
@@ -420,10 +383,9 @@ const validationProgress = computed(() => {
     validationStatus.value.driverCollect,
     validationStatus.value.costPrice,
     validationStatus.value.driver,
-    validationStatus.value.car,
   ].filter(Boolean).length;
 
-  const totalChecks = totalItems + 6; // 6 category checks
+  const totalChecks = totalItems + 5; // 5 category checks (removed car check)
   const completedChecks = itemsValidated + categoryChecks;
 
   return Math.round((completedChecks / totalChecks) * 100);
@@ -441,8 +403,7 @@ const isValidationComplete = computed(() => {
     validationStatus.value.supplier &&
     validationStatus.value.driverCollect &&
     validationStatus.value.costPrice &&
-    validationStatus.value.driver &&
-    validationStatus.value.car
+    validationStatus.value.driver
   );
 });
 
@@ -452,7 +413,33 @@ const closeArchiveModal = () => {
 };
 
 const archiveUpdate = () => {
-  console.log("Archive update triggered");
+  // console.log("Archive update triggered");
+  if (props.bookingItems != null) {
+    let formattedOutput;
+
+    formattedOutput = `
+  📆S. Date: ${props.bookingItems[0]?.service_date}
+  👨‍💼Supplier Name: ${props.bookingItems[0]?.reservation_car_info?.supplier_name}
+  🚙Total Trip: ${props.bookingItems.length}
+      `;
+
+    props.bookingItems.forEach((trip, index) => {
+      formattedOutput += `
+  ${index + 1}️⃣ CRMID: ${trip.crm_id}
+  ➖Trip Name: ${trip.product?.name}
+  ➖Variation: ${trip.car?.name}
+  ➖P. Method: ${trip.is_driver_collect == 1 ? "Collect" : trip.payment_status}
+  ➖Amount: ${trip.amount}thb
+  `;
+    });
+
+    setTimeout(() => {
+      navigator.clipboard.writeText(formattedOutput);
+      toast.success("success copy reservation");
+    }, 0);
+  } else {
+    toast.error("error copy reservation");
+  }
 };
 
 // Start validation process when modal opens

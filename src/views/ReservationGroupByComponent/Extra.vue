@@ -140,7 +140,7 @@
           </div>
         </div>
         <div>
-          <div v-if="formData.is_driver_collect" class="space-y-1">
+          <div v-if="formData.is_driver_collect == 1" class="space-y-1">
             <label for="extra_collect_amount" class="text-xs pb-1.5 font-medium"
               >Collect Amount</label
             >

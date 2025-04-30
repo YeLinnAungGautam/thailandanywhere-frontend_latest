@@ -135,7 +135,7 @@
               <SidebarItem
                 v-if="authStore.isSuperAdmin"
                 name="Amend"
-                :icon="ChatBubbleBottomCenterTextIcon"
+                :icon="ArrowPathIcon"
                 to="/amend"
                 :activePaths="['amend']"
               />
@@ -352,6 +352,7 @@ import {
   FolderIcon,
   TruckIcon,
   ChatBubbleBottomCenterTextIcon,
+  ArrowPathIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";

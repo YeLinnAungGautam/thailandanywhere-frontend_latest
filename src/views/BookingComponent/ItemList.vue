@@ -20,6 +20,7 @@ import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { daysBetween } from "../help/DateBetween";
 import AmendCreate from "./AmendCreate.vue";
+import AmendIcon from "../../assets/refresh-button.png";
 
 const props = defineProps({
   data: Object,
@@ -590,10 +591,17 @@ onMounted(() => {
           <div class="flex justify-between items-center">
             <p class="text-xs font-medium">{{ i?.product_name }}</p>
             <div class="flex justify-end items-center gap-x-2">
-              <ChatBubbleBottomCenterTextIcon
+              <!-- <ChatBubbleBottomCenterTextIcon
                 v-if="i?.reservation_id && authStore?.isSuperAdmin"
                 class="w-4 h-4 cursor-pointer text-red-600"
                 @click="amendModalAction(i, index)"
+              /> -->
+              <img
+                :src="AmendIcon"
+                class="w-4 h-4 cursor-pointer"
+                @click="amendModalAction(i, index)"
+                v-if="i?.reservation_id && authStore?.isSuperAdmin"
+                alt=""
               />
               <PencilSquareIcon
                 class="w-4 h-4 cursor-pointer text-blue-800"

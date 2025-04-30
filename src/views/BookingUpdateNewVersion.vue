@@ -752,6 +752,7 @@ const processSubmission = async () => {
         );
       }
       if (
+        formData.value.items[x].product_type == "4" &&
         formData.value.items[x].individual_pricing?.adult &&
         formData.value.items[x].individual_pricing?.child
       ) {
@@ -1177,7 +1178,31 @@ const processItem = (item, isInclusive) => {
     room_number: formatNullValue(item.room_number),
     total_amount: Number(item.amount),
     total_cost_price: Number(item.total_cost_price),
-    individual_pricing: item.individual_pricing ?? {},
+    // Fixed individual_pricing code
+    individual_pricing:
+      item.individual_pricing != "null" &&
+      item.individual_pricing?.child?.quantity &&
+      item.individual_pricing?.child?.quantity != "NaN"
+        ? item.individual_pricing
+        : productType == "4"
+        ? {
+            adult: {
+              quantity: item.individual_pricing?.adult?.quantity ?? 0,
+              cost_price: item.individual_pricing?.adult?.cost_price ?? 0,
+              amount: item.individual_pricing?.adult?.amount ?? 0,
+              selling_price: item.individual_pricing?.adult?.selling_price ?? 0,
+              total_cost_price:
+                item.individual_pricing?.adult?.total_cost_price ?? 0,
+            },
+            child: {
+              quantity: 0,
+              cost_price: 0,
+              amount: 0,
+              selling_price: 0,
+              total_cost_price: 0,
+            },
+          }
+        : null,
     child_info: item?.variation?.child_info
       ? JSON.parse(item.variation.child_info)
       : [],

@@ -1,13 +1,9 @@
 <template>
   <div>
     <div class="">
-      <div class="text-2xl font-bold">Amend Request</div>
+      <div class="text-2xl font-bold">Amend Status</div>
       <div class="text-sm text-gray-500 pt-2">
-        Amend request is a request to change the details of a booking. This
-        request can be made by the customer or the travel agent to Reservation
-        Team. The request can be for a change in the date, time, or location of
-        the booking. The request can also be for a change in the number of
-        people in the booking.
+        Amend status is agent let they know process is what part reach.
       </div>
       <div>
         <div class="pt-4">
@@ -20,11 +16,14 @@
                 name=""
                 class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
                 id=""
-                v-model="amend_request"
+                v-model="amend_status"
               >
                 <option value="">Select</option>
-                <option :value="true">Request Sent</option>
-                <option :value="false">Request Not Sent</option>
+                <option value="pending">Pending</option>
+                <option value="requested">Request</option>
+                <option value="approved">Approve</option>
+                <option value="rejected">Rejected</option>
+                <option value="completed">Completed</option>
               </select>
               <button
                 class="bg-[#ff613c] text-white rounded-lg px-4 py-2 text-sm"
@@ -55,11 +54,11 @@ const amendStore = useAmendStore();
 const toast = useToast();
 const route = useRoute();
 
-const amend_request = ref(false);
+const amend_status = ref(false);
 
 const updateAmendAction = async () => {
   const frmData = new FormData();
-  frmData.append("amend_request", amend_request.value ? 1 : 0);
+  frmData.append("amend_status", amend_status.value);
   frmData.append("_method", "PUT");
   const res = await amendStore.updateAction(frmData, props.detail.id);
   //   props.getDetailAction();
@@ -73,7 +72,7 @@ const updateAmendAction = async () => {
 
 onMounted(() => {
   if (props.detail) {
-    amend_request.value = props.detail.amend_request;
+    amend_status.value = props.detail.amend_status;
   }
 });
 </script>

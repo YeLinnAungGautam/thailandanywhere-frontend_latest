@@ -1,6 +1,5 @@
 <script setup>
 import { storeToRefs } from "pinia";
-// import { usegroupByStore } from "../stores/reservation";
 import Layout from "./Layout.vue";
 import ListReservation from "./AmendComponent/ListAmend.vue";
 import ReservationCartLoadingVue from "./Dashboard/ReservationCartLoading.vue";
@@ -21,19 +20,23 @@ import { useRouter, useRoute } from "vue-router";
 import { useAdminStore } from "../stores/admin";
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import AttractionUnlimited from "./Reservation2Component/AttractionUnlimited.vue";
-import HotelUnlimited from "./Reservation2Component/HotelUnlimited.vue";
 import { XCircleIcon } from "@heroicons/vue/24/solid";
 import { format } from "date-fns";
-import { useGroupByStore } from "../stores/groupby";
 import { useSidebarStore } from "../stores/sidebar";
+import { useSupplierStore } from "../stores/supplier";
+import { useReservationStore } from "../stores/reservation";
+import { formattedDate } from "./help/FormatData";
+import { useAmendStore } from "../stores/amend";
 
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
 
-const groupByStore = useGroupByStore();
-const { results, loading } = storeToRefs(groupByStore);
+const amendStore = useAmendStore();
+const { amends, loading } = storeToRefs(amendStore);
 const authStore = useAuthStore();
+const supplierStore = useSupplierStore();
+const reservationStore = useReservationStore();
+const { suppliers } = storeToRefs(supplierStore);
 
 const router = useRouter();
 const adminStore = useAdminStore();
@@ -60,9 +63,6 @@ const showSide = ref(1);
 const oldCrmId = ref("");
 const filterShow = ref(false);
 const softShow = ref(false);
-const booking_status = ref("");
-const expense_status = ref("");
-const customer_payment_status = ref("");
 const booking_date = ref("");
 const searchReservation = ref("");
 const bookingStatus = ref("");
@@ -109,13 +109,11 @@ const userName = computed(() => {
 });
 
 const searchModel = ref(false);
-
-const searchValue = (val) => {
-  search.value = val;
-};
+const accountingGenerate = ref(false);
+const accountingVariation = ref(false);
 
 const changePage = async (url) => {
-  await groupByStore.getChangePage(url, watchSystem.value);
+  await amendStore.getChangePage(url, watchSystem.value);
 };
 
 // format action
@@ -137,10 +135,9 @@ const setStartAndEndDate = () => {
   const startDate = new Date(now); // Start date is today
 
   // Add 90 days to the start date to get the end date
-  const endDate = new Date(now);
-  endDate.setDate(endDate.getDate() + 90);
+  // const endDate = new Date(now);
 
-  dateRange.value = [startDate, endDate];
+  searchTime.value = startDate;
 };
 
 const watchSystem = computed(() => {
@@ -195,13 +192,6 @@ const watchSystem = computed(() => {
   if (searchReservation.value != "" && searchReservation.value != undefined) {
     result.reservation_status = searchReservation.value;
   }
-  if (
-    searchTime.value != "" &&
-    searchTime.value != undefined &&
-    dateOnlyToggle.value
-  ) {
-    result.service_date = formatDate(searchTime.value);
-  }
   if (empty_unit_cost.value != "" && empty_unit_cost.value != false) {
     result.empty_unit_cost = empty_unit_cost.value;
   }
@@ -212,11 +202,8 @@ const watchSystem = computed(() => {
   ) {
     result.booking_date = formatDate(booking_date.value);
   }
-  if (sale_daterange.value != undefined && !dateOnlyToggle.value) {
+  if (sale_daterange.value != undefined) {
     result.booking_daterange = sale_daterange.value;
-  }
-  if (booking_daterange.value != undefined && !dateOnlyToggle.value) {
-    result.booking_daterange = booking_daterange.value;
   }
   if (userFilter.value != undefined) {
     result.user_id = userFilter.value;
@@ -241,33 +228,12 @@ const detailId = ref("");
 const product_id = ref("");
 const getDetailAction = async (id) => {
   detailId.value = id.id;
-  product_id.value = id.product_id;
-
   if (detailId.value) {
-    router.push(
-      "amend?id=" +
-        detailId.value +
-        "&crm_id=" +
-        id.crm_id
-    );
+    router.push("amend?id=" + detailId.value + "&crm_id=" + id.crm_id);
   }
-
-  // showSide.value = false;
 };
 
 const adminLists = ref([]);
-
-const ChangeAttractionName = (data) => {
-  if (data) {
-    attraction_name.value = data;
-  }
-};
-
-const ChangeHotelName = (data) => {
-  if (data) {
-    hotel_name.value = data;
-  }
-};
 
 const changeDate = ref("");
 const changeServiceDate = async (data) => {
@@ -275,26 +241,24 @@ const changeServiceDate = async (data) => {
   changeDate.value = data;
   if (data == "today") {
     let startDate = formatDate(new Date());
-    let endDate = formatDate(new Date());
-    sale_daterange.value = `${startDate},${endDate}`;
+    searchTime.value = startDate;
   } else if (data == "tomorrow") {
     let tomorrowDate = new Date();
     tomorrowDate.setDate(tomorrowDate.getDate() + 1);
     let startDate = formatDate(tomorrowDate);
-    let endDate = formatDate(tomorrowDate);
-    sale_daterange.value = `${startDate},${endDate}`;
+    searchTime.value = startDate;
   } else if (data == "7day") {
     let startDate = formatDate(new Date());
     let endDate = formatDate(
       new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
     );
-    sale_daterange.value = `${startDate},${endDate}`;
+    searchTime.value = endDate;
   } else if (data == "30day") {
     let startDate = formatDate(new Date());
     let endDate = formatDate(
       new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
     );
-    sale_daterange.value = `${startDate},${endDate}`;
+    searchTime.value = endDate;
   }
 
   await searchAction();
@@ -348,9 +312,10 @@ onMounted(async () => {
   if (route.query.id) {
     detailId.value = route.query.id;
   }
-  console.log(results.value,'this is results of vantour');
+  console.log(amends.value, "this is amends of vantour");
   setStartAndEndDate();
   await getListUser();
+  await supplierStore.getSimpleListAction();
 });
 
 const searchCount = computed(() => {
@@ -387,7 +352,7 @@ watch([adminAction], async ([newValue]) => {
 });
 
 const getReservationListAction = async () => {
-  const res = await groupByStore.ReservationHotelList(watchSystem.value);
+  const res = await amendStore.getListAction(watchSystem.value);
   console.log(res, "this is reservation list");
   // if (detailId.value == "") {
   //   await getDetailAction(res.result?.data[0]?.id);
@@ -402,14 +367,8 @@ const detailGetAction = (id) => {
 
 const searchAction = async () => {
   filterShow.value = false;
-  await groupByStore.ReservationHotelList(watchSystem.value);
+  await amendStore.getListAction(watchSystem.value);
 };
-
-watch(searchTime, async (newValue) => {
-  await searchAction();
-  searchModel.value = false;
-  changeDate.value = "";
-});
 
 const getDateRangeCategory = (dateRange) => {
   if (!dateRange) return "other";
@@ -475,34 +434,67 @@ watch(sale_daterange, (newValue) => {
   }
 });
 
-watch(dateRange, async (newValue) => {
-  console.log(dateRange.value, "this is date");
-  if (dateRange.value != "" && dateRange.value != null) {
-    const options = { day: "2-digit", month: "2-digit", year: "numeric" };
+const generateDate = ref("");
+const supplier_id = ref("");
+const getGenerateResult = ref(null);
+
+const getAction = async () => {
+  console.log("====================================");
+  console.log(generateDate.value, supplier_id.value, "this is generate date");
+  console.log("====================================");
+  const res = await reservationStore.getListAction({
+    service_date: formattedDate(generateDate.value),
+    supplier_id: supplier_id.value,
+    limit: 100,
+  });
+
+  console.log(res.result.data, "this is generate date");
+  if (res.result.data) {
+    getGenerateResult.value = res.result.data;
+    accountingGenerate.value = false;
+    accountingVariation.value = true;
+  }
+};
+
+watch(
+  searchTime,
+  (newValue) => {
+    console.log(searchTime.value, "this is date");
+
+    if (!newValue || newValue === "") {
+      sale_daterange.value = "";
+      getReservationListAction();
+      searchModel.value = false;
+      return;
+    }
+
+    // Ensure newValue is a Date object
+    const date = new Date(newValue);
+    if (isNaN(date.getTime())) {
+      console.error("Invalid date provided");
+      return;
+    }
 
     // Custom function to format date as dd-MM-yyyy
     const formatDateAsDDMMYYYY = (date) => {
-      if (date) {
-        const dd = String(date.getDate()).padStart(2, "0");
-        const mm = String(date.getMonth() + 1).padStart(2, "0");
-        const yyyy = date.getFullYear();
-        return `${yyyy}-${mm}-${dd}`;
-      }
+      const dd = String(date.getDate()).padStart(2, "0");
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      const yyyy = date.getFullYear();
+      return `${yyyy}-${mm}-${dd}`; // Changed to match comment
     };
 
-    // Format start and end dates
-    const formattedStartDate = formatDateAsDDMMYYYY(dateRange.value[0]);
-    const formattedEndDate = formatDateAsDDMMYYYY(dateRange.value[1]);
+    // Format the date
+    const formattedDate = formatDateAsDDMMYYYY(date);
 
-    sale_daterange.value = `${formattedStartDate},${formattedEndDate}`;
-  } else {
-    sale_daterange.value = "";
-  }
-  // console.log(sale_daterange.value, "this is daterange");
-  getReservationListAction();
+    // For single date, use the same date for start and end
+    sale_daterange.value = `${formattedDate}`;
 
-  searchModel.value = false;
-});
+    console.log(sale_daterange.value, "this is daterange");
+    getReservationListAction();
+    searchModel.value = false;
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -558,27 +550,6 @@ watch(dateRange, async (newValue) => {
                     clear
                   </p>
                 </div>
-
-                <p class="text-[10px]">User</p>
-                <select
-                  name=""
-                  id=""
-                  v-model="userFilter"
-                  class="px-2 py-1 focus:outline-none border border-gray-300 placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 text-[10px] md:w-full text-gray-400 space-y-2 h-9"
-                >
-                  <option :value="null" disabled class="bg-gray-200 text-sm">
-                    Filter By User
-                  </option>
-                  <option value="" class="text-[12px]">All User</option>
-                  <option
-                    :value="key.id"
-                    v-for="(key, index) in adminLists"
-                    :key="index"
-                    class="text-[12px]"
-                  >
-                    {{ key.name }}
-                  </option>
-                </select>
                 <p class="text-[10px]">Service Date</p>
                 <Modal :isOpen="searchModel" @closeModal="searchModel = false">
                   <DialogPanel
@@ -590,7 +561,7 @@ watch(dateRange, async (newValue) => {
                     >
                       Select Date filter for booking date
                     </DialogTitle>
-                    <div v-if="dateOnlyToggle">
+                    <div v-if="!dateOnlyToggle">
                       <VueDatePicker
                         v-model="searchTime"
                         multi-calendars
@@ -599,7 +570,7 @@ watch(dateRange, async (newValue) => {
                         text-input
                       />
                     </div>
-                    <div v-if="!dateOnlyToggle">
+                    <div v-if="dateOnlyToggle">
                       <VueDatePicker
                         v-model="dateRange"
                         range
@@ -640,41 +611,6 @@ watch(dateRange, async (newValue) => {
                     class="absolute right-1 top-7 rounded-lg text-xs p-1 bg-[#FF613c]"
                   >
                     <MagnifyingGlassIcon class="w-4 h-4 text-white" />
-                  </div>
-                </div>
-
-                <div class="">
-                  <div class="flex justify-between items-center pb-2">
-                    <p class="text-[10px]">Attraction</p>
-
-                    <div class="flex justify-end items-center space-x-2">
-                      <p
-                        class="text-[10px] cursor-pointer"
-                        @click="attraction_name = ''"
-                      >
-                        clear
-                      </p>
-                      <p
-                        class="text-[10px] cursor-pointer"
-                        @click="entranceAction = !entranceAction"
-                      >
-                        {{ !entranceAction ? "show" : "hide" }}
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    v-if="!entranceAction"
-                    @click="entranceAction = true"
-                    class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-lg bg-white px-4 py-1.5 w-full"
-                  >
-                    <p class="text-[10px]">
-                      {{
-                        attraction_name ? attraction_name : "Attraction search"
-                      }}
-                    </p>
-                  </div>
-                  <div v-if="entranceAction" class="w-full">
-                    <AttractionUnlimited @selectAction="ChangeAttractionName" />
                   </div>
                 </div>
 
@@ -769,10 +705,6 @@ watch(dateRange, async (newValue) => {
                   class="flex justify-between items-center pt-4 border-b border-gray-100 pb-1 sticky top-0 bg-white"
                 >
                   <p class="text-xs font-medium">Sort</p>
-                  <!-- <XCircleIcon
-                    class="w-6 h-6 text-[#FF613c] cursor-pointer"
-                    @click="softShow = !softShow"
-                  /> -->
                   <p
                     class="text-[10px] cursor-pointer"
                     @click="
@@ -1042,20 +974,14 @@ watch(dateRange, async (newValue) => {
             <div
               class="text-[10px] rounded-lg px-2 py-1 text-white bg-[#FF613c]"
             >
-              {{ results?.meta?.total }} reser
+              {{ amends?.meta?.total }} reser
             </div>
           </div>
           <div
             v-if="!loading"
             class="bg-white shadow rounded-lg divide-y divide-gray-100 max-h-[62vh] overflow-y-scroll"
           >
-            <div class="relative" v-for="i in results?.data ?? []" :key="i">
-              <!-- <div
-                @click="getDetailAction(i.bookings[0]?.id)"
-                class="absolute top-7 text-[10px] z-30 cursor-pointer right-2 px-2 py-0.5 rounded-lg bg-[#FF613c] text-white"
-              >
-                Detial
-              </div> -->
+            <div class="relative" v-for="i in amends?.data ?? []" :key="i">
               <ListReservation
                 :data="i"
                 :detailId="detailId"
@@ -1066,7 +992,7 @@ watch(dateRange, async (newValue) => {
           <div class="overflow-x-scroll no-sidebar-container py-2">
             <Pagination
               v-if="!loading"
-              :data="results"
+              :data="amends"
               @change-page="changePage"
             />
           </div>

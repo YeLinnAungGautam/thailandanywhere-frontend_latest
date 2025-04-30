@@ -697,7 +697,11 @@ const processSubmission = async () => {
         );
       }
 
-      if (formData.value.items[x].individual_pricing) {
+      if (
+        formData.value.items[x].product_type == "4" &&
+        formData.value.items[x].individual_pricing?.adult &&
+        formData.value.items[x].individual_pricing?.child
+      ) {
         frmData.append(
           "items[" + x + "][individual_pricing][adult][quantity]",
           formData.value.items[x].individual_pricing.adult.quantity
@@ -738,6 +742,8 @@ const processSubmission = async () => {
           "items[" + x + "][individual_pricing][child][amount]",
           formData.value.items[x].individual_pricing.child.amount
         );
+      } else {
+        frmData.append("items[" + x + "][individual_pricing]", null);
       }
 
       if (formData.value.items[x].discount) {

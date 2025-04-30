@@ -133,6 +133,7 @@
                 />
               </div>
               <SidebarItem
+                v-if="authStore.isSuperAdmin"
                 name="Amend"
                 :icon="ChatBubbleBottomCenterTextIcon"
                 to="/amend"

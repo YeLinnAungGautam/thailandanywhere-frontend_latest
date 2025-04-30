@@ -5,23 +5,23 @@ import {
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  TrashIcon,
   XCircleIcon,
 } from "@heroicons/vue/24/outline";
 import { useRoute, useRouter } from "vue-router";
-import { useGroupByStore } from "../../stores/groupby";
 import productIcon from "../../assets/window.png";
 import checkImage from "../../assets/check.png";
 import { useToast } from "vue-toastification";
-import Modal from "../../components/Modal.vue";
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import logo from "../../assets/web-logo.png";
 import { useAuthStore } from "../../stores/auth";
-import {daysBetween} from "../help/DateBetween"
+import { daysBetween } from "../help/DateBetween";
 import { getFormatDate } from "../help/FormatData";
 import AmendGenral from "./AmendGenral.vue";
 import AmendRequest from "./AmendRequest.vue";
 import AmendMailSent from "./AmendMailSent.vue";
 import AmendApprove from "./AmendApprove.vue";
+import { useAmendStore } from "../../stores/amend";
+import Swal from "sweetalert2";
+import AmendStatus from "./AmendStatus.vue";
 
 const props = defineProps({
   show: Number,
@@ -30,7 +30,7 @@ const props = defineProps({
 const part = ref("general");
 const route = useRoute();
 const router = useRouter();
-const groupbyStore = useGroupByStore();
+const amendStore = useAmendStore();
 const authStore = useAuthStore();
 const detail = ref(null);
 const getLoading = ref(false);
@@ -42,6 +42,7 @@ const state = ref({
   request: false,
   sent: false,
   approve: false,
+  status: false,
 });
 
 const showCommentPropup = ref(false);
@@ -51,6 +52,7 @@ const partArray = ref([
   { id: 2, name: "request" },
   { id: 3, name: "sent" },
   { id: 4, name: "approve" },
+  { id: 5, name: "status" },
 ]);
 
 const transition = ref("slide-right");
@@ -79,29 +81,13 @@ const generateConfirmation = () => {
   }
 };
 
-const goToPrint = () => {
-  router.push(
-    `/reservation/confirmations/entrance/${reservation_ids.value.id}?variation_name=${reservation_ids.value.name}`
-  );
-};
-
-const goToFill = () => {
-  router.push({
-    name: "update_new_bookings",
-    params: {
-      id: detail.value?.booking?.id,
-    },
-  });
-
-  showFailModal.value = false;
-};
-
 const getComponent = (part) => {
   const components = {
     general: AmendGenral,
     request: AmendRequest,
     sent: AmendMailSent,
     approve: AmendApprove,
+    status: AmendStatus,
   };
   return components[part];
 };
@@ -109,241 +95,54 @@ const getComponent = (part) => {
 const getDetailAction = async (id) => {
   getLoading.value = true;
   reservation_ids.value = [];
-  
-  const res = await groupbyStore.ReservationVantourDetailAction(
-    id
-  );
-  detail.value = res;
+
+  const res = await amendStore.getDetailAction(id);
+  detail.value = res.result;
   console.log(detail.value, "this is detail");
 
   getLoading.value = false;
 };
 
-const showWarningModal = ref(false);
-const customerPassportLength = ref(false);
-
-const goToFillPassport = () => {
-  part.value = "passport";
-  showWarningModal.value = false;
-  customerPassportLength.value = false;
-};
-
-const goToGenerate = () => {
-  router.push(
-    `/reservation/confirmations/group/hotel/png?id=${route.query.id}&product_id=${route.query.product_id}`
-  );
-  showWarningModal.value = false;
-  customerPassportLength.value = false;
-};
-
-const copyReservation = async () => {
-  try {
-    let res = detail.value?.booking;
-    console.log(res, "this is copy reservation");
-
-    // Check if we have data and items
-    if (!res || !res.items || res.items.length === 0) {
-      toast.error("No reservation items found");
-      return;
-    }
-
-    // Helper function to check if a date is today, tomorrow, or the day after tomorrow
-    function getUrgencyLabel(dateString) {
-      if (!dateString || dateString === "null" || dateString === "-") return "";
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-
-      const dayAfterTomorrow = new Date(today);
-      dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-
-      // Parse the service date
-      const serviceDateParts = dateString.split("-");
-      // Assuming format is YYYY-MM-DD or DD-MM-YYYY
-      let serviceDate;
-
-      if (serviceDateParts[0].length === 4) {
-        // YYYY-MM-DD format
-        serviceDate = new Date(dateString);
+const deleteAction = async () => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      const res = await amendStore.deleteAction(detail.value?.id);
+      console.log("====================================");
+      console.log(res, "this is delete");
+      console.log("====================================");
+      if (res.status == "Request was successful.") {
+        toast.success("Delete successfully");
+        router.push({
+          name: "amend",
+        });
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       } else {
-        // DD-MM-YYYY format
-        serviceDate = new Date(
-          `${serviceDateParts[2]}-${serviceDateParts[1]}-${serviceDateParts[0]}`
-        );
-      }
-
-      serviceDate.setHours(0, 0, 0, 0);
-
-      if (serviceDate.getTime() === today.getTime()) {
-        return "*Urgent: Today*  \n";
-      } else if (serviceDate.getTime() === tomorrow.getTime()) {
-        return "*Urgent: Tomorrow*  \n";
-      } else if (serviceDate.getTime() === dayAfterTomorrow.getTime()) {
-        return "*Urgent: Day After Tomorrow*  \n";
-      }
-
-      return "";
-    }
-
-    // Calculate discount - safely handling potential undefined values
-    let discount = 0;
-    for (let i = 0; i < res.items.length; i++) {
-      discount += parseFloat(res.items[i].discount || 0);
-    }
-    
-    // Calculate score safely
-    let score = 0;
-
-    // Check for earliest service date across all items
-    let earliestServiceDate = null;
-    for (const item of res.items) {
-      // Fixed typo from "serivce_date" to "service_date" with fallback
-      const serviceDate = item.service_date || item.serivce_date;
-      if (serviceDate && serviceDate !== "null") {
-        if (!earliestServiceDate || serviceDate < earliestServiceDate) {
-          earliestServiceDate = serviceDate;
-        }
+        toast.error("Delete failed");
       }
     }
-
-    // Get urgency label based on earliest service date
-    const urgencyLabel = earliestServiceDate
-      ? getUrgencyLabel(earliestServiceDate)
-      : "";
-
-    // Create formatted output for all items
-    let allFormattedOutput = "";
-
-    // Add urgency label at the top if needed
-    if (urgencyLabel) {
-      allFormattedOutput += urgencyLabel;
-    }
-
-    // Add booking header - safely handling missing values
-    const totalCost = "0";
-    const totalAmount = res.grand_total || "0";
-    const balanceDue = res.balance_due || "0";
-    const paymentStatus = res.payment_status || "Unknown";
-    
-    allFormattedOutput += `💰 Total Cost: ${totalCost} THB 
-💵 Price: ${totalAmount} THB 
-💵 Balance Due: ${balanceDue} THB 
-📝 Payment Status: ${paymentStatus}
----------------------
-🏦 Bank Name: ${
-      res.items[0]?.bank_name !== "null" && res.items[0]?.bank_name 
-        ? res.items[0].bank_name 
-        : "-"
-    } 
-🔢 Bank Account Number: ${
-      res.items[0]?.bank_account_number !== "null" && res.items[0]?.bank_account_number
-        ? `➖${res.items[0].bank_account_number}`
-        : "-"
-    }
-🧑‍💼 Account Name: ${
-      res.items[0]?.account_name !== "null" && res.items[0]?.account_name
-        ? res.items[0].account_name
-        : "-"
-    } 
-#️⃣ CRM ID: ${res.crm_id || "-"}\n`;
-
-    // Process each item with proper error handling
-    res.items.forEach((item) => {
-      // Fix typo in service_date field name and provide fallbacks
-      const serviceDate = item.service_date || item.serivce_date || "-";
-      const itemUrgencyLabel = getUrgencyLabel(serviceDate).trim();
-      const urgencyPrefix = itemUrgencyLabel ? `[${itemUrgencyLabel}] ` : "";
-      
-      allFormattedOutput += `🏩 Name: ${item.product?.name || "-"}
-📆 Service Date: ${urgencyPrefix}${serviceDate}
-#️⃣ Reservation Code: ${item.crm_id || "-"}: S: (${item.selling_price || "-"})
----------------------\n`;
-    });
-
-    // Add summary information with proper fallbacks
-    allFormattedOutput += `💵 Total Sale Amount: ${res.sub_total || "0"} THB 
-💸 Discount: ${discount} THB 
-📅 Sale Date: ${res.booking_date || "-"}
-🤑 Score: ${score.toFixed(2)}\n`;
-
-    // Add customer information if available
-    if (res.customer_info) {
-      allFormattedOutput += `👤 Customer Name: ${res.customer_info.name || "-"}
-📱 Contact: ${res.customer_info.phone_number || "-"}
-✉️ Email: ${res.customer_info.email || "-"}\n`;
-    }
-
-    // Copy to clipboard with a short timeout to ensure UI isn't blocked
-    setTimeout(() => {
-      navigator.clipboard.writeText(allFormattedOutput);
-      toast.success("Reservation copied successfully");
-    }, 0);
-
-    return allFormattedOutput;
-  } catch (error) {
-    console.error("Error copying reservations:", error);
-    toast.error("Failed to copy reservation");
-    return "Error: Failed to format reservation information";
-  }
+  });
 };
 
 watch(
-  () => detail.value,
-  (newValue) => {
-    if (newValue != null) {
-      // Check payment status for general state
-      if (detail.value.booking.payment_status == "fully_paid") {
-        state.value.general = true;
-      } else {
-        state.value.general = false;
-      }
-
-      // Initialize all states to false
-      state.value.extra = false;
-      state.value.booking = false;
-      state.value.assign = false;
-      state.value.expense = false;
-
-      // Loop through all booking items
-      if (detail.value.booking.items && detail.value.booking.items.length > 0) {
-        detail.value.booking.items.forEach((item) => {
-          // Check passport condition
-          // if (item.customer_passports && item.customer_passports.length > 0) {
-          //   state.value.passport = true;
-          // }
-
-          // Check booking request condition
-          if (item.is_booking_request == 1) {
-            state.value.booking = true;
-          }
-
-          // Check invoice condition
-          // if (
-          //   item.booking_confirm_letters &&
-          //   item.booking_confirm_letters.length > 0
-          // ) {
-          //   state.value.invoice = true;
-          // }
-
-          // Check expense condition
-          if (item.payment_status == "fully_paid") {
-            state.value.expense = true;
-          }
-        });
-      }
+  () => route.query.id,
+  (newId) => {
+    if (newId) {
+      hasRouteId.value = false;
+      getDetailAction(newId);
     }
-  }
+  },
+  { immediate: true }
 );
-
-watch(() => route.query.id, (newId) => {
-  if (newId) {
-    hasRouteId.value = false;
-    getDetailAction(newId);
-  }
-},{ immediate: true });
 
 watch(
   () => part.value,
@@ -351,7 +150,7 @@ watch(
     router.push({
       query: {
         id: route.query.id,
-        crm_id : route.query.crm_id,
+        crm_id: route.query.crm_id,
         part: newPart,
       },
     });
@@ -408,21 +207,34 @@ const hide = ref(true);
     </div>
     <div class="space-y-4" v-if="!getLoading && !hasRouteId">
       <div class="space-y-4 border border-gray-200 p-3 rounded-lg">
-        
         <div class="grid grid-cols-5 gap-2">
           <div class="col-span-5 flex justify-between items-center">
             <div>
               <p class="text-[10px] text-gray-500">customer name</p>
               <p class="text-[18px] text-[#FF613c] font-medium pb-2">
-                {{ detail?.booking.customer_info?.name }}
+                {{ detail?.booking_item?.customer_info?.name }}
               </p>
               <div class="flex justify-start items-center gap-x-2">
-                <p @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
+                <p
+                  @click="
+                    router.push(
+                      `/bookings/new-update/${detail?.booking_item?.booking?.id}`
+                    )
+                  "
                   class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
                 >
-                  {{ detail?.booking?.crm_id }}
+                  {{ detail?.booking_item?.crm_id }}
                 </p>
-                
+                <p
+                  class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
+                >
+                  {{ detail?.booking_item?.product?.name }}
+                </p>
+                <p
+                  class="text-[12px] bg-[#FF613c]/20 text-[#FF613c] font-semibold whitespace-nowrap cursor-pointer px-3 py-1 rounded-lg"
+                >
+                  {{ detail?.amend_status }}
+                </p>
               </div>
             </div>
             <div class="">
@@ -432,17 +244,18 @@ const hide = ref(true);
               </p>
               <div class="flex justify-end items-center gap-x-2">
                 <p
+                  @click="deleteAction"
+                  class="text-[10px] bg-red-600 text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg flex justify-center items-center gap-x-1"
+                >
+                  <TrashIcon class="w-3 h-3" /> Delete
+                </p>
+                <p
                   @click="showCommentPropup = true"
                   class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg flex justify-center items-center gap-x-1"
                 >
                   <img :src="productIcon" alt="" class="w-3 h-3" />Note
                 </p>
-                <p
-                  class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
-                  @click="copyReservation(detail?.booking?.id)"
-                >
-                  Copy Expense
-                </p>
+
                 <p
                   @click="hide = !hide"
                   class="text-[10px] bg-black text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg flex justify-center items-center gap-x-1"
@@ -479,9 +292,8 @@ const hide = ref(true);
                       >
                         Item Name
                       </th>
-                      
+
                       <th
-                        
                         class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                       >
                         Service Date
@@ -510,50 +322,49 @@ const hide = ref(true);
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-gray-100">
-                    <tr
-                      v-for="item in detail?.booking?.items ?? []"
-                      :key="item"
-                      class="bg-white even:bg-gray-50 hover:bg-gray-50"
-                    >
+                    <tr class="bg-white even:bg-gray-50 hover:bg-gray-50">
                       <td
                         class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                       >
-                        {{ item.crm_id }}
+                        {{ detail?.booking_item?.crm_id }}
                       </td>
                       <td
                         class="py-1 px-4 text-[10px] w-[300px] font-normal text-left"
                       >
-                        {{ item?.product?.name }}
+                        {{ detail?.booking_item?.product?.name }}
                       </td>
                       <td
-                        class="py-1 px-4 text-[10px] font-normal text-left"
+                        class="py-1 px-4 min-w-[120px] text-[10px] font-normal text-left"
                       >
-                        {{ item?.car?.name }}
+                        {{ detail?.booking_item?.car?.name }}
+                        {{ detail?.booking_item?.room?.name }}
+                        {{ detail?.booking_item?.variation?.name }}
+                        {{ detail?.booking_item?.ticket?.name }}
                       </td>
                       <top-destination-cart
                         class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                       >
-                        {{ getFormatDate(item?.service_date) }}
+                        {{ getFormatDate(detail?.booking_item?.service_date) }}
                       </top-destination-cart>
                       <td
                         class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                       >
-                        {{ item.quantity }}
+                        {{ detail?.booking_item?.quantity }}
                       </td>
                       <td
                         class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                       >
-                        {{ item.selling_price }}
+                        {{ detail?.booking_item?.selling_price }}
                       </td>
                       <td
                         class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                       >
-                        {{ item.amount }}
+                        {{ detail?.booking_item?.amount }}
                       </td>
                       <td
                         class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
                       >
-                        {{ item.discount }}
+                        {{ detail?.booking_item?.discount }}
                       </td>
                     </tr>
                   </tbody>
@@ -565,8 +376,6 @@ const hide = ref(true);
       </div>
       <div>
         <div class="pt-2 relative flex justify-between items-center">
-          <!-- line -->
-          <!-- <div class="w-full h-[3px] absolute bottom-2.5 bg-gray-200"></div> -->
           <div
             class="flex justify-start items-center gap-x-3 cursor-pointer"
             @click="part = 'general'"
@@ -716,9 +525,44 @@ const hide = ref(true);
           </div>
           <div
             class="relative z-10"
-            :class="state.approve ? 'text-[#04BA00]' : 'text-gray-800'"
+            :class="state.status ? 'text-[#04BA00]' : 'text-gray-800'"
           >
             <ChevronRightIcon class="w-4 h-4" />
+          </div>
+          <div
+            class="flex justify-start items-center gap-x-3 cursor-pointer"
+            @click="part = 'status'"
+          >
+            <div
+              v-if="
+                !state.status &&
+                (authStore.isReservation || authStore.isSuperAdmin)
+              "
+              @click="part = 'status'"
+              class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
+              :class="
+                part == 'status' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+              "
+            >
+              5
+            </div>
+            <div
+              v-if="
+                state.status &&
+                (authStore.isReservation || authStore.isSuperAdmin)
+              "
+              @click="part = 'status'"
+              class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+              :class="part == 'status' ? 'bg-white text-white' : ''"
+            >
+              <img :src="checkImage" alt="" />
+            </div>
+            <p
+              class="text-xs"
+              :class="state.status ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              Amend Status
+            </p>
           </div>
         </div>
 
@@ -734,33 +578,33 @@ const hide = ref(true);
           <p
             class="w-full rounded-lg h-1"
             :class="{
-              'bg-green-500': part === 'extra' && state.extra,
-              'bg-[#FF613c]': part === 'extra' && !state.extra,
-              'opacity-0': part !== 'extra',
+              'bg-green-500': part === 'request' && state.request,
+              'bg-[#FF613c]': part === 'request' && !state.request,
+              'opacity-0': part !== 'request',
             }"
           ></p>
           <p
             class="w-full rounded-lg h-1"
             :class="{
-              'bg-green-500': part === 'booking' && state.booking,
-              'bg-[#FF613c]': part === 'booking' && !state.booking,
-              'opacity-0': part !== 'booking',
+              'bg-green-500': part === 'sent' && state.sent,
+              'bg-[#FF613c]': part === 'sent' && !state.sent,
+              'opacity-0': part !== 'sent',
             }"
           ></p>
           <p
             class="w-full rounded-lg h-1"
             :class="{
-              'bg-green-500': part === 'assign' && state.assign,
-              'bg-[#FF613c]': part === 'assign' && !state.assign,
-              'opacity-0': part !== 'assign',
+              'bg-green-500': part === 'approve' && state.approve,
+              'bg-[#FF613c]': part === 'approve' && !state.approve,
+              'opacity-0': part !== 'approve',
             }"
           ></p>
           <p
             class="w-full rounded-lg h-1"
             :class="{
-              'bg-green-500': part === 'expense' && state.expense,
-              'bg-[#FF613c]': part === 'expense' && !state.expense,
-              'opacity-0': part !== 'expense',
+              'bg-green-500': part === 'status' && state.status,
+              'bg-[#FF613c]': part === 'status' && !state.status,
+              'opacity-0': part !== 'status',
             }"
           ></p>
         </div>
@@ -778,217 +622,6 @@ const hide = ref(true);
         </div>
       </div>
     </div>
-    <Modal :isOpen="showFailModal" @closeModal="showFailModal = false">
-      <DialogPanel
-        class="w-full max-w-sm transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
-      >
-        <DialogTitle
-          as="div"
-          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start pb-20 pt-4 px-4"
-        >
-          <p></p>
-          <XCircleIcon
-            class="w-5 h-5 text-white"
-            @click="showFailModal = false"
-          />
-        </DialogTitle>
-        <!-- show date  -->
-        <div class="relative">
-          <div class="absolute -top-8 left-[43%]">
-            <img
-              :src="logo"
-              class="w-16 h-16 bg-white rounded-full p-3"
-              alt=""
-            />
-          </div>
-          <div class="py-10 text-center space-y-4">
-            <p class="font-medium text-lg text-[#FF613c]">Data Missing !</p>
-            <p class="text-xs">Please sure customer payment is paid</p>
-            <p
-              @click="goToFill"
-              class="cursor-pointer inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
-            >
-              Go To Fill Data
-            </p>
-          </div>
-        </div>
-      </DialogPanel>
-    </Modal>
-    <Modal :isOpen="showWarningModal">
-      <DialogPanel
-        class="w-full max-w-sm transform overflow-hidden rounded-lg mt-10 bg-white text-left align-middle shadow-xl transition-all"
-      >
-        <DialogTitle
-          as="div"
-          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start pb-20 pt-4 px-4"
-        >
-          <p></p>
-        </DialogTitle>
-        <!-- show date  -->
-        <div class="relative">
-          <div class="absolute -top-8 left-[43%]">
-            <img
-              :src="logo"
-              class="w-16 h-16 bg-white rounded-full p-3"
-              alt=""
-            />
-          </div>
-          <div class="py-10 text-center space-y-4">
-            <p class="font-medium text-lg text-[#FF613c]">
-              Passports Warning !
-            </p>
-            <p class="text-xs">
-              Please sure customer passport is filled before generate
-              confirmation,
-              {{
-                customerPassportLength
-                  ? `only ${detail.booking?.items[0]?.customer_passports.length} passport do you wanna go generate confirmation?`
-                  : "please fill customer passport"
-              }}
-            </p>
-            <p
-              @click="goToGenerate"
-              class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
-            >
-              Go To Generate
-            </p>
-            <p
-              @click="goToFillPassport"
-              class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
-            >
-              Go To Fill
-            </p>
-            <p
-              @click="showWarningModal = false"
-              class="cursor-pointer inline-block text-[#FF613c] border border-[#FF613c] text-[10px] bg-white px-2 py-1 rounded-lg"
-            >
-              Cancel
-            </p>
-          </div>
-        </div>
-      </DialogPanel>
-    </Modal>
-    <Modal :isOpen="selectTicketModal">
-      <DialogPanel
-        class="w-full max-w-lg transform overflow-hidden rounded-lg mt-10 bg-white text-left align-middle shadow-xl transition-all"
-      >
-        <DialogTitle
-          as="div"
-          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start pb-20 pt-4 px-4"
-        >
-          <p></p>
-        </DialogTitle>
-        <!-- show date  -->
-        <div class="relative">
-          <div class="absolute -top-8 left-[43%]">
-            <img
-              :src="logo"
-              class="w-16 h-16 bg-white rounded-full p-3"
-              alt=""
-            />
-          </div>
-          <div class="py-10 text-center space-y-4">
-            <p class="font-medium text-lg text-[#FF613c]">Select Ticket Type</p>
-            <p class="text-xs">
-              မည်သည့် ticket အတွက် confirmation ထုတ်မည်ကို အတည်ပြုပေးပါ။,
-            </p>
-            <div class="space-y-2">
-              <div
-                v-for="item in detail?.booking?.items"
-                class="flex justify-center items-center"
-                :key="item"
-              >
-                <input
-                  @click="
-                    () => {
-                      reservation_ids.id = item.id;
-                      reservation_ids.name = item.variation?.name;
-                    }
-                  "
-                  type="radio"
-                  :checked="reservation_ids.id == item.id"
-                  class="w-5 h-5 text-white border border-[#FF613c] rounded-full"
-                />
-                <label
-                  :for="item.id"
-                  class="ml-2 text-sm font-medium text-[#FF613c]"
-                >
-                  {{ item.variation?.name }}
-                </label>
-              </div>
-            </div>
-            <p
-              v-if="reservation_ids.id != null"
-              @click="goToPrint"
-              class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
-            >
-              Go To Generate
-            </p>
-            <p
-              v-if="reservation_ids.id == null"
-              class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-gray-200 px-2 py-1 rounded-lg"
-            >
-              Go To Generate
-            </p>
-            <p
-              @click="selectTicketModal = false"
-              class="cursor-pointer inline-block text-[#FF613c] border border-[#FF613c] text-[10px] bg-white px-2 py-1 rounded-lg"
-            >
-              Cancel
-            </p>
-          </div>
-        </div>
-      </DialogPanel>
-    </Modal>
-    <Modal :isOpen="showCommentPropup" @closeModal="showCommentPropup = false">
-      <DialogPanel
-        class="w-full max-w-3xl transform overflow-hidden rounded-lg mt-10 bg-white text-left align-middle shadow-xl transition-all"
-      >
-        <DialogTitle
-          as="div"
-          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start pb-20 pt-4 px-4"
-        >
-          <p></p>
-        </DialogTitle>
-        <!-- show date  -->
-        <div class="relative">
-          <div class="absolute -top-8 left-[45%]">
-            <img
-              :src="logo"
-              class="w-16 h-16 bg-white rounded-full p-3"
-              alt=""
-            />
-          </div>
-          <div class="py-10 text-center space-y-4">
-            <p class="font-medium text-lg text-[#FF613c]">Reservation Note</p>
-            <div class="grid grid-cols-3 gap-4 px-4">
-              <div v-for="i in 3" :key="i">
-                <p class="text-xs font-medium pb-2">
-                  For CRM ID: SA-0023_00{{ i }}
-                </p>
-                <textarea
-                  name=""
-                  class="w-full min-h-[100px] border border-[#FF613c] rounded-lg px-4 py-2 focus:outline-none"
-                  id=""
-                ></textarea>
-                <p
-                  @click="showCommentPropup = false"
-                  class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
-                >
-                  Save Note
-                </p>
-                <p
-                  @click="showCommentPropup = false"
-                  class="cursor-pointer inline-block text-[#FF613c] border border-[#FF613c] text-[10px] bg-white px-2 py-1 rounded-lg"
-                >
-                  Cancel
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </DialogPanel>
-    </Modal>
   </div>
 </template>
 

@@ -1,184 +1,278 @@
 <template>
   <div class="relative">
-    <div class="grid grid-cols-1 gap-4 px-8">
-      <div class="space-y-4" v-if="amendData != null">
-        <!-- <p class="text-sm font-medium mb-2 pt-4">Amend Reservation</p> -->
-
+    <div class="grid grid-cols-1 gap-1">
+      <div class="space-y-1" v-if="amendData != null">
         <!-- Service Date -->
-        <div class="flex items-center gap-x-4 border-b py-3">
-          <div class="w-1/3">
-            <label class="text-[12px] text-gray-500"
-              >Service date <span class="text-red-800">*</span></label
+        <div class="grid grid-cols-9 gap-x-4 py-1 pt-3">
+          <div
+            class="col-span-4 border border-gray-200 rounded-lg flex justify-between items-center px-4 py-3"
+          >
+            <label
+              class="text-[12px] text-[#FF613c] font-semibold flex justify-start items-center"
+              ><CalendarIcon class="w-4 h-4 mr-2" /> Service date
+              <span class="text-red-800">*</span></label
             >
             <p class="font-medium text-sm py-1">{{ amendData.service_date }}</p>
           </div>
-          <div class="w-2/3">
+          <div class="flex justify-center items-center">
+            <ArrowRightCircleIcon
+              class="w-7 h-7"
+              :class="
+                amendData.service_date != amendChangesData.service_date
+                  ? 'text-red-600'
+                  : 'text-gray-400'
+              "
+            />
+          </div>
+          <div
+            class="col-span-4 border border-gray-200 rounded-lg flex justify-between items-center px-4 py-2"
+          >
+            <label
+              class="text-[12px] text-[#FF613c] font-semibold flex justify-start items-center"
+              ><CalendarIcon class="w-4 h-4 mr-2" /> Service date
+              <span class="text-red-800">*</span></label
+            >
             <input
               type="date"
               v-model="amendChangesData.service_date"
-              class="border border-blue-600 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+              class="border border-blue-600 w-[150px] px-2 py-2 rounded-lg text-xs focus:outline-none"
             />
           </div>
         </div>
 
         <!-- Quantity -->
         <div
-          class="flex items-center gap-x-4 border-b pb-3"
-          v-if="amendData.product_type != 7"
+          class="grid grid-cols-9 gap-x-4 py-1"
+          v-if="amendData.product_type != 7 && amendData.product_type != 6"
         >
-          <div class="w-1/3">
-            <label class="text-[12px] text-gray-500"
-              >Quantity - selling : {{ amendData.selling_price }}
+          <div
+            class="col-span-4 border border-gray-200 rounded-lg flex justify-between items-center px-4 py-3"
+          >
+            <label
+              class="text-[12px] text-[#FF613c] font-semibold flex justify-start items-center"
+              ><CalculatorIcon class="w-4 h-4 mr-2" />Quantity
               <span class="text-red-800">*</span></label
             >
             <p class="text-sm py-1 font-medium">{{ amendData.quantity }}</p>
           </div>
-          <div class="w-2/3">
+          <div class="flex justify-center items-center">
+            <ArrowRightCircleIcon
+              class="w-7 h-7"
+              :class="
+                amendData.quantity != amendChangesData.quantity
+                  ? 'text-red-600'
+                  : 'text-gray-400'
+              "
+            />
+          </div>
+          <div
+            class="col-span-4 border border-gray-200 rounded-lg flex justify-between items-center px-4 py-2"
+          >
+            <label
+              class="text-[12px] text-[#FF613c] font-semibold flex justify-start items-center"
+              ><CalculatorIcon class="w-4 h-4 mr-2" />Quantity
+              <span class="text-red-800">*</span></label
+            >
             <input
               type="number"
               v-model="amendChangesData.quantity"
-              class="border border-blue-600 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+              class="border border-blue-600 w-[150px] px-2 py-2 rounded-lg text-xs focus:outline-none"
             />
           </div>
         </div>
 
         <!-- Child Quantity -->
         <div
-          class="flex items-center gap-x-4 border-b pb-3"
+          class="grid grid-cols-9 gap-x-4 py-2"
           v-for="i in amendData.child_info ?? []"
           :key="i"
         >
-          <div class="w-1/3 relative">
+          <div
+            class="col-span-4 border border-gray-200 rounded-lg flex justify-between items-center px-4 py-3 relative"
+          >
             <div class="flex justify-between items-center">
-              <label class="text-xs text-gray-500 relative"
-                >Child Qty - selling : {{ i.child_price
-                }}<span class="text-red-800">*</span></label
+              <label
+                class="text-xs text-[#FF613c] relative flex justify-start items-center"
+                ><CalculatorIcon class="w-4 h-4 mr-2" /> Qty - selling :
+                {{ i.child_price }}<span class="text-red-800">*</span></label
               >
-              <p
-                :title="i?.info"
-                class="absolute right-1 cursor-pointer text-[10px] bg-[#FF613c] shadow-xl border border-white px-1 text-white rounded-full w-5 h-5 flex justify-center items-center custom-tooltip"
-              >
-                ?
-              </p>
             </div>
             <p class="text-sm py-1 font-medium">
               {{ amendData.individual_pricing.child.quantity }}
             </p>
           </div>
-          <div class="w-2/3">
+          <div class="flex justify-center items-center">
+            <ArrowRightCircleIcon
+              class="w-7 h-7"
+              :class="
+                amendData.individual_pricing.child.quantity !=
+                amendChangesData.child_quantity
+                  ? 'text-red-600'
+                  : 'text-gray-400'
+              "
+            />
+          </div>
+          <div
+            class="col-span-4 border border-gray-200 rounded-lg flex justify-between items-center px-4 py-2"
+          >
+            <label
+              class="text-xs text-[#FF613c] relative flex justify-start items-center"
+              ><CalculatorIcon class="w-4 h-4 mr-2" /> Qty</label
+            >
             <input
               type="number"
               v-model="amendChangesData.child_quantity"
-              class="border border-blue-600 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+              class="border border-blue-600 w-[150px] px-2 py-2 rounded-lg text-xs focus:outline-none"
             />
-          </div>
-        </div>
-
-        <!-- Ticket Quantity for product_type 7 -->
-        <div
-          class="flex items-center gap-x-4 border-b pb-3"
-          v-if="amendData.product_type == 7"
-        >
-          <div class="w-1/3">
-            <label class="text-xs text-gray-500"
-              >Ticket Qty <span class="text-red-800">*</span></label
-            >
-            <p class="text-sm py-1 font-medium">{{ amendData.quantity }}</p>
-          </div>
-          <div class="w-2/3 relative">
-            <input
-              type="number"
-              v-model="amendChangesData.quantity"
-              class="border border-blue-600 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
-            />
-            <p
-              @click="amendChangesData.quantity++"
-              class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-2 right-8"
-            >
-              +
-            </p>
-            <p
-              @click="
-                amendChangesData.quantity > 1
-                  ? amendChangesData.quantity--
-                  : null
-              "
-              class="bg-[#ff613c]/10 text-[#ff613c] cursor-pointer inline-block px-2 z-50 rounded-lg absolute top-2 right-1"
-            >
-              -
-            </p>
           </div>
         </div>
 
         <!-- Hotel Specific Fields -->
         <div v-if="amendData.product_type == 6">
           <!-- Check in date -->
-          <div class="flex items-center gap-x-4 border-b pb-3">
-            <div class="w-1/3">
-              <label class="text-[12px] text-gray-500"
-                >Check in date <span class="text-red-800">*</span></label
+          <div class="grid grid-cols-9 gap-x-4 py-1">
+            <div
+              class="col-span-4 border border-gray-200 rounded-lg flex justify-between items-center px-4 py-3"
+            >
+              <label
+                class="text-[12px] text-[#FF613c] font-semibold flex justify-start items-center"
+                ><CalendarIcon class="w-4 h-4 mr-2" />Check in date
+                <span class="text-red-800">*</span></label
               >
               <p class="text-sm py-1 font-medium">
                 {{ amendData.service_date }}
               </p>
             </div>
-            <div class="w-2/3">
+            <div class="flex justify-center items-center">
+              <ArrowRightCircleIcon
+                class="w-7 h-7"
+                :class="
+                  amendData.service_date != amendChangesData.service_date
+                    ? 'text-red-600'
+                    : 'text-gray-400'
+                "
+              />
+            </div>
+            <div
+              class="col-span-4 border border-gray-200 rounded-lg flex justify-between items-center px-4 py-2"
+            >
+              <label
+                class="text-[12px] text-[#FF613c] font-semibold flex justify-start items-center"
+                ><CalendarIcon class="w-4 h-4 mr-2" />Check in date
+                <span class="text-red-800">*</span></label
+              >
               <input
                 type="date"
                 v-model="amendChangesData.service_date"
-                class="border border-blue-600 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                class="border border-blue-600 w-[150px] px-2 py-2 rounded-lg text-xs focus:outline-none"
               />
             </div>
           </div>
 
           <!-- Check out date -->
-          <div class="flex items-center gap-x-4 border-b py-3">
-            <div class="w-1/3">
-              <label class="text-[12px] text-gray-500"
-                >Check out date <span class="text-red-800">*</span></label
+          <div class="grid grid-cols-9 gap-x-4 py-2">
+            <div
+              class="col-span-4 border border-gray-200 rounded-lg flex justify-between items-center px-4 py-3"
+            >
+              <label
+                class="text-[12px] text-[#FF613c] font-semibold flex justify-start items-center"
+                ><CalendarIcon class="w-4 h-4 mr-2" />Check out date
+                <span class="text-red-800">*</span></label
               >
               <p class="text-sm py-1 font-medium">
                 {{ amendData.checkout_date }}
               </p>
             </div>
-            <div class="w-2/3">
+            <div class="flex justify-center items-center">
+              <ArrowRightCircleIcon
+                class="w-7 h-7"
+                :class="
+                  amendData.checkout_date != amendChangesData.checkout_date
+                    ? 'text-red-600'
+                    : 'text-gray-400'
+                "
+              />
+            </div>
+            <div
+              class="col-span-4 border border-gray-200 rounded-lg flex justify-between items-center px-4 py-2"
+            >
+              <label
+                class="text-[12px] text-[#FF613c] font-semibold flex justify-start items-center"
+                ><CalendarIcon class="w-4 h-4 mr-2" />Check out date
+                <span class="text-red-800">*</span></label
+              >
               <input
                 type="date"
                 v-model="amendChangesData.checkout_date"
-                class="border border-blue-600 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                class="border border-blue-600 w-[150px] px-2 py-2 rounded-lg text-xs focus:outline-none"
               />
             </div>
           </div>
 
           <!-- Total Rooms -->
-          <div class="flex items-center gap-x-4 border-b py-3">
-            <div class="w-1/3">
-              <label class="text-[12px] text-gray-500"
-                >Total Rooms <span class="text-red-800">*</span></label
+          <div class="grid grid-cols-9 gap-x-4 py-1">
+            <div
+              class="col-span-4 border border-gray-200 rounded-lg flex justify-between items-center px-4 py-3"
+            >
+              <label
+                class="text-[12px] text-[#FF613c] font-semibold flex justify-start items-center"
+                ><CalculatorIcon class="w-4 h-4 mr-2" />Total Rooms
+                <span class="text-red-800">*</span></label
               >
               <p class="text-sm py-1 font-medium">{{ amendData.quantity }}</p>
             </div>
-            <div class="w-2/3">
+            <div class="flex justify-center items-center">
+              <ArrowRightCircleIcon
+                class="w-7 h-7"
+                :class="
+                  amendData.quantity != amendChangesData.quantity
+                    ? 'text-red-600'
+                    : 'text-gray-400'
+                "
+              />
+            </div>
+            <div
+              class="col-span-4 border border-gray-200 rounded-lg flex justify-between items-center px-4 py-2"
+            >
+              <label
+                class="text-[12px] text-[#FF613c] font-semibold flex justify-start items-center"
+                ><CalculatorIcon class="w-4 h-4 mr-2" />Total Rooms
+                <span class="text-red-800">*</span></label
+              >
               <input
                 type="number"
                 v-model="amendChangesData.quantity"
-                class="border border-blue-600 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
+                class="border border-blue-600 w-[150px] px-2 py-2 rounded-lg text-xs focus:outline-none"
               />
             </div>
           </div>
 
           <!-- Duration -->
-          <div class="flex items-center gap-x-4 border-b py-3">
-            <div class="w-1/3">
-              <label class="text-[12px] text-gray-500"
-                >Duration <span class="text-red-800">*</span></label
+          <div class="grid grid-cols-9 gap-x-4 py-2">
+            <div
+              class="col-span-4 border border-gray-200 rounded-lg flex justify-between items-center px-4 py-3"
+            >
+              <label
+                class="text-[12px] text-[#FF613c] font-semibold flex justify-start items-center"
+                ><ClockIcon class="w-4 h-4 mr-2" />Duration
+                <span class="text-red-800">*</span></label
               >
               <p class="text-sm py-1 font-medium">
                 {{ amendData.days }} Night x {{ amendData.quantity }} Rooms
               </p>
             </div>
-            <div class="w-2/3">
-              <p class="bg-gray-300 w-full px-2 py-2 rounded-lg text-xs">
+            <div class="flex justify-center items-center">
+              <ArrowRightCircleIcon class="w-7 h-7" />
+            </div>
+            <div
+              class="col-span-4 border border-gray-200 rounded-lg w-full flex justify-between items-center px-4 py-2"
+            >
+              <label
+                class="text-[12px] text-[#FF613c] font-semibold flex justify-start items-center"
+                ><ClockIcon class="w-4 h-4 mr-2" />Duration
+                <span class="text-red-800">*</span></label
+              >
+              <p class="bg-gray-300 w-[150px] px-2 py-2 rounded-lg text-xs">
                 {{
                   daysBetween(
                     amendChangesData.service_date,
@@ -193,16 +287,34 @@
 
         <!-- Variation Selection -->
         <div
-          class="flex items-center gap-x-4 border-b pb-3"
+          class="grid grid-cols-9 gap-x-4 py-1"
           v-if="amendData.car_list && amendData.car_list.length > 0"
         >
-          <div class="w-1/3">
-            <label class="text-[12px] text-gray-500"
-              >Variation <span class="text-red-800">*</span></label
+          <div
+            class="col-span-4 border border-gray-200 rounded-lg flex justify-between items-center px-4 py-3"
+          >
+            <label
+              class="text-[12px] text-[#FF613c] font-semibold flex justify-start items-center"
+              ><ArrowPathIcon class="w-4 h-4 mr-2" />Variation
+              <span class="text-red-800">*</span></label
             >
-            <p class="text-sm py-1 font-medium">{{ amendData.item_name }}</p>
+            <p class="text-sm py-1 font-medium text-end">
+              {{ amendData.item_name }}
+            </p>
           </div>
-          <div class="w-2/3">
+          <div class="flex justify-center items-center">
+            <ArrowRightCircleIcon
+              class="w-7 h-7"
+              :class="
+                amendData.car_id != amendChangesData.variation_id
+                  ? 'text-red-600'
+                  : 'text-gray-400'
+              "
+            />
+          </div>
+          <div
+            class="col-span-4 border border-gray-200 rounded-lg flex justify-between items-center px-4 py-2"
+          >
             <select
               v-model="amendChangesData.variation_id"
               class="border border-blue-600 w-full px-2 py-2 rounded-lg text-xs focus:outline-none"
@@ -251,6 +363,13 @@ import { daysBetween } from "../help/DateBetween";
 import Swal from "sweetalert2";
 import { useAmendStore } from "../../stores/amend";
 import { useToast } from "vue-toastification";
+import {
+  ArrowPathIcon,
+  ArrowRightCircleIcon,
+  CalculatorIcon,
+  CalendarIcon,
+  ClockIcon,
+} from "@heroicons/vue/24/outline";
 
 const amendStore = useAmendStore();
 const toast = useToast();

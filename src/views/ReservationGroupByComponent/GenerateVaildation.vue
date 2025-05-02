@@ -24,7 +24,10 @@
         </p>
 
         <!-- Items validation section -->
-        <div class="max-h-96 overflow-y-auto border rounded-lg p-4">
+        <div
+          class="max-h-96 overflow-y-auto border rounded-lg p-4"
+          v-if="!showTextCopy"
+        >
           <div
             v-if="validationStatus.basic"
             class="flex items-center mb-3 text-sm"
@@ -128,7 +131,7 @@
         </div>
 
         <!-- Summary validation section -->
-        <div class="border rounded-lg p-4 space-y-2">
+        <div class="border rounded-lg p-4 space-y-2" v-if="!showTextCopy">
           <h3 class="font-medium text-sm">Booking Validation Summary</h3>
 
           <div class="grid grid-cols-2 gap-y-2 text-sm">
@@ -182,8 +185,57 @@
           </div>
         </div>
 
+        <!-- Preview text section (NEW) -->
+        <div v-if="showTextCopy" class="border rounded-lg p-4 space-y-2">
+          <div class="flex justify-between items-center">
+            <h3 class="font-medium text-sm">Generated Text Preview</h3>
+            <button
+              @click="copyFormattedText"
+              class="bg-blue-500 hover:bg-blue-600 text-white text-xs py-1 px-3 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center"
+            >
+              <span v-if="copyStatus === 'idle'">Copy Text</span>
+              <span
+                v-else-if="copyStatus === 'copied'"
+                class="flex items-center"
+              >
+                <CheckCircleIcon class="w-4 h-4 mr-1" />
+                Copied!
+              </span>
+              <span v-else class="flex items-center">
+                <svg
+                  class="animate-spin h-4 w-4 mr-1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Copying...
+              </span>
+            </button>
+          </div>
+
+          <div
+            class="bg-gray-50 p-3 rounded-md text-sm font-mono text-gray-700 whitespace-pre-wrap max-h-[450px] overflow-y-auto"
+          >
+            {{ formattedOutputText }}
+          </div>
+        </div>
+
         <!-- Progress & Action buttons -->
-        <div class="pt-2">
+        <div class="pt-2" v-if="!showTextCopy">
           <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
             <div
               class="bg-green-500 h-2.5 rounded-full"
@@ -233,6 +285,9 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["closeModal", "archiveUpdate"]);
+
+// Copy status tracking
+const copyStatus = ref("idle"); // 'idle', 'copying', 'copied'
 
 // Validation status tracking
 const validationStatus = ref({
@@ -296,6 +351,7 @@ const runValidation = () => {
   validationStatus.value.costPrice = false;
   validationStatus.value.driver = false;
   validationStatus.value.car = false;
+  copyStatus.value = "idle";
 
   // Initialize items validation array
   if (props.bookingItems) {
@@ -391,6 +447,8 @@ const validationProgress = computed(() => {
   return Math.round((completedChecks / totalChecks) * 100);
 });
 
+const showTextCopy = ref(false);
+
 // Check if all validations are complete
 const isValidationComplete = computed(() => {
   if (!props.bookingItems || props.bookingItems.length === 0) {
@@ -407,39 +465,98 @@ const isValidationComplete = computed(() => {
   );
 });
 
+// Formatted output text
+const formattedOutputText = computed(() => {
+  if (!props.bookingItems || props.bookingItems.length === 0) {
+    return "";
+  }
+
+  let outputText = `
+📆S. Date: ${props.bookingItems[0]?.service_date}
+👨‍💼Supplier Name: ${props.bookingItems[0]?.reservation_car_info?.supplier_name}
+🚙Total Trip: ${props.bookingItems.length}
+    `;
+
+  // Calculate total balance
+  let totalBalance = 0;
+
+  props.bookingItems.forEach((trip, index) => {
+    // Calculate individual trip balance
+    const tripBalance =
+      trip.is_driver_collect == 1
+        ? trip.amount - trip.cost_price
+        : -trip.cost_price;
+
+    // Add to total balance
+    totalBalance += tripBalance;
+
+    outputText += `
+${index + 1}️⃣ CRMID: ${trip.crm_id}
+➖Trip Name: ${trip.product?.name}
+➖Variation: ${trip.car?.name}
+➖Collect: ${trip.is_driver_collect == 1 ? "Collect" : "No Collect"}
+➖Amount: ${trip.amount}thb
+➖Cost: ${trip.cost_price}thb
+⭕${
+      trip.is_driver_collect == 1
+        ? trip.amount + "-" + trip.cost_price + "=" + tripBalance
+        : tripBalance
+    }
+`;
+  });
+
+  // Format total balance with + or - sign for clarity
+  const formattedTotalBalance =
+    totalBalance > 0 ? `+${totalBalance}` : `${totalBalance}`;
+
+  outputText += `
+~~~~~~~~~~~
+Total: ${formattedTotalBalance} thb
+Previous: ( ______ )
+Balance: ( ______ )
+  `;
+
+  return outputText;
+});
+
+// Copy the formatted text to clipboard
+const copyFormattedText = async () => {
+  copyStatus.value = "copying";
+
+  try {
+    await navigator.clipboard.writeText(formattedOutputText.value);
+    copyStatus.value = "copied";
+    toast.success("Text copied to clipboard");
+
+    // Reset status after a delay
+    setTimeout(() => {
+      copyStatus.value = "idle";
+    }, 2000);
+  } catch (err) {
+    toast.error("Failed to copy text");
+    copyStatus.value = "idle";
+  }
+};
+
 // Handle actions
 const closeArchiveModal = () => {
+  showTextCopy.value = false;
   emit("closeModal");
 };
 
 const archiveUpdate = () => {
-  // console.log("Archive update triggered");
-  if (props.bookingItems != null) {
-    let formattedOutput;
+  // First copy the text to clipboard
+  // navigator.clipboard
+  //   .writeText(formattedOutputText.value)
+  //   .then(() => {
+  //     toast.success("Success copy reservation");
+  //     emit("archiveUpdate");
+  //   })
+  //   .catch(() => {
+  //     toast.error("Error copy reservation");
+  //   });
 
-    formattedOutput = `
-  📆S. Date: ${props.bookingItems[0]?.service_date}
-  👨‍💼Supplier Name: ${props.bookingItems[0]?.reservation_car_info?.supplier_name}
-  🚙Total Trip: ${props.bookingItems.length}
-      `;
-
-    props.bookingItems.forEach((trip, index) => {
-      formattedOutput += `
-  ${index + 1}️⃣ CRMID: ${trip.crm_id}
-  ➖Trip Name: ${trip.product?.name}
-  ➖Variation: ${trip.car?.name}
-  ➖P. Method: ${trip.is_driver_collect == 1 ? "Collect" : trip.payment_status}
-  ➖Amount: ${trip.amount}thb
-  `;
-    });
-
-    setTimeout(() => {
-      navigator.clipboard.writeText(formattedOutput);
-      toast.success("success copy reservation");
-    }, 0);
-  } else {
-    toast.error("error copy reservation");
-  }
+  showTextCopy.value = true;
 };
 
 // Start validation process when modal opens

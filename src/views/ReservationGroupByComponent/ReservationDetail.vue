@@ -23,7 +23,7 @@ import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import logo from "../../assets/web-logo.png";
 import { useAuthStore } from "../../stores/auth";
-import {daysBetween} from "../help/DateBetween"
+import { daysBetween } from "../help/DateBetween";
 import { getFormatDate } from "../help/FormatData";
 import { get } from "lodash";
 
@@ -90,6 +90,7 @@ const score = computed(() => {
 const reservation_ids = ref({
   id: null,
   name: null,
+  invoice_code: null,
 });
 const showFailModal = ref(false);
 const selectTicketModal = ref(false);
@@ -103,7 +104,7 @@ const generateConfirmation = () => {
 
 const goToPrint = () => {
   router.push(
-    `/reservation/confirmations/entrance/${reservation_ids.value.id}?variation_name=${reservation_ids.value.name}`
+    `/reservation/confirmations/entrance/${reservation_ids.value.id}?variation_name=${reservation_ids.value.name}&invoice_code=${reservation_ids.value.invoice_code}`
   );
 };
 
@@ -218,10 +219,10 @@ const goToGenerate = () => {
 };
 
 const goToProduct = () => {
-  if(route.path.includes("reservation-hotel")){
-    router.push(`/product/hotel/edit/${route.query.product_id}`)
+  if (route.path.includes("reservation-hotel")) {
+    router.push(`/product/hotel/edit/${route.query.product_id}`);
   }
-}
+};
 
 const copyReservation = async (id) => {
   try {
@@ -518,7 +519,6 @@ const hide = ref(true);
     </div>
     <div class="space-y-4" v-if="!getLoading && !hasRouteId">
       <div class="space-y-4 border border-gray-200 p-3 rounded-lg">
-        
         <div class="grid grid-cols-5 gap-2">
           <div class="col-span-5 flex justify-between items-center">
             <div>
@@ -527,12 +527,16 @@ const hide = ref(true);
                 {{ detail?.booking.customer_info?.name }}
               </p>
               <div class="flex justify-start items-center gap-x-2">
-                <p @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
+                <p
+                  @click="
+                    router.push(`/bookings/new-update/${detail?.booking?.id}`)
+                  "
                   class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
                 >
                   {{ detail?.booking?.crm_id }}
                 </p>
-                <p @click="goToProduct()"
+                <p
+                  @click="goToProduct()"
                   class="text-[10px] bg-green-500 text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
                 >
                   {{
@@ -550,18 +554,14 @@ const hide = ref(true);
                     "
                   >
                     <p
-                      v-if="
-                        detail?.booking?.payment_status == 'fully_paid'
-                      "
+                      v-if="detail?.booking?.payment_status == 'fully_paid'"
                       class="text-[10px] bg-[#FF613c] shadow hover:shadow-none whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
                       @click="goToHotelConfirmation()"
                     >
                       Hotel Confirmation
                     </p>
                     <p
-                      v-if="
-                        detail?.booking?.payment_status != 'fully_paid'
-                      "
+                      v-if="detail?.booking?.payment_status != 'fully_paid'"
                       class="text-[10px] bg-gray-400 whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
                     >
                       Hotel Confirmation {{ expenseStatus(detail) }}
@@ -1269,7 +1269,7 @@ const hide = ref(true);
     </Modal>
     <Modal :isOpen="selectTicketModal">
       <DialogPanel
-        class="w-full max-w-lg transform overflow-hidden rounded-lg mt-10 bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-xl transform overflow-hidden rounded-lg mt-10 bg-white text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
@@ -1286,55 +1286,76 @@ const hide = ref(true);
               alt=""
             />
           </div>
-          <div class="py-10 text-center space-y-4">
+          <div class="pt-10 pb-5 text-center space-y-2">
             <p class="font-medium text-lg text-[#FF613c]">Select Ticket Type</p>
             <p class="text-xs">
               မည်သည့် ticket အတွက် confirmation ထုတ်မည်ကို အတည်ပြုပေးပါ။,
             </p>
-            <div class="space-y-2">
+            <div
+              class="flex justify-between items-center text-xs px-4 pt-5 pb-2"
+            >
+              <p>Ticket Type</p>
+              <p class="w-[150px] text-start">Slip Code</p>
+            </div>
+            <div class="space-y-2 px-4">
               <div
                 v-for="item in detail?.booking?.items"
-                class="flex justify-center items-center"
+                class="flex justify-between space-x-2 items-center"
                 :key="item"
+                @click="
+                  () => {
+                    reservation_ids.id = item.id;
+                    reservation_ids.name = item.variation?.name;
+                    reservation_ids.invoice_code = item.slip_code;
+                  }
+                "
               >
-                <input
-                  @click="
-                    () => {
-                      reservation_ids.id = item.id;
-                      reservation_ids.name = item.variation?.name;
-                    }
-                  "
-                  type="radio"
-                  :checked="reservation_ids.id == item.id"
-                  class="w-5 h-5 text-white border border-[#FF613c] rounded-full"
-                />
-                <label
-                  :for="item.id"
-                  class="ml-2 text-sm font-medium text-[#FF613c]"
+                <div
+                  class="border border-gray-300 w-full px-3 flex justify-start items-center space-x-2 py-3 rounded-lg"
                 >
-                  {{ item.variation?.name }}
-                </label>
+                  <input
+                    type="radio"
+                    :checked="reservation_ids.id == item.id"
+                    class="w-5 h-5 text-white border border-[#FF613c] rounded-full"
+                  />
+                  <label
+                    :for="item.id"
+                    class="ml-2 text-sm line-clamp-1 font-medium text-[#FF613c]"
+                  >
+                    {{ item.variation?.name }}
+                  </label>
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    v-model="reservation_ids.invoice_code"
+                    class="border border-gray-300 w-[150px] px-3 py-3 text-sm rounded-lg"
+                    :placeholder="item.slip_code ? item.slip_code : 'Slip Code'"
+                  />
+                </div>
               </div>
             </div>
-            <p
-              v-if="reservation_ids.id != null"
-              @click="goToPrint"
-              class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
-            >
-              Go To Generate
-            </p>
-            <p
-              v-if="reservation_ids.id == null"
-              class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-gray-200 px-2 py-1 rounded-lg"
-            >
-              Go To Generate
-            </p>
-            <p
-              @click="selectTicketModal = false"
-              class="cursor-pointer inline-block text-[#FF613c] border border-[#FF613c] text-[10px] bg-white px-2 py-1 rounded-lg"
-            >
-              Cancel
-            </p>
+            <div class="pt-4">
+              <p
+                v-if="reservation_ids.id != null"
+                @click="goToPrint"
+                class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-2 border border-[#FF613c] rounded-lg"
+              >
+                Go To Generate
+              </p>
+              <p
+                v-if="reservation_ids.id == null"
+                class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-gray-200 px-2 py-2 border border-gray-200 rounded-lg"
+              >
+                Go To Generate
+              </p>
+              <p
+                @click="selectTicketModal = false"
+                class="cursor-pointer inline-block text-[#FF613c] border border-[#FF613c] text-[10px] bg-white px-2 py-2 rounded-lg"
+              >
+                Cancel
+              </p>
+            </div>
           </div>
         </div>
       </DialogPanel>

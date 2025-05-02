@@ -199,6 +199,7 @@ onMounted(async () => {
               <p class="text-xs text-black/40">Ticket Type:</p>
               <p class="text-sm font-medium">
                 {{ route.query.variation_name || details?.variation?.name }}
+                <!-- {{ route.query.invoice_code }} -->
               </p>
             </div>
           </div>
@@ -216,9 +217,11 @@ onMounted(async () => {
               {{ details?.customer_info.name }}
             </p>
           </div>
-          <div class="pt-4 flex px-5 justify-center items-center">
+          <div class="pt-4 flex px-5 justify-center flex-col items-center">
             <QrCode :id="route.params.id" />
+            <p>{{ route.query.invoice_code }}</p>
           </div>
+
           <p
             class="text-[12px] font-medium text-start px-5 pt-1 mt-4 pb-5 leading-6 rounded-b-2xl bg-[#FF613c] text-white"
           >

@@ -1,5 +1,13 @@
 <template>
   <div class="relative">
+    <div class="absolute -top-12 right-0">
+      <button
+        @click="amendRequestDelete"
+        class="bg-red-600 text-white px-4 py-2.5 rounded-lg text-xs"
+      >
+        Amend Delete Request
+      </button>
+    </div>
     <div class="grid grid-cols-1 gap-1">
       <div class="space-y-1" v-if="amendData != null">
         <!-- Service Date -->
@@ -337,19 +345,14 @@
     <div class="flex justify-end items-center gap-x-2 pt-4">
       <button
         @click="amendRequestCreate"
-        class="bg-[#ff613c] text-white px-4 py-1.5 rounded-lg text-xs"
+        class="bg-[#ff613c] text-white border border-[#FF613c] px-4 py-2.5 rounded-lg text-xs"
       >
         Amend Request Create
       </button>
-      <button
-        @click="amendRequestDelete"
-        class="bg-red-600 text-white px-4 py-1.5 rounded-lg text-xs"
-      >
-        Amend Delete Request
-      </button>
+
       <button
         @click="amendCloseAction"
-        class="bg-white text-[#FF613c] border border-[#FF613c] px-4 py-1.5 rounded-lg text-xs"
+        class="bg-white text-[#FF613c] border border-[#FF613c] px-4 py-2.5 rounded-lg text-xs"
       >
         Cancel
       </button>

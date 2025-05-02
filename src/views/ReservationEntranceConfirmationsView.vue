@@ -118,7 +118,11 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="p-6 bg-[#edecec] max-w-[400px] mx-auto" v-if="!loading" ref="captureArea">
+      <div
+        class="p-6 bg-[#edecec] max-w-[400px] mx-auto"
+        v-if="!loading"
+        ref="captureArea"
+      >
         <div id="mySvg" class="bg-white rounded-xl pt-4 mt-4">
           <div class="flex justify-between items-center pb-4 px-5">
             <img :src="logoIcon" class="w-8 h-8" alt="" />
@@ -163,11 +167,12 @@ onMounted(async () => {
             <div class="space-y-1.5">
               <p class="text-xs text-black/40">Quantity:</p>
               <p class="text-sm">
-                {{ 
-                  (details?.quantity || 0) + 
-                  (details?.individual_pricing && 
-                  details?.individual_pricing.child ? 
-                  Number(details?.individual_pricing.child.quantity) || 0 : 0)
+                {{
+                  (details?.quantity || 0) +
+                  (details?.individual_pricing &&
+                  details?.individual_pricing.child
+                    ? Number(details?.individual_pricing.child.quantity) || 0
+                    : 0)
                 }}
               </p>
             </div>
@@ -181,10 +186,11 @@ onMounted(async () => {
               <div class="space-y-1.5">
                 <p class="text-xs text-black/40">Child:</p>
                 <p class="text-sm">
-                  {{ 
-                    (details?.individual_pricing && 
-                    details?.individual_pricing.child ? 
-                    details?.individual_pricing.child.quantity : "-")
+                  {{
+                    details?.individual_pricing &&
+                    details?.individual_pricing.child
+                      ? details?.individual_pricing.child.quantity
+                      : "-"
                   }}
                 </p>
               </div>
@@ -216,8 +222,11 @@ onMounted(async () => {
           <p
             class="text-[12px] font-medium text-start px-5 pt-1 mt-4 pb-5 leading-6 rounded-b-2xl bg-[#FF613c] text-white"
           >
-            မှတ်ချက်။ ။ လက်မှတ် ထုတ်ပုံ ထုတ်နည်း ၊ သွားရမည့်နေရာ ၊မှန်ကန်ကြောင်း
-            ၊ နှင့် အထင်ကရနေရာ ၏ Video ကို QR Scan လုပ်ပြီး ကြည့်ရှု နိုင်ပါပြီ။
+            <!-- မှတ်ချက်။ ။ လက်မှတ် ထုတ်ပုံ ထုတ်နည်း ၊ သွားရမည့်နေရာ ၊မှန်ကန်ကြောင်း
+            ၊ နှင့် အထင်ကရနေရာ ၏ Video ကို QR Scan လုပ်ပြီး ကြည့်ရှု နိုင်ပါပြီ။ -->
+            Scan QR for: How to get tickets, Google map locations, check ticket
+            authenticity and attraction video. <br />
+            Emergency Contact: +66637602448
           </p>
         </div>
       </div>

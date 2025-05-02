@@ -28,11 +28,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  createdBy : {
+  createdBy: {
     type: String,
     default: "",
   },
-  adminLists : {
+  adminLists: {
     type: Array,
     default: () => [],
   },
@@ -40,10 +40,10 @@ const props = defineProps({
     type: Function,
     default: () => {},
   },
-  clearFilter : {
+  clearFilter: {
     type: Function,
     default: () => {},
-  }
+  },
 });
 
 const emit = defineEmits([
@@ -51,7 +51,7 @@ const emit = defineEmits([
   "update:searchP",
   "update:connection_status",
   "update:inclusive_only",
-  "update:createdBy"
+  "update:createdBy",
 ]);
 
 // filter open close
@@ -63,9 +63,9 @@ const connectionFilter = ref(false);
 const agentFilter = ref(false);
 
 const isDateSelected = (date) => {
-  if (!selectedDate.value && date == '') return true;
+  if (!selectedDate.value && date == "") return true;
   if (!date || !selectedDate.value) return false;
-  
+
   const compareDate = new Date(date);
   return compareDate.toDateString() === selectedDate.value.toDateString();
 };
@@ -141,7 +141,7 @@ const filterCount = computed(() => {
   if (inclusive.value) count++;
   if (createdBy.value) count++;
   return count;
-})
+});
 
 function parseDate(dateString) {
   if (!dateString) return null;
@@ -203,14 +203,46 @@ watch(
     <div
       class="flex justify-start overflow-x-auto cursor-pointer items-center no-scrollbar gap-x-4"
     >
-      <p class="px-2 py-1 text-xs text-[#FF613c]" :class="[!selectedDate ? 'bg-[#FF613c] text-white rounded-lg' : 'text-[#FF613c]']" @click="selectAll">All</p>
-      <p class="px-2 py-1 text-xs text-[#FF613c]" :class="[isDateSelected(new Date()) ? 'bg-[#FF613c] text-white rounded-lg' : 'text-[#FF613c]']"  @click="selectToday">Today</p>
-      <p class="px-2 py-1 text-xs text-[#FF613c]" :class="[isDateSelected(new Date(new Date().setDate(new Date().getDate() - 1))) ? 'bg-[#FF613c] text-white rounded-lg' : 'text-[#FF613c]']" @click="selectYesterday">
+      <p
+        class="px-2 py-1 text-xs text-[#FF613c]"
+        :class="[
+          !selectedDate
+            ? 'bg-[#FF613c] text-white rounded-lg'
+            : 'text-[#FF613c]',
+        ]"
+        @click="selectAll"
+      >
+        All
+      </p>
+      <p
+        class="px-2 py-1 text-xs text-[#FF613c]"
+        :class="[
+          isDateSelected(new Date())
+            ? 'bg-[#FF613c] text-white rounded-lg'
+            : 'text-[#FF613c]',
+        ]"
+        @click="selectToday"
+      >
+        Today
+      </p>
+      <p
+        class="px-2 py-1 text-xs text-[#FF613c]"
+        :class="[
+          isDateSelected(new Date(new Date().setDate(new Date().getDate() - 1)))
+            ? 'bg-[#FF613c] text-white rounded-lg'
+            : 'text-[#FF613c]',
+        ]"
+        @click="selectYesterday"
+      >
         Yesterday
       </p>
       <p
         class="px-2 py-1 text-xs text-[#FF613c] whitespace-nowrap"
-        :class="[isDateSelected(new Date(new Date().setDate(new Date().getDate() - 2))) ? 'bg-[#FF613c] text-white rounded-lg' : 'text-[#FF613c]']"
+        :class="[
+          isDateSelected(new Date(new Date().setDate(new Date().getDate() - 2)))
+            ? 'bg-[#FF613c] text-white rounded-lg'
+            : 'text-[#FF613c]',
+        ]"
         @click="selectDayBefore"
       >
         Day Before
@@ -228,37 +260,64 @@ watch(
           />
           <p class="text-sm font-semibold">FILTER</p>
         </div>
-        <div class=" flex justify-end items-center gap-x-2">
-          <p class="bg-[#FF613c] text-white cursor-pointer rounded-lg px-2 py-1 text-[10px]" @click="clearFilter">
+        <div class="flex justify-end items-center gap-x-2">
+          <p
+            class="bg-[#FF613c] text-white cursor-pointer rounded-lg px-2 py-1 text-[10px]"
+            @click="clearFilter"
+          >
             CLEAR
           </p>
-          <p class="bg-[#FF613c] text-white cursor-pointer rounded-lg px-2 py-1 text-[10px]" @click="searchHandler">
-            FILTER {{ filterCount }}
+          <p
+            class="bg-[#FF613c] text-white cursor-pointer rounded-lg px-2 py-1 text-[10px]"
+            @click="searchHandler"
+          >
+            SEARCH {{ filterCount }}
           </p>
         </div>
       </div>
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
-        <div class="flex justify-between items-center w-full" @click="dateFilter = !dateFilter">
-          <p class="text-xs font-semibold"><span class="w-2 h-2  inline-block rounded-full mr-2" :class="selectedDate ? 'bg-[#FF613c]' : 'bg-gray-200'"></span>Sales Date</p>
-          <ChevronDownIcon 
+        <div
+          class="flex justify-between items-center w-full"
+          @click="dateFilter = !dateFilter"
+        >
+          <p class="text-xs font-semibold">
+            <span
+              class="w-2 h-2 inline-block rounded-full mr-2"
+              :class="selectedDate ? 'bg-[#FF613c]' : 'bg-gray-200'"
+            ></span
+            >Sales Date
+          </p>
+          <ChevronDownIcon
             class="w-4 h-4 text-[#FF5B00] font-bold transition-all duration-150 cursor-pointer"
             :class="{ 'rotate-180': dateFilter }"
           />
         </div>
-        <div class="max-w-md mx-auto pt-4 transition-all duration-150" v-if="dateFilter">
+        <div
+          class="max-w-md mx-auto pt-4 transition-all duration-150"
+          v-if="dateFilter"
+        >
           <DatePicker v-model="modelDate" />
         </div>
       </div>
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
-        <div class="flex justify-between items-center w-full" @click="agentFilter =!agentFilter">
-          <p class="text-xs font-semibold"><span class="w-2 h-2 inline-block rounded-full mr-2" :class="createdBy ? 'bg-[#FF613c]' : 'bg-gray-200'"></span> Select Agent </p>
-          <ChevronDownIcon 
+        <div
+          class="flex justify-between items-center w-full"
+          @click="agentFilter = !agentFilter"
+        >
+          <p class="text-xs font-semibold">
+            <span
+              class="w-2 h-2 inline-block rounded-full mr-2"
+              :class="createdBy ? 'bg-[#FF613c]' : 'bg-gray-200'"
+            ></span>
+            Select Agent
+          </p>
+          <ChevronDownIcon
             :class="{ 'rotate-180': agentFilter }"
             class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
           />
         </div>
-        <div v-if="authStore.isSuperAdmin && agentFilter" class=" pt-4">
-          <div class=" space-y-2">
+        <div v-if="authStore.isSuperAdmin && agentFilter" class="pt-4">
+          <div class="space-y-2">
             <div class="flex gap-x-2 items-center w-full">
               <input
                 type="checkbox"
@@ -268,23 +327,37 @@ watch(
               />
               <p class="text-[11px] whitespace-nowrap font-medium">All</p>
             </div>
-            <div class="flex gap-x-2 items-center w-full" v-for="admin in adminLists"
-            :key="admin.id">
+            <div
+              class="flex gap-x-2 items-center w-full"
+              v-for="admin in adminLists"
+              :key="admin.id"
+            >
               <input
                 type="checkbox"
                 @click="createdBy = admin.id"
                 :checked="admin.id == createdBy"
                 class="w-4 h-4 text-[#FF5B00] border-gray-300 rounded focus:ring-[#FF5B00] cursor-pointer"
               />
-              <p class="text-[11px] whitespace-nowrap font-medium">{{ admin.name }}</p>
+              <p class="text-[11px] whitespace-nowrap font-medium">
+                {{ admin.name }}
+              </p>
             </div>
           </div>
-        </div> 
+        </div>
       </div>
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
-        <div class="flex justify-between items-center w-full" @click="paymentFilter = !paymentFilter">
-          <p class="text-xs font-semibold"><span class="w-2 h-2 inline-block rounded-full mr-2" :class="payment_status ? 'bg-[#FF613c]' : 'bg-gray-200'"></span>Payment Status</p>
-          <ChevronDownIcon 
+        <div
+          class="flex justify-between items-center w-full"
+          @click="paymentFilter = !paymentFilter"
+        >
+          <p class="text-xs font-semibold">
+            <span
+              class="w-2 h-2 inline-block rounded-full mr-2"
+              :class="payment_status ? 'bg-[#FF613c]' : 'bg-gray-200'"
+            ></span
+            >Payment Status
+          </p>
+          <ChevronDownIcon
             :class="{ 'rotate-180': paymentFilter }"
             class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
           />
@@ -333,9 +406,18 @@ watch(
         </div>
       </div>
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
-        <div class="flex justify-between items-center w-full" @click="priceFilter =!priceFilter">
-          <p class="text-xs font-semibold"><span class="w-2 h-2 inline-block rounded-full mr-2" :class="false ? 'bg-[#FF613c]' : 'bg-gray-200'"></span>Price Range</p>
-          <ChevronDownIcon 
+        <div
+          class="flex justify-between items-center w-full"
+          @click="priceFilter = !priceFilter"
+        >
+          <p class="text-xs font-semibold">
+            <span
+              class="w-2 h-2 inline-block rounded-full mr-2"
+              :class="false ? 'bg-[#FF613c]' : 'bg-gray-200'"
+            ></span
+            >Price Range
+          </p>
+          <ChevronDownIcon
             :class="{ 'rotate-180': priceFilter }"
             class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
           />
@@ -355,15 +437,24 @@ watch(
         </div>
       </div>
 
-      <div class="gap-x-4 w-full px-4 py-3 border-b border-gray-300 ">
-        <div class="flex justify-between items-center w-full" @click="inclusiveFilter = !inclusiveFilter">
-          <p class="text-xs font-semibold"><span class="w-2 h-2 inline-block rounded-full mr-2" :class="inclusive ? 'bg-[#FF613c]' : 'bg-gray-200'"></span>Inclusive</p>
-          <ChevronDownIcon 
+      <div class="gap-x-4 w-full px-4 py-3 border-b border-gray-300">
+        <div
+          class="flex justify-between items-center w-full"
+          @click="inclusiveFilter = !inclusiveFilter"
+        >
+          <p class="text-xs font-semibold">
+            <span
+              class="w-2 h-2 inline-block rounded-full mr-2"
+              :class="inclusive ? 'bg-[#FF613c]' : 'bg-gray-200'"
+            ></span
+            >Inclusive
+          </p>
+          <ChevronDownIcon
             :class="{ 'rotate-180': inclusiveFilter }"
             class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
           />
         </div>
-        <div v-if="inclusiveFilter"> 
+        <div v-if="inclusiveFilter">
           <div class="flex gap-x-2 items-center pt-4 w-full">
             <input
               type="checkbox"
@@ -386,14 +477,23 @@ watch(
       </div>
 
       <div class="gap-x-4 w-full px-4 py-3">
-        <div class="flex justify-between items-center w-full" @click="connectionFilter = !connectionFilter">
-          <p class="text-xs font-semibold"><span class="w-2 h-2 inline-block rounded-full mr-2" :class="connection_status ? 'bg-[#FF613c]' : 'bg-gray-200'"></span>Connected</p>
-          <ChevronDownIcon 
+        <div
+          class="flex justify-between items-center w-full"
+          @click="connectionFilter = !connectionFilter"
+        >
+          <p class="text-xs font-semibold">
+            <span
+              class="w-2 h-2 inline-block rounded-full mr-2"
+              :class="connection_status ? 'bg-[#FF613c]' : 'bg-gray-200'"
+            ></span
+            >Connected
+          </p>
+          <ChevronDownIcon
             :class="{ 'rotate-180': connectionFilter }"
             class="w-4 h-4 text-[#FF5B00] font-bold cursor-pointer transition-all duration-150"
           />
         </div>
-        <div v-if="connectionFilter"> 
+        <div v-if="connectionFilter">
           <div class="flex gap-x-2 items-center pt-4 w-full">
             <input
               type="checkbox"

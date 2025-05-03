@@ -1311,6 +1311,11 @@ const hide = ref(true);
                 "
               >
                 <div
+                  :class="
+                    reservation_ids.id == item.id
+                      ? 'bg-[#FF613c] text-white'
+                      : ''
+                  "
                   class="border border-gray-300 w-full px-3 flex justify-start items-center space-x-2 py-3 rounded-lg"
                 >
                   <input
@@ -1320,7 +1325,7 @@ const hide = ref(true);
                   />
                   <label
                     :for="item.id"
-                    class="ml-2 text-sm line-clamp-1 font-medium text-[#FF613c]"
+                    class="ml-2 text-sm line-clamp-1 font-medium"
                   >
                     {{ item.variation?.name }}
                   </label>

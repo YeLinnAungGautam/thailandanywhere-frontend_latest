@@ -33,6 +33,10 @@
             i?.items[0]?.product_type === 'App\\Models\\AirportPickup',
         }"
       ></div>
+      <div v-if="checkDate" class="absolute top-[50px] left-2.5 rounded-full">
+        <StarIcon class="w-3 h-3 text-[#FF613c]" />
+      </div>
+
       <div class="pl-5 pt-2 gap-y-4 gap-x-3">
         <div class="flex justify-between items-center">
           <div>
@@ -350,6 +354,7 @@ import {
   ChevronUpIcon,
   CheckBadgeIcon,
   IdentificationIcon,
+  StarIcon,
 } from "@heroicons/vue/24/solid";
 import { useAuthStore } from "../../stores/auth";
 import {
@@ -388,6 +393,37 @@ const daysBetween = (a, b) => {
 };
 
 const emit = defineEmits("detailId");
+
+const checkDate = computed(() => {
+  if (props.data?.bookings[0]?.grouped_items[0].items.length > 0) {
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date();
+    const formatDateString = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    };
+
+    // Create array of today and next 5 days in YYYY-MM-DD format
+    const dateStrings = [];
+    for (let i = 0; i <= 5; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      dateStrings.push(formatDateString(date));
+    }
+
+    // Check if any service_date is in our range
+    for (const item of props.data.bookings[0].grouped_items[0].items) {
+      // Since service_date is already in YYYY-MM-DD format, we can compare directly
+      if (item.service_date && dateStrings.includes(item.service_date)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+});
 
 const goReservationDetail = (id, product_id, crm_id) => {
   let result = {

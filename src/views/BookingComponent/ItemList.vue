@@ -4,6 +4,7 @@ import {
   PencilSquareIcon,
   XCircleIcon,
   DocumentCheckIcon,
+  MagnifyingGlassIcon,
   ChatBubbleBottomCenterIcon,
   ChatBubbleBottomCenterTextIcon,
 } from "@heroicons/vue/24/outline";
@@ -32,6 +33,8 @@ const editIndex = ref("");
 const openModal = ref(false);
 const authStore = useAuthStore();
 const hotelStore = useHotelStore();
+
+const search = ref("");
 
 const formitem = ref({
   reservation_id: null,
@@ -122,11 +125,14 @@ const cancellationAction = (data, index) => {
   console.log("====================================");
 };
 
+// Fix 4: Improved cancellation handling
 const cancellationModalAction = () => {
-  console.log("====================================");
-  console.log(formitem.value, "this is for cancel formitem");
-  console.log("====================================");
-  // getRemoveFunction(formitem.value.product_id, editIndex.value);
+  console.log("Cancellation state:", formitem.value.cancellation);
+
+  if (formitem.value.cancellation) {
+    console.log("Updated cancellation status to:", formitem.value.cancellation);
+  }
+
   cancellationModal.value = false;
 };
 
@@ -287,56 +293,78 @@ const goInfoModal = () => {
   console.log(formitem.value, "this is item");
   console.log("====================================");
 
-  todayVali.value = true;
+  todayCheck();
   addItemModal.value = false;
   openModal.value = false;
   addInfoModal.value = true;
 };
 
-const todayVali = ref(false);
+// Fix 2: Improve the date validation functions
 const formatDate = (date) => {
+  if (!(date instanceof Date) || isNaN(date.getTime())) {
+    return "";
+  }
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
-const isAfterToday = (date) => {
-  const today = new Date();
-  let selectDate = new Date(date);
-  // console.log(formatDate(today) == formatDate(selectDate), "this is date ");
 
-  return formatDate(selectDate) >= formatDate(today);
+const isAfterToday = (dateStr) => {
+  if (!dateStr) return false;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let selectDate = new Date(dateStr);
+  selectDate.setHours(0, 0, 0, 0);
+
+  return selectDate >= today;
 };
+
+const todayVali = ref(false);
+
 const todayCheck = () => {
-  console.log(formitem.value.service_date);
+  if (!formitem.value.service_date) {
+    todayVali.value = false;
+    return;
+  }
+
   todayVali.value = isAfterToday(formitem.value.service_date);
-  console.log(todayVali.value, "this is value");
+  console.log("Date validation result:", todayVali.value);
 };
 
 // send item
 const getFunction = () => {
-  if (formitem.value.days != undefined && formitem.value.days != "") {
-    formitem.value.total_amount =
-      formitem.value.quantity *
-        formitem.value.selling_price *
-        formitem.value.days -
-      formitem.value.discount;
-    formitem.value.total_cost_price =
-      formitem.value.quantity * formitem.value.cost_price * formitem.value.days;
+  // Ensure all values are properly parsed numbers to avoid string concatenation
+  const quantity = parseFloat(formitem.value.quantity) || 0;
+  const sellingPrice = parseFloat(formitem.value.selling_price) || 0;
+  const costPrice = parseFloat(formitem.value.cost_price) || 0;
+  const discount = parseFloat(formitem.value.discount) || 0;
+  const days = parseFloat(formitem.value.days) || 1;
+
+  const childAmount =
+    formitem.value.individual_pricing && formitem.value.individual_pricing.child
+      ? parseFloat(formitem.value.individual_pricing.child.amount) || 0
+      : 0;
+
+  const childCostPrice =
+    formitem.value.individual_pricing && formitem.value.individual_pricing.child
+      ? parseFloat(formitem.value.individual_pricing.child.total_cost_price) ||
+        0
+      : 0;
+
+  if (days > 1) {
+    formitem.value.total_amount = quantity * sellingPrice * days - discount;
+    formitem.value.total_cost_price = quantity * costPrice * days;
   } else {
     formitem.value.total_amount =
-      formitem.value.selling_price * formitem.value.quantity -
-      formitem.value.discount +
-      (formitem.value.individual_pricing?.child?.amount * 1 || 0);
-
-    formitem.value.total_cost_price =
-      formitem.value.quantity * formitem.value.cost_price +
-      (formitem.value.individual_pricing?.child?.total_cost_price * 1 || 0);
+      sellingPrice * quantity - discount + childAmount;
+    formitem.value.total_cost_price = quantity * costPrice + childCostPrice;
   }
 
-  console.log("====================================");
-  console.log(formitem.value, "thsi is ");
-  console.log("====================================");
+  console.log("Calculated total amount:", formitem.value.total_amount);
+  console.log("Calculated total cost price:", formitem.value.total_cost_price);
 };
 
 const cancelAction = () => {
@@ -400,6 +428,7 @@ const calculateRateRoom = () => {
   }
 };
 
+// Fix 5: Improved watch function for service_date and checkout_date
 watch(
   () => [
     formitem.value.service_date,
@@ -408,11 +437,22 @@ watch(
   ],
   ([newData, secData, thirdData]) => {
     if (formitem.value.product_type == "6") {
-      // checkRoomPrice();
-      formitem.value.checkin_date = formitem.value.service_date;
-      formitem.value.comment = `Room : ${formitem.value.item_name}; Checkin : ${formitem.value.checkin_date} Checkout : ${formitem.value.checkout_date}`;
+      if (formitem.value.service_date) {
+        formitem.value.checkin_date = formitem.value.service_date;
+      }
+
+      if (
+        formitem.value.item_name &&
+        formitem.value.checkin_date &&
+        formitem.value.checkout_date
+      ) {
+        formitem.value.comment = `Room : ${formitem.value.item_name}; Checkin : ${formitem.value.checkin_date} Checkout : ${formitem.value.checkout_date}`;
+      }
     }
-    calculateRateRoom();
+
+    if (formitem.value.checkin_date && formitem.value.checkout_date) {
+      calculateRateRoom();
+    }
   }
 );
 
@@ -500,51 +540,35 @@ watch(
   { immediate: true } // Optional: Trigger the watcher immediately on setup
 );
 
+// Fix 1: Improve the child quantity handling in watch function
 watch(
-  () => formitem.value.individual_pricing?.child?.quantity, // Watch the quantity property
+  () => formitem.value.individual_pricing?.child?.quantity,
   (newValue) => {
-    // Ensure cost_price and selling_price are valid numbers
-
     if (formitem.value.product_type == 4) {
       let costPrice = 0;
       let sellingPrice = 0;
 
-      if (
-        formitem.value.child_info != null &&
-        formitem.value.child_info.length > 0
-      ) {
+      if (formitem.value.child_info?.length > 0) {
         costPrice =
-          formitem.value.child_info.length > 0
-            ? parseFloat(formitem.value.child_info[0]?.child_cost_price)
-            : 0;
+          parseFloat(formitem.value.child_info[0]?.child_cost_price) || 0;
         sellingPrice =
-          formitem.value.child_info.length > 0
-            ? parseFloat(formitem.value.child_info[0]?.child_price)
-            : 0;
-      } else {
-        costPrice = 0;
-        sellingPrice = 0;
+          parseFloat(formitem.value.child_info[0]?.child_price) || 0;
       }
 
-      // Create a new object for individual_pricing.adult
+      const childQuantity = parseInt(newValue) || 0;
+
       const updatedChildPricing = {
-        quantity: newValue != "NaN" && newValue ? newValue * 1 : 0,
+        quantity: childQuantity,
         selling_price: sellingPrice,
         cost_price: costPrice,
-        total_cost_price: newValue * 1 * costPrice,
-        amount: newValue != "NaN" && newValue ? newValue * 1 : 0 * sellingPrice,
+        total_cost_price: childQuantity * costPrice,
+        amount: childQuantity * sellingPrice,
       };
 
-      // Update formitem.value.individual_pricing.adult
       formitem.value.individual_pricing.child = updatedChildPricing;
-
-      // Debugging logs (optional)
-      console.log("====================================");
-      console.log("Updated Adult Pricing:", formitem.value.individual_pricing);
-      console.log("====================================");
     }
   },
-  { immediate: true } // Optional: Trigger the watcher immediately on setup
+  { immediate: true }
 );
 
 onMounted(() => {

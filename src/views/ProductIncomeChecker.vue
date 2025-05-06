@@ -16,11 +16,13 @@ import { useReservationStore } from "../stores/reservation";
 import AccountanceHeader from "../components/AccountanceHeader.vue";
 import { useAuthStore } from "../stores/auth";
 import YearPickerVue from "./AccountingComponent/yearPicker.vue";
+import { useRoute } from "vue-router";
 
 const sideBarStore = useSidebarStore();
 const toast = useToast();
 const { isShowSidebar } = storeToRefs(sideBarStore);
 const reservationStore = useReservationStore();
+const route = useRoute();
 const authStore = useAuthStore();
 const { reservations, loading } = storeToRefs(reservationStore);
 
@@ -118,7 +120,23 @@ const handleMonthChange = (month) => {
 onMounted(async () => {
   // Initialize date range with current month and year
   setMonthDateRange(selectedMonth.value, year.value);
-  await getAction();
+  // await getAction();
+  const setProductType = () => {
+    let type = "App\\Models\\Hotel"; // Default type
+
+    if (route.query.type == "4-1000-01") {
+      type = "App\\Models\\PrivateVanTour";
+    } else if (route.query.type == "4-1000-02") {
+      type = "App\\Models\\Hotel";
+    } else if (route.query.type == "4-1000-03") {
+      type = "App\\Models\\EntranceTicket";
+    }
+
+    return type;
+  };
+
+  // Set product type
+  product_type.value = setProductType();
 });
 
 // watch(
@@ -186,7 +204,7 @@ watch(
                 : 'text-gray-500'
             "
           >
-            EntranceTicket
+            Entrance Ticket
           </div>
           <div
             @click="product_type = 'App\\Models\\PrivateVanTour'"
@@ -197,17 +215,11 @@ watch(
                 : 'text-gray-500'
             "
           >
-            PrivateVanTour
+            Private Van Tour
           </div>
         </div>
 
         <div class="pb-4 flex justify-start space-x-2 items-center">
-          <!-- <input
-            v-model="search"
-            type="text"
-            class="w-1/4 border border-gray-400/20 rounded-lg px-3 py-2 text-xs"
-            placeholder="search"
-          /> -->
           <YearPickerVue @year-change="handleYearChange" />
           <select
             v-model="selectedMonth"

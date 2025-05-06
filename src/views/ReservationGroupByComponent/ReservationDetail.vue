@@ -358,9 +358,16 @@ const copyReservation = async (id) => {
       res.items.forEach((a, index) => {
         const itemUrgencyLabel = getUrgencyLabel(a.checkin_date).trim();
         const urgencyPrefix = itemUrgencyLabel ? `[${itemUrgencyLabel}] ` : "";
-        allFormattedOutput += `🎫 Ticket Name: ${a.entrance_ticket_variation_name}
+        allFormattedOutput += `🎫 Ticket Name: ${
+          a.entrance_ticket_variation_name
+        }
 📆 Service Date: ${urgencyPrefix}${a.service_date}
 #️⃣ Reservation Code: ${a.reservation_code}: S: (${a.sale_price})
+🧑‍🧑‍🧒 Quantity: ${a.quantity}A - ${
+          a.individual_pricing?.child?.quantity
+            ? a.individual_pricing?.child?.quantity
+            : ""
+        }${a.individual_pricing?.child?.quantity ? "C" : ""}
 ---------------------\n`;
       });
     }

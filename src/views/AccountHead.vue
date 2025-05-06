@@ -143,8 +143,8 @@ watch(
           />
         </div>
 
-        <div class="grid grid-cols-3 gap-4">
-          <div class="overflow-x-auto col-span-2">
+        <div class="grid grid-cols-8 gap-4">
+          <div class="overflow-x-auto col-span-6">
             <table
               class="w-full text-sm text-left text-gray-500 mb-4 dark:text-gray-400 rounded overflow-hidden"
             >
@@ -208,7 +208,7 @@ watch(
               />
             </div>
           </div>
-          <div>
+          <div class="col-span-2">
             <div class="col-span-1 p-4 rounded-lg shadow">
               <div class="space-y-2">
                 <label for="" class="text-[11px]">Account Head</label>

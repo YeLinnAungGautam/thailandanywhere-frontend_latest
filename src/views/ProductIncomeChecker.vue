@@ -416,7 +416,9 @@ watch(
               </tbody>
               <tbody class=" " v-if="loading">
                 <tr class="">
-                  <td colspan="11" class="text-center py-10">loading ...</td>
+                  <td colspan="13" class="text-center py-10 text-xs">
+                    loading ...
+                  </td>
                 </tr>
               </tbody>
             </table>

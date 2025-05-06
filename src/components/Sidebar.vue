@@ -181,6 +181,12 @@
                   to="/chart_of_account"
                 />
                 <SidebarItem
+                  name="Product Income Checker"
+                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  :icon="FolderIcon"
+                  to="/product_income_checker"
+                />
+                <SidebarItem
                   name="Account Class"
                   v-if="!authStore.isAgent && !authStore.isAuditor"
                   :icon="FolderIcon"

@@ -64,6 +64,7 @@ import AccountClass from "../views/AccountClass.vue";
 import ChartOfAccount from "../views/ChartOfAccount.vue";
 import ReservationVantourView from "../views/ReservationVantour.vue";
 import AmendView from "../views/Amend.vue";
+import productIncomeChecker from "../views/ProductIncomeChecker.vue";
 
 const routes = [
   {
@@ -383,23 +384,28 @@ const routes = [
   {
     path: "/account_head",
     name: "accountHead",
-    component : AccountHead
+    component: AccountHead,
   },
   {
     path: "/account_class",
     name: "accountClass",
-    component : AccountClass
+    component: AccountClass,
   },
   {
     path: "/chart_of_account",
     name: "chartOfAccount",
-    component : ChartOfAccount
+    component: ChartOfAccount,
+  },
+  {
+    path: "/product_income_checker",
+    name: "productIncomeChecker",
+    component: productIncomeChecker,
   },
   {
     path: "/amend",
     name: "amend",
     component: AmendView,
-  }
+  },
 ];
 
 export default routes;

@@ -65,6 +65,7 @@ import ChartOfAccount from "../views/ChartOfAccount.vue";
 import ReservationVantourView from "../views/ReservationVantour.vue";
 import AmendView from "../views/Amend.vue";
 import productIncomeChecker from "../views/ProductIncomeChecker.vue";
+import verifyInvoices from "../views/VerifyInvoice.vue";
 
 const routes = [
   {
@@ -400,6 +401,11 @@ const routes = [
     path: "/product_income_checker",
     name: "productIncomeChecker",
     component: productIncomeChecker,
+  },
+  {
+    path: "/verify_invoices",
+    name: "verifyInvoices",
+    component: verifyInvoices,
   },
   {
     path: "/amend",

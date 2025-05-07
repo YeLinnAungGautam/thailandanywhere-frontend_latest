@@ -7,6 +7,7 @@ import { useAccountClassStore } from "../stores/accountClass";
 import { onMounted, ref, watch } from "vue";
 import Pagination from "../components/Pagination.vue";
 import { useToast } from "vue-toastification";
+import YearPickerVue from "./AccountingComponent/yearPicker.vue";
 import {
   EyeIcon,
   PencilSquareIcon,
@@ -95,6 +96,56 @@ const connectionDetailOptions = [
   },
 ];
 
+const currentDate = new Date();
+const year = ref(currentDate.getFullYear());
+const selectedMonth = ref(currentDate.getMonth() + 1); // Adding 1 since getMonth() returns 0-11
+
+const monthArray = [
+  { id: 1, name: "January" },
+  { id: 2, name: "February" },
+  { id: 3, name: "March" },
+  { id: 4, name: "April" },
+  { id: 5, name: "May" },
+  { id: 6, name: "June" },
+  { id: 7, name: "July" },
+  { id: 8, name: "August" },
+  { id: 9, name: "September" },
+  { id: 10, name: "October" },
+  { id: 11, name: "November" },
+  { id: 12, name: "December" },
+];
+
+// Function to generate date range string for a specific month
+const generateDateRangeForMonth = (month, yearValue) => {
+  // Ensure month is a number between 1-12
+  const monthNum = parseInt(month, 10);
+
+  // Format month as MM with leading zero if needed
+  const formattedMonth = monthNum.toString().padStart(2, "0");
+
+  // Return in YYYY-MM format
+  return `${yearValue}-${formattedMonth}`;
+};
+
+const date_range = ref("");
+// Set date range based on month and year
+const setMonthDateRange = (month, yearValue) => {
+  date_range.value = generateDateRangeForMonth(month, yearValue);
+};
+
+const handleYearChange = (message) => {
+  year.value = message;
+  // Update date range when year changes
+  setMonthDateRange(selectedMonth.value, year.value);
+};
+
+// Method to handle month change
+const handleMonthChange = (month) => {
+  selectedMonth.value = month;
+  // Update date range when month changes
+  setMonthDateRange(month, year.value);
+};
+
 const clearAction = () => {
   formData.value = {
     account_name: "",
@@ -122,7 +173,11 @@ const editGetFormData = (data) => {
 };
 
 const getAction = async () => {
-  await chartOfAccountStore.getListAction({ search: search.value });
+  let data = {
+    search: search.value,
+    month: date_range.value,
+  };
+  await chartOfAccountStore.getListAction(data);
 };
 
 const productIcomeChecker = (type) => {
@@ -130,7 +185,9 @@ const productIcomeChecker = (type) => {
     type == "4-1000-01" ||
     type == "4-1000-02" ||
     type == "4-1000-03" ||
-    type == "4-1000-04"
+    type == "3-1000-01" ||
+    type == "3-1000-02" ||
+    type == "3-1000-03"
   ) {
     router.push({
       name: "productIncomeChecker",
@@ -207,6 +264,15 @@ watch(
     await getAction();
   }, 500)
 );
+
+watch(
+  [date_range],
+  debounce(async (newValue) => {
+    if (newValue) {
+      await getAction();
+    }
+  }, 500)
+);
 </script>
 
 <template>
@@ -217,7 +283,14 @@ watch(
     >
       <p class="text-3xl font-medium text-[#FF613c]">
         Chart of Account
-        <span class="w-2 h-2 bg-[#FF613c] rounded-full inline-block"></span>
+        <span
+          class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
+        ></span>
+        <span>{{ year }}</span>
+        <span
+          class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
+        ></span>
+        <span>{{ monthArray.find((m) => m.id == selectedMonth).name }}</span>
       </p>
     </div>
 
@@ -228,13 +301,23 @@ watch(
           <AccountanceHeader />
         </div>
 
-        <div class="pb-4">
+        <div class="pb-4 flex justify-start items-center gap-x-2">
           <input
             v-model="search"
             type="text"
             class="w-1/4 border border-gray-400/20 rounded-lg px-3 py-2 text-xs"
             placeholder="search"
           />
+          <YearPickerVue @year-change="handleYearChange" />
+          <select
+            v-model="selectedMonth"
+            @change="handleMonthChange(selectedMonth)"
+            class="px-3 text-black text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none"
+          >
+            <option :value="m.id" v-for="m in monthArray" :key="m.id">
+              {{ m.name }}
+            </option>
+          </select>
         </div>
 
         <div class="grid grid-cols-8 gap-4">
@@ -347,13 +430,31 @@ watch(
                     scope="col"
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
-                    -
+                    {{
+                      item?.connection_detail == "price"
+                        ? item?.total_unverify_amount
+                        : ""
+                    }}
+                    {{
+                      item?.connection_detail == "expense"
+                        ? item?.total_unverify_cost_price
+                        : ""
+                    }}
                   </td>
                   <td
                     scope="col"
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
-                    -
+                    {{
+                      item?.connection_detail == "price"
+                        ? item?.total_amount
+                        : ""
+                    }}
+                    {{
+                      item?.connection_detail == "expense"
+                        ? item?.total_cost_price
+                        : ""
+                    }}
                   </td>
                   <td
                     scope="col"

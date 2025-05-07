@@ -17,6 +17,7 @@ import AccountanceHeader from "../components/AccountanceHeader.vue";
 import { useAuthStore } from "../stores/auth";
 import YearPickerVue from "./AccountingComponent/yearPicker.vue";
 import { useRoute } from "vue-router";
+import router from "../router";
 
 const sideBarStore = useSidebarStore();
 const toast = useToast();
@@ -124,11 +125,17 @@ onMounted(async () => {
   const setProductType = () => {
     let type = "App\\Models\\Hotel"; // Default type
 
-    if (route.query.type == "4-1000-01") {
+    if (route.query.type == "4-1000-01" || route.query.type == "3-1000-01") {
       type = "App\\Models\\PrivateVanTour";
-    } else if (route.query.type == "4-1000-02") {
+    } else if (
+      route.query.type == "4-1000-02" ||
+      route.query.type == "3-1000-02"
+    ) {
       type = "App\\Models\\Hotel";
-    } else if (route.query.type == "4-1000-03") {
+    } else if (
+      route.query.type == "4-1000-03" ||
+      route.query.type == "3-1000-03"
+    ) {
       type = "App\\Models\\EntranceTicket";
     }
 
@@ -285,7 +292,7 @@ watch(
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    Price
+                    Income
                   </th>
                   <th
                     scope="col"
@@ -297,7 +304,7 @@ watch(
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    Expense
+                    Cost
                   </th>
                   <th
                     scope="col"
@@ -309,7 +316,7 @@ watch(
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    Income
+                    Profit
                   </th>
                   <th
                     scope="col"
@@ -367,6 +374,8 @@ watch(
                     :class="{
                       'text-green-600':
                         item?.booking?.payment_status == 'fully_paid',
+                      'text-yellow-600':
+                        item?.booking?.payment_status == 'partially_paid',
                       'text-red-600':
                         item?.booking?.payment_status == 'not_paid',
                     }"
@@ -377,7 +386,7 @@ watch(
                     scope="col"
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
-                    {{ item?.selling_price }}
+                    {{ item?.amount }}
                   </td>
                   <td
                     scope="col"
@@ -389,7 +398,7 @@ watch(
                     scope="col"
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
-                    {{ item?.cost_price }}
+                    {{ item?.total_cost_price }}
                   </td>
                   <td
                     scope="col"
@@ -401,7 +410,7 @@ watch(
                     scope="col"
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
-                    {{ item?.selling_price * 1 - item?.cost_price * 1 }}
+                    {{ item?.amount * 1 - item?.total_cost_price * 1 }}
                   </td>
                   <td
                     scope="col"
@@ -420,6 +429,7 @@ watch(
                     class="text-[11px] flex justify-end items-center gap-x-8 font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
                     <PencilSquareIcon
+                      @click="router.push('verify_invoices')"
                       class="w-4 h-4 cursor-pointer text-blue-600"
                     />
                     <TrashIcon class="w-4 h-4 cursor-pointer text-red-600" />

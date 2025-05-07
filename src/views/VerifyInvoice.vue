@@ -24,18 +24,23 @@
       </div>
       <div class="flex justify-start items-center gap-x-2 py-4">
         <p
-          class="border border-gray-200 rounded-lg text-xs px-4 py-1.5 w-1/4 text-center"
+          @click="show = true"
+          :class="show ? 'bg-[#FF613c] text-white' : ''"
+          class="border border-gray-200 rounded-lg text-xs cursor-pointer px-4 py-1.5 w-1/4 text-center"
         >
           Sales
         </p>
         <p
-          class="border border-gray-200 rounded-lg text-xs px-4 py-1.5 w-1/4 text-center"
+          @click="show = false"
+          :class="!show ? 'bg-[#FF613c] text-white' : ''"
+          class="border border-gray-200 rounded-lg text-xs cursor-pointer px-4 py-1.5 w-1/4 text-center"
         >
           Expense
         </p>
       </div>
       <div class="grid grid-cols-3 col-span-2 gap-x-4">
         <div
+          v-if="!show"
           class="flex justify-start items-center border-y border-gray-200 py-2 pr-4 mr-4 overflow-x-scroll no-sidebar-container"
         >
           <div
@@ -44,17 +49,18 @@
             class="rounded-lg px-2 py-1 mx-1"
             :class="i == 2 ? 'text-[#FF613c] font-semibold' : ''"
           >
-            <p class="whitespace-nowrap text-xs">HN-{{ i }}00</p>
+            <p class="whitespace-nowrap text-xs">-00{{ i }}</p>
           </div>
         </div>
+        <div v-if="show"></div>
         <div class="flex justify-between items-center col-span-2">
-          <p class="text-lg font-medium">Expense</p>
+          <p class="text-lg font-medium">{{ show ? "Sales" : "Expense" }}</p>
           <div class="flex justify-between items-center">
             <div class="flex justify-start items-center gap-x-2">
-              <p class="px-3 py-1 text-xs bg-red-500 text-white rounded-lg">
+              <p class="px-4 py-2 text-xs bg-red-500 text-white rounded-lg">
                 Raise Issue
               </p>
-              <p class="px-3 py-1 text-xs bg-green-500 text-white rounded-lg">
+              <p class="px-6 py-2 text-xs bg-green-500 text-white rounded-lg">
                 Verify
               </p>
             </div>
@@ -78,8 +84,11 @@
           />
         </div>
         <div class="col-span-2">
-          <div class="p-3 rounded-lg border border-gray-200">
+          <div class="p-3 rounded-lg border border-gray-200" v-if="!show">
             <VerifyExpense />
+          </div>
+          <div class="p-3 rounded-lg border border-gray-200" v-if="show">
+            <VerifySale />
           </div>
         </div>
       </div>
@@ -93,7 +102,11 @@ import { useSidebarStore } from "../stores/sidebar";
 import Layout from "./Layout.vue";
 import ReservationList from "./VerifyInvoiceComponent/ReservationList.vue";
 import VerifyExpense from "./VerifyInvoiceComponent/VerifyExpense.vue";
+import { ref } from "vue";
+import VerifySale from "./VerifyInvoiceComponent/VerifySale.vue";
 
 const siderBarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(siderBarStore);
+
+const show = ref(false);
 </script>

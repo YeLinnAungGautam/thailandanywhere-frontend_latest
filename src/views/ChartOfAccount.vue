@@ -18,6 +18,7 @@ import Swal from "sweetalert2";
 import { useChartOfAccountStore } from "../stores/chartofAccount";
 import AccountanceSide from "../components/AccountanceSide.vue";
 import { useRouter } from "vue-router";
+import { formattedDate, formattedNumber } from "./help/FormatData";
 
 const sideBarStore = useSidebarStore();
 const accountClassStore = useAccountClassStore();
@@ -435,12 +436,12 @@ watch(
                   >
                     {{
                       item?.connection_detail == "price"
-                        ? item?.total_unverify_amount
+                        ? formattedNumber(item?.total_amount)
                         : ""
                     }}
                     {{
                       item?.connection_detail == "expense"
-                        ? item?.total_unverify_cost_price
+                        ? formattedNumber(item?.total_cost_price)
                         : ""
                     }}
                   </td>
@@ -448,16 +449,7 @@ watch(
                     scope="col"
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
-                    {{
-                      item?.connection_detail == "price"
-                        ? item?.total_amount
-                        : ""
-                    }}
-                    {{
-                      item?.connection_detail == "expense"
-                        ? item?.total_cost_price
-                        : ""
-                    }}
+                    -
                   </td>
                   <td
                     scope="col"

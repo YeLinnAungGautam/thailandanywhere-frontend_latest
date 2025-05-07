@@ -187,6 +187,12 @@
                   to="/product_income_checker"
                 />
                 <SidebarItem
+                  name="Verify Invoices"
+                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  :icon="FolderIcon"
+                  to="/verify_invoices"
+                />
+                <SidebarItem
                   name="Account Class"
                   v-if="!authStore.isAgent && !authStore.isAuditor"
                   :icon="FolderIcon"

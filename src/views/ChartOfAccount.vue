@@ -197,6 +197,8 @@ const productIcomeChecker = (type) => {
       name: "productIncomeChecker",
       query: {
         type: type,
+        month: selectedMonth.value,
+        year: year.value,
       },
     });
   }

@@ -119,6 +119,10 @@ const handleMonthChange = (month) => {
 };
 
 onMounted(async () => {
+  if (route.query.month && route.query.year) {
+    selectedMonth.value = route.query.month;
+    year.value = route.query.year;
+  }
   // Initialize date range with current month and year
   setMonthDateRange(selectedMonth.value, year.value);
   // await getAction();
@@ -429,7 +433,16 @@ watch(
                     class="text-[11px] flex justify-end items-center gap-x-8 font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
                     <PencilSquareIcon
-                      @click="router.push('verify_invoices')"
+                      @click="
+                        router.push({
+                          name: 'verifyInvoices',
+                          query: {
+                            month: selectedMonth,
+                            year: year,
+                            id: item?.booking?.id,
+                          },
+                        })
+                      "
                       class="w-4 h-4 cursor-pointer text-blue-600"
                     />
                     <TrashIcon class="w-4 h-4 cursor-pointer text-red-600" />

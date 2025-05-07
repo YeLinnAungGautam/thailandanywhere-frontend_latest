@@ -32,6 +32,9 @@ const changePage = (page) => {
   let data = {
     search: search.value,
   };
+  if (date_range.value) {
+    data.month = date_range.value;
+  }
   chartOfAccountStore.getChangePage(page, data);
 };
 

@@ -12,18 +12,20 @@
           <span
             class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
           ></span>
-          <span>March</span>
-          <span
-            class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
-          ></span>
-          <span>2025</span>
-          <span
-            class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
-          ></span>
-          <span>{{ detailVal?.crm_id }}</span>
+          <span class="mr-4">{{ detailVal?.crm_id }}</span>
+          <YearPickerVue @year-change="handleYearChange" />
+          <select
+            v-model="selectedMonth"
+            @change="handleMonthChange(selectedMonth)"
+            class="px-3 text-black text-xs py-2 ml-4 rounded-lg border border-gray-400/20 focus:outline-none"
+          >
+            <option :value="m.id" v-for="m in monthArray" :key="m.id">
+              {{ m.name }}
+            </option>
+          </select>
         </p>
       </div>
-      <div class="w-full overflow-hidden" v-if="bookings?.data">
+      <div class="w-full" v-if="bookings?.data">
         <ReservationList
           :lists="bookings ?? []"
           :loading="loading"
@@ -46,16 +48,6 @@
         >
           Expense
         </p>
-        <YearPickerVue @year-change="handleYearChange" />
-        <select
-          v-model="selectedMonth"
-          @change="handleMonthChange(selectedMonth)"
-          class="px-3 text-black text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none"
-        >
-          <option :value="m.id" v-for="m in monthArray" :key="m.id">
-            {{ m.name }}
-          </option>
-        </select>
       </div>
       <div class="grid grid-cols-3 col-span-2 gap-x-4">
         <div
@@ -71,7 +63,15 @@
             <p class="whitespace-nowrap text-xs">-00{{ i }}</p>
           </div>
         </div>
-        <div v-if="show"></div>
+        <div v-if="show">
+          <div
+            @click="openPrintModal = true"
+            class="bg-[#FF613c] text-white rounded-lg text-xs text-center cursor-pointer px-4 py-2 flex justify-center items-center gap-x-4"
+          >
+            <DocumentIcon class="w-4 h-4 text-white" />
+            <p>See Invoice</p>
+          </div>
+        </div>
         <div class="flex justify-between items-center col-span-2">
           <p class="text-lg font-medium">{{ show ? "Sales" : "Expense" }}</p>
           <div class="flex justify-between items-center">
@@ -129,6 +129,25 @@
         </div>
       </div>
     </div>
+    <Modal :isOpen="openPrintModal" @closeModal="openPrintModal = false">
+      <DialogPanel
+        class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-lg font-medium leading-6 text-gray-900 mb-5 flex justify-between items-center"
+        >
+          <span class="pl-4">Print Invoice as PNG</span>
+          <XMarkIcon
+            class="w-6 h-6 text-black cursor-pointer"
+            @click="openPrintModal = false"
+          />
+        </DialogTitle>
+        <div>
+          <PngUsage :invoice_id="route.query.id" />
+        </div>
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>
 
@@ -143,6 +162,10 @@ import VerifySale from "./VerifyInvoiceComponent/VerifySale.vue";
 import YearPickerVue from "./AccountingComponent/yearPicker.vue";
 import { useBookingStore } from "../stores/booking";
 import { useRoute, useRouter } from "vue-router";
+import { DocumentIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+import Modal from "../components/Modal.vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import PngUsage from "./PngGenerate/PngUsage.vue";
 
 const bookingStore = useBookingStore();
 const { bookings, loading } = storeToRefs(bookingStore);
@@ -150,6 +173,7 @@ const currentDate = new Date();
 const year = ref(currentDate.getFullYear());
 const selectedMonth = ref(currentDate.getMonth() + 1); // Adding 1 since getMonth() returns 0-11
 const date_range = ref("");
+const openPrintModal = ref(false);
 
 const selectedItem = ref("");
 const router = useRouter();

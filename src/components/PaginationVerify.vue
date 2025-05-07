@@ -9,12 +9,12 @@
           :class="[!hasPreviousPage ? 'opacity-50 cursor-not-allowed' : '']"
           class="relative z-10 inline-flex items-center w-8 h-8 justify-center text-xs rounded-full font-medium bg-[#ff613c] text-white border border-[#ff613c] focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
-          &lt;
+          Pre
         </button>
 
         <!-- Current page indicator -->
         <div class="flex items-center px-3 text-xs text-gray-700">
-          {{ currentPage }} / {{ totalPages }}
+          {{ currentPage }} / {{ totalPages }} Pages
         </div>
 
         <!-- Right arrow -->
@@ -28,13 +28,13 @@
           ]"
           class="relative z-10 inline-flex items-center w-8 h-8 justify-center text-xs rounded-full font-medium bg-[#ff613c] text-white border border-[#ff613c] focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
-          &gt;
+          Nxt
         </button>
       </nav>
     </div>
     <div>
       <p class="inline-block ml-4 text-gray-500 text-xs font-medium">
-        {{ data.meta.total }} records
+        {{ data.meta.total }} Invoices
       </p>
     </div>
   </div>

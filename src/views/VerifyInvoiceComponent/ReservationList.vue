@@ -6,10 +6,23 @@
       ref="scrollContainer"
     >
       <div
-        v-for="(i, index) in lists?.data ?? []"
+        v-for="i in lists?.data ?? []"
         :key="i.id"
         class="rounded-lg px-2 py-1 mx-1"
-        :class="selectedItem == i.id ? 'bg-[#FF613c] text-white' : ''"
+        :class="{
+          'bg-green-500 text-white':
+            i.verify_status == 'verified' && selectedItem == i.id,
+          'bg-red-500 text-white':
+            i.verify_status == 'unverified' && selectedItem == i.id,
+          'bg-[#FF613c]/60 text-white':
+            i.verify_status == 'pending' && selectedItem == i.id,
+          'text-green-500':
+            i.verify_status == 'verified' && selectedItem != i.id,
+          'text-red-500':
+            i.verify_status == 'unverified' && selectedItem != i.id,
+          'text-[#FF613c]/60':
+            i.verify_status == 'pending' && selectedItem != i.id,
+        }"
         @click="selectItem(i.id)"
         :ref="
           (el) => {

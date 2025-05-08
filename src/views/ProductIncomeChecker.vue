@@ -150,13 +150,6 @@ onMounted(async () => {
   product_type.value = setProductType();
 });
 
-// watch(
-//   product_type,
-//   debounce(async (newValue) => {
-//     await getAction();
-//   }, 500)
-// );
-
 // Watch date_range changes
 watch(
   [date_range, product_type, payment_status],
@@ -396,7 +389,18 @@ watch(
                     scope="col"
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
-                    -
+                    <p
+                      :class="{
+                        'text-green-600 bg-green-200 px-2 py-0 rounded-lg text-[10px] text-center':
+                          item?.booking?.verify_status == 'verified',
+                        'text-red-600 bg-red-200 px-2 py-0 rounded-lg text-[10px] text-center':
+                          item?.booking?.verify_status == 'not_verified',
+                        'text-[#FF613c] bg-[#FF613c]/20 px-2 py-0 rounded-lg text-[10px] text-center':
+                          item?.booking?.verify_status == 'pending',
+                      }"
+                    >
+                      {{ item?.booking?.verify_status }}
+                    </p>
                   </td>
                   <td
                     scope="col"

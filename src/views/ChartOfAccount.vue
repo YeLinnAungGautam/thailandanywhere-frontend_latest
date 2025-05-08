@@ -32,6 +32,7 @@ const toast = useToast();
 const changePage = (page) => {
   let data = {
     search: search.value,
+    search_code: search_code.value,
   };
   if (date_range.value) {
     data.month = date_range.value;
@@ -40,6 +41,7 @@ const changePage = (page) => {
 };
 
 const search = ref("");
+const search_code = ref("");
 const formData = ref({
   account_name: "",
   account_code: "",
@@ -179,6 +181,7 @@ const editGetFormData = (data) => {
 const getAction = async () => {
   let data = {
     search: search.value,
+    search_code: search_code.value,
     month: date_range.value,
   };
   await chartOfAccountStore.getListAction(data);
@@ -265,7 +268,7 @@ onMounted(async () => {
 });
 
 watch(
-  search,
+  [search, search_code],
   debounce(async (newValue) => {
     await getAction();
   }, 500)
@@ -313,6 +316,12 @@ watch(
             type="text"
             class="w-1/4 border border-gray-400/20 rounded-lg px-3 py-2 text-xs"
             placeholder="search"
+          />
+          <input
+            v-model="search_code"
+            type="text"
+            class="w-1/4 border border-gray-400/20 rounded-lg px-3 py-2 text-xs"
+            placeholder="search by sub code"
           />
           <YearPickerVue @year-change="handleYearChange" />
           <select

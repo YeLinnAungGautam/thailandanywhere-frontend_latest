@@ -103,5 +103,17 @@ export const useBookingStore = defineStore("booking", {
         throw error;
       }
     },
+
+    async verifyBookingStatus(id, data) {
+      try {
+        const response = await axios.post(
+          "/booking/" + id + "/verify_status",
+          data
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

@@ -117,7 +117,9 @@
         </div>
         <div>
           <p class="text-[10px] pb-2">Bank name</p>
-          <p class="bg-gray-200 px-4 py-2 text-xs rounded-lg">-</p>
+          <p class="bg-gray-200 px-4 py-2 text-xs rounded-lg">
+            {{ data?.bank_name }}
+          </p>
         </div>
         <div>
           <p class="text-[10px] pb-2">Exchange Rate</p>

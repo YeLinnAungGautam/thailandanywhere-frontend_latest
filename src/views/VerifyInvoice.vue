@@ -74,13 +74,29 @@
         </div>
         <div class="flex justify-between items-center col-span-2">
           <p class="text-lg font-medium">{{ show ? "Sales" : "Expense" }}</p>
-          <div class="flex justify-between items-center">
+          <div class="flex justify-between items-center" v-if="show">
+            <div class="flex justify-start items-center gap-x-2">
+              <p class="px-4 py-2 text-xs bg-gray-300 text-white rounded-lg">
+                Raise Sale Issue
+              </p>
+              <p
+                class="px-6 py-2 text-xs bg-red-500 text-white cursor-pointer rounded-lg"
+                @click="verifyBooking(detailVal.id, 'unverified')"
+              >
+                No Verified
+              </p>
+              <p
+                class="px-6 py-2 text-xs bg-green-500 text-white cursor-pointer rounded-lg"
+                @click="verifyBooking(detailVal.id, 'verified')"
+              >
+                Verified
+              </p>
+            </div>
+          </div>
+          <div class="flex justify-between items-center" v-if="!show">
             <div class="flex justify-start items-center gap-x-2">
               <p class="px-4 py-2 text-xs bg-red-500 text-white rounded-lg">
-                Raise Issue
-              </p>
-              <p class="px-6 py-2 text-xs bg-green-500 text-white rounded-lg">
-                Verify
+                Raise Cost Issue
               </p>
             </div>
           </div>
@@ -166,6 +182,8 @@ import { DocumentIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import PngUsage from "./PngGenerate/PngUsage.vue";
+import { useToast } from "vue-toastification";
+import Swal from "sweetalert2";
 
 const bookingStore = useBookingStore();
 const { bookings, loading } = storeToRefs(bookingStore);
@@ -178,6 +196,121 @@ const openPrintModal = ref(false);
 const selectedItem = ref("");
 const router = useRouter();
 const route = useRoute();
+const toast = useToast();
+const verify_status = ref("");
+
+const verifyBooking = async (id, data) => {
+  verify_status.value = data;
+
+  // Create the initial HTML with all items in gray
+  const checklistHTML = `
+    <div id="check-list" class="text-left px-6">
+      <p class="mb-3 text-sm font-medium" id="check-heading">First step checking...</p>
+      <div class="flex items-center justify-between mb-2 opacity-50" id="check-item-1">
+        <span class="text-xs">Payment Check</span>
+        <span class="text-gray-500 mr-2" id="check-icon-1">
+          <i class="fas fa-circle"></i>
+        </span>
+      </div>
+      <div class="flex items-center justify-between mb-2 opacity-50" id="check-item-2">
+        <span class="text-xs">Invoice Check</span>
+        <span class="text-gray-500 mr-2" id="check-icon-2">
+          <i class="fas fa-circle"></i>
+        </span>
+      </div>
+      <div class="flex items-center justify-between mb-2 opacity-50" id="check-item-3">
+        <span class="text-xs">Other Check</span>
+        <span class="text-gray-500 mr-2" id="check-icon-3">
+          <i class="fas fa-circle"></i>
+        </span>
+      </div>
+    </div>
+  `;
+
+  // Show the SweetAlert
+  const swalInstance = Swal.fire({
+    title: "Checking",
+    html: checklistHTML,
+    icon: "info",
+    showCancelButton: true,
+    confirmButtonColor: "#FF613c",
+    cancelButtonColor: "#d33",
+    confirmButtonText: data,
+    allowOutsideClick: false,
+    didOpen: () => {
+      // Get DOM elements
+      const heading = document.getElementById("check-heading");
+      const items = [
+        document.getElementById("check-item-1"),
+        document.getElementById("check-item-2"),
+        document.getElementById("check-item-3"),
+      ];
+      const icons = [
+        document.getElementById("check-icon-1"),
+        document.getElementById("check-icon-2"),
+        document.getElementById("check-icon-3"),
+      ];
+
+      // Animation timing (in milliseconds)
+      const startDelay = 500;
+      const stepDelay = 800;
+
+      // Animate heading first
+      setTimeout(() => {
+        heading.innerHTML = "Starting verification process...";
+        heading.classList.add("font-bold");
+      }, startDelay);
+
+      // Animate each checklist item
+      items.forEach((item, index) => {
+        setTimeout(() => {
+          // Show the item (remove opacity)
+          item.classList.remove("opacity-50");
+
+          // Change the heading text for each step
+          if (index === 0) heading.innerHTML = "Checking payment status...";
+          if (index === 1) heading.innerHTML = "Verifying invoice details...";
+          if (index === 2) heading.innerHTML = "Finalizing verification...";
+
+          // Animate the icon change
+          setTimeout(() => {
+            icons[index].classList.remove("text-gray-500");
+            icons[index].classList.add("text-green-500");
+            icons[index].innerHTML = '<i class="fas fa-check-circle"></i>';
+
+            // Update final heading after all checks
+            if (index === 2) {
+              setTimeout(() => {
+                heading.innerHTML = "All checks complete!";
+                heading.classList.add("text-green-500");
+              }, 500);
+            }
+          }, 500);
+        }, startDelay + (index + 1) * stepDelay);
+      });
+    },
+  });
+
+  // Handle the confirm/cancel
+  const result = await swalInstance;
+
+  if (result.isConfirmed) {
+    try {
+      const frmData = new FormData();
+      frmData.append("_method", "PUT");
+      frmData.append("verify_status", verify_status.value);
+      const res = await bookingStore.verifyBookingStatus(id, frmData);
+      if (res.status == "Request was successful.") {
+        toast.success(res.message);
+      }
+      verify_status.value = "";
+      await getDetail();
+      await getAction();
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+  }
+};
 
 const monthArray = [
   { id: 1, name: "January" },

@@ -8,7 +8,7 @@ export const usePlaceStore = defineStore("place", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get(`/places?limit=50&page=1`);
+        const response = await axios.get(`/places?limit=1000&page=1`);
         this.places = response.data.result;
         this.loading = false;
 

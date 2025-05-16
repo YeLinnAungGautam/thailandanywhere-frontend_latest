@@ -66,6 +66,7 @@ import ReservationVantourView from "../views/ReservationVantour.vue";
 import AmendView from "../views/Amend.vue";
 import productIncomeChecker from "../views/ProductIncomeChecker.vue";
 import verifyInvoices from "../views/VerifyInvoice.vue";
+import OrderView from "../views/OrderPage.vue";
 
 const routes = [
   {
@@ -411,6 +412,11 @@ const routes = [
     path: "/amend",
     name: "amend",
     component: AmendView,
+  },
+  {
+    path: "/order",
+    name: "order",
+    component: OrderView,
   },
 ];
 

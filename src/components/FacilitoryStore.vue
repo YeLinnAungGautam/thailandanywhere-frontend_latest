@@ -128,9 +128,8 @@ onMounted(async () => {
   if (!facilities?.value) {
     const res = await facilityStore.getSimpleListAction();
   }
-
   formData.value.list = props.data;
-  console.log(props.data, "this is data");
+  console.log(facilities.value.data, "this is data");
 });
 </script>
 

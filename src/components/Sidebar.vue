@@ -85,6 +85,12 @@
                   'update_new_bookings',
                 ]"
               />
+              <SidebarItem
+                name="Order"
+                :icon="ListBulletIcon"
+                to="/order"
+                :activePaths="['order']"
+              />
               <div
                 v-if="!authStore.isAuditor"
                 @click="toggleReservationShow"
@@ -365,6 +371,7 @@ import {
   TruckIcon,
   ChatBubbleBottomCenterTextIcon,
   ArrowPathIcon,
+  ListBulletIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";

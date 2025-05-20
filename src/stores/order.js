@@ -37,6 +37,27 @@ export const useOrderStore = defineStore("order", {
       }
     },
 
+    async changeStatus(id, params) {
+      try {
+        const response = await axios.post(
+          "/orders/" + id + "/change-status",
+          params
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    async deleteOrder(id) {
+      try {
+        const response = await axios.delete("/orders/" + id);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
     async changeToBooking(id) {
       try {
         const response = await axios.post(

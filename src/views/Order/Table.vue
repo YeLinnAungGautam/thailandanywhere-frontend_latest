@@ -65,6 +65,11 @@
               >Confirmed</span
             >
             <span
+              v-if="l?.order_status === 'sale_convert'"
+              class="text-[10px] font-medium text-blue-600 px-3 py-1 rounded-lg bg-blue-600/10"
+              >Sale_convert</span
+            >
+            <span
               v-if="l?.order_status === 'processing'"
               class="text-[10px] font-medium text-yellow-800 px-3 py-1 rounded-lg bg-yellow-500/10"
               >Processing</span
@@ -187,14 +192,7 @@
       </tbody>
     </table>
 
-    <Modal
-      :isOpen="selectedRowData != null"
-      @closeModal="
-        selectedRowData = null;
-        selectedRow = null;
-        showPaymentForm = false;
-      "
-    >
+    <Modal :isOpen="selectedRowData != null" @closeModal="close">
       <DialogPanel
         class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
       >
@@ -419,18 +417,38 @@
 
         <div class="mt-4 flex justify-end items-center space-x-2">
           <button
+            @click="ChangeToBooking(selectedRowData.id)"
+            v-if="
+              !showPaymentForm &&
+              selectedRowData?.order_status != 'cancelled' &&
+              selectedRowData?.order_status != 'sale_convert'
+            "
+            class="px-4 py-2 text-xs bg-[#FF613c] text-white rounded-lg hover:bg-[#FF613c]"
+          >
+            Change To Booking
+          </button>
+          <button
+            @click="
+              () => {
+                changeOrderStatusShow = true;
+                changeStatusId = selectedRowData.id;
+                close();
+              }
+            "
+            v-if="
+              !showPaymentForm &&
+              selectedRowData?.order_status != 'sale_convert'
+            "
+            class="px-4 py-2 text-xs bg-green-600 text-white rounded-lg hover:bg-green-600"
+          >
+            Change Order Status
+          </button>
+          <button
             v-if="!showPaymentForm"
             @click="showPaymentForm = true"
             class="px-4 py-2 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           >
-            Add Payment
-          </button>
-          <button
-            @click="ChangeToBooking(selectedRowData.id)"
-            v-if="!showPaymentForm"
-            class="px-4 py-2 text-xs bg-[#FF613c] text-white rounded-lg hover:bg-[#FF613c]"
-          >
-            Change To Booking
+            Add Payment Order
           </button>
           <button
             v-if="showPaymentForm"
@@ -449,14 +467,66 @@
           </div>
           <div class="">
             <button
-              @click="
-                selectedRowData = null;
-                selectedRow = null;
-                showPaymentForm = false;
-              "
+              @click="close"
               class="px-4 py-2 text-xs bg-gray-600 text-white rounded-lg hover:bg-gray-700"
             >
               Close
+            </button>
+          </div>
+          <div
+            class=""
+            v-if="
+              (selectedRowData?.order_status != 'sale_convert' ||
+                authStore.isSuperAdmin) &&
+              !showPaymentForm
+            "
+          >
+            <button
+              @click="handleDelete(selectedRowData?.id)"
+              class="px-4 py-2 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              Delete Order
+            </button>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+
+    <Modal :isOpen="changeOrderStatusShow" @closeModal="closeStatusModal">
+      <DialogPanel
+        class="w-full max-w-xl mt-10 transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="font-medium leading-6 mb-5 flex justify-between"
+        >
+          <h3>Change Order Status</h3>
+          <XMarkIcon
+            class="w-5 h-5 text-black cursor-pointer"
+            @click="closeStatusModal"
+          />
+        </DialogTitle>
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-medium text-xs">Change Status</h3>
+          </div>
+          <div class="flex justify-between items-center mb-4">
+            <select
+              v-model="changeStatus"
+              class="w-full border border-gray-400/20 rounded-lg px-3 py-2 text-xs"
+            >
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="flex justify-end items-center">
+            <button
+              @click="submitChangeStatus(changeStatusId)"
+              class="px-4 py-2 text-xs bg-[#FF613c] text-white rounded-lg hover:bg-[#FF613c]"
+            >
+              Submit
             </button>
           </div>
         </div>
@@ -481,6 +551,7 @@ import { useAuthStore } from "../../stores/auth";
 import { CalendarDaysIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import { CheckBadgeIcon, XCircleIcon } from "@heroicons/vue/24/solid";
 import { useOrderStore } from "../../stores/order";
+import { id } from "date-fns/locale";
 
 const router = useRouter();
 const toast = useToast();
@@ -507,10 +578,35 @@ const props = defineProps({
 
 const emit = defineEmits(["edit", "delete"]);
 
+const changeOrderStatusShow = ref(false);
+const changeStatus = ref(null);
+const changeStatusId = ref(null);
+
 // Track which row is selected
 const selectedRow = ref(null);
 const selectedRowData = ref(null);
 const showPaymentForm = ref(false);
+
+const submitChangeStatus = async (id) => {
+  const res = await orderStore.changeStatus(id, {
+    status: changeStatus.value,
+  });
+
+  toast.success("order status change successfully");
+  await orderStore.getListAction(props.watchSystem);
+  changeOrderStatusShow.value = false;
+};
+
+const closeStatusModal = () => {
+  changeOrderStatusShow.value = false;
+  changeStatus.value = null;
+};
+
+const close = () => {
+  selectedRowData.value = null;
+  selectedRow.value = null;
+  showPaymentForm.value = false;
+};
 
 // Handle row click
 const handleRowClick = (row) => {
@@ -602,6 +698,43 @@ const ChangeToBooking = (id) => {
     if (result.isConfirmed) {
       try {
         const response = await orderStore.changeToBooking(id);
+        toast.success(response.message || "Successfully Changed!");
+        selectedRow.value = null;
+        selectedRowData.value = null;
+        // Close the modal
+        // Refresh data
+        await orderStore.getListAction(props.watchSystem);
+      } catch (error) {
+        console.error("Delete error:", error);
+
+        // Safely handle errors
+        if (errors && error.response?.data?.errors) {
+          errors.value = error.response.data.errors;
+        }
+
+        // Show error message
+        const errorMessage =
+          error.response?.data?.message ||
+          "Failed to delete. Please try again.";
+        toast.error(errorMessage);
+      }
+    }
+  });
+};
+
+const handleDelete = (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, Delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await orderStore.deleteOrder(id);
         toast.success(response.message || "Successfully Changed!");
         selectedRow.value = null;
         selectedRowData.value = null;

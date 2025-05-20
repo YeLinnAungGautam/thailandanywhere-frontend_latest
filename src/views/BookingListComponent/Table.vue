@@ -25,6 +25,9 @@
             CONNECTED
           </th>
           <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
+            IS_ORDER
+          </th>
+          <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
             ACTIONS
           </th>
         </tr>
@@ -95,6 +98,17 @@
             <!-- {{ l?.user?.name ? l?.user?.name : "Not Connected" }} -->
             <CheckBadgeIcon
               v-if="l?.user?.name"
+              class="w-5 h-5 text-green-500 inline-block"
+            />
+            <XCircleIcon v-else class="w-5 h-5 text-red-500 inline-block" />
+          </td>
+          <td
+            scope="col"
+            class="text-[11px] font-medium text-[#FF613c] text-center px-3 py-3 border-l border-gray-400/20"
+          >
+            <!-- {{ l?.user?.name ? l?.user?.name : "Not Connected" }} -->
+            <CheckBadgeIcon
+              v-if="l?.is_from_order"
               class="w-5 h-5 text-green-500 inline-block"
             />
             <XCircleIcon v-else class="w-5 h-5 text-red-500 inline-block" />
@@ -174,6 +188,14 @@
           >
             <p
               class="w-[80px] animate-pulse h-3 bg-gray-300 inline-block rounded-lg"
+            ></p>
+          </td>
+          <td
+            scope="col"
+            class="text-[11px] font-medium text-[#FF613c] px-3 py-3 border-l border-gray-400/20"
+          >
+            <p
+              class="w-[50px] animate-pulse h-3 bg-gray-300 inline-block rounded-lg"
             ></p>
           </td>
           <td

@@ -14,6 +14,9 @@
             USER NAME
           </th>
           <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
+            CUSTOMER
+          </th>
+          <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
             ORDER CREATE
           </th>
           <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
@@ -48,6 +51,12 @@
             class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
           >
             {{ l?.user?.name }}
+          </td>
+          <td
+            scope="col"
+            class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+          >
+            {{ l?.customer?.name }}
           </td>
           <td
             scope="col"
@@ -436,7 +445,6 @@
               }
             "
             v-if="
-              !showPaymentForm &&
               selectedRowData?.order_status != 'sale_convert' &&
               authStore.isSuperAdmin
             "

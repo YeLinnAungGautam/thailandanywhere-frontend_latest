@@ -221,7 +221,7 @@
                 <div class="flex justify-center items-center flex-col">
                   <p class="text-xs font-medium">Customer:</p>
                   <p class="font-semibold">
-                    {{ selectedRowData?.user?.name }}
+                    {{ selectedRowData?.customer?.name }}
                   </p>
                 </div>
                 <div class="flex justify-center items-center flex-col">
@@ -437,19 +437,21 @@
             "
             v-if="
               !showPaymentForm &&
-              selectedRowData?.order_status != 'sale_convert'
+              selectedRowData?.order_status != 'sale_convert' &&
+              authStore.isSuperAdmin
             "
             class="px-4 py-2 text-xs bg-green-600 text-white rounded-lg hover:bg-green-600"
           >
             Change Order Status
           </button>
+          <!-- 
           <button
             v-if="!showPaymentForm"
             @click="showPaymentForm = true"
             class="px-4 py-2 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           >
             Add Payment Order
-          </button>
+          </button> -->
           <button
             v-if="showPaymentForm"
             @click="submitAddPayment(selectedRowData.id)"

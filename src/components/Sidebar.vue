@@ -139,6 +139,11 @@
                 />
               </div>
               <SidebarItem
+                name="Dashboard"
+                :icon="Squares2X2Icon"
+                to="/group-item"
+              />
+              <SidebarItem
                 v-if="authStore.isSuperAdmin"
                 name="Amend"
                 :icon="ArrowPathIcon"

@@ -656,7 +656,7 @@ const mailBodyChange = () => {
   <p>If you may have any questions or concerns, please feel free to call us at <strong>0950423254</strong> LINE ID <strong>0983498197</strong>.</p>
   <p>Thank you,</p>
   <p><strong>Negyi @ Sunshine</strong> (Reservation Manager)</p>
-  <p>143/51, Thepprasit Rd, Pattaya City, Bang Lamung District, Chon Buri 20150</p>
+  <p>143/50, Thepprasit Rd, Pattaya City, Bang Lamung District, Chon Buri 20150</p>
         `;
   } else {
     // Original template for Hotels
@@ -696,7 +696,7 @@ const mailBodyChange = () => {
     <p>If you may have any questions or concerns, please feel free to call us at <strong>0950423254</strong> LINE ID <strong>0983498197</strong>.</p>
     <p>Thank you,</p>
     <p><strong>Negyi @ Sunshine</strong> (Reservation Manager)</p>
-    <p>143/51, Thepprasit Rd, Pattaya City, Bang Lamung District, Chon Buri 20150</p>
+    <p>143/50, Thepprasit Rd, Pattaya City, Bang Lamung District, Chon Buri 20150</p>
     `;
   }
 };

@@ -67,6 +67,7 @@ import AmendView from "../views/Amend.vue";
 import productIncomeChecker from "../views/ProductIncomeChecker.vue";
 import verifyInvoices from "../views/VerifyInvoice.vue";
 import OrderView from "../views/OrderPage.vue";
+import GroupItemView from "../views/GroupItem.vue";
 
 const routes = [
   {
@@ -296,6 +297,11 @@ const routes = [
     path: "/reservation-attraction",
     name: "reservation-attraction",
     component: ReservationAttractionView,
+  },
+  {
+    path: "/group-item",
+    name: "group-item",
+    component: GroupItemView,
   },
   {
     path: "/reservation-vantour",

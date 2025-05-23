@@ -486,9 +486,9 @@
           <div
             class=""
             v-if="
-              (selectedRowData?.order_status != 'sale_convert' ||
-                authStore.isSuperAdmin) &&
-              !showPaymentForm
+              selectedRowData?.order_status != 'sale_convert' &&
+              !showPaymentForm &&
+              authStore.isSuperAdmin
             "
           >
             <button

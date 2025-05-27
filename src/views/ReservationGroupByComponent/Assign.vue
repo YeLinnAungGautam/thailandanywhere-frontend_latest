@@ -149,12 +149,18 @@
             <label :for="`driver`" class="text-xs pb-1.5 font-medium">
               Driver <span class="text-red-600">*</span>
             </label>
-            <select
+            <!-- <select
               v-model="formData.driver_id"
               :id="`driver`"
               class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
               @change="() => onDriverChange(formData.driver_id)"
             >
+              <input
+                type="search"
+                name=""
+                class="w-full h-10 border border-gray-200"
+                id=""
+              />
               <option value="">Select Driver</option>
               <option
                 v-for="driver in drivers?.data || []"
@@ -163,7 +169,14 @@
               >
                 {{ driver.name }}
               </option>
-            </select>
+            </select> -->
+            <div>
+              <SearchDriver
+                v-model="formData.driver_id"
+                :drivers="drivers"
+                @change="onDriverChange"
+              />
+            </div>
           </div>
           <div class="space-y-1">
             <label :for="`driver_contact`" class="text-xs pb-1.5 font-medium"
@@ -293,6 +306,7 @@ import { DialogPanel, DialogTitle } from "@headlessui/vue";
 import Modal from "../../components/Modal.vue";
 import logo from "../../assets/web-logo.png";
 import { CurrencyDollarIcon } from "@heroicons/vue/24/solid";
+import SearchDriver from "./SearchDriver.vue";
 
 const route = useRoute();
 

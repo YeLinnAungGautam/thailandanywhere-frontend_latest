@@ -191,42 +191,41 @@
                 <SidebarItem
                   name="Chart of Accounts"
                   label="COA"
-                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  v-if="authStore.isSuperAdmin || authStore.isCashier"
                   :icon="FolderIcon"
                   to="/chart_of_account"
                 />
                 <SidebarItem
                   name="Income Checker"
                   label="ICheck"
-                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  v-if="authStore.isSuperAdmin || authStore.isCashier"
                   :icon="FolderIcon"
                   to="/product_income_checker"
                 />
                 <SidebarItem
                   name="Verify Invoices"
                   label="VInvoice"
-                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  v-if="authStore.isSuperAdmin || authStore.isCashier"
                   :icon="FolderIcon"
                   to="/verify_invoices"
                 />
                 <SidebarItem
                   name="Account Class"
                   label="AClass"
-                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  v-if="authStore.isSuperAdmin || authStore.isCashier"
                   :icon="FolderIcon"
                   to="/account_class"
                 />
                 <SidebarItem
                   name="Account Head"
                   label="AHead"
-                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  v-if="authStore.isSuperAdmin || authStore.isCashier"
                   :icon="FolderIcon"
                   to="/account_head"
                 />
                 <SidebarItem
                   name="Tax Receipts"
                   label="Tax"
-                  v-if="!authStore.isAgent && !authStore.isAuditor"
                   :icon="FolderIcon"
                   to="/tax_receipt"
                 />

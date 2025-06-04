@@ -42,11 +42,14 @@ const selectedTab = ref(0);
 
 const changeTab = (index) => {
   selectedTab.value = index;
+
+  // Preserve existing query parameters when changing tabs
   router.push({
     name: "products",
     params: {
       id: index,
     },
+    query: { ...route.query }, // Preserve all existing query parameters
   });
 };
 
@@ -71,6 +74,16 @@ watch(
     changeUseRouter();
   },
   { deep: true } // Ensures nested properties like `id` are watched
+);
+
+// Also watch for query changes to update tab if needed
+watch(
+  () => route.query,
+  (newQuery) => {
+    // Handle query parameter changes if needed
+    console.log("Query parameters changed:", newQuery);
+  },
+  { deep: true }
 );
 </script>
 

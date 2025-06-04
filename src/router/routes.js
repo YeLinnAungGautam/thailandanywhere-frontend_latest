@@ -68,6 +68,7 @@ import productIncomeChecker from "../views/ProductIncomeChecker.vue";
 import verifyInvoices from "../views/VerifyInvoice.vue";
 import OrderView from "../views/OrderPage.vue";
 import GroupItemView from "../views/GroupItem.vue";
+import TaxReceipt from "../views/TaxReceipt.vue";
 
 const routes = [
   {
@@ -423,6 +424,11 @@ const routes = [
     path: "/order",
     name: "order",
     component: OrderView,
+  },
+  {
+    path: "/tax_receipt",
+    name: "TaxReceipt",
+    component: TaxReceipt,
   },
 ];
 

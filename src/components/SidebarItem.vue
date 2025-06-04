@@ -5,7 +5,7 @@
       'text-white bg-[#FF5B00]': isActive(),
       'text-gray-600 bg-white': !isActive(),
     }"
-    class="inline-flex mb-1 text-[10px] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
+    class="inline-flex mb-1 text-[10px] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] group hover:bg-[#FF5B00]/20 transition duration-150"
   >
     <component v-if="icon" :is="icon" class="w-4 h-4"></component>
     <p
@@ -14,7 +14,12 @@
     >
       {{ name }}
     </p>
-    <!-- <p v-show="!isShowSidebar">.</p> -->
+
+    <p
+      class="group-hover:absolute text-black group-hover:block hidden -top-4 left-0 z-10 whitespace-nowrap transition-all text-[8px] duration-150"
+    >
+      {{ label ? label : name }}
+    </p>
   </router-link>
 </template>
 
@@ -36,6 +41,10 @@ const props = defineProps({
   },
   icon: {
     type: [Object, Function],
+  },
+  label: {
+    type: String,
+    default: "",
   },
   to: {
     type: String,

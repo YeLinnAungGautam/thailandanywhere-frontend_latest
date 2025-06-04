@@ -121,25 +121,28 @@
               >
                 <SidebarItem
                   name="Res Attraction"
+                  label="attraction"
                   :icon="TicketIcon"
                   to="/reservation-attraction"
                   :activePaths="['reservation-attraction']"
                 />
                 <SidebarItem
                   name="Res Hotel"
+                  label="hotel"
                   :icon="HomeModernIcon"
                   to="/reservation-hotel"
                   :activePaths="['reservation-hotel']"
                 />
                 <SidebarItem
                   name="Res Vantour"
+                  label="vantour"
                   :icon="TruckIcon"
                   to="/reservation-vantour"
                   :activePaths="['reservation-vantour']"
                 />
               </div>
               <SidebarItem
-                name="Dashboard"
+                name="Group Item"
                 :icon="Squares2X2Icon"
                 to="/group-item"
               />
@@ -187,33 +190,45 @@
               >
                 <SidebarItem
                   name="Chart of Accounts"
+                  label="COA"
                   v-if="!authStore.isAgent && !authStore.isAuditor"
                   :icon="FolderIcon"
                   to="/chart_of_account"
                 />
                 <SidebarItem
                   name="Income Checker"
+                  label="ICheck"
                   v-if="!authStore.isAgent && !authStore.isAuditor"
                   :icon="FolderIcon"
                   to="/product_income_checker"
                 />
                 <SidebarItem
                   name="Verify Invoices"
+                  label="VInvoice"
                   v-if="!authStore.isAgent && !authStore.isAuditor"
                   :icon="FolderIcon"
                   to="/verify_invoices"
                 />
                 <SidebarItem
                   name="Account Class"
+                  label="AClass"
                   v-if="!authStore.isAgent && !authStore.isAuditor"
                   :icon="FolderIcon"
                   to="/account_class"
                 />
                 <SidebarItem
                   name="Account Head"
+                  label="AHead"
                   v-if="!authStore.isAgent && !authStore.isAuditor"
                   :icon="FolderIcon"
                   to="/account_head"
+                />
+                <SidebarItem
+                  name="Tax Receipts"
+                  label="Tax"
+                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  :icon="FolderIcon"
+                  to="/tax_receipt"
                 />
               </div>
               <SidebarItem

@@ -337,6 +337,10 @@ const getDetailAction = (id) => {
   });
 };
 
+const changePage = async (url) => {
+  await taxReceiptStore.getChangePage(url);
+};
+
 onMounted(async () => {
   await getAllAction();
   console.log("====================================");

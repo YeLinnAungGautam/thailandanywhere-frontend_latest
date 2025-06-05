@@ -198,19 +198,6 @@
               required
             />
           </div>
-
-          <!-- Total Tax Withhold -->
-          <div class="space-y-1.5">
-            <label class="text-xs">Total Tax Withhold *</label>
-            <input
-              v-model.number="formData.total_tax_withold"
-              type="number"
-              step="0.01"
-              min="0"
-              class="w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm rounded-lg p-2"
-              required
-            />
-          </div>
         </div>
 
         <div class="space-y-3 pt-2">
@@ -286,6 +273,18 @@
               required
             />
           </div>
+          <!-- Total Tax Withhold -->
+          <div class="space-y-1.5">
+            <label class="text-xs">Total Tax Withhold *</label>
+            <input
+              v-model.number="formData.total_tax_withold"
+              type="number"
+              step="0.01"
+              min="0"
+              class="w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm rounded-lg p-2"
+              required
+            />
+          </div>
 
           <!-- Total After Tax -->
           <div class="space-y-1.5">
@@ -295,17 +294,6 @@
               type="number"
               step="0.01"
               class="w-full border border-gray-300 text-sm rounded-lg p-2"
-            />
-          </div>
-
-          <!-- Total -->
-          <div class="space-y-1.5">
-            <label class="text-xs">Total</label>
-            <input
-              v-model.number="formData.total"
-              type="number"
-              step="0.01"
-              class="w-full border border-gray-300 text-sm rounded-lg p-2 font-semibold"
             />
           </div>
 
@@ -354,7 +342,6 @@ const formData = reactive({
   total_tax_withold: 0,
   total_tax_amount: 0,
   total_after_tax: 0,
-  total: 0,
 });
 
 // Component state
@@ -393,7 +380,6 @@ const loadTaxReceiptDetail = async (id) => {
     formData.total_tax_withold = parseFloat(data.total_tax_withold || 0);
     formData.total_tax_amount = parseFloat(data.total_tax_amount || 0);
     formData.total_after_tax = parseFloat(data.total_after_tax || 0);
-    formData.total = parseFloat(data.total || 0);
 
     // Set product search and image preview
     if (data.product) {
@@ -737,6 +723,22 @@ watch(
     }
   },
   { immediate: true }
+);
+
+watch(
+  () => [formData.total_tax_withold, formData.total_tax_amount],
+  ([withheld, amount]) => {
+    // Check for null/undefined rather than truthys
+    if (withheld != null && amount != null) {
+      // Usually you'd subtract taxes, not add them
+      formData.total_after_tax = amount + withheld;
+      // OR if you really need to add them:
+      // formData.total_after_tax = amount + withheld;
+    } else {
+      formData.total_after_tax = 0;
+    }
+  },
+  { immediate: true, deep: true }
 );
 
 onMounted(() => {

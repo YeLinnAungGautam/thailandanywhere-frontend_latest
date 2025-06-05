@@ -40,13 +40,13 @@
         <div>
           <p class="text-[10px] text-gray-500">Tax Amount</p>
           <p class="text-sm font-semibold">
-            ${{ formatAmount(data?.total_tax_amount) }}
+            {{ formatAmount(data?.total_tax_amount) }} THB
           </p>
         </div>
         <div>
-          <p class="text-[10px] text-gray-500">Total</p>
+          <p class="text-[10px] text-gray-500">Tax Withold</p>
           <p class="text-sm font-semibold text-blue-600">
-            ${{ formatAmount(data?.total) }}
+            {{ formatAmount(data?.total_tax_withold) }} THB
           </p>
         </div>
       </div>

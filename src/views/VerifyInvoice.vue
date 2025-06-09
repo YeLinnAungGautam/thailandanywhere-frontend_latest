@@ -102,7 +102,19 @@
           </div>
         </div>
       </div>
-      <div class="grid grid-cols-3 pt-5 gap-x-4">
+      <div
+        class="flex justify-center items-center h-[400px] pt-5 gap-x-4"
+        v-if="loadingDetail && !route.query.id"
+      >
+        <p class="text-xs">Please select one reservation .</p>
+      </div>
+      <div
+        class="flex justify-center items-center h-[400px] pt-5 gap-x-4"
+        v-if="loadingDetail"
+      >
+        <p class="text-xs">loading detail, please wait ;</p>
+      </div>
+      <div class="grid grid-cols-3 pt-5 gap-x-4" v-if="!loadingDetail">
         <div class="col-span-1 grid grid-cols-3 gap-2" v-if="!show">
           <div class="space-y-2 rounded-lg overflow-y-auto h-[400px]">
             <div class="" v-for="i in 5" :key="i">
@@ -121,19 +133,60 @@
         <div class="col-span-1 grid grid-cols-3 gap-2" v-if="show">
           <div class="space-y-2 rounded-lg overflow-y-auto h-[400px]">
             <div
-              class=""
+              class="relative"
               v-for="i in detailVal?.receipts"
               :key="i"
-              @click="showReceipt = i?.image"
+              @click="imageData = i"
             >
-              <img :src="i?.image" alt="" />
+              <img
+                :src="i?.image"
+                alt=""
+                :class="
+                  imageData?.id == i?.id
+                    ? checkDataFailOrSuccess(imageData)
+                      ? 'border-2 border-green-500 rounded-lg'
+                      : 'border-2 border-red-500 rounded-lg'
+                    : ''
+                "
+              />
+              <div
+                class="absolute top-1 right-1 w-4 h-4 rounded-full"
+                :class="
+                  imageData?.id == i?.id
+                    ? checkDataFailOrSuccess(imageData)
+                      ? 'bg-green-500'
+                      : 'bg-red-500'
+                    : ''
+                "
+              >
+                <XMarkIcon
+                  class="w-4 h-4 text-white"
+                  v-if="!checkDataFailOrSuccess(imageData)"
+                />
+                <CheckIcon
+                  class="w-4 h-4 text-white"
+                  v-if="checkDataFailOrSuccess(imageData)"
+                />
+              </div>
             </div>
           </div>
-          <img
-            class="col-span-2 w-full h-auto overflow-hidden rounded-lg"
-            :src="!showReceipt ? detailVal?.receipts[0]?.image : showReceipt"
-            alt=""
-          />
+          <div class="relative col-span-2 w-full h-full">
+            <div class="absolute top-1 right-1">
+              <p
+                @click="openModal(imageData)"
+                class="text-[10px] shadow-lg cursor-pointer text-white bg-[#FF613c] px-2 py-1 rounded-lg"
+              >
+                Fill data
+              </p>
+            </div>
+            <img
+              class="col-span-2 w-full h-auto overflow-hidden rounded-lg"
+              :src="
+                !imageData ? detailVal?.receipts[0]?.image : imageData?.image
+              "
+              alt=""
+            />
+          </div>
         </div>
         <div class="col-span-2">
           <div class="p-3 rounded-lg border border-gray-200" v-if="!show">
@@ -164,6 +217,128 @@
         </div>
       </DialogPanel>
     </Modal>
+    <Modal :isOpen="carModalOpen" @closeModal="clearAction">
+      <DialogPanel
+        class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
+        >
+          <p>Payment Slip Audit</p>
+          <XCircleIcon class="w-5 h-5 text-white" @click="clearAction" />
+        </DialogTitle>
+        <!-- show date  -->
+        <div class="p-4">
+          <div class="grid grid-cols-2 gap-8">
+            <div>
+              <img
+                :src="formData?.file"
+                class="rounded-lg shadow hover:shadow-none min-h-[400px] w-full"
+                alt=""
+              />
+            </div>
+            <div class="space-y-4 relative pt-4 pr-2">
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Amount</label>
+                <input
+                  type="text"
+                  name=""
+                  v-model="formData.amount"
+                  placeholder="Search CRM ID"
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  id=""
+                />
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Date&Time </label>
+
+                <div class="flex justify-between items-center w-[160px]">
+                  <p class="text-start text-xs" v-if="formData?.date">
+                    {{
+                      formData.date.includes("T")
+                        ? formatDate(formData.date)
+                        : formatDateFromDb(formData.date)
+                    }}
+                  </p>
+                  <input
+                    type="datetime-local"
+                    name=""
+                    v-model="formData.date"
+                    format="YYYY-MM-DD HH:mm:ss"
+                    class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Bank </label>
+                <select
+                  name=""
+                  v-model="formData.bank_name"
+                  id=""
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                >
+                  <option value="">Select Bank</option>
+                  <option :value="b.name" v-for="b in bankList" :key="b.id">
+                    {{ b.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Sender </label>
+                <input
+                  v-model="formData.sender"
+                  type="text"
+                  name=""
+                  placeholder="sender name"
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  id=""
+                />
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Bank ? </label>
+                <div class="flex justify-start items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    v-model="formData.is_corporate"
+                    name=""
+                    placeholder="name"
+                    class="py-1.5 focus:outline-none text-xs"
+                    id=""
+                  />
+                  <p class="text-[12px]">Is Corporate ?</p>
+                </div>
+              </div>
+              <div class="flex justify-between items-start">
+                <label for="" class="text-[12px] font-medium">Comment</label>
+                <textarea
+                  v-model="formData.comment"
+                  class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[160px]"
+                >
+                </textarea>
+              </div>
+              <div
+                class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
+              >
+                <p
+                  @click.prevent="submit"
+                  class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
+                >
+                  save
+                </p>
+                <p
+                  @click="clearAction"
+                  class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
+                >
+                  close
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>
 
@@ -178,7 +353,12 @@ import VerifySale from "./VerifyInvoiceComponent/VerifySale.vue";
 import YearPickerVue from "./AccountingComponent/yearPicker.vue";
 import { useBookingStore } from "../stores/booking";
 import { useRoute, useRouter } from "vue-router";
-import { DocumentIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+import {
+  CheckIcon,
+  DocumentIcon,
+  XCircleIcon,
+  XMarkIcon,
+} from "@heroicons/vue/24/outline";
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import PngUsage from "./PngGenerate/PngUsage.vue";
@@ -198,6 +378,183 @@ const router = useRouter();
 const route = useRoute();
 const toast = useToast();
 const verify_status = ref("");
+const carModalOpen = ref(false);
+
+const loadingDetail = ref(true);
+
+const formData = ref({
+  id: "",
+  file: null,
+  amount: 0,
+  date: "",
+  bank_name: "",
+  sender: "",
+  is_corporate: false,
+  comment: "",
+});
+
+const openModal = (data) => {
+  carModalOpen.value = true;
+  // save.value = data;
+  formData.value = {
+    id: data.id,
+    file: data.image,
+    amount: data.amount,
+    date: data.date,
+    bank_name: data.bank_name,
+    sender: data.sender,
+    is_corporate: data.is_corporate == 1 ? true : false,
+    comment: data.note,
+  };
+};
+
+const clearAction = () => {
+  formData.value = {
+    id: "",
+    file: null,
+    amount: 0,
+    date: "",
+    bank_name: "",
+    sender: "",
+    is_corporate: false,
+    comment: "",
+  };
+  carModalOpen.value = false;
+};
+
+const formatDate = (dateString) => {
+  // Parse the input string into a Date object
+  const date = new Date(dateString);
+
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    return "Invalid Date"; // Handle invalid dates
+  }
+
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Extract date components
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+
+  // Extract time components
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  // Return formatted date and time
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+};
+
+const formatDateFromDb = (dateString) => {
+  // Split the input string into date and time parts
+  const [datePart, timePart] = dateString.split(" ");
+
+  // Split the date part into day, month, year
+  const [day, month, year] = datePart.split("-");
+
+  // Define month names
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Get the month name
+  const monthName = monthNames[parseInt(month) - 1]; // Subtract 1 because months are 0-indexed
+
+  // Return the formatted date
+  return `${day}/${monthName}/${year} ${timePart}`;
+};
+
+const formatDateDb = (dateString) => {
+  if (!dateString) return "";
+
+  // Case 1: Replace 'T' with space
+  if (dateString.includes("T")) {
+    return dateString.replace("T", " ");
+  }
+
+  // Case 2: Check if it's in DD-MM-YYYY format with regex
+  const ddmmyyyyRegex = /^(\d{2})-(\d{2})-(\d{4})\s(.*)$/;
+  const match = dateString.match(ddmmyyyyRegex);
+
+  if (match) {
+    // match[1] = day, match[2] = month, match[3] = year, match[4] = time part
+    return `${match[3]}-${match[2]}-${match[1]} ${match[4]}`;
+  }
+
+  // If it doesn't match any of our cases, return as-is
+  return dateString;
+};
+
+const bankList = ref([
+  { id: "1", name: "Kasikorn" },
+  { id: "2", name: "Bangkok Bank" },
+  { id: "3", name: "Bank of Ayudhaya" },
+  { id: "4", name: "SCB Bank" },
+  { id: "5", name: "Others..." },
+]);
+
+const submit = async () => {
+  // console.log(formData.value);
+  loadingDetail.value = true;
+  try {
+    const frmData = new FormData();
+    frmData.append("_method", "PUT");
+    frmData.append("amount", formData.value.amount);
+    frmData.append("date", formatDateDb(formData.value.date));
+    frmData.append("bank_name", formData.value.bank_name);
+    frmData.append("sender", formData.value.sender);
+    frmData.append("is_corporate", formData.value.is_corporate ? 1 : 0);
+    frmData.append("note", formData.value.comment);
+
+    const res = await bookingStore.receiptImageAction(
+      detailVal.value.id,
+      formData.value.id,
+      frmData
+    );
+    console.log(res);
+    toast.success({
+      title: "Success",
+      description: "Update success",
+    });
+
+    clearAction();
+    detailVal.value = null;
+    imageData.value = null;
+    await getDetail();
+    imageData.value = detailVal.value?.receipts[0];
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loadingDetail.value = false;
+    carModalOpen.value = false;
+  }
+};
 
 const verifyBooking = async (id, data) => {
   verify_status.value = data;
@@ -346,6 +703,7 @@ const generateDateRangeForMonth = (month, yearValue) => {
 };
 
 const showReceipt = ref("");
+const imageData = ref(null);
 
 const setMonthDateRange = (month, yearValue) => {
   date_range.value = generateDateRangeForMonth(month, yearValue);
@@ -378,7 +736,7 @@ const watchSystem = computed(() => {
 
 const changeBookingUrl = async (message) => {
   await bookingStore.getChangePage(message, watchSystem.value);
-  showReceipt.value = null;
+  // showReceipt.value = detailVal.value?.receipts[0]?.image;
 };
 
 const getAction = async () => {
@@ -392,9 +750,13 @@ const show = ref(true);
 const detailVal = ref(null);
 
 const getDetail = async () => {
+  loadingDetail.value = true;
+  detailVal.value = null;
   const res = await bookingStore.getDetailAction(selectedItem.value);
   detailVal.value = res.result;
+
   console.log(detailVal.value);
+  loadingDetail.value = false;
 };
 
 onMounted(async () => {
@@ -410,6 +772,38 @@ onMounted(async () => {
   }
 });
 
+const checkDataFailOrSuccess = (data) => {
+  if (!data) {
+    return false;
+  }
+
+  // List of required fields that cannot be null (note is excluded as it can be null)
+  const requiredFields = [
+    "amount",
+    "bank_name",
+    "created_at",
+    "date",
+    "id",
+    "image",
+    "is_corporate",
+    "sender",
+    "updated_at",
+  ];
+
+  // Check each required field
+  for (const field of requiredFields) {
+    if (
+      data[field] === null ||
+      data[field] === "null" ||
+      data[field] === undefined
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 watch(selectedItem, async (newValue) => {
   if (newValue) {
     router.push({
@@ -422,7 +816,23 @@ watch(selectedItem, async (newValue) => {
     });
   }
   await getDetail();
+  showReceipt.value = detailVal.value?.receipts[0]?.image;
+  imageData.value = detailVal.value?.receipts[0];
+  console.log("====================================");
+  console.log(imageData.value, "this is image data");
+  console.log("====================================");
 });
+
+watch(
+  () => route.query.id,
+  async (newValue) => {
+    showReceipt.value = null;
+    imageData.value = null;
+  },
+  {
+    immediate: true,
+  }
+);
 
 watch(date_range, async (newValue) => {
   if (newValue) {

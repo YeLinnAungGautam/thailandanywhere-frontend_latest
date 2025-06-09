@@ -69,6 +69,8 @@ import verifyInvoices from "../views/VerifyInvoice.vue";
 import OrderView from "../views/OrderPage.vue";
 import GroupItemView from "../views/GroupItem.vue";
 import TaxReceipt from "../views/TaxReceipt.vue";
+import GroupVantour from "../views/GroupVantour.vue";
+import GroupHotel from "../views/GroupHotel.vue";
 
 const routes = [
   {
@@ -300,9 +302,19 @@ const routes = [
     component: ReservationAttractionView,
   },
   {
-    path: "/group-item",
-    name: "group-item",
+    path: "/group-hotel",
+    name: "group-hotel",
+    component: GroupHotel,
+  },
+  {
+    path: "/group-attraction",
+    name: "group-attraction",
     component: GroupItemView,
+  },
+  {
+    path: "/group-vantour",
+    name: "group-vantour",
+    component: GroupVantour,
   },
   {
     path: "/reservation-vantour",

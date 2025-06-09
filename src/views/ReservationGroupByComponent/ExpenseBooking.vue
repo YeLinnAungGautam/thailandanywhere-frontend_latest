@@ -696,7 +696,6 @@ onMounted(() => {
             id: props.detail?.booking?.items[i].receipt_images[a].id,
             reservation_id: props.detail?.booking?.items[i].id,
             crm_id: props.detail?.booking?.items[i].crm_id,
-
             file: props.detail?.booking?.items[i].receipt_images[a].file,
           });
         }

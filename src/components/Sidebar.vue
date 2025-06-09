@@ -141,11 +141,61 @@
                   :activePaths="['reservation-vantour']"
                 />
               </div>
-              <SidebarItem
+              <!-- <SidebarItem
                 name="Group Item"
                 :icon="Squares2X2Icon"
                 to="/group-item"
-              />
+              /> -->
+              <div
+                v-if="!authStore.isAuditor"
+                @click="toggleGroupShow"
+                class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
+              >
+                <ClipboardDocumentListIcon class="w-4 h-4" />
+                <p
+                  class="flex justify-between w-[80%] text-[12px] ml-[1.2rem] items-center"
+                  v-if="isShowSidebar"
+                >
+                  Group new
+                  <ChevronDownIcon
+                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                    :class="isGroupShow ? 'opacity-0' : 'opacity-100'"
+                    v-if="!isGroupShow"
+                  />
+                  <ChevronUpIcon
+                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                    :class="isGroupShow ? 'opacity-100' : 'opacity-0'"
+                    v-if="isGroupShow"
+                  />
+                </p>
+              </div>
+              <div
+                class="transition-all duration-150"
+                :class="isGroupShow ? 'ml-5' : ''"
+                v-if="isGroupShow"
+              >
+                <SidebarItem
+                  name="Group Attraction"
+                  label="attraction"
+                  :icon="TicketIcon"
+                  to="/group-attraction"
+                  :activePaths="['group-attraction']"
+                />
+                <SidebarItem
+                  name="Group Hotel"
+                  label="hotel"
+                  :icon="HomeModernIcon"
+                  to="/group-hotel"
+                  :activePaths="['group-hotel']"
+                />
+                <SidebarItem
+                  name="Group Vantour"
+                  label="vantour"
+                  :icon="TruckIcon"
+                  to="/group-vantour"
+                  :activePaths="['group-vantour']"
+                />
+              </div>
               <SidebarItem
                 v-if="authStore.isSuperAdmin"
                 name="Amend"
@@ -404,6 +454,7 @@ const {
   isReservationShow,
   isShowAccount,
   isShowReservation,
+  isGroupShow,
 } = storeToRefs(sidebarStore);
 const authStore = useAuthStore();
 const toggleSidebarHandler = () => {
@@ -416,6 +467,10 @@ const toggleSidebarShowSetting = () => {
 
 const toggleReservationShow = () => {
   sidebarStore.toggleReservation();
+};
+
+const toggleGroupShow = () => {
+  sidebarStore.toggleGroup();
 };
 
 import { useToast } from "vue-toastification";

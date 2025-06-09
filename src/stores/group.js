@@ -5,9 +5,9 @@ export const useGroupStore = defineStore("group", {
   state: () => ({ groups: null, loading: false }),
   getters: {},
   actions: {
-    async getChangePage(url) {
+    async getChangePage(url, params) {
       this.loading = true;
-      const response = await axios.get(url);
+      const response = await axios.post(url, params);
       this.groups = response.data.result;
       this.loading = false;
       return response.data;
@@ -15,9 +15,7 @@ export const useGroupStore = defineStore("group", {
     async getListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/booking-item-groups", {
-          params: params,
-        });
+        const response = await axios.post("/booking-item-groups", params);
         this.groups = response.data.result;
         this.loading = false;
         console.log(response);

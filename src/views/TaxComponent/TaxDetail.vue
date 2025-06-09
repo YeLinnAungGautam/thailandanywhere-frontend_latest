@@ -235,8 +235,8 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useRoute } from "vue-router";
+import { ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import ReceiptPage from "./ReceiptPage.vue";
 import { ChevronRightIcon } from "@heroicons/vue/24/outline";
 import ConnectPage from "./ConnectPage.vue";
@@ -244,6 +244,7 @@ import CleanDataPage from "./CleanDataPage.vue";
 import ValidationPage from "./ValidationPage.vue";
 import DownloadPage from "./DownloadPage.vue";
 const route = useRoute();
+const router = useRouter();
 
 const part = ref("receipt");
 const transition = ref("slide-right");
@@ -270,6 +271,19 @@ const getComponent = (part) => {
   };
   return components[part];
 };
+
+watch(
+  () => route.query.new,
+  (newPart) => {
+    if (newPart == "new") {
+      part.value = "receipt";
+      router.push({
+        name: "TaxReceipt",
+      });
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>

@@ -66,6 +66,16 @@
 
       <form @submit.prevent="submitForm" class="grid grid-cols-2 gap-4">
         <div class="space-y-3 pt-2">
+          <div class="space-y-1.5">
+            <label class="text-xs">Invoice Number</label>
+            <input
+              v-model.number="formData.invoice_number"
+              type="text"
+              placeholder="Enter invoice number"
+              class="w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm rounded-lg p-2"
+              required
+            />
+          </div>
           <!-- Product Type -->
           <div class="space-y-1.5">
             <label class="text-xs pb-1">Product Type *</label>
@@ -342,6 +352,7 @@ const formData = reactive({
   total_tax_withold: 0,
   total_tax_amount: 0,
   total_after_tax: 0,
+  invoice_number: "",
 });
 
 // Component state
@@ -373,6 +384,8 @@ const loadTaxReceiptDetail = async (id) => {
     formData.id = data.id;
     formData.product_type = data.product_type;
     formData.product_id = data.product_id;
+    // formData.total = data.total;
+    formData.invoice_number = data.invoice_number || "";
     formData.company_legal_name = data.company_legal_name;
     formData.receipt_date = data.receipt_date;
     formData.service_start_date = data.service_start_date;
@@ -583,6 +596,7 @@ const submitForm = async () => {
     "service_end_date",
     "total_tax_withold",
     "total_tax_amount",
+    "invoice_number",
   ];
 
   // For create mode, image is required, for edit mode it's optional

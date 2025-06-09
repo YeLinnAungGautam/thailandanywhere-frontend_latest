@@ -205,17 +205,17 @@
           >
             <div
               class=""
-              v-for="i in taxReceipts?.data ?? []"
+              v-for="i in groups?.data ?? []"
               :key="i"
               @click="getDetailAction(i.id)"
             >
-              <ListTax :data="i" />
+              <ListGroup :data="i" />
             </div>
           </div>
           <div class="overflow-x-scroll no-sidebar-container py-2">
             <Pagination
               v-if="!loading"
-              :data="taxReceipts"
+              :data="groups"
               @change-page="changePage"
             />
           </div>
@@ -273,7 +273,7 @@
           <div
             class="border shadow-sm relative rounded-lg p-4 h-[85vh] transition duration-150 overflow-y-scroll no-scrollbar"
           >
-            <TaxDetail :show="showSide" />
+            <GroupDetail :show="showSide" />
           </div>
         </div>
       </transition>
@@ -296,13 +296,14 @@ import {
   MagnifyingGlassIcon,
   XMarkIcon,
 } from "@heroicons/vue/24/outline";
-import { useTaxReceiptStore } from "../stores/taxReceipt";
 import { storeToRefs } from "pinia";
 import ReservationCartLoadingVue from "./Dashboard/ReservationCartLoading.vue";
-import TaxDetail from "./TaxComponent/TaxDetail.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useSidebarStore } from "../stores/sidebar";
-import ListTax from "./TaxComponent/ListTax.vue";
+// import ListTax from "./TaxComponent/ListTax.vue";
+import ListGroup from "./GroupComponent/ListGroup.vue";
+import { useGroupStore } from "../stores/group";
+import GroupDetail from "./GroupComponent/GroupDetail.vue";
 
 const showSide = ref(1);
 const filterShow = ref(false);
@@ -310,8 +311,8 @@ const router = useRouter();
 const route = useRoute();
 const softShow = ref(false);
 const search = ref("");
-const taxReceiptStore = useTaxReceiptStore();
-const { taxReceipts, loading } = storeToRefs(taxReceiptStore);
+const groupStore = useGroupStore();
+const { groups, loading } = storeToRefs(groupStore);
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
 const searchId = ref("");
@@ -329,14 +330,17 @@ const clearFilter = () => {
 };
 
 const getAllAction = async () => {
-  await taxReceiptStore.getListAction();
+  await groupStore.getListAction({
+    product_type: "private_van_tour",
+    per_page: 10,
+  });
 };
 
 const getDetailAction = (id) => {
   console.log("getDetailAction", id);
 
   router.push({
-    name: "TaxReceipt",
+    name: "group-vantour",
     query: {
       id: id,
     },
@@ -344,12 +348,15 @@ const getDetailAction = (id) => {
 };
 
 const changePage = async (url) => {
-  await taxReceiptStore.getChangePage(url);
+  await groupStore.getChangePage(url, {
+    product_type: "private_van_tour",
+    per_page: 10,
+  });
 };
 
 const addNewAction = () => {
   router.push({
-    name: "TaxReceipt",
+    name: "group-vantour",
     query: {
       new: "new",
     },
@@ -359,7 +366,7 @@ const addNewAction = () => {
 onMounted(async () => {
   await getAllAction();
   console.log("====================================");
-  console.log("taxReceipts", taxReceipts.value);
+  console.log("groups", groups.value);
   console.log("====================================");
 });
 </script>

@@ -22,8 +22,11 @@
     <div class="grid grid-cols-1 gap-2 mb-3">
       <div>
         <p class="text-[10px] text-gray-500">Receipt Date</p>
-        <p class="text-xs font-medium">{{ formatDate(data?.receipt_date) }}</p>
+        <p class="text-xs font-medium">
+          {{ formatDate(data?.receipt_date) }} (IN: {{ data?.invoice_number }})
+        </p>
       </div>
+
       <div>
         <p class="text-[10px] text-gray-500">Service Period</p>
         <p class="text-xs font-medium">
@@ -49,31 +52,6 @@
             {{ formatAmount(data?.total_tax_withold) }} THB
           </p>
         </div>
-      </div>
-
-      <div class="flex items-center space-x-2">
-        <!-- Receipt Image Indicator -->
-        <div
-          v-if="data?.receipt_image"
-          class="text-green-500"
-          title="Receipt image available"
-        >
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fill-rule="evenodd"
-              d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
-              clip-rule="evenodd"
-            />
-          </svg>
-        </div>
-
-        <!-- Action Button -->
-        <button
-          @click="$emit('view', data)"
-          class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-        >
-          View
-        </button>
       </div>
     </div>
   </div>

@@ -71,6 +71,7 @@ import GroupItemView from "../views/GroupItem.vue";
 import TaxReceipt from "../views/TaxReceipt.vue";
 import GroupVantour from "../views/GroupVantour.vue";
 import GroupHotel from "../views/GroupHotel.vue";
+import BankStatement from "../views/BankStatement.vue";
 
 const routes = [
   {
@@ -441,6 +442,11 @@ const routes = [
     path: "/tax_receipt",
     name: "TaxReceipt",
     component: TaxReceipt,
+  },
+  {
+    path: "/bank_statement",
+    name: "bankStatement",
+    component: BankStatement,
   },
 ];
 

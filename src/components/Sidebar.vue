@@ -278,6 +278,13 @@
                   :icon="FolderIcon"
                   to="/tax_receipt"
                 />
+                <SidebarItem
+                  v-if="authStore.isSuperAdmin"
+                  name="Bank Statement"
+                  label="Statement"
+                  :icon="FolderIcon"
+                  to="/bank_statement"
+                />
               </div>
               <SidebarItem
                 name="Products"

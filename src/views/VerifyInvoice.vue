@@ -731,6 +731,7 @@ const watchSystem = computed(() => {
   }
   result.status = "fully_paid";
   result.limit = 20;
+  result.user_id = "";
   return result;
 });
 

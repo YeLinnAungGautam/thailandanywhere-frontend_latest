@@ -25,6 +25,14 @@ export const useGroupStore = defineStore("group", {
         throw error;
       }
     },
+    async detailAction(id) {
+      try {
+        const response = await axios.get("/booking-item-groups/" + id);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
     async updateAction(data, id) {
       try {
         const response = await axios.post("/booking-item-groups/" + id, data);

@@ -1,6 +1,7 @@
 <template>
   <div
     @click="showList = !showList"
+    :class="data?.id == route.query.id ? 'bg-[#FF613c]/10 shadow-lg' : ''"
     class="px-4 pb-2 relative cursor-pointer border-b border-gray-100"
   >
     <div
@@ -258,14 +259,6 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="text-center pt-2 hidden" v-if="showList">
-        <p
-          @click="goReservationDetail(data?.bookings[0]?.id)"
-          class="text-[10px] rounded-lg px-2 py-1 shadow text-white bg-[#FF613c] inline-block"
-        >
-          Reservation Detail
-        </p>
       </div>
     </div>
   </div>

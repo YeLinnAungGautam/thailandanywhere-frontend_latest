@@ -526,7 +526,8 @@ watch(
                   <td
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
                   >
-                    {{ formatAmount(item?.amount) }}
+                    {{ item?.table_source === "booking_receipt" ? "" : "-"
+                    }}{{ formatAmount(item?.amount) }}
                   </td>
                   <td
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"

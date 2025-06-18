@@ -340,6 +340,351 @@
             </div>
           </div>
         </div>
+        <div>
+          <div class="pt-2 relative flex justify-between items-center">
+            <!-- line -->
+            <!-- <div class="w-full h-[3px] absolute bottom-2.5 bg-gray-200"></div> -->
+            <div
+              class="flex justify-start items-center gap-x-3 cursor-pointer"
+              @click="part = 'general'"
+            >
+              <div
+                v-if="!state.general"
+                @click="part = 'general'"
+                class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+                :class="
+                  part == 'general' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+                "
+              >
+                1
+              </div>
+              <div
+                v-if="state.general"
+                class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+                :class="part == 'general' ? 'bg-white text-white' : ''"
+                @click="part = 'general'"
+              >
+                <img :src="checkImage" alt="" />
+              </div>
+              <p
+                class="text-xs"
+                :class="state.general ? 'text-[#04BA00]' : 'text-gray-800'"
+              >
+                Review
+              </p>
+            </div>
+            <div
+              class="relative z-10"
+              :class="state.general ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              <ChevronRightIcon class="w-4 h-4" />
+            </div>
+            <div
+              class="flex justify-start items-center gap-x-3 cursor-pointer"
+              @click="part = 'passport'"
+            >
+              <div
+                v-if="!state.passport"
+                @click="part = 'passport'"
+                class="w-6 h-6 flex justify-center cursor-pointer items-center text-[10px] rounded-full relative z-10"
+                :class="
+                  part == 'passport' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+                "
+              >
+                2
+              </div>
+              <div
+                v-if="state.passport"
+                @click="part = 'passport'"
+                class="w-6 h-6 flex justify-center cursor-pointer shadow hover:shadow-none items-center text-[10px] rounded-full relative z-10"
+                :class="part == 'passport' ? 'bg-white text-white' : ''"
+              >
+                <img :src="checkImage" alt="" />
+              </div>
+              <p
+                class="text-xs"
+                :class="state.passport ? 'text-[#04BA00]' : 'text-gray-800'"
+              >
+                Passport
+              </p>
+            </div>
+            <div
+              class="relative z-10"
+              :class="state.passport ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              <ChevronRightIcon class="w-4 h-4" />
+            </div>
+
+            <div
+              class="flex justify-start items-center gap-x-3 cursor-pointer"
+              @click="part = 'booking'"
+            >
+              <div
+                v-if="
+                  !state.booking &&
+                  (authStore.isReservation || authStore.isSuperAdmin)
+                "
+                @click="part = 'booking'"
+                class="w-6 h-6 flex justify-center cursor-pointer items-center text-[10px] rounded-full relative z-10"
+                :class="
+                  part == 'booking' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+                "
+              >
+                3
+              </div>
+              <div
+                v-if="
+                  state.booking &&
+                  (authStore.isReservation || authStore.isSuperAdmin)
+                "
+                @click="part = 'booking'"
+                class="w-6 h-6 flex justify-center cursor-pointer shadow hover:shadow-none items-center text-[10px] rounded-full relative z-10"
+                :class="part == 'booking' ? 'bg-white text-white' : ''"
+              >
+                <img :src="checkImage" alt="" />
+              </div>
+              <p
+                class="text-xs"
+                :class="state.booking ? 'text-[#04BA00]' : 'text-gray-800'"
+              >
+                Booking
+              </p>
+            </div>
+            <div
+              class="relative z-10"
+              :class="state.booking ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              <ChevronRightIcon class="w-4 h-4" />
+            </div>
+            <div
+              class="flex justify-start items-center gap-x-3 cursor-pointer"
+              @click="part = 'invoice'"
+            >
+              <div
+                v-if="
+                  !state.invoice &&
+                  (authStore.isReservation || authStore.isSuperAdmin)
+                "
+                @click="part = 'invoice'"
+                class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
+                :class="
+                  part == 'invoice' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+                "
+              >
+                4
+              </div>
+              <div
+                v-if="
+                  state.invoice &&
+                  (authStore.isReservation || authStore.isSuperAdmin)
+                "
+                @click="part = 'invoice'"
+                class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+                :class="part == 'invoice' ? 'bg-white text-white' : ''"
+              >
+                <img :src="checkImage" alt="" />
+              </div>
+              <p
+                class="text-xs"
+                :class="state.invoice ? 'text-[#04BA00]' : 'text-gray-800'"
+              >
+                Invoice
+              </p>
+            </div>
+            <div
+              class="relative z-10"
+              :class="state.invoice ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              <ChevronRightIcon class="w-4 h-4" />
+            </div>
+            <div
+              class="flex justify-start items-center gap-x-3 cursor-pointer"
+              @click="part = 'expense'"
+            >
+              <div
+                v-if="
+                  !state.expense &&
+                  (authStore.isReservation || authStore.isSuperAdmin)
+                "
+                @click="part = 'expense'"
+                class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
+                :class="
+                  part == 'expense' ? 'bg-[#FF613c] text-white' : 'bg-gray-200'
+                "
+              >
+                5
+              </div>
+              <div
+                v-if="
+                  state.expense &&
+                  (authStore.isReservation || authStore.isSuperAdmin)
+                "
+                @click="part = 'expense'"
+                class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+                :class="part == 'expense' ? 'bg-white text-white' : ''"
+              >
+                <img :src="checkImage" alt="" />
+              </div>
+              <p
+                class="text-xs"
+                :class="state.expense ? 'text-[#04BA00]' : 'text-gray-800'"
+              >
+                Expense
+              </p>
+            </div>
+            <div
+              class="relative z-10"
+              :class="state.expense ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              <ChevronRightIcon class="w-4 h-4" />
+            </div>
+            <div
+              class="flex justify-start items-center gap-x-3 cursor-pointer"
+              @click="part = 'expensemail'"
+            >
+              <div
+                v-if="
+                  !state.expensemail &&
+                  (authStore.isReservation || authStore.isSuperAdmin)
+                "
+                @click="part = 'expensemail'"
+                class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
+                :class="
+                  part == 'expensemail'
+                    ? 'bg-[#FF613c] text-white'
+                    : 'bg-gray-200'
+                "
+              >
+                6
+              </div>
+              <div
+                v-if="
+                  state.expensemail &&
+                  (authStore.isReservation || authStore.isSuperAdmin)
+                "
+                @click="part = 'expensemail'"
+                class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+                :class="part == 'expensemail' ? 'bg-white text-white' : ''"
+              >
+                <img :src="checkImage" alt="" />
+              </div>
+              <p
+                class="text-xs"
+                :class="state.expensemail ? 'text-[#04BA00]' : 'text-gray-800'"
+              >
+                Exp. Mail
+              </p>
+            </div>
+            <div
+              class="relative z-10"
+              :class="state.expensemail ? 'text-[#04BA00]' : 'text-gray-800'"
+            >
+              <ChevronRightIcon class="w-4 h-4" />
+            </div>
+            <div
+              class="flex justify-start items-center gap-x-3 cursor-pointer"
+              @click="part = 'confirmation'"
+            >
+              <div
+                v-if="!state.confirmation"
+                @click="part = 'confirmation'"
+                class="w-6 h-6 flex justify-center items-center shadow hover:shadow-nano cursor-pointer text-[10px] rounded-full relative z-10"
+                :class="
+                  part == 'confirmation'
+                    ? 'bg-[#FF613c] text-white'
+                    : 'bg-gray-200'
+                "
+              >
+                7
+              </div>
+              <div
+                v-if="state.confirmation"
+                @click="part = 'confirmation'"
+                class="w-6 h-6 flex justify-center shadow hover:shadow-nano cursor-pointer items-center text-[10px] rounded-full relative z-10"
+                :class="part == 'confirmation' ? 'bg-white text-white' : ''"
+              >
+                <img :src="checkImage" alt="" />
+              </div>
+              <p
+                class="text-xs"
+                :class="state.confirmation ? 'text-[#04BA00]' : 'text-gray-800'"
+              >
+                Confirmation
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-2 flex justify-between items-center gap-x-2">
+            <p
+              class="w-full rounded-lg h-1"
+              :class="{
+                'bg-green-500': part === 'general' && state.general,
+                'bg-[#FF613c]': part === 'general' && !state.general,
+                'opacity-0': part !== 'general',
+              }"
+            ></p>
+            <p
+              class="w-full rounded-lg h-1"
+              :class="{
+                'bg-green-500': part === 'passport' && state.passport,
+                'bg-[#FF613c]': part === 'passport' && !state.passport,
+                'opacity-0': part !== 'passport',
+              }"
+            ></p>
+            <p
+              class="w-full rounded-lg h-1"
+              :class="{
+                'bg-green-500': part === 'booking' && state.booking,
+                'bg-[#FF613c]': part === 'booking' && !state.booking,
+                'opacity-0': part !== 'booking',
+              }"
+            ></p>
+            <p
+              class="w-full rounded-lg h-1"
+              :class="{
+                'bg-green-500': part === 'invoice' && state.invoice,
+                'bg-[#FF613c]': part === 'invoice' && !state.invoice,
+                'opacity-0': part !== 'invoice',
+              }"
+            ></p>
+            <p
+              class="w-full rounded-lg h-1"
+              :class="{
+                'bg-green-500': part === 'expense' && state.expense,
+                'bg-[#FF613c]': part === 'expense' && !state.expense,
+                'opacity-0': part !== 'expense',
+              }"
+            ></p>
+            <p
+              class="w-full rounded-lg h-1"
+              :class="{
+                'bg-green-500': part === 'expensemail' && state.expensemail,
+                'bg-[#FF613c]': part === 'expensemail' && !state.expensemail,
+                'opacity-0': part !== 'expensemail',
+              }"
+            ></p>
+            <p
+              class="w-full rounded-lg h-1"
+              :class="{
+                'bg-green-500': part === 'confirmation' && state.confirmation,
+                'bg-[#FF613c]': part === 'confirmation' && !state.confirmation,
+                'opacity-0': part !== 'confirmation',
+              }"
+            ></p>
+          </div>
+
+          <div class="relative" v-if="show != 3">
+            <Transition :name="transition" mode="out-in">
+              <div class="pt-6" :key="part">
+                <component
+                  :is="getComponent(part)"
+                  :detail="detail"
+                  :getDetailAction="getDetailAction"
+                />
+              </div>
+            </Transition>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -351,6 +696,15 @@ import { useRoute, useRouter } from "vue-router";
 import { useGroupStore } from "../../stores/group";
 import { getFormatDate } from "../help/FormatData";
 import { daysBetween } from "../help/DateBetween";
+import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/vue/24/outline";
+import { useAuthStore } from "../../stores/auth";
+import GeneralDetail from "./GeneralDetail.vue";
+import PassportInfo from "./Passport.vue";
+import BookingRequest from "./Booking.vue";
+import InvoiceUpdate from "./Invoice.vue";
+import Expense from "./Expense.vue";
+import ExpenseBooking from "./ExpenseMail.vue";
+import Confirmation from "./Confirmation.vue";
 
 const props = defineProps({
   show: Number,
@@ -361,6 +715,33 @@ const groupStore = useGroupStore();
 const detail = ref(null);
 const loading = ref(false);
 const hasRouteId = ref(false);
+const authStore = useAuthStore();
+
+const part = ref("general");
+const state = ref({
+  general: false,
+  passport: false,
+  booking: false,
+  invoice: false,
+  expense: false,
+  expensemail: false,
+  confirmation: false,
+});
+
+const getComponent = (part) => {
+  const components = {
+    general: GeneralDetail,
+    passport: PassportInfo,
+    booking: BookingRequest,
+    invoice: InvoiceUpdate,
+    expense: Expense,
+    expensemail: ExpenseBooking,
+    confirmation: Confirmation,
+  };
+  return components[part];
+};
+
+const transition = ref("slide-right");
 
 const getDetailAction = async (id) => {
   try {
@@ -374,6 +755,40 @@ const getDetailAction = async (id) => {
   } finally {
     loading.value = false;
     hasRouteId.value = false;
+  }
+};
+const hide = ref(true);
+
+const expenseStatus = (i) => {
+  // If no bookings or items exist, return 'not_paid' as default
+  if (!i?.booking || !i?.booking.items || i?.booking.items.length === 0) {
+    return "not_paid";
+  }
+
+  const items = i?.booking.items;
+  let hasFullyPaid = false;
+  let hasNotPaid = false;
+
+  // Check the status of each item
+  for (let a = 0; a < items.length; a++) {
+    const item_status = items[a].payment_status;
+
+    if (item_status === "fully_paid") {
+      hasFullyPaid = true;
+    } else if (item_status === "not_paid") {
+      hasNotPaid = true;
+    }
+  }
+
+  console.log(hasFullyPaid, hasNotPaid, "this is has fully paid");
+
+  // Determine overall status based on individual item statuses
+  if (hasFullyPaid && hasNotPaid) {
+    return "partially_paid";
+  } else if (hasFullyPaid && !hasNotPaid) {
+    return "fully_paid";
+  } else {
+    return "not_paid";
   }
 };
 
@@ -397,3 +812,37 @@ onMounted(() => {
   }
 });
 </script>
+
+<style scoped>
+/* Slide Right (enter from right, leave to left) */
+.slide-right-enter-active {
+  transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+}
+.slide-right-leave-active {
+  transition: transform 0.3s ease-in, opacity 0.3s ease-in;
+}
+.slide-right-enter-from {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.slide-right-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* Slide Left (enter from left, leave to right) */
+.slide-left-enter-active {
+  transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+}
+.slide-left-leave-active {
+  transition: transform 0.3s ease-in, opacity 0.3s ease-in;
+}
+.slide-left-enter-from {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+.slide-left-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+</style>

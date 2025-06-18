@@ -33,9 +33,58 @@ export const useGroupStore = defineStore("group", {
         throw error;
       }
     },
-    async updateAction(data, id) {
+
+    async groupDocumentList(id, params) {
       try {
-        const response = await axios.post("/booking-item-groups/" + id, data);
+        const response = await axios.get(
+          "/booking-item-groups/" + id + "/documents",
+          {
+            params: params,
+          }
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    async groupUpdateAction(id, data) {
+      try {
+        const response = await axios.post(`booking-item-groups/${id}`, data);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    async groupDocumentCreateAction(data, id) {
+      try {
+        const response = await axios.post(
+          "/booking-item-groups/" + id + "/documents",
+          data
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    async groupDocumentUpdateAction(data, id, documentId) {
+      try {
+        const response = await axios.post(
+          "/booking-item-groups/" + id + "/documents/" + documentId,
+          data
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async groupDocumentDeleteAction(id, documentId) {
+      try {
+        const response = await axios.delete(
+          "/booking-item-groups/" + id + "/documents/" + documentId
+        );
         return response.data;
       } catch (error) {
         throw error;

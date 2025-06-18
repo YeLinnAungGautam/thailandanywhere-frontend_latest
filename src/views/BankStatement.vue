@@ -22,6 +22,7 @@ import { useBookingReceiptStore } from "../stores/bookingReceipt";
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useReservationStore } from "../stores/reservation";
+import ReceiptEdit from "./ReceiptEdit.vue";
 
 const sideBarStore = useSidebarStore();
 const toast = useToast();
@@ -34,10 +35,9 @@ const { receipts, loading } = storeToRefs(bookingReceiptStore);
 
 // Search and filter states
 const date_range = ref("");
-const search = ref("");
-const searchType = ref("all"); // all, sender, bank_name, amount
-const filterType = ref(""); // complete, missing, incomplete
+const filterType = ref("all"); // complete, missing, incomplete
 const senderSearch = ref("");
+const crmSearch = ref("");
 const bankNameSearch = ref("");
 const amountSearch = ref("");
 
@@ -91,11 +91,17 @@ const searchParams = computed(() => {
 
   if (filterType.value) {
     params.type = filterType.value;
+  } else {
+    params.type = "all";
   }
 
   // Add specific search parameters
   if (senderSearch.value) {
     params.sender = senderSearch.value;
+  }
+
+  if (crmSearch.value) {
+    params.crm_id = crmSearch.value;
   }
 
   if (bankNameSearch.value) {
@@ -134,6 +140,7 @@ const handleMonthChange = (month) => {
 // Clear all search filters
 const clearSearch = () => {
   senderSearch.value = "";
+  crmSearch.value = "";
   bankNameSearch.value = "";
   amountSearch.value = "";
   filterType.value = "";
@@ -143,9 +150,9 @@ const clearSearch = () => {
 // View receipt file
 const placeholderFile = ref("");
 const viewReceipt = (item) => {
-  if (item.receipt_url) {
-    // window.open(item.receipt_url, "_blank");
-    placeholderFile.value = item.receipt_url;
+  if (item.file_url) {
+    // window.open(item.file_url, "_blank");
+    placeholderFile.value = item.file_url;
     console.log("====================================");
     console.log(placeholderFile.value);
     console.log("====================================");
@@ -174,12 +181,10 @@ const getTypeBadgeColor = (type) => {
 
 const goToView = async (data) => {
   console.log(data);
-  if (data.receipt_type == "customer_payment") {
-    router.push(`bookings/new-update/${data?.original_fields?.booking_id}`);
+  if (data.table_source == "booking_receipt") {
+    router.push(`bookings/new-update/${data?.booking_id}`);
   } else {
-    const res = await reservationStore.getDetailAction(
-      data?.original_fields?.booking_item_id
-    );
+    const res = await reservationStore.getDetailAction(data?.booking_id);
     // console.log(res);
     if (res.result) {
       if (res.result.product_type == "App\\Models\\EntranceTicket") {
@@ -198,6 +203,44 @@ const goToView = async (data) => {
     }
   }
 };
+const updateModalOpen = ref(false);
+const updateData = ref({
+  id: "",
+  date: "",
+  file: "",
+  bank_name: "",
+  sender: "",
+  amount: "",
+  table_source: "",
+});
+const update = (data) => {
+  console.log(data, "this is update");
+  updateModalOpen.value = true;
+  updateData.value.id = data.id;
+  updateData.value.date = data.date;
+  updateData.value.bank_name = data.bank_name;
+  updateData.value.sender = data.sender;
+  updateData.value.amount = data.amount;
+  updateData.value.table_source = data.table_source;
+  updateData.value.file = data.file_url;
+};
+const closeModal = () => {
+  updateModalOpen.value = false;
+  updateData.value = {
+    id: "",
+    date: "",
+    bank_name: "",
+    sender: "",
+    amount: "",
+    table_source: "",
+    file: "",
+  };
+};
+const onChangeUpdate = async (message) => {
+  console.log(message);
+  closeModal();
+  await getAction();
+};
 
 onMounted(async () => {
   if (route.query.month && route.query.year) {
@@ -211,7 +254,14 @@ onMounted(async () => {
 
 // Watch for changes and debounce API calls
 watch(
-  [date_range, filterType, senderSearch, bankNameSearch, amountSearch],
+  [
+    date_range,
+    filterType,
+    senderSearch,
+    crmSearch,
+    bankNameSearch,
+    amountSearch,
+  ],
   debounce(async () => {
     await getAction();
   }, 500)
@@ -245,6 +295,39 @@ watch(
         <div class="pb-4 space-y-3">
           <!-- Date and Type Filters -->
           <div class="flex justify-start space-x-2 items-center">
+            <p
+              @click="filterType = 'all'"
+              class="px-5 py-2.5 rounded-lg text-xs"
+              :class="
+                filterType == 'all'
+                  ? 'bg-[#FF613c] text-white'
+                  : ' border border-[#FF613x]'
+              "
+            >
+              All
+            </p>
+            <p
+              @click="filterType = 'complete'"
+              class="px-5 py-2.5 rounded-lg text-xs"
+              :class="
+                filterType == 'complete'
+                  ? 'bg-[#FF613c] text-white'
+                  : ' border border-[#FF613x]'
+              "
+            >
+              Complete
+            </p>
+            <p
+              @click="filterType = 'missing'"
+              class="px-5 py-2.5 rounded-lg text-xs"
+              :class="
+                filterType == 'missing'
+                  ? 'bg-[#FF613c] text-white'
+                  : ' border border-[#FF613x]'
+              "
+            >
+              Missing
+            </p>
             <YearPickerVue @year-change="handleYearChange" />
             <select
               v-model="selectedMonth"
@@ -254,15 +337,6 @@ watch(
               <option :value="m.id" v-for="m in monthArray" :key="m.id">
                 {{ m.name }}
               </option>
-            </select>
-            <select
-              v-model="filterType"
-              class="w-1/6 border border-gray-400/20 focus:outline-none rounded-lg px-3 py-2 text-xs"
-            >
-              <option value="">All Types</option>
-              <option value="complete">Complete</option>
-              <option value="missing">Missing</option>
-              <option value="incomplete">Incomplete</option>
             </select>
           </div>
 
@@ -276,6 +350,17 @@ watch(
                 v-model="senderSearch"
                 type="text"
                 placeholder="Search by sender..."
+                class="pl-10 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+              />
+            </div>
+            <div class="relative">
+              <MagnifyingGlassIcon
+                class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              />
+              <input
+                v-model="crmSearch"
+                type="text"
+                placeholder="Search by crm..."
                 class="pl-10 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
               />
             </div>
@@ -308,21 +393,6 @@ watch(
               Clear
             </button>
           </div>
-
-          <!-- Summary Information -->
-          <!-- <div
-            v-if="receipts?.summary"
-            class="flex space-x-4 text-xs text-gray-600"
-          >
-            <span
-              >Booking Receipts: {{ receipts.summary.booking_receipts }}</span
-            >
-            <span
-              >Expense Receipts:
-              {{ receipts.summary.reservation_expense_receipts }}</span
-            >
-            <span>Total: {{ receipts.summary.total_records }}</span>
-          </div> -->
         </div>
 
         <div class="grid grid-cols-3 gap-4">
@@ -345,6 +415,12 @@ watch(
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
                     Source
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    CRM
                   </th>
                   <th
                     scope="col"
@@ -399,13 +475,13 @@ watch(
                     <span
                       class="px-2 py-1 rounded-full text-[10px]"
                       :class="
-                        item?.table_source === 'BookingReceipt'
+                        item?.table_source === 'booking_receipt'
                           ? 'bg-[#FF613c]/20 text-[#FF613c]'
                           : 'bg-blue-100 text-blue-800'
                       "
                     >
                       {{
-                        item?.table_source === "BookingReceipt"
+                        item?.table_source === "booking_receipt"
                           ? "Booking"
                           : "Expense"
                       }}
@@ -414,8 +490,13 @@ watch(
                   <td
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
                   >
+                    {{ item?.crm_id }}
+                  </td>
+                  <td
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
+                  >
                     <button
-                      v-if="item?.receipt_url"
+                      v-if="item?.file_url"
                       @click="viewReceipt(item)"
                       class="text-blue-500 hover:text-blue-700 underline"
                     >
@@ -453,6 +534,13 @@ watch(
                         title="View Receipt"
                       >
                         <EyeIcon class="w-4 h-4" />
+                      </button>
+                      <button
+                        @click="update(item)"
+                        class="p-1 text-blue-600 hover:text-blue-800"
+                        title="View Receipt"
+                      >
+                        <PencilSquareIcon class="w-4 h-4" />
                       </button>
                     </div>
                   </td>
@@ -507,6 +595,19 @@ watch(
               <div>
                 <img :src="placeholderFile" alt="" />
               </div>
+            </DialogPanel>
+          </Modal>
+          <Modal :isOpen="updateModalOpen" @closeModal="closeModal">
+            <DialogPanel
+              class="w-full max-w-3xl transform overflow-hidden rounded-lg bg-white/70 backdrop-blur-lg p-4 text-left align-middle shadow-xl transition-all"
+            >
+              <DialogTitle
+                as="h3"
+                class="text-lg font-medium leading-6 text-gray-900 mb-5"
+              >
+                <span class="uppercase">{{ updateData?.table_source }}</span>
+              </DialogTitle>
+              <ReceiptEdit :updateData="updateData" @update="onChangeUpdate" />
             </DialogPanel>
           </Modal>
         </div>

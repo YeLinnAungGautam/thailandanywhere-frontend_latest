@@ -644,8 +644,8 @@ const processSubmission = async () => {
     formData.value.deposit && frmData.append("deposit", formData.value.deposit);
     formData.value.payment_currency &&
       frmData.append("payment_currency", formData.value.payment_currency);
-    balance_due_real.value &&
-      frmData.append("balance_due", balance_due_real.value);
+
+    frmData.append("balance_due", balance_due_real.value);
     formData.value.balance_due_date &&
       frmData.append("balance_due_date", formData.value.balance_due_date);
 

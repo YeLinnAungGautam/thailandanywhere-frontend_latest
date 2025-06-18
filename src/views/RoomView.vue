@@ -147,45 +147,100 @@
               {{ errors.owner_price[0] }}
             </p>
           </div>
-          <div
-            class="mb-2 space-y-1 flex justify-start items-center gap-3"
-            v-if="quiteSwitch == 1"
-          >
-            <label for="room_price" class="text-sm text-gray-800"
-              >Is Extra ?</label
+
+          <div>
+            <div
+              class="mb-2 space-y-1 flex justify-between pr-4 items-center gap-3"
+              v-if="quiteSwitch == 1"
             >
-            <Switch
-              v-model="enabled"
-              :class="enabled ? ' bg-orange-600' : 'bg-gray-500'"
-              class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+              <label for="room_price" class="text-sm text-gray-800"
+                >Is Extra ?</label
+              >
+              <Switch
+                v-model="enabled"
+                :class="enabled ? ' bg-orange-600' : 'bg-gray-500'"
+                class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+              >
+                <span class="sr-only">Use setting</span>
+                <span
+                  aria-hidden="true"
+                  :class="enabled ? 'translate-x-9' : 'translate-x-0'"
+                  class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                />
+              </Switch>
+            </div>
+
+            <div
+              class="mb-2 space-y-1 flex justify-between pr-4 items-center gap-3"
+              v-if="quiteSwitch == 1"
             >
-              <span class="sr-only">Use setting</span>
-              <span
-                aria-hidden="true"
-                :class="enabled ? 'translate-x-9' : 'translate-x-0'"
-                class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
-              />
-            </Switch>
+              <label for="room_price" class="text-sm text-gray-800"
+                >Has Breakfast ?</label
+              >
+              <Switch
+                v-model="enabledhas"
+                :class="enabledhas ? ' bg-orange-600' : 'bg-gray-500'"
+                class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+              >
+                <span class="sr-only">Use setting</span>
+                <span
+                  aria-hidden="true"
+                  :class="enabledhas ? 'translate-x-9' : 'translate-x-0'"
+                  class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                />
+              </Switch>
+            </div>
+            <div
+              class="mb-2 space-y-1 flex justify-between pr-4 items-center gap-3"
+              v-if="quiteSwitch == 1"
+            >
+              <label for="room_price" class="text-sm text-gray-800"
+                >Is Double Bed Room ?</label
+              >
+              <Switch
+                v-model="enabledDouble"
+                :class="enabledDouble ? ' bg-orange-600' : 'bg-gray-500'"
+                class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+              >
+                <span class="sr-only">Use setting</span>
+                <span
+                  aria-hidden="true"
+                  :class="enabledDouble ? 'translate-x-9' : 'translate-x-0'"
+                  class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                />
+              </Switch>
+            </div>
+            <div
+              class="mb-2 space-y-1 flex justify-between pr-4 items-center gap-3"
+              v-if="quiteSwitch == 1"
+            >
+              <label for="room_price" class="text-sm text-gray-800"
+                >Is Twin Bed Room ?</label
+              >
+              <Switch
+                v-model="enabledTwin"
+                :class="enabledTwin ? ' bg-orange-600' : 'bg-gray-500'"
+                class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+              >
+                <span class="sr-only">Use setting</span>
+                <span
+                  aria-hidden="true"
+                  :class="enabledTwin ? 'translate-x-9' : 'translate-x-0'"
+                  class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                />
+              </Switch>
+            </div>
           </div>
-          <div
-            class="mb-2 space-y-1 flex justify-start items-center gap-3"
-            v-if="quiteSwitch == 1"
-          >
+          <div class="mb-2 space-y-1" v-if="quiteSwitch == 1">
             <label for="room_price" class="text-sm text-gray-800"
-              >Has Breakfast ?</label
+              >Room Size</label
             >
-            <Switch
-              v-model="enabledhas"
-              :class="enabledhas ? ' bg-orange-600' : 'bg-gray-500'"
-              class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-            >
-              <span class="sr-only">Use setting</span>
-              <span
-                aria-hidden="true"
-                :class="enabledhas ? 'translate-x-9' : 'translate-x-0'"
-                class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
-              />
-            </Switch>
+            <input
+              type="text"
+              v-model="formData.room_size"
+              id="room_size"
+              class="w-full h-10 text-sm px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
           </div>
           <div class="col-span-2" v-if="quiteSwitch == 3">
             <div class="">
@@ -814,6 +869,8 @@ const { hotels } = storeToRefs(hotelStore);
 const hotelList = ref([]);
 const enabled = ref(false);
 const enabledhas = ref(false);
+const enabledDouble = ref(false);
+const enabledTwin = ref(false);
 
 const quiteSwitch = ref(1);
 
@@ -905,6 +962,9 @@ const formData = ref({
   max_person: "",
   is_extra: 0,
   has_breakfast: 0,
+  is_double: 0,
+  is_twin: 0,
+  room_size: "",
   period: [],
   images: [],
   room_amen: [],
@@ -922,6 +982,9 @@ const closeModal = () => {
     hotel_id: null,
     is_extra: 0,
     has_breakfast: 0,
+    is_double: 0,
+    is_twin: 0,
+    room_size: "",
     period: [],
     description: "",
     max_person: "",
@@ -935,6 +998,8 @@ const closeModal = () => {
   errors.value = null;
   enabled.value = false;
   enabledhas.value = false;
+  enabledDouble.value = false;
+  enabledTwin.value = false;
   createModalOpen.value = false;
   imagesPreview.value = [];
   editImagesPreview.value = [];
@@ -997,6 +1062,9 @@ const addNewHandler = async () => {
   frmData.append("owner_price", formData.value.owner_price);
   frmData.append("is_extra", enabled.value ? 1 : 0);
   frmData.append("has_breakfast", enabledhas.value ? 1 : 0);
+  frmData.append("meta[is_double]", enabledDouble.value ? 1 : 0);
+  frmData.append("meta[is_twin]", enabledTwin.value ? 1 : 0);
+  frmData.append("meta[room_size]", formData.value.room_size);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -1058,6 +1126,9 @@ const addNewHandler = async () => {
       images: [],
       is_extra: 0,
       has_breakfast: 0,
+      is_double: 0,
+      is_twin: 0,
+      room_size: "",
       room_price: "",
       room_amen: [],
       cost: "",
@@ -1066,6 +1137,8 @@ const addNewHandler = async () => {
     };
     enabled.value = false;
     enabledhas.value = false;
+    enabledDouble.value = false;
+    enabledTwin.value = false;
     errors.value = null;
     createModalOpen.value = false;
     imagesPreview.value = [];
@@ -1089,6 +1162,9 @@ const updateHandler = async () => {
   frmData.append("max_person", formData.value.max_person);
   frmData.append("is_extra", enabled.value ? 1 : 0);
   frmData.append("has_breakfast", enabledhas.value ? 1 : 0);
+  frmData.append("meta[is_double]", enabledDouble.value ? 1 : 0);
+  frmData.append("meta[is_twin]", enabledTwin.value ? 1 : 0);
+  frmData.append("meta[room_size]", formData.value.room_size);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -1158,6 +1234,9 @@ const updateHandler = async () => {
       period: [],
       is_extra: 0,
       has_breakfast: 0,
+      is_double: 0,
+      is_twin: 0,
+      room_size: "",
       images: [],
       room_price: "",
       room_amen: [],
@@ -1230,6 +1309,9 @@ const editModalOpenHandler = (data) => {
   hotelName.value = data.hotel?.name;
   enabled.value = data.is_extra == 1 ? true : false;
   enabledhas.value = data.has_breakfast == 1 ? true : false;
+  enabledDouble.value = data.meta?.is_double == 1 ? true : false;
+  enabledTwin.value = data.meta?.is_twin == 1 ? true : false;
+  formData.value.room_size = data.meta?.room_size ?? "";
   formData.value.max_person = data.max_person;
   formData.value.room_price = data.room_price;
   formData.value.description = data.description;

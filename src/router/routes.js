@@ -67,6 +67,11 @@ import AmendView from "../views/Amend.vue";
 import productIncomeChecker from "../views/ProductIncomeChecker.vue";
 import verifyInvoices from "../views/VerifyInvoice.vue";
 import OrderView from "../views/OrderPage.vue";
+import GroupItemView from "../views/GroupItem.vue";
+import TaxReceipt from "../views/TaxReceipt.vue";
+import GroupVantour from "../views/GroupVantour.vue";
+import GroupHotel from "../views/GroupHotel.vue";
+import BankStatement from "../views/BankStatement.vue";
 
 const routes = [
   {
@@ -298,6 +303,21 @@ const routes = [
     component: ReservationAttractionView,
   },
   {
+    path: "/group-hotel",
+    name: "group-hotel",
+    component: GroupHotel,
+  },
+  {
+    path: "/group-attraction",
+    name: "group-attraction",
+    component: GroupItemView,
+  },
+  {
+    path: "/group-vantour",
+    name: "group-vantour",
+    component: GroupVantour,
+  },
+  {
     path: "/reservation-vantour",
     name: "reservation-vantour",
     component: ReservationVantourView,
@@ -417,6 +437,16 @@ const routes = [
     path: "/order",
     name: "order",
     component: OrderView,
+  },
+  {
+    path: "/tax_receipt",
+    name: "TaxReceipt",
+    component: TaxReceipt,
+  },
+  {
+    path: "/bank_statement",
+    name: "bankStatement",
+    component: BankStatement,
   },
 ];
 

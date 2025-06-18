@@ -382,15 +382,27 @@ watch(
                   </th>
                   <th
                     scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                    class="px-3 py-3 border-l border-gray-50/20 bg-black text-white whitespace-nowrap"
                   >
-                    Unverified Amount
+                    Total
                   </th>
                   <th
                     scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                    class="px-3 py-3 border-l border-gray-50/20 bg-black text-white whitespace-nowrap"
                   >
-                    Verified Amount
+                    Verified
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 bg-black text-white whitespace-nowrap"
+                  >
+                    Issue
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 bg-black text-white whitespace-nowrap"
+                  >
+                    Pending
                   </th>
                   <th
                     scope="col"
@@ -446,21 +458,48 @@ watch(
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
                     {{
-                      item?.connection_detail == "price"
-                        ? formattedNumber(item?.total_amount)
-                        : ""
-                    }}
-                    {{
-                      item?.connection_detail == "expense"
-                        ? formattedNumber(item?.total_cost_price)
-                        : ""
+                      formattedNumber(
+                        item?.connection_detail == "price"
+                          ? item?.total_amount ?? 0
+                          : item?.total_cost_price ?? 0
+                      )
                     }}
                   </td>
                   <td
                     scope="col"
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
-                    -
+                    {{
+                      formattedNumber(
+                        item?.connection_detail == "price"
+                          ? item?.verified_amount ?? 0
+                          : item?.verified_cost_price ?? 0
+                      )
+                    }}
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    {{
+                      formattedNumber(
+                        item?.connection_detail == "price"
+                          ? item?.unverified_amount ?? 0
+                          : item?.unverified_cost_price ?? 0
+                      )
+                    }}
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    {{
+                      formattedNumber(
+                        item?.connection_detail == "price"
+                          ? item?.pending_amount ?? 0
+                          : item?.pending_cost_price ?? 0
+                      )
+                    }}
                   </td>
                   <td
                     scope="col"

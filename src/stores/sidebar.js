@@ -7,6 +7,7 @@ export const useSidebarStore = defineStore("sidebar", {
     isSideBarDropdownShow: false,
     isTopBarDropdownShow: false,
     isOpenCustomerCreate: false,
+    isGroupShow: false,
     isShowSetting: false,
     isShowAccount: false,
     isShowReservation: false,
@@ -42,6 +43,9 @@ export const useSidebarStore = defineStore("sidebar", {
     },
     toggleSideBarDropdown() {
       this.isSideBarDropdownShow = !this.isSideBarDropdownShow;
+    },
+    toggleGroup() {
+      this.isGroupShow = !this.isGroupShow;
     },
     toggleAccount() {
       this.isShowAccount = !this.isShowAccount;

@@ -1,31 +1,8 @@
 <template>
   <div>
     <div class="flex justify-between items-center">
-      <!-- <p class="font-medium pb-2">Expense Detail</p> -->
-      <!-- <p
-        class="bg-[#FF613c] text-white px-1.5 cursor-pointer inline-block rounded-full"
-        @click.prevent="openFilePickerThree"
-      >
-        +
-      </p> -->
       <div class="w-full pt-2.5 items-center col-span-2">
         <div class="flex justify-end items-center space-x-2 pb-2">
-          <!-- <div class="flex justify-start items-center">
-            <p
-              @click="emailBooking = !emailBooking"
-              :class="!emailBooking ? '' : 'bg-[#FF613c] text-white'"
-              class="border border-gray-300 px-3 py-1 rounded-s-lg text-[10px] cursor-pointer"
-            >
-              Expense Email
-            </p>
-            <p
-              @click="emailBooking = !emailBooking"
-              :class="emailBooking ? '' : 'bg-[#FF613c] text-white'"
-              class="border border-gray-300 px-3 py-1 rounded-e-lg text-[10px] cursor-pointer"
-            >
-              Expense Update
-            </p>
-          </div> -->
           <p
             v-if="!emailBooking"
             @click="expenseUpdateAction"
@@ -105,10 +82,9 @@
             </th>
             <th
               v-if="
-                detail?.booking?.items[0]?.product_type ==
+                detail?.items[0]?.product_type ==
                   'App\\Models\\EntranceTicket' ||
-                detail?.booking?.items[0]?.product_type ==
-                  'App\\Models\\PrivateVanTour'
+                detail?.items[0]?.product_type == 'App\\Models\\PrivateVanTour'
               "
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
@@ -116,17 +92,13 @@
             </th>
 
             <th
-              v-if="
-                detail?.booking?.items[0]?.product_type == 'App\\Models\\Hotel'
-              "
+              v-if="detail?.items[0]?.product_type == 'App\\Models\\Hotel'"
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
               Check-in
             </th>
             <th
-              v-if="
-                detail?.booking?.items[0]?.product_type == 'App\\Models\\Hotel'
-              "
+              v-if="detail?.items[0]?.product_type == 'App\\Models\\Hotel'"
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
               Check-out
@@ -134,10 +106,8 @@
 
             <th
               v-if="
-                detail?.booking?.items[0]?.product_type ==
-                  'App\\Models\\Hotel' ||
-                detail?.booking?.items[0]?.product_type ==
-                  'App\\Models\\PrivateVanTour'
+                detail?.items[0]?.product_type == 'App\\Models\\Hotel' ||
+                detail?.items[0]?.product_type == 'App\\Models\\PrivateVanTour'
               "
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
@@ -145,8 +115,7 @@
             </th>
             <th
               v-if="
-                detail?.booking?.items[0]?.product_type ==
-                'App\\Models\\EntranceTicket'
+                detail?.items[0]?.product_type == 'App\\Models\\EntranceTicket'
               "
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
@@ -154,8 +123,7 @@
             </th>
             <th
               v-if="
-                detail?.booking?.items[0]?.product_type ==
-                'App\\Models\\EntranceTicket'
+                detail?.items[0]?.product_type == 'App\\Models\\EntranceTicket'
               "
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
@@ -181,71 +149,62 @@
             </td>
             <td
               v-if="
-                detail?.booking?.items[index]?.product_type ==
+                detail?.items[index]?.product_type ==
                 'App\\Models\\EntranceTicket'
               "
               class="py-2 px-4 text-[10px] font-normal max-w-[120px] text-left"
             >
-              {{ detail?.booking?.items[index]?.variation?.name }}
+              {{ detail?.items[index]?.variation?.name }}
             </td>
             <td
-              v-if="
-                detail?.booking?.items[index]?.product_type ==
-                'App\\Models\\Hotel'
-              "
+              v-if="detail?.items[index]?.product_type == 'App\\Models\\Hotel'"
               class="py-2 px-4 text-[10px] font-normal min-w-[120px] text-left"
             >
-              {{ detail?.booking?.items[index]?.room?.name }}
+              {{ detail?.items[index]?.room?.name }}
             </td>
             <td
               v-if="
-                detail?.booking?.items[index]?.product_type ==
+                detail?.items[index]?.product_type ==
                 'App\\Models\\PrivateVanTour'
               "
               class="py-2 px-4 text-[10px] font-normal min-w-[120px] text-left"
             >
-              {{ detail?.booking?.items[index]?.car?.name }}
+              {{ detail?.items[index]?.car?.name }}
             </td>
             <td
               class="py-2 px-4 text-[10px] font-normal text-left"
               v-if="
-                detail?.booking?.items[index]?.product_type ==
+                detail?.items[index]?.product_type ==
                   'App\\Models\\EntranceTicket' ||
-                detail?.booking?.items[index]?.product_type ==
+                detail?.items[index]?.product_type ==
                   'App\\Models\\PrivateVanTour'
               "
             >
-              {{ detail?.booking?.items[index]?.service_date }}
+              {{ detail?.items[index]?.service_date }}
             </td>
             <td
-              v-if="
-                detail?.booking?.items[index]?.product_type ==
-                'App\\Models\\Hotel'
-              "
+              v-if="detail?.items[index]?.product_type == 'App\\Models\\Hotel'"
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
-              {{ detail?.booking?.items[index]?.checkin_date }}
+              {{ detail?.items[index]?.checkin_date }}
             </td>
             <td
-              v-if="
-                detail?.booking?.items[index]?.product_type ==
-                'App\\Models\\Hotel'
-              "
+              v-if="detail?.items[index]?.product_type == 'App\\Models\\Hotel'"
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
-              {{ detail?.booking?.items[index]?.checkout_date }}
+              {{ detail?.items[index]?.checkout_date }}
             </td>
             <!-- <td
               v-if="
-                detail?.booking?.items[index]?.product_type ==
+                detail?.items[index]?.product_type ==
                 'App\\Models\\Hotel'
               "
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
               {{
                 daysBetween(
-                  detail?.booking?.items[index]?.checkin_date,
-                  detail?.booking?.items[index]?.checkout_date
+                  detail?.items[index]?.checkin_date,
+                  detail?.items[index]?.checkout_date
                 )
               }}
             </td> -->
@@ -253,13 +212,12 @@
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
               {{
-                detail?.booking?.items[index]?.product_type ==
-                "App\\Models\\Hotel"
+                detail?.items[index]?.product_type == "App\\Models\\Hotel"
                   ? ` ${daysBetween(
-                      detail?.booking?.items[index]?.checkin_date,
-                      detail?.booking?.items[index]?.checkout_date
-                    )}N, ${detail?.booking?.items[index]?.quantity} Rooms`
-                  : `${detail?.booking?.items[index]?.quantity} x `
+                      detail?.items[index]?.checkin_date,
+                      detail?.items[index]?.checkout_date
+                    )}N, ${detail?.items[index]?.quantity} Rooms`
+                  : `${detail?.items[index]?.quantity} x `
               }}
               <input
                 v-model="formData.multiple_cost_price[index]"
@@ -270,7 +228,7 @@
             </td>
             <td
               v-if="
-                detail?.booking?.items[index]?.product_type ==
+                detail?.items[index]?.product_type ==
                 'App\\Models\\EntranceTicket'
               "
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
@@ -289,14 +247,13 @@
             <td
               class="py-2 px-4 text-[12px] whitespace-nowrap font-normal text-end"
             >
-              {{ detail?.booking?.items[index]?.total_cost_price }} thb
+              {{ detail?.items[index]?.total_cost_price }} thb
             </td>
           </tr>
           <tr class="bg-[#FF613c]/40">
             <td
               v-if="
-                detail?.booking?.items[0]?.product_type ==
-                'App\\Models\\PrivateVanTour'
+                detail?.items[0]?.product_type == 'App\\Models\\PrivateVanTour'
               "
               colspan="4"
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
@@ -305,8 +262,7 @@
             </td>
             <td
               v-if="
-                detail?.booking?.items[0]?.product_type !=
-                'App\\Models\\PrivateVanTour'
+                detail?.items[0]?.product_type != 'App\\Models\\PrivateVanTour'
               "
               colspan="5"
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
@@ -363,21 +319,17 @@
               </div>
             </div>
           </div>
-          <div
-            v-for="i in editData.reservation_ids"
-            :key="i"
-            class="grid grid-cols-4 gap-4"
-          >
+
+          <div class="grid grid-cols-4 gap-4">
             <div
               v-for="(image, index) in editData.expenses ?? []"
               :key="index"
               class="relative space-y-1"
-              :class="i.crm_id === image.crm_id ? '' : 'hidden'"
             >
               <p
                 class="text-[10px] px-2 py-1 bg-[#FF613c] rounded-lg text-white"
               >
-                {{ i.crm_id }}
+                {{ image.id }}
               </p>
               <p
                 @click="openModal(image, index)"
@@ -396,13 +348,13 @@
                 class="w-full px-4 pb-1 mt-2 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
               >
                 <p class="text-[10px] flex justify-start items-center pt-2">
-                  {{ image.bank_name }}
+                  {{ image.meta.bank_name }}
                 </p>
                 <p class="text-[10px] flex justify-start items-center">
-                  {{ image.amount }}
+                  {{ image.meta.amount }}
                 </p>
                 <p class="text-[10px] flex justify-start items-center pb-2">
-                  {{ image.date }}
+                  {{ image.meta.date }}
                 </p>
               </div>
             </div>
@@ -415,7 +367,7 @@
     </div> -->
     <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
       <DialogPanel
-        class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
@@ -570,7 +522,7 @@
                 >
                   <p
                     v-if="!expenseData?.id"
-                    @click="askForReservationId()"
+                    @click="createExpense()"
                     class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
                   >
                     Save
@@ -602,34 +554,6 @@
                   </p>
                 </div>
               </div>
-              <div class="col-span-2" v-if="!expenseData.id">
-                <label for="" class="text-[12px] font-medium"
-                  >For Which ?
-                </label>
-                <div>
-                  <input
-                    type="checkbox"
-                    v-model="allReservation"
-                    id="car"
-                    name="for_which"
-                  />
-                  <label for="car" class="text-[12px] ml-2"
-                    >For all reservations.</label
-                  >
-                </div>
-                <div v-for="i in editData.reservation_ids" :key="i">
-                  <input
-                    type="checkbox"
-                    v-model="i.selected"
-                    id="car"
-                    name="for_which"
-                  />
-                  <label for="car" class="text-[12px] ml-2">
-                    <span class="text-[#FF613c]">{{ i.crm_id }}</span
-                    >: {{ i.name }}</label
-                  >
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -647,10 +571,13 @@ import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute } from "vue-router";
 import { daysBetween } from "../help/DateBetween";
+import { useGroupStore } from "../../stores/group";
 // import ExpenseBooking from "./ExpenseBooking.vue";
 
 const toast = useToast();
 const reservationStore = useReservationStore();
+
+const groupStore = useGroupStore();
 
 const props = defineProps({
   detail: Object,
@@ -681,8 +608,8 @@ const formData = ref({
 
 const total_cost_calculate = computed(() => {
   let result = 0;
-  for (let i = 0; i < props?.detail?.booking?.items.length; i++) {
-    result += props?.detail?.booking?.items[i]?.total_cost_price;
+  for (let i = 0; i < props?.detail?.items.length; i++) {
+    result += props?.detail?.items[i]?.total_cost_price;
   }
   return result;
 });
@@ -715,16 +642,15 @@ const openModal = (data, index) => {
   expenseData.value = {
     index: index,
     id: data.id,
-    reservation_id: data.reservation_id,
     file: data.file,
-    amount: data.amount,
-    date: data.date,
-    bank_name: data.bank_name,
-    sender: data.sender,
-    reciever: data.reciever,
-    interact_bank: data.interact_bank,
-    is_corporate: data.is_corporate == 1 ? true : false,
-    comment: data.comment,
+    amount: data.meta.amount,
+    date: data.meta.date,
+    bank_name: data.meta.bank_name,
+    sender: data.meta.sender,
+    reciever: data.meta.reciever,
+    interact_bank: data.meta.interact_bank,
+    is_corporate: data.meta.is_corporate == 1 ? true : false,
+    comment: data.meta.comment,
   };
 };
 
@@ -929,7 +855,7 @@ const expenseUpdateAction = async () => {
             : 0;
 
         if (
-          props.detail?.booking?.items[0]?.product_type ==
+          props.detail?.items[0]?.product_type ==
             "App\\Models\\EntranceTicket" &&
           formData.value.multiple_individual[i] != "null"
         ) {
@@ -1005,26 +931,25 @@ const expenseUpdateAction = async () => {
           const secfrm = new FormData();
           secfrm.append("_method", "PUT");
 
-          if (formData.value.customer_feedback) {
-            secfrm.append(
-              "customer_feedback",
-              formData.value.customer_feedback
-            );
-          }
-
           if (formData.value.bank_name) {
-            secfrm.append("bank_name", formData.value.bank_name);
+            secfrm.append("expense_bank_name", formData.value.bank_name);
+          }
+          if (formData.value.payment_method) {
+            secfrm.append("expense_method", formData.value.payment_method);
+          }
+          if (formData.value.payment_status) {
+            secfrm.append("expense_status", formData.value.payment_status);
           }
 
           if (formData.value.bank_account_number) {
             secfrm.append(
-              "bank_account_number",
+              "expense_bank_account",
               formData.value.bank_account_number
             );
           }
 
           // Send second update request
-          await reservationStore.updateInfoAction(secfrm, itemId);
+          await groupStore.groupUpdateAction(route.query.id, secfrm);
 
           console.log(`Successfully updated item ${itemId}`);
           successCount++;
@@ -1083,54 +1008,76 @@ const payment_status = [
 ];
 
 const removeFeatureDeleteImage = async (index, id) => {
-  const res = await reservationStore.deleteResImage(id);
-  toast.success("detected successfully");
+  const res = await groupStore.groupDocumentDeleteAction(
+    route.query.id,
+    expenseData.value.id
+  );
+  console.log(res, "this is res");
+  if (res.status == "Request was successful.") {
+    toast.success("Passport successfully deleted");
+    cancelAction();
+    await getExpenseList();
+  }
   carModalOpen.value = false;
   // console.log(editData.value.customer_passport, "this is remove");
 
   cancelAction();
-
-  setTimeout(async () => {
-    await props.getDetailAction(route.query.id, route.query.product_id);
-  }, 1000);
 };
 
 const emailBooking = ref(false);
 
 const loading = ref(false);
 
-const createExpense = async (id) => {
+const createExpense = async () => {
   // console.log(formData.value);
   loading.value = true;
   try {
     const frmData = new FormData();
-    frmData.append("amount", expenseData.value.amount);
-    frmData.append("sender", expenseData.value.sender);
-    frmData.append("reciever", expenseData.value.reciever);
-    frmData.append("interact_bank", expenseData.value.interact_bank);
-    frmData.append("date", formatDateDb(expenseData.value.date));
-    frmData.append("bank_name", expenseData.value.bank_name);
-    frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
-    frmData.append("comment", expenseData.value.comment);
+    frmData.append("document_type", "expense_receipt");
+    frmData.append("documents[0][meta][amount]", expenseData.value.amount);
+    frmData.append("documents[0][meta][sender]", expenseData.value.sender);
+    frmData.append("documents[0][meta][reciever]", expenseData.value.reciever);
+    frmData.append(
+      "documents[0][meta][interact_bank]",
+      expenseData.value.interact_bank ?? "personal"
+    );
+    frmData.append(
+      "documents[0][meta][date]",
+      formatDateDb(expenseData.value.date)
+    );
+    frmData.append(
+      "documents[0][meta][bank_name]",
+      expenseData.value.bank_name
+    );
+    frmData.append(
+      "documents[0][meta][is_corporate]",
+      expenseData.value.is_corporate ? 1 : 0
+    );
+    frmData.append("documents[0][meta][comment]", expenseData.value.comment);
 
     if (formData.value.receipt_image.length != 0) {
       if (formData.value.receipt_image.length > 0) {
         for (let i = 0; i < formData.value.receipt_image.length; i++) {
           let file = formData.value.receipt_image[0];
-          frmData.append("file", file);
+          frmData.append("documents[0][file]", file);
         }
       }
     }
 
-    const res = await reservationStore.ReservationExpenseReceiptAction(
-      id,
-      frmData
+    const res = await groupStore.groupDocumentCreateAction(
+      frmData,
+      route.query.id
     );
     console.log(res);
     toast.success({
       title: "Success",
       description: "Create success",
     });
+
+    await getExpenseList();
+
+    clearAction();
+    loading.value = false;
 
     // setTimeout(async () => {
     //   await props.getDetailAction(route.query.id,route.query.product_id);
@@ -1140,49 +1087,61 @@ const createExpense = async (id) => {
   }
 };
 
-const updateExpense = async (id) => {
+const updateExpense = async () => {
   // console.log(formData.value);
   loading.value = true;
   try {
     const frmData = new FormData();
     frmData.append("_method", "PUT");
-    frmData.append("amount", expenseData.value.amount);
-    frmData.append("sender", expenseData.value.sender);
-    frmData.append("reciever", expenseData.value.reciever);
-    frmData.append("interact_bank", expenseData.value.interact_bank);
-    frmData.append("date", formatDateDb(expenseData.value.date));
-    frmData.append("bank_name", expenseData.value.bank_name);
-    frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
-    frmData.append("comment", expenseData.value.comment);
+    frmData.append("document_type", "expense_receipt");
+    frmData.append("meta[amount]", expenseData.value.amount);
+    frmData.append("meta[sender]", expenseData.value.sender);
+    frmData.append("meta[reciever]", expenseData.value.reciever);
+    frmData.append(
+      "meta[interact_bank]",
+      expenseData.value.interact_bank ?? "personal"
+    );
+    frmData.append("meta[date]", formatDateDb(expenseData.value.date));
+    frmData.append("meta[bank_name]", expenseData.value.bank_name);
+    frmData.append(
+      "meta[is_corporate]",
+      expenseData.value.is_corporate ? 1 : 0
+    );
+    frmData.append("meta[comment]", expenseData.value.comment);
 
-    const res = await reservationStore.ReservationExpenseReceiptUpdateAction(
-      id,
-      expenseData.value.id,
-      frmData
+    const res = await groupStore.groupDocumentUpdateAction(
+      frmData,
+      route.query.id,
+      expenseData.value.id
     );
     console.log(res);
     toast.success({
       title: "Success",
       description: "Update success",
     });
+    await getExpenseList();
   } catch (error) {
     console.log(error);
   } finally {
     loading.value = false;
     carModalOpen.value = false;
-    setTimeout(async () => {
-      await props.getDetailAction(route.query.id, route.query.product_id);
-    }, 1000);
   }
 };
 
-const populateFormData = () => {
-  if (
-    props.detail &&
-    props.detail.booking &&
-    props.detail.booking.items &&
-    props.detail.booking.items.length > 0
-  ) {
+const getExpenseList = async () => {
+  const id = route.query.id;
+  const res = await groupStore.groupDocumentList(id, {
+    document_type: "expense_receipt",
+  });
+  console.log(res);
+  editData.value.expenses = res.result;
+
+  console.log(editData.value.expenses, "this is editData");
+  loading.value = false;
+};
+
+const populateFormData = async () => {
+  if (props.detail && props.detail.items.length > 0) {
     // Reset arrays to avoid duplicate data if this function is called multiple times
     formData.value.multiple_id = [];
     formData.value.multiple_id_reservation = [];
@@ -1197,26 +1156,30 @@ const populateFormData = () => {
     editData.value.expenses = [];
 
     // Get common data from the first item (assuming common data is the same across items)
-    const firstItem = props.detail.booking.items[0];
-    formData.value.payment_method = firstItem?.payment_method || "";
+    const firstItem = props.detail.items[0];
+    formData.value.payment_method =
+      props.detail.expense_method != null
+        ? props.detail.expense_method
+        : firstItem?.payment_method || "";
     formData.value.bank_name =
-      firstItem?.reservation_info?.bank_name ||
-      firstItem?.bank_name ||
-      firstItem?.product?.bank_name ||
-      "";
+      props.detail.expense_bank_name != null
+        ? props.detail.expense_bank_name
+        : firstItem?.product?.bank_name;
     formData.value.bank_account_number =
-      firstItem?.reservation_info?.bank_account_number ||
-      firstItem?.bank_account_number ||
-      firstItem?.product?.bank_account_number ||
-      "";
-    formData.value.payment_status = firstItem?.payment_status || "";
+      props.detail.expense_bank_account != null
+        ? props.detail.expense_bank_account
+        : firstItem?.product?.bank_account_number;
+    formData.value.payment_status =
+      props.detail.expense_status != null
+        ? props.detail.expense_status
+        : firstItem?.payment_status;
     formData.value.booking_receipt_image = firstItem?.receipt_images || [];
     formData.value.product_type = firstItem?.product_type || "";
     formData.value.customer_feedback =
       firstItem?.reservation_info?.customer_feedback || "";
 
     // Loop through each item and collect data
-    props.detail.booking.items.forEach((item) => {
+    props.detail.items.forEach((item) => {
       // Push item-specific data to arrays
       formData.value.multiple_id.push(item.id);
       formData.value.multiple_id_reservation.push(item.id); // Or any other reservation ID if needed
@@ -1230,23 +1193,6 @@ const populateFormData = () => {
         selected: false,
       });
 
-      item.receipt_images.forEach((a) => {
-        editData.value.expenses.push({
-          id: a.id,
-          crm_id: item.crm_id,
-          reservation_id: item.id,
-          file: a.file,
-          amount: a.amount,
-          sender: a.sender,
-          reciever: a.reciever,
-          interact_bank: a.interact_bank,
-          date: a.date,
-          bank_name: a.bank_name,
-          is_corporate: a.is_corporate,
-          comment: a.comment,
-        });
-      });
-
       // Calculate hotel quantity (nights × room quantity)
       if (item.product_type == "App\\Models\\Hotel") {
         const nights = daysBetween(item.checkin_date, item.checkout_date);
@@ -1255,6 +1201,7 @@ const populateFormData = () => {
       formData.value.multiple_quantity.push(item.quantity);
     });
 
+    await getExpenseList();
     console.log(
       "Form data populated with multiple items:",
       formData.value,

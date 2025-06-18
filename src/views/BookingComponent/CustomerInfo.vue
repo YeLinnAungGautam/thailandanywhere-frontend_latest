@@ -153,7 +153,7 @@ onMounted(async () => {
 watch(
   search,
   debounce(async (newValue) => {
-    await customerStore.getListAction({ search: search.value });
+    await customerStore.getListAction({ search: search.value, limit: 300 });
   }, 500)
 );
 </script>

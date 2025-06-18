@@ -121,21 +121,79 @@
               >
                 <SidebarItem
                   name="Res Attraction"
+                  label="attraction"
                   :icon="TicketIcon"
                   to="/reservation-attraction"
                   :activePaths="['reservation-attraction']"
                 />
                 <SidebarItem
                   name="Res Hotel"
+                  label="hotel"
                   :icon="HomeModernIcon"
                   to="/reservation-hotel"
                   :activePaths="['reservation-hotel']"
                 />
                 <SidebarItem
                   name="Res Vantour"
+                  label="vantour"
                   :icon="TruckIcon"
                   to="/reservation-vantour"
                   :activePaths="['reservation-vantour']"
+                />
+              </div>
+              <!-- <SidebarItem
+                name="Group Item"
+                :icon="Squares2X2Icon"
+                to="/group-item"
+              /> -->
+              <div
+                v-if="!authStore.isAuditor"
+                @click="toggleGroupShow"
+                class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
+              >
+                <ClipboardDocumentListIcon class="w-4 h-4" />
+                <p
+                  class="flex justify-between w-[80%] text-[12px] ml-[1.2rem] items-center"
+                  v-if="isShowSidebar"
+                >
+                  Group new
+                  <ChevronDownIcon
+                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                    :class="isGroupShow ? 'opacity-0' : 'opacity-100'"
+                    v-if="!isGroupShow"
+                  />
+                  <ChevronUpIcon
+                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                    :class="isGroupShow ? 'opacity-100' : 'opacity-0'"
+                    v-if="isGroupShow"
+                  />
+                </p>
+              </div>
+              <div
+                class="transition-all duration-150"
+                :class="isGroupShow ? 'ml-5' : ''"
+                v-if="isGroupShow"
+              >
+                <SidebarItem
+                  name="Group Attraction"
+                  label="attraction"
+                  :icon="TicketIcon"
+                  to="/group-attraction"
+                  :activePaths="['group-attraction']"
+                />
+                <SidebarItem
+                  name="Group Hotel"
+                  label="hotel"
+                  :icon="HomeModernIcon"
+                  to="/group-hotel"
+                  :activePaths="['group-hotel']"
+                />
+                <SidebarItem
+                  name="Group Vantour"
+                  label="vantour"
+                  :icon="TruckIcon"
+                  to="/group-vantour"
+                  :activePaths="['group-vantour']"
                 />
               </div>
               <SidebarItem
@@ -153,7 +211,6 @@
                 :activePaths="['accounting']"
               />
               <div
-                v-if="!authStore.isAuditor"
                 @click="sidebarStore.toggleAccount"
                 class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
               >
@@ -182,33 +239,51 @@
               >
                 <SidebarItem
                   name="Chart of Accounts"
-                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  label="COA"
+                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
                   :icon="FolderIcon"
                   to="/chart_of_account"
                 />
                 <SidebarItem
                   name="Income Checker"
-                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  label="ICheck"
+                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
                   :icon="FolderIcon"
                   to="/product_income_checker"
                 />
                 <SidebarItem
                   name="Verify Invoices"
-                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  label="VInvoice"
+                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
                   :icon="FolderIcon"
                   to="/verify_invoices"
                 />
                 <SidebarItem
                   name="Account Class"
-                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  label="AClass"
+                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
                   :icon="FolderIcon"
                   to="/account_class"
                 />
                 <SidebarItem
                   name="Account Head"
-                  v-if="!authStore.isAgent && !authStore.isAuditor"
+                  label="AHead"
+                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
                   :icon="FolderIcon"
                   to="/account_head"
+                />
+                <SidebarItem
+                  name="Tax Receipts"
+                  label="Tax"
+                  :icon="FolderIcon"
+                  to="/tax_receipt"
+                />
+                <SidebarItem
+                  v-if="authStore.isSuperAdmin"
+                  name="Bank Statement"
+                  label="Statement"
+                  :icon="FolderIcon"
+                  to="/bank_statement"
                 />
               </div>
               <SidebarItem
@@ -386,6 +461,7 @@ const {
   isReservationShow,
   isShowAccount,
   isShowReservation,
+  isGroupShow,
 } = storeToRefs(sidebarStore);
 const authStore = useAuthStore();
 const toggleSidebarHandler = () => {
@@ -398,6 +474,10 @@ const toggleSidebarShowSetting = () => {
 
 const toggleReservationShow = () => {
   sidebarStore.toggleReservation();
+};
+
+const toggleGroupShow = () => {
+  sidebarStore.toggleGroup();
 };
 
 import { useToast } from "vue-toastification";

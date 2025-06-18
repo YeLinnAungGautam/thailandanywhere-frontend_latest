@@ -3,7 +3,7 @@
     <div>
       <div class="p-3 rounded-lg border border-gray-200 h-[62vh]">
         <div class="grid grid-cols-2 text-xs gap-2">
-          <p class="text-sm font-semibold text-[#FF613c]">Booking Detail</p>
+          <p class="pb-1 text-lg font-medium text-[#FF613c]">Booking Detail</p>
           <div class="flex justify-end items-center"></div>
           <p>Total Expense</p>
           <p class="text-end">{{ formattedNumber(total_item_price) }} thb</p>
@@ -11,17 +11,14 @@
           <p
             class="text-end"
             v-if="
-              detail?.booking?.items[0].product_type ==
-              'App\\Models\\PrivateVanTour'
+              detail?.items[0].product_type == 'App\\Models\\PrivateVanTour'
             "
           >
             {{ carQty }} Car Qty
           </p>
           <p
             class="text-end"
-            v-if="
-              detail?.booking?.items[0].product_type == 'App\\Models\\Hotel'
-            "
+            v-if="detail?.items[0].product_type == 'App\\Models\\Hotel'"
           >
             {{ hotelQty }} D {{ hotelDay }} N
           </p>
@@ -29,8 +26,7 @@
           <p
             class="text-end"
             v-if="
-              detail?.booking?.items[0].product_type ==
-              'App\\Models\\EntranceTicket'
+              detail?.items[0].product_type == 'App\\Models\\EntranceTicket'
             "
           >
             {{ ticketAdultQty }} Adult {{ ticketChildQty }} Child
@@ -90,7 +86,9 @@
     <div class="col-span-2 p-3 rounded-lg border border-gray-200">
       <div class="flex justify-between items-center">
         <div class="flex justify-start items-center gap-x-2">
-          <p class="text-sm font-semibold text-[#FF613c]">Payment Recieved</p>
+          <p class="pb-1 text-lg font-medium text-[#FF613c]">
+            Payment Recieved
+          </p>
           <p
             @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
             class="text-center rounded-lg text-[10px] bg-[#FF613c] text-white px-3 py-0.5"
@@ -353,21 +351,21 @@ const formData = ref({
   bank_name: "",
   sender: "",
   reciever: "",
-  interact_bank: "personal",
+  interact_bank: "",
   is_corporate: false,
   comment: "",
 });
 
 const total_item_price = computed(() => {
   let total = 0;
-  props.detail?.booking?.items.forEach((item) => {
+  props.detail?.items.forEach((item) => {
     total += item.total_cost_price * 1;
   });
   return total;
 });
 const total_sale_price = computed(() => {
   let total = 0;
-  props.detail?.booking?.items.forEach((item) => {
+  props.detail?.items.forEach((item) => {
     total += item.amount * 1;
   });
   return total;
@@ -375,7 +373,7 @@ const total_sale_price = computed(() => {
 
 const total_discount_price = computed(() => {
   let total = 0;
-  props.detail?.booking?.items.forEach((item) => {
+  props.detail?.items.forEach((item) => {
     total += item.discount * 1;
   });
   return total;
@@ -520,7 +518,7 @@ const loading = ref(false);
 
 const hotelQty = computed(() => {
   let total = 0;
-  props.detail?.booking?.items.forEach((item) => {
+  props.detail?.items.forEach((item) => {
     if (item.product_type == "App\\Models\\Hotel") {
       total += item.quantity * 1;
     }
@@ -530,7 +528,7 @@ const hotelQty = computed(() => {
 
 const carQty = computed(() => {
   let total = 0;
-  props.detail?.booking?.items.forEach((item) => {
+  props.detail?.items.forEach((item) => {
     if (item.product_type == "App\\Models\\PrivateVanTour") {
       total += item.quantity * 1;
     }
@@ -540,7 +538,7 @@ const carQty = computed(() => {
 
 const hotelDay = computed(() => {
   let total = 0;
-  props.detail?.booking?.items.forEach((item) => {
+  props.detail?.items.forEach((item) => {
     if (item.product_type == "App\\Models\\Hotel") {
       total += calculateDaysBetween(item.checkin_date, item.checkout_date) * 1;
     }
@@ -550,7 +548,7 @@ const hotelDay = computed(() => {
 
 const ticketAdultQty = computed(() => {
   let total = 0;
-  props.detail?.booking?.items.forEach((item) => {
+  props.detail?.items.forEach((item) => {
     if (item.product_type == "App\\Models\\EntranceTicket") {
       total += item.quantity * 1;
     }
@@ -560,7 +558,7 @@ const ticketAdultQty = computed(() => {
 
 const ticketChildQty = computed(() => {
   let total = 0;
-  props.detail?.booking?.items.forEach((item) => {
+  props.detail?.items.forEach((item) => {
     if (item.product_type == "App\\Models\\EntranceTicket") {
       total +=
         (item.individual_pricing?.child?.quantity != "NaN" &&

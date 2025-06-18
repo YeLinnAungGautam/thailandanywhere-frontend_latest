@@ -29,7 +29,7 @@
           />
         </div>
       </div>
-      <div class="">
+      <!-- <div class="">
         <p for="" class="text-[12px] font-medium pb-2">
           Bank <span class="opacity-0">.....</span>
         </p>
@@ -44,32 +44,8 @@
             {{ b.name }}
           </option>
         </select>
-      </div>
-      <div class="">
-        <p for="" class="text-[12px] font-medium pb-2">
-          Interact Bank <span class="opacity-0">.....</span>
-        </p>
-        <select
-          name=""
-          v-model="formData.interact_bank"
-          id=""
-          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-        >
-          <option value="personal">Personal</option>
-          <option value="company">Company</option>
-        </select>
-      </div>
-      <div class="">
-        <p for="" class="text-[12px] font-medium pb-2">Amount</p>
-        <input
-          type="number"
-          v-model="formData.amount"
-          name=""
-          placeholder="xxx"
-          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-          id=""
-        />
-      </div>
+      </div> -->
+
       <div class="">
         <p for="" class="text-[12px] font-medium pb-2">Sender</p>
         <input
@@ -91,6 +67,31 @@
           class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
           id=""
         />
+      </div>
+      <div class="">
+        <p for="" class="text-[12px] font-medium pb-2">Amount</p>
+        <input
+          type="number"
+          v-model="formData.amount"
+          name=""
+          placeholder="xxx"
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+          id=""
+        />
+      </div>
+      <div class="">
+        <p for="" class="text-[12px] font-medium pb-2">
+          Interact Bank <span class="opacity-0">.....</span>
+        </p>
+        <select
+          name=""
+          v-model="formData.interact_bank"
+          id=""
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+        >
+          <option value="personal">Personal</option>
+          <option value="company">Company</option>
+        </select>
       </div>
 
       <div
@@ -265,7 +266,7 @@ const updateAction = async () => {
     frmData.append("_method", "PUT");
     frmData.append("amount", formData.value.amount);
     frmData.append("date", formatDateDb(formData.value.date));
-    frmData.append("bank_name", formData.value.bank_name);
+    frmData.append("bank_name", formData.value.bank_name ?? "others...");
     frmData.append("sender", formData.value.sender);
     frmData.append("reciever", formData.value.reciever);
     frmData.append("interact_bank", formData.value.interact_bank ?? "personal");

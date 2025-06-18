@@ -453,12 +453,12 @@ watch(
                   >
                     Date
                   </th>
-                  <th
+                  <!-- <th
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
                     Bank
-                  </th>
+                  </th> -->
                   <th
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
@@ -534,11 +534,11 @@ watch(
                   >
                     {{ item?.date }}
                   </td>
-                  <td
+                  <!-- <td
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
                   >
                     {{ item?.bank_name != "null" ? item?.bank_name : "-" }}
-                  </td>
+                  </td> -->
                   <td
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
                   >

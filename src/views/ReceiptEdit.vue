@@ -4,45 +4,7 @@
       <img v-if="updateData.file" :src="updateData.file" alt="" />
       <img v-else :src="placeholderFile" alt="" />
     </div>
-    <div class="space-y-4 relative pt-4">
-      <div class="">
-        <p for="" class="text-[12px] font-medium pb-2">
-          Bank <span class="opacity-0">.....</span>
-        </p>
-        <select
-          name=""
-          v-model="formData.bank_name"
-          id=""
-          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-        >
-          <option value="">Select Bank</option>
-          <option :value="b.name" v-for="b in bankList" :key="b.id">
-            {{ b.name }}
-          </option>
-        </select>
-      </div>
-      <div class="">
-        <p for="" class="text-[12px] font-medium pb-2">Amount</p>
-        <input
-          type="number"
-          v-model="formData.amount"
-          name=""
-          placeholder="xxx"
-          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-          id=""
-        />
-      </div>
-      <div class="" v-if="updateData.table_source == 'booking_receipt'">
-        <p for="" class="text-[12px] font-medium pb-2">Sender</p>
-        <input
-          type="text"
-          v-model="formData.sender"
-          name=""
-          placeholder="xxx"
-          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-          id=""
-        />
-      </div>
+    <div class="space-y-4 relative pt-4 pb-14">
       <div class="">
         <p for="" class="text-[12px] font-medium pb-2">
           Date <span class="opacity-0">......</span>
@@ -66,6 +28,69 @@
             id=""
           />
         </div>
+      </div>
+      <div class="">
+        <p for="" class="text-[12px] font-medium pb-2">
+          Bank <span class="opacity-0">.....</span>
+        </p>
+        <select
+          name=""
+          v-model="formData.bank_name"
+          id=""
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+        >
+          <option value="">Select Bank</option>
+          <option :value="b.name" v-for="b in bankList" :key="b.id">
+            {{ b.name }}
+          </option>
+        </select>
+      </div>
+      <div class="">
+        <p for="" class="text-[12px] font-medium pb-2">
+          Interact Bank <span class="opacity-0">.....</span>
+        </p>
+        <select
+          name=""
+          v-model="formData.interact_bank"
+          id=""
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+        >
+          <option value="personal">Personal</option>
+          <option value="company">Company</option>
+        </select>
+      </div>
+      <div class="">
+        <p for="" class="text-[12px] font-medium pb-2">Amount</p>
+        <input
+          type="number"
+          v-model="formData.amount"
+          name=""
+          placeholder="xxx"
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+          id=""
+        />
+      </div>
+      <div class="">
+        <p for="" class="text-[12px] font-medium pb-2">Sender</p>
+        <input
+          type="text"
+          v-model="formData.sender"
+          name=""
+          placeholder="xxx"
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+          id=""
+        />
+      </div>
+      <div class="">
+        <p for="" class="text-[12px] font-medium pb-2">Reciever</p>
+        <input
+          type="text"
+          v-model="formData.reciever"
+          name=""
+          placeholder="xxx"
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+          id=""
+        />
       </div>
 
       <div
@@ -107,6 +132,8 @@ const formData = ref({
   date: "",
   bank_name: "",
   sender: "",
+  reciever: "",
+  interact_bank: "",
   amount: "",
   table_source: "",
   file: "",
@@ -240,6 +267,8 @@ const updateAction = async () => {
     frmData.append("date", formatDateDb(formData.value.date));
     frmData.append("bank_name", formData.value.bank_name);
     frmData.append("sender", formData.value.sender);
+    frmData.append("reciever", formData.value.reciever);
+    frmData.append("interact_bank", formData.value.interact_bank ?? "personal");
 
     // const res = await reservationStore.ReservationExpenseReceiptUpdateAction(
     //   id,
@@ -279,6 +308,8 @@ onMounted(() => {
     formData.value.date = props.updateData.date;
     formData.value.bank_name = props.updateData.bank_name;
     formData.value.sender = props.updateData.sender;
+    formData.value.reciever = props.updateData.reciever;
+    formData.value.interact_bank = props.updateData.interact_bank ?? "personal";
     formData.value.amount = props.updateData.amount;
     formData.value.table_source = props.updateData.table_source;
     formData.value.file = props.updateData.file;

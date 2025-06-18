@@ -106,7 +106,9 @@
             <th
               v-if="
                 detail?.booking?.items[0]?.product_type ==
-                'App\\Models\\EntranceTicket' || detail?.booking?.items[0]?.product_type == 'App\\Models\\PrivateVanTour'
+                  'App\\Models\\EntranceTicket' ||
+                detail?.booking?.items[0]?.product_type ==
+                  'App\\Models\\PrivateVanTour'
               "
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
@@ -132,7 +134,10 @@
 
             <th
               v-if="
-                detail?.booking?.items[0]?.product_type == 'App\\Models\\Hotel' || detail?.booking?.items[0]?.product_type == 'App\\Models\\PrivateVanTour'
+                detail?.booking?.items[0]?.product_type ==
+                  'App\\Models\\Hotel' ||
+                detail?.booking?.items[0]?.product_type ==
+                  'App\\Models\\PrivateVanTour'
               "
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
@@ -205,7 +210,9 @@
               class="py-2 px-4 text-[10px] font-normal text-left"
               v-if="
                 detail?.booking?.items[index]?.product_type ==
-                'App\\Models\\EntranceTicket' || detail?.booking?.items[index]?.product_type == 'App\\Models\\PrivateVanTour'
+                  'App\\Models\\EntranceTicket' ||
+                detail?.booking?.items[index]?.product_type ==
+                  'App\\Models\\PrivateVanTour'
               "
             >
               {{ detail?.booking?.items[index]?.service_date }}
@@ -286,13 +293,21 @@
             </td>
           </tr>
           <tr class="bg-[#FF613c]/40">
-            <td v-if="detail?.booking?.items[0]?.product_type == 'App\\Models\\PrivateVanTour'"
+            <td
+              v-if="
+                detail?.booking?.items[0]?.product_type ==
+                'App\\Models\\PrivateVanTour'
+              "
               colspan="4"
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
               Total Cost
             </td>
-            <td v-if="detail?.booking?.items[0]?.product_type != 'App\\Models\\PrivateVanTour'"
+            <td
+              v-if="
+                detail?.booking?.items[0]?.product_type !=
+                'App\\Models\\PrivateVanTour'
+              "
               colspan="5"
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
@@ -308,56 +323,6 @@
         </tbody>
       </table>
 
-      <!-- <div
-        class="col-span-2 grid grid-cols-2 gap-4"
-        v-for="(item, index) in formData.multiple_id"
-        :key="index"
-      >
-        <div class="space-y-2">
-          <p class="text-gray-800 text-[10px]">
-            Unit Cost for {{ formData.multiple_crm_id[index] }}
-          </p>
-          <div class="flex justify-start items-center gap-x-2 text-xs">
-            <input
-              v-model="formData.multiple_quantity[index]"
-              type="number"
-              id="title"
-              disabled
-              class="h-9 rounded-lg w-[40px] bg-white border border-gray-300 text-center py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-            />
-            R
-            <input
-              :value="
-                daysBetween(
-                  detail?.booking?.items[index]?.checkin_date,
-                  detail?.booking?.items[index]?.checkout_date
-                )
-              "
-              type="number"
-              id="title"
-              disabled
-              class="h-9 rounded-lg w-[40px] bg-white border border-gray-300 text-center py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-            />
-            N
-            <input
-              v-model="formData.multiple_cost_price[index]"
-              type="number"
-              id="title"
-              class="h-9 col-span-1 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-            />
-          </div>
-        </div>
-        <div class="space-y-2">
-          <p class="text-gray-800 text-[10px]">
-            Total Cost for {{ formData.multiple_crm_id[index] }}
-          </p>
-          <p
-            class="h-9 w-full bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          >
-            {{ detail?.booking?.items[index]?.total_cost_price }}
-          </p>
-        </div>
-      </div> -->
       <div class="space-y-2 col-span-2 w-full">
         <!-- <p class="text-gray-800 text-[10px]">Receipt</p> -->
         <div class="space-y-4 mb-2">
@@ -450,7 +415,7 @@
     </div> -->
     <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
       <DialogPanel
-        class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
@@ -486,7 +451,78 @@
                 <img :src="expenseData.file" alt="" class="rounded-lg" />
               </div>
 
-              <div class="space-y-4 relative pt-4">
+              <div class="space-y-4 relative pt-4 pb-14">
+                <div class="flex justify-between items-center">
+                  <label for="" class="text-[12px] font-medium"
+                    >Date <span class="opacity-0">......</span></label
+                  >
+                  <div class="flex justify-between items-center w-[160px]">
+                    <p class="text-start text-xs" v-if="expenseData?.date">
+                      {{
+                        expenseData.date.includes("T")
+                          ? formatDate(expenseData.date)
+                          : formatDateFromDb(expenseData.date)
+                      }}
+                    </p>
+                    <input
+                      type="datetime-local"
+                      name=""
+                      v-model="expenseData.date"
+                      format="YYYY-MM-DD HH:mm:ss"
+                      class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                      id=""
+                    />
+                  </div>
+                </div>
+                <div class="flex justify-between items-center">
+                  <label for="" class="text-[12px] font-medium">Sender </label>
+                  <input
+                    v-model="expenseData.sender"
+                    type="text"
+                    name=""
+                    placeholder="sender name"
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+                <div class="flex justify-between items-center">
+                  <label for="" class="text-[12px] font-medium"
+                    >Reciever
+                  </label>
+                  <input
+                    v-model="expenseData.reciever"
+                    type="text"
+                    name=""
+                    placeholder="reciever name"
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+                <div class="flex justify-between items-center">
+                  <label for="" class="text-[12px] font-medium">Amount</label>
+                  <input
+                    type="text"
+                    name=""
+                    v-model="expenseData.amount"
+                    placeholder="Search CRM ID"
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+                <div class="flex justify-between items-center">
+                  <label for="" class="text-[12px] font-medium"
+                    >Interact Bank
+                  </label>
+                  <select
+                    name=""
+                    v-model="expenseData.interact_bank"
+                    id=""
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  >
+                    <option value="personal">Personal</option>
+                    <option value="company">Company</option>
+                  </select>
+                </div>
                 <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium"
                     >Bank <span class="opacity-0">.....</span></label
@@ -519,39 +555,7 @@
                     <p class="text-[12px]">Is Corporate ?</p>
                   </div>
                 </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium">Amount</label>
-                  <input
-                    type="number"
-                    v-model="expenseData.amount"
-                    name=""
-                    placeholder="xxx"
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                    id=""
-                  />
-                </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium"
-                    >Date <span class="opacity-0">......</span></label
-                  >
-                  <div class="flex justify-between items-center w-[160px]">
-                    <p class="text-start text-xs" v-if="expenseData?.date">
-                      {{
-                        expenseData.date.includes("T")
-                          ? formatDate(expenseData.date)
-                          : formatDateFromDb(expenseData.date)
-                      }}
-                    </p>
-                    <input
-                      type="datetime-local"
-                      name=""
-                      v-model="expenseData.date"
-                      format="YYYY-MM-DD HH:mm:ss"
-                      class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                      id=""
-                    />
-                  </div>
-                </div>
+
                 <div class="flex justify-between items-start">
                   <label for="" class="text-[12px] font-medium">Comment</label>
                   <textarea
@@ -697,6 +701,8 @@ const expenseData = ref({
   date: "",
   bank_name: "",
   sender: "",
+  reciever: "",
+  interact_bank: "",
   is_corporate: false,
   comment: "",
 });
@@ -715,6 +721,8 @@ const openModal = (data, index) => {
     date: data.date,
     bank_name: data.bank_name,
     sender: data.sender,
+    reciever: data.reciever,
+    interact_bank: data.interact_bank,
     is_corporate: data.is_corporate == 1 ? true : false,
     comment: data.comment,
   };
@@ -730,6 +738,8 @@ const clearAction = () => {
     date: "",
     bank_name: "",
     sender: "",
+    reciever: "",
+    interact_bank: "",
     is_corporate: false,
     comment: "",
   };
@@ -1095,6 +1105,9 @@ const createExpense = async (id) => {
   try {
     const frmData = new FormData();
     frmData.append("amount", expenseData.value.amount);
+    frmData.append("sender", expenseData.value.sender);
+    frmData.append("reciever", expenseData.value.reciever);
+    frmData.append("interact_bank", expenseData.value.interact_bank);
     frmData.append("date", formatDateDb(expenseData.value.date));
     frmData.append("bank_name", expenseData.value.bank_name);
     frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
@@ -1134,6 +1147,9 @@ const updateExpense = async (id) => {
     const frmData = new FormData();
     frmData.append("_method", "PUT");
     frmData.append("amount", expenseData.value.amount);
+    frmData.append("sender", expenseData.value.sender);
+    frmData.append("reciever", expenseData.value.reciever);
+    frmData.append("interact_bank", expenseData.value.interact_bank);
     frmData.append("date", formatDateDb(expenseData.value.date));
     frmData.append("bank_name", expenseData.value.bank_name);
     frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
@@ -1221,6 +1237,9 @@ const populateFormData = () => {
           reservation_id: item.id,
           file: a.file,
           amount: a.amount,
+          sender: a.sender,
+          reciever: a.reciever,
+          interact_bank: a.interact_bank,
           date: a.date,
           bank_name: a.bank_name,
           is_corporate: a.is_corporate,

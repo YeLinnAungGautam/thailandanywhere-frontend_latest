@@ -40,6 +40,7 @@ const senderSearch = ref("");
 const crmSearch = ref("");
 const bankNameSearch = ref("");
 const amountSearch = ref("");
+const interactSearch = ref("");
 
 // Set current year and month
 const currentDate = new Date();
@@ -112,6 +113,10 @@ const searchParams = computed(() => {
     params.amount = amountSearch.value;
   }
 
+  if (interactSearch.value) {
+    params.interact_bank = interactSearch.value;
+  }
+
   return params;
 });
 
@@ -143,6 +148,7 @@ const clearSearch = () => {
   crmSearch.value = "";
   bankNameSearch.value = "";
   amountSearch.value = "";
+  interactSearch.value = "";
   filterType.value = "";
   // date_range.value = "";
 };
@@ -211,6 +217,8 @@ const updateData = ref({
   bank_name: "",
   sender: "",
   amount: "",
+  reciever: "",
+  interact_bank: "",
   table_source: "",
 });
 const update = (data) => {
@@ -221,6 +229,8 @@ const update = (data) => {
   updateData.value.bank_name = data.bank_name;
   updateData.value.sender = data.sender;
   updateData.value.amount = data.amount;
+  updateData.value.reciever = data.reciever;
+  updateData.value.interact_bank = data.interact_bank;
   updateData.value.table_source = data.table_source;
   updateData.value.file = data.file_url;
 };
@@ -231,6 +241,8 @@ const closeModal = () => {
     date: "",
     bank_name: "",
     sender: "",
+    reciever: "",
+    interact_bank: "",
     amount: "",
     table_source: "",
     file: "",
@@ -261,6 +273,7 @@ watch(
     crmSearch,
     bankNameSearch,
     amountSearch,
+    interactSearch,
   ],
   debounce(async () => {
     await getAction();
@@ -343,48 +356,48 @@ watch(
           <!-- Search Filters -->
           <div class="flex space-x-2 items-center">
             <div class="relative">
-              <MagnifyingGlassIcon
-                class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              />
               <input
                 v-model="senderSearch"
                 type="text"
                 placeholder="Search by sender..."
-                class="pl-10 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+                class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
               />
             </div>
             <div class="relative">
-              <MagnifyingGlassIcon
-                class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              />
               <input
                 v-model="crmSearch"
                 type="text"
                 placeholder="Search by crm..."
-                class="pl-10 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+                class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
               />
             </div>
             <div class="relative">
-              <MagnifyingGlassIcon
-                class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              />
               <input
                 v-model="bankNameSearch"
                 type="text"
                 placeholder="Search by bank name..."
-                class="pl-10 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+                class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
               />
             </div>
             <div class="relative">
-              <MagnifyingGlassIcon
-                class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              />
               <input
                 v-model="amountSearch"
                 type="number"
                 placeholder="Search by amount..."
-                class="pl-10 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+                class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
               />
+            </div>
+            <div class="relative">
+              <select
+                name=""
+                v-model="interactSearch"
+                class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+                id=""
+              >
+                <option value="">Search by interact bank</option>
+                <option value="personal">Personal</option>
+                <option value="company">Company</option>
+              </select>
             </div>
             <button
               @click="clearSearch"
@@ -444,13 +457,19 @@ watch(
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    Bank Name
+                    Bank
                   </th>
                   <th
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
                     Sender
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    Reciever
                   </th>
                   <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
                     Actions
@@ -523,6 +542,11 @@ watch(
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
                   >
                     {{ item?.sender != "null" ? item?.sender : "-" }}
+                  </td>
+                  <td
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
+                  >
+                    {{ item?.reciever != "null" ? item?.reciever : "-" }}
                   </td>
                   <td
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"

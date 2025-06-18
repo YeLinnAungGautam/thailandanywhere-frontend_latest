@@ -35,7 +35,7 @@
                 :class="
                   customer.id == formData.id ? 'text-white' : 'text-[#FF613c]'
                 "
-                >{{ customer.meta.name }}</span
+                >{{ customer?.meta?.name }}</span
               >
             </p>
           </div>

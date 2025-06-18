@@ -143,7 +143,7 @@
 
     <Modal :isOpen="carModalOpen" @closeModal="clearAction">
       <DialogPanel
-        class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
@@ -162,27 +162,9 @@
                 alt=""
               />
             </div>
-            <div class="space-y-4 relative pt-4 pr-2">
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Amount</label>
-                <input
-                  type="text"
-                  name=""
-                  v-model="formData.amount"
-                  placeholder="Search CRM ID"
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                  id=""
-                />
-              </div>
+            <div class="space-y-4 relative pt-4 pb-14 pr-2">
               <div class="flex justify-between items-center">
                 <label for="" class="text-[12px] font-medium">Date&Time </label>
-                <!-- <input
-                  type="date"
-                  name=""
-                  v-model="formData.date"
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                  id=""
-                /> -->
                 <div class="flex justify-between items-center w-[160px]">
                   <p class="text-start text-xs" v-if="formData?.date">
                     {{
@@ -215,6 +197,7 @@
                   </option>
                 </select>
               </div>
+
               <div class="flex justify-between items-center">
                 <label for="" class="text-[12px] font-medium">Sender </label>
                 <input
@@ -225,6 +208,42 @@
                   class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   id=""
                 />
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Reciever </label>
+                <input
+                  v-model="formData.reciever"
+                  type="text"
+                  name=""
+                  placeholder="reciever name"
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  id=""
+                />
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Amount</label>
+                <input
+                  type="text"
+                  name=""
+                  v-model="formData.amount"
+                  placeholder="Search CRM ID"
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  id=""
+                />
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium"
+                  >Interact Bank
+                </label>
+                <select
+                  name=""
+                  v-model="formData.interact_bank"
+                  id=""
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                >
+                  <option value="personal">Personal</option>
+                  <option value="company">Company</option>
+                </select>
               </div>
               <div class="flex justify-between items-center">
                 <label for="" class="text-[12px] font-medium">Bank ? </label>
@@ -331,6 +350,8 @@ const formData = ref({
   date: "",
   bank_name: "",
   sender: "",
+  reciever: "",
+  interact_bank: "",
   is_corporate: false,
   comment: "",
 });
@@ -368,6 +389,8 @@ const openModal = (data) => {
     date: data.date,
     bank_name: data.bank_name,
     sender: data.sender,
+    reciever: data.reciever,
+    interact_bank: data.interact_bank,
     is_corporate: data.is_corporate == 1 ? true : false,
     comment: data.note,
   };
@@ -483,6 +506,8 @@ const clearAction = () => {
     date: "",
     bank_name: "",
     sender: "",
+    reciever: "",
+    interact_bank: "",
     is_corporate: false,
     comment: "",
   };
@@ -555,6 +580,8 @@ const submit = async () => {
     frmData.append("date", formatDateDb(formData.value.date));
     frmData.append("bank_name", formData.value.bank_name);
     frmData.append("sender", formData.value.sender);
+    frmData.append("reciever", formData.value.reciever);
+    frmData.append("interact_bank", formData.value.interact_bank);
     frmData.append("is_corporate", formData.value.is_corporate ? 1 : 0);
     frmData.append("note", formData.value.comment);
 

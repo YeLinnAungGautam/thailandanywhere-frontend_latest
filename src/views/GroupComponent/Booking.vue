@@ -244,7 +244,7 @@
               <p
                 class="text-[10px] bg-gray-600 px-2 py-1 text-white rounded-lg"
               >
-                {{ passport.meta.name }}
+                {{ passport?.meta?.name }}
               </p>
               <img
                 :src="passport.file"
@@ -628,7 +628,7 @@ const mailBodyChange = () => {
       <p>
         ${
           passportList.value
-            ?.map((passport) => `<p>${passport.meta.name}</p>`)
+            ?.map((passport) => `<p>${passport?.meta?.name}</p>`)
             .join("") || ""
         }
       </p>
@@ -668,7 +668,7 @@ const mailBodyChange = () => {
           passportList.value
             ?.map(
               (passport) =>
-                `<p>${passport.meta.name}(${passport.meta.passport_number})</p>`
+                `<p>${passport?.meta?.name}(${passport?.meta?.passport_number})</p>`
             )
             .join("") || ""
         }

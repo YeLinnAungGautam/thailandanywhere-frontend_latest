@@ -107,12 +107,6 @@
               </p>
               <div class="flex justify-end items-center gap-x-2">
                 <p
-                  @click="showCommentPropup = true"
-                  class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg flex justify-center items-center gap-x-1"
-                >
-                  <img :src="productIcon" alt="" class="w-3 h-3" />Note
-                </p>
-                <p
                   class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
                   @click="copyReservation(detail?.booking?.id)"
                 >
@@ -569,7 +563,7 @@
                 <img :src="checkImage" alt="" />
               </div>
               <p
-                class="text-xs"
+                class="text-xs whitespace-nowrap"
                 :class="state.expensemail ? 'text-[#04BA00]' : 'text-gray-800'"
               >
                 Exp. Mail

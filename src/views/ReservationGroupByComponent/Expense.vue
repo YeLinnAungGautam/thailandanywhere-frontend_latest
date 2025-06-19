@@ -446,7 +446,7 @@
               </div>
               <div
                 v-if="expenseData.file"
-                class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+                class="w-[200px] h-[300px] rounded-lg flex justify-center items-start text-[#FF613c]"
               >
                 <img :src="expenseData.file" alt="" class="rounded-lg" />
               </div>
@@ -479,8 +479,11 @@
                   <input
                     v-model="expenseData.sender"
                     type="text"
+                    :class="
+                      expenseData.sender.includes('-') ? 'text-gray-400' : ''
+                    "
                     name=""
-                    placeholder="sender name"
+                    placeholder="MR. THIHA@KUMAR BHUSAL -"
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
@@ -493,7 +496,10 @@
                     v-model="expenseData.reciever"
                     type="text"
                     name=""
-                    placeholder="reciever name"
+                    placeholder=""
+                    :class="
+                      expenseData.reciever.includes('-') ? 'text-gray-400' : ''
+                    "
                     class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
@@ -523,7 +529,7 @@
                     <option value="company">Company</option>
                   </select>
                 </div>
-                <div class="flex justify-between items-center">
+                <!-- <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium"
                     >Bank <span class="opacity-0">.....</span></label
                   >
@@ -563,7 +569,7 @@
                     class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[160px]"
                   >
                   </textarea>
-                </div>
+                </div> -->
 
                 <div
                   class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
@@ -720,8 +726,10 @@ const openModal = (data, index) => {
     amount: data.amount,
     date: data.date,
     bank_name: data.bank_name,
-    sender: data.sender,
-    reciever: data.reciever,
+    sender: data.sender ? data.sender : "MR. THIHA@KUMAR B-",
+    reciever: data.reciever
+      ? data.reciever
+      : props.detail?.booking?.items[0]?.product?.legal_name + "-",
     interact_bank: data.interact_bank,
     is_corporate: data.is_corporate == 1 ? true : false,
     comment: data.comment,
@@ -1151,7 +1159,7 @@ const updateExpense = async (id) => {
     frmData.append("reciever", expenseData.value.reciever);
     frmData.append("interact_bank", expenseData.value.interact_bank);
     frmData.append("date", formatDateDb(expenseData.value.date));
-    frmData.append("bank_name", expenseData.value.bank_name);
+    frmData.append("bank_name", expenseData.value.bank_name ?? "others...");
     frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
     frmData.append("comment", expenseData.value.comment);
 

@@ -624,15 +624,26 @@ watch(
           </Modal>
           <Modal :isOpen="updateModalOpen" @closeModal="closeModal">
             <DialogPanel
-              class="w-full max-w-3xl transform overflow-hidden rounded-lg bg-white/70 backdrop-blur-lg p-4 text-left align-middle shadow-xl transition-all"
+              class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
             >
-              <DialogTitle
+              <!-- <DialogTitle
                 as="h3"
-                class="text-lg font-medium leading-6 text-gray-900 mb-5"
+                class="text-lg font-medium leading-6 text-gray-900 mb-5 px-4 pt-5"
+              >
+                <span class="uppercase">{{ updateData?.table_source }}</span>
+              </DialogTitle> -->
+              <DialogTitle
+                as="div"
+                class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
               >
                 <span class="uppercase">{{ updateData?.table_source }}</span>
               </DialogTitle>
-              <ReceiptEdit :updateData="updateData" @update="onChangeUpdate" />
+              <div class="p-4">
+                <ReceiptEdit
+                  :updateData="updateData"
+                  @update="onChangeUpdate"
+                />
+              </div>
             </DialogPanel>
           </Modal>
         </div>

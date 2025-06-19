@@ -29,28 +29,13 @@
           />
         </div>
       </div>
-      <!-- <div class="">
-        <p for="" class="text-[12px] font-medium pb-2">
-          Bank <span class="opacity-0">.....</span>
-        </p>
-        <select
-          name=""
-          v-model="formData.bank_name"
-          id=""
-          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-        >
-          <option value="">Select Bank</option>
-          <option :value="b.name" v-for="b in bankList" :key="b.id">
-            {{ b.name }}
-          </option>
-        </select>
-      </div> -->
 
       <div class="">
         <p for="" class="text-[12px] font-medium pb-2">Sender</p>
         <input
           type="text"
           v-model="formData.sender"
+          :class="formData.sender.includes('-') ? 'text-gray-400' : ''"
           name=""
           placeholder="xxx"
           class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
@@ -62,6 +47,7 @@
         <input
           type="text"
           v-model="formData.reciever"
+          :class="formData.reciever.includes('-') ? 'text-gray-400' : ''"
           name=""
           placeholder="xxx"
           class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
@@ -308,8 +294,16 @@ onMounted(() => {
     formData.value.id = props.updateData.id;
     formData.value.date = props.updateData.date;
     formData.value.bank_name = props.updateData.bank_name;
-    formData.value.sender = props.updateData.sender;
-    formData.value.reciever = props.updateData.reciever;
+    formData.value.sender = props.updateData.sender
+      ? props.updateData.sender
+      : props.updateData.table_source == "expense_receipt"
+      ? "MR. THIHA@KUMAR BHUSAL-"
+      : "";
+    formData.value.reciever = props.updateData.reciever
+      ? props.updateData.reciever
+      : props.updateData.table_source == "booking_receipt"
+      ? "MR. THIHA@KUMAR BHUSAL-"
+      : "";
     formData.value.interact_bank = props.updateData.interact_bank ?? "personal";
     formData.value.amount = props.updateData.amount;
     formData.value.table_source = props.updateData.table_source;

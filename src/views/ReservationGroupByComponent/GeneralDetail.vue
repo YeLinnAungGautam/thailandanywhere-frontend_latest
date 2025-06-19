@@ -185,7 +185,7 @@
                   />
                 </div>
               </div>
-              <div class="flex justify-between items-center">
+              <!-- <div class="flex justify-between items-center">
                 <label for="" class="text-[12px] font-medium">Bank </label>
                 <select
                   name=""
@@ -198,7 +198,7 @@
                     {{ b.name }}
                   </option>
                 </select>
-              </div>
+              </div> -->
 
               <div class="flex justify-between items-center">
                 <label for="" class="text-[12px] font-medium">Sender </label>
@@ -216,6 +216,9 @@
                 <input
                   v-model="formData.reciever"
                   type="text"
+                  :class="
+                    formData.reciever.includes('-') ? 'text-gray-400' : ''
+                  "
                   name=""
                   placeholder="reciever name"
                   class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
@@ -247,7 +250,7 @@
                   <option value="company">Company</option>
                 </select>
               </div>
-              <div class="flex justify-between items-center">
+              <!-- <div class="flex justify-between items-center">
                 <label for="" class="text-[12px] font-medium">Bank ? </label>
                 <div class="flex justify-start items-center space-x-2">
                   <input
@@ -268,7 +271,7 @@
                   class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[160px]"
                 >
                 </textarea>
-              </div>
+              </div> -->
               <div
                 class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
               >
@@ -391,7 +394,7 @@ const openModal = (data) => {
     date: data.date,
     bank_name: data.bank_name,
     sender: data.sender,
-    reciever: data.reciever,
+    reciever: data.reciever ? data.reciever : "MR. THIHA@KUMAR BHUSAL-",
     interact_bank: data.interact_bank,
     is_corporate: data.is_corporate == 1 ? true : false,
     comment: data.note,
@@ -580,7 +583,7 @@ const submit = async () => {
     frmData.append("_method", "PUT");
     frmData.append("amount", formData.value.amount);
     frmData.append("date", formatDateDb(formData.value.date));
-    frmData.append("bank_name", formData.value.bank_name);
+    frmData.append("bank_name", formData.value.bank_name ?? "others...");
     frmData.append("sender", formData.value.sender);
     frmData.append("reciever", formData.value.reciever);
     frmData.append("interact_bank", formData.value.interact_bank);

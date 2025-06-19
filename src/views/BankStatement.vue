@@ -624,7 +624,7 @@ watch(
           </Modal>
           <Modal :isOpen="updateModalOpen" @closeModal="closeModal">
             <DialogPanel
-              class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+              class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white/80 backdrop-blur-md text-left align-middle shadow-xl transition-all"
             >
               <!-- <DialogTitle
                 as="h3"

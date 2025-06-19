@@ -145,7 +145,7 @@
 
     <Modal :isOpen="carModalOpen" @closeModal="clearAction">
       <DialogPanel
-        class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white/80 backdrop-blur-md text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
@@ -165,9 +165,13 @@
               />
             </div>
             <div class="space-y-4 relative pt-4 pb-14 pr-2">
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Date&Time </label>
-                <div class="flex justify-between items-center w-[160px]">
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">
+                  Date <span class="opacity-0">......</span>
+                </p>
+                <div
+                  class="flex justify-between items-center w-full bg-white pl-2 rounded-lg"
+                >
                   <p class="text-start text-xs" v-if="formData?.date">
                     {{
                       formData.date.includes("T")
@@ -180,71 +184,58 @@
                     name=""
                     v-model="formData.date"
                     format="YYYY-MM-DD HH:mm:ss"
-                    class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    class="w-[35px] px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
                 </div>
               </div>
-              <!-- <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Bank </label>
-                <select
-                  name=""
-                  v-model="formData.bank_name"
-                  id=""
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                >
-                  <option value="">Select Bank</option>
-                  <option :value="b.name" v-for="b in bankList" :key="b.id">
-                    {{ b.name }}
-                  </option>
-                </select>
-              </div> -->
 
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Sender </label>
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">Sender</p>
                 <input
-                  v-model="formData.sender"
                   type="text"
+                  v-model="formData.sender"
+                  :class="formData.sender.includes('-') ? 'text-gray-400' : ''"
                   name=""
-                  placeholder="sender name"
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  placeholder="xxx"
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   id=""
                 />
               </div>
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Reciever </label>
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">Reciever</p>
                 <input
-                  v-model="formData.reciever"
                   type="text"
+                  v-model="formData.reciever"
                   :class="
                     formData.reciever.includes('-') ? 'text-gray-400' : ''
                   "
                   name=""
-                  placeholder="reciever name"
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  placeholder="xxx"
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   id=""
                 />
               </div>
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Amount</label>
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">Amount</p>
                 <input
-                  type="text"
-                  name=""
+                  type="number"
                   v-model="formData.amount"
-                  placeholder="Search CRM ID"
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  name=""
+                  placeholder="xxx"
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   id=""
                 />
               </div>
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium"
-                  >Interact Bank
-                </label>
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">
+                  Interact Bank <span class="opacity-0">.....</span>
+                </p>
                 <select
                   name=""
                   v-model="formData.interact_bank"
                   id=""
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                 >
                   <option value="personal">Personal</option>
                   <option value="company">Company</option>

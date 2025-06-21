@@ -150,6 +150,20 @@ onMounted(async () => {
   product_type.value = setProductType();
 });
 
+const total = computed(() => {
+  let total = 0;
+
+  if (reservations.value && reservations.value.data) {
+    for (let i = 0; i < reservations.value.data.length; i++) {
+      total +=
+        reservations.value?.data[i]?.amount * 1 -
+        reservations.value?.data[i]?.total_cost_price * 1;
+    }
+  }
+
+  return total;
+});
+
 // Watch date_range changes
 watch(
   [date_range, product_type, payment_status],
@@ -244,6 +258,12 @@ watch(
             <option value="fully_paid">Fully Paid</option>
             <option value="not_paid">Not Paid</option>
           </select>
+          <div class="w-full text-end">
+            <p class="text-sm">
+              Total :
+              <span class="text-[#FF613c] font-semibold">{{ total }}</span>
+            </p>
+          </div>
         </div>
 
         <div class="grid grid-cols-3 gap-4">
@@ -289,13 +309,13 @@ watch(
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    Income
+                    E. Status
                   </th>
                   <th
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    p. Verified
+                    Income
                   </th>
                   <th
                     scope="col"
@@ -307,14 +327,22 @@ watch(
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    E.Verified
+                    Profit
                   </th>
                   <th
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    Profit
+                    p. Verified
                   </th>
+
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    E.Verified
+                  </th>
+
                   <th
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
@@ -381,9 +409,33 @@ watch(
                   </td>
                   <td
                     scope="col"
+                    class="text-[10px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                    :class="{
+                      'text-green-600': item?.payment_status == 'fully_paid',
+                      'text-yellow-600':
+                        item?.payment_status == 'partially_paid',
+                      'text-red-600': item?.payment_status == 'not_paid',
+                    }"
+                  >
+                    {{ item?.payment_status }}
+                  </td>
+                  <td
+                    scope="col"
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
                     {{ item?.amount }}
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    {{ item?.total_cost_price }}
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    {{ item?.amount * 1 - item?.total_cost_price * 1 }}
                   </td>
                   <td
                     scope="col"
@@ -402,24 +454,14 @@ watch(
                       {{ item?.booking?.verify_status }}
                     </p>
                   </td>
-                  <td
-                    scope="col"
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                  >
-                    {{ item?.total_cost_price }}
-                  </td>
+
                   <td
                     scope="col"
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
                     -
                   </td>
-                  <td
-                    scope="col"
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                  >
-                    {{ item?.amount * 1 - item?.total_cost_price * 1 }}
-                  </td>
+
                   <td
                     scope="col"
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"

@@ -82,7 +82,7 @@
         </div>
         <div class="flex justify-between items-center col-span-2">
           <p class="text-lg font-medium">{{ show ? "Sales" : "Expense" }}</p>
-          <div class="flex justify-between items-center" v-if="show">
+          <div class="flex justify-between items-center">
             <div class="flex justify-start items-center gap-x-2">
               <p class="px-4 py-2 text-xs bg-gray-300 text-white rounded-lg">
                 Raise Sale Issue
@@ -101,13 +101,13 @@
               </p>
             </div>
           </div>
-          <div class="flex justify-between items-center" v-if="!show">
+          <!-- <div class="flex justify-between items-center" v-if="!show">
             <div class="flex justify-start items-center gap-x-2">
               <p class="px-4 py-2 text-xs bg-red-500 text-white rounded-lg">
                 Raise Cost Issue
               </p>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
       <div
@@ -239,7 +239,7 @@
         </div>
         <div class="col-span-2">
           <div class="p-3 rounded-lg border border-gray-200" v-if="!show">
-            <VerifyExpense />
+            <VerifyExpense :data="detailVal" />
           </div>
           <div class="p-3 rounded-lg border border-gray-200" v-if="show">
             <VerifySale :data="detailVal" />

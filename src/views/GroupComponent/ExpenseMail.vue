@@ -82,7 +82,7 @@
                 <XCircleIcon class="w-6 h-6 font-semibold" />
               </button>
               <img class="h-auto w-full rounded" :src="image.file" alt="" />
-              <p class="text-xs">{{ image.meta.name }}</p>
+              <p class="text-xs">{{ image?.meta?.amount }}</p>
             </div>
           </div>
         </div>

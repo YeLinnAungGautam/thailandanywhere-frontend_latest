@@ -92,7 +92,7 @@
           Invoice Detail
         </p>
         <div class="grid grid-cols-2 h-[45vh] overflow-y-auto px-4 gap-4">
-          <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-4 col-span-2">
             <div>
               <p class="text-xs pb-1.5 font-medium">Company Name (Sender) *</p>
               <select
@@ -152,6 +152,173 @@
                 />
               </div>
             </div>
+            <div>
+              <p class="text-xs pb-1.5 font-medium">Amount</p>
+              <input
+                type="number"
+                v-model="formData.amount"
+                name=""
+                placeholder="xxxx"
+                class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
+                id=""
+              />
+            </div>
+            <!-- Product Type -->
+            <div>
+              <p class="text-xs pb-1.5 font-medium">Product Type *</p>
+              <select
+                v-model="formData.product_type"
+                class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20 focus:border-[#FF613c] disabled:bg-gray-50 disabled:cursor-not-allowed"
+                required
+              >
+                <option value="">Select product type</option>
+                <option value="App\Models\Hotel">Hotel</option>
+                <option value="App\Models\EntranceTicket">
+                  Entrance Ticket
+                </option>
+              </select>
+            </div>
+
+            <!-- Product Name with Search -->
+            <div>
+              <p class="text-xs pb-1.5 font-medium">Product Name *</p>
+              <input
+                v-model="formData.product_name"
+                type="text"
+                placeholder="Auto-filled from product"
+                :disabled="true"
+                class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full bg-gray-100 cursor-not-allowed"
+                readonly
+              />
+            </div>
+
+            <!-- Company Legal Name (Auto-filled) -->
+            <div>
+              <p class="text-xs pb-1.5 font-medium">Company Legal Name</p>
+              <input
+                v-model="formData.company_legal_name"
+                type="text"
+                placeholder="Auto-filled from product"
+                :disabled="true"
+                class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full bg-gray-100 cursor-not-allowed"
+                readonly
+              />
+            </div>
+
+            <!-- Receipt Date -->
+            <div>
+              <p class="text-xs pb-1.5 font-medium">Receipt Date</p>
+              <div
+                class="flex justify-between border text-xs border-gray-200 pl-4 items-center rounded-lg w-full focus-within:ring-2 focus-within:ring-[#FF613c]/20 focus-within:border-[#FF613c]"
+              >
+                <p class="text-start text-xs" v-if="formData?.receipt_date">
+                  {{
+                    formData.receipt_date.includes("T")
+                      ? formatDate(formData.receipt_date)
+                      : formatDateFromDb(formData.receipt_date)
+                  }}
+                </p>
+                <p></p>
+                <input
+                  type="datetime-local"
+                  v-model="formData.receipt_date"
+                  :disabled="loading.action"
+                  format="YYYY-MM-DD HH:mm:ss"
+                  class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs disabled:bg-gray-50 disabled:cursor-not-allowed"
+                />
+              </div>
+            </div>
+
+            <!-- Service Start Date -->
+            <div>
+              <p class="text-xs pb-1.5 font-medium">Service Start Date</p>
+              <div
+                class="flex justify-between border text-xs border-gray-200 pl-4 items-center rounded-lg w-full focus-within:ring-2 focus-within:ring-[#FF613c]/20 focus-within:border-[#FF613c]"
+              >
+                <p
+                  class="text-start text-xs"
+                  v-if="formData?.service_start_date"
+                >
+                  {{
+                    formData.service_start_date.includes("T")
+                      ? formatDate(formData.service_start_date)
+                      : formatDateFromDb(formData.service_start_date)
+                  }}
+                </p>
+                <p></p>
+                <input
+                  type="datetime-local"
+                  v-model="formData.service_start_date"
+                  :disabled="loading.action"
+                  format="YYYY-MM-DD HH:mm:ss"
+                  class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs disabled:bg-gray-50 disabled:cursor-not-allowed"
+                />
+              </div>
+            </div>
+
+            <!-- Service End Date -->
+            <div>
+              <p class="text-xs pb-1.5 font-medium">Service End Date</p>
+              <div
+                class="flex justify-between border text-xs border-gray-200 pl-4 items-center rounded-lg w-full focus-within:ring-2 focus-within:ring-[#FF613c]/20 focus-within:border-[#FF613c]"
+              >
+                <p class="text-start text-xs" v-if="formData?.service_end_date">
+                  {{
+                    formData.service_end_date.includes("T")
+                      ? formatDate(formData.service_end_date)
+                      : formatDateFromDb(formData.service_end_date)
+                  }}
+                </p>
+                <p></p>
+                <input
+                  type="datetime-local"
+                  v-model="formData.service_end_date"
+                  :disabled="loading.action"
+                  format="YYYY-MM-DD HH:mm:ss"
+                  class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs disabled:bg-gray-50 disabled:cursor-not-allowed"
+                />
+              </div>
+            </div>
+
+            <!-- Total Tax Withheld -->
+            <div>
+              <p class="text-xs pb-1.5 font-medium">Total Tax Withheld</p>
+              <input
+                type="number"
+                step="0.01"
+                v-model="formData.total_tax_withold"
+                placeholder="Enter tax withheld amount"
+                :disabled="loading.action"
+                class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20 focus:border-[#FF613c] disabled:bg-gray-50 disabled:cursor-not-allowed"
+              />
+            </div>
+
+            <!-- Total Tax Amount -->
+            <div>
+              <p class="text-xs pb-1.5 font-medium">Total Before Tax</p>
+              <input
+                type="number"
+                step="0.01"
+                v-model="formData.total_before_tax"
+                placeholder="Enter tax amount"
+                :disabled="loading.action"
+                class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20 focus:border-[#FF613c] disabled:bg-gray-50 disabled:cursor-not-allowed"
+              />
+            </div>
+
+            <!-- Total After Tax (Auto-calculated) -->
+            <div>
+              <p class="text-xs pb-1.5 font-medium">Total After Tax</p>
+              <input
+                type="number"
+                step="0.01"
+                v-model="formData.total_after_tax"
+                placeholder="Auto-calculated"
+                :disabled="true"
+                class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full bg-gray-100 cursor-not-allowed"
+                readonly
+              />
+            </div>
             <div class="col-span-2" v-if="!formData.id">
               <label for="" class="text-[12px] font-medium">For Which ? </label>
               <div>
@@ -179,18 +346,7 @@
               </div>
             </div>
           </div>
-          <div class="space-y-4">
-            <div>
-              <p class="text-xs pb-1.5 font-medium">Amount</p>
-              <input
-                type="number"
-                v-model="formData.amount"
-                name=""
-                placeholder="xxxx"
-                class="border text-xs border-gray-200 px-4 py-3 rounded-lg w-full"
-                id=""
-              />
-            </div>
+          <div class="space-y-4 col-span-2">
             <!-- <div
               class="flex justify-center text-[#FF613c] w-full h-[150px] border-dotted items-center border-2 border-[#FF613c] rounded-lg"
             >
@@ -268,6 +424,7 @@ import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute } from "vue-router";
 import { CheckCircleIcon, PlusCircleIcon } from "@heroicons/vue/24/solid";
+import { watch } from "vue";
 
 const reservationStore = useReservationStore();
 const toast = useToast();
@@ -295,6 +452,16 @@ const formData = ref({
   due_date: "",
   customer: "",
   sender_name: "",
+  product_type: "",
+  product_id: "",
+  product_name: "",
+  company_legal_name: "",
+  receipt_date: "",
+  service_start_date: "",
+  service_end_date: "",
+  total_tax_withold: "",
+  total_before_tax: "",
+  total_after_tax: "",
 });
 
 const booking_status = ref("");
@@ -357,6 +524,16 @@ const closeAction = async () => {
     due_date: "",
     customer: "",
     sender_name: "",
+    product_type: "",
+    product_id: "",
+    product_name: "",
+    company_legal_name: "",
+    receipt_date: "",
+    service_start_date: "",
+    service_end_date: "",
+    total_tax_withold: "",
+    total_before_tax: "",
+    total_after_tax: "",
   };
   featureImagePreview.value = null;
   // carModalOpen.value = false;
@@ -388,6 +565,22 @@ const openPassportModal = (data) => {
     formData.value.sender_name = data.sender_name
       ? data.sender_name
       : props?.detail?.product?.legal_name;
+    formData.value.product_type = route.path.includes("reservation-hotel")
+      ? "App\\Models\\Hotel"
+      : "App\\Models\\EntranceTicket";
+    formData.value.product_id = data.product_id
+      ? data.product_id
+      : props?.detail?.booking.items[0].product?.id;
+    formData.value.product_name = props.detail?.booking.items[0].product?.name;
+    formData.value.company_legal_name = data.company_legal_name
+      ? data.company_legal_name
+      : props?.detail?.booking.items[0].product?.legal_name;
+    formData.value.receipt_date = data.receipt_date;
+    formData.value.service_start_date = data.service_start_date;
+    formData.value.service_end_date = data.service_end_date;
+    formData.value.total_tax_withold = data.total_tax_withold;
+    formData.value.total_before_tax = data.total_before_tax;
+    formData.value.total_after_tax = data.total_after_tax;
   } else {
     formData.value = {
       id: "",
@@ -560,6 +753,16 @@ const addInvoiceAction = async (id) => {
   frmData.append("due_date", formatDateDb(formData.value.due_date));
   frmData.append("customer", formData.value.customer);
   frmData.append("sender_name", formData.value.sender_name);
+  frmData.append("product_type", formData.value.product_type);
+  frmData.append("product_id", formData.value.product_id);
+  frmData.append("company_legal_name", formData.value.company_legal_name);
+  frmData.append("receipt_date", formData.value.receipt_date);
+  frmData.append("service_start_date", formData.value.service_start_date);
+  frmData.append("service_end_date", formData.value.service_end_date);
+  frmData.append("total_tax_withold", formData.value.total_tax_withold);
+  frmData.append("total_before_tax", formData.value.total_before_tax);
+  frmData.append("total_after_tax", formData.value.total_after_tax);
+  frmData.append("total", formData.value.total_after_tax);
 
   frmData.append("file", editData.value.car_photo);
 
@@ -578,6 +781,22 @@ const addInvoiceUpdateAction = async (id) => {
   frmData.append("due_date", formatDateDb(formData.value.due_date));
   frmData.append("customer", formData.value.customer);
   frmData.append("sender_name", formData.value.sender_name);
+  frmData.append("product_type", formData.value.product_type);
+  frmData.append("product_id", formData.value.product_id);
+  frmData.append("company_legal_name", formData.value.company_legal_name);
+  frmData.append("receipt_date", formatDateDb(formData.value.receipt_date));
+  frmData.append(
+    "service_start_date",
+    formatDateDb(formData.value.service_start_date)
+  );
+  frmData.append(
+    "service_end_date",
+    formatDateDb(formData.value.service_end_date)
+  );
+  frmData.append("total_tax_withold", formData.value.total_tax_withold);
+  frmData.append("total_before_tax", formData.value.total_before_tax);
+  frmData.append("total_after_tax", formData.value.total_after_tax);
+  frmData.append("total", formData.value.total_after_tax);
   // if (
   //   (props.detail?.product_type == "App\\Models\\EntranceTicket" ||
   //     props.detail?.product_type == "App\\Models\\Hotel") &&
@@ -645,11 +864,57 @@ onMounted(() => {
               : props?.detail?.booking?.items[i].product?.legal_name,
             file: props.detail?.booking?.items[i].booking_confirm_letters[a]
               .file,
+            receipt_date:
+              props.detail?.booking?.items[i].booking_confirm_letters[a]
+                .receipt_date,
+            service_start_date:
+              props.detail?.booking?.items[i].booking_confirm_letters[a]
+                .service_start_date,
+            service_end_date:
+              props.detail?.booking?.items[i].booking_confirm_letters[a]
+                .service_end_date,
+            total_tax_withold:
+              props.detail?.booking?.items[i].booking_confirm_letters[a]
+                .total_tax_withold,
+            total_before_tax:
+              props.detail?.booking?.items[i].booking_confirm_letters[a]
+                .total_before_tax,
+            total_after_tax:
+              props.detail?.booking?.items[i].booking_confirm_letters[a]
+                .total_after_tax,
+            total:
+              props.detail?.booking?.items[i].booking_confirm_letters[a].total,
+            product_type: props.detail?.booking?.items[i].product_type,
+            product_id: props.detail?.booking?.items[i].product_id,
+            product_name: props.detail?.booking?.items[i].product?.name,
+            company_legal_name:
+              props.detail?.booking?.items[i].product?.legal_name,
           });
         }
       }
     }
+    formData.value.product_type = route.path.includes("reservation-hotel")
+      ? "App\\Models\\Hotel"
+      : "App\\Models\\EntranceTicket";
+    formData.value.product_id = props?.detail?.booking?.items[0]?.product?.id;
+    formData.value.product_name =
+      props?.detail?.booking?.items[0]?.product?.name;
+    formData.value.company_legal_name =
+      props?.detail?.booking?.items[0]?.product?.legal_name;
     loading.value = false;
   }
 });
+
+watch(
+  () => [formData.value.total_tax_withold, formData.value.total_before_tax],
+  ([withheld, amount]) => {
+    // Auto-calculate total after tax
+    if (withheld != null && amount != null) {
+      formData.value.total_after_tax = Number(amount) + Number(withheld);
+    } else {
+      formData.value.total_after_tax = 0;
+    }
+  },
+  { immediate: true, deep: true }
+);
 </script>

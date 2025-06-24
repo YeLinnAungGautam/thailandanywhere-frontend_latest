@@ -2,7 +2,10 @@
   <div>
     <div class="flex justify-between items-center">
       <div class="w-full pt-2.5 items-center col-span-2">
-        <div class="flex justify-end items-center space-x-2 pb-2">
+        <div class="flex justify-between items-center space-x-2 pb-2">
+          <p class="text-xs text-gray-500">
+            If expense step isn't green, please update again !
+          </p>
           <p
             v-if="!emailBooking"
             @click="expenseUpdateAction"

@@ -1,3 +1,346 @@
+<template>
+  <Layout :is_white="true" class="relative">
+    <div
+      :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
+      class="space-x-8 col-span-3 flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
+    >
+      <p
+        class="text-2xl flex justify-start items-center font-medium text-[#FF613c]"
+      >
+        Bank Statement
+        <span
+          class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
+        ></span>
+        <span>{{ year }}</span>
+        <span
+          class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
+        ></span>
+        <span>{{ monthArray.find((m) => m.id == selectedMonth)?.name }}</span>
+      </p>
+    </div>
+
+    <div class="">
+      <!-- Filters and Search -->
+      <div class="pb-4 space-y-3">
+        <!-- Date and Type Filters -->
+        <div class="flex justify-start space-x-2 items-center">
+          <p
+            @click="filterType = 'all'"
+            class="px-5 py-2.5 rounded-lg text-xs"
+            :class="
+              filterType == 'all'
+                ? 'bg-[#FF613c] text-white'
+                : ' border border-[#FF613x]'
+            "
+          >
+            All
+          </p>
+          <p
+            @click="filterType = 'complete'"
+            class="px-5 py-2.5 rounded-lg text-xs"
+            :class="
+              filterType == 'complete'
+                ? 'bg-[#FF613c] text-white'
+                : ' border border-[#FF613x]'
+            "
+          >
+            Complete
+          </p>
+          <p
+            @click="filterType = 'missing'"
+            class="px-5 py-2.5 rounded-lg text-xs"
+            :class="
+              filterType == 'missing'
+                ? 'bg-[#FF613c] text-white'
+                : ' border border-[#FF613x]'
+            "
+          >
+            Missing
+          </p>
+          <YearPickerVue @year-change="handleYearChange" />
+          <select
+            v-model="selectedMonth"
+            @change="handleMonthChange(selectedMonth)"
+            class="px-3 text-black text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none"
+          >
+            <option :value="m.id" v-for="m in monthArray" :key="m.id">
+              {{ m.name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Search Filters -->
+        <div class="flex space-x-2 items-center">
+          <div class="relative">
+            <input
+              v-model="senderSearch"
+              type="text"
+              placeholder="Search by sender..."
+              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+            />
+          </div>
+          <div class="relative">
+            <input
+              v-model="crmSearch"
+              type="text"
+              placeholder="Search by crm..."
+              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+            />
+          </div>
+          <div class="relative">
+            <input
+              v-model="bankNameSearch"
+              type="text"
+              placeholder="Search by bank name..."
+              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+            />
+          </div>
+          <div class="relative">
+            <input
+              v-model="amountSearch"
+              type="number"
+              placeholder="Search by amount..."
+              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+            />
+          </div>
+          <div class="relative">
+            <select
+              name=""
+              v-model="interactSearch"
+              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+              id=""
+            >
+              <option value="">Search by interact bank</option>
+              <option value="personal">Personal</option>
+              <option value="company">Company</option>
+            </select>
+          </div>
+          <button
+            @click="clearSearch"
+            class="px-3 py-2 text-xs bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Card Layout -->
+      <div class="space-y-6">
+        <!-- Loading State -->
+        <div v-if="loading" class="text-center py-10">
+          <div
+            class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF613c]"
+          ></div>
+          <p class="mt-2 text-gray-600">Loading transactions...</p>
+        </div>
+
+        <!-- No Data State -->
+        <div
+          v-else-if="!receipts?.data || receipts.data.length === 0"
+          class="text-center py-10"
+        >
+          <div class="text-gray-400 text-6xl mb-4">📄</div>
+          <p class="text-gray-600">No receipts found</p>
+        </div>
+
+        <!-- Transaction Groups by Date -->
+        <div v-else>
+          <div
+            v-for="(group, date) in groupedReceipts"
+            :key="date"
+            class="mb-6 bg-white rounded-2xl shadow-sm overflow-hidden"
+          >
+            <!-- Date Header -->
+            <div class="pb-3">
+              <h3 class="text-lg font-semibold text-gray-800">
+                {{ formatDateHeader(date) }}
+              </h3>
+              <p class="text-sm text-gray-500 mt-1">
+                {{ group.length }} transaction{{ group.length > 1 ? "s" : "" }}
+              </p>
+            </div>
+
+            <!-- Transaction Cards -->
+            <div class="space-y-2">
+              <div
+                v-for="item in group"
+                :key="item.id"
+                @click="toggleExpand(item.id)"
+                class="px-6 py-4 hover:bg-gray-100 bg-gray-50 cursor-pointer transition-colors duration-150"
+              >
+                <div class="flex justify-between items-start">
+                  <!-- Left Side - Transaction Info -->
+                  <div class="flex-1">
+                    <div class="flex items-center mb-2">
+                      <h4 class="font-semibold text-gray-900 text-base">
+                        {{ getTransactionType(item) }}
+                      </h4>
+                    </div>
+
+                    <div class="text-sm text-gray-500 mb-2">
+                      {{
+                        formatTime(item.time) || extractTime(item.date) || "-"
+                      }}
+                    </div>
+
+                    <!-- Transaction Details -->
+                    <div
+                      class="space-y-1 text-sm text-gray-600"
+                      v-if="expandedItems[item.id]"
+                    >
+                      <div
+                        v-if="item?.sender && item.sender !== 'null'"
+                        class="flex items-center"
+                      >
+                        <span class="text-gray-400 mr-2">•</span>
+                        <span>From: {{ item.sender }}</span>
+                      </div>
+                      <div
+                        v-if="item?.reciever && item.reciever !== 'null'"
+                        class="flex items-center"
+                      >
+                        <span class="text-gray-400 mr-2">•</span>
+                        <span>To: {{ item.reciever }}</span>
+                      </div>
+                      <div
+                        v-if="item?.bank_name && item.bank_name !== 'null'"
+                        class="flex items-center"
+                      >
+                        <span class="text-gray-400 mr-2">•</span>
+                        <span>Bank: {{ item.bank_name }}</span>
+                      </div>
+                      <div v-if="item?.crm_id" class="flex items-center">
+                        <span class="text-gray-400 mr-2">•</span>
+                        <span>CRM: {{ item.crm_id }}</span>
+                      </div>
+                      <div class="pt-3">
+                        <span
+                          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+                          :class="getTransactionBadgeClass(item)"
+                        >
+                          {{
+                            item?.table_source === "booking_receipt"
+                              ? "Booking"
+                              : "Expense"
+                          }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Transaction Type Badge -->
+                  </div>
+
+                  <!-- Right Side - Amount and Actions -->
+                  <div class="text-right ml-6">
+                    <p
+                      class="font-bold text-lg mb-3"
+                      :class="getAmountColorClass(item)"
+                    >
+                      {{ formatTransactionAmount(item) }}
+                    </p>
+
+                    <!-- Expand Arrow -->
+                    <button
+                      @click="toggleExpand(item.id)"
+                      class="text-gray-400 hover:text-gray-600 mb-3"
+                    >
+                      <svg
+                        class="w-5 h-5 transform transition-transform"
+                        :class="{ 'rotate-180': expandedItems[item.id] }"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M19 9l-7 7-7-7"
+                        ></path>
+                      </svg>
+                    </button>
+
+                    <!-- Action Buttons (shown when expanded) -->
+                    <div
+                      v-if="expandedItems[item.id]"
+                      class="flex space-x-1 justify-end"
+                    >
+                      <button
+                        v-if="item?.file_url"
+                        @click="viewReceipt(item)"
+                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="View Receipt"
+                      >
+                        <EyeIcon class="w-4 h-4" />
+                      </button>
+                      <button
+                        @click="goToView(item)"
+                        class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        title="View Details"
+                      >
+                        <MagnifyingGlassIcon class="w-4 h-4" />
+                      </button>
+                      <button
+                        @click="update(item)"
+                        class="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                        title="Edit"
+                      >
+                        <PencilSquareIcon class="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-8">
+          <Pagination
+            v-if="!loading && receipts?.data?.length > 0"
+            :data="receipts"
+            @change-page="changePage"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <Modal :isOpen="placeholderFile != ''" @closeModal="placeholderFile = ''">
+      <DialogPanel
+        class="w-full max-w-md transform overflow-hidden rounded-xl bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-5"
+        >
+          Receipt
+        </DialogTitle>
+        <div>
+          <img :src="placeholderFile" alt="Receipt" class="w-full rounded-lg" />
+        </div>
+      </DialogPanel>
+    </Modal>
+
+    <Modal :isOpen="updateModalOpen" @closeModal="closeModal">
+      <DialogPanel
+        class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white/95 backdrop-blur-md text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-3 px-4 rounded-t-xl"
+        >
+          <span class="uppercase">{{ updateData?.table_source }}</span>
+        </DialogTitle>
+        <div class="p-4">
+          <ReceiptEdit :updateData="updateData" @update="onChangeUpdate" />
+        </div>
+      </DialogPanel>
+    </Modal>
+  </Layout>
+</template>
+
 <script setup>
 import { storeToRefs } from "pinia";
 import { useSidebarStore } from "../stores/sidebar";
@@ -27,7 +370,7 @@ import ReceiptEdit from "./ReceiptEdit.vue";
 const sideBarStore = useSidebarStore();
 const toast = useToast();
 const { isShowSidebar } = storeToRefs(sideBarStore);
-const bookingReceiptStore = useBookingReceiptStore(); // Updated store
+const bookingReceiptStore = useBookingReceiptStore();
 const reservationStore = useReservationStore();
 const route = useRoute();
 const authStore = useAuthStore();
@@ -35,12 +378,15 @@ const { receipts, loading } = storeToRefs(bookingReceiptStore);
 
 // Search and filter states
 const date_range = ref("");
-const filterType = ref("all"); // complete, missing, incomplete
+const filterType = ref("all");
 const senderSearch = ref("");
 const crmSearch = ref("");
 const bankNameSearch = ref("");
 const amountSearch = ref("");
 const interactSearch = ref("");
+
+// Expanded items for mobile view
+const expandedItems = ref({});
 
 // Set current year and month
 const currentDate = new Date();
@@ -62,7 +408,107 @@ const monthArray = [
   { id: 12, name: "December" },
 ];
 
-// Function to generate date range string for a specific month
+// Group receipts by date
+const groupedReceipts = computed(() => {
+  if (!receipts.value?.data) return {};
+
+  const groups = {};
+  const sortedData = [...receipts.value.data].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
+
+  sortedData.forEach((item) => {
+    const date = item.date ? item.date.split(" ")[0] : "Unknown Date";
+    const time =
+      item.date && item.date.includes(" ") ? item.date.split(" ")[1] : null;
+    const itemWithTime = { ...item, time };
+
+    if (!groups[date]) {
+      groups[date] = [];
+    }
+    groups[date].push(itemWithTime);
+  });
+
+  return groups;
+});
+
+// Helper functions
+const formatDateHeader = (dateString) => {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = date.toLocaleDateString("en-US", { month: "short" });
+  const year = date.getFullYear().toString().slice(-2);
+  return `${day} ${month} ${year}`;
+};
+
+// Add this with your other helper functions
+const formatTime = (timeString) => {
+  if (!timeString) return "-";
+
+  // Extract hours, minutes, seconds
+  const [hours, minutes] = timeString.split(":");
+
+  // Convert to 12-hour format
+  const hour = parseInt(hours, 10);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  const hour12 = hour % 12 || 12; // Convert 0 to 12 for 12 AM
+
+  // Remove leading zero from hour if needed
+  const displayHour = hour12 < 10 ? hour12.toString() : hour12;
+
+  return `${displayHour}:${minutes} ${ampm}`;
+};
+
+const extractTime = (dateString) => {
+  if (!dateString) return null;
+  if (dateString.includes(" ")) {
+    return dateString.split(" ")[1];
+  }
+  return null;
+};
+
+const getTransactionType = (item) => {
+  if (item.table_source === "booking_receipt")
+    return item.sender != "null" && item.sender
+      ? item.sender
+      : "Booking Payment";
+  if (item.interact_bank === "personal")
+    return item.reciever != "null" && item.reciever
+      ? item.reciever
+      : "Expense Transfer";
+  if (item.interact_bank === "company") return "Company Transfer";
+  return item.sender || "Transfer Withdrawal";
+};
+
+const getTransactionBadgeClass = (item) => {
+  if (item?.table_source === "booking_receipt") {
+    return "bg-green-100 text-green-800";
+  }
+  return "bg-red-100 text-red-800";
+};
+
+const getAmountColorClass = (item) => {
+  if (item?.table_source === "booking_receipt") {
+    return "text-green-600";
+  }
+  return "text-red-600";
+};
+
+const formatTransactionAmount = (item) => {
+  const amount = item?.amount;
+  if (!amount) return "-";
+
+  const formattedAmount = new Intl.NumberFormat("en-US").format(amount);
+  const prefix = item?.table_source === "booking_receipt" ? "+" : "-";
+
+  return `${prefix}${formattedAmount} Baht`;
+};
+
+const toggleExpand = (itemId) => {
+  expandedItems.value[itemId] = !expandedItems.value[itemId];
+};
+
+// Your existing functions...
 const generateDateRangeForMonth = (month, yearValue) => {
   const startDate = new Date(yearValue, month - 1, 1);
   const endDate = new Date(yearValue, month, 0);
@@ -77,12 +523,10 @@ const generateDateRangeForMonth = (month, yearValue) => {
   return `${formatDate(startDate)},${formatDate(endDate)}`;
 };
 
-// Set date range based on month and year
 const setMonthDateRange = (month, yearValue) => {
   date_range.value = generateDateRangeForMonth(month, yearValue);
 };
 
-// Computed search parameters for API
 const searchParams = computed(() => {
   let params = {};
 
@@ -96,7 +540,6 @@ const searchParams = computed(() => {
     params.type = "all";
   }
 
-  // Add specific search parameters
   if (senderSearch.value) {
     params.sender = senderSearch.value;
   }
@@ -120,29 +563,24 @@ const searchParams = computed(() => {
   return params;
 });
 
-// Get receipts action
 const getAction = async () => {
   await bookingReceiptStore.getListAction(searchParams.value);
 };
 
-// Handle pagination
 const changePage = async (url) => {
   await bookingReceiptStore.getChangePage(url, searchParams.value);
 };
 
-// Handle year change
 const handleYearChange = (message) => {
   year.value = message;
   setMonthDateRange(selectedMonth.value, year.value);
 };
 
-// Handle month change
 const handleMonthChange = (month) => {
   selectedMonth.value = month;
   setMonthDateRange(month, year.value);
 };
 
-// Clear all search filters
 const clearSearch = () => {
   senderSearch.value = "";
   crmSearch.value = "";
@@ -150,48 +588,27 @@ const clearSearch = () => {
   amountSearch.value = "";
   interactSearch.value = "";
   filterType.value = "";
-  // date_range.value = "";
 };
 
-// View receipt file
 const placeholderFile = ref("");
 const viewReceipt = (item) => {
   if (item.file_url) {
-    // window.open(item.file_url, "_blank");
     placeholderFile.value = item.file_url;
-    console.log("====================================");
-    console.log(placeholderFile.value);
-    console.log("====================================");
   } else {
     toast.warning("No receipt file available");
   }
 };
 
-// Format amount display
 const formatAmount = (amount) => {
   if (!amount) return "-";
   return new Intl.NumberFormat("en-US").format(amount);
 };
 
-// Get badge color for receipt type
-const getTypeBadgeColor = (type) => {
-  switch (type) {
-    case "customer_payment":
-      return "bg-green-100 text-green-800";
-    case "expense":
-      return "bg-red-100 text-red-800";
-    default:
-      return "bg-gray-100 text-gray-800";
-  }
-};
-
 const goToView = async (data) => {
-  console.log(data);
   if (data.table_source == "booking_receipt") {
     router.push(`bookings/new-update/${data?.booking_id}`);
   } else {
     const res = await reservationStore.getDetailAction(data?.booking_id);
-    // console.log(res);
     if (res.result) {
       if (res.result.product_type == "App\\Models\\EntranceTicket") {
         router.push(
@@ -209,6 +626,7 @@ const goToView = async (data) => {
     }
   }
 };
+
 const updateModalOpen = ref(false);
 const updateData = ref({
   id: "",
@@ -221,8 +639,8 @@ const updateData = ref({
   interact_bank: "",
   table_source: "",
 });
+
 const update = (data) => {
-  console.log(data, "this is update");
   updateModalOpen.value = true;
   updateData.value.id = data.id;
   updateData.value.date = data.date;
@@ -234,6 +652,7 @@ const update = (data) => {
   updateData.value.table_source = data.table_source;
   updateData.value.file = data.file_url;
 };
+
 const closeModal = () => {
   updateModalOpen.value = false;
   updateData.value = {
@@ -248,8 +667,8 @@ const closeModal = () => {
     file: "",
   };
 };
+
 const onChangeUpdate = async (message) => {
-  console.log(message);
   closeModal();
   await getAction();
 };
@@ -264,7 +683,6 @@ onMounted(async () => {
   await getAction();
 });
 
-// Watch for changes and debounce API calls
 watch(
   [
     date_range,
@@ -280,374 +698,3 @@ watch(
   }, 500)
 );
 </script>
-
-<template>
-  <Layout :is_white="true" class="relative">
-    <div
-      :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
-      class="space-x-8 col-span-3 flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
-    >
-      <p
-        class="text-2xl flex justify-start items-center font-medium text-[#FF613c]"
-      >
-        Bank Statement
-        <span
-          class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
-        ></span>
-        <span>{{ year }}</span>
-        <span
-          class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
-        ></span>
-        <span>{{ monthArray.find((m) => m.id == selectedMonth)?.name }}</span>
-      </p>
-    </div>
-
-    <div class="grid grid-cols-5 gap-4">
-      <div class="col-span-5">
-        <!-- Filters and Search -->
-        <div class="pb-4 space-y-3">
-          <!-- Date and Type Filters -->
-          <div class="flex justify-start space-x-2 items-center">
-            <p
-              @click="filterType = 'all'"
-              class="px-5 py-2.5 rounded-lg text-xs"
-              :class="
-                filterType == 'all'
-                  ? 'bg-[#FF613c] text-white'
-                  : ' border border-[#FF613x]'
-              "
-            >
-              All
-            </p>
-            <p
-              @click="filterType = 'complete'"
-              class="px-5 py-2.5 rounded-lg text-xs"
-              :class="
-                filterType == 'complete'
-                  ? 'bg-[#FF613c] text-white'
-                  : ' border border-[#FF613x]'
-              "
-            >
-              Complete
-            </p>
-            <p
-              @click="filterType = 'missing'"
-              class="px-5 py-2.5 rounded-lg text-xs"
-              :class="
-                filterType == 'missing'
-                  ? 'bg-[#FF613c] text-white'
-                  : ' border border-[#FF613x]'
-              "
-            >
-              Missing
-            </p>
-            <YearPickerVue @year-change="handleYearChange" />
-            <select
-              v-model="selectedMonth"
-              @change="handleMonthChange(selectedMonth)"
-              class="px-3 text-black text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none"
-            >
-              <option :value="m.id" v-for="m in monthArray" :key="m.id">
-                {{ m.name }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Search Filters -->
-          <div class="flex space-x-2 items-center">
-            <div class="relative">
-              <input
-                v-model="senderSearch"
-                type="text"
-                placeholder="Search by sender..."
-                class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
-              />
-            </div>
-            <div class="relative">
-              <input
-                v-model="crmSearch"
-                type="text"
-                placeholder="Search by crm..."
-                class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
-              />
-            </div>
-            <div class="relative">
-              <input
-                v-model="bankNameSearch"
-                type="text"
-                placeholder="Search by bank name..."
-                class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
-              />
-            </div>
-            <div class="relative">
-              <input
-                v-model="amountSearch"
-                type="number"
-                placeholder="Search by amount..."
-                class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
-              />
-            </div>
-            <div class="relative">
-              <select
-                name=""
-                v-model="interactSearch"
-                class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
-                id=""
-              >
-                <option value="">Search by interact bank</option>
-                <option value="personal">Personal</option>
-                <option value="company">Company</option>
-              </select>
-            </div>
-            <button
-              @click="clearSearch"
-              class="px-3 py-2 text-xs bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors"
-            >
-              Clear
-            </button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-3 gap-4">
-          <div class="overflow-x-auto col-span-3">
-            <table
-              class="w-full text-sm text-left text-gray-500 mb-4 dark:text-gray-400 rounded overflow-hidden"
-            >
-              <thead
-                class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-[#FF613c] dark:text-gray-100"
-              >
-                <tr>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    ID
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    Source
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    CRM
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    File
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    Amount
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    Date
-                  </th>
-                  <!-- <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    Bank
-                  </th> -->
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    Sender
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    Reciever
-                  </th>
-                  <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody class="border border-gray-400/20" v-if="!loading">
-                <tr
-                  v-for="item in receipts?.data ?? []"
-                  :key="item.id"
-                  class="border border-gray-400/20 even:bg-gray-50 hover:bg-gray-100"
-                >
-                  <td
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
-                  >
-                    {{ item?.id }}
-                  </td>
-                  <td
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
-                  >
-                    <span
-                      class="px-2 py-1 rounded-full text-[10px]"
-                      :class="
-                        item?.table_source === 'booking_receipt'
-                          ? 'bg-[#FF613c]/20 text-[#FF613c]'
-                          : 'bg-blue-100 text-blue-800'
-                      "
-                    >
-                      {{
-                        item?.table_source === "booking_receipt"
-                          ? "Booking"
-                          : "Expense"
-                      }}
-                    </span>
-                  </td>
-                  <td
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
-                  >
-                    {{ item?.crm_id }}
-                  </td>
-                  <td
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
-                  >
-                    <button
-                      v-if="item?.file_url"
-                      @click="viewReceipt(item)"
-                      class="text-blue-500 hover:text-blue-700 underline"
-                    >
-                      View Receipt
-                    </button>
-                    <span v-else class="text-gray-400">No file</span>
-                  </td>
-                  <td
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
-                  >
-                    {{ item?.table_source === "booking_receipt" ? "" : "-"
-                    }}{{ formatAmount(item?.amount) }}
-                  </td>
-                  <td
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
-                  >
-                    {{ item?.date }}
-                  </td>
-                  <!-- <td
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
-                  >
-                    {{ item?.bank_name != "null" ? item?.bank_name : "-" }}
-                  </td> -->
-                  <td
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
-                  >
-                    {{ item?.sender != "null" ? item?.sender : "-" }}
-                  </td>
-                  <td
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
-                  >
-                    {{ item?.reciever != "null" ? item?.reciever : "-" }}
-                  </td>
-                  <td
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
-                  >
-                    <div class="flex space-x-1">
-                      <button
-                        @click="goToView(item)"
-                        class="p-1 text-blue-600 hover:text-blue-800"
-                        title="View Receipt"
-                      >
-                        <EyeIcon class="w-4 h-4" />
-                      </button>
-                      <button
-                        @click="update(item)"
-                        class="p-1 text-blue-600 hover:text-blue-800"
-                        title="View Receipt"
-                      >
-                        <PencilSquareIcon class="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-
-              <tbody v-if="loading">
-                <tr>
-                  <td colspan="11" class="text-center py-10 text-xs">
-                    Loading...
-                  </td>
-                </tr>
-              </tbody>
-
-              <tbody
-                v-if="
-                  !loading && (!receipts?.data || receipts.data.length === 0)
-                "
-              >
-                <tr>
-                  <td
-                    colspan="11"
-                    class="text-center py-10 text-xs text-gray-500"
-                  >
-                    No receipts found
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div>
-              <Pagination
-                v-if="!loading && receipts?.data?.length > 0"
-                :data="receipts"
-                @change-page="changePage"
-              />
-            </div>
-          </div>
-          <Modal
-            :isOpen="placeholderFile != ''"
-            @closeModal="placeholderFile = ''"
-          >
-            <DialogPanel
-              class="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
-            >
-              <DialogTitle
-                as="h3"
-                class="text-lg font-medium leading-6 text-gray-900 mb-5"
-              >
-                Receipt
-              </DialogTitle>
-              <div>
-                <img :src="placeholderFile" alt="" />
-              </div>
-            </DialogPanel>
-          </Modal>
-          <Modal :isOpen="updateModalOpen" @closeModal="closeModal">
-            <DialogPanel
-              class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white/80 backdrop-blur-md text-left align-middle shadow-xl transition-all"
-            >
-              <!-- <DialogTitle
-                as="h3"
-                class="text-lg font-medium leading-6 text-gray-900 mb-5 px-4 pt-5"
-              >
-                <span class="uppercase">{{ updateData?.table_source }}</span>
-              </DialogTitle> -->
-              <DialogTitle
-                as="div"
-                class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
-              >
-                <span class="uppercase">{{ updateData?.table_source }}</span>
-              </DialogTitle>
-              <div class="p-4">
-                <ReceiptEdit
-                  :updateData="updateData"
-                  @update="onChangeUpdate"
-                />
-              </div>
-            </DialogPanel>
-          </Modal>
-        </div>
-      </div>
-    </div>
-  </Layout>
-</template>

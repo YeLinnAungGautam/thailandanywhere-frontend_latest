@@ -67,7 +67,7 @@
             {{ formattedNumber(detail?.booking?.grand_total) }} thb
           </p>
           <p>All Items</p>
-          <p class="text-end">{{ detail?.total_items_count }} items</p>
+          <p class="text-end">{{ detail?.items.length }} items</p>
           <p>Payment Method</p>
           <p class="text-end">{{ detail?.booking?.payment_method }}</p>
           <div class="col-span-2 py-3 flex justify-center items-center">

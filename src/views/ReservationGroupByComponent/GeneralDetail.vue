@@ -11,7 +11,7 @@
           <p
             class="text-end"
             v-if="
-              detail?.booking?.items[0].product_type ==
+              detail?.booking?.items[0]?.product_type ==
               'App\\Models\\PrivateVanTour'
             "
           >
@@ -20,7 +20,7 @@
           <p
             class="text-end"
             v-if="
-              detail?.booking?.items[0].product_type == 'App\\Models\\Hotel'
+              detail?.booking?.items[0]?.product_type == 'App\\Models\\Hotel'
             "
           >
             {{ hotelQty }} D {{ hotelDay }} N
@@ -29,7 +29,7 @@
           <p
             class="text-end"
             v-if="
-              detail?.booking?.items[0].product_type ==
+              detail?.booking?.items[0]?.product_type ==
               'App\\Models\\EntranceTicket'
             "
           >

@@ -58,6 +58,7 @@ import PngUsage from "../views/PngGenerate/PngUsage.vue";
 import Accounting from "../views/Accounting.vue";
 import ReservationHotelView from "../views/Reservationhotel.vue";
 import ReservationHotelGroupConfirmationsView from "../views/PngGenerate/HotelGroupConfirmationPng.vue";
+import ReservationHotelGroupNewConfirmationsView from "../views/PngGenerate/HotelConfirmationGroupNew.vue";
 import ReservationAttractionView from "../views/ReservationAttraction.vue";
 import AccountHead from "../views/AccountHead.vue";
 import AccountClass from "../views/AccountClass.vue";
@@ -351,6 +352,11 @@ const routes = [
     path: "/reservation/confirmations/group/hotel/png",
     name: "reservation-hotel-group-confirmations",
     component: ReservationHotelGroupConfirmationsView,
+  },
+  {
+    path: "/reservation/confirmations/group/hotel/new/png",
+    name: "reservation-hotel-group-confirmations",
+    component: ReservationHotelGroupNewConfirmationsView,
   },
   {
     path: "/reservation/confirmations/svg/entrance/:id",

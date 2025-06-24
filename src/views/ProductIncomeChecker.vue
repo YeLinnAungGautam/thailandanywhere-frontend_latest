@@ -18,6 +18,7 @@ import { useAuthStore } from "../stores/auth";
 import YearPickerVue from "./AccountingComponent/yearPicker.vue";
 import { useRoute } from "vue-router";
 import router from "../router";
+import { formattedNumber } from "./help/FormatData";
 
 const sideBarStore = useSidebarStore();
 const toast = useToast();
@@ -30,6 +31,7 @@ const { reservations, loading } = storeToRefs(reservationStore);
 const date_range = ref("");
 const product_type = ref("App\\Models\\Hotel");
 const search = ref("");
+const bookingDateSearch = ref(true);
 const payment_status = ref("fully_paid");
 
 // Set current year and month
@@ -93,6 +95,8 @@ const watchSystem = computed(() => {
   if (payment_status.value != "") {
     result.customer_payment_status = payment_status.value;
   }
+  result.booking_date_search = bookingDateSearch.value;
+  result.total_profit = true;
   result.product_type = product_type.value ?? "App\\Models\\Hotel";
   return result;
 });
@@ -150,23 +154,23 @@ onMounted(async () => {
   product_type.value = setProductType();
 });
 
-const total = computed(() => {
-  let total = 0;
+// const total = computed(() => {
+//   let total = 0;
 
-  if (reservations.value && reservations.value.data) {
-    for (let i = 0; i < reservations.value.data.length; i++) {
-      total +=
-        reservations.value?.data[i]?.amount * 1 -
-        reservations.value?.data[i]?.total_cost_price * 1;
-    }
-  }
+//   if (reservations.value && reservations.value.data) {
+//     for (let i = 0; i < reservations.value.data.length; i++) {
+//       total +=
+//         reservations.value?.data[i]?.amount * 1 -
+//         reservations.value?.data[i]?.total_cost_price * 1;
+//     }
+//   }
 
-  return total;
-});
+//   return total;
+// });
 
 // Watch date_range changes
 watch(
-  [date_range, product_type, payment_status],
+  [date_range, product_type, payment_status, bookingDateSearch],
   debounce(async (newValue) => {
     if (newValue) {
       await getAction();
@@ -240,6 +244,15 @@ watch(
         <div class="pb-4 flex justify-start space-x-2 items-center">
           <YearPickerVue @year-change="handleYearChange" />
           <select
+            v-model="bookingDateSearch"
+            name=""
+            id=""
+            class="w-1/4 border border-gray-400/20 focus:outline-none rounded-lg px-3 py-2 text-xs"
+          >
+            <option :value="true">Sale Date</option>
+            <option :value="false">Balance Due Date</option>
+          </select>
+          <select
             v-model="selectedMonth"
             @change="handleMonthChange(selectedMonth)"
             class="px-3 text-black text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none"
@@ -258,10 +271,34 @@ watch(
             <option value="fully_paid">Fully Paid</option>
             <option value="not_paid">Not Paid</option>
           </select>
-          <div class="w-full text-end">
-            <p class="text-sm">
+          <div class="w-full flex justify-end items-center space-x-2 text-end">
+            <!-- <p class="text-sm">
               Total :
               <span class="text-[#FF613c] font-semibold">{{ total }}</span>
+            </p> -->
+            <p class="text-sm">
+              Total Amount :
+              <span class="text-[#FF613c] font-semibold">{{
+                formattedNumber(reservations?.meta?.total_amount)
+              }}</span>
+            </p>
+            <p class="text-sm">
+              Total Cost Price :
+              <span class="text-[#FF613c] font-semibold">{{
+                formattedNumber(reservations?.meta?.total_cost_price)
+              }}</span>
+            </p>
+            <p class="text-sm">
+              Total Profit :
+              <span class="text-[#FF613c] font-semibold">{{
+                formattedNumber(reservations?.meta?.total_profit)
+              }}</span>
+            </p>
+            <p class="text-sm">
+              Total Profit :
+              <span class="text-[#FF613c] font-semibold">{{
+                reservations?.meta?.average_margin.toFixed(3)
+              }}</span>
             </p>
           </div>
         </div>

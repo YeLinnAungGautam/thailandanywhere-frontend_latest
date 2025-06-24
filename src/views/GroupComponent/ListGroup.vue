@@ -113,29 +113,94 @@
         </div>
         <div
           class="flex justify-start space-x-1 items-center"
-          v-if="data?.expense_status == 'fully_paid'"
+          v-if="
+            data?.expense_status == 'fully_paid' &&
+            data?.product_type != 'PrivateVanTour'
+          "
         >
-          <CreditCardIcon class="w-3 h-3 text-green-600" />
+          <CurrencyDollarIcon class="w-3 h-3 text-green-600" />
+          <p class="text-[10px] whitespace-nowrap text-green-600">Exp paid</p>
+        </div>
+        <div
+          class="flex justify-start space-x-1 items-center"
+          v-if="
+            data?.expense_status != 'fully_paid' &&
+            data?.product_type != 'PrivateVanTour'
+          "
+        >
+          <CurrencyDollarIcon class="w-3 h-3 text-red-600" />
+          <p class="text-[10px] whitespace-nowrap text-red-600">Exp not paid</p>
+        </div>
+        <div
+          class="flex justify-start space-x-1 items-center"
+          v-if="
+            data?.has_booking_confirm_letter &&
+            data?.product_type != 'PrivateVanTour'
+          "
+        >
+          <CurrencyDollarIcon class="w-3 h-3 text-green-600" />
           <p class="text-[10px] whitespace-nowrap text-green-600">
-            Expense paid
+            Invoice have
           </p>
         </div>
         <div
           class="flex justify-start space-x-1 items-center"
-          v-if="data?.expense_status == 'partially_paid'"
+          v-if="
+            data?.has_booking_confirm_letter == false &&
+            data?.product_type != 'PrivateVanTour'
+          "
         >
-          <CreditCardIcon class="w-3 h-3 text-yellow-600" />
-          <p class="text-[10px] whitespace-nowrap text-yellow-600">
-            E.partially paid
-          </p>
-        </div>
-        <div
-          class="flex justify-start space-x-1 items-center"
-          v-if="data?.expense_status == 'not_paid'"
-        >
-          <CreditCardIcon class="w-3 h-3 text-red-600" />
+          <CurrencyDollarIcon class="w-3 h-3 text-red-600" />
           <p class="text-[10px] whitespace-nowrap text-red-600">
-            Expense not paid
+            Invoice empty
+          </p>
+        </div>
+        <div
+          class="flex justify-start space-x-1 items-center"
+          v-if="
+            data?.booking_items_payment_detail == true &&
+            data?.product_type == 'PrivateVanTour'
+          "
+        >
+          <CurrencyDollarIcon class="w-3 h-3 text-green-600" />
+          <p class="text-[10px] whitespace-nowrap text-green-600">
+            Collect Fill
+          </p>
+        </div>
+        <div
+          class="flex justify-start space-x-1 items-center"
+          v-if="
+            data?.booking_items_payment_detail == false &&
+            data?.product_type == 'PrivateVanTour'
+          "
+        >
+          <CurrencyDollarIcon class="w-3 h-3 text-red-600" />
+          <p class="text-[10px] whitespace-nowrap text-red-600">
+            Collect Empty
+          </p>
+        </div>
+        <div
+          class="flex justify-start space-x-1 items-center"
+          v-if="
+            data?.booking_items_assigned == true &&
+            data?.product_type == 'PrivateVanTour'
+          "
+        >
+          <CurrencyDollarIcon class="w-3 h-3 text-green-600" />
+          <p class="text-[10px] whitespace-nowrap text-green-600">
+            Assigned Fill
+          </p>
+        </div>
+        <div
+          class="flex justify-start space-x-1 items-center"
+          v-if="
+            data?.booking_items_assigned == false &&
+            data?.product_type == 'PrivateVanTour'
+          "
+        >
+          <CurrencyDollarIcon class="w-3 h-3 text-red-600" />
+          <p class="text-[10px] whitespace-nowrap text-red-600">
+            Assigned Empty
           </p>
         </div>
       </div>

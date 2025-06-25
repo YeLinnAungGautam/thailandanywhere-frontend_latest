@@ -377,25 +377,108 @@ const customerId = (data) => {
 const featureImageInput = ref(null);
 const featureImagePreview = ref([]);
 
+const paymentForm = ref({
+  file: null,
+  preview: null,
+  amount: 0,
+  bank_name: "",
+  date: "",
+  sender: "",
+  reciever: "MR. THIHA@KUMAR BHUSAL",
+  interact_bank: "",
+  currency: "",
+  is_corporate: false,
+  comment: "",
+});
+
+const openShowModal = ref(false);
+
+const closeAction = () => {
+  paymentForm.value = {
+    id: "",
+    file: null,
+    preview: null,
+    amount: 0,
+    date: "",
+    bank_name: "",
+    sender: "",
+    reciever: "MR. THIHA@KUMAR BHUSAL",
+    interact_bank: "",
+    currency: "",
+    is_corporate: false,
+    comment: "",
+  };
+  openShowModal.value = false;
+};
+
+const bankList = ref([
+  { id: "1", name: "KPAY" },
+  { id: "2", name: "AYAPAY" },
+  { id: "3", name: "CBPAY" },
+  { id: "4", name: "KBZ BANKING" },
+  { id: "5", name: "CB BANKING" },
+  { id: "6", name: "MAB BANKING" },
+  { id: "7", name: "YOMA BANK" },
+  { id: "8", name: "Kasikorn" },
+  { id: "9", name: "Bangkok Bank" },
+  { id: "10", name: "Bank of Ayudhaya" },
+  { id: "11", name: "SCB Bank" },
+  { id: "12", name: "KPAY" },
+  { id: "13", name: "AYAPAY" },
+  { id: "14", name: "CBPAY" },
+  { id: "15", name: "KBZ BANKING" },
+  { id: "16", name: "CB BANKING" },
+  { id: "17", name: "MAB BANKING" },
+  { id: "18", name: "YOMA BANK" },
+  { id: "19", name: "Kasikorn" },
+  { id: "20", name: "Bangkok Bank" },
+  { id: "21", name: "Bank of Ayudhaya" },
+  { id: "22", name: "SCB Bank" },
+  { id: "23", name: "Others..." },
+]);
+
 const openFileFeaturePicker = () => {
   featureImageInput.value.click();
 };
 
 const handlerFeatureFileChange = (e) => {
-  let selectedFile = e.target.files;
+  let selectedFile = e.target.files[0];
 
-  for (let index = 0; index < selectedFile.length; index++) {
-    let inputValue = {
-      file: selectedFile[index],
-      amount: 0,
-    };
-    formData.value.receipt_image.push(inputValue);
-    let expData = {
-      file: URL.createObjectURL(selectedFile[index]),
-      amount: 0,
-    };
-    featureImagePreview.value.push(expData);
-  }
+  // for (let index = 0; index < selectedFile.length; index++) {
+  //   let inputValue = {
+  //     file: selectedFile[index],
+  //     amount: 0,
+  //   };
+  //   formData.value.receipt_image.push(inputValue);
+  //   let expData = {
+  //     file: URL.createObjectURL(selectedFile[index]),
+  //     amount: 0,
+  //   };
+  //   featureImagePreview.value.push(expData);
+  // }
+  paymentForm.value.file = selectedFile;
+  paymentForm.value.preview = URL.createObjectURL(selectedFile);
+};
+
+const submitAddAction = () => {
+  formData.value.receipt_image.push(paymentForm.value);
+  featureImagePreview.value.push(paymentForm.value);
+  paymentForm.value = {
+    id: "",
+    file: null,
+    preview: null,
+    amount: 0,
+    date: "",
+    bank_name: "",
+    sender: "",
+    reciever: "",
+    interact_bank: "",
+    currency: "",
+    is_corporate: false,
+    comment: "",
+  };
+  openShowModal.value = false;
+  console.log(formData.value.receipt_image, "this is add");
 };
 
 const removeFeatureSelectImage = (index) => {
@@ -569,6 +652,27 @@ const normalUpdate = async () => {
   openModalArchive.value = false;
 };
 
+const formatDateDb = (dateString) => {
+  if (!dateString) return "";
+
+  // Case 1: Replace 'T' with space
+  if (dateString.includes("T")) {
+    return dateString.replace("T", " ");
+  }
+
+  // Case 2: Check if it's in DD-MM-YYYY format with regex
+  const ddmmyyyyRegex = /^(\d{2})-(\d{2})-(\d{4})\s(.*)$/;
+  const match = dateString.match(ddmmyyyyRegex);
+
+  if (match) {
+    // match[1] = day, match[2] = month, match[3] = year, match[4] = time part
+    return `${match[3]}-${match[2]}-${match[1]} ${match[4]}`;
+  }
+
+  // If it doesn't match any of our cases, return as-is
+  return dateString;
+};
+
 const processSubmission = async () => {
   updatingLoading.value = true;
   if (!isNaN(sub_total_real.value) && sub_total_real.value !== null) {
@@ -687,10 +791,46 @@ const processSubmission = async () => {
 
     if (formData.value.receipt_image?.length > 0) {
       for (let x = 0; x < formData.value.receipt_image.length; x++) {
-        let file = formData.value.receipt_image[x].file;
-        let amount = formData.value.receipt_image[x].amount;
-        frmData.append("receipt_image[" + x + "][file]", file);
-        frmData.append("receipt_image[" + x + "][amount]", amount);
+        frmData.append(
+          "receipt_image[" + x + "][file]",
+          formData.value.receipt_image[x].file
+        );
+        frmData.append(
+          "receipt_image[" + x + "][amount]",
+          formData.value.receipt_image[x].amount
+        );
+        frmData.append(
+          "receipt_image[" + x + "][date]",
+          formatDateDb(formData.value.receipt_image[x].date)
+        );
+        frmData.append(
+          "receipt_image[" + x + "][bank_name]",
+          formData.value.receipt_image[x].bank_name
+        );
+        frmData.append(
+          "receipt_image[" + x + "][sender]",
+          formData.value.receipt_image[x].sender
+        );
+        frmData.append(
+          "receipt_image[" + x + "][reciever]",
+          formData.value.receipt_image[x].reciever
+        );
+        frmData.append(
+          "receipt_image[" + x + "][interact_bank]",
+          formData.value.receipt_image[x].interact_bank
+        );
+        frmData.append(
+          "receipt_image[" + x + "][currency]",
+          formData.value.receipt_image[x].currency
+        );
+        frmData.append(
+          "receipt_image[" + x + "][is_corporate]",
+          formData.value.receipt_image[x].is_corporate ? 1 : 0
+        );
+        frmData.append(
+          "receipt_image[" + x + "][note]",
+          formData.value.receipt_image[x].comment
+        );
       }
     }
 
@@ -1367,6 +1507,44 @@ const searchWithUnique = async () => {
 
 const queryCrmId = ref("");
 
+const formatDate = (dateString) => {
+  // Parse the input string into a Date object
+  const date = new Date(dateString);
+
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    return "Invalid Date"; // Handle invalid dates
+  }
+
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Extract date components
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+
+  // Extract time components
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  // Return formatted date and time
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+};
+
 onMounted(async () => {
   await getDetail();
   queryCrmId.value = route.query.crm_id ? route.query.crm_id : "";
@@ -1675,21 +1853,10 @@ onMounted(async () => {
             v-if="formData.deposit > 0"
           >
             <p class="text-xs font-medium pt-2">Reciept Image :</p>
-            <input
-              type="file"
-              ref="featureImageInput"
-              multiple
-              class="hidden"
-              @change="handlerFeatureFileChange"
-              accept="image/*"
-            />
-            <button
-              @click.prevent="openFileFeaturePicker"
-              class="text-sm text-[#ff613c]"
-            ></button>
+
             <div
               class="cursor-pointer mt-2 w-[140px] h-[80px] border-2 border-dashed border-gray-300 rounded flex justify-center items-center"
-              @click.prevent="openFileFeaturePicker"
+              @click.prevent="openShowModal = true"
             >
               <span class="text-xs"
                 ><i
@@ -1717,7 +1884,7 @@ onMounted(async () => {
         <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
           <div
             class="relative"
-            v-for="(image, index) in featureImagePreview"
+            v-for="(image, index) in formData.receipt_image"
             :key="index"
           >
             <button
@@ -1727,7 +1894,7 @@ onMounted(async () => {
               <XCircleIcon class="w-8 h-8 font-semibold" />
             </button>
 
-            <img class="h-auto w-full rounded" :src="image.file" alt="" />
+            <img class="h-auto w-full rounded" :src="image.preview" alt="" />
             <input
               type="number"
               name="amount"
@@ -1940,6 +2107,192 @@ onMounted(async () => {
         </DialogTitle>
         <div>
           <PngUsage :invoice_id="route.params.id" />
+        </div>
+      </DialogPanel>
+    </Modal>
+    <Modal :isOpen="openShowModal" @closeModal="closeAction">
+      <DialogPanel
+        class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
+        >
+          <p>Payment Slip Audit</p>
+          <XCircleIcon class="w-5 h-5 text-white" @click="closeAction" />
+        </DialogTitle>
+        <!-- show date  -->
+        <div class="p-4">
+          <div class="grid grid-cols-2 gap-8">
+            <div>
+              <input
+                type="file"
+                ref="featureImageInput"
+                multiple
+                class="hidden"
+                @change="handlerFeatureFileChange"
+                accept="image/*"
+              />
+              <button
+                @click.prevent="openFileFeaturePicker"
+                class="text-sm text-[#ff613c]"
+              ></button>
+              <div
+                class="cursor-pointer mt-2 w-full h-[400px] border-2 border-dashed border-gray-300 rounded flex justify-center items-center"
+                @click.prevent="openFileFeaturePicker"
+                v-if="paymentForm.preview == null"
+              >
+                <span class="text-xs"
+                  ><i
+                    class="px-2 py-1 text-sm font-semibold text-white bg-[#ff613c] rounded-full shadow fa-solid fa-plus"
+                  ></i
+                ></span>
+              </div>
+              <div
+                class="cursor-pointer mt-2 w-full h-[400px] border-2 border-dashed border-gray-300 rounded flex justify-center items-center"
+                v-if="paymentForm.preview != null"
+              >
+                <img :src="paymentForm.preview" alt="" />
+              </div>
+            </div>
+            <div class="space-y-4 relative pt-4 pb-14 pr-2">
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Date&Time </label>
+                <div class="flex justify-between items-center w-[160px]">
+                  <p class="text-start text-xs" v-if="paymentForm?.date">
+                    {{
+                      paymentForm.date.includes("T")
+                        ? formatDate(paymentForm.date)
+                        : formatDateFromDb(paymentForm.date)
+                    }}
+                  </p>
+                  <input
+                    type="datetime-local"
+                    name=""
+                    v-model="paymentForm.date"
+                    format="YYYY-MM-DD HH:mm:ss"
+                    class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    id=""
+                  />
+                </div>
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Bank </label>
+                <select
+                  name=""
+                  v-model="paymentForm.bank_name"
+                  id=""
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                >
+                  <option value="">Select Bank</option>
+                  <option :value="b.name" v-for="b in bankList" :key="b.id">
+                    {{ b.name }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Sender </label>
+                <input
+                  v-model="paymentForm.sender"
+                  type="text"
+                  name=""
+                  placeholder="sender name"
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  id=""
+                />
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Reciever </label>
+                <input
+                  v-model="paymentForm.reciever"
+                  type="text"
+                  name=""
+                  placeholder="reciever name"
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  id=""
+                />
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Amount</label>
+                <input
+                  type="text"
+                  name=""
+                  v-model="paymentForm.amount"
+                  placeholder="Search CRM ID"
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  id=""
+                />
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium"
+                  >Interact Bank
+                </label>
+                <select
+                  name=""
+                  v-model="paymentForm.interact_bank"
+                  id=""
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                >
+                  <option value="personal">Personal</option>
+                  <option value="company">Company</option>
+                  <option value="cash_at_office">Cash at Office</option>
+                  <option value="to_money_changer">To Money Changer</option>
+                </select>
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Currency </label>
+                <select
+                  name=""
+                  v-model="paymentForm.currency"
+                  id=""
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                >
+                  <option value="MMK">MMK</option>
+                  <option value="THB">THB</option>
+                  <option value="USD">USD</option>
+                </select>
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Bank ? </label>
+                <div class="flex justify-start items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    v-model="paymentForm.is_corporate"
+                    name=""
+                    placeholder="name"
+                    class="py-1.5 focus:outline-none text-xs"
+                    id=""
+                  />
+                  <p class="text-[12px]">Is Corporate ?</p>
+                </div>
+              </div>
+              <div class="flex justify-between items-start">
+                <label for="" class="text-[12px] font-medium">Comment</label>
+                <textarea
+                  v-model="paymentForm.comment"
+                  class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[160px]"
+                >
+                </textarea>
+              </div>
+              <div
+                class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
+              >
+                <p
+                  @click.prevent="submitAddAction"
+                  class="px-3 py-1 bg-green-500 text-white text-[12px] cursor-pointer rounded-lg"
+                >
+                  confirm
+                </p>
+                <p
+                  @click="closeAction"
+                  class="px-3 py-1 bg-white border border-gray-300 text-[12px] cursor-pointer rounded-lg"
+                >
+                  close
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </DialogPanel>
     </Modal>

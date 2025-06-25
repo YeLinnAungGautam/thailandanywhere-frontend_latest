@@ -440,6 +440,13 @@
               {{ showFormat(searchKey.booking_daterange) }}
             </p>
           </div>
+          <div class="flex justify-end items-center">
+            <div
+              class="text-[10px] rounded-lg px-2 py-1 text-white bg-[#FF613c]"
+            >
+              {{ groups?.meta?.total }} reser
+            </div>
+          </div>
 
           <div
             v-if="!loading"

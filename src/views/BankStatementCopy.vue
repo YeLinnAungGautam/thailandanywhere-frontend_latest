@@ -219,6 +219,7 @@ const updateData = ref({
   amount: "",
   reciever: "",
   interact_bank: "",
+  currency: "",
   table_source: "",
 });
 const update = (data) => {
@@ -231,6 +232,7 @@ const update = (data) => {
   updateData.value.amount = data.amount;
   updateData.value.reciever = data.reciever;
   updateData.value.interact_bank = data.interact_bank;
+  updateData.value.currency = data.currency;
   updateData.value.table_source = data.table_source;
   updateData.value.file = data.file_url;
 };
@@ -243,6 +245,7 @@ const closeModal = () => {
     sender: "",
     reciever: "",
     interact_bank: "",
+    currency: "",
     amount: "",
     table_source: "",
     file: "",

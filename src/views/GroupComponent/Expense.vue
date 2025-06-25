@@ -476,6 +476,23 @@
                   >
                     <option value="personal">Personal</option>
                     <option value="company">Company</option>
+                    <option value="cash_at_office">Cash at Office</option>
+                    <option value="to_money_changer">To Money Changer</option>
+                  </select>
+                </div>
+                <div class="flex justify-between items-center">
+                  <label for="" class="text-[12px] font-medium"
+                    >Currency
+                  </label>
+                  <select
+                    name=""
+                    v-model="expenseData.currency"
+                    id=""
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  >
+                    <option value="MMK">MMK</option>
+                    <option value="THB">THB</option>
+                    <option value="USD">USD</option>
                   </select>
                 </div>
                 <div class="flex justify-between items-center">
@@ -633,6 +650,7 @@ const expenseData = ref({
   sender: "",
   reciever: "",
   interact_bank: "",
+  currency: "",
   is_corporate: false,
   comment: "",
 });
@@ -652,6 +670,7 @@ const openModal = (data, index) => {
     sender: data.meta.sender,
     reciever: data.meta.reciever,
     interact_bank: data.meta.interact_bank,
+    currency: data.meta.currency,
     is_corporate: data.meta.is_corporate == 1 ? true : false,
     comment: data.meta.comment,
   };
@@ -669,6 +688,7 @@ const clearAction = () => {
     sender: "",
     reciever: "",
     interact_bank: "",
+    currency: "",
     is_corporate: false,
     comment: "",
   };
@@ -1045,6 +1065,10 @@ const createExpense = async () => {
       expenseData.value.interact_bank ?? "personal"
     );
     frmData.append(
+      "documents[0][meta][currency]",
+      expenseData.value.currency ?? "THB"
+    );
+    frmData.append(
       "documents[0][meta][date]",
       formatDateDb(expenseData.value.date)
     );
@@ -1104,6 +1128,7 @@ const updateExpense = async () => {
       "meta[interact_bank]",
       expenseData.value.interact_bank ?? "personal"
     );
+    frmData.append("meta[currency]", expenseData.value.currency ?? "THB");
     frmData.append("meta[date]", formatDateDb(expenseData.value.date));
     frmData.append("meta[bank_name]", expenseData.value.bank_name);
     frmData.append(

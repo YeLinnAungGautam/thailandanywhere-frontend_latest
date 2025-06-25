@@ -239,6 +239,21 @@
                 >
                   <option value="personal">Personal</option>
                   <option value="company">Company</option>
+                  <option value="cash_at_office">Cash at Office</option>
+                  <option value="to_money_changer">To Money Changer</option>
+                </select>
+              </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Currency </label>
+                <select
+                  name=""
+                  v-model="formData.currency"
+                  id=""
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                >
+                  <option value="MMK">MMK</option>
+                  <option value="THB">THB</option>
+                  <option value="USD">USD</option>
                 </select>
               </div>
               <!-- <div class="flex justify-between items-center">
@@ -348,6 +363,7 @@ const formData = ref({
   sender: "",
   reciever: "",
   interact_bank: "personal",
+  currency: "THB",
   is_corporate: false,
   comment: "",
 });
@@ -385,8 +401,9 @@ const openModal = (data) => {
     date: data.date,
     bank_name: data.bank_name,
     sender: data.sender,
-    reciever: data.reciever ? data.reciever : "MR. THIHA@KUMAR BHUSAL-",
+    reciever: data.reciever ? data.reciever : "MR. THIHA@KUMAR BHUSAL",
     interact_bank: data.interact_bank,
+    currency: data.currency,
     is_corporate: data.is_corporate == 1 ? true : false,
     comment: data.note,
   };
@@ -504,6 +521,7 @@ const clearAction = () => {
     sender: "",
     reciever: "",
     interact_bank: "",
+    currency: "",
     is_corporate: false,
     comment: "",
   };
@@ -578,6 +596,7 @@ const submit = async () => {
     frmData.append("sender", formData.value.sender);
     frmData.append("reciever", formData.value.reciever);
     frmData.append("interact_bank", formData.value.interact_bank);
+    frmData.append("currency", formData.value.currency);
     frmData.append("is_corporate", formData.value.is_corporate ? 1 : 0);
     frmData.append("note", formData.value.comment);
 

@@ -115,6 +115,21 @@
               <option value="company">Company</option>
             </select>
           </div>
+          <div class="relative">
+            <select
+              name=""
+              v-model="per_page"
+              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+              id=""
+            >
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="30">40</option>
+              <option value="30">50</option>
+              <option value="30">60</option>
+            </select>
+          </div>
           <button
             @click="clearSearch"
             class="px-3 py-2 text-xs bg-red-500 text-white rounded-lg hover:bg-red-700 transition-colors"
@@ -151,11 +166,11 @@
             class="mb-6 bg-white rounded-2xl shadow-sm overflow-hidden"
           >
             <!-- Date Header -->
-            <div class="pb-3">
+            <div class="pb-3 px-4">
               <h3 class="text-lg font-semibold text-gray-800">
                 {{ formatDateHeader(date) }}
               </h3>
-              <p class="text-sm text-gray-500 mt-1">
+              <p class="text-xs text-gray-500">
                 {{ group.length }} transaction{{ group.length > 1 ? "s" : "" }}
               </p>
             </div>
@@ -166,7 +181,7 @@
                 v-for="item in group"
                 :key="item.id"
                 @click="toggleExpand(item.id)"
-                class="px-6 py-4 hover:bg-gray-100 bg-gray-50 cursor-pointer transition-colors duration-150"
+                class="px-5 py-3 hover:bg-gray-100 bg-gray-50 cursor-pointer transition-colors duration-150"
               >
                 <div class="flex justify-between items-start">
                   <!-- Left Side - Transaction Info -->
@@ -384,6 +399,7 @@ const crmSearch = ref("");
 const bankNameSearch = ref("");
 const amountSearch = ref("");
 const interactSearch = ref("");
+const per_page = ref(10);
 
 // Expanded items for mobile view
 const expandedItems = ref({});
@@ -560,6 +576,8 @@ const searchParams = computed(() => {
     params.interact_bank = interactSearch.value;
   }
 
+  params.per_page = per_page.value ? per_page.value : 10;
+
   return params;
 });
 
@@ -637,6 +655,7 @@ const updateData = ref({
   amount: "",
   reciever: "",
   interact_bank: "",
+  currency: "",
   table_source: "",
 });
 
@@ -649,6 +668,7 @@ const update = (data) => {
   updateData.value.amount = data.amount;
   updateData.value.reciever = data.reciever;
   updateData.value.interact_bank = data.interact_bank;
+  updateData.value.currency = data.currency;
   updateData.value.table_source = data.table_source;
   updateData.value.file = data.file_url;
 };
@@ -662,6 +682,7 @@ const closeModal = () => {
     sender: "",
     reciever: "",
     interact_bank: "",
+    currency: "",
     amount: "",
     table_source: "",
     file: "",
@@ -692,6 +713,7 @@ watch(
     bankNameSearch,
     amountSearch,
     interactSearch,
+    per_page,
   ],
   debounce(async () => {
     await getAction();

@@ -483,7 +483,10 @@
                     type="text"
                     v-model="expenseData.sender"
                     :class="
-                      expenseData.sender.includes('-') ? 'text-gray-400' : ''
+                      expenseData.sender != '' &&
+                      expenseData.sender == 'MR. THIHA@KUMAR BHUSAL'
+                        ? 'text-gray-400'
+                        : ''
                     "
                     name=""
                     placeholder="xxx"
@@ -492,12 +495,24 @@
                   />
                 </div>
                 <div class="">
-                  <p for="" class="text-[12px] font-medium pb-2">Reciever</p>
+                  <div class="flex justify-between items-center">
+                    <p for="" class="text-[12px] font-medium pb-2">Reciever</p>
+                    <p
+                      class="text-xs text-blue-600 underline cursor-pointer"
+                      @click="goToProduct"
+                    >
+                      link to product
+                    </p>
+                  </div>
                   <input
                     type="text"
                     v-model="expenseData.reciever"
                     :class="
-                      expenseData.reciever.includes('-') ? 'text-gray-400' : ''
+                      expenseData.reciever != '' &&
+                      expenseData.reciever ==
+                        detail?.booking?.items[0]?.product?.account_name
+                        ? 'text-gray-400'
+                        : ''
                     "
                     name=""
                     placeholder="xxx"
@@ -528,6 +543,23 @@
                   >
                     <option value="personal">Personal</option>
                     <option value="company">Company</option>
+                    <option value="cash_at_office">Cash at Office</option>
+                    <option value="to_money_changer">To Money Changer</option>
+                  </select>
+                </div>
+                <div class="flex justify-between items-center">
+                  <label for="" class="text-[12px] font-medium"
+                    >Currency
+                  </label>
+                  <select
+                    name=""
+                    v-model="expenseData.currency"
+                    id=""
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  >
+                    <option value="MMK">MMK</option>
+                    <option value="THB">THB</option>
+                    <option value="USD">USD</option>
                   </select>
                 </div>
                 <!-- <div class="flex justify-between items-center">
@@ -654,6 +686,7 @@ import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute } from "vue-router";
 import { daysBetween } from "../help/DateBetween";
+import router from "../../router";
 // import ExpenseBooking from "./ExpenseBooking.vue";
 
 const toast = useToast();
@@ -694,6 +727,18 @@ const total_cost_calculate = computed(() => {
   return result;
 });
 
+const goToProduct = () => {
+  if (props.detail?.booking?.items[0]?.product_type == "App\\Models\\Hotel") {
+    router.push(
+      `/product/hotel/edit/${props.detail?.booking?.items[0]?.product_id}`
+    );
+  } else {
+    router.push(
+      `/products/6?edit=${props.detail?.booking?.items[0]?.product_id}`
+    );
+  }
+};
+
 const editData = ref({
   reservation_ids: [],
   expenses: [],
@@ -707,9 +752,10 @@ const expenseData = ref({
   amount: 0,
   date: "",
   bank_name: "",
-  sender: "",
-  reciever: "",
+  sender: "MR. THIHA@KUMAR BHUSAL",
+  reciever: props.detail?.booking?.items[0]?.product?.account_name,
   interact_bank: "",
+  currency: "",
   is_corporate: false,
   comment: "",
 });
@@ -727,11 +773,12 @@ const openModal = (data, index) => {
     amount: data.amount,
     date: data.date,
     bank_name: data.bank_name,
-    sender: data.sender ? data.sender : "MR. THIHA@KUMAR B-",
+    sender: data.sender ? data.sender : "MR. THIHA@KUMAR BHUSAL",
     reciever: data.reciever
       ? data.reciever
-      : props.detail?.booking?.items[0]?.product?.legal_name + "-",
+      : props.detail?.booking?.items[0]?.product?.account_name,
     interact_bank: data.interact_bank,
+    currency: data.currency,
     is_corporate: data.is_corporate == 1 ? true : false,
     comment: data.comment,
   };
@@ -746,9 +793,10 @@ const clearAction = () => {
     amount: 0,
     date: "",
     bank_name: "",
-    sender: "",
-    reciever: "",
+    sender: "MR. THIHA@KUMAR BHUSAL",
+    reciever: props.detail?.booking?.items[0]?.product?.account_name,
     interact_bank: "",
+    currency: "",
     is_corporate: false,
     comment: "",
   };
@@ -1117,6 +1165,7 @@ const createExpense = async (id) => {
     frmData.append("sender", expenseData.value.sender);
     frmData.append("reciever", expenseData.value.reciever);
     frmData.append("interact_bank", expenseData.value.interact_bank);
+    frmData.append("currency", expenseData.value.currency);
     frmData.append("date", formatDateDb(expenseData.value.date));
     frmData.append("bank_name", expenseData.value.bank_name);
     frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
@@ -1159,6 +1208,7 @@ const updateExpense = async (id) => {
     frmData.append("sender", expenseData.value.sender);
     frmData.append("reciever", expenseData.value.reciever);
     frmData.append("interact_bank", expenseData.value.interact_bank);
+    frmData.append("currency", expenseData.value.currency);
     frmData.append("date", formatDateDb(expenseData.value.date));
     frmData.append("bank_name", expenseData.value.bank_name ?? "others...");
     frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
@@ -1246,9 +1296,12 @@ const populateFormData = () => {
           reservation_id: item.id,
           file: a.file,
           amount: a.amount,
-          sender: a.sender,
-          reciever: a.reciever,
+          sender: a.sender ? a.sender : "MR. THIHA@KUMAR BHUSAL",
+          reciever: a.reciever
+            ? a.reciever
+            : props.detail?.booking?.items[0]?.product?.account_name,
           interact_bank: a.interact_bank,
+          currency: a.currency,
           date: a.date,
           bank_name: a.bank_name,
           is_corporate: a.is_corporate,

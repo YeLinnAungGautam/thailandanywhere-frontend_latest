@@ -77,6 +77,21 @@
         >
           <option value="personal">Personal</option>
           <option value="company">Company</option>
+          <option value="cash_at_office">Cash at Office</option>
+          <option value="to_money_changer">To Money Changer</option>
+        </select>
+      </div>
+      <div class="flex justify-between items-center">
+        <label for="" class="text-[12px] font-medium">Currency </label>
+        <select
+          name=""
+          v-model="formData.currency"
+          id=""
+          class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+        >
+          <option value="MMK">MMK</option>
+          <option value="THB">THB</option>
+          <option value="USD">USD</option>
         </select>
       </div>
 
@@ -121,6 +136,7 @@ const formData = ref({
   sender: "",
   reciever: "",
   interact_bank: "",
+  currency: "THB",
   amount: "",
   table_source: "",
   file: "",
@@ -256,6 +272,7 @@ const updateAction = async () => {
     frmData.append("sender", formData.value.sender);
     frmData.append("reciever", formData.value.reciever);
     frmData.append("interact_bank", formData.value.interact_bank ?? "personal");
+    frmData.append("currency", formData.value.currency);
 
     // const res = await reservationStore.ReservationExpenseReceiptUpdateAction(
     //   id,
@@ -297,14 +314,15 @@ onMounted(() => {
     formData.value.sender = props.updateData.sender
       ? props.updateData.sender
       : props.updateData.table_source == "expense_receipt"
-      ? "MR. THIHA@KUMAR BHUSAL-"
+      ? "MR. THIHA@KUMAR BHUSAL"
       : "";
     formData.value.reciever = props.updateData.reciever
       ? props.updateData.reciever
       : props.updateData.table_source == "booking_receipt"
-      ? "MR. THIHA@KUMAR BHUSAL-"
+      ? "MR. THIHA@KUMAR BHUSAL"
       : "";
     formData.value.interact_bank = props.updateData.interact_bank ?? "personal";
+    formData.value.currency = props.updateData.currency;
     formData.value.amount = props.updateData.amount;
     formData.value.table_source = props.updateData.table_source;
     formData.value.file = props.updateData.file;

@@ -14,7 +14,6 @@ import { XMarkIcon } from "@heroicons/vue/24/solid";
 import { forEach } from "jszip";
 import Swal from "sweetalert2";
 import PassportAddUpdate from "./PassportAddUpdate.vue";
-import logo from "../../assets/web-logo.png";
 import Layout from "../Layout.vue";
 import { useGroupByStore } from "../../stores/groupby";
 

@@ -355,7 +355,7 @@ const routes = [
   },
   {
     path: "/reservation/confirmations/group/hotel/new/png",
-    name: "reservation-hotel-group-confirmations",
+    name: "reservation-hotel-group-new-confirmations",
     component: ReservationHotelGroupNewConfirmationsView,
   },
   {

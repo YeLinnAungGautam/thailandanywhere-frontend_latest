@@ -765,7 +765,9 @@ watch(dateRange, async (newValue) => {
   // console.log(searchKey.value.booking_daterange, "this is daterange");
 
   searchModel.value = false;
+  await getAllAction();
 });
+
 const setStartAndEndDate = () => {
   const now = new Date(); // Today's date
   const startDate = new Date(now); // Start date is today
@@ -779,7 +781,7 @@ const setStartAndEndDate = () => {
 
 onMounted(async () => {
   setStartAndEndDate();
-  await getAllAction();
+  // await getAllAction();
   await getListUser();
   console.log("====================================");
   console.log("groups", groups.value);

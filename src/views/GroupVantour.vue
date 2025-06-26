@@ -406,6 +406,14 @@
             </p>
           </div>
 
+          <div class="flex justify-end items-center">
+            <div
+              class="text-[10px] rounded-lg px-2 py-1 text-white bg-[#FF613c]"
+            >
+              {{ groups?.meta?.total }} reser
+            </div>
+          </div>
+
           <div
             v-if="!loading"
             class="bg-white shadow rounded-lg divide-y divide-gray-100 max-h-[65vh] overflow-y-scroll"
@@ -732,6 +740,7 @@ watch(dateRange, async (newValue) => {
   // console.log(searchKey.value.booking_daterange, "this is daterange");
 
   searchModel.value = false;
+  await getAllAction();
 });
 const setStartAndEndDate = () => {
   const now = new Date(); // Today's date
@@ -746,7 +755,7 @@ const setStartAndEndDate = () => {
 
 onMounted(async () => {
   setStartAndEndDate();
-  await getAllAction();
+
   await getListUser();
   console.log("====================================");
   console.log("groups", groups.value);

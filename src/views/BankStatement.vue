@@ -113,6 +113,8 @@
               <option value="">Search by interact bank</option>
               <option value="personal">Personal</option>
               <option value="company">Company</option>
+              <option value="cash_at_office">Cash at Office</option>
+              <option value="to_money_changer">To Money Changer</option>
             </select>
           </div>
           <div class="relative">
@@ -125,9 +127,9 @@
               <option value="10">10</option>
               <option value="20">20</option>
               <option value="30">30</option>
-              <option value="30">40</option>
-              <option value="30">50</option>
-              <option value="30">60</option>
+              <option value="40">40</option>
+              <option value="50">50</option>
+              <option value="60">60</option>
             </select>
           </div>
           <button
@@ -517,7 +519,7 @@ const formatTransactionAmount = (item) => {
   const formattedAmount = new Intl.NumberFormat("en-US").format(amount);
   const prefix = item?.table_source === "booking_receipt" ? "+" : "-";
 
-  return `${prefix}${formattedAmount} Baht`;
+  return `${prefix}${formattedAmount} ${item.currency}`;
 };
 
 const toggleExpand = (itemId) => {

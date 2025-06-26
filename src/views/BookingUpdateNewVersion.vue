@@ -385,8 +385,8 @@ const paymentForm = ref({
   date: "",
   sender: "",
   reciever: "MR. THIHA@KUMAR BHUSAL",
-  interact_bank: "",
-  currency: "",
+  interact_bank: "personal",
+  currency: "THB",
   is_corporate: false,
   comment: "",
 });
@@ -403,39 +403,13 @@ const closeAction = () => {
     bank_name: "",
     sender: "",
     reciever: "MR. THIHA@KUMAR BHUSAL",
-    interact_bank: "",
-    currency: "",
+    interact_bank: "personal",
+    currency: "THB",
     is_corporate: false,
     comment: "",
   };
   openShowModal.value = false;
 };
-
-const bankList = ref([
-  { id: "1", name: "KPAY" },
-  { id: "2", name: "AYAPAY" },
-  { id: "3", name: "CBPAY" },
-  { id: "4", name: "KBZ BANKING" },
-  { id: "5", name: "CB BANKING" },
-  { id: "6", name: "MAB BANKING" },
-  { id: "7", name: "YOMA BANK" },
-  { id: "8", name: "Kasikorn" },
-  { id: "9", name: "Bangkok Bank" },
-  { id: "10", name: "Bank of Ayudhaya" },
-  { id: "11", name: "SCB Bank" },
-  { id: "12", name: "KPAY" },
-  { id: "13", name: "AYAPAY" },
-  { id: "14", name: "CBPAY" },
-  { id: "15", name: "KBZ BANKING" },
-  { id: "16", name: "CB BANKING" },
-  { id: "17", name: "MAB BANKING" },
-  { id: "18", name: "YOMA BANK" },
-  { id: "19", name: "Kasikorn" },
-  { id: "20", name: "Bangkok Bank" },
-  { id: "21", name: "Bank of Ayudhaya" },
-  { id: "22", name: "SCB Bank" },
-  { id: "23", name: "Others..." },
-]);
 
 const openFileFeaturePicker = () => {
   featureImageInput.value.click();
@@ -472,8 +446,8 @@ const submitAddAction = () => {
     bank_name: "",
     sender: "",
     reciever: "",
-    interact_bank: "",
-    currency: "",
+    interact_bank: "personal",
+    currency: "THB",
     is_corporate: false,
     comment: "",
   };
@@ -805,7 +779,7 @@ const processSubmission = async () => {
         );
         frmData.append(
           "receipt_image[" + x + "][bank_name]",
-          formData.value.receipt_image[x].bank_name
+          formData.value.receipt_image[x].bank_name ?? "other..."
         );
         frmData.append(
           "receipt_image[" + x + "][sender]",
@@ -2156,9 +2130,13 @@ onMounted(async () => {
               </div>
             </div>
             <div class="space-y-4 relative pt-4 pb-14 pr-2">
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Date&Time </label>
-                <div class="flex justify-between items-center w-[160px]">
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">
+                  Date <span class="opacity-0">......</span>
+                </p>
+                <div
+                  class="flex justify-between items-center w-full bg-white pl-2 rounded-lg"
+                >
                   <p class="text-start text-xs" v-if="paymentForm?.date">
                     {{
                       paymentForm.date.includes("T")
@@ -2171,68 +2149,60 @@ onMounted(async () => {
                     name=""
                     v-model="paymentForm.date"
                     format="YYYY-MM-DD HH:mm:ss"
-                    class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    class="w-[35px] px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
                 </div>
               </div>
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Bank </label>
-                <select
-                  name=""
-                  v-model="paymentForm.bank_name"
-                  id=""
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                >
-                  <option value="">Select Bank</option>
-                  <option :value="b.name" v-for="b in bankList" :key="b.id">
-                    {{ b.name }}
-                  </option>
-                </select>
-              </div>
 
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Sender </label>
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">Sender</p>
                 <input
+                  type="text"
                   v-model="paymentForm.sender"
-                  type="text"
+                  :class="
+                    paymentForm.sender.includes('-') ? 'text-gray-400' : ''
+                  "
                   name=""
-                  placeholder="sender name"
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  placeholder="xxx"
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   id=""
                 />
               </div>
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Reciever </label>
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">Reciever</p>
                 <input
+                  type="text"
                   v-model="paymentForm.reciever"
-                  type="text"
+                  :class="
+                    paymentForm.reciever.includes('-') ? 'text-gray-400' : ''
+                  "
                   name=""
-                  placeholder="reciever name"
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  placeholder="xxx"
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   id=""
                 />
               </div>
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Amount</label>
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">Amount</p>
                 <input
-                  type="text"
-                  name=""
+                  type="number"
                   v-model="paymentForm.amount"
-                  placeholder="Search CRM ID"
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  name=""
+                  placeholder="xxx"
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   id=""
                 />
               </div>
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium"
-                  >Interact Bank
-                </label>
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">
+                  Interact Bank <span class="opacity-0">.....</span>
+                </p>
                 <select
                   name=""
                   v-model="paymentForm.interact_bank"
                   id=""
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                 >
                   <option value="personal">Personal</option>
                   <option value="company">Company</option>
@@ -2240,8 +2210,8 @@ onMounted(async () => {
                   <option value="to_money_changer">To Money Changer</option>
                 </select>
               </div>
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Currency </label>
+              <div class="">
+                <p class="text-[12px] pb-2 font-medium">Currency</p>
                 <select
                   name=""
                   v-model="paymentForm.currency"
@@ -2252,28 +2222,6 @@ onMounted(async () => {
                   <option value="THB">THB</option>
                   <option value="USD">USD</option>
                 </select>
-              </div>
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Bank ? </label>
-                <div class="flex justify-start items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    v-model="paymentForm.is_corporate"
-                    name=""
-                    placeholder="name"
-                    class="py-1.5 focus:outline-none text-xs"
-                    id=""
-                  />
-                  <p class="text-[12px]">Is Corporate ?</p>
-                </div>
-              </div>
-              <div class="flex justify-between items-start">
-                <label for="" class="text-[12px] font-medium">Comment</label>
-                <textarea
-                  v-model="paymentForm.comment"
-                  class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[160px]"
-                >
-                </textarea>
               </div>
               <div
                 class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"

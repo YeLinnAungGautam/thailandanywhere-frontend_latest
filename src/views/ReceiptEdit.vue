@@ -81,8 +81,8 @@
           <option value="to_money_changer">To Money Changer</option>
         </select>
       </div>
-      <div class="flex justify-between items-center">
-        <label for="" class="text-[12px] font-medium">Currency </label>
+      <div class="">
+        <p class="text-[12px] pb-2 font-medium">Currency</p>
         <select
           name=""
           v-model="formData.currency"

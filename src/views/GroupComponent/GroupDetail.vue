@@ -836,6 +836,7 @@ import Confirmation from "./Confirmation.vue";
 import checkImage from "../../assets/check.png";
 import { useToast } from "vue-toastification";
 import logo from "../../assets/web-logo.png";
+import { forEach } from "lodash";
 
 const props = defineProps({
   show: Number,
@@ -1011,9 +1012,12 @@ const copyReservation = () => {
 
     // Calculate score using booking data
     let score = 0;
-    if (res.booking && res.booking.sub_total && res.total_cost_price) {
-      score =
-        (res.booking.sub_total - res.total_cost_price) / res.total_cost_price;
+    let total_amount = 0;
+    if (res.items && res.total_cost_price) {
+      forEach(res.items, (item) => {
+        total_amount += item.amount * 1;
+      });
+      score = (total_amount - res.total_cost_price) / res.total_cost_price;
     }
 
     // Check for earliest service date across all items
@@ -1041,7 +1045,7 @@ const copyReservation = () => {
 
     // Add booking header using booking data
     allFormattedOutput += `💰 Total Cost: ${res.total_cost_price} THB 
-💵 Price: ${res.booking?.sub_total || 0} THB 
+💵 Price: ${total_amount || 0} THB 
 💵 Balance Due: ${res.booking?.balance_due || 0} THB 
 📝 Payment Status: ${res.booking?.payment_status || "unknown"}
 ---------------------

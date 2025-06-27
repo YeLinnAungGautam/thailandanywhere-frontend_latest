@@ -545,6 +545,9 @@
                     <option value="company">Company</option>
                     <option value="cash_at_office">Cash at Office</option>
                     <option value="to_money_changer">To Money Changer</option>
+                    <option value="deposit_management">
+                      Deposit Management
+                    </option>
                   </select>
                 </div>
                 <div class="flex justify-between items-center">

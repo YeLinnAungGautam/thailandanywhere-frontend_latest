@@ -22,7 +22,8 @@
         <div>
           <p class="text-[10px] space-x-1">
             <span class="font-medium"
-              >Book: {{ data?.latest_service_date }}</span
+              >{{ data?.firstest_service_date }} :
+              {{ data?.latest_service_date }}</span
             >
           </p>
         </div>
@@ -361,5 +362,18 @@ const showList = ref(false);
 const props = defineProps({
   data: Object,
   detailId: String,
+});
+
+const checkDate = computed(() => {
+  if (!props.data?.firstest_service_date) return false;
+
+  const today = new Date();
+  const serviceDate = new Date(props.data.firstest_service_date);
+
+  if (isNaN(serviceDate.getTime())) return false;
+
+  const daysDiff = Math.ceil((serviceDate - today) / (1000 * 60 * 60 * 24));
+
+  return daysDiff >= 0 && daysDiff <= 5;
 });
 </script>

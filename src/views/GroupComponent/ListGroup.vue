@@ -252,19 +252,19 @@
                 <div
                   class="flex justify-start space-x-1 items-center"
                   v-if="
-                    item.booking_status == 'fully_paid' &&
+                    item.expense_status == 'fully_paid' &&
                     item.product_type != 'PrivateVanTour'
                   "
                 >
                   <CreditCardIcon class="w-3 h-3 text-green-600" />
                   <p class="text-[10px] whitespace-nowrap text-green-600">
-                    Expense paid
+                    Exp paid
                   </p>
                 </div>
                 <div
                   class="flex justify-start space-x-1 items-center"
                   v-if="
-                    item.booking_status == 'partially_paid' &&
+                    item.expense_status == 'partially_paid' &&
                     item.product_type != 'PrivateVanTour'
                   "
                 >
@@ -276,13 +276,13 @@
                 <div
                   class="flex justify-start space-x-1 items-center"
                   v-if="
-                    item.booking_status == 'not_paid' &&
+                    item.expense_status == 'not_paid' &&
                     item.product_type != 'PrivateVanTour'
                   "
                 >
                   <CreditCardIcon class="w-3 h-3 text-red-600" />
                   <p class="text-[10px] whitespace-nowrap text-red-600">
-                    Expense not paid
+                    Exp not paid
                   </p>
                 </div>
                 <div

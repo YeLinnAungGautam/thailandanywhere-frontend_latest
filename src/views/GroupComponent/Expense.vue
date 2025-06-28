@@ -574,7 +574,7 @@ import { useToast } from "vue-toastification";
 import { useReservationStore } from "../../stores/reservation";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { daysBetween } from "../help/DateBetween";
 import { useGroupStore } from "../../stores/group";
 // import ExpenseBooking from "./ExpenseBooking.vue";
@@ -592,6 +592,7 @@ const props = defineProps({
 const carModalOpen = ref(false);
 const route = useRoute();
 const fileInputThree = ref(null);
+const router = useRouter();
 
 const formData = ref({
   multiple_id: [],
@@ -680,6 +681,14 @@ const clearAction = () => {
     comment: "",
   };
   carModalOpen.value = false;
+};
+
+const goToProduct = () => {
+  if (props.detail?.items[0]?.product_type == "App\\Models\\Hotel") {
+    router.push(`/product/hotel/edit/${props.detail?.items[0]?.product_id}`);
+  } else {
+    router.push(`/products/6?edit=${props.detail?.items[0]?.product_id}`);
+  }
 };
 
 const openFilePickerThree = () => {

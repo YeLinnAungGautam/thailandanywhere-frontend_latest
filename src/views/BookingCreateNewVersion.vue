@@ -51,16 +51,16 @@ const productArray = [
     name: "Van Tours",
     image: VantourImage,
   },
-  {
-    id: 2,
-    name: "Attractions",
-    image: AttractionImage,
-  },
-  {
-    id: 3,
-    name: "Hotels",
-    image: HotelImage,
-  },
+  // {
+  //   id: 2,
+  //   name: "Attractions",
+  //   image: AttractionImage,
+  // },
+  // {
+  //   id: 3,
+  //   name: "Hotels",
+  //   image: HotelImage,
+  // },
   {
     id: 4,
     name: "Airlines",
@@ -76,8 +76,8 @@ const productArray = [
 // Map tags to corresponding components
 const componentsMap = {
   "Van Tours": Vantour,
-  Attractions: Attraction,
-  Hotels: Hotel,
+  // Attractions: Attraction,
+  // Hotels: Hotel,
   Restaurants: Vantour,
   Airlines: Airline,
 };

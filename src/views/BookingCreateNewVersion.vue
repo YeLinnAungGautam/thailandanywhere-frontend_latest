@@ -34,6 +34,7 @@ import Airline from "./BookingComponent/Airline.vue";
 import TaxInfo from "./BookingComponent/TaxInfo.vue";
 import { useAdminStore } from "../stores/admin";
 import ArchiveConfirmationModal from "./BookingComponent/ConfirmationModel.vue";
+import { useAuthStore } from "../stores/auth";
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
 // for tag
@@ -44,6 +45,8 @@ const bookingStore = useBookingStore();
 const toast = useToast();
 const adminStore = useAdminStore();
 const router = useRouter();
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
 
 const productArray = [
   {
@@ -51,16 +54,16 @@ const productArray = [
     name: "Van Tours",
     image: VantourImage,
   },
-  // {
-  //   id: 2,
-  //   name: "Attractions",
-  //   image: AttractionImage,
-  // },
-  // {
-  //   id: 3,
-  //   name: "Hotels",
-  //   image: HotelImage,
-  // },
+  {
+    id: 2,
+    name: "Attractions",
+    image: AttractionImage,
+  },
+  {
+    id: 3,
+    name: "Hotels",
+    image: HotelImage,
+  },
   {
     id: 4,
     name: "Airlines",
@@ -76,8 +79,8 @@ const productArray = [
 // Map tags to corresponding components
 const componentsMap = {
   "Van Tours": Vantour,
-  // Attractions: Attraction,
-  // Hotels: Hotel,
+  Attractions: Attraction,
+  Hotels: Hotel,
   Restaurants: Vantour,
   Airlines: Airline,
 };
@@ -1097,16 +1100,21 @@ onMounted(async () => {
           <div
             class="flex justify-start items-center gap-x-2 overflow-x-scroll no-sidebar-container pb-2 border-r border-gray-300"
           >
+            <!-- {{ currentTag }} -->
             <div
               v-for="l in productArray"
               :key="l"
               @click="currentTag = l.name"
               class="p-2 shadow-sm rounded-md flex justify-start items-center gap-x-2 cursor-pointer hover:bg-[#ff613c]/20"
-              :class="
+              :class="[
                 currentTag == l.name
                   ? 'bg-[#ff613c] text-white font-semibold'
-                  : 'bg-white'
-              "
+                  : 'bg-white',
+                user?.role == 'admin' &&
+                (l.name == 'Hotels' || l.name == 'Attractions')
+                  ? 'hidden'
+                  : '',
+              ]"
             >
               <img
                 :src="l.image"

@@ -73,6 +73,8 @@ import TaxReceipt from "../views/TaxReceipt.vue";
 import GroupVantour from "../views/GroupVantour.vue";
 import GroupHotel from "../views/GroupHotel.vue";
 import BankStatement from "../views/BankStatement.vue";
+import CashBook from "../views/CashBook.vue";
+import CashStructure from "../views/CashStructure.vue";
 
 const routes = [
   {
@@ -453,6 +455,16 @@ const routes = [
     path: "/bank_statement",
     name: "bankStatement",
     component: BankStatement,
+  },
+  {
+    path: "/cash_book",
+    name: "cashBook",
+    component: CashBook,
+  },
+  {
+    path: "/cash_structure",
+    name: "cashStructure",
+    component: CashStructure,
   },
 ];
 

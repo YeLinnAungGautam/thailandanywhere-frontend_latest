@@ -20,6 +20,7 @@ import { useAuthStore } from "../../stores/auth";
 import { useToast } from "vue-toastification";
 import { storeToRefs } from "pinia";
 import { Switch } from "@headlessui/vue";
+import { formattedDate } from "../../views/help/FormatData";
 
 const props = defineProps({
   data: Object || Array,
@@ -422,7 +423,9 @@ onMounted(async () => {
   <div v-if="!loading">
     <div class="w-full bg-white flex items-center rounded-md pl-2">
       <p class="w-[10%] text-[10px] py-2 px-2">{{ data?.crm_id }}</p>
-      <p class="w-[10%] text-[10px] py-2 px-2">{{ data?.service_date }}</p>
+      <p class="w-[10%] text-[10px] py-2 px-2">
+        {{ formattedDate(data?.service_date) }}
+      </p>
       <p class="w-[10%] text-[10px] py-2 px-2">{{ data?.customer_name }}</p>
       <p class="w-[20%] text-[10px] py-2 px-2">{{ data?.product_name }}</p>
       <p class="w-[10%] text-[10px] py-2 px-2">{{ data?.variation_name }}</p>

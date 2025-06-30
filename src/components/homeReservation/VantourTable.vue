@@ -20,7 +20,7 @@ import { useAuthStore } from "../../stores/auth";
 import { useToast } from "vue-toastification";
 import { storeToRefs } from "pinia";
 import { Switch } from "@headlessui/vue";
-import { formattedDate } from "../../views/help/FormatData";
+import { formattedDateTime } from "../../views/help/FormatData";
 
 const props = defineProps({
   data: Object || Array,
@@ -326,7 +326,7 @@ CRMID: ${props?.data.crm_id}
 C. Name: ${props?.data.customer_name}
 Contact: ${res?.result?.driver_contact}
 
-S.Date: ${props?.data.service_date}
+S.Date: ${formattedDateTime(props?.data.service_date)}
 Pickup Time: ${props?.data.pickup_time}
 Pickup Location: ${props?.data.pickup_location}
 Dropoff Location: ${props?.data.dropoff_location}
@@ -369,7 +369,7 @@ const copyFunction = async () => {
       formattedOutput = `
     🆔 CRM ID : ${props?.data.crm_id}
     📝 Product Name : ${props?.data.product_name}
-    📅 Departure Date : ${props?.data.service_date}
+    📅 Departure Date : ${formattedDateTime(props?.data.service_date)}
     🕧 Pickup Time : ${props?.data.pickup_time}
     🧑‍✈️ Driver Name : ${resDriver?.result.name}
     ☎️ Driver Contact : ${resDriver?.result.contact}
@@ -424,7 +424,7 @@ onMounted(async () => {
     <div class="w-full bg-white flex items-center rounded-md pl-2">
       <p class="w-[10%] text-[10px] py-2 px-2">{{ data?.crm_id }}</p>
       <p class="w-[10%] text-[10px] py-2 px-2">
-        {{ formattedDate(data?.service_date) }}
+        {{ formattedDateTime(data?.service_date) }}
       </p>
       <p class="w-[10%] text-[10px] py-2 px-2">{{ data?.customer_name }}</p>
       <p class="w-[20%] text-[10px] py-2 px-2">{{ data?.product_name }}</p>

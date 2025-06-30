@@ -45,18 +45,42 @@ export function formattedDate(dateInput) {
   return null;
 }
 
+export function formattedDateTime(dateInput) {
+  const date = new Date(dateInput);
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  const month = months[date.getMonth()];
+  const day = date.getDate().toString().padStart(2, "0");
+  const year = date.getFullYear();
+
+  return `${month} ${day}, ${year}`;
+}
+
 export function changeFormat(dateStr) {
   if (dateStr) {
     return format(new Date(dateStr), "dd MMMM, YYY");
   } else {
     return "";
   }
-};
+}
 
 export const formattedNumber = (number) => {
-  if(number){
+  if (number) {
     return new Intl.NumberFormat().format(number);
-  }else{
+  } else {
     return 0;
   }
 };

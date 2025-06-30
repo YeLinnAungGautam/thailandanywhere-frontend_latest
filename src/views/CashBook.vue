@@ -127,7 +127,7 @@
                     scope="col"
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
-                    {{ item?.reference_number }}
+                    {{ item?.reference }}
                   </td>
                   <td
                     scope="col"
@@ -273,12 +273,25 @@
 
                 <div class="space-y-2">
                   <label class="text-[11px]">Interact Bank</label>
-                  <input
+                  <!-- <input
                     v-model="formData.interact_bank"
                     type="text"
                     class="w-full border border-gray-400/20 rounded-lg px-3 py-2 text-xs"
                     placeholder="Bank name"
-                  />
+                  /> -->
+                  <select
+                    v-model="formData.interact_bank"
+                    class="w-full border border-gray-400/20 rounded-lg px-3 py-2 text-xs"
+                  >
+                    <option value="">Select Interact Bank</option>
+                    <option value="personal">Personal</option>
+                    <option value="company">Company</option>
+                    <option value="cash_at_office">Cash at Office</option>
+                    <option value="to_money_changer">To Money Changer</option>
+                    <option value="deposit_management">
+                      Deposit Management
+                    </option>
+                  </select>
                 </div>
 
                 <div class="space-y-2">
@@ -348,6 +361,7 @@
               </div>
 
               <!-- Images Section -->
+              <!-- Updated Images Section Template -->
               <div class="space-y-3">
                 <div class="flex justify-between items-center">
                   <h3 class="font-medium text-gray-800">Images</h3>
@@ -365,24 +379,67 @@
                   class="border border-gray-200 rounded p-3 space-y-2"
                 >
                   <div class="flex justify-between items-center">
-                    <span class="text-xs font-medium"
-                      >Image {{ index + 1 }}</span
-                    >
+                    <span class="text-xs font-medium">
+                      Image {{ index + 1 }}
+                      <span v-if="image.is_existing" class="text-green-600 ml-1"
+                        >(Existing)</span
+                      >
+                      <span v-else class="text-blue-600 ml-1">(New)</span>
+                    </span>
                     <button
                       @click="removeImage(index)"
-                      class="text-red-500 text-xs"
+                      class="text-red-500 text-xs hover:text-red-700"
                     >
                       Remove
                     </button>
                   </div>
 
+                  <!-- Show existing image if available -->
+                  <div
+                    v-if="image.existing_image && image.is_existing"
+                    class="mb-2"
+                  >
+                    <label class="text-[11px] text-gray-600 block mb-1"
+                      >Current Image:</label
+                    >
+                    <div class="flex items-center gap-2">
+                      <img
+                        :src="image.existing_image"
+                        alt="Current image"
+                        class="w-16 h-16 object-cover rounded border"
+                      />
+                      <div class="text-[10px] text-gray-500">
+                        <p>ID: {{ image.id }}</p>
+                        <p>Upload new image to replace</p>
+                      </div>
+                    </div>
+                  </div>
+
                   <div class="space-y-2">
-                    <input
-                      @change="handleImageUpload($event, index)"
-                      type="file"
-                      accept="image/*"
-                      class="w-full border border-gray-400/20 rounded-lg px-3 py-2 text-xs"
-                    />
+                    <div>
+                      <label class="text-[11px] block mb-1">
+                        {{
+                          image.is_existing
+                            ? "Replace Image (Optional)"
+                            : "Upload Image"
+                        }}
+                      </label>
+                      <input
+                        @change="handleImageUpload($event, index)"
+                        type="file"
+                        accept="image/*"
+                        class="w-full border border-gray-400/20 rounded-lg px-3 py-2 text-xs"
+                        :class="{
+                          'border-green-300': image.is_existing && !image.image,
+                        }"
+                      />
+                      <p
+                        v-if="image.is_existing && !image.image"
+                        class="text-[10px] text-green-600 mt-1"
+                      >
+                        Leave empty to keep current image
+                      </p>
+                    </div>
 
                     <div class="grid grid-cols-2 gap-2">
                       <input
@@ -419,12 +476,19 @@
                       </select>
                     </div>
 
-                    <input
+                    <select
                       v-model="image.interact_bank"
-                      type="text"
                       class="w-full border border-gray-400/20 rounded-lg px-3 py-2 text-xs"
-                      placeholder="Bank"
-                    />
+                    >
+                      <option value="">Select Interact Bank</option>
+                      <option value="personal">Personal</option>
+                      <option value="company">Company</option>
+                      <option value="cash_at_office">Cash at Office</option>
+                      <option value="to_money_changer">To Money Changer</option>
+                      <option value="deposit_management">
+                        Deposit Management
+                      </option>
+                    </select>
 
                     <input
                       v-model="image.date"
@@ -432,6 +496,14 @@
                       class="w-full border border-gray-400/20 rounded-lg px-3 py-2 text-xs"
                     />
                   </div>
+                </div>
+
+                <!-- Show message when no images -->
+                <div
+                  v-if="formData.images.length === 0"
+                  class="text-center py-4 text-gray-500 text-xs"
+                >
+                  No images added yet. Click "Add Image" to upload images.
                 </div>
               </div>
 
@@ -541,21 +613,31 @@ const clearFilters = () => {
 };
 
 const editGetFormData = (data) => {
-  formData.value.id = data.id;
-  formData.value.reference_number = data.reference_number;
+  console.log(data, "this is data for edit");
 
-  // Parse date
+  formData.value.id = data.id;
+  formData.value.reference_number = data.reference;
+
+  // Parse date - handle DD-MM-YYYY HH:mm:ss format
   if (data.date) {
-    const date = new Date(data.date);
-    formData.value.date_only = date.toISOString().split("T")[0];
-    formData.value.time_only = date
-      .toTimeString()
-      .split(" ")[0]
-      .substring(0, 5); // Get HH:mm format
+    // Convert DD-MM-YYYY HH:mm:ss to YYYY-MM-DD HH:mm:ss format
+    const dateStr = data.date;
+    const [datePart, timePart] = dateStr.split(" ");
+    const [day, month, year] = datePart.split("-");
+    const isoDateStr = `${year}-${month}-${day} ${timePart}`;
+
+    const date = new Date(isoDateStr);
+    if (!isNaN(date.getTime())) {
+      formData.value.date_only = date.toISOString().split("T")[0];
+      formData.value.time_only = date
+        .toTimeString()
+        .split(" ")[0]
+        .substring(0, 5); // Get HH:mm format
+    }
   }
 
   formData.value.income_or_expense = data.income_or_expense;
-  formData.value.cash_structure_id = data.cash_structure_id;
+  formData.value.cash_structure_id = data.cash_structure?.id;
   formData.value.interact_bank = data.interact_bank || "";
   formData.value.description = data.description || "";
 
@@ -567,17 +649,20 @@ const editGetFormData = (data) => {
       note: account.pivot?.note || "",
     })) || [];
 
-  // Map images
+  // Map images - Fixed to handle existing images properly
   formData.value.images =
     data.cash_images?.map((img) => ({
-      id: img.id,
+      id: img.id, // Include existing image ID
       sender: img.sender,
-      receiver: img.receiver,
+      receiver: img.receiver, // Handle both spellings
       amount: img.amount,
       currency: img.currency,
       interact_bank: img.interact_bank || "",
       date: formatDateTimeForInput(img.date),
-      image: null, // For file upload
+      // date: img.date,
+      image: null, // For new file upload (existing image will be shown separately)
+      existing_image: img.image, // Store existing image path for display
+      is_existing: true, // Flag to identify existing images
     })) || [];
 };
 
@@ -668,16 +753,26 @@ const prepareFormData = () => {
     frmData.append(`accounts[${index}][note]`, account.note);
   });
 
-  // Add images with proper datetime formatting
+  // Add images with proper handling for existing vs new images
   formData.value.images.forEach((image, index) => {
+    // If it's an existing image, include the ID
+    if (image.id && image.is_existing) {
+      frmData.append(`images[${index}][id]`, image.id);
+    }
+
+    // Only append image file if a new one was selected
     if (image.image) {
       frmData.append(`images[${index}][image]`, image.image);
     }
-    frmData.append(`images[${index}][sender]`, image.sender);
-    frmData.append(`images[${index}][receiver]`, image.receiver);
-    frmData.append(`images[${index}][amount]`, image.amount);
-    frmData.append(`images[${index}][currency]`, image.currency);
-    frmData.append(`images[${index}][interact_bank]`, image.interact_bank);
+
+    frmData.append(`images[${index}][sender]`, image.sender || "");
+    frmData.append(`images[${index}][receiver]`, image.receiver || "");
+    frmData.append(`images[${index}][amount]`, image.amount || 0);
+    frmData.append(`images[${index}][currency]`, image.currency || "");
+    frmData.append(
+      `images[${index}][interact_bank]`,
+      image.interact_bank || ""
+    );
 
     // Format image date properly
     if (image.date) {
@@ -737,6 +832,7 @@ const addImage = () => {
   const formattedNow = formatDateTimeForInput(now);
 
   formData.value.images.push({
+    id: null, // New image won't have ID
     image: null,
     sender: "",
     receiver: "",
@@ -744,6 +840,8 @@ const addImage = () => {
     currency: "THB",
     interact_bank: "",
     date: formattedNow,
+    existing_image: null,
+    is_existing: false, // Flag for new images
   });
 };
 
@@ -756,19 +854,50 @@ const handleImageUpload = (event, index) => {
   if (file) {
     // Store the file object directly
     formData.value.images[index].image = file;
+    // Remove existing image flag when new image is uploaded
+    formData.value.images[index].is_existing = false;
   }
 };
 
 // Utility functions
 const formatDate = (date) => {
   if (!date) return "-";
-  return new Date(date).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+
+  try {
+    let dateObj;
+
+    // Check if date is in DD-MM-YYYY HH:mm:ss format
+    if (
+      typeof date === "string" &&
+      date.includes("-") &&
+      date.split("-")[0].length === 2
+    ) {
+      // Convert DD-MM-YYYY HH:mm:ss to YYYY-MM-DD HH:mm:ss
+      const [datePart, timePart] = date.split(" ");
+      const [day, month, year] = datePart.split("-");
+      const isoDateStr = `${year}-${month}-${day} ${timePart}`;
+      dateObj = new Date(isoDateStr);
+    } else {
+      // Handle other date formats
+      dateObj = new Date(date);
+    }
+
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      return "Invalid Date";
+    }
+
+    return dateObj.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch (error) {
+    console.error("Error formatting date:", date, error);
+    return "Invalid Date";
+  }
 };
 
 const formatDateTimeForServer = (dateTimeString) => {
@@ -796,16 +925,33 @@ const formatDateTimeForServer = (dateTimeString) => {
 const formatDateTimeForInput = (dateTimeString) => {
   if (!dateTimeString) return "";
 
-  const date = new Date(dateTimeString);
-  if (isNaN(date.getTime())) return "";
+  let dateObj;
+
+  // Handle DD-MM-YYYY HH:mm:ss format from your API
+  if (
+    typeof dateTimeString === "string" &&
+    dateTimeString.includes("-") &&
+    dateTimeString.split("-")[0].length === 2
+  ) {
+    const [datePart, timePart] = dateTimeString.split(" ");
+    const [day, month, year] = datePart.split("-");
+    const isoDateStr = `${year}-${month}-${day} ${timePart}`;
+    dateObj = new Date(isoDateStr);
+  } else {
+    // Handle other date formats
+    dateObj = new Date(dateTimeString);
+  }
+
+  if (isNaN(dateObj.getTime())) return "";
 
   // Format for datetime-local input (YYYY-MM-DDTHH:mm)
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  const hours = String(dateObj.getHours()).padStart(2, "0");
+  const minutes = String(dateObj.getMinutes()).padStart(2, "0");
 
+  // Removed the trailing space
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 

@@ -230,6 +230,26 @@
                 />
               </Switch>
             </div>
+            <div
+              class="mb-2 space-y-1 flex justify-between pr-4 items-center gap-3"
+              v-if="quiteSwitch == 1"
+            >
+              <label for="room_price" class="text-sm text-gray-800"
+                >Is Show on Website ?</label
+              >
+              <Switch
+                v-model="enabledShowOn"
+                :class="enabledShowOn ? ' bg-orange-600' : 'bg-gray-500'"
+                class="relative inline-flex h-[28px] w-[64px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+              >
+                <span class="sr-only">Use setting</span>
+                <span
+                  aria-hidden="true"
+                  :class="enabledShowOn ? 'translate-x-9' : 'translate-x-0'"
+                  class="pointer-events-none inline-block h-[24px] w-[24px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                />
+              </Switch>
+            </div>
           </div>
           <div class="mb-2 space-y-1" v-if="quiteSwitch == 1">
             <label for="room_price" class="text-sm text-gray-800"
@@ -871,6 +891,7 @@ const enabled = ref(false);
 const enabledhas = ref(false);
 const enabledDouble = ref(false);
 const enabledTwin = ref(false);
+const enabledShowOn = ref(false);
 
 const quiteSwitch = ref(1);
 
@@ -1000,6 +1021,7 @@ const closeModal = () => {
   enabledhas.value = false;
   enabledDouble.value = false;
   enabledTwin.value = false;
+  enabledShowOn.value = false;
   createModalOpen.value = false;
   imagesPreview.value = [];
   editImagesPreview.value = [];
@@ -1064,6 +1086,7 @@ const addNewHandler = async () => {
   frmData.append("has_breakfast", enabledhas.value ? 1 : 0);
   frmData.append("meta[is_double]", enabledDouble.value ? 1 : 0);
   frmData.append("meta[is_twin]", enabledTwin.value ? 1 : 0);
+  frmData.append("meta[is_show_on]", enabledShowOn.value ? 1 : 0);
   frmData.append("meta[room_size]", formData.value.room_size);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
@@ -1139,6 +1162,7 @@ const addNewHandler = async () => {
     enabledhas.value = false;
     enabledDouble.value = false;
     enabledTwin.value = false;
+    enabledShowOn.value = false;
     errors.value = null;
     createModalOpen.value = false;
     imagesPreview.value = [];
@@ -1164,6 +1188,7 @@ const updateHandler = async () => {
   frmData.append("has_breakfast", enabledhas.value ? 1 : 0);
   frmData.append("meta[is_double]", enabledDouble.value ? 1 : 0);
   frmData.append("meta[is_twin]", enabledTwin.value ? 1 : 0);
+  frmData.append("meta[is_show_on]", enabledShowOn.value ? 1 : 0);
   frmData.append("meta[room_size]", formData.value.room_size);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
@@ -1311,6 +1336,7 @@ const editModalOpenHandler = (data) => {
   enabledhas.value = data.has_breakfast == 1 ? true : false;
   enabledDouble.value = data.meta?.is_double == 1 ? true : false;
   enabledTwin.value = data.meta?.is_twin == 1 ? true : false;
+  enabledShowOn.value = data.meta?.is_show_on == 1 ? true : false;
   formData.value.room_size = data.meta?.room_size ?? "";
   formData.value.max_person = data.max_person;
   formData.value.room_price = data.room_price;

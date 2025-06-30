@@ -1,236 +1,148 @@
 <template>
   <div>
-    <div class="flex justify-between items-center">
-      <div class="w-full pt-2.5 items-center col-span-2">
-        <div class="flex justify-end items-center space-x-2 pb-2"></div>
-      </div>
+    <div class="flex justify-start items-center gap-x-4">
+      <p class="text-lg text-[#FF613c] font-bold">{{ data?.crm_id }}</p>
+      <p
+        class="text-xs text-white px-3 py-1.5 rounded-lg"
+        :class="{
+          'bg-green-500': data?.items[0]?.payment_status === 'fully_paid',
+          'bg-yellow-500': data?.items[0]?.payment_status === 'partially_paid',
+          'bg-red-500': data?.items[0]?.payment_status === 'not_paid',
+        }"
+      >
+        {{ data?.items[0]?.payment_status }}
+      </p>
     </div>
-    <div class="col-span-2 h-1 overflow-hidden">
-      <input type="text" class="opacity-0" name="" />
-    </div>
-    <div class="rounded-xl grid grid-cols-2 gap-4" v-if="!emailBooking">
-      <div class="space-y-2">
-        <p class="text-gray-800 text-[10px]">Expense Method:</p>
-
-        <v-select
-          v-model="formData.payment_method"
-          class="style-chooser text-xs rounded-lg bg-white"
-          :options="paymentArray"
-          label="name"
-          :clearable="false"
-          :reduce="(d) => d.name"
-          placeholder=""
-        ></v-select>
-      </div>
-      <div class="space-y-2">
-        <p class="text-gray-800 text-[10px]">Bank Name:</p>
-
-        <v-select
-          v-model="formData.bank_name"
-          class="style-chooser text-xs rounded-lg bg-white"
-          :options="payment"
-          label="name"
-          :clearable="false"
-          :reduce="(d) => d.name"
-          placeholder=""
-        ></v-select>
-      </div>
-      <div class="space-y-2">
-        <p class="text-gray-800 text-[10px]">Expense Status</p>
-        <v-select
-          v-model="formData.payment_status"
-          class="style-chooser text-xs rounded-lg bg-white"
-          :options="payment_status"
-          label="name"
-          :clearable="false"
-          :reduce="(d) => d.name"
-          placeholder=""
-        ></v-select>
-      </div>
-      <div class="space-y-2">
-        <p class="text-gray-800 text-[10px]">Bank Account Number</p>
-        <input
-          v-model="formData.bank_account_number"
-          type="number"
-          id="title"
-          class="h-9 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-        />
-      </div>
-      <div
-        class="space-y-2"
-        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
-      >
-        <p class="text-gray-800 text-[10px]">Adult Unit Cost *</p>
-        <div class="grid grid-cols-3 gap-x-2">
-          <input
-            v-model="formData.quantity"
-            type="number"
-            id="title"
-            disabled
-            class="h-9 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-          <input
-            v-model="formData.cost_price"
-            type="number"
-            id="title"
-            class="h-9 col-span-2 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-        </div>
-        <p class="text-xs text-red-500">! Unit cost can't be empty</p>
-      </div>
-      <div
-        class="space-y-2"
-        v-if="detail?.product_type == 'App\\Models\\EntranceTicket'"
-      >
-        <p class="text-gray-800 text-[10px]">Child Unit Cost *</p>
-        <div class="grid grid-cols-3 gap-x-2">
-          <input
-            v-model="formData.child_quantity"
-            type="number"
-            disabled
-            id="title"
-            class="h-9 rounded-lg w-full bg-gray-2000 border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-          <input
-            v-model="formData.child_price"
-            type="number"
-            id="title"
-            class="h-9 col-span-2 rounded-lg w-full bg-gray-2000 border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-        </div>
-        <p class="text-xs text-red-500">! Unit cost can't be empty</p>
-      </div>
-      <div
-        class="space-y-2"
-        v-if="detail?.product_type == 'App\\Models\\Hotel'"
-      >
-        <p class="text-gray-800 text-[10px]">Unit Cost</p>
-        <div class="flex justify-start items-center gap-x-2 text-xs">
-          <input
-            v-model="formData.quantity"
-            type="number"
-            id="title"
-            disabled
-            class="h-9 rounded-lg w-[40px] bg-white border border-gray-300 text-center py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-          R
-          <input
-            :value="daysBetween(detail?.checkin_date, detail?.checkout_date)"
-            type="number"
-            id="title"
-            disabled
-            class="h-9 rounded-lg w-[40px] bg-white border border-gray-300 text-center py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-          N
-          <input
-            v-model="formData.cost_price"
-            type="number"
-            id="title"
-            class="h-9 col-span-1 rounded-lg w-full bg-white border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          />
-        </div>
-      </div>
-
-      <div
-        class="space-y-2"
-        v-if="
-          detail?.product_type == 'App\\Models\\EntranceTicket' ||
-          detail?.product_type == 'App\\Models\\Hotel' ||
-          detail?.product_type == 'App\\Models\\PrivateVanTour' ||
-          detail?.product_type == 'App\\Models\\GroupTour' ||
-          detail?.product_type == 'App\\Models\\Airline'
-        "
-      >
-        <div class="space-y-2">
-          <p class="text-gray-800 text-[10px]">Total Cost</p>
-          <p
-            class="h-9 w-full bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-          >
-            {{ detail?.total_cost_price }}
-          </p>
-          <!-- <p
-            class="h-9 w-full bg-white border rounded-md border-gray-300 shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
-            v-if="detail?.checkin_date"
-          >
-            {{ formData.cost_price * formData.hotalQuantity }}
-          </p> -->
-        </div>
-      </div>
-      <div class="space-y-2 col-span-2 w-full">
-        <!-- <p class="text-gray-800 text-[10px]">Receipt</p> -->
-        <div class="space-y-4 mb-2">
-          <input
-            type="file"
-            id="image"
-            ref="fileInputThree"
-            class="hidden"
-            @change="recehandleFileChange"
-            accept="image/*"
-          />
-
-          <p
-            class="text-[10px]"
-            v-if="formData.booking_receipt_image?.length != 0"
-          >
-            receipt slip
-          </p>
-          <div class="grid grid-cols-4 gap-4">
-            <div class="space-y-2" @click="carModalOpen = true">
-              <div
-                class="w-full h-[210px] border border-[#FF613c] text-[#FF613c] text-lg flex justify-center items-center rounded-lg border-dashed"
+    <div class="pt-3 pb-6">
+      <div className="w-full">
+        <table
+          className="w-full rounded-lg overflow-hidden border border-gray-200"
+        >
+          <thead className="bg-orange-500">
+            <tr>
+              <th className="text-center text-xs text-white py-2">Code</th>
+              <th className="text-center text-xs text-white py-2">Name</th>
+              <th className="text-center text-xs text-white py-2">
+                Service Date
+              </th>
+              <th className="text-center text-xs text-white py-2">Cost</th>
+              <th
+                className="text-center text-xs text-white py-2"
+                v-if="i?.product_type == 'App\\Models\\EntranceTicket'"
               >
-                +
-              </div>
-              <div
-                class="w-full px-4 pb-1 border-dashed border border-[#FF613c] space-y-2 text-[#FF613c] hover:shadow-none rounded-lg"
-              >
-                <p class="text-[10px] flex justify-start items-center pt-2">
-                  <!-- <img :src="bathImage" alt="" class="w-4 h-4 mr-2" /> -->
-                  Bank Name
-                </p>
-                <p class="text-[10px] flex justify-start items-center">
-                  <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-                  Amount
-                </p>
-                <p class="text-[10px] flex justify-start items-center pb-2">
-                  <!-- <img :src="dateImage" alt="" class="w-3 h-3 mr-2" /> -->
-                  Date
-                </p>
-              </div>
-            </div>
-            <div
-              v-for="(image, index) in formData.booking_receipt_image ?? []"
-              :key="index"
-              class="relative"
+                Child Cost
+              </th>
+              <th className="text-center text-xs text-white py-2">
+                Total Cost
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-300">
+            <tr
+              className="bg-white even:bg-gray-50 hover:bg-gray-50"
+              v-for="i in data?.items"
+              :key="i.id"
             >
-              <p
-                @click="openModal(image, index)"
-                class="absolute top-4 cursor-pointer text-[8px] shadow right-2 text-xs text-white bg-[#FF613c] px-2 py-0.5 rounded-lg"
+              <td className="text-center text-xs py-3">{{ i.crm_id }}</td>
+              <td className="text-center text-xs py-3 max-w-[150px]">
+                {{ i?.variation?.name }}{{ i?.room?.name }}{{ i?.car?.name
+                }}{{ i?.ticket?.name }}
+              </td>
+              <td className="text-center text-xs py-3">
+                {{ getFormatDate(i.service_date) }}
+              </td>
+              <td className="text-center text-xs py-3">
+                <span>{{ i.quantity }}</span> x {{ i.cost_price }}
+              </td>
+              <td
+                v-if="i?.product_type == 'App\\Models\\EntranceTicket'"
+                class="text-center text-xs py-3"
               >
-                <span class="text-[10px]">edit</span>
-              </p>
-              <a :href="image.file" target="_blink" class="w-full h-auto">
-                <img
-                  :src="image.file"
-                  alt=""
-                  class="rounded-lg w-full h-[210px] object-cover"
-                />
-              </a>
-              <div
-                class="w-full px-4 pb-1 mt-2 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
-              >
-                <p class="text-[10px] flex justify-start items-center pt-2">
-                  {{ image.bank_name }}
-                </p>
-                <p class="text-[10px] flex justify-start items-center">
-                  {{ image.amount }}
-                </p>
-                <p class="text-[10px] flex justify-start items-center pb-2">
-                  {{ image.date }}
-                </p>
-              </div>
-            </div>
-          </div>
+                <span>{{ i.individual_pricing?.child?.quantity }}</span> x
+                {{ i.individual_pricing?.child?.cost_price }}
+              </td>
+
+              <td className="text-center text-xs py-3">
+                {{ formattedNumber(i?.total_cost_price) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-x-10">
+      <div class="grid grid-cols-2 gap-2">
+        <p class="text-[#FF613c] font-semibold text-xs py-2">Expense Summary</p>
+        <p></p>
+        <p class="text-xs font-semibold">Expense Total:</p>
+        <p class="bg-gray-200 px-4 h-8 pt-2 text-xs rounded-lg">
+          {{ totalExpense }}
+        </p>
+        <p class="text-xs font-semibold">Bank Name:</p>
+        <p class="bg-gray-200 px-4 h-8 pt-2 text-xs rounded-lg">
+          {{ data?.items[0]?.bank_name }}
+        </p>
+        <p class="text-xs font-semibold">Expense Method:</p>
+        <p class="bg-gray-200 px-4 h-8 pt-2 text-xs rounded-lg">
+          {{ data?.items[0]?.payment_method }}
+        </p>
+        <p class="text-xs font-semibold">Expense Status:</p>
+        <p class="bg-gray-200 px-4 h-8 pt-2 text-xs rounded-lg">
+          {{ data?.items[0]?.payment_status }}
+        </p>
+        <p class="text-xs font-semibold">Bank Acount Number:</p>
+        <p class="bg-gray-200 px-4 h-8 pt-2 text-xs rounded-lg">
+          {{ data?.items[0]?.bank_account_number }}
+        </p>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <p class="text-[#FF613c] font-semibold text-xs py-2">Payment Detail</p>
+        <p></p>
+        <div>
+          <p class="text-[10px] pb-2">CRM ID</p>
+          <p class="bg-gray-200 px-4 py-2 text-xs rounded-lg">
+            {{ data?.crm_id }}
+          </p>
+        </div>
+        <div>
+          <p class="text-[10px] pb-2">Sales Date</p>
+          <p class="bg-gray-200 px-4 py-2 text-xs rounded-lg">
+            {{ getFormatDate(data?.booking_date) }}
+          </p>
+        </div>
+        <div>
+          <p class="text-[10px] pb-2">Payment Method</p>
+          <p class="bg-gray-200 px-4 py-2 text-xs rounded-lg">
+            {{ data?.payment_method }}
+          </p>
+        </div>
+        <div>
+          <p class="text-[10px] pb-2">Payment Currency</p>
+          <p class="bg-gray-200 px-4 py-2 text-xs rounded-lg">
+            {{ data?.payment_currency }}
+          </p>
+        </div>
+        <div>
+          <p class="text-[10px] pb-2">Bank name</p>
+          <p class="bg-gray-200 px-4 py-2 text-xs rounded-lg">
+            {{ data?.bank_name }}
+          </p>
+        </div>
+        <div>
+          <p class="text-[10px] pb-2">Exchange Rate</p>
+          <p class="bg-gray-200 px-4 py-2 text-xs rounded-lg">0</p>
+        </div>
+        <div>
+          <p class="text-[10px] pb-2">Is inclusive ?</p>
+          <p class="bg-gray-200 px-4 py-2 text-xs rounded-lg">
+            {{ data?.is_inclusive == 1 ? "Yes" : "No" }}
+          </p>
+        </div>
+        <div>
+          <p class="text-[10px] pb-2">Balance Due Date</p>
+          <p class="bg-gray-200 px-4 py-2 text-xs rounded-lg">
+            {{ getFormatDate(data?.balance_due_date) }}
+          </p>
         </div>
       </div>
     </div>
@@ -238,490 +150,21 @@
 </template>
 
 <script setup>
-import { XCircleIcon } from "@heroicons/vue/24/outline";
-import { ref, defineProps, onMounted } from "vue";
-import { useToast } from "vue-toastification";
-import { useReservationStore } from "../../stores/reservation";
-import Modal from "../../components/Modal.vue";
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import { useRoute } from "vue-router";
-import ExpenseBooking from "../Reservation2Component/ExpenseBooking.vue";
-
-const toast = useToast();
-const reservationStore = useReservationStore();
+import { computed, defineProps } from "vue";
+import {
+  formattedDate,
+  formattedNumber,
+  getFormatDate,
+} from "../help/FormatData";
 
 const props = defineProps({
-  detail: Object,
-  getDetailAction: Function,
+  data: Object,
 });
 
-const carModalOpen = ref(false);
-const route = useRoute();
-const fileInputThree = ref(null);
-
-const formData = ref({
-  id: "",
-  reservation_id: "",
-  cost_price: "",
-  payment_method: "",
-  bank_name: "",
-  bank_account_number: "",
-  payment_status: "",
-  hotalQuantity: "",
-  quantity: "",
-  receipt_image: [],
-  booking_receipt_image: [],
-  product_type: "",
-  customer_feedback: "",
-  child_quantity: "",
-  child_price: 0,
-});
-
-const expenseData = ref({
-  index: "",
-  id: "",
-  file: null,
-  amount: 0,
-  date: "",
-  bank_name: "",
-  sender: "",
-  is_corporate: false,
-  comment: "",
-});
-
-const openModal = (data, index) => {
-  carModalOpen.value = true;
-  console.log(data, index, "this is data");
-
-  // save.value = data;
-  expenseData.value = {
-    index: index,
-    id: data.id,
-    file: data.file,
-    amount: data.amount,
-    date: data.date,
-    bank_name: data.bank_name,
-    sender: data.sender,
-    is_corporate: data.is_corporate == 1 ? true : false,
-    comment: data.comment,
-  };
-};
-
-const clearAction = () => {
-  expenseData.value = {
-    index: "",
-    id: "",
-    file: null,
-    amount: 0,
-    date: "",
-    bank_name: "",
-    sender: "",
-    is_corporate: false,
-    comment: "",
-  };
-  carModalOpen.value = false;
-};
-
-const openFilePickerThree = () => {
-  fileInputThree.value.click();
-};
-
-const formatDate = (dateString) => {
-  // Parse the input string into a Date object
-  const date = new Date(dateString);
-
-  // Check if the date is valid
-  if (isNaN(date.getTime())) {
-    return "Invalid Date"; // Handle invalid dates
-  }
-
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-
-  // Extract date components
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-
-  // Extract time components
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-
-  // Return formatted date and time
-  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
-};
-
-const formatDateFromDb = (dateString) => {
-  // Split the input string into date and time parts
-  const [datePart, timePart] = dateString.split(" ");
-
-  // Split the date part into day, month, year
-  const [day, month, year] = datePart.split("-");
-
-  // Define month names
-  const monthNames = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-
-  // Get the month name
-  const monthName = monthNames[parseInt(month) - 1]; // Subtract 1 because months are 0-indexed
-
-  // Return the formatted date
-  return `${day}/${monthName}/${year} ${timePart}`;
-};
-
-const formatDateDb = (dateString) => {
-  if (!dateString) return "";
-
-  // Case 1: Replace 'T' with space
-  if (dateString.includes("T")) {
-    return dateString.replace("T", " ");
-  }
-
-  // Case 2: Check if it's in DD-MM-YYYY format with regex
-  const ddmmyyyyRegex = /^(\d{2})-(\d{2})-(\d{4})\s(.*)$/;
-  const match = dateString.match(ddmmyyyyRegex);
-
-  if (match) {
-    // match[1] = day, match[2] = month, match[3] = year, match[4] = time part
-    return `${match[3]}-${match[2]}-${match[1]} ${match[4]}`;
-  }
-
-  // If it doesn't match any of our cases, return as-is
-  return dateString;
-};
-
-const bankList = ref([
-  { id: "1", name: "KPAY" },
-  { id: "2", name: "AYAPAY" },
-  { id: "3", name: "CBPAY" },
-  { id: "4", name: "KBZ BANKING" },
-  { id: "5", name: "CB BANKING" },
-  { id: "6", name: "MAB BANKING" },
-  { id: "7", name: "YOMA BANK" },
-  { id: "8", name: "Kasikorn" },
-  { id: "9", name: "Bangkok Bank" },
-  { id: "10", name: "Bank of Ayudhaya" },
-  { id: "11", name: "SCB Bank" },
-  { id: "12", name: "KPAY" },
-  { id: "13", name: "AYAPAY" },
-  { id: "14", name: "CBPAY" },
-  { id: "15", name: "KBZ BANKING" },
-  { id: "16", name: "CB BANKING" },
-  { id: "17", name: "MAB BANKING" },
-  { id: "18", name: "YOMA BANK" },
-  { id: "19", name: "Kasikorn" },
-  { id: "20", name: "Bangkok Bank" },
-  { id: "21", name: "Bank of Ayudhaya" },
-  { id: "22", name: "SCB Bank" },
-  { id: "23", name: "Others..." },
-]);
-
-const recehandleFileChange = (e) => {
-  let selectedFile = e.target.files;
-  if (selectedFile) {
-    for (let index = 0; index < selectedFile.length; index++) {
-      formData.value.receipt_image.push(selectedFile[index]);
-      uploadRecePreview.value.push(URL.createObjectURL(selectedFile[index]));
-    }
-  }
-};
-
-const uploadRecePreview = ref([]);
-
-const cancelAction = () => {
-  // your logic to cancel the update goes here
-  formData.value.receipt_image = [];
-  uploadRecePreview.value = [];
-  carModalOpen.value = false;
-
-  clearAction();
-};
-
-const loadingUpdateExpense = ref(false);
-
-const expenseUpdateAction = async () => {
-  loadingUpdateExpense.value = true;
-  // your logic to update the expense data goes here
-  const frmData = new FormData();
-  frmData.append("_method", "PUT");
-  formData.value.cost_price &&
-    frmData.append("cost_price", formData.value.cost_price);
-  formData.value.payment_method &&
-    frmData.append("payment_method", formData.value.payment_method);
-  formData.value.quantity &&
-    frmData.append("quantity", formData.value.quantity);
-  formData.value.payment_status &&
-    frmData.append("payment_status", formData.value.payment_status);
-
-  if (props.detail?.product_type == "App\\Models\\EntranceTicket") {
-    frmData.append(
-      "individual_pricing[child][quantity]",
-      formData.value.child_quantity
-    );
-    frmData.append(
-      "individual_pricing[child][selling_price]",
-      props.detail?.individual_pricing?.child?.selling_price ?? 0
-    );
-    frmData.append(
-      "individual_pricing[child][cost_price]",
-      formData.value.child_price ?? 0
-    );
-    frmData.append(
-      "individual_pricing[child][total_cost_price]",
-      formData.value.child_price ?? 0 * formData.value.child_quantity
-    );
-    frmData.append(
-      "individual_pricing[child][amount]",
-      props.detail?.individual_pricing?.child?.selling_price
-        ? props.detail?.individual_pricing?.child?.selling_price *
-            formData.value.child_quantity
-        : 0
-    );
-  }
-  if (formData.value.cost_price) {
-    if (!formData.value.hotalQuantity) {
-      frmData.append(
-        "total_cost_price",
-        formData.value.cost_price * formData.value.quantity +
-          (formData.value.child_price ??
-            0 * formData.value.child_quantity ??
-            0) *
-            1
-      );
-    } else {
-      frmData.append(
-        "total_cost_price",
-        formData.value.cost_price * formData.value.hotalQuantity
-      );
-    }
-  }
-  const response = await reservationStore.updateAction(
-    frmData,
-    formData.value.id
-  );
-
-  if (response.status) {
-    const secfrm = new FormData();
-    secfrm.append("_method", "PUT");
-    if (formData.value.customer_feedback) {
-      secfrm.append("customer_feedback", formData.value.customer_feedback);
-    }
-
-    if (formData.value.bank_name) {
-      secfrm.append("bank_name", formData.value.bank_name);
-    }
-    if (formData.value.bank_account_number) {
-      secfrm.append("bank_account_number", formData.value.bank_account_number);
-    }
-    // if (formData.value.receipt_image.length != 0) {
-    //   if (formData.value.receipt_image.length > 0) {
-    //     for (let i = 0; i < formData.value.receipt_image.length; i++) {
-    //       let file = formData.value.receipt_image[i];
-    //       secfrm.append("receipt_image[" + i + "]", file);
-    //     }
-    //   }
-    // }
-
-    await reservationStore.updateInfoAction(secfrm, formData.value.id);
-
-    toast.success(response.message);
-
-    const loadingUpdateExpense = ref(false);
-
-    setTimeout(async () => {
-      await props.getDetailAction(route.query.id);
-    }, 1000);
-  }
-};
-
-const paymentArray = [
-  // Bank Transfer, International Remittance, Cash, etc
-  { id: "1", name: "Bank Transfer" },
-  { id: "2", name: "International Remittance" },
-  { id: "3", name: "Cash" },
-  { id: "4", name: "Other ..." },
-];
-
-const payment = [
-  { id: "1", name: "K + " },
-  { id: "2", name: "SCB " },
-  { id: "3", name: "Bangkok Bank" },
-  { id: "4", name: "Other Bank " },
-];
-
-const payment_status = [
-  { id: "1", name: "fully_paid" },
-  { id: "2", name: "not_paid" },
-  { id: "3", name: "partially_paid" },
-];
-
-const removeFeatureDeleteImage = async (index, id) => {
-  const res = await reservationStore.deleteResImage(id);
-  toast.success("detected successfully");
-  carModalOpen.value = false;
-  // console.log(editData.value.customer_passport, "this is remove");
-
-  cancelAction();
-
-  setTimeout(async () => {
-    await props.getDetailAction(route.query.id);
-  }, 1000);
-};
-
-const emailBooking = ref(false);
-
-const daysBetween = (a, b) => {
-  console.log(a, b);
-  if (a && b) {
-    const oneDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
-    const startDateTimestamp = new Date(a).getTime();
-    const endDateTimestamp = new Date(b).getTime();
-    let result = Math.abs(
-      Math.round((endDateTimestamp - startDateTimestamp) / oneDay)
-    );
-    console.log(formData.value.checkin_date, result, "this is result");
-    return result;
-  }
-};
-
-const loading = ref(false);
-
-const createExpense = async () => {
-  // console.log(formData.value);
-  loading.value = true;
-  try {
-    const frmData = new FormData();
-    frmData.append("amount", expenseData.value.amount);
-    frmData.append("date", formatDateDb(expenseData.value.date));
-    frmData.append("bank_name", expenseData.value.bank_name);
-    frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
-    frmData.append("comment", expenseData.value.comment);
-
-    if (formData.value.receipt_image.length != 0) {
-      if (formData.value.receipt_image.length > 0) {
-        for (let i = 0; i < formData.value.receipt_image.length; i++) {
-          let file = formData.value.receipt_image[0];
-          frmData.append("file", file);
-        }
-      }
-    }
-
-    const res = await reservationStore.ReservationExpenseReceiptAction(
-      props.detail.id,
-      frmData
-    );
-    console.log(res);
-    toast.success({
-      title: "Success",
-      description: "Create success",
-    });
-
-    setTimeout(async () => {
-      await props.getDetailAction(route.query.id);
-    }, 1000);
-  } catch (error) {
-    console.log(error);
-  } finally {
-    loading.value = false;
-    carModalOpen.value = false;
-  }
-};
-
-const updateExpense = async () => {
-  // console.log(formData.value);
-  loading.value = true;
-  try {
-    const frmData = new FormData();
-    frmData.append("_method", "PUT");
-    frmData.append("amount", expenseData.value.amount);
-    frmData.append("date", formatDateDb(expenseData.value.date));
-    frmData.append("bank_name", expenseData.value.bank_name);
-    frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
-    frmData.append("comment", expenseData.value.comment);
-
-    const res = await reservationStore.ReservationExpenseReceiptUpdateAction(
-      props.detail.id,
-      expenseData.value.id,
-      frmData
-    );
-    console.log(res);
-    toast.success({
-      title: "Success",
-      description: "Update success",
-    });
-
-    setTimeout(async () => {
-      await props.getDetailAction(route.query.id);
-    }, 1000);
-  } catch (error) {
-    console.log(error);
-  } finally {
-    loading.value = false;
-    carModalOpen.value = false;
-  }
-};
-
-onMounted(() => {
-  // Your initial data setup
-  if (props.detail) {
-    console.log(props.detail, "cart value");
-  }
-  if (props.detail) {
-    formData.value.id = props.detail?.id;
-    formData.value.cost_price = props.detail?.cost_price;
-    formData.value.payment_method = props.detail?.payment_method;
-    formData.value.bank_name =
-      props.detail?.reservation_info?.bank_name ||
-      props.detail?.bank_name ||
-      props.detail?.product.bank_name ||
-      "";
-    formData.value.bank_account_number =
-      props.detail?.reservation_info?.bank_account_number ||
-      props.detail?.bank_account_number ||
-      props.detail?.product.bank_account_number ||
-      "";
-    formData.value.payment_status = props.detail?.payment_status;
-    formData.value.hotalQuantity =
-      props.detail?.quantity *
-      daysBetween(props.detail?.checkin_date, props.detail?.checkout_date);
-    formData.value.quantity = props.detail?.quantity;
-    // formData.value.receipt_image = props.detail?.receipt_image;
-    formData.value.booking_receipt_image = props.detail?.receipt_images;
-    formData.value.product_type = props.detail?.product_type;
-    formData.value.customer_feedback =
-      props.detail?.reservation_info?.customer_feedback || "";
-
-    formData.value.child_quantity = props.detail?.individual_pricing
-      ? props?.detail?.individual_pricing?.child?.quantity
-      : 0;
-    formData.value.child_price = props.detail?.individual_pricing
-      ? props?.detail?.individual_pricing?.child?.cost_price
-      : 0;
-  }
+const totalExpense = computed(() => {
+  if (!props.data?.items) return 0;
+  return props.data.items.reduce((total, item) => {
+    return total + item.total_cost_price;
+  }, 0);
 });
 </script>

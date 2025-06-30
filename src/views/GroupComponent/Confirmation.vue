@@ -7,6 +7,43 @@
         <p class="text-lg font-medium text-[#FF613c] px-4">Add Confirmation</p>
 
         <div class="h-[46vh] overflow-y-auto px-3 space-y-1">
+          <div class="border-b pb-3 mb-3 border-gray-400">
+            <p class="text-sm font-medium text-[#FF613c]">Code & Status</p>
+            <div class="space-y-1 pt-1">
+              <div class="space-y-1">
+                <label for="" class="text-xs">Slip code</label>
+                <input
+                  type="text"
+                  class="border border-gray-200 px-2 text-xs py-1.5 rounded-lg w-full"
+                  name=""
+                  placeholder="slip_code"
+                  v-model="form2Data.confirmation_code"
+                  id=""
+                />
+              </div>
+              <div class="space-y-1">
+                <label for="" class="text-xs">Group Status</label>
+                <select
+                  name=""
+                  v-model="form2Data.confirmation_status"
+                  id=""
+                  class="border border-gray-200 px-2 text-xs py-1.5 rounded-lg w-full"
+                >
+                  <option value=""></option>
+                  <option value="confirmed">confirmed</option>
+                  <option value="awaiting">awaiting</option>
+                  <option value="cancelled">cancelled</option>
+                </select>
+              </div>
+              <div class="pt-2" @click="updateConfirmationAction">
+                <p
+                  class="text-xs text-center text-white bg-[#FF613c] px-2 py-2 rounded-lg"
+                >
+                  Update
+                </p>
+              </div>
+            </div>
+          </div>
           <div
             v-for="(customer, index) in confirmationLists ?? []"
             :key="index"
@@ -154,6 +191,24 @@ const formData = ref({
   file: "",
 });
 
+const form2Data = ref({
+  confirmation_code: "",
+  confirmation_status: "",
+});
+
+const updateConfirmationAction = async () => {
+  const frmData = new FormData();
+  frmData.append("_method", "PUT");
+  frmData.append("confirmation_code", form2Data.value.confirmation_code);
+  frmData.append("confirmation_status", form2Data.value.confirmation_status);
+  const res = await groupStore.groupUpdateAction(route.query.id, frmData);
+  console.log(res, "this is res");
+  if (res.status == "Request was successful.") {
+    toast.success("Passport successfully added");
+    await props.getDetailAction();
+  }
+};
+
 const openPassportModal = (data, index) => {
   console.log(data, "this is data");
   formData.value.id = data.id;
@@ -268,6 +323,10 @@ const removeFeatureDeleteImage = async () => {
 };
 
 onMounted(() => {
+  if (props.detail) {
+    form2Data.value.confirmation_code = props.detail.confirmation_code;
+    form2Data.value.confirmation_status = props.detail.confirmation_status;
+  }
   getListAction();
 });
 </script>

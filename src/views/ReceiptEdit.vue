@@ -29,35 +29,30 @@
           />
         </div>
       </div>
+
       <div class="">
-        <p for="" class="text-[12px] font-medium pb-2">
-          Bank <span class="opacity-0">.....</span>
-        </p>
-        <select
+        <p for="" class="text-[12px] font-medium pb-2">Sender</p>
+        <input
+          type="text"
+          v-model="formData.sender"
+          :class="formData.sender.includes('-') ? 'text-gray-400' : ''"
           name=""
-          v-model="formData.bank_name"
-          id=""
+          placeholder="xxx"
           class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-        >
-          <option value="">Select Bank</option>
-          <option :value="b.name" v-for="b in bankList" :key="b.id">
-            {{ b.name }}
-          </option>
-        </select>
+          id=""
+        />
       </div>
       <div class="">
-        <p for="" class="text-[12px] font-medium pb-2">
-          Interact Bank <span class="opacity-0">.....</span>
-        </p>
-        <select
+        <p for="" class="text-[12px] font-medium pb-2">Reciever</p>
+        <input
+          type="text"
+          v-model="formData.reciever"
+          :class="formData.reciever.includes('-') ? 'text-gray-400' : ''"
           name=""
-          v-model="formData.interact_bank"
-          id=""
+          placeholder="xxx"
           class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-        >
-          <option value="personal">Personal</option>
-          <option value="company">Company</option>
-        </select>
+          id=""
+        />
       </div>
       <div class="">
         <p for="" class="text-[12px] font-medium pb-2">Amount</p>
@@ -71,26 +66,34 @@
         />
       </div>
       <div class="">
-        <p for="" class="text-[12px] font-medium pb-2">Sender</p>
-        <input
-          type="text"
-          v-model="formData.sender"
+        <p for="" class="text-[12px] font-medium pb-2">
+          Interact Bank <span class="opacity-0">.....</span>
+        </p>
+        <select
           name=""
-          placeholder="xxx"
-          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+          v-model="formData.interact_bank"
           id=""
-        />
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+        >
+          <option value="personal">Personal</option>
+          <option value="company">Company</option>
+          <option value="cash_at_office">Cash at Office</option>
+          <option value="to_money_changer">To Money Changer</option>
+          <option value="deposit_management">Deposit Management</option>
+        </select>
       </div>
       <div class="">
-        <p for="" class="text-[12px] font-medium pb-2">Reciever</p>
-        <input
-          type="text"
-          v-model="formData.reciever"
+        <p class="text-[12px] pb-2 font-medium">Currency</p>
+        <select
           name=""
-          placeholder="xxx"
-          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+          v-model="formData.currency"
           id=""
-        />
+          class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+        >
+          <option value="MMK">MMK</option>
+          <option value="THB">THB</option>
+          <option value="USD">USD</option>
+        </select>
       </div>
 
       <div
@@ -134,6 +137,7 @@ const formData = ref({
   sender: "",
   reciever: "",
   interact_bank: "",
+  currency: "THB",
   amount: "",
   table_source: "",
   file: "",
@@ -265,10 +269,11 @@ const updateAction = async () => {
     frmData.append("_method", "PUT");
     frmData.append("amount", formData.value.amount);
     frmData.append("date", formatDateDb(formData.value.date));
-    frmData.append("bank_name", formData.value.bank_name);
+    frmData.append("bank_name", formData.value.bank_name ?? "others...");
     frmData.append("sender", formData.value.sender);
     frmData.append("reciever", formData.value.reciever);
     frmData.append("interact_bank", formData.value.interact_bank ?? "personal");
+    frmData.append("currency", formData.value.currency);
 
     // const res = await reservationStore.ReservationExpenseReceiptUpdateAction(
     //   id,
@@ -307,9 +312,18 @@ onMounted(() => {
     formData.value.id = props.updateData.id;
     formData.value.date = props.updateData.date;
     formData.value.bank_name = props.updateData.bank_name;
-    formData.value.sender = props.updateData.sender;
-    formData.value.reciever = props.updateData.reciever;
+    formData.value.sender = props.updateData.sender
+      ? props.updateData.sender
+      : props.updateData.table_source == "expense_receipt"
+      ? "MR. THIHA@KUMAR BHUSAL"
+      : "";
+    formData.value.reciever = props.updateData.reciever
+      ? props.updateData.reciever
+      : props.updateData.table_source == "booking_receipt"
+      ? "MR. THIHA@KUMAR BHUSAL"
+      : "";
     formData.value.interact_bank = props.updateData.interact_bank ?? "personal";
+    formData.value.currency = props.updateData.currency;
     formData.value.amount = props.updateData.amount;
     formData.value.table_source = props.updateData.table_source;
     formData.value.file = props.updateData.file;

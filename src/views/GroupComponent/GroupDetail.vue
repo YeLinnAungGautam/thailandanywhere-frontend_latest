@@ -79,7 +79,7 @@
                       v-if="detail?.booking?.payment_status != 'fully_paid'"
                       class="text-[10px] bg-gray-400 whitespace-nowrap text-white px-3 py-1.5 rounded-lg cursor-pointer"
                     >
-                      Hotel Confirmation {{ expenseStatus(detail) }}
+                      Hotel Confirmation
                     </p>
                   </div>
                   <p
@@ -88,12 +88,7 @@
                       detail?.items[0]?.product_type ==
                       'App\\Models\\EntranceTicket'
                     "
-                    @click="
-                      detail?.items[0]?.product_type ==
-                      'App\\Models\\EntranceTicket'
-                        ? generateConfirmation()
-                        : printHotelConfirm()
-                    "
+                    @click="generateConfirmation"
                   >
                     Generate Confirmation
                   </p>
@@ -108,7 +103,7 @@
               <div class="flex justify-end items-center gap-x-2">
                 <p
                   class="text-[10px] bg-[#FF613c] text-white whitespace-nowrap cursor-pointer px-3 py-1.5 rounded-lg"
-                  @click="copyReservation(detail?.booking?.id)"
+                  @click="copyReservation"
                 >
                   Copy Expense
                 </p>
@@ -681,6 +676,140 @@
         </div>
       </div>
     </div>
+    <Modal :isOpen="selectTicketModal">
+      <DialogPanel
+        class="w-full max-w-xl transform overflow-hidden rounded-lg mt-10 bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start pb-20 pt-4 px-4"
+        >
+          <p></p>
+        </DialogTitle>
+        <!-- show date  -->
+        <div class="relative">
+          <div class="absolute -top-8 left-[43%]">
+            <img
+              :src="logo"
+              class="w-16 h-16 bg-white rounded-full p-3"
+              alt=""
+            />
+          </div>
+          <div class="pt-10 pb-5 text-center space-y-2">
+            <p class="font-medium text-lg text-[#FF613c]">Select Ticket Type</p>
+            <p class="text-xs">
+              မည်သည့် ticket အတွက် confirmation ထုတ်မည်ကို အတည်ပြုပေးပါ။,
+            </p>
+            <div
+              class="flex justify-between items-center text-xs px-4 pt-5 pb-2"
+            >
+              <p>Ticket Type</p>
+              <p class="w-[150px] text-start">Slip Code</p>
+            </div>
+            <div class="space-y-2 px-4">
+              <div
+                v-for="item in detail?.items"
+                class="flex justify-between space-x-2 items-center"
+                :key="item"
+                @click="
+                  () => {
+                    reservation_ids.id = item.id;
+                    reservation_ids.name = item.variation?.name;
+                    reservation_ids.invoice_code = item.slip_code;
+                  }
+                "
+              >
+                <div
+                  :class="
+                    reservation_ids.id == item.id
+                      ? 'bg-[#FF613c] text-white'
+                      : ''
+                  "
+                  class="border border-gray-300 w-full px-3 flex justify-start items-center space-x-2 py-3 rounded-lg"
+                >
+                  <input
+                    type="radio"
+                    :checked="reservation_ids.id == item.id"
+                    class="w-5 h-5 text-white border border-[#FF613c] rounded-full"
+                  />
+                  <label
+                    :for="item.id"
+                    class="ml-2 text-sm line-clamp-1 font-medium"
+                  >
+                    {{ item.variation?.name }}
+                  </label>
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    v-model="reservation_ids.invoice_code"
+                    class="border border-gray-300 w-[150px] px-3 py-3 text-sm rounded-lg"
+                    :placeholder="item.slip_code ? item.slip_code : 'Slip Code'"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="pt-4">
+              <p
+                v-if="reservation_ids.id != null"
+                @click="goToPrint"
+                class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-[#FF613c] px-2 py-2 border border-[#FF613c] rounded-lg"
+              >
+                Go To Generate
+              </p>
+              <p
+                v-if="reservation_ids.id == null"
+                class="cursor-pointer mr-2 inline-block text-white text-[10px] bg-gray-200 px-2 py-2 border border-gray-200 rounded-lg"
+              >
+                Go To Generate
+              </p>
+              <p
+                @click="selectTicketModal = false"
+                class="cursor-pointer inline-block text-[#FF613c] border border-[#FF613c] text-[10px] bg-white px-2 py-2 rounded-lg"
+              >
+                Cancel
+              </p>
+            </div>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+    <Modal :isOpen="showFailModal" @closeModal="showFailModal = false">
+      <DialogPanel
+        class="w-full max-w-sm transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start pb-20 pt-4 px-4"
+        >
+          <p></p>
+          <XCircleIcon
+            class="w-5 h-5 text-white"
+            @click="showFailModal = false"
+          />
+        </DialogTitle>
+        <!-- show date  -->
+        <div class="relative">
+          <div class="absolute -top-8 left-[43%]">
+            <img
+              :src="logo"
+              class="w-16 h-16 bg-white rounded-full p-3"
+              alt=""
+            />
+          </div>
+          <div class="py-10 text-center space-y-4">
+            <p class="font-medium text-lg text-[#FF613c]">Data Missing !</p>
+            <p class="text-xs">Please sure customer payment is paid</p>
+            <p
+              @click="goToFill"
+              class="cursor-pointer inline-block text-white text-[10px] bg-[#FF613c] px-2 py-1 rounded-lg"
+            >
+              Go To Fill Data
+            </p>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
@@ -690,19 +819,29 @@ import { useRoute, useRouter } from "vue-router";
 import { useGroupStore } from "../../stores/group";
 import { getFormatDate } from "../help/FormatData";
 import { daysBetween } from "../help/DateBetween";
-import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/vue/24/outline";
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  XCircleIcon,
+} from "@heroicons/vue/24/outline";
 import { useAuthStore } from "../../stores/auth";
 import GeneralDetail from "./GeneralDetail.vue";
 import PassportInfo from "./Passport.vue";
 import BookingRequest from "./Booking.vue";
 import InvoiceUpdate from "./Invoice.vue";
 import Expense from "./Expense.vue";
+import Modal from "../../components/Modal.vue";
 import ExpenseBooking from "./ExpenseMail.vue";
 import Confirmation from "./Confirmation.vue";
+import checkImage from "../../assets/check.png";
+import { useToast } from "vue-toastification";
+import logo from "../../assets/web-logo.png";
+import { forEach } from "lodash";
 
 const props = defineProps({
   show: Number,
 });
+const toast = useToast();
 const route = useRoute();
 const router = useRouter();
 const groupStore = useGroupStore();
@@ -721,6 +860,7 @@ const state = ref({
   expensemail: false,
   confirmation: false,
 });
+const selectTicketModal = ref(false);
 
 const getComponent = (part) => {
   const components = {
@@ -735,7 +875,29 @@ const getComponent = (part) => {
   return components[part];
 };
 
+const goToPrint = () => {
+  router.push(
+    `/reservation/confirmations/entrance/${reservation_ids.value.id}?variation_name=${reservation_ids.value.name}&invoice_code=${reservation_ids.value.invoice_code}`
+  );
+};
+
+const reservation_ids = ref({
+  id: null,
+  name: null,
+  invoice_code: null,
+});
+
 const transition = ref("slide-right");
+
+const changeState = (data) => {
+  state.value.general = data.booking.payment_status == "fully_paid";
+  state.value.passport = data.has_passport;
+  state.value.booking = data.sent_booking_request == 1 ? true : false;
+  state.value.invoice = data.has_booking_confirm_letter;
+  state.value.expense = data.expense_status == "fully_paid";
+  state.value.expensemail = data.sent_expense_mail == 1 ? true : false;
+  state.value.confirmation = data.has_confirm_letter;
+};
 
 const getDetailAction = async (id) => {
   try {
@@ -743,6 +905,7 @@ const getDetailAction = async (id) => {
     console.log("getDetailAction", id);
     const res = await groupStore.detailAction(id);
     detail.value = res.result;
+    changeState(res.result);
     console.log(res);
   } catch (error) {
     console.log(error);
@@ -784,6 +947,195 @@ const expenseStatus = (i) => {
   } else {
     return "not_paid";
   }
+};
+
+const copyReservation = () => {
+  try {
+    console.log("====================================");
+    console.log("Copying reservation details...", detail.value);
+    console.log("====================================");
+
+    const res = detail.value;
+
+    // Check if we have data and items
+    if (!res || !res.items || res.items.length === 0) {
+      toast.error("No reservation items found");
+      return;
+    }
+
+    // Helper function to check if a date is today, tomorrow, or the day after tomorrow
+    function getUrgencyLabel(dateString) {
+      if (!dateString || dateString === "null" || dateString === "-") return "";
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const dayAfterTomorrow = new Date(today);
+      dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+
+      // Parse the service date
+      const serviceDateParts = dateString.split("-");
+      // Assuming format is YYYY-MM-DD or DD-MM-YYYY
+      let serviceDate;
+
+      if (serviceDateParts[0].length === 4) {
+        // YYYY-MM-DD format
+        serviceDate = new Date(dateString);
+      } else {
+        // DD-MM-YYYY format
+        serviceDate = new Date(
+          `${serviceDateParts[2]}-${serviceDateParts[1]}-${serviceDateParts[0]}`
+        );
+      }
+
+      serviceDate.setHours(0, 0, 0, 0);
+
+      if (serviceDate.getTime() === today.getTime()) {
+        return "*Urgent: Today*  \n";
+      } else if (serviceDate.getTime() === tomorrow.getTime()) {
+        return "*Urgent: Tomorrow*  \n";
+      } else if (serviceDate.getTime() === dayAfterTomorrow.getTime()) {
+        return "*Urgent: Day After Tomorrow*  \n";
+      }
+
+      return "";
+    }
+
+    // Calculate discount from items
+    let discount = 0;
+    for (let i = 0; i < res.items.length; i++) {
+      discount += res.items[i].discount || 0;
+    }
+
+    // Calculate score using booking data
+    let score = 0;
+    let total_amount = 0;
+    if (res.items && res.total_cost_price) {
+      forEach(res.items, (item) => {
+        total_amount += item.amount * 1;
+      });
+      score = (total_amount - res.total_cost_price) / res.total_cost_price;
+    }
+
+    // Check for earliest service date across all items
+    let earliestServiceDate = null;
+    for (const item of res.items) {
+      if (item.service_date && item.service_date !== "null") {
+        if (!earliestServiceDate || item.service_date < earliestServiceDate) {
+          earliestServiceDate = item.service_date;
+        }
+      }
+    }
+
+    // Get urgency label based on earliest service date
+    const urgencyLabel = earliestServiceDate
+      ? getUrgencyLabel(earliestServiceDate)
+      : "";
+
+    // Create formatted output for all items
+    let allFormattedOutput = "";
+
+    // Add urgency label at the top if needed
+    if (urgencyLabel) {
+      allFormattedOutput += urgencyLabel;
+    }
+
+    // Add booking header using booking data
+    allFormattedOutput += `💰 Total Cost: ${res.total_cost_price} THB 
+💵 Price: ${total_amount || 0} THB 
+💵 Balance Due: ${res.booking?.balance_due || 0} THB 
+📝 Payment Status: ${res.booking?.payment_status || "unknown"}
+---------------------
+🏦 Bank Name: ${res.expense_bank_name || res.booking?.bank_name || "-"} 
+🔢 Bank Account Number: ${
+      res.expense_bank_account ? `➖${res.expense_bank_account}` : "-"
+    }
+🧑‍💼 Account Name: ${res.booking?.bill_to || "-"} 
+#️⃣ CRM ID: ${res.booking_crm_id}\n`;
+
+    // Add product header based on type
+    if (res.product_type == "Hotel") {
+      allFormattedOutput += `🏨 ${res.product_name}
+---------------------\n`;
+    } else {
+      allFormattedOutput += `🎟️ ${res.product_name}
+---------------------\n`;
+    }
+
+    // Add items based on product type
+    if (res.product_type == "Hotel") {
+      res.items.forEach((item, index) => {
+        const itemUrgencyLabel = getUrgencyLabel(item.checkin_date).trim();
+        const urgencyPrefix = itemUrgencyLabel ? `[${itemUrgencyLabel}] ` : "";
+        allFormattedOutput += `🏩 Room Name: ${item.room?.name}
+📆 Check-in Date: ${urgencyPrefix}${item.checkin_date || item.service_date} : ${
+          item.checkout_date || ""
+        }
+#️⃣ Reservation Code: ${item.crm_id}: S: (${item.sale_price || item.amount})
+---------------------\n`;
+      });
+    } else {
+      res.items.forEach((item, index) => {
+        const itemUrgencyLabel = getUrgencyLabel(item.service_date).trim();
+        const urgencyPrefix = itemUrgencyLabel ? `[${itemUrgencyLabel}] ` : "";
+        allFormattedOutput += `🎫 Ticket Name: ${item.variation?.name}
+📆 Service Date: ${urgencyPrefix}${item.service_date}
+#️⃣ Reservation Code: ${item.crm_id}: S: (${item.sale_price || item.amount})
+🧑‍🧑‍🧒 Quantity: ${item.quantity || 1}A${
+          item.individual_pricing?.child?.quantity
+            ? ` - ${item.individual_pricing.child.quantity}C`
+            : ""
+        }
+---------------------\n`;
+      });
+    }
+
+    allFormattedOutput += `💵 Total Sale Amount: ${
+      res.booking?.sub_total || 0
+    } THB 
+💸 Discount : ${res.booking?.discount || discount} THB 
+📅 Sale Date: ${res.booking?.booking_date}
+🤑 Score : ${score.toFixed(2)}\n`;
+
+    // Copy to clipboard
+    setTimeout(() => {
+      navigator.clipboard.writeText(allFormattedOutput);
+      toast.success("Success copy reservation");
+    }, 0);
+
+    return allFormattedOutput;
+  } catch (error) {
+    console.error("Error copying reservations:", error);
+    toast.error("Failed to copy reservation");
+  }
+};
+
+const goToHotelConfirmation = () => {
+  router.push(
+    `/reservation/confirmations/group/hotel/new/png?id=${route.query.id}`
+  );
+};
+const showFailModal = ref(false);
+const generateConfirmation = () => {
+  if (detail.value?.booking?.payment_status != "not_paid") {
+    selectTicketModal.value = true;
+  } else {
+    showFailModal.value = true;
+  }
+};
+
+const goToFill = () => {
+  router.push({
+    name: "update_new_bookings",
+    params: {
+      id: detail.value?.booking?.id,
+    },
+  });
+
+  showFailModal.value = false;
 };
 
 watch(

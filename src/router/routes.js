@@ -58,6 +58,7 @@ import PngUsage from "../views/PngGenerate/PngUsage.vue";
 import Accounting from "../views/Accounting.vue";
 import ReservationHotelView from "../views/Reservationhotel.vue";
 import ReservationHotelGroupConfirmationsView from "../views/PngGenerate/HotelGroupConfirmationPng.vue";
+import ReservationHotelGroupNewConfirmationsView from "../views/PngGenerate/HotelConfirmationGroupNew.vue";
 import ReservationAttractionView from "../views/ReservationAttraction.vue";
 import AccountHead from "../views/AccountHead.vue";
 import AccountClass from "../views/AccountClass.vue";
@@ -72,6 +73,8 @@ import TaxReceipt from "../views/TaxReceipt.vue";
 import GroupVantour from "../views/GroupVantour.vue";
 import GroupHotel from "../views/GroupHotel.vue";
 import BankStatement from "../views/BankStatement.vue";
+import CashBook from "../views/CashBook.vue";
+import CashStructure from "../views/CashStructure.vue";
 
 const routes = [
   {
@@ -353,6 +356,11 @@ const routes = [
     component: ReservationHotelGroupConfirmationsView,
   },
   {
+    path: "/reservation/confirmations/group/hotel/new/png",
+    name: "reservation-hotel-group-new-confirmations",
+    component: ReservationHotelGroupNewConfirmationsView,
+  },
+  {
     path: "/reservation/confirmations/svg/entrance/:id",
     name: "reservation-entrance-svg-confirmations",
     component: ReservationEntranceConfirmationsSvgView,
@@ -447,6 +455,16 @@ const routes = [
     path: "/bank_statement",
     name: "bankStatement",
     component: BankStatement,
+  },
+  {
+    path: "/cash_book",
+    name: "cashBook",
+    component: CashBook,
+  },
+  {
+    path: "/cash_structure",
+    name: "cashStructure",
+    component: CashStructure,
   },
 ];
 

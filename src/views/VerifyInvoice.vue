@@ -42,7 +42,12 @@
           Sales
         </p>
         <p
-          @click="show = false"
+          @click="
+            () => {
+              show = false;
+              detailValItem = detailVal.items[0];
+            }
+          "
           :class="!show ? 'bg-[#FF613c] text-white' : ''"
           class="border border-gray-200 rounded-lg text-xs cursor-pointer px-4 py-2 w-[200px] text-center"
         >
@@ -55,12 +60,15 @@
           class="flex justify-start items-center border-y border-gray-200 py-2 pr-4 mr-4 overflow-x-scroll no-sidebar-container"
         >
           <div
-            v-for="i in 20 ?? []"
+            v-for="i in detailVal?.items ?? []"
             :key="i"
             class="rounded-lg px-2 py-1 mx-1"
-            :class="i == 2 ? 'text-[#FF613c] font-semibold' : ''"
+            @click="detailValItem = i"
+            :class="detailValItem?.id == i?.id ? 'bg-[#FF613c] text-white' : ''"
           >
-            <p class="whitespace-nowrap text-xs">-00{{ i }}</p>
+            <p class="whitespace-nowrap text-xs">
+              -{{ i.crm_id.split("_")[1] }}
+            </p>
           </div>
         </div>
         <div v-if="show">
@@ -74,7 +82,7 @@
         </div>
         <div class="flex justify-between items-center col-span-2">
           <p class="text-lg font-medium">{{ show ? "Sales" : "Expense" }}</p>
-          <div class="flex justify-between items-center" v-if="show">
+          <div class="flex justify-between items-center">
             <div class="flex justify-start items-center gap-x-2">
               <p class="px-4 py-2 text-xs bg-gray-300 text-white rounded-lg">
                 Raise Sale Issue
@@ -93,13 +101,13 @@
               </p>
             </div>
           </div>
-          <div class="flex justify-between items-center" v-if="!show">
+          <!-- <div class="flex justify-between items-center" v-if="!show">
             <div class="flex justify-start items-center gap-x-2">
               <p class="px-4 py-2 text-xs bg-red-500 text-white rounded-lg">
                 Raise Cost Issue
               </p>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
       <div
@@ -117,18 +125,59 @@
       <div class="grid grid-cols-3 pt-5 gap-x-4" v-if="!loadingDetail">
         <div class="col-span-1 grid grid-cols-3 gap-2" v-if="!show">
           <div class="space-y-2 rounded-lg overflow-y-auto h-[400px]">
-            <div class="" v-for="i in 5" :key="i">
+            <div
+              class="relative"
+              v-for="i in detailValItem?.receipt_images ?? []"
+              :key="i"
+              @click="imageItemData = i"
+            >
               <img
-                src="https://media.istockphoto.com/id/814423752/photo/eye-of-model-with-colorful-art-make-up-close-up.jpg?s=612x612&w=0&k=20&c=l15OdMWjgCKycMMShP8UK94ELVlEGvt7GmB_esHWPYE="
+                :src="i?.file"
                 alt=""
+                :class="
+                  imageItemData?.id == i?.id
+                    ? checkDataFailOrSuccess(imageItemData)
+                      ? 'border-2 border-green-500 rounded-lg'
+                      : 'border-2 border-red-500 rounded-lg'
+                    : ''
+                "
               />
+              <div
+                class="absolute top-1 right-1 w-4 h-4 rounded-full"
+                :class="
+                  imageItemData?.id == i?.id
+                    ? checkDataFailOrSuccess(imageItemData)
+                      ? 'bg-green-500'
+                      : 'bg-red-500'
+                    : ''
+                "
+              >
+                <XMarkIcon
+                  class="w-4 h-4 text-white"
+                  v-if="!checkDataFailOrSuccess(imageItemData)"
+                />
+                <CheckIcon
+                  class="w-4 h-4 text-white"
+                  v-if="checkDataFailOrSuccess(imageItemData)"
+                />
+              </div>
             </div>
           </div>
-          <img
-            class="col-span-2 w-full h-auto overflow-hidden rounded-lg"
-            src="https://media.istockphoto.com/id/814423752/photo/eye-of-model-with-colorful-art-make-up-close-up.jpg?s=612x612&w=0&k=20&c=l15OdMWjgCKycMMShP8UK94ELVlEGvt7GmB_esHWPYE="
-            alt=""
-          />
+          <div class="relative col-span-2 w-full h-full">
+            <div class="absolute top-1 right-1">
+              <p
+                @click="openModal(imageItemData)"
+                class="text-[10px] shadow-lg cursor-pointer text-white bg-[#FF613c] px-2 py-1 rounded-lg"
+              >
+                Fill data
+              </p>
+            </div>
+            <img
+              class="col-span-2 w-full h-auto overflow-hidden rounded-lg"
+              :src="imageItemData?.file"
+              alt=""
+            />
+          </div>
         </div>
         <div class="col-span-1 grid grid-cols-3 gap-2" v-if="show">
           <div class="space-y-2 rounded-lg overflow-y-auto h-[400px]">
@@ -190,7 +239,7 @@
         </div>
         <div class="col-span-2">
           <div class="p-3 rounded-lg border border-gray-200" v-if="!show">
-            <VerifyExpense />
+            <VerifyExpense :data="detailVal" />
           </div>
           <div class="p-3 rounded-lg border border-gray-200" v-if="show">
             <VerifySale :data="detailVal" />
@@ -219,7 +268,7 @@
     </Modal>
     <Modal :isOpen="carModalOpen" @closeModal="clearAction">
       <DialogPanel
-        class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white/80 backdrop-blur-md text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
@@ -238,22 +287,14 @@
                 alt=""
               />
             </div>
-            <div class="space-y-4 relative pt-4 pr-2">
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Amount</label>
-                <input
-                  type="text"
-                  name=""
-                  v-model="formData.amount"
-                  placeholder="Search CRM ID"
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                  id=""
-                />
-              </div>
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Date&Time </label>
-
-                <div class="flex justify-between items-center w-[160px]">
+            <div class="space-y-4 relative pt-4 pb-14 pr-2">
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">
+                  Date <span class="opacity-0">......</span>
+                </p>
+                <div
+                  class="flex justify-between items-center w-full bg-white pl-2 rounded-lg"
+                >
                   <p class="text-start text-xs" v-if="formData?.date">
                     {{
                       formData.date.includes("T")
@@ -266,58 +307,79 @@
                     name=""
                     v-model="formData.date"
                     format="YYYY-MM-DD HH:mm:ss"
-                    class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    class="w-[35px] px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
                 </div>
               </div>
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Bank </label>
-                <select
-                  name=""
-                  v-model="formData.bank_name"
-                  id=""
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                >
-                  <option value="">Select Bank</option>
-                  <option :value="b.name" v-for="b in bankList" :key="b.id">
-                    {{ b.name }}
-                  </option>
-                </select>
-              </div>
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Sender </label>
+
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">Sender</p>
                 <input
-                  v-model="formData.sender"
                   type="text"
+                  v-model="formData.sender"
+                  :class="formData.sender.includes('-') ? 'text-gray-400' : ''"
                   name=""
-                  placeholder="sender name"
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  placeholder="xxx"
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   id=""
                 />
               </div>
-              <div class="flex justify-between items-center">
-                <label for="" class="text-[12px] font-medium">Bank ? </label>
-                <div class="flex justify-start items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    v-model="formData.is_corporate"
-                    name=""
-                    placeholder="name"
-                    class="py-1.5 focus:outline-none text-xs"
-                    id=""
-                  />
-                  <p class="text-[12px]">Is Corporate ?</p>
-                </div>
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">Reciever</p>
+                <input
+                  type="text"
+                  v-model="formData.reciever"
+                  :class="
+                    formData.reciever.includes('-') ? 'text-gray-400' : ''
+                  "
+                  name=""
+                  placeholder="xxx"
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  id=""
+                />
               </div>
-              <div class="flex justify-between items-start">
-                <label for="" class="text-[12px] font-medium">Comment</label>
-                <textarea
-                  v-model="formData.comment"
-                  class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[160px]"
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">Amount</p>
+                <input
+                  type="number"
+                  v-model="formData.amount"
+                  name=""
+                  placeholder="xxx"
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  id=""
+                />
+              </div>
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">
+                  Interact Bank <span class="opacity-0">.....</span>
+                </p>
+                <select
+                  name=""
+                  v-model="formData.interact_bank"
+                  id=""
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                 >
-                </textarea>
+                  <option value="personal">Personal</option>
+                  <option value="company">Company</option>
+                  <option value="cash_at_office">Cash at Office</option>
+                  <option value="to_money_changer">To Money Changer</option>
+                </select>
               </div>
+              <div class="flex justify-between items-center">
+                <label for="" class="text-[12px] font-medium">Currency </label>
+                <select
+                  name=""
+                  v-model="formData.currency"
+                  id=""
+                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                >
+                  <option value="MMK">MMK</option>
+                  <option value="THB">THB</option>
+                  <option value="USD">USD</option>
+                </select>
+              </div>
+
               <div
                 class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
               >
@@ -364,9 +426,11 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import PngUsage from "./PngGenerate/PngUsage.vue";
 import { useToast } from "vue-toastification";
 import Swal from "sweetalert2";
+import { useReservationStore } from "../stores/reservation";
 
 const bookingStore = useBookingStore();
 const { bookings, loading } = storeToRefs(bookingStore);
+const reservationStore = useReservationStore();
 const currentDate = new Date();
 const year = ref(currentDate.getFullYear());
 const selectedMonth = ref(currentDate.getMonth() + 1); // Adding 1 since getMonth() returns 0-11
@@ -389,6 +453,9 @@ const formData = ref({
   date: "",
   bank_name: "",
   sender: "",
+  reciever: "",
+  interact_bank: "",
+  currency: "THB",
   is_corporate: false,
   comment: "",
 });
@@ -398,11 +465,22 @@ const openModal = (data) => {
   // save.value = data;
   formData.value = {
     id: data.id,
-    file: data.image,
+    file: data.image || data.file,
     amount: data.amount,
     date: data.date,
     bank_name: data.bank_name,
-    sender: data.sender,
+    sender: data.sender
+      ? data.sender
+      : !show.value
+      ? "MR. THIHA@KUMAR BHUSAL"
+      : "",
+    reciever: data.reciever
+      ? data.reciever
+      : show.value
+      ? "MR. THIHA@KUMAR BHUSAL"
+      : "",
+    interact_bank: data.interact_bank,
+    currency: data.currency,
     is_corporate: data.is_corporate == 1 ? true : false,
     comment: data.note,
   };
@@ -416,6 +494,9 @@ const clearAction = () => {
     date: "",
     bank_name: "",
     sender: "",
+    reciever: "",
+    interact_bank: "",
+    currency: "THB",
     is_corporate: false,
     comment: "",
   };
@@ -527,16 +608,28 @@ const submit = async () => {
     frmData.append("_method", "PUT");
     frmData.append("amount", formData.value.amount);
     frmData.append("date", formatDateDb(formData.value.date));
-    frmData.append("bank_name", formData.value.bank_name);
+    frmData.append("bank_name", formData.value.bank_name ?? "others...");
     frmData.append("sender", formData.value.sender);
+    frmData.append("reciever", formData.value.reciever);
+    frmData.append("interact_bank", formData.value.interact_bank ?? "personal");
+    frmData.append("currency", formData.value.currency);
     frmData.append("is_corporate", formData.value.is_corporate ? 1 : 0);
     frmData.append("note", formData.value.comment);
 
-    const res = await bookingStore.receiptImageAction(
-      detailVal.value.id,
-      formData.value.id,
-      frmData
-    );
+    let res;
+    if (show.value) {
+      res = await bookingStore.receiptImageAction(
+        detailVal.value.id,
+        formData.value.id,
+        frmData
+      );
+    } else {
+      res = await reservationStore.ReservationExpenseReceiptUpdateAction(
+        detailValItem.value.id,
+        imageItemData.value.id,
+        frmData
+      );
+    }
     console.log(res);
     toast.success({
       title: "Success",
@@ -546,8 +639,10 @@ const submit = async () => {
     clearAction();
     detailVal.value = null;
     imageData.value = null;
+    imageItemData.value = null;
     await getDetail();
     imageData.value = detailVal.value?.receipts[0];
+    imageItemData.value = detailVal.value?.items[0]?.receipt_images[0];
   } catch (error) {
     console.log(error);
   } finally {
@@ -704,6 +799,7 @@ const generateDateRangeForMonth = (month, yearValue) => {
 
 const showReceipt = ref("");
 const imageData = ref(null);
+const imageItemData = ref(null);
 
 const setMonthDateRange = (month, yearValue) => {
   date_range.value = generateDateRangeForMonth(month, yearValue);
@@ -749,12 +845,17 @@ const { isShowSidebar } = storeToRefs(siderBarStore);
 
 const show = ref(true);
 const detailVal = ref(null);
+const detailValItem = ref(null);
 
 const getDetail = async () => {
   loadingDetail.value = true;
   detailVal.value = null;
   const res = await bookingStore.getDetailAction(selectedItem.value);
   detailVal.value = res.result;
+
+  if (detailVal.value) {
+    detailValItem.value = detailVal.value?.items[0];
+  }
 
   console.log(detailVal.value);
   loadingDetail.value = false;
@@ -781,13 +882,11 @@ const checkDataFailOrSuccess = (data) => {
   // List of required fields that cannot be null (note is excluded as it can be null)
   const requiredFields = [
     "amount",
-    "bank_name",
     "created_at",
     "date",
     "id",
-    "image",
-    "is_corporate",
     "sender",
+    "reciever",
     "updated_at",
   ];
 
@@ -819,6 +918,7 @@ watch(selectedItem, async (newValue) => {
   await getDetail();
   showReceipt.value = detailVal.value?.receipts[0]?.image;
   imageData.value = detailVal.value?.receipts[0];
+  imageItemData.value = detailVal.value?.items[0]?.receipt_images[0];
   console.log("====================================");
   console.log(imageData.value, "this is image data");
   console.log("====================================");
@@ -829,6 +929,7 @@ watch(
   async (newValue) => {
     showReceipt.value = null;
     imageData.value = null;
+    imageItemData.value = null;
   },
   {
     immediate: true,

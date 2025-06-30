@@ -16,8 +16,8 @@
           v-model="is_sent_expense_mail"
           class="w-full border border-gray-200 px-4 py-2 text-xs rounded-lg"
         >
-          <option :value="true">Email Sent</option>
           <option :value="false">Not Sent</option>
+          <option :value="true">Email Sent</option>
         </select>
       </div>
 
@@ -82,7 +82,7 @@
                 <XCircleIcon class="w-6 h-6 font-semibold" />
               </button>
               <img class="h-auto w-full rounded" :src="image.file" alt="" />
-              <p class="text-xs">{{ image.meta.name }}</p>
+              <p class="text-xs">{{ image?.meta?.amount }}</p>
             </div>
           </div>
         </div>
@@ -604,7 +604,7 @@ const mailBodyChange = () => {
   emailData.value.mail_subject = `Booking for ${showFormat(
     props?.detail?.items[0].service_date
   )}: ${detail?.booking_crm_id}`;
-  is_sent_expense_mail.value = props?.detail?.sent_booking_request === 1;
+  is_sent_expense_mail.value = props?.detail?.sent_expense_mail === 1;
 
   emailData.value.mail_body = `<p class="p1">Dear ${detail?.items[0].product?.name},</p>
       <p class="p1">Please see our payment slip in the attached file for ${detail?.booking_crm_id}. </p><p class="p1">We would like to kindly request a confirmation letter as soon as possible. Please kindly issue a receipt with Tax ID and send it to us by email.</p>

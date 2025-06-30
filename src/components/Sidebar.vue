@@ -259,19 +259,19 @@
                   to="/verify_invoices"
                 />
                 <SidebarItem
-                  name="Account Class"
-                  label="AClass"
+                  name="Cash Book"
+                  label="Cash Book"
                   v-if="authStore.isSuperAdmin || authStore.isAuditor"
                   :icon="FolderIcon"
-                  to="/account_class"
+                  to="/cash_book"
                 />
-                <SidebarItem
+                <!-- <SidebarItem
                   name="Account Head"
                   label="AHead"
                   v-if="authStore.isSuperAdmin || authStore.isAuditor"
                   :icon="FolderIcon"
                   to="/account_head"
-                />
+                /> -->
                 <SidebarItem
                   name="Tax Receipts"
                   label="Tax"

@@ -37,7 +37,7 @@
             <transition name="slide">
               <div
                 v-if="filterShow"
-                class="absolute top-full px-4 left-0 w-[300px] transition-all duration-150 bg-white rounded-lg shadow-lg z-50 border border-gray-100 space-y-2 max-h-[50vh] overflow-y-scroll overflow-x-hidden"
+                class="absolute top-full px-4 left-0 w-[300px] transition-all duration-150 bg-white rounded-lg shadow-lg z-50 border border-gray-100 space-y-2 max-h-[50vh] overflow-y-scroll"
               >
                 <div
                   class="flex justify-between items-center pt-4 border-b border-gray-100 pb-1 sticky top-0 bg-white"
@@ -55,16 +55,141 @@
                   >
                     <p
                       class="text-[10px] px-2 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-1 border whitespace-nowrap border-gray-200 rounded-lg"
-                      @click="searchValue('App\\Models\\EntranceTicket')"
-                      :class="
-                        search == 'App\\Models\\EntranceTicket'
-                          ? 'bg-[#ff613c] text-white'
-                          : ''
-                      "
                     >
-                      Entrance Ticket
+                      Vantour
                     </p>
                   </div>
+                </div>
+                <p class="text-[10px]">User</p>
+                <select
+                  name=""
+                  id=""
+                  v-model="searchKey.user_id"
+                  class="px-2 py-1 focus:outline-none border border-gray-300 placeholder-sm bg-white rounded-lg w-3/5 sm:w-3/5 text-[10px] md:w-full text-gray-400 space-y-2 h-9"
+                >
+                  <option :value="null" disabled class="bg-gray-200 text-sm">
+                    Filter By User
+                  </option>
+                  <option value="" class="text-[12px]">All User</option>
+                  <option
+                    :value="key.id"
+                    v-for="(key, index) in adminLists"
+                    :key="index"
+                    class="text-[12px]"
+                  >
+                    {{ key.name }}
+                  </option>
+                </select>
+
+                <p class="text-[10px]">Service Date</p>
+                <!-- <div>
+                  <VueDatePicker
+                    v-model="searchTime"
+                    :format="'yyyy-MM-dd'"
+                    placeholder="Service Date"
+                    text-input
+                  />
+                </div> -->
+                <Modal :isOpen="searchModel" @closeModal="searchModel = false">
+                  <DialogPanel
+                    class="w-full max-w-lg transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+                  >
+                    <DialogTitle
+                      as="div"
+                      class="text-xs flex justify-between items-center font-medium leading-6 text-gray-900 mb-5"
+                    >
+                      Select Date filter for booking date
+                    </DialogTitle>
+
+                    <div>
+                      <VueDatePicker
+                        v-model="dateRange"
+                        range
+                        multi-calendars
+                        :format="'yyyy-MM-dd'"
+                        placeholder="Service Date range"
+                        text-input
+                      />
+                    </div>
+                  </DialogPanel>
+                </Modal>
+                <p
+                  @click="searchModel = !searchModel"
+                  class="text-[10px] text-gray-500 cursor-pointer px-4 py-2 border border-gray-300 rounded-lg"
+                >
+                  <span v-if="!searchTime">{{
+                    searchKey.booking_daterange
+                      ? showFormat(searchKey.booking_daterange)
+                      : ""
+                  }}</span>
+                  <span v-if="!searchKey.booking_daterange">Select Date</span>
+                </p>
+
+                <div class="relative w-full">
+                  <p class="text-[10px] pb-2">Customer Name</p>
+                  <input
+                    type="search"
+                    name=""
+                    v-model="searchKey.customer_name"
+                    placeholder="Search Customer name"
+                    class="text-[10px] text-gray-500 focus:outline-none hover:text-gray-600 border border-gray-300 rounded-lg bg-white px-4 py-2 w-full"
+                    id=""
+                  />
+                </div>
+
+                <div>
+                  <p class="text-[10px] pb-2">Customer Payment Status</p>
+                  <!-- customer payment status -->
+                  <select
+                    name=""
+                    v-model="searchKey.payment_status"
+                    id=""
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option class="text-[10px]" value=""></option>
+                    <option class="text-[10px]" value="fully_paid">
+                      Fully paid
+                    </option>
+                    <option class="text-[10px]" value="partially_paid">
+                      Partially paid
+                    </option>
+                    <option class="text-[10px]" value="not_paid">
+                      Not paid
+                    </option>
+                  </select>
+                </div>
+
+                <div>
+                  <p class="text-[10px] pb-2">Vantour Payment Detail</p>
+                  <!-- customer payment status -->
+                  <select
+                    name=""
+                    v-model="searchKey.vantour_payment_details"
+                    id=""
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option class="text-[10px]" value=""></option>
+
+                    <option class="text-[10px]" value="not_have">
+                      Not Finish
+                    </option>
+                  </select>
+                </div>
+                <div>
+                  <p class="text-[10px] pb-2">Assign Driver</p>
+                  <!-- customer payment status -->
+                  <select
+                    name=""
+                    v-model="searchKey.assigned"
+                    id=""
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option class="text-[10px]" value=""></option>
+
+                    <option class="text-[10px]" value="not_have">
+                      Not Finish
+                    </option>
+                  </select>
                 </div>
 
                 <div
@@ -151,7 +276,7 @@
               <input
                 type="search"
                 name=""
-                v-model="searchId"
+                v-model="searchKey.crm_id"
                 placeholder="Search by ID"
                 class="w-full px-4 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                 id=""
@@ -162,12 +287,6 @@
               >
                 <MagnifyingGlassIcon class="w-4 h-4 text-white" />
               </div>
-            </div>
-            <div
-              @click="addNewAction"
-              class="bg-[#FF613c] text-white px-2.5 cursor-pointer inline-block rounded-lg text-sm py-1 shadow text-center"
-            >
-              +
             </div>
           </div>
           <div
@@ -180,23 +299,119 @@
               clear
             </p>
             <p
-              v-if="search == 'App\\Models\\PrivateVanTour'"
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              v-if="searchKey.customer_name != ''"
             >
-              Van Tour
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    searchKey.customer_name = '';
+                    searchAction();
+                  }
+                "
+              />
+              {{ searchKey.customer_name }}
             </p>
             <p
-              v-if="search == 'App\\Models\\EntranceTicket'"
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              v-if="searchKey.crm_id != ''"
             >
-              Attraction
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    searchKey.crm_id = '';
+                    searchAction();
+                  }
+                "
+              />
+              {{ searchKey.crm_id }}
             </p>
             <p
-              v-if="search == 'App\\Models\\Airline'"
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap"
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              v-if="searchKey.product_name != ''"
             >
-              Airline
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    searchKey.product_name = '';
+                    searchAction();
+                  }
+                "
+              />
+              {{ searchKey.product_name }}
             </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              v-if="searchKey.payment_status != ''"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    searchKey.payment_status = '';
+                    searchAction();
+                  }
+                "
+              />
+              P: {{ searchKey.payment_status }}
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              v-if="searchKey.assigned != ''"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    searchKey.assigned = '';
+                    searchAction();
+                  }
+                "
+              />
+              {{ searchKey.assigned != "" && "un assign" }}
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              v-if="searchKey.vantour_payment_details != ''"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    searchKey.vantour_payment_details = '';
+                    searchAction();
+                  }
+                "
+              />
+              {{ searchKey.vantour_payment_details != "" && "collect empty" }}
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              v-if="searchKey.booking_daterange != ''"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    searchKey.booking_daterange = '';
+                    dateRange = '';
+                    searchAction();
+                  }
+                "
+              />
+              {{ showFormat(searchKey.booking_daterange) }}
+            </p>
+          </div>
+
+          <div class="flex justify-end items-center">
+            <div
+              class="text-[10px] rounded-lg px-2 py-1 text-white bg-[#FF613c]"
+            >
+              {{ groups?.meta?.total }} reser
+            </div>
           </div>
 
           <div
@@ -285,7 +500,7 @@
 import Layout from "./Layout.vue";
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import Pagination from "../components/PaginationExpense.vue";
 import {
   ArrowDownTrayIcon,
@@ -303,37 +518,154 @@ import { useSidebarStore } from "../stores/sidebar";
 // import ListTax from "./TaxComponent/ListTax.vue";
 import ListGroup from "./GroupComponent/ListGroup.vue";
 import { useGroupStore } from "../stores/group";
-import GroupDetail from "./GroupComponent/GroupDetail.vue";
+import GroupDetail from "./GroupComponent/GroupVantourDetail.vue";
+import { useAdminStore } from "../stores/admin";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import { watch } from "vue";
+import { format } from "date-fns";
+import { XCircleIcon } from "@heroicons/vue/24/solid";
 
 const showSide = ref(1);
 const filterShow = ref(false);
 const router = useRouter();
 const route = useRoute();
 const softShow = ref(false);
-const search = ref("");
 const groupStore = useGroupStore();
 const { groups, loading } = storeToRefs(groupStore);
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
-const searchId = ref("");
+const adminStore = useAdminStore();
+const searchModel = ref(false);
+
+const searchKey = ref({
+  crm_id: "",
+  product_name: "",
+  invoice_status: "",
+  expense_item_status: "",
+  customer_name: "",
+  user_id: "",
+  payment_status: "",
+  booking_daterange: "",
+  vantour_payment_details: "",
+  assigned: "",
+});
+const entranceAction = ref(false);
 
 const searchValue = (val) => {
   search.value = val;
 };
 
-const searchAction = () => {
-  console.log("searchAction", search.value, searchId.value);
+const searchAction = async () => {
+  console.log("searchAction", searchKey.value);
+  filterShow.value = false;
+  softShow.value = false;
+  await getAllAction();
 };
+
+const showFormat = (dateStr) => {
+  // Regular expression for matching a single date (YYYY-MM-DD)
+  const singleDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+  // Regular expression for multiple comma-separated dates (YYYY-MM-DD,YYYY-MM-DD,...)
+  const multipleDatesPattern = /^(\d{4}-\d{2}-\d{2})(,\d{4}-\d{2}-\d{2})*$/;
+
+  if (singleDatePattern.test(dateStr)) {
+    return format(new Date(dateStr), "MMM, dd");
+  } else if (multipleDatesPattern.test(dateStr)) {
+    const dateArray = dateStr.split(",");
+
+    // Format each date and join them with " to "
+    const formattedDates = dateArray.map((date) => {
+      return format(new Date(date), "MMM, dd");
+    });
+
+    return formattedDates.join(" to ");
+  } else {
+    return "Invalid format";
+  }
+};
+
+// const formatDate = (datePut) => {
+//   const date = new Date(datePut);
+
+//   // Get the year, month, and day
+//   const year = date.getFullYear();
+//   const month = String(date.getMonth() + 1).padStart(2, "0"); // Month starts from 0
+//   const day = String(date.getDate()).padStart(2, "0");
+
+//   // Form the formatted date string
+//   let formattedDate = `${year}-${month}-${day}`;
+//   return formattedDate;
+// };
+
+const dateRange = ref("");
 
 const clearFilter = () => {
   filterShow.value = false;
+  searchKey.value = {
+    crm_id: "",
+    product_name: "",
+    invoice_status: "",
+    expense_item_status: "",
+    customer_name: "",
+    user_id: "",
+    payment_status: "",
+    booking_daterange: "",
+    vantour_payment_details: "",
+    assigned: "",
+  };
+  getAllAction();
 };
 
+const ChangeAttractionName = (data) => {
+  if (data) {
+    searchKey.value.product_name = data;
+  }
+};
+
+const watchSystem = computed(() => {
+  let result = {};
+
+  if (searchKey.value.crm_id) {
+    result.crm_id = searchKey.value.crm_id;
+  }
+
+  if (searchKey.value.product_name) {
+    result.product_name = searchKey.value.product_name;
+  }
+  if (searchKey.value.invoice_status) {
+    result.invoice_status = searchKey.value.invoice_status;
+  }
+  if (searchKey.value.expense_item_status) {
+    result.expense_item_status = searchKey.value.expense_item_status;
+  }
+  if (searchKey.value.customer_name) {
+    result.customer_name = searchKey.value.customer_name;
+  }
+  if (searchKey.value.user_id) {
+    result.user_id = searchKey.value.user_id;
+  }
+  if (searchKey.value.payment_status) {
+    result.payment_status = searchKey.value.payment_status;
+  }
+  if (searchKey.value.booking_daterange) {
+    result.booking_daterange = searchKey.value.booking_daterange;
+  }
+  if (searchKey.value.vantour_payment_details) {
+    result.vantour_payment_details = searchKey.value.vantour_payment_details;
+  }
+  if (searchKey.value.assigned) {
+    result.assigned = searchKey.value.assigned;
+  }
+
+  result.product_type = "private_van_tour";
+  result.per_page = 10;
+
+  return result;
+});
+
 const getAllAction = async () => {
-  await groupStore.getListAction({
-    product_type: "private_van_tour",
-    per_page: 10,
-  });
+  await groupStore.getListAction(watchSystem.value);
 };
 
 const getDetailAction = (id) => {
@@ -348,10 +680,7 @@ const getDetailAction = (id) => {
 };
 
 const changePage = async (url) => {
-  await groupStore.getChangePage(url, {
-    product_type: "private_van_tour",
-    per_page: 10,
-  });
+  await groupStore.getChangePage(url, watchSystem.value);
 };
 
 const addNewAction = () => {
@@ -363,8 +692,71 @@ const addNewAction = () => {
   });
 };
 
-onMounted(async () => {
+const adminLists = ref([]);
+const getListUser = async () => {
+  try {
+    const res = await adminStore.getSimpleListAction();
+    console.log(res, "this is admin list");
+
+    adminLists.value = res.result.data
+      .filter((item) => item.role == "admin" || item.role == "sale_manager")
+      .map((item) => {
+        // Return desired structure or transformation here
+        return {
+          id: item.id,
+          name: item.name,
+        };
+      });
+  } catch (error) {
+    console.log("====================================");
+    console.log(error);
+    console.log("====================================");
+  }
+};
+
+watch(dateRange, async (newValue) => {
+  console.log(dateRange.value, "this is date");
+  if (dateRange.value != "" && dateRange.value != null) {
+    const options = { day: "2-digit", month: "2-digit", year: "numeric" };
+
+    // Custom function to format date as dd-MM-yyyy
+    const formatDateAsDDMMYYYY = (date) => {
+      if (date) {
+        const dd = String(date.getDate()).padStart(2, "0");
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const yyyy = date.getFullYear();
+        return `${yyyy}-${mm}-${dd}`;
+      }
+    };
+
+    // Format start and end dates
+    const formattedStartDate = formatDateAsDDMMYYYY(dateRange.value[0]);
+    const formattedEndDate = formatDateAsDDMMYYYY(dateRange.value[1]);
+
+    searchKey.value.booking_daterange = `${formattedStartDate},${formattedEndDate}`;
+  } else {
+    searchKey.value.booking_daterange = "";
+  }
+  // console.log(searchKey.value.booking_daterange, "this is daterange");
+
+  searchModel.value = false;
   await getAllAction();
+});
+const setStartAndEndDate = () => {
+  const now = new Date(); // Today's date
+  const startDate = new Date(now); // Start date is today
+
+  // Add 90 days to the start date to get the end date
+  const endDate = new Date(now);
+  endDate.setDate(endDate.getDate() + 90);
+
+  dateRange.value = [startDate, endDate];
+};
+
+onMounted(async () => {
+  setStartAndEndDate();
+
+  await getListUser();
   console.log("====================================");
   console.log("groups", groups.value);
   console.log("====================================");

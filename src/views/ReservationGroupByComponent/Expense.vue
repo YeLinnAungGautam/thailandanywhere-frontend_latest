@@ -415,7 +415,7 @@
     </div> -->
     <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
       <DialogPanel
-        class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white/80 backdrop-blur-md text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
@@ -434,29 +434,31 @@
               <div
                 @click="openFilePickerThree"
                 v-if="uploadRecePreview.length == 0 && !expenseData.file"
-                class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+                class="w-full h-[400px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
               >
                 +
               </div>
               <div
                 v-if="uploadRecePreview.length != 0 && !expenseData.file"
-                class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+                class="w-full min-h-[400px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
               >
                 <img :src="uploadRecePreview[0]" alt="" class="rounded-lg" />
               </div>
               <div
                 v-if="expenseData.file"
-                class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+                class="rounded-lg min-h-[400px] w-full"
               >
                 <img :src="expenseData.file" alt="" class="rounded-lg" />
               </div>
 
               <div class="space-y-4 relative pt-4 pb-14">
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium"
-                    >Date <span class="opacity-0">......</span></label
+                <div class="">
+                  <p for="" class="text-[12px] font-medium pb-2">
+                    Date <span class="opacity-0">......</span>
+                  </p>
+                  <div
+                    class="flex justify-between items-center w-full bg-white pl-2 rounded-lg"
                   >
-                  <div class="flex justify-between items-center w-[160px]">
                     <p class="text-start text-xs" v-if="expenseData?.date">
                       {{
                         expenseData.date.includes("T")
@@ -469,61 +471,101 @@
                       name=""
                       v-model="expenseData.date"
                       format="YYYY-MM-DD HH:mm:ss"
-                      class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                      class="w-[35px] px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                       id=""
                     />
                   </div>
                 </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium">Sender </label>
+
+                <div class="">
+                  <p for="" class="text-[12px] font-medium pb-2">Sender</p>
                   <input
+                    type="text"
                     v-model="expenseData.sender"
-                    type="text"
+                    :class="
+                      expenseData.sender != '' &&
+                      expenseData.sender == 'MR. THIHA@KUMAR BHUSAL'
+                        ? 'text-gray-400'
+                        : ''
+                    "
                     name=""
-                    placeholder="sender name"
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    placeholder="xxx"
+                    class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
                 </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium"
-                    >Reciever
-                  </label>
+                <div class="">
+                  <div class="flex justify-between items-center">
+                    <p for="" class="text-[12px] font-medium pb-2">Reciever</p>
+                    <p
+                      class="text-xs text-blue-600 underline cursor-pointer"
+                      @click="goToProduct"
+                    >
+                      link to product
+                    </p>
+                  </div>
                   <input
+                    type="text"
                     v-model="expenseData.reciever"
-                    type="text"
+                    :class="
+                      expenseData.reciever != '' &&
+                      expenseData.reciever ==
+                        detail?.booking?.items[0]?.product?.account_name
+                        ? 'text-gray-400'
+                        : ''
+                    "
                     name=""
-                    placeholder="reciever name"
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    placeholder="xxx"
+                    class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
                 </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium">Amount</label>
+                <div class="">
+                  <p for="" class="text-[12px] font-medium pb-2">Amount</p>
                   <input
-                    type="text"
-                    name=""
+                    type="number"
                     v-model="expenseData.amount"
-                    placeholder="Search CRM ID"
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    name=""
+                    placeholder="xxx"
+                    class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
                 </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium"
-                    >Interact Bank
-                  </label>
+                <div class="">
+                  <p for="" class="text-[12px] font-medium pb-2">
+                    Interact Bank <span class="opacity-0">.....</span>
+                  </p>
                   <select
                     name=""
                     v-model="expenseData.interact_bank"
                     id=""
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   >
                     <option value="personal">Personal</option>
                     <option value="company">Company</option>
+                    <option value="cash_at_office">Cash at Office</option>
+                    <option value="to_money_changer">To Money Changer</option>
+                    <option value="deposit_management">
+                      Deposit Management
+                    </option>
                   </select>
                 </div>
                 <div class="flex justify-between items-center">
+                  <label for="" class="text-[12px] font-medium"
+                    >Currency
+                  </label>
+                  <select
+                    name=""
+                    v-model="expenseData.currency"
+                    id=""
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  >
+                    <option value="MMK">MMK</option>
+                    <option value="THB">THB</option>
+                    <option value="USD">USD</option>
+                  </select>
+                </div>
+                <!-- <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium"
                     >Bank <span class="opacity-0">.....</span></label
                   >
@@ -563,7 +605,7 @@
                     class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[160px]"
                   >
                   </textarea>
-                </div>
+                </div> -->
 
                 <div
                   class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
@@ -647,6 +689,7 @@ import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute } from "vue-router";
 import { daysBetween } from "../help/DateBetween";
+import router from "../../router";
 // import ExpenseBooking from "./ExpenseBooking.vue";
 
 const toast = useToast();
@@ -687,6 +730,18 @@ const total_cost_calculate = computed(() => {
   return result;
 });
 
+const goToProduct = () => {
+  if (props.detail?.booking?.items[0]?.product_type == "App\\Models\\Hotel") {
+    router.push(
+      `/product/hotel/edit/${props.detail?.booking?.items[0]?.product_id}`
+    );
+  } else {
+    router.push(
+      `/products/6?edit=${props.detail?.booking?.items[0]?.product_id}`
+    );
+  }
+};
+
 const editData = ref({
   reservation_ids: [],
   expenses: [],
@@ -700,9 +755,10 @@ const expenseData = ref({
   amount: 0,
   date: "",
   bank_name: "",
-  sender: "",
-  reciever: "",
+  sender: "MR. THIHA@KUMAR BHUSAL",
+  reciever: props.detail?.booking?.items[0]?.product?.account_name,
   interact_bank: "",
+  currency: "",
   is_corporate: false,
   comment: "",
 });
@@ -720,9 +776,12 @@ const openModal = (data, index) => {
     amount: data.amount,
     date: data.date,
     bank_name: data.bank_name,
-    sender: data.sender,
-    reciever: data.reciever,
+    sender: data.sender ? data.sender : "MR. THIHA@KUMAR BHUSAL",
+    reciever: data.reciever
+      ? data.reciever
+      : props.detail?.booking?.items[0]?.product?.account_name,
     interact_bank: data.interact_bank,
+    currency: data.currency,
     is_corporate: data.is_corporate == 1 ? true : false,
     comment: data.comment,
   };
@@ -737,9 +796,10 @@ const clearAction = () => {
     amount: 0,
     date: "",
     bank_name: "",
-    sender: "",
-    reciever: "",
+    sender: "MR. THIHA@KUMAR BHUSAL",
+    reciever: props.detail?.booking?.items[0]?.product?.account_name,
     interact_bank: "",
+    currency: "",
     is_corporate: false,
     comment: "",
   };
@@ -1108,6 +1168,7 @@ const createExpense = async (id) => {
     frmData.append("sender", expenseData.value.sender);
     frmData.append("reciever", expenseData.value.reciever);
     frmData.append("interact_bank", expenseData.value.interact_bank);
+    frmData.append("currency", expenseData.value.currency);
     frmData.append("date", formatDateDb(expenseData.value.date));
     frmData.append("bank_name", expenseData.value.bank_name);
     frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
@@ -1150,8 +1211,9 @@ const updateExpense = async (id) => {
     frmData.append("sender", expenseData.value.sender);
     frmData.append("reciever", expenseData.value.reciever);
     frmData.append("interact_bank", expenseData.value.interact_bank);
+    frmData.append("currency", expenseData.value.currency);
     frmData.append("date", formatDateDb(expenseData.value.date));
-    frmData.append("bank_name", expenseData.value.bank_name);
+    frmData.append("bank_name", expenseData.value.bank_name ?? "others...");
     frmData.append("is_corporate", expenseData.value.is_corporate ? 1 : 0);
     frmData.append("comment", expenseData.value.comment);
 
@@ -1237,9 +1299,12 @@ const populateFormData = () => {
           reservation_id: item.id,
           file: a.file,
           amount: a.amount,
-          sender: a.sender,
-          reciever: a.reciever,
+          sender: a.sender ? a.sender : "MR. THIHA@KUMAR BHUSAL",
+          reciever: a.reciever
+            ? a.reciever
+            : props.detail?.booking?.items[0]?.product?.account_name,
           interact_bank: a.interact_bank,
+          currency: a.currency,
           date: a.date,
           bank_name: a.bank_name,
           is_corporate: a.is_corporate,

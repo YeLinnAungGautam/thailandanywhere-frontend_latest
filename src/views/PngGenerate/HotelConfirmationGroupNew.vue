@@ -14,15 +14,16 @@ import { XMarkIcon } from "@heroicons/vue/24/solid";
 import { forEach } from "jszip";
 import Swal from "sweetalert2";
 import PassportAddUpdate from "./PassportAddUpdate.vue";
+import logo from "../../assets/web-logo.png";
 import Layout from "../Layout.vue";
-import { useGroupByStore } from "../../stores/groupby";
+import { useGroupStore } from "../../stores/group";
 
 const captureArea = ref(null);
 const router = useRouter();
 const route = useRoute();
 const detail = ref("");
 const getLoading = ref(true);
-const groupbyStore = useGroupByStore();
+const groupStore = useGroupStore();
 
 const showFirst = ref(true);
 
@@ -102,42 +103,32 @@ const goToFill = () => {
   showFailModal.value = false;
   showFirst.value = false;
 };
+const goToFill2 = () => {
+  use_ref.value = false;
+  showFailModal.value = false;
+  showFirst.value = false;
+};
 
-const customerListGet = () => {
+const customerListGet = async () => {
   customer_passport_list.value = [];
 
-  // Check if details and booking items exist
-  if (detail.value && detail.value.booking.items.length > 0) {
-    const uniquePassports = new Map();
+  const res = await groupStore.groupDocumentList(route.query.id, {
+    document_type: "passport",
+  });
 
-    // Loop through all booking items
-    detail.value.booking.items.forEach((item) => {
-      // Check if the item has customer_passports
-      if (item.customer_passports && item.customer_passports.length > 0) {
-        // Process each passport in the current item
-        item.customer_passports.forEach((passport) => {
-          if (!uniquePassports.has(passport.passport_number)) {
-            uniquePassports.set(passport.passport_number, {
-              id: passport.id,
-              reservation_id: item.id,
-              name: passport.name,
-              passport_number: passport.passport_number,
-              passport: passport.file,
-              dob: passport.dob,
-              id: passport.id,
-              selected: true,
-            });
-          }
-        });
-      }
+  console.log(res, "this is passport list");
+
+  // customer_passport_list.value = res.result;
+
+  for (let i = 0; i < res.result.length; i++) {
+    customer_passport_list.value.push({
+      name: res.result[i].meta?.name,
+      passport_number: res.result[i].meta?.passport_number,
+      passport: res.result[i].file,
+      dob: res.result[i]?.meta?.dob,
+      id: res.result[i].id,
+      selected: true,
     });
-
-    // Convert map values to array
-    customer_passport_list.value = Array.from(uniquePassports.values());
-
-    console.log("====================================");
-    console.log(customer_passport_list.value);
-    console.log("====================================");
   }
 };
 
@@ -173,14 +164,14 @@ function changeFormat(checkinDate, checkoutDate) {
 
 const roomListGet = () => {
   item_list.value = [];
-  if (detail.value && detail.value.booking.items.length > 0) {
-    for (let i = 0; i < detail.value.booking.items?.length; i++) {
+  if (detail.value && detail.value.items.length > 0) {
+    for (let i = 0; i < detail.value.items?.length; i++) {
       item_list.value.push({
-        name: detail.value.booking.items[i]?.room?.name,
-        id: detail.value.booking.items[i].id,
-        checkin_date: detail.value.booking.items[i].checkin_date,
-        checkout_date: detail.value.booking.items[i].checkout_date,
-        quantity: detail.value.booking.items[i].quantity,
+        name: detail.value.items[i]?.room?.name,
+        id: detail.value.items[i].id,
+        checkin_date: detail.value.items[i].checkin_date,
+        checkout_date: detail.value.items[i].checkout_date,
+        quantity: detail.value.items[i].quantity,
         selected: true,
       });
     }
@@ -191,12 +182,12 @@ const roomListGet = () => {
   }
 };
 
-const getDetailAction = async (id, product_id) => {
+const getDetailAction = async (id) => {
   getLoading.value = true;
-  const res = await groupbyStore.ReservationHotelDetailAction(id, product_id);
-  detail.value = res;
-  console.log("Detail value:", res);
-  customerListGet();
+  const res = await groupStore.detailAction(id);
+  detail.value = res.result;
+  console.log("Detail value:", res.result);
+  await customerListGet();
   roomListGet();
   getLoading.value = false;
 };
@@ -207,11 +198,11 @@ onMounted(async () => {
 });
 
 watch(
-  () => [route.query.id, route.query.product_id],
-  async ([newId, newProductId]) => {
-    if (newId || newProductId) {
+  () => [route.query.id],
+  async ([newId]) => {
+    if (newId) {
       // hasRouteId.value = false;
-      getDetailAction(newId, newProductId);
+      getDetailAction(newId);
       // console.log(detail.value, "this is get detail value");
     }
   },
@@ -255,7 +246,7 @@ watch(
             <div class="flex justify-between items-start">
               <div class="space-y-2">
                 <p class="text-lg font-medium text-black">
-                  {{ detail?.booking?.items[0]?.product?.name }}
+                  {{ detail?.product_name }}
                 </p>
                 <p class="w-[217px] text-sm text-gray-700">
                   {{ detail?.booking?.items[0]?.product?.official_address }}
@@ -306,7 +297,7 @@ watch(
                           {{
                             use_ref
                               ? detail?.booking?.crm_id
-                              : detail?.booking?.items[0]?.slip_code
+                              : detail?.confirmation_code
                           }}
                         </p>
                       </th>
@@ -563,12 +554,32 @@ watch(
           <!-- show date  -->
           <div class="relative">
             <div class="py-10 text-center space-y-4">
-              <p class="font-medium text-lg text-[#FF613c]">
+              <p
+                class="font-medium text-lg text-[#FF613c]"
+                v-if="detail.confirmation_code == null"
+              >
                 Booking ၏ Reference No. မရှိနေပါ။
               </p>
-              <p class="text-base">
+              <p class="text-base" v-if="detail.confirmation_code == null">
                 Hotel Booking ၏ Reference No. မရှိနေသောကြောင့် CRM Id ကို
                 အသုံးပြုလိုပါသလား။
+              </p>
+              <p
+                class="font-medium text-lg text-[#FF613c]"
+                v-if="detail.confirmation_code"
+              >
+                Booking ၏ Reference No. ရွေးချယ်ပါ။
+              </p>
+              <p class="text-base" v-if="detail.confirmation_code">
+                Hotel Booking ၏ Reference No. ကို Crm Id သို့မဟုတ် Confirmation
+                Code ကို ရွေးပါ။
+              </p>
+              <p
+                @click="goToFill2"
+                v-if="detail.confirmation_code"
+                class="px-4 py-2 mr-4 inline-block font-medium text-white bg-[#FF613C] border-none rounded-lg hover:bg-[#FF4A3C] focus:outline-none cursor-pointer"
+              >
+                အသုံးပြုပါမည် : {{ detail.confirmation_code }}
               </p>
               <p
                 @click="goToFill"

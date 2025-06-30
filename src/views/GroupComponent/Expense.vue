@@ -2,7 +2,10 @@
   <div>
     <div class="flex justify-between items-center">
       <div class="w-full pt-2.5 items-center col-span-2">
-        <div class="flex justify-end items-center space-x-2 pb-2">
+        <div class="flex justify-between items-center space-x-2 pb-2">
+          <p class="text-xs text-gray-500">
+            If expense step isn't green, please update again !
+          </p>
           <p
             v-if="!emailBooking"
             @click="expenseUpdateAction"
@@ -367,7 +370,7 @@
     </div> -->
     <Modal :isOpen="carModalOpen" @closeModal="carModalOpen = false">
       <DialogPanel
-        class="w-full max-w-xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
@@ -383,32 +386,35 @@
               <p class="text-[10px] text-gray-500 col-span-2">
                 Before save, Please make sure for which reservation.
               </p>
+
               <div
                 @click="openFilePickerThree"
                 v-if="uploadRecePreview.length == 0 && !expenseData.file"
-                class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+                class="w-full h-[400px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
               >
                 +
               </div>
               <div
                 v-if="uploadRecePreview.length != 0 && !expenseData.file"
-                class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+                class="w-full min-h-[400px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
               >
                 <img :src="uploadRecePreview[0]" alt="" class="rounded-lg" />
               </div>
               <div
                 v-if="expenseData.file"
-                class="w-[200px] h-[300px] border rounded-lg border-dashed flex justify-center items-center text-[#FF613c] border-[#FF613c]"
+                class="rounded-lg min-h-[400px] w-full"
               >
                 <img :src="expenseData.file" alt="" class="rounded-lg" />
               </div>
 
               <div class="space-y-4 relative pt-4 pb-14">
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium"
-                    >Date <span class="opacity-0">......</span></label
+                <div class="">
+                  <p for="" class="text-[12px] font-medium pb-2">
+                    Date <span class="opacity-0">......</span>
+                  </p>
+                  <div
+                    class="flex justify-between items-center w-full bg-white pl-2 rounded-lg"
                   >
-                  <div class="flex justify-between items-center w-[160px]">
                     <p class="text-start text-xs" v-if="expenseData?.date">
                       {{
                         expenseData.date.includes("T")
@@ -421,100 +427,99 @@
                       name=""
                       v-model="expenseData.date"
                       format="YYYY-MM-DD HH:mm:ss"
-                      class="w-[35px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                      class="w-[35px] px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                       id=""
                     />
                   </div>
                 </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium">Sender </label>
+
+                <div class="">
+                  <p for="" class="text-[12px] font-medium pb-2">Sender</p>
                   <input
+                    type="text"
                     v-model="expenseData.sender"
-                    type="text"
+                    :class="
+                      expenseData.sender != '' &&
+                      expenseData.sender == 'MR. THIHA@KUMAR BHUSAL'
+                        ? 'text-gray-400'
+                        : ''
+                    "
                     name=""
-                    placeholder="sender name"
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    placeholder="xxx"
+                    class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
                 </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium"
-                    >Reciever
-                  </label>
+                <div class="">
+                  <div class="flex justify-between items-center">
+                    <p for="" class="text-[12px] font-medium pb-2">Reciever</p>
+                    <p
+                      class="text-xs text-blue-600 underline cursor-pointer"
+                      @click="goToProduct"
+                    >
+                      link to product
+                    </p>
+                  </div>
                   <input
+                    type="text"
                     v-model="expenseData.reciever"
-                    type="text"
+                    :class="
+                      expenseData.reciever != '' &&
+                      expenseData.reciever ==
+                        detail?.booking?.items[0]?.product?.account_name
+                        ? 'text-gray-400'
+                        : ''
+                    "
                     name=""
-                    placeholder="reciever name"
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    placeholder="xxx"
+                    class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
                 </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium">Amount</label>
+                <div class="">
+                  <p for="" class="text-[12px] font-medium pb-2">Amount</p>
                   <input
-                    type="text"
-                    name=""
+                    type="number"
                     v-model="expenseData.amount"
-                    placeholder="Search CRM ID"
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    name=""
+                    placeholder="xxx"
+                    class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                     id=""
                   />
                 </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium"
-                    >Interact Bank
-                  </label>
+                <div class="">
+                  <p for="" class="text-[12px] font-medium pb-2">
+                    Interact Bank <span class="opacity-0">.....</span>
+                  </p>
                   <select
                     name=""
                     v-model="expenseData.interact_bank"
                     id=""
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   >
                     <option value="personal">Personal</option>
                     <option value="company">Company</option>
-                  </select>
-                </div>
-                <div class="flex justify-between items-center">
-                  <label for="" class="text-[12px] font-medium"
-                    >Bank <span class="opacity-0">.....</span></label
-                  >
-                  <select
-                    name=""
-                    v-model="expenseData.bank_name"
-                    id=""
-                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                  >
-                    <option value="">Select Bank</option>
-                    <option :value="b.name" v-for="b in bankList" :key="b.id">
-                      {{ b.name }}
+                    <option value="cash_at_office">Cash at Office</option>
+                    <option value="to_money_changer">To Money Changer</option>
+                    <option value="deposit_management">
+                      Deposit Management
                     </option>
                   </select>
                 </div>
                 <div class="flex justify-between items-center">
                   <label for="" class="text-[12px] font-medium"
-                    >Bank ? <span class="opacity-0">..</span></label
+                    >Currency
+                  </label>
+                  <select
+                    name=""
+                    v-model="expenseData.currency"
+                    id=""
+                    class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
                   >
-                  <div class="flex justify-start items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      v-model="expenseData.is_corporate"
-                      name=""
-                      placeholder="name"
-                      class="py-1.5 focus:outline-none text-xs"
-                      id=""
-                    />
-                    <p class="text-[12px]">Is Corporate ?</p>
-                  </div>
-                </div>
-
-                <div class="flex justify-between items-start">
-                  <label for="" class="text-[12px] font-medium">Comment</label>
-                  <textarea
-                    v-model="expenseData.comment"
-                    class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[160px]"
-                  >
-                  </textarea>
+                    <option value="MMK">MMK</option>
+                    <option value="THB">THB</option>
+                    <option value="USD">USD</option>
+                  </select>
                 </div>
 
                 <div
@@ -569,7 +574,7 @@ import { useToast } from "vue-toastification";
 import { useReservationStore } from "../../stores/reservation";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { daysBetween } from "../help/DateBetween";
 import { useGroupStore } from "../../stores/group";
 // import ExpenseBooking from "./ExpenseBooking.vue";
@@ -587,6 +592,7 @@ const props = defineProps({
 const carModalOpen = ref(false);
 const route = useRoute();
 const fileInputThree = ref(null);
+const router = useRouter();
 
 const formData = ref({
   multiple_id: [],
@@ -627,9 +633,10 @@ const expenseData = ref({
   amount: 0,
   date: "",
   bank_name: "",
-  sender: "",
-  reciever: "",
+  sender: "MR. THIHA@KUMAR BHUSAL",
+  reciever: props?.detail?.items[0]?.product?.account_name,
   interact_bank: "",
+  currency: "THB",
   is_corporate: false,
   comment: "",
 });
@@ -646,9 +653,12 @@ const openModal = (data, index) => {
     amount: data.meta.amount,
     date: data.meta.date,
     bank_name: data.meta.bank_name,
-    sender: data.meta.sender,
-    reciever: data.meta.reciever,
+    sender: data.meta.sender ? data.meta.sender : "MR. THIHA@KUMAR BHUSAL",
+    reciever: data.meta.reciever
+      ? data.meta.reciever
+      : props?.detail?.items[0]?.product?.account_name,
     interact_bank: data.meta.interact_bank,
+    currency: data.meta.currency ? data.meta.currency : "THB",
     is_corporate: data.meta.is_corporate == 1 ? true : false,
     comment: data.meta.comment,
   };
@@ -663,13 +673,22 @@ const clearAction = () => {
     amount: 0,
     date: "",
     bank_name: "",
-    sender: "",
-    reciever: "",
+    sender: "MR. THIHA@KUMAR BHUSAL",
+    reciever: props?.detail?.items[0]?.product?.account_name,
     interact_bank: "",
+    currency: "THB",
     is_corporate: false,
     comment: "",
   };
   carModalOpen.value = false;
+};
+
+const goToProduct = () => {
+  if (props.detail?.items[0]?.product_type == "App\\Models\\Hotel") {
+    router.push(`/product/hotel/edit/${props.detail?.items[0]?.product_id}`);
+  } else {
+    router.push(`/products/6?edit=${props.detail?.items[0]?.product_id}`);
+  }
 };
 
 const openFilePickerThree = () => {
@@ -1042,6 +1061,10 @@ const createExpense = async () => {
       expenseData.value.interact_bank ?? "personal"
     );
     frmData.append(
+      "documents[0][meta][currency]",
+      expenseData.value.currency ?? "THB"
+    );
+    frmData.append(
       "documents[0][meta][date]",
       formatDateDb(expenseData.value.date)
     );
@@ -1101,6 +1124,7 @@ const updateExpense = async () => {
       "meta[interact_bank]",
       expenseData.value.interact_bank ?? "personal"
     );
+    frmData.append("meta[currency]", expenseData.value.currency ?? "THB");
     frmData.append("meta[date]", formatDateDb(expenseData.value.date));
     frmData.append("meta[bank_name]", expenseData.value.bank_name);
     frmData.append(

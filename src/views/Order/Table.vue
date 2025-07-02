@@ -10,6 +10,7 @@
           <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
             ORDER ID
           </th>
+
           <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
             USER NAME
           </th>
@@ -18,6 +19,9 @@
           </th>
           <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
             ORDER CREATE
+          </th>
+          <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
+            AGENT
           </th>
           <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
             ORDER STATUS
@@ -57,6 +61,12 @@
             class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
           >
             {{ l?.customer?.name }}
+          </td>
+          <td
+            scope="col"
+            class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+          >
+            {{ l?.admin?.name }}
           </td>
           <td
             scope="col"

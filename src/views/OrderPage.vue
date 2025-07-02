@@ -113,6 +113,10 @@ const watchSystem = computed(() => {
     result.order_status = bookingStatus.value;
   }
 
+  if (authStore.user.role == "admin" || authStore.user.role == "sale_manager") {
+    result.admin_id = authStore.user.id;
+  }
+
   console.log(result);
   return result;
 });

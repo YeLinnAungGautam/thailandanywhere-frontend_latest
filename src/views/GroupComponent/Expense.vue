@@ -340,9 +340,9 @@
               >
                 <span class="text-[10px]">edit</span>
               </p>
-              <a :href="image.file" target="_blink" class="w-full h-auto">
+              <a :href="image.image" target="_blink" class="w-full h-auto">
                 <img
-                  :src="image.file"
+                  :src="image.image"
                   alt=""
                   class="rounded-lg w-full h-[210px] object-cover"
                 />
@@ -351,13 +351,13 @@
                 class="w-full px-4 pb-1 mt-2 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
               >
                 <p class="text-[10px] flex justify-start items-center pt-2">
-                  {{ image.meta.bank_name }}
+                  {{ image?.bank_name }}
                 </p>
                 <p class="text-[10px] flex justify-start items-center">
-                  {{ image.meta.amount }}
+                  {{ image?.amount }}
                 </p>
                 <p class="text-[10px] flex justify-start items-center pb-2">
-                  {{ image.meta.date }}
+                  {{ image?.date }}
                 </p>
               </div>
             </div>
@@ -577,6 +577,8 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute, useRouter } from "vue-router";
 import { daysBetween } from "../help/DateBetween";
 import { useGroupStore } from "../../stores/group";
+import { useCashImageStore } from "../../stores/cashImage";
+import { formattedDateTimeDB } from "../help/FormatData";
 // import ExpenseBooking from "./ExpenseBooking.vue";
 
 const toast = useToast();
@@ -589,6 +591,7 @@ const props = defineProps({
   getDetailAction: Function,
 });
 
+const cashImageStore = useCashImageStore();
 const carModalOpen = ref(false);
 const route = useRoute();
 const fileInputThree = ref(null);
@@ -649,18 +652,16 @@ const openModal = (data, index) => {
   expenseData.value = {
     index: index,
     id: data.id,
-    file: data.file,
-    amount: data.meta.amount,
-    date: data.meta.date,
-    bank_name: data.meta.bank_name,
-    sender: data.meta.sender ? data.meta.sender : "MR. THIHA@KUMAR BHUSAL",
-    reciever: data.meta.reciever
-      ? data.meta.reciever
+    file: data.image,
+    amount: data.amount,
+    date: data.date,
+    bank_name: data.bank_name,
+    sender: data.sender ? data.sender : "MR. THIHA@KUMAR BHUSAL",
+    reciever: data.reciever
+      ? data.reciever
       : props?.detail?.items[0]?.product?.account_name,
-    interact_bank: data.meta.interact_bank,
-    currency: data.meta.currency ? data.meta.currency : "THB",
-    is_corporate: data.meta.is_corporate == 1 ? true : false,
-    comment: data.meta.comment,
+    interact_bank: data.interact_bank,
+    currency: data.currency ? data.currency : "THB",
   };
 };
 
@@ -999,7 +1000,7 @@ const expenseUpdateAction = async () => {
     toast.error("An unexpected error occurred");
   } finally {
     setTimeout(async () => {
-      await props.getDetailAction(route.query.id, route.query.product_id);
+      await props.getDetailAction(route.query.id);
     }, 1000);
     loading.value = false;
   }
@@ -1027,15 +1028,12 @@ const payment_status = [
 ];
 
 const removeFeatureDeleteImage = async (index, id) => {
-  const res = await groupStore.groupDocumentDeleteAction(
-    route.query.id,
-    expenseData.value.id
-  );
+  const res = await cashImageStore.deleteAction(expenseData.value.id);
   console.log(res, "this is res");
   if (res.status == "Request was successful.") {
     toast.success("Passport successfully deleted");
     cancelAction();
-    await getExpenseList();
+    await props.getDetailAction(route.query.id);
   }
   carModalOpen.value = false;
   // console.log(editData.value.customer_passport, "this is remove");
@@ -1052,52 +1050,35 @@ const createExpense = async () => {
   loading.value = true;
   try {
     const frmData = new FormData();
-    frmData.append("document_type", "expense_receipt");
-    frmData.append("documents[0][meta][amount]", expenseData.value.amount);
-    frmData.append("documents[0][meta][sender]", expenseData.value.sender);
-    frmData.append("documents[0][meta][reciever]", expenseData.value.reciever);
+    frmData.append("relatable_type", "App\\Models\\BookingItemGroup");
+    frmData.append("relatable_id", route.query.id);
+    frmData.append("amount", expenseData.value.amount);
+    frmData.append("sender", expenseData.value.sender);
+    frmData.append("reciever", expenseData.value.reciever);
     frmData.append(
-      "documents[0][meta][interact_bank]",
+      "interact_bank",
       expenseData.value.interact_bank ?? "personal"
     );
-    frmData.append(
-      "documents[0][meta][currency]",
-      expenseData.value.currency ?? "THB"
-    );
-    frmData.append(
-      "documents[0][meta][date]",
-      formatDateDb(expenseData.value.date)
-    );
-    frmData.append(
-      "documents[0][meta][bank_name]",
-      expenseData.value.bank_name
-    );
-    frmData.append(
-      "documents[0][meta][is_corporate]",
-      expenseData.value.is_corporate ? 1 : 0
-    );
-    frmData.append("documents[0][meta][comment]", expenseData.value.comment);
+    frmData.append("currency", expenseData.value.currency ?? "THB");
+    frmData.append("date", formattedDateTimeDB(expenseData.value.date));
 
     if (formData.value.receipt_image.length != 0) {
       if (formData.value.receipt_image.length > 0) {
         for (let i = 0; i < formData.value.receipt_image.length; i++) {
           let file = formData.value.receipt_image[0];
-          frmData.append("documents[0][file]", file);
+          frmData.append("image", file);
         }
       }
     }
 
-    const res = await groupStore.groupDocumentCreateAction(
-      frmData,
-      route.query.id
-    );
+    const res = await cashImageStore.addNewAction(frmData);
     console.log(res);
     toast.success({
       title: "Success",
       description: "Create success",
     });
 
-    await getExpenseList();
+    await props.getDetailAction(route.query.id);
 
     clearAction();
     loading.value = false;
@@ -1116,26 +1097,20 @@ const updateExpense = async () => {
   try {
     const frmData = new FormData();
     frmData.append("_method", "PUT");
-    frmData.append("document_type", "expense_receipt");
-    frmData.append("meta[amount]", expenseData.value.amount);
-    frmData.append("meta[sender]", expenseData.value.sender);
-    frmData.append("meta[reciever]", expenseData.value.reciever);
+    frmData.append("relatable_type", "App\\Models\\BookingItemGroup");
+    frmData.append("relatable_id", route.query.id);
+    frmData.append("amount", expenseData.value.amount);
+    frmData.append("sender", expenseData.value.sender);
+    frmData.append("reciever", expenseData.value.reciever);
     frmData.append(
-      "meta[interact_bank]",
+      "interact_bank",
       expenseData.value.interact_bank ?? "personal"
     );
-    frmData.append("meta[currency]", expenseData.value.currency ?? "THB");
-    frmData.append("meta[date]", formatDateDb(expenseData.value.date));
-    frmData.append("meta[bank_name]", expenseData.value.bank_name);
-    frmData.append(
-      "meta[is_corporate]",
-      expenseData.value.is_corporate ? 1 : 0
-    );
-    frmData.append("meta[comment]", expenseData.value.comment);
+    frmData.append("currency", expenseData.value.currency ?? "THB");
+    frmData.append("date", formattedDateTimeDB(expenseData.value.date));
 
-    const res = await groupStore.groupDocumentUpdateAction(
+    const res = await cashImageStore.updateAction(
       frmData,
-      route.query.id,
       expenseData.value.id
     );
     console.log(res);
@@ -1143,7 +1118,7 @@ const updateExpense = async () => {
       title: "Success",
       description: "Update success",
     });
-    await getExpenseList();
+    await props.getDetailAction(route.query.id);
   } catch (error) {
     console.log(error);
   } finally {
@@ -1152,17 +1127,17 @@ const updateExpense = async () => {
   }
 };
 
-const getExpenseList = async () => {
-  const id = route.query.id;
-  const res = await groupStore.groupDocumentList(id, {
-    document_type: "expense_receipt",
-  });
-  console.log(res);
-  editData.value.expenses = res.result;
+// const getExpenseList = async () => {
+//   const id = route.query.id;
+//   const res = await groupStore.groupDocumentList(id, {
+//     document_type: "expense_receipt",
+//   });
+//   console.log(res);
+//   editData.value.expenses = res.result;
 
-  console.log(editData.value.expenses, "this is editData");
-  loading.value = false;
-};
+//   console.log(editData.value.expenses, "this is editData");
+//   loading.value = false;
+// };
 
 const populateFormData = async () => {
   if (props.detail && props.detail.items.length > 0) {
@@ -1225,7 +1200,9 @@ const populateFormData = async () => {
       formData.value.multiple_quantity.push(item.quantity);
     });
 
-    await getExpenseList();
+    editData.value.expenses = props.detail.expense;
+
+    // await props.getDetailAction(route.query.id); // Call getDetailAction();
     console.log(
       "Form data populated with multiple items:",
       formData.value,

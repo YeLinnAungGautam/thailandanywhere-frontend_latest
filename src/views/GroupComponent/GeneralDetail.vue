@@ -183,7 +183,7 @@
                   />
                 </div>
               </div>
-              <div class="flex justify-between items-center">
+              <!-- <div class="flex justify-between items-center">
                 <label for="" class="text-[12px] font-medium">Bank </label>
                 <select
                   name=""
@@ -196,7 +196,7 @@
                     {{ b.name }}
                   </option>
                 </select>
-              </div>
+              </div> -->
 
               <div class="flex justify-between items-center">
                 <label for="" class="text-[12px] font-medium">Sender </label>
@@ -261,7 +261,7 @@
                   <option value="USD">USD</option>
                 </select>
               </div>
-              <div class="flex justify-between items-center">
+              <!-- <div class="flex justify-between items-center">
                 <label for="" class="text-[12px] font-medium">Bank ? </label>
                 <div class="flex justify-start items-center space-x-2">
                   <input
@@ -274,15 +274,8 @@
                   />
                   <p class="text-[12px]">Is Corporate ?</p>
                 </div>
-              </div>
-              <div class="flex justify-between items-start">
-                <label for="" class="text-[12px] font-medium">Comment</label>
-                <textarea
-                  v-model="formData.comment"
-                  class="px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs w-[160px]"
-                >
-                </textarea>
-              </div>
+              </div> -->
+
               <div
                 class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
               >
@@ -308,20 +301,18 @@
 </template>
 
 <script setup>
-import invoice from "../../assets/invoice_exp.jpg";
 import { computed, defineProps, ref } from "vue";
-import dateImage from "../../assets/date.png";
-import bathImage from "../../assets/baht.png";
-import { PencilSquareIcon, XCircleIcon } from "@heroicons/vue/24/outline";
 import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRouter, useRoute } from "vue-router";
-import { useBookingStore } from "../../stores/booking";
+// import { useBookingStore } from "../../stores/booking";
 import { useToast } from "vue-toastification";
 import { changeFormat } from "../help/FormatData";
 import { formattedNumber } from "../help/FormatData";
+import { useCashImageStore } from "../../stores/cashImage";
 
-const bookingStore = useBookingStore();
+// const bookingStore = useBookingStore();
+const cashImageStore = useCashImageStore();
 const route = useRoute();
 
 const props = defineProps({
@@ -605,11 +596,7 @@ const submit = async () => {
     frmData.append("is_corporate", formData.value.is_corporate ? 1 : 0);
     frmData.append("note", formData.value.comment);
 
-    const res = await bookingStore.receiptImageAction(
-      props.detail.booking.id,
-      formData.value.id,
-      frmData
-    );
+    const res = await cashImageStore.updateAction(frmData, formData.value.id);
     console.log(res);
     toast.success({
       title: "Success",

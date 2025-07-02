@@ -114,8 +114,7 @@
 <script setup>
 import { defineProps, ref, onMounted } from "vue";
 import { useToast } from "vue-toastification";
-import { useReservationStore } from "../stores/reservation";
-import { useBookingStore } from "../stores/booking";
+import { useCashImageStore } from "../stores/cashImage";
 
 const props = defineProps({
   updateData: Object,
@@ -123,8 +122,7 @@ const props = defineProps({
 
 const emit = defineEmits(["update"]);
 const toast = useToast();
-const reservationStore = useReservationStore();
-const bookingStore = useBookingStore();
+const cashImageStore = useCashImageStore();
 
 const placeholderFile = ref(
   "https://img.freepik.com/premium-vector/payment-check-buying-financial-invoice-bill-purchasing-calculate-pay-vector-isolated-receipt_966580-342.jpg"
@@ -142,32 +140,6 @@ const formData = ref({
   table_source: "",
   file: "",
 });
-
-const bankList = ref([
-  { id: "1", name: "KPAY" },
-  { id: "2", name: "AYAPAY" },
-  { id: "3", name: "CBPAY" },
-  { id: "4", name: "KBZ BANKING" },
-  { id: "5", name: "CB BANKING" },
-  { id: "6", name: "MAB BANKING" },
-  { id: "7", name: "YOMA BANK" },
-  { id: "8", name: "Kasikorn" },
-  { id: "9", name: "Bangkok Bank" },
-  { id: "10", name: "Bank of Ayudhaya" },
-  { id: "11", name: "SCB Bank" },
-  { id: "12", name: "KPAY" },
-  { id: "13", name: "AYAPAY" },
-  { id: "14", name: "CBPAY" },
-  { id: "15", name: "KBZ BANKING" },
-  { id: "16", name: "CB BANKING" },
-  { id: "17", name: "MAB BANKING" },
-  { id: "18", name: "YOMA BANK" },
-  { id: "19", name: "Kasikorn" },
-  { id: "20", name: "Bangkok Bank" },
-  { id: "21", name: "Bank of Ayudhaya" },
-  { id: "22", name: "SCB Bank" },
-  { id: "23", name: "Others..." },
-]);
 
 const formatDate = (dateString) => {
   // Parse the input string into a Date object
@@ -269,7 +241,6 @@ const updateAction = async () => {
     frmData.append("_method", "PUT");
     frmData.append("amount", formData.value.amount);
     frmData.append("date", formatDateDb(formData.value.date));
-    frmData.append("bank_name", formData.value.bank_name ?? "others...");
     frmData.append("sender", formData.value.sender);
     frmData.append("reciever", formData.value.reciever);
     frmData.append("interact_bank", formData.value.interact_bank ?? "personal");
@@ -280,20 +251,20 @@ const updateAction = async () => {
     //   formData.value.id,
     //   frmData
     // );
-    let res;
-    if (props.updateData.table_source == "booking_receipt") {
-      res = await bookingStore.receiptImageAction(
-        props.updateData.booking_id,
-        props.updateData.id,
-        frmData
-      );
-    } else {
-      res = await reservationStore.ReservationExpenseReceiptUpdateAction(
-        props.updateData.booking_id,
-        props.updateData.id,
-        frmData
-      );
-    }
+    // if (props.updateData.table_source == "booking_receipt") {
+    //   res = await bookingStore.receiptImageAction(
+    //     props.updateData.booking_id,
+    //     props.updateData.id,
+    //     frmData
+    //   );
+    // } else {
+    //   res = await reservationStore.ReservationExpenseReceiptUpdateAction(
+    //     props.updateData.booking_id,
+    //     props.updateData.id,
+    //     frmData
+    //   );
+    // }
+    const res = await cashImageStore.updateAction(frmData, props.updateData.id);
     console.log(res);
     toast.success({
       title: "Success",

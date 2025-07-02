@@ -45,6 +45,8 @@ import TaxInfo from "./BookingComponent/TaxInfo.vue";
 import PngUsage from "./PngGenerate/PngUsage.vue";
 import { daysBetween } from "./help/DateBetween";
 import ArchiveConfirmationModal from "./BookingComponent/ConfirmationModel.vue";
+import { useCashImageStore } from "../stores/cashImage";
+
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
 // for tag
@@ -58,6 +60,7 @@ const route = useRoute();
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const adminStore = useAdminStore();
+const cashImageStore = useCashImageStore();
 
 const productArray = [
   {
@@ -1411,7 +1414,7 @@ const openPaid = () => {
 
 const deleteImage = async (id) => {
   updatingLoading.value = true;
-  await bookingStore.deleteBookingImage(id);
+  await cashImageStore.deleteAction(id);
   toast.success("success delete sale Image");
   window.location.reload();
   // await getDetail();

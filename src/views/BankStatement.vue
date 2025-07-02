@@ -87,14 +87,7 @@
               class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
             />
           </div>
-          <div class="relative">
-            <input
-              v-model="bankNameSearch"
-              type="text"
-              placeholder="Search by bank name..."
-              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
-            />
-          </div>
+
           <div class="relative">
             <input
               v-model="amountSearch"
@@ -153,7 +146,7 @@
 
         <!-- No Data State -->
         <div
-          v-else-if="!receipts?.data || receipts.data.length === 0"
+          v-else-if="!cashImages?.data || cashImages.data.length === 0"
           class="text-center py-10"
         >
           <div class="text-gray-400 text-6xl mb-4">📄</div>
@@ -219,16 +212,10 @@
                         <span class="text-gray-400 mr-2">•</span>
                         <span>To: {{ item.reciever }}</span>
                       </div>
-                      <div
-                        v-if="item?.bank_name && item.bank_name !== 'null'"
-                        class="flex items-center"
-                      >
-                        <span class="text-gray-400 mr-2">•</span>
-                        <span>Bank: {{ item.bank_name }}</span>
-                      </div>
+
                       <div v-if="item?.crm_id" class="flex items-center">
                         <span class="text-gray-400 mr-2">•</span>
-                        <span>CRM: {{ item.crm_id }}</span>
+                        <span>CRM: {{ item.relatable?.crm_id }}</span>
                       </div>
                       <div class="pt-3">
                         <span
@@ -236,9 +223,12 @@
                           :class="getTransactionBadgeClass(item)"
                         >
                           {{
-                            item?.table_source === "booking_receipt"
+                            item?.relatable_type == "App\\Models\\Booking"
                               ? "Booking"
-                              : "Expense"
+                              : item?.relatable_type ==
+                                "App\\Models\\BookingItemGroup"
+                              ? "Group Expense"
+                              : "Cash Book"
                           }}
                         </span>
                       </div>
@@ -283,7 +273,7 @@
                       class="flex space-x-1 justify-end"
                     >
                       <button
-                        v-if="item?.file_url"
+                        v-if="item?.image"
                         @click="viewReceipt(item)"
                         class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         title="View Receipt"
@@ -315,8 +305,8 @@
         <!-- Pagination -->
         <div class="mt-8">
           <Pagination
-            v-if="!loading && receipts?.data?.length > 0"
-            :data="receipts"
+            v-if="!loading && cashImages?.data?.length > 0"
+            :data="cashImages"
             @change-page="changePage"
           />
         </div>
@@ -348,7 +338,13 @@
           as="div"
           class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-3 px-4 rounded-t-xl"
         >
-          <span class="uppercase">{{ updateData?.table_source }}</span>
+          <span class="uppercase">{{
+            updateData?.relatable_type == "App\\Models\\Booking"
+              ? "Booking"
+              : updateData?.relatable_type == "App\\Models\\BookingItemGroup"
+              ? "Group Expense"
+              : "Cash Book"
+          }}</span>
         </DialogTitle>
         <div class="p-4">
           <ReceiptEdit :updateData="updateData" @update="onChangeUpdate" />
@@ -383,15 +379,18 @@ import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useReservationStore } from "../stores/reservation";
 import ReceiptEdit from "./ReceiptEdit.vue";
+import { useCashImageStore } from "../stores/cashImage";
 
 const sideBarStore = useSidebarStore();
 const toast = useToast();
 const { isShowSidebar } = storeToRefs(sideBarStore);
 const bookingReceiptStore = useBookingReceiptStore();
+const cashImageStore = useCashImageStore();
 const reservationStore = useReservationStore();
 const route = useRoute();
 const authStore = useAuthStore();
-const { receipts, loading } = storeToRefs(bookingReceiptStore);
+// const { receipts } = storeToRefs(bookingReceiptStore);
+const { cashImages, loading } = storeToRefs(cashImageStore);
 
 // Search and filter states
 const date_range = ref("");
@@ -428,10 +427,10 @@ const monthArray = [
 
 // Group receipts by date
 const groupedReceipts = computed(() => {
-  if (!receipts.value?.data) return {};
+  if (!cashImages.value?.data) return {};
 
   const groups = {};
-  const sortedData = [...receipts.value.data].sort(
+  const sortedData = [...cashImages.value.data].sort(
     (a, b) => new Date(b.date) - new Date(a.date)
   );
 
@@ -452,11 +451,34 @@ const groupedReceipts = computed(() => {
 
 // Helper functions
 const formatDateHeader = (dateString) => {
-  const date = new Date(dateString);
-  const day = date.getDate();
-  const month = date.toLocaleDateString("en-US", { month: "short" });
-  const year = date.getFullYear().toString().slice(-2);
-  return `${day} ${month} ${year}`;
+  // Match DD-MM-YYYY or DD/MM/YYYY format
+  const ddmmyyyyPattern = /^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/;
+  const match = dateString.match(ddmmyyyyPattern);
+
+  if (match) {
+    const [, day, month, year] = match;
+    const date = new Date(year, month - 1, day);
+
+    if (isNaN(date.getTime())) {
+      return "Invalid Date";
+    }
+
+    const dayNum = date.getDate();
+    const monthName = date.toLocaleDateString("en-US", { month: "short" });
+    const yearShort = date.getFullYear().toString().slice(-2);
+    return `${dayNum} ${monthName} ${yearShort}`;
+  } else {
+    // Fallback to original parsing
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return "Invalid Date";
+    }
+
+    const day = date.getDate();
+    const month = date.toLocaleDateString("en-US", { month: "short" });
+    const year = date.getFullYear().toString().slice(-2);
+    return `${day} ${month} ${year}`;
+  }
 };
 
 // Add this with your other helper functions
@@ -486,28 +508,31 @@ const extractTime = (dateString) => {
 };
 
 const getTransactionType = (item) => {
-  if (item.table_source === "booking_receipt")
-    return item.sender != "null" && item.sender
-      ? item.sender
-      : "Booking Payment";
-  if (item.interact_bank === "personal")
-    return item.reciever != "null" && item.reciever
-      ? item.reciever
-      : "Expense Transfer";
-  if (item.interact_bank === "company") return "Company Transfer";
-  return item.sender || "Transfer Withdrawal";
+  return item.sender != "null" && item.sender
+    ? item.sender
+    : item.reciever
+    ? item.reciever
+    : "Payment";
 };
 
 const getTransactionBadgeClass = (item) => {
-  if (item?.table_source === "booking_receipt") {
+  if (item?.relatable_type == "App\\Models\\Booking") {
     return "bg-green-100 text-green-800";
+  } else if (item?.relatable_type == "App\\Models\\BookingItemGroup") {
+    return "bg-red-100 text-red-800";
+  } else if (item?.relatable_type == "App\\Models\\CashBook") {
+    return "bg-blue-100 text-blue-800";
   }
   return "bg-red-100 text-red-800";
 };
 
 const getAmountColorClass = (item) => {
-  if (item?.table_source === "booking_receipt") {
+  if (item?.relatable_type == "App\\Models\\Booking") {
     return "text-green-600";
+  } else if (item?.relatable_type === "App\\Models\\BookingItemGroup") {
+    return "text-red-600";
+  } else if (item?.relatable_type == "App\\Models\\CashBook") {
+    return "text-blue-600";
   }
   return "text-red-600";
 };
@@ -517,7 +542,12 @@ const formatTransactionAmount = (item) => {
   if (!amount) return "-";
 
   const formattedAmount = new Intl.NumberFormat("en-US").format(amount);
-  const prefix = item?.table_source === "booking_receipt" ? "+" : "-";
+  const prefix =
+    item?.relatable_type === "App\\Models\\Booking"
+      ? "+"
+      : item?.relatable_type === "App\\Models\\BookingItemGroup"
+      ? "-"
+      : ".";
 
   return `${prefix}${formattedAmount} ${item.currency}`;
 };
@@ -548,7 +578,7 @@ const setMonthDateRange = (month, yearValue) => {
 const searchParams = computed(() => {
   let params = {};
 
-  if (date_range.value) {
+  if (filterType.value != "missing" && date_range.value) {
     params.date = date_range.value;
   }
 
@@ -566,10 +596,6 @@ const searchParams = computed(() => {
     params.crm_id = crmSearch.value;
   }
 
-  if (bankNameSearch.value) {
-    params.bank_name = bankNameSearch.value;
-  }
-
   if (amountSearch.value) {
     params.amount = amountSearch.value;
   }
@@ -578,17 +604,17 @@ const searchParams = computed(() => {
     params.interact_bank = interactSearch.value;
   }
 
-  params.per_page = per_page.value ? per_page.value : 10;
+  params.limit = per_page.value ? per_page.value : 10;
 
   return params;
 });
 
 const getAction = async () => {
-  await bookingReceiptStore.getListAction(searchParams.value);
+  await cashImageStore.getListAction(searchParams.value);
 };
 
 const changePage = async (url) => {
-  await bookingReceiptStore.getChangePage(url, searchParams.value);
+  await cashImageStore.getChangePage(url, searchParams.value);
 };
 
 const handleYearChange = (message) => {
@@ -612,8 +638,8 @@ const clearSearch = () => {
 
 const placeholderFile = ref("");
 const viewReceipt = (item) => {
-  if (item.file_url) {
-    placeholderFile.value = item.file_url;
+  if (item.image) {
+    placeholderFile.value = item.image;
   } else {
     toast.warning("No receipt file available");
   }
@@ -625,25 +651,18 @@ const formatAmount = (amount) => {
 };
 
 const goToView = async (data) => {
-  if (data.table_source == "booking_receipt") {
-    router.push(`bookings/new-update/${data?.booking_id}`);
-  } else {
-    const res = await reservationStore.getDetailAction(data?.booking_id);
-    if (res.result) {
-      if (res.result.product_type == "App\\Models\\EntranceTicket") {
-        router.push(
-          `/reservation-attraction?id=${res.result.id}&product_id=${res.result?.product?.id}&crm_id=${res.result?.booking?.crm_id}`
-        );
-      } else if (res.result.product_type == "App\\Models\\Hotel") {
-        router.push(
-          `/reservation-hotel?id=${res.result?.booking?.id}&product_id=${res.result?.product?.id}&crm_id=${res.result?.booking?.crm_id}`
-        );
-      } else if (res.result.product_type == "App\\Models\\PrivateVanTour") {
-        router.push(
-          `/reservation-vantour?id=${res.result?.booking?.id}&crm_id=${res.result?.booking?.crm_id}`
-        );
-      }
+  if (data.relatable_type == "App\\Models\\Booking") {
+    router.push(`bookings/new-update/${data?.relatable?.id}`);
+  } else if (data.relatable_type == "App\\Models\\BookingItemGroup") {
+    if (data?.relatable?.product_type == "App\\Models\\EntranceTicket") {
+      router.push(`/group-attraction?id=${data?.relatable?.id}`);
+    } else if (data?.relatable?.product_type == "App\\Models\\Hotel") {
+      router.push(`/group-hotel?id=${data?.relatable?.id}`);
+    } else if (data?.relatable?.product_type == "App\\Models\\PrivateVanTour") {
+      router.push(`/group-private-van-tour?id=${data?.relatable?.id}`);
     }
+  } else if (data.relatable_type == "App\\Models\\CashBook") {
+    router.push(`/cash-book/${data?.relatable_id}`);
   }
 };
 
@@ -652,27 +671,25 @@ const updateData = ref({
   id: "",
   date: "",
   file: "",
-  bank_name: "",
   sender: "",
   amount: "",
   reciever: "",
   interact_bank: "",
   currency: "",
-  table_source: "",
+  relatable_type: "",
 });
 
 const update = (data) => {
   updateModalOpen.value = true;
   updateData.value.id = data.id;
   updateData.value.date = data.date;
-  updateData.value.bank_name = data.bank_name;
   updateData.value.sender = data.sender;
   updateData.value.amount = data.amount;
   updateData.value.reciever = data.reciever;
   updateData.value.interact_bank = data.interact_bank;
   updateData.value.currency = data.currency;
-  updateData.value.table_source = data.table_source;
-  updateData.value.file = data.file_url;
+  updateData.value.relatable_type = data.relatable_type;
+  updateData.value.file = data.image;
 };
 
 const closeModal = () => {
@@ -680,13 +697,12 @@ const closeModal = () => {
   updateData.value = {
     id: "",
     date: "",
-    bank_name: "",
     sender: "",
     reciever: "",
     interact_bank: "",
     currency: "",
     amount: "",
-    table_source: "",
+    relatable_type: "",
     file: "",
   };
 };

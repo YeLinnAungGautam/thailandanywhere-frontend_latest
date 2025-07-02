@@ -278,6 +278,18 @@
                         scope="col"
                         class="px-3 py-3 border-l border-gray-50/20"
                       >
+                        Quantity
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-3 py-3 border-l border-gray-50/20"
+                      >
+                        Discount
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-3 py-3 border-l border-gray-50/20"
+                      >
                         Price
                       </th>
                       <th
@@ -324,6 +336,26 @@
                       >
                         {{ item?.variation?.name }} {{ item?.room?.name }}
                         {{ item?.car?.name }} {{ item?.ticket?.price }}
+                      </td>
+                      <td
+                        scope="col"
+                        class="text-[11px] min-w-[180px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                      >
+                        {{ item?.quantity }}
+                        {{
+                          JSON.parse(item?.individual_pricing)?.child?.quantity
+                            ? `Adult + ${
+                                JSON.parse(item?.individual_pricing)?.child
+                                  ?.quantity
+                              } Child`
+                            : ""
+                        }}
+                      </td>
+                      <td
+                        scope="col"
+                        class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                      >
+                        {{ item?.discount }}
                       </td>
                       <td
                         scope="col"

@@ -17,11 +17,12 @@
           <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
             CUSTOMER
           </th>
-          <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
-            ORDER CREATE
-          </th>
+
           <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
             AGENT
+          </th>
+          <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
+            ORDER CREATE
           </th>
           <th scope="col" class="px-3 py-3 border-l border-gray-50/20">
             ORDER STATUS

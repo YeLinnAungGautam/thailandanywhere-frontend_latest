@@ -119,7 +119,7 @@
                 :class="isReservationShow ? 'ml-5' : ''"
                 v-if="isReservationShow"
               >
-                <!-- <SidebarItem
+                <SidebarItem
                   name="Res Attraction"
                   label="attraction"
                   :icon="TicketIcon"
@@ -132,7 +132,7 @@
                   :icon="HomeModernIcon"
                   to="/reservation-hotel"
                   :activePaths="['reservation-hotel']"
-                /> -->
+                />
                 <SidebarItem
                   name="Res Vantour"
                   label="vantour"

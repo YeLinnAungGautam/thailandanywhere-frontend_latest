@@ -361,7 +361,11 @@ const copyReservation = async (id) => {
         allFormattedOutput += `🎫 Ticket Name: ${
           a.entrance_ticket_variation_name
         }
-📆 Service Date: ${urgencyPrefix}${a.service_date}
+📆 Service Date: ${urgencyPrefix}${
+          a.service_date.includes("T")
+            ? a.service_date.split("T")[0]
+            : a.service_date
+        }
 #️⃣ Reservation Code: ${a.reservation_code}: S: (${a.sale_price})
 🧑‍🧑‍🧒 Quantity: ${a.quantity}A - ${
           a.individual_pricing?.child?.quantity

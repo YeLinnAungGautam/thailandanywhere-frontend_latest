@@ -608,7 +608,7 @@ const mailBodyChange = () => {
     emailData.value.mail_body = `
       <p>Dear ${detail.items[0].product?.name},</p>
       <p><strong>Greetings from ThAnywhere Co., Ltd.</strong></p>
-      <p>We would like to book the tickets as per the following description.</p>
+      <p>We would like to book the accommodation as per the following description. Please note the booking is already checked and confirmed by phone.</p>
       <p>
         ${detail?.items
           .map(
@@ -632,19 +632,23 @@ const mailBodyChange = () => {
             .join("") || ""
         }
       </p>
-      <p>Passports for the bookings are attached in the email.</p>
+      <p>Passports for the bookings are attached in the email.Please arrange for the customer accordingly.</p>
+      <p>Payment transaction will be done soon. Once the payment is received, Please kindly issue receipt with tax ID and send to us by post or mail.</p>
+    
       <p><strong>Tax ID:</strong> 0105565081822<br>
       <strong>TH ANYWHERE CO.LTD.</strong><br>
       <strong>Invoice Date:</strong> ${format(new Date(), "dd/MM/yyyy")}</p>
+      <p>If you may have any questions or concerns, please feel free to call us at <strong>0950423254</strong> LINE ID <strong>0983498197</strong>.</p>
       <p>Thank you,</p>
       <p><strong>Negyi @ Sunshine</strong> (Reservation Manager)</p>
+      <p>143/50, Thepprasit Rd, Pattaya City, Bang Lamung District, Chon Buri 20150</p>
     `;
   } else {
     // Template for Hotels
     emailData.value.mail_body = `
       <p>Dear ${detail.items[0].product?.name},</p>
       <p><strong>Greetings from ThAnywhere Co., Ltd.</strong></p>
-      <p>We would like to book the accommodation as per the following description.</p>
+      <p>We would like to book the accommodation as per the following description. Please note the booking is already checked and confirmed by phone.</p>
       <p>
         ${detail?.items
           .map(
@@ -673,12 +677,14 @@ const mailBodyChange = () => {
             .join("") || ""
         }
       </p>
-      <p>Passports for the bookings are attached in the email.</p>
+      <p>Passports for the bookings are attached in the email. Please arrange for the customer accordingly.</p>
+      <p>Payment transaction will be done soon. Once the payment is received, Please kindly issue receipt with tax ID and send to us by post or mail.</p>
       <p><strong>Tax ID:</strong> 0105565081822<br>
       <strong>TH ANYWHERE CO.LTD.</strong><br>
       <strong>Invoice Date:</strong> ${format(new Date(), "dd/MM/yyyy")}</p>
       <p>Thank you,</p>
       <p><strong>Negyi @ Sunshine</strong> (Reservation Manager)</p>
+    <p>143/50, Thepprasit Rd, Pattaya City, Bang Lamung District, Chon Buri 20150</p>
     `;
   }
 };

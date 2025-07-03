@@ -1049,11 +1049,11 @@ const copyReservation = () => {
 💵 Balance Due: ${res.booking?.balance_due || 0} THB 
 📝 Payment Status: ${res.booking?.payment_status || "unknown"}
 ---------------------
-🏦 Bank Name: ${res.expense_bank_name || res.booking?.bank_name || "-"} 
+🏦 Bank Name: ${res.expense_bank_name ?? res.items[0]?.product?.bank_name} 
 🔢 Bank Account Number: ${
       res.expense_bank_account
         ? `➖${res.expense_bank_account}`
-        : res.items[0]?.product?.bank_account_number
+        : `➖${res.items[0]?.product?.bank_account_number}`
     }
 🧑‍💼 Account Name: ${res.items[0]?.product?.account_name || "-"} 
 #️⃣ CRM ID: ${res.booking_crm_id}\n`;

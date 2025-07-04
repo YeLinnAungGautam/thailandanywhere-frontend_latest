@@ -63,7 +63,12 @@
             v-for="i in detailVal?.items ?? []"
             :key="i"
             class="rounded-lg px-2 py-1 mx-1"
-            @click="detailValItem = i"
+            @click="
+              () => {
+                detailValItem = i;
+                haveCrmId = i.crm_id;
+              }
+            "
             :class="detailValItem?.id == i?.id ? 'bg-[#FF613c] text-white' : ''"
           >
             <p class="whitespace-nowrap text-xs">
@@ -427,9 +432,11 @@ import PngUsage from "./PngGenerate/PngUsage.vue";
 import { useToast } from "vue-toastification";
 import Swal from "sweetalert2";
 import { useReservationStore } from "../stores/reservation";
+import { useCashImageStore } from "../stores/cashImage";
 
 const bookingStore = useBookingStore();
 const { bookings, loading } = storeToRefs(bookingStore);
+const cashImageStore = useCashImageStore();
 const reservationStore = useReservationStore();
 const currentDate = new Date();
 const year = ref(currentDate.getFullYear());
@@ -438,6 +445,7 @@ const date_range = ref("");
 const openPrintModal = ref(false);
 
 const selectedItem = ref("");
+const haveCrmId = ref("");
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
@@ -616,20 +624,14 @@ const submit = async () => {
     frmData.append("is_corporate", formData.value.is_corporate ? 1 : 0);
     frmData.append("note", formData.value.comment);
 
-    let res;
-    if (show.value) {
-      res = await bookingStore.receiptImageAction(
-        detailVal.value.id,
-        formData.value.id,
-        frmData
-      );
-    } else {
-      res = await reservationStore.ReservationExpenseReceiptUpdateAction(
-        detailValItem.value.id,
-        imageItemData.value.id,
-        frmData
-      );
-    }
+    // res = await bookingStore.receiptImageAction(
+    //   detailVal.value.id,
+    //   formData.value.id,
+    //   frmData
+    // );
+    const res = await cashImageStore.updateAction(frmData, formData.value.id);
+    console.log(res);
+
     console.log(res);
     toast.success({
       title: "Success",
@@ -853,7 +855,11 @@ const getDetail = async () => {
   const res = await bookingStore.getDetailAction(selectedItem.value);
   detailVal.value = res.result;
 
-  if (detailVal.value) {
+  if (detailVal.value && haveCrmId.value) {
+    detailValItem.value = detailVal.value?.items.find((item) => {
+      return item.crm_id == haveCrmId.value;
+    });
+  } else {
     detailValItem.value = detailVal.value?.items[0];
   }
 
@@ -871,6 +877,11 @@ onMounted(async () => {
 
   if (route.query.id) {
     selectedItem.value = route.query.id;
+  }
+
+  if (route.query.crm_id) {
+    haveCrmId.value = route.query.crm_id;
+    show.value = false;
   }
 });
 
@@ -904,7 +915,7 @@ const checkDataFailOrSuccess = (data) => {
   return true;
 };
 
-watch(selectedItem, async (newValue) => {
+watch([selectedItem, haveCrmId], async (newValue) => {
   if (newValue) {
     router.push({
       name: "verifyInvoices",
@@ -912,6 +923,7 @@ watch(selectedItem, async (newValue) => {
         id: newValue,
         month: selectedMonth.value,
         year: year.value,
+        crm_id: haveCrmId.value ? haveCrmId.value : "",
       },
     });
   }

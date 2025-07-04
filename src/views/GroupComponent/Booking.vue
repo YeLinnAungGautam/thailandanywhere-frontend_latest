@@ -117,6 +117,15 @@
           >
             Send Email
           </button>
+          <button
+            v-if="
+              detail?.items[0]?.product_type == 'App\\Models\\EntranceTicket'
+            "
+            class="text-[10px] text-white bg-green-600 px-2 py-1 rounded-lg inline-block"
+            @click="copyEmailFunction"
+          >
+            Copy Booking
+          </button>
         </div>
       </div>
 
@@ -325,6 +334,12 @@
         </div>
       </DialogPanel>
     </Modal>
+
+    <BookingCopyModel
+      :openModal="bookingOpenModel"
+      :closeModal="() => (bookingOpenModel = false)"
+      :bookingItem="detail"
+    />
   </div>
 </template>
 
@@ -342,6 +357,7 @@ import Modal from "../../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { format } from "date-fns";
 import { useGroupStore } from "../../stores/group";
+import BookingCopyModel from "./BookingCopyModel.vue";
 
 const reservationStore = useReservationStore();
 const toast = useToast();
@@ -397,6 +413,11 @@ const handlerImagesFileChange = (e) => {
       imagesPreview.value.push(URL.createObjectURL(selectedFiles[i]));
     }
   }
+};
+
+const bookingOpenModel = ref(false);
+const copyEmailFunction = () => {
+  bookingOpenModel.value = !bookingOpenModel.value;
 };
 
 const handlerFeatureFileChange = (e) => {

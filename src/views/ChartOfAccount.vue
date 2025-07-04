@@ -33,6 +33,7 @@ const changePage = (page) => {
   let data = {
     search: search.value,
     search_code: search_code.value,
+    limit: limit.value,
   };
   if (date_range.value) {
     data.month = date_range.value;
@@ -41,6 +42,7 @@ const changePage = (page) => {
 };
 
 const search = ref("");
+const limit = ref(50);
 const search_code = ref("");
 const formData = ref({
   account_name: "",
@@ -183,6 +185,7 @@ const getAction = async () => {
     search: search.value,
     search_code: search_code.value,
     month: date_range.value,
+    limit: limit.value,
   };
   await chartOfAccountStore.getListAction(data);
 };
@@ -268,7 +271,7 @@ onMounted(async () => {
 });
 
 watch(
-  [search, search_code],
+  [search, search_code, limit],
   debounce(async (newValue) => {
     await getAction();
   }, 500)
@@ -332,6 +335,19 @@ watch(
             <option :value="m.id" v-for="m in monthArray" :key="m.id">
               {{ m.name }}
             </option>
+          </select>
+          <select
+            v-model="limit"
+            name=""
+            id=""
+            class="w-1/8 border border-gray-400/20 focus:outline-none rounded-lg px-3 py-2 text-xs"
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
           </select>
         </div>
 
@@ -439,30 +455,53 @@ watch(
                     scope="col"
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
-                    {{ item?.product_type ?? "-" }}
-                  </td>
-                  <td
-                    scope="col"
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                  >
-                    {{ item?.connection ?? "-" }}
-                  </td>
-                  <td
-                    scope="col"
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                  >
-                    {{ item?.connection_detail ?? "-" }}
+                    {{
+                      item?.product_type && item?.product_type != "null"
+                        ? item?.product_type
+                        : "-"
+                    }}
                   </td>
                   <td
                     scope="col"
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
                     {{
-                      formattedNumber(
-                        item?.connection_detail == "price"
-                          ? item?.total_amount ?? 0
-                          : item?.total_cost_price ?? 0
-                      )
+                      item?.connection && item?.connection != "null"
+                        ? item?.connection
+                        : "-"
+                    }}
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    {{
+                      item?.connection_detail &&
+                      item?.connection_detail != "null"
+                        ? item?.connection_detail
+                        : "-"
+                    }}
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    {{
+                      item?.connection_detail == "price"
+                        ? item?.total_amount
+                          ? formattedNumber(item?.total_amount)
+                          : ""
+                        : item?.total_cost_price
+                        ? formattedNumber(item?.total_cost_price)
+                        : ""
+                    }}
+                    {{
+                      (item?.account_code == "1-3000-01" ||
+                        item?.account_code == "1-3000-02" ||
+                        item?.account_code == "1-3000-03") &&
+                      item?.over_balance_due_total
+                        ? formattedNumber(item?.over_balance_due_total)
+                        : ""
                     }}
                   </td>
                   <td

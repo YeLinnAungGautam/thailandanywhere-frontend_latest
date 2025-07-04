@@ -252,6 +252,13 @@
                   to="/product_income_checker"
                 />
                 <SidebarItem
+                  name="Receiptable Checker"
+                  label="ICheck"
+                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
+                  :icon="FolderIcon"
+                  to="/receiptable_checker"
+                />
+                <SidebarItem
                   name="Verify Invoices"
                   label="VInvoice"
                   v-if="authStore.isSuperAdmin || authStore.isAuditor"

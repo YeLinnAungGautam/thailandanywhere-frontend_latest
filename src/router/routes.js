@@ -67,6 +67,7 @@ import ReservationVantourView from "../views/ReservationVantour.vue";
 import AmendView from "../views/Amend.vue";
 import productIncomeChecker from "../views/ProductIncomeChecker.vue";
 import verifyInvoices from "../views/VerifyInvoice.vue";
+import ReceiptableChecker from "../views/ReceiptableChecker.vue";
 import OrderView from "../views/OrderPage.vue";
 import GroupItemView from "../views/GroupItem.vue";
 import TaxReceipt from "../views/TaxReceipt.vue";
@@ -435,6 +436,11 @@ const routes = [
     path: "/verify_invoices",
     name: "verifyInvoices",
     component: verifyInvoices,
+  },
+  {
+    path: "/receiptable_checker",
+    name: "receiptableChecker",
+    component: ReceiptableChecker,
   },
   {
     path: "/amend",

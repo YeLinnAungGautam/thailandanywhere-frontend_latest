@@ -2,7 +2,7 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 export const useChartOfAccountStore = defineStore("chartOfAccount", {
-  state: () => ({ chartOfAccounts: null, loading: false }),
+  state: () => ({ chartOfAccounts: null, loading: false, balances: null }),
   getters: {},
   actions: {
     async getSimpleListAction(params) {
@@ -65,6 +65,31 @@ export const useChartOfAccountStore = defineStore("chartOfAccount", {
       } catch (error) {
         throw error;
       }
+    },
+    async getOverBalanceDue(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/balance-due-over", {
+          params: params,
+        });
+        this.loading = false;
+        this.balances = response.data.result;
+        console.log(response);
+        return response.data.result;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
+
+    async getChangeBalanceDuePage(url, params) {
+      this.loading = true;
+      const response = await axios.get(url, {
+        params: params,
+      });
+      this.balances = response.data.result;
+      this.loading = false;
+      return response.data;
     },
   },
 });

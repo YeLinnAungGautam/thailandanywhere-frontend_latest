@@ -253,7 +253,7 @@
                 />
                 <SidebarItem
                   name="Receiptable Checker"
-                  label="ICheck"
+                  label="RCheck"
                   v-if="authStore.isSuperAdmin || authStore.isAuditor"
                   :icon="FolderIcon"
                   to="/receiptable_checker"

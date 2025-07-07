@@ -644,7 +644,7 @@ const mailBodyChange = () => {
           )
           .join("<hr>")}
       </p>
-      <p><strong>Booking Code:</strong> ${detail?.crm_id}</p>
+      <p><strong>Booking Code:</strong> ${detail?.booking_crm_id}</p>
       <p><strong>Guest Names:</strong></p>
       <p>
         ${
@@ -686,7 +686,7 @@ const mailBodyChange = () => {
           )
           .join("<hr>")}
       </p>
-      <p><strong>Booking Code:</strong> ${detail?.crm_id}</p>
+      <p><strong>Booking Code:</strong> ${detail?.booking_crm_id}</p>
       <p><strong>Guest Names:</strong></p>
       <p>
         ${

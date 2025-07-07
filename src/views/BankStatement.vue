@@ -175,7 +175,6 @@
               <div
                 v-for="item in group"
                 :key="item.id"
-                @click="toggleExpand(item.id)"
                 class="px-5 py-3 hover:bg-gray-100 bg-gray-50 cursor-pointer transition-colors duration-150"
               >
                 <div class="flex justify-between items-start">
@@ -213,10 +212,6 @@
                         <span>To: {{ item.reciever }}</span>
                       </div>
 
-                      <div v-if="item?.crm_id" class="flex items-center">
-                        <span class="text-gray-400 mr-2">•</span>
-                        <span>CRM: {{ item.relatable?.crm_id }}</span>
-                      </div>
                       <div class="pt-3">
                         <span
                           class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
@@ -249,7 +244,7 @@
                     <!-- Expand Arrow -->
                     <button
                       @click="toggleExpand(item.id)"
-                      class="text-gray-400 hover:text-gray-600 mb-3"
+                      class="text-white bg-gray-500 px-6 py-1 rounded-full hover:text-white mb-3"
                     >
                       <svg
                         class="w-5 h-5 transform transition-transform"
@@ -297,6 +292,303 @@
                     </div>
                   </div>
                 </div>
+                <table
+                  class="min-w-full divide-y divide-gray-200 mt-4"
+                  v-if="
+                    item?.relatable_type == 'App\\Models\\Booking' &&
+                    expandedItems[item.id]
+                  "
+                >
+                  <!-- Table Header -->
+                  <thead class="bg-gray-50">
+                    <tr class="bg-white">
+                      <th
+                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-end"
+                      >
+                        List
+                      </th>
+                      <th
+                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-end"
+                      >
+                        Product Variation
+                      </th>
+                      <th
+                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-end"
+                      >
+                        Price
+                      </th>
+                      <th
+                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-end"
+                      >
+                        VAT (7%)
+                      </th>
+                      <th
+                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-end"
+                      >
+                        Slip
+                      </th>
+                      <th
+                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-end"
+                      >
+                        Invoice
+                      </th>
+                      <th
+                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-end"
+                      >
+                        Tax Credit
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <!-- Table Body -->
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr class="">
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span
+                          class="text-sm font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded"
+                        >
+                          Total Sale
+                        </span>
+                      </td>
+                      <td
+                        class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                      >
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          -
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          {{ item?.relatable?.grand_total }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          {{ item?.relatable?.output_vat }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span
+                          class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
+                        >
+                          sale slip
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span
+                          class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
+                        >
+                          tax Invoice
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          -
+                        </span>
+                      </td>
+                    </tr>
+                    <tr class="">
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span
+                          class="text-sm font-mono text-gray-900 bg-red-100 px-2 py-1 rounded"
+                        >
+                          Deduct Commission
+                        </span>
+                      </td>
+                      <td
+                        class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                      >
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          <!-- {{ item?.relatable.grand_total }} -->
+                          - {{ item?.relatable?.commission }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          <!-- {{
+                            (item?.relatable?.commission * 0.07).toFixed(
+                              2
+                            )
+                          }} -->
+                          -
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          -
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          -
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          -
+                        </span>
+                      </td>
+                    </tr>
+                    <tr class="">
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span
+                          class="text-sm font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded"
+                        >
+                          Subtotal
+                        </span>
+                      </td>
+                      <td
+                        class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                      >
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          <!-- {{ item?.relatable.grand_total }} -->
+
+                          {{
+                            item?.relatable?.grand_total -
+                            item?.relatable?.commission
+                          }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          {{
+                            (
+                              (item?.relatable?.grand_total -
+                                item?.relatable?.commission) *
+                              0.07
+                            ).toFixed(2)
+                          }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          -
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          -
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          -
+                        </span>
+                      </td>
+                    </tr>
+                    <tr
+                      v-for="v in item?.relatable?.items ?? []"
+                      :key="v.id"
+                      class="hover:bg-gray-50 transition-colors duration-150"
+                    >
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span
+                          class="text-sm font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded"
+                        >
+                          Input Tax: {{ v.crm_id.split("_")[1] }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 w-[200px]">
+                        <div class="text-sm text-end text-gray-900">
+                          {{ v.product?.name }}
+                        </div>
+                      </td>
+                      <td class="px-8 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm text-gray-900">
+                          {{ v.total_cost_price }}
+                        </span>
+                      </td>
+                      <td class="px-8 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm text-gray-600">
+                          -
+                          {{ (v.total_cost_price * 0.07).toFixed(2) }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm underline text-blue-600">
+                          {{ v.crm_id.split("_")[1] }} slip
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span
+                          class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
+                        >
+                          {{ v.crm_id.split("_")[1] }} Invoice
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span
+                          class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
+                        >
+                          {{ v.crm_id.split("_")[1] }} tax credit
+                        </span>
+                      </td>
+                    </tr>
+
+                    <tr class="">
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span
+                          class="text-sm font-mono text-gray-900 bg-blue-100 px-2 py-1 rounded"
+                        >
+                          Net Summary
+                        </span>
+                      </td>
+                      <td
+                        class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                      >
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          <!-- {{ item?.relatable.grand_total }} -->
+                          {{
+                            calculateGrandVat(
+                              item?.relatable?.items,
+                              item?.relatable?.grand_total
+                            ) - item?.relatable?.commission
+                          }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          {{
+                            (
+                              calculateVat(
+                                item?.relatable?.items,
+                                item?.relatable?.output_vat
+                              ) -
+                              item?.relatable?.commission * 0.07
+                            ).toFixed(2)
+                          }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          -
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          -
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          -
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -663,6 +955,36 @@ const goToView = async (data) => {
     }
   } else if (data.relatable_type == "App\\Models\\CashBook") {
     router.push(`/cash-book/${data?.relatable_id}`);
+  }
+};
+
+const calculateVat = (items, vat) => {
+  if (items && vat) {
+    let vat_minus = 0;
+    items.forEach((item) => {
+      if (item.total_cost_price) {
+        vat_minus += item.total_cost_price * 0.07;
+      }
+    });
+
+    return (vat - vat_minus).toFixed(2);
+  } else {
+    return 0;
+  }
+};
+
+const calculateGrandVat = (items, grand_total) => {
+  if (grand_total && items) {
+    let grand_total_minus = 0;
+    items.forEach((item) => {
+      if (item.total_cost_price) {
+        grand_total_minus += item.total_cost_price * 1;
+      }
+    });
+
+    return (grand_total - grand_total_minus).toFixed(2);
+  } else {
+    return 0;
   }
 };
 

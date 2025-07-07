@@ -186,6 +186,15 @@
             />
           </div>
 
+          <div class="flex justify-between items-center">
+            <label for="" class="text-sm">Is single date ?</label>
+            <input
+              v-model="IsSingleDate"
+              type="checkbox"
+              class="focus:outline-none w-5 h-5 text-sm rounded-lg p-2"
+            />
+          </div>
+
           <!-- Service Start Date -->
           <div class="space-y-1.5">
             <label class="text-xs">Service Start Date *</label>
@@ -198,7 +207,7 @@
           </div>
 
           <!-- Service End Date -->
-          <div class="space-y-1.5">
+          <div class="space-y-1.5" v-if="!IsSingleDate">
             <label class="text-xs">Service End Date *</label>
             <input
               v-model="formData.service_end_date"
@@ -370,6 +379,8 @@ const originalData = ref(null);
 // Computed
 const isEditMode = computed(() => !!route.query.id);
 
+const IsSingleDate = ref(false);
+
 // Methods
 const loadTaxReceiptDetail = async (id) => {
   try {
@@ -499,18 +510,22 @@ const goToProductDetail = () => {
     // Add your navigation logic here
     // Example: router.push(`/product/${formData.product_id}`);
     if (formData.product_type === "App\\Models\\Hotel") {
-      router.push({
-        name: "hoteledit",
-        params: { id: formData.product_id },
-      });
+      // router.push({
+      //   name: "hoteledit",
+      //   params: { id: formData.product_id },
+      // });
+      // window.location.href = `product/hotel/edit/${formData.product_id}`;
+      window.open(`product/hotel/edit/${formData.product_id}`, "_blank");
     } else if (formData.product_type === "App\\Models\\EntranceTicket") {
-      router.push({
-        name: "products",
-        params: { id: 6 },
-        query: {
-          edit: formData.product_id,
-        },
-      });
+      // router.push({
+      //   name: "products",
+      //   params: { id: 6 },
+      //   query: {
+      //     edit: formData.product_id,
+      //   },
+      // });
+      // window.location.href = `product/6?edit=${formData.product_id}`;
+      window.open(`products/6?edit=${formData.product_id}`, "_blank");
     }
   } else {
     toast.error("Please select a product first");
@@ -753,6 +768,15 @@ watch(
     }
   },
   { immediate: true, deep: true }
+);
+
+watch(
+  () => IsSingleDate.value,
+  () => {
+    if (IsSingleDate.value) {
+      formData.service_end_date = formData.service_start_date;
+    }
+  }
 );
 
 onMounted(() => {

@@ -62,30 +62,6 @@ export const useTaxReceiptStore = defineStore("taxReceipt", {
       }
     },
 
-    async attachAction(id, data) {
-      try {
-        const response = await axios.post(
-          `/tax-receipts/${id}/attach-reservations`,
-          data
-        );
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    },
-
-    async detachAction(id, data) {
-      try {
-        const response = await axios.post(
-          `/tax-receipts/${id}/detach-reservations`,
-          data
-        );
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    },
-
     async asyncAction(id, data) {
       try {
         const response = await axios.post(

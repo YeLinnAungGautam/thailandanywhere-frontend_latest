@@ -617,7 +617,7 @@ const showFormat = (dateStr) => {
 const mailBodyChange = () => {
   const isTicket =
     props?.detail?.items[0]?.product_type === "App\\Models\\EntranceTicket";
-  const detail = props?.detail?.booking;
+  const detail = props?.detail;
 
   emailData.value.mail_subject = `Booking for ${showFormat(
     props?.detail?.items[0].service_date

@@ -177,7 +177,10 @@
                 :key="item.id"
                 class="px-5 py-3 hover:bg-gray-100 bg-gray-50 cursor-pointer transition-colors duration-150"
               >
-                <div class="flex justify-between items-start">
+                <div
+                  class="flex justify-between items-start"
+                  @click="toggleExpand(item.id)"
+                >
                   <!-- Left Side - Transaction Info -->
                   <div class="flex-1">
                     <div class="flex items-center mb-2">

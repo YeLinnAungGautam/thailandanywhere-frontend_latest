@@ -683,8 +683,6 @@ const watchSystem = computed(() => {
   }
   if (searchKey.value.expense_item_status) {
     result.expense_item_status = searchKey.value.expense_item_status;
-  } else {
-    result.expense_item_status = "not_paid";
   }
   if (searchKey.value.customer_name) {
     result.customer_name = searchKey.value.customer_name;
@@ -694,8 +692,6 @@ const watchSystem = computed(() => {
   }
   if (searchKey.value.payment_status) {
     result.payment_status = searchKey.value.payment_status;
-  } else {
-    result.payment_status = "fully_paid";
   }
   if (searchKey.value.booking_daterange) {
     result.booking_daterange = searchKey.value.booking_daterange;

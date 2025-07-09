@@ -381,13 +381,6 @@
                         </span>
                       </td>
                       <!-- @click="showTax(item?.customer_documents)" -->
-                      <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span
-                          class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
-                        >
-                          -
-                        </span>
-                      </td>
                       <td
                         class="px-6 py-4 whitespace-nowrap text-end"
                         @click="openCredit(item?.relatable?.id)"
@@ -395,7 +388,14 @@
                         <span
                           class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
                         >
-                          tax credit
+                          tax Invoice
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span
+                          class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
+                        >
+                          -
                         </span>
                       </td>
                     </tr>

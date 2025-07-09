@@ -440,7 +440,13 @@
               {{ showFormat(searchKey.booking_daterange) }}
             </p>
           </div>
-          <div class="flex justify-end items-center">
+          <div class="flex justify-end items-center space-x-2">
+            <div
+              v-if="authStore.isSuperAdmin"
+              class="text-[10px] rounded-lg px-2 py-1 text-white bg-[#FF613c]"
+            >
+              {{ formattedNumber(expense_total_amount) }}
+            </div>
             <div
               class="text-[10px] rounded-lg px-2 py-1 text-white bg-[#FF613c]"
             >
@@ -559,6 +565,8 @@ import VueDatePicker from "@vuepic/vue-datepicker";
 import { watch } from "vue";
 import { format } from "date-fns";
 import { XCircleIcon } from "@heroicons/vue/24/solid";
+import { formattedNumber } from "./help/FormatData";
+import { useAuthStore } from "../stores/auth";
 
 const showSide = ref(1);
 const filterShow = ref(false);
@@ -571,15 +579,16 @@ const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
 const adminStore = useAdminStore();
 const searchModel = ref(false);
+const authStore = useAuthStore();
 
 const searchKey = ref({
   crm_id: "",
   product_name: "",
   invoice_status: "",
-  expense_item_status: "",
+  expense_item_status: "not_paid",
   customer_name: "",
   user_id: "",
-  payment_status: "",
+  payment_status: "fully_paid",
   booking_daterange: "",
 });
 const entranceAction = ref(false);
@@ -671,6 +680,8 @@ const watchSystem = computed(() => {
   }
   if (searchKey.value.expense_item_status) {
     result.expense_item_status = searchKey.value.expense_item_status;
+  } else {
+    result.expense_item_status = "not_paid";
   }
   if (searchKey.value.customer_name) {
     result.customer_name = searchKey.value.customer_name;
@@ -680,6 +691,8 @@ const watchSystem = computed(() => {
   }
   if (searchKey.value.payment_status) {
     result.payment_status = searchKey.value.payment_status;
+  } else {
+    result.payment_status = "fully_paid";
   }
   if (searchKey.value.booking_daterange) {
     result.booking_daterange = searchKey.value.booking_daterange;
@@ -784,6 +797,16 @@ const setStartAndEndDate = () => {
 
   dateRange.value = [startDate, endDate];
 };
+
+const expense_total_amount = computed(() => {
+  let total = 0;
+  if (groups.value) {
+    groups.value.data.forEach((item) => {
+      total += item.expense_amount;
+    });
+  }
+  return total;
+});
 
 onMounted(async () => {
   setStartAndEndDate();

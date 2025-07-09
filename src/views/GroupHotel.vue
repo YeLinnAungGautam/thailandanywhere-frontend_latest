@@ -657,6 +657,8 @@ const ChangeAttractionName = (data) => {
   }
 };
 
+const sorting = ref("asc");
+
 const watchSystem = computed(() => {
   let result = {};
 
@@ -685,6 +687,8 @@ const watchSystem = computed(() => {
   if (searchKey.value.booking_daterange) {
     result.booking_daterange = searchKey.value.booking_daterange;
   }
+
+  result.sorting = sorting.value;
 
   result.product_type = "hotel";
   result.per_page = 10;

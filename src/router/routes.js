@@ -76,6 +76,7 @@ import GroupHotel from "../views/GroupHotel.vue";
 import BankStatement from "../views/BankStatement.vue";
 import CashBook from "../views/CashBook.vue";
 import CashStructure from "../views/CashStructure.vue";
+import AccountancePdf from "../views/AccountancePdf.vue";
 
 const routes = [
   {
@@ -471,6 +472,11 @@ const routes = [
     path: "/cash_structure",
     name: "cashStructure",
     component: CashStructure,
+  },
+  {
+    path: "/accountance-pdf",
+    name: "accountancePdf",
+    component: AccountancePdf,
   },
 ];
 

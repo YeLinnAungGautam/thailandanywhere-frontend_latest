@@ -346,7 +346,7 @@
                   <!-- Table Body -->
                   <tbody class="bg-white divide-y divide-gray-200">
                     <tr class="">
-                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                      <td class="px-6 py-4 whitespace-nowrap text-start">
                         <span
                           class="text-sm font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded"
                         >
@@ -370,28 +370,37 @@
                           {{ item?.relatable?.output_vat }}
                         </span>
                       </td>
+                      <td
+                        class="px-6 py-4 whitespace-nowrap text-end"
+                        @click="show(item?.relatable?.receipts)"
+                      >
+                        <span
+                          class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
+                        >
+                          sale slip ({{ item?.relatable?.receipts?.length }})
+                        </span>
+                      </td>
+                      <!-- @click="showTax(item?.customer_documents)" -->
                       <td class="px-6 py-4 whitespace-nowrap text-end">
                         <span
                           class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
                         >
-                          sale slip
-                        </span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span
-                          class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
-                        >
-                          tax Invoice
-                        </span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm font-mono px-2 py-1 rounded">
                           -
+                        </span>
+                      </td>
+                      <td
+                        class="px-6 py-4 whitespace-nowrap text-end"
+                        @click="openCredit(item?.relatable?.id)"
+                      >
+                        <span
+                          class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
+                        >
+                          tax credit
                         </span>
                       </td>
                     </tr>
                     <tr class="">
-                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                      <td class="px-6 py-4 whitespace-nowrap text-start">
                         <span
                           class="text-sm font-mono text-gray-900 bg-red-100 px-2 py-1 rounded"
                         >
@@ -406,17 +415,11 @@
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
                         <span class="text-sm font-mono px-2 py-1 rounded">
-                          <!-- {{ item?.relatable.grand_total }} -->
                           - {{ item?.relatable?.commission }}
                         </span>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
                         <span class="text-sm font-mono px-2 py-1 rounded">
-                          <!-- {{
-                            (item?.relatable?.commission * 0.07).toFixed(
-                              2
-                            )
-                          }} -->
                           -
                         </span>
                       </td>
@@ -437,7 +440,7 @@
                       </td>
                     </tr>
                     <tr class="">
-                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                      <td class="px-6 py-4 whitespace-nowrap text-start">
                         <span
                           class="text-sm font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded"
                         >
@@ -487,57 +490,96 @@
                         </span>
                       </td>
                     </tr>
+
                     <tr
-                      v-for="v in item?.relatable?.items ?? []"
-                      :key="v.id"
-                      class="hover:bg-gray-50 transition-colors duration-150"
+                      class=""
+                      v-for="v in item?.grouped_items"
+                      :key="v.group_id"
                     >
-                      <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span
-                          class="text-sm font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded"
-                        >
-                          Input Tax: {{ v.crm_id.split("_")[1] }}
-                        </span>
-                      </td>
-                      <td class="px-6 py-4 w-[200px]">
-                        <div class="text-sm text-end text-gray-900">
-                          {{ v.product?.name }}
+                      <td class="px-6 py-4 whitespace-nowrap text-start">
+                        <div class="text-sm font-mono">
+                          <span
+                            @click="goToGroup(v)"
+                            class="text-gray-900 bg-blue-100 px-2 mr-2 py-1 rounded"
+                          >
+                            Group
+                          </span>
+                          <span
+                            v-for="i in v.items"
+                            class="text-gray-900 bg-gray-100 px-2 py-1 rounded mr-2"
+                            :key="i.id"
+                            >{{ i.crm_id.split("_")[1] }}</span
+                          >
                         </div>
                       </td>
-                      <td class="px-8 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm text-gray-900">
-                          {{ v.total_cost_price }}
+                      <td
+                        class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                      >
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          {{ v.items[0]?.product_name }}
                         </span>
                       </td>
-                      <td class="px-8 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm text-gray-600">
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          {{ totalCost(v.items) }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
+                          {{ (totalCost(v.items) * 0.07).toFixed(2) }}
+                        </span>
+                      </td>
+                      <td
+                        class="px-6 py-4 whitespace-nowrap text-end"
+                        @click="
+                          v.related_slip.length > 0 && show(v.related_slip)
+                        "
+                      >
+                        <span
+                          class="text-sm font-mono px-2 py-1 rounded"
+                          :class="
+                            v.related_slip.length > 0
+                              ? 'text-blue-600 underline'
+                              : 'text-red-600 font-medium'
+                          "
+                        >
+                          {{
+                            v.related_slip.length > 0
+                              ? "slip (" + v.related_slip.length + ")"
+                              : "missing"
+                          }}
+                        </span>
+                      </td>
+                      <td
+                        class="px-6 py-4 whitespace-nowrap text-end"
+                        @click="
+                          v.related_tax.length > 0 && showTax(v.related_tax)
+                        "
+                      >
+                        <span
+                          class="text-sm font-mono px-2 py-1 rounded"
+                          :class="
+                            v.related_tax.length > 0
+                              ? 'text-blue-600 underline'
+                              : 'text-red-600 font-medium'
+                          "
+                        >
+                          {{
+                            v.related_tax.length > 0
+                              ? "Invoice (" + v.related_tax.length + ")"
+                              : "missing"
+                          }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                        <span class="text-sm font-mono px-2 py-1 rounded">
                           -
-                          {{ (v.total_cost_price * 0.07).toFixed(2) }}
-                        </span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm underline text-blue-600">
-                          {{ v.crm_id.split("_")[1] }} slip
-                        </span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span
-                          class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
-                        >
-                          {{ v.crm_id.split("_")[1] }} Invoice
-                        </span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span
-                          class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
-                        >
-                          {{ v.crm_id.split("_")[1] }} tax credit
                         </span>
                       </td>
                     </tr>
 
                     <tr class="">
-                      <td class="px-6 py-4 whitespace-nowrap text-end">
+                      <td class="px-6 py-4 whitespace-nowrap text-start">
                         <span
                           class="text-sm font-mono text-gray-900 bg-blue-100 px-2 py-1 rounded"
                         >
@@ -646,6 +688,231 @@
         </div>
       </DialogPanel>
     </Modal>
+
+    <Modal :isOpen="IsShow" @closeModal="showOff">
+      <DialogPanel
+        class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white/95 backdrop-blur-md text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-3 px-4 rounded-t-xl"
+        >
+          <span class="uppercase">Sale Slip</span>
+        </DialogTitle>
+
+        <div class="p-4">
+          <div v-if="showData.length > 0" class="grid grid-cols-2 gap-4">
+            <!-- Left column for image -->
+            <div
+              class="flex items-center justify-center bg-gray-100 rounded-lg"
+            >
+              <img
+                :src="showData[currentIndex].image"
+                alt="Receipt image"
+                class="object-cover h-full w-full"
+                v-if="showData[currentIndex].image"
+              />
+              <div v-else class="text-gray-500 p-4">No image available</div>
+            </div>
+
+            <!-- Right column for data -->
+            <div class="pb-4">
+              <div>
+                <div class="mt-2 space-y-4 text-sm">
+                  <div class="space-y-2">
+                    <p class="">Amount:</p>
+                    <p class="text-base font-medium">
+                      {{ showData[currentIndex].amount }}
+                      {{ showData[currentIndex].currency }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p class="">Date:</p>
+                    <p class="text-base font-medium">
+                      {{ showData[currentIndex].date }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p class="">Sender:</p>
+                    <p class="text-base font-medium">
+                      {{ showData[currentIndex].sender }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p class="">Receiver:</p>
+                    <p class="text-base font-medium">
+                      {{ showData[currentIndex].reciever }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p class="">Bank:</p>
+                    <p class="text-base font-medium">
+                      {{ showData[currentIndex].interact_bank }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p class="">Created At:</p>
+                    <p class="text-base font-medium">
+                      {{ showData[currentIndex].created_at }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination controls -->
+          <div
+            v-if="showData.length > 1"
+            class="flex justify-between items-center mt-4"
+          >
+            <button
+              @click="prevItem"
+              :disabled="currentIndex === 0"
+              class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+            >
+              &lt; Previous
+            </button>
+
+            <span class="text-sm">
+              {{ currentIndex + 1 }} of {{ showData.length }}
+            </span>
+
+            <button
+              @click="nextItem"
+              :disabled="currentIndex === showData.length - 1"
+              class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+            >
+              Next &gt;
+            </button>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+    <Modal :isOpen="IsTaxShow" @closeModal="showTaxOff">
+      <DialogPanel
+        class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white/95 backdrop-blur-md text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-3 px-4 rounded-t-xl"
+        >
+          <span class="uppercase">Purchasing Tax Invoice</span>
+        </DialogTitle>
+
+        <div class="p-4">
+          <div v-if="taxData.length > 0" class="grid grid-cols-2 gap-4">
+            <!-- Left column for image -->
+            <div
+              class="flex items-center justify-center bg-gray-100 rounded-lg"
+            >
+              <img
+                :src="taxData[currentIndex2].file"
+                alt="Receipt image"
+                class="object-cover h-full w-full"
+                v-if="taxData[currentIndex2].file"
+              />
+              <div v-else class="text-gray-500 p-4">No image available</div>
+            </div>
+
+            <!-- Right column for data -->
+            <div class="space-y-3">
+              <div class="pb-4 px-3">
+                <h3 class="font-semibold text-gray-700 mb-4">Details</h3>
+
+                <div class="space-y-3 text-sm">
+                  <div class="space-y-2">
+                    <p class="">Company Legal Name:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.company_legal_name }}
+                    </p>
+                  </div>
+
+                  <div class="space-y-2">
+                    <p class="">Invoice Number:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.invoice_number }}
+                    </p>
+                  </div>
+
+                  <div class="space-y-2">
+                    <p class="">Product Name:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.product_name }}
+                    </p>
+                  </div>
+
+                  <div class="space-y-2">
+                    <p class="">Receipt Date:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.receipt_date }}
+                    </p>
+                  </div>
+
+                  <div class="space-y-2">
+                    <p class="">Service Start Date:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.service_start_date }}
+                    </p>
+                  </div>
+
+                  <div class="space-y-2">
+                    <p class="">Service End Date:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.service_end_date }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p class="">Total Before Tax:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.total_tax_amount }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p class="">Total Tax Withheld:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.total_tax_withold }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p class="">Total After Tax:</p>
+                    <p class="text-base font-medium">
+                      {{ taxData[currentIndex2]?.meta?.total_after_tax }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination controls -->
+          <div
+            v-if="taxData.length > 1"
+            class="flex justify-between items-center mt-4"
+          >
+            <button
+              @click="prev2Item"
+              :disabled="currentIndex2 === 0"
+              class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+            >
+              &lt; Previous
+            </button>
+
+            <span class="text-sm">
+              {{ currentIndex2 + 1 }} of {{ taxData.length }}
+            </span>
+
+            <button
+              @click="next2Item"
+              :disabled="currentIndex2 === taxData.length - 1"
+              class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+            >
+              Next &gt;
+            </button>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>
 
@@ -667,22 +934,24 @@ import Swal from "sweetalert2";
 import AccountanceHeader from "../components/AccountanceHeader.vue";
 import { useAuthStore } from "../stores/auth";
 import YearPickerVue from "./AccountingComponent/yearPicker.vue";
-import { useRoute } from "vue-router";
-import router from "../router";
+import { useRoute, useRouter } from "vue-router";
 import { useBookingReceiptStore } from "../stores/bookingReceipt";
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useReservationStore } from "../stores/reservation";
 import ReceiptEdit from "./ReceiptEdit.vue";
 import { useCashImageStore } from "../stores/cashImage";
+import { useGroupStore } from "../stores/group";
 
 const sideBarStore = useSidebarStore();
+const groupStore = useGroupStore();
 const toast = useToast();
 const { isShowSidebar } = storeToRefs(sideBarStore);
 const bookingReceiptStore = useBookingReceiptStore();
 const cashImageStore = useCashImageStore();
 const reservationStore = useReservationStore();
 const route = useRoute();
+const router = useRouter();
 const authStore = useAuthStore();
 // const { receipts } = storeToRefs(bookingReceiptStore);
 const { cashImages, loading } = storeToRefs(cashImageStore);
@@ -743,6 +1012,30 @@ const groupedReceipts = computed(() => {
 
   return groups;
 });
+
+const goToGroup = (data) => {
+  console.log("====================================");
+  console.log(data);
+  console.log("====================================");
+  if (data.group_info.product_type == "App\\Models\\EntranceTicket") {
+    router.push(`/group-attraction?id=${data?.group_id}`);
+  }
+  if (data.group_info.product_type == "App\\Models\\Hotel") {
+    router.push(`/group-hotel?id=${data?.group_id}`);
+  }
+  if (data.group_info.product_type == "App\\Models\\PrivateVanTour") {
+    router.push(`/group-private-van-tour?id=${data?.group_id}`);
+  }
+};
+
+const totalCost = (items) => {
+  if (!items) return 0;
+  let total = 0;
+  items.forEach((item) => {
+    total += item.expense;
+  });
+  return total;
+};
 
 // Helper functions
 const formatDateHeader = (dateString) => {
@@ -976,6 +1269,13 @@ const calculateVat = (items, vat) => {
   }
 };
 
+const openCredit = (id) => {
+  window.open(
+    import.meta.env.VITE_API_URL + "/bookings/" + id + "/credit",
+    "_blank"
+  );
+};
+
 const calculateGrandVat = (items, grand_total) => {
   if (grand_total && items) {
     let grand_total_minus = 0;
@@ -1015,6 +1315,74 @@ const update = (data) => {
   updateData.value.currency = data.currency;
   updateData.value.relatable_type = data.relatable_type;
   updateData.value.file = data.image;
+};
+
+const showData = ref([]);
+const taxData = ref([]);
+const currentIndex = ref(0);
+const currentIndex2 = ref(0);
+const nextItem = () => {
+  if (currentIndex.value < showData.value.length - 1) {
+    currentIndex.value++;
+  }
+};
+const prevItem = () => {
+  if (currentIndex.value > 0) {
+    currentIndex.value--;
+  }
+};
+const next2Item = () => {
+  if (currentIndex2.value < taxData.value.length - 1) {
+    currentIndex2.value++;
+  }
+};
+const prev2Item = () => {
+  if (currentIndex2.value > 0) {
+    currentIndex2.value--;
+  }
+};
+const IsShow = ref(false);
+const IsTaxShow = ref(false);
+const show = (data) => {
+  console.log("====================================");
+  console.log(data);
+  showData.value = data;
+  IsShow.value = true;
+  console.log("====================================");
+};
+const showTax = (data) => {
+  console.log("====================================");
+  console.log(data);
+  taxData.value = data;
+  IsTaxShow.value = true;
+  console.log("====================================");
+};
+
+const getGroupDocument = async (id) => {
+  try {
+    const response = await groupStore.groupDocumentList(id, {
+      document_type: "booking_confirm_letter",
+    });
+    // taxData.value = response.data.result;
+    // console.log(response);
+    // taxData.value = response.result;
+    showTax(response.result);
+  } catch (error) {
+    console.error("Error fetching invoice list:", error);
+    toast.error("Failed to load invoice list");
+  }
+};
+
+const showTaxOff = () => {
+  IsTaxShow.value = false;
+  taxData.value = [];
+  currentIndex2.value = 0;
+};
+
+const showOff = () => {
+  IsShow.value = false;
+  showData.value = [];
+  currentIndex.value = 0;
 };
 
 const closeModal = () => {

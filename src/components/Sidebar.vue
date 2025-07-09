@@ -91,7 +91,7 @@
                 to="/order"
                 :activePaths="['order']"
               />
-              <div
+              <!-- <div
                 v-if="!authStore.isAuditor"
                 @click="toggleReservationShow"
                 class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
@@ -113,8 +113,8 @@
                     v-if="isReservationShow"
                   />
                 </p>
-              </div>
-              <div
+              </div> -->
+              <!-- <div
                 class="transition-all duration-150"
                 :class="isReservationShow ? 'ml-5' : ''"
                 v-if="isReservationShow"
@@ -140,7 +140,7 @@
                   to="/reservation-vantour"
                   :activePaths="['reservation-vantour']"
                 />
-              </div>
+              </div> -->
               <!-- <SidebarItem
                 name="Group Item"
                 :icon="Squares2X2Icon"
@@ -237,6 +237,13 @@
                 :class="isShowAccount ? 'ml-5' : ''"
                 v-if="isShowAccount"
               >
+                <SidebarItem
+                  name="Accountance PDF"
+                  label="PDF"
+                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
+                  :icon="FolderIcon"
+                  to="/accountance-pdf"
+                />
                 <SidebarItem
                   name="Chart of Accounts"
                   label="COA"

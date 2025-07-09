@@ -18,9 +18,9 @@ export const useAccountClassStore = defineStore("accountClass", {
         throw error;
       }
     },
-    async getChangePage(url,params) {
+    async getChangePage(url, params) {
       this.loading = true;
-      const response = await axios.get(url,{
+      const response = await axios.get(url, {
         params: params,
       });
       this.accountClasses = response.data.result;
@@ -61,6 +61,15 @@ export const useAccountClassStore = defineStore("accountClass", {
     async deleteAction(id) {
       try {
         const response = await axios.delete("/account-classes/" + id);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    async generateAccountingPdf(data) {
+      try {
+        const response = await axios.post("/generate-Accounting-Pdf", data);
         return response.data;
       } catch (error) {
         throw error;

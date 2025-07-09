@@ -623,6 +623,8 @@ const ChangeAttractionName = (data) => {
   }
 };
 
+const sorting = ref("asc");
+
 const watchSystem = computed(() => {
   let result = {};
 
@@ -657,6 +659,8 @@ const watchSystem = computed(() => {
   if (searchKey.value.assigned) {
     result.assigned = searchKey.value.assigned;
   }
+
+  result.sorting = sorting.value;
 
   result.product_type = "private_van_tour";
   result.per_page = 10;

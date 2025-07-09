@@ -367,7 +367,6 @@
                 {{ formData.id ? "Update" : "Save" }}
               </button>
 
-              <!-- Delete Button -->
               <button
                 v-if="formData.id"
                 @click="handleDelete"
@@ -818,7 +817,7 @@ const createNewInvoice = async () => {
     frmData.append("documents[0][meta][product_id]", formData.value.product_id);
     frmData.append(
       "documents[0][meta][product_name]",
-      formData.value.product_name
+      productSearch.value || formData.value.product_name
     );
 
     frmData.append(

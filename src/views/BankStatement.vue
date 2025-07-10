@@ -208,11 +208,11 @@
                         <span>From: {{ item.sender }}</span>
                       </div>
                       <div
-                        v-if="item?.reciever && item.reciever !== 'null'"
+                        v-if="item?.receiver && item.receiver !== 'null'"
                         class="flex items-center"
                       >
                         <span class="text-gray-400 mr-2">•</span>
-                        <span>To: {{ item.reciever }}</span>
+                        <span>To: {{ item.receiver }}</span>
                       </div>
 
                       <div class="pt-3">
@@ -741,7 +741,7 @@
                   <div class="space-y-2">
                     <p class="">Receiver:</p>
                     <p class="text-base font-medium">
-                      {{ showData[currentIndex].reciever }}
+                      {{ showData[currentIndex].receiver }}
                     </p>
                   </div>
                   <div class="space-y-2">
@@ -1098,8 +1098,8 @@ const extractTime = (dateString) => {
 const getTransactionType = (item) => {
   return item.sender != "null" && item.sender
     ? item.sender
-    : item.reciever
-    ? item.reciever
+    : item.receiver
+    ? item.receiver
     : "Payment";
 };
 
@@ -1298,7 +1298,7 @@ const updateData = ref({
   file: "",
   sender: "",
   amount: "",
-  reciever: "",
+  receiver: "",
   interact_bank: "",
   currency: "",
   relatable_type: "",
@@ -1310,7 +1310,7 @@ const update = (data) => {
   updateData.value.date = data.date;
   updateData.value.sender = data.sender;
   updateData.value.amount = data.amount;
-  updateData.value.reciever = data.reciever;
+  updateData.value.receiver = data.receiver;
   updateData.value.interact_bank = data.interact_bank;
   updateData.value.currency = data.currency;
   updateData.value.relatable_type = data.relatable_type;
@@ -1391,7 +1391,7 @@ const closeModal = () => {
     id: "",
     date: "",
     sender: "",
-    reciever: "",
+    receiver: "",
     interact_bank: "",
     currency: "",
     amount: "",

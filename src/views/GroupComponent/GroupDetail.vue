@@ -598,7 +598,7 @@
                 class="text-xs"
                 :class="state.confirmation ? 'text-[#04BA00]' : 'text-gray-800'"
               >
-                Confirmation
+                Tax Receipt
               </p>
             </div>
           </div>

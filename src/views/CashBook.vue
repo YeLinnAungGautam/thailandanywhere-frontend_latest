@@ -172,13 +172,28 @@
                     scope="col"
                     class="text-[11px] text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
-                    <span
-                      v-if="item?.cash_images?.length > 0"
-                      class="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-[10px]"
-                    >
-                      {{ item.cash_images.length }} images
-                    </span>
-                    <span v-else class="text-gray-400">No images</span>
+                    <div class="flex flex-col gap-1">
+                      <span
+                        v-if="item?.cash_images?.length > 0"
+                        class="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-[10px]"
+                      >
+                        {{ item.cash_images.length }} detailed
+                      </span>
+                      <span
+                        v-if="item?.cash_book_images?.length > 0"
+                        class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-[10px]"
+                      >
+                        {{ item.cash_book_images.length }} simple
+                      </span>
+                      <span
+                        v-if="
+                          !item?.cash_images?.length &&
+                          !item?.cash_book_images?.length
+                        "
+                        class="text-gray-400"
+                        >No images</span
+                      >
+                    </div>
                   </td>
                   <td
                     scope="col"
@@ -273,12 +288,6 @@
 
                 <div class="space-y-2">
                   <label class="text-[11px]">Interact Bank</label>
-                  <!-- <input
-                    v-model="formData.interact_bank"
-                    type="text"
-                    class="w-full border border-gray-400/20 rounded-lg px-3 py-2 text-xs"
-                    placeholder="Bank name"
-                  /> -->
                   <select
                     v-model="formData.interact_bank"
                     class="w-full border border-gray-400/20 rounded-lg px-3 py-2 text-xs"
@@ -350,37 +359,40 @@
                       placeholder="Amount"
                     />
 
-                    <textarea
+                    <select
+                      name=""
+                      id=""
                       v-model="account.note"
+                      placeholder="select debit or credit"
                       class="w-full border border-gray-400/20 rounded-lg px-3 py-2 text-xs"
-                      rows="2"
-                      placeholder="Note (optional)"
-                    ></textarea>
+                    >
+                      <option value="1">Debit ( + )</option>
+                      <option value="2">Credit ( - )</option>
+                    </select>
                   </div>
                 </div>
               </div>
 
-              <!-- Images Section -->
-              <!-- Updated Images Section Template -->
+              <!-- Detailed Images Section (CashImage - polymorphic) -->
               <div class="space-y-3">
                 <div class="flex justify-between items-center">
-                  <h3 class="font-medium text-gray-800">Images</h3>
+                  <h3 class="font-medium text-gray-800">Cash Images</h3>
                   <button
                     @click="addImage"
                     class="bg-blue-500 text-white px-2 py-1 text-xs rounded"
                   >
-                    Add Image
+                    Add Detailed Image
                   </button>
                 </div>
 
                 <div
                   v-for="(image, index) in formData.images"
                   :key="index"
-                  class="border border-gray-200 rounded p-3 space-y-2"
+                  class="border border-blue-200 rounded p-3 space-y-2"
                 >
                   <div class="flex justify-between items-center">
                     <span class="text-xs font-medium">
-                      Image {{ index + 1 }}
+                      Detailed Image {{ index + 1 }}
                       <span v-if="image.is_existing" class="text-green-600 ml-1"
                         >(Existing)</span
                       >
@@ -498,12 +510,105 @@
                   </div>
                 </div>
 
-                <!-- Show message when no images -->
+                <!-- Show message when no detailed images -->
                 <div
                   v-if="formData.images.length === 0"
                   class="text-center py-4 text-gray-500 text-xs"
                 >
-                  No images added yet. Click "Add Image" to upload images.
+                  No detailed images added yet. Click "Add Detailed Image" to
+                  upload images with transaction details.
+                </div>
+              </div>
+
+              <!-- Simple Images Section (CashBookImage - one-to-many) -->
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <h3 class="font-medium text-gray-800">Cash Book Images</h3>
+                  <button
+                    @click="addCashBookImage"
+                    class="bg-green-500 text-white px-2 py-1 text-xs rounded"
+                  >
+                    Add Simple Image
+                  </button>
+                </div>
+
+                <div
+                  v-for="(image, index) in formData.cash_book_images"
+                  :key="index"
+                  class="border border-green-200 rounded p-3 space-y-2"
+                >
+                  <div class="flex justify-between items-center">
+                    <span class="text-xs font-medium">
+                      Simple Image {{ index + 1 }}
+                      <span v-if="image.is_existing" class="text-green-600 ml-1"
+                        >(Existing)</span
+                      >
+                      <span v-else class="text-orange-600 ml-1">(New)</span>
+                    </span>
+                    <button
+                      @click="removeCashBookImage(index)"
+                      class="text-red-500 text-xs hover:text-red-700"
+                    >
+                      Remove
+                    </button>
+                  </div>
+
+                  <!-- Show existing image if available -->
+                  <div
+                    v-if="image.existing_image && image.is_existing"
+                    class="mb-2"
+                  >
+                    <label class="text-[11px] text-gray-600 block mb-1"
+                      >Current Image:</label
+                    >
+                    <div class="flex items-center gap-2">
+                      <img
+                        :src="image.existing_image"
+                        alt="Current simple image"
+                        class="w-16 h-16 object-cover rounded border"
+                      />
+                      <div class="text-[10px] text-gray-500">
+                        <p>ID: {{ image.id }}</p>
+                        <p>Upload new image to replace</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="space-y-2">
+                    <div>
+                      <label class="text-[11px] block mb-1">
+                        {{
+                          image.is_existing
+                            ? "Replace Image (Optional)"
+                            : "Upload Image"
+                        }}
+                      </label>
+                      <input
+                        @change="handleCashBookImageUpload($event, index)"
+                        type="file"
+                        accept="image/*"
+                        class="w-full border border-gray-400/20 rounded-lg px-3 py-2 text-xs"
+                        :class="{
+                          'border-green-300': image.is_existing && !image.image,
+                        }"
+                      />
+                      <p
+                        v-if="image.is_existing && !image.image"
+                        class="text-[10px] text-green-600 mt-1"
+                      >
+                        Leave empty to keep current image
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Show message when no simple images -->
+                <div
+                  v-if="formData.cash_book_images.length === 0"
+                  class="text-center py-4 text-gray-500 text-xs"
+                >
+                  No simple images added yet. Click "Add Simple Image" to upload
+                  basic images.
                 </div>
               </div>
 
@@ -579,7 +684,8 @@ const formData = ref({
   interact_bank: "",
   description: "",
   accounts: [],
-  images: [],
+  images: [], // Detailed images (CashImage)
+  cash_book_images: [], // Simple images (CashBookImage)
 });
 
 const changePage = (page) => {
@@ -598,6 +704,7 @@ const clearAction = () => {
     description: "",
     accounts: [],
     images: [],
+    cash_book_images: [],
   };
 };
 
@@ -620,7 +727,6 @@ const editGetFormData = (data) => {
 
   // Parse date - handle DD-MM-YYYY HH:mm:ss format
   if (data.date) {
-    // Convert DD-MM-YYYY HH:mm:ss to YYYY-MM-DD HH:mm:ss format
     const dateStr = data.date;
     const [datePart, timePart] = dateStr.split(" ");
     const [day, month, year] = datePart.split("-");
@@ -632,7 +738,7 @@ const editGetFormData = (data) => {
       formData.value.time_only = date
         .toTimeString()
         .split(" ")[0]
-        .substring(0, 5); // Get HH:mm format
+        .substring(0, 5);
     }
   }
 
@@ -649,20 +755,28 @@ const editGetFormData = (data) => {
       note: account.pivot?.note || "",
     })) || [];
 
-  // Map images - Fixed to handle existing images properly
+  // Map detailed images (CashImage - polymorphic)
   formData.value.images =
     data.cash_images?.map((img) => ({
-      id: img.id, // Include existing image ID
+      id: img.id,
       sender: img.sender,
-      receiver: img.receiver, // Handle both spellings
+      receiver: img.receiver,
       amount: img.amount,
       currency: img.currency,
       interact_bank: img.interact_bank || "",
       date: formatDateTimeForInput(img.date),
-      // date: img.date,
-      image: null, // For new file upload (existing image will be shown separately)
-      existing_image: img.image, // Store existing image path for display
-      is_existing: true, // Flag to identify existing images
+      image: null,
+      existing_image: img.image,
+      is_existing: true,
+    })) || [];
+
+  // Map simple images (CashBookImage - one-to-many)
+  formData.value.cash_book_images =
+    data.cash_book_images?.map((img) => ({
+      id: img.id,
+      image: null,
+      existing_image: img.image,
+      is_existing: true,
     })) || [];
 };
 
@@ -753,7 +867,7 @@ const prepareFormData = () => {
     frmData.append(`accounts[${index}][note]`, account.note);
   });
 
-  // Add images with proper handling for existing vs new images
+  // Add detailed images (CashImage - polymorphic) with proper handling for existing vs new images
   formData.value.images.forEach((image, index) => {
     // If it's an existing image, include the ID
     if (image.id && image.is_existing) {
@@ -778,6 +892,19 @@ const prepareFormData = () => {
     if (image.date) {
       const formattedDate = formatDateTimeForServer(image.date);
       frmData.append(`images[${index}][date]`, formattedDate);
+    }
+  });
+
+  // Add simple images (CashBookImage - one-to-many)
+  formData.value.cash_book_images.forEach((image, index) => {
+    // If it's an existing image, include the ID
+    if (image.id && image.is_existing) {
+      frmData.append(`cash_book_images[${index}][id]`, image.id);
+    }
+
+    // Only append image file if a new one was selected
+    if (image.image) {
+      frmData.append(`cash_book_images[${index}][image]`, image.image);
     }
   });
 
@@ -825,7 +952,7 @@ const removeAccount = (index) => {
   formData.value.accounts.splice(index, 1);
 };
 
-// Image management
+// Detailed Image management (CashImage)
 const addImage = () => {
   // Get current datetime in the format expected by datetime-local input
   const now = new Date();
@@ -856,6 +983,30 @@ const handleImageUpload = (event, index) => {
     formData.value.images[index].image = file;
     // Remove existing image flag when new image is uploaded
     formData.value.images[index].is_existing = false;
+  }
+};
+
+// Simple Image management (CashBookImage)
+const addCashBookImage = () => {
+  formData.value.cash_book_images.push({
+    id: null, // New image won't have ID
+    image: null,
+    existing_image: null,
+    is_existing: false, // Flag for new images
+  });
+};
+
+const removeCashBookImage = (index) => {
+  formData.value.cash_book_images.splice(index, 1);
+};
+
+const handleCashBookImageUpload = (event, index) => {
+  const file = event.target.files[0];
+  if (file) {
+    // Store the file object directly
+    formData.value.cash_book_images[index].image = file;
+    // Remove existing image flag when new image is uploaded
+    formData.value.cash_book_images[index].is_existing = false;
   }
 };
 
@@ -951,7 +1102,6 @@ const formatDateTimeForInput = (dateTimeString) => {
   const hours = String(dateObj.getHours()).padStart(2, "0");
   const minutes = String(dateObj.getMinutes()).padStart(2, "0");
 
-  // Removed the trailing space
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 

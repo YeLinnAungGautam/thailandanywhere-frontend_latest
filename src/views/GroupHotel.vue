@@ -212,6 +212,24 @@
                   </select>
                 </div>
                 <div>
+                  <p class="text-[10px] pb-2">Tax Receipt</p>
+                  <!-- expense status -->
+                  <select
+                    v-model="searchKey.findTaxReceipt"
+                    name=""
+                    id=""
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option class="text-[10px]" value=""></option>
+                    <option class="text-[10px]" value="not_have_tax">
+                      empty tax receipt
+                    </option>
+                    <option class="text-[10px]" value="have_tax">
+                      have tax receipt
+                    </option>
+                  </select>
+                </div>
+                <div>
                   <p class="text-[10px] pb-2">Invoice Status</p>
                   <!-- expense status -->
                   <select
@@ -411,6 +429,21 @@
             </p>
             <p
               class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              v-if="searchKey.findTaxReceipt != ''"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    searchKey.findTaxReceipt = '';
+                    searchAction();
+                  }
+                "
+              />
+              E: {{ searchKey.findTaxReceipt }}
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
               v-if="searchKey.invoice_status != ''"
             >
               <XCircleIcon
@@ -589,6 +622,7 @@ const searchKey = ref({
   product_name: "",
   invoice_status: "",
   expense_item_status: "not_paid",
+  findTaxReceipt: "",
   customer_name: "",
   user_id: "",
   payment_status: "fully_paid",
@@ -652,6 +686,7 @@ const clearFilter = () => {
     product_name: "",
     invoice_status: "",
     expense_item_status: "",
+    findTaxReceipt: "",
     customer_name: "",
     user_id: "",
     payment_status: "",
@@ -683,6 +718,9 @@ const watchSystem = computed(() => {
   }
   if (searchKey.value.expense_item_status) {
     result.expense_item_status = searchKey.value.expense_item_status;
+  }
+  if (searchKey.value.findTaxReceipt) {
+    result.findTaxReceipt = searchKey.value.findTaxReceipt;
   }
   if (searchKey.value.customer_name) {
     result.customer_name = searchKey.value.customer_name;

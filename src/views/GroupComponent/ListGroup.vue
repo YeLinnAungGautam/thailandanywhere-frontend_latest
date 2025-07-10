@@ -156,6 +156,24 @@
             Invoice empty
           </p>
         </div>
+
+        <div
+          class="flex justify-start space-x-1 items-center"
+          v-if="
+            data?.have_tax_receipt && data?.product_type != 'PrivateVanTour'
+          "
+        >
+          <CurrencyDollarIcon
+            class="w-3 h-3"
+            :class="data?.have_tax_receipt ? 'text-green-600' : 'text-red-600'"
+          />
+          <p
+            class="text-[10px] whitespace-nowrap"
+            :class="data?.have_tax_receipt ? 'text-green-600' : 'text-red-600'"
+          >
+            {{ data?.have_tax_receipt ? "Tax have" : "Tax empty" }}
+          </p>
+        </div>
         <div
           class="flex justify-start space-x-1 items-center"
           v-if="

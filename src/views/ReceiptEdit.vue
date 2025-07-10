@@ -43,11 +43,11 @@
         />
       </div>
       <div class="">
-        <p for="" class="text-[12px] font-medium pb-2">Reciever</p>
+        <p for="" class="text-[12px] font-medium pb-2">receiver</p>
         <input
           type="text"
-          v-model="formData.reciever"
-          :class="formData.reciever.includes('-') ? 'text-gray-400' : ''"
+          v-model="formData.receiver"
+          :class="formData.receiver.includes('-') ? 'text-gray-400' : ''"
           name=""
           placeholder="xxx"
           class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
@@ -133,7 +133,7 @@ const formData = ref({
   date: "",
   bank_name: "",
   sender: "",
-  reciever: "",
+  receiver: "",
   interact_bank: "",
   currency: "THB",
   amount: "",
@@ -242,7 +242,7 @@ const updateAction = async () => {
     frmData.append("amount", formData.value.amount);
     frmData.append("date", formatDateDb(formData.value.date));
     frmData.append("sender", formData.value.sender);
-    frmData.append("reciever", formData.value.reciever);
+    frmData.append("receiver", formData.value.receiver);
     frmData.append("interact_bank", formData.value.interact_bank ?? "personal");
     frmData.append("currency", formData.value.currency);
 
@@ -288,8 +288,8 @@ onMounted(() => {
       : props.updateData.table_source == "expense_receipt"
       ? "MR. THIHA@KUMAR BHUSAL"
       : "";
-    formData.value.reciever = props.updateData.reciever
-      ? props.updateData.reciever
+    formData.value.receiver = props.updateData.receiver
+      ? props.updateData.receiver
       : props.updateData.table_source == "booking_receipt"
       ? "MR. THIHA@KUMAR BHUSAL"
       : "";

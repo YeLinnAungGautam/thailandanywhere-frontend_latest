@@ -24,7 +24,7 @@
 
         <div
           @click="addProveImage"
-          class="border border-orange-500 border-dashed flex justify-center items-center text-xs text-orange-500 rounded h-12 p-3 cursor-pointer hover:bg-orange-50 transition-colors"
+          class="border border-[#FF613c] border-dashed flex justify-center items-center text-xs text-[#FF613c] rounded h-12 p-3 cursor-pointer hover:bg-[#FF613c] transition-colors"
         >
           + Upload Prove Image
         </div>
@@ -314,7 +314,7 @@
             'flex-1 px-4 py-2 text-xs font-medium rounded-lg transition-colors',
             loading || !isFormValid
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-orange-500 hover:bg-orange-600 text-white',
+              : 'bg-[#FF613c] hover:bg-[#FF613c] text-white',
           ]"
         >
           <span v-if="loading" class="flex items-center justify-center">

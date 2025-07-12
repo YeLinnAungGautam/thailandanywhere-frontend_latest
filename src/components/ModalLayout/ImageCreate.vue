@@ -13,7 +13,7 @@
       >
         <!-- Header -->
         <div
-          class="bg-orange-500 text-white px-6 py-4 flex justify-between items-center"
+          class="bg-[#FF613c] text-white px-6 py-4 flex justify-between items-center"
         >
           <h3 class="text-lg font-medium">
             {{ isEditing ? "Edit Slip Image" : "Create Slip Image" }}
@@ -45,9 +45,9 @@
               >
               <div
                 @click="openFileSelector"
-                class="relative border-2 border-dashed border-orange-300 rounded-lg cursor-pointer hover:border-orange-400 transition-colors"
+                class="relative border rounded-lg cursor-pointer hover:border-[#FF613c] transition-colors"
                 :class="
-                  formImageData.preview ? 'border-solid border-orange-500' : ''
+                  formImageData.preview ? '' : 'border-dashed border-[#FF613c]'
                 "
               >
                 <div v-if="!formImageData.preview" class="p-12 text-center">
@@ -72,7 +72,7 @@
                 <img
                   v-else
                   :src="formImageData.preview"
-                  class="w-full h-64 object-cover rounded-lg"
+                  class="w-full h-full object-cover rounded-lg"
                   alt="Preview"
                 />
               </div>
@@ -96,7 +96,7 @@
                 <input
                   v-model="formImageData.date"
                   type="datetime-local"
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-[#FF613c] focus:border-[#FF613c]"
                 />
               </div>
             </div>
@@ -109,7 +109,7 @@
                 v-model="formImageData.sender"
                 type="text"
                 placeholder="Enter sender name"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-[#FF613c] focus:border-[#FF613c]"
                 required
               />
             </div>
@@ -122,7 +122,7 @@
                 v-model="formImageData.receiver"
                 type="text"
                 placeholder="Enter receiver name"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-[#FF613c] focus:border-[#FF613c]"
                 required
               />
             </div>
@@ -137,7 +137,7 @@
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-[#FF613c] focus:border-[#FF613c]"
                 required
               />
             </div>
@@ -148,7 +148,7 @@
               >
               <select
                 v-model="formImageData.currency"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-[#FF613c] focus:border-[#FF613c]"
               >
                 <option value="THB">THB</option>
                 <option value="USD">USD</option>
@@ -162,7 +162,7 @@
               >
               <select
                 v-model="formImageData.interact_bank"
-                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-[#FF613c] focus:border-[#FF613c]"
               >
                 <option value="">Select Bank</option>
                 <option value="personal">Personal</option>
@@ -204,7 +204,7 @@
                 'px-4 py-2 text-sm font-medium rounded-md transition-colors',
                 !isFormValid || loading
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-orange-500 hover:bg-orange-600 text-white',
+                  : 'bg-[#FF613c] hover:bg-[#FF613c] text-white',
               ]"
             >
               <span v-if="loading" class="flex items-center">

@@ -103,7 +103,9 @@
               </div>
 
               <!-- Table Body -->
-              <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+              <div
+                class="divide-y divide-gray-200 max-h-[500px] overflow-y-auto"
+              >
                 <div
                   v-for="item in cashBooks?.data ?? []"
                   :key="item.id"
@@ -274,7 +276,7 @@
           </div>
 
           <!-- Form Section -->
-          <div class="col-span-2">
+          <div class="col-span-2 h-[75vh] overflow-y-auto">
             <CashBookEdit
               :getData="selectedEntry"
               @refresh="handleRefresh"

@@ -96,7 +96,7 @@
               class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
             />
           </div>
-          <div class="relative">
+          <div class="relative" v-if="authStore.isSuperAdmin">
             <select
               name=""
               v-model="interactSearch"
@@ -1188,8 +1188,10 @@ const searchParams = computed(() => {
     params.amount = amountSearch.value;
   }
 
-  if (interactSearch.value) {
+  if (interactSearch.value && authStore.isSuperAdmin) {
     params.interact_bank = interactSearch.value;
+  } else {
+    params.interact_bank = "company";
   }
 
   params.limit = per_page.value ? per_page.value : 10;

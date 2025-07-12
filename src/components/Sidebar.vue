@@ -293,7 +293,7 @@
                   to="/tax_receipt"
                 />
                 <SidebarItem
-                  v-if="authStore.isSuperAdmin"
+                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
                   name="Bank Statement"
                   label="Statement"
                   :icon="FolderIcon"

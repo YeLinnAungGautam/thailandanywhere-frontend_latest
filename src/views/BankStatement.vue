@@ -190,6 +190,7 @@
                     </div>
 
                     <div class="text-sm text-gray-500 mb-2">
+                      {{ formatDateForTime(item?.date) }}
                       {{
                         formatTime(item.time) || extractTime(item.date) || "-"
                       }}
@@ -247,7 +248,7 @@
                     <!-- Expand Arrow -->
                     <button
                       @click="toggleExpand(item.id)"
-                      class="text-white bg-gray-500 px-6 py-1 rounded-full hover:text-white mb-3"
+                      class="text-gray-700 py-1 rounded-full hover:text-white mb-3"
                     >
                       <svg
                         class="w-5 h-5 transform transition-transform"
@@ -271,8 +272,7 @@
                       class="flex space-x-1 justify-end"
                     >
                       <button
-                        v-if="item?.image"
-                        @click="viewReceipt(item)"
+                        @click="viewReceipt(detailedItems[item.id]?.image)"
                         class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         title="View Receipt"
                       >
@@ -286,7 +286,7 @@
                         <MagnifyingGlassIcon class="w-4 h-4" />
                       </button>
                       <button
-                        @click="update(item)"
+                        @click="update(detailedItems[item.id])"
                         class="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                         title="Edit"
                       >
@@ -295,11 +295,26 @@
                     </div>
                   </div>
                 </div>
+                <!-- Loading indicator for detail data -->
+                <div
+                  v-if="loadingDetails[item.id]"
+                  class="flex justify-center py-4"
+                >
+                  <div
+                    class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#FF613c]"
+                  ></div>
+                  <span class="ml-2 text-sm text-gray-600"
+                    >Loading details...</span
+                  >
+                </div>
+
                 <table
                   class="min-w-full divide-y divide-gray-200 mt-4"
                   v-if="
                     item?.relatable_type == 'App\\Models\\Booking' &&
-                    expandedItems[item.id]
+                    expandedItems[item.id] &&
+                    !loadingDetails[item.id] &&
+                    getRelatableData(item.id)
                   "
                 >
                   <!-- Table Header -->
@@ -356,34 +371,35 @@
                       <td
                         class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
                       >
+                        <span class="text-sm font-mono px-2 py-1 rounded"
+                          >-</span
+                        >
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-end">
                         <span class="text-sm font-mono px-2 py-1 rounded">
-                          -
+                          {{ getRelatableData(item.id)?.grand_total }}
                         </span>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
                         <span class="text-sm font-mono px-2 py-1 rounded">
-                          {{ item?.relatable?.grand_total }}
-                        </span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm font-mono px-2 py-1 rounded">
-                          {{ item?.relatable?.output_vat }}
+                          {{ getRelatableData(item.id)?.output_vat }}
                         </span>
                       </td>
                       <td
                         class="px-6 py-4 whitespace-nowrap text-end"
-                        @click="show(item?.relatable?.receipts)"
+                        @click="show(getRelatableData(item.id)?.receipts)"
                       >
                         <span
                           class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
                         >
-                          sale slip ({{ item?.relatable?.receipts?.length }})
+                          sale slip ({{
+                            getRelatableData(item.id)?.receipts?.length || 0
+                          }})
                         </span>
                       </td>
-                      <!-- @click="showTax(item?.customer_documents)" -->
                       <td
                         class="px-6 py-4 whitespace-nowrap text-end"
-                        @click="openCredit(item?.relatable?.id)"
+                        @click="openCredit(getRelatableData(item.id)?.id)"
                       >
                         <span
                           class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
@@ -394,11 +410,11 @@
                       <td class="px-6 py-4 whitespace-nowrap text-end">
                         <span
                           class="text-sm underline text-blue-600 font-mono px-2 py-1 rounded"
+                          >-</span
                         >
-                          -
-                        </span>
                       </td>
                     </tr>
+
                     <tr class="">
                       <td class="px-6 py-4 whitespace-nowrap text-start">
                         <span
@@ -410,35 +426,37 @@
                       <td
                         class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
                       >
-                        <span class="text-sm font-mono px-2 py-1 rounded">
-                        </span>
+                        <span
+                          class="text-sm font-mono px-2 py-1 rounded"
+                        ></span>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
                         <span class="text-sm font-mono px-2 py-1 rounded">
-                          - {{ item?.relatable?.commission }}
+                          - {{ getRelatableData(item.id)?.commission }}
                         </span>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm font-mono px-2 py-1 rounded">
-                          -
-                        </span>
+                        <span class="text-sm font-mono px-2 py-1 rounded"
+                          >-</span
+                        >
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm font-mono px-2 py-1 rounded">
-                          -
-                        </span>
+                        <span class="text-sm font-mono px-2 py-1 rounded"
+                          >-</span
+                        >
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm font-mono px-2 py-1 rounded">
-                          -
-                        </span>
+                        <span class="text-sm font-mono px-2 py-1 rounded"
+                          >-</span
+                        >
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm font-mono px-2 py-1 rounded">
-                          -
-                        </span>
+                        <span class="text-sm font-mono px-2 py-1 rounded"
+                          >-</span
+                        >
                       </td>
                     </tr>
+
                     <tr class="">
                       <td class="px-6 py-4 whitespace-nowrap text-start">
                         <span
@@ -450,16 +468,15 @@
                       <td
                         class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
                       >
-                        <span class="text-sm font-mono px-2 py-1 rounded">
-                        </span>
+                        <span
+                          class="text-sm font-mono px-2 py-1 rounded"
+                        ></span>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
                         <span class="text-sm font-mono px-2 py-1 rounded">
-                          <!-- {{ item?.relatable.grand_total }} -->
-
                           {{
-                            item?.relatable?.grand_total -
-                            item?.relatable?.commission
+                            getRelatableData(item.id)?.grand_total -
+                            getRelatableData(item.id)?.commission
                           }}
                         </span>
                       </td>
@@ -467,40 +484,41 @@
                         <span class="text-sm font-mono px-2 py-1 rounded">
                           {{
                             (
-                              (item?.relatable?.grand_total -
-                                item?.relatable?.commission) *
+                              (getRelatableData(item.id)?.grand_total -
+                                getRelatableData(item.id)?.commission) *
                               0.07
                             ).toFixed(2)
                           }}
                         </span>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm font-mono px-2 py-1 rounded">
-                          -
-                        </span>
+                        <span class="text-sm font-mono px-2 py-1 rounded"
+                          >-</span
+                        >
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm font-mono px-2 py-1 rounded">
-                          -
-                        </span>
+                        <span class="text-sm font-mono px-2 py-1 rounded"
+                          >-</span
+                        >
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm font-mono px-2 py-1 rounded">
-                          -
-                        </span>
+                        <span class="text-sm font-mono px-2 py-1 rounded"
+                          >-</span
+                        >
                       </td>
                     </tr>
 
+                    <!-- Grouped items - now using lazy loaded data -->
                     <tr
                       class=""
-                      v-for="v in item?.grouped_items"
+                      v-for="v in getGroupedItems(item.id)"
                       :key="v.group_id"
                     >
                       <td class="px-6 py-4 whitespace-nowrap text-start">
                         <div class="text-sm font-mono">
                           <span
                             @click="goToGroup(v)"
-                            class="text-gray-900 bg-blue-100 px-2 mr-2 py-1 rounded"
+                            class="text-gray-900 bg-blue-100 px-2 mr-2 py-1 rounded cursor-pointer"
                           >
                             Group
                           </span>
@@ -508,8 +526,9 @@
                             v-for="i in v.items"
                             class="text-gray-900 bg-gray-100 px-2 py-1 rounded mr-2"
                             :key="i.id"
-                            >{{ i.crm_id.split("_")[1] }}</span
                           >
+                            {{ i.crm_id.split("_")[1] }}
+                          </span>
                         </div>
                       </td>
                       <td
@@ -536,7 +555,7 @@
                         "
                       >
                         <span
-                          class="text-sm font-mono px-2 py-1 rounded"
+                          class="text-sm font-mono px-2 py-1 rounded cursor-pointer"
                           :class="
                             v.related_slip.length > 0
                               ? 'text-blue-600 underline'
@@ -557,7 +576,7 @@
                         "
                       >
                         <span
-                          class="text-sm font-mono px-2 py-1 rounded"
+                          class="text-sm font-mono px-2 py-1 rounded cursor-pointer"
                           :class="
                             v.related_tax.length > 0
                               ? 'text-blue-600 underline'
@@ -572,12 +591,13 @@
                         </span>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm font-mono px-2 py-1 rounded">
-                          -
-                        </span>
+                        <span class="text-sm font-mono px-2 py-1 rounded"
+                          >-</span
+                        >
                       </td>
                     </tr>
 
+                    <!-- Net Summary Row -->
                     <tr class="">
                       <td class="px-6 py-4 whitespace-nowrap text-start">
                         <span
@@ -589,17 +609,17 @@
                       <td
                         class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
                       >
-                        <span class="text-sm font-mono px-2 py-1 rounded">
-                        </span>
+                        <span
+                          class="text-sm font-mono px-2 py-1 rounded"
+                        ></span>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
                         <span class="text-sm font-mono px-2 py-1 rounded">
-                          <!-- {{ item?.relatable.grand_total }} -->
                           {{
                             calculateGrandVat(
-                              item?.relatable?.items,
-                              item?.relatable?.grand_total
-                            ) - item?.relatable?.commission
+                              getRelatableData(item.id)?.items,
+                              getRelatableData(item.id)?.grand_total
+                            ) - getRelatableData(item.id)?.commission
                           }}
                         </span>
                       </td>
@@ -608,28 +628,28 @@
                           {{
                             (
                               calculateVat(
-                                item?.relatable?.items,
-                                item?.relatable?.output_vat
+                                getRelatableData(item.id)?.items,
+                                getRelatableData(item.id)?.output_vat
                               ) -
-                              item?.relatable?.commission * 0.07
+                              getRelatableData(item.id)?.commission * 0.07
                             ).toFixed(2)
                           }}
                         </span>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm font-mono px-2 py-1 rounded">
-                          -
-                        </span>
+                        <span class="text-sm font-mono px-2 py-1 rounded"
+                          >-</span
+                        >
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm font-mono px-2 py-1 rounded">
-                          -
-                        </span>
+                        <span class="text-sm font-mono px-2 py-1 rounded"
+                          >-</span
+                        >
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-end">
-                        <span class="text-sm font-mono px-2 py-1 rounded">
-                          -
-                        </span>
+                        <span class="text-sm font-mono px-2 py-1 rounded"
+                          >-</span
+                        >
                       </td>
                     </tr>
                   </tbody>
@@ -964,7 +984,7 @@ const crmSearch = ref("");
 const bankNameSearch = ref("");
 const amountSearch = ref("");
 const interactSearch = ref("");
-const per_page = ref(10);
+const per_page = ref(60);
 
 // Expanded items for mobile view
 const expandedItems = ref({});
@@ -973,6 +993,37 @@ const expandedItems = ref({});
 const currentDate = new Date();
 const year = ref(currentDate.getFullYear());
 const selectedMonth = ref(currentDate.getMonth() + 1);
+
+const detailedItems = ref({});
+const loadingDetails = ref({});
+
+// Method to get detailed data when user expands
+const getDetailAction = async (itemId) => {
+  // If already loaded, don't load again
+  if (detailedItems.value[itemId]) {
+    return detailedItems.value[itemId];
+  }
+
+  // Set loading state
+  loadingDetails.value[itemId] = true;
+
+  try {
+    const response = await cashImageStore.getDetailAction(itemId);
+    if (response.status == "Request was successful.") {
+      detailedItems.value[itemId] = response.result;
+      return response.result;
+    } else {
+      toast.error("Failed to load details");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error loading details:", error);
+    toast.error("Error loading details");
+    return null;
+  } finally {
+    loadingDetails.value[itemId] = false;
+  }
+};
 
 const monthArray = [
   { id: 1, name: "January" },
@@ -1012,6 +1063,40 @@ const groupedReceipts = computed(() => {
 
   return groups;
 });
+
+const formatDateForTime = (dateString) => {
+  if (!dateString) return "";
+
+  // Parse the date string (assuming DD-MM-YYYY HH:mm:ss format)
+  const [datePart] = dateString.split(" ");
+  const [day, month, year] = datePart.split("-");
+
+  // Create date object
+  const date = new Date(`${year}-${month}-${day}`);
+
+  // Month names abbreviated
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Format: DD MMM YY
+  const formattedDay = day.padStart(2, "0");
+  const formattedMonth = monthNames[date.getMonth()];
+  const formattedYear = year.slice(-2); // Last 2 digits of year
+
+  return `${formattedDay} ${formattedMonth} ${formattedYear}`;
+};
 
 const goToGroup = (data) => {
   console.log("====================================");
@@ -1095,12 +1180,22 @@ const extractTime = (dateString) => {
   return null;
 };
 
+// Update getTransactionType to use relatable_summary from list data
 const getTransactionType = (item) => {
-  return item.sender != "null" && item.sender
-    ? item.sender
-    : item.receiver
-    ? item.receiver
-    : "Payment";
+  // Use basic data from list instead of relatable
+  if (item.sender && item.sender !== "null") {
+    return item.sender;
+  }
+  if (item.receiver && item.receiver !== "null") {
+    return item.receiver;
+  }
+
+  // Use relatable_summary if available
+  if (item.relatable_summary) {
+    return item.relatable_summary.type;
+  }
+
+  return "Payment";
 };
 
 const getTransactionBadgeClass = (item) => {
@@ -1140,8 +1235,26 @@ const formatTransactionAmount = (item) => {
   return `${prefix}${formattedAmount} ${item.currency}`;
 };
 
-const toggleExpand = (itemId) => {
-  expandedItems.value[itemId] = !expandedItems.value[itemId];
+const toggleExpand = async (itemId) => {
+  const isExpanding = !expandedItems.value[itemId];
+  expandedItems.value[itemId] = isExpanding;
+
+  // Load detailed data when expanding
+  if (isExpanding) {
+    await getDetailAction(itemId);
+  }
+};
+
+// Method to get relatable data for an item
+const getRelatableData = (itemId) => {
+  const detailedItem = detailedItems.value[itemId];
+  return detailedItem ? detailedItem.relatable : null;
+};
+
+// Method to get grouped items for an item
+const getGroupedItems = (itemId) => {
+  const detailedItem = detailedItems.value[itemId];
+  return detailedItem ? detailedItem.grouped_items : [];
 };
 
 // Your existing functions...
@@ -1188,11 +1301,15 @@ const searchParams = computed(() => {
     params.amount = amountSearch.value;
   }
 
-  if (interactSearch.value && authStore.isSuperAdmin) {
-    params.interact_bank = interactSearch.value;
+  if (authStore.isSuperAdmin) {
+    if (interactSearch.value) {
+      params.interact_bank = interactSearch.value;
+    }
   } else {
     params.interact_bank = "company";
   }
+
+  params.include_relatable = true;
 
   params.limit = per_page.value ? per_page.value : 10;
 
@@ -1228,8 +1345,11 @@ const clearSearch = () => {
 
 const placeholderFile = ref("");
 const viewReceipt = (item) => {
-  if (item.image) {
-    placeholderFile.value = item.image;
+  console.log("====================================");
+  console.log(item);
+  console.log("====================================");
+  if (item) {
+    placeholderFile.value = item;
   } else {
     toast.warning("No receipt file available");
   }
@@ -1242,14 +1362,14 @@ const formatAmount = (amount) => {
 
 const goToView = async (data) => {
   if (data.relatable_type == "App\\Models\\Booking") {
-    router.push(`bookings/new-update/${data?.relatable?.id}`);
+    router.push(`bookings/new-update/${data?.relatable_id}`);
   } else if (data.relatable_type == "App\\Models\\BookingItemGroup") {
-    if (data?.relatable?.product_type == "App\\Models\\EntranceTicket") {
-      router.push(`/group-attraction?id=${data?.relatable?.id}`);
-    } else if (data?.relatable?.product_type == "App\\Models\\Hotel") {
-      router.push(`/group-hotel?id=${data?.relatable?.id}`);
-    } else if (data?.relatable?.product_type == "App\\Models\\PrivateVanTour") {
-      router.push(`/group-private-van-tour?id=${data?.relatable?.id}`);
+    if (data?.product_type == "App\\Models\\EntranceTicket") {
+      router.push(`/group-attraction?id=${data?.relatable_id}`);
+    } else if (data?.product_type == "App\\Models\\Hotel") {
+      router.push(`/group-hotel?id=${data?.relatable_id}`);
+    } else if (data?.product_type == "App\\Models\\PrivateVanTour") {
+      router.push(`/group-private-van-tour?id=${data?.relatable_id}`);
     }
   } else if (data.relatable_type == "App\\Models\\CashBook") {
     router.push(`/cash-book/${data?.relatable_id}`);
@@ -1307,6 +1427,9 @@ const updateData = ref({
 });
 
 const update = (data) => {
+  console.log("====================================");
+  console.log(data);
+  console.log("====================================");
   updateModalOpen.value = true;
   updateData.value.id = data.id;
   updateData.value.date = data.date;

@@ -19,6 +19,7 @@
                 : formatDateFromDb(formData.date)
             }}
           </p>
+          <!-- {{ formData.date }} -->
           <input
             type="datetime-local"
             name=""
@@ -278,10 +279,26 @@ const updateAction = async () => {
   }
 };
 
+const convertDateToInputFormat = (dateString) => {
+  if (!dateString) return "";
+
+  // If it's already in the correct format (contains 'T'), return as-is
+  if (dateString.includes("T")) {
+    return dateString;
+  }
+
+  // Handle format: "11-07-2025 21:54:00" -> "2025-07-11T21:54"
+  const [datePart, timePart] = dateString.split(" ");
+  const [day, month, year] = datePart.split("-");
+  const [hours, minutes] = timePart.split(":");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
 onMounted(() => {
   if (props.updateData) {
     formData.value.id = props.updateData.id;
-    formData.value.date = props.updateData.date;
+    formData.value.date = convertDateToInputFormat(props.updateData.date);
     formData.value.bank_name = props.updateData.bank_name;
     formData.value.sender = props.updateData.sender
       ? props.updateData.sender

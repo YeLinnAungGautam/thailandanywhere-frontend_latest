@@ -50,6 +50,14 @@ export const useCashImageStore = defineStore("cashImage", {
         throw error;
       }
     },
+    async getDetailAction(id) {
+      try {
+        const response = await axios.get("/cash-images/" + id);
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
     async updateAction(data, id) {
       try {
         const response = await axios.post("/cash-images/" + id, data);

@@ -66,7 +66,7 @@
           />
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 gap-3">
           <div class="space-y-2">
             <label class="text-xs font-medium text-gray-700">Date</label>
             <input
@@ -75,14 +75,14 @@
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          <div class="space-y-2">
+          <!-- <div class="space-y-2">
             <label class="text-xs font-medium text-gray-700">Time</label>
             <input
               v-model="formData.time_only"
               type="time"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
-          </div>
+          </div> -->
         </div>
 
         <div class="space-y-2">
@@ -131,6 +131,15 @@
             <option value="to_money_changer">To Money Changer</option>
             <option value="deposit_management">Deposit Management</option>
           </select>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-medium text-gray-700">Amount</label>
+          <input
+            v-model="formData.amount"
+            type="number"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
         </div>
 
         <div class="space-y-2">
@@ -415,6 +424,7 @@ const formData = ref({
   income_or_expense: "",
   cash_structure_id: "",
   interact_bank: "",
+  amount: "",
   description: "",
   accounts: [],
   images: [], // Detailed slip images
@@ -456,6 +466,7 @@ const clearForm = () => {
     income_or_expense: "",
     cash_structure_id: "",
     interact_bank: "",
+    amount: "",
     description: "",
     accounts: [],
     images: [],
@@ -544,6 +555,7 @@ const openSlipImageModal = (index = -1) => {
       amount: 0,
       currency: "THB",
       interact_bank: "",
+      amount: "",
       date: now.toISOString().slice(0, 16), // YYYY-MM-DDTHH:mm format
       existing_image: null,
       is_existing: false,
@@ -716,6 +728,7 @@ const prepareFormData = () => {
   frmData.append("income_or_expense", formData.value.income_or_expense);
   frmData.append("cash_structure_id", formData.value.cash_structure_id);
   frmData.append("interact_bank", formData.value.interact_bank || "");
+  frmData.append("amount", formData.value.amount);
   frmData.append("description", formData.value.description || "");
 
   // Add accounts
@@ -850,6 +863,7 @@ const editGetFormData = (data) => {
   formData.value.cash_structure_id = data.cash_structure?.id || "";
   formData.value.interact_bank = data.interact_bank || "";
   formData.value.description = data.description || "";
+  formData.value.amount = data.amount || 0;
 
   // Map accounts
   formData.value.accounts =

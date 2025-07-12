@@ -134,7 +134,7 @@
                     {{ item?.cash_structure?.name ?? "-" }}
                   </div>
                   <div class="col-span-1 font-medium text-gray-800">
-                    {{ getTotalAmount(item?.chart_of_accounts) }}
+                    {{ item?.amount }}
                   </div>
                   <div class="col-span-1 text-gray-600 truncate">
                     {{ item?.interact_bank ?? "-" }}

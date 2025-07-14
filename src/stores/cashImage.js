@@ -74,5 +74,23 @@ export const useCashImageStore = defineStore("cashImage", {
         throw error;
       }
     },
+
+    async getVatSummary(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/summary-report-vat", {
+          params: params,
+        });
+        console.log(response);
+
+        // this.cashImages = response.data.result;/
+        this.loading = false;
+        console.log(response);
+        return response.data;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
   },
 });

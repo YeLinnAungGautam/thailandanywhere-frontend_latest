@@ -242,6 +242,19 @@
                 </div>
                 <div class="space-y-1">
                   <div class="flex justify-between items-center">
+                    <p class="text-[10px]">Sort Type</p>
+                    <select
+                      name=""
+                      id=""
+                      v-model="sorting_type"
+                      class="border border-gray-300 px-4 focus:outline-none bg-gray-50 text-gray-400 w-[50%] py-2 text-[10px] rounded-lg"
+                    >
+                      <option class="text-[10px]" value="product_name">
+                        Product Name
+                      </option>
+                    </select>
+                  </div>
+                  <div class="flex justify-between items-center">
                     <p class="text-[10px]">Sort By</p>
                     <select
                       name=""
@@ -624,6 +637,7 @@ const ChangeAttractionName = (data) => {
 };
 
 const sorting = ref("asc");
+const sorting_type = ref("");
 
 const watchSystem = computed(() => {
   let result = {};
@@ -661,6 +675,10 @@ const watchSystem = computed(() => {
   }
 
   result.sorting = sorting.value;
+
+  if (sorting_type.value) {
+    result.sorting_type = sorting_type.value;
+  }
 
   result.product_type = "private_van_tour";
   result.per_page = 10;

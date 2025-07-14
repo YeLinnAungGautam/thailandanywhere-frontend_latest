@@ -299,6 +299,13 @@
                   :icon="FolderIcon"
                   to="/bank_statement"
                 />
+                <SidebarItem
+                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
+                  name="Bank Statement"
+                  label="Statement"
+                  :icon="FolderIcon"
+                  to="/bank_statement_list"
+                />
               </div>
               <SidebarItem
                 name="Products"

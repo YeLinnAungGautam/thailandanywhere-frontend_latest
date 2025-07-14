@@ -213,30 +213,12 @@
                   :class="
                     expandedItems[item.id] ? 'border border-[#FF613c]' : ''
                   "
-                  @click="toggleExpand(item.relatable_type, item.id)"
+                  @click="toggleExpand(item.id)"
                 >
                   <td class="px-3 py-2 text-xs text-center">
                     {{ formatDateForTime(item?.date) }}
 
                     <!-- Action buttons - moved inside a table cell -->
-                    <div
-                      class="absolute bg-white/90 px-2 shadow-lg border border-gray-200 py-1 rounded-2xl backdrop-blur-sm top-2 z-30 right-1 hidden group-hover:flex items-center space-x-1"
-                    >
-                      <button
-                        @click.stop="goToView(item)"
-                        class="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                        title="View Details"
-                      >
-                        <MagnifyingGlassIcon class="w-4 h-4" />
-                      </button>
-                      <button
-                        @click.stop="update(item)"
-                        class="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                        title="Edit"
-                      >
-                        <PencilSquareIcon class="w-4 h-4" />
-                      </button>
-                    </div>
                   </td>
                   <td class="px-3 py-2 text-xs text-center">
                     {{ formatTime(item.time) }}
@@ -308,14 +290,36 @@
                 <!-- Expanded details row -->
                 <tr
                   v-if="
-                    item?.relatable_type == 'App\\Models\\Booking' &&
+                    (item?.relatable_type == 'App\\Models\\Booking' ||
+                      item?.relatable_type ==
+                        'App\\Models\\BookingItemGroup') &&
                     expandedItems[item.id] &&
                     !loadingDetails[item.id] &&
                     getRelatableData(item.id)
                   "
                 >
                   <td colspan="12" class="p-0">
-                    <div class="bg-gray-50 p-4">
+                    <div class="bg-gray-50 pb-4 px-4">
+                      <div class="w-full flex justify-end items-center py-2">
+                        <div
+                          class="bg-white/90 w-[100px] px-2 shadow-lg border border-gray-200 py-1 rounded-2xl backdrop-blur-sm flex items-center justify-center space-x-2"
+                        >
+                          <button
+                            @click.stop="goToView(item)"
+                            class="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                            title="View Details"
+                          >
+                            <MagnifyingGlassIcon class="w-4 h-4" />
+                          </button>
+                          <button
+                            @click.stop="update(item)"
+                            class="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                            title="Edit"
+                          >
+                            <PencilSquareIcon class="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
                       <table class="min-w-full">
                         <!-- Table Header -->
                         <thead class="bg-gray-50">
@@ -359,7 +363,10 @@
                         </thead>
 
                         <!-- Table Body -->
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody
+                          class="bg-white divide-y divide-gray-200"
+                          v-if="item.relatable_type == 'App\\Models\\Booking'"
+                        >
                           <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-start">
                               <span
@@ -656,6 +663,60 @@
                               <span class="text-xs font-mono px-2 py-1 rounded"
                                 >-</span
                               >
+                            </td>
+                          </tr>
+                        </tbody>
+                        <tbody
+                          v-if="
+                            item.relatable_type ==
+                            'App\\Models\\BookingItemGroup'
+                          "
+                          class="bg-white divide-y divide-gray-200"
+                        >
+                          <tr v-for="v in getExpenseItems(item.id)" :key="v.id">
+                            <td class="px-6 py-4 whitespace-nowrap text-start">
+                              <div
+                                class="text-xs font-mono bg-gray-100 px-3 py-1 rounded-md"
+                              >
+                                {{ v.crm_id }}
+                              </div>
+                            </td>
+
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                {{ v.product?.name }}
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                {{ v.total_cost_price }}
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                {{ v.output_vat }}
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span
+                                class="text-xs text-blue-500 underline font-mono px-2 py-1 rounded"
+                                @click="
+                                  viewReceipt(detailedItems[item.id]?.image)
+                                "
+                              >
+                                <!-- {{ detailedItems[item.id]?.image }} -->
+                                slip
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                -
+                              </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                              <span class="text-xs font-mono px-2 py-1 rounded">
+                                -
+                              </span>
                             </td>
                           </tr>
                         </tbody>
@@ -1271,14 +1332,15 @@ const formatTransactionAmount = (item) => {
   return `${prefix}${formattedAmount}`;
 };
 
-const toggleExpand = async (type, itemId) => {
-  if (type != "App\\Models\\Booking") return;
+const toggleExpand = async (itemId) => {
+  const isCurrentlyExpanded = expandedItems.value[itemId];
 
-  const isExpanding = !expandedItems.value[itemId];
-  expandedItems.value[itemId] = isExpanding;
+  // Close all expanded items
+  expandedItems.value = {};
 
-  // Load detailed data when expanding
-  if (isExpanding) {
+  // If the clicked item wasn't expanded, expand it
+  if (!isCurrentlyExpanded) {
+    expandedItems.value[itemId] = true;
     await getDetailAction(itemId);
   }
 };
@@ -1293,6 +1355,13 @@ const getRelatableData = (itemId) => {
 const getGroupedItems = (itemId) => {
   const detailedItem = detailedItems.value[itemId];
   return detailedItem ? detailedItem.grouped_items : [];
+};
+
+const getExpenseItems = (itemId) => {
+  const detailedItem = detailedItems.value[itemId];
+  console.log(detailedItem, "this is expense item");
+
+  return detailedItem ? detailedItem.relatable?.items : [];
 };
 
 // Your existing functions...

@@ -458,7 +458,7 @@
               v-if="authStore.isSuperAdmin"
               class="text-[10px] rounded-lg px-2 py-1 text-white bg-[#FF613c]"
             >
-              {{ formattedNumber(expense_total_amount) }}
+              {{ formattedNumber(groups?.meta?.total_cost_price_sum) }}
             </div>
             <div
               class="text-[10px] rounded-lg px-2 py-1 text-white bg-[#FF613c]"

@@ -70,24 +70,19 @@
 
           <div class="flex justify-end w-full items-center space-x-2">
             <p
-              class="px-3 py-2.5 rounded-xl bg-white-600/50 text-xs backdrop-blur-sm shadow"
-            >
-              For only this page:
-            </p>
-            <p
               class="px-3 py-2.5 rounded-xl bg-green-600/50 text-xs backdrop-blur-sm shadow"
             >
-              Total: {{ formattedNumber(totalVat) }}
+              Total: {{ formattedNumber(total_vat) }}
             </p>
             <p
               class="px-3 py-2.5 rounded-xl bg-yellow-600/50 text-xs backdrop-blur-sm shadow"
             >
-              Commission: {{ formattedNumber(totalCommission) }}
+              Commission: {{ formattedNumber(total_commission) }}
             </p>
             <p
               class="px-3 py-2.5 rounded-xl bg-red-600/50 text-xs backdrop-blur-sm shadow"
             >
-              Net Vat: {{ formattedNumber(totalNetVat) }}
+              Net Vat: {{ formattedNumber(total_net_vat) }}
             </p>
           </div>
         </div>
@@ -1423,23 +1418,22 @@ const searchParams = computed(() => {
   return params;
 });
 
-const really_output_vat = ref(0);
-const current_output_vat = ref(0);
+const total_vat = ref(0);
 const total_commission = ref(0);
-const total_output_vat = ref(0);
+const total_net_vat = ref(0);
 
 const getAction = async () => {
   await cashImageStore.getListAction(searchParams.value);
 
-  // const res = await cashImageStore.getVatSummary({
-  //   date: date_range.value,
-  // });
+  const res = await cashImageStore.getVatSummary({
+    date: date_range.value,
+  });
 
-  // let data = res.data;
-  // really_output_vat.value = data.really_output_vat;
-  // current_output_vat.value = data.current_output_vat;
-  // total_commission.value = data.total_commission;
-  // total_output_vat.value = data.total_output_vat;
+  let data = res.data;
+
+  total_vat.value = data.total_vat;
+  total_commission.value = data.total_commission;
+  total_net_vat.value = data.total_net_vat;
 };
 
 const changePage = async (url) => {

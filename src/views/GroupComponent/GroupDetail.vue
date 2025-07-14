@@ -1017,7 +1017,7 @@ const copyReservation = () => {
       forEach(res.items, (item) => {
         total_amount += item.amount * 1;
       });
-      score = (total_amount - res.total_cost_price) / res.total_cost_price;
+      score = (total_amount - res.total_cost_price) / total_amount;
     }
 
     // Check for earliest service date across all items
@@ -1044,30 +1044,24 @@ const copyReservation = () => {
     }
 
     // Add booking header using booking data
-    allFormattedOutput += `💰 Total Cost: ${res.total_cost_price} THB 
-💵 Price: ${total_amount || 0} THB 
-💵 Balance Due: ${res.booking?.balance_due || 0} THB 
-📝 Payment Status: ${res.booking?.payment_status || "unknown"}
----------------------
-🏦 Bank Name: ${res.expense_bank_name ?? res.items[0]?.product?.bank_name} 
+    allFormattedOutput += `💰 Total Cost: ${res.total_cost_price} THB
+🏦 Bank Name: ${res.expense_bank_name ?? res.items[0]?.product?.bank_name}  
 🔢 Bank Account Number: ${
       res.expense_bank_account
         ? `➖${res.expense_bank_account}`
         : `➖${res.items[0]?.product?.bank_account_number}`
     }
+#️⃣ CRM ID: ${res.booking_crm_id}
 🧑‍💼 Account Name: ${res.items[0]?.product?.account_name || "-"} 
-#️⃣ CRM ID: ${res.booking_crm_id}\n`;
+---------------------
+🏨 Product Name: ${res.items[0]?.product?.name}
+💵 Price: ${total_amount || 0} THB 
+💸 Discount : ${res.booking?.discount || discount} THB 
+💵 Balance Due: ${res.booking?.balance_due || 0} THB 
+📝 Payment Status: ${res.booking?.payment_status || "unknown"}
+---------------------
+`;
 
-    // Add product header based on type
-    if (res.product_type == "Hotel") {
-      allFormattedOutput += `🏨 ${res.product_name}
----------------------\n`;
-    } else {
-      allFormattedOutput += `🎟️ ${res.product_name}
----------------------\n`;
-    }
-
-    // Add items based on product type
     if (res.product_type == "Hotel") {
       res.items.forEach((item, index) => {
         const itemUrgencyLabel = getUrgencyLabel(item.checkin_date).trim();
@@ -1098,7 +1092,6 @@ const copyReservation = () => {
     allFormattedOutput += `💵 Total Sale Amount: ${
       res.booking?.sub_total || 0
     } THB 
-💸 Discount : ${res.booking?.discount || discount} THB 
 📅 Sale Date: ${res.booking?.booking_date}
 🤑 Score : ${score.toFixed(2)}\n`;
 

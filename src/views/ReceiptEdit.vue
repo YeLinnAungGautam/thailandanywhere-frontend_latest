@@ -244,6 +244,7 @@ const updateAction = async () => {
     frmData.append("date", formatDateDb(formData.value.date));
     frmData.append("sender", formData.value.sender);
     frmData.append("receiver", formData.value.receiver);
+    frmData.append("reciever", formData.value.receiver);
     frmData.append("interact_bank", formData.value.interact_bank ?? "personal");
     frmData.append("currency", formData.value.currency);
 

@@ -70,24 +70,24 @@
 
           <div class="flex justify-end w-full items-center space-x-2">
             <p
+              class="px-3 py-2.5 rounded-xl bg-white-600/50 text-xs backdrop-blur-sm shadow"
+            >
+              For only this page:
+            </p>
+            <p
               class="px-3 py-2.5 rounded-xl bg-green-600/50 text-xs backdrop-blur-sm shadow"
             >
-              Real: {{ really_output_vat }}
+              Total: {{ formattedNumber(totalVat) }}
             </p>
             <p
               class="px-3 py-2.5 rounded-xl bg-yellow-600/50 text-xs backdrop-blur-sm shadow"
             >
-              Current: {{ current_output_vat }}
+              Commission: {{ formattedNumber(totalCommission) }}
             </p>
             <p
               class="px-3 py-2.5 rounded-xl bg-red-600/50 text-xs backdrop-blur-sm shadow"
             >
-              Total: {{ total_output_vat }}
-            </p>
-            <p
-              class="px-3 py-2.5 rounded-xl bg-blue-600/50 text-xs backdrop-blur-sm shadow"
-            >
-              Com: {{ total_commission }}
+              Net Vat: {{ formattedNumber(totalNetVat) }}
             </p>
           </div>
         </div>
@@ -195,6 +195,9 @@
               <th class="text-xs text-center font-medium py-3">Receiver</th>
               <th class="text-xs text-center font-medium py-3">CRM ID</th>
               <th class="text-xs text-center font-medium py-3">Invoice</th>
+              <th class="text-xs text-center font-medium py-3">VAT</th>
+              <th class="text-xs text-center font-medium py-3">Commission</th>
+              <th class="text-xs text-center font-medium py-3">Net VAT</th>
               <th class="text-xs text-center font-medium py-3">Tax Credit</th>
             </tr>
           </thead>
@@ -220,13 +223,6 @@
                       class="absolute bg-white/90 px-2 shadow-lg border border-gray-200 py-1 rounded-2xl backdrop-blur-sm top-2 z-30 right-1 hidden group-hover:flex items-center space-x-1"
                     >
                       <button
-                        @click.stop="viewReceipt(detailedItems[item.id]?.image)"
-                        class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        title="View Receipt"
-                      >
-                        <EyeIcon class="w-4 h-4" />
-                      </button>
-                      <button
                         @click.stop="goToView(item)"
                         class="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                         title="View Details"
@@ -234,7 +230,7 @@
                         <MagnifyingGlassIcon class="w-4 h-4" />
                       </button>
                       <button
-                        @click.stop="update(detailedItems[item.id])"
+                        @click.stop="update(item)"
                         class="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                         title="Edit"
                       >
@@ -245,7 +241,10 @@
                   <td class="px-3 py-2 text-xs text-center">
                     {{ formatTime(item.time) }}
                   </td>
-                  <td class="px-3 py-2 text-xs text-end">
+                  <td
+                    class="px-3 py-2 text-xs text-end"
+                    :class="getTransactionBadgeClass(item)"
+                  >
                     <p
                       v-if="
                         item.relatable_type ==
@@ -257,16 +256,19 @@
                     </p>
                     <p v-else></p>
                   </td>
-                  <td class="px-3 py-2 text-xs text-end">
+                  <td
+                    class="px-3 py-2 text-xs text-end"
+                    :class="getTransactionBadgeClass(item)"
+                  >
                     <p v-if="item.relatable_type == 'App\\Models\\Booking'">
                       {{ formatTransactionAmount(item) }}
                     </p>
                     <p v-else></p>
                   </td>
-                  <td class="px-3 py-2 text-xs">
+                  <td class="px-3 py-2 text-xs w-[250px]">
                     {{ item.sender }}
                   </td>
-                  <td class="px-3 py-2 text-xs">
+                  <td class="px-3 py-2 text-xs w-[250px]">
                     {{ item.receiver }}
                   </td>
                   <td class="px-3 py-2 text-xs w-[100px]">
@@ -275,12 +277,23 @@
                   <td class="px-3 py-2 text-xs">
                     <XCircleIcon class="w-5 h-5 text-gray-300 inline-block" />
                   </td>
+                  <td class="px-3 py-2 text-xs w-[80px]">
+                    {{ item.vat ? formattedNumber(item.vat) : "-" }}
+                  </td>
+                  <td class="px-3 py-2 text-xs w-[80px]">
+                    {{
+                      item.commission ? formattedNumber(item.commission) : "-"
+                    }}
+                  </td>
+                  <td class="px-3 py-2 text-xs w-[80px]">
+                    {{ item.net_vat ? formattedNumber(item.net_vat) : "-" }}
+                  </td>
                   <td class="px-3 py-2 text-xs">-</td>
                 </tr>
 
                 <!-- Loading row -->
                 <tr v-if="loadingDetails[item?.id]">
-                  <td colspan="9" class="px-3 py-4 text-center">
+                  <td colspan="12" class="px-3 py-4 text-center">
                     <div class="flex justify-center items-center">
                       <div
                         class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#FF613c]"
@@ -301,7 +314,7 @@
                     getRelatableData(item.id)
                   "
                 >
-                  <td colspan="9" class="p-0">
+                  <td colspan="12" class="p-0">
                     <div class="bg-gray-50 p-4">
                       <table class="min-w-full">
                         <!-- Table Header -->
@@ -623,11 +636,8 @@
                               <span class="text-xs font-mono px-2 py-1 rounded">
                                 {{
                                   (
-                                    calculateVat(
-                                      getRelatableData(item.id)?.items,
-                                      getRelatableData(item.id)?.output_vat
-                                    ) -
-                                    getRelatableData(item.id)?.commission * 0.07
+                                    getRelatableData(item.id)?.commission -
+                                    getRelatableData(item.id)?.commission / 1.07
                                   ).toFixed(2)
                                 }}
                               </span>
@@ -960,6 +970,7 @@ import ReceiptEdit from "./ReceiptEdit.vue";
 import { useCashImageStore } from "../stores/cashImage";
 import { useGroupStore } from "../stores/group";
 import { CheckBadgeIcon, XCircleIcon } from "@heroicons/vue/24/solid";
+import { formattedNumber } from "./help/FormatData";
 
 const sideBarStore = useSidebarStore();
 const groupStore = useGroupStore();
@@ -994,6 +1005,33 @@ const selectedMonth = ref(currentDate.getMonth() + 1);
 
 const detailedItems = ref({});
 const loadingDetails = ref({});
+
+const totalVat = computed(() => {
+  if (!cashImages.value) return 0;
+  let total = 0;
+  for (const item of cashImages.value.data) {
+    total += item.vat;
+  }
+  return total;
+});
+
+const totalCommission = computed(() => {
+  if (!cashImages.value) return 0;
+  let total = 0;
+  for (const item of cashImages.value.data) {
+    total += item.commission;
+  }
+  return total;
+});
+
+const totalNetVat = computed(() => {
+  if (!cashImages.value) return 0;
+  let total = 0;
+  for (const item of cashImages.value.data) {
+    total += item.net_vat;
+  }
+  return total.toFixed(2);
+});
 
 // Method to get detailed data when user expands
 const getDetailAction = async (itemId) => {
@@ -1198,11 +1236,11 @@ const getTransactionType = (item) => {
 
 const getTransactionBadgeClass = (item) => {
   if (item?.relatable_type == "App\\Models\\Booking") {
-    return "bg-green-100 text-green-800";
+    return " text-green-800";
   } else if (item?.relatable_type == "App\\Models\\BookingItemGroup") {
-    return "bg-red-100 text-red-800";
+    return " text-red-800";
   } else if (item?.relatable_type == "App\\Models\\CashBook") {
-    return "bg-blue-100 text-blue-800";
+    return " text-blue-800";
   }
   return "bg-red-100 text-red-800";
 };
@@ -1324,15 +1362,15 @@ const total_output_vat = ref(0);
 const getAction = async () => {
   await cashImageStore.getListAction(searchParams.value);
 
-  const res = await cashImageStore.getVatSummary({
-    date: date_range.value,
-  });
+  // const res = await cashImageStore.getVatSummary({
+  //   date: date_range.value,
+  // });
 
-  let data = res.data;
-  really_output_vat.value = data.really_output_vat;
-  current_output_vat.value = data.current_output_vat;
-  total_commission.value = data.total_commission;
-  total_output_vat.value = data.total_output_vat;
+  // let data = res.data;
+  // really_output_vat.value = data.really_output_vat;
+  // current_output_vat.value = data.current_output_vat;
+  // total_commission.value = data.total_commission;
+  // total_output_vat.value = data.total_output_vat;
 };
 
 const changePage = async (url) => {
@@ -1388,21 +1426,6 @@ const goToView = async (data) => {
     }
   } else if (data.relatable_type == "App\\Models\\CashBook") {
     router.push(`/cash-book/${data?.relatable_id}`);
-  }
-};
-
-const calculateVat = (items, vat) => {
-  if (items && vat) {
-    let vat_minus = 0;
-    items.forEach((item) => {
-      if (item.total_cost_price) {
-        vat_minus += item.total_cost_price - item.total_cost_price / 1.07;
-      }
-    });
-
-    return (vat - vat_minus).toFixed(2);
-  } else {
-    return 0;
   }
 };
 

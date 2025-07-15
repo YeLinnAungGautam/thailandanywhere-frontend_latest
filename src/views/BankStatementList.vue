@@ -72,17 +72,17 @@
             <p
               class="px-3 py-2.5 rounded-xl bg-green-600/50 text-xs backdrop-blur-sm shadow"
             >
-              Total: {{ formattedNumber(total_vat) }}
+              Total: {{ formattedNumber(total_vat.toFixed(2)) }}
             </p>
             <p
               class="px-3 py-2.5 rounded-xl bg-yellow-600/50 text-xs backdrop-blur-sm shadow"
             >
-              Commission: {{ formattedNumber(total_commission) }}
+              Commission: {{ formattedNumber(total_commission.toFixed(2)) }}
             </p>
             <p
               class="px-3 py-2.5 rounded-xl bg-red-600/50 text-xs backdrop-blur-sm shadow"
             >
-              Net Vat: {{ formattedNumber(total_net_vat) }}
+              Net Vat: {{ formattedNumber(total_net_vat.toFixed(2)) }}
             </p>
           </div>
         </div>
@@ -189,10 +189,11 @@
               <th class="text-xs text-center font-medium py-3">Sender</th>
               <th class="text-xs text-center font-medium py-3">Receiver</th>
               <th class="text-xs text-center font-medium py-3">CRM ID</th>
-              <th class="text-xs text-center font-medium py-3">Invoice</th>
               <th class="text-xs text-center font-medium py-3">VAT</th>
               <th class="text-xs text-center font-medium py-3">Commission</th>
               <th class="text-xs text-center font-medium py-3">Net VAT</th>
+              <th class="text-xs text-center font-medium py-3">Actual VAT</th>
+              <th class="text-xs text-center font-medium py-3">Invoice</th>
               <th class="text-xs text-center font-medium py-3">Tax Credit</th>
             </tr>
           </thead>
@@ -242,30 +243,45 @@
                     </p>
                     <p v-else></p>
                   </td>
-                  <td class="px-3 py-2 text-xs w-[250px]">
+                  <td class="px-3 py-2 text-xs w-[200px]">
                     {{ item.sender }}
                   </td>
-                  <td class="px-3 py-2 text-xs w-[250px]">
+                  <td class="px-3 py-2 text-xs w-[200px]">
                     {{ item.receiver }}
                   </td>
                   <td class="px-3 py-2 text-xs w-[100px]">
                     {{ item.crm_id ?? "-" }}
                   </td>
-                  <td class="px-3 py-2 text-xs">
-                    <XCircleIcon class="w-5 h-5 text-gray-300 inline-block" />
-                  </td>
-                  <td class="px-3 py-2 text-xs w-[80px]">
-                    {{ item.vat ? formattedNumber(item.vat) : "-" }}
-                  </td>
                   <td class="px-3 py-2 text-xs w-[80px]">
                     {{
-                      item.commission ? formattedNumber(item.commission) : "-"
+                      item.relatable_type == "App\\Models\\BookingItemGroup"
+                        ? "-"
+                        : ""
+                    }}{{
+                      item.vat ? formattedNumber(item.vat.toFixed(2)) : "-"
                     }}
                   </td>
                   <td class="px-3 py-2 text-xs w-[80px]">
-                    {{ item.net_vat ? formattedNumber(item.net_vat) : "-" }}
+                    {{
+                      item.commission
+                        ? formattedNumber(item.commission.toFixed(2))
+                        : "-"
+                    }}
+                  </td>
+                  <td class="px-3 py-2 text-xs w-[80px]">
+                    {{
+                      item.net_vat
+                        ? formattedNumber(item.net_vat.toFixed(2))
+                        : "-"
+                    }}
                   </td>
                   <td class="px-3 py-2 text-xs">-</td>
+                  <td class="px-3 py-2 text-xs">
+                    <XCircleIcon class="w-5 h-5 text-gray-300 inline-block" />
+                  </td>
+                  <td class="px-3 py-2 text-xs">
+                    <XCircleIcon class="w-5 h-5 text-gray-300 inline-block" />
+                  </td>
                 </tr>
 
                 <!-- Loading row -->

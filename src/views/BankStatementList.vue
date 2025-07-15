@@ -275,7 +275,20 @@
                         : "-"
                     }}
                   </td>
-                  <td class="px-3 py-2 text-xs">-</td>
+                  <td
+                    class="px-3 py-2 text-xs"
+                    :class="
+                      item?.tax_receipts?.length > 0
+                        ? 'text-blue-500 underline'
+                        : ''
+                    "
+                  >
+                    {{
+                      item?.tax_receipts?.length > 0
+                        ? calculateRealTax(item?.tax_receipts).toFixed(2)
+                        : "-"
+                    }}
+                  </td>
                   <td
                     class="px-3 py-2 text-xs"
                     v-if="
@@ -1106,32 +1119,13 @@ const selectedMonth = ref(currentDate.getMonth() + 1);
 const detailedItems = ref({});
 const loadingDetails = ref({});
 
-const totalVat = computed(() => {
-  if (!cashImages.value) return 0;
-  let total = 0;
-  for (const item of cashImages.value.data) {
-    total += item.vat;
-  }
-  return total;
-});
-
-const totalCommission = computed(() => {
-  if (!cashImages.value) return 0;
-  let total = 0;
-  for (const item of cashImages.value.data) {
-    total += item.commission;
-  }
-  return total;
-});
-
-const totalNetVat = computed(() => {
-  if (!cashImages.value) return 0;
-  let total = 0;
-  for (const item of cashImages.value.data) {
-    total += item.net_vat;
-  }
-  return total.toFixed(2);
-});
+const calculateRealTax = (data) => {
+  let totalTax = 0;
+  data.forEach((item) => {
+    totalTax += item.detail?.total_tax_withold * 1;
+  });
+  return totalTax;
+};
 
 // Method to get detailed data when user expands
 const getDetailAction = async (itemId) => {

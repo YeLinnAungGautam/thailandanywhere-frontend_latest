@@ -276,11 +276,35 @@
                     }}
                   </td>
                   <td class="px-3 py-2 text-xs">-</td>
-                  <td class="px-3 py-2 text-xs">
-                    <XCircleIcon class="w-5 h-5 text-gray-300 inline-block" />
+                  <td
+                    class="px-3 py-2 text-xs"
+                    v-if="
+                      item.relatable_type == 'App\\Models\\BookingItemGroup'
+                    "
+                  >
+                    <CheckBadgeIcon
+                      v-if="item.has_invoice"
+                      class="w-5 h-5 text-green-500 inline-block"
+                    />
+                    <XCircleIcon
+                      v-if="!item.has_invoice"
+                      class="w-5 h-5 text-gray-300 inline-block"
+                    />
                   </td>
+                  <td
+                    v-if="
+                      item.relatable_type != 'App\\Models\\BookingItemGroup'
+                    "
+                  ></td>
                   <td class="px-3 py-2 text-xs">
-                    <XCircleIcon class="w-5 h-5 text-gray-300 inline-block" />
+                    <CheckBadgeIcon
+                      v-if="item?.tax_receipts?.length > 0"
+                      class="w-5 h-5 text-green-500 inline-block"
+                    />
+                    <XCircleIcon
+                      v-if="item?.tax_receipts?.length == 0"
+                      class="w-5 h-5 text-gray-300 inline-block"
+                    />
                   </td>
                 </tr>
 
@@ -306,7 +330,7 @@
                     getRelatableData(item.id)
                   "
                 >
-                  <td colspan="12" class="p-0">
+                  <td colspan="13" class="p-0">
                     <div class="bg-gray-50 pb-4 px-4">
                       <div class="w-full flex justify-end items-center py-2">
                         <div
@@ -1497,6 +1521,7 @@ const formatAmount = (amount) => {
 };
 
 const goToView = async (data) => {
+  console.log(data, "this is data");
   if (data.relatable_type == "App\\Models\\Booking") {
     router.push(`bookings/new-update/${data?.relatable_id}`);
   } else if (data.relatable_type == "App\\Models\\BookingItemGroup") {

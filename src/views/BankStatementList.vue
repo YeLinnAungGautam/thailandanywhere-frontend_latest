@@ -285,9 +285,6 @@
                 <!-- Expanded details row -->
                 <tr
                   v-if="
-                    (item?.relatable_type == 'App\\Models\\Booking' ||
-                      item?.relatable_type ==
-                        'App\\Models\\BookingItemGroup') &&
                     expandedItems[item.id] &&
                     !loadingDetails[item.id] &&
                     getRelatableData(item.id)
@@ -315,7 +312,14 @@
                           </button>
                         </div>
                       </div>
-                      <table class="min-w-full">
+                      <table
+                        class="min-w-full"
+                        v-if="
+                          item?.relatable_type == 'App\\Models\\Booking' ||
+                          item?.relatable_type ==
+                            'App\\Models\\BookingItemGroup'
+                        "
+                      >
                         <!-- Table Header -->
                         <thead class="bg-gray-50">
                           <tr class="bg-[#FF613c] divide-x divide-gray-50">

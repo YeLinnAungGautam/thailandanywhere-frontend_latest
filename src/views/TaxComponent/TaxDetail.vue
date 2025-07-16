@@ -273,12 +273,15 @@ const getComponent = (part) => {
 };
 
 watch(
-  () => route.query.new,
-  (newPart) => {
-    if (newPart == "new") {
+  () => route.query.id,
+  (newPart, oldPart) => {
+    if (newPart != oldPart) {
       part.value = "receipt";
       router.push({
         name: "TaxReceipt",
+        query: {
+          id: newPart,
+        },
       });
     }
   },

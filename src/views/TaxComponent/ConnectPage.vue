@@ -291,7 +291,7 @@ const getList = async () => {
   try {
     let dataFilter = {
       page: 1,
-      limit: 30,
+      per_page: 30,
       sort: "service_date",
       order: "desc",
     };

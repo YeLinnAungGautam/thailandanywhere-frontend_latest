@@ -1,6 +1,11 @@
 <template>
   <div
-    class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+    class="rounded-lg p-4 hover:shadow-md transition-shadow"
+    :class="
+      route.query.id == data?.id
+        ? 'border border-[#FF613c] bg-[#FF613c]/10 '
+        : 'border border-gray-200 bg-white'
+    "
   >
     <div class="flex justify-between items-start mb-2">
       <div class="flex-1">
@@ -59,7 +64,9 @@
 
 <script setup>
 import { defineProps, defineEmits } from "vue";
+import { useRoute } from "vue-router";
 
+const route = useRoute();
 const props = defineProps({
   data: {
     type: Object,

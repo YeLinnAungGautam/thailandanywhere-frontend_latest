@@ -7,74 +7,13 @@
     <div class="space-y-4 relative pt-4 pb-14">
       <div class="">
         <p for="" class="text-[12px] font-medium pb-2">
-          Date <span class="opacity-0">......</span>
-        </p>
-        <div
-          class="flex justify-between items-center w-full bg-white pl-2 rounded-lg"
-        >
-          <p class="text-start text-xs" v-if="formData?.date">
-            {{
-              formData.date.includes("T")
-                ? formatDate(formData.date)
-                : formatDateFromDb(formData.date)
-            }}
-          </p>
-          <!-- {{ formData.date }} -->
-          <input
-            type="datetime-local"
-            name=""
-            v-model="formData.date"
-            format="YYYY-MM-DD HH:mm:ss"
-            class="w-[35px] px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-            id=""
-          />
-        </div>
-      </div>
-
-      <div class="">
-        <p for="" class="text-[12px] font-medium pb-2">Sender</p>
-        <input
-          type="text"
-          v-model="formData.sender"
-          :class="formData.sender.includes('-') ? 'text-gray-400' : ''"
-          name=""
-          placeholder="xxx"
-          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-          id=""
-        />
-      </div>
-      <div class="">
-        <p for="" class="text-[12px] font-medium pb-2">receiver</p>
-        <input
-          type="text"
-          v-model="formData.receiver"
-          :class="formData.receiver.includes('-') ? 'text-gray-400' : ''"
-          name=""
-          placeholder="xxx"
-          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-          id=""
-        />
-      </div>
-      <div class="">
-        <p for="" class="text-[12px] font-medium pb-2">Amount</p>
-        <input
-          type="number"
-          v-model="formData.amount"
-          name=""
-          placeholder="xxx"
-          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-          id=""
-        />
-      </div>
-      <div class="">
-        <p for="" class="text-[12px] font-medium pb-2">
           Interact Bank <span class="opacity-0">.....</span>
         </p>
         <select
           name=""
           v-model="formData.interact_bank"
           id=""
-          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
         >
           <option value="personal">Personal</option>
           <option value="company">Company</option>
@@ -89,12 +28,72 @@
           name=""
           v-model="formData.currency"
           id=""
-          class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+          class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
         >
           <option value="MMK">MMK</option>
           <option value="THB">THB</option>
           <option value="USD">USD</option>
         </select>
+      </div>
+      <div class="">
+        <p for="" class="text-[12px] font-medium pb-2">
+          Date <span class="opacity-0">......</span>
+        </p>
+        <div
+          class="flex justify-between items-center w-full bg-white pl-2 rounded-lg"
+        >
+          <p class="text-start text-sm" v-if="formData?.date">
+            {{
+              formData.date.includes("T")
+                ? formatDate(formData.date)
+                : formatDateFromDb(formData.date)
+            }}
+          </p>
+          <!-- {{ formData.date }} -->
+          <input
+            type="datetime-local"
+            name=""
+            v-model="formData.date"
+            format="YYYY-MM-DD HH:mm:ss"
+            class="w-[35px] px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
+            id=""
+          />
+        </div>
+      </div>
+      <div class="">
+        <p for="" class="text-[12px] font-medium pb-2">Sender</p>
+        <input
+          type="text"
+          v-model="formData.sender"
+          :class="formData.sender.includes('-') ? 'text-gray-400' : ''"
+          name=""
+          placeholder="xxx"
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
+          id=""
+        />
+      </div>
+      <div class="">
+        <p for="" class="text-[12px] font-medium pb-2">Receiver</p>
+        <input
+          type="text"
+          v-model="formData.receiver"
+          :class="formData.receiver.includes('-') ? 'text-gray-400' : ''"
+          name=""
+          placeholder="xxx"
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
+          id=""
+        />
+      </div>
+      <div class="">
+        <p for="" class="text-[12px] font-medium pb-2">Amount</p>
+        <input
+          type="text"
+          v-model="displayValue"
+          name=""
+          placeholder="1,000"
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
+          @input="handleInput"
+        />
       </div>
 
       <div
@@ -116,6 +115,7 @@
 import { defineProps, ref, onMounted } from "vue";
 import { useToast } from "vue-toastification";
 import { useCashImageStore } from "../stores/cashImage";
+import { formattedNumber } from "./help/FormatData";
 
 const props = defineProps({
   updateData: Object,
@@ -141,6 +141,26 @@ const formData = ref({
   table_source: "",
   file: "",
 });
+
+const displayValue = ref("");
+
+const handleInput = (event) => {
+  let value = event.target.value.replace(/,/g, "");
+
+  // Update the actual numeric value
+  formData.value.amount = value ? Number(value) : null;
+
+  // Format the display value
+  if (value && !isNaN(value)) {
+    displayValue.value = Number(value).toLocaleString();
+  } else {
+    displayValue.value = value;
+  }
+};
+
+const changeFormat = (amount) => {
+  return formattedNumber(amount);
+};
 
 const formatDate = (dateString) => {
   // Parse the input string into a Date object
@@ -314,6 +334,7 @@ onMounted(() => {
     formData.value.interact_bank = props.updateData.interact_bank ?? "personal";
     formData.value.currency = props.updateData.currency;
     formData.value.amount = props.updateData.amount;
+    displayValue.value = changeFormat(props.updateData.amount);
     formData.value.table_source = props.updateData.table_source;
     formData.value.file = props.updateData.file;
   }

@@ -181,6 +181,9 @@
                 Time/ Eff.Date
               </th>
               <th class="text-xs text-center font-medium py-3 w-[80px]">
+                Currency
+              </th>
+              <th class="text-xs text-center font-medium py-3 w-[80px]">
                 Withdrawal
               </th>
               <th class="text-xs text-center font-medium py-3 w-[80px]">
@@ -218,6 +221,9 @@
                   </td>
                   <td class="px-3 py-2 text-xs text-center">
                     {{ formatTime(item.time) }}
+                  </td>
+                  <td class="px-3 py-2 text-xs text-center">
+                    {{ item.currency }}
                   </td>
                   <td
                     class="px-3 py-2 text-xs text-end"
@@ -323,7 +329,7 @@
 
                 <!-- Loading row -->
                 <tr v-if="loadingDetails[item?.id]">
-                  <td colspan="12" class="px-3 py-4 text-center">
+                  <td colspan="14" class="px-3 py-4 text-center">
                     <div class="flex justify-center items-center">
                       <div
                         class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#FF613c]"
@@ -343,7 +349,7 @@
                     getRelatableData(item.id)
                   "
                 >
-                  <td colspan="13" class="p-0">
+                  <td colspan="14" class="p-0">
                     <div class="bg-gray-50 pb-4 px-4">
                       <div class="w-full flex justify-end items-center py-2">
                         <div
@@ -436,12 +442,20 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
                               <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{ getRelatableData(item.id)?.grand_total }}
+                                {{
+                                  formattedNumber(
+                                    getRelatableData(item.id)?.grand_total
+                                  )
+                                }}
                               </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
                               <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{ getRelatableData(item.id)?.output_vat }}
+                                {{
+                                  formattedNumber(
+                                    getRelatableData(item.id)?.output_vat
+                                  )
+                                }}
                               </span>
                             </td>
                             <td
@@ -492,7 +506,12 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
                               <span class="text-xs font-mono px-2 py-1 rounded">
-                                - {{ getRelatableData(item.id)?.commission }}
+                                -
+                                {{
+                                  formattedNumber(
+                                    getRelatableData(item.id)?.commission
+                                  )
+                                }}
                               </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
@@ -535,21 +554,25 @@
                             <td class="px-6 py-4 whitespace-nowrap text-end">
                               <span class="text-xs font-mono px-2 py-1 rounded">
                                 {{
-                                  getRelatableData(item.id)?.grand_total -
-                                  getRelatableData(item.id)?.commission
+                                  formattedNumber(
+                                    getRelatableData(item.id)?.grand_total -
+                                      getRelatableData(item.id)?.commission
+                                  )
                                 }}
                               </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
                               <span class="text-xs font-mono px-2 py-1 rounded">
                                 {{
-                                  (
-                                    getRelatableData(item.id)?.grand_total -
-                                    getRelatableData(item.id)?.commission -
-                                    (getRelatableData(item.id)?.grand_total -
-                                      getRelatableData(item.id)?.commission) /
-                                      1.07
-                                  ).toFixed(2)
+                                  formattedNumber(
+                                    (
+                                      getRelatableData(item.id)?.grand_total -
+                                      getRelatableData(item.id)?.commission -
+                                      (getRelatableData(item.id)?.grand_total -
+                                        getRelatableData(item.id)?.commission) /
+                                        1.07
+                                    ).toFixed(2)
+                                  )
                                 }}
                               </span>
                             </td>
@@ -601,16 +624,18 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
                               <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{ totalCost(v.items) }}
+                                {{ formattedNumber(totalCost(v.items)) }}
                               </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
                               <span class="text-xs font-mono px-2 py-1 rounded">
                                 {{
-                                  (
-                                    totalCost(v.items) -
-                                    totalCost(v.items) / 1.07
-                                  ).toFixed(2)
+                                  formattedNumber(
+                                    (
+                                      totalCost(v.items) -
+                                      totalCost(v.items) / 1.07
+                                    ).toFixed(2)
+                                  )
                                 }}
                               </span>
                             </td>
@@ -684,20 +709,25 @@
                             <td class="px-6 py-4 whitespace-nowrap text-end">
                               <span class="text-xs font-mono px-2 py-1 rounded">
                                 {{
-                                  calculateGrandVat(
-                                    getRelatableData(item.id)?.items,
-                                    getRelatableData(item.id)?.grand_total
-                                  ) - getRelatableData(item.id)?.commission
+                                  formattedNumber(
+                                    calculateGrandVat(
+                                      getRelatableData(item.id)?.items,
+                                      getRelatableData(item.id)?.grand_total
+                                    ) - getRelatableData(item.id)?.commission
+                                  )
                                 }}
                               </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
                               <span class="text-xs font-mono px-2 py-1 rounded">
                                 {{
-                                  (
-                                    getRelatableData(item.id)?.commission -
-                                    getRelatableData(item.id)?.commission / 1.07
-                                  ).toFixed(2)
+                                  formattedNumber(
+                                    (
+                                      getRelatableData(item.id)?.commission -
+                                      getRelatableData(item.id)?.commission /
+                                        1.07
+                                    ).toFixed(2)
+                                  )
                                 }}
                               </span>
                             </td>
@@ -725,28 +755,60 @@
                           "
                           class="bg-white divide-y divide-gray-200"
                         >
-                          <tr v-for="v in getExpenseItems(item.id)" :key="v.id">
-                            <td class="px-6 py-4 whitespace-nowrap text-start">
+                          <!-- {{
+                            getExpenseItems(item.id)
+                          }} -->
+                          <tr>
+                            <td
+                              class="px-6 py-4 w-[200px] whitespace-nowrap text-start"
+                            >
                               <div
-                                class="text-xs font-mono bg-gray-100 px-3 py-1 rounded-md"
+                                class="text-xs flex justify-start items-center flex-wrap gap-2 font-mono rounded-md"
                               >
-                                {{ v.crm_id }}
+                                <span
+                                  class="text-xs font-mono px-2 py-1 bg-gray-200 rounded"
+                                  v-for="a in getExpenseItems(item.id)?.items"
+                                  :key="a.id"
+                                >
+                                  {{ a?.crm_id.split("_")[1] }}
+                                </span>
                               </div>
                             </td>
 
                             <td class="px-6 py-4 whitespace-nowrap text-end">
                               <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{ v.product?.name }}
+                                {{
+                                  getExpenseItems(item.id)?.items[0]?.product
+                                    ?.name
+                                }}
                               </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
                               <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{ v.total_cost_price }}
+                                {{
+                                  formattedNumber(
+                                    getExpenseItems(item.id)?.items.reduce(
+                                      (total, a) => {
+                                        return total + a.total_cost_price;
+                                      },
+                                      0
+                                    )
+                                  )
+                                }}
                               </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
                               <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{ v.output_vat }}
+                                {{
+                                  formattedNumber(
+                                    getExpenseItems(item.id)?.items.reduce(
+                                      (total, a) => {
+                                        return total + a.output_vat;
+                                      },
+                                      0
+                                    )
+                                  )
+                                }}
                               </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
@@ -756,18 +818,32 @@
                                   viewReceipt(detailedItems[item.id]?.image)
                                 "
                               >
-                                <!-- {{ detailedItems[item.id]?.image }} -->
                                 slip
                               </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded">
-                                -
+                              <span
+                                class="text-xs text-blue-500 underline font-mono px-2 py-1 rounded"
+                                @click="
+                                  showTax(
+                                    getRelatableData(item.id)
+                                      ?.booking_confirm_letter
+                                  )
+                                "
+                              >
+                                Invoice
                               </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded">
-                                -
+                              <span
+                                class="text-xs text-blue-500 underline font-mono px-2 py-1 rounded"
+                                @click="
+                                  showCredit(
+                                    getRelatableData(item.id)?.tax_credit
+                                  )
+                                "
+                              >
+                                credit
                               </span>
                             </td>
                           </tr>
@@ -1045,6 +1121,130 @@
             <button
               @click="next2Item"
               :disabled="currentIndex2 === taxData.length - 1"
+              class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+            >
+              Next &gt;
+            </button>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+    <Modal :isOpen="IsCredit" @closeModal="showCreditOff">
+      <DialogPanel
+        class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white/95 backdrop-blur-md text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-3 px-4 rounded-t-xl"
+        >
+          <span class="uppercase">Credit Receipt</span>
+        </DialogTitle>
+
+        <div class="p-4">
+          <div v-if="creditData.length > 0" class="grid grid-cols-2 gap-4">
+            <!-- Left column for image -->
+            <div
+              class="flex items-center justify-center bg-gray-100 rounded-lg"
+            >
+              <img
+                :src="creditData[currentIndex2].receipt_image"
+                alt="Receipt image"
+                class="object-cover h-full w-full"
+                v-if="creditData[currentIndex2].receipt_image"
+              />
+              <div v-else class="text-gray-500 p-4">No image available</div>
+            </div>
+
+            <!-- Right column for data -->
+            <div class="space-y-3">
+              <div class="pb-4 px-3">
+                <h3 class="font-semibold text-gray-700 mb-4">Details</h3>
+
+                <div class="space-y-3 text-sm">
+                  <div class="space-y-2">
+                    <p class="">Company Legal Name:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.company_legal_name }}
+                    </p>
+                  </div>
+
+                  <div class="space-y-2">
+                    <p class="">Invoice Number:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.invoice_number }}
+                    </p>
+                  </div>
+
+                  <div class="space-y-2">
+                    <p class="">Product Name:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.product?.name }}
+                    </p>
+                  </div>
+
+                  <div class="space-y-2">
+                    <p class="">Receipt Date:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.receipt_date }}
+                    </p>
+                  </div>
+
+                  <div class="space-y-2">
+                    <p class="">Service Start Date:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.service_start_date }}
+                    </p>
+                  </div>
+
+                  <div class="space-y-2">
+                    <p class="">Service End Date:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.service_end_date }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p class="">Total Before Tax:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.total_tax_amount }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p class="">Total Tax Withheld:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.total_tax_withold }}
+                    </p>
+                  </div>
+                  <div class="space-y-2">
+                    <p class="">Total After Tax:</p>
+                    <p class="text-base font-medium">
+                      {{ creditData[currentIndex2]?.total_after_tax }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination controls -->
+          <div
+            v-if="creditData.length > 1"
+            class="flex justify-between items-center mt-4"
+          >
+            <button
+              @click="prev2Item"
+              :disabled="currentIndex2 === 0"
+              class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+            >
+              &lt; Previous
+            </button>
+
+            <span class="text-sm">
+              {{ currentIndex2 + 1 }} of {{ creditData.length }}
+            </span>
+
+            <button
+              @click="next2Item"
+              :disabled="currentIndex2 === creditData.length - 1"
               class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
             >
               Next &gt;
@@ -1392,9 +1592,9 @@ const getGroupedItems = (itemId) => {
 
 const getExpenseItems = (itemId) => {
   const detailedItem = detailedItems.value[itemId];
-  console.log(detailedItem, "this is expense item");
+  console.log(detailedItem.relatable, "this is expense item");
 
-  return detailedItem ? detailedItem.relatable?.items : [];
+  return detailedItem ? detailedItem.relatable : [];
 };
 
 // Your existing functions...
@@ -1608,6 +1808,8 @@ const prev2Item = () => {
 };
 const IsShow = ref(false);
 const IsTaxShow = ref(false);
+const IsCredit = ref(false);
+const creditData = ref([]);
 const show = (data) => {
   console.log("====================================");
   console.log(data);
@@ -1621,6 +1823,18 @@ const showTax = (data) => {
   taxData.value = data;
   IsTaxShow.value = true;
   console.log("====================================");
+};
+const showCredit = (data) => {
+  console.log("====================================");
+  console.log(data);
+  creditData.value = data;
+  IsCredit.value = true;
+  console.log("====================================");
+};
+const showCreditOff = () => {
+  IsCredit.value = false;
+  creditData.value = [];
+  currentIndex2.value = 0;
 };
 
 const getGroupDocument = async (id) => {

@@ -414,6 +414,21 @@ const closeAction = () => {
   openShowModal.value = false;
 };
 
+watch(
+  () => paymentForm.value.interact_bank,
+  (newValue, oldValue) => {
+    if (newValue == "company") {
+      paymentForm.value.reciever = "TH ANYWHERE CO.,LTD";
+    }
+    if (newValue == "personal") {
+      paymentForm.value.reciever = "MR. THIHA@KUMAR BHUSAL";
+    }
+    if (newValue == "cash_at_office") {
+      paymentForm.value.reciever = "Cash at Office";
+    }
+  }
+);
+
 const openFileFeaturePicker = () => {
   featureImageInput.value.click();
 };
@@ -2135,12 +2150,42 @@ onMounted(async () => {
             <div class="space-y-4 relative pt-4 pb-14 pr-2">
               <div class="">
                 <p for="" class="text-[12px] font-medium pb-2">
+                  Interact Bank <span class="opacity-0">.....</span>
+                </p>
+                <select
+                  name=""
+                  v-model="paymentForm.interact_bank"
+                  id=""
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
+                >
+                  <option value="personal">Personal</option>
+                  <option value="company">Company</option>
+                  <option value="cash_at_office">Cash at Office</option>
+                  <option value="to_money_changer">To Money Changer</option>
+                  <option value="deposit_management">Deposit Management</option>
+                </select>
+              </div>
+              <div class="">
+                <p class="text-[12px] pb-2 font-medium">Currency</p>
+                <select
+                  name=""
+                  v-model="paymentForm.currency"
+                  id=""
+                  class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
+                >
+                  <option value="MMK">MMK</option>
+                  <option value="THB">THB</option>
+                  <option value="USD">USD</option>
+                </select>
+              </div>
+              <div class="">
+                <p for="" class="text-[12px] font-medium pb-2">
                   Date <span class="opacity-0">......</span>
                 </p>
                 <div
                   class="flex justify-between items-center w-full bg-white pl-2 rounded-lg"
                 >
-                  <p class="text-start text-xs" v-if="paymentForm?.date">
+                  <p class="text-start text-sm" v-if="paymentForm?.date">
                     {{
                       paymentForm.date.includes("T")
                         ? formatDate(paymentForm.date)
@@ -2152,7 +2197,7 @@ onMounted(async () => {
                     name=""
                     v-model="paymentForm.date"
                     format="YYYY-MM-DD HH:mm:ss"
-                    class="w-[35px] px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                    class="w-[35px] px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
                     id=""
                   />
                 </div>
@@ -2168,7 +2213,7 @@ onMounted(async () => {
                   "
                   name=""
                   placeholder="xxx"
-                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
                   id=""
                 />
               </div>
@@ -2182,7 +2227,7 @@ onMounted(async () => {
                   "
                   name=""
                   placeholder="xxx"
-                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
                   id=""
                 />
               </div>
@@ -2193,40 +2238,11 @@ onMounted(async () => {
                   v-model="paymentForm.amount"
                   name=""
                   placeholder="xxx"
-                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
                   id=""
                 />
               </div>
-              <div class="">
-                <p for="" class="text-[12px] font-medium pb-2">
-                  Interact Bank <span class="opacity-0">.....</span>
-                </p>
-                <select
-                  name=""
-                  v-model="paymentForm.interact_bank"
-                  id=""
-                  class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                >
-                  <option value="personal">Personal</option>
-                  <option value="company">Company</option>
-                  <option value="cash_at_office">Cash at Office</option>
-                  <option value="to_money_changer">To Money Changer</option>
-                  <option value="deposit_management">Deposit Management</option>
-                </select>
-              </div>
-              <div class="">
-                <p class="text-[12px] pb-2 font-medium">Currency</p>
-                <select
-                  name=""
-                  v-model="paymentForm.currency"
-                  id=""
-                  class="w-[160px] px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                >
-                  <option value="MMK">MMK</option>
-                  <option value="THB">THB</option>
-                  <option value="USD">USD</option>
-                </select>
-              </div>
+
               <div
                 class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
               >

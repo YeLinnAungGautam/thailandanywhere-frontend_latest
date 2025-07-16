@@ -57,23 +57,32 @@
                 }"
               >
                 <!-- Group Header with Checkbox -->
-                <div class="flex justify-start items-center space-x-2 mb-3">
-                  <input
-                    type="checkbox"
-                    :id="'group-' + group.id"
-                    v-model="selectedGroups"
-                    :value="group.id"
-                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label
-                    :for="'group-' + group.id"
-                    class="font-medium text-sm cursor-pointer"
-                  >
-                    {{ group?.booking_crm_id }}
-                  </label>
-                  <span class="text-xs text-gray-500">
-                    (Group ID: {{ group.id }})
-                  </span>
+                <div class="flex justify-between items-center mb-3">
+                  <div class="flex justify-start items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      :id="'group-' + group.id"
+                      v-model="selectedGroups"
+                      :value="group.id"
+                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label
+                      :for="'group-' + group.id"
+                      class="font-medium text-sm cursor-pointer"
+                    >
+                      {{ group?.booking_crm_id }}
+                    </label>
+                    <span class="text-xs text-gray-500">
+                      (Group ID: {{ group.id }})
+                    </span>
+                  </div>
+                  <div class="cursor-pointer" @click="goToGroup(group)">
+                    <p>
+                      <ArrowTopRightOnSquareIcon
+                        class="h-4 w-4 text-gray-500"
+                      />
+                    </p>
+                  </div>
                 </div>
 
                 <!-- Group Items -->
@@ -229,7 +238,10 @@ import { useRoute, useRouter } from "vue-router";
 import { useTaxReceiptStore } from "../../stores/taxReceipt";
 import { changeFormat } from "../help/FormatData";
 import { daysBetween } from "../help/DateBetween";
-import { CheckBadgeIcon } from "@heroicons/vue/24/outline";
+import {
+  ArrowTopRightOnSquareIcon,
+  CheckBadgeIcon,
+} from "@heroicons/vue/24/outline";
 import { useGroupStore } from "../../stores/group";
 import { watch } from "vue";
 
@@ -340,6 +352,18 @@ const fetchGroupTaxDetails = async (groupId) => {
     groupTaxDetails[groupId] = [];
   } finally {
     loadingGroups[groupId] = false;
+  }
+};
+
+const goToGroup = (data) => {
+  console.log(data, "this is data");
+
+  if (data.product_type == "EntranceTicket") {
+    // router.push(`/group-attraction?id=${data?.id}`);
+    window.open(`/group-attraction?id=${data?.id}`, "_blank");
+  } else if (data.product_type == "Hotel") {
+    // router.push(`/group-hotel?id=${data?.id}`);
+    window.open(`/group-hotel?id=${data?.id}`, "_blank");
   }
 };
 

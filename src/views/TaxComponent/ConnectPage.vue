@@ -8,9 +8,11 @@
       <p class="text-red-500 text-sm">Please select a tax to connect.</p>
     </div>
     <div v-if="route.query.id" class="w-full h-auto pt-4">
-      <p class="text-blue-500 text-sm">
-        Connect tax receipt from: {{ data?.company_legal_name }}
-      </p>
+      <div class="gird grid-cols-2 gap-x-3">
+        <p class="text-blue-500 text-sm">
+          Connect tax receipt from: {{ data?.company_legal_name }}
+        </p>
+      </div>
       <div
         v-if="loading"
         class="w-full h-[500px] flex items-center justify-center"
@@ -208,6 +210,34 @@
         <div>
           <div class="p-4 border rounded-lg">
             <p class="text-xs font-semibold mb-4">Tax Receipt Details</p>
+            <div class="grid grid-cols-2 gap-x-2 border-b border-gray-500 pb-4">
+              <div>
+                <p class="text-[#FF613c] font-semibold text-xs">From Invoice</p>
+                <p class="pt-3 text-xs font-medium pb-2">
+                  Tax Before: {{ selectedGroupTotalTaxAmount.toFixed(2) }}
+                </p>
+                <p class="text-xs font-medium pb-2">
+                  Tax Withold: {{ selectedGroupTotalTaxWithhold.toFixed(2) }}
+                </p>
+                <p class="text-xs font-medium pb-2">
+                  Tax After: {{ selectedGroupTotalAfterTax.toFixed(2) }}
+                </p>
+              </div>
+              <div>
+                <p class="text-[#FF613c] font-semibold text-xs text-end">
+                  From Tax Credit
+                </p>
+                <p class="pt-3 text-xs font-medium pb-2 text-end">
+                  Tax Before: {{ formatCurrency(data?.total_tax_amount) }}
+                </p>
+                <p class="text-xs font-medium pb-2 text-end">
+                  Tax Withold: {{ formatCurrency(data?.total_tax_withold) }}
+                </p>
+                <p class="text-xs font-medium pb-2 text-end">
+                  Tax After: {{ formatCurrency(data?.total_after_tax) }}
+                </p>
+              </div>
+            </div>
             <div class="">
               <img
                 :src="data?.receipt_image"
@@ -215,16 +245,6 @@
                 alt="Tax Receipt"
               />
             </div>
-
-            <p class="pt-3 text-xs font-medium pb-2 text-end">
-              Tax Before: {{ formatCurrency(data?.total_tax_amount) }}
-            </p>
-            <p class="text-xs font-medium pb-2 text-end">
-              Tax Withold: {{ formatCurrency(data?.total_tax_withold) }}
-            </p>
-            <p class="text-xs font-medium pb-2 text-end">
-              Tax After: {{ formatCurrency(data?.total_after_tax) }}
-            </p>
           </div>
         </div>
       </div>
@@ -233,7 +253,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useTaxReceiptStore } from "../../stores/taxReceipt";
 import { changeFormat } from "../help/FormatData";
@@ -377,6 +397,51 @@ const getAllGroupIds = () => {
   }
   return groupIds;
 };
+
+const selectedGroupTotalAfterTax = computed(() => {
+  let total = 0;
+  if (selectedGroups.value && selectedGroups.value.length > 0) {
+    selectedGroups.value.forEach((groupId) => {
+      const taxDetails = groupTaxDetails[groupId];
+      if (taxDetails && taxDetails.length > 0) {
+        taxDetails.forEach((invoice) => {
+          total += invoice?.meta?.total_after_tax * 1 || 0;
+        });
+      }
+    });
+  }
+  return total;
+});
+
+const selectedGroupTotalTaxAmount = computed(() => {
+  let total = 0;
+  if (selectedGroups.value && selectedGroups.value.length > 0) {
+    selectedGroups.value.forEach((groupId) => {
+      const taxDetails = groupTaxDetails[groupId];
+      if (taxDetails && taxDetails.length > 0) {
+        taxDetails.forEach((invoice) => {
+          total += invoice?.meta?.total_tax_amount * 1 || 0;
+        });
+      }
+    });
+  }
+  return total;
+});
+
+const selectedGroupTotalTaxWithhold = computed(() => {
+  let total = 0;
+  if (selectedGroups.value && selectedGroups.value.length > 0) {
+    selectedGroups.value.forEach((groupId) => {
+      const taxDetails = groupTaxDetails[groupId];
+      if (taxDetails && taxDetails.length > 0) {
+        taxDetails.forEach((invoice) => {
+          total += invoice?.meta?.total_tax_withold * 1 || 0;
+        });
+      }
+    });
+  }
+  return total;
+});
 
 // FIXED: Select all groups
 const selectAll = () => {

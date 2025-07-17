@@ -309,7 +309,7 @@ const onSubmitHandler = async () => {
       frmData,
       route.params.id
     );
-    if (response.status) {
+    if (response.status == 1) {
       const secfrm = new FormData();
       secfrm.append("_method", "PUT");
       if (secForm.value.customer_feedback) {

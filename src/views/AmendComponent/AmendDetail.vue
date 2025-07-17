@@ -118,7 +118,7 @@ const deleteAction = async () => {
       console.log("====================================");
       console.log(res, "this is delete");
       console.log("====================================");
-      if (res.status == "Request was successful.") {
+      if (res.status == 1) {
         toast.success("Delete successfully");
         router.push({
           name: "amend",

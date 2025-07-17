@@ -790,9 +790,7 @@ const saveAllAssignments = async () => {
 
     // Count successes
     const successCount = results.filter(
-      (res) =>
-        res.status === "fulfilled" &&
-        res.value?.status === "Request was successful."
+      (res) => res.status === "fulfilled" && res.value?.status == 1
     ).length;
 
     if (successCount === selectedItems.value.length) {

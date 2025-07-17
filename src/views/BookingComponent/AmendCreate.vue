@@ -596,7 +596,7 @@ const amendRequestCreate = () => {
         frmData.append("changes", JSON.stringify(changes));
 
         const res = await amendStore.addNewAction(frmData);
-        if (res.status == "Request was successful.") {
+        if (res.status == 1) {
           toast.success("Amend request created successfully.");
           props.amendCloseAction();
         } else {
@@ -635,7 +635,7 @@ const amendRequestDelete = () => {
         frmData.append("changes", JSON.stringify(changes));
 
         const res = await amendStore.addNewAction(frmData);
-        if (res.status == "Request was successful.") {
+        if (res.status == 1) {
           toast.success("Amend request created successfully.");
           props.amendCloseAction();
         } else {

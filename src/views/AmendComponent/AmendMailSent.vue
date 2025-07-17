@@ -386,7 +386,7 @@ const sendEmailFunction = async () => {
         );
         console.log(res, "this is email res");
 
-        if (res?.status == "Request was successful.") {
+        if (res?.status == 1) {
           emailLoading.value = false;
           emailData.value = {
             mail_subject: "",

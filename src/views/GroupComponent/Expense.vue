@@ -947,7 +947,7 @@ const expenseUpdateAction = async () => {
         const response = await reservationStore.updateAction(frmData, itemId);
 
         // If first update was successful, send second update
-        if (response.status) {
+        if (response.status == 1) {
           const secfrm = new FormData();
           secfrm.append("_method", "PUT");
 
@@ -1030,7 +1030,7 @@ const payment_status = [
 const removeFeatureDeleteImage = async (index, id) => {
   const res = await cashImageStore.deleteAction(expenseData.value.id);
   console.log(res, "this is res");
-  if (res.status == "Request was successful.") {
+  if (res.status == 1) {
     toast.success("Passport successfully deleted");
     cancelAction();
     await props.getDetailAction(route.query.id);

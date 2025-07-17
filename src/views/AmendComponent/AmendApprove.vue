@@ -113,7 +113,7 @@ const submitRejection = async () => {
 
     const res = await amendStore.rejectAction(props.detail?.id, frmData);
 
-    if (res.status == "Request was successful.") {
+    if (res.status == 1) {
       toast.success("Amend Request Updated Successfully");
       props.getDetailAction(route.query.id);
     }

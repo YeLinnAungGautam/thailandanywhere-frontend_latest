@@ -214,7 +214,7 @@ const addMemberAction = async () => {
 
   const res = await adminStore.assignSaleManager(frmData);
   console.log(res, "this is res");
-  if (res.status == "Request was successful.") {
+  if (res.status == 1) {
     toast.success(res.message);
     adminModalOpen.value = false;
     await adminStore.getListAction();

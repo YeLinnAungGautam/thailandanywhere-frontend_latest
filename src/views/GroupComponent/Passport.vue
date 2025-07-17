@@ -242,7 +242,7 @@ const addNewAction = async () => {
   );
   console.log(res, "this is res");
 
-  if (res.status == "Request was successful.") {
+  if (res.status == 1) {
     toast.success("Passport successfully added");
     cancelAction();
     await getListAction();
@@ -275,7 +275,7 @@ const updateAction = async () => {
   );
   console.log(res, "this is res");
 
-  if (res.status == "Request was successful.") {
+  if (res.status == 1) {
     toast.success("Passport successfully added");
     cancelAction();
     await getListAction();
@@ -288,7 +288,7 @@ const removeFeatureDeleteImage = async () => {
     formData.value.id
   );
   console.log(res, "this is res");
-  if (res.status == "Request was successful.") {
+  if (res.status == 1) {
     toast.success("Passport successfully deleted");
     cancelAction();
     await getListAction();

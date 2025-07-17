@@ -16,6 +16,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import OverView from "./BookingComponent/Vantour.vue";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
+import CashImageModal from "./BookingComponent/CashImageBooking.vue";
 import { Switch } from "@headlessui/vue";
 import Modal from "../components/Modal.vue";
 import Swal from "sweetalert2";
@@ -410,6 +411,7 @@ const closeAction = () => {
     currency: "THB",
     is_corporate: false,
     comment: "",
+    cash_image_attachments: [],
   };
   openShowModal.value = false;
 };
@@ -1126,7 +1128,7 @@ const processSubmission = async () => {
         route.params.id
       );
       console.log(response, "create response");
-      if (response.status == "Request was successful.") {
+      if (response.status == 1) {
         formData.value = {
           customer_id: "",
           sold_from: "",
@@ -1349,6 +1351,12 @@ const processReceipt = (receipt) => {
   return {
     id: receipt.id,
     image: receipt.image,
+    amount: receipt.amount,
+    date: receipt.date,
+    receiver: receipt.receiver,
+    sender: receipt.sender,
+    currency: receipt.currency,
+    interact_bank: receipt.interact_bank,
   };
 };
 
@@ -1428,11 +1436,53 @@ const openPaid = () => {
 };
 
 const deleteImage = async (id) => {
-  updatingLoading.value = true;
-  await cashImageStore.deleteAction(id);
-  toast.success("success delete sale Image");
-  window.location.reload();
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        updatingLoading.value = true;
+        await cashImageStore.deleteAction(id);
+        toast.success("success delete sale Image");
+      } catch (error) {
+        toast.error(error.response.data.message);
+      } finally {
+        window.location.reload();
+      }
+    }
+  });
+
   // await getDetail();
+};
+
+const updateModalOpen = ref(false);
+const updateData = ref(null);
+
+// Your existing data
+const cashImages = ref([]);
+
+// Methods
+const updateCashImage = (image) => {
+  updateData.value = image;
+  updateModalOpen.value = true;
+};
+
+const closeCashModal = () => {
+  updateModalOpen.value = false;
+  updateData.value = null;
+};
+
+const onChangeUpdate = () => {
+  // Handle update completion
+  console.log("Cash image updated successfully");
+  // Refresh your cash images list if needed
+  // await fetchCashImages();
 };
 
 // add user to this sale
@@ -1911,6 +1961,10 @@ onMounted(async () => {
             <button
               class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
             >
+              <PencilSquareIcon
+                class="w-8 h-8 text-blue-600 font-semibold"
+                @click="updateCashImage(image)"
+              />
               <XCircleIcon
                 class="w-8 h-8 font-semibold"
                 v-if="authStore.isSuperAdmin"
@@ -2083,6 +2137,12 @@ onMounted(async () => {
         </div>
       </DialogPanel>
     </Modal>
+    <CashImageModal
+      :updateModalOpen="updateModalOpen"
+      :updateData="updateData"
+      @closeModal="closeCashModal"
+      @update="onChangeUpdate"
+    />
     <Modal :isOpen="openPrintModal" @closeModal="openPrintModal = false">
       <DialogPanel
         class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"

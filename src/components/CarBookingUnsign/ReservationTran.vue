@@ -199,7 +199,7 @@ const onSubmitHandler = async () => {
     const res = await reservationTransactionStore.addNewAction(frmData);
     await getList();
     console.log(res, "this is submit");
-    if ((res.status = "Request was successful.")) {
+    if ((res.status = 1)) {
       toast.success(res.message);
       errors.value = null;
       emit("change", "updated");

@@ -599,7 +599,7 @@
                             :key="v.group_id"
                           >
                             <td class="px-6 py-4 whitespace-nowrap text-start">
-                              <div class="text-xs font-mono">
+                              <div class="text-xs font-mono flex flex-wrap">
                                 <span
                                   @click="goToGroup(v)"
                                   class="text-gray-900 bg-blue-100 px-2 mr-2 py-1 rounded cursor-pointer"
@@ -684,9 +684,21 @@
                               </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded"
-                                >-</span
+                              <span
+                                :class="
+                                  v.related_credit.length > 0
+                                    ? ''
+                                    : 'text-red-600 font-medium'
+                                "
+                                class="text-xs text-blue-500 underline font-mono px-2 py-1 rounded"
+                                @click="showCredit(v.related_credit)"
                               >
+                                {{
+                                  v.related_credit.length > 0
+                                    ? "Credit (" + v.related_credit.length + ")"
+                                    : "missing"
+                                }}
+                              </span>
                             </td>
                           </tr>
 
@@ -823,7 +835,13 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
                               <span
-                                class="text-xs text-blue-500 underline font-mono px-2 py-1 rounded"
+                                :class="
+                                  getRelatableData(item.id)
+                                    ?.booking_confirm_letter.length > 0
+                                    ? 'text-blue-500 underline'
+                                    : 'text-red-500'
+                                "
+                                class="text-xs font-mono px-2 py-1 rounded"
                                 @click="
                                   showTax(
                                     getRelatableData(item.id)
@@ -831,19 +849,35 @@
                                   )
                                 "
                               >
-                                Invoice
+                                {{
+                                  getRelatableData(item.id)
+                                    ?.booking_confirm_letter.length > 0
+                                    ? "tax"
+                                    : "missing"
+                                }}
                               </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
                               <span
-                                class="text-xs text-blue-500 underline font-mono px-2 py-1 rounded"
+                                :class="
+                                  getRelatableData(item.id)?.tax_credit.length >
+                                  0
+                                    ? 'text-blue-500 underline'
+                                    : 'text-red-500'
+                                "
+                                class="text-xs font-mono px-2 py-1 rounded"
                                 @click="
                                   showCredit(
                                     getRelatableData(item.id)?.tax_credit
                                   )
                                 "
                               >
-                                credit
+                                {{
+                                  getRelatableData(item.id)?.tax_credit.length >
+                                  0
+                                    ? "credit"
+                                    : "missing"
+                                }}
                               </span>
                             </td>
                           </tr>
@@ -923,7 +957,13 @@
               class="flex items-center justify-center bg-gray-100 rounded-lg"
             >
               <img
-                :src="showData[currentIndex].image"
+                :src="
+                  showData[currentIndex].image.includes(
+                    'https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images'
+                  )
+                    ? showData[currentIndex].image
+                    : `https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${showData[currentIndex].image}`
+                "
                 alt="Receipt image"
                 class="object-cover h-full w-full"
                 v-if="showData[currentIndex].image"
@@ -1339,8 +1379,10 @@ const getDetailAction = async (itemId) => {
 
   try {
     const response = await cashImageStore.getDetailAction(itemId);
-    if (response.status == "Request was successful.") {
+    if (response.status == 1) {
       detailedItems.value[itemId] = response.result;
+      console.log(response.result, "this is response");
+
       return response.result;
     } else {
       toast.error("Failed to load details");

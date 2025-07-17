@@ -651,7 +651,7 @@ const submitForm = async () => {
         route.query.id
       );
 
-      if (res.status == "Request was successful.") {
+      if (res.status == 1) {
         toast.success("Tax receipt updated successfully!");
         await taxReceiptStore.getListAction(); // Refresh list
       }
@@ -663,7 +663,7 @@ const submitForm = async () => {
       const res = await taxReceiptStore.addNewAction(submitData);
       console.log(res);
 
-      if (res.status == "Request was successful.") {
+      if (res.status == 1) {
         toast.success("Tax receipt created successfully!");
         createNewTax();
         await taxReceiptStore.getListAction(); // Refresh list

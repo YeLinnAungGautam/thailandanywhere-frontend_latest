@@ -1045,7 +1045,7 @@ const processSubmission = async () => {
     try {
       const response = await bookingStore.addNewAction(frmData);
       console.log(response, "create response");
-      if (response.status == "Request was successful.") {
+      if (response.status == 1) {
         formData.value = {
           customer_id: "",
           transfer_code: "",

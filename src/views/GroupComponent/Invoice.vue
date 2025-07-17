@@ -840,7 +840,7 @@ const createNewInvoice = async () => {
 
     console.log(response, "this is res");
 
-    if (response?.status === "Request was successful.") {
+    if (response?.status === 1) {
       toast.success("Invoice successfully added");
       resetForm();
       await fetchInvoiceList();
@@ -906,7 +906,7 @@ const updateInvoice = async () => {
 
     console.log(response, "this is res");
 
-    if (response?.status === "Request was successful.") {
+    if (response?.status === 1) {
       toast.success("Invoice successfully updated");
       resetForm();
       await fetchInvoiceList();
@@ -934,7 +934,7 @@ const deleteInvoice = async () => {
 
     console.log(response, "this is res");
 
-    if (response?.status === "Request was successful.") {
+    if (response?.status === 1) {
       toast.success("Invoice successfully deleted");
       resetForm();
       await fetchInvoiceList();

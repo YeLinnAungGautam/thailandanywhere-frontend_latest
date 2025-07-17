@@ -425,7 +425,7 @@ const removeImageUpdateImage = async (imageID) => {
       route.query.id,
       imageID
     );
-    if (res.status === "Request was successful.") {
+    if (res.status == 1) {
       toast.success("Image successfully deleted");
       await getProofImage();
     }
@@ -489,7 +489,7 @@ const sendEmailFunction = async () => {
           frmData
         );
 
-        if (res?.status === "Request was successful.") {
+        if (res?.status === 1) {
           emailLoading.value = false;
           cancelEmailFunction();
           toast.success(res.message);

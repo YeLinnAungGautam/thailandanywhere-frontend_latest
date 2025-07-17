@@ -210,7 +210,7 @@ const onSubmitHandler = async () => {
     const res = await carBookingStore.addNewAction(frmData, formData.value.id);
     console.log(res, "this is response");
     closeFunction();
-    if ((res.status = "Request was successful.")) {
+    if ((res.status = 1)) {
       toast.success(res.message);
       errors.value = null;
       emit("change", "updated");

@@ -763,14 +763,14 @@ const submitForm = async () => {
         selectedReceiptId.value
       );
 
-      if (res.status == "Request was successful.") {
+      if (res.status == 1) {
         toast.success("Tax receipt updated successfully!");
         await getAllAction();
       }
     } else {
       const res = await taxReceiptStore.addNewAction(submitData);
 
-      if (res.status == "Request was successful.") {
+      if (res.status == 1) {
         toast.success("Tax receipt created successfully!");
         createNewTax();
         await getAllAction();

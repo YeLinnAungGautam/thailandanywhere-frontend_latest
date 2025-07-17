@@ -1017,7 +1017,7 @@ const getDetailAction = async (itemId) => {
 
   try {
     const response = await cashImageStore.getDetailAction(itemId);
-    if (response.status == "Request was successful.") {
+    if (response.status == 1) {
       detailedItems.value[itemId] = response.result;
       return response.result;
     } else {

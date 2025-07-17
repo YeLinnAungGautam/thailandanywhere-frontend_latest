@@ -93,7 +93,13 @@
                     <p
                       class="py-1 text-xs text-gray-700 bg-gray-50 px-2 rounded"
                     >
-                      {{ item?.variant_name }}
+                      {{ item?.service_date }} / {{ item?.variant_name }} /
+                      <span v-if="group?.product_type == 'EntranceTicket'">
+                        ( {{ item?.quantity }}A {{ item?.child_quantity }}C )
+                      </span>
+                      <span v-else>
+                        ( {{ item?.quantity }}R - {{ item?.days }}N )
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -362,7 +368,7 @@ const fetchGroupTaxDetails = async (groupId) => {
 
     console.log(response, "group tax details");
 
-    if (response.status == "Request was successful.") {
+    if (response.status == 1) {
       groupTaxDetails[groupId] = response.result;
     } else {
       groupTaxDetails[groupId] = [];

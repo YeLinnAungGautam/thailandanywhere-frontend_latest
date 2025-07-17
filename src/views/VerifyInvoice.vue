@@ -754,7 +754,7 @@ const verifyBooking = async (id, data) => {
       frmData.append("_method", "PUT");
       frmData.append("verify_status", verify_status.value);
       const res = await bookingStore.verifyBookingStatus(id, frmData);
-      if (res.status == "Request was successful.") {
+      if (res.status == 1) {
         toast.success(res.message);
       }
       verify_status.value = "";

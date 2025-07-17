@@ -546,7 +546,7 @@ const saveCarBooking = async () => {
 
     const res = await carBookingStore.addNewAction(frmData, formData.value.id);
 
-    if (res && res.status === "Request was successful.") {
+    if (res && res.status == 1) {
       toast.success(res.message || "Car booking saved successfully");
       resetForm();
 
@@ -570,7 +570,7 @@ const deleteCarBooking = async () => {
     loading.value = true;
     const res = await carBookingStore.deleteAction(formData.value.id);
 
-    if (res && res.status === "Request was successful.") {
+    if (res && res.status == 1) {
       toast.success("Car booking deleted successfully");
       resetForm();
 

@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-2 gap-4">
     <div>
-      <img v-if="updateData.file" :src="updateData.file" alt="" />
+      <img v-if="updateData?.file" :src="updateData.file" alt="" />
       <img v-else :src="placeholderFile" alt="" />
     </div>
     <div class="space-y-4 relative pt-4 pb-14">

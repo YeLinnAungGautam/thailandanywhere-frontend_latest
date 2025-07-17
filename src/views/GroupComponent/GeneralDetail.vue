@@ -34,7 +34,8 @@
 
           <p>Service Date</p>
           <p class="text-end">
-            {{ changeFormat(detail?.booking?.balance_due_date) }}
+            <!-- {{ changeFormat(detail?.booking?.balance_due_date) }} -->
+            {{ calculateEarlyDate(detail?.items) }}
           </p>
           <p>Total Item Price</p>
           <p class="text-end">{{ formattedNumber(total_sale_price) }} thb</p>
@@ -349,6 +350,44 @@ const bankList = ref([
 const router = useRouter();
 const toast = useToast();
 const carModalOpen = ref(false);
+
+const calculateEarlyDate = (dateList) => {
+  console.log(dateList);
+
+  if (dateList && dateList.length > 0) {
+    // Extract all service dates and convert to Date objects
+    const dates = dateList?.map((item) => new Date(item.service_date));
+
+    // Find earliest and latest dates
+    const earliestDate = new Date(Math.min(...dates));
+    const latestDate = new Date(Math.max(...dates));
+
+    // Format function for "1 March" style
+    const formatDate = (date) => {
+      const options = { day: "numeric", month: "long" };
+      return date.toLocaleDateString("en-US", options);
+    };
+
+    // Format the range
+    const startFormatted = formatDate(earliestDate);
+    const endFormatted = formatDate(latestDate);
+    const year = latestDate.getFullYear();
+
+    // Handle same month case
+    if (
+      earliestDate.getMonth() === latestDate.getMonth() &&
+      earliestDate.getFullYear() === latestDate.getFullYear()
+    ) {
+      return `${earliestDate.getDate()} - ${latestDate.getDate()} ${latestDate.toLocaleDateString(
+        "en-US",
+        { month: "long" }
+      )} ${year}`;
+    }
+
+    // Handle different months
+    return `${startFormatted} - ${endFormatted} ${year}`;
+  }
+};
 
 const formData = ref({
   id: "",

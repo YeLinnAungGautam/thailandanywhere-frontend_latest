@@ -165,7 +165,7 @@ const onSubmitHandler = async () => {
     const res = await carBookingStore.addNewAction(frmData, formData.value.id);
     console.log(res, "this is response");
     closeFunction();
-    if ((res.status = "Request was successful.")) {
+    if ((res.status = 1)) {
       toast.success(res.message);
       errors.value = null;
       emit("change", "updated");
@@ -320,7 +320,7 @@ const carOrderCopyFunction = async () => {
   console.log("====================================");
 
   let formattedOutput;
-  if (res.status == "Request was successful.") {
+  if (res.status == 1) {
     formattedOutput = `
 CRMID: ${props?.data.crm_id}
 C. Name: ${props?.data.customer_name}
@@ -365,7 +365,7 @@ const copyFunction = async () => {
     const resDriver = await driverStore.getDetailAction(res?.result?.driver_id);
     console.log(resDriver, "this is cpy res");
     let formattedOutput;
-    if (resDriver.status == "Request was successful.") {
+    if (resDriver.status == 1) {
       formattedOutput = `
     🆔 CRM ID : ${props?.data.crm_id}
     📝 Product Name : ${props?.data.product_name}

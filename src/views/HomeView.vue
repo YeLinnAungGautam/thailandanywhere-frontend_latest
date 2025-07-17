@@ -621,8 +621,12 @@ onMounted(async () => {
   }
 
   console.log(allSaleList.value, "this is sale");
-  if (!authStore.isSuperAdmin) {
+  if (!authStore.isSuperAdmin && !authStore.isExternalAudit) {
     router.push({ name: "dashboard" });
+  }
+
+  if (authStore.isExternalAudit) {
+    router.push({ name: "bankStatementList" });
   }
   // generateDateArray();
   date.value = new Date();

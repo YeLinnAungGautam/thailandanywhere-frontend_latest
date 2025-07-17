@@ -786,6 +786,12 @@
                                 class="text-xs flex justify-start items-center flex-wrap gap-2 font-mono rounded-md"
                               >
                                 <span
+                                  @click="goToGroup(getExpenseItems(item.id))"
+                                  class="text-gray-900 bg-blue-100 px-2 mr-2 py-1 rounded cursor-pointer"
+                                >
+                                  Group
+                                </span>
+                                <span
                                   class="text-xs font-mono px-2 py-1 bg-gray-200 rounded"
                                   v-for="a in getExpenseItems(item.id)?.items"
                                   :key="a.id"
@@ -1482,14 +1488,43 @@ const goToGroup = (data) => {
   console.log("====================================");
   console.log(data);
   console.log("====================================");
-  if (data.group_info.product_type == "App\\Models\\EntranceTicket") {
-    router.push(`/group-attraction?id=${data?.group_id}`);
-  }
-  if (data.group_info.product_type == "App\\Models\\Hotel") {
-    router.push(`/group-hotel?id=${data?.group_id}`);
-  }
-  if (data.group_info.product_type == "App\\Models\\PrivateVanTour") {
-    router.push(`/group-private-van-tour?id=${data?.group_id}`);
+  if (authStore.user.role != "external_audit") {
+    if (
+      data?.group_info?.product_type == "App\\Models\\EntranceTicket" ||
+      data?.product_type == "App\\Models\\EntranceTicket"
+    ) {
+      if (data?.group_id) {
+        // router.push(`/group-attraction?id=${data?.group_id}`);
+        window.open(`/group-attraction?id=${data?.group_id}`, "_blank");
+      } else {
+        // router.push(`/group-attraction?id=${data?.id}`);
+        window.open(`/group-attraction?id=${data?.id}`, "_blank");
+      }
+    }
+    if (
+      data?.group_info?.product_type == "App\\Models\\Hotel" ||
+      data?.product_type == "App\\Models\\Hotel"
+    ) {
+      if (data?.group_id) {
+        // router.push(`/group-hotel?id=${data?.group_id}`);
+        window.open(`/group-hotel?id=${data?.group_id}`, "_blank");
+      } else {
+        // router.push(`/group-hotel?id=${data?.id}`);
+        window.open(`/group-hotel?id=${data?.id}`, "_blank");
+      }
+    }
+    if (
+      data?.group_info?.product_type == "App\\Models\\PrivateVanTour" ||
+      data?.product_type == "App\\Models\\PrivateVanTour"
+    ) {
+      if (data?.group_id) {
+        // router.push(`/group-private-van-tour?id=${data?.group_id}`);
+        window.open(`/group-private-van-tour?id=${data?.group_id}`, "_blank");
+      } else {
+        // router.push(`/group-private-van-tour?id=${data?.id}`);
+        window.open(`/group-private-van-tour?id=${data?.id}`, "_blank");
+      }
+    }
   }
 };
 

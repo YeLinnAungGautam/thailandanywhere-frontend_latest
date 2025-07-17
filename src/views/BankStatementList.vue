@@ -25,6 +25,7 @@
         <!-- Date and Type Filters -->
         <div class="flex justify-start space-x-2 items-center">
           <p
+            v-if="!authStore.isExternalAudit"
             @click="filterType = 'all'"
             class="px-5 py-2.5 rounded-lg text-xs"
             :class="
@@ -36,6 +37,7 @@
             All
           </p>
           <p
+            v-if="!authStore.isExternalAudit"
             @click="filterType = 'complete'"
             class="px-5 py-2.5 rounded-lg text-xs"
             :class="
@@ -47,6 +49,7 @@
             Complete
           </p>
           <p
+            v-if="!authStore.isExternalAudit"
             @click="filterType = 'missing'"
             class="px-5 py-2.5 rounded-lg text-xs"
             :class="
@@ -353,9 +356,10 @@
                     <div class="bg-gray-50 pb-4 px-4">
                       <div class="w-full flex justify-end items-center py-2">
                         <div
-                          class="bg-white/90 w-[100px] px-2 shadow-lg border border-gray-200 py-1 rounded-2xl backdrop-blur-sm flex items-center justify-center space-x-2"
+                          class="bg-white/90 max-w-[100px] px-2 shadow-lg border border-gray-200 py-1 rounded-2xl backdrop-blur-sm flex items-center justify-center space-x-2"
                         >
                           <button
+                            v-if="!authStore.isExternalAudit"
                             @click.stop="goToView(item)"
                             class="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                             title="View Details"
@@ -367,7 +371,11 @@
                             class="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                             title="Edit"
                           >
-                            <PencilSquareIcon class="w-4 h-4" />
+                            <PencilSquareIcon
+                              class="w-4 h-4"
+                              v-if="!authStore.isExternalAudit"
+                            />
+                            <EyeIcon class="w-4 h-4 text-blue-600" v-else />
                           </button>
                         </div>
                       </div>

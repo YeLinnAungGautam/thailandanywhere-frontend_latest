@@ -63,7 +63,8 @@
                 v-show="
                   !authStore.isSuperAdmin &&
                   !authStore.isAuditor &&
-                  !authStore.isSaleAdmin
+                  !authStore.isSaleAdmin &&
+                  !authStore.isExternalAudit
                 "
               />
               <SidebarItem
@@ -86,13 +87,14 @@
                 ]"
               />
               <SidebarItem
+                v-if="!authStore.isExternalAudit"
                 name="Order"
                 :icon="ListBulletIcon"
                 to="/order"
                 :activePaths="['order']"
               />
               <div
-                v-if="!authStore.isAuditor"
+                v-if="!authStore.isAuditor && !authStore.isExternalAudit"
                 @click="toggleReservationShow"
                 class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
               >
@@ -147,7 +149,7 @@
                 to="/group-item"
               /> -->
               <div
-                v-if="!authStore.isAuditor"
+                v-if="!authStore.isAuditor && !authStore.isExternalAudit"
                 @click="toggleGroupShow"
                 class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
               >
@@ -206,11 +208,13 @@
 
               <SidebarItem
                 name="Accounting"
+                v-if="!authStore.isExternalAudit"
                 :icon="CalculatorIcon"
                 to="/accounting"
                 :activePaths="['accounting']"
               />
               <div
+                v-if="!authStore.isExternalAudit"
                 @click="sidebarStore.toggleAccount"
                 class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
               >
@@ -301,7 +305,16 @@
                   to="/bank_statement_list"
                 />
               </div>
+
               <SidebarItem
+                v-if="authStore.isExternalAudit"
+                name="Bank Statement"
+                label="Statement"
+                :icon="FolderIcon"
+                to="/bank_statement_list"
+              />
+              <SidebarItem
+                v-if="!authStore.isAgent && !authStore.isExternalAudit"
                 name="Products"
                 :icon="ArchiveBoxIcon"
                 :activePaths="[
@@ -326,7 +339,7 @@
                 to="/products/page"
               />
               <SidebarItem
-                v-if="!authStore.isAgent"
+                v-if="!authStore.isAgent && !authStore.isExternalAudit"
                 name="Database"
                 :icon="CircleStackIcon"
                 :activePaths="['database', 'blog_categories']"
@@ -334,14 +347,18 @@
               />
               <SidebarItem
                 name="Blogs"
-                v-if="!authStore.isAgent"
+                v-if="!authStore.isAgent && !authStore.isExternalAudit"
                 :icon="DocumentTextIcon"
                 to="/blogs"
                 :activePaths="['new_blog']"
               />
               <SidebarItem
                 name="Customers"
-                v-if="!authStore.isAgent && !authStore.isAuditor"
+                v-if="
+                  !authStore.isAgent &&
+                  !authStore.isAuditor &&
+                  !authStore.isExternalAudit
+                "
                 :icon="UsersIcon"
                 to="/customers"
                 :activePaths="[
@@ -365,7 +382,7 @@
                 :activePaths="['admins']"
               />
               <div
-                v-if="!authStore.isAuditor"
+                v-if="!authStore.isAuditor && !authStore.isExternalAudit"
                 @click="toggleSidebarShowSetting"
                 class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
               >
@@ -406,14 +423,22 @@
                 />
               </div>
               <SidebarItem
-                v-if="!authStore.isAgent && !authStore.isAuditor"
+                v-if="
+                  !authStore.isAgent &&
+                  !authStore.isAuditor &&
+                  !authStore.isExternalAudit
+                "
                 name="CarBookings"
                 :icon="DocumentTextIcon"
                 to="/car-bookings/unassigned"
                 :activePaths="['car-bookings']"
               />
               <SidebarItem
-                v-if="!authStore.isAgent && !authStore.isAuditor"
+                v-if="
+                  !authStore.isAgent &&
+                  !authStore.isAuditor &&
+                  !authStore.isExternalAudit
+                "
                 name="Availabilities"
                 :icon="CheckBadgeIcon"
                 to="/availabilities"

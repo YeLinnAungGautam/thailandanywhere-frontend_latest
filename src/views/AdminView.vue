@@ -47,6 +47,7 @@ const roleList = [
   { id: "6", name: "Car Supplier", value: "car_supplier" },
   { id: "7", name: "Auditor", value: "auditor" },
   { id: "8", name: "Sale Manager", value: "sale_manager" },
+  { id: "9", name: "External Audit", value: "external_audit" },
 ];
 const errors = ref([]);
 

@@ -97,6 +97,7 @@
       </div>
 
       <div
+        v-if="!authStore.isExternalAudit"
         class="flex justify-end items-center space-x-2 absolute bottom-0 right-0"
       >
         <p
@@ -116,6 +117,7 @@ import { defineProps, ref, onMounted } from "vue";
 import { useToast } from "vue-toastification";
 import { useCashImageStore } from "../stores/cashImage";
 import { formattedNumber } from "./help/FormatData";
+import { useAuthStore } from "../stores/auth";
 
 const props = defineProps({
   updateData: Object,
@@ -124,6 +126,7 @@ const props = defineProps({
 const emit = defineEmits(["update"]);
 const toast = useToast();
 const cashImageStore = useCashImageStore();
+const authStore = useAuthStore();
 
 const placeholderFile = ref(
   "https://img.freepik.com/premium-vector/payment-check-buying-financial-invoice-bill-purchasing-calculate-pay-vector-isolated-receipt_966580-342.jpg"

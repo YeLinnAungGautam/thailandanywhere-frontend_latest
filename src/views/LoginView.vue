@@ -52,6 +52,8 @@ const loginHandler = async () => {
       router.push({ name: "auditor_dashboard" });
     } else if (authStore.isSaleAdmin) {
       router.push({ name: "sales_dashboard" });
+    } else if (authStore.isExternalAudit) {
+      router.push({ name: "bankStatementList" });
     } else {
       router.push({ name: "dashboard" });
     }

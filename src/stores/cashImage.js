@@ -2,7 +2,12 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 export const useCashImageStore = defineStore("cashImage", {
-  state: () => ({ cashImages: null, loading: false }),
+  state: () => ({
+    cashImages: null,
+    cashAccounts: null,
+    loading: false,
+    loadingCash: false,
+  }),
   getters: {},
   actions: {
     async getSimpleListAction(params) {
@@ -33,14 +38,37 @@ export const useCashImageStore = defineStore("cashImage", {
         const response = await axios.get("/cash-images", {
           params: params,
         });
-        this.cashImages = response.data.result;
+
         this.loading = false;
+        this.cashImages = response.data.result;
         console.log(response);
         return response.data;
       } catch (error) {
         this.loading = false;
         throw error;
       }
+    },
+    async getSummary(params) {
+      try {
+        this.loadingCash = true;
+        const response = await axios.get("/summary-report", { params: params });
+        this.cashAccounts = response.data.result;
+        console.log(response, "this is response for summary");
+        return response.data;
+      } catch (error) {
+        this.loadingCash = false;
+      } finally {
+        this.loadingCash = false;
+      }
+    },
+    async getChangeSummaryPage(url, params) {
+      this.loadingCash = true;
+      const response = await axios.get(url, {
+        params: params,
+      });
+      this.cashAccounts = response.data.result;
+      this.loadingCash = false;
+      return response.data;
     },
     async addNewAction(data) {
       try {

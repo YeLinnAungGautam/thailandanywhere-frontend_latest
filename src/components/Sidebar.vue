@@ -314,6 +314,17 @@
                 to="/bank_statement_list"
               />
               <SidebarItem
+                v-if="
+                  authStore.isExternalAudit ||
+                  authStore.isAuditor ||
+                  authStore.isSuperAdmin
+                "
+                name="external audit"
+                label="External"
+                :icon="FolderIcon"
+                to="/invoice_audit"
+              />
+              <SidebarItem
                 v-if="!authStore.isAgent && !authStore.isExternalAudit"
                 name="Products"
                 :icon="ArchiveBoxIcon"

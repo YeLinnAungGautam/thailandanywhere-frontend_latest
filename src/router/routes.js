@@ -80,6 +80,7 @@ import AccountancePdf from "../views/AccountancePdf.vue";
 import BankStatementList from "../views/BankStatementList.vue";
 import BankStatementSummary from "../views/BankStatementSummary.vue";
 import BankParcheseList from "../views/BankParcheseList.vue";
+import BankStatementFilter from "../views/BankStatementFilter.vue";
 
 const routes = [
   {
@@ -470,6 +471,11 @@ const routes = [
     path: "/bank_statement_list",
     name: "bankStatementList",
     component: BankStatementList,
+  },
+  {
+    path: "/bank_statement_filter",
+    name: "bankStatementFilter",
+    component: BankStatementFilter,
   },
   {
     path: "/invoice_audit",

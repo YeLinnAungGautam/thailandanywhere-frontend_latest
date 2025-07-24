@@ -327,10 +327,10 @@
               />
               <SidebarItem
                 v-if="authStore.isSuperAdmin || authStore.isReservation"
-                name="Bank Statement"
+                name="Bank Statement Filter"
                 label="Statement"
                 :icon="FolderIcon"
-                to="/bank_statement_list"
+                to="/bank_statement_filter"
               />
               <!-- <SidebarItem
                 v-if="authStore.isSuperAdmin || authStore.isReservation"

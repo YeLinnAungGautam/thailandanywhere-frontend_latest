@@ -1,88 +1,102 @@
 <template>
-  <div class="bg-white p-6 rounded-lg shadow-sm">
-    <div class="flex justify-between items-start mb-6">
-      <div>
-        <h2 class="text-lg font-semibold tracking-wide mb-2">
-          Account Receivable - Unpaid Sales
-        </h2>
-        <p class="text-sm text-gray-600">
-          Total Unpaid Amount:
-          <span class="text-red-600 font-semibold"
-            >{{ totalUnpaidAmount }} THB</span
-          >
-        </p>
-        <p class="text-sm text-gray-600 mt-1">
-          Total Unpaid Bookings:
-          <span class="text-red-600 font-semibold">{{
-            totalUnpaidBookings
-          }}</span>
-        </p>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white p-6 rounded-lg shadow-sm col-span-2">
+      <div class="flex justify-between items-start mb-6">
+        <div>
+          <h2 class="text-lg font-semibold tracking-wide mb-2">
+            Account Receivable - Unpaid Sales
+          </h2>
+          <p class="text-sm text-gray-600">
+            Total Unpaid Amount:
+            <span class="text-red-600 font-semibold"
+              >{{ totalUnpaidAmount }} THB</span
+            >
+          </p>
+          <p class="text-sm text-gray-600 mt-1">
+            Total Unpaid Bookings:
+            <span class="text-red-600 font-semibold">{{
+              totalUnpaidBookings
+            }}</span>
+          </p>
+        </div>
+        <div class="flex items-center gap-3">
+          <input
+            type="month"
+            v-model="monthForGraph"
+            class="bg-white text-sm w-[200px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+          />
+        </div>
       </div>
-      <div class="flex items-center gap-3">
-        <input
-          type="month"
-          v-model="monthForGraph"
-          class="bg-white text-sm w-[200px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-        />
+
+      <!-- Chart Container -->
+      <div class="h-[400px]">
+        <BarChart :chartData="unpaidSaleData" :options="chartOptions" />
+      </div>
+
+      <!-- Agent Performance Table -->
+      <div class="mt-8" v-if="agentUnpaidData.length > 0">
+        <h3 class="text-md font-semibold mb-4">Agent Unpaid Performance</h3>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Agent Name
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Total Unpaid Amount
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Unpaid Bookings
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Percentage
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-for="agent in agentUnpaidData" :key="agent.name">
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                >
+                  {{ agent.name }}
+                </td>
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold"
+                >
+                  {{ agent.unpaidAmount.toLocaleString() }} THB
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {{ agent.unpaidBookings }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {{ agent.percentage }}%
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-
-    <!-- Chart Container -->
-    <div class="h-[400px]">
-      <BarChart :chartData="unpaidSaleData" :options="chartOptions" />
-    </div>
-
-    <!-- Agent Performance Table -->
-    <div class="mt-8" v-if="agentUnpaidData.length > 0">
-      <h3 class="text-md font-semibold mb-4">Agent Unpaid Performance</h3>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Agent Name
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Total Unpaid Amount
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Unpaid Bookings
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Percentage
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="agent in agentUnpaidData" :key="agent.name">
-              <td
-                class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
-              >
-                {{ agent.name }}
-              </td>
-              <td
-                class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-semibold"
-              >
-                {{ agent.unpaidAmount.toLocaleString() }} THB
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ agent.unpaidBookings }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ agent.percentage }}%
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="bg-white p-6 rounded-lg shadow-sm col-span-1">
+      <h2 class="text-lg font-semibold tracking-wide mb-4">
+        Account Receivable Overview
+      </h2>
+      <p class="text-sm text-gray-600 mb-4">
+        This section provides an overview of unpaid sales and agent performance.
+      </p>
+      <p class="text-sm text-gray-600">
+        Use the month selector to filter the data displayed in the chart and
+        table.
+      </p>
     </div>
   </div>
 </template>

@@ -327,11 +327,18 @@
               />
               <SidebarItem
                 v-if="authStore.isSuperAdmin || authStore.isReservation"
+                name="Bank Statement"
+                label="Statement"
+                :icon="FolderIcon"
+                to="/bank_statement_list"
+              />
+              <!-- <SidebarItem
+                v-if="authStore.isSuperAdmin || authStore.isReservation"
                 name="Bank Purchase"
                 label="Purchase"
                 :icon="FolderIcon"
                 to="/bank_statement_purchese"
-              />
+              /> -->
               <SidebarItem
                 v-if="!authStore.isAgent && !authStore.isExternalAudit"
                 name="Products"

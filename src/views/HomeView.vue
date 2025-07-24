@@ -49,6 +49,7 @@ import {
   UsersIcon,
 } from "@heroicons/vue/24/outline";
 import ReservationCalendarHome from "./Dashboard/ReservationCalendarHome.vue";
+import AccountReceivable from "./Dashboard/AccountReceivable.vue";
 import { useSidebarStore } from "../stores/sidebar";
 import { formattedDate } from "./help/FormatData";
 
@@ -801,6 +802,11 @@ watch(homeSectionPartView, (newValue) => {
           :isActive="homeSectionPartView == 'sale-analysis'"
           @click="homeSectionPartView = 'sale-analysis'"
         />
+        <HomeFirstPartVue
+          :title="'Account Receivable'"
+          :isActive="homeSectionPartView == 'account-receivable'"
+          @click="homeSectionPartView = 'account-receivable'"
+        />
       </div>
       <!-- filter -->
       <div
@@ -1112,6 +1118,12 @@ watch(homeSectionPartView, (newValue) => {
         v-if="homeSectionPartView == 'sale-analysis'"
       >
         <ReservationCalendarHome />
+      </div>
+      <div
+        class="col-span-3 w-full"
+        v-if="homeSectionPartView == 'account-receivable'"
+      >
+        <AccountReceivable />
       </div>
     </div>
   </Layout>

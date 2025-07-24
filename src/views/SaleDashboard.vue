@@ -20,6 +20,8 @@ import HomeSecondPartVue from "../components/HomeSecondPart.vue";
 import SaleAgentReportByDate from "../components/SaleAgentReportByDate.vue";
 import TopSellingProductVue from "../components/TopSellingProduct.vue";
 import VueApexCharts from "vue3-apexcharts";
+const sidebarStore = useSidebarStore();
+const { isShowSidebar } = storeToRefs(sidebarStore);
 
 import {
   endOfMonth,
@@ -41,6 +43,8 @@ import {
 } from "@heroicons/vue/24/outline";
 import ReservationCalendarHome from "./Dashboard/ReservationCalendarHome.vue";
 import { useAdminStore } from "../stores/admin";
+import { useSidebarStore } from "../stores/sidebar";
+import AccountReceivable from "./Dashboard/AccountReceivable.vue";
 
 Chart.register(...registerables);
 
@@ -774,7 +778,8 @@ const homeSectionPartView = ref("sale");
   <Layout :title="`Welcome back, ${authStore.user.name.split(' ')[0]}!`">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 mb-3">
       <div
-        class="space-x-8 col-span-3 left-[220px] flex justify-start items-center gap-2 text-sm pb-4 absolute top-8"
+        :class="isShowSidebar ? 'left-[250px]' : 'left-[100px]'"
+        class="space-x-8 col-span-3 flex justify-start transistion-all duration-200 items-center gap-2 text-sm pb-4 absolute top-8"
       >
         <HomeFirstPartVue
           :title="'Sales analysis'"
@@ -787,12 +792,12 @@ const homeSectionPartView = ref("sale");
           @click="homeSectionPartView = 'sale-analysis'"
         />
 
-        <!-- <HomeFirstPartVue
-          :title="'Reservations'"
-          :isActive="homeSectionPartView == 'reservation'"
-          @click="homeSectionPartView = 'reservation'"
-        />
         <HomeFirstPartVue
+          :title="'Account Receivable'"
+          :isActive="homeSectionPartView == 'account-receivable'"
+          @click="homeSectionPartView = 'account-receivable'"
+        />
+        <!-- <HomeFirstPartVue
           :title="'Expenses'"
           :isActive="homeSectionPartView == 'expense'"
         />
@@ -1068,6 +1073,12 @@ const homeSectionPartView = ref("sale");
       v-if="homeSectionPartView == 'sale-analysis'"
     >
       <ReservationCalendarHome />
+    </div>
+    <div
+      class="col-span-3 w-full"
+      v-if="homeSectionPartView == 'account-receivable'"
+    >
+      <AccountReceivable />
     </div>
   </Layout>
 </template>

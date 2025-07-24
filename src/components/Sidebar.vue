@@ -313,6 +313,7 @@
                 :icon="FolderIcon"
                 to="/bank_statement_list"
               />
+
               <SidebarItem
                 v-if="
                   authStore.isExternalAudit ||
@@ -323,6 +324,13 @@
                 label="External"
                 :icon="FolderIcon"
                 to="/invoice_audit"
+              />
+              <SidebarItem
+                v-if="authStore.isSuperAdmin || authStore.isReservation"
+                name="Bank Purchase"
+                label="Purchase"
+                :icon="FolderIcon"
+                to="/bank_statement_purchese"
               />
               <SidebarItem
                 v-if="!authStore.isAgent && !authStore.isExternalAudit"

@@ -7,7 +7,7 @@
       <p
         class="text-2xl flex justify-start items-center font-medium text-[#FF613c]"
       >
-        Bank Statement
+        External Audit
         <span
           class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
         ></span>
@@ -488,7 +488,7 @@ onMounted(async () => {
   }
 
   setMonthDateRange(selectedMonth.value, year.value);
-  await getAction();
+  // await getAction();
 });
 
 watch(

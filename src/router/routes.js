@@ -79,6 +79,7 @@ import CashStructure from "../views/CashStructure.vue";
 import AccountancePdf from "../views/AccountancePdf.vue";
 import BankStatementList from "../views/BankStatementList.vue";
 import BankStatementSummary from "../views/BankStatementSummary.vue";
+import BankParcheseList from "../views/BankParcheseList.vue";
 
 const routes = [
   {
@@ -474,6 +475,11 @@ const routes = [
     path: "/invoice_audit",
     name: "invoiceAudit",
     component: BankStatementSummary,
+  },
+  {
+    path: "/bank_statement_purchese",
+    name: "bankParcheseList",
+    component: BankParcheseList,
   },
   {
     path: "/cash_book",

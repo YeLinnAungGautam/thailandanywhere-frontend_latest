@@ -7,7 +7,7 @@
       <p
         class="text-2xl flex justify-start items-center font-medium text-[#FF613c]"
       >
-        Bank Statement
+        Purchese Bank Statement
         <span
           class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
         ></span>

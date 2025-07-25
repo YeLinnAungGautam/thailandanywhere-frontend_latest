@@ -177,8 +177,7 @@ const getDetailAction = async () => {
     }
     if (response.result.items[i]?.product_type == "App\\Models\\Airline") {
       invoice.value.items.push({
-        image:
-          response.result.items[i]?.product?.images[0]?.image || defaultImage,
+        image: defaultImage,
         name: response.result.items[i]?.product?.name,
         description: response.result.items[i]?.ticket?.name,
         period: `${formatDate(response.result.items[i]?.service_date)}`,

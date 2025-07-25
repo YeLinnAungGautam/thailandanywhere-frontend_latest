@@ -1737,8 +1737,6 @@ const searchParams = computed(() => {
     if (interactSearch.value) {
       params.interact_bank = interactSearch.value;
     }
-  } else {
-    params.interact_bank = "company";
   }
 
   params.include_relatable = true;

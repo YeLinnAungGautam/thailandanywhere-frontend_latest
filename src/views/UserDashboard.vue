@@ -16,7 +16,7 @@ import { onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import ReservationCalendarHome from "./Dashboard/ReservationCalendarHome.vue";
 import { useSidebarStore } from "../stores/sidebar";
-
+import AccountReceivable from "./Dashboard/AccountReceivable.vue";
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
 
@@ -332,8 +332,8 @@ watch(dateForUnpaid, async (newValue) => {
 <template>
   <Layout :title="`Welcome back, ${authStore.user.name.split(' ')[0]}!`">
     <div
-      class="flex justify-start items-center gap-2 text-sm pb-4 absolute top-8"
-      :class="isShowSidebar ? 'left-[330px]' : 'left-[220px]'"
+      :class="isShowSidebar ? 'left-[250px]' : 'left-[100px]'"
+      class="space-x-8 col-span-3 flex justify-start transistion-all duration-200 items-center gap-2 text-sm pb-4 absolute top-8"
     >
       <div
         class="px-2 py-1 text-xs rounded-lg cursor-pointer flex justify-start items-center gap-1.5"
@@ -354,31 +354,13 @@ watch(dateForUnpaid, async (newValue) => {
       <div
         class="px-2 py-1 text-xs rounded-lg cursor-pointer flex justify-start items-center gap-1.5"
         :class="
-          dashboardReservation == 'expense' ? 'text-white bg-[#ff613c]' : ''
-        "
-        @click="dashboardReservation = 'expense'"
-      >
-        Expenses
-      </div>
-      <div
-        class="px-2 py-1 text-xs rounded-lg cursor-pointer flex justify-start items-center gap-1.5"
-        :class="
-          dashboardReservation == 'product' ? 'text-white bg-[#ff613c]' : ''
-        "
-        @click="dashboardReservation = 'product'"
-      >
-        Products
-      </div>
-      <div
-        class="px-2 py-1 text-xs rounded-lg cursor-pointer flex justify-start items-center gap-1.5"
-        :class="
-          dashboardReservation == 'availability'
+          dashboardReservation == 'account-receivable'
             ? 'text-white bg-[#ff613c]'
             : ''
         "
-        @click="dashboardReservation = 'availability'"
+        @click="dashboardReservation = 'account-receivable'"
       >
-        Availability
+        Account Receivable
       </div>
     </div>
 
@@ -595,6 +577,12 @@ watch(dateForUnpaid, async (newValue) => {
     </div>
     <div class="" v-if="dashboardReservation == 'reservation'">
       <ReservationPartHome />
+    </div>
+    <div
+      class="col-span-3 w-full"
+      v-if="dashboardReservation == 'account-receivable'"
+    >
+      <AccountReceivable />
     </div>
   </Layout>
 </template>

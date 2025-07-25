@@ -20,6 +20,7 @@
           <option value="cash_at_office">Cash at Office</option>
           <option value="to_money_changer">To Money Changer</option>
           <option value="deposit_management">Deposit Management</option>
+          <option value="pay_to_driver">Pay to Driver</option>
         </select>
       </div>
       <div class="">

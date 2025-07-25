@@ -93,7 +93,7 @@
                 to="/order"
                 :activePaths="['order']"
               />
-              <div
+              <!-- <div
                 v-if="!authStore.isAuditor && !authStore.isExternalAudit"
                 @click="toggleReservationShow"
                 class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
@@ -142,7 +142,7 @@
                   to="/reservation-vantour"
                   :activePaths="['reservation-vantour']"
                 />
-              </div>
+              </div> -->
               <!-- <SidebarItem
                 name="Group Item"
                 :icon="Squares2X2Icon"
@@ -325,20 +325,20 @@
                 :icon="FolderIcon"
                 to="/invoice_audit"
               />
-              <SidebarItem
+              <!-- <SidebarItem
                 v-if="authStore.isSuperAdmin || authStore.isReservation"
                 name="Bank Statement Filter"
                 label="Statement"
                 :icon="FolderIcon"
                 to="/bank_statement_filter"
-              />
-              <!-- <SidebarItem
+              /> -->
+              <SidebarItem
                 v-if="authStore.isSuperAdmin || authStore.isReservation"
                 name="Bank Purchase"
                 label="Purchase"
                 :icon="FolderIcon"
                 to="/bank_statement_purchese"
-              /> -->
+              />
               <SidebarItem
                 v-if="!authStore.isAgent && !authStore.isExternalAudit"
                 name="Products"

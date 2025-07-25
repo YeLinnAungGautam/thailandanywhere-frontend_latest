@@ -782,6 +782,11 @@ watch(homeSectionPartView, (newValue) => {
       name: "home",
     });
   }
+  // if (newValue == "") {
+  //   router.push({
+  //     name: "homeSaleAnalysis",
+  //   });
+  // }
 });
 </script>
 

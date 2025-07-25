@@ -35,7 +35,7 @@
 
       <!-- Agent Performance Table -->
       <div class="mt-8" v-if="agentUnpaidData.length > 0">
-        <h3 class="text-md font-semibold mb-4">Agent Unpaid Performance</h3>
+        <h3 class="text-md font-semibold mb-4">Agent Receivable Analysitic</h3>
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
@@ -86,17 +86,8 @@
         </div>
       </div>
     </div>
-    <div class="bg-white p-6 rounded-lg shadow-sm col-span-1">
-      <h2 class="text-lg font-semibold tracking-wide mb-4">
-        Account Receivable Overview
-      </h2>
-      <p class="text-sm text-gray-600 mb-4">
-        This section provides an overview of unpaid sales and agent performance.
-      </p>
-      <p class="text-sm text-gray-600">
-        Use the month selector to filter the data displayed in the chart and
-        table.
-      </p>
+    <div>
+      <ReceivableList :admin-only-list="adminOnlyList" />
     </div>
   </div>
 </template>
@@ -108,12 +99,30 @@ import { useHomeStore } from "../../stores/home";
 import { useAdminStore } from "../../stores/admin";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { Chart, registerables } from "chart.js";
+import ReceivableList from "./ReceivableList.vue";
 
 Chart.register(...registerables);
 
 const authStore = useAuthStore();
 const homeStore = useHomeStore();
 const adminStore = useAdminStore();
+
+const adminOnlyList = ref([]);
+const getAdminListOnly = async () => {
+  // Fetch admin list and set up permissions
+  const res = await adminStore.getSimpleListAction();
+  if (res && res.result && res.result.data) {
+    adminOnlyList.value = res.result.data
+      .filter((item) => item.role === "admin" || item.role === "sale_manager")
+      .map((item) => ({
+        id: item.id,
+        name: item.name,
+      }));
+  } else {
+    console.error("Failed to fetch admin list");
+    adminOnlyList.value = [];
+  }
+};
 
 // Reactive data for chart
 const dataTest = reactive({ items: [] });
@@ -345,6 +354,7 @@ onMounted(async () => {
   }
 
   await getAdminList();
+  await getAdminListOnly();
   currentMonth();
   await getUnpaidData(monthForGraph.value);
 });

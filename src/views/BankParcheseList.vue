@@ -71,7 +71,7 @@
             </option>
           </select>
 
-          <div class="flex justify-end w-full items-center space-x-2">
+          <!-- <div class="flex justify-end w-full items-center space-x-2">
             <p
               class="px-3 py-2.5 rounded-xl bg-green-600/50 text-xs backdrop-blur-sm shadow"
             >
@@ -87,7 +87,7 @@
             >
               Net Vat: {{ formattedNumber(total_net_vat.toFixed(2)) }}
             </p>
-          </div>
+          </div> -->
         </div>
 
         <!-- Search Filters -->
@@ -129,6 +129,7 @@
               <option value="company">Company</option>
               <option value="cash_at_office">Cash at Office</option>
               <option value="to_money_changer">To Money Changer</option>
+              <option value="pay_to_driver">Pay to Driver</option>
             </select>
           </div>
           <div class="relative">
@@ -148,6 +149,30 @@
               <option value="80">80</option>
               <option value="90">90</option>
               <option value="100">100</option>
+            </select>
+          </div>
+          <div>
+            <select
+              name=""
+              id=""
+              v-model="sort_by"
+              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+            >
+              <option value="date">Date</option>
+              <option value="amount">Amount</option>
+              <option value="sender">Sender</option>
+              <option value="receiver">Receiver</option>
+            </select>
+          </div>
+          <div>
+            <select
+              name=""
+              id=""
+              v-model="sort_order"
+              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
+            >
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
             </select>
           </div>
           <button
@@ -204,703 +229,682 @@
             </tr>
           </thead>
           <tbody>
-            <template
-              v-for="group in groupedReceipts"
-              :key="`group-${Object.keys(group)[0]}`"
-            >
-              <template v-for="item in group" :key="item.id">
-                <!-- Main transaction row -->
-                <tr
-                  class="bg-gray-50 odd:bg-white group relative divide-x divide-gray-500 hover:bg-gray-100 cursor-pointer"
-                  :class="
-                    expandedItems[item.id] ? 'border border-[#FF613c]' : ''
-                  "
-                  @click="toggleExpand(item.id)"
-                >
-                  <td class="px-3 py-2 text-xs text-center">
-                    {{ formatDateForTime(item?.date) }}
+            <template v-for="item in cashImages?.data" :key="item.id">
+              <!-- Main transaction row -->
+              <tr
+                class="bg-gray-50 odd:bg-white group relative divide-x divide-gray-500 hover:bg-gray-100 cursor-pointer"
+                :class="expandedItems[item.id] ? 'border border-[#FF613c]' : ''"
+                @click="toggleExpand(item.id)"
+              >
+                <td class="px-3 py-2 text-xs text-center">
+                  {{ formatDateForTime(item?.date) }}
 
-                    <!-- Action buttons - moved inside a table cell -->
-                  </td>
-                  <td class="px-3 py-2 text-xs text-center">
-                    {{ formatTime(item.time) }}
-                  </td>
-                  <td class="px-3 py-2 text-xs text-center">
-                    {{ item.currency }}
-                  </td>
-                  <td
-                    class="px-3 py-2 text-xs text-end"
-                    :class="getTransactionBadgeClass(item)"
+                  <!-- Action buttons - moved inside a table cell -->
+                </td>
+                <td class="px-3 py-2 text-xs text-center">
+                  {{ formatTime(item.date) }}
+                </td>
+                <td class="px-3 py-2 text-xs text-center">
+                  {{ item.currency }}
+                </td>
+                <td
+                  class="px-3 py-2 text-xs text-end"
+                  :class="getTransactionBadgeClass(item)"
+                >
+                  <p
+                    v-if="
+                      item.relatable_type == 'App\\Models\\BookingItemGroup' ||
+                      item.relatable_type == 'App\\Models\\CashBook'
+                    "
                   >
-                    <p
+                    {{ formatTransactionAmount(item) }}
+                  </p>
+                  <p v-else></p>
+                </td>
+                <td
+                  class="px-3 py-2 text-xs text-end"
+                  :class="getTransactionBadgeClass(item)"
+                >
+                  <p v-if="item.relatable_type == 'App\\Models\\Booking'">
+                    {{ formatTransactionAmount(item) }}
+                  </p>
+                  <p v-else></p>
+                </td>
+                <td class="px-3 py-2 text-xs w-[200px]">
+                  {{ item.sender }}
+                </td>
+                <td class="px-3 py-2 text-xs w-[200px]">
+                  {{ item.receiver }}
+                </td>
+                <td class="px-3 py-2 text-xs w-[100px]">
+                  {{ item.crm_id ?? "-" }}
+                </td>
+                <td class="px-3 py-2 text-xs w-[80px]">
+                  {{
+                    item.relatable_type == "App\\Models\\BookingItemGroup"
+                      ? "-"
+                      : ""
+                  }}{{ item.vat ? formattedNumber(item.vat.toFixed(2)) : "-" }}
+                </td>
+                <td class="px-3 py-2 text-xs w-[80px]">
+                  {{
+                    item.commission
+                      ? formattedNumber(item.commission.toFixed(2))
+                      : "-"
+                  }}
+                </td>
+                <td class="px-3 py-2 text-xs w-[80px]">
+                  {{
+                    item.net_vat
+                      ? formattedNumber(item.net_vat.toFixed(2))
+                      : "-"
+                  }}
+                </td>
+                <td
+                  class="px-3 py-2 text-xs"
+                  :class="
+                    item?.tax_receipts?.length > 0
+                      ? 'text-blue-500 underline'
+                      : ''
+                  "
+                >
+                  {{
+                    item?.tax_receipts?.length > 0
+                      ? calculateRealTax(item?.tax_receipts).toFixed(2)
+                      : "-"
+                  }}
+                </td>
+                <td
+                  class="px-3 py-2 text-xs"
+                  v-if="item.relatable_type == 'App\\Models\\BookingItemGroup'"
+                >
+                  <CheckBadgeIcon
+                    v-if="item.has_invoice"
+                    class="w-5 h-5 text-green-500 inline-block"
+                  />
+                  <XCircleIcon
+                    v-if="!item.has_invoice"
+                    class="w-5 h-5 text-gray-300 inline-block"
+                  />
+                </td>
+                <td
+                  v-if="item.relatable_type != 'App\\Models\\BookingItemGroup'"
+                ></td>
+                <td class="px-3 py-2 text-xs">
+                  <CheckBadgeIcon
+                    v-if="item?.tax_receipts?.length > 0"
+                    class="w-5 h-5 text-green-500 inline-block"
+                  />
+                  <XCircleIcon
+                    v-if="item?.tax_receipts?.length == 0"
+                    class="w-5 h-5 text-gray-300 inline-block"
+                  />
+                </td>
+              </tr>
+
+              <!-- Loading row -->
+              <tr v-if="loadingDetails[item?.id]">
+                <td colspan="14" class="px-3 py-4 text-center">
+                  <div class="flex justify-center items-center">
+                    <div
+                      class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#FF613c]"
+                    ></div>
+                    <span class="ml-2 text-sm text-gray-600"
+                      >Loading details...</span
+                    >
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Expanded details row -->
+              <tr
+                v-if="
+                  expandedItems[item.id] &&
+                  !loadingDetails[item.id] &&
+                  getRelatableData(item.id)
+                "
+              >
+                <td colspan="14" class="p-0">
+                  <div class="bg-gray-50 pb-4 px-4">
+                    <div class="w-full flex justify-end items-center py-2">
+                      <div
+                        class="bg-white/90 max-w-[100px] px-2 shadow-lg border border-gray-200 py-1 rounded-2xl backdrop-blur-sm flex items-center justify-center space-x-2"
+                      >
+                        <button
+                          v-if="!authStore.isExternalAudit"
+                          @click.stop="goToView(item)"
+                          class="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                          title="View Details"
+                        >
+                          <MagnifyingGlassIcon class="w-4 h-4" />
+                        </button>
+                        <button
+                          @click.stop="update(item)"
+                          class="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                          title="Edit"
+                        >
+                          <PencilSquareIcon
+                            class="w-4 h-4"
+                            v-if="!authStore.isExternalAudit"
+                          />
+                          <EyeIcon class="w-4 h-4 text-blue-600" v-else />
+                        </button>
+                      </div>
+                    </div>
+                    <table
+                      class="min-w-full"
                       v-if="
-                        item.relatable_type ==
-                          'App\\Models\\BookingItemGroup' ||
-                        item.relatable_type == 'App\\Models\\CashBook'
+                        item?.relatable_type == 'App\\Models\\Booking' ||
+                        item?.relatable_type == 'App\\Models\\BookingItemGroup'
                       "
                     >
-                      {{ formatTransactionAmount(item) }}
-                    </p>
-                    <p v-else></p>
-                  </td>
-                  <td
-                    class="px-3 py-2 text-xs text-end"
-                    :class="getTransactionBadgeClass(item)"
-                  >
-                    <p v-if="item.relatable_type == 'App\\Models\\Booking'">
-                      {{ formatTransactionAmount(item) }}
-                    </p>
-                    <p v-else></p>
-                  </td>
-                  <td class="px-3 py-2 text-xs w-[200px]">
-                    {{ item.sender }}
-                  </td>
-                  <td class="px-3 py-2 text-xs w-[200px]">
-                    {{ item.receiver }}
-                  </td>
-                  <td class="px-3 py-2 text-xs w-[100px]">
-                    {{ item.crm_id ?? "-" }}
-                  </td>
-                  <td class="px-3 py-2 text-xs w-[80px]">
-                    {{
-                      item.relatable_type == "App\\Models\\BookingItemGroup"
-                        ? "-"
-                        : ""
-                    }}{{
-                      item.vat ? formattedNumber(item.vat.toFixed(2)) : "-"
-                    }}
-                  </td>
-                  <td class="px-3 py-2 text-xs w-[80px]">
-                    {{
-                      item.commission
-                        ? formattedNumber(item.commission.toFixed(2))
-                        : "-"
-                    }}
-                  </td>
-                  <td class="px-3 py-2 text-xs w-[80px]">
-                    {{
-                      item.net_vat
-                        ? formattedNumber(item.net_vat.toFixed(2))
-                        : "-"
-                    }}
-                  </td>
-                  <td
-                    class="px-3 py-2 text-xs"
-                    :class="
-                      item?.tax_receipts?.length > 0
-                        ? 'text-blue-500 underline'
-                        : ''
-                    "
-                  >
-                    {{
-                      item?.tax_receipts?.length > 0
-                        ? calculateRealTax(item?.tax_receipts).toFixed(2)
-                        : "-"
-                    }}
-                  </td>
-                  <td
-                    class="px-3 py-2 text-xs"
-                    v-if="
-                      item.relatable_type == 'App\\Models\\BookingItemGroup'
-                    "
-                  >
-                    <CheckBadgeIcon
-                      v-if="item.has_invoice"
-                      class="w-5 h-5 text-green-500 inline-block"
-                    />
-                    <XCircleIcon
-                      v-if="!item.has_invoice"
-                      class="w-5 h-5 text-gray-300 inline-block"
-                    />
-                  </td>
-                  <td
-                    v-if="
-                      item.relatable_type != 'App\\Models\\BookingItemGroup'
-                    "
-                  ></td>
-                  <td class="px-3 py-2 text-xs">
-                    <CheckBadgeIcon
-                      v-if="item?.tax_receipts?.length > 0"
-                      class="w-5 h-5 text-green-500 inline-block"
-                    />
-                    <XCircleIcon
-                      v-if="item?.tax_receipts?.length == 0"
-                      class="w-5 h-5 text-gray-300 inline-block"
-                    />
-                  </td>
-                </tr>
-
-                <!-- Loading row -->
-                <tr v-if="loadingDetails[item?.id]">
-                  <td colspan="14" class="px-3 py-4 text-center">
-                    <div class="flex justify-center items-center">
-                      <div
-                        class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#FF613c]"
-                      ></div>
-                      <span class="ml-2 text-sm text-gray-600"
-                        >Loading details...</span
-                      >
-                    </div>
-                  </td>
-                </tr>
-
-                <!-- Expanded details row -->
-                <tr
-                  v-if="
-                    expandedItems[item.id] &&
-                    !loadingDetails[item.id] &&
-                    getRelatableData(item.id)
-                  "
-                >
-                  <td colspan="14" class="p-0">
-                    <div class="bg-gray-50 pb-4 px-4">
-                      <div class="w-full flex justify-end items-center py-2">
-                        <div
-                          class="bg-white/90 max-w-[100px] px-2 shadow-lg border border-gray-200 py-1 rounded-2xl backdrop-blur-sm flex items-center justify-center space-x-2"
-                        >
-                          <button
-                            v-if="!authStore.isExternalAudit"
-                            @click.stop="goToView(item)"
-                            class="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                            title="View Details"
+                      <!-- Table Header -->
+                      <thead class="bg-gray-50">
+                        <tr class="bg-[#FF613c] divide-x divide-gray-50">
+                          <th
+                            class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-start"
                           >
-                            <MagnifyingGlassIcon class="w-4 h-4" />
-                          </button>
-                          <button
-                            @click.stop="update(item)"
-                            class="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                            title="Edit"
+                            List
+                          </th>
+                          <th
+                            class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
                           >
-                            <PencilSquareIcon
-                              class="w-4 h-4"
-                              v-if="!authStore.isExternalAudit"
-                            />
-                            <EyeIcon class="w-4 h-4 text-blue-600" v-else />
-                          </button>
-                        </div>
-                      </div>
-                      <table
-                        class="min-w-full"
-                        v-if="
-                          item?.relatable_type == 'App\\Models\\Booking' ||
-                          item?.relatable_type ==
-                            'App\\Models\\BookingItemGroup'
-                        "
+                            Product Variation
+                          </th>
+                          <th
+                            class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                          >
+                            Price
+                          </th>
+                          <th
+                            class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                          >
+                            VAT (7%)
+                          </th>
+                          <th
+                            class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                          >
+                            Slip
+                          </th>
+                          <th
+                            class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                          >
+                            Invoice
+                          </th>
+                          <th
+                            class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                          >
+                            Tax Credit
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <!-- Table Body -->
+                      <tbody
+                        class="bg-white divide-y divide-gray-200"
+                        v-if="item.relatable_type == 'App\\Models\\Booking'"
                       >
-                        <!-- Table Header -->
-                        <thead class="bg-gray-50">
-                          <tr class="bg-[#FF613c] divide-x divide-gray-50">
-                            <th
-                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-start"
+                        <tr>
+                          <td class="px-6 py-4 whitespace-nowrap text-start">
+                            <span
+                              class="text-xs font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded"
                             >
-                              List
-                            </th>
-                            <th
-                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                              Total Sale
+                            </span>
+                          </td>
+                          <td
+                            class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                          >
+                            <span class="text-xs font-mono px-2 py-1 rounded"
+                              >-</span
                             >
-                              Product Variation
-                            </th>
-                            <th
-                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded">
+                              {{
+                                formattedNumber(
+                                  getRelatableData(item.id)?.grand_total
+                                )
+                              }}
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded">
+                              {{
+                                formattedNumber(
+                                  getRelatableData(item.id)?.output_vat
+                                )
+                              }}
+                            </span>
+                          </td>
+                          <td
+                            class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
+                            @click="show(getRelatableData(item.id)?.receipts)"
+                          >
+                            <span
+                              class="text-xs underline text-blue-600 font-mono px-2 py-1 rounded"
                             >
-                              Price
-                            </th>
-                            <th
-                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                              sale slip ({{
+                                getRelatableData(item.id)?.receipts?.length ||
+                                0
+                              }})
+                            </span>
+                          </td>
+                          <td
+                            class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
+                            @click="openCredit(getRelatableData(item.id)?.id)"
+                          >
+                            <span
+                              class="text-xs underline text-blue-600 font-mono px-2 py-1 rounded"
                             >
-                              VAT (7%)
-                            </th>
-                            <th
-                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                              tax Invoice
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span
+                              class="text-xs underline text-blue-600 font-mono px-2 py-1 rounded"
+                              >-</span
                             >
-                              Slip
-                            </th>
-                            <th
-                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
-                            >
-                              Invoice
-                            </th>
-                            <th
-                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
-                            >
-                              Tax Credit
-                            </th>
-                          </tr>
-                        </thead>
+                          </td>
+                        </tr>
 
-                        <!-- Table Body -->
-                        <tbody
-                          class="bg-white divide-y divide-gray-200"
-                          v-if="item.relatable_type == 'App\\Models\\Booking'"
-                        >
-                          <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-start">
-                              <span
-                                class="text-xs font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded"
-                              >
-                                Total Sale
-                              </span>
-                            </td>
-                            <td
-                              class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                        <tr>
+                          <td class="px-6 py-4 whitespace-nowrap text-start">
+                            <span
+                              class="text-xs font-mono text-gray-900 bg-red-100 px-2 py-1 rounded"
                             >
-                              <span class="text-xs font-mono px-2 py-1 rounded"
-                                >-</span
-                              >
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{
-                                  formattedNumber(
-                                    getRelatableData(item.id)?.grand_total
-                                  )
-                                }}
-                              </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{
-                                  formattedNumber(
-                                    getRelatableData(item.id)?.output_vat
-                                  )
-                                }}
-                              </span>
-                            </td>
-                            <td
-                              class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
-                              @click="show(getRelatableData(item.id)?.receipts)"
+                              Deduct Commission
+                            </span>
+                          </td>
+                          <td
+                            class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                          >
+                            <span
+                              class="text-xs font-mono px-2 py-1 rounded"
+                            ></span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded">
+                              -
+                              {{
+                                formattedNumber(
+                                  getRelatableData(item.id)?.commission
+                                )
+                              }}
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded"
+                              >-</span
                             >
-                              <span
-                                class="text-xs underline text-blue-600 font-mono px-2 py-1 rounded"
-                              >
-                                sale slip ({{
-                                  getRelatableData(item.id)?.receipts?.length ||
-                                  0
-                                }})
-                              </span>
-                            </td>
-                            <td
-                              class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
-                              @click="openCredit(getRelatableData(item.id)?.id)"
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded"
+                              >-</span
                             >
-                              <span
-                                class="text-xs underline text-blue-600 font-mono px-2 py-1 rounded"
-                              >
-                                tax Invoice
-                              </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span
-                                class="text-xs underline text-blue-600 font-mono px-2 py-1 rounded"
-                                >-</span
-                              >
-                            </td>
-                          </tr>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded"
+                              >-</span
+                            >
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded"
+                              >-</span
+                            >
+                          </td>
+                        </tr>
 
-                          <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-start">
-                              <span
-                                class="text-xs font-mono text-gray-900 bg-red-100 px-2 py-1 rounded"
-                              >
-                                Deduct Commission
-                              </span>
-                            </td>
-                            <td
-                              class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                        <tr>
+                          <td class="px-6 py-4 whitespace-nowrap text-start">
+                            <span
+                              class="text-xs font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded"
                             >
-                              <span
-                                class="text-xs font-mono px-2 py-1 rounded"
-                              ></span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded">
-                                -
-                                {{
-                                  formattedNumber(
+                              Subtotal
+                            </span>
+                          </td>
+                          <td
+                            class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                          >
+                            <span
+                              class="text-xs font-mono px-2 py-1 rounded"
+                            ></span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded">
+                              {{
+                                formattedNumber(
+                                  getRelatableData(item.id)?.grand_total -
                                     getRelatableData(item.id)?.commission
-                                  )
-                                }}
-                              </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded"
-                                >-</span
-                              >
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded"
-                                >-</span
-                              >
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded"
-                                >-</span
-                              >
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded"
-                                >-</span
-                              >
-                            </td>
-                          </tr>
-
-                          <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-start">
-                              <span
-                                class="text-xs font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded"
-                              >
-                                Subtotal
-                              </span>
-                            </td>
-                            <td
-                              class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
-                            >
-                              <span
-                                class="text-xs font-mono px-2 py-1 rounded"
-                              ></span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{
-                                  formattedNumber(
+                                )
+                              }}
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded">
+                              {{
+                                formattedNumber(
+                                  (
                                     getRelatableData(item.id)?.grand_total -
-                                      getRelatableData(item.id)?.commission
-                                  )
-                                }}
-                              </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{
-                                  formattedNumber(
-                                    (
-                                      getRelatableData(item.id)?.grand_total -
-                                      getRelatableData(item.id)?.commission -
-                                      (getRelatableData(item.id)?.grand_total -
-                                        getRelatableData(item.id)?.commission) /
-                                        1.07
-                                    ).toFixed(2)
-                                  )
-                                }}
-                              </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded"
-                                >-</span
-                              >
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded"
-                                >-</span
-                              >
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded"
-                                >-</span
-                              >
-                            </td>
-                          </tr>
+                                    getRelatableData(item.id)?.commission -
+                                    (getRelatableData(item.id)?.grand_total -
+                                      getRelatableData(item.id)?.commission) /
+                                      1.07
+                                  ).toFixed(2)
+                                )
+                              }}
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded"
+                              >-</span
+                            >
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded"
+                              >-</span
+                            >
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded"
+                              >-</span
+                            >
+                          </td>
+                        </tr>
 
-                          <!-- Grouped items -->
-                          <tr
-                            v-for="v in getGroupedItems(item.id)"
-                            :key="v.group_id"
-                          >
-                            <td class="px-6 py-4 whitespace-nowrap text-start">
-                              <div class="text-xs font-mono flex flex-wrap">
-                                <span
-                                  @click="goToGroup(v)"
-                                  class="text-gray-900 bg-blue-100 px-2 mr-2 py-1 rounded cursor-pointer"
-                                >
-                                  Group
-                                </span>
-                                <span
-                                  v-for="i in v.items"
-                                  class="text-gray-900 bg-gray-100 px-2 py-1 rounded mr-2"
-                                  :key="i.id"
-                                >
-                                  {{ i.crm_id.split("_")[1] }}
-                                </span>
-                              </div>
-                            </td>
-                            <td
-                              class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
-                            >
-                              <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{ v.items[0]?.product_name }}
-                              </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{ formattedNumber(totalCost(v.items)) }}
-                              </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{
-                                  formattedNumber(
-                                    (
-                                      totalCost(v.items) -
-                                      totalCost(v.items) / 1.07
-                                    ).toFixed(2)
-                                  )
-                                }}
-                              </span>
-                            </td>
-                            <td
-                              class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
-                              @click="
-                                v.related_slip.length > 0 &&
-                                  show(v.related_slip)
-                              "
-                            >
-                              <span
-                                class="text-xs font-mono px-2 py-1 rounded"
-                                :class="
-                                  v.related_slip.length > 0
-                                    ? 'text-blue-600 underline'
-                                    : 'text-red-600 font-medium'
-                                "
-                              >
-                                {{
-                                  v.related_slip.length > 0
-                                    ? "slip (" + v.related_slip.length + ")"
-                                    : "missing"
-                                }}
-                              </span>
-                            </td>
-                            <td
-                              class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
-                              @click="
-                                v.related_tax.length > 0 &&
-                                  showTax(v.related_tax)
-                              "
-                            >
-                              <span
-                                class="text-xs font-mono px-2 py-1 rounded"
-                                :class="
-                                  v.related_tax.length > 0
-                                    ? 'text-blue-600 underline'
-                                    : 'text-red-600 font-medium'
-                                "
-                              >
-                                {{
-                                  v.related_tax.length > 0
-                                    ? "Invoice (" + v.related_tax.length + ")"
-                                    : "missing"
-                                }}
-                              </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span
-                                :class="
-                                  v.related_credit.length > 0
-                                    ? ''
-                                    : 'text-red-600 font-medium'
-                                "
-                                class="text-xs text-blue-500 underline font-mono px-2 py-1 rounded"
-                                @click="showCredit(v.related_credit)"
-                              >
-                                {{
-                                  v.related_credit.length > 0
-                                    ? "Credit (" + v.related_credit.length + ")"
-                                    : "missing"
-                                }}
-                              </span>
-                            </td>
-                          </tr>
-
-                          <!-- Net Summary Row -->
-                          <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-start">
-                              <span
-                                class="text-xs font-mono text-gray-900 bg-blue-100 px-2 py-1 rounded"
-                              >
-                                Net Summary
-                              </span>
-                            </td>
-                            <td
-                              class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
-                            >
-                              <span
-                                class="text-xs font-mono px-2 py-1 rounded"
-                              ></span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{
-                                  formattedNumber(
-                                    calculateGrandVat(
-                                      getRelatableData(item.id)?.items,
-                                      getRelatableData(item.id)?.grand_total
-                                    ) - getRelatableData(item.id)?.commission
-                                  )
-                                }}
-                              </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{
-                                  formattedNumber(
-                                    (
-                                      getRelatableData(item.id)?.commission -
-                                      getRelatableData(item.id)?.commission /
-                                        1.07
-                                    ).toFixed(2)
-                                  )
-                                }}
-                              </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded"
-                                >-</span
-                              >
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded"
-                                >-</span
-                              >
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded"
-                                >-</span
-                              >
-                            </td>
-                          </tr>
-                        </tbody>
-                        <tbody
-                          v-if="
-                            item.relatable_type ==
-                            'App\\Models\\BookingItemGroup'
-                          "
-                          class="bg-white divide-y divide-gray-200"
+                        <!-- Grouped items -->
+                        <tr
+                          v-for="v in getGroupedItems(item.id)"
+                          :key="v.group_id"
                         >
-                          <!-- {{
+                          <td class="px-6 py-4 whitespace-nowrap text-start">
+                            <div class="text-xs font-mono flex flex-wrap">
+                              <span
+                                @click="goToGroup(v)"
+                                class="text-gray-900 bg-blue-100 px-2 mr-2 py-1 rounded cursor-pointer"
+                              >
+                                Group
+                              </span>
+                              <span
+                                v-for="i in v.items"
+                                class="text-gray-900 bg-gray-100 px-2 py-1 rounded mr-2"
+                                :key="i.id"
+                              >
+                                {{ i.crm_id.split("_")[1] }}
+                              </span>
+                            </div>
+                          </td>
+                          <td
+                            class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                          >
+                            <span class="text-xs font-mono px-2 py-1 rounded">
+                              {{ v.items[0]?.product_name }}
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded">
+                              {{ formattedNumber(totalCost(v.items)) }}
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded">
+                              {{
+                                formattedNumber(
+                                  (
+                                    totalCost(v.items) -
+                                    totalCost(v.items) / 1.07
+                                  ).toFixed(2)
+                                )
+                              }}
+                            </span>
+                          </td>
+                          <td
+                            class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
+                            @click="
+                              v.related_slip.length > 0 && show(v.related_slip)
+                            "
+                          >
+                            <span
+                              class="text-xs font-mono px-2 py-1 rounded"
+                              :class="
+                                v.related_slip.length > 0
+                                  ? 'text-blue-600 underline'
+                                  : 'text-red-600 font-medium'
+                              "
+                            >
+                              {{
+                                v.related_slip.length > 0
+                                  ? "slip (" + v.related_slip.length + ")"
+                                  : "missing"
+                              }}
+                            </span>
+                          </td>
+                          <td
+                            class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
+                            @click="
+                              v.related_tax.length > 0 && showTax(v.related_tax)
+                            "
+                          >
+                            <span
+                              class="text-xs font-mono px-2 py-1 rounded"
+                              :class="
+                                v.related_tax.length > 0
+                                  ? 'text-blue-600 underline'
+                                  : 'text-red-600 font-medium'
+                              "
+                            >
+                              {{
+                                v.related_tax.length > 0
+                                  ? "Invoice (" + v.related_tax.length + ")"
+                                  : "missing"
+                              }}
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span
+                              :class="
+                                v.related_credit.length > 0
+                                  ? ''
+                                  : 'text-red-600 font-medium'
+                              "
+                              class="text-xs text-blue-500 underline font-mono px-2 py-1 rounded"
+                              @click="showCredit(v.related_credit)"
+                            >
+                              {{
+                                v.related_credit.length > 0
+                                  ? "Credit (" + v.related_credit.length + ")"
+                                  : "missing"
+                              }}
+                            </span>
+                          </td>
+                        </tr>
+
+                        <!-- Net Summary Row -->
+                        <tr>
+                          <td class="px-6 py-4 whitespace-nowrap text-start">
+                            <span
+                              class="text-xs font-mono text-gray-900 bg-blue-100 px-2 py-1 rounded"
+                            >
+                              Net Summary
+                            </span>
+                          </td>
+                          <td
+                            class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                          >
+                            <span
+                              class="text-xs font-mono px-2 py-1 rounded"
+                            ></span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded">
+                              {{
+                                formattedNumber(
+                                  calculateGrandVat(
+                                    getRelatableData(item.id)?.items,
+                                    getRelatableData(item.id)?.grand_total
+                                  ) - getRelatableData(item.id)?.commission
+                                )
+                              }}
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded">
+                              {{
+                                formattedNumber(
+                                  (
+                                    getRelatableData(item.id)?.commission -
+                                    getRelatableData(item.id)?.commission / 1.07
+                                  ).toFixed(2)
+                                )
+                              }}
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded"
+                              >-</span
+                            >
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded"
+                              >-</span
+                            >
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded"
+                              >-</span
+                            >
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tbody
+                        v-if="
+                          item.relatable_type == 'App\\Models\\BookingItemGroup'
+                        "
+                        class="bg-white divide-y divide-gray-200"
+                      >
+                        <!-- {{
                             getExpenseItems(item.id)
                           }} -->
-                          <tr>
-                            <td
-                              class="px-6 py-4 w-[200px] whitespace-nowrap text-start"
+                        <tr>
+                          <td
+                            class="px-6 py-4 w-[200px] whitespace-nowrap text-start"
+                          >
+                            <div
+                              class="text-xs flex justify-start items-center flex-wrap gap-2 font-mono rounded-md"
                             >
-                              <div
-                                class="text-xs flex justify-start items-center flex-wrap gap-2 font-mono rounded-md"
+                              <span
+                                @click="goToGroup(getExpenseItems(item.id))"
+                                class="text-gray-900 bg-blue-100 px-2 mr-2 py-1 rounded cursor-pointer"
                               >
-                                <span
-                                  @click="goToGroup(getExpenseItems(item.id))"
-                                  class="text-gray-900 bg-blue-100 px-2 mr-2 py-1 rounded cursor-pointer"
-                                >
-                                  Group
-                                </span>
-                                <span
-                                  class="text-xs font-mono px-2 py-1 bg-gray-200 rounded"
-                                  v-for="a in getExpenseItems(item.id)?.items"
-                                  :key="a.id"
-                                >
-                                  {{ a?.crm_id.split("_")[1] }}
-                                </span>
-                              </div>
-                            </td>
+                                Group
+                              </span>
+                              <span
+                                class="text-xs font-mono px-2 py-1 bg-gray-200 rounded"
+                                v-for="a in getExpenseItems(item.id)?.items"
+                                :key="a.id"
+                              >
+                                {{ a?.crm_id.split("_")[1] }}
+                              </span>
+                            </div>
+                          </td>
 
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{
-                                  getExpenseItems(item.id)?.items[0]?.product
-                                    ?.name
-                                }}
-                              </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{
-                                  formattedNumber(
-                                    getExpenseItems(item.id)?.items.reduce(
-                                      (total, a) => {
-                                        return total + a.total_cost_price;
-                                      },
-                                      0
-                                    )
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded">
+                              {{
+                                getExpenseItems(item.id)?.items[0]?.product
+                                  ?.name
+                              }}
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded">
+                              {{
+                                formattedNumber(
+                                  getExpenseItems(item.id)?.items.reduce(
+                                    (total, a) => {
+                                      return total + a.total_cost_price;
+                                    },
+                                    0
                                   )
-                                }}
-                              </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded">
-                                {{
-                                  formattedNumber(
-                                    getExpenseItems(item.id)?.items.reduce(
-                                      (total, a) => {
-                                        return total + a.output_vat;
-                                      },
-                                      0
-                                    )
+                                )
+                              }}
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span class="text-xs font-mono px-2 py-1 rounded">
+                              {{
+                                formattedNumber(
+                                  getExpenseItems(item.id)?.items.reduce(
+                                    (total, a) => {
+                                      return total + a.output_vat;
+                                    },
+                                    0
                                   )
-                                }}
-                              </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span
-                                class="text-xs text-blue-500 underline font-mono px-2 py-1 rounded"
-                                @click="
-                                  viewReceipt(detailedItems[item.id]?.image)
-                                "
-                              >
-                                slip
-                              </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span
-                                :class="
+                                )
+                              }}
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span
+                              class="text-xs text-blue-500 underline font-mono px-2 py-1 rounded"
+                              @click="
+                                viewReceipt(detailedItems[item.id]?.image)
+                              "
+                            >
+                              slip
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span
+                              :class="
+                                getRelatableData(item.id)
+                                  ?.booking_confirm_letter.length > 0
+                                  ? 'text-blue-500 underline'
+                                  : 'text-red-500'
+                              "
+                              class="text-xs font-mono px-2 py-1 rounded"
+                              @click="
+                                showTax(
                                   getRelatableData(item.id)
-                                    ?.booking_confirm_letter.length > 0
-                                    ? 'text-blue-500 underline'
-                                    : 'text-red-500'
-                                "
-                                class="text-xs font-mono px-2 py-1 rounded"
-                                @click="
-                                  showTax(
-                                    getRelatableData(item.id)
-                                      ?.booking_confirm_letter
-                                  )
-                                "
-                              >
-                                {{
-                                  getRelatableData(item.id)
-                                    ?.booking_confirm_letter.length > 0
-                                    ? "tax"
-                                    : "missing"
-                                }}
-                              </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
-                              <span
-                                :class="
-                                  getRelatableData(item.id)?.tax_credit.length >
-                                  0
-                                    ? 'text-blue-500 underline'
-                                    : 'text-red-500'
-                                "
-                                class="text-xs font-mono px-2 py-1 rounded"
-                                @click="
-                                  showCredit(
-                                    getRelatableData(item.id)?.tax_credit
-                                  )
-                                "
-                              >
-                                {{
-                                  getRelatableData(item.id)?.tax_credit.length >
-                                  0
-                                    ? "credit"
-                                    : "missing"
-                                }}
-                              </span>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </td>
-                </tr>
-              </template>
+                                    ?.booking_confirm_letter
+                                )
+                              "
+                            >
+                              {{
+                                getRelatableData(item.id)
+                                  ?.booking_confirm_letter.length > 0
+                                  ? "tax"
+                                  : "missing"
+                              }}
+                            </span>
+                          </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <span
+                              :class="
+                                getRelatableData(item.id)?.tax_credit.length > 0
+                                  ? 'text-blue-500 underline'
+                                  : 'text-red-500'
+                              "
+                              class="text-xs font-mono px-2 py-1 rounded"
+                              @click="
+                                showCredit(
+                                  getRelatableData(item.id)?.tax_credit
+                                )
+                              "
+                            >
+                              {{
+                                getRelatableData(item.id)?.tax_credit.length > 0
+                                  ? "credit"
+                                  : "missing"
+                              }}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>
             </template>
           </tbody>
         </table>
@@ -1357,6 +1361,8 @@ const date_range = ref("");
 const filterType = ref("all");
 const senderSearch = ref("");
 const crmSearch = ref("");
+const sort_by = ref("date");
+const sort_order = ref("desc");
 const bankNameSearch = ref("");
 const amountSearch = ref("");
 const interactSearch = ref("");
@@ -1427,28 +1433,26 @@ const monthArray = [
 ];
 
 // Group receipts by date
-const groupedReceipts = computed(() => {
-  if (!cashImages.value?.data) return {};
+// const groupedReceipts = computed(() => {
+//   if (!cashImages.value?.data) return {};
 
-  const groups = {};
-  const sortedData = [...cashImages.value.data].sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
-  );
+//   const groups = {};
 
-  sortedData.forEach((item) => {
-    const date = item.date ? item.date.split(" ")[0] : "Unknown Date";
-    const time =
-      item.date && item.date.includes(" ") ? item.date.split(" ")[1] : null;
-    const itemWithTime = { ...item, time };
+//   // Use the data as-is from backend (respects your backend sorting)
+//   cashImages.value.data.forEach((item) => {
+//     const date = item.date ? item.date.split(" ")[0] : "Unknown Date";
+//     const time =
+//       item.date && item.date.includes(" ") ? item.date.split(" ")[1] : null;
+//     const itemWithTime = { ...item, time };
 
-    if (!groups[date]) {
-      groups[date] = [];
-    }
-    groups[date].push(itemWithTime);
-  });
+//     if (!groups[date]) {
+//       groups[date] = [];
+//     }
+//     groups[date].push(itemWithTime);
+//   });
 
-  return groups;
-});
+//   return groups;
+// });
 
 const formatDateForTime = (dateString) => {
   if (!dateString) return "";
@@ -1708,7 +1712,7 @@ const searchParams = computed(() => {
     params.date = date_range.value;
   }
 
-  if (filterType.value) {
+  if (filterType.value != "all" && filterType.value != "") {
     params.tax_receipts = filterType.value;
   }
 
@@ -1718,6 +1722,11 @@ const searchParams = computed(() => {
 
   if (crmSearch.value) {
     params.crm_id = crmSearch.value;
+  }
+
+  if (sort_by.value && sort_order.value) {
+    params.sort_by = sort_by.value;
+    params.sort_order = sort_order.value;
   }
 
   if (amountSearch.value) {
@@ -1748,15 +1757,15 @@ const total_net_vat = ref(0);
 const getAction = async () => {
   await cashImageStore.getListAction(searchParams.value);
 
-  const res = await cashImageStore.getVatSummary({
-    date: date_range.value,
-  });
+  // const res = await cashImageStore.getVatSummary({
+  //   date: date_range.value,
+  // });
 
-  let data = res.data;
+  // let data = res.data;
 
-  total_vat.value = data.total_vat;
-  total_commission.value = data.total_commission;
-  total_net_vat.value = data.total_net_vat;
+  // total_vat.value = data.total_vat;
+  // total_commission.value = data.total_commission;
+  // total_net_vat.value = data.total_net_vat;
 };
 
 const changePage = async (url) => {
@@ -1780,6 +1789,8 @@ const clearSearch = () => {
   amountSearch.value = "";
   interactSearch.value = "";
   filterType.value = "";
+  sort_by.value = "date";
+  sort_order.value = "desc";
 };
 
 const placeholderFile = ref("");
@@ -1989,6 +2000,8 @@ watch(
     amountSearch,
     interactSearch,
     per_page,
+    sort_by,
+    sort_order,
   ],
   debounce(async () => {
     await getAction();

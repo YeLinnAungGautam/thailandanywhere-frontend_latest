@@ -504,6 +504,7 @@
                     <option value="deposit_management">
                       Deposit Management
                     </option>
+                    <option value="pay_to_driver">Pay to Driver</option>
                   </select>
                 </div>
                 <div class="flex justify-between items-center">

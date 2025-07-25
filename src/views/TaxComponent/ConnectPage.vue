@@ -270,8 +270,10 @@ import {
 } from "@heroicons/vue/24/outline";
 import { useGroupStore } from "../../stores/group";
 import { watch } from "vue";
+import { useToast } from "vue-toastification";
 
 const route = useRoute();
+const toast = useToast();
 const router = useRouter();
 const taxReceiptStore = useTaxReceiptStore();
 const groupStore = useGroupStore();
@@ -479,25 +481,28 @@ const syncConnections = async () => {
 
     console.log("Sync response:", res);
 
-    if (res && (res.success || res.status === "success")) {
+    if (res && (res.success || res.status === "1")) {
       // Update currently connected groups
       currentlyConnectedGroups.value = [...selectedGroups.value];
 
       // Show success message
       const message = res.message || "Groups synced successfully";
-      alert(message);
+
+      toast.success(message);
 
       // Optionally refresh the tax receipt details
       await getDetail(route.query.id);
     } else {
-      throw new Error(res?.message || "Failed to sync groups");
+      // throw new Error(res?.message || "Failed to sync groups");
+      const message = res?.message || "Failed to sync groups";
+      toast.success(message);
     }
   } catch (error) {
     console.error("Error syncing connections:", error);
-    alert(
-      "Error syncing connections: " +
-        (error.response?.data?.message || error.message)
-    );
+    // alert(
+    //   "Error syncing connections: " +
+    //     (error.response?.data?.message || error.message)
+    // );
   } finally {
     saving.value = false;
   }

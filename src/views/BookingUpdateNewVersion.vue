@@ -159,14 +159,35 @@ const sub_total = computed(() => {
   }
 });
 
+// const sub_total_real = computed(() => {
+//   if (formData.value.is_inclusive != 1) {
+//     let totalsub = 0;
+//     for (let i = 0; i < formData.value.items.length; i++) {
+//       if (!formData.value.items[i].is_inclusive) {
+//         if (formData.value.items[i].product_type) {
+//           if (formData.value.items[i].cancellation != "cancel_confirm") {
+//             totalsub = totalsub + formData.value.items[i].total_amount;
+//           }
+//         }
+//       }
+//     }
+//     return totalsub + sub_total_discount.value * 1;
+//   } else {
+//     return formData.value.inclusive_rate * formData.value.inclusive_quantity;
+//   }
+// });
+
 const sub_total_real = computed(() => {
   if (formData.value.is_inclusive != 1) {
     let totalsub = 0;
+    const hasMultipleItems = formData.value.items.length > 1;
+
     for (let i = 0; i < formData.value.items.length; i++) {
       if (!formData.value.items[i].is_inclusive) {
-        if (formData.value.items[i].product_type != "7") {
-          if (formData.value.items[i].cancellation != "cancel_confirm") {
-            totalsub = totalsub + formData.value.items[i].total_amount;
+        if (formData.value.items[i].product_type) {
+          // Only check product_type != 7 if there are multiple items
+          if (!hasMultipleItems || formData.value.items[i].product_type != 7) {
+            totalsub = totalsub + formData.value.items[i].total_amount * 1;
           }
         }
       }

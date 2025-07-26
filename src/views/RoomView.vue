@@ -660,7 +660,7 @@
         </button>
       </div>
       <div class="space-y-2 flex justify-end items-center gap-2 flex-wrap">
-        <div class="space-x-3 flex flex-nowarp">
+        <div class="gap-3 flex flex-wrap justify-end items-center">
           <Button
             :leftIcon="DocumentPlusIcon"
             intent="text"
@@ -677,6 +677,13 @@
             v-if="!authStore.isAgent"
           >
             Create
+          </Button>
+          <Button
+            :leftIcon="PlusIcon"
+            @click.prevent="roomModal = true"
+            v-if="!authStore.isAgent"
+          >
+            Room Facilities
           </Button>
         </div>
       </div>
@@ -834,6 +841,9 @@
         </div>
       </DialogPanel>
     </Modal>
+
+    <!-- create room modal -->
+    <RoomListModal :isOpen="roomModal" :closeModal="closeRoomModal" />
   </div>
 </template>
 
@@ -868,8 +878,13 @@ import { useAuthStore } from "../stores/auth";
 import { XCircleIcon } from "@heroicons/vue/24/outline";
 import { Switch } from "@headlessui/vue";
 import debounce from "lodash/debounce";
+import RoomListModal from "./RoomfacilityComponent/ListModal.vue";
 
 const createModalOpen = ref(false);
+const roomModal = ref(false);
+const closeRoomModal = () => {
+  roomModal.value = false;
+};
 const toast = useToast();
 const cityStore = useCityStore();
 const hotelStore = useHotelStore();

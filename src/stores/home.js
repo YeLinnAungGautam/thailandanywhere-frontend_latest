@@ -22,6 +22,20 @@ export const useHomeStore = defineStore("home", {
         return error;
       }
     },
+    async generalCashImageReport(params) {
+      try {
+        const response = await axios.get(
+          `/general-cash-image-reports/${params}`
+        );
+        console.log(response, "cash image report");
+
+        // bookings
+        return response.data;
+      } catch (error) {
+        // console.log(error, "this is error");
+        return error;
+      }
+    },
     async getSaleCount(params) {
       try {
         const response = await axios.get(

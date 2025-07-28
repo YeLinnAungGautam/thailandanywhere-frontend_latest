@@ -28,6 +28,7 @@
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-base font-semibold text-gray-800">
             Monthly Agent Summary
+            <span class="capitalize">({{ currentShow }})</span>
           </h2>
           <!-- <div class="text-xs text-gray-600">
             <div
@@ -37,20 +38,43 @@
               {{ currency }}: {{ amount }}
             </div>
           </div> -->
+          <div class="flex items-center gap-2">
+            <button
+              @click="currentShow = 'thb'"
+              :class="{
+                'bg-orange-500 text-white': currentShow === 'thb',
+                'bg-gray-200 text-gray-700': currentShow !== 'thb',
+              }"
+              class="px-3 py-1 rounded-md text-xs"
+            >
+              THB
+            </button>
+            <button
+              @click="currentShow = 'mmk'"
+              :class="{
+                'bg-orange-500 text-white': currentShow === 'mmk',
+                'bg-gray-200 text-gray-700': currentShow !== 'mmk',
+              }"
+              class="px-3 py-1 rounded-md text-xs"
+            >
+              MMK
+            </button>
+          </div>
         </div>
 
         <div class="min-h-80">
           <BarChart
-            v-if="monthlyChartData.labels.length > 0"
+            v-if="monthlyChartData.labels.length > 0 && currentShow === 'thb'"
             :chartData="monthlyChartData"
             :options="monthlyChartOptions"
           />
-          <div
-            v-else
-            class="flex items-center justify-center h-full text-gray-500"
-          >
-            No data available for this month
-          </div>
+          <BarChart
+            v-if="
+              monthlyChartMMKData.labels.length > 0 && currentShow === 'mmk'
+            "
+            :chartData="monthlyChartMMKData"
+            :options="monthlyChartMMKOptions"
+          />
         </div>
       </div>
       <!-- Summary Stats -->
@@ -198,6 +222,7 @@
 import { onMounted, ref, watch, computed, reactive } from "vue";
 import { useHomeStore } from "../../stores/home";
 import { BarChart, LineChart } from "vue-chart-3";
+import { Switch } from "@headlessui/vue";
 
 const homeStore = useHomeStore();
 
@@ -205,8 +230,44 @@ const monthForGraph = ref("");
 const loading = ref(false);
 const cashImageData = ref(null);
 
+// Initialize
+const currentShow = ref("thb");
+
 // Chart data
 const monthlyChartData = reactive({
+  labels: [],
+  datasets: [
+    {
+      label: "Total Cash Images",
+      data: [],
+      backgroundColor: [
+        "#FF6384",
+        "#36A2EB",
+        "#FFCE56",
+        "#4BC0C0",
+        "#9966FF",
+        "#FF9F40",
+        "#FF6384",
+        "#C9CBCF",
+        "#4BC0C0",
+      ],
+      borderColor: [
+        "#FF6384",
+        "#36A2EB",
+        "#FFCE56",
+        "#4BC0C0",
+        "#9966FF",
+        "#FF9F40",
+        "#FF6384",
+        "#C9CBCF",
+        "#4BC0C0",
+      ],
+      borderWidth: 1,
+    },
+  ],
+});
+
+const monthlyChartMMKData = reactive({
   labels: [],
   datasets: [
     {
@@ -272,11 +333,50 @@ const monthlyChartOptions = {
           let tooltip = `${context.parsed.y} images`;
           if (agent?.currencies) {
             tooltip += "\n";
-            Object.entries(agent.currencies).forEach(([currency, data]) => {
-              tooltip += `${currency}: ${data.total_cash_amount.toLocaleString()} (${
-                data.total_cash_images
-              } images)\n`;
-            });
+            // Object.entries(agent.currencies).forEach(([currency, data]) => {
+            //   tooltip += `${currency}`;
+            // });
+            tooltip += `\nTHB: ${agent.currencies.THB?.total_cash_amount.toLocaleString()} (${
+              agent.currencies.THB?.total_cash_images
+            } images)`;
+          }
+          return tooltip;
+        },
+      },
+    },
+  },
+};
+
+const monthlyChartMMKOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        stepSize: 1,
+      },
+    },
+  },
+  plugins: {
+    legend: {
+      display: false,
+    },
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          const agent = getAgentData(context.label);
+          let tooltip = `${context.parsed.y} images`;
+          if (agent?.currencies) {
+            tooltip += "\n";
+            // Object.entries(agent.currencies).forEach(([currency, data]) => {
+            //   tooltip += `${currency}: ${data.total_cash_amount.toLocaleString()} (${
+            //     data.total_cash_images
+            //   } images)\n`;
+            // });
+            tooltip += `\nMMK: ${agent.currencies.MMK?.total_cash_amount.toLocaleString()} (${
+              agent.currencies.MMK?.total_cash_images
+            } images)`;
           }
           return tooltip;
         },
@@ -438,7 +538,12 @@ const updateCharts = () => {
 
     monthlyChartData.labels = activeAgents.map((agent) => agent.name);
     monthlyChartData.datasets[0].data = activeAgents.map(
-      (agent) => agent.total_cash_images
+      (agent) => agent?.currencies?.THB?.total_cash_amount || 0
+    );
+
+    monthlyChartMMKData.labels = activeAgents.map((agent) => agent.name);
+    monthlyChartMMKData.datasets[0].data = activeAgents.map(
+      (agent) => agent?.currencies?.MMK?.total_cash_amount || 0
     );
   }
 

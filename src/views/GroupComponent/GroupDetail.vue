@@ -837,6 +837,7 @@ import checkImage from "../../assets/check.png";
 import { useToast } from "vue-toastification";
 import logo from "../../assets/web-logo.png";
 import { forEach } from "lodash";
+import Swal from "sweetalert2";
 
 const props = defineProps({
   show: Number,
@@ -954,6 +955,18 @@ const copyReservation = () => {
     console.log("====================================");
     console.log("Copying reservation details...", detail.value);
     console.log("====================================");
+
+    // Check if detail is available
+    // if (detail.value?.booking?.verify_status != "verified") {
+    //   Swal.fire({
+    //     icon: "error",
+    //     title: "Verification Required",
+    //     text: "This booking isn't verified yet. Please verify before copying expense.",
+    //     confirmButtonText: "Close",
+    //     confirmButtonColor: "#FF6300",
+    //   });
+    //   return;
+    // }
 
     const res = detail.value;
 
@@ -1093,7 +1106,8 @@ const copyReservation = () => {
       res.booking?.sub_total || 0
     } THB 
 📅 Sale Date: ${res.booking?.booking_date}
-🤑 Score : ${score.toFixed(2)}\n`;
+🤑 Score : ${score.toFixed(2)}
+🚨 Verify Status : ${res.booking?.verify_status}\n`;
 
     // Copy to clipboard
     setTimeout(() => {

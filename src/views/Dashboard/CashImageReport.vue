@@ -80,38 +80,37 @@
       <!-- Summary Stats -->
       <div class="bg-white p-6 rounded-lg shadow-md col-span-1">
         <h2 class="text-base font-semibold text-gray-800 mb-4">
-          Summary Statistics
+          Taday Output & Input
         </h2>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="bg-blue-50 p-4 rounded-lg">
-            <div class="text-base font-bold text-blue-600">
-              {{ monthlyData?.grand_total_cash_images || 0 }}
+        <div class="grid grid-cols-2 gap-4">
+          <div
+            class="bg-gray-50 col-span-2 grid grid-cols-2 gap-4 p-4 rounded-lg border-l-4 border-gray-400"
+          >
+            <div
+              class="text-lg font-bold text-green-600"
+              v-if="cashImageData?.today_summary?.booking_summary"
+            >
+              {{ cashImageData?.today_summary?.booking_summary.thb || 0 }} THB
             </div>
-            <div class="text-[10px] text-blue-800">Total Cash Images</div>
-          </div>
-
-          <div class="bg-purple-50 p-4 rounded-lg">
-            <div class="text-base font-bold text-purple-600">
-              {{ monthlyData?.total_agents || 0 }}
+            <div
+              class="text-lg font-bold text-green-600"
+              v-if="cashImageData?.today_summary?.booking_summary"
+            >
+              {{ cashImageData?.today_summary?.booking_summary.mmk || 0 }} MMK
             </div>
-            <div class="text-[10px] text-purple-800">Total Agents</div>
-          </div>
-
-          <div class="bg-orange-50 p-4 rounded-lg">
-            <div class="text-base font-bold text-orange-600">
-              {{ activeAgentsCount }}
+            <div
+              class="text-lg font-bold text-red-600"
+              v-if="cashImageData?.today_summary?.other_summary"
+            >
+              -{{ cashImageData?.today_summary?.other_summary.thb || 0 }} THB
             </div>
-            <div class="text-[10px] text-orange-800">Active Agents</div>
-          </div>
-
-          <div class="bg-indigo-50 p-4 rounded-lg">
-            <div class="text-base font-bold text-indigo-600">
-              {{
-                Object.keys(monthlyData?.grand_totals_by_currency || {}).length
-              }}
+            <div
+              class="text-lg font-bold text-red-600"
+              v-if="cashImageData?.today_summary?.other_summary"
+            >
+              -{{ cashImageData?.today_summary?.other_summary.mmk || 0 }} MMK
             </div>
-            <div class="text-[10px] text-indigo-800">Currencies Used</div>
           </div>
         </div>
 

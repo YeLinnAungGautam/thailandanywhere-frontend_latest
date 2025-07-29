@@ -84,40 +84,61 @@
         </h2>
 
         <div class="grid grid-cols-2 gap-4">
-          <div
-            class="bg-gray-50 col-span-2 grid grid-cols-2 gap-4 p-4 rounded-lg border-l-4 border-gray-400"
-          >
+          <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-gray-400">
             <div
               class="text-lg font-bold text-green-600"
               v-if="cashImageData?.today_summary?.booking_summary"
             >
-              {{ cashImageData?.today_summary?.booking_summary.thb || 0 }} THB
-            </div>
-            <div
-              class="text-lg font-bold text-green-600"
-              v-if="cashImageData?.today_summary?.booking_summary"
-            >
-              {{ cashImageData?.today_summary?.booking_summary.mmk || 0 }} MMK
+              THB
+              {{
+                formattedNumber(
+                  cashImageData?.today_summary?.booking_summary.thb
+                ) || 0
+              }}
             </div>
             <div
               class="text-lg font-bold text-red-600"
               v-if="cashImageData?.today_summary?.other_summary"
             >
-              -{{ cashImageData?.today_summary?.other_summary.thb || 0 }} THB
+              THB -
+              {{
+                formattedNumber(
+                  cashImageData?.today_summary?.other_summary.thb
+                ) || 0
+              }}
             </div>
+          </div>
+          <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-gray-400">
+            <div
+              class="text-lg font-bold text-green-600"
+              v-if="cashImageData?.today_summary?.booking_summary"
+            >
+              MMK
+              {{
+                formattedNumber(
+                  cashImageData?.today_summary?.booking_summary.mmk
+                ) || 0
+              }}
+            </div>
+
             <div
               class="text-lg font-bold text-red-600"
               v-if="cashImageData?.today_summary?.other_summary"
             >
-              -{{ cashImageData?.today_summary?.other_summary.mmk || 0 }} MMK
+              MMK -
+              {{
+                formattedNumber(
+                  cashImageData?.today_summary?.other_summary.mmk
+                ) || 0
+              }}
             </div>
           </div>
         </div>
 
         <!-- Currency Breakdown -->
-        <div class="mt-6">
+        <div class="mt-3">
           <h3 class="text-md font-semibold text-gray-700 mb-3">
-            Total by Currency
+            Monthly Output & Input
           </h3>
           <div class="grid grid-cols-2 gap-4">
             <div
@@ -131,8 +152,18 @@
                 {{ currency }}
                 {{ formatAmount(currencyData.total_cash_amount) }}
               </div>
-              <div class="text-[10px] text-green-800">
+              <div class="text-[10px] text-red-800">
                 {{ currencyData.total_cash_images }} images
+              </div>
+              <div class="text-lg font-bold text-red-600">
+                {{ currency }}
+                {{
+                  formatAmount(
+                    monthlyData?.expense_summary[
+                      currency == "THB" ? "thb" : "mmk"
+                    ]
+                  )
+                }}
               </div>
             </div>
           </div>
@@ -222,6 +253,7 @@ import { onMounted, ref, watch, computed, reactive } from "vue";
 import { useHomeStore } from "../../stores/home";
 import { BarChart, LineChart } from "vue-chart-3";
 import { Switch } from "@headlessui/vue";
+import { formattedNumber } from "../help/FormatData";
 
 const homeStore = useHomeStore();
 
@@ -474,7 +506,14 @@ const topAgents = computed(() => {
 
 const topPerformer = computed(() => {
   if (!monthlyData.value?.agents?.length) return null;
-  return monthlyData.value.agents.find((agent) => agent.total_cash_images > 0);
+
+  return monthlyData.value?.agents
+    .slice() // Create a copy to avoid mutating original array
+    .sort(
+      (a, b) =>
+        b.currencies?.THB?.total_cash_amount -
+        a.currencies?.THB?.total_cash_amount
+    )[0];
 });
 
 const activeAgentsCount = computed(() => {

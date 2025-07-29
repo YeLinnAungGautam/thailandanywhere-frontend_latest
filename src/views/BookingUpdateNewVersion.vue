@@ -1468,10 +1468,10 @@ const updateData = ref(null);
 const cashImages = ref([]);
 
 // Methods
-const updateCashImage = (image) => {
-  updateData.value = image;
-  updateModalOpen.value = true;
-};
+//const updateCashImage = (image) => {
+//  updateData.value = image;
+//  updateModalOpen.value = true;
+//};
 
 const closeCashModal = () => {
   updateModalOpen.value = false;
@@ -1961,10 +1961,10 @@ onMounted(async () => {
             <button
               class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
             >
-              <PencilSquareIcon
+              <!-- <PencilSquareIcon
                 class="w-8 h-8 text-blue-600 font-semibold"
                 @click="updateCashImage(image)"
-              />
+              /> -->
               <XCircleIcon
                 class="w-8 h-8 font-semibold"
                 v-if="authStore.isSuperAdmin"
@@ -2137,12 +2137,12 @@ onMounted(async () => {
         </div>
       </DialogPanel>
     </Modal>
-    <CashImageModal
+    <!-- <CashImageModal
       :updateModalOpen="updateModalOpen"
       :updateData="updateData"
       @closeModal="closeCashModal"
       @update="onChangeUpdate"
-    />
+    /> -->
     <Modal :isOpen="openPrintModal" @closeModal="openPrintModal = false">
       <DialogPanel
         class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"

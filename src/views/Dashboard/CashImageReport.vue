@@ -161,9 +161,17 @@
                   formatAmount(
                     monthlyData?.expense_summary[
                       currency == "THB" ? "thb" : "mmk"
-                    ]
+                    ].amount
                   )
                 }}
+              </div>
+              <div class="text-[10px] text-red-800">
+                {{
+                  monthlyData?.expense_summary[
+                    currency == "THB" ? "thb" : "mmk"
+                  ].count
+                }}
+                images
               </div>
             </div>
           </div>

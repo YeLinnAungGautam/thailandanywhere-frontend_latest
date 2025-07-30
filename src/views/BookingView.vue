@@ -22,6 +22,7 @@ import { useAdminStore } from "../stores/admin";
 import { useSidebarStore } from "../stores/sidebar";
 import SalesToday from "./BookingListComponent/SalesToday.vue";
 import debounce from "lodash/debounce";
+import CashBookAdd from "./cash/CashBookAdd.vue";
 
 const bookingStore = useBookingStore();
 const { bookings, loading } = storeToRefs(bookingStore);
@@ -93,6 +94,8 @@ const getListUser = async () => {
   }
 };
 
+const showCashImageModal = ref(false);
+
 const watchSystem = computed(() => {
   const result = {};
 
@@ -123,7 +126,7 @@ const watchSystem = computed(() => {
   if (searchP.value != "" && searchP.value != undefined) {
     result.status = searchP.value;
   }
-  if (connection_status.value!= "" && connection_status.value!= undefined) {
+  if (connection_status.value != "" && connection_status.value != undefined) {
     result.connection_status = connection_status.value;
   }
   if (sale_date_order_by.value) {
@@ -166,10 +169,8 @@ const searchHandler = async () => {
 watch(
   [createdBy, sale_date_order_by],
   debounce(async ([newValue, secValue]) => {
-    
-      showFilter.value = true;
-      await searchHandler();
-    
+    showFilter.value = true;
+    await searchHandler();
   }, 500)
 );
 
@@ -204,8 +205,7 @@ onMounted(async () => {
       <p class="text-xs">Manage your daily sales easily.</p>
     </div>
     <div class="flex justify-start items-center gap-x-4">
-
-      <SalesToday :adminLists="adminLists" v-model:createdBy="createdBy"/>
+      <SalesToday :adminLists="adminLists" v-model:createdBy="createdBy" />
     </div>
     <!-- div -->
     <div
@@ -246,59 +246,83 @@ onMounted(async () => {
                 :class="customFilter ? 'bg-[#FF613c]' : 'bg-[#FF613c]'"
                 @click="customFilter = !customFilter"
               >
-                <ChevronLeftIcon class="h-4 w-4 text-white cursor-pointer transition-all duration-150" :class="{ 'rotate-180': !customFilter }"/>
+                <ChevronLeftIcon
+                  class="h-4 w-4 text-white cursor-pointer transition-all duration-150"
+                  :class="{ 'rotate-180': !customFilter }"
+                />
               </div>
               <div class="p-2 bg-[#FF613c]/10 rounded-lg relative group">
-                <div class=" flex justify-center items-center cursor-pointer gap-x-1">
+                <div
+                  class="flex justify-center items-center cursor-pointer gap-x-1"
+                >
                   <ChevronUpDownIcon
                     class="h-4 w-4 text-[#FF613c] cursor-pointer"
-                  /> <span class=" text-xs text-[#FF613c] uppercase">{{ sort_by ? sort_by : 'TYPE' }}</span>
+                  />
+                  <span class="text-xs text-[#FF613c] uppercase">{{
+                    sort_by ? sort_by : "TYPE"
+                  }}</span>
                 </div>
                 <div
                   class="absolute group-hover:block hidden -bottom-30 left-0 bg-white shadow-lg rounded-lg p-2"
-                ><p
+                >
+                  <p
                     class="whitespace-nowrap flex justify-start items-center cursor-pointer py-2 px-4 text-xs hover:text-[#FF613c]"
-                    :class="
-                      sort_by === '' ? 'text-[#FF613c]' : ''
-                    "
+                    :class="sort_by === '' ? 'text-[#FF613c]' : ''"
                     @click="sort_by = ``"
                   >
-                    <CheckIcon class="w-4 h-4 mr-3" :class="sort_by == '' ? '' : 'opacity-0'"/> None
+                    <CheckIcon
+                      class="w-4 h-4 mr-3"
+                      :class="sort_by == '' ? '' : 'opacity-0'"
+                    />
+                    None
                   </p>
                   <p
                     class="whitespace-nowrap flex justify-start items-center cursor-pointer py-2 px-4 text-xs hover:text-[#FF613c]"
-                    :class="
-                      sort_by === 'name' ? 'text-[#FF613c]' : ''
-                    "
+                    :class="sort_by === 'name' ? 'text-[#FF613c]' : ''"
                     @click="sort_by = `name`"
                   >
-                    <CheckIcon class="w-4 h-4 mr-3" :class="sort_by == 'name' ? '' : 'opacity-0'"/> Customer Name
+                    <CheckIcon
+                      class="w-4 h-4 mr-3"
+                      :class="sort_by == 'name' ? '' : 'opacity-0'"
+                    />
+                    Customer Name
                   </p>
                   <p
                     class="whitespace-nowrap cursor-pointer py-2 px-4 flex justify-start items-center text-xs hover:text-[#FF613c]"
-                    :class="
-                      sort_by === 'booking_date' ? 'text-[#FF613c]' : ''
-                    "
+                    :class="sort_by === 'booking_date' ? 'text-[#FF613c]' : ''"
                     @click="sort_by = `booking_date`"
                   >
-                  <CheckIcon class="w-4 h-4 mr-3" :class="sort_by == 'booking_date' ? '' : 'opacity-0'"/> Booking Date
+                    <CheckIcon
+                      class="w-4 h-4 mr-3"
+                      :class="sort_by == 'booking_date' ? '' : 'opacity-0'"
+                    />
+                    Booking Date
                   </p>
                   <p
                     class="whitespace-nowrap cursor-pointer py-2 px-4 flex justify-start items-center text-xs hover:text-[#FF613c]"
-                    :class="
-                      sort_by === 'amount' ? 'text-[#FF613c]' : ''
-                    "
+                    :class="sort_by === 'amount' ? 'text-[#FF613c]' : ''"
                     @click="sort_by = `amount`"
                   >
-                  <CheckIcon class="w-4 h-4 mr-3" :class="sort_by == 'amount' ? '' : 'opacity-0'"/> Amount
+                    <CheckIcon
+                      class="w-4 h-4 mr-3"
+                      :class="sort_by == 'amount' ? '' : 'opacity-0'"
+                    />
+                    Amount
                   </p>
                 </div>
               </div>
               <div class="p-2 bg-[#FF613c]/10 rounded-lg relative group">
-                <div class=" flex justify-center items-center cursor-pointer gap-x-1">
+                <div
+                  class="flex justify-center items-center cursor-pointer gap-x-1"
+                >
                   <ChevronUpDownIcon
                     class="h-4 w-4 text-[#FF613c] cursor-pointer"
-                  /> <span class=" text-xs text-[#FF613c]">{{ sale_date_order_by && sale_date_order_by == 'desc' ? 'ZA' : 'AZ' }}</span>
+                  />
+                  <span class="text-xs text-[#FF613c]">{{
+                    sale_date_order_by && sale_date_order_by == "desc"
+                      ? "ZA"
+                      : "AZ"
+                  }}</span>
                 </div>
                 <div
                   class="absolute group-hover:block hidden -bottom-20 left-0 bg-white shadow-lg rounded-lg p-2"
@@ -310,7 +334,11 @@ onMounted(async () => {
                     "
                     @click="sale_date_order_by = `desc`"
                   >
-                    <CheckIcon class="w-4 h-4 mr-3" :class="sale_date_order_by == 'desc' ? '' : 'opacity-0'"/> Latest to First
+                    <CheckIcon
+                      class="w-4 h-4 mr-3"
+                      :class="sale_date_order_by == 'desc' ? '' : 'opacity-0'"
+                    />
+                    Latest to First
                   </p>
                   <p
                     class="whitespace-nowrap cursor-pointer py-2 px-4 flex justify-start items-center text-xs hover:text-[#FF613c]"
@@ -319,12 +347,22 @@ onMounted(async () => {
                     "
                     @click="sale_date_order_by = `asc`"
                   >
-                  <CheckIcon class="w-4 h-4 mr-3" :class="sale_date_order_by == 'asc' ? '' : 'opacity-0'"/> First to Latest
+                    <CheckIcon
+                      class="w-4 h-4 mr-3"
+                      :class="sale_date_order_by == 'asc' ? '' : 'opacity-0'"
+                    />
+                    First to Latest
                   </p>
                 </div>
               </div>
             </div>
             <div class="flex justify-end w-full items-center gap-x-2">
+              <div
+                @click="showCashImageModal = true"
+                class="bg-[#FF613c] text-white text-xs whitespace-nowrap rounded-lg px-2 py-1.5 flex justify-center items-center cursor-pointer gap-x-1"
+              >
+                + Cash Image
+              </div>
               <div class="relative">
                 <input
                   type="text"
@@ -372,6 +410,15 @@ onMounted(async () => {
         </div>
       </transition>
     </div>
+    <CashBookAdd
+      :show="showCashImageModal"
+      :closeAction="
+        () => {
+          showCashImageModal = false;
+        }
+      "
+      @refresh="() => {}"
+    />
   </Layout>
 </template>
 

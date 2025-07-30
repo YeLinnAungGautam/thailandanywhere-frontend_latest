@@ -5,7 +5,7 @@
       class="space-x-8 col-span-3 flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
     >
       <p
-        class="text-2xl flex justify-start items-center font-medium text-[#FF613c]"
+        class="text-2xl flex justify-start whitespace-nowrap items-center font-medium text-[#FF613c]"
       >
         Bank Statement
         <span
@@ -17,6 +17,20 @@
         ></span>
         <span>{{ monthArray.find((m) => m.id == selectedMonth)?.name }}</span>
       </p>
+      <div class="flex justify-end w-full items-center space-x-2">
+        <p
+          class="px-3 py-2.5 rounded-xl bg-green-600/50 text-xs backdrop-blur-sm shadow"
+        >
+          IN: {{ formattedNumber(total_income.toFixed(2)) }} thb ,
+          {{ formattedNumber(total_income_mmk.toFixed(2)) }} mmk
+        </p>
+        <p
+          class="px-3 py-2.5 rounded-xl bg-red-600/50 text-xs backdrop-blur-sm shadow"
+        >
+          EXP: {{ formattedNumber(total_expense.toFixed(2)) }} thb,
+          {{ formattedNumber(total_expense_mmk.toFixed(2)) }} mmk
+        </p>
+      </div>
     </div>
 
     <div class="">
@@ -340,6 +354,386 @@
                       <span class="ml-2 text-sm text-gray-600"
                         >Loading details...</span
                       >
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Replace the empty tr with this - using the same table structure -->
+                <tr
+                  v-if="
+                    expandedItems[item.id] &&
+                    !loadingDetails[item.id] &&
+                    !getRelatableData(item.id)
+                  "
+                >
+                  <td colspan="14" class="p-0">
+                    <div class="bg-gray-50 pb-4 px-4">
+                      <div class="w-full flex justify-end items-center py-2">
+                        <div
+                          class="bg-white/90 max-w-[100px] px-2 shadow-lg border border-gray-200 py-1 rounded-2xl backdrop-blur-sm flex items-center justify-center space-x-2"
+                        >
+                          <button
+                            v-if="!authStore.isExternalAudit"
+                            @click.stop="goToView(item)"
+                            class="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                            title="View Details"
+                          >
+                            <MagnifyingGlassIcon class="w-4 h-4" />
+                          </button>
+                          <button
+                            @click.stop="showUpdate(detailedItems[item.id])"
+                            class="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                            title="Edit"
+                          >
+                            <PencilSquareIcon
+                              class="w-4 h-4"
+                              v-if="!authStore.isExternalAudit"
+                            />
+                            <EyeIcon class="w-4 h-4 text-blue-600" v-else />
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Same table structure as existing -->
+                      <table
+                        class="min-w-full"
+                        v-if="
+                          detailedItems[item.id]?.attached_bookings?.length > 0
+                        "
+                      >
+                        <!-- Table Header - Same as existing -->
+                        <thead class="bg-gray-50">
+                          <tr class="bg-[#FF613c] divide-x divide-gray-50">
+                            <th
+                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-start"
+                            >
+                              List
+                            </th>
+                            <th
+                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                            >
+                              Product Variation
+                            </th>
+                            <th
+                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                            >
+                              Price
+                            </th>
+                            <th
+                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                            >
+                              VAT (7%)
+                            </th>
+                            <th
+                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                            >
+                              Slip
+                            </th>
+                            <th
+                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                            >
+                              Invoice
+                            </th>
+                            <th
+                              class="px-6 py-3 text-xs font-medium text-white uppercase tracking-wider text-end"
+                            >
+                              Tax Credit
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <!-- Table Body - Same structure, different data source -->
+                        <tbody class="bg-white divide-y divide-gray-200">
+                          <!-- Show attached bookings data in same table format -->
+                          <template
+                            v-for="attachedBooking in detailedItems[item.id]
+                              .attached_bookings"
+                            :key="attachedBooking.id"
+                          >
+                            <!-- Booking Summary Row -->
+                            <tr class="">
+                              <td
+                                class="px-6 py-4 whitespace-nowrap border-t border-red-600 text-start"
+                              >
+                                <span
+                                  class="text-xs font-mono text-gray-900 bg-blue-100 px-2 py-1 rounded"
+                                >
+                                  {{ attachedBooking.crm_id }} -
+                                  {{ attachedBooking.booking.customer.name }}
+                                </span>
+                              </td>
+                              <td
+                                class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                              >
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                >
+                                  Booking Total
+                                </span>
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                >
+                                  {{
+                                    formattedNumber(
+                                      attachedBooking.booking.grand_total
+                                    )
+                                  }}
+                                </span>
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                >
+                                  {{
+                                    formattedNumber(
+                                      attachedBooking.booking.output_vat.toFixed(
+                                        2
+                                      )
+                                    )
+                                  }}
+                                </span>
+                              </td>
+                              <td
+                                class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
+                                @click="
+                                  show(attachedBooking.booking.receipts || [])
+                                "
+                              >
+                                <span
+                                  class="text-xs underline text-blue-600 font-mono px-2 py-1 rounded"
+                                >
+                                  sale slip ({{
+                                    attachedBooking.booking.receipts?.length ||
+                                    0
+                                  }})
+                                </span>
+                              </td>
+                              <td
+                                class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
+                                @click="openCredit(attachedBooking.booking.id)"
+                              >
+                                <span
+                                  class="text-xs underline text-blue-600 font-mono px-2 py-1 rounded"
+                                >
+                                  tax Invoice
+                                </span>
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs underline text-blue-600 font-mono px-2 py-1 rounded"
+                                  >-</span
+                                >
+                              </td>
+                            </tr>
+
+                            <!-- Commission Deduction Row -->
+                            <tr>
+                              <td
+                                class="px-6 py-4 whitespace-nowrap text-start"
+                              >
+                                <span
+                                  class="text-xs font-mono text-gray-900 bg-red-100 px-2 py-1 rounded"
+                                >
+                                  Deduct Commission
+                                </span>
+                              </td>
+                              <td
+                                class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                              >
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                ></span>
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                >
+                                  -{{
+                                    formattedNumber(
+                                      attachedBooking.booking.commission
+                                    )
+                                  }}
+                                </span>
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                  >-</span
+                                >
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                  >-</span
+                                >
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                  >-</span
+                                >
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                  >-</span
+                                >
+                              </td>
+                            </tr>
+
+                            <!-- Deposit Row -->
+                            <tr>
+                              <td
+                                class="px-6 py-4 whitespace-nowrap text-start"
+                              >
+                                <span
+                                  class="text-xs font-mono text-gray-900 bg-green-100 px-2 py-1 rounded"
+                                >
+                                  Deposit Amount
+                                </span>
+                              </td>
+                              <td
+                                class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                              >
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                >
+                                  {{ attachedBooking.pivot.notes || "-" }}
+                                </span>
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                >
+                                  {{
+                                    formattedNumber(
+                                      attachedBooking.pivot.deposit
+                                    )
+                                  }}
+                                </span>
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                >
+                                  {{
+                                    formattedNumber(
+                                      (
+                                        attachedBooking.pivot.deposit -
+                                        attachedBooking.pivot.deposit / 1.07
+                                      ).toFixed(2)
+                                    )
+                                  }}
+                                </span>
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                  >-</span
+                                >
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                  >-</span
+                                >
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                  >-</span
+                                >
+                              </td>
+                            </tr>
+
+                            <!-- Grouped items for each booking -->
+                            <tr
+                              v-for="group in attachedBooking.booking
+                                .grouped_items"
+                              :key="group.group_id"
+                            >
+                              <td
+                                class="px-6 py-4 whitespace-nowrap text-start"
+                              >
+                                <div class="text-xs font-mono flex flex-wrap">
+                                  <span
+                                    @click="goToGroup(group)"
+                                    class="text-gray-900 bg-blue-100 px-2 mr-2 py-1 rounded cursor-pointer"
+                                  >
+                                    Group
+                                  </span>
+                                  <span
+                                    v-for="groupItem in group.items"
+                                    class="text-gray-900 bg-gray-100 px-2 py-1 rounded mr-2"
+                                    :key="groupItem.id"
+                                  >
+                                    {{ groupItem.crm_id.split("_")[1] }}
+                                  </span>
+                                </div>
+                              </td>
+                              <td
+                                class="px-6 py-4 whitespace-nowrap text-end w-[200px]"
+                              >
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                >
+                                  {{ group.items[0]?.product_name }}
+                                </span>
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                >
+                                  {{
+                                    formattedNumber(group.group_total_amount)
+                                  }}
+                                </span>
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded"
+                                >
+                                  {{
+                                    formattedNumber(
+                                      (
+                                        group.group_total_amount -
+                                        group.group_total_amount / 1.07
+                                      ).toFixed(2)
+                                    )
+                                  }}
+                                </span>
+                              </td>
+                              <td
+                                class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
+                              >
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded text-red-600 font-medium"
+                                >
+                                  missing
+                                </span>
+                              </td>
+                              <td
+                                class="px-6 py-4 whitespace-nowrap text-end cursor-pointer"
+                              >
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded text-red-600 font-medium"
+                                >
+                                  missing
+                                </span>
+                              </td>
+                              <td class="px-6 py-4 whitespace-nowrap text-end">
+                                <span
+                                  class="text-xs font-mono px-2 py-1 rounded text-red-600 font-medium"
+                                >
+                                  missing
+                                </span>
+                              </td>
+                            </tr>
+                          </template>
+                        </tbody>
+                      </table>
                     </div>
                   </td>
                 </tr>
@@ -1307,6 +1701,13 @@
         </div>
       </DialogPanel>
     </Modal>
+
+    <EditCashImageModal
+      :show="showUpdateModal"
+      :closeAction="() => (showUpdateModal = false)"
+      :cashImageData="showUpdateData"
+      @refresh="getEmitRefresh"
+    />
   </Layout>
 </template>
 
@@ -1317,6 +1718,7 @@ import Layout from "./Layout.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import Pagination from "../components/Pagination.vue";
 import { useToast } from "vue-toastification";
+import EditCashImageModal from "./cash/CashBookUpdate.vue";
 import {
   EyeIcon,
   PencilSquareIcon,
@@ -1379,6 +1781,19 @@ const calculateRealTax = (data) => {
     totalTax += item.detail?.total_tax_withold * 1;
   });
   return totalTax;
+};
+
+const showUpdateModal = ref(false);
+const showUpdateData = ref(null);
+
+const showUpdate = (data) => {
+  showUpdateModal.value = true;
+  showUpdateData.value = data;
+};
+
+const getEmitRefresh = async () => {
+  console.log("refresh");
+  await getAction();
 };
 
 // Method to get detailed data when user expands
@@ -1736,6 +2151,9 @@ const searchParams = computed(() => {
 
   params.include_relatable = true;
 
+  params.sort_by = "date";
+  params.sort_order = "desc";
+
   params.limit = per_page.value ? per_page.value : 100;
 
   return params;
@@ -1744,6 +2162,10 @@ const searchParams = computed(() => {
 const total_vat = ref(0);
 const total_commission = ref(0);
 const total_net_vat = ref(0);
+const total_income = ref(0);
+const total_expense = ref(0);
+const total_income_mmk = ref(0);
+const total_expense_mmk = ref(0);
 
 const getAction = async () => {
   await cashImageStore.getListAction(searchParams.value);
@@ -1757,6 +2179,10 @@ const getAction = async () => {
   total_vat.value = data.total_vat;
   total_commission.value = data.total_commission;
   total_net_vat.value = data.total_net_vat;
+  total_income.value = data.total_income;
+  total_expense.value = data.total_expense;
+  total_income_mmk.value = data.total_income_mmk;
+  total_expense_mmk.value = data.total_expense_mmk;
 };
 
 const changePage = async (url) => {

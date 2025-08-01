@@ -39,11 +39,15 @@ const sale_date_order_by = ref("");
 const inclusive_only = ref(false);
 const balanceDueDate = ref("");
 const bookingStatus = ref("");
-const saleDate = ref("");
+const saleDate = ref(""); // Single date
+const bookingDateFrom = ref(""); // Range start date
+const bookingDateTo = ref(""); // Range end date
 const createdBy = ref("");
 const search = ref("");
 const searchA = ref("");
 const searchP = ref("");
+const priceMin = ref("");
+const priceMax = ref("");
 const sort_by = ref("");
 const limit = ref(10);
 const connection_status = ref("");
@@ -57,12 +61,16 @@ const clearFilter = async () => {
     search.value = "";
     searchA.value = "";
     searchP.value = "";
+    priceMin.value = "";
+    priceMax.value = "";
     connection_status.value = "";
     customerName.value = "";
     balanceDueDate.value = "";
     createdBy.value = "";
     bookingStatus.value = "";
     saleDate.value = "";
+    bookingDateFrom.value = ""; // Clear range dates
+    bookingDateTo.value = "";
     sale_date_order_by.value = "";
     sort_by.value = "";
     inclusive_only.value = false;
@@ -75,13 +83,12 @@ const adminLists = ref([]);
 
 const getListUser = async () => {
   try {
-    const res = await await adminStore.getSimpleListAction();
+    const res = await adminStore.getSimpleListAction();
     console.log(res, "this is admin list");
 
     adminLists.value = res.result.data
       .filter((item) => item.role === "admin" || item.role === "sale_manager")
       .map((item) => {
-        // Return desired structure or transformation here
         return {
           id: item.id,
           name: item.name,
@@ -117,15 +124,34 @@ const watchSystem = computed(() => {
   if (bookingStatus.value != "" && bookingStatus.value != undefined) {
     result.booking_status = bookingStatus.value;
   }
+
+  // Handle single date vs date range
   if (saleDate.value != "" && saleDate.value != undefined) {
     result.sale_date = saleDate.value;
   }
+  if (bookingDateFrom.value != "" && bookingDateFrom.value != undefined) {
+    result.booking_date_from = bookingDateFrom.value;
+  }
+  if (bookingDateTo.value != "" && bookingDateTo.value != undefined) {
+    result.booking_date_to = bookingDateTo.value;
+  }
+
   if (searchA.value != "" && searchA.value != undefined) {
     result.filter = searchA.value;
   }
   if (searchP.value != "" && searchP.value != undefined) {
     result.status = searchP.value;
   }
+
+  // FIXED: Price range handling - separate conditions
+  // if (priceMin.value != "" && priceMin.value != undefined) {
+  //   result.price_min = priceMin.value;
+  // }
+  if (priceMax.value != "" && priceMax.value != undefined) {
+    result.price_min = priceMin.value ? priceMin.value : 0;
+    result.price_max = priceMax.value;
+  }
+
   if (connection_status.value != "" && connection_status.value != undefined) {
     result.connection_status = connection_status.value;
   }
@@ -150,13 +176,25 @@ const changePage = async (url) => {
 };
 
 const SearchFunction = () => {
+  // Update route params to handle both single date and date range
+  const params = {
+    crm_id: search.value ? search.value : "%",
+    customer_name: customerName.value ? customerName.value : "%",
+  };
+
+  // Add date param based on which type is being used
+  if (saleDate.value) {
+    params.sale_date = saleDate.value;
+  } else if (bookingDateFrom.value || bookingDateTo.value) {
+    params.booking_date_from = bookingDateFrom.value || "%";
+    params.booking_date_to = bookingDateTo.value || "%";
+  } else {
+    params.sale_date = "%";
+  }
+
   router.push({
-    name: `bookings`,
-    params: {
-      crm_id: search.value ? search.value : "%",
-      customer_name: customerName.value ? customerName.value : "%",
-      sale_date: saleDate.value ? saleDate.value : "%",
-    },
+    name: "bookings",
+    params: params,
   });
 };
 
@@ -166,27 +204,74 @@ const searchHandler = async () => {
   await bookingStore.getListAction(watchSystem.value);
 };
 
+// FIXED: Watch for changes in filter values - added price values
 watch(
-  [createdBy, sale_date_order_by],
-  debounce(async ([newValue, secValue]) => {
-    showFilter.value = true;
-    await searchHandler();
-  }, 500)
+  [
+    createdBy,
+    sale_date_order_by,
+    saleDate,
+    bookingDateFrom,
+    bookingDateTo,
+    priceMin,
+    priceMax,
+  ],
+  debounce(
+    async ([
+      newCreatedBy,
+      newSaleDateOrder,
+      newSaleDate,
+      newBookingFrom,
+      newBookingTo,
+      newPriceMin,
+      newPriceMax,
+    ]) => {
+      showFilter.value = true;
+      await searchHandler();
+    },
+    500
+  )
 );
 
 onMounted(async () => {
-  (sale_date_order_by.value = "desc"),
-    // console.log(route.params);
-    (search.value = route.params.crm_id == "%" ? "" : route.params.crm_id);
+  sale_date_order_by.value = "desc";
+
+  // Handle route params
+  search.value = route.params.crm_id == "%" ? "" : route.params.crm_id;
   customerName.value =
     route.params.customer_name == "%" ? "" : route.params.customer_name;
-  saleDate.value = route.params.sale_date == "%" ? "" : route.params.sale_date;
 
-  // console.log(admin.value, "this is admin");
+  // Handle date params from route
+  if (route.params.sale_date && route.params.sale_date !== "%") {
+    saleDate.value = route.params.sale_date;
+  }
+  if (
+    route.params.booking_date_from &&
+    route.params.booking_date_from !== "%"
+  ) {
+    bookingDateFrom.value = route.params.booking_date_from;
+  }
+  if (route.params.booking_date_to && route.params.booking_date_to !== "%") {
+    bookingDateTo.value = route.params.booking_date_to;
+  }
+
+  // ADDED: Handle price params from route (if you want to support URL params for prices)
+  if (route.params.price_min && route.params.price_min !== "%") {
+    priceMin.value = route.params.price_min;
+  }
+  if (route.params.price_max && route.params.price_max !== "%") {
+    priceMax.value = route.params.price_max;
+  }
 
   await getListUser();
   await bookingStore.getListAction(watchSystem.value);
 });
+
+// Helper function to format date (assuming this exists somewhere)
+const formatDate = (date) => {
+  if (!date) return "";
+  // Add your date formatting logic here
+  return date;
+};
 </script>
 
 <template>
@@ -221,7 +306,11 @@ onMounted(async () => {
         >
           <FilterPart
             v-model:saleDate="saleDate"
+            v-model:bookingDateFrom="bookingDateFrom"
+            v-model:bookingDateTo="bookingDateTo"
             v-model:searchP="searchP"
+            v-model:priceMin="priceMin"
+            v-model:priceMax="priceMax"
             v-model:connection_status="connection_status"
             v-model:inclusive_only="inclusive_only"
             v-model:createdBy="createdBy"
@@ -263,7 +352,7 @@ onMounted(async () => {
                   }}</span>
                 </div>
                 <div
-                  class="absolute group-hover:block hidden -bottom-30 left-0 bg-white shadow-lg rounded-lg p-2"
+                  class="absolute group-hover:block hidden -bottom-30 left-0 bg-white shadow-lg rounded-lg p-2 z-10"
                 >
                   <p
                     class="whitespace-nowrap flex justify-start items-center cursor-pointer py-2 px-4 text-xs hover:text-[#FF613c]"
@@ -325,7 +414,7 @@ onMounted(async () => {
                   }}</span>
                 </div>
                 <div
-                  class="absolute group-hover:block hidden -bottom-20 left-0 bg-white shadow-lg rounded-lg p-2"
+                  class="absolute group-hover:block hidden -bottom-20 left-0 bg-white shadow-lg rounded-lg p-2 z-10"
                 >
                   <p
                     class="whitespace-nowrap flex justify-start items-center cursor-pointer py-2 px-4 text-xs hover:text-[#FF613c]"

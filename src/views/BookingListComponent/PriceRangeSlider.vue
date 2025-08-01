@@ -66,12 +66,12 @@
         ></div>
       </div>
 
-      <button
+      <!-- <button
         class="w-full bg-coral-500 hover:bg-coral-600 text-xs text-white py-1.5 rounded-md transition-colors"
         @click="applyFilter"
       >
         Apply
-      </button>
+      </button> -->
     </div>
   </div>
 </template>

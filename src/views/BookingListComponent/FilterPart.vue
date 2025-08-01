@@ -7,17 +7,41 @@ import { formattedDate } from "../help/FormatData";
 import { useAuthStore } from "../../stores/auth";
 
 const selectedDate = ref(null);
+const startDate = ref(null);
+const endDate = ref(null);
+const multiSelectMode = ref(false); // Toggle between single and range selection
 const payment_status = ref("");
 const inclusive = ref(false);
 const authStore = useAuthStore();
+
+// Price range variables
+const minValue = ref(0);
+const maxValue = ref(90000);
+const priceRangeApplied = ref(false);
 
 const props = defineProps({
   saleDate: {
     type: String,
     default: "",
   },
+  bookingDateFrom: {
+    type: String,
+    default: "",
+  },
+  bookingDateTo: {
+    type: String,
+    default: "",
+  },
   searchP: {
     type: String,
+    default: "",
+  },
+  priceMin: {
+    type: [String, Number],
+    default: "",
+  },
+  priceMax: {
+    type: [String, Number],
     default: "",
   },
   connection_status: {
@@ -48,7 +72,11 @@ const props = defineProps({
 
 const emit = defineEmits([
   "update:saleDate",
+  "update:bookingDateFrom",
+  "update:bookingDateTo",
   "update:searchP",
+  "update:priceMin",
+  "update:priceMax",
   "update:connection_status",
   "update:inclusive_only",
   "update:createdBy",
@@ -62,45 +90,156 @@ const inclusiveFilter = ref(false);
 const connectionFilter = ref(false);
 const agentFilter = ref(false);
 
-const isDateSelected = (date) => {
-  if (!selectedDate.value && date == "") return true;
-  if (!date || !selectedDate.value) return false;
-
-  const compareDate = new Date(date);
-  return compareDate.toDateString() === selectedDate.value.toDateString();
+// Helper function to check if dates match
+const isSameDate = (date1, date2) => {
+  if (!date1 || !date2) return false;
+  const d1 = date1 instanceof Date ? date1 : new Date(date1);
+  const d2 = date2 instanceof Date ? date2 : new Date(date2);
+  return d1.toDateString() === d2.toDateString();
 };
 
-// Add these functions to your script section
+const isDateSelected = (date) => {
+  if (multiSelectMode.value) {
+    // Range mode - check if date is in range
+    if (!startDate.value || !endDate.value) return false;
+    const checkDate = date instanceof Date ? date : new Date(date);
+    return checkDate >= startDate.value && checkDate <= endDate.value;
+  } else {
+    // Single mode - check if date matches selected date
+    if (date === "" && !selectedDate.value) return true;
+    if (!selectedDate.value || !date) return false;
+    return isSameDate(selectedDate.value, date);
+  }
+};
+
+// Emit date changes to parent
+const emitDateChanges = () => {
+  if (multiSelectMode.value) {
+    // Range mode - emit booking_date_from and booking_date_to
+    emit("update:saleDate", ""); // Clear single date
+    emit(
+      "update:bookingDateFrom",
+      startDate.value ? formattedDate(startDate.value) : ""
+    );
+    emit(
+      "update:bookingDateTo",
+      endDate.value ? formattedDate(endDate.value) : ""
+    );
+  } else {
+    // Single mode - emit sale_date
+    emit("update:bookingDateFrom", ""); // Clear range dates
+    emit("update:bookingDateTo", "");
+    emit(
+      "update:saleDate",
+      selectedDate.value ? formattedDate(selectedDate.value) : ""
+    );
+  }
+};
+
+// Price range handlers
+const handlePriceUpdate = (type, value) => {
+  if (type === "min") {
+    minValue.value = value;
+  } else {
+    maxValue.value = value;
+  }
+};
+
+const handleApplyPrice = () => {
+  console.log(minValue.value, maxValue.value);
+
+  priceRangeApplied.value = true;
+  emit("update:priceMin", minValue.value);
+  emit("update:priceMax", maxValue.value);
+};
+
+const clearPriceRange = () => {
+  minValue.value = 0;
+  maxValue.value = 90000;
+  priceRangeApplied.value = false;
+  emit("update:priceMin", "");
+  emit("update:priceMax", "");
+};
+
+// Quick select functions
 const selectToday = () => {
   const today = new Date();
-  selectedDate.value = today;
-  emit("update:saleDate", formattedDate(today));
+  if (multiSelectMode.value) {
+    startDate.value = today;
+    endDate.value = today;
+  } else {
+    selectedDate.value = today;
+  }
+  emitDateChanges();
 };
 
 const selectYesterday = () => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  selectedDate.value = yesterday;
-  emit("update:saleDate", formattedDate(yesterday));
+  if (multiSelectMode.value) {
+    startDate.value = yesterday;
+    endDate.value = yesterday;
+  } else {
+    selectedDate.value = yesterday;
+  }
+  emitDateChanges();
 };
 
 const selectDayBefore = () => {
   const dayBefore = new Date();
   dayBefore.setDate(dayBefore.getDate() - 2);
-  selectedDate.value = dayBefore;
-  emit("update:saleDate", formattedDate(dayBefore));
+  if (multiSelectMode.value) {
+    startDate.value = dayBefore;
+    endDate.value = dayBefore;
+  } else {
+    selectedDate.value = dayBefore;
+  }
+  emitDateChanges();
 };
 
 const selectAll = () => {
   selectedDate.value = null;
-  emit("update:saleDate", "");
+  startDate.value = null;
+  endDate.value = null;
+  emitDateChanges();
 };
 
+// Toggle between single and range mode
+const toggleSelectionMode = () => {
+  multiSelectMode.value = !multiSelectMode.value;
+  // Clear all selections when switching mode
+  selectedDate.value = null;
+  startDate.value = null;
+  endDate.value = null;
+  emitDateChanges();
+};
+
+// Handle date picker model
 const modelDate = computed({
-  get: () => selectedDate.value,
+  get: () => {
+    if (multiSelectMode.value) {
+      return startDate.value && endDate.value
+        ? { start: startDate.value, end: endDate.value }
+        : null;
+    } else {
+      return selectedDate.value;
+    }
+  },
   set: (value) => {
-    selectedDate.value = value;
-    emit("update:saleDate", formattedDate(value));
+    if (multiSelectMode.value) {
+      // Range mode
+      if (value && typeof value === "object" && value.start) {
+        startDate.value = value.start;
+        endDate.value = value.end || value.start;
+      } else {
+        startDate.value = null;
+        endDate.value = null;
+      }
+    } else {
+      // Single mode
+      selectedDate.value = value;
+    }
+    emitDateChanges();
   },
 });
 
@@ -136,26 +275,44 @@ const modelInclusive = computed({
 
 const filterCount = computed(() => {
   let count = 0;
-  if (selectedDate.value) count++;
+  if (multiSelectMode.value) {
+    if (startDate.value || endDate.value) count++;
+  } else {
+    if (selectedDate.value) count++;
+  }
   if (payment_status.value) count++;
   if (inclusive.value) count++;
   if (createdBy.value) count++;
+  if (priceRangeApplied.value) count++;
   return count;
+});
+
+// Price range display text
+const priceRangeText = computed(() => {
+  if (priceRangeApplied.value) {
+    return `$${minValue.value.toLocaleString()} - $${maxValue.value.toLocaleString()}`;
+  }
+  return "Select price range";
 });
 
 function parseDate(dateString) {
   if (!dateString) return null;
-
-  // Assuming your dateString is in format "YYYY-MM-DD"
   const [year, month, day] = dateString.split("-").map(Number);
-  // Month in JS Date is 0-indexed, so subtract 1 from month
   return new Date(year, month - 1, day);
 }
 
 onMounted(() => {
-  // Check if props have initial values and set the internal state
-  if (props.saleDate) {
-    // You would need a function to convert string date back to Date object
+  // Initialize from props
+  if (props.bookingDateFrom || props.bookingDateTo) {
+    // Range mode
+    multiSelectMode.value = true;
+    startDate.value = props.bookingDateFrom
+      ? parseDate(props.bookingDateFrom)
+      : null;
+    endDate.value = props.bookingDateTo ? parseDate(props.bookingDateTo) : null;
+  } else if (props.saleDate) {
+    // Single mode
+    multiSelectMode.value = false;
     selectedDate.value = parseDate(props.saleDate);
   }
 
@@ -165,16 +322,30 @@ onMounted(() => {
   if (props.connection_status) {
     modelConnectionStatus.value = props.connection_status;
   }
-
-  // Set inclusive based on inclusive_only prop
   inclusive.value = props.inclusive_only;
+
+  // Initialize price range
+  if (props.priceMin && props.priceMin !== "") {
+    minValue.value = Number(props.priceMin);
+    priceRangeApplied.value = true;
+  }
+  if (props.priceMax && props.priceMax !== "") {
+    maxValue.value = Number(props.priceMax);
+    priceRangeApplied.value = true;
+  }
 });
 
+// Watch for prop changes
 watch(
-  () => props.saleDate,
-  (newValue) => {
-    if (newValue && newValue !== formattedDate(selectedDate.value)) {
-      selectedDate.value = parseDate(newValue);
+  () => [props.saleDate, props.bookingDateFrom, props.bookingDateTo],
+  ([newSaleDate, newBookingFrom, newBookingTo]) => {
+    if (newBookingFrom || newBookingTo) {
+      multiSelectMode.value = true;
+      startDate.value = newBookingFrom ? parseDate(newBookingFrom) : null;
+      endDate.value = newBookingTo ? parseDate(newBookingTo) : null;
+    } else if (newSaleDate) {
+      multiSelectMode.value = false;
+      selectedDate.value = parseDate(newSaleDate);
     }
   }
 );
@@ -196,17 +367,38 @@ watch(
     }
   }
 );
+
+// Watch for price prop changes
+watch(
+  () => [props.priceMin, props.priceMax],
+  ([newMin, newMax]) => {
+    if (newMin && newMin !== "") {
+      minValue.value = Number(newMin);
+      priceRangeApplied.value = true;
+    }
+    if (newMax && newMax !== "") {
+      maxValue.value = Number(newMax);
+      priceRangeApplied.value = true;
+    }
+    if ((!newMin || newMin === "") && (!newMax || newMax === "")) {
+      minValue.value = 0;
+      maxValue.value = 90000;
+      priceRangeApplied.value = false;
+    }
+  }
+);
 </script>
 
 <template>
   <div class="h-[75vh] w-full overflow-y-auto">
+    <!-- Quick date selection buttons -->
     <div
       class="flex justify-start overflow-x-auto cursor-pointer items-center no-scrollbar gap-x-4"
     >
       <p
         class="px-2 py-1 text-xs text-[#FF613c]"
         :class="[
-          !selectedDate
+          !selectedDate && !startDate && !endDate
             ? 'bg-[#FF613c] text-white rounded-lg'
             : 'text-[#FF613c]',
         ]"
@@ -228,7 +420,7 @@ watch(
       <p
         class="px-2 py-1 text-xs text-[#FF613c]"
         :class="[
-          isDateSelected(new Date(new Date().setDate(new Date().getDate() - 1)))
+          isDateSelected(new Date(Date.now() - 24 * 60 * 60 * 1000))
             ? 'bg-[#FF613c] text-white rounded-lg'
             : 'text-[#FF613c]',
         ]"
@@ -239,7 +431,7 @@ watch(
       <p
         class="px-2 py-1 text-xs text-[#FF613c] whitespace-nowrap"
         :class="[
-          isDateSelected(new Date(new Date().setDate(new Date().getDate() - 2)))
+          isDateSelected(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000))
             ? 'bg-[#FF613c] text-white rounded-lg'
             : 'text-[#FF613c]',
         ]"
@@ -248,6 +440,7 @@ watch(
         Day Before
       </p>
     </div>
+
     <div class="border border-gray-100 rounded-lg mt-4 py-3">
       <div
         class="w-full border-b border-gray-300 flex justify-between items-center px-4 pb-3"
@@ -275,6 +468,8 @@ watch(
           </p>
         </div>
       </div>
+
+      <!-- Sales Date Section -->
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
         <div
           class="flex justify-between items-center w-full"
@@ -283,22 +478,50 @@ watch(
           <p class="text-xs font-semibold">
             <span
               class="w-2 h-2 inline-block rounded-full mr-2"
-              :class="selectedDate ? 'bg-[#FF613c]' : 'bg-gray-200'"
-            ></span
-            >Sales Date
+              :class="
+                selectedDate || startDate || endDate
+                  ? 'bg-[#FF613c]'
+                  : 'bg-gray-200'
+              "
+            ></span>
+            Sales Date
           </p>
           <ChevronDownIcon
             class="w-4 h-4 text-[#FF5B00] font-bold transition-all duration-150 cursor-pointer"
             :class="{ 'rotate-180': dateFilter }"
           />
         </div>
-        <div
-          class="max-w-md mx-auto pt-4 transition-all duration-150"
-          v-if="dateFilter"
-        >
-          <DatePicker v-model="modelDate" />
+
+        <div class="pt-4 transition-all duration-150" v-if="dateFilter">
+          <!-- Selection mode toggle -->
+          <div class="flex justify-between items-center mb-3">
+            <button
+              @click="multiSelectMode = false"
+              class="text-xs px-3 py-1 rounded-lg border border-[#FF613c] text-[#FF613c] hover:bg-[#FF613c] hover:text-white transition-colors"
+              :class="{ 'bg-[#FF613c] text-white': !multiSelectMode }"
+            >
+              Single Date
+            </button>
+            <button
+              @click="multiSelectMode = true"
+              class="text-xs px-3 py-1 rounded-lg border border-[#FF613c] text-[#FF613c] hover:bg-[#FF613c] hover:text-white transition-colors"
+              :class="{ 'bg-[#FF613c] text-white': multiSelectMode }"
+            >
+              Date Range
+            </button>
+          </div>
+
+          <!-- Date picker -->
+          <div class="max-w-md mx-auto">
+            <DatePicker
+              v-model="modelDate"
+              :mode="multiSelectMode ? 'range' : 'single'"
+            />
+          </div>
         </div>
       </div>
+
+      <!-- Select Agent Section -->
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
         <div
           class="flex justify-between items-center w-full"
@@ -345,6 +568,8 @@ watch(
           </div>
         </div>
       </div>
+
+      <!-- Payment Status Section -->
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
         <div
           class="flex justify-between items-center w-full"
@@ -354,8 +579,8 @@ watch(
             <span
               class="w-2 h-2 inline-block rounded-full mr-2"
               :class="payment_status ? 'bg-[#FF613c]' : 'bg-gray-200'"
-            ></span
-            >Payment Status
+            ></span>
+            Payment Status
           </p>
           <ChevronDownIcon
             :class="{ 'rotate-180': paymentFilter }"
@@ -405,6 +630,8 @@ watch(
           </div>
         </div>
       </div>
+
+      <!-- Price Range Section - UPDATED -->
       <div class="gap-x-4 w-full border-b border-gray-300 px-4 py-3">
         <div
           class="flex justify-between items-center w-full"
@@ -413,9 +640,9 @@ watch(
           <p class="text-xs font-semibold">
             <span
               class="w-2 h-2 inline-block rounded-full mr-2"
-              :class="false ? 'bg-[#FF613c]' : 'bg-gray-200'"
-            ></span
-            >Price Range
+              :class="priceRangeApplied ? 'bg-[#FF613c]' : 'bg-gray-200'"
+            ></span>
+            Price Range
           </p>
           <ChevronDownIcon
             :class="{ 'rotate-180': priceFilter }"
@@ -423,20 +650,45 @@ watch(
           />
         </div>
         <div class="w-full max-w-md mx-auto" v-if="priceFilter">
-          <div class="pt-3">
+          <div class="pt-3 space-y-3">
+            <!-- Price range display -->
+            <div class="text-center">
+              <p class="text-xs text-gray-600 mb-2">{{ priceRangeText }}</p>
+            </div>
+
+            <!-- Price Range Slider -->
             <PriceRangeSlider
               :initial-min="minValue"
               :initial-max="maxValue"
               :range-min="0"
               :range-max="90000"
-              @update:min="minValue = $event"
-              @update:max="maxValue = $event"
-              @apply="handleApply"
+              @update:min="handlePriceUpdate('min', $event)"
+              @update:max="handlePriceUpdate('max', $event)"
+              @apply="handleApplyPrice"
             />
+
+            <!-- Price range controls -->
+            <div class="flex justify-between items-center gap-2 mt-3">
+              <button
+                @click="clearPriceRange"
+                class="flex-1 text-xs py-1.5 px-3 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+                :class="{ 'opacity-50 cursor-not-allowed': !priceRangeApplied }"
+                :disabled="!priceRangeApplied"
+              >
+                Clear
+              </button>
+              <button
+                @click="handleApplyPrice"
+                class="flex-1 text-xs py-1.5 px-3 bg-[#FF613c] text-white rounded-lg hover:bg-[#FF613c]/90 transition-colors"
+              >
+                Apply
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- Inclusive Section -->
       <div class="gap-x-4 w-full px-4 py-3 border-b border-gray-300">
         <div
           class="flex justify-between items-center w-full"
@@ -446,8 +698,8 @@ watch(
             <span
               class="w-2 h-2 inline-block rounded-full mr-2"
               :class="inclusive ? 'bg-[#FF613c]' : 'bg-gray-200'"
-            ></span
-            >Inclusive
+            ></span>
+            Inclusive
           </p>
           <ChevronDownIcon
             :class="{ 'rotate-180': inclusiveFilter }"
@@ -476,6 +728,7 @@ watch(
         </div>
       </div>
 
+      <!-- Connected Section -->
       <div class="gap-x-4 w-full px-4 py-3">
         <div
           class="flex justify-between items-center w-full"
@@ -485,8 +738,8 @@ watch(
             <span
               class="w-2 h-2 inline-block rounded-full mr-2"
               :class="connection_status ? 'bg-[#FF613c]' : 'bg-gray-200'"
-            ></span
-            >Connected
+            ></span>
+            Connected
           </p>
           <ChevronDownIcon
             :class="{ 'rotate-180': connectionFilter }"

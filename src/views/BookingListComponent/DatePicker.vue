@@ -26,24 +26,6 @@
         </svg>
       </div>
 
-      <!-- Selection type toggle -->
-      <div class="flex mb-4 space-x-2">
-        <button
-          class="flex-1 py-1.5 text-xs rounded-md transition-colors"
-          :class="selectionMode === 'single' ? 'bg-coral-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
-          @click="setSelectionMode('single')"
-        >
-          Single Date
-        </button>
-        <button
-          class="flex-1 py-1.5 text-xs rounded-md transition-colors"
-          :class="selectionMode === 'range' ? 'bg-coral-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
-          @click="setSelectionMode('range')"
-        >
-          Date Range
-        </button>
-      </div>
-
       <!-- Calendar -->
       <div v-if="showCalendar" class="mb-4">
         <!-- Month navigation -->
@@ -112,7 +94,9 @@
                 ? 'hover:bg-gray-100 rounded-full cursor-pointer'
                 : '',
             ]"
-            @click="date.month === 'current' ? handleDateClick(date.date) : null"
+            @click="
+              date.month === 'current' ? handleDateClick(date.date) : null
+            "
           >
             {{ date.day }}
             <!-- Today indicator dot -->
@@ -123,8 +107,6 @@
           </div>
         </div>
       </div>
-
-      
 
       <!-- Clear button -->
       <button
@@ -138,19 +120,19 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 
 // Props
 const props = defineProps({
   modelValue: {
-    type: [Date, Object],
+    type: [Date, Object, null],
     default: null,
   },
   mode: {
     type: String,
-    default: 'single', // 'single' or 'range'
-    validator: (value) => ['single', 'range'].includes(value)
-  }
+    default: "single", // 'single' or 'range'
+    validator: (value) => ["single", "range"].includes(value),
+  },
 });
 
 // Emits
@@ -159,44 +141,47 @@ const emit = defineEmits(["update:modelValue"]);
 // Component state
 const isOpen = ref(true);
 const showCalendar = ref(true);
-const selectionMode = ref(props.mode);
 const selectedDate = ref(null);
 const startDate = ref(null);
 const endDate = ref(null);
 const currentYear = ref(new Date().getFullYear());
 const currentMonth = ref(new Date().getMonth());
-const selectingSecondDate = ref(false);
+
+// Computed selection mode based on prop
+const selectionMode = computed(() => props.mode);
 
 // Initialize from props
 const initializeFromProps = () => {
   if (props.modelValue) {
-    if (selectionMode.value === 'single' && props.modelValue instanceof Date) {
+    if (selectionMode.value === "single" && props.modelValue instanceof Date) {
       selectedDate.value = props.modelValue;
-    } else if (selectionMode.value === 'range' && typeof props.modelValue === 'object') {
+      // Set calendar to selected date's month
+      currentYear.value = props.modelValue.getFullYear();
+      currentMonth.value = props.modelValue.getMonth();
+    } else if (
+      selectionMode.value === "range" &&
+      typeof props.modelValue === "object"
+    ) {
       startDate.value = props.modelValue.start || null;
       endDate.value = props.modelValue.end || null;
-      selectingSecondDate.value = startDate.value && !endDate.value;
+      // Set calendar to start date's month if available
+      if (props.modelValue.start) {
+        currentYear.value = props.modelValue.start.getFullYear();
+        currentMonth.value = props.modelValue.start.getMonth();
+      }
     }
+  } else {
+    // Clear all selections if modelValue is null/undefined
+    selectedDate.value = null;
+    startDate.value = null;
+    endDate.value = null;
   }
 };
 
-// Set selection mode
-const setSelectionMode = (mode) => {
-  selectionMode.value = mode;
-  clearSelection();
-};
-
-// Initialize
-initializeFromProps();
-
-// Set initial view to selected date's month/year if available
-if (selectedDate.value) {
-  currentYear.value = selectedDate.value.getFullYear();
-  currentMonth.value = selectedDate.value.getMonth();
-} else if (startDate.value) {
-  currentYear.value = startDate.value.getFullYear();
-  currentMonth.value = startDate.value.getMonth();
-}
+// Initialize on mount
+onMounted(() => {
+  initializeFromProps();
+});
 
 // Days of week labels
 const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -206,22 +191,29 @@ const formatDisplayDate = (date) => {
   if (!date) return "";
   return date.toLocaleDateString("en-US", {
     year: "numeric",
-    month: "long",
+    month: "short",
     day: "numeric",
   });
 };
 
 // Get display value for input field
 const getDisplayValue = () => {
-  if (selectionMode.value === 'single') {
-    return selectedDate.value ? formatDisplayDate(selectedDate.value) : 'Pick a date';
+  if (selectionMode.value === "single") {
+    return selectedDate.value
+      ? formatDisplayDate(selectedDate.value)
+      : "Pick a date";
   } else {
     if (startDate.value && endDate.value) {
-      return `${formatDisplayDate(startDate.value)} - ${formatDisplayDate(endDate.value)}`;
+      if (startDate.value.toDateString() === endDate.value.toDateString()) {
+        return formatDisplayDate(startDate.value);
+      }
+      return `${formatDisplayDate(startDate.value)} - ${formatDisplayDate(
+        endDate.value
+      )}`;
     } else if (startDate.value) {
       return `${formatDisplayDate(startDate.value)} - Pick end date`;
     } else {
-      return 'Pick a date range';
+      return "Pick a date range";
     }
   }
 };
@@ -264,7 +256,7 @@ const calendarDays = computed(() => {
     days.push({ day: i, month: "current", date });
   }
 
-  // Add days from next month
+  // Add days from next month to fill the grid
   const remainingDays = 42 - days.length; // 6 rows of 7 days
   for (let i = 1; i <= remainingDays; i++) {
     const date = new Date(currentYear.value, currentMonth.value + 1, i);
@@ -304,32 +296,42 @@ const isToday = (date) => {
   );
 };
 
-// Check if a date is selected
+// Check if a date is selected (single mode)
 const isDateSelected = (date) => {
-  if (!date) return false;
-  
-  if (selectionMode.value === 'single' && selectedDate.value) {
-    return (
-      date.getDate() === selectedDate.value.getDate() &&
-      date.getMonth() === selectedDate.value.getMonth() &&
-      date.getFullYear() === selectedDate.value.getFullYear()
-    );
-  }
-  
-  return false;
+  if (!date || !selectedDate.value) return false;
+  return (
+    date.getDate() === selectedDate.value.getDate() &&
+    date.getMonth() === selectedDate.value.getMonth() &&
+    date.getFullYear() === selectedDate.value.getFullYear()
+  );
 };
 
 // Check if a date is in the selected range
 const isDateInRange = (date) => {
   if (!date || !startDate.value || !endDate.value) return false;
-  
-  return date >= startDate.value && date <= endDate.value;
+  // Normalize dates to compare only date part, not time
+  const checkDate = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
+  const start = new Date(
+    startDate.value.getFullYear(),
+    startDate.value.getMonth(),
+    startDate.value.getDate()
+  );
+  const end = new Date(
+    endDate.value.getFullYear(),
+    endDate.value.getMonth(),
+    endDate.value.getDate()
+  );
+
+  return checkDate >= start && checkDate <= end;
 };
 
 // Check if a date is the start of the range
 const isRangeStart = (date) => {
   if (!date || !startDate.value) return false;
-  
   return (
     date.getDate() === startDate.value.getDate() &&
     date.getMonth() === startDate.value.getMonth() &&
@@ -340,7 +342,6 @@ const isRangeStart = (date) => {
 // Check if a date is the end of the range
 const isRangeEnd = (date) => {
   if (!date || !endDate.value) return false;
-  
   return (
     date.getDate() === endDate.value.getDate() &&
     date.getMonth() === endDate.value.getMonth() &&
@@ -348,54 +349,60 @@ const isRangeEnd = (date) => {
   );
 };
 
-// Get the class for a date
+// Get the CSS class for a date
 const getDateClass = (date) => {
-  if (!date) return '';
-  
-  if (selectionMode.value === 'single') {
+  if (!date) return "";
+
+  if (selectionMode.value === "single") {
     if (isDateSelected(date)) {
-      return 'bg-coral-500 text-white rounded-full';
+      return "bg-coral-500 text-white rounded-full";
     }
   } else {
+    // Range mode
     if (isRangeStart(date) && isRangeEnd(date)) {
-      return 'bg-coral-500 text-white rounded-full';
+      // Same start and end date
+      return "bg-coral-500 text-white rounded-full";
     } else if (isRangeStart(date)) {
-      return 'bg-coral-500 text-white rounded-l-full';
+      return "bg-coral-500 text-white rounded-l-full";
     } else if (isRangeEnd(date)) {
-      return 'bg-coral-500 text-white rounded-r-full';
+      return "bg-coral-500 text-white rounded-r-full";
     } else if (isDateInRange(date)) {
-      return 'bg-coral-100 text-coral-600';
+      return "bg-coral-100 text-coral-600";
     }
   }
-  
-  return '';
+
+  return "";
 };
 
 // Handle date click
 const handleDateClick = (date) => {
-  if (selectionMode.value === 'single') {
+  if (selectionMode.value === "single") {
     selectedDate.value = date;
     emit("update:modelValue", date);
   } else {
+    // Range mode
     if (!startDate.value) {
       // First click - set start date
       startDate.value = date;
       endDate.value = null;
-      selectingSecondDate.value = true;
+      // Don't emit yet, wait for end date
     } else if (!endDate.value) {
       // Second click - set end date
       if (date < startDate.value) {
+        // Swap dates if end is before start
         endDate.value = startDate.value;
         startDate.value = date;
       } else {
         endDate.value = date;
       }
+      // Emit the complete range
       emit("update:modelValue", { start: startDate.value, end: endDate.value });
     } else {
       // Range already selected - start a new range
       startDate.value = date;
       endDate.value = null;
-      selectingSecondDate.value = true;
+      // Clear the range in parent
+      emit("update:modelValue", { start: date, end: null });
     }
   }
 };
@@ -405,36 +412,44 @@ const clearSelection = () => {
   selectedDate.value = null;
   startDate.value = null;
   endDate.value = null;
-  selectingSecondDate.value = false;
-  
-  if (selectionMode.value === 'single') {
-    emit("update:modelValue", null);
-  } else {
-    emit("update:modelValue", { start: null, end: null });
-  }
+
+  emit("update:modelValue", null);
 };
 
-// Watch for external changes
+// Watch for external changes (from parent component)
 watch(
   () => props.modelValue,
   (newValue) => {
-    if (selectionMode.value === 'single') {
-      selectedDate.value = newValue;
-      
-      if (newValue) {
+    if (selectionMode.value === "single") {
+      selectedDate.value = newValue instanceof Date ? newValue : null;
+      if (newValue && newValue instanceof Date) {
         currentYear.value = newValue.getFullYear();
         currentMonth.value = newValue.getMonth();
       }
     } else {
-      if (newValue && typeof newValue === 'object') {
+      // Range mode
+      if (newValue && typeof newValue === "object") {
         startDate.value = newValue.start || null;
         endDate.value = newValue.end || null;
-        
         if (newValue.start) {
           currentYear.value = newValue.start.getFullYear();
           currentMonth.value = newValue.start.getMonth();
         }
+      } else {
+        startDate.value = null;
+        endDate.value = null;
       }
+    }
+  },
+  { immediate: true }
+);
+
+// Watch for mode changes
+watch(
+  () => props.mode,
+  (newMode) => {
+    if (newMode !== selectionMode.value) {
+      clearSelection();
     }
   }
 );

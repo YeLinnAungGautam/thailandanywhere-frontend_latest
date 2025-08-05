@@ -149,6 +149,9 @@
               <tr class="bg-gray-200 divide-x divide-gray-500">
                 <th class="text-xs text-center font-medium py-3 px-2">Date</th>
                 <th class="text-xs text-center font-medium py-3 px-2">
+                  Crm Number
+                </th>
+                <th class="text-xs text-center font-medium py-3 px-2">
                   Invoice Number
                 </th>
                 <th class="text-xs text-center font-medium py-3 px-2">
@@ -192,26 +195,33 @@
                   Deposit Count
                 </th>
                 <th class="text-xs text-center font-medium py-3 px-2">
+                  DateTime
+                </th>
+                <th class="text-xs text-center font-medium py-3 px-2">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr
-                v-for="item in cashAccounts.data"
+                v-for="(item, index) in cashAccounts.data"
                 :key="item.cash_image_id"
                 class="bg-gray-50 odd:bg-white group relative divide-x divide-gray-500 hover:bg-gray-100"
               >
                 <td class="px-2 py-2 text-xs whitespace-nowrap text-center">
-                  {{ formatDateForTime(item.cash_image_date) }}
+                  {{ formatDate(item.cash_image_date) }}
                 </td>
                 <td
                   class="px-2 py-2 text-xs whitespace-nowrap text-center font-medium"
                 >
                   {{ item.crm_id }}
                 </td>
-
-                <td class="px-2 py-2 text-xs text-center">
+                <td
+                  class="px-2 py-2 text-xs whitespace-nowrap text-center font-medium"
+                >
+                  {{ "INV" + "0" + selectedMonth + "000" + (index + 1) }}
+                </td>
+                <td class="px-2 py-2 text-xs text-center whitespace-nowrap">
                   {{ item.customer_name }}
                 </td>
                 <td class="px-2 py-2 text-xs text-center">0000000000000</td>
@@ -273,7 +283,7 @@
                   }}
                 </td> -->
 
-                <td class="px-2 py-2 text-xs text-end">
+                <td class="px-2 py-2 text-xs text-end whitespace-nowrap">
                   {{ formattedNumber(item.cash_amount) }} {{ item.currency }}
                 </td>
                 <td class="px-2 py-2 text-xs capitalize text-end">
@@ -282,6 +292,10 @@
                 <td class="px-2 py-2 whitespace-nowrap text-xs text-end">
                   {{ item.deposit }}
                 </td>
+                <td class="px-2 py-2 text-xs whitespace-nowrap text-center">
+                  {{ formatDateForTime(item.cash_image_date) }}
+                </td>
+
                 <td class="px-2 py-2 text-xs text-center">
                   <div class="flex justify-center space-x-1">
                     <button
@@ -515,7 +529,7 @@ const filterType = ref("all");
 const crmSearch = ref("");
 const customerSearch = ref("");
 const per_page = ref(100);
-const sort_order = ref("desc");
+const sort_order = ref("asc");
 const sort_by = ref("date");
 
 // Set current year and month
@@ -562,11 +576,37 @@ const formatDateForTime = (dateString) => {
   const month = monthNames[date.getMonth()];
   const year = date.getFullYear().toString().slice(-2);
 
-  // Add time formatting
-  const hours = date.getHours().toString().padStart(2, "0");
-  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const hour = date.getHours().toString().padStart(2, "0");
+  const minute = date.getMinutes().toString().padStart(2, "0");
 
-  return `${day} ${month} ${year}, ${hours}:${minutes}`;
+  return `${day} ${month} ${year}, ${hour}:${minute}`;
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "Invalid Date";
+
+  const day = date.getDate().toString().padStart(2, "0");
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const month = monthNames[date.getMonth()];
+  const year = date.getFullYear().toString().slice(-2);
+
+  return `${day} ${month} ${year}`;
 };
 
 const calculateVat = (totalSales, commission) => {

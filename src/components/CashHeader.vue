@@ -29,5 +29,16 @@ const router = useRouter();
     >
       Cash Structure
     </div>
+    <div
+      @click="router.push('/cash_internal_transfer')"
+      class="col-span-1 text-center text-sm cursor-pointer rounded-lg px-6 font-medium py-2"
+      :class="
+        route.name == 'cashInternalTransfer'
+          ? 'bg-[#FF613c] text-white'
+          : 'text-gray-500 border border-gray-300'
+      "
+    >
+      Interal Transfer
+    </div>
   </div>
 </template>

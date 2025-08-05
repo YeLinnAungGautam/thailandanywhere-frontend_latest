@@ -81,6 +81,7 @@ import BankStatementList from "../views/BankStatementList.vue";
 import BankStatementSummary from "../views/BankStatementSummary.vue";
 import BankParcheseList from "../views/BankParcheseList.vue";
 import BankStatementFilter from "../views/BankStatementFilter.vue";
+import CashInternalTransfer from "../views/CashInternalTransfer.vue"
 
 const routes = [
   {
@@ -496,6 +497,11 @@ const routes = [
     path: "/cash_structure",
     name: "cashStructure",
     component: CashStructure,
+  },
+  {
+    path: "/cash_internal_transfer",
+    name: "cashInternalTransfer",
+    component: CashInternalTransfer,
   },
   {
     path: "/accountance-pdf",

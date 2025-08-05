@@ -35,6 +35,7 @@ import { useHotelCategoryStore } from "../stores/hotelcategory";
 import { usePlaceStore } from "../stores/place";
 import AddonPage from "./Addon/AddonPage.vue";
 import HotelConfrimationDemo from "./PngGenerate/HotelConfirmationDemo.vue";
+import AddSlugPage from "../components/Slug/HotelSlug.vue";
 // import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const createModalOpen = ref(false);
@@ -153,6 +154,7 @@ const formData = ref({
     mm_link: "",
     en_link: "",
   },
+  slug: [],
 });
 
 const addEmail = ref("");
@@ -766,6 +768,7 @@ const getDetail = async (params) => {
     let data = res.result;
     closeModal();
     formData.value.id = data.id;
+    formData.value.slug = data.slug;
     formData.value.name = data.name;
     cityName.value = data.city?.name;
     placeName.value = data.hotel_place?.name;
@@ -995,9 +998,19 @@ onMounted(async () => {
             >
               confirmation
             </p>
+            <p
+              v-if="formData.id"
+              class="px-4 py-2 cursor-pointer rounded-md"
+              @click="quiteSwitch = 7"
+              :class="
+                quiteSwitch == 7 ? 'bg-[#ff613c] text-white' : 'bg-gray-200'
+              "
+            >
+              slugs
+            </p>
           </div>
         </div>
-        <div class="px-4">
+        <div class="px-4" v-if="quiteSwitch != 7">
           <form
             @submit.prevent="onSubmitHandler"
             class="mt-2 grid grid-cols-3 gap-4 bg-white rounded-xl p-6"
@@ -1766,7 +1779,7 @@ onMounted(async () => {
             </div>
             <div
               class="text-end flex justify-end items-center col-span-3"
-              v-if="quiteSwitch != 5"
+              v-if="quiteSwitch != 5 && quiteSwitch != 7"
             >
               <p
                 class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
@@ -1782,6 +1795,13 @@ onMounted(async () => {
               </Button>
             </div>
           </form>
+        </div>
+        <div class="col-span-3" v-if="quiteSwitch == 7">
+          <AddSlugPage
+            :id="formData.id"
+            :type="'hotel'"
+            :slugs="formData.slug"
+          />
         </div>
       </div>
     </div>

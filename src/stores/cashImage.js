@@ -120,5 +120,34 @@ export const useCashImageStore = defineStore("cashImage", {
         throw error;
       }
     },
+    async exportCsv(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/summary/export-csv", {
+          params: params,
+        });
+        this.loading = false;
+        return response.data;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
+    async printImage(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/print/cash-image", {
+          params: params,
+        });
+
+        console.log(response);
+
+        this.loading = false;
+        return response.data;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
   },
 });

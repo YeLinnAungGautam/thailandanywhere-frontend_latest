@@ -281,7 +281,7 @@
                 </td> -->
 
                 <td class="px-2 py-2 text-xs text-end whitespace-nowrap">
-                  {{ formattedNumber(item.cash_amount) }} {{ item.currency }}
+                  {{ formattedNumber(item.cash_amount) }}
                 </td>
                 <td class="px-2 py-2 text-xs capitalize text-end">
                   {{ item.bank + " Bank" }}

@@ -148,9 +148,7 @@
             <thead class="border border-gray-500">
               <tr class="bg-gray-200 divide-x divide-gray-500">
                 <th class="text-xs text-center font-medium py-3 px-2">Date</th>
-                <th class="text-xs text-center font-medium py-3 px-2">
-                  Crm Number
-                </th>
+
                 <th class="text-xs text-center font-medium py-3 px-2">
                   Invoice Number
                 </th>
@@ -198,6 +196,9 @@
                   DateTime
                 </th>
                 <th class="text-xs text-center font-medium py-3 px-2">
+                  Crm Number
+                </th>
+                <th class="text-xs text-center font-medium py-3 px-2">
                   Actions
                 </th>
               </tr>
@@ -211,11 +212,7 @@
                 <td class="px-2 py-2 text-xs whitespace-nowrap text-center">
                   {{ formatDate(item.cash_image_date) }}
                 </td>
-                <td
-                  class="px-2 py-2 text-xs whitespace-nowrap text-center font-medium"
-                >
-                  {{ item.crm_id }}
-                </td>
+
                 <td
                   class="px-2 py-2 text-xs whitespace-nowrap text-center font-medium"
                 >
@@ -229,7 +226,7 @@
                 <td
                   class="px-2 py-2 text-xs whitespace-nowrap text-end font-medium"
                 >
-                  {{ formattedNumber(item.total_sales) }} {{ item.currency }}
+                  {{ formattedNumber(item.total_sales) }}
                 </td>
                 <td class="px-2 py-2 text-xs text-end">
                   {{
@@ -294,6 +291,11 @@
                 </td>
                 <td class="px-2 py-2 text-xs whitespace-nowrap text-center">
                   {{ formatDateForTime(item.cash_image_date) }}
+                </td>
+                <td
+                  class="px-2 py-2 text-xs whitespace-nowrap text-center font-medium"
+                >
+                  {{ item.crm_id }}
                 </td>
 
                 <td class="px-2 py-2 text-xs text-center">

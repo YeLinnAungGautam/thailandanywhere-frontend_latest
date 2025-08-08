@@ -184,9 +184,10 @@ const roomListGet = () => {
 
 const getDetailAction = async (id) => {
   getLoading.value = true;
+
   const res = await groupStore.detailAction(id);
   detail.value = res.result;
-  console.log("Detail value:", res.result);
+  console.log("Detail this is  value:", res.result);
   await customerListGet();
   roomListGet();
   getLoading.value = false;
@@ -249,20 +250,18 @@ watch(
                   {{ detail?.product_name }}
                 </p>
                 <p class="w-[217px] text-sm text-gray-700">
-                  {{ detail?.booking?.items[0]?.product?.official_address }}
+                  {{ detail?.items[0]?.product?.official_address }}
                 </p>
                 <p class="text-sm text-gray-700">
                   Tel:
-                  {{
-                    detail?.booking?.items[0]?.product?.official_phone_number
-                  }}
+                  {{ detail?.items[0]?.product?.official_phone_number }}
                   Email:
-                  {{ detail?.booking?.items[0]?.product?.official_email }}
+                  {{ detail?.items[0]?.product?.official_email }}
                 </p>
               </div>
               <div>
                 <img
-                  :src="detail?.booking?.items[0]?.product?.official_logo"
+                  :src="detail?.items[0]?.product?.official_logo"
                   class="w-[100px]"
                   alt=""
                 />
@@ -274,10 +273,8 @@ watch(
             <p class="font-semibold text-red-500 pb-5">
               Submitted on
               {{
-                detail?.booking?.items[0]?.receipt_images?.[0]?.date
-                  ? detail?.booking?.items[0]?.receipt_images[0].date.split(
-                      " "
-                    )[0]
+                detail?.items[0]?.receipt_images?.[0]?.date
+                  ? detail?.items[0]?.receipt_images[0].date.split(" ")[0]
                   : new Date().toLocaleDateString("en-GB")
               }}
               ; Agent TH ANYWHERE CO.,LTD.
@@ -388,8 +385,7 @@ watch(
                           class="block text-sm font-normal pb-3 px-1 leading-normal text-blue-gray-900"
                         >
                           {{
-                            detail?.booking?.items[0]?.product
-                              ?.official_remark != "null"
+                            detail?.items[0]?.product?.official_remark != "null"
                               ? detail.product?.official_remark
                               : ""
                           }}
@@ -407,14 +403,14 @@ watch(
                   class="w-1.5 h-1.5 bg-black rounded-full inline-block mr-2"
                 ></span>
                 Check-In time: Our check-in time is from
-                {{ detail?.booking?.items[0]?.product?.check_in }}
+                {{ detail?.items[0]?.product?.check_in }}
               </p>
               <p>
                 <span
                   class="w-1.5 h-1.5 bg-black rounded-full inline-block mr-2"
                 ></span>
                 Check-Out time: Our check-out time is before
-                {{ detail?.booking?.items[0]?.product?.check_out }}
+                {{ detail?.items[0]?.product?.check_out }}
               </p>
               <p>
                 <span
@@ -423,11 +419,11 @@ watch(
                 Passport/ID card: Government-issued photo identification (must
                 be same person on room reservation) upon check-in.
               </p>
-              <p v-if="detail?.booking?.items[0]?.product?.cancellation_policy">
+              <p v-if="detail?.items[0]?.product?.cancellation_policy">
                 <span
                   class="w-1.5 h-1.5 bg-black rounded-full inline-block mr-2"
                 ></span>
-                {{ detail?.booking?.items[0]?.product?.cancellation_policy }}
+                {{ detail?.items[0]?.product?.cancellation_policy }}
               </p>
               <p>We look forward to welcoming you soon.</p>
               <p>

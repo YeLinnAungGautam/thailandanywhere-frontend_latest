@@ -193,6 +193,7 @@ const roomListGet = () => {
 
 const getDetailAction = async (id, product_id) => {
   getLoading.value = true;
+  detail.value = null;
   const res = await groupbyStore.ReservationHotelDetailAction(id, product_id);
   detail.value = res;
   console.log("Detail value:", res);

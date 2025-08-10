@@ -460,15 +460,11 @@
                 :activePaths="['car-bookings']"
               />
               <SidebarItem
-                v-if="
-                  !authStore.isAgent &&
-                  !authStore.isAuditor &&
-                  !authStore.isExternalAudit
-                "
-                name="Availabilities"
-                :icon="CheckBadgeIcon"
-                to="/availabilities"
-                :activePaths="['availabilities']"
+                v-if="authStore.isSuperAdmin"
+                name="File Storage"
+                :icon="FolderIcon"
+                to="/storage"
+                :activePaths="['storage']"
               />
             </div>
           </div>

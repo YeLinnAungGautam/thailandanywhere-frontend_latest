@@ -81,7 +81,8 @@ import BankStatementList from "../views/BankStatementList.vue";
 import BankStatementSummary from "../views/BankStatementSummary.vue";
 import BankParcheseList from "../views/BankParcheseList.vue";
 import BankStatementFilter from "../views/BankStatementFilter.vue";
-import CashInternalTransfer from "../views/CashInternalTransfer.vue"
+import CashInternalTransfer from "../views/CashInternalTransfer.vue";
+import StorageView from "../views/Storage.vue";
 
 const routes = [
   {
@@ -507,6 +508,11 @@ const routes = [
     path: "/accountance-pdf",
     name: "accountancePdf",
     component: AccountancePdf,
+  },
+  {
+    path: "/storage",
+    name: "storage",
+    component: StorageView,
   },
 ];
 

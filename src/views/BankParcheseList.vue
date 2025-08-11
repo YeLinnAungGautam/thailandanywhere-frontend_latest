@@ -48,6 +48,12 @@
             <option value="have_tax">Have Tax Receipt</option>
             <option value="missing_tax">Non Tax Receipt</option>
           </select>
+          <p
+            v-if="invoice != '' && invoice != 'all'"
+            class="px-3 text-white text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none bg-green-500"
+          >
+            {{ show_list_data.length }} counts in this page
+          </p>
           <YearPickerVue @year-change="handleYearChange" />
           <select
             v-model="selectedMonth"

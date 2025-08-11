@@ -36,30 +36,18 @@
           >
             All
           </p>
-          <p
-            v-if="!authStore.isExternalAudit"
-            @click="filterType = 'have'"
-            class="px-5 py-2.5 rounded-lg text-xs"
-            :class="
-              filterType == 'have'
-                ? 'bg-[#FF613c] text-white'
-                : ' border border-[#FF613x]'
-            "
+          <select
+            name=""
+            class="px-3 text-black text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none"
+            id=""
+            v-model="invoice"
           >
-            Have
-          </p>
-          <p
-            v-if="!authStore.isExternalAudit"
-            @click="filterType = 'missing'"
-            class="px-5 py-2.5 rounded-lg text-xs"
-            :class="
-              filterType == 'missing'
-                ? 'bg-[#FF613c] text-white'
-                : ' border border-[#FF613x]'
-            "
-          >
-            Missing
-          </p>
+            <option value="all">All</option>
+            <option value="have">Have Invoice</option>
+            <option value="missing">Non Invoice</option>
+            <option value="have_tax">Have Tax Receipt</option>
+            <option value="missing_tax">Non Tax Receipt</option>
+          </select>
           <YearPickerVue @year-change="handleYearChange" />
           <select
             v-model="selectedMonth"
@@ -196,32 +184,6 @@
         <div v-else class="overflow-x-auto">
           <table class="w-full text-xs border border-gray-500">
             <thead class="border border-gray-500">
-              <!-- <tr class="bg-gray-200 divide-x divide-gray-500">
-                <th class="text-xs text-center font-medium py-3 w-[100px]">
-                  Date
-                </th>
-                <th class="text-xs text-center font-medium py-3 w-[80px]">
-                  Time/ Eff.Date
-                </th>
-                <th class="text-xs text-center font-medium py-3 w-[80px]">
-                  Currency
-                </th>
-                <th class="text-xs text-center font-medium py-3 w-[80px]">
-                  Withdrawal
-                </th>
-                <th class="text-xs text-center font-medium py-3 w-[80px]">
-                  Deposit
-                </th>
-                <th class="text-xs text-center font-medium py-3">Sender</th>
-                <th class="text-xs text-center font-medium py-3">Receiver</th>
-                <th class="text-xs text-center font-medium py-3">CRM ID</th>
-                <th class="text-xs text-center font-medium py-3">VAT</th>
-                <th class="text-xs text-center font-medium py-3">Commission</th>
-                <th class="text-xs text-center font-medium py-3">Net VAT</th>
-                <th class="text-xs text-center font-medium py-3">Actual VAT</th>
-                <th class="text-xs text-center font-medium py-3">Invoice</th>
-                <th class="text-xs text-center font-medium py-3">Tax Credit</th>
-              </tr> -->
               <tr class="bg-gray-200 divide-x divide-gray-500">
                 <th class="text-xs text-center font-medium py-3 w-[100px]">
                   Date
@@ -268,13 +230,16 @@
                 <th class="text-xs text-center font-medium py-3 w-[100px]">
                   Crm Number
                 </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Invoice
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Tax Credit
+                </th>
               </tr>
             </thead>
             <tbody>
-              <template
-                v-for="(item, index) in cashImages?.data"
-                :key="item.id"
-              >
+              <template v-for="(item, index) in show_list_data" :key="item.id">
                 <!-- Main transaction row -->
                 <tr
                   class="bg-gray-50 odd:bg-white group relative divide-x divide-gray-500 hover:bg-gray-100 cursor-pointer"
@@ -352,6 +317,13 @@
                   </td>
                   <td class="px-3 py-2 text-xs whitespace-nowrap">
                     {{ item?.crm_id }}
+                  </td>
+
+                  <td class="px-3 py-2 text-xs whitespace-nowrap">
+                    {{ item?.has_invoice ? "✓" : "-" }}
+                  </td>
+                  <td class="px-3 py-2 text-xs whitespace-nowrap">
+                    {{ item?.tax_receipts?.length > 0 ? "✓" : "-" }}
                   </td>
                 </tr>
 
@@ -1537,6 +1509,8 @@ const date_range = ref("");
 const filterType = ref("all");
 const senderSearch = ref("");
 const crmSearch = ref("");
+const invoice = ref("all");
+const tax_receipts = ref("all");
 const sort_by = ref("date");
 const sort_order = ref("desc");
 const bankNameSearch = ref("");
@@ -2324,6 +2298,24 @@ const onChangeUpdate = async (message) => {
   closeModal();
   await getAction();
 };
+
+const show_list_data = computed(() => {
+  if (invoice.value == "" && invoice.value == "all") {
+    return cashImages.value.data;
+  } else if (invoice.value == "missing") {
+    return cashImages.value.data.filter((item) => !item.has_invoice);
+  } else if (invoice.value == "have") {
+    return cashImages.value.data.filter((item) => item.has_invoice);
+  } else if (invoice.value == "missing_tax") {
+    return cashImages.value.data.filter(
+      (item) => item.tax_receipts.length == 0
+    );
+  } else if (invoice.value == "have_tax") {
+    return cashImages.value.data.filter((item) => item.tax_receipts.length > 0);
+  } else {
+    return cashImages.value.data;
+  }
+});
 
 onMounted(async () => {
   if (route.query.month && route.query.year) {

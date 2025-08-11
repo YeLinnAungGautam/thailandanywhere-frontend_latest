@@ -326,10 +326,18 @@
                   </td>
 
                   <td class="px-3 py-2 text-xs whitespace-nowrap">
-                    {{ item?.has_invoice ? "✓" : "-" }}
+                    <!-- {{ item?.has_invoice ? "✓" : "-" }} -->
+                    <CheckBadgeIcon
+                      v-if="item?.has_invoice"
+                      class="h-5 w-5 text-green-500"
+                    />
                   </td>
                   <td class="px-3 py-2 text-xs whitespace-nowrap">
-                    {{ item?.tax_receipts?.length > 0 ? "✓" : "-" }}
+                    <!-- {{ item?.tax_receipts?.length > 0 ? "✓" : "-" }} -->
+                    <CheckBadgeIcon
+                      v-if="item?.tax_receipts?.length > 0"
+                      class="h-5 w-5 text-green-500"
+                    />
                   </td>
                 </tr>
 

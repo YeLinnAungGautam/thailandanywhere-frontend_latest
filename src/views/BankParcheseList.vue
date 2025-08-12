@@ -842,17 +842,27 @@
                             </td>
 
                             <td class="px-6 py-4 whitespace-normal text-end">
-                              <span class="text-xs font-mono px-2 py-1 rounded">
+                              <p class="text-xs font-mono px-2 py-1 rounded">
                                 {{
                                   getExpenseItems(item.id)?.items[0]?.product
                                     ?.name
                                 }}
-                                ,
-                                {{
-                                  getExpenseItems(item.id)?.items[0]
-                                    ?.service_date
-                                }}
-                              </span>
+                                /
+                                <span
+                                  class="text-blue-600"
+                                  v-for="a in getExpenseItems(item.id)?.items"
+                                  :key="a.id"
+                                >
+                                  S: {{ a.service_date }}, </span
+                                >/
+                                <span
+                                  class="text-red-600"
+                                  v-for="a in getExpenseItems(item.id)?.items"
+                                  :key="a.id"
+                                >
+                                  Q: {{ a.quantity }},
+                                </span>
+                              </p>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-end">
                               <span class="text-xs font-mono px-2 py-1 rounded">
@@ -924,7 +934,7 @@
                                     ? 'text-blue-500 underline'
                                     : 'text-orange-500'
                                 "
-                                class="text-xs font-mono px-2 py-1 rounded cursor-pointer"
+                                class="text-xs bg-orange-200 font-mono px-2 py-1 rounded cursor-pointer"
                                 @click="
                                   getRelatableData(item.id)?.tax_credit.length >
                                   0
@@ -1247,13 +1257,6 @@
             >
               Go Tax Credit
             </p>
-            <p
-              v-if="authStore.isSuperAdmin"
-              class="bg-red-600 px-2 py-1 rounded"
-              @click="deleteCredit(creditData[currentIndex2]?.id)"
-            >
-              Delete Tax Credit
-            </p>
           </div>
         </DialogTitle>
 
@@ -1343,29 +1346,38 @@
           </div>
 
           <!-- Pagination controls -->
-          <div
-            v-if="creditData.length > 1"
-            class="flex justify-between items-center mt-4"
-          >
-            <button
-              @click="prev2Item"
-              :disabled="currentIndex2 === 0"
-              class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+          <div class="flex justify-between items-center gap-x-2 pt-2">
+            <div
+              v-if="creditData.length > 1"
+              class="flex justify-between items-center mt-4"
             >
-              &lt; Previous
-            </button>
+              <button
+                @click="prev2Item"
+                :disabled="currentIndex2 === 0"
+                class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+              >
+                &lt; Previous
+              </button>
 
-            <span class="text-sm">
-              {{ currentIndex2 + 1 }} of {{ creditData.length }}
-            </span>
+              <span class="text-sm">
+                {{ currentIndex2 + 1 }} of {{ creditData.length }}
+              </span>
 
-            <button
-              @click="next2Item"
-              :disabled="currentIndex2 === creditData.length - 1"
-              class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+              <button
+                @click="next2Item"
+                :disabled="currentIndex2 === creditData.length - 1"
+                class="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+              >
+                Next &gt;
+              </button>
+            </div>
+            <p
+              v-if="authStore.isSuperAdmin"
+              class="bg-red-600 px-2 py-1.5 text-white text-sm rounded"
+              @click="deleteCredit(creditData[currentIndex2]?.id)"
             >
-              Next &gt;
-            </button>
+              Delete Tax Credit
+            </p>
           </div>
         </div>
       </DialogPanel>

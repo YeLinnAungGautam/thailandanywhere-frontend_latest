@@ -879,7 +879,7 @@ const searchTaxReceipt = async () => {
     // Search tax receipts by invoice number
     const response = await taxReceiptStore.getListAction({
       search: searchInvoice.value.trim(),
-      per_page: 10,
+      per_page: 1000,
     });
 
     if (response && response.result && response.result.data) {

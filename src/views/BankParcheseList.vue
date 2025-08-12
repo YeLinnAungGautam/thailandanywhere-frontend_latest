@@ -1820,7 +1820,7 @@ const deleteCredit = async (id) => {
 };
 
 const editCredit = (id) => {
-  router.push(`/tax_receipt?id=${id}`);
+  window.open(`/tax_receipt?id=${id}`, "_blank");
 };
 
 const formatDateForTime = (dateString) => {

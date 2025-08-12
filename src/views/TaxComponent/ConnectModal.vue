@@ -271,21 +271,36 @@
               </div>
 
               <!-- Single Date Toggle -->
-              <div
-                class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
-              >
-                <label class="text-sm font-medium text-gray-700"
-                  >Is single date?</label
+              <div class="flex justify-between items-center space-x-4">
+                <div
+                  class="flex justify-between items-center w-full p-3 bg-gray-50 rounded-lg"
                 >
-                <input
-                  v-model="isSingleDate"
-                  type="checkbox"
-                  class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
+                  <label class="text-sm font-medium text-gray-700"
+                    >Is single date?</label
+                  >
+                  <input
+                    v-model="isSingleDate"
+                    type="checkbox"
+                    class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                </div>
+
+                <div
+                  class="flex justify-between items-center w-full p-3 bg-gray-50 rounded-lg"
+                >
+                  <label class="text-sm font-medium text-gray-700"
+                    >Is Same Receipt date?</label
+                  >
+                  <input
+                    v-model="isReceiptDate"
+                    type="checkbox"
+                    class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                </div>
               </div>
 
               <!-- Service Start Date -->
-              <div class="space-y-2">
+              <div class="space-y-2" v-if="!isReceiptDate">
                 <label class="text-sm font-medium text-gray-700"
                   >Service Start Date *</label
                 >
@@ -298,7 +313,7 @@
               </div>
 
               <!-- Service End Date -->
-              <div v-if="!isSingleDate" class="space-y-2">
+              <div v-if="!isSingleDate && !isReceiptDate" class="space-y-2">
                 <label class="text-sm font-medium text-gray-700"
                   >Service End Date *</label
                 >
@@ -651,7 +666,7 @@
 
       <!-- Modal Footer -->
       <div
-        class="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50"
+        class="flex items-center justify-end space-x-3 p-3 border-t border-gray-200 bg-gray-50"
       >
         <button
           type="button"
@@ -766,6 +781,7 @@ const fileInput = ref(null);
 const filteredProducts = ref([]);
 const isSearchLoading = ref(false);
 const isSingleDate = ref(false);
+const isReceiptDate = ref(false);
 
 // Computed
 const isVisible = computed({
@@ -1099,8 +1115,6 @@ const submitCreateForm = async () => {
     "product_type",
     "product_id",
     "receipt_date",
-    "service_start_date",
-    "service_end_date",
     "total_tax_withold",
     "total_tax_amount",
     "invoice_number",
@@ -1130,6 +1144,17 @@ const submitCreateForm = async () => {
         submitData.append(key, formData[key]);
       }
     });
+
+    if (isSingleDate.value) {
+      submitData.append("service_start_date", formData.service_start_date);
+      submitData.append("service_end_date", formData.service_start_date);
+    }
+
+    if (isReceiptDate.value) {
+      // submitData.append("receipt_date", formData.receipt_date);
+      submitData.append("service_start_date", formData.receipt_date);
+      submitData.append("service_end_date", formData.receipt_date);
+    }
 
     // Add the group_ids to connect the tax receipt to the current group
     // Laravel expects array format, so append as array elements
@@ -1209,15 +1234,6 @@ watch(
     }
   },
   { immediate: true, deep: true }
-);
-
-watch(
-  () => isSingleDate.value,
-  () => {
-    if (isSingleDate.value) {
-      formData.service_end_date = formData.service_start_date;
-    }
-  }
 );
 
 watch(

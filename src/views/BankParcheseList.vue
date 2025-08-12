@@ -931,7 +931,7 @@
                                     ? showCredit(
                                         getRelatableData(item.id)?.tax_credit
                                       )
-                                    : createCredit(getRelatableData(item.id))
+                                    : addTaxReceipt(getRelatableData(item.id))
                                 "
                               >
                                 {{
@@ -1544,6 +1544,14 @@
         </div>
       </DialogPanel>
     </Modal>
+
+    <ConnectTaxReceiptModal
+      v-model="showConnectModal"
+      :group-id="addingGroupId"
+      :group-info="addingGroupInfo"
+      @connected="onConnected"
+      @close="closeConnectModal"
+    />
   </Layout>
 </template>
 
@@ -1579,6 +1587,7 @@ import { formattedNumber } from "./help/FormatData";
 import { useParchasePDFStore } from "../stores/parchasePDF";
 import { onUnmounted } from "vue";
 import TaxReceiptModal from "./TaxComponent/CreateModal.vue";
+import ConnectTaxReceiptModal from "./TaxComponent/ConnectModal.vue";
 
 const sideBarStore = useSidebarStore();
 const groupStore = useGroupStore();
@@ -1595,8 +1604,28 @@ const { cashImages, loading } = storeToRefs(cashImageStore);
 const parchasePDFStore = useParchasePDFStore();
 const showPdfModal = ref(false);
 
-const createCredit = (id) => {
-  console.log(id);
+const showConnectModal = ref(false);
+
+const addingGroupId = ref(null);
+const addingGroupInfo = ref(null);
+const addTaxReceipt = (data) => {
+  console.log(data, "this is group info");
+  addingGroupId.value = data.items[0].group_id;
+  addingGroupInfo.value = data;
+  showConnectModal.value = true;
+};
+
+const closeConnectModal = () => {
+  showConnectModal.value = false;
+  addingGroupId.value = null;
+  addingGroupInfo.value = null;
+};
+
+const onConnected = async () => {
+  showConnectModal.value = false;
+  addingGroupId.value = null;
+  addingGroupInfo.value = null;
+  await getAction();
 };
 
 const {

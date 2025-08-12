@@ -878,9 +878,11 @@ const searchTaxReceipt = async () => {
   try {
     // Search tax receipts by invoice number
     const response = await taxReceiptStore.getListAction({
-      search: searchInvoice.value.trim(),
-      per_page: 1000,
+      invoice_number: searchInvoice.value,
+      per_page: 10,
     });
+
+    console.log(response, "this is search response");
 
     if (response && response.result && response.result.data) {
       searchResults.value = response.result.data.filter((receipt) =>

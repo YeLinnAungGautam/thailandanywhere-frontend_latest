@@ -55,13 +55,13 @@
         <p class="text-sm font-semibold">
           {{ isEditMode ? "Edit Tax Receipt" : "Tax Receipt" }}
         </p>
-        <button
+        <!-- <button
           v-if="!isEditMode"
           @click="createNewTax"
           class="bg-[#FF613c] px-3 py-1.5 rounded-xl text-white text-xs hover:bg-[#e5552f] transition-colors"
         >
           + Create New Tax
-        </button>
+        </button> -->
       </div>
 
       <form @submit.prevent="submitForm" class="grid grid-cols-2 gap-4">
@@ -321,9 +321,14 @@
             <button
               type="submit"
               class="w-full bg-blue-600 text-sm text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-              :disabled="loading"
+              :class="{ 'opacity-50 cursor-not-allowed': !isEditMode }"
+              :disabled="loading || !isEditMode"
             >
-              {{ isEditMode ? "Update Tax Receipt" : "Create Tax Receipt" }}
+              {{
+                isEditMode
+                  ? "Update Tax Receipt"
+                  : "Current Create Tax Receipt Close"
+              }}
             </button>
           </div>
         </div>

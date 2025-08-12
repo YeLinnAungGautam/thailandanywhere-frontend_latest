@@ -3,53 +3,48 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 
 export const useParchasePDFStore = defineStore("parchasePDF", () => {
-  // State
-  const isGenerating = ref(false);
-  const currentJob = ref(null);
-  const progress = ref(0);
-  const status = ref("");
-  const message = ref("");
-  const downloadUrl = ref("");
-  const filename = ref("");
+  // Batch state only
+  const isBatchGenerating = ref(false);
+  const batchJobId = ref("");
+  const batchStatus = ref({
+    status: "idle",
+    progress: 0,
+    total_batches: 0,
+    completed_batches: 0,
+    batch_files: [],
+    message: "",
+    total_records: 0,
+  });
   const error = ref("");
   const generatedPdfs = ref([]);
 
-  // Computed
-  const canGenerate = computed(() => !isGenerating.value);
-  const isCompleted = computed(() => status.value === "completed");
-  const isFailed = computed(() => status.value === "failed");
-  const isProcessing = computed(() => status.value === "processing");
+  let batchInterval = null;
 
-  // Actions
+  // Batch computed properties
+  const canGenerate = computed(() => !isBatchGenerating.value);
+  const isBatchCompleted = computed(
+    () => batchStatus.value.status === "completed"
+  );
+  const isBatchFailed = computed(() => batchStatus.value.status === "failed");
+  const isBatchProcessing = computed(
+    () => batchStatus.value.status === "processing"
+  );
+
+  // Start PDF batch generation
   const generatePdf = async (params) => {
     try {
-      resetState();
-      isGenerating.value = true;
-      status.value = "starting";
-      message.value = "PDF generation စတင်နေပါတယ်...";
+      resetBatchState();
+      isBatchGenerating.value = true;
+      batchStatus.value.status = "starting";
+      batchStatus.value.message = "PDF generation စတင်နေပါတယ်...";
 
-      // Fixed: Use axios response structure correctly
       const response = await axios.get("/print/cash-parchase-image", {
         params: params,
       });
-      // Access response.data instead of just response
       const result = response.data;
 
       if (result.success) {
-        currentJob.value = {
-          id: result.job_id,
-          statusUrl: result.status_url,
-          startedAt: new Date(),
-          filters: params, // Store filters for retry
-        };
-
-        status.value = "queued";
-        message.value = "PDF generation ကို queue မှာ ထည့်ပြီးပါပြီ...";
-
-        // Start status checking
-        startStatusChecking();
-
-        return result;
+        return await startBatchGeneration(result);
       } else {
         throw new Error(result.message || "PDF generation စတင်လို့ မရပါ");
       }
@@ -59,36 +54,72 @@ export const useParchasePDFStore = defineStore("parchasePDF", () => {
         err.response?.data?.message ||
         err.message ||
         "PDF generation မှာ အမှားဖြစ်ပါတယ်";
-      status.value = "failed";
-      isGenerating.value = false;
+      batchStatus.value.status = "failed";
+      batchStatus.value.message = error.value;
+      isBatchGenerating.value = false;
       throw err;
     }
   };
 
-  const checkStatus = async (jobId) => {
+  // Start batch generation process
+  const startBatchGeneration = async (result) => {
     try {
-      // Fixed: Add slash between endpoint and jobId
-      const response = await axios.get(`/pdf-status/${jobId}`);
+      batchJobId.value = result.job_id;
+      batchStatus.value = {
+        status: "processing",
+        progress: 0,
+        total_batches: result.total_batches || 0,
+        completed_batches: 0,
+        batch_files: [],
+        message: "Starting batch generation...",
+        total_records: result.total_records || 0,
+      };
+
+      startBatchStatusChecking();
+      return result;
+    } catch (err) {
+      console.error("Batch Generation Error:", err);
+      batchStatus.value.status = "failed";
+      batchStatus.value.message =
+        err.message || "Batch generation မှာ အမှားဖြစ်ပါတယ်";
+      isBatchGenerating.value = false;
+      throw err;
+    }
+  };
+
+  // Check batch status
+  const checkBatchStatus = async (jobId) => {
+    try {
+      const response = await axios.get(`/pdf-batch-status/${jobId}`);
       const result = response.data;
 
       if (result.success) {
-        status.value = result.status;
-        progress.value = result.progress || 0;
-        message.value = result.message || getStatusMessage(result.status);
+        batchStatus.value = {
+          status: result.status,
+          progress: Math.round(result.progress || 0),
+          total_batches: result.total_batches || 0,
+          completed_batches: result.completed_batches || 0,
+          batch_files: result.batch_files || [],
+          message: result.message || "Processing...",
+          total_records: result.total_records || 0,
+        };
 
         if (result.status === "completed") {
-          downloadUrl.value = result.download_url;
-          filename.value = result.filename;
-          isGenerating.value = false;
+          isBatchGenerating.value = false;
+          stopBatchStatusChecking();
 
           // Add to generated PDFs history
-          generatedPdfs.value.unshift({
-            id: jobId,
-            filename: result.filename,
-            downloadUrl: result.download_url,
-            generatedAt: new Date(),
-            fileSize: result.file_size,
-            totalItems: result.total_items,
+          result.batch_files?.forEach((file) => {
+            generatedPdfs.value.unshift({
+              id: `${jobId}_batch_${file.batch_number}`,
+              filename: file.filename,
+              downloadUrl: file.download_url,
+              generatedAt: new Date(file.generated_at),
+              fileSize: file.size,
+              totalItems: file.item_count,
+              isBatch: true,
+              batchNumber: file.batch_number,
+            });
           });
 
           // Keep only last 10 PDFs
@@ -96,80 +127,89 @@ export const useParchasePDFStore = defineStore("parchasePDF", () => {
             generatedPdfs.value = generatedPdfs.value.slice(0, 10);
           }
         } else if (result.status === "failed") {
-          error.value = result.error || "PDF generation မှာ အမှားဖြစ်ပါတယ်";
-          isGenerating.value = false;
+          isBatchGenerating.value = false;
+          stopBatchStatusChecking();
         }
 
         return result;
       } else {
-        throw new Error(result.message || "Status check မှာ အမှားဖြစ်ပါတယ်");
+        throw new Error(
+          result.message || "Batch status check မှာ အမှားဖြစ်ပါတယ်"
+        );
       }
     } catch (err) {
-      console.error("Status Check Error:", err);
-      error.value = "Status check လုပ်လို့ မရပါ: " + err.message;
+      console.error("Batch Status Check Error:", err);
+
+      // More detailed error logging
+      if (err.response) {
+        console.error("Response status:", err.response.status);
+        console.error("Response data:", err.response.data);
+      }
+
       throw err;
     }
   };
 
-  let statusInterval = null;
+  // Start polling batch status
+  const startBatchStatusChecking = () => {
+    if (!batchJobId.value) return;
 
-  const startStatusChecking = () => {
-    if (!currentJob.value?.id) return;
-
-    statusInterval = setInterval(async () => {
+    batchInterval = setInterval(async () => {
       try {
-        await checkStatus(currentJob.value.id);
+        await checkBatchStatus(batchJobId.value);
 
-        // Stop checking if completed or failed
-        if (status.value === "completed" || status.value === "failed") {
-          stopStatusChecking();
+        if (
+          batchStatus.value.status === "completed" ||
+          batchStatus.value.status === "failed"
+        ) {
+          stopBatchStatusChecking();
         }
       } catch (err) {
-        console.error("Status checking error:", err);
-        // Continue checking, might be temporary network issue
+        console.error("Batch status checking error:", err);
+        // Don't stop checking on single errors, continue polling
       }
-    }, 2000); // Check every 2 seconds
+    }, 3000); // Check every 3 seconds
   };
 
-  const stopStatusChecking = () => {
-    if (statusInterval) {
-      clearInterval(statusInterval);
-      statusInterval = null;
+  // Stop polling batch status
+  const stopBatchStatusChecking = () => {
+    if (batchInterval) {
+      clearInterval(batchInterval);
+      batchInterval = null;
     }
   };
 
-  const resetState = () => {
-    stopStatusChecking();
-    isGenerating.value = false;
-    currentJob.value = null;
-    progress.value = 0;
-    status.value = "";
-    message.value = "";
-    downloadUrl.value = "";
-    filename.value = "";
+  // Download batch file
+  const downloadBatchFile = (file) => {
+    if (file.download_url) {
+      const link = document.createElement("a");
+      link.href = file.download_url;
+      link.download = file.filename || `batch_${file.batch_number}.pdf`;
+      link.target = "_blank";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  // Reset batch state
+  const resetBatchState = () => {
+    stopBatchStatusChecking();
+    isBatchGenerating.value = false;
+    batchJobId.value = "";
+    batchStatus.value = {
+      status: "idle",
+      progress: 0,
+      total_batches: 0,
+      completed_batches: 0,
+      batch_files: [],
+      message: "",
+      total_records: 0,
+    };
     error.value = "";
   };
 
-  const downloadPdf = (url, filename) => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename || "cash_images.pdf";
-    link.target = "_blank";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const getStatusMessage = (statusValue) => {
-    const messages = {
-      queued: "Queue မှာ စောင့်နေပါတယ်...",
-      processing: "PDF ကို လုပ်နေပါတယ်...",
-      completed: "PDF ပြီးပါပြီ! Download လုပ်လို့ရပါပြီ။",
-      failed: "PDF generation မှာ အမှားဖြစ်ပါတယ်။",
-    };
-    return messages[statusValue] || statusValue;
-  };
-
+  // Format file size helper
   const formatFileSize = (bytes) => {
     if (!bytes) return "";
     const sizes = ["Bytes", "KB", "MB", "GB"];
@@ -177,38 +217,40 @@ export const useParchasePDFStore = defineStore("parchasePDF", () => {
     return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
   };
 
-  const retryGeneration = async () => {
-    if (currentJob.value?.filters) {
-      await generatePdf(currentJob.value.filters);
-    }
+  // Get status message in Myanmar
+  const getStatusMessage = (statusValue) => {
+    const messages = {
+      idle: "အဆင်သင့်ဖြစ်နေပါတယ်",
+      starting: "စတင်နေပါတယ်...",
+      processing: "PDF များကို လုပ်နေပါတယ်...",
+      completed: "PDF များ ပြီးပါပြီ! Download လုပ်လို့ရပါပြီ။",
+      failed: "PDF generation မှာ အမှားဖြစ်ပါတယ်။",
+    };
+    return messages[statusValue] || statusValue;
   };
 
   return {
     // State
-    isGenerating,
-    currentJob,
-    progress,
-    status,
-    message,
-    downloadUrl,
-    filename,
+    isBatchGenerating,
+    batchJobId,
+    batchStatus,
     error,
     generatedPdfs,
 
     // Computed
     canGenerate,
-    isCompleted,
-    isFailed,
-    isProcessing,
+    isBatchCompleted,
+    isBatchFailed,
+    isBatchProcessing,
 
     // Actions
     generatePdf,
-    checkStatus,
-    resetState,
-    downloadPdf,
-    retryGeneration,
+    checkBatchStatus,
+    downloadBatchFile,
+    resetBatchState,
     formatFileSize,
-    startStatusChecking,
-    stopStatusChecking,
+    getStatusMessage,
+    startBatchStatusChecking,
+    stopBatchStatusChecking,
   };
 });

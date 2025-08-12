@@ -42,18 +42,12 @@
             id=""
             v-model="invoice"
           >
-            <option value="all">All</option>
-            <option value="have">Have Invoice</option>
-            <option value="missing">Non Invoice</option>
-            <option value="have_tax">Have Tax Receipt</option>
-            <option value="missing_tax">Non Tax Receipt</option>
+            <option value="">Filter by Invoice & Tax</option>
+            <option value="invoice_have">Have Invoice</option>
+            <option value="invoice_missing">Non Invoice</option>
+            <option value="tax_receipt_have">Have Tax Receipt</option>
+            <option value="tax_receipt_missing">Non Tax Receipt</option>
           </select>
-          <p
-            v-if="invoice != '' && invoice != 'all'"
-            class="px-3 text-white text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none bg-green-500"
-          >
-            {{ show_list_data.length }} counts in this page
-          </p>
           <YearPickerVue @year-change="handleYearChange" />
           <select
             v-model="selectedMonth"
@@ -64,18 +58,50 @@
               {{ m.name }}
             </option>
           </select>
-          <p
-            @click="exportCSV"
-            class="px-3 text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none bg-[#FF613c] text-white"
-          >
-            Export CSV
-          </p>
+          <div class="relative group">
+            <p
+              class="px-3 text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none bg-[#FF613c] text-white"
+            >
+              Export CSV
+            </p>
+            <div
+              class="absolute top-[55px] z-50 left-0 w-full h-full bg-[#FF613c] opacity-0 group-hover:opacity-100 transition-all duration-200"
+            >
+              <div class="flex justify-center items-center h-full">
+                <p
+                  @click="exportCSV"
+                  class="px-3 text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none bg-gray-400 text-white"
+                >
+                  Export Parchase CSV
+                </p>
+              </div>
+              <div class="flex justify-center items-center h-full">
+                <p
+                  @click="exportTaxCSV"
+                  class="px-3 text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none bg-[#FF613c] text-white"
+                >
+                  Export Tax CSV
+                </p>
+              </div>
+            </div>
+          </div>
+
           <p
             @click="printPDF"
             class="px-3 text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none bg-[#FF613c] text-white"
           >
             Print Parchase PDF
           </p>
+
+          <div
+            class="flex justify-center items-center gap-x-2 bg-blue-600 rounded-lg text-xs text-white px-3 py-2"
+            @click="openTaxModal"
+          >
+            <PlusIcon class="w-5 h-5 text-white" />
+            <p>Create New Tax Receipt</p>
+          </div>
+
+          <TaxReceiptModal v-model="showTaxModal" @close="closeTaxModal" />
         </div>
 
         <!-- Search Filters -->
@@ -245,7 +271,10 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="(item, index) in show_list_data" :key="item.id">
+              <template
+                v-for="(item, index) in cashImages?.data"
+                :key="item.id"
+              >
                 <!-- Main transaction row -->
                 <tr
                   class="bg-gray-50 odd:bg-white group relative divide-x divide-gray-500 hover:bg-gray-100 cursor-pointer"
@@ -343,7 +372,7 @@
 
                 <!-- Loading row -->
                 <tr v-if="loadingDetails[item?.id]">
-                  <td colspan="14" class="px-3 py-4 text-center">
+                  <td colspan="17" class="px-3 py-4 text-center">
                     <div class="flex justify-center items-center">
                       <div
                         class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#FF613c]"
@@ -363,7 +392,7 @@
                     getRelatableData(item.id)
                   "
                 >
-                  <td colspan="14" class="p-0">
+                  <td colspan="17" class="p-0">
                     <div class="bg-gray-50 pb-4 px-4">
                       <div class="w-full flex justify-end items-center py-2">
                         <div
@@ -812,11 +841,16 @@
                               </div>
                             </td>
 
-                            <td class="px-6 py-4 whitespace-nowrap text-end">
+                            <td class="px-6 py-4 whitespace-normal text-end">
                               <span class="text-xs font-mono px-2 py-1 rounded">
                                 {{
                                   getExpenseItems(item.id)?.items[0]?.product
                                     ?.name
+                                }}
+                                ,
+                                {{
+                                  getExpenseItems(item.id)?.items[0]
+                                    ?.service_date
                                 }}
                               </span>
                             </td>
@@ -888,20 +922,23 @@
                                   getRelatableData(item.id)?.tax_credit.length >
                                   0
                                     ? 'text-blue-500 underline'
-                                    : 'text-red-500'
+                                    : 'text-orange-500'
                                 "
-                                class="text-xs font-mono px-2 py-1 rounded"
+                                class="text-xs font-mono px-2 py-1 rounded cursor-pointer"
                                 @click="
-                                  showCredit(
-                                    getRelatableData(item.id)?.tax_credit
-                                  )
+                                  getRelatableData(item.id)?.tax_credit.length >
+                                  0
+                                    ? showCredit(
+                                        getRelatableData(item.id)?.tax_credit
+                                      )
+                                    : createCredit(getRelatableData(item.id))
                                 "
                               >
                                 {{
                                   getRelatableData(item.id)?.tax_credit.length >
                                   0
                                     ? "credit"
-                                    : "missing"
+                                    : "add credit"
                                 }}
                               </span>
                             </td>
@@ -1319,64 +1356,64 @@
       </DialogPanel>
     </Modal>
 
-    <Modal :isOpen="showPdfModal" @closeModal="closePdfModal">
+    <!-- Add this modal after your existing showPdfModal -->
+
+    <!-- Batch PDF Modal -->
+    <Modal :isOpen="showBatchModal" @closeModal="closeBatchModal">
       <DialogPanel
-        class="w-full max-w-md transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="h3"
-          class="text-lg font-medium leading-6 text-gray-900 p-4 border-b"
+          class="text-lg font-medium leading-6 p-4 border-b bg-[#FF613c] text-white rounded-t-xl"
         >
-          PDF Generation Status
+          PDF Batch Generation
         </DialogTitle>
 
-        <div class="p-4">
+        <div class="p-6">
           <!-- Progress Section -->
-          <div v-if="parchasePDFStore.isGenerating" class="space-y-4">
+          <div v-if="isBatchProcessing" class="space-y-4">
             <div class="text-center">
               <div class="text-sm text-gray-600 mb-2">
-                {{ parchasePDFStore.message }}
+                {{ batchStatus.message }}
               </div>
 
               <!-- Progress Bar -->
-              <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+              <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
                 <div
-                  class="bg-[#FF613c] h-2.5 rounded-full transition-all duration-300"
-                  :style="{ width: parchasePDFStore.progress + '%' }"
+                  class="bg-[#FF613c] h-3 rounded-full transition-all duration-300"
+                  :style="{ width: batchStatus.progress + '%' }"
                 ></div>
               </div>
 
-              <div class="text-xs text-gray-500">
-                {{ parchasePDFStore.progress }}%
+              <div class="text-sm text-gray-500">
+                {{ batchStatus.progress }}%
               </div>
             </div>
 
-            <!-- Status Info -->
-            <div class="text-center">
-              <div class="text-sm">
-                <strong>Status:</strong>
-                <span :class="getStatusClass()">{{ getStatusText() }}</span>
+            <!-- Batch Info -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <div class="flex justify-between text-sm">
+                <span>Completed Batches:</span>
+                <span class="font-medium">
+                  {{ batchStatus.completed_batches }} /
+                  {{ batchStatus.total_batches }}
+                </span>
               </div>
-
-              <div
-                v-if="parchasePDFStore.currentJob"
-                class="text-xs text-gray-400 mt-2"
-              >
-                Job ID: {{ parchasePDFStore.currentJob.id }}<br />
-                Started:
-                {{ formatDateTime(parchasePDFStore.currentJob.startedAt) }}
+              <div class="flex justify-between text-sm mt-1">
+                <span>Status:</span>
+                <span class="font-medium text-blue-600"> လုပ်နေတယ် </span>
               </div>
             </div>
           </div>
 
-          <!-- Success Section -->
-          <div
-            v-if="parchasePDFStore.isCompleted"
-            class="text-center space-y-4"
-          >
-            <div class="text-green-600 text-lg">
+          <!-- Completed Files Section -->
+          <div v-if="batchStatus.batch_files.length > 0" class="mt-6">
+            <h4
+              class="text-md font-medium text-gray-900 mb-3 flex items-center"
+            >
               <svg
-                class="w-12 h-12 mx-auto mb-2"
+                class="w-5 h-5 mr-2 text-green-500"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -1386,27 +1423,77 @@
                   clip-rule="evenodd"
                 />
               </svg>
-              PDF ပြီးပါပြီ!
-            </div>
+              ပြီးသွားတဲ့ PDF Files ({{ batchStatus.batch_files.length }})
+            </h4>
 
-            <div class="space-y-2">
-              <div class="text-sm text-gray-600">
-                {{ parchasePDFStore.filename }}
-              </div>
-              <button
-                @click="handleDownload"
-                class="w-full px-4 py-2 bg-[#FF613c] text-white rounded-lg hover:bg-[#e55139] transition-colors"
+            <div class="space-y-2 max-h-60 overflow-y-auto">
+              <div
+                v-for="(file, index) in batchStatus.batch_files"
+                :key="index"
+                class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                📄 Download PDF
-              </button>
+                <div class="flex-1">
+                  <div class="font-medium text-sm text-gray-900">
+                    Batch {{ file.batch_number }}
+                  </div>
+                  <div class="text-xs text-gray-500">
+                    {{ file.item_count }} items •
+                    {{ parchasePDFStore.formatFileSize(file.size) }}
+                  </div>
+                  <div class="text-xs text-gray-400">
+                    {{
+                      file.generated_at
+                        ? new Date(file.generated_at).toLocaleString()
+                        : ""
+                    }}
+                  </div>
+                </div>
+
+                <button
+                  @click="downloadBatchFile(file)"
+                  class="ml-3 px-3 py-1 bg-[#FF613c] text-white text-xs rounded hover:bg-[#e55139] transition-colors"
+                >
+                  📄 Download
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- Error Section -->
-          <div v-if="parchasePDFStore.isFailed" class="text-center space-y-4">
-            <div class="text-red-600 text-lg">
+          <!-- Completion Message -->
+          <div
+            v-if="isBatchCompleted"
+            class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg"
+          >
+            <div class="flex items-center">
               <svg
-                class="w-12 h-12 mx-auto mb-2"
+                class="w-6 h-6 text-green-500 mr-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <div>
+                <h4 class="text-green-800 font-medium">အားလုံး ပြီးပါပြီ!</h4>
+                <p class="text-green-700 text-sm">
+                  {{ batchStatus.total_batches }} batches successfully
+                  generated. အပေါ်မှာ files တွေ download လုပ်နိုင်ပါတယ်။
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div
+            v-if="isBatchFailed"
+            class="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+          >
+            <div class="flex items-center">
+              <svg
+                class="w-6 h-6 text-red-500 mr-2"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -1416,41 +1503,44 @@
                   clip-rule="evenodd"
                 />
               </svg>
-              အမှားဖြစ်ပါတယ်
+              <div>
+                <h4 class="text-red-800 font-medium">အမှားဖြစ်ပါတယ်</h4>
+                <p class="text-red-700 text-sm">{{ batchStatus.message }}</p>
+              </div>
             </div>
 
-            <div class="text-sm text-gray-600 mb-4">
-              {{ parchasePDFStore.error }}
-            </div>
-
-            <div class="space-x-2">
+            <div class="mt-3 flex space-x-2">
               <button
-                @click="handleRetry"
-                class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                @click="handleBatchRetry()"
+                class="px-4 py-2 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600 transition-colors"
               >
                 🔄 Try Again
               </button>
-              <button
-                @click="closePdfModal"
-                class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-              >
-                Close
-              </button>
             </div>
+          </div>
+
+          <!-- Initial State -->
+          <div v-if="batchStatus.status === 'idle'" class="text-center py-8">
+            <div class="text-gray-400 text-4xl mb-2">📄</div>
+            <p class="text-gray-600">Ready to generate PDF batches</p>
           </div>
         </div>
 
-        <!-- Close button for completed/failed states -->
-        <div
-          v-if="!parchasePDFStore.isGenerating"
-          class="p-4 border-t text-right"
-        >
-          <button
-            @click="closePdfModal"
-            class="px-4 py-2 text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            Close
-          </button>
+        <!-- Footer -->
+        <div class="p-4 border-t bg-gray-50 rounded-b-xl">
+          <div class="flex justify-between items-center">
+            <div class="text-sm text-gray-500">Job ID: {{ batchJobId }}</div>
+            <button
+              @click="closeBatchModal"
+              :disabled="isBatchProcessing"
+              class="px-4 py-2 text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50"
+              :class="
+                isBatchProcessing ? 'cursor-not-allowed' : 'cursor-pointer'
+              "
+            >
+              {{ isBatchProcessing ? "Processing..." : "Close" }}
+            </button>
+          </div>
         </div>
       </DialogPanel>
     </Modal>
@@ -1469,6 +1559,7 @@ import {
   PencilSquareIcon,
   TrashIcon,
   MagnifyingGlassIcon,
+  PlusIcon,
 } from "@heroicons/vue/24/outline";
 import debounce from "lodash/debounce";
 import Swal from "sweetalert2";
@@ -1487,6 +1578,7 @@ import { CheckBadgeIcon, XCircleIcon } from "@heroicons/vue/24/solid";
 import { formattedNumber } from "./help/FormatData";
 import { useParchasePDFStore } from "../stores/parchasePDF";
 import { onUnmounted } from "vue";
+import TaxReceiptModal from "./TaxComponent/CreateModal.vue";
 
 const sideBarStore = useSidebarStore();
 const groupStore = useGroupStore();
@@ -1503,7 +1595,12 @@ const { cashImages, loading } = storeToRefs(cashImageStore);
 const parchasePDFStore = useParchasePDFStore();
 const showPdfModal = ref(false);
 
+const createCredit = (id) => {
+  console.log(id);
+};
+
 const {
+  // Existing
   isGenerating: pdfIsGenerating,
   progress: pdfProgress,
   status: pdfStatus,
@@ -1516,6 +1613,14 @@ const {
   isCompleted: pdfIsCompleted,
   isFailed: pdfIsFailed,
   isProcessing: pdfIsProcessing,
+
+  // New batch refs
+  isBatchGenerating,
+  batchJobId,
+  batchStatus,
+  isBatchCompleted,
+  isBatchFailed,
+  isBatchProcessing,
 } = storeToRefs(parchasePDFStore);
 
 // Search and filter states
@@ -1523,7 +1628,7 @@ const date_range = ref("");
 const filterType = ref("all");
 const senderSearch = ref("");
 const crmSearch = ref("");
-const invoice = ref("all");
+const invoice = ref("");
 const tax_receipts = ref("all");
 const sort_by = ref("date");
 const sort_order = ref("desc");
@@ -1549,6 +1654,16 @@ const calculateRealTax = (data) => {
     totalTax += item.detail?.total_tax_withold * 1;
   });
   return totalTax;
+};
+
+const showTaxModal = ref(false);
+
+const openTaxModal = () => {
+  showTaxModal.value = true;
+};
+
+const closeTaxModal = () => {
+  showTaxModal.value = false;
 };
 
 // Method to get detailed data when user expands
@@ -1951,6 +2066,10 @@ const searchParams = computed(() => {
     }
   }
 
+  if (invoice.value) {
+    params.filter_type = invoice.value;
+  }
+
   params.include_relatable = true;
 
   params.relatable_type = "App\\Models\\BookingItemGroup";
@@ -2002,6 +2121,22 @@ const exportCSV = async () => {
   }
 };
 
+const exportTaxCSV = async () => {
+  let searchParchase = {};
+  if (date_range.value) {
+    searchParchase.date = date_range.value;
+  }
+
+  const res = await cashImageStore.exportParchaseTaxCsv(searchParchase);
+  if (res.status == 1) {
+    window.open(res.result.download_link);
+  } else {
+    toast.error(res.message);
+  }
+};
+
+const showBatchModal = ref(false);
+
 const printPDF = async () => {
   if (!parchasePDFStore.canGenerate) {
     toast.warning("PDF generation လုပ်နေဆဲပါ၊ ခဏစောင့်ပါ...");
@@ -2009,8 +2144,19 @@ const printPDF = async () => {
   }
 
   try {
-    showPdfModal.value = true; // Show the modal
-    await parchasePDFStore.generatePdf(searchParams.value);
+    const result = await parchasePDFStore.generatePdf(searchParams.value);
+
+    // Check if it became a batch job
+    if (parchasePDFStore.isBatchGenerating) {
+      showBatchModal.value = true;
+      toast.success(
+        `PDF များကို ${batchStatus.value.total_batches} အပိုင်း ခွဲပြီး လုပ်နေပါသည်`
+      );
+    } else {
+      // Single job - show existing modal
+      showPdfModal.value = true;
+      toast.success("PDF generation started");
+    }
   } catch (error) {
     console.error("PDF Generation failed:", error);
     toast.error("PDF generation မှာ အမှားဖြစ်ပါတယ်");
@@ -2018,29 +2164,24 @@ const printPDF = async () => {
 };
 
 // Modal management functions
-const closePdfModal = () => {
-  // Only close if not generating
-  if (!parchasePDFStore.isGenerating) {
-    showPdfModal.value = false;
-    parchasePDFStore.resetState();
+const closeBatchModal = () => {
+  // Only close if not processing
+  if (!parchasePDFStore.isBatchProcessing) {
+    showBatchModal.value = false;
+    parchasePDFStore.resetBatchState();
   }
 };
 
-const handleDownload = () => {
-  if (parchasePDFStore.downloadUrl && parchasePDFStore.filename) {
-    parchasePDFStore.downloadPdf(
-      parchasePDFStore.downloadUrl,
-      parchasePDFStore.filename
-    );
-    toast.success("PDF downloaded successfully!");
-  }
+const downloadBatchFile = (file) => {
+  parchasePDFStore.downloadBatchFile(file);
+  toast.success(`Downloaded: ${file.filename}`);
 };
 
-const handleRetry = async () => {
+const handleBatchRetry = async () => {
   try {
-    await parchasePDFStore.retryGeneration();
+    await parchasePDFStore.generatePdf(searchParams.value);
   } catch (error) {
-    console.error("Retry failed:", error);
+    console.error("Batch retry failed:", error);
     toast.error("Retry မှာ အမှားဖြစ်ပါတယ်");
   }
 };
@@ -2082,27 +2223,30 @@ const formatDateTime = (date) => {
 
 // Watch for PDF completion to show success message
 watch(
-  () => parchasePDFStore.isCompleted,
+  () => parchasePDFStore.isBatchCompleted,
   (newVal) => {
     if (newVal) {
-      toast.success("PDF ပြီးပါပြီ! Download လုပ်လို့ရပါပြီ။");
+      toast.success(
+        "PDF batch generation ပြီးပါပြီ! Files တွေ download လုပ်လို့ရပါပြီ။"
+      );
     }
   }
 );
 
-// Watch for PDF errors
+// Watch for batch errors
 watch(
-  () => parchasePDFStore.isFailed,
+  () => parchasePDFStore.isBatchFailed,
   (newVal) => {
     if (newVal) {
-      toast.error("PDF generation မှာ အမှားဖြစ်ပါတယ်");
+      toast.error("PDF batch generation မှာ အမှားဖြစ်ပါတယ်");
     }
   }
 );
 
-// Cleanup on component unmount
+// Update the existing onUnmounted
 onUnmounted(() => {
-  parchasePDFStore.stopStatusChecking();
+  // parchasePDFStore.stopStatusChecking();
+  parchasePDFStore.stopBatchStatusChecking();
 });
 
 const handleYearChange = (message) => {
@@ -2313,24 +2457,6 @@ const onChangeUpdate = async (message) => {
   await getAction();
 };
 
-const show_list_data = computed(() => {
-  if (invoice.value == "" && invoice.value == "all") {
-    return cashImages.value.data;
-  } else if (invoice.value == "missing") {
-    return cashImages.value.data.filter((item) => !item.has_invoice);
-  } else if (invoice.value == "have") {
-    return cashImages.value.data.filter((item) => item.has_invoice);
-  } else if (invoice.value == "missing_tax") {
-    return cashImages.value.data.filter(
-      (item) => item.tax_receipts.length == 0
-    );
-  } else if (invoice.value == "have_tax") {
-    return cashImages.value.data.filter((item) => item.tax_receipts.length > 0);
-  } else {
-    return cashImages.value.data;
-  }
-});
-
 onMounted(async () => {
   if (route.query.month && route.query.year) {
     selectedMonth.value = parseInt(route.query.month);
@@ -2353,6 +2479,7 @@ watch(
     per_page,
     sort_by,
     sort_order,
+    invoice,
   ],
   debounce(async () => {
     await getAction();

@@ -24,6 +24,48 @@
         </div>
       </div>
 
+      <!-- PDF Modal Viewer -->
+      <div
+        v-if="showPdfModal"
+        class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+        @click="closePdfModal"
+      >
+        <div
+          class="relative bg-white rounded-lg shadow-2xl max-w-6xl max-h-[90vh] w-full mx-4"
+        >
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between p-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-900 truncate">
+              {{ currentPdfName }}
+            </h3>
+            <div class="flex items-center space-x-2">
+              <button
+                @click="downloadPdf"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
+              >
+                Download
+              </button>
+              <button
+                @click="closePdfModal"
+                class="text-gray-400 hover:text-gray-600 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+
+          <!-- PDF Viewer -->
+          <div class="p-4 overflow-auto max-h-[80vh]" @click.stop>
+            <iframe
+              v-if="currentPdfUrl"
+              :src="currentPdfUrl"
+              class="w-full h-[70vh] border-0"
+              frameborder="0"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+
       <!-- Storage Overview Cards -->
       <div
         v-if="storageStats"
@@ -227,7 +269,32 @@
             <option value="">Choose a directory...</option>
             <option value="export">Export</option>
             <option value="pdfs">PDFs</option>
+            <option value="pdfs/batches">PDF Batches</option>
           </select>
+        </div>
+
+        <!-- Quick Access Buttons for PDF Subdirectories -->
+        <div
+          v-if="selectedDirectory === 'pdfs'"
+          class="bg-white p-4 rounded-lg shadow-md"
+        >
+          <h3 class="text-sm font-medium text-gray-700 mb-3">
+            PDF Subdirectories
+          </h3>
+          <div class="flex flex-wrap gap-2">
+            <button
+              @click="loadDirectoryFiles('pdfs/batches')"
+              class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-2 rounded-md text-sm transition-colors duration-200"
+            >
+              View Batch Files
+            </button>
+            <button
+              @click="getDirectoryCount('pdfs/batches')"
+              class="bg-green-100 hover:bg-green-200 text-green-800 px-3 py-2 rounded-md text-sm transition-colors duration-200"
+            >
+              Count Batch Files
+            </button>
+          </div>
         </div>
 
         <!-- File List -->
@@ -239,7 +306,7 @@
             class="px-6 py-4 bg-gray-50 border-b flex justify-between items-center"
           >
             <h2 class="text-xl font-semibold text-gray-800 capitalize">
-              {{ selectedDirectory }} Files
+              {{ selectedDirectory.replace("/", " / ") }} Files
             </h2>
             <span class="text-sm text-gray-600"
               >{{ directoryFiles.length }} files</span
@@ -285,7 +352,10 @@
                           class="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center"
                         >
                           <svg
-                            v-if="file.extension === 'pdf'"
+                            v-if="
+                              file.extension === 'pdf' ||
+                              file.name.endsWith('.pdf')
+                            "
                             class="w-4 h-4 text-red-600"
                             fill="none"
                             stroke="currentColor"
@@ -301,7 +371,7 @@
                           <svg
                             v-else-if="
                               ['jpg', 'jpeg', 'png', 'gif'].includes(
-                                file.extension
+                                file.extension || file.name.split('.').pop()
                               )
                             "
                             class="w-4 h-4 text-green-600"
@@ -352,12 +422,32 @@
                     {{ file.formatted_date }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <button
-                      @click="deleteFile(selectedDirectory, file.name)"
-                      class="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-xs transition-colors duration-200"
-                    >
-                      Delete
-                    </button>
+                    <div class="flex space-x-2">
+                      <!-- View PDF Button -->
+                      <button
+                        v-if="
+                          file.extension === 'pdf' || file.name.endsWith('.pdf')
+                        "
+                        @click="viewPdf(file)"
+                        class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded text-xs transition-colors duration-200"
+                      >
+                        View
+                      </button>
+                      <!-- Download Button -->
+                      <button
+                        @click="downloadFile(file)"
+                        class="bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1 rounded text-xs transition-colors duration-200"
+                      >
+                        Download
+                      </button>
+                      <!-- Delete Button -->
+                      <button
+                        @click="deleteFile(selectedDirectory, file.name)"
+                        class="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-xs transition-colors duration-200"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -387,7 +477,7 @@
           </svg>
           <h3 class="mt-2 text-sm font-medium text-gray-900">No files found</h3>
           <p class="mt-1 text-sm text-gray-500">
-            The {{ selectedDirectory }} directory is empty.
+            The {{ selectedDirectory.replace("/", " / ") }} directory is empty.
           </p>
         </div>
       </div>
@@ -442,6 +532,12 @@ const viewMode = ref("overview"); // 'overview' or 'detailed'
 const error = ref("");
 const toast = useToast();
 
+// PDF Viewer state
+const showPdfModal = ref(false);
+const currentPdfUrl = ref("");
+const currentPdfName = ref("");
+const currentPdfFile = ref(null);
+
 // Methods
 const loadStorageStats = async () => {
   try {
@@ -479,11 +575,52 @@ const getDirectoryCount = async (directory) => {
   }
 };
 
+const viewPdf = async (file) => {
+  try {
+    // Use the file serving route from your Laravel backend
+    const fileUrl = storageStore.getFileUrl(selectedDirectory.value, file.name);
+
+    currentPdfUrl.value = fileUrl;
+    currentPdfName.value = file.name;
+    currentPdfFile.value = file;
+    showPdfModal.value = true;
+  } catch (err) {
+    error.value = `Failed to view PDF: ${err.message}`;
+  }
+};
+
+const closePdfModal = () => {
+  showPdfModal.value = false;
+  currentPdfUrl.value = "";
+  currentPdfName.value = "";
+  currentPdfFile.value = null;
+};
+
+const downloadPdf = () => {
+  if (currentPdfUrl.value) {
+    const link = document.createElement("a");
+    link.href = currentPdfUrl.value;
+    link.download = currentPdfName.value;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+};
+
+const downloadFile = (file) => {
+  const fileUrl = storageStore.getFileUrl(selectedDirectory.value, file.name);
+  const link = document.createElement("a");
+  link.href = fileUrl;
+  link.download = file.name;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 const deleteFile = async (type, filename) => {
   Swal.fire({
     title: "Are you sure?",
     text: "Delete this file? File : " + filename,
-    // text: "You won't be able to revert this!",
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#FF613c",

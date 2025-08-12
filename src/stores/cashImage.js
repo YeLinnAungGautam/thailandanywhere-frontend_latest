@@ -139,13 +139,28 @@ export const useCashImageStore = defineStore("cashImage", {
         const response = await axios.get("/parchase/export-csv", {
           params: params,
         });
-        this.loading = false;
+        // this.loading = false;
         return response.data;
       } catch (error) {
-        this.loading = false;
+        // this.loading = false;
         throw error;
       }
     },
+
+    async exportParchaseTaxCsv(params) {
+      try {
+        // this.loading = true;
+        const response = await axios.get("/parchase_tax/export-csv", {
+          params: params,
+        });
+        this.loading = false;
+        return response.data;
+      } catch (error) {
+        // this.loading = false;
+        throw error;
+      }
+    },
+
     async printImage(params) {
       try {
         this.loading = true;

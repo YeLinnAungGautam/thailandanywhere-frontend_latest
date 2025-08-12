@@ -1291,11 +1291,11 @@ const searchParams = computed(() => {
     params.date = date_range.value;
   }
 
-  if (filterType.value) {
-    params.type = filterType.value;
-  } else {
-    params.type = "all";
-  }
+  // if (filterType.value) {
+  //   params.type = filterType.value;
+  // } else {
+  //   params.type = "";
+  // }
 
   if (senderSearch.value) {
     params.sender = senderSearch.value;

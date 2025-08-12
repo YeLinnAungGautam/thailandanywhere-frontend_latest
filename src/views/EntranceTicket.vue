@@ -204,6 +204,41 @@
               </p>
             </div>
             <div class="mb-2 space-y-1">
+              <label for="name" class="text-sm text-gray-800">VAT ID</label>
+              <input
+                type="text"
+                v-model="formData.vat_id"
+                id="name"
+                class="w-full h-10 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
+            </div>
+            <div class="mb-2 space-y-1">
+              <label for="name" class="text-sm text-gray-800">VAT Name</label>
+              <input
+                type="text"
+                v-model="formData.vat_name"
+                id="name"
+                class="w-full h-10 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
+            </div>
+            <div class="mb-2 space-y-1">
+              <label for="name" class="text-sm text-gray-800"
+                >VAT Address</label
+              >
+              <!-- <input
+                type="text"
+                v-model="formData.vat_address"
+                id="name"
+                class="w-full h-10 px-4 py-2 text-gray-900 border-2 border-gray-300  rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              /> -->
+              <textarea
+                name=""
+                v-model="formData.vat_address"
+                id="name"
+                class="w-full h-10 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              ></textarea>
+            </div>
+            <div class="mb-2 space-y-1">
               <label for="name" class="text-sm text-gray-800"
                 >Contract Name</label
               >
@@ -1255,6 +1290,9 @@ const formData = ref({
   account_name: "",
   place: "",
   legal_name: "",
+  vat_id: "",
+  vat_name: "",
+  vat_address: "",
   email: [],
   contract_name: "",
   location_map_title: "",
@@ -1286,6 +1324,9 @@ const VantourCreate = () => {
   formData.value.bank_account_number = "";
   formData.value.place = "";
   formData.value.legal_name = "";
+  formData.value.vat_id = "";
+  formData.value.vat_name = "";
+  formData.value.vat_address = "";
   formData.value.email = [];
   formData.value.contract_name = "";
   formData.value.location_map_title = "";
@@ -1325,6 +1366,9 @@ const clearAction = () => {
     account_name: "",
     place: "",
     legal_name: "",
+    vat_id: "",
+    vat_name: "",
+    vat_address: "",
     email: [],
     contract_name: "",
     location_map: "",
@@ -1450,6 +1494,9 @@ const addNewHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
+  frmData.append("vat_id", formData.value.vat_id);
+  frmData.append("vat_name", formData.value.vat_name);
+  frmData.append("vat_address", formData.value.vat_address);
   frmData.append("contract_name", formData.value.contract_name);
   formData.value.location_map &&
     frmData.append("location_map", formData.value.location_map);
@@ -1534,6 +1581,10 @@ const addNewHandler = async () => {
       place: "",
       contracts: [],
       legal_name: "",
+      vat_id: "",
+      vat_name: "",
+      vat_address: "",
+
       email: [],
       contract_name: "",
       location_map: "",
@@ -1596,6 +1647,9 @@ const updateHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
+  frmData.append("vat_id", formData.value.vat_id);
+  frmData.append("vat_name", formData.value.vat_name);
+  frmData.append("vat_address", formData.value.vat_address);
   frmData.append("contract_name", formData.value.contract_name);
   formData.value.location_map &&
     frmData.append("location_map", formData.value.location_map);
@@ -1686,6 +1740,9 @@ const updateHandler = async () => {
       account_name: "",
       place: "",
       legal_name: "",
+      vat_id: "",
+      vat_name: "",
+      vat_address: "",
       email: [],
       contract_name: "",
       location_map: "",
@@ -1765,6 +1822,9 @@ const editModalOpenHandler = async (id) => {
     formData.value.bank_account_number = response.result.bank_account_number;
     // formData.value.place = response.result.place;
     formData.value.legal_name = response.result.legal_name;
+    formData.value.vat_id = response.result.vat_id;
+    formData.value.vat_name = response.result.vat_name;
+    formData.value.vat_address = response.result.vat_address;
     formData.value.contract_name = response.result.contract_name;
     formData.value.location_map = response.result.location_map;
     formData.value.vat_inclusion = response.result.vat_inclusion;

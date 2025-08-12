@@ -130,6 +130,9 @@ const formData = ref({
   check_out: "",
   cancellation_policy: "",
   official_address: "",
+  vat_id: "",
+  vat_name: "",
+  vat_address: "",
   official_phone_number: "",
   official_email: "",
   official_remark: "",
@@ -234,6 +237,9 @@ const closeModal = () => {
     check_out: "",
     cancellation_policy: "",
     official_address: "",
+    vat_id: "",
+    vat_name: "",
+    vat_address: "",
     official_phone_number: "",
     official_email: "",
     official_remark: "",
@@ -343,6 +349,9 @@ const addNewHandler = async () => {
   frmData.append("account_name", formData.value.account_name);
 
   frmData.append("official_address", formData.value.official_address);
+  frmData.append("vat_id", formData.value.vat_id);
+  frmData.append("vat_name", formData.value.vat_name);
+  frmData.append("vat_address", formData.value.vat_address);
   frmData.append("official_phone_number", formData.value.official_phone_number);
   frmData.append("official_email", formData.value.official_email);
   frmData.append("official_remark", formData.value.official_remark);
@@ -444,6 +453,9 @@ const addNewHandler = async () => {
       check_out: "",
       cancellation_policy: "",
       official_address: "",
+      vat_id: "",
+      vat_name: "",
+      vat_address: "",
       official_phone_number: "",
       official_email: "",
       official_remark: "",
@@ -509,6 +521,9 @@ const openCreate = () => {
   formData.value.check_out = "";
   formData.value.cancellation_policy = "";
   formData.value.official_address = "";
+  formData.value.vat_id = "";
+  formData.value.vat_name = "";
+  formData.value.vat_address = "";
   formData.value.official_phone_number = "";
   formData.value.official_email = "";
   formData.value.official_remark = "";
@@ -574,6 +589,9 @@ const updateHandler = async () => {
   frmData.append("account_name", formData.value.account_name);
 
   frmData.append("official_address", formData.value.official_address);
+  frmData.append("vat_id", formData.value.vat_id);
+  frmData.append("vat_name", formData.value.vat_name);
+  frmData.append("vat_address", formData.value.vat_address);
   frmData.append("official_phone_number", formData.value.official_phone_number);
   frmData.append("official_email", formData.value.official_email);
   frmData.append("official_remark", formData.value.official_remark);
@@ -695,6 +713,9 @@ const updateHandler = async () => {
       check_out: "",
       cancellation_policy: "",
       official_address: "",
+      vat_id: "",
+      vat_name: "",
+      vat_address: "",
       official_phone_number: "",
       official_email: "",
       official_remark: "",
@@ -799,6 +820,9 @@ const getDetail = async (params) => {
     formData.value.check_out = data.check_out;
     formData.value.cancellation_policy = data.cancellation_policy;
     formData.value.official_address = data.official_address;
+    formData.value.vat_id = data.vat_id;
+    formData.value.vat_name = data.vat_name;
+    formData.value.vat_address = data.vat_address;
     formData.value.official_phone_number = data.official_phone_number;
     formData.value.official_email = data.official_email;
     formData.value.official_remark = data.official_remark;
@@ -996,7 +1020,7 @@ onMounted(async () => {
                 quiteSwitch == 6 ? 'bg-[#ff613c] text-white' : 'bg-gray-200'
               "
             >
-              confirmation
+              vat & confirmation
             </p>
             <p
               v-if="formData.id"
@@ -1705,10 +1729,41 @@ onMounted(async () => {
                     id=""
                   ></textarea>
                 </div>
+
                 <div class="space-y-1">
                   <label for="name" class="text-sm text-gray-800">Remark</label>
                   <textarea
                     v-model="formData.official_remark"
+                    name=""
+                    class="w-full h-32 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                    id=""
+                  ></textarea>
+                </div>
+                <div></div>
+                <div class="space-y-1">
+                  <label for="name" class="text-sm text-gray-800">VAT Id</label>
+                  <input
+                    v-model="formData.vat_id"
+                    type="text"
+                    class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <label for="name" class="text-sm text-gray-800"
+                    >VAT Name</label
+                  >
+                  <input
+                    v-model="formData.vat_name"
+                    type="text"
+                    class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <label for="name" class="text-sm text-gray-800"
+                    >VAT Address</label
+                  >
+                  <textarea
+                    v-model="formData.vat_address"
                     name=""
                     class="w-full h-32 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
                     id=""

@@ -1239,7 +1239,22 @@
           as="div"
           class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-3 px-4 rounded-t-xl"
         >
-          <span class="uppercase">Credit Receipt</span>
+          <span class="uppercase">Credit Receipt </span>
+          <div class="flex justify-end items-center gap-x-2">
+            <p
+              class="bg-blue-500 px-2 py-1 rounded"
+              @click="editCredit(creditData[currentIndex2]?.id)"
+            >
+              Go Tax Credit
+            </p>
+            <p
+              v-if="authStore.isSuperAdmin"
+              class="bg-red-600 px-2 py-1 rounded"
+              @click="deleteCredit(creditData[currentIndex2]?.id)"
+            >
+              Delete Tax Credit
+            </p>
+          </div>
         </DialogTitle>
 
         <div class="p-4">
@@ -1588,6 +1603,7 @@ import { useParchasePDFStore } from "../stores/parchasePDF";
 import { onUnmounted } from "vue";
 import TaxReceiptModal from "./TaxComponent/CreateModal.vue";
 import ConnectTaxReceiptModal from "./TaxComponent/ConnectModal.vue";
+import { useTaxReceiptStore } from "../stores/taxReceipt";
 
 const sideBarStore = useSidebarStore();
 const groupStore = useGroupStore();
@@ -1595,6 +1611,7 @@ const toast = useToast();
 const { isShowSidebar } = storeToRefs(sideBarStore);
 const bookingReceiptStore = useBookingReceiptStore();
 const cashImageStore = useCashImageStore();
+const taxReceiptStore = useTaxReceiptStore();
 const reservationStore = useReservationStore();
 const route = useRoute();
 const router = useRouter();
@@ -1761,6 +1778,38 @@ const monthArray = [
 
 //   return groups;
 // });
+
+const deleteCredit = async (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Yes, delete it!",
+    cancelButtonText: "Cancel",
+    reverseButtons: true,
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await taxReceiptStore.deleteAction(id);
+        if (response.status == 1) {
+          toast.success("Tax Credit Deleted");
+          await getAction();
+        } else {
+          toast.error("Failed to delete tax credit");
+        }
+      } catch (error) {
+        toast.error("Failed to delete tax credit");
+      }
+    }
+  });
+};
+
+const editCredit = (id) => {
+  router.push(`/tax_receipt?id=${id}`);
+};
 
 const formatDateForTime = (dateString) => {
   if (!dateString) return "";

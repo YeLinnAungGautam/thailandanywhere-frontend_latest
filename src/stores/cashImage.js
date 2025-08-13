@@ -135,7 +135,6 @@ export const useCashImageStore = defineStore("cashImage", {
     },
     async exportParchaseCsv(params) {
       try {
-        this.loading = true;
         const response = await axios.get("/parchase/export-csv", {
           params: params,
         });

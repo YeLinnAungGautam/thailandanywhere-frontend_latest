@@ -19,9 +19,34 @@
       </p>
     </div>
 
-    <div class="">
+    <div class="relative">
       <!-- Filters and Search -->
-      <div class="pb-4 space-y-3">
+      <div class="pb-4 space-y-3 sticky -top-5 bg-white z-40">
+        <div class="flex justify-start items-center space-x-2">
+          <p
+            @click="table_type = false"
+            class="px-3 rounded-lg py-2 text-xs cursor-pointer"
+            :class="
+              !table_type ? 'bg-[#FF613c] text-white' : 'border border-gray-200'
+            "
+          >
+            Cash View Table
+          </p>
+          <p
+            @click="
+              () => {
+                invoice = 'tax_receipt_have';
+                table_type = true;
+              }
+            "
+            class="px-3 rounded-lg py-2 text-xs cursor-pointer"
+            :class="
+              table_type ? 'bg-[#FF613c] text-white' : 'border border-gray-200'
+            "
+          >
+            Tax View Table
+          </p>
+        </div>
         <!-- Date and Type Filters -->
         <div class="flex justify-start space-x-2 items-center">
           <p
@@ -70,19 +95,19 @@
               <div class="flex justify-center items-center h-full">
                 <p
                   @click="exportCSV"
-                  class="px-3 text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none bg-gray-400 text-white"
+                  class="px-3 text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none bg-[#FF613c] text-white"
                 >
                   Export Parchase CSV
                 </p>
               </div>
-              <div class="flex justify-center items-center h-full">
+              <!-- <div class="flex justify-center items-center h-full">
                 <p
                   @click="exportTaxCSV"
                   class="px-3 text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none bg-[#FF613c] text-white"
                 >
                   Export Tax CSV
                 </p>
-              </div>
+              </div> -->
             </div>
           </div>
 
@@ -213,12 +238,20 @@
           <div class="text-gray-400 text-6xl mb-4">📄</div>
           <p class="text-gray-600">No receipts found</p>
         </div>
-        <div v-else class="overflow-x-auto">
+        <div
+          v-if="
+            cashImages?.data &&
+            !table_type &&
+            cashImages?.data.length > 0 &&
+            !loading
+          "
+          class="overflow-x-auto"
+        >
           <table class="w-full text-xs border border-gray-500">
             <thead class="border border-gray-500">
               <tr class="bg-gray-200 divide-x divide-gray-500">
                 <th class="text-xs text-center font-medium py-3 w-[100px]">
-                  Date
+                  TR.Date
                 </th>
                 <th class="text-xs text-center font-medium py-3 w-[100px]">
                   EXP Number
@@ -962,6 +995,101 @@
             </tbody>
           </table>
         </div>
+        <div
+          v-if="
+            cashImages?.data &&
+            table_type &&
+            cashImages?.data.length > 0 &&
+            !loading
+          "
+          class="overflow-x-auto"
+        >
+          <table class="w-full text-xs border border-gray-500">
+            <thead class="border border-gray-500">
+              <tr class="bg-gray-200 divide-x divide-gray-500">
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  TR.Datetime
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  EXP Number
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Cash Amount
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Tax Receipt Number
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Tax Receipt Date
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Supplier Name
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Order Description
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Sale Value
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  VAT Value
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  CRM ID
+                </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Invoice
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(item, index) in cashImages?.data"
+                :key="item.id"
+                class="bg-gray-50 odd:bg-white group relative divide-x divide-gray-500 hover:bg-gray-100 cursor-pointer"
+              >
+                <td class="text-xs whitespace-nowrap text-center px-3 py-3">
+                  {{ formatDateForTime(item?.date) }},
+                  {{ formatTime(item?.date) }}
+                </td>
+                <td class="px-3 py-2 text-xs text-center">
+                  {{ "EXP" + "0" + selectedMonth + "000" + (index + 1) }}
+                </td>
+                <td class="text-xs text-center py-3">
+                  {{ item.amount }}
+                </td>
+                <td class="text-xs text-center py-3">
+                  {{ item.relatable?.tax_credit[0]?.invoice_number ?? "N/A" }}
+                </td>
+                <td class="text-xs text-center py-3">
+                  {{ item.relatable?.tax_credit[0]?.receipt_date }}
+                </td>
+                <td class="text-xs text-center py-3">
+                  {{ item.relatable?.items[0]?.product?.vat_name ?? "N/A" }}
+                </td>
+                <td class="text-xs text-center py-3">
+                  {{ item.relatable?.items[0]?.product_type.split("\\")[2] }}
+                </td>
+                <td class="text-xs text-center py-3">
+                  {{ item.relatable?.tax_credit[0]?.total_after_tax }}
+                </td>
+                <td class="text-xs text-center py-3">
+                  {{ item.relatable?.tax_credit[0]?.total_tax_withold }}
+                </td>
+                <td class="px-3 py-2 text-xs whitespace-nowrap">
+                  {{ item?.crm_id }}
+                </td>
+                <td class="px-3 py-2 text-xs whitespace-nowrap">
+                  <!-- {{ item?.has_invoice ? "✓" : "-" }} -->
+                  <CheckBadgeIcon
+                    v-if="item?.has_invoice"
+                    class="h-5 w-5 text-green-500"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <div class="mt-8">
           <Pagination
             v-if="!loading && cashImages?.data?.length > 0"
@@ -1634,6 +1762,7 @@ const parchasePDFStore = useParchasePDFStore();
 const showPdfModal = ref(false);
 
 const showConnectModal = ref(false);
+const table_type = ref(false);
 
 const addingGroupId = ref(null);
 const addingGroupInfo = ref(null);
@@ -2034,7 +2163,7 @@ const calculateInvoiceVat = (item) => {
   item.forEach((item) => {
     total += item.meta?.total_tax_withold * 1;
   });
-  return total;
+  return formattedNumber(total);
 };
 const calculateTaxTotal = (item) => {
   if (!item) return 0;
@@ -2198,6 +2327,7 @@ const exportCSV = async () => {
     interact_bank: "company",
     include_relatable: true,
     relatable_type: "App\\Models\\BookingItemGroup",
+    filter_type: "tax_receipt_have",
   };
   if (date_range.value) {
     searchParchase.date = date_range.value;
@@ -2233,8 +2363,20 @@ const printPDF = async () => {
     return;
   }
 
+  let searchParchase = {
+    sort_by: "date",
+    sort_order: "asc",
+    interact_bank: "company",
+    include_relatable: true,
+    relatable_type: "App\\Models\\BookingItemGroup",
+    filter_type: "tax_receipt_have",
+  };
+  if (date_range.value) {
+    searchParchase.date = date_range.value;
+  }
+
   try {
-    const result = await parchasePDFStore.generatePdf(searchParams.value);
+    const result = await parchasePDFStore.generatePdf(searchParchase);
 
     // Check if it became a batch job
     if (parchasePDFStore.isBatchGenerating) {

@@ -2327,7 +2327,6 @@ const exportCSV = async () => {
     include_relatable: true,
     relatable_type: "App\\Models\\BookingItemGroup",
     filter_type: "tax_receipt_have",
-    interact_bank: "company",
   };
   if (date_range.value) {
     searchParchase.date = date_range.value;
@@ -2355,7 +2354,6 @@ const printPDF = async () => {
     include_relatable: true,
     relatable_type: "App\\Models\\BookingItemGroup",
     filter_type: "tax_receipt_have",
-    interact_bank: "company",
   };
   if (date_range.value) {
     searchParchase.date = date_range.value;

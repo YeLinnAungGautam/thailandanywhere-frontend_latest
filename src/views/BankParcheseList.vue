@@ -2322,7 +2322,7 @@ const changePage = async (url) => {
 
 const exportCSV = async () => {
   let searchParchase = {
-    sort_by: "date",
+    sort_by: "receiver",
     sort_order: "asc",
     include_relatable: true,
     relatable_type: "App\\Models\\BookingItemGroup",
@@ -2349,7 +2349,7 @@ const printPDF = async () => {
   }
 
   let searchParchase = {
-    sort_by: "date",
+    sort_by: "receiver",
     sort_order: "asc",
     include_relatable: true,
     relatable_type: "App\\Models\\BookingItemGroup",

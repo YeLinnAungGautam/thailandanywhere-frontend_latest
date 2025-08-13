@@ -1818,7 +1818,7 @@ const crmSearch = ref("");
 const invoice = ref("");
 const tax_receipts = ref("all");
 const sort_by = ref("date");
-const sort_order = ref("desc");
+const sort_order = ref("asc");
 const bankNameSearch = ref("");
 const amountSearch = ref("");
 const interactSearch = ref("");
@@ -2324,7 +2324,6 @@ const exportCSV = async () => {
   let searchParchase = {
     sort_by: "date",
     sort_order: "asc",
-    interact_bank: "company",
     include_relatable: true,
     relatable_type: "App\\Models\\BookingItemGroup",
     filter_type: "tax_receipt_have",
@@ -2334,20 +2333,6 @@ const exportCSV = async () => {
   }
 
   const res = await cashImageStore.exportParchaseCsv(searchParchase);
-  if (res.status == 1) {
-    window.open(res.result.download_link);
-  } else {
-    toast.error(res.message);
-  }
-};
-
-const exportTaxCSV = async () => {
-  let searchParchase = {};
-  if (date_range.value) {
-    searchParchase.date = date_range.value;
-  }
-
-  const res = await cashImageStore.exportParchaseTaxCsv(searchParchase);
   if (res.status == 1) {
     window.open(res.result.download_link);
   } else {
@@ -2366,7 +2351,6 @@ const printPDF = async () => {
   let searchParchase = {
     sort_by: "date",
     sort_order: "asc",
-    interact_bank: "company",
     include_relatable: true,
     relatable_type: "App\\Models\\BookingItemGroup",
     filter_type: "tax_receipt_have",

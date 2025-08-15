@@ -83,40 +83,13 @@
               {{ m.name }}
             </option>
           </select>
-          <div class="relative group">
-            <p
-              class="px-3 text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none bg-[#FF613c] text-white"
-            >
-              Export CSV
-            </p>
-            <div
-              class="absolute top-[55px] z-50 left-0 w-full h-full bg-[#FF613c] opacity-0 group-hover:opacity-100 transition-all duration-200"
-            >
-              <div class="flex justify-center items-center h-full">
-                <p
-                  @click="exportCSV"
-                  class="px-3 text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none bg-[#FF613c] text-white"
-                >
-                  Export Parchase CSV
-                </p>
-              </div>
-              <!-- <div class="flex justify-center items-center h-full">
-                <p
-                  @click="exportTaxCSV"
-                  class="px-3 text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none bg-[#FF613c] text-white"
-                >
-                  Export Tax CSV
-                </p>
-              </div> -->
-            </div>
-          </div>
 
-          <p
-            @click="printPDF"
+          <div
             class="px-3 text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none bg-[#FF613c] text-white"
+            @click="showExport = true"
           >
-            Print Parchase PDF
-          </p>
+            <p>All CSV & PDF Feature</p>
+          </div>
 
           <div
             class="flex justify-center items-center gap-x-2 bg-blue-600 rounded-lg text-xs text-white px-3 py-2"
@@ -1707,6 +1680,82 @@
       @connected="onConnected"
       @close="closeConnectModal"
     />
+
+    <Modal
+      :isOpen="showExport"
+      @closeModal="
+        () => {
+          showExport = false;
+        }
+      "
+    >
+      <DialogPanel
+        class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 p-4 border-b bg-[#FF613c] text-white rounded-t-xl"
+        >
+          ALL FEATURE FOR CSV & PRINT
+        </DialogTitle>
+        <div class="p-6 space-y-3">
+          <div class="relative group space-y-2">
+            <div
+              class="rounded-xl left-0 w-full space-y-3 transition-all duration-200"
+            >
+              <p class="text-xs font-medium">
+                Export CSV for Company of All Tax Have
+              </p>
+              <div class="flex justify-center items-center h-full">
+                <p
+                  @click="exportCSV"
+                  class="px-6 font-medium text-xs py-4 bg-[#FF613c]/20 w-full rounded-lg border border-gray-400/20 focus:outline-none"
+                >
+                  Export Parchase CSV
+                </p>
+              </div>
+              <p class="text-xs font-medium">
+                Export CSV for Company of All Invoice Have
+              </p>
+              <div class="flex justify-center items-center h-full">
+                <p
+                  @click="exportInvoiceCSV"
+                  class="px-6 font-medium text-xs py-4 bg-[#FF613c]/20 w-full rounded-lg border border-gray-400/20 focus:outline-none"
+                >
+                  Export Invoice CSV
+                </p>
+              </div>
+              <p class="text-xs font-medium">
+                Export CSV for Company of All No Tax Have
+              </p>
+              <div class="flex justify-center items-center h-full">
+                <p
+                  @click="exportNoTaxCSV"
+                  class="px-6 font-medium text-xs py-4 bg-[#FF613c]/20 w-full rounded-lg border border-gray-400/20 focus:outline-none"
+                >
+                  Export No Tax CSV
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-xs font-medium">Print All invoices have</p>
+          <p
+            @click="printPDF"
+            class="px-6 font-medium text-xs py-4 rounded-lg border border-gray-400/20 focus:outline-none bg-[#FF613c] text-white"
+          >
+            Print Parchase PDF
+          </p>
+          <p class="text-xs font-medium">Print All Tax no have</p>
+          <p
+            @click="printNoTaxPDF"
+            class="px-6 font-medium text-xs py-4 rounded-lg border border-gray-400/20 focus:outline-none bg-[#FF613c] text-white"
+          >
+            Print No Tax PDF
+          </p>
+        </div>
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>
 
@@ -1763,6 +1812,7 @@ const showPdfModal = ref(false);
 
 const showConnectModal = ref(false);
 const table_type = ref(false);
+const showExport = ref(false);
 
 const addingGroupId = ref(null);
 const addingGroupInfo = ref(null);
@@ -1816,6 +1866,7 @@ const filterType = ref("all");
 const senderSearch = ref("");
 const crmSearch = ref("");
 const invoice = ref("");
+const invoiceTax = ref("");
 const tax_receipts = ref("all");
 const sort_by = ref("date");
 const sort_order = ref("asc");
@@ -2289,6 +2340,10 @@ const searchParams = computed(() => {
     params.filter_type = invoice.value;
   }
 
+  if (invoiceTax.value) {
+    params.filter_invoice_type = invoiceTax.value;
+  }
+
   params.include_relatable = true;
 
   params.relatable_type = "App\\Models\\BookingItemGroup";
@@ -2340,6 +2395,44 @@ const exportCSV = async () => {
   }
 };
 
+const exportInvoiceCSV = async () => {
+  let searchParchase = {
+    sort_by: "date",
+    sort_order: "asc",
+    include_relatable: true,
+    relatable_type: "App\\Models\\BookingItemGroup",
+    filter_type: "invoice_have",
+  };
+  if (date_range.value) {
+    searchParchase.date = date_range.value;
+  }
+  const res = await cashImageStore.exportInvoiceCsv(searchParchase);
+  if (res.status == 1) {
+    window.open(res.result.download_link);
+  } else {
+    toast.error(res.message);
+  }
+};
+
+const exportNoTaxCSV = async () => {
+  let searchParchase = {
+    sort_by: "date",
+    sort_order: "asc",
+    include_relatable: true,
+    relatable_type: "App\\Models\\BookingItemGroup",
+    filter_type: "tax_receipt_missing",
+  };
+  if (date_range.value) {
+    searchParchase.date = date_range.value;
+  }
+  const res = await cashImageStore.exportInvoiceCsv(searchParchase);
+  if (res.status == 1) {
+    window.open(res.result.download_link);
+  } else {
+    toast.error(res.message);
+  }
+};
+
 const showBatchModal = ref(false);
 
 const printPDF = async () => {
@@ -2354,6 +2447,43 @@ const printPDF = async () => {
     include_relatable: true,
     relatable_type: "App\\Models\\BookingItemGroup",
     filter_type: "invoice_have",
+  };
+  if (date_range.value) {
+    searchParchase.date = date_range.value;
+  }
+
+  try {
+    const result = await parchasePDFStore.generatePdf(searchParchase);
+
+    // Check if it became a batch job
+    if (parchasePDFStore.isBatchGenerating) {
+      showBatchModal.value = true;
+      toast.success(
+        `PDF များကို ${batchStatus.value.total_batches} အပိုင်း ခွဲပြီး လုပ်နေပါသည်`
+      );
+    } else {
+      // Single job - show existing modal
+      showPdfModal.value = true;
+      toast.success("PDF generation started");
+    }
+  } catch (error) {
+    console.error("PDF Generation failed:", error);
+    toast.error("PDF generation မှာ အမှားဖြစ်ပါတယ်");
+  }
+};
+
+const printNoTaxPDF = async () => {
+  if (!parchasePDFStore.canGenerate) {
+    toast.warning("PDF generation လုပ်နေဆဲပါ၊ ခဏစောင့်ပါ...");
+    return;
+  }
+
+  let searchParchase = {
+    sort_by: "date",
+    sort_order: "asc",
+    include_relatable: true,
+    relatable_type: "App\\Models\\BookingItemGroup",
+    filter_type: "tax_receipt_missing",
   };
   if (date_range.value) {
     searchParchase.date = date_range.value;

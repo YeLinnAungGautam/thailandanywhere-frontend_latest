@@ -146,6 +146,20 @@ export const useCashImageStore = defineStore("cashImage", {
       }
     },
 
+    async exportInvoiceCsv(params) {
+      try {
+        // this.loading = true;
+        const response = await axios.get("/invoice/export-csv", {
+          params: params,
+        });
+        this.loading = false;
+        return response.data;
+      } catch (error) {
+        // this.loading = false;
+        throw error;
+      }
+    },
+
     async exportParchaseTaxCsv(params) {
       try {
         // this.loading = true;

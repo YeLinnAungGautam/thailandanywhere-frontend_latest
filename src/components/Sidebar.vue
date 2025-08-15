@@ -436,12 +436,6 @@
                 v-if="isShowSetting"
               >
                 <SidebarItem
-                  name="Partners"
-                  v-if="!authStore.isAgent && !authStore.isAuditor"
-                  :icon="UserGroupIcon"
-                  to="/partners"
-                />
-                <SidebarItem
                   v-if="!authStore.isAgent && !authStore.isAuditor"
                   name="Calendar"
                   :icon="CalendarDaysIcon"
@@ -465,6 +459,13 @@
                 :icon="FolderIcon"
                 to="/storage"
                 :activePaths="['storage']"
+              />
+              <SidebarItem
+                v-if="authStore.isSuperAdmin"
+                name="Partners"
+                :icon="UserGroupIcon"
+                to="/partner"
+                :activePaths="['partner']"
               />
             </div>
           </div>

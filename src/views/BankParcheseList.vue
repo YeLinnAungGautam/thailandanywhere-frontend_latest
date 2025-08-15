@@ -2349,11 +2349,11 @@ const printPDF = async () => {
   }
 
   let searchParchase = {
-    sort_by: "receiver",
+    sort_by: "date",
     sort_order: "asc",
     include_relatable: true,
     relatable_type: "App\\Models\\BookingItemGroup",
-    filter_type: "tax_receipt_have",
+    filter_type: "invoice_have",
   };
   if (date_range.value) {
     searchParchase.date = date_range.value;

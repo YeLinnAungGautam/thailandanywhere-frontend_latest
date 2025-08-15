@@ -13,7 +13,6 @@ import EditBookingView from "../views/EditBookingView.vue";
 import LoginView from "../views/LoginView.vue";
 import CalendarView from "../views/CalendarView.vue";
 import SaleView from "../views/SaleView.vue";
-import PartnerView from "../views/PartnerView.vue";
 import BlogView from "../views/BlogView.vue";
 import BlogCategoryView from "../views/BlogCategoryView.vue";
 import NewBlogView from "../views/NewBlogView.vue";
@@ -83,6 +82,7 @@ import BankParcheseList from "../views/BankParcheseList.vue";
 import BankStatementFilter from "../views/BankStatementFilter.vue";
 import CashInternalTransfer from "../views/CashInternalTransfer.vue";
 import StorageView from "../views/Storage.vue";
+import PartnerView from "../views/Partner.vue";
 
 const routes = [
   {
@@ -133,11 +133,7 @@ const routes = [
   //   name: "sales",
   //   component: SaleView,
   // },
-  {
-    path: "/partners",
-    name: "partners",
-    component: PartnerView,
-  },
+
   {
     path: "/customers",
     name: "customers",
@@ -513,6 +509,11 @@ const routes = [
     path: "/storage",
     name: "storage",
     component: StorageView,
+  },
+  {
+    path: "/partner",
+    name: "partner",
+    component: PartnerView,
   },
 ];
 

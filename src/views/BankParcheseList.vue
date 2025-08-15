@@ -2418,6 +2418,7 @@ const exportNoTaxCSV = async () => {
   let searchParchase = {
     sort_by: "date",
     sort_order: "asc",
+    interact_bank: "company",
     include_relatable: true,
     relatable_type: "App\\Models\\BookingItemGroup",
     filter_type: "tax_receipt_missing",
@@ -2481,6 +2482,7 @@ const printNoTaxPDF = async () => {
   let searchParchase = {
     sort_by: "date",
     sort_order: "asc",
+    interact_bank: "company",
     include_relatable: true,
     relatable_type: "App\\Models\\BookingItemGroup",
     filter_type: "tax_receipt_missing",

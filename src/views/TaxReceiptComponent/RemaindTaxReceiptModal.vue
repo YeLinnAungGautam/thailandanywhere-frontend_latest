@@ -22,23 +22,16 @@
         <div class="flex justify-start items-center space-x-2">
           <!-- Date Range Picker -->
           <div class="flex items-center space-x-2">
-            <input
-              v-model="startDate"
-              type="date"
+            <YearPickerVue @year-change="handleYearChange" />
+            <select
+              v-model="selectedMonth"
+              @change="handleMonthChange(selectedMonth)"
               class="px-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
-            />
-            <span class="text-xs text-gray-500">to</span>
-            <input
-              v-model="endDate"
-              type="date"
-              class="px-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
-            />
-            <button
-              @click="applyDateRange"
-              class="px-3 py-2 text-xs bg-[#FF613c] text-white rounded-lg hover:bg-[#e55139] transition-colors"
             >
-              Apply
-            </button>
+              <option :value="m.id" v-for="m in monthArray" :key="m.id">
+                {{ m.name }}
+              </option>
+            </select>
           </div>
 
           <!-- Refresh Button -->
@@ -95,16 +88,6 @@
             <option value="total_records">Sort by Total Records</option>
             <option value="product_name">Sort by Product Name</option>
             <option value="completion_rate">Sort by Completion Rate</option>
-          </select>
-
-          <select
-            v-model="per_page"
-            class="px-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
-          >
-            <option value="10">10 per page</option>
-            <option value="25">25 per page</option>
-            <option value="50">50 per page</option>
-            <option value="100">100 per page</option>
           </select>
 
           <button
@@ -459,6 +442,7 @@ import { storeToRefs } from "pinia";
 import Layout from "../Layout.vue";
 import { ClipboardIcon } from "@heroicons/vue/24/outline";
 import { useToast } from "vue-toastification";
+import YearPickerVue from "../AccountingComponent/yearPicker.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -477,46 +461,115 @@ const filterByType = ref("");
 const sortBy = ref("missing_count");
 const per_page = ref(100);
 
-// Date range functionality
-const startDate = ref("");
-const endDate = ref("");
+const currentDate = new Date();
+const year = ref(currentDate.getFullYear());
+const selectedMonth = ref(currentDate.getMonth() + 1);
 
 const toast = useToast();
 
-// Get initial date range from route params/query
+const monthArray = [
+  { id: 1, name: "January" },
+  { id: 2, name: "February" },
+  { id: 3, name: "March" },
+  { id: 4, name: "April" },
+  { id: 5, name: "May" },
+  { id: 6, name: "June" },
+  { id: 7, name: "July" },
+  { id: 8, name: "August" },
+  { id: 9, name: "September" },
+  { id: 10, name: "October" },
+  { id: 11, name: "November" },
+  { id: 12, name: "December" },
+];
+
+// Generate date range from year and month
+const generateDateRangeForMonth = (month, yearValue) => {
+  const startDate = new Date(yearValue, month - 1, 1);
+  const endDate = new Date(yearValue, month, 0);
+
+  const formatDate = (date) => {
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${year}-${month}-${day}`;
+  };
+
+  return `${formatDate(startDate)},${formatDate(endDate)}`;
+};
+
+// Get current date range based on selected year and month
 const dateRange = computed(() => {
-  if (startDate.value && endDate.value) {
-    return `${startDate.value},${endDate.value}`;
-  }
-  return route.query.daterange || route.params.daterange || null;
+  return generateDateRangeForMonth(selectedMonth.value, year.value);
 });
 
-// Initialize date range from route
-const initializeDateRange = () => {
-  const routeDateRange = route.query.daterange || route.params.daterange;
-  if (routeDateRange) {
-    const [start, end] = routeDateRange.split(",");
-    startDate.value = start?.trim() || "";
-    endDate.value = end?.trim() || "";
-  } else {
-    // Default to current month
-    const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+// Handle year change from YearPicker component
+const handleYearChange = (newYear) => {
+  year.value = newYear;
+  updateUrlAndRefresh();
+};
 
-    startDate.value = firstDay.toISOString().split("T")[0];
-    endDate.value = lastDay.toISOString().split("T")[0];
-  }
+// Handle month change
+const handleMonthChange = (month) => {
+  selectedMonth.value = month;
+  updateUrlAndRefresh();
+};
+
+// Update URL with daterange and refresh data
+const updateUrlAndRefresh = () => {
+  const currentDateRange = generateDateRangeForMonth(
+    selectedMonth.value,
+    year.value
+  );
+
+  // Update URL with clean daterange-only format
+  router.push({
+    query: {
+      daterange: currentDateRange,
+    },
+  });
+
+  // Then refresh data
+  getRemainList();
 };
 
 // Apply date range and update URL
-const applyDateRange = () => {
-  if (startDate.value && endDate.value) {
-    const newDateRange = `${startDate.value},${endDate.value}`;
-    router.push({
-      query: { ...route.query, daterange: newDateRange },
+// Initialize from route params and ensure daterange is set
+const initializeFromRoute = () => {
+  // Priority 1: Extract from daterange parameter (your route format)
+  if (route.query.daterange) {
+    const [startDate, endDate] = route.query.daterange.split(",");
+    const date = new Date(startDate);
+    year.value = date.getFullYear();
+    selectedMonth.value = date.getMonth() + 1;
+    console.log("Initialized from daterange:", route.query.daterange);
+    console.log("Extracted year:", year.value, "month:", selectedMonth.value);
+  }
+  // Priority 2: Fallback to year/month parameters
+  else if (route.query.month && route.query.year) {
+    selectedMonth.value = parseInt(route.query.month);
+    year.value = parseInt(route.query.year);
+    console.log("Initialized from year/month params");
+  }
+  // Priority 3: Default to current month if no params
+  else {
+    console.log("No route params, using current date");
+  }
+
+  // Always ensure URL stays consistent with current values
+  const currentDateRange = generateDateRangeForMonth(
+    selectedMonth.value,
+    year.value
+  );
+  console.log("Generated daterange:", currentDateRange);
+
+  // Only update URL if the daterange has changed
+  if (route.query.daterange !== currentDateRange) {
+    router.replace({
+      query: {
+        ...route.query,
+        daterange: currentDateRange,
+      },
     });
-    getRemainList();
   }
 };
 
@@ -594,7 +647,7 @@ const copyToClipboard = (product) => {
       report += `- ${
         item.amount
       } ${item.currency.toLowerCase()} ; ${formattedDate} ; ${item.crm_id} ; ${
-        item.relatable?.customer?.name
+        item.customer_name
       }\n`;
     });
     report += `\n`;
@@ -608,7 +661,7 @@ const copyToClipboard = (product) => {
       report += `- ${
         item.amount
       } ${item.currency.toLowerCase()} ; ${formattedDate} ; ${item.crm_id} ; ${
-        item.relatable?.customer?.name
+        item.customer_name
       }\n`;
     });
   }
@@ -787,42 +840,55 @@ const viewImage = (cashImage) => {
   }
 };
 
-const generateTaxReceipt = (cashImage) => {
-  // Implement tax receipt generation logic
-  console.log("Generate tax receipt for:", cashImage);
-  // You can call an API or show another modal here
-  // Example: redirect to tax receipt generation page
-  // router.push(`/tax-receipts/generate/${cashImage.id}`);
-};
-
 // Watchers
+// Watch for route daterange changes (for direct URL navigation)
 watch(
   () => route.query.daterange,
-  (newVal) => {
-    if (newVal) {
-      const [start, end] = newVal.split(",");
-      startDate.value = start?.trim() || "";
-      endDate.value = end?.trim() || "";
+  (newDateRange) => {
+    if (newDateRange && newDateRange !== dateRange.value) {
+      console.log("Route daterange changed to:", newDateRange);
+      const [startDate] = newDateRange.split(",");
+      const date = new Date(startDate);
+      year.value = date.getFullYear();
+      selectedMonth.value = date.getMonth() + 1;
+      console.log("Updated year:", year.value, "month:", selectedMonth.value);
       getRemainList();
     }
   }
 );
 
-watch([searchQuery, filterByType, sortBy, per_page], () => {
-  // Debounce the API call
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    getRemainList();
-  }, 300);
+// Watch for year and month changes to update URL with daterange only
+watch([year, selectedMonth], () => {
+  const currentDateRange = generateDateRangeForMonth(
+    selectedMonth.value,
+    year.value
+  );
+
+  // Only update if daterange actually changed
+  if (route.query.daterange !== currentDateRange) {
+    router.replace({
+      query: {
+        daterange: currentDateRange,
+      },
+    });
+  }
 });
 
 let searchTimeout;
 
 // Lifecycle
 onMounted(() => {
-  initializeDateRange();
-  if (dateRange.value) {
-    getRemainList();
-  }
+  console.log("Component mounted");
+  console.log("Route query:", route.query);
+  console.log("Initial daterange from route:", route.query.daterange);
+
+  initializeFromRoute();
+
+  // Log the final values before API call
+  console.log("Final year:", year.value, "month:", selectedMonth.value);
+  console.log("Final dateRange for API:", dateRange.value);
+
+  // Make the first API call
+  getRemainList();
 });
 </script>

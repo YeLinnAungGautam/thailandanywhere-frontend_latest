@@ -66,7 +66,7 @@ export function formattedDateTime(dateInput) {
   const day = date.getDate().toString().padStart(2, "0");
   const year = date.getFullYear();
 
-  return `${month} ${day}, ${year}`;
+  return `${month} ${day}, ${year} / ${date.getHours()}:${date.getMinutes()}`;
 }
 
 export function changeFormat(dateStr) {

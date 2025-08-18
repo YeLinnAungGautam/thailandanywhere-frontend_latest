@@ -330,7 +330,7 @@
                                 </span>
                               </td>
                               <td class="px-3 py-2">
-                                {{ cashImage.date }}
+                                {{ formattedDateTime(cashImage.date) }}
                               </td>
                               <td class="px-3 py-2">
                                 <span class="font-semibold text-green-600">
@@ -443,6 +443,7 @@ import Layout from "../Layout.vue";
 import { ClipboardIcon } from "@heroicons/vue/24/outline";
 import { useToast } from "vue-toastification";
 import YearPickerVue from "../AccountingComponent/yearPicker.vue";
+import { formattedDate, formattedDateTime } from "../help/FormatData";
 
 const route = useRoute();
 const router = useRouter();
@@ -643,7 +644,7 @@ const copyToClipboard = (product) => {
   if (withTaxReceipt.length > 0) {
     report += `Tax Receipt Received:\n`;
     withTaxReceipt.forEach((item) => {
-      const formattedDate = formatDate(item.date);
+      const formattedDate = formattedDateTime(item.date);
       report += `- ${
         item.amount
       } ${item.currency.toLowerCase()} ; ${formattedDate} ; ${item.crm_id} ; ${
@@ -657,7 +658,7 @@ const copyToClipboard = (product) => {
   if (withoutTaxReceipt.length > 0) {
     report += `Tax Receipt Not Received:\n`;
     withoutTaxReceipt.forEach((item) => {
-      const formattedDate = formatDate(item.date);
+      const formattedDate = formattedDateTime(item.date);
       report += `- ${
         item.amount
       } ${item.currency.toLowerCase()} ; ${formattedDate} ; ${item.crm_id} ; ${
@@ -834,7 +835,10 @@ const changePage = (page) => {
 
 const viewImage = (cashImage) => {
   if (cashImage.image) {
-    window.open(cashImage.image, "_blank");
+    window.open(
+      `https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${cashImage.image}`,
+      "_blank"
+    );
   } else {
     console.warn("No image available for this cash image");
   }

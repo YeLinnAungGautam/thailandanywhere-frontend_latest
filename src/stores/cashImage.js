@@ -190,5 +190,17 @@ export const useCashImageStore = defineStore("cashImage", {
         throw error;
       }
     },
+
+    async getRemainTaxReceipt(params) {
+      try {
+        const response = await axios.get("/remain-tax-receipt", {
+          params: params,
+        });
+
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

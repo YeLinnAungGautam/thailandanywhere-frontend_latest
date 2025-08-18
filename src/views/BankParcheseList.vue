@@ -46,6 +46,12 @@
           >
             Tax View Table
           </p>
+          <div
+            class="flex justify-center cursor-pointer items-center gap-x-2 bg-blue-600 rounded-lg text-xs text-white px-3 py-2"
+            @click="goTaxMissingTable"
+          >
+            <p>Tax Report Table</p>
+          </div>
         </div>
         <!-- Date and Type Filters -->
         <div class="flex justify-start space-x-2 items-center">
@@ -67,11 +73,19 @@
             id=""
             v-model="invoice"
           >
-            <option value="">Filter by Invoice & Tax</option>
-            <option value="invoice_have">Have Invoice</option>
-            <option value="invoice_missing">Non Invoice</option>
+            <option value="">Filter by Tax</option>
             <option value="tax_receipt_have">Have Tax Receipt</option>
             <option value="tax_receipt_missing">Non Tax Receipt</option>
+          </select>
+          <select
+            name=""
+            class="px-3 text-black text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none"
+            id=""
+            v-model="invoiceTax"
+          >
+            <option value="">Filter by Invoice</option>
+            <option value="invoice_have">Have Invoice</option>
+            <option value="invoice_missing">Non Invoice</option>
           </select>
           <YearPickerVue @year-change="handleYearChange" />
           <select
@@ -1772,6 +1786,7 @@ import {
   TrashIcon,
   MagnifyingGlassIcon,
   PlusIcon,
+  FaceSmileIcon,
 } from "@heroicons/vue/24/outline";
 import debounce from "lodash/debounce";
 import Swal from "sweetalert2";
@@ -1932,6 +1947,15 @@ const getDetailAction = async (itemId) => {
   } finally {
     loadingDetails.value[itemId] = false;
   }
+};
+
+const goTaxMissingTable = () => {
+  router.push({
+    name: "taxMissing",
+    query: {
+      daterange: date_range.value,
+    },
+  });
 };
 
 const monthArray = [
@@ -2341,7 +2365,7 @@ const searchParams = computed(() => {
   }
 
   if (invoiceTax.value) {
-    params.filter_invoice_type = invoiceTax.value;
+    params.filter_type_invoice = invoiceTax.value;
   }
 
   params.include_relatable = true;
@@ -2401,7 +2425,7 @@ const exportInvoiceCSV = async () => {
     sort_order: "asc",
     include_relatable: true,
     relatable_type: "App\\Models\\BookingItemGroup",
-    filter_type: "invoice_have",
+    filter_type_invoice: "invoice_have",
   };
   if (date_range.value) {
     searchParchase.date = date_range.value;
@@ -2447,7 +2471,7 @@ const printPDF = async () => {
     sort_order: "asc",
     include_relatable: true,
     relatable_type: "App\\Models\\BookingItemGroup",
-    filter_type: "invoice_have",
+    filter_type_invoice: "invoice_have",
   };
   if (date_range.value) {
     searchParchase.date = date_range.value;
@@ -2828,6 +2852,7 @@ watch(
     sort_by,
     sort_order,
     invoice,
+    invoiceTax,
   ],
   debounce(async () => {
     await getAction();

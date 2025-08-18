@@ -83,6 +83,7 @@ import BankStatementFilter from "../views/BankStatementFilter.vue";
 import CashInternalTransfer from "../views/CashInternalTransfer.vue";
 import StorageView from "../views/Storage.vue";
 import PartnerView from "../views/Partner.vue";
+import RemaindTaxReceiptModal from "../views/TaxReceiptComponent/RemaindTaxReceiptModal.vue";
 
 const routes = [
   {
@@ -514,6 +515,11 @@ const routes = [
     path: "/partner",
     name: "partner",
     component: PartnerView,
+  },
+  {
+    path: "/tax-missing",
+    name: "taxMissing",
+    component: RemaindTaxReceiptModal,
   },
 ];
 

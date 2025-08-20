@@ -273,7 +273,7 @@ const props = defineProps({});
 const toast = useToast();
 const orderStore = useOrderStore();
 
-const showOrder = ref(true);
+const showOrder = ref(false);
 
 const toggleSidebarHandler = () => {
   sidebarStore.toggleSidebar();

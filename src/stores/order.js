@@ -5,6 +5,19 @@ export const useOrderStore = defineStore("order", {
   state: () => ({ orders: null, loading: false }),
   getters: {},
   actions: {
+    async getReport(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/report/orders");
+        this.orders = response.data.result;
+        this.loading = false;
+
+        return response.data;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
     async getChangePage(url) {
       this.loading = true;
       const response = await axios.get(url);

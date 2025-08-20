@@ -730,6 +730,8 @@ const getRemainList = async (page = 1) => {
   try {
     const params = {
       date: dateRange.value,
+      sort_by: "receiver",
+      sort_order: "asc",
       include_relatable: true,
       interact_bank: "company",
       filter_type_invoice: "invoice_have",

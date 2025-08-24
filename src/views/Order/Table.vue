@@ -586,7 +586,9 @@
       </DialogPanel>
     </Modal>
 
-    <Pagination :data="booking" @change-page="changePage" />
+    <div v-if="booking?.data?.length > 0" class="flex justify-end">
+      <Pagination :data="booking" @change-page="changePage" />
+    </div>
   </div>
 </template>
 

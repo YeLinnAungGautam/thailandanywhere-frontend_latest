@@ -107,7 +107,7 @@ const watchSystem = computed(() => {
   }
 
   if (saleDate.value != "" && saleDate.value != undefined) {
-    result.balance_due_date = formatDate(saleDate.value);
+    result.balance_due_date = saleDate.value;
   }
   if (bookingStatus.value != "" && bookingStatus.value != undefined) {
     result.order_status = bookingStatus.value;

@@ -682,50 +682,100 @@ const copyToClipboard = (product) => {
     (item) => item.tax_receipt_status === "missing"
   );
 
-  // Build the report
-  let report = `${currentMonth} Report: "${product.product_name}"\n\n`;
+  // Build the professional email
+  let emailContent = `Dear Reservation & Finance Team,
 
-  // Tax Receipt Received section
-  if (withTaxReceipt.length > 0) {
-    report += `Tax Receipt Received:\n`;
-    withTaxReceipt.forEach((item) => {
-      const formattedDate = formattedDateTime(item.date);
-      report += `- ${
-        item.amount
-      } ${item.currency.toLowerCase()} ; ${formattedDate} ; ${item.crm_id} ; ${
-        item.customer_name
-      }\n`;
-    });
-    report += `\n`;
-  }
+We kindly request that you arrange to send us all tax receipts for our ${currentMonth} bookings by post at your earliest convenience.
 
-  // Tax Receipt Not Received section
+For your reference, the requirement ID table has been attached below for "${product.product_name}":
+
+═══════════════════════════════════════════════════════════════════════
+${currentMonth} Tax Receipt Requirements - ${product.product_name}
+═══════════════════════════════════════════════════════════════════════
+
+`;
+
+  // Tax Receipt Not Received section (Priority - show first)
   if (withoutTaxReceipt.length > 0) {
-    report += `Tax Receipt Not Received:\n`;
-    withoutTaxReceipt.forEach((item) => {
+    emailContent += `🔴 Tax Receipts Required (${
+      withoutTaxReceipt.length
+    } booking${withoutTaxReceipt.length > 1 ? "s" : ""}):
+────────────────────────────────────────────────────────────────────────
+
+`;
+    withoutTaxReceipt.forEach((item, index) => {
       const formattedDate = formattedDateTime(item.date);
-      report += `- ${
+      emailContent += `${index + 1}. Amount: ${
         item.amount
-      } ${item.currency.toLowerCase()} ; ${formattedDate} ; ${item.crm_id} ; ${
-        item.customer_name
-      }\n`;
+      } ${item.currency.toUpperCase()}
+   Date: ${formattedDate}
+   Booking ID: ${item.crm_id}
+   Customer: ${item.customer_name}
+   Status: ❌ Tax Receipt Required
+
+`;
     });
+    emailContent += `\n`;
   }
+
+  // Tax Receipt Received section (For reference)
+  if (withTaxReceipt.length > 0) {
+    emailContent += `✅ Tax Receipts Already Received (${
+      withTaxReceipt.length
+    } booking${withTaxReceipt.length > 1 ? "s" : ""}) - For Reference:
+────────────────────────────────────────────────────────────────────────
+
+`;
+    withTaxReceipt.forEach((item, index) => {
+      const formattedDate = formattedDateTime(item.date);
+      emailContent += `${index + 1}. Amount: ${
+        item.amount
+      } ${item.currency.toUpperCase()}
+   Date: ${formattedDate}
+   Booking ID: ${item.crm_id}
+   Customer: ${item.customer_name}
+   Status: ✅ Tax Receipt Received
+
+`;
+    });
+    emailContent += `\n`;
+  }
+
+  // Summary section
+  emailContent += `═══════════════════════════════════════════════════════════════════════
+SUMMARY:
+- Total Bookings: ${product.cash_images.length}
+- Tax Receipts Required: ${withoutTaxReceipt.length}
+- Tax Receipts Already Received: ${withTaxReceipt.length}
+- Product/Service: ${product.product_name}
+═══════════════════════════════════════════════════════════════════════
+
+Your continued support and cooperation in this matter is greatly appreciated.
+
+Please prioritize the ${withoutTaxReceipt.length} booking${
+    withoutTaxReceipt.length > 1 ? "s" : ""
+  } marked as "Tax Receipt Required" above.
+
+Thank you for your prompt attention to this matter.
+
+Best regards,
+Sunshine`;
 
   // Copy to clipboard
   navigator.clipboard
-    .writeText(report)
+    .writeText(emailContent)
     .then(() => {
-      console.log("Report copied to clipboard successfully!");
-      toast.success("Report copied to clipboard");
+      console.log("Professional email copied to clipboard successfully!");
+      toast.success("Professional email report copied to clipboard");
     })
     .catch((err) => {
       console.error("Failed to copy to clipboard:", err);
-      // Fallback: log the report so user can manually copy
-      console.log("Report text:\n", report);
+      // Fallback: log the email so user can manually copy
+      console.log("Email content:\n", emailContent);
+      toast.error("Failed to copy. Check console for manual copy.");
     });
 
-  return report;
+  return emailContent;
 };
 
 // Computed properties

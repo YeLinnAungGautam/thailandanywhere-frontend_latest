@@ -457,7 +457,7 @@ import Layout from "../Layout.vue";
 import { ChevronLeftIcon, ClipboardIcon } from "@heroicons/vue/24/outline";
 import { useToast } from "vue-toastification";
 import YearPickerVue from "../AccountingComponent/yearPicker.vue";
-import { formattedDate, formattedDateTime } from "../help/FormatData";
+import { formattedDate } from "../help/FormatData";
 
 const route = useRoute();
 const router = useRouter();
@@ -522,6 +522,37 @@ const handleYearChange = (newYear) => {
   year.value = newYear;
   updateUrlAndRefresh();
 };
+
+const formattedDateTime = (dateTimeString) => {
+  const dateTime = new Date(dateTimeString);
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const day = dateTime.getDate();
+  const month = months[dateTime.getMonth()];
+  const year = dateTime.getFullYear();
+  const hours = dateTime.getHours().toString().padStart(2, "0");
+  const minutes = dateTime.getMinutes().toString().padStart(2, "0");
+
+  return `${day} ${month} ${year} ${hours}:${minutes}`;
+};
+
+// Test with your data
+console.log(formattedDateTime("2025-07-31T20:39:00.000000Z"));
+// Output: "31 July 2025 20:39"
 
 // Handle month change
 const handleMonthChange = (month) => {
@@ -747,7 +778,6 @@ const getRemainList = async (page = 1) => {
       sort_by: "receiver",
       sort_order: "asc",
       include_relatable: true,
-      interact_bank: "company",
       filter_type_invoice: "invoice_have",
       relatable_type: "App\\Models\\BookingItemGroup",
       page: page,

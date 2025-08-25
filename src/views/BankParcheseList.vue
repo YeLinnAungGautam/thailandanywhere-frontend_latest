@@ -123,7 +123,7 @@
                 clip-rule="evenodd"
               />
             </svg>
-            <p>Tax Declaration</p>
+            <p>Tax Declaration For All</p>
           </div>
 
           <TaxDeclarationModal
@@ -308,6 +308,9 @@
                 <th class="text-xs text-center font-medium py-3 w-[100px]">
                   Tax Credit
                 </th>
+                <th class="text-xs text-center font-medium py-3 w-[100px]">
+                  Claim
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -401,14 +404,14 @@
                       class="h-5 w-5 text-green-500"
                     />
                   </td>
-                  <td
-                    class="px-3 py-2 text-xs flex justify-center items-center space-x-2 whitespace-nowrap"
-                  >
+                  <td class="px-3 py-2 text-xs whitespace-nowrap">
                     <!-- {{ item?.tax_receipts?.length > 0 ? "✓" : "-" }} -->
                     <CheckBadgeIcon
                       v-if="item?.relatable?.tax_credit.length > 0"
                       class="h-5 w-5 text-green-500"
                     />
+                  </td>
+                  <td class="px-3 py-2 text-xs whitespace-nowrap">
                     <CheckBadgeIcon
                       v-for="i in item?.relatable?.tax_credit"
                       :key="i"
@@ -420,7 +423,7 @@
 
                 <!-- Loading row -->
                 <tr v-if="loadingDetails[item?.id]">
-                  <td colspan="17" class="px-3 py-4 text-center">
+                  <td colspan="18" class="px-3 py-4 text-center">
                     <div class="flex justify-center items-center">
                       <div
                         class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#FF613c]"
@@ -440,12 +443,36 @@
                     getRelatableData(item.id)
                   "
                 >
-                  <td colspan="17" class="p-0">
+                  <td colspan="18" class="p-0">
                     <div class="bg-gray-50 pb-4 px-4">
                       <div class="w-full flex justify-end items-center py-2">
                         <div
-                          class="bg-white/90 max-w-[100px] px-2 shadow-lg border border-gray-200 py-1 rounded-2xl backdrop-blur-sm flex items-center justify-center space-x-2"
+                          class="bg-white/90 max-w-[400px] px-2 shadow-lg border border-gray-200 py-1 rounded-2xl backdrop-blur-sm flex items-center justify-center space-x-2"
                         >
+                          <div class="flex justify-end items-center">
+                            <p
+                              @click="claimAction(item)"
+                              :class="
+                                claimStatus(item)
+                                  ? 'bg-green-700 rounded-lg text-white'
+                                  : ''
+                              "
+                              class="px-2 py-1"
+                            >
+                              claim
+                            </p>
+                            <p
+                              class="px-2 py-1"
+                              @click="notClaimAction(item)"
+                              :class="
+                                !claimStatus(item)
+                                  ? 'bg-red-700 rounded-lg text-white'
+                                  : ''
+                              "
+                            >
+                              not claim
+                            </p>
+                          </div>
                           <button
                             v-if="!authStore.isExternalAudit"
                             @click.stop="goToView(item)"
@@ -2663,15 +2690,174 @@ const getStatusText = () => {
   return statusTexts[parchasePDFStore.status] || parchasePDFStore.status;
 };
 
-const formatDateTime = (date) => {
-  if (!date) return "";
-  return new Date(date).toLocaleString("en-GB", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
+const claimStatus = (item) => {
+  let status = false;
+
+  if (item?.relatable?.tax_credit.length > 0) {
+    for (let i = 0; i < item?.relatable?.tax_credit.length; i++) {
+      if (item?.relatable?.tax_credit[i]?.declaration == 1) {
+        status = true;
+      } else {
+        status = false;
+      }
+    }
+  } else {
+    status = false;
+  }
+
+  return status;
+};
+
+const claimAction = (item) => {
+  console.log(item, "this is item");
+  let tax_credit = item?.relatable?.tax_credit;
+  let tax_credit_length = item?.relatable?.tax_credit?.length;
+
+  if (!tax_credit || tax_credit.length == 0) {
+    toast.error("No tax credit available for declaration");
+    return;
+  }
+
+  // Create a list of invoice numbers for display
+  const invoiceNumbers = tax_credit
+    .map((credit) => credit.invoice_number)
+    .join(", ");
+
+  Swal.fire({
+    title: "Are you sure to declare these tax credits?",
+    html: `
+      <div>
+        <p>You are about to declare <strong>${tax_credit_length}</strong> tax credit(s)</p>
+        <p><strong>Invoice Numbers:</strong></p>
+        <p style="color: #374151; font-weight: 500;">${invoiceNumbers}</p>
+        <p style="color: #dc2626; margin-top: 10px;">This action cannot be undone.</p>
+      </div>
+    `,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#10b981",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Yes, declare all!",
+    cancelButtonText: "Cancel",
+    reverseButtons: true,
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        let ids = tax_credit.map((credit) => credit.id);
+        const response = await taxReceiptStore.addDeclaration({
+          tax_receipt_ids: ids,
+        });
+
+        if (response.success) {
+          toast.success(response.message);
+          await getAction();
+        } else {
+          toast.error(response.message || "Failed to declare tax receipts");
+        }
+      } catch (error) {
+        toast.error("Failed to declare tax credits");
+      }
+    }
   });
+};
+
+const notClaimAction = (item) => {
+  console.log(item, "this is item");
+  let tax_credit = item?.relatable?.tax_credit;
+  let tax_credit_length = item?.relatable?.tax_credit?.length;
+
+  if (!tax_credit || tax_credit.length == 0) {
+    toast.error("No tax credit available for undeclaration");
+    return;
+  }
+
+  // If only one tax credit, proceed directly
+  if (tax_credit_length === 1) {
+    const credit = tax_credit[0];
+
+    Swal.fire({
+      title: "Are you sure to undeclare this tax credit?",
+      html: `
+        <div>
+          <p>You are about to undeclare tax credit:</p>
+          <p><strong>Invoice Number:</strong></p>
+          <p style="color: #374151; font-weight: 500;">${credit.invoice_number}</p>
+          <p style="color: #dc2626; margin-top: 10px;">This action cannot be undone.</p>
+        </div>
+      `,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, undeclare it!",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await undeclareTaxCredit(credit.id);
+      }
+    });
+    return;
+  }
+
+  // Multiple tax credits - show selection dialog
+  const options = tax_credit
+    .map(
+      (credit, index) =>
+        `<option value="${credit.id}">${credit.invoice_number}</option>`
+    )
+    .join("");
+
+  Swal.fire({
+    title: "Select tax credit to undeclare",
+    html: `
+      <div>
+        <p>You have <strong>${tax_credit_length}</strong> tax credits. Please select which one to undeclare:</p>
+        <select id="taxCreditSelect" class="swal2-select" style="width: 100%; margin: 10px 0;">
+          <option value="">-- Select Invoice Number --</option>
+          ${options}
+        </select>
+        <p style="color: #dc2626; margin-top: 10px;">This action cannot be undone.</p>
+      </div>
+    `,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Undeclare Selected",
+    cancelButtonText: "Cancel",
+    reverseButtons: true,
+    preConfirm: () => {
+      const selectedId = document.getElementById("taxCreditSelect").value;
+      if (!selectedId) {
+        Swal.showValidationMessage("Please select a tax credit to undeclare");
+        return false;
+      }
+      return selectedId;
+    },
+  }).then(async (result) => {
+    if (result.isConfirmed && result.value) {
+      await undeclareTaxCredit(result.value);
+    }
+  });
+};
+
+// Helper function to handle the actual undeclaration
+const undeclareTaxCredit = async (creditId) => {
+  try {
+    const response = await taxReceiptStore.removeDeclaration({
+      tax_receipt_id: creditId,
+    });
+
+    if (response.success) {
+      toast.success(response.message);
+      await getAction();
+    } else {
+      toast.error(response.message || "Failed to undeclare tax receipt");
+    }
+  } catch (error) {
+    toast.error("Failed to undeclare tax credit");
+  }
 };
 
 // Watch for PDF completion to show success message

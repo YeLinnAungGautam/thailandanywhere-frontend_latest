@@ -560,7 +560,7 @@ const formatDateForTime = (dateString) => {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return "Invalid Date";
 
-  const day = date.getDate().toString().padStart(2, "0");
+  const day = date.getUTCDate().toString().padStart(2, "0");
   const monthNames = [
     "Jan",
     "Feb",
@@ -575,11 +575,11 @@ const formatDateForTime = (dateString) => {
     "Nov",
     "Dec",
   ];
-  const month = monthNames[date.getMonth()];
-  const year = date.getFullYear().toString().slice(-2);
+  const month = monthNames[date.getUTCMonth()];
+  const year = date.getUTCFullYear().toString().slice(-2);
 
-  const hour = date.getHours().toString().padStart(2, "0");
-  const minute = date.getMinutes().toString().padStart(2, "0");
+  const hour = date.getUTCHours().toString().padStart(2, "0");
+  const minute = date.getUTCMinutes().toString().padStart(2, "0");
 
   return `${day} ${month} ${year}, ${hour}:${minute}`;
 };

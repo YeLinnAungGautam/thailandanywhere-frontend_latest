@@ -73,5 +73,32 @@ export const useTaxReceiptStore = defineStore("taxReceipt", {
         throw error;
       }
     },
+
+    async addDeclaration(payload) {
+      try {
+        const response = await axios.post(
+          "/tax-receipts/add-declaration",
+          payload
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Error adding declaration:", error);
+        throw error.response?.data || error;
+      }
+    },
+
+    // Remove Declaration from Tax Receipt
+    async removeDeclaration(payload) {
+      try {
+        const response = await axios.post(
+          "/tax-receipts/remove-declaration",
+          payload
+        );
+        return response.data;
+      } catch (error) {
+        console.error("Error removing declaration:", error);
+        throw error.response?.data || error;
+      }
+    },
   },
 });

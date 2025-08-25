@@ -18,6 +18,20 @@
     <div class="relative">
       <!-- Filters and Controls -->
       <div class="pb-4 space-y-3 sticky -top-5 bg-white z-40">
+        <div class="flex justify-start items-center space-x-2">
+          <p
+            @click="router.push(`/bank_statement_purchese`)"
+            class="px-3 rounded-lg py-2 text-xs border border-gray-100 cursor-pointer"
+          >
+            Cash View Table
+          </p>
+
+          <div
+            class="flex justify-center cursor-pointer items-center gap-x-2 bg-blue-600 rounded-lg text-xs text-white px-3 py-2"
+          >
+            <p>Tax Report Table</p>
+          </div>
+        </div>
         <!-- Date Range and Main Controls -->
         <div class="flex justify-start items-center space-x-2">
           <!-- Date Range Picker -->
@@ -440,7 +454,7 @@ import { useCashImageStore } from "../../stores/cashImage";
 import { useSidebarStore } from "../../stores/sidebar";
 import { storeToRefs } from "pinia";
 import Layout from "../Layout.vue";
-import { ClipboardIcon } from "@heroicons/vue/24/outline";
+import { ChevronLeftIcon, ClipboardIcon } from "@heroicons/vue/24/outline";
 import { useToast } from "vue-toastification";
 import YearPickerVue from "../AccountingComponent/yearPicker.vue";
 import { formattedDate, formattedDateTime } from "../help/FormatData";
@@ -630,11 +644,11 @@ const copyToClipboard = (product) => {
 
   // Separate records by tax receipt status
   const withTaxReceipt = product.cash_images.filter(
-    (item) => item.tax_receipt_status !== "missing" && item.has_invoice
+    (item) => item.tax_receipt_status !== "missing"
   );
 
   const withoutTaxReceipt = product.cash_images.filter(
-    (item) => item.tax_receipt_status === "missing" || !item.has_invoice
+    (item) => item.tax_receipt_status === "missing"
   );
 
   // Build the report

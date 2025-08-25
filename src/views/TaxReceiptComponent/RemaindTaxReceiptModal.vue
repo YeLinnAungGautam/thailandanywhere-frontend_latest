@@ -544,15 +544,11 @@ const formattedDateTime = (dateTimeString) => {
   const day = dateTime.getDate();
   const month = months[dateTime.getMonth()];
   const year = dateTime.getFullYear();
-  const hours = dateTime.getHours().toString().padStart(2, "0");
-  const minutes = dateTime.getMinutes().toString().padStart(2, "0");
+  const hours = dateTimeString.split("T")[1].split(":")[0].padStart(2, "0");
+  const minutes = dateTimeString.split("T")[1].split(":")[1].padStart(2, "0");
 
   return `${day} ${month} ${year} ${hours}:${minutes}`;
 };
-
-// Test with your data
-console.log(formattedDateTime("2025-07-31T20:39:00.000000Z"));
-// Output: "31 July 2025 20:39"
 
 // Handle month change
 const handleMonthChange = (month) => {
@@ -647,27 +643,6 @@ const formatDateDisplay = (dateRangeStr) => {
 
 const copyToClipboard = (product) => {
   console.log(product, "this is product");
-
-  // Helper function to format date from "DD-MM-YYYY HH:MM:SS" to "YYYY MMM DD"
-  const formatDate = (dateString) => {
-    const [datePart] = dateString.split(" ");
-    const [day, month, year] = datePart.split("-");
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    return `${year} ${months[parseInt(month) - 1]} ${day}`;
-  };
 
   // Get current month and year for report header
   const currentDate = new Date();

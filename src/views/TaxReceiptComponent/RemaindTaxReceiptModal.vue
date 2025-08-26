@@ -524,7 +524,12 @@ const handleYearChange = (newYear) => {
 };
 
 const formattedDateTime = (dateTimeString) => {
-  const dateTime = new Date(dateTimeString);
+  // Handle the DD-MM-YYYY HH:MM:SS format
+  const [datePart, timePart] = dateTimeString.split(" ");
+  const [day, month, year] = datePart.split("-");
+
+  // Create date object with correct parameter order (year, month-1, day)
+  const dateTime = new Date(year, month - 1, day, ...timePart.split(":"));
 
   const months = [
     "January",
@@ -541,13 +546,13 @@ const formattedDateTime = (dateTimeString) => {
     "December",
   ];
 
-  const day = dateTime.getDate();
-  const month = months[dateTime.getMonth()];
-  const year = dateTime.getFullYear();
-  const hours = dateTimeString.split(" ")[1].split(":")[0].padStart(2, "0");
-  const minutes = dateTimeString.split(" ")[1].split(":")[1].padStart(2, "0");
+  const dayNum = dateTime.getDate();
+  const monthName = months[dateTime.getMonth()];
+  const yearNum = dateTime.getFullYear();
+  const hours = dateTime.getHours().toString().padStart(2, "0");
+  const minutes = dateTime.getMinutes().toString().padStart(2, "0");
 
-  return `${day} ${month} ${year} ${hours}:${minutes}`;
+  return `${dayNum} ${monthName} ${yearNum} ${hours}:${minutes}`;
 };
 
 // Handle month change

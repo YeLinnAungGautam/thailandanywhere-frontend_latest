@@ -544,8 +544,8 @@ const formattedDateTime = (dateTimeString) => {
   const day = dateTime.getDate();
   const month = months[dateTime.getMonth()];
   const year = dateTime.getFullYear();
-  const hours = dateTimeString.split("T")[1].split(":")[0].padStart(2, "0");
-  const minutes = dateTimeString.split("T")[1].split(":")[1].padStart(2, "0");
+  const hours = dateTimeString.split(" ")[1].split(":")[0].padStart(2, "0");
+  const minutes = dateTimeString.split(" ")[1].split(":")[1].padStart(2, "0");
 
   return `${day} ${month} ${year} ${hours}:${minutes}`;
 };

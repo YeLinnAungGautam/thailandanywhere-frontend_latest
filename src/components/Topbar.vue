@@ -250,8 +250,8 @@ const fetchTodayOrders = async () => {
     loadingOrders.value = true;
     let params = {
       // Use today's date instead of hardcoded date
-      // order_datetime: new Date().toISOString().split("T")[0],
-      order_datetime: "2025-08-30", // Keep for testing
+      order_datetime: new Date().toISOString().split("T")[0],
+      // order_datetime: "2025-08-30", // Keep for testing
       limit: 100, // Increase limit to get more orders
     };
 

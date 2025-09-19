@@ -188,11 +188,27 @@
                   All User Logout from Admin
                 </p>
               </li>
+              <li v-if="authStore.user.role == 'super_admin'">
+                <p
+                  @click.prevent="showDiscountModal = true"
+                  class="block px-4 py-2 text-sm text-gray-500 bg-white hover:text-green-400 hover:scale-105"
+                >
+                  <i class="fa-solid fa-percent mr-1"></i>
+                  Customer Web Discount
+                </p>
+              </li>
             </ul>
           </div>
         </div>
       </div>
     </div>
+    <Modal :isOpen="showDiscountModal" @closeModal="showDiscountModal = false">
+      <DialogPanel
+        class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <Discount @closeModal="showDiscountModal = false" />
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
@@ -216,8 +232,14 @@ import { ref } from "vue";
 import { useOrderStore } from "../stores/order";
 import { computed } from "vue";
 const router = useRouter();
+import Discount from "../views/Discount.vue";
 const { isTopBarDropdownShow, isShowSidebar } = storeToRefs(sidebarStore);
 const props = defineProps({});
+
+import Modal from "./Modal.vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+
+const showDiscountModal = ref(false);
 
 const toast = useToast();
 const orderStore = useOrderStore();
@@ -357,5 +379,3 @@ onMounted(async () => {
   console.log("====================================");
 });
 </script>
-
-<style lang="scss" scoped></style>

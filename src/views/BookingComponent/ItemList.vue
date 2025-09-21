@@ -334,6 +334,28 @@ const todayCheck = () => {
   console.log("Date validation result:", todayVali.value);
 };
 
+const priceArray = ref([]);
+const getRoomPeriod = async () => {
+  if (
+    formitem.value.car_id != "" &&
+    formitem.value.checkin_date != "" &&
+    formitem.value.checkout_date != ""
+  ) {
+    let data = {
+      checkin_date: formitem.value.checkin_date,
+      checkout_date: formitem.value.checkout_date,
+    };
+    // data.room_ids = formitem.value.car_list.map((item) => item.id).join(",");
+    const res = await hotelStore.getRoomPrice(data, formitem.value.car_id);
+    console.log("====================================");
+    console.log(res, "this is room price");
+    console.log("====================================");
+    priceArray.value = res.data.daily_pricing;
+    formitem.value.selling_price = res.data.total_sale_price;
+    formitem.value.cost_price = res.data.total_cost_price;
+  }
+};
+
 // send item
 const getFunction = () => {
   // Ensure all values are properly parsed numbers to avoid string concatenation
@@ -355,8 +377,8 @@ const getFunction = () => {
       : 0;
 
   if (days > 1) {
-    formitem.value.total_amount = quantity * sellingPrice * days - discount;
-    formitem.value.total_cost_price = quantity * costPrice * days;
+    formitem.value.total_amount = quantity * sellingPrice - discount;
+    formitem.value.total_cost_price = quantity * costPrice;
   } else {
     formitem.value.total_amount =
       sellingPrice * quantity - discount + childAmount;
@@ -435,7 +457,7 @@ watch(
     formitem.value.checkout_date,
     formitem.value.item_name,
   ],
-  ([newData, secData, thirdData]) => {
+  async ([newData, secData, thirdData]) => {
     if (formitem.value.product_type == "6") {
       if (formitem.value.service_date) {
         formitem.value.checkin_date = formitem.value.service_date;
@@ -452,6 +474,7 @@ watch(
 
     if (formitem.value.checkin_date && formitem.value.checkout_date) {
       calculateRateRoom();
+      await getRoomPeriod();
     }
   }
 );
@@ -1252,42 +1275,20 @@ onMounted(() => {
               id=""
             />
           </div>
-          <!-- <div>
-            <label for="" class="text-[12px] text-gray-500"
-              >Add on <span class="text-red-800">*</span></label
+          <div v-if="formitem.product_type == 6">
+            <div
+              v-for="i in priceArray"
+              :key="i"
+              class="text-xs flex justify-between items-center"
             >
-            <div>
-              <AddonListOnBooking
-                :id="formitem.product_id"
-                :type="'hotel'"
-                :addOnList="addOnList"
-                @cleanAddOnList="changeAddOnList"
-              />
+              <p class="whitespace-nowrap px-2">{{ i.date }}</p>
+              <p class="h-0.5 w-full bg-black/10"></p>
+              <p class="px-2">{{ i.sale_price }}</p>
+              <p class="h-0.5 w-full bg-black/10"></p>
+              <p class="px-2">{{ i.cost_price }}</p>
             </div>
-          </div> -->
+          </div>
 
-          <!-- <div>
-            <p class="text-xs text-end px-2">
-              selling price :
-              <span class="font-medium text-[#ff613c]"
-                >{{
-                  formitem.selling_price * 1 * formitem.quantity -
-                  formitem.discount * 1 +
-                  (formitem.individual_pricing.child?.amount || 0) * 1
-                }}
-                ฿</span
-              >
-              - cost price :
-              <span class="font-medium text-[#ff613c]"
-                >{{
-                  formitem.selling_price * 1 * formitem.quantity -
-                  formitem.discount * 1 +
-                  (formitem.individual_pricing.child?.total_cost_price || 0) * 1
-                }}
-                ฿</span
-              >
-            </p>
-          </div> -->
           <p class="text-xs text-gray-500">Total Price</p>
           <div>
             <p

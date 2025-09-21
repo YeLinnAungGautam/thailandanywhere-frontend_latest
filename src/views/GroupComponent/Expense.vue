@@ -146,7 +146,7 @@
             class="bg-white even:bg-gray-50 hover:bg-gray-50"
           >
             <td
-              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+              class="py-2 px-4 text-[10px] relative whitespace-nowrap font-normal text-left"
             >
               {{ formData.multiple_crm_id[index].split("_")[1] }}
             </td>
@@ -197,20 +197,7 @@
             >
               {{ detail?.items[index]?.checkout_date }}
             </td>
-            <!-- <td
-              v-if="
-                detail?.items[index]?.product_type ==
-                'App\\Models\\Hotel'
-              "
-              class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
-            >
-              {{
-                daysBetween(
-                  detail?.items[index]?.checkin_date,
-                  detail?.items[index]?.checkout_date
-                )
-              }}
-            </td> -->
+
             <td
               class="py-2 px-4 text-[10px] whitespace-nowrap font-normal text-left"
             >
@@ -248,8 +235,17 @@
               />
             </td>
             <td
-              class="py-2 px-4 text-[12px] whitespace-nowrap font-normal text-end"
+              @click="showExpenseUpdateModal(detail?.items[index])"
+              class="py-2 px-4 text-[12px] whitespace-nowrap font-normal text-end relative"
             >
+              <p
+                v-if="
+                  detail?.items[index]?.product_type == 'App\\Models\\Hotel'
+                "
+                class="absolute bottom-0 right-0 rounded-lg text-[8px] px-1.5 py-0.5 bg-[#FF613c] text-white"
+              >
+                i
+              </p>
               {{ detail?.items[index]?.total_cost_price }} thb
             </td>
           </tr>
@@ -565,6 +561,74 @@
         </div>
       </DialogPanel>
     </Modal>
+
+    <Modal
+      :isOpen="showExpenseUpdate != null"
+      @closeModal="closeExpenseUpdateModal"
+    >
+      <DialogPanel
+        class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
+        >
+          <p>How to calculate expense.</p>
+          <XCircleIcon
+            class="w-5 h-5 text-white"
+            @click="closeExpenseUpdateModal"
+          />
+        </DialogTitle>
+
+        <div class="p-6">
+          <div
+            class="text-xs flex justify-between items-center border-b border-gray-300 pb-3"
+          >
+            <p class="px-2 font-medium text-sm whitespace-nowrap">
+              Date <span class="opacity-0">-----</span>
+            </p>
+
+            <p class="px-2 font-medium text-sm whitespace-nowrap">Sale</p>
+
+            <p class="px-2 font-medium text-sm whitespace-nowrap">Cost</p>
+          </div>
+          <div class="pb-4">
+            <div
+              v-for="i in showExpenseUpdate?.daily_pricing"
+              :key="i"
+              class="text-xs flex justify-between items-center space-y-4"
+            >
+              <p class="whitespace-nowrap px-2">{{ i.date }}</p>
+
+              <p class="px-2">{{ i.sale_price * showExpenseQuantity }}</p>
+
+              <p class="px-2">{{ i.cost_price * showExpenseQuantity }}</p>
+            </div>
+          </div>
+          <div
+            class="text-xs flex justify-between items-center border-t border-gray-300 pt-3"
+          >
+            <p class="px-2 font-medium text-sm whitespace-nowrap">
+              Total <span class="opacity-0">-----</span>
+            </p>
+
+            <p class="px-2 font-medium text-sm whitespace-nowrap">
+              {{
+                showExpenseUpdate?.total_sale_price * showExpenseQuantity
+              }}
+              THB
+            </p>
+
+            <p class="px-2 font-medium text-sm whitespace-nowrap">
+              {{
+                showExpenseUpdate?.total_cost_price * showExpenseQuantity
+              }}
+              THB
+            </p>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </div>
 </template>
 
@@ -580,12 +644,14 @@ import { daysBetween } from "../help/DateBetween";
 import { useGroupStore } from "../../stores/group";
 import { useCashImageStore } from "../../stores/cashImage";
 import { formattedDateTimeDB } from "../help/FormatData";
+import { useHotelStore } from "../../stores/hotel";
 // import ExpenseBooking from "./ExpenseBooking.vue";
 
 const toast = useToast();
 const reservationStore = useReservationStore();
 
 const groupStore = useGroupStore();
+const hotelStore = useHotelStore();
 
 const props = defineProps({
   detail: Object,
@@ -1266,6 +1332,31 @@ const processTravellerAction = async () => {
       await props.getDetailAction(route.query.id, route.query.product_id);
     }, 3000);
   }
+};
+
+const showExpenseUpdate = ref(null);
+const showExpenseQuantity = ref(0);
+const showExpenseUpdateModal = async (item) => {
+  console.log(item);
+  // showExpenseUpdate.value = item;
+  showExpenseQuantity.value = item.quantity;
+
+  let data = {
+    checkin_date: item.checkin_date,
+    checkout_date: item.checkout_date,
+  };
+
+  const res = await hotelStore.getRoomPrice(data, item.room.id);
+  console.log(res, "this is room price");
+
+  if (res) {
+    showExpenseUpdate.value = res.data;
+  }
+};
+
+const closeExpenseUpdateModal = () => {
+  showExpenseUpdate.value = null;
+  showExpenseQuantity.value = 0;
 };
 
 watch(

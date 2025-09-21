@@ -200,27 +200,27 @@ const todayCheck = () => {
   console.log(todayVali.value, "this is value");
 };
 
-const checkRoomPrice = async () => {
-  if (
-    formitem.value.car_id != "" &&
-    formitem.value.checkin_date != "" &&
-    formitem.value.checkout_date != ""
-  ) {
-    let data = {
-      checkin_date: formitem.value.checkin_date,
-      checkout_date: formitem.value.checkout_date,
-    };
-    const res = await hotelStore.getRoomPrice(data, formitem.value.car_id);
-    console.log("====================================");
-    console.log(res, "this is room price");
-    console.log("====================================");
-    // formitem.value.selling_price = res.data.room_price;
-    // formitem.value.selling_price = res.data.room_price;
-    // formitem.value.cost_price = res.data.room?.cost ? res.data.room.cost : 0;
-  } else {
-    console.log("need to fill");
-  }
-};
+// const checkRoomPrice = async () => {
+//   if (
+//     formitem.value.car_id != "" &&
+//     formitem.value.checkin_date != "" &&
+//     formitem.value.checkout_date != ""
+//   ) {
+//     let data = {
+//       checkin_date: formitem.value.checkin_date,
+//       checkout_date: formitem.value.checkout_date,
+//     };
+//     const res = await hotelStore.getRoomPrice(data, formitem.value.car_id);
+//     console.log("====================================");
+//     console.log(res, "this is room price");
+//     console.log("====================================");
+//     // formitem.value.selling_price = res.data.room_price;
+//     // formitem.value.selling_price = res.data.room_price;
+//     // formitem.value.cost_price = res.data.room?.cost ? res.data.room.cost : 0;
+//   } else {
+//     console.log("need to fill");
+//   }
+// };
 
 // cear item
 const clearAction = () => {
@@ -266,12 +266,10 @@ const clearAction = () => {
 // send item
 const getFunction = () => {
   formitem.value.total_amount =
-    formitem.value.quantity *
-      formitem.value.selling_price *
-      formitem.value.days -
+    formitem.value.quantity * formitem.value.selling_price -
     formitem.value.discount;
   formitem.value.total_cost_price =
-    formitem.value.quantity * formitem.value.cost_price * formitem.value.days;
+    formitem.value.quantity * formitem.value.cost_price;
   if (addOnList.value != null) {
     let data = {
       addon_id: "",
@@ -322,6 +320,29 @@ watch(bottomOfWindow, (newVal) => {
   }
 });
 
+const priceArray = ref([]);
+
+const getRoomPeriod = async () => {
+  if (
+    formitem.value.car_id != "" &&
+    formitem.value.checkin_date != "" &&
+    formitem.value.checkout_date != ""
+  ) {
+    let data = {
+      checkin_date: formitem.value.checkin_date,
+      checkout_date: formitem.value.checkout_date,
+    };
+    // data.room_ids = formitem.value.car_list.map((item) => item.id).join(",");
+    const res = await hotelStore.getRoomPrice(data, formitem.value.car_id);
+    console.log("====================================");
+    console.log(res, "this is room price");
+    console.log("====================================");
+    priceArray.value = res.data.daily_pricing;
+    formitem.value.selling_price = res.data.total_sale_price;
+    formitem.value.cost_price = res.data.total_cost_price;
+  }
+};
+
 const watchSystem = computed(() => {
   let result = {};
   if (search.value != null) {
@@ -344,11 +365,12 @@ watch(hotels, async (newValue) => {
 
 watch(
   () => [formitem.value.service_date, formitem.value.checkout_date],
-  ([newData, secData]) => {
+  async ([newData, secData]) => {
     if (formitem.value.product_type == "6") {
       formitem.value.checkin_date = formitem.value.service_date;
     }
     calculateRateRoom();
+    await getRoomPeriod();
   }
 );
 
@@ -501,17 +523,30 @@ onMounted(async () => {
         </DialogTitle>
         <div class="space-y-2.5 pb-3 border-b border-gray-300">
           <p class="text-xs text-gray-500">Please Choose the Room type.</p>
-          <div class="relative w-full border border-gray-300 rounded-lg">
+          <!-- <div
+            class="relative w-full border flex justify-between items-center border-gray-300 rounded-lg"
+          >
             <input
-              type="text"
-              v-model="search"
-              class="bg-white w-full px-8 py-2 rounded-lg focus:outline-none text-[10px]"
-              placeholder="Search Room Type"
+              type="date"
+              name=""
+              class="px-2 py-2 text-xs"
+              id=""
+              v-model="formitem.service_date"
             />
-            <MagnifyingGlassIcon
-              class="w-4 h-4 absolute text-[#ff613c] top-2 left-2"
+            <input
+              type="date"
+              name=""
+              class="px-2 py-2 text-xs"
+              id=""
+              v-model="formitem.checkout_date"
             />
-          </div>
+            <button
+              class="bg-[#ff613c] text-white py-2 px-4 rounded-lg text-xs"
+              @click="getRoomPeriod"
+            >
+              Calculate
+            </button>
+          </div> -->
         </div>
         <div class="h-[300px] overflow-y-scroll pr-2">
           <div
@@ -700,6 +735,19 @@ onMounted(async () => {
                 ฿</span
               >
             </p> -->
+            <div>
+              <div
+                v-for="i in priceArray"
+                :key="i"
+                class="text-xs flex justify-between items-center"
+              >
+                <p class="whitespace-nowrap px-2">{{ i.date }}</p>
+                <p class="h-0.5 w-full bg-black/10"></p>
+                <p class="px-2">{{ i.sale_price }}</p>
+                <p class="h-0.5 w-full bg-black/10"></p>
+                <p class="px-2">{{ i.cost_price }}</p>
+              </div>
+            </div>
             <p class="text-xs text-gray-500">Total Price</p>
             <div>
               <p
@@ -707,7 +755,7 @@ onMounted(async () => {
               >
                 <span class="font-medium text-[#ff613c]"
                   >{{
-                    formitem.selling_price * formitem.quantity * formitem.days -
+                    formitem.selling_price * formitem.quantity -
                     formitem.discount
                   }}
                   ฿</span

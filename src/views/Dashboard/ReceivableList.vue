@@ -53,6 +53,10 @@
               v-if="r.include_vantour"
             ></p>
             <p
+              class="absolute top-4 left-3 w-2 h-2 bg-blue-600 rounded-full"
+              v-if="r.include_flight"
+            ></p>
+            <p
               @click="goToBooking(r.id)"
               class="font-semibold text-base px-2 rounded-md bg-gray-200 text-center inline-block"
             >

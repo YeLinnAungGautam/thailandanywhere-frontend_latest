@@ -394,7 +394,15 @@
                     placeholder="agent price"
                   />
                 </div>
-                <div>
+                <div class="space-x-2">
+                  <button
+                    class="text-sm text-red-600"
+                    @click.prevent="copyPerid(index)"
+                  >
+                    <i
+                      class="fa-solid fa-copy text-sm font-semibold px-2 py-1 bg-blue-500 rounded-full shadow text-white"
+                    ></i>
+                  </button>
                   <button
                     class="text-sm text-red-600"
                     @click.prevent="removeFromPerid(index)"
@@ -1474,6 +1482,18 @@ const addNewPerid = () => {
 
 const removeFromPerid = (index) => {
   formData.value.period.splice(index, 1);
+};
+
+const copyPerid = (index) => {
+  console.log(formData.value.period[index]);
+  formPeriod.value = {
+    period_name: formData.value.period[index].period_name,
+    start_date: "",
+    end_date: "",
+    sale_price: formData.value.period[index].sale_price,
+    cost_price: formData.value.period[index].cost_price,
+    agent_price: formData.value.period[index].agent_price,
+  };
 };
 
 const exportAction = async () => {

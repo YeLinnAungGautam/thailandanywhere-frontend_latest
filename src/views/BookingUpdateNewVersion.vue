@@ -1278,6 +1278,7 @@ const processItem = (item, isInclusive) => {
     reservation_id: item.id,
     product_type: productType,
     crm_id: item.crm_id,
+    group_id: item.group_id,
     product_id: item.product_id,
     product_name: item.product?.name,
     product_image:

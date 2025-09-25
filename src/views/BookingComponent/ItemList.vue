@@ -672,13 +672,11 @@ onMounted(() => {
             @click="
               () => {
                 if (i?.product_type == 4) {
-                  router.push(
-                    `/reservation-attraction?id=${route.params.id}&product_id=${i?.product_id}&crm_id=${i?.crm_id}`
-                  );
+                  router.push(`/group-attraction?id=${i?.group_id}`);
                 } else if (i?.product_type == 6) {
-                  router.push(
-                    `/reservation-hotel?id=${route.params.id}&product_id=${i?.product_id}&crm_id=${i?.crm_id}`
-                  );
+                  router.push(`/group-hotel?id=${i?.group_id}`);
+                } else if (i?.product_type == 1) {
+                  router.push(`/group-vantour?id=${i?.group_id}`);
                 }
               }
             "

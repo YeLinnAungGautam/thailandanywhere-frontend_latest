@@ -6,13 +6,13 @@
           <p class="text-xs text-gray-500">
             If expense step isn't green, please update again !
           </p>
-          <p
+          <!-- <p
             v-if="!emailBooking"
             @click="expenseUpdateAction"
             class="bg-green-500 text-white border border-gray-300 px-3 py-1 rounded-lg text-[10px] cursor-pointer"
           >
             Update Expense
-          </p>
+          </p> -->
         </div>
       </div>
     </div>
@@ -613,16 +613,12 @@
             </p>
 
             <p class="px-2 font-medium text-sm whitespace-nowrap">
-              {{
-                showExpenseUpdate?.total_sale_price * showExpenseQuantity
-              }}
+              {{ showExpenseUpdate?.total_sale_price * showExpenseQuantity }}
               THB
             </p>
 
             <p class="px-2 font-medium text-sm whitespace-nowrap">
-              {{
-                showExpenseUpdate?.total_cost_price * showExpenseQuantity
-              }}
+              {{ showExpenseUpdate?.total_cost_price * showExpenseQuantity }}
               THB
             </p>
           </div>

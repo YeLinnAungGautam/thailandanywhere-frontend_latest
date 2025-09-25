@@ -31,10 +31,12 @@
           <div
             class="text-[10px] text-[#ff613c] space-x-1 flex justify-end items-center"
           >
-            <p class="font-medium">E-{{ data?.total_cost_price }}</p>
+            <p class="font-medium">
+              E-{{ formattedNumber(data?.total_cost_price) }}
+            </p>
 
             <p class="font-medium" v-if="authStore.isSuperAdmin">
-              : S-{{ data?.total_amount }}
+              : S-{{ formattedNumber(data?.total_amount) }}
             </p>
             <p
               class="text-white bg-gray-800 px-1 rounded-md"
@@ -370,7 +372,7 @@ import {
 } from "@heroicons/vue/24/outline";
 import { useToast } from "vue-toastification";
 import { useRoute } from "vue-router";
-import { getFormatDate } from "../help/FormatData";
+import { formattedNumber, getFormatDate } from "../help/FormatData";
 
 const authStore = useAuthStore();
 const toast = useToast();

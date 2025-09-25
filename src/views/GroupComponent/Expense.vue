@@ -6,13 +6,13 @@
           <p class="text-xs text-gray-500">
             If expense step isn't green, please update again !
           </p>
-          <!-- <p
+          <p
             v-if="!emailBooking"
             @click="expenseUpdateAction"
             class="bg-green-500 text-white border border-gray-300 px-3 py-1 rounded-lg text-[10px] cursor-pointer"
           >
             Update Expense
-          </p> -->
+          </p>
         </div>
       </div>
     </div>
@@ -210,6 +210,10 @@
                   : `${detail?.items[index]?.quantity} x `
               }}
               <input
+                v-if="
+                  detail?.items[index]?.product_type ==
+                  'App\\Models\\EntranceTicket'
+                "
                 v-model="formData.multiple_cost_price[index]"
                 type="number"
                 id="title"
@@ -235,18 +239,39 @@
               />
             </td>
             <td
-              @click="showExpenseUpdateModal(detail?.items[index])"
               class="py-2 px-4 text-[12px] whitespace-nowrap font-normal text-end relative"
             >
               <p
+                @click="showExpenseUpdateModal(detail?.items[index])"
                 v-if="
                   detail?.items[index]?.product_type == 'App\\Models\\Hotel'
                 "
-                class="absolute bottom-0 right-0 rounded-lg text-[8px] px-1.5 py-0.5 bg-[#FF613c] text-white"
+                class="absolute bottom-4 left-2 rounded-full text-[8px] px-2 py-1 bg-[#FF613c] text-white"
               >
                 i
               </p>
-              {{ detail?.items[index]?.total_cost_price }} thb
+              <p
+                v-if="
+                  detail?.items[index]?.product_type != 'App\\Models\\Hotel'
+                "
+              >
+                {{ formattedNumber(detail?.items[index]?.total_cost_price) }}
+                thb
+              </p>
+              <input
+                class="h-8 col-span-1 rounded-lg bg-white border border-gray-300 px-2 w-[100px] py-2 text-gray-900 focus:outline-none focus:border-gray-300 text-xs"
+                v-if="
+                  detail?.items[index]?.product_type == 'App\\Models\\Hotel'
+                "
+                type="text"
+                v-model="displayValues[index]"
+                @input="handleInput(index)"
+                @focus="handleFocus(index)"
+                @blur="handleBlur(index)"
+                :placeholder="
+                  formattedNumber(detail?.items[index]?.total_cost_price)
+                "
+              />
             </td>
           </tr>
           <tr class="bg-[#FF613c]/40">
@@ -272,7 +297,7 @@
               colspan="1"
               class="py-2 px-4 text-[14px] whitespace-nowrap font-normal text-end"
             >
-              {{ total_cost_calculate }} thb
+              {{ formattedNumber(total_cost_calculate) }} thb
             </td>
           </tr>
         </tbody>
@@ -639,7 +664,7 @@ import { useRoute, useRouter } from "vue-router";
 import { daysBetween } from "../help/DateBetween";
 import { useGroupStore } from "../../stores/group";
 import { useCashImageStore } from "../../stores/cashImage";
-import { formattedDateTimeDB } from "../help/FormatData";
+import { formattedDateTimeDB, formattedNumber } from "../help/FormatData";
 import { useHotelStore } from "../../stores/hotel";
 // import ExpenseBooking from "./ExpenseBooking.vue";
 
@@ -665,6 +690,7 @@ const formData = ref({
   multiple_id_reservation: [],
   multiple_crm_id: [],
   multiple_cost_price: [],
+  multiple_total_cost_price: [],
   multiple_individual: [],
   payment_method: "",
   bank_name: "",
@@ -678,10 +704,53 @@ const formData = ref({
   customer_feedback: "",
 });
 
+const displayValues = ref([]);
+const actualValues = ref([]);
+
+const handleInput = (index) => {
+  const inputValue = displayValues.value[index] || "";
+  const numericValue = inputValue.replace(/[^\d.]/g, "");
+  actualValues.value[index] = parseFloat(numericValue) || 0;
+  formData.value.multiple_total_cost_price[index] = actualValues.value[index];
+};
+
+const handleFocus = (index) => {
+  // Show unformatted value when focused for easier editing
+  displayValues.value[index] = String(actualValues.value[index] || "");
+};
+
+const handleBlur = (index) => {
+  // Show formatted value when not focused
+  const value = actualValues.value[index];
+  displayValues.value[index] = value ? formattedNumber(value) : "";
+};
+
+// Initialize arrays
+const initializeDisplayArrays = () => {
+  if (props.detail && props.detail.items) {
+    displayValues.value = [];
+    actualValues.value = [];
+
+    props.detail.items.forEach((item, index) => {
+      const value = item.total_cost_price || 0;
+      actualValues.value[index] = value;
+      displayValues.value[index] = formattedNumber(value);
+
+      // Also update formData
+      if (!formData.value.multiple_total_cost_price) {
+        formData.value.multiple_total_cost_price = [];
+      }
+      formData.value.multiple_total_cost_price[index] = value;
+    });
+  }
+};
+
 const total_cost_calculate = computed(() => {
   let result = 0;
   for (let i = 0; i < props?.detail?.items.length; i++) {
-    result += props?.detail?.items[i]?.total_cost_price;
+    result +=
+      Number(formData.value.multiple_total_cost_price[i]) ||
+      props?.detail?.items[i]?.total_cost_price;
   }
   return result;
 });
@@ -1001,7 +1070,7 @@ const expenseUpdateAction = async () => {
             frmData.append("total_cost_price", totalCostPrice);
           } else {
             // This is for hotels
-            const totalCostPrice = costPrice * hotalQuantity;
+            const totalCostPrice = formData.value.multiple_total_cost_price[i];
             frmData.append("total_cost_price", totalCostPrice);
           }
         }
@@ -1209,6 +1278,7 @@ const populateFormData = async () => {
     formData.value.multiple_id_reservation = [];
     formData.value.multiple_crm_id = [];
     formData.value.multiple_cost_price = [];
+    formData.value.multiple_total_cost_price = [];
     formData.value.multiple_individual = [];
     formData.value.hotalQuantity = [];
     formData.value.multiple_quantity = [];
@@ -1247,6 +1317,7 @@ const populateFormData = async () => {
       formData.value.multiple_id_reservation.push(item.id); // Or any other reservation ID if needed
       formData.value.multiple_crm_id.push(item.crm_id);
       formData.value.multiple_cost_price.push(item.cost_price);
+      formData.value.multiple_total_cost_price.push(item.total_cost_price);
       formData.value.multiple_individual.push(item.individual_pricing);
       editData.value.reservation_ids.push({
         id: item.id,
@@ -1371,4 +1442,12 @@ onMounted(() => {
     populateFormData();
   }
 });
+
+watch(
+  () => props.detail,
+  () => {
+    initializeDisplayArrays();
+  },
+  { immediate: true }
+);
 </script>

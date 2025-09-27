@@ -134,6 +134,26 @@
                 {{ errors.owner_price[0] }}
               </p>
             </div>
+            <div class="mb-2 space-y-1 col-span-1">
+              <label for="price" class="text-sm text-gray-800">Score</label>
+              <p
+                v-if="formData.price && formData.cost_price"
+                class="mt-1 text-sm text-gray-600 py-3 px-3 border-2 border-gray-300 rounded-md shadow-sm"
+              >
+                {{
+                  (
+                    (formData.price - formData.cost_price) /
+                    formData.price
+                  ).toFixed(2)
+                }}
+              </p>
+              <p
+                v-else
+                class="mt-1 text-sm text-gray-600 py-3 px-3 border-2 border-gray-300 rounded-md shadow-sm"
+              >
+                0.00
+              </p>
+            </div>
           </div>
           <div class="col-span-2">
             <div class="col-span-2">
@@ -187,6 +207,30 @@
                     class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="agent prices"
                   />
+                </div>
+                <div class="mb-2 space-y-1 col-span-1">
+                  <!-- <label for="price" class="text-sm text-gray-800">Score</label> -->
+                  <p
+                    v-if="
+                      child_info_default.child_price &&
+                      child_info_default.child_cost_price
+                    "
+                    class="mt-2 text-sm text-gray-600 py-3 px-3 border-2 border-gray-300 rounded-md"
+                  >
+                    {{
+                      (
+                        (child_info_default.child_price -
+                          child_info_default.child_cost_price) /
+                        child_info_default.child_price
+                      ).toFixed(2)
+                    }}
+                  </p>
+                  <p
+                    v-else
+                    class="mt-2 text-sm text-gray-600 py-3 px-3 border-2 border-gray-300 rounded-md"
+                  >
+                    0.00
+                  </p>
                 </div>
               </div>
             </div>
@@ -424,7 +468,7 @@
           <ArrowDownTrayIcon class="w-4 h-4" />
         </div>
         <v-select
-          class="style-chooser bg-white min-w-[250px]"
+          class="style-chooser bg-white min-w-[200px]"
           v-if="entList.length != 0 && entAction"
           :options="entrances?.data"
           v-model="entrance_ticket_id"
@@ -433,9 +477,14 @@
           :reduce="(entrance) => entrance.id"
           placeholder="Choose entrance"
         ></v-select>
-        <AdjustmentsHorizontalIcon
-          class="inline-block w-6 h-6 mx-2 text-gray-600 cursor-pointer"
-        />
+        <select
+          v-model="scoreSortOrder"
+          class="min-w-[200px] border px-4 py-1.5 text-sm rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+        >
+          <option value="">Sort by Score</option>
+          <option value="high_to_low">Score: High to Low</option>
+          <option value="low_to_high">Score: Low to High</option>
+        </select>
       </div>
 
       <div class="space-x-3">
@@ -487,6 +536,9 @@
             <th class="p-3 text-xs font-medium tracking-wide text-left">
               Is Show
             </th>
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
+              Score
+            </th>
             <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
               Actions
             </th>
@@ -524,6 +576,7 @@
                 {{ r?.meta_data[0]?.is_main == 1 ? "Yes" : "No" }}
               </p>
             </td>
+
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <p
                 v-if="r?.meta_data != null"
@@ -534,6 +587,9 @@
               >
                 {{ r?.meta_data[0]?.is_main == 1 ? "Yes" : "No" }}
               </p>
+            </td>
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              <p class="text-gray-700">{{ r.score }}</p>
             </td>
 
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
@@ -697,6 +753,8 @@ const child_info_default = ref({
   child_owner_price: "",
   child_agent_price: "",
 });
+
+const scoreSortOrder = ref("");
 
 // const addChildInfo = () => {
 //   formData.value.child_info.push(child_info_default.value);
@@ -1001,6 +1059,7 @@ const addNewHandler = async () => {
     await variationStore.getListAction({
       search: search.value,
       entrance_ticket_id: entrance_ticket_id.value,
+      order_by_score: scoreSortOrder.value,
     });
     toast.success(response.message);
   } catch (error) {
@@ -1143,6 +1202,7 @@ const updateHandler = async () => {
     await variationStore.getListAction({
       search: search.value,
       entrance_ticket_id: entrance_ticket_id.value,
+      order_by_score: scoreSortOrder.value,
     });
     toast.success(response.message);
   } catch (error) {
@@ -1219,7 +1279,10 @@ const removeImageUpdateImage = async (id, imageID) => {
   createModalOpen.value = false;
   imagesPreview.value = [];
   editImagesPreview.value = [];
-  await variationStore.getListAction({ search: search.value });
+  await variationStore.getListAction({
+    search: search.value,
+    order_by_score: scoreSortOrder.value,
+  });
 };
 
 const changePage = async (url) => {
@@ -1254,6 +1317,7 @@ const onDeleteHandler = async (id) => {
       await variationStore.getListAction({
         search: search.value,
         entrance_ticket_id: entrance_ticket_id.value,
+        order_by_score: scoreSortOrder.value,
       });
     }
   });
@@ -1309,6 +1373,7 @@ onMounted(async () => {
   await variationStore.getListAction({
     search: search.value,
     entrance_ticket_id: entrance_ticket_id.value,
+    order_by_score: scoreSortOrder.value,
   });
 });
 
@@ -1324,14 +1389,16 @@ watch(
     await variationStore.getListAction({
       search: search.value,
       entrance_ticket_id: entrance_ticket_id.value,
+      order_by_score: scoreSortOrder.value,
     });
   }, 500)
 );
 
-watch(entrance_ticket_id, async (newValue) => {
+watch([entrance_ticket_id, scoreSortOrder], async (newValue, secondValue) => {
   await variationStore.getListAction({
     search: search.value,
     entrance_ticket_id: entrance_ticket_id.value,
+    order_by_score: scoreSortOrder.value,
   });
 });
 </script>

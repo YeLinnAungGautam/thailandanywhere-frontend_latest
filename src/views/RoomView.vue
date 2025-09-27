@@ -53,6 +53,7 @@
           @submit.prevent="onSubmitHandler"
           class="mt-2 grid grid-cols-2 gap-2"
         >
+          <!-- Basic Room Information -->
           <div class="mb-2 space-y-1" v-if="quiteSwitch == 1">
             <label for="name" class="text-sm text-gray-800">Name</label>
             <input
@@ -65,26 +66,41 @@
               {{ errors.name[0] }}
             </p>
           </div>
+
+          <!-- Hotel Selection -->
           <div v-if="quiteSwitch == 1">
             <p class="mb-2 text-sm text-gray-800">Hotel</p>
-            <div
-              v-if="hotelList.length == 0 && !hotelAction"
-              @click="hotelAction = true"
-              class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 w-full flex justify-between items-center"
-            >
-              <p>{{ hotelName != "" ? hotelName : "hotel choose" }}</p>
-              <ArrowDownTrayIcon class="w-4 h-4" />
+            <div class="relative">
+              <input
+                type="text"
+                v-model="modalHotelSearchQuery"
+                @input="searchModalHotels"
+                @focus="showModalHotelDropdown = true"
+                class="w-full h-10 text-sm px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                placeholder="Search and select hotel..."
+              />
+              <div
+                v-if="showModalHotelDropdown && modalHotelResults.length > 0"
+                class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto mt-1"
+              >
+                <div
+                  v-for="hotel in modalHotelResults"
+                  :key="hotel.id"
+                  @click="selectModalHotel(hotel)"
+                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                >
+                  {{ hotel.name }}
+                </div>
+              </div>
+              <button
+                v-if="modalSelectedHotel"
+                @click="clearModalHotelSelection"
+                type="button"
+                class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                ×
+              </button>
             </div>
-            <v-select
-              v-model="formData.hotel_id"
-              v-if="hotelAction && hotelList.length != 0"
-              class="style-chooser"
-              :options="hotelList ?? []"
-              label="name"
-              :clearable="false"
-              :reduce="(hotel) => hotel.id"
-              placeholder="Choose Hotel"
-            ></v-select>
           </div>
 
           <div
@@ -106,7 +122,7 @@
           </div>
           <div class="mb-2 space-y-1" v-if="quiteSwitch == 1">
             <label for="room_price" class="text-sm text-gray-800"
-              >Max Preson</label
+              >Max Person</label
             >
             <input
               type="text"
@@ -148,6 +164,7 @@
             </p>
           </div>
 
+          <!-- Room Features -->
           <div>
             <div
               class="mb-2 space-y-1 flex justify-between pr-4 items-center gap-3"
@@ -262,6 +279,8 @@
               class="w-full h-10 text-sm px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
             />
           </div>
+
+          <!-- Period Management -->
           <div class="col-span-2" v-if="quiteSwitch == 3">
             <div class="">
               <div class="flex items-center justify-start mb-2">
@@ -324,6 +343,22 @@
                     class="h-10 text-sm w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="agent price"
                   />
+                </div>
+                <div
+                  class="border border-gray-300 rounded-md shadow-sm px-4 py-2"
+                >
+                  <p
+                    v-if="formPeriod.sale_price && formPeriod.cost_price"
+                    class="text-sm text-gray-600"
+                  >
+                    {{
+                      (
+                        (formPeriod.sale_price - formPeriod.cost_price) /
+                        formPeriod.sale_price
+                      ).toFixed(2)
+                    }}
+                  </p>
+                  <p v-else class="text-sm text-gray-600">0</p>
                 </div>
 
                 <div>
@@ -394,6 +429,19 @@
                     placeholder="agent price"
                   />
                 </div>
+                <div
+                  class="border border-gray-300 rounded-md shadow-sm px-4 py-2"
+                >
+                  <p
+                    v-if="p.sale_price && p.cost_price"
+                    class="text-sm text-gray-600"
+                  >
+                    {{
+                      ((p.sale_price - p.cost_price) / p.sale_price).toFixed(2)
+                    }}
+                  </p>
+                  <p v-else class="text-sm text-gray-600">0</p>
+                </div>
                 <div class="space-x-2">
                   <button
                     class="text-sm text-red-600"
@@ -415,6 +463,7 @@
               </div>
             </div>
           </div>
+
           <div class="mb-2 space-y-1" v-if="quiteSwitch == 1">
             <label for="description" class="text-sm text-gray-800"
               >Description</label
@@ -489,6 +538,8 @@
               </div>
             </div>
           </div>
+
+          <!-- Room Amenities Section -->
           <div class="col-span-2" v-if="quiteSwitch == 2">
             <div class="">
               <div class="flex items-center justify-start mb-2">
@@ -610,27 +661,47 @@
           class="w-3/5 sm:w-3/5 md:w-[200px] border px-4 py-1.5 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
           placeholder="Search Rooms..."
         />
-        <div
-          v-if="hotelList.length == 0 && !hotelAction"
-          @click="hotelAction = true"
-          class="text-sm text-gray-500 hover:text-gray-600 border border-gray-300 rounded-md bg-white px-4 py-1.5 min-w-[200px] flex justify-between items-center"
-        >
-          <p>hotel choose</p>
-          <ArrowDownTrayIcon class="w-4 h-4" />
+
+        <!-- Hotel Search Dropdown -->
+        <div class="relative min-w-[200px]">
+          <input
+            type="text"
+            v-model="hotelSearchQuery"
+            @input="searchHotels"
+            @focus="showHotelDropdown = true"
+            class="w-full border px-4 py-1.5 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+            placeholder="Search hotels..."
+          />
+          <div
+            v-if="showHotelDropdown && hotelSearchResults.length > 0"
+            class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto mt-1"
+          >
+            <div
+              v-for="hotel in hotelSearchResults"
+              :key="hotel.id"
+              @click="selectHotel(hotel)"
+              class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+            >
+              {{ hotel.name }}
+            </div>
+            <div
+              v-if="hotelSearchResults.length === 0 && hotelSearchQuery"
+              class="px-4 py-2 text-gray-500"
+            >
+              No hotels found
+            </div>
+          </div>
+          <!-- Clear button -->
+          <button
+            v-if="selectedHotel"
+            @click="clearHotelSelection"
+            type="button"
+            class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            ×
+          </button>
         </div>
-        <v-select
-          class="style-chooser min-w-[200px] bg-white"
-          :options="hotelList ?? []"
-          v-model="hotel_id"
-          v-if="hotelList.length != 0 && hotelAction"
-          label="name"
-          :clearable="false"
-          :reduce="(hotel) => hotel.id"
-          placeholder="Choose Hotel"
-        ></v-select>
-        <!-- <AdjustmentsHorizontalIcon
-          class="inline-block w-6 h-6 mx-2 text-gray-600 cursor-pointer"
-        /> -->
+
         <input
           type="date"
           v-model="start_date"
@@ -643,15 +714,27 @@
           class="w-3/5 sm:w-3/5 md:w-[200px] border px-4 py-1.5 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
           title="end date"
         />
-        <v-select
-          class="style-chooser min-w-[200px] max-w-[400px] bg-white"
-          :options="selectedArray ?? []"
-          v-model="selectedFilter"
-          label="name"
-          :clearable="false"
-          :reduce="(d) => d.value"
-          placeholder="Choose Missing"
-        ></v-select>
+
+        <!-- Price Sort Dropdown -->
+        <select
+          v-model="priceSortOrder"
+          class="min-w-[200px] border px-4 text-sm py-1.5 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+        >
+          <option value="">Sort by Price</option>
+          <option value="high_to_low">Price: High to Low</option>
+          <option value="low_to_high">Price: Low to High</option>
+        </select>
+
+        <!-- Score Sort Dropdown -->
+        <select
+          v-model="scoreSortOrder"
+          class="min-w-[200px] border px-4 text-sm py-1.5 rounded-lg shadow-sm focus:ring-0 focus:outline-none text-gray-500"
+        >
+          <option value="">Sort by Score</option>
+          <option value="high_to_low">Score: High to Low</option>
+          <option value="low_to_high">Score: Low to High</option>
+        </select>
+
         <button
           class="px-2 py-1.5 bg-[#ff613c] rounded-md text-white"
           @click="searchFunction"
@@ -662,7 +745,14 @@
         <button
           class="px-2 py-1.5 bg-[#ff613c] rounded-md text-white"
           @click="clearFunction"
-          v-if="start_date || end_date || search || hotel_id"
+          v-if="
+            start_date ||
+            end_date ||
+            search ||
+            selectedHotel ||
+            scoreSortOrder ||
+            priceSortOrder
+          "
         >
           clear
         </button>
@@ -696,6 +786,7 @@
         </div>
       </div>
     </div>
+
     <div class="mb-5 overflow-auto rounded-lg shadow">
       <table class="w-full">
         <thead class="border-b-2 border-gray-200 bg-gray-50">
@@ -717,7 +808,9 @@
             <th class="p-3 text-xs font-medium tracking-wide text-left">
               Room Price
             </th>
-
+            <th class="p-3 text-xs font-medium tracking-wide text-left">
+              Score
+            </th>
             <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
               Actions
             </th>
@@ -733,7 +826,7 @@
               {{ r.id }}
             </td>
             <td
-              class="p-3 text-xs text-gray-700 whitespace-warp max-w-[300px] overflow-hidden"
+              class="p-3 text-xs text-gray-700 whitespace-wrap max-w-[300px] overflow-hidden"
             >
               {{ r.name }}
             </td>
@@ -747,7 +840,9 @@
               <p v-if="!authStore.isAgent">{{ r.room_price }}</p>
               <p v-if="authStore.isAgent">{{ r.agent_price }}</p>
             </td>
-
+            <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              {{ r.score ?? "N/A" }}
+            </td>
             <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
               <div class="flex items-center gap-2">
                 <button
@@ -768,13 +863,12 @@
               </div>
             </td>
           </tr>
-          <tr v-if="filteredRoomList.length == 0">
+          <tr v-if="paginatedItems.length == 0">
             <td
               class="text-center h-[300px] text-sm text-red-500 font-medium"
-              colspan="10"
+              colspan="7"
             >
-              this page isn't have {{ selectedFilter }} missing please go next
-              page or for normal please select choose missing
+              No rooms found. Please adjust your search criteria.
             </td>
           </tr>
         </tbody>
@@ -783,7 +877,7 @@
 
     <!-- pagination -->
     <Pagination
-      v-if="!loading && !pagiantionShow"
+      v-if="!loading && !pagiantionShow && rooms?.data"
       :data="rooms"
       @change-page="changePage"
     />
@@ -861,29 +955,22 @@ import {
   TrashIcon,
   ShareIcon,
   EyeIcon,
-  TicketIcon,
-  BuildingOfficeIcon,
   DocumentPlusIcon,
   PlusIcon,
-  ArrowDownTrayIcon,
-  UserGroupIcon,
-  UsersIcon,
-  AdjustmentsHorizontalIcon,
+  XCircleIcon,
 } from "@heroicons/vue/24/outline";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import Pagination from "../components/Pagination.vue";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import Button from "../components/Button.vue";
 import { storeToRefs } from "pinia";
 import { useRouter, useRoute } from "vue-router";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import Modal from "../components/Modal.vue";
-import { useCityStore } from "../stores/city";
 import { useHotelStore } from "../stores/hotel";
 import { useRoomStore } from "../stores/room";
 import { useAuthStore } from "../stores/auth";
-import { XCircleIcon } from "@heroicons/vue/24/outline";
 import { Switch } from "@headlessui/vue";
 import debounce from "lodash/debounce";
 import RoomListModal from "./RoomfacilityComponent/ListModal.vue";
@@ -894,110 +981,46 @@ const closeRoomModal = () => {
   roomModal.value = false;
 };
 const toast = useToast();
-const cityStore = useCityStore();
 const hotelStore = useHotelStore();
 const roomStore = useRoomStore();
 const authStore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 
-const { rooms, loading, importLoading, incompleteRoom, loadingIncomplete } =
-  storeToRefs(roomStore);
+const { rooms, loading, importLoading } = storeToRefs(roomStore);
 
 const search = ref("");
 const errors = ref([]);
-
-const { hotels } = storeToRefs(hotelStore);
-
-const hotelList = ref([]);
 const enabled = ref(false);
 const enabledhas = ref(false);
 const enabledDouble = ref(false);
 const enabledTwin = ref(false);
 const enabledShowOn = ref(false);
-
 const quiteSwitch = ref(1);
-
-// const incomplete = ref(false);
 const roomShowList = ref(null);
-
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 
-// Computed property for paginated items
-const paginatedItems = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return filteredRoomList.value.slice(start, end);
-});
+// Hotel search variables
+const hotelSearchQuery = ref("");
+const hotelSearchResults = ref([]);
+const showHotelDropdown = ref(false);
+const selectedHotel = ref(null);
 
-// Total number of pages
-const totalPages = computed(() => {
-  return Math.ceil(filteredRoomList.value.length / itemsPerPage.value);
-});
+// Modal hotel search variables
+const modalHotelSearchQuery = ref("");
+const modalHotelResults = ref([]);
+const showModalHotelDropdown = ref(false);
+const modalSelectedHotel = ref(null);
 
-// Methods to change the page
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value += 1;
-  }
-};
+// Sort variables
+const scoreSortOrder = ref("");
+const priceSortOrder = ref("");
 
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value -= 1;
-  }
-};
-
-// select function
-
+// Pagination
 const pagiantionShow = ref(false);
 
-// selected filter
-
-const selectedArray = ref([
-  { id: 1, name: "choose missing", value: "" },
-  { id: 2, name: "room amenties missing", value: "amenties" },
-  { id: 3, name: "photo missing", value: "images" },
-  { id: 4, name: "room price missing", value: "room price" },
-  { id: 5, name: "cost price missing", value: "cost price" },
-  { id: 6, name: "walk in price missing", value: "walk in price" },
-]);
-
-const selectedFilter = ref("");
-
-const filteredRoomList = computed(() => {
-  if (!selectedFilter.value) {
-    return roomShowList.value?.data || [];
-  }
-
-  return (
-    roomShowList.value?.data.filter((room) => {
-      if (selectedFilter.value === "amenties") {
-        return (
-          !room.amenities ||
-          room.amenities === "null" ||
-          room.amenities.length == 0
-        );
-      } else if (selectedFilter.value === "images") {
-        return (
-          !room.images || room.images === "null" || room.images.length == 0
-        );
-      } else if (selectedFilter.value === "room price") {
-        return !room.room_price || room.room_price === "null";
-      } else if (selectedFilter.value === "cost price") {
-        return !room.cost || room.cost === "null" || room.cost == "undefined";
-      } else if (selectedFilter.value === "walk in price") {
-        return !room.owner_price || room.owner_price === "null";
-      } else {
-        return true;
-      }
-    }) || []
-  );
-});
-
-// end selected filter
-
+// Form data
 const formData = ref({
   id: "",
   name: "",
@@ -1017,8 +1040,192 @@ const formData = ref({
   agent_price: "",
   owner_price: "",
 });
-const editImagesPreview = ref([]);
 
+const editImagesPreview = ref([]);
+const imagesPreview = ref([]);
+const imagesInput = ref(null);
+
+// Room amenities
+const room_amen = ref({
+  title: "",
+  list: [],
+});
+const room_amen_list = ref([
+  {
+    list_name: "",
+  },
+]);
+
+// Period
+const formPeriod = ref({
+  period_name: "",
+  start_date: "",
+  end_date: "",
+  sale_price: "",
+  cost_price: "",
+  agent_price: "",
+});
+
+// Search and filter variables
+const hotel_id = ref("");
+const start_date = ref("");
+const end_date = ref("");
+const periodAjj = ref("");
+
+// Import
+const importModal = ref(false);
+const fileImport = ref(null);
+
+// Computed properties
+const paginatedItems = computed(() => {
+  const data = roomShowList.value?.data || [];
+  if (pagiantionShow.value) {
+    const start = (currentPage.value - 1) * itemsPerPage.value;
+    const end = start + itemsPerPage.value;
+    return data.slice(start, end);
+  }
+  return data;
+});
+
+const totalPages = computed(() => {
+  if (!pagiantionShow.value) return 1;
+  const data = roomShowList.value?.data || [];
+  return Math.ceil(data.length / itemsPerPage.value);
+});
+
+// Hotel search functions
+const searchHotels = debounce(async (event) => {
+  const query = {
+    search: event.target.value,
+    limit: 5,
+  };
+  hotelSearchResults.value = [];
+  showHotelDropdown.value = false;
+
+  try {
+    const response = await hotelStore.getListAction(query);
+    console.log(response, "this is hotel response");
+
+    hotelSearchResults.value = response.result.data || [];
+    showHotelDropdown.value = true;
+  } catch (error) {
+    console.error("Hotel search error:", error);
+    hotelSearchResults.value = [];
+    showHotelDropdown.value = false;
+  }
+}, 300);
+
+const selectHotel = (hotel) => {
+  selectedHotel.value = hotel;
+  hotelSearchQuery.value = hotel.name;
+  hotel_id.value = hotel.id;
+  showHotelDropdown.value = false;
+  performSearch();
+};
+
+const clearHotelSelection = () => {
+  selectedHotel.value = null;
+  hotelSearchQuery.value = "";
+  hotel_id.value = "";
+  showHotelDropdown.value = false;
+  performSearch();
+};
+
+// Modal hotel search functions
+const searchModalHotels = debounce(async (event) => {
+  const query = {
+    search: event.target.value,
+    limit: 5,
+  };
+
+  modalHotelResults.value = [];
+  showModalHotelDropdown.value = false;
+
+  try {
+    const response = await hotelStore.getListAction(query);
+    console.log(response, "this is hotel response");
+    modalHotelResults.value = response.result.data || [];
+    showModalHotelDropdown.value = true;
+  } catch (error) {
+    console.error("Modal hotel search error:", error);
+    modalHotelResults.value = [];
+    showModalHotelDropdown.value = false;
+  }
+}, 300);
+
+const selectModalHotel = (hotel) => {
+  modalSelectedHotel.value = hotel;
+  modalHotelSearchQuery.value = hotel.name;
+  formData.value.hotel_id = hotel.id;
+  showModalHotelDropdown.value = false;
+};
+
+const clearModalHotelSelection = () => {
+  modalSelectedHotel.value = null;
+  modalHotelSearchQuery.value = "";
+  formData.value.hotel_id = null;
+  showModalHotelDropdown.value = false;
+};
+
+// Search function
+const performSearch = async () => {
+  const searchParams = {
+    hotel_id: hotel_id.value,
+    search: search.value,
+    period: periodAjj.value,
+    limit: 10,
+  };
+
+  // Add sorting parameters
+  if (scoreSortOrder.value) {
+    searchParams.order_by_score = scoreSortOrder.value;
+    // Clear price sort when score sort is selected
+    priceSortOrder.value = "";
+  }
+
+  if (priceSortOrder.value && !scoreSortOrder.value) {
+    searchParams.order_by_price = priceSortOrder.value;
+  }
+
+  await roomStore.getListAction(searchParams);
+  pagiantionShow.value = false;
+  currentPage.value = 1;
+};
+
+// Pagination methods
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value += 1;
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value -= 1;
+  }
+};
+
+// Utility functions
+const limitedText = (text) => {
+  if (text && text.length > 30) {
+    return text.slice(0, 30) + "...";
+  }
+  return text || "";
+};
+
+const formatScore = (score) => {
+  if (!score || score === 0) return "0%";
+  return `${Math.round(score * 100)}%`;
+};
+
+const getScoreClass = (score) => {
+  if (!score || score === 0) return "bg-gray-100 text-gray-800";
+  if (score < 0.3) return "bg-red-100 text-red-800";
+  if (score < 0.6) return "bg-yellow-100 text-yellow-800";
+  return "bg-green-100 text-green-800";
+};
+
+// Modal functions
 const closeModal = () => {
   formData.value = {
     id: "",
@@ -1048,291 +1255,81 @@ const closeModal = () => {
   createModalOpen.value = false;
   imagesPreview.value = [];
   editImagesPreview.value = [];
-  hotelName.value = "";
+  modalSelectedHotel.value = null;
+  modalHotelSearchQuery.value = "";
+  quiteSwitch.value = 1;
 };
 
-const limitedText = (text) => {
-  if (text != "") {
-    if (text?.length <= 30) {
-      return text;
-    } else {
-      return text?.slice(0, 30) + "...";
-    }
+// Room amenities functions
+const addNewRoomAmen = () => {
+  if (room_amen.value.title.trim()) {
+    formData.value.room_amen.push({ ...room_amen.value });
+    room_amen.value = {
+      title: "",
+      list: [],
+    };
   }
 };
 
-const room_amen = ref({
-  title: "",
-  list: [],
-});
-const room_amen_list = ref([
-  {
-    list_name: "",
-  },
-]);
-const addNewRoomAmen = () => {
-  formData.value.room_amen.push(room_amen.value);
-  room_amen.value = {
-    title: "",
-    list: [],
-  };
-};
 const addNewRoomAmenList = () => {
-  room_amen.value.list.push(room_amen_list.value);
-  console.log(room_amen.value);
-  room_amen_list.value = {
-    list_name: "",
-  };
+  if (room_amen_list.value.list_name.trim()) {
+    room_amen.value.list.push({ ...room_amen_list.value });
+    room_amen_list.value = {
+      list_name: "",
+    };
+  }
 };
+
 const removeRoomAmenItem = (index) => {
   formData.value.room_amen.splice(index, 1);
 };
+
 const removeRoomAmenListItem = (index) => {
   room_amen.value.list.splice(index, 1);
 };
 
-const addNewHandler = async () => {
-  const frmData = new FormData();
-  frmData.append("name", formData.value.name);
-  frmData.append("hotel_id", formData.value.hotel_id);
-  frmData.append("description", formData.value.description);
-  frmData.append("max_person", formData.value.max_person);
-  frmData.append("room_price", formData.value.room_price);
-  if (formData.value.cost != "" && formData.value.cost != null) {
-    frmData.append("cost", formData.value.cost);
-  } else {
-    frmData.append("cost", 0);
-  }
-  frmData.append("agent_price", formData.value.agent_price);
-  frmData.append("owner_price", formData.value.owner_price);
-  frmData.append("is_extra", enabled.value ? 1 : 0);
-  frmData.append("has_breakfast", enabledhas.value ? 1 : 0);
-  frmData.append("meta[is_double]", enabledDouble.value ? 1 : 0);
-  frmData.append("meta[is_twin]", enabledTwin.value ? 1 : 0);
-  frmData.append("meta[is_show_on]", enabledShowOn.value ? 1 : 0);
-  frmData.append("meta[room_size]", formData.value.room_size);
-  if (formData.value.images.length > 0) {
-    for (let i = 0; i < formData.value.images.length; i++) {
-      let file = formData.value.images[i];
-      frmData.append("images[" + i + "]", file);
-    }
-  }
-  if (formData.value.room_amen.length > 0) {
-    for (let i = 0; i < formData.value.room_amen.length; i++) {
-      frmData.append(
-        "amenities[" + i + "][title]",
-        formData.value.room_amen[i].title
-      );
-      for (let l = 0; l < formData.value.room_amen[i].list.length; l++) {
-        frmData.append(
-          "amenities[" + i + "][list][" + l + "]",
-          formData.value.room_amen[i].list[l].list_name
-        );
-      }
-    }
-  }
-  if (formData.value.period.length > 0) {
-    for (let x = 0; x < formData.value.period.length; x++) {
-      frmData.append(
-        "periods[" + x + "][period_name]",
-        formData.value.period[x].period_name
-      );
-      frmData.append(
-        "periods[" + x + "][start_date]",
-        formData.value.period[x].start_date
-      );
-      frmData.append(
-        "periods[" + x + "][end_date]",
-        formData.value.period[x].end_date
-      );
-      frmData.append(
-        "periods[" + x + "][sale_price]",
-        formData.value.period[x].sale_price
-      );
-      frmData.append(
-        "periods[" + x + "][cost_price]",
-        formData.value.period[x].cost_price
-      );
-      frmData.append(
-        "periods[" + x + "][agent_price]",
-        formData.value.period[x].agent_price
-      );
-    }
-  }
-
-  try {
-    const response = await roomStore.addNewAction(frmData);
-    formData.value = {
-      id: "",
-      name: "",
-      hotel_id: null,
-      description: "",
-      max_person: "",
-      period: [],
-      images: [],
-      is_extra: 0,
-      has_breakfast: 0,
-      is_double: 0,
-      is_twin: 0,
-      room_size: "",
-      room_price: "",
-      room_amen: [],
-      cost: "",
+// Period functions
+const addNewPerid = () => {
+  if (formPeriod.value.period_name.trim()) {
+    formData.value.period.push({ ...formPeriod.value });
+    formPeriod.value = {
+      period_name: "",
+      start_date: "",
+      end_date: "",
+      sale_price: "",
+      cost_price: "",
       agent_price: "",
-      owner_price: "",
     };
-    enabled.value = false;
-    enabledhas.value = false;
-    enabledDouble.value = false;
-    enabledTwin.value = false;
-    enabledShowOn.value = false;
-    errors.value = null;
-    createModalOpen.value = false;
-    imagesPreview.value = [];
-    editImagesPreview.value = [];
-    // await roomStore.getListAction();
-    window.location.reload();
-    toast.success(response.message);
-  } catch (error) {
-    if (error.response.data.errors) {
-      errors.value = error.response.data.errors;
-    }
-    toast.error(error.response.data.message);
   }
 };
 
-const updateHandler = async () => {
-  const frmData = new FormData();
-  frmData.append("name", formData.value.name);
-  frmData.append("hotel_id", formData.value.hotel_id);
-  frmData.append("description", formData.value.description);
-  frmData.append("max_person", formData.value.max_person);
-  frmData.append("is_extra", enabled.value ? 1 : 0);
-  frmData.append("has_breakfast", enabledhas.value ? 1 : 0);
-  frmData.append("meta[is_double]", enabledDouble.value ? 1 : 0);
-  frmData.append("meta[is_twin]", enabledTwin.value ? 1 : 0);
-  frmData.append("meta[is_show_on]", enabledShowOn.value ? 1 : 0);
-  frmData.append("meta[room_size]", formData.value.room_size);
-  if (formData.value.images.length > 0) {
-    for (let i = 0; i < formData.value.images.length; i++) {
-      let file = formData.value.images[i];
-      frmData.append("images[" + i + "]", file);
-    }
-  }
-  if (formData.value.room_amen.length > 0) {
-    for (let i = 0; i < formData.value.room_amen.length; i++) {
-      frmData.append(
-        "amenities[" + i + "][title]",
-        formData.value.room_amen[i].title
-      );
-      for (let l = 0; l < formData.value.room_amen[i].list.length; l++) {
-        frmData.append(
-          "amenities[" + i + "][list][" + l + "]",
-          formData.value.room_amen[i].list[l].list_name
-        );
-      }
-    }
-  }
-  if (formData.value.period.length > 0) {
-    for (let x = 0; x < formData.value.period.length; x++) {
-      frmData.append(
-        "periods[" + x + "][period_name]",
-        formData.value.period[x].period_name
-      );
-      frmData.append(
-        "periods[" + x + "][start_date]",
-        formData.value.period[x].start_date
-      );
-      frmData.append(
-        "periods[" + x + "][end_date]",
-        formData.value.period[x].end_date
-      );
-      frmData.append(
-        "periods[" + x + "][sale_price]",
-        formData.value.period[x].sale_price
-      );
-      frmData.append(
-        "periods[" + x + "][cost_price]",
-        formData.value.period[x].cost_price
-      );
-      frmData.append(
-        "periods[" + x + "][agent_price]",
-        formData.value.period[x].agent_price
-      );
-    }
-  }
-  frmData.append("room_price", formData.value.room_price);
-  if (formData.value.cost != "" && formData.value.cost != null) {
-    frmData.append("cost", formData.value.cost);
-  } else {
-    frmData.append("cost", 0);
-  }
-  frmData.append("agent_price", formData.value.agent_price);
-  frmData.append("owner_price", formData.value.owner_price);
-
-  frmData.append("_method", "PUT");
-  try {
-    const response = await roomStore.updateAction(frmData, formData.value.id);
-    formData.value = {
-      id: "",
-      name: "",
-      hotel_id: null,
-      description: "",
-      max_person: "",
-      period: [],
-      is_extra: 0,
-      has_breakfast: 0,
-      is_double: 0,
-      is_twin: 0,
-      room_size: "",
-      images: [],
-      room_price: "",
-      room_amen: [],
-      cost: "",
-      agent_price: "",
-      owner_price: "",
-    };
-    enabled.value = false;
-    enabledhas.value = false;
-    imagesPreview.value = [];
-    editImagesPreview.value = [];
-    errors.value = null;
-    createModalOpen.value = false;
-    // await roomStore.getListAction();
-
-    toast.success(response.message);
-    setTimeout(() => {
-      window.location.reload();
-    }, 3000);
-  } catch (error) {
-    if (error.response.data.errors) {
-      errors.value = error.response.data.errors;
-    }
-    toast.error(error.response.data.message);
-  }
+const removeFromPerid = (index) => {
+  formData.value.period.splice(index, 1);
 };
 
-const onSubmitHandler = async () => {
-  if (formData.value.id) {
-    updateHandler();
-  } else {
-    addNewHandler();
-  }
+const copyPerid = (index) => {
+  const period = formData.value.period[index];
+  formPeriod.value = {
+    period_name: period.period_name,
+    start_date: "",
+    end_date: "",
+    sale_price: period.sale_price,
+    cost_price: period.cost_price,
+    agent_price: period.agent_price,
+  };
 };
 
-const imagesPreview = ref([]);
-const imagesInput = ref(null);
+// Image handling
 const openFileImagePicker = () => {
   imagesInput.value.click();
 };
 
 const handlerImagesFileChange = (e) => {
-  console.log(e.target.files);
-  let selectedFile = e.target.files;
-  if (selectedFile) {
-    for (let index = 0; index < selectedFile.length; index++) {
-      formData.value.images.push(selectedFile[index]);
-      imagesPreview.value.push(URL.createObjectURL(selectedFile[index]));
+  const selectedFiles = e.target.files;
+  if (selectedFiles) {
+    for (let index = 0; index < selectedFiles.length; index++) {
+      formData.value.images.push(selectedFiles[index]);
+      imagesPreview.value.push(URL.createObjectURL(selectedFiles[index]));
     }
   }
 };
@@ -1340,91 +1337,178 @@ const handlerImagesFileChange = (e) => {
 const removeImageSelectImage = (index) => {
   formData.value.images.splice(index, 1);
   imagesPreview.value.splice(index, 1);
-  console.log(imagesPreview.value);
-};
-const removeEditImageSelectImage = (index) => {
-  formData.value.images.splice(index, 1);
-  editImagesPreview.value.splice(index, 1);
-  console.log(editImagesPreview.value);
 };
 
-const hotelName = ref("");
-const editModalOpenHandler = (data) => {
-  console.log(data);
+const removeImageUpdateImage = async (roomId, imageId) => {
+  try {
+    await roomStore.deleteImageAction(roomId, imageId);
+    toast.success("Image deleted successfully");
+    editImagesPreview.value = editImagesPreview.value.filter(
+      (img) => img.id !== imageId
+    );
+  } catch (error) {
+    toast.error("Failed to delete image");
+  }
+};
+
+// Form submission
+const updateHandler = async () => {
+  const frmData = new FormData();
+
+  // Basic fields
+  frmData.append("name", formData.value.name);
+  frmData.append("hotel_id", formData.value.hotel_id);
+  frmData.append("description", formData.value.description);
+  frmData.append("max_person", formData.value.max_person);
+  frmData.append("room_price", formData.value.room_price);
+  frmData.append("cost", formData.value.cost || 0);
+  frmData.append("agent_price", formData.value.agent_price);
+  frmData.append("owner_price", formData.value.owner_price);
+
+  // Boolean fields
+  frmData.append("is_extra", enabled.value ? 1 : 0);
+  frmData.append("has_breakfast", enabledhas.value ? 1 : 0);
+  frmData.append("meta[is_double]", enabledDouble.value ? 1 : 0);
+  frmData.append("meta[is_twin]", enabledTwin.value ? 1 : 0);
+  frmData.append("meta[is_show_on]", enabledShowOn.value ? 1 : 0);
+  frmData.append("meta[room_size]", formData.value.room_size);
+
+  // Images
+  if (formData.value.images.length > 0) {
+    for (let i = 0; i < formData.value.images.length; i++) {
+      frmData.append(`images[${i}]`, formData.value.images[i]);
+    }
+  }
+
+  // Amenities
+  if (formData.value.room_amen.length > 0) {
+    for (let i = 0; i < formData.value.room_amen.length; i++) {
+      frmData.append(
+        `amenities[${i}][title]`,
+        formData.value.room_amen[i].title
+      );
+      for (let l = 0; l < formData.value.room_amen[i].list.length; l++) {
+        frmData.append(
+          `amenities[${i}][list][${l}]`,
+          formData.value.room_amen[i].list[l].list_name
+        );
+      }
+    }
+  }
+
+  // Periods
+  if (formData.value.period.length > 0) {
+    for (let x = 0; x < formData.value.period.length; x++) {
+      frmData.append(
+        `periods[${x}][period_name]`,
+        formData.value.period[x].period_name
+      );
+      frmData.append(
+        `periods[${x}][start_date]`,
+        formData.value.period[x].start_date
+      );
+      frmData.append(
+        `periods[${x}][end_date]`,
+        formData.value.period[x].end_date
+      );
+      frmData.append(
+        `periods[${x}][sale_price]`,
+        formData.value.period[x].sale_price
+      );
+      frmData.append(
+        `periods[${x}][cost_price]`,
+        formData.value.period[x].cost_price
+      );
+      frmData.append(
+        `periods[${x}][agent_price]`,
+        formData.value.period[x].agent_price
+      );
+    }
+  }
+
+  if (formData.value.id) {
+    frmData.append("_method", "PUT");
+  }
+
+  try {
+    const response = formData.value.id
+      ? await roomStore.updateAction(frmData, formData.value.id)
+      : await roomStore.addNewAction(frmData);
+    toast.success(response.message);
+    closeModal();
+    performSearch();
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      errors.value = error.response.data.errors;
+    }
+    toast.error(error.response?.data?.message || "An error occurred");
+  }
+};
+
+const onSubmitHandler = async () => {
+  updateHandler();
+};
+
+const editModalOpenHandler = async (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
   formData.value.hotel_id = data.hotel.id;
-  hotelName.value = data.hotel?.name;
-  enabled.value = data.is_extra == 1 ? true : false;
-  enabledhas.value = data.has_breakfast == 1 ? true : false;
-  enabledDouble.value = data.meta?.is_double == 1 ? true : false;
-  enabledTwin.value = data.meta?.is_twin == 1 ? true : false;
-  enabledShowOn.value = data.meta?.is_show_on == 1 ? true : false;
-  formData.value.room_size = data.meta?.room_size ?? "";
+
+  // Set modal hotel search
+  modalSelectedHotel.value = data.hotel;
+  modalHotelSearchQuery.value = data.hotel?.name;
+
+  enabled.value = data.is_extra == 1;
+  enabledhas.value = data.has_breakfast == 1;
+  enabledDouble.value = data.meta?.is_double == 1;
+  enabledTwin.value = data.meta?.is_twin == 1;
+  enabledShowOn.value = data.meta?.is_show_on == 1;
+  formData.value.room_size = data.meta?.room_size || "";
   formData.value.max_person = data.max_person;
   formData.value.room_price = data.room_price;
   formData.value.description = data.description;
   formData.value.cost = data.cost;
   formData.value.agent_price = data.agent_price;
   formData.value.owner_price = data.owner_price;
-  createModalOpen.value = true;
-  if (data.images.length > 0) {
-    for (let i = 0; i < data.images.length; i++) {
-      editImagesPreview.value.push(data.images[i]);
-    }
-  }
-  if (data.amenities != null) {
-    if (data.amenities?.length > 0) {
-      for (let i = 0; i < data?.amenities?.length; i++) {
-        let dataArry = {
-          title: data.amenities[i].title,
-          list: [],
-        };
-        if (data.amenities[i].list) {
-          for (let l = 0; l < data.amenities[i]?.list.length; l++) {
-            let datapush = {
-              list_name: data.amenities[i].list[l],
-            };
-            dataArry.list.push(datapush);
-          }
-        }
-        formData.value.room_amen.push(dataArry);
-      }
-    }
+
+  // Handle images
+  if (data.images?.length > 0) {
+    editImagesPreview.value = [...data.images];
   }
 
-  if (data.room_periods.length > 0) {
-    for (let i = 0; i < data.room_periods.length; i++) {
-      // editImagesPreview.value.push(data.images[i]);
-      let dataArray = {
-        period_name: data.room_periods[i].period_name,
-        start_date: data.room_periods[i].start_date,
-        end_date: data.room_periods[i].end_date,
-        sale_price: data.room_periods[i].sale_price,
-        cost_price: data.room_periods[i].cost_price,
-        agent_price: data.room_periods[i].agent_price,
-      };
-      formData.value.period.push(dataArray);
-    }
+  // Handle amenities
+  if (data.amenities?.length > 0) {
+    formData.value.room_amen = data.amenities.map((amenity) => ({
+      title: amenity.title,
+      list: (amenity.list || []).map((item) => ({
+        list_name: typeof item === "string" ? item : item.list_name,
+      })),
+    }));
   }
+
+  // Handle periods
+  if (data.room_periods?.length > 0) {
+    formData.value.period = data.room_periods.map((period) => ({
+      period_name: period.period_name,
+      start_date: period.start_date,
+      end_date: period.end_date,
+      sale_price: period.sale_price,
+      cost_price: period.cost_price,
+      agent_price: period.agent_price,
+    }));
+  }
+
+  createModalOpen.value = true;
 };
 
 const changePage = async (url) => {
-  console.log(url);
-  let data = {
+  const data = {
     search: search.value,
     hotel_id: hotel_id.value,
     period: periodAjj.value,
   };
   await roomStore.getChangePage(url, data);
 };
-// const changeIncompletePage = async (url) => {
-//   let data = {
-//     hotel_id: hotel_id.value,
-//     search: search.value,
-//   };
-//   await roomStore.getChangeIncompletePage(url, data);
-// };
 
 const onDeleteHandler = async (id) => {
   Swal.fire({
@@ -1440,258 +1524,103 @@ const onDeleteHandler = async (id) => {
       try {
         const response = await roomStore.deleteAction(id);
         toast.success(response.message);
+        performSearch();
       } catch (error) {
-        if (error.response.data.errors) {
-          errors.value = error.response.data.errors;
-        }
-        toast.error(error.response.data.message);
+        toast.error(error.response?.data?.message || "Failed to delete room");
       }
-      await roomStore.getListAction();
     }
   });
 };
 
-const removeImageUpdateImage = async (id, imageID) => {
-  const res = roomStore.deleteImageAction(id, imageID);
-  console.log(res, "delete image res");
-  closeModal();
-  toast.success("deleted image");
-  await roomStore.getListAction();
-};
-
-const formPeriod = ref({
-  period_name: "",
-  start_date: "",
-  end_date: "",
-  sale_price: "",
-  cost_price: "",
-  agent_price: "",
-});
-
-const addNewPerid = () => {
-  formData.value.period.push(formPeriod.value);
-  formPeriod.value = {
-    period_name: "",
-    start_date: "",
-    end_date: "",
-    sale_price: "",
-    cost_price: "",
-    agent_price: "",
-  };
-};
-
-const removeFromPerid = (index) => {
-  formData.value.period.splice(index, 1);
-};
-
-const copyPerid = (index) => {
-  console.log(formData.value.period[index]);
-  formPeriod.value = {
-    period_name: formData.value.period[index].period_name,
-    start_date: "",
-    end_date: "",
-    sale_price: formData.value.period[index].sale_price,
-    cost_price: formData.value.period[index].cost_price,
-    agent_price: formData.value.period[index].agent_price,
-  };
-};
-
 const exportAction = async () => {
-  const res = await roomStore.downloadExport();
-  if (res) {
-    window.open(res.result.download_link);
+  try {
+    const res = await roomStore.downloadExport();
+    if (res?.result?.download_link) {
+      window.open(res.result.download_link);
+    }
+  } catch (error) {
+    toast.error("Export failed");
   }
 };
-
-const hotelAction = ref(false);
-
-watch(hotelAction, async (newValue) => {
-  if (newValue == true && hotelList.value.length == 0) {
-    await hotelStore.getSimpleListAction();
-    hotelList.value = hotels.value.data;
-  }
-});
-
-onMounted(async () => {
-  search.value =
-    route.query.search != "null" && route.query.search ? search.value : "";
-  hotel_id.value =
-    route.query.hotel != "null" && route.query.hotel ? route.query.hotel : "";
-  selectedFilter.value =
-    route.query.missing != "null" && route.query.missing
-      ? route.query.missing
-      : "";
-  route.query.edit ? (hotel_id.value = route.query.edit) : "null";
-  //
-  if (
-    search.value == "" &&
-    hotel_id.value == "" &&
-    selectedFilter.value == ""
-  ) {
-    await roomStore.getListAction();
-  }
-  //
-});
-
-const hotel_id = ref("");
-const start_date = ref("");
-const end_date = ref("");
-const periodAjj = ref("");
 
 const searchFunction = async () => {
   if (start_date.value && end_date.value) {
     periodAjj.value = `${start_date.value} , ${end_date.value}`;
-
-    // await roomStore.getListAction({
-    //   search: search.value,
-    //   hotel_id: hotel_id.value,
-    //   period: periodAjj.value,
-    // });
-    // console.log(periodAjj);
+    performSearch();
   }
 };
 
 const clearFunction = () => {
+  selectedHotel.value = null;
+  hotelSearchQuery.value = "";
   hotel_id.value = "";
   start_date.value = "";
   end_date.value = "";
   search.value = "";
   periodAjj.value = "";
+  scoreSortOrder.value = "";
+  priceSortOrder.value = "";
+  performSearch();
 };
 
-// import process
-const importModal = ref(false);
+// Import functions
 const importHandler = () => {
   importModal.value = !importModal.value;
 };
-const fileImport = ref(null);
+
 const importFileAction = (e) => {
-  let file = e.target.files[0];
-  fileImport.value = file;
+  fileImport.value = e.target.files[0];
 };
+
 const importActionHandler = async () => {
+  if (!fileImport.value) {
+    toast.error("Please select a file");
+    return;
+  }
+
   const frmData = new FormData();
   frmData.append("file", fileImport.value);
+
   try {
     importModal.value = false;
     const res = await roomStore.importAction(frmData);
     fileImport.value = null;
-    console.log(res);
-    toast.success(`room ${res.message}`);
+    toast.success(`Room ${res.message}`);
+    performSearch();
   } catch (e) {
-    // errors.value = e.response.data.errors;
     importModal.value = false;
-    toast.error(e.response.data.message);
+    toast.error(e.response?.data?.message || "Import failed");
   }
 };
 
-const goRouterFilter = () => {
-  router.push({
-    name: "products",
-    params: {
-      id: 3,
-    },
-    query: {
-      hotel: hotel_id.value || "null",
-      missing: selectedFilter.value || "null",
-      search: search.value || "null",
-    },
-  });
-};
-
-// watch(search, async (newValue) => {
-//   if (selectedFilter.value != "") {
-//     await roomStore.getListAction({
-//       hotel_id: hotel_id.value,
-//       search: search.value,
-//       period: periodAjj.value,
-//       limit: 1000,
-//     });
-//     currentPage.value = 1;
-//     pagiantionShow.value = true;
-//     setTimeout(goRouterFilter, 1000);
-//   } else if (selectedFilter.value == "") {
-//     await roomStore.getListAction({
-//       hotel_id: hotel_id.value,
-//       search: search.value,
-//       period: periodAjj.value,
-//       limit: 10,
-//     });
-//     pagiantionShow.value = false;
-//     currentPage.value = 1;
-//     setTimeout(goRouterFilter, 1000);
-//   }
-// });
-
+// Watchers
 watch(
   search,
   debounce(async (newValue) => {
-    if (selectedFilter.value != "") {
-      await roomStore.getListAction({
-        hotel_id: hotel_id.value,
-        search: search.value,
-        period: periodAjj.value,
-        limit: 1000,
-      });
-      currentPage.value = 1;
-      pagiantionShow.value = true;
-      setTimeout(goRouterFilter, 1000);
-    } else if (selectedFilter.value == "") {
-      await roomStore.getListAction({
-        hotel_id: hotel_id.value,
-        search: search.value,
-        period: periodAjj.value,
-        limit: 10,
-      });
-      pagiantionShow.value = false;
-      currentPage.value = 1;
-      setTimeout(goRouterFilter, 1000);
-    }
+    performSearch();
   }, 500)
 );
+
 watch(hotel_id, async (newValue) => {
-  if (selectedFilter.value != "") {
-    await roomStore.getListAction({
-      hotel_id: hotel_id.value,
-      search: search.value,
-      period: periodAjj.value,
-      limit: 1000,
-    });
-    currentPage.value = 1;
-    pagiantionShow.value = true;
-    setTimeout(goRouterFilter, 1000);
-  } else if (selectedFilter.value == "") {
-    await roomStore.getListAction({
-      hotel_id: hotel_id.value,
-      search: search.value,
-      period: periodAjj.value,
-      limit: 10,
-    });
-    pagiantionShow.value = false;
-    currentPage.value = 1;
-    setTimeout(goRouterFilter, 1000);
-  }
+  performSearch();
 });
+
 watch(periodAjj, async (newValue) => {
-  if (selectedFilter.value != "") {
-    await roomStore.getListAction({
-      hotel_id: hotel_id.value,
-      search: search.value,
-      period: periodAjj.value,
-      limit: 1000,
-    });
-    currentPage.value = 1;
-    pagiantionShow.value = true;
-  } else if (selectedFilter.value == "") {
-    await roomStore.getListAction({
-      hotel_id: hotel_id.value,
-      search: search.value,
-      period: periodAjj.value,
-      limit: 10,
-    });
-    pagiantionShow.value = false;
-    currentPage.value = 1;
+  performSearch();
+});
+
+watch(scoreSortOrder, async (newValue) => {
+  if (newValue) {
+    priceSortOrder.value = ""; // Clear price sort when score sort is selected
   }
+  performSearch();
+});
+
+watch(priceSortOrder, async (newValue) => {
+  if (newValue) {
+    scoreSortOrder.value = ""; // Clear score sort when price sort is selected
+  }
+  performSearch();
 });
 
 watch(rooms, async (newValue) => {
@@ -1700,27 +1629,55 @@ watch(rooms, async (newValue) => {
   }
 });
 
-watch(selectedFilter, async (newValue) => {
-  if (selectedFilter.value != "") {
-    await roomStore.getListAction({
-      hotel_id: hotel_id.value,
-      search: search.value,
-      period: periodAjj.value,
-      limit: 1000,
-    });
-    currentPage.value = 1;
-    pagiantionShow.value = true;
-    setTimeout(goRouterFilter, 1000);
-  } else if (selectedFilter.value == "") {
-    await roomStore.getListAction({
-      hotel_id: hotel_id.value,
-      search: search.value,
-      period: periodAjj.value,
-      limit: 10,
-    });
-    pagiantionShow.value = false;
-    currentPage.value = 1;
-    setTimeout(goRouterFilter, 1000);
+// Mounted
+onMounted(async () => {
+  // Initialize from route query parameters
+  search.value =
+    route.query.search && route.query.search !== "null"
+      ? route.query.search
+      : "";
+
+  // Handle hotel selection from route
+  if (route.query.hotel && route.query.hotel !== "null") {
+    hotel_id.value = route.query.hotel;
+    try {
+      // Fetch hotel details for display
+      const hotels = await hotelStore.searchHotels("");
+      const hotel = hotels.data.find((h) => h.id == hotel_id.value);
+      if (hotel) {
+        selectedHotel.value = hotel;
+        hotelSearchQuery.value = hotel.name;
+      }
+    } catch (error) {
+      console.error("Failed to fetch hotel details:", error);
+    }
   }
+
+  // Perform initial search
+  if (search.value || hotel_id.value) {
+    performSearch();
+  } else {
+    await roomStore.getListAction();
+  }
+});
+
+// Handle click outside to close dropdowns
+onMounted(() => {
+  const handleClickOutside = (event) => {
+    // Close main hotel dropdown
+    if (!event.target.closest(".relative")) {
+      showHotelDropdown.value = false;
+    }
+    // Close modal hotel dropdown
+    if (!event.target.closest(".relative")) {
+      showModalHotelDropdown.value = false;
+    }
+  };
+
+  document.addEventListener("click", handleClickOutside);
+
+  onUnmounted(() => {
+    document.removeEventListener("click", handleClickOutside);
+  });
 });
 </script>

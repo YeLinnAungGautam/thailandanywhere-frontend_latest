@@ -956,18 +956,6 @@ const copyReservation = () => {
     console.log("Copying reservation details...", detail.value);
     console.log("====================================");
 
-    // Check if detail is available
-    // if (detail.value?.booking?.verify_status != "verified") {
-    //   Swal.fire({
-    //     icon: "error",
-    //     title: "Verification Required",
-    //     text: "This booking isn't verified yet. Please verify before copying expense.",
-    //     confirmButtonText: "Close",
-    //     confirmButtonColor: "#FF6300",
-    //   });
-    //   return;
-    // }
-
     const res = detail.value;
 
     // Check if we have data and items
@@ -1103,7 +1091,7 @@ const copyReservation = () => {
     }
 
     allFormattedOutput += `💵 Total Sale Amount: ${
-      res.booking?.sub_total || 0
+      res.booking?.grand_total || 0
     } THB 
 📅 Sale Date: ${res.booking?.booking_date}
 🤑 Score : ${score.toFixed(2)}

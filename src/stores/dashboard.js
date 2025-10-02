@@ -18,19 +18,7 @@ export const useDashboardStore = defineStore("dashboard", {
         throw error;
       }
     },
-    // async getSaleByAgent(params) {
-    //   try {
-    //     this.loading = true;
-    //     const response = await axios.get("/sales-by-agent");
-    //     this.dashboard = response.data.result;
-    //     this.loading = false;
-    //     console.log(response.data);
-    //     return response;
-    //   } catch (error) {
-    //     this.loading = false;
-    //     throw error;
-    //   }
-    // },
+
     async getMonthData(params) {
       try {
         this.loading = true;

@@ -22,6 +22,62 @@ export const useHomeStore = defineStore("home", {
         return error;
       }
     },
+    async getProductTypeReport(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/product-type-sales", {
+          params: params,
+        });
+        this.loading = false;
+        // console.log(response.data);
+        return response;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
+    async getProductTypeBookingItem(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/product-type-booking-item", {
+          params: params,
+        });
+        this.loading = false;
+        // console.log(response.data);
+        return response;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
+    async getProductTypeBookingItems(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/product-type-booking", {
+          params: params,
+        });
+        this.loading = false;
+        // console.log(response.data);
+        return response;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
+    async getProductTypeRemainExpense(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/product-type-remain-expense", {
+          params: params,
+        });
+        this.loading = false;
+        // console.log(response.data);
+        return response;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
     async generalCashImageReport(params) {
       try {
         const response = await axios.get(

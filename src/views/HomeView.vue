@@ -25,10 +25,13 @@ import HomeSecondPartVue from "../components/HomeSecondPart.vue";
 import axios from "axios";
 // import CombineBarLineVue from "../components/CombineBarLine.vue";
 import VueApexCharts from "vue3-apexcharts";
+import AnalysisReport from "./AnalysisReport.vue";
 import SaleByAgent from "../components/SaleByAgent.vue";
 import TopSellingProductVue from "../components/TopSellingProduct.vue";
 import SaleAgentReportByDate from "../components/SaleAgentReportByDate.vue";
 import ReservationPartHome from "../components/homeReservation/ReservationPartHome.vue";
+import ProductTypeBookingCount from "./HomeGraph/ProductTypeBookingCount.vue";
+import ProductTypeBooking from "./HomeGraph/ProductTypeBooking.vue";
 
 import {
   endOfMonth,
@@ -53,6 +56,8 @@ import AccountReceivable from "./Dashboard/AccountReceivable.vue";
 import { useSidebarStore } from "../stores/sidebar";
 import { formattedDate } from "./help/FormatData";
 import CashImageReport from "./Dashboard/CashImageReport.vue";
+import ProductTypeProfit from "./HomeGraph/ProductTypeProfit.vue";
+import ProductTypeExpense from "./HomeGraph/ProductTypeExpense.vue";
 
 Chart.register(...registerables);
 
@@ -85,6 +90,8 @@ const totalSaleForShow = computed(() => {
   }
   return 0;
 });
+
+const graphPart = ref("sale");
 
 const saleData = {
   labels: dataTest.items,
@@ -885,7 +892,65 @@ watch(homeSectionPartView, (newValue) => {
           />
         </div>
 
-        <div class="col-span-2 bg-white p-4 rounded-lg h-[520px]">
+        <div
+          class="flex justify-start col-span-3 bg-white px-4 py-4 rounded-lg items-center gap-x-6"
+        >
+          <p
+            class="text-xs cursor-pointer hover:text-[#FF613c]"
+            :class="graphPart == 'sale' ? 'text-[#FF613c] font-semibold' : ''"
+            @click="graphPart = 'sale'"
+          >
+            Sale
+          </p>
+          <p
+            class="text-xs cursor-pointer hover:text-[#FF613c]"
+            :class="graphPart == 'agent' ? 'text-[#FF613c] font-semibold' : ''"
+            @click="graphPart = 'agent'"
+          >
+            Agent
+          </p>
+          <p
+            class="text-xs cursor-pointer hover:text-[#FF613c]"
+            :class="
+              graphPart == 'product' ? 'text-[#FF613c] font-semibold' : ''
+            "
+            @click="graphPart = 'product'"
+          >
+            Product Type (service)
+          </p>
+          <p
+            class="text-xs cursor-pointer hover:text-[#FF613c]"
+            :class="
+              graphPart == 'product_booking'
+                ? 'text-[#FF613c] font-semibold'
+                : ''
+            "
+            @click="graphPart = 'product_booking'"
+          >
+            Product Type (sale)
+          </p>
+          <p
+            class="text-xs cursor-pointer hover:text-[#FF613c]"
+            :class="graphPart == 'profit' ? 'text-[#FF613c] font-semibold' : ''"
+            @click="graphPart = 'profit'"
+          >
+            Profit
+          </p>
+          <p
+            class="text-xs cursor-pointer hover:text-[#FF613c]"
+            :class="
+              graphPart == 'expense' ? 'text-[#FF613c] font-semibold' : ''
+            "
+            @click="graphPart = 'expense'"
+          >
+            Expense
+          </p>
+        </div>
+
+        <div
+          class="col-span-2 bg-white p-4 rounded-lg h-[520px]"
+          v-if="graphPart == 'sale' || graphPart == 'agent'"
+        >
           <div class="flex justify-between items-start">
             <div>
               <p
@@ -913,25 +978,6 @@ watch(homeSectionPartView, (newValue) => {
               </p>
             </div>
             <div class="flex justify-end items-center gap-3">
-              <select
-                name=""
-                id=""
-                v-if="!priceSalesGraph"
-                v-model="priceSalesGraphAgent"
-                class="px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none"
-              >
-                <option value="" class="py-2">All</option>
-                <!-- AgentName -->
-                <option
-                  :value="a"
-                  class="py-2"
-                  v-for="(a, index) in AgentName ?? []"
-                  :key="index"
-                >
-                  {{ a }}
-                </option>
-              </select>
-
               <input
                 type="month"
                 name=""
@@ -939,32 +985,29 @@ watch(homeSectionPartView, (newValue) => {
                 class="bg-white text-sm w-[200px] px-2 py-2"
                 id=""
               />
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  @click="togglePriceSalesGraph"
-                  value=""
-                  class="sr-only peer"
-                />
-                <div
-                  class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
-                ></div>
-              </label>
             </div>
           </div>
-          <LineChart :chartData="saleData" v-if="priceSalesGraph == '1'" />
+          <LineChart :chartData="saleData" v-if="graphPart == 'sale'" />
           <LineChart
             :chartData="saleDataAgent"
             :options="saleDataAgentOption"
-            v-if="priceSalesGraph == '0' && priceSalesGraphAgent == ''"
-          />
-          <LineChart
-            :chartData="saleDataByAgent"
-            :options="saleDataByAgentOption"
-            v-if="priceSalesGraph == '0' && priceSalesGraphAgent != ''"
+            v-if="graphPart == 'agent'"
           />
         </div>
+        <div class="col-span-3" v-if="graphPart == 'product'">
+          <ProductTypeBookingCount />
+        </div>
+        <div class="col-span-3" v-if="graphPart == 'product_booking'">
+          <ProductTypeBooking />
+        </div>
+        <div class="col-span-3" v-if="graphPart == 'profit'">
+          <ProductTypeProfit />
+        </div>
+        <div class="col-span-3" v-if="graphPart == 'expense'">
+          <ProductTypeExpense />
+        </div>
         <div
+          v-if="graphPart == 'sale' || graphPart == 'agent'"
           class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[520px] px-3 bg-white"
         >
           <div class="flex justify-between items-center">

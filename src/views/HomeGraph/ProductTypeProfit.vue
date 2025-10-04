@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref, watch, onMounted, computed } from "vue";
-import { BarChart } from "vue-chart-3";
+import { BarChart, LineChart } from "vue-chart-3";
 import { useHomeStore } from "../../stores/home";
 import { formattedDate } from "../help/FormatData";
 import {
@@ -24,6 +24,9 @@ const productTypeColors = [
   "#EC4899",
   "#14B8A6",
 ];
+
+// Chart type toggle
+const chartType = ref("bar"); // 'bar' or 'line'
 
 const chartData = reactive({
   labels: [],
@@ -67,6 +70,20 @@ const chartOptions = {
     }
   },
 };
+
+// Line chart specific options
+const lineChartOptions = computed(() => ({
+  ...chartOptions,
+  elements: {
+    line: {
+      tension: 0.4, // Smooth curves
+    },
+    point: {
+      radius: 4,
+      hoverRadius: 6,
+    },
+  },
+}));
 
 // Add missing reactive references for booking details
 const bookingItems = ref([]);
@@ -155,14 +172,15 @@ const getProductTypeData = async (dateRange) => {
         const productType = pt.product_type.split("\\").pop();
 
         if (!productTypeMap.has(productType)) {
+          const color =
+            productTypeColors[productTypeMap.size % productTypeColors.length];
           productTypeMap.set(productType, {
             label: productType,
             data: [],
-            backgroundColor:
-              productTypeColors[productTypeMap.size % productTypeColors.length],
-            borderColor:
-              productTypeColors[productTypeMap.size % productTypeColors.length],
-            borderWidth: 1,
+            backgroundColor: color,
+            borderColor: color,
+            borderWidth: chartType.value === "line" ? 2 : 1,
+            fill: chartType.value === "line" ? false : true,
           });
         }
       });
@@ -204,6 +222,15 @@ const getProfitPercentage = (profit) => {
   return ((profit / totalProfit.value) * 100).toFixed(1);
 };
 
+// Update chart datasets when chart type changes
+watch(chartType, () => {
+  chartData.datasets = chartData.datasets.map((dataset) => ({
+    ...dataset,
+    borderWidth: chartType.value === "line" ? 2 : 1,
+    fill: chartType.value === "line" ? false : true,
+  }));
+});
+
 watch(dateFilterRange, async (newValue) => {
   if (newValue && newValue.length === 2) {
     await getProductTypeData(newValue);
@@ -220,9 +247,36 @@ onMounted(() => {
     <div class="bg-white p-4 rounded-lg col-span-2">
       <div class="flex justify-between items-start mb-4">
         <div class="flex-1">
-          <p class="mb-3 font-semibold tracking-wide text-sm">
-            Product Type - Profit Analysis
-          </p>
+          <div class="flex items-center gap-3 mb-3">
+            <p class="font-semibold tracking-wide text-sm">
+              Product Type - Profit Analysis
+            </p>
+            <!-- Chart Type Toggle -->
+            <div class="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+              <button
+                @click="chartType = 'bar'"
+                :class="[
+                  'px-3 py-1 text-xs font-medium rounded transition-colors',
+                  chartType === 'bar'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900',
+                ]"
+              >
+                Bar
+              </button>
+              <button
+                @click="chartType = 'line'"
+                :class="[
+                  'px-3 py-1 text-xs font-medium rounded transition-colors',
+                  chartType === 'line'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900',
+                ]"
+              >
+                Line
+              </button>
+            </div>
+          </div>
           <div class="flex items-start gap-6">
             <p class="text-sm">
               Total Profit:
@@ -232,7 +286,6 @@ onMounted(() => {
             </p>
           </div>
           <div class="text-sm">
-            <!-- <p class="font-medium mb-1">Profit by Product Type:</p> -->
             <div class="flex flex-wrap gap-x-4 gap-y-1">
               <span
                 v-for="(item, index) in productTypeProfitBreakdown"
@@ -274,7 +327,12 @@ onMounted(() => {
         </div>
       </div>
       <div class="h-[400px]">
-        <BarChart :chartData="chartData" :options="chartOptions" />
+        <BarChart
+          v-if="chartType === 'bar'"
+          :chartData="chartData"
+          :options="chartOptions"
+        />
+        <LineChart v-else :chartData="chartData" :options="lineChartOptions" />
       </div>
     </div>
     <div

@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref, watch, onMounted, computed } from "vue";
-import { BarChart } from "vue-chart-3";
+import { BarChart, LineChart } from "vue-chart-3";
 import { useHomeStore } from "../../stores/home";
 import { formattedDate } from "../help/FormatData";
 import {
@@ -24,6 +24,9 @@ const productTypeColors = [
   "#C500FF",
   "#FF00A2",
 ];
+
+// Chart type toggle
+const chartType = ref("bar"); // 'bar' or 'line'
 
 const chartData = {
   labels: dateLabels.items,
@@ -137,7 +140,9 @@ const getProductTypeData = async (dateRange) => {
               productTypeColors[productTypeMap.size % productTypeColors.length],
             borderColor:
               productTypeColors[productTypeMap.size % productTypeColors.length],
-            borderWidth: 1,
+            borderWidth: chartType.value === "line" ? 2 : 1,
+            tension: 0.4, // Smooth line curves
+            fill: false, // Don't fill area under line
           });
         }
       });
@@ -199,6 +204,15 @@ const getProductTypeColor = (index) => {
   return productTypeColors[index % productTypeColors.length];
 };
 
+// Toggle chart type
+const toggleChartType = (type) => {
+  chartType.value = type;
+  // Update border width when switching chart types
+  chartData.datasets.forEach((dataset) => {
+    dataset.borderWidth = type === "line" ? 2 : 1;
+  });
+};
+
 watch(dateFilterRange, async (newValue) => {
   if (newValue && newValue.length === 2) {
     await getProductTypeData(newValue);
@@ -215,9 +229,64 @@ onMounted(() => {
     <div class="bg-white p-4 rounded-lg col-span-2">
       <div class="flex justify-between items-start mb-4">
         <div class="flex-1">
-          <p class="mb-3 font-semibold tracking-wide text-sm">
-            Product Type - Booking Item Count
-          </p>
+          <div class="flex items-center gap-3 mb-3">
+            <p class="font-semibold tracking-wide text-sm">
+              Product Type - Booking Item Count
+            </p>
+            <!-- Chart Type Toggle -->
+            <!-- <div class="inline-flex rounded-md shadow-sm" role="group">
+              <button
+                type="button"
+                @click="toggleChartType('bar')"
+                :class="[
+                  'px-3 py-1 text-xs font-medium border',
+                  chartType === 'bar'
+                    ? 'bg-[#FF613c] text-white border-[#FF613c]'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50',
+                ]"
+                class="rounded-l-md"
+              >
+                Bar
+              </button>
+              <button
+                type="button"
+                @click="toggleChartType('line')"
+                :class="[
+                  'px-3 py-1 text-xs font-medium border-t border-b border-r',
+                  chartType === 'line'
+                    ? 'bg-[#FF613c] text-white border-[#FF613c]'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50',
+                ]"
+                class="rounded-r-md"
+              >
+                Line
+              </button>
+            </div> -->
+            <div class="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+              <button
+                @click="toggleChartType('bar')"
+                :class="[
+                  'px-3 py-1 text-xs font-medium rounded transition-colors',
+                  chartType === 'bar'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900',
+                ]"
+              >
+                Bar
+              </button>
+              <button
+                @click="toggleChartType('line')"
+                :class="[
+                  'px-3 py-1 text-xs font-medium rounded transition-colors',
+                  chartType === 'line'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900',
+                ]"
+              >
+                Line
+              </button>
+            </div>
+          </div>
           <div class="flex items-start gap-6">
             <div class="text-sm">
               <div class="flex flex-wrap gap-x-4 gap-y-1">
@@ -260,7 +329,13 @@ onMounted(() => {
         </div>
       </div>
       <div class="h-[400px]">
-        <BarChart :chartData="chartData" :options="chartOptions" />
+        <!-- Conditionally render chart based on type -->
+        <BarChart
+          v-if="chartType === 'bar'"
+          :chartData="chartData"
+          :options="chartOptions"
+        />
+        <LineChart v-else :chartData="chartData" :options="chartOptions" />
       </div>
     </div>
 

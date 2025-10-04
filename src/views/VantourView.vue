@@ -75,6 +75,7 @@ const editData = ref({
   city_id: [],
   destination: [],
   prices: [],
+  costs: [],
   cover_image: "",
   images: [],
 });
@@ -83,6 +84,7 @@ const formPrice = ref({
   car: "",
   name: "",
   price: "",
+  cost: "",
   agent_price: "",
 });
 const addNewPrice = () => {
@@ -92,6 +94,7 @@ const addNewPrice = () => {
     car: "",
     name: "",
     price: "",
+    cost: "",
     agent_price: "",
   };
 };
@@ -192,6 +195,9 @@ const onSubmitHandler = async () => {
   }
   for (var x = 0; x < editData.value.prices.length; x++) {
     frmData.append("prices[" + x + "]" + [x], editData.value.prices[x].price);
+  }
+  for (var x = 0; x < editData.value.prices.length; x++) {
+    frmData.append("costs[" + x + "]" + [x], editData.value.prices[x].cost);
   }
   for (var x = 0; x < editData.value.prices.length; x++) {
     frmData.append(
@@ -418,6 +424,7 @@ const getDetail = async () => {
         car: response.result.cars[x].id,
         name: response.result.cars[x].name,
         price: response.result.cars[x].price,
+        cost: response.result.cars[x].cost,
         agent_price: response.result.cars[x].agent_price,
       };
       editData.value.prices.push(item);
@@ -833,6 +840,15 @@ onMounted(async () => {
                       placeholder="enter prices"
                     />
                   </div>
+                  <div class="flex-1" v-if="!authStore.isAgent">
+                    <input
+                      v-model="formPrice.cost"
+                      type="text"
+                      id="title"
+                      class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                      placeholder="enter costs"
+                    />
+                  </div>
                   <div class="flex-1">
                     <input
                       v-model="formPrice.agent_price"
@@ -882,6 +898,15 @@ onMounted(async () => {
                       id="title"
                       class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                       placeholder="enter prices"
+                    />
+                  </div>
+                  <div class="flex-1" v-if="!authStore.isAgent">
+                    <input
+                      v-model="price.cost"
+                      type="text"
+                      id="title"
+                      class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                      placeholder="enter costs"
                     />
                   </div>
                   <div class="flex-1">

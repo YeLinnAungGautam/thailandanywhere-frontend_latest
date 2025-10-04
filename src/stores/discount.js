@@ -134,5 +134,73 @@ export const useDiscountStore = defineStore("discount", {
         throw error;
       }
     },
+
+    async getDiscountVantour() {
+      try {
+        this.loading = true;
+        const response = await axios.get(
+          "/settings/private-van-tours/discount"
+        );
+        this.loading = false;
+
+        return response.data.status === 1 ? response.data.result : null;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
+
+    async storeDiscountVantour(data) {
+      try {
+        this.loading = true;
+        const response = await axios.post(
+          "/settings/private-van-tours/discount",
+          data
+        );
+        this.loading = false;
+
+        return response.data.status === 1 ? response.data.result : null;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
+
+    async updateDiscountVantour(id, data) {
+      try {
+        this.loading = true;
+        // Use _method: 'PUT' for Laravel method spoofing
+        const formData = {
+          ...data,
+          _method: "PUT",
+        };
+
+        const response = await axios.post(
+          `/settings/private-van-tours/discount/${id}`,
+          formData
+        );
+        this.loading = false;
+
+        return response.data.status === 1 ? response.data.result : null;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
+
+    async deleteDiscountVantour(id) {
+      try {
+        this.loading = true;
+        const response = await axios.delete(
+          `/settings/private-van-tours/discount/${id}`
+        );
+        this.loading = false;
+
+        return response.data.status === 1 ? response.data.result : null;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
   },
 });

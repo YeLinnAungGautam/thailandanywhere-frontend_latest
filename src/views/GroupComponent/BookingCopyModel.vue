@@ -204,6 +204,7 @@ const nextAction = () => {
 };
 
 const copyAction = () => {
+  console.log("====================================", selected.value);
   if (userName.value != null) {
     let output = "";
 
@@ -212,11 +213,11 @@ const copyAction = () => {
 Date: ${getFormatDate(selected.value.service_date)}
 Ticket: ${selected.value.variation?.name}
 Name: ${userName.value}
-Total: ${selected.value.quantity}A ${
-      selected.value.individual_price?.child?.quantity
-        ? selected.value.individual_price?.child?.quantity
+Total: ${selected.value.quantity}Adult ${
+      selected.value.individual_pricing?.child?.quantity
+        ? selected.value.individual_pricing?.child?.quantity
         : ""
-    }${selected.value.individual_price?.child?.quantity ? "C" : ""}
+    }${selected.value.individual_pricing?.child?.quantity ? "Child" : ""}
 ID: ${selected.value.crm_id} \n
 Special Request: ${selected.value.special_request} \n
 Officer: Sunshine

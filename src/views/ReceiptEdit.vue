@@ -237,18 +237,34 @@ const formatDateFromDb = (dateString) => {
 const formatDateDb = (dateString) => {
   if (!dateString) return "";
 
-  // Case 1: Replace 'T' with space
+  // Case 1: Handle datetime-local format (YYYY-MM-DDTHH:mm)
   if (dateString.includes("T")) {
-    return dateString.replace("T", " ");
+    // Replace 'T' with space and add ':00' for seconds if not present
+    const formatted = dateString.replace("T", " ");
+    // Check if seconds are already included
+    const timeParts = formatted.split(" ")[1]?.split(":");
+    if (timeParts && timeParts.length === 2) {
+      return formatted + ":00"; // Add seconds
+    }
+    return formatted; // Already has seconds
   }
 
-  // Case 2: Check if it's in DD-MM-YYYY format with regex
-  const ddmmyyyyRegex = /^(\d{2})-(\d{2})-(\d{4})\s(.*)$/;
+  // Case 2: Handle DD-MM-YYYY HH:mm:ss format from database
+  const ddmmyyyyRegex = /^(\d{2})-(\d{2})-(\d{4})\s(\d{2}):(\d{2}):(\d{2})$/;
   const match = dateString.match(ddmmyyyyRegex);
 
   if (match) {
-    // match[1] = day, match[2] = month, match[3] = year, match[4] = time part
-    return `${match[3]}-${match[2]}-${match[1]} ${match[4]}`;
+    // match[1] = day, match[2] = month, match[3] = year
+    // match[4] = hours, match[5] = minutes, match[6] = seconds
+    return `${match[3]}-${match[2]}-${match[1]} ${match[4]}:${match[5]}:${match[6]}`;
+  }
+
+  // Case 3: Handle DD-MM-YYYY HH:mm format (without seconds)
+  const ddmmyyyyNoSecondsRegex = /^(\d{2})-(\d{2})-(\d{4})\s(\d{2}):(\d{2})$/;
+  const matchNoSeconds = dateString.match(ddmmyyyyNoSecondsRegex);
+
+  if (matchNoSeconds) {
+    return `${matchNoSeconds[3]}-${matchNoSeconds[2]}-${matchNoSeconds[1]} ${matchNoSeconds[4]}:${matchNoSeconds[5]}:00`;
   }
 
   // If it doesn't match any of our cases, return as-is

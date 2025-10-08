@@ -47,6 +47,7 @@ import PngUsage from "./PngGenerate/PngUsage.vue";
 import { daysBetween } from "./help/DateBetween";
 import ArchiveConfirmationModal from "./BookingComponent/ConfirmationModel.vue";
 import { useCashImageStore } from "../stores/cashImage";
+import CashImage from "./CashImageCreate/CashImage.vue";
 
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
@@ -1593,6 +1594,14 @@ onMounted(async () => {
   queryCrmId.value = route.query.crm_id ? route.query.crm_id : "";
   await adminStore.getSimpleListAction();
 });
+
+const internal_transfer_submitted = (message) => {
+  console.log(message);
+};
+
+const direct_banking_submitted = (message) => {
+  console.log(message);
+};
 </script>
 
 <template>
@@ -2165,7 +2174,7 @@ onMounted(async () => {
     </Modal>
     <Modal :isOpen="openShowModal" @closeModal="closeAction">
       <DialogPanel
-        class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-5xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
@@ -2324,6 +2333,10 @@ onMounted(async () => {
             </div>
           </div>
         </div>
+        <!-- <CashImage
+          @internal-transfer-submitted="internal_transfer_submitted"
+          :direct-banking-submitted="direct_banking_submitted"
+        /> -->
       </DialogPanel>
     </Modal>
   </Layout>

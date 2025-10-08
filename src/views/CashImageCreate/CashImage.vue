@@ -1,0 +1,921 @@
+<template>
+  <div class="p-3">
+    <!-- Step 1: Choose Transfer Type -->
+    <div v-if="step === 1" class="max-w-2xl mx-auto">
+      <div class="grid grid-cols-2 gap-3 mt-3">
+        <div
+          @click="selectTransferType('internal')"
+          class="cursor-pointer p-4 border-2 rounded-lg hover:border-[#ff613c] hover:shadow-lg transition-all"
+          :class="
+            transferType === 'internal'
+              ? 'border-[#ff613c] bg-orange-50'
+              : 'border-gray-300'
+          "
+        >
+          <div class="text-center">
+            <i
+              class="fa-solid fa-exchange-alt text-3xl text-[#ff613c] mb-2"
+            ></i>
+            <h3 class="font-semibold text-sm mb-1">Internal Transfer</h3>
+            <p class="text-xs text-gray-600">
+              Currency exchange between accounts
+            </p>
+          </div>
+        </div>
+
+        <div
+          @click="selectTransferType('direct')"
+          class="cursor-pointer p-4 border-2 rounded-lg hover:border-[#ff613c] hover:shadow-lg transition-all"
+          :class="
+            transferType === 'direct'
+              ? 'border-[#ff613c] bg-orange-50'
+              : 'border-gray-300'
+          "
+        >
+          <div class="text-center">
+            <i class="fa-solid fa-university text-3xl text-[#ff613c] mb-2"></i>
+            <h3 class="font-semibold text-sm mb-1">Direct Banking</h3>
+            <p class="text-xs text-gray-600">Regular bank transaction</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end mt-6 mb-3">
+        <button
+          @click="goToNextStep"
+          :disabled="!transferType"
+          class="px-4 py-3 w-full text-sm bg-[#ff613c] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Internal Transfer - Choose Direction -->
+    <div
+      v-if="step === 2 && transferType === 'internal'"
+      class="max-w-4xl mx-auto relative"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-semibold">Internal Transfer</h2>
+      </div>
+
+      <button
+        @click="goBack"
+        class="text-xs text-gray-600 hover:text-gray-800 bg-white border border-gray-600 rounded-full px-2 py-1 absolute top-1/2 -left-10"
+      >
+        <i class="fa-solid fa-angle-left"></i>
+      </button>
+
+      <!-- Exchange Rate Input -->
+      <div class="bg-white p-3 rounded-lg shadow mb-4">
+        <div class="max-w-md">
+          <label class="text-xs font-medium mb-1 block">Exchange Rate</label>
+          <input
+            type="number"
+            v-model="internalTransferData.exchange_rate"
+            @input="emitInternalTransferData"
+            step="0.000001"
+            placeholder="Enter exchange rate"
+            class="w-full px-2 py-2 text-xs rounded-lg border border-gray-300 focus:outline-none focus:border-[#ff613c]"
+          />
+        </div>
+        <div class="mt-2">
+          <label class="text-xs font-medium mb-1 block">Notes (Optional)</label>
+          <textarea
+            v-model="internalTransferData.notes"
+            @input="emitInternalTransferData"
+            rows="2"
+            placeholder="Add any notes here..."
+            class="w-full px-2 py-1.5 text-xs rounded-lg border border-gray-300 focus:outline-none focus:border-[#ff613c]"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- From and To Sections -->
+      <div class="grid grid-cols-2 gap-4">
+        <!-- FROM Section -->
+        <div class="bg-white rounded-lg shadow-lg p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-semibold text-sm flex items-center">
+              <span
+                class="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs mr-1.5"
+                >FROM</span
+              >
+              Source Currency
+            </h3>
+            <button
+              @click="openCashImageModal('from')"
+              class="px-3 py-1 bg-[#ff613c] text-white rounded-lg text-xs hover:bg-orange-600 transition"
+            >
+              <i class="fa-solid fa-plus mr-1"></i>Add Image
+            </button>
+          </div>
+
+          <!-- From Images List -->
+          <div
+            v-if="internalTransferData.from_images.length === 0"
+            class="text-center py-6 text-gray-400"
+          >
+            <i class="fa-solid fa-image text-3xl mb-1"></i>
+            <p class="text-xs">No images added yet</p>
+          </div>
+
+          <div v-else class="space-y-2">
+            <div
+              v-for="(image, index) in internalTransferData.from_images"
+              :key="'from-' + index"
+              class="border border-gray-200 rounded-lg p-2 hover:shadow-md transition"
+            >
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center mb-1.5">
+                    <img
+                      v-if="image.preview"
+                      :src="image.preview"
+                      class="w-12 h-12 object-cover rounded mr-2"
+                    />
+                    <div class="flex-1">
+                      <p class="font-semibold text-xs">
+                        {{ image.currency }}
+                        {{ Number(image.amount).toLocaleString() }}
+                      </p>
+                      <p class="text-[10px] text-gray-500">
+                        {{ image.interact_bank }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-1 text-[10px] text-gray-600">
+                    <p>
+                      <span class="font-medium">From:</span> {{ image.sender }}
+                    </p>
+                    <p>
+                      <span class="font-medium">To:</span> {{ image.receiver }}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  @click="removeImage('from', index)"
+                  class="text-red-500 hover:text-red-700 ml-1 text-xs"
+                >
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Total for FROM -->
+            <div class="bg-red-50 p-2 rounded-lg">
+              <p class="text-xs font-semibold">
+                Total: {{ getFromCurrency() }}
+                {{ getTotalAmount("from").toLocaleString() }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- TO Section -->
+        <div class="bg-white rounded-lg shadow-lg p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-semibold text-sm flex items-center">
+              <span
+                class="bg-green-100 text-green-600 px-2 py-0.5 rounded-full text-xs mr-1.5"
+                >TO</span
+              >
+              Destination Currency
+            </h3>
+            <button
+              @click="openCashImageModal('to')"
+              class="px-3 py-1 bg-green-500 text-white rounded-lg text-xs hover:bg-green-600 transition"
+            >
+              <i class="fa-solid fa-plus mr-1"></i>Add Image
+            </button>
+          </div>
+
+          <!-- To Images List -->
+          <div
+            v-if="internalTransferData.to_images.length === 0"
+            class="text-center py-6 text-gray-400"
+          >
+            <i class="fa-solid fa-image text-3xl mb-1"></i>
+            <p class="text-xs">No images added yet</p>
+          </div>
+
+          <div v-else class="space-y-2">
+            <div
+              v-for="(image, index) in internalTransferData.to_images"
+              :key="'to-' + index"
+              class="border border-gray-200 rounded-lg p-2 hover:shadow-md transition"
+            >
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center mb-1.5">
+                    <img
+                      v-if="image.preview"
+                      :src="image.preview"
+                      class="w-12 h-12 object-cover rounded mr-2"
+                    />
+                    <div class="flex-1">
+                      <p class="font-semibold text-xs">
+                        {{ image.currency }}
+                        {{ Number(image.amount).toLocaleString() }}
+                      </p>
+                      <p class="text-[10px] text-gray-500">
+                        {{ image.interact_bank }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-1 text-[10px] text-gray-600">
+                    <p>
+                      <span class="font-medium">From:</span> {{ image.sender }}
+                    </p>
+                    <p>
+                      <span class="font-medium">To:</span> {{ image.receiver }}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  @click="removeImage('to', index)"
+                  class="text-red-500 hover:text-red-700 ml-1 text-xs"
+                >
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Total for TO -->
+            <div class="bg-green-50 p-2 rounded-lg">
+              <p class="text-xs font-semibold">
+                Total: {{ getToCurrency() }}
+                {{ getTotalAmount("to").toLocaleString() }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="flex justify-end mt-4 space-x-2">
+        <button
+          @click="goBack"
+          class="px-4 py-1.5 text-xs bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+        >
+          Cancel
+        </button>
+        <button
+          @click="submitInternalTransfer"
+          :disabled="!canSubmitInternalTransfer"
+          class="px-4 py-1.5 text-xs bg-[#ff613c] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-orange-600"
+        >
+          Create Internal Transfer
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Direct Banking -->
+    <div
+      v-if="step === 2 && transferType === 'direct'"
+      class="max-w-4xl mx-auto relative"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-semibold">Direct Banking Transaction</h2>
+      </div>
+
+      <button
+        @click="goBack"
+        class="text-xs text-gray-600 hover:text-gray-800 bg-white border border-gray-600 rounded-full px-2 py-1 absolute top-1/2 -left-10"
+      >
+        <i class="fa-solid fa-angle-left"></i>
+      </button>
+
+      <div class="bg-white rounded-lg shadow-lg p-4">
+        <div class="grid grid-cols-2 gap-6">
+          <!-- Image Upload Section -->
+          <div>
+            <input
+              type="file"
+              ref="directImageInput"
+              class="hidden"
+              @change="handleDirectFileChange"
+              accept="image/*"
+            />
+            <div
+              class="cursor-pointer w-full h-[350px] border-2 border-dashed border-gray-300 rounded-lg flex justify-center items-center hover:border-[#ff613c] transition"
+              @click="$refs.directImageInput.click()"
+              v-if="directBankingForm.preview == null"
+            >
+              <div class="text-center">
+                <i
+                  class="fa-solid fa-cloud-upload-alt text-4xl text-gray-400 mb-2"
+                ></i>
+                <p class="text-xs text-gray-500">Click to upload image</p>
+              </div>
+            </div>
+            <div
+              class="cursor-pointer w-full h-[350px] border-2 border-dashed border-gray-300 rounded-lg flex justify-center items-center overflow-hidden"
+              @click="$refs.directImageInput.click()"
+              v-if="directBankingForm.preview != null"
+            >
+              <img
+                :src="directBankingForm.preview"
+                alt=""
+                class="max-h-full max-w-full object-contain"
+              />
+            </div>
+          </div>
+
+          <!-- Form Section -->
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs font-medium pb-1 block"
+                >Interact Bank</label
+              >
+              <select
+                v-model="directBankingForm.interact_bank"
+                @change="emitDirectBankingData"
+                class="w-full px-2 py-1.5 text-xs rounded-lg shadow border border-gray-100 focus:outline-none focus:border-[#ff613c]"
+              >
+                <option value="personal">Personal</option>
+                <option value="company">Company</option>
+                <option value="cash_at_office">Cash at Office</option>
+                <option value="to_money_changer">To Money Changer</option>
+                <option value="deposit_management">Deposit Management</option>
+                <option value="pay_to_driver">Pay to Driver</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-xs pb-1 font-medium block">Currency</label>
+              <select
+                v-model="directBankingForm.currency"
+                @change="emitDirectBankingData"
+                class="w-full px-2 py-1.5 text-xs rounded-lg shadow border border-gray-100 focus:outline-none focus:border-[#ff613c]"
+              >
+                <option value="MMK">MMK</option>
+                <option value="THB">THB</option>
+                <option value="USD">USD</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-xs font-medium pb-1 block">Date</label>
+              <input
+                type="datetime-local"
+                v-model="directBankingForm.date"
+                @change="emitDirectBankingData"
+                class="w-full px-2 py-1.5 text-xs rounded-lg shadow border border-gray-100 focus:outline-none focus:border-[#ff613c]"
+              />
+            </div>
+
+            <div>
+              <label class="text-xs font-medium pb-1 block">Sender</label>
+              <input
+                type="text"
+                v-model="directBankingForm.sender"
+                @input="emitDirectBankingData"
+                placeholder="Enter sender name"
+                class="w-full px-2 py-1.5 text-xs rounded-lg shadow border border-gray-100 focus:outline-none focus:border-[#ff613c]"
+              />
+            </div>
+
+            <div>
+              <label class="text-xs font-medium pb-1 block">Receiver</label>
+              <input
+                type="text"
+                v-model="directBankingForm.receiver"
+                @input="emitDirectBankingData"
+                placeholder="Enter receiver name"
+                class="w-full px-2 py-1.5 text-xs rounded-lg shadow border border-gray-100 focus:outline-none focus:border-[#ff613c]"
+              />
+            </div>
+
+            <div>
+              <label class="text-xs font-medium pb-1 block">Amount</label>
+              <input
+                type="number"
+                v-model="directBankingForm.amount"
+                @input="emitDirectBankingData"
+                placeholder="Enter amount"
+                class="w-full px-2 py-1.5 text-xs rounded-lg shadow border border-gray-100 focus:outline-none focus:border-[#ff613c]"
+              />
+            </div>
+
+            <div class="flex justify-end items-center space-x-2 pt-3">
+              <button
+                @click="goBack"
+                class="px-3 py-1.5 text-xs bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                @click="submitDirectBanking"
+                class="px-3 py-1.5 text-xs bg-green-500 text-white rounded-lg hover:bg-green-600"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cash Image Modal -->
+    <div
+      v-if="showCashImageModal"
+      class="fixed inset-0 bg-black/5 bg-opacity-50 flex items-center justify-center z-50"
+      @click.self="closeCashImageModal"
+    >
+      <div
+        class="bg-white rounded-lg shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between"
+        >
+          <h3 class="text-sm font-semibold">
+            Add Cash Image -
+            <span
+              :class="
+                currentDirection === 'from' ? 'text-red-600' : 'text-green-600'
+              "
+            >
+              {{
+                currentDirection === "from"
+                  ? "FROM (Source)"
+                  : "TO (Destination)"
+              }}
+            </span>
+          </h3>
+          <button
+            @click="closeCashImageModal"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <i class="fa-solid fa-times text-lg"></i>
+          </button>
+        </div>
+
+        <div class="p-4">
+          <div class="grid grid-cols-2 gap-6">
+            <!-- Image Upload Section -->
+            <div>
+              <input
+                type="file"
+                ref="cashImageInput"
+                class="hidden"
+                @change="handleCashImageFileChange"
+                accept="image/*"
+              />
+              <div
+                class="cursor-pointer w-full h-[350px] border-2 border-dashed rounded-lg flex justify-center items-center hover:border-[#ff613c] transition"
+                :class="
+                  currentDirection === 'from'
+                    ? 'border-red-300'
+                    : 'border-green-300'
+                "
+                @click="$refs.cashImageInput.click()"
+                v-if="cashImageForm.preview == null"
+              >
+                <div class="text-center">
+                  <i
+                    class="fa-solid fa-cloud-upload-alt text-4xl text-gray-400 mb-2"
+                  ></i>
+                  <p class="text-xs text-gray-500">Click to upload image</p>
+                </div>
+              </div>
+              <div
+                class="cursor-pointer w-full h-[350px] border-2 border-dashed rounded-lg flex justify-center items-center overflow-hidden"
+                :class="
+                  currentDirection === 'from'
+                    ? 'border-red-300'
+                    : 'border-green-300'
+                "
+                @click="$refs.cashImageInput.click()"
+                v-if="cashImageForm.preview != null"
+              >
+                <img
+                  :src="cashImageForm.preview"
+                  alt=""
+                  class="max-h-full max-w-full object-contain"
+                />
+              </div>
+            </div>
+
+            <!-- Form Section -->
+            <div class="space-y-3">
+              <div>
+                <label class="text-xs font-medium pb-1 block"
+                  >Interact Bank</label
+                >
+                <select
+                  v-model="cashImageForm.interact_bank"
+                  class="w-full px-2 py-1.5 text-xs rounded-lg shadow border border-gray-100 focus:outline-none focus:border-[#ff613c]"
+                >
+                  <option value="personal">Personal</option>
+                  <option value="company">Company</option>
+                  <option value="cash_at_office">Cash at Office</option>
+                  <option value="to_money_changer">To Money Changer</option>
+                  <option value="deposit_management">Deposit Management</option>
+                  <option value="pay_to_driver">Pay to Driver</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-xs pb-1 font-medium block">Currency</label>
+                <select
+                  v-model="cashImageForm.currency"
+                  class="w-full px-2 py-1.5 text-xs rounded-lg shadow border border-gray-100 focus:outline-none focus:border-[#ff613c]"
+                >
+                  <option value="MMK">MMK</option>
+                  <option value="THB">THB</option>
+                  <option value="USD">USD</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-xs font-medium pb-1 block">Date</label>
+                <input
+                  type="datetime-local"
+                  v-model="cashImageForm.date"
+                  class="w-full px-2 py-1.5 text-xs rounded-lg shadow border border-gray-100 focus:outline-none focus:border-[#ff613c]"
+                />
+              </div>
+
+              <div>
+                <label class="text-xs font-medium pb-1 block">Sender</label>
+                <input
+                  type="text"
+                  v-model="cashImageForm.sender"
+                  placeholder="Enter sender name"
+                  class="w-full px-2 py-1.5 text-xs rounded-lg shadow border border-gray-100 focus:outline-none focus:border-[#ff613c]"
+                />
+              </div>
+
+              <div>
+                <label class="text-xs font-medium pb-1 block">Receiver</label>
+                <input
+                  type="text"
+                  v-model="cashImageForm.receiver"
+                  placeholder="Enter receiver name"
+                  class="w-full px-2 py-1.5 text-xs rounded-lg shadow border border-gray-100 focus:outline-none focus:border-[#ff613c]"
+                />
+              </div>
+
+              <div>
+                <label class="text-xs font-medium pb-1 block">Amount</label>
+                <input
+                  type="number"
+                  v-model="cashImageForm.amount"
+                  placeholder="Enter amount"
+                  class="w-full px-2 py-1.5 text-xs rounded-lg shadow border border-gray-100 focus:outline-none focus:border-[#ff613c]"
+                />
+              </div>
+
+              <div class="flex justify-end items-center space-x-2 pt-3">
+                <button
+                  @click="closeCashImageModal"
+                  class="px-3 py-1.5 text-xs bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  @click="addCashImage"
+                  :disabled="!canAddCashImage"
+                  :class="
+                    currentDirection === 'from'
+                      ? 'bg-red-500 hover:bg-red-600'
+                      : 'bg-green-500 hover:bg-green-600'
+                  "
+                  class="px-3 py-1.5 text-xs text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Add Image
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed } from "vue";
+
+// Define emits
+const emit = defineEmits([
+  "transfer-type-selected",
+  "step-changed",
+  "internal-transfer-data-updated",
+  "direct-banking-data-updated",
+  "cash-image-added",
+  "cash-image-removed",
+  "internal-transfer-submitted",
+  "direct-banking-submitted",
+  "form-reset",
+]);
+
+// Step management
+const step = ref(1);
+const transferType = ref(null);
+
+// Internal Transfer Data
+const internalTransferData = ref({
+  exchange_rate: null,
+  notes: "",
+  from_images: [],
+  to_images: [],
+});
+
+// Direct Banking Form
+const directBankingForm = ref({
+  image: null,
+  preview: null,
+  date: new Date().toISOString().slice(0, 16),
+  sender: "",
+  receiver: "",
+  amount: null,
+  interact_bank: "personal",
+  currency: "THB",
+});
+
+// Cash Image Modal
+const showCashImageModal = ref(false);
+const currentDirection = ref(null);
+const cashImageForm = ref({
+  image: null,
+  preview: null,
+  date: new Date().toISOString().slice(0, 16),
+  sender: "",
+  receiver: "",
+  amount: null,
+  interact_bank: "personal",
+  currency: "THB",
+});
+
+// Refs
+const directImageInput = ref(null);
+const cashImageInput = ref(null);
+
+// Emit helper methods
+const emitInternalTransferData = () => {
+  emit("internal-transfer-data-updated", { ...internalTransferData.value });
+};
+
+const emitDirectBankingData = () => {
+  emit("direct-banking-data-updated", { ...directBankingForm.value });
+};
+
+// Methods
+const selectTransferType = (type) => {
+  transferType.value = type;
+  emit("transfer-type-selected", type);
+};
+
+const goToNextStep = () => {
+  if (transferType.value) {
+    step.value = 2;
+    emit("step-changed", { step: 2, transferType: transferType.value });
+  }
+};
+
+const goBack = () => {
+  step.value = 1;
+  emit("step-changed", { step: 1, transferType: null });
+};
+
+const openCashImageModal = (direction) => {
+  currentDirection.value = direction;
+  showCashImageModal.value = true;
+  resetCashImageForm();
+};
+
+const closeCashImageModal = () => {
+  showCashImageModal.value = false;
+  currentDirection.value = null;
+  resetCashImageForm();
+};
+
+const resetCashImageForm = () => {
+  cashImageForm.value = {
+    image: null,
+    preview: null,
+    date: new Date().toISOString().slice(0, 16),
+    sender: "",
+    receiver: "",
+    amount: null,
+    interact_bank: "personal",
+    currency: "THB",
+  };
+};
+
+const handleCashImageFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    cashImageForm.value.image = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      cashImageForm.value.preview = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+const handleDirectFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    directBankingForm.value.image = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      directBankingForm.value.preview = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    emitDirectBankingData();
+  }
+};
+
+const canAddCashImage = computed(() => {
+  return (
+    cashImageForm.value.image &&
+    cashImageForm.value.date &&
+    cashImageForm.value.sender &&
+    cashImageForm.value.receiver &&
+    cashImageForm.value.amount &&
+    cashImageForm.value.interact_bank &&
+    cashImageForm.value.currency
+  );
+});
+
+const addCashImage = () => {
+  if (!canAddCashImage.value) return;
+
+  const imageData = {
+    image: cashImageForm.value.image,
+    preview: cashImageForm.value.preview,
+    date: cashImageForm.value.date,
+    sender: cashImageForm.value.sender,
+    receiver: cashImageForm.value.receiver,
+    amount: parseFloat(cashImageForm.value.amount),
+    interact_bank: cashImageForm.value.interact_bank,
+    currency: cashImageForm.value.currency,
+  };
+
+  if (currentDirection.value === "from") {
+    internalTransferData.value.from_images.push(imageData);
+  } else {
+    internalTransferData.value.to_images.push(imageData);
+  }
+
+  emit("cash-image-added", {
+    direction: currentDirection.value,
+    image: imageData,
+  });
+
+  emitInternalTransferData();
+  closeCashImageModal();
+};
+
+const removeImage = (direction, index) => {
+  const removedImage =
+    direction === "from"
+      ? internalTransferData.value.from_images[index]
+      : internalTransferData.value.to_images[index];
+
+  if (direction === "from") {
+    internalTransferData.value.from_images.splice(index, 1);
+  } else {
+    internalTransferData.value.to_images.splice(index, 1);
+  }
+
+  emit("cash-image-removed", {
+    direction,
+    index,
+    image: removedImage,
+  });
+
+  emitInternalTransferData();
+};
+
+const getTotalAmount = (direction) => {
+  const images =
+    direction === "from"
+      ? internalTransferData.value.from_images
+      : internalTransferData.value.to_images;
+  return images.reduce((sum, img) => sum + parseFloat(img.amount || 0), 0);
+};
+
+const getFromCurrency = () => {
+  return internalTransferData.value.from_images[0]?.currency || "";
+};
+
+const getToCurrency = () => {
+  return internalTransferData.value.to_images[0]?.currency || "";
+};
+
+const canSubmitInternalTransfer = computed(() => {
+  return (
+    internalTransferData.value.exchange_rate &&
+    internalTransferData.value.from_images.length > 0 &&
+    internalTransferData.value.to_images.length > 0
+  );
+});
+
+const submitInternalTransfer = async () => {
+  if (!canSubmitInternalTransfer.value) return;
+
+  const formData = new FormData();
+  formData.append("exchange_rate", internalTransferData.value.exchange_rate);
+  formData.append("notes", internalTransferData.value.notes || "");
+
+  // Add from images
+  internalTransferData.value.from_images.forEach((img, index) => {
+    formData.append(`from_images[${index}][image]`, img.image);
+    formData.append(`from_images[${index}][date]`, img.date);
+    formData.append(`from_images[${index}][sender]`, img.sender);
+    formData.append(`from_images[${index}][receiver]`, img.receiver);
+    formData.append(`from_images[${index}][amount]`, img.amount);
+    formData.append(`from_images[${index}][interact_bank]`, img.interact_bank);
+    formData.append(`from_images[${index}][currency]`, img.currency);
+  });
+
+  // Add to images
+  internalTransferData.value.to_images.forEach((img, index) => {
+    formData.append(`to_images[${index}][image]`, img.image);
+    formData.append(`to_images[${index}][date]`, img.date);
+    formData.append(`to_images[${index}][sender]`, img.sender);
+    formData.append(`to_images[${index}][receiver]`, img.receiver);
+    formData.append(`to_images[${index}][amount]`, img.amount);
+    formData.append(`to_images[${index}][interact_bank]`, img.interact_bank);
+    formData.append(`to_images[${index}][currency]`, img.currency);
+  });
+
+  // const response = await axios.post("/api/internal-transfers", formData, {
+  //   headers: {
+  //     "Content-Type": "multipart/form-data",
+  //   },
+  // });
+
+  emit("internal-transfer-submitted", {
+    data: internalTransferData.value,
+  });
+
+  // alert("Internal transfer created successfully!");
+  resetForm();
+};
+
+const submitDirectBanking = async () => {
+  const formData = new FormData();
+  formData.append("image", directBankingForm.value.image);
+  formData.append("date", directBankingForm.value.date);
+  formData.append("sender", directBankingForm.value.sender);
+  formData.append("receiver", directBankingForm.value.receiver);
+  formData.append("amount", directBankingForm.value.amount);
+  formData.append("interact_bank", directBankingForm.value.interact_bank);
+  formData.append("currency", directBankingForm.value.currency);
+  formData.append("internal_transfer", false);
+
+  // const response = await axios.post("/api/cash-images", formData, {
+  //   headers: {
+  //     "Content-Type": "multipart/form-data",
+  //   },
+  // });
+
+  emit("direct-banking-submitted", {
+    data: directBankingForm.value,
+  });
+
+  alert("Direct banking transaction created successfully!");
+  resetForm();
+};
+
+const resetForm = () => {
+  step.value = 1;
+  transferType.value = null;
+  internalTransferData.value = {
+    exchange_rate: null,
+    notes: "",
+    from_images: [],
+    to_images: [],
+  };
+  directBankingForm.value = {
+    image: null,
+    preview: null,
+    date: new Date().toISOString().slice(0, 16),
+    sender: "",
+    receiver: "",
+    amount: null,
+    interact_bank: "personal",
+    currency: "THB",
+  };
+
+  emit("form-reset");
+};
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+</script>

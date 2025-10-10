@@ -181,10 +181,12 @@
 
           <!-- Cash Image List -->
           <div
+            ref="listContainer"
             v-if="!loading"
             class="bg-white mt-2 shadow pr-4 rounded-lg divide-y divide-gray-100 max-h-[59vh] overflow-y-scroll relative"
           >
             <div
+              :ref="(el) => setItemRef(el, item.id)"
               class="cursor-pointer p-3 transition-colors"
               v-for="item in cashImages?.data ?? []"
               :key="item.id"
@@ -213,9 +215,6 @@
                 </div>
                 <div class="text-right">
                   <p class="text-sm font-medium">
-                    <!-- {{
-                      item.relatable_type == "App\\Models\\Booking" ? "" : "-"
-                    }} -->
                     {{ formatCurrency(item.amount) }}
                   </p>
                   <p class="text-xs text-gray-500">{{ item.currency }}</p>
@@ -313,10 +312,10 @@
               <!-- Image and Form -->
               <div class="grid grid-cols-2 gap-4">
                 <!-- Image -->
-                <div class="col-span-1">
+                <div class="col-span-1 max-h-[550px] overflow-scroll">
                   <img
                     :src="detailVal.image"
-                    class="w-full h-[580px] rounded-lg shadow"
+                    class="w-full h-auto rounded-lg shadow"
                     alt="Cash image"
                   />
                 </div>
@@ -470,6 +469,7 @@ import Swal from "sweetalert2";
 import YearPickerVue from "./AccountingComponent/yearPicker.vue";
 import VerifyList from "./CashImageCreate/VerifyList.vue";
 import { formattedDateTime, formattedDateTimeDB } from "./help/FormatData";
+import { nextTick } from "vue";
 
 // Store instances
 const showSide = ref(1);
@@ -486,6 +486,40 @@ const toast = useToast();
 const currentDate = new Date();
 const year = ref(currentDate.getFullYear());
 const selectedMonth = ref(currentDate.getMonth() + 1);
+
+const listContainer = ref(null);
+const itemRefs = ref({});
+
+// Function to set item refs
+const setItemRef = (el, id) => {
+  if (el) {
+    itemRefs.value[id] = el;
+  }
+};
+
+// Function to scroll to selected item
+const scrollToItem = async (itemId) => {
+  await nextTick();
+
+  const element = itemRefs.value[itemId];
+  const container = listContainer.value;
+
+  if (element && container) {
+    const elementTop = element.offsetTop;
+    const elementHeight = element.offsetHeight;
+    const containerHeight = container.clientHeight;
+    const scrollTop = container.scrollTop;
+
+    // Calculate the position to center the item
+    const scrollPosition = elementTop - containerHeight / 2 + elementHeight / 2;
+
+    // Smooth scroll to the item
+    container.scrollTo({
+      top: scrollPosition,
+      behavior: "smooth",
+    });
+  }
+};
 
 // Search and filter
 const searchKey = ref({
@@ -830,7 +864,9 @@ const verifyStatus = async (status) => {
       ) {
         const nextItem = cashImages.value.data[currentIndex + 1];
         await getDetailAction(nextItem.id);
+
         await getAction();
+        await scrollToItem(nextItem.id);
       } else {
         // If last item, refresh the list
         await getAction();
@@ -840,6 +876,7 @@ const verifyStatus = async (status) => {
       }
     } catch (error) {
       toast.error("Verification failed");
+      console.log(error);
     }
   }
 };
@@ -859,8 +896,19 @@ onMounted(async () => {
 
   if (selectedItem.value) {
     await getDetail();
+    await scrollToItem(selectedItem.value);
   }
 });
+
+watch(
+  selectedItem,
+  async (newId) => {
+    if (newId) {
+      await scrollToItem(newId);
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>

@@ -182,7 +182,7 @@
           <!-- Cash Image List -->
           <div
             v-if="!loading"
-            class="bg-white mt-2 shadow rounded-lg divide-y divide-gray-100 max-h-[59vh] overflow-y-scroll relative"
+            class="bg-white mt-2 shadow pr-4 rounded-lg divide-y divide-gray-100 max-h-[59vh] overflow-y-scroll relative"
           >
             <div
               class="cursor-pointer p-3 transition-colors"
@@ -275,6 +275,17 @@
                 <p class="text-lg font-medium">Cash Image Details</p>
                 <div class="flex justify-end items-center gap-x-2">
                   <p
+                    @click="goToSource(detailVal)"
+                    class="font-semibold px-4 py-1 text-white bg-[#FF613c] rounded-lg"
+                  >
+                    {{ detailVal.relatable?.items[0]?.crm_id.split("_")[0] }}
+                  </p>
+                  <p
+                    class="font-semibold px-4 py-1 text-[#FF613c] bg-gray-100 rounded-lg"
+                  >
+                    {{ detailVal.amount }} {{ detailVal.currency }}
+                  </p>
+                  <p
                     class="px-6 py-2 text-xs bg-red-500 text-white cursor-pointer rounded-lg"
                     @click="verifyStatus(false)"
                   >
@@ -302,34 +313,31 @@
 
                 <!-- Form -->
                 <div class="col-span-1 space-y-4">
-                  <div>
-                    <label class="text-xs font-medium pb-2 block">Date</label>
-                    <div
-                      class="flex justify-between items-center w-full bg-white overflow-hidden border border-gray-300 rounded-lg"
+                  <div class="flex justify-between items-center">
+                    <label class="text-xs font-medium pb-2 block"
+                      >Currency</label
                     >
-                      <p class="text-xs px-3 py-2 flex-1" v-if="formData.date">
-                        {{ formatDisplayDate(formData.date) }}
-                      </p>
-                      <input
-                        type="datetime-local"
-                        v-model="formData.date"
-                        class="px-2 py-2 text-xs focus:outline-none border-l border-gray-300"
-                        required
-                      />
-                    </div>
+                    <select
+                      v-model="formData.currency"
+                      class="w-2/3 px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-base font-semibold"
+                    >
+                      <option value="MMK">MMK</option>
+                      <option value="THB">THB</option>
+                      <option value="USD">USD</option>
+                    </select>
                   </div>
 
-                  <div>
+                  <div class="flex justify-between items-center">
                     <label class="text-xs font-medium pb-2 block">Sender</label>
                     <input
                       type="text"
                       v-model="formData.sender"
                       placeholder="Sender name"
-                      class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                      class="w-2/3 px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-base font-semibold"
                     />
                   </div>
 
-                  <div>
+                  <div class="flex justify-between items-center">
                     <label class="text-xs font-medium pb-2 block"
                       >Receiver</label
                     >
@@ -337,27 +345,17 @@
                       type="text"
                       v-model="formData.receiver"
                       placeholder="Receiver name"
-                      class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                      class="w-2/3 px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-base font-semibold"
                     />
                   </div>
 
-                  <div>
-                    <label class="text-xs font-medium pb-2 block">Amount</label>
-                    <input
-                      type="number"
-                      v-model="formData.amount"
-                      placeholder="Amount"
-                      class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                    />
-                  </div>
-
-                  <div>
+                  <div class="flex justify-between items-center">
                     <label class="text-xs font-medium pb-2 block"
                       >Interact Bank</label
                     >
                     <select
                       v-model="formData.interact_bank"
-                      class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                      class="w-2/3 px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-base font-semibold"
                     >
                       <option value="personal">Personal</option>
                       <option value="company">Company</option>
@@ -370,18 +368,39 @@
                     </select>
                   </div>
 
-                  <div>
-                    <label class="text-xs font-medium pb-2 block"
-                      >Currency</label
+                  <div class="flex justify-between items-center">
+                    <label class="text-xs font-medium pb-2 block">Amount</label>
+                    <input
+                      type="number"
+                      v-model="formData.amount"
+                      placeholder="Amount"
+                      class="w-2/3 px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-base font-semibold"
+                    />
+                  </div>
+
+                  <div class="flex justify-between items-center space-x-4">
+                    <label class="text-xs font-medium pb-2 block">Date</label>
+                    <div
+                      class="flex justify-between items-center w-2/3 bg-white overflow-hidden border border-gray-300 rounded-lg"
                     >
-                    <select
-                      v-model="formData.currency"
-                      class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-                    >
-                      <option value="MMK">MMK</option>
-                      <option value="THB">THB</option>
-                      <option value="USD">USD</option>
-                    </select>
+                      <p
+                        class="text-base font-semibold px-3 py-2 flex-1"
+                        v-if="formData.date && !showDate"
+                      >
+                        {{ formattedDateTime(formData.date) }}
+                      </p>
+                      <input
+                        v-if="showDate"
+                        type="datetime-local"
+                        v-model="formData.date"
+                        class="px-2 py-2 text-base font-semibold focus:outline-none border-l border-gray-300"
+                        required
+                      />
+                      <ArrowPathIcon
+                        class="w-5 h-5 mr-2"
+                        @click="showDate = !showDate"
+                      />
+                    </div>
                   </div>
 
                   <div class="flex justify-end items-center space-x-2 pt-4">
@@ -424,6 +443,8 @@ import Layout from "./Layout.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import Pagination from "../components/PaginationExpense.vue";
 import {
+  ArrowPathIcon,
+  CalendarIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   FunnelIcon,
@@ -464,6 +485,8 @@ const searchKey = ref({
   currency: "",
 });
 
+const showDate = ref(false);
+
 // Detail management
 const selectedItem = ref("");
 const detailVal = ref(null);
@@ -478,6 +501,8 @@ const formData = ref({
   amount: 0,
   interact_bank: "personal",
   currency: "THB",
+  relatable_type: "",
+  relatable_id: "",
 });
 
 // Month array
@@ -505,6 +530,42 @@ const searchCount = computed(() => {
   return count;
 });
 
+function formatDateForShow(dateString) {
+  // Parse the input date string (format: DD-MM-YYYY HH:mm:ss)
+  const [datePart, timePart] = dateString.split(" ");
+  const [day, month, year] = datePart.split("-");
+  const [hours, minutes] = timePart.split(":");
+
+  // Create a date object
+  const date = new Date(year, month - 1, day, hours, minutes);
+
+  // Month names
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Format the output (format: DD Mon YYYY - HH:mm)
+  const formattedDate = `${String(date.getDate()).padStart(2, "0")} ${
+    monthNames[date.getMonth()]
+  } ${date.getFullYear()}`;
+  const formattedTime = `${String(date.getHours()).padStart(2, "0")}:${String(
+    date.getMinutes()
+  ).padStart(2, "0")}`;
+
+  return `${formattedDate} - ${formattedTime}`;
+}
+
 const watchSystem = computed(() => {
   let result = {};
 
@@ -529,36 +590,6 @@ const watchSystem = computed(() => {
 
   return result;
 });
-
-const formatDisplayDate = (dateString) => {
-  if (!dateString) return "";
-
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return "Invalid Date";
-
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  return `${day}-${month}-${year} ${hours}:${minutes}`;
-};
 
 // Methods
 const searchAction = async () => {
@@ -602,23 +633,48 @@ const getDetail = async () => {
   loadingDetail.value = true;
   try {
     const res = await cashImageStore.getDetailAction(selectedItem.value);
+    console.log(res.result, "this is detail ");
+
     detailVal.value = res.result;
 
     // Populate form
     formData.value = {
       id: detailVal.value.id,
-      date: formattedDateTime(detailVal.value.date),
+      date: convertToDatetimeLocal(detailVal.value.date),
       sender: detailVal.value.sender,
       receiver: detailVal.value.receiver,
       amount: detailVal.value.amount,
       interact_bank: detailVal.value.interact_bank || "personal",
       currency: detailVal.value.currency,
+      relatable_id: detailVal.value.relatable_id,
+      relatable_type: detailVal.value.relatable_type,
     };
   } catch (error) {
     console.error("Error fetching detail:", error);
     toast.error("Failed to load details");
   } finally {
     loadingDetail.value = false;
+  }
+};
+
+const goToSource = (detail) => {
+  if (detail.relatable_type == "App\\Models\\Booking") {
+    router.push(`/bookings/new-update/${detail.relatable_id}`);
+  }
+  if (detail.relatable_type == "App\\Models\\BookingItemGroup") {
+    if (detail.relatable?.items[0]?.product_type == "App\\Models\\Hotel") {
+      router.push(`/group-hotel?id=${detail.relatable_id}`);
+    }
+    if (
+      detail.relatable?.items[0]?.product_type == "App\\Models\\EntranceTicket"
+    ) {
+      router.push(`/group-attraction?id=${detail.relatable_id}`);
+    }
+    if (
+      detail.relatable?.items[0]?.product_type == "App\\Models\\PrivateVanTour"
+    ) {
+      router.push(`/group-vantour?id=${detail.relatable_id}`);
+    }
   }
 };
 
@@ -668,6 +724,28 @@ const formatDateForSubmit = (dateString) => {
   return dateString;
 };
 
+const convertToDatetimeLocal = (dateString) => {
+  if (!dateString) return "";
+
+  try {
+    // Check if already in correct format (YYYY-MM-DD)
+    if (dateString.includes("T")) {
+      return dateString.slice(0, 16); // Return YYYY-MM-DDTHH:mm
+    }
+
+    // Parse DD-MM-YYYY HH:mm:ss format
+    const [datePart, timePart] = dateString.split(" ");
+    const [day, month, year] = datePart.split("-");
+    const [hours, minutes] = timePart.split(":");
+
+    // Return in YYYY-MM-DDTHH:mm format for datetime-local input
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  } catch (error) {
+    console.error("Error converting date:", error);
+    return "";
+  }
+};
+
 const submitUpdate = async () => {
   loadingDetail.value = true;
   try {
@@ -676,20 +754,22 @@ const submitUpdate = async () => {
     frmData.append("amount", formData.value.amount);
     frmData.append("date", formattedDateTimeDB(formData.value.date));
     frmData.append("sender", formData.value.sender);
-    frmData.append("receiver", formData.value.receiver);
+    frmData.append("reciever", formData.value.receiver);
     frmData.append("interact_bank", formData.value.interact_bank);
     frmData.append("currency", formData.value.currency);
+    frmData.append("relatable_id", formData.value.relatable_id);
+    frmData.append("relatable_type", formData.value.relatable_type);
 
-    await cashImageStore.updateAction(frmData, formData.value.id);
+    const res = await cashImageStore.updateAction(frmData, formData.value.id);
+    console.log(res, "this is update cash image");
 
     toast.success("Update success");
-    await getDetail();
-    await getAction();
   } catch (error) {
     console.error("Error updating:", error);
     toast.error("Update failed");
   } finally {
     loadingDetail.value = false;
+    window.location.reload();
   }
 };
 

@@ -3,9 +3,10 @@
     <!-- Step 1: Choose Transfer Type -->
     <div v-if="step === 1" class="max-w-2xl mx-auto">
       <div class="grid grid-cols-2 gap-3 mt-3">
+        <!--  -->
         <div
-          @click="selectTransferType('internal')"
           class="cursor-pointer p-4 border-2 rounded-lg hover:border-[#ff613c] hover:shadow-lg transition-all"
+          @click="selectTransferType('internal')"
           :class="
             transferType === 'internal'
               ? 'border-[#ff613c] bg-orange-50'

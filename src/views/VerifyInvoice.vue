@@ -4,8 +4,8 @@
       :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
       class="space-x-8 col-span-3 flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
     >
-      <p class="text-3xl font-medium text-[#FF613c]">
-        Verify Invoice Checker
+      <p class="text-xl font-medium text-[#FF613c]">
+        Invoice Verify Checker
         <span class="w-2 h-2 bg-[#FF613c] rounded-full inline-block"></span>
         <span class="pl-2" v-if="detailVal?.crm_id">{{
           detailVal.crm_id
@@ -23,6 +23,9 @@
           </option>
         </select>
       </div>
+    </div>
+    <div class="relative z-40">
+      <VerifyList />
     </div>
     <div class="grid gap-4 relative grid-cols-3">
       <transition name="slide">
@@ -161,7 +164,7 @@
             <transition name="slide">
               <div
                 v-if="softShow"
-                class="absolute top-full pb-3 px-4 left-0 w-[250px] transition-all duration-150 bg-white rounded-lg shadow-lg z-50 border border-gray-100 space-y-2 max-h-[70vh] overflow-y-scroll"
+                class="absolute top-full pb-3 px-4 left-0 w-[250px] transition-all duration-150 bg-white rounded-lg shadow-lg z-50 border border-gray-100 space-y-2 max-h-[65vh] overflow-y-scroll"
               >
                 <div
                   class="flex justify-between items-center pt-4 border-b border-gray-100 pb-1 sticky top-0 bg-white"
@@ -390,7 +393,7 @@
           <!-- Booking List -->
           <div
             v-if="!loading"
-            class="bg-white mt-2 shadow rounded-lg divide-y divide-gray-100 max-h-[65vh] overflow-y-scroll relative"
+            class="bg-white mt-2 shadow rounded-lg divide-y divide-gray-100 max-h-[55vh] overflow-y-scroll relative"
           >
             <div
               class="cursor-pointer hover:bg-gray-50 p-3 transition-colors"
@@ -498,7 +501,7 @@
           </div>
 
           <div
-            class="border shadow-sm relative rounded-lg p-4 h-[85vh] transition duration-150 overflow-y-scroll no-scrollbar"
+            class="border shadow-sm relative rounded-lg p-4 h-[80vh] transition duration-150 overflow-y-scroll no-scrollbar"
           >
             <!-- Detail Content -->
             <div v-if="!loadingDetail && detailVal">
@@ -959,6 +962,7 @@ import YearPickerVue from "./AccountingComponent/yearPicker.vue";
 import VerifyExpense from "./VerifyInvoiceComponent/VerifyExpense.vue";
 import VerifySale from "./VerifyInvoiceComponent/VerifySale.vue";
 import PngUsage from "./PngGenerate/PngUsage.vue";
+import VerifyList from "./CashImageCreate/VerifyList.vue";
 
 // Store instances
 const showSide = ref(1);

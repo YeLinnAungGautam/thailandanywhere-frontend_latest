@@ -24,7 +24,7 @@
 
         <div
           @click="addProveImage"
-          class="border border-[#FF613c] border-dashed flex justify-center items-center text-xs text-[#FF613c] rounded h-12 p-3 cursor-pointer hover:bg-[#FF613c] transition-colors"
+          class="border border-[#FF613c] border-dashed flex justify-center items-center text-xs text-[#FF613c] rounded h-12 p-3 cursor-pointer hover:bg-orange-50 transition-colors"
         >
           + Upload Prove Image
         </div>
@@ -66,23 +66,13 @@
           />
         </div>
 
-        <div class="grid grid-cols-1 gap-3">
-          <div class="space-y-2">
-            <label class="text-xs font-medium text-gray-700">Date</label>
-            <input
-              v-model="formData.date_only"
-              type="date"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <!-- <div class="space-y-2">
-            <label class="text-xs font-medium text-gray-700">Time</label>
-            <input
-              v-model="formData.time_only"
-              type="time"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div> -->
+        <div class="space-y-2">
+          <label class="text-xs font-medium text-gray-700">Date</label>
+          <input
+            v-model="formData.date_only"
+            type="date"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
         </div>
 
         <div class="space-y-2">
@@ -220,97 +210,173 @@
         </div>
       </div>
 
-      <!-- Slip Images Section -->
+      <!-- Slip Images Section - Using TransferImageComponent -->
       <div class="space-y-3">
         <div class="flex justify-between items-center">
-          <h4 class="font-medium text-gray-800">Slip Images (Detailed)</h4>
-          <button
-            @click="openSlipImageModal()"
-            type="button"
+          <h4 class="font-medium text-gray-800">Transaction Images</h4>
+          <div
+            @click="openShowModal = true"
             class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 text-xs rounded transition-colors"
           >
-            Add Slip Image
-          </button>
-        </div>
-
-        <div
-          v-for="(image, index) in formData.images"
-          :key="index"
-          class="border border-blue-200 rounded-lg p-3 space-y-2"
-        >
-          <div class="flex justify-between items-center">
-            <span class="text-xs font-medium text-gray-700">
-              Slip Image {{ index + 1 }}
-              <span v-if="image.is_existing" class="text-green-600 ml-1"
-                >(Existing)</span
-              >
-              <span v-else class="text-blue-600 ml-1">(New)</span>
-            </span>
-            <div class="flex items-center gap-2">
-              <button
-                @click="openSlipImageModal(index)"
-                type="button"
-                class="text-blue-500 hover:text-blue-700 text-xs transition-colors"
-              >
-                Edit
-              </button>
-              <button
-                @click="removeSlipImage(index)"
-                type="button"
-                class="text-red-500 hover:text-red-700 text-xs transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <div class="relative">
-              <img
-                v-if="image.preview || image.existing_image"
-                :src="image.preview || image.existing_image"
-                class="w-16 h-16 object-cover rounded border"
-                alt="Slip image preview"
-              />
-              <div
-                v-else
-                class="w-16 h-16 bg-gray-100 rounded border flex items-center justify-center"
-              >
-                <svg
-                  class="w-8 h-8 text-gray-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </div>
-            </div>
-            <div class="text-xs text-gray-600 flex-1">
-              <p><strong>Sender:</strong> {{ image.sender || "Not set" }}</p>
-              <p>
-                <strong>Receiver:</strong> {{ image.receiver || "Not set" }}
-              </p>
-              <p>
-                <strong>Amount:</strong> {{ image.amount || "0" }}
-                {{ image.currency || "THB" }}
-              </p>
-              <p>
-                <strong>Bank:</strong> {{ image.interact_bank || "Not set" }}
-              </p>
-            </div>
+            Add Images
           </div>
         </div>
-
         <div
           v-if="formData.images.length === 0"
           class="text-center py-4 text-gray-500 text-xs"
         >
-          No slip images added yet. Click "Add Slip Image" to upload detailed
-          images.
+          No images uploaded yet.
+        </div>
+
+        <div class="bg-white rounded-lg mt-4" v-if="formData.images.length > 0">
+          <p class="text-xs font-medium text-[#ff613c] pb-2">Images Upload</p>
+
+          <!-- Display receipts -->
+          <div class="space-y-3">
+            <div
+              v-for="(receipt, index) in formData.images"
+              :key="index"
+              class="border border-gray-200 rounded-lg p-2"
+            >
+              <!-- Internal Transfer -->
+              <div v-if="receipt.is_internal_transfer" class="space-y-2">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-medium"
+                    >
+                      Internal Transfer
+                    </span>
+                    <span class="text-xs text-gray-600">
+                      Rate: {{ receipt.exchange_rate }}
+                    </span>
+                  </div>
+                  <div class="flex justify-end items-center space-x-2">
+                    <button
+                      v-if="authStore.isSuperAdmin"
+                      @click="editFeatureSelectImage(receipt)"
+                      class="text-blue-500 hover:text-blue-700"
+                    >
+                      <PencilSquareIcon class="w-5 h-5" />
+                    </button>
+                    <button
+                      v-if="authStore.isSuperAdmin"
+                      @click="removeFeatureSelectImage(index)"
+                      class="text-red-500 hover:text-red-700"
+                    >
+                      <XCircleIcon class="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <!-- FROM Section -->
+                  <div class="bg-red-50 p-2 rounded">
+                    <p class="text-xs font-semibold text-red-700 mb-2">FROM</p>
+                    <div class="space-y-2">
+                      <div
+                        v-for="(fromFile, fIdx) in receipt.from_files"
+                        :key="fIdx"
+                        class="bg-white p-2 rounded"
+                      >
+                        <img
+                          v-if="fromFile.preview"
+                          :src="fromFile.preview"
+                          class="w-full h-24 object-cover rounded mb-1"
+                        />
+                        <div class="text-[10px] space-y-0.5">
+                          <p>
+                            <strong>Amount:</strong> {{ fromFile.currency }}
+                            {{ fromFile.amount.toLocaleString() }}
+                          </p>
+                          <p><strong>From:</strong> {{ fromFile.sender }}</p>
+                          <p><strong>To:</strong> {{ fromFile.receiver }}</p>
+                          <p>
+                            <strong>Bank:</strong> {{ fromFile.interact_bank }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- TO Section -->
+                  <div class="bg-green-50 p-2 rounded">
+                    <p class="text-xs font-semibold text-green-700 mb-2">TO</p>
+                    <div class="space-y-2">
+                      <div
+                        v-for="(toFile, tIdx) in receipt.to_files"
+                        :key="tIdx"
+                        class="bg-white p-2 rounded"
+                      >
+                        <img
+                          v-if="toFile.preview"
+                          :src="toFile.preview"
+                          class="w-full h-24 object-cover rounded mb-1"
+                        />
+                        <div class="text-[10px] space-y-0.5">
+                          <p>
+                            <strong>Amount:</strong> {{ toFile.currency }}
+                            {{ toFile.amount.toLocaleString() }}
+                          </p>
+                          <p><strong>From:</strong> {{ toFile.sender }}</p>
+                          <p><strong>To:</strong> {{ toFile.receiver }}</p>
+                          <p>
+                            <strong>Bank:</strong> {{ toFile.interact_bank }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <p v-if="receipt.note" class="text-xs text-gray-600 mt-2">
+                  <strong>Note:</strong> {{ receipt.note }}
+                </p>
+              </div>
+
+              <!-- Direct Banking -->
+              <div v-else class="flex items-start gap-3">
+                <img
+                  v-if="receipt.preview"
+                  :src="receipt.preview"
+                  class="w-24 h-24 object-cover rounded"
+                />
+                <div class="flex-1">
+                  <div class="flex items-center justify-between mb-1">
+                    <span
+                      class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium"
+                    >
+                      Direct Banking
+                    </span>
+                    <button
+                      v-if="authStore.isSuperAdmin"
+                      @click="
+                        receipt.id
+                          ? deleteImage(receipt.id)
+                          : removeFeatureSelectImage(index)
+                      "
+                      class="text-red-500 hover:text-red-700"
+                    >
+                      <XCircleIcon class="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div class="text-xs space-y-1">
+                    <p>
+                      <strong>Amount:</strong> {{ receipt.currency }}
+                      {{ receipt.amount }}
+                    </p>
+                    <p><strong>From:</strong> {{ receipt.sender }}</p>
+                    <p><strong>To:</strong> {{ receipt.receiver }}</p>
+                    <p><strong>Bank:</strong> {{ receipt.interact_bank }}</p>
+                    <p><strong>Date:</strong> {{ formatDate(receipt.date) }}</p>
+                    <p v-if="receipt.note">
+                      <strong>Note:</strong> {{ receipt.note }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -324,7 +390,7 @@
             'flex-1 px-4 py-2 text-xs font-medium rounded-lg transition-colors',
             loading || !isFormValid
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-[#FF613c] hover:bg-[#FF613c] text-white',
+              : 'bg-[#FF613c] hover:bg-orange-600 text-white',
           ]"
         >
           <span v-if="loading" class="flex items-center justify-center">
@@ -362,23 +428,26 @@
           Clear
         </button>
       </div>
-    </div>
 
-    <!-- Slip Image Modal -->
-    <SlipImageModal
-      :isOpen="slipImageModal.isOpen"
-      :imageData="slipImageModal.data"
-      :isEditing="slipImageModal.isEditing"
-      @close="closeSlipImageModal"
-      @save="saveSlipImage"
-      @update="updateSlipImage"
-      @delete="deleteSlipImageFromModal"
-    />
+      <Modal :isOpen="openShowModal" @closeModal="closeAction">
+        <DialogPanel
+          class="w-full max-w-5xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+        >
+          <DialogTitle
+            as="div"
+            class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-center py-2 px-4"
+          >
+            <p>Payment Slip Audit</p>
+            <XCircleIcon class="w-5 h-5 text-white" @click="closeAction" />
+          </DialogTitle>
 
-    <!-- Debug Info (remove in production) -->
-    <div v-if="false" class="mt-4 p-2 bg-gray-100 text-xs">
-      <p><strong>Modal State:</strong> {{ slipImageModal }}</p>
-      <p><strong>Images Count:</strong> {{ formData.images.length }}</p>
+          <TransferImageComponent
+            :editData="transferImageData"
+            @internal-transfer-submitted="handleInternalTransferSubmit"
+            @direct-banking-submitted="handleDirectBankingSubmit"
+          />
+        </DialogPanel>
+      </Modal>
     </div>
   </div>
 </template>
@@ -392,13 +461,20 @@ import { useChartOfAccountStore } from "../../stores/chartofAccount";
 import { useCashBookStore } from "../../stores/cashBook";
 import { useCashImageEditStore } from "../../stores/cashImageEdit";
 import SelectAccount from "../../components/SelectAccount.vue";
-import SlipImageModal from "../../components/ModalLayout/ImageCreate.vue";
+import TransferImageComponent from "../CashImageCreate/CashImage.vue"; // Your second component
+import Modal from "../../components/Modal.vue";
+import { useAuthStore } from "../../stores/auth";
+import { PencilSquareIcon, XCircleIcon } from "@heroicons/vue/24/outline";
+import { useCashImageStore } from "../../stores/cashImage";
+import Swal from "sweetalert2";
 
 // Store initialization
 const cashStructureStore = useCashStructureStore();
 const chartOfAccountStore = useChartOfAccountStore();
 const cashBookStore = useCashBookStore();
+const cashImageStore = useCashImageStore();
 const cashImageEditStore = useCashImageEditStore();
+const authStore = useAuthStore();
 const toast = useToast();
 
 // Store refs
@@ -412,6 +488,11 @@ const props = defineProps({
     default: null,
   },
 });
+
+const openShowModal = ref(false);
+const closeAction = () => {
+  openShowModal.value = false;
+};
 
 // Emits
 const emit = defineEmits(["refresh"]);
@@ -428,7 +509,7 @@ const formData = ref({
   amount: "",
   description: "",
   accounts: [],
-  images: [], // Detailed slip images
+  images: [], // This will store the transfer image data
   cash_book_images: [], // Simple prove images
 });
 
@@ -436,14 +517,7 @@ const formData = ref({
 const loading = ref(false);
 const cashBookImages = ref([]);
 const inputFile = ref(null);
-
-// Slip Image Modal state
-const slipImageModal = ref({
-  isOpen: false,
-  data: {},
-  isEditing: false,
-  currentIndex: -1,
-});
+const transferImageData = ref(null);
 
 // Computed properties
 const isFormValid = computed(() => {
@@ -474,11 +548,23 @@ const clearForm = () => {
     cash_book_images: [],
   };
   cashBookImages.value = [];
+  transferImageData.value = null;
 };
 
 // Prove Images Management
 const addProveImage = () => {
   inputFile.value?.click();
+};
+
+const removeFeatureSelectImage = (index) => {
+  formData.value.images.splice(index, 1);
+  featureImagePreview.value.splice(index, 1);
+  console.log(formData.value.images, "this is remove");
+};
+
+const editFeatureSelectImage = (data) => {
+  transferImageData.value = data;
+  openShowModal.value = true;
 };
 
 const onProveImageChange = (event) => {
@@ -493,14 +579,12 @@ const onProveImageChange = (event) => {
     formData.value.cash_book_images.push(imageData);
     cashBookImages.value.push(imageData);
   });
-  // Reset input
   event.target.value = "";
 };
 
 const removeProveImage = async (index) => {
   const image = cashBookImages.value[index];
 
-  // If it's an existing image, delete from server
   if (image.is_existing && image.id) {
     try {
       await cashImageEditStore.deleteCashBookImage(image.id);
@@ -511,7 +595,6 @@ const removeProveImage = async (index) => {
     }
   }
 
-  // Remove from local arrays
   cashBookImages.value.splice(index, 1);
   formData.value.cash_book_images.splice(index, 1);
 };
@@ -533,148 +616,111 @@ const onAccountChange = (account, index) => {
   console.log("Account selected:", account);
 };
 
-// Slip Image Management
-const openSlipImageModal = (index = -1) => {
-  console.log("Opening slip image modal, index:", index);
+const formatDate = (dateString) => {
+  // Parse the input string into a Date object
+  const date = new Date(dateString);
 
-  slipImageModal.value.currentIndex = index;
-  slipImageModal.value.isEditing = index >= 0;
-
-  if (index >= 0) {
-    // Editing existing image
-    console.log("Editing existing image:", formData.value.images[index]);
-    slipImageModal.value.data = { ...formData.value.images[index] };
-  } else {
-    // Adding new image
-    const now = new Date();
-    const defaultData = {
-      id: null,
-      image: null,
-      preview: "",
-      sender: "",
-      receiver: "",
-      amount: 0,
-      currency: "THB",
-      interact_bank: "",
-      amount: "",
-      date: now.toISOString().slice(0, 16), // YYYY-MM-DDTHH:mm format
-      existing_image: null,
-      is_existing: false,
-    };
-    console.log("Adding new image with default data:", defaultData);
-    slipImageModal.value.data = defaultData;
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    return "Invalid Date"; // Handle invalid dates
   }
 
-  slipImageModal.value.isOpen = true;
-  console.log("Modal state after opening:", slipImageModal.value);
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Extract date components
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+
+  // Extract time components
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  // Return formatted date and time
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 };
 
-const closeSlipImageModal = () => {
-  slipImageModal.value.isOpen = false;
-  slipImageModal.value.data = {};
-  slipImageModal.value.currentIndex = -1;
-  slipImageModal.value.isEditing = false;
-};
+// Transfer Image Handlers
+const handleInternalTransferSubmit = (data) => {
+  console.log("Internal transfer data:", data);
 
-const saveSlipImage = async (imageData) => {
-  try {
-    if (slipImageModal.value.isEditing) {
-      // Update existing image
-      formData.value.images[slipImageModal.value.currentIndex] = {
-        ...imageData,
-        is_existing: imageData.id ? true : false,
-      };
-    } else {
-      // For new cash book entries, just add to local array
-      if (!formData.value.id) {
-        formData.value.images.push({
-          ...imageData,
-          is_existing: false,
-        });
-      } else {
-        // For existing cash book entries, create the cash image via API
-        const cashImagePayload = {
-          ...imageData,
-          relatable_type: "App\\Models\\CashBook",
-          relatable_id: formData.value.id,
-        };
+  // Format data for backend
+  const transferData = {
+    is_internal_transfer: true,
+    exchange_rate: data.data.exchange_rate,
+    note: data.data.notes,
+    id: data.data.id,
+    from_files: data.data.from_images.map((img) => ({
+      file: img.image,
+      date: img.date,
+      sender: img.sender,
+      receiver: img.receiver,
+      amount: img.amount,
+      currency: img.currency,
+      interact_bank: img.interact_bank,
+    })),
+    to_files: data.data.to_images.map((img) => ({
+      file: img.image,
+      date: img.date,
+      sender: img.sender,
+      receiver: img.receiver,
+      amount: img.amount,
+      currency: img.currency,
+      interact_bank: img.interact_bank,
+    })),
+  };
 
-        const response = await cashImageEditStore.createCashImage(
-          cashImagePayload
-        );
-
-        // Add the created image to local array
-        formData.value.images.push({
-          ...response,
-          is_existing: true,
-          preview: response.image,
-        });
-
-        toast.success("Slip image added successfully");
-      }
-    }
-    closeSlipImageModal();
-  } catch (error) {
-    toast.error("Failed to add slip image");
-    console.error("Error adding slip image:", error);
-  }
-};
-
-const updateSlipImage = async (imageData) => {
-  try {
-    const response = await cashImageEditStore.updateCashImage(
-      imageData.id,
-      imageData
+  // formData.value.images.push(transferData);
+  if (transferData.id) {
+    const index = formData.value.images.findIndex(
+      (item) => item.id === transferData.id && item.is_internal_transfer
     );
 
-    // Update the image in the local array
-    console.log("response", response);
-
-    const index = slipImageModal.value.currentIndex;
-    formData.value.images[index] = {
-      ...response.result,
-      is_existing: true,
-      preview: response.result.image, // Use the updated image URL
-    };
-
-    toast.success("Slip image updated successfully");
-    closeSlipImageModal();
-  } catch (error) {
-    toast.error("Failed to update slip image");
-  }
-};
-
-const deleteSlipImageFromModal = async (imageId) => {
-  try {
-    await cashImageEditStore.deleteCashImage(imageId);
-
-    // Remove from local array
-    const index = slipImageModal.value.currentIndex;
-    formData.value.images.splice(index, 1);
-
-    toast.success("Slip image deleted successfully");
-    closeSlipImageModal();
-  } catch (error) {
-    toast.error("Failed to delete slip image");
-  }
-};
-
-const removeSlipImage = async (index) => {
-  const image = formData.value.images[index];
-
-  // If it's an existing image, delete from server
-  if (image.is_existing && image.id) {
-    try {
-      await cashImageEditStore.deleteCashImage(image.id);
-      toast.success("Slip image deleted successfully");
-    } catch (error) {
-      toast.error("Failed to delete slip image");
-      return;
+    if (index !== -1) {
+      // Update existing item
+      formData.value.images[index] = transferData;
+    } else {
+      // If not found, push as new
+      formData.value.images.push(transferData);
     }
+  } else {
+    // No ID means new item, push to array
+    formData.value.images.push(transferData);
   }
+  closeAction();
+};
 
-  // Remove from local array
-  formData.value.images.splice(index, 1);
+const handleDirectBankingSubmit = (data) => {
+  console.log("Direct banking data:", data);
+
+  // Format data for backend
+  const directData = {
+    is_internal_transfer: false,
+    file: data.data.image,
+    date: data.data.date,
+    sender: data.data.sender,
+    reciever: data.data.receiver,
+    amount: data.data.amount,
+    currency: data.data.currency,
+    interact_bank: data.data.interact_bank,
+  };
+
+  formData.value.images.push(directData);
+  closeAction();
 };
 
 // Form submission
@@ -717,7 +763,6 @@ const prepareFormData = () => {
 
   frmData.append("reference_number", formData.value.reference_number || "");
 
-  // Combine date and time
   if (formData.value.date_only && formData.value.time_only) {
     const datetime = `${formData.value.date_only} ${formData.value.time_only}:00`;
     frmData.append("date", datetime);
@@ -742,34 +787,99 @@ const prepareFormData = () => {
     frmData.append(`accounts[${index}][note]`, account.note);
   });
 
-  // Add detailed images (only new ones for create, exclude for update as they're handled separately)
-  if (!formData.value.id) {
-    formData.value.images.forEach((image, index) => {
-      if (image.image) {
-        frmData.append(`images[${index}][image]`, image.image);
-        frmData.append(`images[${index}][sender]`, image.sender || "");
-        frmData.append(`images[${index}][receiver]`, image.receiver || "");
-        frmData.append(`images[${index}][amount]`, image.amount || 0);
-        frmData.append(`images[${index}][currency]`, image.currency || "THB");
-        frmData.append(
-          `images[${index}][interact_bank]`,
-          image.interact_bank || ""
-        );
-
-        if (image.date) {
-          const formattedDate = formatDateTimeForServer(image.date);
-          frmData.append(`images[${index}][date]`, formattedDate);
-        }
+  // Add transaction images (both internal transfer and direct banking)
+  formData.value.images.forEach((image, index) => {
+    if (image.is_internal_transfer) {
+      // Internal transfer
+      frmData.append(`images[${index}][is_internal_transfer]`, "true");
+      frmData.append(`images[${index}][exchange_rate]`, image.exchange_rate);
+      frmData.append(`images[${index}][note]`, image.note || "");
+      if (image.id) {
+        frmData.append(`images[${index}][id]`, image.id);
       }
-    });
-  }
 
-  // Add simple images (cash book images)
+      // From files
+      image.from_files.forEach((fromFile, fromIndex) => {
+        if (fromFile.file != undefined) {
+          frmData.append(
+            `images[${index}][from_files][${fromIndex}][file]`,
+            fromFile.file
+          );
+          frmData.append(
+            `images[${index}][from_files][${fromIndex}][date]`,
+            fromFile.date
+          );
+          frmData.append(
+            `images[${index}][from_files][${fromIndex}][sender]`,
+            fromFile.sender
+          );
+          frmData.append(
+            `images[${index}][from_files][${fromIndex}][receiver]`,
+            fromFile.receiver
+          );
+          frmData.append(
+            `images[${index}][from_files][${fromIndex}][amount]`,
+            fromFile.amount
+          );
+          frmData.append(
+            `images[${index}][from_files][${fromIndex}][currency]`,
+            fromFile.currency
+          );
+          frmData.append(
+            `images[${index}][from_files][${fromIndex}][interact_bank]`,
+            fromFile.interact_bank
+          );
+        }
+      });
+
+      // To files
+      image.to_files.forEach((toFile, toIndex) => {
+        if (toFile.file != undefined) {
+          frmData.append(
+            `images[${index}][to_files][${toIndex}][file]`,
+            toFile.file
+          );
+          frmData.append(
+            `images[${index}][to_files][${toIndex}][date]`,
+            toFile.date
+          );
+          frmData.append(
+            `images[${index}][to_files][${toIndex}][sender]`,
+            toFile.sender
+          );
+          frmData.append(
+            `images[${index}][to_files][${toIndex}][receiver]`,
+            toFile.receiver
+          );
+          frmData.append(
+            `images[${index}][to_files][${toIndex}][amount]`,
+            toFile.amount
+          );
+          frmData.append(
+            `images[${index}][to_files][${toIndex}][currency]`,
+            toFile.currency
+          );
+          frmData.append(
+            `images[${index}][to_files][${toIndex}][interact_bank]`,
+            toFile.interact_bank
+          );
+        }
+      });
+    } else {
+      // Direct banking
+      frmData.append(`images[${index}][is_internal_transfer]`, "false");
+      frmData.append(`images[${index}][file]`, image.file);
+      frmData.append(`images[${index}][date]`, image.date);
+      frmData.append(`images[${index}][sender]`, image.sender);
+      frmData.append(`images[${index}][reciever]`, image.reciever);
+      frmData.append(`images[${index}][amount]`, image.amount);
+      frmData.append(`images[${index}][currency]`, image.currency);
+      frmData.append(`images[${index}][interact_bank]`, image.interact_bank);
+    }
+  });
+
+  // Add simple prove images
   formData.value.cash_book_images.forEach((image, index) => {
-    // if (image.id && image.is_existing) {
-    //   frmData.append(`cash_book_images[${index}][id]`, image.id);
-    // }
-
     if (image.image) {
       frmData.append(`cash_book_images[${index}][image]`, image.image);
     }
@@ -778,72 +888,12 @@ const prepareFormData = () => {
   return frmData;
 };
 
-const formatDateTimeForServer = (dateTimeString) => {
-  if (!dateTimeString) return "";
-
-  // Convert datetime-local format (YYYY-MM-DDTHH:mm) to Y-m-d H:i:s
-  const date = new Date(dateTimeString);
-  if (isNaN(date.getTime())) return "";
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-};
-
-const formatDateTimeForInput = (dateTimeString) => {
-  if (!dateTimeString) return "";
-
-  let dateObj;
-
-  // Handle DD-MM-YYYY HH:mm:ss format from API
-  if (
-    typeof dateTimeString === "string" &&
-    dateTimeString.includes("-") &&
-    dateTimeString.split("-")[0].length === 2
-  ) {
-    const [datePart, timePart] = dateTimeString.split(" ");
-    const [day, month, year] = datePart.split("-");
-    const isoDateStr = `${year}-${month}-${day} ${timePart}`;
-    dateObj = new Date(isoDateStr);
-  } else {
-    dateObj = new Date(dateTimeString);
-  }
-
-  if (isNaN(dateObj.getTime())) return "";
-
-  // Format for datetime-local input (YYYY-MM-DDTHH:mm)
-  const year = dateObj.getFullYear();
-  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-  const day = String(dateObj.getDate()).padStart(2, "0");
-  const hours = String(dateObj.getHours()).padStart(2, "0");
-  const minutes = String(dateObj.getMinutes()).padStart(2, "0");
-
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
-};
-
-// Watch for props changes (for editing)
-watch(
-  () => props.getData,
-  (newData) => {
-    if (newData) {
-      editGetFormData(newData);
-    }
-  },
-  { immediate: true }
-);
-
 const editGetFormData = (data) => {
   console.log("Edit data:", data);
 
   formData.value.id = data.id;
   formData.value.reference_number = data.reference || "";
 
-  // Parse date - handle DD-MM-YYYY HH:mm:ss format
   if (data.date) {
     const dateStr = data.date;
     const [datePart, timePart] = dateStr.split(" ");
@@ -866,7 +916,6 @@ const editGetFormData = (data) => {
   formData.value.description = data.description || "";
   formData.value.amount = data.amount || 0;
 
-  // Map accounts
   formData.value.accounts =
     data.chart_of_accounts?.map((account) => ({
       id: account.id,
@@ -874,23 +923,7 @@ const editGetFormData = (data) => {
       note: account.pivot?.note || "1",
     })) || [];
 
-  // Map detailed images (CashImage)
-  formData.value.images =
-    data.cash_images?.map((img) => ({
-      id: img.id,
-      sender: img.sender || "",
-      receiver: img.receiver || "",
-      amount: img.amount || 0,
-      currency: img.currency || "THB",
-      interact_bank: img.interact_bank || "",
-      date: formatDateTimeForInput(img.date),
-      image: null,
-      existing_image: img.image,
-      preview: img.image,
-      is_existing: true,
-    })) || [];
-
-  // Map simple images (CashBookImage)
+  // Map simple images
   const mappedCashBookImages =
     data.cash_book_images?.map((img) => ({
       id: img.id,
@@ -902,6 +935,97 @@ const editGetFormData = (data) => {
 
   formData.value.cash_book_images = mappedCashBookImages;
   cashBookImages.value = mappedCashBookImages;
+
+  // Prepare transfer image data for editing
+  // if (data.internal_transfers && data.internal_transfers.length > 0) {
+  //   const transfer = data.internal_transfers[0];
+  //   transferImageData.value = {
+  //     id: transfer.id,
+  //     exchange_rate: transfer.exchange_rate,
+  //     notes: transfer.notes,
+  //     from_images: transfer.from_files || [],
+  //     to_images: transfer.to_files || [],
+  //   };
+  // }
+
+  formData.value.images = data.cash_images?.map(processReceipt);
+};
+
+const processReceipt = (receipt) => {
+  if (receipt.is_internal_transfer) {
+    // Process internal transfer
+    return {
+      is_internal_transfer: true,
+      id: receipt.internal_transfer_id,
+      exchange_rate: receipt.exchange_rate,
+      note: receipt.notes || "",
+      from_files: receipt.from_files.map((file) => ({
+        id: file.id,
+        file: null, // Can't recreate File object from URL
+        preview: file.image, // Use the image URL as preview
+        amount: file.amount,
+        currency: file.currency,
+        sender: file.sender,
+        receiver: file.receiver,
+        interact_bank: file.interact_bank,
+        date: file.date,
+      })),
+      to_files: receipt.to_files.map((file) => ({
+        id: file.id,
+        file: null,
+        preview: file.image,
+        amount: file.amount,
+        currency: file.currency,
+        sender: file.sender,
+        receiver: file.receiver,
+        interact_bank: file.interact_bank,
+        date: file.date,
+      })),
+    };
+  } else {
+    // Process regular receipt (already exists in receipts_original)
+    return {
+      is_internal_transfer: false,
+      id: receipt.id,
+      file: null,
+      preview: receipt.image,
+      amount: receipt.amount,
+      date: receipt.date,
+      receiver: receipt.receiver,
+      sender: receipt.sender,
+      currency: receipt.currency,
+      interact_bank: receipt.interact_bank,
+      bank_name: receipt.bank_name || "",
+      is_corporate: receipt.is_corporate || false,
+      note: receipt.note || "",
+    };
+  }
+};
+
+const deleteImage = async (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        await cashImageStore.deleteAction(id);
+        toast.success("success delete sale Image");
+      } catch (error) {
+        toast.error(error);
+        console.log(error);
+      } finally {
+        window.location.reload();
+      }
+    }
+  });
+
+  // await getDetail();
 };
 
 // Initialize data on component mount
@@ -911,4 +1035,15 @@ onMounted(async () => {
     chartOfAccountStore.getSimpleListAction(),
   ]);
 });
+
+// Watch for props changes (for editing)
+watch(
+  () => props.getData,
+  (newData) => {
+    if (newData) {
+      editGetFormData(newData);
+    }
+  },
+  { immediate: true }
+);
 </script>

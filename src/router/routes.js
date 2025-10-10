@@ -83,6 +83,7 @@ import BankStatementFilter from "../views/BankStatementFilter.vue";
 import CashInternalTransfer from "../views/CashInternalTransfer.vue";
 import StorageView from "../views/Storage.vue";
 import PartnerView from "../views/Partner.vue";
+import dataVerify from "../views/DataVerify.vue";
 import RemaindTaxReceiptModal from "../views/TaxReceiptComponent/RemaindTaxReceiptModal.vue";
 
 const routes = [
@@ -440,6 +441,11 @@ const routes = [
     path: "/verify_invoices",
     name: "verifyInvoices",
     component: verifyInvoices,
+  },
+  {
+    path: "/data_verify",
+    name: "dataVerify",
+    component: dataVerify,
   },
   {
     path: "/receiptable_checker",

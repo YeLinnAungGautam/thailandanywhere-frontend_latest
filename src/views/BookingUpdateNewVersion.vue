@@ -415,6 +415,7 @@ const closeAction = () => {
     cash_image_attachments: [],
   };
   openShowModal.value = false;
+  editData.value = "";
 };
 
 watch(
@@ -480,6 +481,12 @@ const removeFeatureSelectImage = (index) => {
   formData.value.receipt_image.splice(index, 1);
   featureImagePreview.value.splice(index, 1);
   console.log(formData.value.receipt_image, "this is remove");
+};
+
+const editData = ref("");
+const editFeatureSelectImage = (data) => {
+  editData.value = data;
+  openShowModal.value = true;
 };
 
 const checkCondition = ref(false);
@@ -668,6 +675,84 @@ const formatDateDb = (dateString) => {
   return dateString;
 };
 
+const internalTransferAction = (message) => {
+  console.log(message, "Internal Transfer Data");
+
+  // Structure for internal transfer
+  const internalTransferData = {
+    is_internal_transfer: true,
+    exchange_rate: message.data.exchange_rate,
+    id: message.data.id,
+    note: message.data.notes,
+    from_files: message.data.from_images.map((img) => ({
+      id: img.id || null,
+      file: img.image,
+      amount: img.amount,
+      currency: img.currency,
+      sender: img.sender,
+      receiver: img.receiver,
+      interact_bank: img.interact_bank,
+      date: formatDateDb(img.date),
+    })),
+    to_files: message.data.to_images.map((img) => ({
+      id: img.id || null,
+      file: img.image,
+      amount: img.amount,
+      currency: img.currency,
+      sender: img.sender,
+      receiver: img.receiver,
+      interact_bank: img.interact_bank,
+      date: formatDateDb(img.date),
+    })),
+  };
+
+  // If has ID, update existing item
+  if (internalTransferData.id) {
+    const index = formData.value.receipt_image.findIndex(
+      (item) => item.id === internalTransferData.id && item.is_internal_transfer
+    );
+
+    if (index !== -1) {
+      // Update existing item
+      formData.value.receipt_image[index] = internalTransferData;
+    } else {
+      // If not found, push as new
+      formData.value.receipt_image.push(internalTransferData);
+    }
+  } else {
+    // No ID means new item, push to array
+    formData.value.receipt_image.push(internalTransferData);
+  }
+
+  // Close modal and show success
+  openShowModal.value = false;
+};
+
+const directAction = (message) => {
+  console.log(message, "Direct Banking Data");
+
+  // Structure for direct/regular receipt
+  const directReceiptData = {
+    is_internal_transfer: false,
+    file: message.data.image,
+    amount: message.data.amount,
+    currency: message.data.currency,
+    sender: message.data.sender,
+    reciever: message.data.receiver, // Note: your backend uses 'reciever'
+    interact_bank: message.data.interact_bank,
+    date: formatDateDb(message.data.date),
+    bank_name: "", // Add if available in your form
+    is_corporate: false, // Add if available
+    note: "", // Add if available
+  };
+
+  // Add to receipt_image array
+  formData.value.receipt_image.push(directReceiptData);
+
+  // Close modal and show success
+  openShowModal.value = false;
+};
+
 const processSubmission = async () => {
   updatingLoading.value = true;
   if (!isNaN(sub_total_real.value) && sub_total_real.value !== null) {
@@ -784,48 +869,155 @@ const processSubmission = async () => {
       }
     }
 
+    // if (formData.value.receipt_image?.length > 0) {
+    //   for (let x = 0; x < formData.value.receipt_image.length; x++) {
+    //     frmData.append(
+    //       "receipt_image[" + x + "][file]",
+    //       formData.value.receipt_image[x].file
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][amount]",
+    //       formData.value.receipt_image[x].amount
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][date]",
+    //       formatDateDb(formData.value.receipt_image[x].date)
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][bank_name]",
+    //       formData.value.receipt_image[x].bank_name ?? "other..."
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][sender]",
+    //       formData.value.receipt_image[x].sender
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][reciever]",
+    //       formData.value.receipt_image[x].reciever
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][interact_bank]",
+    //       formData.value.receipt_image[x].interact_bank
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][currency]",
+    //       formData.value.receipt_image[x].currency
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][is_corporate]",
+    //       formData.value.receipt_image[x].is_corporate ? 1 : 0
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][note]",
+    //       formData.value.receipt_image[x].comment
+    //     );
+    //   }
+    // }
+
     if (formData.value.receipt_image?.length > 0) {
       for (let x = 0; x < formData.value.receipt_image.length; x++) {
-        frmData.append(
-          "receipt_image[" + x + "][file]",
-          formData.value.receipt_image[x].file
-        );
-        frmData.append(
-          "receipt_image[" + x + "][amount]",
-          formData.value.receipt_image[x].amount
-        );
-        frmData.append(
-          "receipt_image[" + x + "][date]",
-          formatDateDb(formData.value.receipt_image[x].date)
-        );
-        frmData.append(
-          "receipt_image[" + x + "][bank_name]",
-          formData.value.receipt_image[x].bank_name ?? "other..."
-        );
-        frmData.append(
-          "receipt_image[" + x + "][sender]",
-          formData.value.receipt_image[x].sender
-        );
-        frmData.append(
-          "receipt_image[" + x + "][reciever]",
-          formData.value.receipt_image[x].reciever
-        );
-        frmData.append(
-          "receipt_image[" + x + "][interact_bank]",
-          formData.value.receipt_image[x].interact_bank
-        );
-        frmData.append(
-          "receipt_image[" + x + "][currency]",
-          formData.value.receipt_image[x].currency
-        );
-        frmData.append(
-          "receipt_image[" + x + "][is_corporate]",
-          formData.value.receipt_image[x].is_corporate ? 1 : 0
-        );
-        frmData.append(
-          "receipt_image[" + x + "][note]",
-          formData.value.receipt_image[x].comment
-        );
+        const receipt = formData.value.receipt_image[x];
+
+        if (receipt.is_internal_transfer) {
+          // Handle Internal Transfer
+          frmData.append(`receipt_image[${x}][is_internal_transfer]`, true);
+          frmData.append(
+            `receipt_image[${x}][exchange_rate]`,
+            receipt.exchange_rate
+          );
+          frmData.append(`receipt_image[${x}][note]`, receipt.note || "");
+          frmData.append(`receipt_image[${x}][id]`, receipt.id || "");
+
+          // Add from_files
+          receipt.from_files.forEach((fromFile, fromIndex) => {
+            if (fromFile.file) {
+              frmData.append(
+                `receipt_image[${x}][from_files][${fromIndex}][file]`,
+                fromFile.file
+              );
+            }
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][amount]`,
+              fromFile.amount
+            );
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][currency]`,
+              fromFile.currency
+            );
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][sender]`,
+              fromFile.sender
+            );
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][receiver]`,
+              fromFile.receiver
+            );
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][interact_bank]`,
+              fromFile.interact_bank
+            );
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][date]`,
+              fromFile.date
+            );
+          }); // Add to_files
+          receipt.to_files.forEach((toFile, toIndex) => {
+            if (toFile.file) {
+              frmData.append(
+                `receipt_image[${x}][to_files][${toIndex}][file]`,
+                toFile.file
+              );
+            }
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][amount]`,
+              toFile.amount
+            );
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][currency]`,
+              toFile.currency
+            );
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][sender]`,
+              toFile.sender
+            );
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][receiver]`,
+              toFile.receiver
+            );
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][interact_bank]`,
+              toFile.interact_bank
+            );
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][date]`,
+              toFile.date
+            );
+          });
+        } else {
+          // Handle Regular Receipt (existing code)
+          frmData.append(`receipt_image[${x}][is_internal_transfer]`, false);
+          if (receipt.file) {
+            frmData.append(`receipt_image[${x}][file]`, receipt.file);
+          }
+          frmData.append(`receipt_image[${x}][amount]`, receipt.amount);
+          frmData.append(`receipt_image[${x}][date]`, receipt.date);
+          frmData.append(
+            `receipt_image[${x}][bank_name]`,
+            receipt.bank_name ?? "other..."
+          );
+          frmData.append(`receipt_image[${x}][sender]`, receipt.sender);
+          frmData.append(`receipt_image[${x}][reciever]`, receipt.reciever);
+          frmData.append(
+            `receipt_image[${x}][interact_bank]`,
+            receipt.interact_bank
+          );
+          frmData.append(`receipt_image[${x}][currency]`, receipt.currency);
+          frmData.append(
+            `receipt_image[${x}][is_corporate]`,
+            receipt.is_corporate ? 1 : 0
+          );
+          frmData.append(`receipt_image[${x}][note]`, receipt.note || "");
+        }
       }
     }
 
@@ -1032,37 +1224,6 @@ const processSubmission = async () => {
           return;
         }
       }
-
-      // if (
-      //   formData.value.items[x].product_type == "6" &&
-      //   formData.value.items[x].car_id
-      // ) {
-      //   frmData.append(
-      //     "items[" + x + "][room_id]",
-      //     formData.value.items[x].car_id
-      //   );
-      // }
-      // if (
-      //   formData.value.items[x].product_type != "4" &&
-      //   formData.value.items[x].product_type != "7"
-      // ) {
-      //   if (formData.value.items[x].car_id) {
-      //     frmData.append(
-      //       "items[" + x + "][car_id]",
-      //       formData.value.items[x].car_id
-      //     );
-      //   }
-      // } else if (formData.value.items[x].product_type == "4") {
-      //   frmData.append(
-      //     "items[" + x + "][variation_id]",
-      //     formData.value.items[x].car_id
-      //   );
-      // } else if (formData.value.items[x].product_type == "7") {
-      //   frmData.append(
-      //     "items[" + x + "][ticket_id]",
-      //     formData.value.items[x].car_id
-      //   );
-      // }
       formData.value.items[x].service_date &&
         frmData.append(
           "items[" + x + "][service_date]",
@@ -1350,16 +1511,54 @@ const processItem = (item, isInclusive) => {
 };
 
 const processReceipt = (receipt) => {
-  return {
-    id: receipt.id,
-    image: receipt.image,
-    amount: receipt.amount,
-    date: receipt.date,
-    receiver: receipt.receiver,
-    sender: receipt.sender,
-    currency: receipt.currency,
-    interact_bank: receipt.interact_bank,
-  };
+  if (receipt.is_internal_transfer) {
+    // Process internal transfer
+    return {
+      is_internal_transfer: true,
+      id: receipt.internal_transfer_id,
+      exchange_rate: receipt.exchange_rate,
+      note: receipt.notes || "",
+      from_files: receipt.from_files.map((file) => ({
+        id: file.id,
+        file: null, // Can't recreate File object from URL
+        preview: file.image, // Use the image URL as preview
+        amount: file.amount,
+        currency: file.currency,
+        sender: file.sender,
+        receiver: file.receiver,
+        interact_bank: file.interact_bank,
+        date: file.date,
+      })),
+      to_files: receipt.to_files.map((file) => ({
+        id: file.id,
+        file: null,
+        preview: file.image,
+        amount: file.amount,
+        currency: file.currency,
+        sender: file.sender,
+        receiver: file.receiver,
+        interact_bank: file.interact_bank,
+        date: file.date,
+      })),
+    };
+  } else {
+    // Process regular receipt (already exists in receipts_original)
+    return {
+      is_internal_transfer: false,
+      id: receipt.id,
+      file: null,
+      preview: receipt.image,
+      amount: receipt.amount,
+      date: receipt.date,
+      receiver: receipt.receiver,
+      sender: receipt.sender,
+      currency: receipt.currency,
+      interact_bank: receipt.interact_bank,
+      bank_name: receipt.bank_name || "",
+      is_corporate: receipt.is_corporate || false,
+      note: receipt.note || "",
+    };
+  }
 };
 
 // Main function
@@ -1411,6 +1610,29 @@ const getDetail = async () => {
 
     // Process receipts using map
     formData.value.receipt_images = data.receipts.map(processReceipt);
+
+    const allReceipts = [
+      ...data.receipts.map(processReceipt),
+      // receipts_original are direct banking receipts
+      ...data.receipts_orignal.map((r) => ({
+        is_internal_transfer: false,
+        id: r.id,
+        file: null,
+        preview: r.image,
+        amount: r.amount,
+        date: r.date,
+        receiver: r.receiver || r.reciever, // Handle both spellings
+        sender: r.sender,
+        currency: r.currency,
+        interact_bank: r.interact_bank,
+        bank_name: r.bank_name || "",
+        is_corporate: r.is_corporate || false,
+        note: r.note || "",
+      })),
+    ];
+
+    formData.value.receipt_image = allReceipts;
+    formData.value.receipt_images = [];
 
     // Process items using map
     formData.value.items = data.items.map((item) =>
@@ -1594,14 +1816,6 @@ onMounted(async () => {
   queryCrmId.value = route.query.crm_id ? route.query.crm_id : "";
   await adminStore.getSimpleListAction();
 });
-
-const internal_transfer_submitted = (message) => {
-  console.log(message);
-};
-
-const direct_banking_submitted = (message) => {
-  console.log(message);
-};
 </script>
 
 <template>
@@ -1933,7 +2147,7 @@ const direct_banking_submitted = (message) => {
         </div>
         <!-- receipt image -->
         <!-- <div class="h-[20vh] rounded-lg text-sm text-[#ff613c]">Images</div> -->
-        <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
+        <!-- <div class="grid grid-cols-3 col-span-2 gap-3 mt-4">
           <div
             class="relative"
             v-for="(image, index) in formData.receipt_image"
@@ -1971,10 +2185,6 @@ const direct_banking_submitted = (message) => {
             <button
               class="rounded-full text-sm text-red-600 items-center justify-center flex absolute top-[-0.9rem] right-[-0.7rem]"
             >
-              <!-- <PencilSquareIcon
-                class="w-8 h-8 text-blue-600 font-semibold"
-                @click="updateCashImage(image)"
-              /> -->
               <XCircleIcon
                 class="w-8 h-8 font-semibold"
                 v-if="authStore.isSuperAdmin"
@@ -1984,6 +2194,160 @@ const direct_banking_submitted = (message) => {
             <a :href="image.image" target="_blink">
               <img class="h-auto w-full rounded" :src="image.image" alt="" />
             </a>
+          </div>
+        </div> -->
+        <!-- In the template, replace the receipt images section with: -->
+        <div
+          class="p-3 bg-white rounded-lg mt-4"
+          v-if="formData.receipt_image.length > 0"
+        >
+          <p class="text-xs font-medium text-[#ff613c] pb-2">Receipt Images</p>
+
+          <!-- Display receipts -->
+          <div class="space-y-3">
+            <div
+              v-for="(receipt, index) in formData.receipt_image"
+              :key="index"
+              class="border border-gray-200 rounded-lg p-3"
+            >
+              <!-- Internal Transfer -->
+              <div v-if="receipt.is_internal_transfer" class="space-y-2">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-medium"
+                    >
+                      Internal Transfer
+                    </span>
+                    <span class="text-xs text-gray-600">
+                      Rate: {{ receipt.exchange_rate }}
+                    </span>
+                  </div>
+                  <div class="flex justify-end items-center space-x-2">
+                    <button
+                      v-if="authStore.isSuperAdmin"
+                      @click="editFeatureSelectImage(receipt)"
+                      class="text-blue-500 hover:text-blue-700"
+                    >
+                      <PencilSquareIcon class="w-5 h-5" />
+                    </button>
+                    <button
+                      v-if="authStore.isSuperAdmin"
+                      @click="removeFeatureSelectImage(index)"
+                      class="text-red-500 hover:text-red-700"
+                    >
+                      <XCircleIcon class="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <!-- FROM Section -->
+                  <div class="bg-red-50 p-2 rounded">
+                    <p class="text-xs font-semibold text-red-700 mb-2">FROM</p>
+                    <div class="space-y-2">
+                      <div
+                        v-for="(fromFile, fIdx) in receipt.from_files"
+                        :key="fIdx"
+                        class="bg-white p-2 rounded"
+                      >
+                        <img
+                          v-if="fromFile.preview"
+                          :src="fromFile.preview"
+                          class="w-full h-24 object-cover rounded mb-1"
+                        />
+                        <div class="text-[10px] space-y-0.5">
+                          <p>
+                            <strong>Amount:</strong> {{ fromFile.currency }}
+                            {{ fromFile.amount.toLocaleString() }}
+                          </p>
+                          <p><strong>From:</strong> {{ fromFile.sender }}</p>
+                          <p><strong>To:</strong> {{ fromFile.receiver }}</p>
+                          <p>
+                            <strong>Bank:</strong> {{ fromFile.interact_bank }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- TO Section -->
+                  <div class="bg-green-50 p-2 rounded">
+                    <p class="text-xs font-semibold text-green-700 mb-2">TO</p>
+                    <div class="space-y-2">
+                      <div
+                        v-for="(toFile, tIdx) in receipt.to_files"
+                        :key="tIdx"
+                        class="bg-white p-2 rounded"
+                      >
+                        <img
+                          v-if="toFile.preview"
+                          :src="toFile.preview"
+                          class="w-full h-24 object-cover rounded mb-1"
+                        />
+                        <div class="text-[10px] space-y-0.5">
+                          <p>
+                            <strong>Amount:</strong> {{ toFile.currency }}
+                            {{ toFile.amount.toLocaleString() }}
+                          </p>
+                          <p><strong>From:</strong> {{ toFile.sender }}</p>
+                          <p><strong>To:</strong> {{ toFile.receiver }}</p>
+                          <p>
+                            <strong>Bank:</strong> {{ toFile.interact_bank }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <p v-if="receipt.note" class="text-xs text-gray-600 mt-2">
+                  <strong>Note:</strong> {{ receipt.note }}
+                </p>
+              </div>
+
+              <!-- Direct Banking -->
+              <div v-else class="flex items-start gap-3">
+                <img
+                  v-if="receipt.preview"
+                  :src="receipt.preview"
+                  class="w-24 h-24 object-cover rounded"
+                />
+                <div class="flex-1">
+                  <div class="flex items-center justify-between mb-1">
+                    <span
+                      class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium"
+                    >
+                      Direct Banking
+                    </span>
+                    <button
+                      v-if="authStore.isSuperAdmin"
+                      @click="
+                        receipt.id
+                          ? deleteImage(receipt.id)
+                          : removeFeatureSelectImage(index)
+                      "
+                      class="text-red-500 hover:text-red-700"
+                    >
+                      <XCircleIcon class="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div class="text-xs space-y-1">
+                    <p>
+                      <strong>Amount:</strong> {{ receipt.currency }}
+                      {{ receipt.amount }}
+                    </p>
+                    <p><strong>From:</strong> {{ receipt.sender }}</p>
+                    <p><strong>To:</strong> {{ receipt.receiver }}</p>
+                    <p><strong>Bank:</strong> {{ receipt.interact_bank }}</p>
+                    <p><strong>Date:</strong> {{ formatDate(receipt.date) }}</p>
+                    <p v-if="receipt.note">
+                      <strong>Note:</strong> {{ receipt.note }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -2184,7 +2548,7 @@ const direct_banking_submitted = (message) => {
           <XCircleIcon class="w-5 h-5 text-white" @click="closeAction" />
         </DialogTitle>
         <!-- show date  -->
-        <div class="p-4">
+        <!-- <div class="p-4">
           <div class="grid grid-cols-2 gap-8">
             <div>
               <input
@@ -2332,11 +2696,12 @@ const direct_banking_submitted = (message) => {
               </div>
             </div>
           </div>
-        </div>
-        <!-- <CashImage
-          @internal-transfer-submitted="internal_transfer_submitted"
-          :direct-banking-submitted="direct_banking_submitted"
-        /> -->
+        </div> -->
+        <CashImage
+          :editData="editData"
+          @internal-transfer-submitted="internalTransferAction"
+          @direct-banking-submitted="directAction"
+        />
       </DialogPanel>
     </Modal>
   </Layout>

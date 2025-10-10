@@ -60,16 +60,9 @@
         <h2 class="text-base font-semibold">Internal Transfer</h2>
       </div>
 
-      <button
-        @click="goBack"
-        class="text-xs text-gray-600 hover:text-gray-800 bg-white border border-gray-600 rounded-full px-2 py-1 absolute top-1/2 -left-10"
-      >
-        <i class="fa-solid fa-angle-left"></i>
-      </button>
-
       <!-- Exchange Rate Input -->
       <div class="bg-white p-3 rounded-lg shadow mb-4">
-        <div class="max-w-md">
+        <div class="space-y-1 max-w-md">
           <label class="text-xs font-medium mb-1 block">Exchange Rate</label>
           <input
             type="number"
@@ -77,17 +70,17 @@
             @input="emitInternalTransferData"
             step="0.000001"
             placeholder="Enter exchange rate"
-            class="w-full px-2 py-2 text-xs rounded-lg border border-gray-300 focus:outline-none focus:border-[#ff613c]"
+            class="w-full px-4 py-3 text-xs rounded-lg border border-gray-300 focus:outline-none focus:border-[#ff613c]"
           />
         </div>
-        <div class="mt-2">
+        <div class="space-y-1 mt-2">
           <label class="text-xs font-medium mb-1 block">Notes (Optional)</label>
           <textarea
             v-model="internalTransferData.notes"
             @input="emitInternalTransferData"
             rows="2"
             placeholder="Add any notes here..."
-            class="w-full px-2 py-1.5 text-xs rounded-lg border border-gray-300 focus:outline-none focus:border-[#ff613c]"
+            class="w-full px-4 py-3 text-xs rounded-lg border border-gray-300 focus:outline-none focus:border-[#ff613c]"
           ></textarea>
         </div>
       </div>
@@ -155,7 +148,11 @@
                   </div>
                 </div>
                 <button
-                  @click="removeImage('from', index)"
+                  @click="
+                    !image.id
+                      ? removeImage('from', index)
+                      : deleteImage(image.id)
+                  "
                   class="text-red-500 hover:text-red-700 ml-1 text-xs"
                 >
                   <i class="fa-solid fa-trash"></i>
@@ -234,7 +231,9 @@
                   </div>
                 </div>
                 <button
-                  @click="removeImage('to', index)"
+                  @click="
+                    !image.id ? removeImage('to', index) : deleteImage(image.id)
+                  "
                   class="text-red-500 hover:text-red-700 ml-1 text-xs"
                 >
                   <i class="fa-solid fa-trash"></i>
@@ -254,17 +253,17 @@
       </div>
 
       <!-- Submit Button -->
-      <div class="flex justify-end mt-4 space-x-2">
+      <div class="flex justify-between mt-4 space-x-2">
         <button
           @click="goBack"
-          class="px-4 py-1.5 text-xs bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+          class="px-4 py-3 text-xs bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
         >
-          Cancel
+          Back
         </button>
         <button
           @click="submitInternalTransfer"
           :disabled="!canSubmitInternalTransfer"
-          class="px-4 py-1.5 text-xs bg-[#ff613c] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-orange-600"
+          class="px-4 py-3 text-xs bg-[#ff613c] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-orange-600"
         >
           Create Internal Transfer
         </button>
@@ -279,13 +278,6 @@
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-base font-semibold">Direct Banking Transaction</h2>
       </div>
-
-      <button
-        @click="goBack"
-        class="text-xs text-gray-600 hover:text-gray-800 bg-white border border-gray-600 rounded-full px-2 py-1 absolute top-1/2 -left-10"
-      >
-        <i class="fa-solid fa-angle-left"></i>
-      </button>
 
       <div class="bg-white rounded-lg shadow-lg p-4">
         <div class="grid grid-cols-2 gap-6">
@@ -568,25 +560,27 @@
                 />
               </div>
 
-              <div class="flex justify-end items-center space-x-2 pt-3">
-                <button
-                  @click="closeCashImageModal"
-                  class="px-3 py-1.5 text-xs bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  @click="addCashImage"
-                  :disabled="!canAddCashImage"
-                  :class="
-                    currentDirection === 'from'
-                      ? 'bg-red-500 hover:bg-red-600'
-                      : 'bg-green-500 hover:bg-green-600'
-                  "
-                  class="px-3 py-1.5 text-xs text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Add Image
-                </button>
+              <div>
+                <div class="flex justify-end items-center space-x-2 pt-3">
+                  <button
+                    @click="closeCashImageModal"
+                    class="px-3 py-1.5 text-xs bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    @click="addCashImage"
+                    :disabled="!canAddCashImage"
+                    :class="
+                      currentDirection === 'from'
+                        ? 'bg-red-500 hover:bg-red-600'
+                        : 'bg-green-500 hover:bg-green-600'
+                    "
+                    class="px-3 py-1.5 text-xs text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Add Image
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -597,7 +591,14 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import Swal from "sweetalert2";
+import { onMounted } from "vue";
+import { ref, computed, defineProps, watch } from "vue";
+import { useCashImageStore } from "../../stores/cashImage";
+import { useToast } from "vue-toastification";
+
+const cashImageStore = useCashImageStore();
+const toast = useToast();
 
 // Define emits
 const emit = defineEmits([
@@ -612,12 +613,17 @@ const emit = defineEmits([
   "form-reset",
 ]);
 
+const props = defineProps({
+  editData: Object,
+});
+
 // Step management
 const step = ref(1);
 const transferType = ref(null);
 
 // Internal Transfer Data
 const internalTransferData = ref({
+  id: null,
   exchange_rate: null,
   notes: "",
   from_images: [],
@@ -812,45 +818,12 @@ const getToCurrency = () => {
 const canSubmitInternalTransfer = computed(() => {
   return (
     internalTransferData.value.exchange_rate &&
-    internalTransferData.value.from_images.length > 0 &&
-    internalTransferData.value.to_images.length > 0
+    internalTransferData.value.from_images.length > 0
   );
 });
 
 const submitInternalTransfer = async () => {
   if (!canSubmitInternalTransfer.value) return;
-
-  const formData = new FormData();
-  formData.append("exchange_rate", internalTransferData.value.exchange_rate);
-  formData.append("notes", internalTransferData.value.notes || "");
-
-  // Add from images
-  internalTransferData.value.from_images.forEach((img, index) => {
-    formData.append(`from_images[${index}][image]`, img.image);
-    formData.append(`from_images[${index}][date]`, img.date);
-    formData.append(`from_images[${index}][sender]`, img.sender);
-    formData.append(`from_images[${index}][receiver]`, img.receiver);
-    formData.append(`from_images[${index}][amount]`, img.amount);
-    formData.append(`from_images[${index}][interact_bank]`, img.interact_bank);
-    formData.append(`from_images[${index}][currency]`, img.currency);
-  });
-
-  // Add to images
-  internalTransferData.value.to_images.forEach((img, index) => {
-    formData.append(`to_images[${index}][image]`, img.image);
-    formData.append(`to_images[${index}][date]`, img.date);
-    formData.append(`to_images[${index}][sender]`, img.sender);
-    formData.append(`to_images[${index}][receiver]`, img.receiver);
-    formData.append(`to_images[${index}][amount]`, img.amount);
-    formData.append(`to_images[${index}][interact_bank]`, img.interact_bank);
-    formData.append(`to_images[${index}][currency]`, img.currency);
-  });
-
-  // const response = await axios.post("/api/internal-transfers", formData, {
-  //   headers: {
-  //     "Content-Type": "multipart/form-data",
-  //   },
-  // });
 
   emit("internal-transfer-submitted", {
     data: internalTransferData.value,
@@ -861,27 +834,9 @@ const submitInternalTransfer = async () => {
 };
 
 const submitDirectBanking = async () => {
-  const formData = new FormData();
-  formData.append("image", directBankingForm.value.image);
-  formData.append("date", directBankingForm.value.date);
-  formData.append("sender", directBankingForm.value.sender);
-  formData.append("receiver", directBankingForm.value.receiver);
-  formData.append("amount", directBankingForm.value.amount);
-  formData.append("interact_bank", directBankingForm.value.interact_bank);
-  formData.append("currency", directBankingForm.value.currency);
-  formData.append("internal_transfer", false);
-
-  // const response = await axios.post("/api/cash-images", formData, {
-  //   headers: {
-  //     "Content-Type": "multipart/form-data",
-  //   },
-  // });
-
   emit("direct-banking-submitted", {
     data: directBankingForm.value,
   });
-
-  alert("Direct banking transaction created successfully!");
   resetForm();
 };
 
@@ -891,6 +846,7 @@ const resetForm = () => {
   internalTransferData.value = {
     exchange_rate: null,
     notes: "",
+    id: null,
     from_images: [],
     to_images: [],
   };
@@ -918,4 +874,44 @@ const formatDate = (dateString) => {
     minute: "2-digit",
   });
 };
+
+const deleteImage = async (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        await cashImageStore.deleteAction(id);
+        toast.success("success delete sale Image");
+      } catch (error) {
+        toast.error(error);
+        console.log(error);
+      } finally {
+        window.location.reload();
+      }
+    }
+  });
+
+  // await getDetail();
+};
+
+onMounted(() => {
+  if (props.editData) {
+    step.value = 2;
+    transferType.value = "internal";
+    internalTransferData.value.id = props.editData.id;
+    internalTransferData.value.exchange_rate = props.editData.exchange_rate;
+    internalTransferData.value.notes = props.editData.note;
+    internalTransferData.value.from_images = props.editData.from_files;
+    internalTransferData.value.to_images = props.editData.to_files;
+    // directBankingForm.value = props.editData.direct_banking_data;
+    console.log(props.editData);
+  }
+});
 </script>

@@ -202,5 +202,15 @@ export const useCashImageStore = defineStore("cashImage", {
         throw error;
       }
     },
+
+    async cashImageVerify(data, id) {
+      try {
+        const response = await axios.post(`cashImage/${id}/data_verify`, data);
+
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

@@ -35,6 +35,7 @@ import TaxInfo from "./BookingComponent/TaxInfo.vue";
 import { useAdminStore } from "../stores/admin";
 import ArchiveConfirmationModal from "./BookingComponent/ConfirmationModel.vue";
 import { useAuthStore } from "../stores/auth";
+import CashImage from "./CashImageCreate/CashImage.vue";
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
 // for tag
@@ -628,6 +629,66 @@ const closeModal = () => {
   openModalArchive.value = false;
 };
 
+const internalTransferAction = (message) => {
+  console.log(message, "Internal Transfer Data");
+
+  // Structure for internal transfer
+  const internalTransferData = {
+    is_internal_transfer: true,
+    exchange_rate: message.data.exchange_rate,
+    note: message.data.notes,
+    from_files: message.data.from_images.map((img) => ({
+      file: img.image,
+      amount: img.amount,
+      currency: img.currency,
+      sender: img.sender,
+      receiver: img.receiver,
+      interact_bank: img.interact_bank,
+      date: formatDateDb(img.date),
+    })),
+    to_files: message.data.to_images.map((img) => ({
+      file: img.image,
+      amount: img.amount,
+      currency: img.currency,
+      sender: img.sender,
+      receiver: img.receiver,
+      interact_bank: img.interact_bank,
+      date: formatDateDb(img.date),
+    })),
+  };
+
+  // Add to receipt_image array
+  formData.value.receipt_image.push(internalTransferData);
+
+  // Close modal and show success
+  openShowModal.value = false;
+};
+
+const directAction = (message) => {
+  console.log(message, "Direct Banking Data");
+
+  // Structure for direct/regular receipt
+  const directReceiptData = {
+    is_internal_transfer: false,
+    file: message.data.image,
+    amount: message.data.amount,
+    currency: message.data.currency,
+    sender: message.data.sender,
+    reciever: message.data.receiver, // Note: your backend uses 'reciever'
+    interact_bank: message.data.interact_bank,
+    date: formatDateDb(message.data.date),
+    bank_name: "", // Add if available in your form
+    is_corporate: false, // Add if available
+    note: "", // Add if available
+  };
+
+  // Add to receipt_image array
+  formData.value.receipt_image.push(directReceiptData);
+
+  // Close modal and show success
+  openShowModal.value = false;
+};
+
 const processSubmission = async () => {
   if (!isNaN(sub_total_real.value) && sub_total_real.value !== null) {
     if (!validateBasicInfo()) {
@@ -745,48 +806,154 @@ const processSubmission = async () => {
       }
     }
 
+    // if (formData.value.receipt_image?.length > 0) {
+    //   for (let x = 0; x < formData.value.receipt_image.length; x++) {
+    //     frmData.append(
+    //       "receipt_image[" + x + "][file]",
+    //       formData.value.receipt_image[x].file
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][amount]",
+    //       formData.value.receipt_image[x].amount
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][date]",
+    //       formatDateDb(formData.value.receipt_image[x].date)
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][bank_name]",
+    //       formData.value.receipt_image[x].bank_name ?? "other..."
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][sender]",
+    //       formData.value.receipt_image[x].sender
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][reciever]",
+    //       formData.value.receipt_image[x].reciever
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][interact_bank]",
+    //       formData.value.receipt_image[x].interact_bank
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][currency]",
+    //       formData.value.receipt_image[x].currency
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][is_corporate]",
+    //       formData.value.receipt_image[x].is_corporate ? 1 : 0
+    //     );
+    //     frmData.append(
+    //       "receipt_image[" + x + "][note]",
+    //       formData.value.receipt_image[x].comment
+    //     );
+    //   }
+    // }
+
     if (formData.value.receipt_image?.length > 0) {
       for (let x = 0; x < formData.value.receipt_image.length; x++) {
-        frmData.append(
-          "receipt_image[" + x + "][file]",
-          formData.value.receipt_image[x].file
-        );
-        frmData.append(
-          "receipt_image[" + x + "][amount]",
-          formData.value.receipt_image[x].amount
-        );
-        frmData.append(
-          "receipt_image[" + x + "][date]",
-          formatDateDb(formData.value.receipt_image[x].date)
-        );
-        frmData.append(
-          "receipt_image[" + x + "][bank_name]",
-          formData.value.receipt_image[x].bank_name ?? "other..."
-        );
-        frmData.append(
-          "receipt_image[" + x + "][sender]",
-          formData.value.receipt_image[x].sender
-        );
-        frmData.append(
-          "receipt_image[" + x + "][reciever]",
-          formData.value.receipt_image[x].reciever
-        );
-        frmData.append(
-          "receipt_image[" + x + "][interact_bank]",
-          formData.value.receipt_image[x].interact_bank
-        );
-        frmData.append(
-          "receipt_image[" + x + "][currency]",
-          formData.value.receipt_image[x].currency
-        );
-        frmData.append(
-          "receipt_image[" + x + "][is_corporate]",
-          formData.value.receipt_image[x].is_corporate ? 1 : 0
-        );
-        frmData.append(
-          "receipt_image[" + x + "][note]",
-          formData.value.receipt_image[x].comment
-        );
+        const receipt = formData.value.receipt_image[x];
+
+        if (receipt.is_internal_transfer) {
+          // Handle Internal Transfer
+          frmData.append(`receipt_image[${x}][is_internal_transfer]`, true);
+          frmData.append(
+            `receipt_image[${x}][exchange_rate]`,
+            receipt.exchange_rate
+          );
+          frmData.append(`receipt_image[${x}][note]`, receipt.note || "");
+
+          // Add from_files
+          receipt.from_files.forEach((fromFile, fromIndex) => {
+            if (fromFile.file) {
+              frmData.append(
+                `receipt_image[${x}][from_files][${fromIndex}][file]`,
+                fromFile.file
+              );
+            }
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][amount]`,
+              fromFile.amount
+            );
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][currency]`,
+              fromFile.currency
+            );
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][sender]`,
+              fromFile.sender
+            );
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][receiver]`,
+              fromFile.receiver
+            );
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][interact_bank]`,
+              fromFile.interact_bank
+            );
+            frmData.append(
+              `receipt_image[${x}][from_files][${fromIndex}][date]`,
+              fromFile.date
+            );
+          }); // Add to_files
+          receipt.to_files.forEach((toFile, toIndex) => {
+            if (toFile.file) {
+              frmData.append(
+                `receipt_image[${x}][to_files][${toIndex}][file]`,
+                toFile.file
+              );
+            }
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][amount]`,
+              toFile.amount
+            );
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][currency]`,
+              toFile.currency
+            );
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][sender]`,
+              toFile.sender
+            );
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][receiver]`,
+              toFile.receiver
+            );
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][interact_bank]`,
+              toFile.interact_bank
+            );
+            frmData.append(
+              `receipt_image[${x}][to_files][${toIndex}][date]`,
+              toFile.date
+            );
+          });
+        } else {
+          // Handle Regular Receipt (existing code)
+          frmData.append(`receipt_image[${x}][is_internal_transfer]`, false);
+          if (receipt.file) {
+            frmData.append(`receipt_image[${x}][file]`, receipt.file);
+          }
+          frmData.append(`receipt_image[${x}][amount]`, receipt.amount);
+          frmData.append(`receipt_image[${x}][date]`, receipt.date);
+          frmData.append(
+            `receipt_image[${x}][bank_name]`,
+            receipt.bank_name ?? "other..."
+          );
+          frmData.append(`receipt_image[${x}][sender]`, receipt.sender);
+          frmData.append(`receipt_image[${x}][reciever]`, receipt.reciever);
+          frmData.append(
+            `receipt_image[${x}][interact_bank]`,
+            receipt.interact_bank
+          );
+          frmData.append(`receipt_image[${x}][currency]`, receipt.currency);
+          frmData.append(
+            `receipt_image[${x}][is_corporate]`,
+            receipt.is_corporate ? 1 : 0
+          );
+          frmData.append(`receipt_image[${x}][note]`, receipt.note || "");
+        }
       }
     }
 
@@ -1393,7 +1560,7 @@ onMounted(async () => {
           <XCircleIcon class="w-5 h-5 text-white" @click="closeAction" />
         </DialogTitle>
         <!-- show date  -->
-        <div class="p-4">
+        <!-- <div class="p-4">
           <div class="grid grid-cols-2 gap-8">
             <div>
               <input
@@ -1540,7 +1707,11 @@ onMounted(async () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
+        <CashImage
+          @internal-transfer-submitted="internalTransferAction"
+          @direct-banking-submitted="directAction"
+        />
       </DialogPanel>
     </Modal>
   </Layout>

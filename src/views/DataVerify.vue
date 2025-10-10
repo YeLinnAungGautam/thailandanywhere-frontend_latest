@@ -190,7 +190,9 @@
               :key="item.id"
               @click="getDetailAction(item.id)"
               :class="{
-                'bg-[#FF613c]/30': selectedItem == item.id,
+                'bg-[#FF613c]/30':
+                  selectedItem == item.id && item.data_verify != 1,
+                'bg-green-50': selectedItem == item.id && item.data_verify == 1,
                 'bg-green-50': selectedItem != item.id && item.data_verify == 1,
                 'bg-red-50': selectedItem != item.id && item.data_verify != 1,
               }"
@@ -211,6 +213,9 @@
                 </div>
                 <div class="text-right">
                   <p class="text-sm font-medium">
+                    <!-- {{
+                      item.relatable_type == "App\\Models\\Booking" ? "" : "-"
+                    }} -->
                     {{ formatCurrency(item.amount) }}
                   </p>
                   <p class="text-xs text-gray-500">{{ item.currency }}</p>
@@ -275,6 +280,7 @@
                 <p class="text-lg font-medium">Cash Image Details</p>
                 <div class="flex justify-end items-center gap-x-2">
                   <p
+                    v-if="detailVal.relatable?.items"
                     @click="goToSource(detailVal)"
                     class="font-semibold px-4 py-1 text-white bg-[#FF613c] rounded-lg"
                   >
@@ -283,7 +289,11 @@
                   <p
                     class="font-semibold px-4 py-1 text-[#FF613c] bg-gray-100 rounded-lg"
                   >
-                    {{ detailVal.amount }} {{ detailVal.currency }}
+                    {{
+                      detailVal.relatable_type == "App\\Models\\Booking"
+                        ? ""
+                        : "-"
+                    }}{{ detailVal.amount }} {{ detailVal.currency }}
                   </p>
                   <p
                     class="px-6 py-2 text-xs bg-red-500 text-white cursor-pointer rounded-lg"
@@ -306,7 +316,7 @@
                 <div class="col-span-1">
                   <img
                     :src="detailVal.image"
-                    class="w-full h-auto rounded-lg shadow"
+                    class="w-full h-[580px] rounded-lg shadow"
                     alt="Cash image"
                   />
                 </div>
@@ -609,7 +619,12 @@ const clearFilter = () => {
 };
 
 const getAction = async () => {
-  const res = await cashImageStore.getListAction(watchSystem.value);
+  let res = "";
+  if (saveUrl.value == "") {
+    res = await cashImageStore.getListAction(watchSystem.value);
+  } else {
+    await changePage(saveUrl.value);
+  }
 
   console.log(res, "this is get action");
 };
@@ -659,26 +674,36 @@ const getDetail = async () => {
 
 const goToSource = (detail) => {
   if (detail.relatable_type == "App\\Models\\Booking") {
-    router.push(`/bookings/new-update/${detail.relatable_id}`);
+    const route = router.resolve(`/bookings/new-update/${detail.relatable_id}`);
+    window.open(route.href, "_blank");
   }
+
   if (detail.relatable_type == "App\\Models\\BookingItemGroup") {
     if (detail.relatable?.items[0]?.product_type == "App\\Models\\Hotel") {
-      router.push(`/group-hotel?id=${detail.relatable_id}`);
+      const route = router.resolve(`/group-hotel?id=${detail.relatable_id}`);
+      window.open(route.href, "_blank");
     }
     if (
       detail.relatable?.items[0]?.product_type == "App\\Models\\EntranceTicket"
     ) {
-      router.push(`/group-attraction?id=${detail.relatable_id}`);
+      const route = router.resolve(
+        `/group-attraction?id=${detail.relatable_id}`
+      );
+      window.open(route.href, "_blank");
     }
     if (
       detail.relatable?.items[0]?.product_type == "App\\Models\\PrivateVanTour"
     ) {
-      router.push(`/group-vantour?id=${detail.relatable_id}`);
+      const route = router.resolve(`/group-vantour?id=${detail.relatable_id}`);
+      window.open(route.href, "_blank");
     }
   }
 };
 
+const saveUrl = ref("");
+
 const changePage = async (url) => {
+  saveUrl.value = url;
   await cashImageStore.getChangePage(url, watchSystem.value);
 };
 
@@ -793,8 +818,26 @@ const verifyStatus = async (status) => {
       await cashImageStore.cashImageVerify(frmData, selectedItem.value);
 
       toast.success(`Item marked as ${status}`);
-      await getDetail();
-      await getAction();
+      // Find current item index
+      const currentIndex = cashImages.value.data.findIndex(
+        (item) => item.id === selectedItem.value
+      );
+
+      // Get next item (if exists)
+      if (
+        currentIndex !== -1 &&
+        currentIndex < cashImages.value.data.length - 1
+      ) {
+        const nextItem = cashImages.value.data[currentIndex + 1];
+        await getDetailAction(nextItem.id);
+        await getAction();
+      } else {
+        // If last item, refresh the list
+        await getAction();
+        if (cashImages.value.data.length > 0) {
+          await getDetailAction(cashImages.value.data[0].id);
+        }
+      }
     } catch (error) {
       toast.error("Verification failed");
     }

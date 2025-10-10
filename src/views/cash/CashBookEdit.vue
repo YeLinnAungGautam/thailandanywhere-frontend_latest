@@ -261,7 +261,11 @@
                     </button>
                     <button
                       v-if="authStore.isSuperAdmin"
-                      @click="removeFeatureSelectImage(index)"
+                      @click="
+                        receipt?.id
+                          ? deleteInternalTransfer(receipt.id)
+                          : removeFeatureSelectImage(index)
+                      "
                       class="text-red-500 hover:text-red-700"
                     >
                       <XCircleIcon class="w-5 h-5" />
@@ -467,6 +471,7 @@ import { useAuthStore } from "../../stores/auth";
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/vue/24/outline";
 import { useCashImageStore } from "../../stores/cashImage";
 import Swal from "sweetalert2";
+import { useInternalTransferStore } from "../../stores/internalTransfer";
 
 // Store initialization
 const cashStructureStore = useCashStructureStore();
@@ -476,6 +481,7 @@ const cashImageStore = useCashImageStore();
 const cashImageEditStore = useCashImageEditStore();
 const authStore = useAuthStore();
 const toast = useToast();
+const internalTransferStore = useInternalTransferStore();
 
 // Store refs
 const { cash_structures } = storeToRefs(cashStructureStore);
@@ -949,6 +955,31 @@ const editGetFormData = (data) => {
   // }
 
   formData.value.images = data.cash_images?.map(processReceipt);
+};
+
+const deleteInternalTransfer = async (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await internalTransterStore.deleteAction(id);
+        console.log(response, "this is internal delete");
+
+        toast.success(response.message);
+      } catch (error) {
+        toast.error(error.response.data.message);
+      } finally {
+        window.location.reload();
+      }
+    }
+  });
 };
 
 const processReceipt = (receipt) => {

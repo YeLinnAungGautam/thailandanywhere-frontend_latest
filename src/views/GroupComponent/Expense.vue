@@ -969,6 +969,8 @@ const expenseUpdateAction = async () => {
   let successCount = 0;
   let failCount = 0;
 
+  console.log(formData.value, "this is main");
+
   try {
     // Get the array of IDs to update
     const itemIds = formData.value.multiple_id || [];
@@ -1047,7 +1049,10 @@ const expenseUpdateAction = async () => {
 
         // Calculate and append total cost price
         if (costPrice) {
-          if (hotalQuantity == 0) {
+          if (
+            props.detail?.items[0]?.product_type ==
+            "App\\Models\\EntranceTicket"
+          ) {
             // This is for tickets (non-hotel products)
             let childCostTotal = 0;
 
@@ -1077,6 +1082,8 @@ const expenseUpdateAction = async () => {
 
         // Send first update request
         const response = await reservationStore.updateAction(frmData, itemId);
+
+        console.log(response, "this is total cost price");
 
         // If first update was successful, send second update
         if (response.status == 1) {
@@ -1316,8 +1323,8 @@ const populateFormData = async () => {
       formData.value.multiple_id.push(item.id);
       formData.value.multiple_id_reservation.push(item.id); // Or any other reservation ID if needed
       formData.value.multiple_crm_id.push(item.crm_id);
-      formData.value.multiple_cost_price.push(item.cost_price);
-      formData.value.multiple_total_cost_price.push(item.total_cost_price);
+      formData.value.multiple_cost_price.push(item.cost_price || 0);
+      formData.value.multiple_total_cost_price.push(item.total_cost_price || 0);
       formData.value.multiple_individual.push(item.individual_pricing);
       editData.value.reservation_ids.push({
         id: item.id,

@@ -48,6 +48,7 @@ import { daysBetween } from "./help/DateBetween";
 import ArchiveConfirmationModal from "./BookingComponent/ConfirmationModel.vue";
 import { useCashImageStore } from "../stores/cashImage";
 import CashImage from "./CashImageCreate/CashImage.vue";
+import { useInternalTransferStore } from "../stores/internalTransfer";
 
 // import RestaurantImage from "../../public/restaurant-svgrepo-com.svg";
 
@@ -55,6 +56,7 @@ import CashImage from "./CashImageCreate/CashImage.vue";
 const currentTag = ref("Van Tours");
 const currentSubTag = ref("items");
 const addItemModal = ref(false);
+const internalTransterStore = useInternalTransferStore();
 const bookingStore = useBookingStore();
 const toast = useToast();
 const router = useRouter();
@@ -1756,6 +1758,31 @@ const addUserToBooking = async (id) => {
   await onSubmitHandler();
 };
 
+const deleteInternalTransfer = async (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await internalTransterStore.deleteAction(id);
+        console.log(response, "this is internal delete");
+
+        toast.success(response.message);
+      } catch (error) {
+        toast.error(error.response.data.message);
+      } finally {
+        window.location.reload();
+      }
+    }
+  });
+};
+
 const searchWithUnique = async () => {
   if (unique_key.value != "") {
     const res = await userStore.getListAction({ unique_key: unique_key.value });
@@ -2233,7 +2260,11 @@ onMounted(async () => {
                     </button>
                     <button
                       v-if="authStore.isSuperAdmin"
-                      @click="removeFeatureSelectImage(index)"
+                      @click="
+                        receipt.id
+                          ? deleteInternalTransfer(receipt.id)
+                          : removeFeatureSelectImage(index)
+                      "
                       class="text-red-500 hover:text-red-700"
                     >
                       <XCircleIcon class="w-5 h-5" />

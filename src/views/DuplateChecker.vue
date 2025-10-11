@@ -210,19 +210,14 @@
                     {{ item.sender }} → {{ item.receiver }}
                   </p>
                   <div class="flex items-center gap-4 text-xs text-gray-500">
-                    <span>{{ formattedDateTime(item.date) }}</span>
+                    <span>{{ formatDate(item.date) }}</span>
                   </div>
                 </div>
-                <div class="space-y-3">
-                  <div class="text-right">
-                    <p class="text-sm font-medium">
-                      {{ formatCurrency(item.amount) }}
-                    </p>
-                    <p class="text-xs text-gray-500">{{ item.currency }}</p>
-                  </div>
-                  <p class="text-xs bg-gray-200 px-2 py-1 rounded-lg">
-                    {{ item.interact_bank }}
+                <div class="text-right">
+                  <p class="text-sm font-medium">
+                    {{ formatCurrency(item.amount) }}
                   </p>
+                  <p class="text-xs text-gray-500">{{ item.currency }}</p>
                 </div>
               </div>
             </div>

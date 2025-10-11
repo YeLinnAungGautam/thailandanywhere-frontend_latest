@@ -34,7 +34,7 @@
             class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-200 hover:text-black rounded-full transition-colors font-medium text-gray-700 whitespace-nowrap text-xs"
             @click="toggleCashImageChecker"
             :class="
-              route.name == 'dataVerify'
+              ['dataVerify', 'duplicateChecker'].includes(route.name)
                 ? 'bg-[#FF613c] text-white'
                 : 'bg-gray-100'
             "
@@ -88,7 +88,9 @@
 
             <!-- Duplicate Checker -->
             <button
+              @click="router.push('/duplicate_checker')"
               class="w-full text-left px-4 py-2 hover:bg-blue-50 transition-colors text-xs text-gray-700 flex items-center gap-2"
+              :class="route.name == 'duplicateChecker' ? 'bg-blue-50' : ''"
             >
               <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
               <span>Duplicate Checker</span>

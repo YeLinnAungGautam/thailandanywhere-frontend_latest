@@ -85,6 +85,7 @@ import StorageView from "../views/Storage.vue";
 import PartnerView from "../views/Partner.vue";
 import dataVerify from "../views/DataVerify.vue";
 import RemaindTaxReceiptModal from "../views/TaxReceiptComponent/RemaindTaxReceiptModal.vue";
+import duplicateChecker from "../views/DuplateChecker.vue";
 
 const routes = [
   {
@@ -446,6 +447,11 @@ const routes = [
     path: "/data_verify",
     name: "dataVerify",
     component: dataVerify,
+  },
+  {
+    path: "/duplicate_checker",
+    name: "duplicateChecker",
+    component: duplicateChecker,
   },
   {
     path: "/receiptable_checker",

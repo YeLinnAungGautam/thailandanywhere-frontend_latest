@@ -212,5 +212,28 @@ export const useCashImageStore = defineStore("cashImage", {
         throw error;
       }
     },
+
+    async cashImageDuplicate(params) {
+      try {
+        const response = await axios.get(`/duplicate-cash-image`, {
+          params: params,
+        });
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async mergeCashImages(keepId, deleteIds) {
+      try {
+        const response = await axios.post(`/merge-cash-image`, {
+          keep_id: keepId,
+          delete_ids: deleteIds,
+        });
+        return response.data;
+      } catch (error) {
+        console.error("Merge Cash Images Error:", error);
+        throw error;
+      }
+    },
   },
 });

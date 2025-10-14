@@ -22,6 +22,10 @@
       </div>
     </div>
 
+    <div class="relative z-40">
+      <VerifyList />
+    </div>
+
     <div class="grid gap-4 relative grid-cols-3 pt-2">
       <!-- Left Side - Duplicate Groups List -->
       <div class="border shadow-sm rounded-lg p-4 col-span-1">
@@ -94,7 +98,7 @@
                 </p>
                 <p class="text-lg font-semibold text-[#FF613c]">
                   {{ formatCurrency(group.duplicate_signature.amount) }}
-                  {{ group.duplicate_signature.currency || "THB" }}
+                  {{ group.cash_images[0].currency || "THB" }}
                 </p>
               </div>
               <span
@@ -197,6 +201,7 @@
               <div
                 v-for="cashImage in selectedGroup.cash_images"
                 :key="cashImage.id"
+                @click="handleKeepSelection(cashImage.id)"
                 class="border rounded-lg overflow-hidden relative transition-all w-[400px] flex-shrink-0"
                 :class="{
                   'border-green-500 bg-green-50':
@@ -406,6 +411,7 @@ import { useToast } from "vue-toastification";
 import Swal from "sweetalert2";
 import YearPickerVue from "./AccountingComponent/yearPicker.vue";
 import { useRouter } from "vue-router";
+import VerifyList from "./CashImageCreate/VerifyList.vue";
 
 const router = useRouter();
 const toast = useToast();
@@ -488,7 +494,7 @@ const refreshDuplicates = async () => {
 
     if (response.result && response.result.duplicate_groups) {
       duplicateGroups.value = response.result.duplicate_groups;
-      toast.success(`Found ${duplicateGroups.value.length} duplicate groups`);
+      // toast.success(`Found ${duplicateGroups.value.length} duplicate groups`);
     } else {
       duplicateGroups.value = [];
       toast.info("No duplicates found");

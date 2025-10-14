@@ -73,7 +73,8 @@
                   authStore.isSuperAdmin ||
                   authStore.isCashier ||
                   authStore.isAdmin ||
-                  authStore.isSaleAdmin
+                  authStore.isSaleAdmin ||
+                  authStore.isAuditor
                 "
                 :icon="CalendarIcon"
                 to="/bookings/%25/%25/%25"
@@ -87,7 +88,7 @@
                 ]"
               />
               <SidebarItem
-                v-if="!authStore.isExternalAudit"
+                v-if="!authStore.isExternalAudit && !authStore.isAuditor"
                 name="Order"
                 :icon="ListBulletIcon"
                 to="/order"
@@ -149,7 +150,7 @@
                 to="/group-item"
               /> -->
               <div
-                v-if="!authStore.isAuditor && !authStore.isExternalAudit"
+                v-if="!authStore.isExternalAudit"
                 @click="toggleGroupShow"
                 class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
               >

@@ -93,6 +93,23 @@
                   </select>
                 </div>
 
+                <div>
+                  <p class="text-[10px] pb-2">Interact Bank</p>
+                  <select
+                    v-model="searchKey.interact_bank"
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option value="personal">Personal</option>
+                    <option value="company">Company</option>
+                    <option value="cash_at_office">Cash at Office</option>
+                    <option value="to_money_changer">To Money Changer</option>
+                    <option value="deposit_management">
+                      Deposit Management
+                    </option>
+                    <option value="pay_to_driver">Pay to Driver</option>
+                  </select>
+                </div>
+
                 <div
                   class="sticky bottom-0 w-full pb-4 pt-2 border-t border-gray-200 bg-white"
                 >
@@ -176,6 +193,21 @@
                 "
               />
               {{ searchKey.currency }}
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              v-if="searchKey.interact_bank"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    searchKey.interact_bank = '';
+                    searchAction();
+                  }
+                "
+              />
+              {{ searchKey.interact_bank }}
             </p>
           </div>
 
@@ -422,7 +454,7 @@
                       @click="submitUpdate"
                       class="px-6 py-2 bg-green-500 text-white text-xs cursor-pointer rounded-lg"
                     >
-                      Save Changes
+                      Save Change & Verify
                     </p>
                   </div>
                 </div>
@@ -532,6 +564,7 @@ const searchKey = ref({
   sender: "",
   receiver: "",
   currency: "",
+  interact_bank: "",
 });
 
 const showDate = ref(false);
@@ -550,6 +583,7 @@ const formData = ref({
   amount: 0,
   interact_bank: "personal",
   currency: "THB",
+  interact_bank: "",
   relatable_type: "",
   relatable_id: "",
 });
@@ -652,6 +686,7 @@ const clearFilter = () => {
     sender: "",
     receiver: "",
     currency: "",
+    interact_bank: "",
   };
   filterShow.value = false;
   getAction();
@@ -833,7 +868,8 @@ const submitUpdate = async () => {
     toast.error("Update failed");
   } finally {
     loadingDetail.value = false;
-    window.location.reload();
+
+    await verifyStatus(true);
   }
 };
 

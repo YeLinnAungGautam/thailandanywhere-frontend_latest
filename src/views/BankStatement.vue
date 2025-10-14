@@ -88,6 +88,18 @@
             />
           </div>
 
+          <div>
+            <select
+              v-model="currencySearch"
+              class="w-full px-2 py-1.5 text-xs border rounded-lg"
+            >
+              <option value="">Select Currency</option>
+              <option value="THB">THB</option>
+              <option value="MMK">MMK</option>
+              <option value="USD">USD</option>
+            </select>
+          </div>
+
           <div class="relative">
             <input
               v-model="amountSearch"
@@ -989,6 +1001,7 @@ const date_range = ref("");
 const filterType = ref("all");
 const senderSearch = ref("");
 const crmSearch = ref("");
+const currencySearch = ref("");
 const bankNameSearch = ref("");
 const amountSearch = ref("");
 const interactSearch = ref("");
@@ -1305,6 +1318,10 @@ const searchParams = computed(() => {
     params.crm_id = crmSearch.value;
   }
 
+  if (currencySearch.value) {
+    params.currency = currencySearch.value;
+  }
+
   if (amountSearch.value) {
     params.amount = amountSearch.value;
   }
@@ -1346,6 +1363,7 @@ const clearSearch = () => {
   senderSearch.value = "";
   crmSearch.value = "";
   bankNameSearch.value = "";
+  currencySearch.value = "";
   amountSearch.value = "";
   interactSearch.value = "";
   filterType.value = "";
@@ -1554,6 +1572,7 @@ watch(
     filterType,
     senderSearch,
     crmSearch,
+    currencySearch,
     bankNameSearch,
     amountSearch,
     interactSearch,

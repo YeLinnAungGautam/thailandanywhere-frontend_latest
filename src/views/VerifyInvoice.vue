@@ -598,8 +598,7 @@
 
               <!-- Image and Verification Content -->
               <div class="grid grid-cols-3 pt-5 gap-x-4">
-                <!-- Image Grid for Expense -->
-                <div class="col-span-1 grid grid-cols-3 gap-2" v-if="!show">
+                <!-- <div class="col-span-1 grid grid-cols-3 gap-2" v-if="!show">
                   <div class="space-y-2 rounded-lg overflow-y-auto h-[400px]">
                     <div
                       class="relative cursor-pointer"
@@ -661,78 +660,309 @@
                       alt=""
                     />
                   </div>
-                </div>
-
-                <!-- Image Grid for Sales -->
-                <div class="col-span-1 grid grid-cols-3 gap-2" v-if="show">
-                  <div class="space-y-2 rounded-lg overflow-y-auto h-[400px]">
-                    <div
-                      class="relative cursor-pointer"
-                      v-for="i in detailVal?.receipts"
-                      :key="i"
-                      @click="imageData = i"
-                    >
-                      <img
-                        :src="i?.image"
-                        alt=""
-                        class="w-full h-auto rounded-lg"
-                        :class="
-                          imageData?.id == i?.id
-                            ? checkDataFailOrSuccess(imageData)
-                              ? 'border-2 border-green-500'
-                              : 'border-2 border-red-500'
-                            : ''
-                        "
-                      />
+                </div> -->
+                <div class="col-span-1">
+                  <template
+                    v-if="
+                      imageData?.is_internal_transfer ||
+                      detailVal?.receipts[0]?.is_internal_transfer
+                    "
+                  >
+                    <!-- Internal Transfer View -->
+                    <div class="col-span-1 space-y-3">
                       <div
-                        class="absolute top-1 right-1 w-4 h-4 rounded-full"
-                        :class="
-                          imageData?.id == i?.id
-                            ? checkDataFailOrSuccess(imageData)
-                              ? 'bg-green-500'
-                              : 'bg-red-500'
-                            : ''
-                        "
+                        class="bg-purple-50 rounded-lg p-3 border border-purple-200"
                       >
-                        <XMarkIcon
-                          class="w-4 h-4 text-white"
+                        <div class="flex items-center justify-between mb-2">
+                          <span class="text-xs font-semibold text-purple-700"
+                            >Internal Transfer</span
+                          >
+                          <span class="text-xs text-gray-600"
+                            >Rate:
+                            {{
+                              imageData?.exchange_rate ||
+                              detailVal?.receipts[0]?.exchange_rate
+                            }}</span
+                          >
+                        </div>
+
+                        <!-- FROM Section -->
+                        <div class="mb-3">
+                          <p class="text-xs font-medium text-red-700 mb-2">
+                            FROM (Source)
+                          </p>
+                          <div class="space-y-2">
+                            <div
+                              v-for="fromFile in imageData?.from_files ||
+                              detailVal?.receipts[0]?.from_files ||
+                              []"
+                              :key="fromFile.id"
+                              class="bg-white rounded-lg border border-red-200 p-2"
+                            >
+                              <div
+                                class="relative cursor-pointer"
+                                @click="
+                                  imageData = {
+                                    ...detailVal?.receipts[0],
+                                    selectedImage: fromFile,
+                                  }
+                                "
+                              >
+                                <img
+                                  :src="fromFile.image"
+                                  alt="From receipt"
+                                  class="w-full h-24 object-cover rounded"
+                                  :class="
+                                    imageData?.selectedImage?.id === fromFile.id
+                                      ? 'ring-2 ring-red-500'
+                                      : ''
+                                  "
+                                />
+                                <div
+                                  class="absolute top-1 right-1 w-4 h-4 rounded-full"
+                                  :class="
+                                    checkDataFailOrSuccess(fromFile)
+                                      ? 'bg-green-500'
+                                      : 'bg-red-500'
+                                  "
+                                >
+                                  <CheckIcon
+                                    v-if="checkDataFailOrSuccess(fromFile)"
+                                    class="w-4 h-4 text-white"
+                                  />
+                                  <XMarkIcon
+                                    v-else
+                                    class="w-4 h-4 text-white"
+                                  />
+                                </div>
+                              </div>
+                              <div class="mt-1 text-xs space-y-0.5">
+                                <p class="font-semibold text-red-600">
+                                  {{ fromFile.currency }}
+                                  {{ formatCurrency(fromFile.amount) }}
+                                </p>
+                                <p class="text-gray-600 truncate">
+                                  {{ fromFile.sender }}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- TO Section -->
+                        <div>
+                          <p class="text-xs font-medium text-green-700 mb-2">
+                            TO (Destination)
+                          </p>
+                          <div class="space-y-2">
+                            <div
+                              v-for="toFile in imageData?.to_files ||
+                              detailVal?.receipts[0]?.to_files ||
+                              []"
+                              :key="toFile.id"
+                              class="bg-white rounded-lg border border-green-200 p-2"
+                            >
+                              <div
+                                class="relative cursor-pointer"
+                                @click="
+                                  imageData = {
+                                    ...detailVal?.receipts[0],
+                                    selectedImage: toFile,
+                                  }
+                                "
+                              >
+                                <img
+                                  :src="toFile.image"
+                                  alt="To receipt"
+                                  class="w-full h-24 object-cover rounded"
+                                  :class="
+                                    imageData?.selectedImage?.id === toFile.id
+                                      ? 'ring-2 ring-green-500'
+                                      : ''
+                                  "
+                                />
+                                <div
+                                  class="absolute top-1 right-1 w-4 h-4 rounded-full"
+                                  :class="
+                                    checkDataFailOrSuccess(toFile)
+                                      ? 'bg-green-500'
+                                      : 'bg-red-500'
+                                  "
+                                >
+                                  <CheckIcon
+                                    v-if="checkDataFailOrSuccess(toFile)"
+                                    class="w-4 h-4 text-white"
+                                  />
+                                  <XMarkIcon
+                                    v-else
+                                    class="w-4 h-4 text-white"
+                                  />
+                                </div>
+                              </div>
+                              <div class="mt-1 text-xs space-y-0.5">
+                                <p class="font-semibold text-green-600">
+                                  {{ toFile.currency }}
+                                  {{ formatCurrency(toFile.amount) }}
+                                </p>
+                                <p class="text-gray-600 truncate">
+                                  {{ toFile.receiver }}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div
                           v-if="
-                            imageData?.id == i?.id &&
-                            !checkDataFailOrSuccess(imageData)
+                            imageData?.notes || detailVal?.receipts[0]?.notes
+                          "
+                          class="mt-3 pt-2 border-t border-purple-200"
+                        >
+                          <p class="text-xs text-gray-600">
+                            <span class="font-medium">Note:</span>
+                            {{
+                              imageData?.notes || detailVal?.receipts[0]?.notes
+                            }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+
+                  <!-- Regular Receipts View (Not Internal Transfer) -->
+                  <template v-else>
+                    <div class="space-y-2 rounded-lg overflow-y-auto h-[400px]">
+                      <div
+                        class="relative cursor-pointer"
+                        v-for="i in detailVal?.receipts"
+                        :key="i"
+                        @click="imageData = i"
+                      >
+                        <img
+                          :src="i?.image"
+                          alt=""
+                          class="w-full h-auto rounded-lg"
+                          :class="
+                            imageData?.id == i?.id
+                              ? checkDataFailOrSuccess(imageData)
+                                ? 'border-2 border-green-500'
+                                : 'border-2 border-red-500'
+                              : ''
                           "
                         />
-                        <CheckIcon
-                          class="w-4 h-4 text-white"
-                          v-if="
-                            imageData?.id == i?.id &&
-                            checkDataFailOrSuccess(imageData)
+                        <div
+                          class="absolute top-1 right-1 w-4 h-4 rounded-full"
+                          :class="
+                            imageData?.id == i?.id
+                              ? checkDataFailOrSuccess(imageData)
+                                ? 'bg-green-500'
+                                : 'bg-red-500'
+                              : ''
                           "
-                        />
+                        >
+                          <XMarkIcon
+                            class="w-4 h-4 text-white"
+                            v-if="
+                              imageData?.id == i?.id &&
+                              !checkDataFailOrSuccess(imageData)
+                            "
+                          />
+                          <CheckIcon
+                            class="w-4 h-4 text-white"
+                            v-if="
+                              imageData?.id == i?.id &&
+                              checkDataFailOrSuccess(imageData)
+                            "
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="relative col-span-1 w-full h-full">
+                      <div class="absolute top-1 right-1">
+                        <p
+                          @click="openModal(imageData)"
+                          class="text-[10px] shadow-lg cursor-pointer text-white bg-[#FF613c] px-2 py-1 rounded-lg"
+                        >
+                          Fill data
+                        </p>
+                      </div>
+                      <img
+                        class="col-span-2 w-full h-auto overflow-hidden rounded-lg"
+                        :src="
+                          !imageData
+                            ? detailVal?.receipts[0]?.image
+                            : imageData?.image
+                        "
+                        alt=""
+                      />
+                    </div>
+                  </template>
+
+                  <!-- Large Image Preview for Internal Transfer -->
+                  <div
+                    v-if="
+                      imageData?.is_internal_transfer ||
+                      detailVal?.receipts[0]?.is_internal_transfer
+                    "
+                    class="col-span-1 w-full h-full"
+                  >
+                    <div class="relative">
+                      <div class="absolute top-1 right-1 z-10">
+                        <p
+                          @click="
+                            openModal(
+                              imageData?.selectedImage ||
+                                imageData?.from_files?.[0] ||
+                                imageData?.to_files?.[0]
+                            )
+                          "
+                          class="text-[10px] shadow-lg cursor-pointer text-white bg-[#FF613c] px-2 py-1 rounded-lg"
+                        >
+                          Fill data
+                        </p>
+                      </div>
+                      <img
+                        class="w-full h-auto overflow-hidden rounded-lg"
+                        :src="
+                          imageData?.selectedImage?.image ||
+                          imageData?.from_files?.[0]?.image ||
+                          detailVal?.receipts[0]?.from_files?.[0]?.image ||
+                          imageData?.to_files?.[0]?.image ||
+                          detailVal?.receipts[0]?.to_files?.[0]?.image
+                        "
+                        alt="Receipt preview"
+                      />
+                      <!-- Image Details -->
+                      <div
+                        class="mt-2 p-3 bg-gray-50 rounded-lg text-xs space-y-1"
+                      >
+                        <p v-if="imageData?.selectedImage">
+                          <span class="font-medium">Amount:</span>
+                          <span class="text-blue-600"
+                            >{{ imageData.selectedImage.currency }}
+                            {{
+                              formatCurrency(imageData.selectedImage.amount)
+                            }}</span
+                          >
+                        </p>
+                        <p v-if="imageData?.selectedImage">
+                          <span class="font-medium">From:</span>
+                          {{ imageData.selectedImage.sender || "-" }}
+                        </p>
+                        <p v-if="imageData?.selectedImage">
+                          <span class="font-medium">To:</span>
+                          {{ imageData.selectedImage.receiver || "-" }}
+                        </p>
+                        <p v-if="imageData?.selectedImage">
+                          <span class="font-medium">Bank:</span>
+                          {{ imageData.selectedImage.interact_bank || "-" }}
+                        </p>
                       </div>
                     </div>
                   </div>
-                  <div class="relative col-span-2 w-full h-full">
-                    <div class="absolute top-1 right-1">
-                      <p
-                        @click="openModal(imageData)"
-                        class="text-[10px] shadow-lg cursor-pointer text-white bg-[#FF613c] px-2 py-1 rounded-lg"
-                      >
-                        Fill data
-                      </p>
-                    </div>
-                    <img
-                      class="col-span-2 w-full h-auto overflow-hidden rounded-lg"
-                      :src="
-                        !imageData
-                          ? detailVal?.receipts[0]?.image
-                          : imageData?.image
-                      "
-                      alt=""
-                    />
-                  </div>
                 </div>
 
-                <!-- Verification Components -->
                 <div class="col-span-2">
                   <div
                     class="p-3 rounded-lg border border-gray-200"
@@ -750,7 +980,6 @@
               </div>
             </div>
 
-            <!-- Loading or No Selection State -->
             <div
               class="flex justify-center items-center h-[400px] pt-5 gap-x-4"
               v-if="loadingDetail && !selectedItem"

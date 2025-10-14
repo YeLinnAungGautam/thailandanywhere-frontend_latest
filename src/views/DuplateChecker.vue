@@ -677,7 +677,7 @@ const handleMerge = async () => {
 
       console.log("Merge response:", response);
 
-      if (response.status === "Request was successful.") {
+      if (response.status === 1) {
         await Swal.fire({
           title: "Success!",
           html: `

@@ -84,7 +84,7 @@
         </div>
       </div>
     </div>
-    <div class="col-span-2 p-3 rounded-lg border border-gray-200">
+    <!-- <div class="col-span-2 p-3 rounded-lg border border-gray-200">
       <div class="flex justify-between items-center">
         <div class="flex justify-start items-center gap-x-2">
           <p class="pb-1 text-lg font-medium text-[#FF613c]">
@@ -140,8 +140,194 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
+    <div class="col-span-2 p-3 rounded-lg border border-gray-200">
+      <div class="flex justify-between items-center">
+        <div class="flex justify-start items-center gap-x-2">
+          <p class="pb-1 text-lg font-medium text-[#FF613c]">
+            Payment Recieved
+          </p>
+          <p
+            @click="router.push(`/bookings/new-update/${detail?.booking?.id}`)"
+            class="text-center rounded-lg text-[10px] bg-[#FF613c] text-white px-3 py-0.5"
+          >
+            {{ detail?.booking?.crm_id }}
+          </p>
+          <p
+            class="text-center rounded-lg text-[8px] text-white px-3 py-1"
+            :class="{
+              'bg-green-500': detail?.booking?.payment_status == 'fully_paid',
+              'bg-red-500': detail?.booking?.payment_status != 'fully_paid',
+            }"
+          >
+            {{ detail?.booking?.payment_status }}
+          </p>
+        </div>
+      </div>
+      <div class="pt-2 space-y-4 h-[55vh] overflow-y-auto">
+        <!-- Regular receipts and Internal transfers -->
+        <template
+          v-for="(receipt, index) in detail?.booking?.receipts ?? []"
+          :key="index"
+        >
+          <!-- Internal Transfer Card -->
+          <div
+            v-if="receipt?.is_internal_transfer"
+            class="border border-gray-200 rounded-lg p-4 bg-white shadow"
+          >
+            <div class="flex justify-between items-center mb-3">
+              <div class="flex items-center gap-2">
+                <span
+                  class="px-3 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-medium"
+                >
+                  Internal Transfer
+                </span>
+                <span class="text-xs text-gray-600"
+                  >Rate: {{ receipt.exchange_rate }}</span
+                >
+              </div>
+              <!-- <div class="flex gap-2">
+                <button
+                  @click="openModal(receipt)"
+                  class="text-blue-600 hover:text-blue-700"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
+                    />
+                  </svg>
+                </button>
+              </div> -->
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <!-- FROM Section -->
+              <div class="bg-red-50 rounded-lg p-3">
+                <h4 class="text-xs font-semibold text-red-700 mb-2">FROM</h4>
+                <div
+                  v-for="fromFile in receipt.from_files"
+                  :key="fromFile.id"
+                  class="space-y-2"
+                >
+                  <div
+                    class="bg-white rounded border border-red-200 overflow-hidden"
+                  >
+                    <img
+                      :src="fromFile.image"
+                      class="w-full h-32 object-cover cursor-pointer"
+                      @click="openModal(fromFile)"
+                      alt="From receipt"
+                    />
+                  </div>
+                  <div class="text-xs space-y-1">
+                    <p class="font-semibold text-gray-900">
+                      Amount:
+                      <span class="text-red-600"
+                        >{{ fromFile.currency }}
+                        {{ formattedNumber(fromFile.amount) }}</span
+                      >
+                    </p>
+                    <p class="text-gray-600">From: {{ fromFile.sender }}</p>
+                    <p class="text-gray-600">To: {{ fromFile.receiver }}</p>
+                    <p class="text-gray-600">
+                      Bank: {{ fromFile.interact_bank }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TO Section -->
+              <div class="bg-green-50 rounded-lg p-3">
+                <h4 class="text-xs font-semibold text-green-700 mb-2">TO</h4>
+                <div class="space-y-3">
+                  <div
+                    v-for="toFile in receipt.to_files"
+                    :key="toFile.id"
+                    class="space-y-2"
+                  >
+                    <div
+                      class="bg-white rounded border border-green-200 overflow-hidden"
+                    >
+                      <img
+                        :src="toFile.image"
+                        class="w-full h-32 object-cover cursor-pointer"
+                        @click="openModal(toFile)"
+                        alt="To receipt"
+                      />
+                    </div>
+                    <div class="text-xs space-y-1">
+                      <p class="font-semibold text-gray-900">
+                        Amount:
+                        <span class="text-green-600"
+                          >{{ toFile.currency }}
+                          {{ formattedNumber(toFile.amount) }}</span
+                        >
+                      </p>
+                      <p class="text-gray-600">From: {{ toFile.sender }}</p>
+                      <p class="text-gray-600">To: {{ toFile.receiver }}</p>
+                      <p class="text-gray-600">
+                        Bank: {{ toFile.interact_bank }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes Section -->
+            <div
+              v-if="receipt.notes"
+              class="mt-3 pt-3 border-t border-gray-200"
+            >
+              <p class="text-xs text-gray-600">
+                <span class="font-medium">Note:</span> {{ receipt.notes }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Regular Receipt Card (non-internal transfer) -->
+          <div v-else class="inline-block">
+            <div
+              class="flex flex-col relative justify-stretch group space-y-2 w-64"
+            >
+              <p
+                @click="openModal(receipt)"
+                class="absolute top-2 cursor-pointer text-[8px] shadow right-2 z-10 text-xs text-white bg-[#FF613c] px-2 py-0.5 rounded-lg"
+              >
+                <span class="text-[10px]">edit</span>
+              </p>
+
+              <div class="h-[286px] w-full" @click="openModal(receipt)">
+                <img
+                  :src="receipt?.image"
+                  class="rounded-lg shadow hover:shadow-none h-full object-cover object-top w-full"
+                  alt=""
+                />
+              </div>
+              <div
+                @click="openModal(receipt)"
+                class="w-full px-4 pb-1 border space-y-2 text-[#FF613c] border-gray-200 shadow hover:shadow-none rounded-lg"
+              >
+                <p class="text-[12px] flex justify-start items-center pt-2">
+                  {{ receipt?.amount }} thb
+                </p>
+                <p class="text-[12px] flex justify-start items-center">
+                  {{
+                    receipt?.date ? formatDateFromDb(receipt?.date) : "--/--/--"
+                  }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
     <Modal :isOpen="carModalOpen" @closeModal="clearAction">
       <DialogPanel
         class="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"

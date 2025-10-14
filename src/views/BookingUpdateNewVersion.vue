@@ -1611,7 +1611,8 @@ const getDetail = async () => {
     };
 
     // Process receipts using map
-    formData.value.receipt_images = data.receipts.map(processReceipt);
+
+    formData.value.receipt_images = data?.receipts?.map(processReceipt);
 
     const allReceipts = [
       ...data.receipts.map(processReceipt),

@@ -274,7 +274,7 @@
                   label="VInvoice"
                   v-if="authStore.isSuperAdmin || authStore.isAuditor"
                   :icon="FolderIcon"
-                  to="/verify_invoices"
+                  to="/data_verify"
                 />
                 <SidebarItem
                   name="Cash Book"

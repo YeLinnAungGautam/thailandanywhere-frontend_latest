@@ -1370,7 +1370,13 @@
         </DialogTitle>
 
         <div class="p-4">
-          <div v-if="showData.length > 0" class="grid grid-cols-2 gap-4">
+          <div
+            v-if="
+              showData.length > 0 &&
+              !showData[currentIndex]?.is_internal_transfer
+            "
+            class="grid grid-cols-2 gap-4"
+          >
             <!-- Left column for image -->
             <div
               class="flex items-center justify-center bg-gray-100 rounded-lg"
@@ -1433,6 +1439,112 @@
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div
+            v-if="
+              showData.length > 0 &&
+              showData[currentIndex]?.is_internal_transfer
+            "
+            class=""
+          >
+            <div
+              v-if="showData[currentIndex].is_internal_transfer"
+              class="space-y-2"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-medium"
+                  >
+                    Internal Transfer
+                  </span>
+                  <span class="text-xs text-gray-600">
+                    Rate: {{ showData[currentIndex].exchange_rate }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <!-- FROM Section -->
+                <div class="bg-red-50 p-2 rounded">
+                  <p class="text-xs font-semibold text-red-700 mb-2">FROM</p>
+                  <div class="space-y-2">
+                    <div
+                      v-for="(fromFile, fIdx) in showData[currentIndex]
+                        .from_files"
+                      :key="fIdx"
+                      class="bg-white p-2 rounded"
+                    >
+                      <img
+                        :src="
+                          fromFile.image.includes(
+                            'https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images'
+                          )
+                            ? fromFile.image
+                            : `https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${fromFile.image}`
+                        "
+                        alt="Receipt image"
+                        class="w-full h-24 object-cover rounded mb-1"
+                        v-if="fromFile.image"
+                      />
+                      <div class="text-[10px] space-y-0.5">
+                        <p>
+                          <strong>Amount:</strong> {{ fromFile.currency }}
+                          {{ fromFile.amount.toLocaleString() }}
+                        </p>
+                        <p><strong>From:</strong> {{ fromFile.sender }}</p>
+                        <p><strong>To:</strong> {{ fromFile.receiver }}</p>
+                        <p>
+                          <strong>Bank:</strong> {{ fromFile.interact_bank }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- TO Section -->
+                <div class="bg-green-50 p-2 rounded">
+                  <p class="text-xs font-semibold text-green-700 mb-2">TO</p>
+                  <div class="space-y-2">
+                    <div
+                      v-for="(toFile, tIdx) in showData[currentIndex].to_files"
+                      :key="tIdx"
+                      class="bg-white p-2 rounded"
+                    >
+                      <img
+                        :src="
+                          toFile.image.includes(
+                            'https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images'
+                          )
+                            ? toFile.image
+                            : `https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${toFile.image}`
+                        "
+                        alt="Receipt image"
+                        class="w-full h-24 object-cover rounded mb-1"
+                        v-if="toFile.image"
+                      />
+                      <div class="text-[10px] space-y-0.5">
+                        <p>
+                          <strong>Amount:</strong> {{ toFile.currency }}
+                          {{ toFile.amount.toLocaleString() }}
+                        </p>
+                        <p><strong>From:</strong> {{ toFile.sender }}</p>
+                        <p><strong>To:</strong> {{ toFile.receiver }}</p>
+                        <p><strong>Bank:</strong> {{ toFile.interact_bank }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <p
+                v-if="showData[currentIndex].note"
+                class="text-xs text-gray-600 mt-2"
+              >
+                <strong>Note:</strong> {{ showData[currentIndex].note }}
+              </p>
             </div>
           </div>
 

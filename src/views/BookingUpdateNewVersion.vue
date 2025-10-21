@@ -2253,7 +2253,6 @@ onMounted(async () => {
                   </div>
                   <div class="flex justify-end items-center space-x-2">
                     <button
-                      v-if="authStore.isSuperAdmin"
                       @click="editFeatureSelectImage(receipt)"
                       class="text-blue-500 hover:text-blue-700"
                     >

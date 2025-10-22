@@ -1424,6 +1424,8 @@ const updateHandler = async () => {
         formData.value.period[x].agent_price
       );
     }
+  } else {
+    frmData.append("periods", JSON.stringify([]));
   }
 
   if (formData.value.id) {

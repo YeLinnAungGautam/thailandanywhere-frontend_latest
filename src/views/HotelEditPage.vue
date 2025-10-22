@@ -147,6 +147,8 @@ const formData = ref({
   full_description_en: null,
   location_map_title: "",
   location_map: "",
+  latitude: "",
+  longitude: "",
   rating: "",
   nearby_places: [],
   contract_due: "",
@@ -254,6 +256,8 @@ const closeModal = () => {
     location_map_title: "",
     location_map: "",
     rating: "",
+    latitude: "",
+    longitude: "",
     nearby_places: [],
     youtube_link: {
       mm_link: "",
@@ -375,6 +379,10 @@ const addNewHandler = async () => {
   if (formData.value.rating != "") {
     frmData.append("rating", formData.value.rating);
   }
+  if (formData.value.latitude && formData.value.longitude) {
+    frmData.append("latitude", formData.value.latitude);
+    frmData.append("longitude", formData.value.longitude);
+  }
   frmData.append("contract_due", formData.value.contract_due);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
@@ -470,6 +478,8 @@ const addNewHandler = async () => {
       location_map_title: "",
       location_map: "",
       rating: "",
+      latitude: "",
+      longitude: "",
       nearby_places: [],
       youtube_link: {
         mm_link: "",
@@ -538,6 +548,8 @@ const openCreate = () => {
   formData.value.location_map_title = "";
   formData.value.location_map = "";
   formData.value.rating = "";
+  formData.value.latitude = "";
+  formData.value.longitude = "";
   formData.value.nearby_places = [];
   formData.value.youtube_link = {
     mm_link: "",
@@ -620,6 +632,10 @@ const updateHandler = async () => {
   frmData.append("location_map", formData.value.location_map);
   if (formData.value.rating != "") {
     frmData.append("rating", formData.value.rating);
+  }
+  if (formData.value.latitude && formData.value.longitude) {
+    frmData.append("latitude", formData.value.latitude);
+    frmData.append("longitude", formData.value.longitude);
   }
   if (formData.value.contracts) {
     // frmData.append("contracts", formData.value.contracts);
@@ -729,6 +745,8 @@ const updateHandler = async () => {
       location_map_title: "",
       location_map: "",
       rating: "",
+      latitude: "",
+      longitude: "",
       nearby_places: [],
       youtube_link: {
         mm_link: "",
@@ -808,6 +826,8 @@ const getDetail = async (params) => {
     formData.value.location_map_title = "";
     formData.value.location_map = "";
     formData.value.rating = "";
+    formData.value.latitude = data.latitude;
+    formData.value.longitude = data.longitude;
     formData.value.nearby_places = [];
     formData.value.youtube_link = {
       mm_link: "",
@@ -1614,6 +1634,32 @@ onMounted(async () => {
                 </div>
               </div>
               <div class="col-span-2" v-if="quiteSwitch == 4">
+                <div class="grid grid-cols-2 gap-4 pb-2">
+                  <div class="space-y-2">
+                    <label for="name" class="text-sm text-gray-800"
+                      >Latitude</label
+                    >
+                    <input
+                      type="text"
+                      name=""
+                      v-model="formData.latitude"
+                      class="w-full h-10 text-xs px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                      id=""
+                    />
+                  </div>
+                  <div class="space-y-2">
+                    <label for="name" class="text-sm text-gray-800"
+                      >Longitude</label
+                    >
+                    <input
+                      type="text"
+                      name=""
+                      v-model="formData.longitude"
+                      class="w-full h-10 text-xs px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+                      id=""
+                    />
+                  </div>
+                </div>
                 <div class="space-y-2">
                   <label for="name" class="text-sm text-gray-800"
                     >Youtube Link code (mm)</label

@@ -134,6 +134,37 @@
             </p>
           </div>
           <div class="mb-2 space-y-1">
+            <label for="latitude" class="text-sm text-gray-800">Latitude</label>
+            <input
+              type="text"
+              v-model="formData.latitude"
+              id="latitude"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+          </div>
+          <div class="mb-2 space-y-1">
+            <label for="longitude" class="text-sm text-gray-800"
+              >Longitude</label
+            >
+            <input
+              type="text"
+              v-model="formData.longitude"
+              id="longitude"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+          </div>
+          <div class="mb-2 space-y-1">
+            <label for="radius_km" class="text-sm text-gray-800"
+              >radius_km</label
+            >
+            <input
+              type="text"
+              v-model="formData.radius_km"
+              id="radius_km"
+              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+            />
+          </div>
+          <div class="mb-2 space-y-1">
             <label for="image" class="relative text-sm text-gray-800"
               >Image
               <span
@@ -254,6 +285,9 @@ const formData = ref({
   name: "",
   id: "",
   image: null,
+  latitude: "",
+  longitude: "",
+  radius_km: "",
 });
 const showEntries = ref(10);
 const errors = ref(null);
@@ -284,11 +318,23 @@ const removeSelectedImage = () => {
 const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
+  if (
+    formData.value.latitude &&
+    formData.value.longitude &&
+    formData.value.radius_km
+  ) {
+    frmData.append("latitude", formData.value.latitude);
+    frmData.append("longitude", formData.value.longitude);
+    frmData.append("radius_km", formData.value.radius_km);
+  }
   frmData.append("image", formData.value.image);
   try {
     const response = await cityStore.addNewAction(frmData);
     formData.value = {
       name: "",
+      latitude: "",
+      longitude: "",
+      radius_km: "",
       image: null,
     };
     previewImage.value = null;
@@ -307,12 +353,24 @@ const addNewHandler = async () => {
 const updateHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
+  if (
+    formData.value.latitude &&
+    formData.value.longitude &&
+    formData.value.radius_km
+  ) {
+    frmData.append("latitude", formData.value.latitude);
+    frmData.append("longitude", formData.value.longitude);
+    frmData.append("radius_km", formData.value.radius_km);
+  }
   frmData.append("image", formData.value.image);
   frmData.append("_method", "PUT");
   try {
     const response = await cityStore.updateAction(frmData, formData.value.id);
     formData.value = {
       name: "",
+      latitude: "",
+      longitude: "",
+      radius_km: "",
       image: null,
       id: "",
     };
@@ -340,6 +398,9 @@ const onSubmitHandler = async () => {
 const editModalOpenHandler = (data) => {
   formData.value.id = data.id;
   formData.value.name = data.name;
+  formData.value.latitude = data.latitude;
+  formData.value.longitude = data.longitude;
+  formData.value.radius_km = data.radius_km;
   previewImage.value = data.image;
   cityModalOpen.value = true;
 };

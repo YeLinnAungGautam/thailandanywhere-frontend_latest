@@ -148,6 +148,46 @@
               {{ errors.address[0] }}
             </p>
           </div>
+          <div class="space-y-1 mb-2">
+            <label for="latitude" class="text-gray-800 text-sm">Latitude</label>
+            <input
+              type="text"
+              v-model="formData.latitude"
+              id="latitude"
+              class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.latitude" class="mt-1 text-sm text-red-600">
+              {{ errors.latitude[0] }}
+            </p>
+          </div>
+          <div class="space-y-1 mb-2">
+            <label for="longitude" class="text-gray-800 text-sm"
+              >Longitude</label
+            >
+            <input
+              type="text"
+              v-model="formData.longitude"
+              id="longitude"
+              class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.longitude" class="mt-1 text-sm text-red-600">
+              {{ errors.longitude[0] }}
+            </p>
+          </div>
+          <div class="space-y-1 mb-2">
+            <label for="radius_km" class="text-gray-800 text-sm"
+              >radius_km</label
+            >
+            <input
+              type="text"
+              v-model="formData.radius_km"
+              id="radius_km"
+              class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+            />
+            <p v-if="errors?.radius_km" class="mt-1 text-sm text-red-600">
+              {{ errors.radius_km[0] }}
+            </p>
+          </div>
 
           <!-- Submit button -->
           <div class="text-end">
@@ -195,6 +235,9 @@ const formData = ref({
   name: "",
   city_id: "",
   address: "",
+  latitude: "",
+  longitude: "",
+  radius_km: "",
   id: "",
 });
 const showEntries = ref(10);
@@ -211,6 +254,9 @@ const closeAction = () => {
     name: "",
     city_id: "",
     address: "",
+    latitude: "",
+    longitude: "",
+    radius_km: "",
     id: "",
   };
   errors.value = null;
@@ -223,6 +269,16 @@ const addNewHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("city_id", formData.value.city_id);
   frmData.append("address", formData.value.address);
+
+  if (
+    formData.value.latitude &&
+    formData.value.longitude &&
+    formData.value.radius_km
+  ) {
+    frmData.append("latitude", formData.value.latitude);
+    frmData.append("longitude", formData.value.longitude);
+    frmData.append("radius_km", formData.value.radius_km);
+  }
 
   try {
     const response = await placeStore.addNewAction(frmData);
@@ -242,6 +298,16 @@ const updateHandler = async () => {
   frmData.append("name", formData.value.name);
   frmData.append("city_id", formData.value.city_id);
   frmData.append("address", formData.value.address);
+  if (
+    formData.value.latitude &&
+    formData.value.longitude &&
+    formData.value.radius_km
+  ) {
+    frmData.append("latitude", formData.value.latitude);
+    frmData.append("longitude", formData.value.longitude);
+    frmData.append("radius_km", formData.value.radius_km);
+  }
+
   frmData.append("_method", "PUT");
 
   try {
@@ -271,6 +337,9 @@ const editModalOpenHandler = (data) => {
     name: data.name,
     city_id: data.city_id * 1,
     address: data.address,
+    latitude: data.latitude,
+    longitude: data.longitude,
+    radius_km: data.radius_km,
   };
   carModalOpen.value = true;
 };

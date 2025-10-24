@@ -112,7 +112,7 @@
     <!-- modal -->
     <Modal :isOpen="cityModalOpen" @closeModal="cityModalOpen = false">
       <DialogPanel
-        class="w-full max-w-md p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
+        class="w-full max-w-4xl p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
       >
         <DialogTitle
           as="h3"
@@ -120,93 +120,105 @@
         >
           {{ formData.id ? "Edit City" : "Add New City" }}
         </DialogTitle>
-        <form @submit.prevent="onSubmitHandler" class="mt-2">
-          <div class="mb-2 space-y-1">
-            <label for="name" class="text-sm text-gray-800">Name</label>
-            <input
-              type="text"
-              v-model="formData.name"
-              id="name"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.name" class="mt-1 text-sm text-red-600">
-              {{ errors.name[0] }}
-            </p>
-          </div>
-          <div class="mb-2 space-y-1">
-            <label for="latitude" class="text-sm text-gray-800">Latitude</label>
-            <input
-              type="text"
-              v-model="formData.latitude"
-              id="latitude"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-          </div>
-          <div class="mb-2 space-y-1">
-            <label for="longitude" class="text-sm text-gray-800"
-              >Longitude</label
-            >
-            <input
-              type="text"
-              v-model="formData.longitude"
-              id="longitude"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-          </div>
-          <div class="mb-2 space-y-1">
-            <label for="radius_km" class="text-sm text-gray-800"
-              >radius_km</label
-            >
-            <input
-              type="text"
-              v-model="formData.radius_km"
-              id="radius_km"
-              class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
-            />
-          </div>
-          <div class="mb-2 space-y-1">
-            <label for="image" class="relative text-sm text-gray-800"
-              >Image
-              <span
-                v-if="previewImage"
-                @click.prevent="removeSelectedImage"
-                class="text-red-400 text-xs cursor-pointer font-semibold underline absolute top-[10px] left-[391px]"
-                ><i class="text-3xl fa-solid fa-circle-minus"></i></span
-            ></label>
-            <input
-              type="file"
-              id="image"
-              ref="fileInput"
-              class="hidden"
-              @change="handleFileChange"
-              accept="image/*"
-            />
-            <div v-if="previewImage" class="w-full h-auto">
-              <img
-                :src="previewImage"
-                alt="Image preview"
-                class="w-full h-auto rounded"
+        <div class="grid grid-cols-2 gap-4">
+          <form @submit.prevent="onSubmitHandler" class="mt-2">
+            <div class="mb-2 space-y-1">
+              <label for="name" class="text-sm text-gray-800">Name</label>
+              <input
+                type="text"
+                v-model="formData.name"
+                id="name"
+                class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.name" class="mt-1 text-sm text-red-600">
+                {{ errors.name[0] }}
+              </p>
+            </div>
+            <div class="mb-2 space-y-1">
+              <label for="latitude" class="text-sm text-gray-800"
+                >Latitude</label
+              >
+              <input
+                type="text"
+                v-model="formData.latitude"
+                id="latitude"
+                class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
               />
             </div>
-            <div
-              v-else
-              @click.prevent="openFilePicker"
-              class="cursor-pointer w-full h-[250px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
-            >
-              <span class="text-xs"
-                ><i
-                  class="fa-solid fa-plus text-4xl font-semibold py-4 px-5 bg-[#ff613c] rounded-full shadow text-white"
-                ></i
-              ></span>
+            <div class="mb-2 space-y-1">
+              <label for="longitude" class="text-sm text-gray-800"
+                >Longitude</label
+              >
+              <input
+                type="text"
+                v-model="formData.longitude"
+                id="longitude"
+                class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
             </div>
-            <p v-if="errors?.image" class="mt-1 text-sm text-red-600">
-              {{ errors.image[0] }}
-            </p>
+            <div class="mb-2 space-y-1">
+              <label for="radius_km" class="text-sm text-gray-800"
+                >radius_km</label
+              >
+              <input
+                type="text"
+                v-model="formData.radius_km"
+                id="radius_km"
+                class="w-full h-12 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
+            </div>
+            <p class="text-xs">recommend 10 to 50.</p>
+            <div class="mb-2 space-y-1">
+              <label for="image" class="relative text-sm text-gray-800"
+                >Image
+                <span
+                  v-if="previewImage"
+                  @click.prevent="removeSelectedImage"
+                  class="text-red-400 text-xs cursor-pointer font-semibold underline absolute top-[10px] left-[391px]"
+                  ><i class="text-3xl fa-solid fa-circle-minus"></i></span
+              ></label>
+              <input
+                type="file"
+                id="image"
+                ref="fileInput"
+                class="hidden"
+                @change="handleFileChange"
+                accept="image/*"
+              />
+              <div v-if="previewImage" class="w-full h-auto">
+                <img
+                  :src="previewImage"
+                  alt="Image preview"
+                  class="w-full h-auto rounded"
+                />
+              </div>
+              <div
+                v-else
+                @click.prevent="openFilePicker"
+                class="cursor-pointer w-full h-[250px] border-2 border-dashed border-gray-400 rounded flex justify-center items-center"
+              >
+                <span class="text-xs"
+                  ><i
+                    class="fa-solid fa-plus text-4xl font-semibold py-4 px-5 bg-[#ff613c] rounded-full shadow text-white"
+                  ></i
+                ></span>
+              </div>
+              <p v-if="errors?.image" class="mt-1 text-sm text-red-600">
+                {{ errors.image[0] }}
+              </p>
+            </div>
+            <div class="text-end">
+              <Button type="submit"> Submit </Button>
+            </div>
+          </form>
+          <div>
+            <MapPreview
+              :latitude="formData.latitude"
+              :longitude="formData.longitude"
+              :radiusKm="formData.radius_km"
+            />
           </div>
-          <div class="text-end">
-            <Button type="submit"> Submit </Button>
-          </div>
-        </form>
+        </div>
       </DialogPanel>
     </Modal>
     <Modal :isOpen="importModal" @closeModal="importModal = false">
@@ -274,6 +286,7 @@ import { useToast } from "vue-toastification";
 import Swal from "sweetalert2";
 import { useCityStore } from "../stores/city";
 import debounce from "lodash/debounce";
+import MapPreview from "../components/MapPreview.vue";
 
 const cityStore = useCityStore();
 const toast = useToast();

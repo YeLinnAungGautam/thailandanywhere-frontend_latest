@@ -96,7 +96,7 @@
     <!-- Add/Edit Modal -->
     <Modal :isOpen="carModalOpen" @closeModal="closeAction">
       <DialogPanel
-        class="w-full max-w-md transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-4xl transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="h3"
@@ -106,94 +106,107 @@
         </DialogTitle>
 
         <!-- Place form -->
-        <form @submit.prevent="onSubmitHandler" class="mt-2">
-          <!-- Name input -->
-          <div class="space-y-1 mb-2">
-            <label for="name" class="text-gray-800 text-sm">Name</label>
-            <input
-              type="text"
-              v-model="formData.name"
-              id="name"
-              class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.name" class="mt-1 text-sm text-red-600">
-              {{ errors.name[0] }}
-            </p>
-          </div>
+        <div class="grid grid-cols-2 gap-4">
+          <form @submit.prevent="onSubmitHandler" class="mt-2">
+            <!-- Name input -->
+            <div class="space-y-1 mb-2">
+              <label for="name" class="text-gray-800 text-sm">Name</label>
+              <input
+                type="text"
+                v-model="formData.name"
+                id="name"
+                class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.name" class="mt-1 text-sm text-red-600">
+                {{ errors.name[0] }}
+              </p>
+            </div>
 
-          <!-- City select -->
-          <div class="space-y-1 mb-2">
-            <label for="city_id" class="text-gray-800 text-sm">City</label>
-            <v-select
-              v-model="formData.city_id"
-              class="style-chooser"
-              :options="cities?.data ?? []"
-              label="name"
-              :clearable="false"
-              :reduce="(d) => d.id"
-              placeholder="Choose City"
-            />
-          </div>
+            <!-- City select -->
+            <div class="space-y-1 mb-2">
+              <label for="city_id" class="text-gray-800 text-sm">City</label>
+              <v-select
+                v-model="formData.city_id"
+                class="style-chooser"
+                :options="cities?.data ?? []"
+                label="name"
+                :clearable="false"
+                :reduce="(d) => d.id"
+                placeholder="Choose City"
+              />
+            </div>
 
-          <!-- Address input -->
-          <div class="space-y-1 mb-2">
-            <label for="address" class="text-gray-800 text-sm">Address</label>
-            <input
-              type="text"
-              v-model="formData.address"
-              id="address"
-              class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.address" class="mt-1 text-sm text-red-600">
-              {{ errors.address[0] }}
-            </p>
-          </div>
-          <div class="space-y-1 mb-2">
-            <label for="latitude" class="text-gray-800 text-sm">Latitude</label>
-            <input
-              type="text"
-              v-model="formData.latitude"
-              id="latitude"
-              class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.latitude" class="mt-1 text-sm text-red-600">
-              {{ errors.latitude[0] }}
-            </p>
-          </div>
-          <div class="space-y-1 mb-2">
-            <label for="longitude" class="text-gray-800 text-sm"
-              >Longitude</label
-            >
-            <input
-              type="text"
-              v-model="formData.longitude"
-              id="longitude"
-              class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.longitude" class="mt-1 text-sm text-red-600">
-              {{ errors.longitude[0] }}
-            </p>
-          </div>
-          <div class="space-y-1 mb-2">
-            <label for="radius_km" class="text-gray-800 text-sm"
-              >radius_km</label
-            >
-            <input
-              type="text"
-              v-model="formData.radius_km"
-              id="radius_km"
-              class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
-            />
-            <p v-if="errors?.radius_km" class="mt-1 text-sm text-red-600">
-              {{ errors.radius_km[0] }}
-            </p>
-          </div>
+            <!-- Address input -->
+            <div class="space-y-1 mb-2">
+              <label for="address" class="text-gray-800 text-sm">Address</label>
+              <input
+                type="text"
+                v-model="formData.address"
+                id="address"
+                class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.address" class="mt-1 text-sm text-red-600">
+                {{ errors.address[0] }}
+              </p>
+            </div>
+            <div class="space-y-1 mb-2">
+              <label for="latitude" class="text-gray-800 text-sm"
+                >Latitude</label
+              >
+              <input
+                type="text"
+                v-model="formData.latitude"
+                id="latitude"
+                class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.latitude" class="mt-1 text-sm text-red-600">
+                {{ errors.latitude[0] }}
+              </p>
+            </div>
+            <div class="space-y-1 mb-2">
+              <label for="longitude" class="text-gray-800 text-sm"
+                >Longitude</label
+              >
+              <input
+                type="text"
+                v-model="formData.longitude"
+                id="longitude"
+                class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.longitude" class="mt-1 text-sm text-red-600">
+                {{ errors.longitude[0] }}
+              </p>
+            </div>
+            <div class="space-y-1 mb-2">
+              <label for="radius_km" class="text-gray-800 text-sm"
+                >radius_km</label
+              >
+              <input
+                type="text"
+                v-model="formData.radius_km"
+                id="radius_km"
+                class="h-12 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.radius_km" class="mt-1 text-sm text-red-600">
+                {{ errors.radius_km[0] }}
+              </p>
+            </div>
 
-          <!-- Submit button -->
-          <div class="text-end">
-            <Button type="submit">Submit</Button>
+            <p class="text-xs">recommend 1 to 8.</p>
+
+            <!-- Submit button -->
+            <div class="text-end">
+              <Button type="submit">Submit</Button>
+            </div>
+          </form>
+          <div>
+            <MapPreview
+              :latitude="formData.latitude"
+              :longitude="formData.longitude"
+              :radiusKm="formData.radius_km"
+            />
           </div>
-        </form>
+        </div>
       </DialogPanel>
     </Modal>
   </div>
@@ -223,6 +236,7 @@ import Modal from "../components/Modal.vue";
 // Store imports
 import { usePlaceStore } from "../stores/place";
 import { useCityStore } from "../stores/city";
+import MapPreview from "../components/MapPreview.vue";
 
 // Initialize stores and services
 const placeStore = usePlaceStore();

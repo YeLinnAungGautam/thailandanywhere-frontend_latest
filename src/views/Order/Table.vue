@@ -331,9 +331,13 @@
                       </td>
                       <td
                         scope="col"
-                        class="text-[11px] font-medium text-black px-3 py-3 border-l border-gray-400/20"
+                        class="text-[11px] flex justify-start gap-x-2 items-center font-medium text-black px-3 py-3 border-l border-gray-400/20"
                       >
-                        {{ item?.product_type?.split(`\\`)[2] }}
+                        <span v-if="item?.is_incomplete_allotment"
+                          ><BellIcon
+                            @click="incompleteAllowmentDetail(item)"
+                            class="w-5 h-5 bg-red-600 text-white rounded-xl p-0.5" /></span
+                        >{{ item?.product_type?.split(`\\`)[2] }}
                       </td>
                       <td
                         scope="col"
@@ -586,6 +590,105 @@
       </DialogPanel>
     </Modal>
 
+    <Modal
+      :isOpen="showIncompleteAllowment"
+      @closeModal="showIncompleteAllowment = false"
+    >
+      <DialogPanel
+        class="w-full max-w-2xl mt-10 transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="font-medium leading-6 px-6 py-4 flex justify-between items-center border-b"
+        >
+          <h3 class="text-lg font-semibold text-gray-900">
+            View Incomplete Allowment
+          </h3>
+          <XMarkIcon
+            class="w-5 h-5 text-gray-500 hover:text-gray-700 cursor-pointer"
+            @click="showIncompleteAllowment = false"
+          />
+        </DialogTitle>
+
+        <div class="p-6 max-h-[70vh] overflow-y-auto">
+          <div
+            v-if="incompleteDetail && Object.keys(incompleteDetail).length > 0"
+            class="space-y-4"
+          >
+            <div
+              v-for="(data, date) in incompleteDetail"
+              :key="date"
+              class="border rounded-lg p-4 hover:shadow-md transition-shadow"
+            >
+              <!-- Date Header -->
+              <div class="flex items-center justify-between mb-3 pb-2 border-b">
+                <h4 class="font-semibold text-gray-900">
+                  {{ data.display_date }}
+                </h4>
+                <span
+                  :class="[
+                    'px-3 py-1 rounded-full text-xs font-medium',
+                    data.available_rooms === 0
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-green-100 text-green-800',
+                  ]"
+                >
+                  {{
+                    data.available_rooms === 0
+                      ? "Sold Out"
+                      : `${data.available_rooms} Available`
+                  }}
+                </span>
+              </div>
+
+              <!-- Details Grid -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-xs text-gray-500">Stock</p>
+                  <p class="text-base font-medium text-gray-900">
+                    {{ data.stock }}
+                  </p>
+                </div>
+
+                <div>
+                  <p class="text-xs text-gray-500">Booked Count</p>
+                  <p class="text-base font-medium text-gray-900">
+                    {{ data.booked_count }}
+                  </p>
+                </div>
+
+                <div>
+                  <p class="text-xs text-gray-500">Discount</p>
+                  <p class="text-base font-medium text-gray-900">
+                    {{
+                      data.discount > 0 ? `${data.discount}%` : "No Discount"
+                    }}
+                  </p>
+                </div>
+
+                <div>
+                  <p class="text-xs text-gray-500">Available Rooms</p>
+                  <p class="text-base font-medium text-gray-900">
+                    {{ data.available_rooms }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Display String -->
+              <div class="mt-3 pt-3 border-t">
+                <p class="text-xs text-gray-600">{{ data.display_str }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div v-else class="text-center py-8">
+            <p class="text-gray-500">No incomplete allowment data available</p>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+
     <div v-if="booking?.data?.length > 0" class="flex justify-end">
       <Pagination :data="booking" @change-page="changePage" />
     </div>
@@ -603,7 +706,11 @@ import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
 import { useBookingStore } from "../../stores/booking";
 import { useAuthStore } from "../../stores/auth";
-import { CalendarDaysIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+import {
+  BellIcon,
+  CalendarDaysIcon,
+  XMarkIcon,
+} from "@heroicons/vue/24/outline";
 import { CheckBadgeIcon, XCircleIcon } from "@heroicons/vue/24/solid";
 import { useOrderStore } from "../../stores/order";
 import { id } from "date-fns/locale";
@@ -612,6 +719,15 @@ const router = useRouter();
 const toast = useToast();
 const orderStore = useOrderStore();
 const authStore = useAuthStore();
+
+const showIncompleteAllowment = ref(false);
+const incompleteDetail = ref(null);
+
+const incompleteAllowmentDetail = (item) => {
+  console.log(item, "this is item");
+  showIncompleteAllowment.value = true;
+  incompleteDetail.value = item.room_rates;
+};
 
 const props = defineProps({
   booking: {

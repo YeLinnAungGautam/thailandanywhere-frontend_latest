@@ -48,7 +48,7 @@
 
         <!-- Filter Options -->
         <div class="space-y-2 mb-4 pb-4 border-b">
-          <div>
+          <!-- <div>
             <label class="text-xs mb-1 block">Data Verify Status</label>
             <select
               v-model="filters.data_verify"
@@ -59,7 +59,7 @@
               <option :value="true">Verified</option>
               <option :value="false">Not Verified</option>
             </select>
-          </div>
+          </div> -->
 
           <div>
             <label class="text-xs mb-1 block">Currency</label>
@@ -433,7 +433,7 @@ const selectedMonth = ref(currentDate.getMonth() + 1);
 
 // Filters
 const filters = ref({
-  data_verify: null,
+  data_verify: true,
   currency: "",
   interact_bank: "",
 });
@@ -476,9 +476,8 @@ const refreshDuplicates = async () => {
       group_by_duplicate: 1,
     };
 
-    if (filters.value.data_verify !== null) {
-      params.data_verify = filters.value.data_verify ? 1 : 0;
-    }
+    params.data_verify = 1;
+
     if (filters.value.currency) {
       params.currency = filters.value.currency;
     }

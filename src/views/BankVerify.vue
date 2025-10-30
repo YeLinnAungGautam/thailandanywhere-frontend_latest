@@ -671,6 +671,8 @@ const watchSystem = computed(() => {
 
   result.limit = 20;
 
+  result.data_verify = 1;
+
   return result;
 });
 

@@ -321,7 +321,8 @@
                   >
                     <div class="flex gap-3 mb-2">
                       <img
-                        :src="img.image"
+                        @click="openViewImage(img)"
+                        :src="`https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${img.image}`"
                         class="w-16 h-16 object-cover rounded border"
                         alt="Cash image"
                         @error="handleImageError"
@@ -362,7 +363,8 @@
                   >
                     <div class="flex gap-3 mb-2">
                       <img
-                        :src="img.image"
+                        @click="openViewImage(img)"
+                        :src="`https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${img.image}`"
                         class="w-16 h-16 object-cover rounded border"
                         alt="Cash image"
                         @error="handleImageError"
@@ -511,9 +513,12 @@
                         :for="`img-${img.id}`"
                         class="flex-1 cursor-pointer"
                       >
-                        <div class="flex gap-2 mb-2">
+                        <div
+                          class="flex gap-2 mb-2"
+                          @click="openViewImage(img)"
+                        >
                           <img
-                            :src="img.image"
+                            :src="`https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${img.image}`"
                             class="w-12 h-12 object-cover rounded border"
                             alt="Cash"
                           />
@@ -665,11 +670,31 @@
         </div>
       </div>
     </div>
+
+    <Modal :isOpen="viewImage != null" @closeModal="clearViewImage">
+      <DialogPanel
+        class="w-full max-w-lg transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 text-gray-900 mb-5"
+        >
+          Import Process
+        </DialogTitle>
+        <img
+          v-if="viewImage?.image"
+          :src="`https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${viewImage.image}`"
+          alt=""
+        />
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>
 
 <script setup>
 import Layout from "./Layout.vue";
+import Modal from "../components/Modal.vue";
+import { DialogPanel, DialogTitle } from "@headlessui/vue";
 import { ref, computed, onMounted } from "vue";
 import { useCashImageStore } from "../stores/cashImage";
 import { useSidebarStore } from "../stores/sidebar";
@@ -701,6 +726,18 @@ const pagination = ref({
   from: 0,
   to: 0,
 });
+
+const viewImage = ref(null);
+
+const openViewImage = (data) => {
+  console.log(data, "this is view image");
+
+  viewImage.value = data;
+};
+
+const clearViewImage = () => {
+  viewImage.value = null;
+};
 
 // Date filters
 const currentDate = new Date();

@@ -86,6 +86,8 @@ import PartnerView from "../views/Partner.vue";
 import dataVerify from "../views/DataVerify.vue";
 import RemaindTaxReceiptModal from "../views/TaxReceiptComponent/RemaindTaxReceiptModal.vue";
 import duplicateChecker from "../views/DuplateChecker.vue";
+import internalTransferChecker from "../views/InternalTransferChecker.vue";
+import bankVerify from "../views/BankVerify.vue";
 
 const routes = [
   {
@@ -449,9 +451,19 @@ const routes = [
     component: dataVerify,
   },
   {
+    path: "/bank_verify",
+    name: "bankVerify",
+    component: bankVerify,
+  },
+  {
     path: "/duplicate_checker",
     name: "duplicateChecker",
     component: duplicateChecker,
+  },
+  {
+    path: "/internalTransfer_checker",
+    name: "internalTransferChecker",
+    component: internalTransferChecker,
   },
   {
     path: "/receiptable_checker",

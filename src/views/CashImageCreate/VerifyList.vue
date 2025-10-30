@@ -73,6 +73,8 @@
             <!-- Bank Verification -->
             <button
               class="w-full text-left px-4 py-2 hover:bg-blue-50 transition-colors text-xs text-gray-700 flex items-center gap-2"
+              @click="router.push('/bank_verify')"
+              :class="route.name == 'bankVerify' ? 'bg-blue-50' : ''"
             >
               <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
               <span>Bank Verification</span>
@@ -80,7 +82,11 @@
 
             <!-- Internal Transfer Checker -->
             <button
+              @click="router.push('/internalTransfer_checker')"
               class="w-full text-left px-4 py-2 hover:bg-purple-50 transition-colors text-xs text-gray-700 flex items-center gap-2"
+              :class="
+                route.name == 'internalTransferChecker' ? 'bg-purple-50' : ''
+              "
             >
               <span class="w-2 h-2 bg-purple-400 rounded-full"></span>
               <span>Transfer Checker</span>

@@ -213,6 +213,16 @@ export const useCashImageStore = defineStore("cashImage", {
       }
     },
 
+    async cashImageBankVerify(data, id) {
+      try {
+        const response = await axios.post(`cashImage/${id}/bank_verify`, data);
+
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
     async cashImageDuplicate(params) {
       try {
         const response = await axios.get(`/duplicate-cash-image`, {
@@ -232,6 +242,27 @@ export const useCashImageStore = defineStore("cashImage", {
         return response.data;
       } catch (error) {
         console.error("Merge Cash Images Error:", error);
+        throw error;
+      }
+    },
+    async internalTransferCheck(params) {
+      try {
+        const response = await axios.get(`/list/cash-images/internal`, {
+          params: params,
+        });
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async editInternalTransfer(data) {
+      try {
+        const response = await axios.post(
+          "/list/cash-images/internal-edit",
+          data
+        );
+        return response.data;
+      } catch (error) {
         throw error;
       }
     },

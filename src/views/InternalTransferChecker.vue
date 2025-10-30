@@ -49,22 +49,6 @@
           </button>
         </div>
 
-        <!-- Filters Section -->
-        <!-- <div class="space-y-2 my-4 pb-4 border-b">
-          <div>
-            <label class="text-xs mb-1 block text-gray-600">Status</label>
-            <select
-              v-model="filters.has_transfer"
-              @change="handleFilterChange"
-              class="w-full px-2 py-1.5 text-xs border rounded-lg focus:outline-none focus:border-[#FF613c]"
-            >
-              <option :value="null">All Status</option>
-              <option :value="false">Needs Setup</option>
-              <option :value="true">Has Transfer</option>
-            </select>
-          </div>
-        </div> -->
-
         <!-- Bookings List -->
         <div
           v-if="!loading"
@@ -231,10 +215,9 @@
                 {{ selectedBooking.booking.crm_id }}
               </h2>
               <p
-                class="text-sm text-blue-600 mt-1 underline"
+                class="text-sm text-blue-600 mt-1 underline cursor-pointer"
                 @click="goToBooking(selectedBooking?.booking?.id)"
               >
-                <!-- Booking ID: {{ selectedBooking.booking.id }} -->
                 Go to booking
               </p>
             </div>
@@ -246,60 +229,8 @@
             </div>
           </div>
 
-          <!-- Analysis Summary -->
-          <div
-            class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4"
-          >
-            <h3 class="text-sm font-semibold text-blue-900 mb-3">
-              Transfer Analysis
-            </h3>
-            <div class="grid grid-cols-4 gap-4">
-              <div class="text-center">
-                <p class="text-xs text-gray-600">Total Images</p>
-                <p class="text-2xl font-bold text-blue-600">
-                  {{
-                    selectedBooking.internal_transfer_analysis.total_cash_images
-                  }}
-                </p>
-              </div>
-              <div class="text-center">
-                <p class="text-xs text-gray-600">Linked</p>
-                <p class="text-2xl font-bold text-green-600">
-                  {{
-                    selectedBooking.internal_transfer_analysis
-                      .images_with_internal_transfer_true
-                  }}
-                </p>
-              </div>
-              <div class="text-center">
-                <p class="text-xs text-gray-600">Need Setup</p>
-                <p class="text-2xl font-bold text-orange-600">
-                  {{
-                    selectedBooking.internal_transfer_analysis
-                      .images_needing_transfer_setup.length
-                  }}
-                </p>
-              </div>
-              <div class="text-center">
-                <p class="text-xs text-gray-600">Suggestions</p>
-                <p class="text-2xl font-bold text-purple-600">
-                  {{
-                    selectedBooking.internal_transfer_analysis
-                      .transfer_suggestions?.length || 0
-                  }}
-                </p>
-              </div>
-            </div>
-          </div>
-
           <!-- Internal Transfer Display (for images with transfer = true) -->
-          <div
-            v-if="
-              selectedBooking.internal_transfer_analysis
-                .images_with_internal_transfer_true > 0
-            "
-            class="bg-white border rounded-lg p-4"
-          >
+          <div class="bg-white border rounded-lg p-4">
             <div class="flex justify-between items-center mb-4">
               <h3 class="text-lg font-semibold text-purple-700">
                 Internal Transfer
@@ -323,7 +254,7 @@
                       <img
                         @click="openViewImage(img)"
                         :src="`https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${img.image}`"
-                        class="w-16 h-16 object-cover rounded border"
+                        class="w-16 h-16 object-cover rounded border cursor-pointer"
                         alt="Cash image"
                         @error="handleImageError"
                       />
@@ -350,6 +281,55 @@
                     </div>
                   </div>
                 </div>
+                <!-- FROM Images Preview -->
+                <div class="space-y-2 my-3">
+                  <div
+                    v-for="img in getSelectedFromImages()"
+                    :key="img.id"
+                    class="bg-white border rounded-lg p-2 flex items-center gap-2 relative group"
+                  >
+                    <img
+                      @click="openViewImage(img)"
+                      :src="`https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${img.image}`"
+                      class="w-12 h-12 object-cover rounded border cursor-pointer"
+                      alt="Cash"
+                    />
+                    <div class="flex-1">
+                      <p class="font-semibold text-xs">
+                        {{ img.currency }} {{ formatCurrency(img.amount) }}
+                      </p>
+                      <p class="text-xs text-gray-600">
+                        {{ img.interact_bank }}
+                      </p>
+                    </div>
+                    <button
+                      @click="removeFromList('from', img.id)"
+                      class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center transition-opacity text-xs"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+                <!-- Add FROM Button -->
+                <button
+                  @click="openImageSelectionModal('from')"
+                  class="w-full border-2 border-dashed border-red-300 rounded-lg py-3 text-red-600 hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  <span class="font-medium">Add FROM Images</span>
+                </button>
               </div>
 
               <!-- TO Section -->
@@ -365,7 +345,7 @@
                       <img
                         @click="openViewImage(img)"
                         :src="`https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${img.image}`"
-                        class="w-16 h-16 object-cover rounded border"
+                        class="w-16 h-16 object-cover rounded border cursor-pointer"
                         alt="Cash image"
                         @error="handleImageError"
                       />
@@ -392,11 +372,61 @@
                     </div>
                   </div>
                 </div>
+                <!-- TO Images Preview -->
+                <div class="space-y-2 my-3">
+                  <div
+                    v-for="img in getSelectedToImages()"
+                    :key="img.id"
+                    class="bg-white border rounded-lg p-2 flex items-center gap-2 relative group"
+                  >
+                    <img
+                      @click="openViewImage(img)"
+                      :src="`https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${img.image}`"
+                      class="w-12 h-12 object-cover rounded border cursor-pointer"
+                      alt="Cash"
+                    />
+                    <div class="flex-1">
+                      <p class="font-semibold text-xs">
+                        {{ img.currency }} {{ formatCurrency(img.amount) }}
+                      </p>
+                      <p class="text-xs text-gray-600">
+                        {{ img.interact_bank }}
+                      </p>
+                    </div>
+                    <button
+                      @click="removeFromList('to', img.id)"
+                      class="absolute top-1 right-1 bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center transition-opacity text-xs"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Add TO Button -->
+                <button
+                  @click="openImageSelectionModal('to')"
+                  class="w-full border-2 border-dashed border-green-300 rounded-lg py-3 text-green-600 hover:bg-green-100 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  <span class="font-medium">Add TO Images</span>
+                </button>
               </div>
             </div>
           </div>
 
-          <!-- Setup Transfer (for bookings needing setup) -->
+          <!-- NEW DESIGN: Setup Transfer Section -->
           <div
             v-if="
               selectedBooking.internal_transfer_analysis
@@ -404,10 +434,10 @@
             "
             class="bg-white border rounded-lg p-4"
           >
-            <h3 class="text-lg font-semibold mb-4">Setup Internal Transfer</h3>
+            <h3 class="text-lg font-semibold mb-4">Receipts</h3>
 
             <!-- Exchange Rate -->
-            <div class="mb-4">
+            <!-- <div class="mb-4">
               <label class="text-xs font-medium mb-2 block"
                 >Exchange Rate</label
               >
@@ -418,10 +448,10 @@
                 class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-[#FF613c]"
                 placeholder="125.000000"
               />
-            </div>
+            </div> -->
 
             <!-- Notes -->
-            <div class="mb-4">
+            <!-- <div class="mb-4">
               <label class="text-xs font-medium mb-2 block"
                 >Notes (Optional)</label
               >
@@ -431,216 +461,53 @@
                 rows="2"
                 placeholder="Add any notes here..."
               ></textarea>
-            </div>
-
-            <!-- Direction Toggle Buttons -->
-            <div class="flex gap-3 mb-4">
-              <button
-                @click="transferDirection = 'from'"
-                class="flex-1 px-4 py-2 rounded-lg font-semibold text-xs transition-all"
-                :class="
-                  transferDirection === 'from'
-                    ? 'bg-red-500 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                "
-              >
-                FROM (Source)
-              </button>
-              <button
-                @click="transferDirection = 'to'"
-                class="flex-1 px-4 py-2 rounded-lg font-semibold text-xs transition-all"
-                :class="
-                  transferDirection === 'to'
-                    ? 'bg-green-500 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                "
-              >
-                TO (Destination)
-              </button>
-            </div>
-
-            <!-- Cash Images Horizontal Scroll -->
-            <div class="mb-4">
-              <div class="flex items-center justify-between mb-3">
-                <h4 class="text-sm font-semibold">
-                  Select
-                  <span
-                    :class="
-                      transferDirection === 'from'
-                        ? 'text-red-600'
-                        : 'text-green-600'
-                    "
-                    >{{ transferDirection.toUpperCase() }}</span
-                  >
-                  Cash Images
-                </h4>
-                <span class="text-xs text-gray-600">
-                  Selected: {{ selectedImageIds.length }} images
-                </span>
-              </div>
-
-              <!-- Horizontal scroll container -->
-              <div class="overflow-x-auto pb-2">
-                <div class="flex gap-3" style="min-width: max-content">
-                  <div
-                    v-for="img in getUnlinkedImages()"
-                    :key="img.id"
-                    class="flex-shrink-0 w-64 bg-white border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md"
-                    :class="{
-                      'border-red-500 bg-red-50':
-                        transferDirection === 'from' &&
-                        selectedImageIds.includes(img.id),
-                      'border-green-500 bg-green-50':
-                        transferDirection === 'to' &&
-                        selectedImageIds.includes(img.id),
-                      'border-gray-200': !selectedImageIds.includes(img.id),
-                    }"
-                  >
-                    <div class="flex items-start gap-2">
-                      <input
-                        type="checkbox"
-                        :id="`img-${img.id}`"
-                        :value="img.id"
-                        v-model="selectedImageIds"
-                        :class="
-                          transferDirection === 'from'
-                            ? 'text-red-600 focus:ring-red-500'
-                            : 'text-green-600 focus:ring-green-500'
-                        "
-                        class="mt-1 w-4 h-4 rounded"
-                      />
-                      <label
-                        :for="`img-${img.id}`"
-                        class="flex-1 cursor-pointer"
-                      >
-                        <div
-                          class="flex gap-2 mb-2"
-                          @click="openViewImage(img)"
-                        >
-                          <img
-                            :src="`https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${img.image}`"
-                            class="w-12 h-12 object-cover rounded border"
-                            alt="Cash"
-                          />
-                          <div>
-                            <p class="font-semibold text-sm">
-                              {{ img.currency }}
-                              {{ formatCurrency(img.amount) }}
-                            </p>
-                            <p class="text-xs text-gray-600">
-                              {{ img.interact_bank }}
-                            </p>
-                          </div>
-                        </div>
-                        <div class="text-xs text-gray-600 space-y-1">
-                          <p>
-                            <span class="font-medium">From:</span>
-                            {{ img.sender }}
-                          </p>
-                          <p>
-                            <span class="font-medium">To:</span>
-                            {{ img.receiver }}
-                          </p>
-                          <p>
-                            <span class="font-medium">Date:</span>
-                            {{ formatDate(img.date) }}
-                          </p>
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Selected Total -->
-              <div
-                v-if="selectedImageIds.length > 0"
-                class="mt-2 rounded p-2"
-                :class="
-                  transferDirection === 'from' ? 'bg-red-50' : 'bg-green-50'
-                "
-              >
-                <p
-                  class="text-sm font-semibold"
-                  :class="
-                    transferDirection === 'from'
-                      ? 'text-red-700'
-                      : 'text-green-700'
-                  "
-                >
-                  Total: {{ calculateSelectedTotal() }}
-                </p>
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex gap-3">
-              <button
-                @click="addToTransfer"
-                :disabled="selectedImageIds.length === 0"
-                class="px-6 py-2 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                :class="
-                  transferDirection === 'from'
-                    ? 'bg-red-500 text-white hover:bg-red-600'
-                    : 'bg-green-500 text-white hover:bg-green-600'
-                "
-              >
-                Add as {{ transferDirection.toUpperCase() }}
-              </button>
-              <button
-                @click="clearSelection"
-                v-if="selectedImageIds.length > 0"
-                class="px-6 py-2 bg-gray-200 text-xs text-gray-700 rounded-lg font-semibold hover:bg-gray-300"
-              >
-                Clear Selection
-              </button>
-            </div>
-
-            <!-- Transfer Preview -->
+            </div> -->
             <div
-              v-if="fromImageIds.length > 0 || toImageIds.length > 0"
-              class="mt-6 bg-gradient-to-r from-red-50 via-white to-green-50 border rounded-lg p-4"
+              class="grid grid-cols-2 gap-4"
+              v-if="getUnlinkedImages().length > 0"
             >
-              <h4 class="text-sm font-semibold mb-3">Transfer Preview</h4>
-              <div class="grid grid-cols-2 gap-4">
-                <!-- FROM Preview -->
-                <div class="bg-red-50 rounded p-3">
-                  <p class="text-xs font-semibold text-red-700 mb-2">
-                    FROM ({{ fromImageIds.length }} images)
+              <div
+                v-for="img in getUnlinkedImages()"
+                :key="img.id"
+                @click="openViewImage(img)"
+                class="bg-white border rounded-lg p-2 flex items-center gap-2 relative group"
+              >
+                <img
+                  :src="`https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${img.image}`"
+                  class="w-12 h-12 object-cover rounded border cursor-pointer"
+                  alt="Cash"
+                />
+                <div class="flex-1">
+                  <p class="font-semibold text-xs">
+                    {{ img.currency }} {{ formatCurrency(img.amount) }}
                   </p>
-                  <p class="text-sm font-bold text-red-900">
-                    {{ calculateTotal(fromImageIds) }}
-                  </p>
-                </div>
-
-                <!-- TO Preview -->
-                <div class="bg-green-50 rounded p-3">
-                  <p class="text-xs font-semibold text-green-700 mb-2">
-                    TO ({{ toImageIds.length }} images)
-                  </p>
-                  <p class="text-sm font-bold text-green-900">
-                    {{ calculateTotal(toImageIds) }}
+                  <p class="text-xs text-gray-600">
+                    {{ img.interact_bank }}
                   </p>
                 </div>
               </div>
+            </div>
 
-              <!-- Submit Button -->
-              <div class="mt-4">
-                <button
-                  @click="createInternalTransfer"
-                  :disabled="
-                    (fromImageIds.length == 0 && toImageIds.length == 0) ||
-                    creatingTransfer
-                  "
-                  class="w-full bg-[#FF613c] text-white text-xs px-6 py-3 rounded-lg hover:bg-[#FF613c]/90 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
-                >
-                  {{
-                    creatingTransfer
-                      ? "Creating..."
-                      : "Create Internal Transfer"
-                  }}
-                </button>
-              </div>
+            <div class="" v-if="getUnlinkedImages().length == 0">
+              <p class="text-start text-xs text-gray-500">
+                No unlinked images available for transfer setup.
+              </p>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="mt-4">
+              <button
+                @click="createInternalTransfer"
+                :disabled="
+                  (fromImageIds.length == 0 && toImageIds.length == 0) ||
+                  creatingTransfer
+                "
+                class="w-full bg-[#FF613c] text-white text-sm px-6 py-3 rounded-lg hover:bg-[#FF613c]/90 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+              >
+                {{
+                  creatingTransfer ? "Creating..." : "Create Internal Transfer"
+                }}
+              </button>
             </div>
           </div>
         </div>
@@ -671,6 +538,7 @@
       </div>
     </div>
 
+    <!-- Image View Modal -->
     <Modal :isOpen="viewImage != null" @closeModal="clearViewImage">
       <DialogPanel
         class="w-full max-w-lg transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
@@ -679,13 +547,141 @@
           as="h3"
           class="text-lg font-medium leading-6 text-gray-900 mb-5"
         >
-          Import Process
+          Cash Image
         </DialogTitle>
         <img
           v-if="viewImage?.image"
           :src="`https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${viewImage.image}`"
           alt=""
+          class="w-full rounded-lg"
         />
+      </DialogPanel>
+    </Modal>
+
+    <!-- Image Selection Modal -->
+    <Modal
+      :isOpen="showImageSelectionModal"
+      @closeModal="closeImageSelectionModal"
+    >
+      <DialogPanel
+        class="w-full max-w-4xl transform overflow-hidden rounded-lg bg-white p-6 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-medium leading-6 mb-4"
+          :class="
+            currentSelectionDirection === 'from'
+              ? 'text-red-700'
+              : 'text-green-700'
+          "
+        >
+          Select
+          {{ currentSelectionDirection === "from" ? "FROM" : "TO" }} Images
+        </DialogTitle>
+
+        <!-- Selected Count -->
+        <div class="mb-4 flex justify-between items-center">
+          <p class="text-sm text-gray-600">
+            Selected: {{ tempSelectedImageIds.length }} images
+          </p>
+          <button
+            v-if="tempSelectedImageIds.length > 0"
+            @click="tempSelectedImageIds = []"
+            class="text-xs text-gray-600 hover:text-gray-800 underline"
+          >
+            Clear All
+          </button>
+        </div>
+
+        <!-- Images Grid -->
+        <div
+          class="grid grid-cols-3 gap-4 max-h-[500px] overflow-y-auto mb-4 pr-2"
+        >
+          <div
+            v-for="img in getUnlinkedImages()"
+            :key="img.id"
+            @click="toggleImageSelection(img.id)"
+            class="border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md relative"
+            :class="{
+              'border-red-500 bg-red-50':
+                currentSelectionDirection === 'from' &&
+                tempSelectedImageIds.includes(img.id),
+              'border-green-500 bg-green-50':
+                currentSelectionDirection === 'to' &&
+                tempSelectedImageIds.includes(img.id),
+              'border-gray-200': !tempSelectedImageIds.includes(img.id),
+            }"
+          >
+            <!-- Checkbox -->
+            <div class="absolute top-2 left-2">
+              <div
+                class="w-5 h-5 rounded border-2 flex items-center justify-center"
+                :class="
+                  tempSelectedImageIds.includes(img.id)
+                    ? currentSelectionDirection === 'from'
+                      ? 'bg-red-500 border-red-500'
+                      : 'bg-green-500 border-green-500'
+                    : 'bg-white border-gray-300'
+                "
+              >
+                <svg
+                  v-if="tempSelectedImageIds.includes(img.id)"
+                  class="w-3 h-3 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="3"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Image -->
+            <img
+              :src="`https://thanywhere.sgp1.cdn.digitaloceanspaces.com/images/${img.image}`"
+              class="w-full h-24 object-cover rounded border mb-2"
+              alt="Cash"
+            />
+
+            <!-- Details -->
+            <div class="text-xs space-y-1">
+              <p class="font-semibold">
+                {{ img.currency }} {{ formatCurrency(img.amount) }}
+              </p>
+              <p class="text-gray-600">{{ img.interact_bank }}</p>
+              <p class="text-gray-500 text-xs">
+                {{ formatDate(img.date) }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="flex gap-3 justify-end">
+          <button
+            @click="closeImageSelectionModal"
+            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300"
+          >
+            Cancel
+          </button>
+          <button
+            @click="confirmImageSelection"
+            :disabled="tempSelectedImageIds.length === 0"
+            class="px-6 py-2 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            :class="
+              currentSelectionDirection === 'from'
+                ? 'bg-red-500 text-white hover:bg-red-600'
+                : 'bg-green-500 text-white hover:bg-green-600'
+            "
+          >
+            Add {{ tempSelectedImageIds.length }} Image(s)
+          </button>
+        </div>
       </DialogPanel>
     </Modal>
   </Layout>
@@ -729,33 +725,17 @@ const pagination = ref({
 
 const viewImage = ref(null);
 
-const openViewImage = (data) => {
-  console.log(data, "this is view image");
-
-  viewImage.value = data;
-};
-
-const clearViewImage = () => {
-  viewImage.value = null;
-};
+// Image Selection Modal State
+const showImageSelectionModal = ref(false);
+const currentSelectionDirection = ref("from"); // 'from' or 'to'
+const tempSelectedImageIds = ref([]);
 
 // Date filters
 const currentDate = new Date();
 const year = ref(currentDate.getFullYear());
 const selectedMonth = ref(currentDate.getMonth() + 1);
 
-// Filters
-const filters = ref({
-  has_transfer: null,
-});
-
-const goToBooking = (bookingId) => {
-  window.open(`/bookings/new-update/${bookingId}`, "_blank");
-};
-
 // Transfer setup state
-const transferDirection = ref("from"); // 'from' or 'to'
-const selectedImageIds = ref([]);
 const fromImageIds = ref([]);
 const toImageIds = ref([]);
 const transferRate = ref("");
@@ -777,6 +757,18 @@ const monthArray = [
 ];
 
 // Methods
+const openViewImage = (data) => {
+  viewImage.value = data;
+};
+
+const clearViewImage = () => {
+  viewImage.value = null;
+};
+
+const goToBooking = (bookingId) => {
+  window.open(`/bookings/new-update/${bookingId}`, "_blank");
+};
+
 const generateDateRangeForMonth = (month, yearValue) => {
   const startDate = new Date(yearValue, month - 1, 1);
   const endDate = new Date(yearValue, month, 0);
@@ -800,13 +792,7 @@ const refreshList = async (page = 1) => {
       per_page: pagination.value.per_page,
     };
 
-    if (filters.value.has_transfer !== null) {
-      params.has_internal_transfer = filters.value.has_transfer ? 1 : 0;
-    }
-
     const response = await cashImageStore.internalTransferCheck(params);
-
-    console.log("API Response:", response);
 
     if (response.result && response.result.items) {
       bookingItems.value = response.result.items;
@@ -851,34 +837,88 @@ const selectBooking = (item) => {
       ? item.internal_transfer_analysis.existing_transfers[0].notes
       : "";
   resetTransferForm();
-  console.log("Selected booking:", item);
 };
 
 const resetTransferForm = () => {
-  transferDirection.value = "from";
-  selectedImageIds.value = [];
   fromImageIds.value = [];
   toImageIds.value = [];
 };
 
 const getUnlinkedImages = () => {
   if (!selectedBooking.value) return [];
-
-  // Filter out images that already have internal_transfer = true
   return selectedBooking.value.all_booking_cash_images.filter(
-    (img) => !img.internal_transfer
+    (img) =>
+      !img.internal_transfer &&
+      !fromImageIds.value.includes(img.id) &&
+      !toImageIds.value.includes(img.id)
   );
+};
+
+const getSelectedFromImages = () => {
+  if (!selectedBooking.value || fromImageIds.value.length === 0) return [];
+  return selectedBooking.value.all_booking_cash_images.filter((img) =>
+    fromImageIds.value.includes(img.id)
+  );
+};
+
+const getSelectedToImages = () => {
+  if (!selectedBooking.value || toImageIds.value.length === 0) return [];
+  return selectedBooking.value.all_booking_cash_images.filter((img) =>
+    toImageIds.value.includes(img.id)
+  );
+};
+
+const openImageSelectionModal = (direction) => {
+  currentSelectionDirection.value = direction;
+  // Pre-select already selected images
+  tempSelectedImageIds.value =
+    direction === "from" ? [...fromImageIds.value] : [...toImageIds.value];
+  showImageSelectionModal.value = true;
+};
+
+const closeImageSelectionModal = () => {
+  showImageSelectionModal.value = false;
+  tempSelectedImageIds.value = [];
+};
+
+const toggleImageSelection = (imageId) => {
+  const index = tempSelectedImageIds.value.indexOf(imageId);
+  if (index > -1) {
+    tempSelectedImageIds.value.splice(index, 1);
+  } else {
+    tempSelectedImageIds.value.push(imageId);
+  }
+};
+
+const confirmImageSelection = () => {
+  if (currentSelectionDirection.value === "from") {
+    fromImageIds.value = [...tempSelectedImageIds.value];
+    toast.success(
+      `Added ${tempSelectedImageIds.value.length} image(s) to FROM list`
+    );
+  } else {
+    toImageIds.value = [...tempSelectedImageIds.value];
+    toast.success(
+      `Added ${tempSelectedImageIds.value.length} image(s) to TO list`
+    );
+  }
+  closeImageSelectionModal();
+};
+
+const removeFromList = (direction, imageId) => {
+  if (direction === "from") {
+    fromImageIds.value = fromImageIds.value.filter((id) => id !== imageId);
+    toast.info("Removed from FROM list");
+  } else {
+    toImageIds.value = toImageIds.value.filter((id) => id !== imageId);
+    toast.info("Removed from TO list");
+  }
 };
 
 const changePage = (page) => {
   if (page >= 1 && page <= pagination.value.last_page) {
     refreshList(page);
   }
-};
-
-const handleFilterChange = () => {
-  pagination.value.current_page = 1;
-  refreshList();
 };
 
 const handleYearChange = (newYear) => {
@@ -892,10 +932,7 @@ const handleMonthChange = () => {
 
 const getFromImages = () => {
   if (!selectedBooking.value) return [];
-
   const fromImages = [];
-
-  // Get all cash images with internal_transfer = true and direction = 'from'
   selectedBooking.value.all_booking_cash_images.forEach((img) => {
     if (img.internal_transfer && img.internal_transfer_info) {
       img.internal_transfer_info.forEach((transfer) => {
@@ -905,16 +942,12 @@ const getFromImages = () => {
       });
     }
   });
-
   return fromImages;
 };
 
 const getToImages = () => {
   if (!selectedBooking.value) return [];
-
   const toImages = [];
-
-  // Get all cash images with internal_transfer = true and direction = 'to'
   selectedBooking.value.all_booking_cash_images.forEach((img) => {
     if (img.internal_transfer && img.internal_transfer_info) {
       img.internal_transfer_info.forEach((transfer) => {
@@ -924,68 +957,36 @@ const getToImages = () => {
       });
     }
   });
-
   return toImages;
 };
 
 const getTransferRate = () => {
   if (!selectedBooking.value) return null;
-
-  // Get rate from any cash image with transfer info
   for (const img of selectedBooking.value.all_booking_cash_images) {
     if (img.internal_transfer_info && img.internal_transfer_info.length > 0) {
       return img.internal_transfer_info[0].rate;
     }
   }
-
   return null;
-};
-
-const addToTransfer = () => {
-  if (selectedImageIds.value.length === 0) {
-    toast.warning("Please select at least one cash image");
-    return;
-  }
-
-  if (transferDirection.value === "from") {
-    // Add to FROM list
-    const newIds = selectedImageIds.value.filter(
-      (id) => !fromImageIds.value.includes(id)
-    );
-    fromImageIds.value = [...fromImageIds.value, ...newIds];
-    toast.success(`Added ${newIds.length} image(s) to FROM list`);
-  } else {
-    // Add to TO list
-    const newIds = selectedImageIds.value.filter(
-      (id) => !toImageIds.value.includes(id)
-    );
-    toImageIds.value = [...toImageIds.value, ...newIds];
-    toast.success(`Added ${newIds.length} image(s) to TO list`);
-  }
-
-  // Clear selection
-  selectedImageIds.value = [];
-};
-
-const clearSelection = () => {
-  selectedImageIds.value = [];
 };
 
 const calculateTotal = (imageIds) => {
   if (!selectedBooking.value || imageIds.length === 0) return "0";
-
   const images = selectedBooking.value.all_booking_cash_images.filter((img) =>
     imageIds.includes(img.id)
   );
-
   const total = images.reduce((sum, img) => sum + parseFloat(img.amount), 0);
   const currency = images[0]?.currency || "";
-
   return `${currency} ${formatCurrency(total)}`;
 };
 
-const calculateSelectedTotal = () => {
-  return calculateTotal(selectedImageIds.value);
+const calculateTotalAmount = (imageIds) => {
+  if (!selectedBooking.value || imageIds.length === 0) return 0;
+  const images = selectedBooking.value.all_booking_cash_images.filter((img) =>
+    imageIds.includes(img.id)
+  );
+  const total = images.reduce((sum, img) => sum + parseFloat(img.amount), 0);
+  return total;
 };
 
 const createInternalTransfer = async () => {
@@ -993,6 +994,10 @@ const createInternalTransfer = async () => {
     toast.warning("Please add cash images to both FROM and TO lists");
     return;
   }
+
+  let exchangeRateCalculated =
+    calculateTotalAmount(fromImageIds.value) /
+    calculateTotalAmount(toImageIds.value);
 
   const result = await Swal.fire({
     title: "Create Internal Transfer?",
@@ -1013,7 +1018,17 @@ const createInternalTransfer = async () => {
           <p class="text-sm">${calculateTotal(toImageIds.value)}</p>
         </div>
         <div class="bg-blue-50 p-3 rounded mt-2">
-          <p class="text-sm"><strong>Rate:</strong> ${transferRate.value}</p>
+          <p class="text-sm mb-2"><strong>Exchange Rate:</strong></p>
+          <input
+            id="swal-rate-input"
+            type="number"
+            step="0.000001"
+            value="${transferRate.value || ""}"
+            class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-[#FF613c]"
+            placeholder="Enter exchange rate (${exchangeRateCalculated.toFixed(
+              2
+            )})"
+          />
         </div>
       </div>
     `,
@@ -1023,15 +1038,36 @@ const createInternalTransfer = async () => {
     cancelButtonColor: "#6B7280",
     confirmButtonText: "Yes, Create Transfer",
     cancelButtonText: "Cancel",
+    focusConfirm: false,
+    preConfirm: () => {
+      const rateInput = document.getElementById("swal-rate-input");
+      const rateValue = rateInput.value;
+
+      if (!rateValue || rateValue <= 0) {
+        Swal.showValidationMessage("Please enter a valid exchange rate");
+        return false;
+      }
+
+      return {
+        rate: rateValue,
+      };
+    },
+    didOpen: () => {
+      // Focus on the input when modal opens
+      const input = document.getElementById("swal-rate-input");
+      if (input) {
+        input.focus();
+      }
+    },
   });
 
-  if (result.isConfirmed) {
+  if (result.isConfirmed && result.value) {
     creatingTransfer.value = true;
     try {
       const response = await cashImageStore.editInternalTransfer({
         from_cash_image_ids: fromImageIds.value,
         to_cash_image_ids: toImageIds.value,
-        exchange_rate: transferRate.value,
+        exchange_rate: result.value.rate, // Use the rate from the modal
         notes: transferNotes.value || null,
         internal_transfer_id:
           selectedBooking.value.internal_transfer_analysis?.existing_transfers
@@ -1067,21 +1103,13 @@ const formatDate = (dateString) => {
   });
 };
 
-const formatDateTime = (dateString) => {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  return date.toLocaleString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
 const formatCurrency = (amount) => {
   if (!amount) return "0";
   return new Intl.NumberFormat().format(amount);
+};
+
+const handleImageError = (event) => {
+  event.target.src = "https://via.placeholder.com/150?text=No+Image";
 };
 
 // Lifecycle
@@ -1107,24 +1135,6 @@ onMounted(() => {
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: #e5532f;
-}
-
-.overflow-x-auto::-webkit-scrollbar {
-  height: 6px;
-}
-
-.overflow-x-auto::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-.overflow-x-auto::-webkit-scrollbar-thumb {
-  background: #ff613c;
-  border-radius: 10px;
-}
-
-.overflow-x-auto::-webkit-scrollbar-thumb:hover {
   background: #e5532f;
 }
 </style>

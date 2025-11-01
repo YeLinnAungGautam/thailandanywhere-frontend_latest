@@ -217,8 +217,16 @@
                 <FolderMinusIcon class="w-6 h-6" @click="cleanSelectedItem" />
                 Date
               </th>
-              <th class="text-xs text-center font-medium py-3 w-[80px]">
-                Time/ Eff.Date
+              <th class="text-xs gap-x-2 font-medium text-center w-[80px]">
+                Time
+                <input
+                  type="checkbox"
+                  class="w-4 h-4"
+                  name=""
+                  @click="showFullHour = !showFullHour"
+                  :checked="showFullHour"
+                  id=""
+                />
               </th>
               <th class="text-xs text-center font-medium py-3 w-[80px]">
                 Currency
@@ -2180,22 +2188,37 @@ const formatDateHeader = (dateString) => {
 };
 
 // Add this with your other helper functions
+const showFullHour = ref(false);
 const formatTime = (timeString) => {
   if (!timeString) return "-";
 
   // Extract hours, minutes, seconds
   const [hours, minutes] = timeString.split(":");
 
-  // Convert to 12-hour format
-  const hour = parseInt(hours, 10);
-  const ampm = hour >= 12 ? "PM" : "AM";
-  const hour12 = hour % 12 || 12; // Convert 0 to 12 for 12 AM
+  if (showFullHour.value) {
+    return `${hours}:${minutes}`;
+  } else {
+    // Convert to 12-hour format
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    const hour12 = hour % 12 || 12; // Convert 0 to 12 for 12 AM
 
-  // Remove leading zero from hour if needed
-  const displayHour = hour12 < 10 ? hour12.toString() : hour12;
+    // Remove leading zero from hour if needed
+    const displayHour = hour12 < 10 ? hour12.toString() : hour12;
 
-  return `${displayHour}:${minutes} ${ampm}`;
+    return `${displayHour}:${minutes} ${ampm}`;
+  }
 };
+
+// const formatTime = (timeString) => {
+//   if (!timeString) return "-";
+
+//   // Extract hours and minutes only
+//   const [hours, minutes] = timeString.split(":");
+
+//   // Return in 24-hour format
+//   return `${hours}:${minutes}`;
+// };
 
 const extractTime = (dateString) => {
   if (!dateString) return null;

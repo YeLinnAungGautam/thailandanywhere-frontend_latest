@@ -23,7 +23,7 @@
       </div>
     </div>
     <div class="relative z-40">
-      <VerifyList />
+      <VerifyList :selectedMonth="selectedMonth" />
     </div>
 
     <div class="grid gap-4 relative grid-cols-3 pt-2">
@@ -123,7 +123,20 @@
               </div>
             </transition>
 
-            <div class="relative w-full">
+            <div>
+              <select
+                v-model="searchKey.interact_bank"
+                class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
+              >
+                <option value="personal">Personal</option>
+                <option value="company">Company</option>
+                <option value="cash_at_office">Cash at Office</option>
+                <option value="to_money_changer">To Money Changer</option>
+                <option value="deposit_management">Deposit Management</option>
+                <option value="pay_to_driver">Pay to Driver</option>
+              </select>
+            </div>
+            <div class="relative w-1/2">
               <input
                 type="search"
                 v-model="searchKey.crm_id"
@@ -924,10 +937,21 @@ const verifyStatus = async (status) => {
   }
 };
 
+watch(selectedMonth, () => {
+  router.push({
+    query: {
+      month: selectedMonth.value,
+      year: year.value,
+    },
+  });
+});
+
 // Lifecycle
 onMounted(async () => {
-  if (route.query.month && route.query.year) {
+  if (route.query.month) {
     selectedMonth.value = parseInt(route.query.month);
+  }
+  if (route.query.year) {
     year.value = parseInt(route.query.year);
   }
 

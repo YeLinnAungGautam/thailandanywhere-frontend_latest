@@ -52,7 +52,7 @@
           >
             <!-- Data Checker -->
             <button
-              @click="router.push('/data_verify')"
+              @click="router.push('/data_verify?month=' + selectedMonth)"
               class="w-full text-left px-4 py-2 hover:bg-yellow-50 transition-colors text-xs text-gray-700 flex items-center gap-2"
               :class="route.name == 'dataVerify' ? 'bg-yellow-50' : ''"
             >
@@ -62,7 +62,7 @@
 
             <!-- Duplicate Checker -->
             <button
-              @click="router.push('/duplicate_checker')"
+              @click="router.push('/duplicate_checker?month=' + selectedMonth)"
               class="w-full text-left px-4 py-2 hover:bg-blue-50 transition-colors text-xs text-gray-700 flex items-center gap-2"
               :class="route.name == 'duplicateChecker' ? 'bg-blue-50' : ''"
             >
@@ -73,7 +73,7 @@
             <!-- Bank Verification -->
             <button
               class="w-full text-left px-4 py-2 hover:bg-blue-50 transition-colors text-xs text-gray-700 flex items-center gap-2"
-              @click="router.push('/bank_verify')"
+              @click="router.push('/bank_verify?month=' + selectedMonth)"
               :class="route.name == 'bankVerify' ? 'bg-blue-50' : ''"
             >
               <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
@@ -82,7 +82,14 @@
 
             <!-- Internal Transfer Checker -->
             <button
-              @click="router.push('/internalTransfer_checker')"
+              @click="
+                router.push(
+                  '/internalTransfer_checker?month=' +
+                    selectedMonth +
+                    '&year=' +
+                    year
+                )
+              "
               class="w-full text-left px-4 py-2 hover:bg-purple-50 transition-colors text-xs text-gray-700 flex items-center gap-2"
               :class="
                 route.name == 'internalTransferChecker' ? 'bg-purple-50' : ''
@@ -173,12 +180,19 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch, defineProps } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const isCashImageOpen = ref(false);
-const route = useRoute();
 const router = useRouter();
+const route = useRoute();
+
+const props = defineProps({
+  selectedMonth: {
+    type: String,
+    required: true,
+  },
+});
 
 const toggleCashImageChecker = () => {
   isCashImageOpen.value = !isCashImageOpen.value;

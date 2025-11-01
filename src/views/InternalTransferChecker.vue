@@ -24,7 +24,7 @@
     </div>
 
     <div class="relative z-40">
-      <VerifyList />
+      <VerifyList :selectedMonth="selectedMonth" />
     </div>
 
     <!-- Main Content Grid -->
@@ -691,18 +691,19 @@
 import Layout from "./Layout.vue";
 import Modal from "../components/Modal.vue";
 import { DialogPanel, DialogTitle } from "@headlessui/vue";
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useCashImageStore } from "../stores/cashImage";
 import { useSidebarStore } from "../stores/sidebar";
 import { storeToRefs } from "pinia";
 import { useToast } from "vue-toastification";
 import Swal from "sweetalert2";
 import YearPickerVue from "./AccountingComponent/yearPicker.vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import VerifyList from "./CashImageCreate/VerifyList.vue";
 
 const router = useRouter();
 const toast = useToast();
+const route = useRoute();
 const cashImageStore = useCashImageStore();
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
@@ -1112,8 +1113,24 @@ const handleImageError = (event) => {
   event.target.src = "https://via.placeholder.com/150?text=No+Image";
 };
 
+watch(selectedMonth, () => {
+  router.push({
+    query: {
+      month: selectedMonth.value,
+      year: year.value || currentDate.getFullYear(),
+    },
+  });
+});
+
 // Lifecycle
 onMounted(() => {
+  // Initialize from query params
+  if (route.query.month) {
+    selectedMonth.value = parseInt(route.query.month);
+  }
+  if (route.query.year) {
+    year.value = parseInt(route.query.year);
+  }
   refreshList();
 });
 </script>

@@ -23,7 +23,7 @@
       </div>
     </div>
     <div class="relative z-40">
-      <VerifyList />
+      <VerifyList :selectedMonth="selectedMonth" />
     </div>
 
     <div class="grid gap-4 relative grid-cols-3 pt-2">
@@ -123,19 +123,39 @@
               </div>
             </transition>
 
-            <div class="relative w-full">
-              <input
-                type="search"
-                v-model="searchKey.crm_id"
-                placeholder="Search by CRM ID or Amount"
-                class="w-full px-4 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
-              />
-              <div
-                @click="searchAction"
-                class="absolute right-1 top-1 rounded-lg text-xs p-1 bg-[#FF613c]"
-              >
-                <MagnifyingGlassIcon class="w-4 h-4 text-white" />
+            <div class="flex justify-start items-center gap-x-1">
+              <div class="relative w-full">
+                <input
+                  type="search"
+                  v-model="searchKey.crm_id"
+                  placeholder="Search by CRM ID or Amount"
+                  class="w-full px-4 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-xs"
+                />
+                <div
+                  @click="searchAction"
+                  class="absolute right-1 top-1 rounded-lg text-xs p-1 bg-[#FF613c]"
+                >
+                  <MagnifyingGlassIcon class="w-4 h-4 text-white" />
+                </div>
               </div>
+              <select
+                v-model="searchKey.currency"
+                class="border border-gray-300 px-4 focus:outline-none w-[100px] py-2 text-[10px] rounded-lg"
+              >
+                <option value="">All Currency</option>
+                <option value="THB">THB</option>
+                <option value="MMK">MMK</option>
+                <option value="USD">USD</option>
+              </select>
+
+              <select
+                v-model="searchKey.data_verify"
+                class="border border-gray-300 px-4 focus:outline-none w-[100px] py-2 text-[10px] rounded-lg"
+              >
+                <option value="">All</option>
+                <option :value="1">Verify</option>
+                <option value="0">Un verify</option>
+              </select>
             </div>
           </div>
 
@@ -242,7 +262,7 @@
                     {{ item.sender }} → {{ item.receiver }}
                   </p>
                   <div class="flex items-center gap-4 text-xs text-gray-500">
-                    <span>{{ formattedDateTime(item.date) }}</span>
+                    <span>{{ item.date }}</span>
                   </div>
                 </div>
                 <div class="space-y-3">
@@ -416,9 +436,16 @@
 
                   <div class="flex justify-between items-center">
                     <label class="text-xs font-medium pb-2 block">Amount</label>
-                    <input
+                    <!-- <input
                       type="number"
                       v-model="formData.amount"
+                      placeholder="Amount"
+                      class="w-2/3 px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-base font-semibold"
+                    /> -->
+                    <input
+                      type="text"
+                      :value="formatNumber(formData.amount)"
+                      @input="handleAmountInput"
                       placeholder="Amount"
                       class="w-2/3 px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-base font-semibold"
                     />
@@ -564,6 +591,7 @@ const searchKey = ref({
   sender: "",
   receiver: "",
   currency: "",
+  data_verify: "",
   interact_bank: "",
 });
 
@@ -653,8 +681,14 @@ const watchSystem = computed(() => {
   let result = {};
 
   Object.keys(searchKey.value).forEach((key) => {
-    if (searchKey.value[key] && searchKey.value[key] !== "") {
-      result[key] = searchKey.value[key];
+    const value = searchKey.value[key];
+    // For data_verify, allow 0 value
+    if (key === "data_verify") {
+      if (value === 0 || value === 1 || value === "0" || value === "1") {
+        result[key] = value;
+      }
+    } else if (value && value !== "") {
+      result[key] = value;
     }
   });
 
@@ -674,6 +708,11 @@ const watchSystem = computed(() => {
   return result;
 });
 
+const formatNumber = (value) => {
+  if (!value) return "";
+  return new Intl.NumberFormat("en-US").format(value);
+};
+
 // Methods
 const searchAction = async () => {
   filterShow.value = false;
@@ -685,6 +724,7 @@ const clearFilter = () => {
     crm_id: "",
     sender: "",
     receiver: "",
+    data_verify: "",
     currency: "",
     interact_bank: "",
   };
@@ -777,6 +817,9 @@ const goToSource = (detail) => {
 const saveUrl = ref("");
 
 const changePage = async (url) => {
+  console.log("====================================");
+  console.log(url);
+  console.log("====================================");
   saveUrl.value = url;
   await cashImageStore.getChangePage(url, watchSystem.value);
 };
@@ -808,6 +851,14 @@ const handleMonthChange = (month) => {
 const formatDate = (dateString) => {
   if (!dateString) return "";
   return new Date(dateString).toLocaleDateString();
+};
+
+const handleAmountInput = (event) => {
+  const value = event.target.value.replace(/,/g, "");
+  formData.value.amount = value ? parseFloat(value) : 0;
+
+  // Re-format the input value
+  event.target.value = formatNumber(formData.value.amount);
 };
 
 const formatCurrency = (amount) => {
@@ -924,8 +975,11 @@ const verifyStatus = async (status) => {
 
 // Lifecycle
 onMounted(async () => {
-  if (route.query.month && route.query.year) {
+  if (route.query.month) {
     selectedMonth.value = parseInt(route.query.month);
+  }
+
+  if (route.query.year) {
     year.value = parseInt(route.query.year);
   }
 
@@ -939,6 +993,15 @@ onMounted(async () => {
     await getDetail();
     await scrollToItem(selectedItem.value);
   }
+});
+
+watch(selectedMonth, () => {
+  router.push({
+    query: {
+      month: selectedMonth.value,
+      year: year.value,
+    },
+  });
 });
 
 watch(

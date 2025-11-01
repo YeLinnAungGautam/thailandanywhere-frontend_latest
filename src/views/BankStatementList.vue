@@ -106,6 +106,15 @@
 
         <!-- Search Filters -->
         <div class="flex space-x-2 items-center">
+          <div>
+            <button
+              @click.prevent="verifySelectedAction"
+              v-if="selectedItem.length > 0"
+              class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20 bg-[#FF613c] text-white hover:bg-[#e6552d] transition-colors"
+            >
+              Verify Selected
+            </button>
+          </div>
           <div class="relative">
             <input
               v-model="senderSearch"
@@ -202,7 +211,10 @@
         <table v-else class="w-full text-xs border border-gray-500">
           <thead class="border border-gray-500">
             <tr class="bg-gray-200 divide-x divide-gray-500">
-              <th class="text-xs text-center font-medium py-3 w-[100px]">
+              <th
+                class="text-xs text-start pr-2 flex justify-between items-center font-medium py-3 w-[100px]"
+              >
+                <FolderMinusIcon class="w-6 h-6" @click="cleanSelectedItem" />
                 Date
               </th>
               <th class="text-xs text-center font-medium py-3 w-[80px]">
@@ -226,6 +238,10 @@
               <th class="text-xs text-center font-medium py-3">Actual VAT</th>
               <th class="text-xs text-center font-medium py-3">Invoice</th>
               <th class="text-xs text-center font-medium py-3">Tax Credit</th>
+              <th class="text-xs text-center font-medium py-3">V Status</th>
+              <th class="text-xs text-center font-medium py-3" colspan="2">
+                Bank Verify
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -240,21 +256,37 @@
                   :class="
                     expandedItems[item.id] ? 'border border-[#FF613c]' : ''
                   "
-                  @click="toggleExpand(item.id)"
                 >
-                  <td class="px-3 py-2 text-xs text-center">
+                  <td
+                    class="px-1 py-2 flex justify-between items-center text-xs text-center"
+                  >
+                    <input
+                      type="checkbox"
+                      @click="selectedItemAdd(item?.id)"
+                      :checked="selectedItem.includes(item?.id)"
+                      class="w-[20px] h-[20px]"
+                      name=""
+                      id=""
+                    />
                     {{ formatDateForTime(item?.date) }}
 
                     <!-- Action buttons - moved inside a table cell -->
                   </td>
-                  <td class="px-3 py-2 text-xs text-center">
+                  <td
+                    class="px-3 py-2 text-xs text-center"
+                    @click="toggleExpand(item.id)"
+                  >
                     {{ formatTime(item.time) }}
                   </td>
-                  <td class="px-3 py-2 text-xs text-center">
+                  <td
+                    class="px-3 py-2 text-xs text-center"
+                    @click="toggleExpand(item.id)"
+                  >
                     {{ item.currency }}
                   </td>
                   <td
                     class="px-3 py-2 text-xs text-end"
+                    @click="toggleExpand(item.id)"
                     :class="getTransactionBadgeClass(item)"
                   >
                     <p
@@ -269,6 +301,7 @@
                     <p v-else></p>
                   </td>
                   <td
+                    @click="toggleExpand(item.id)"
                     class="px-3 py-2 text-xs text-end"
                     :class="getTransactionBadgeClass(item)"
                   >
@@ -277,16 +310,28 @@
                     </p>
                     <p v-else></p>
                   </td>
-                  <td class="px-3 py-2 text-xs w-[200px]">
+                  <td
+                    class="px-3 py-2 text-xs w-[150px]"
+                    @click="toggleExpand(item.id)"
+                  >
                     {{ item.sender }}
                   </td>
-                  <td class="px-3 py-2 text-xs w-[200px]">
+                  <td
+                    class="px-3 py-2 text-xs w-[150px]"
+                    @click="toggleExpand(item.id)"
+                  >
                     {{ item.receiver }}
                   </td>
-                  <td class="px-3 py-2 text-xs w-[100px]">
+                  <td
+                    class="px-3 py-2 text-xs w-[100px]"
+                    @click="toggleExpand(item.id)"
+                  >
                     {{ item.crm_id ?? "-" }}
                   </td>
-                  <td class="px-3 py-2 text-xs w-[80px]">
+                  <td
+                    class="px-3 py-2 text-xs w-[80px]"
+                    @click="toggleExpand(item.id)"
+                  >
                     {{
                       item.relatable_type == "App\\Models\\BookingItemGroup"
                         ? "-"
@@ -295,14 +340,20 @@
                       item.vat ? formattedNumber(item.vat.toFixed(2)) : "-"
                     }}
                   </td>
-                  <td class="px-3 py-2 text-xs w-[80px]">
+                  <td
+                    class="px-3 py-2 text-xs w-[80px]"
+                    @click="toggleExpand(item.id)"
+                  >
                     {{
                       item.commission
                         ? formattedNumber(item.commission.toFixed(2))
                         : "-"
                     }}
                   </td>
-                  <td class="px-3 py-2 text-xs w-[80px]">
+                  <td
+                    class="px-3 py-2 text-xs w-[80px]"
+                    @click="toggleExpand(item.id)"
+                  >
                     {{
                       item.net_vat
                         ? formattedNumber(item.net_vat.toFixed(2))
@@ -353,11 +404,27 @@
                       class="w-5 h-5 text-gray-300 inline-block"
                     />
                   </td>
+                  <td class="text-center">
+                    <CheckBadgeIcon
+                      v-if="item?.bank_verify == true"
+                      class="w-5 h-5 text-green-500 inline-block"
+                    />
+                    <XCircleIcon
+                      v-if="item?.bank_verify == false"
+                      class="w-5 h-5 text-gray-300 inline-block"
+                    />
+                  </td>
+                  <td @click="verifyStatus(true, item.id)">
+                    <CheckIcon class="w-5 h-5 text-green-500 inline-block" />
+                  </td>
+                  <td @click="verifyStatus(false, item.id)">
+                    <XMarkIcon class="w-5 h-5 text-red-500 inline-block" />
+                  </td>
                 </tr>
 
                 <!-- Loading row -->
                 <tr v-if="loadingDetails[item?.id]">
-                  <td colspan="14" class="px-3 py-4 text-center">
+                  <td colspan="17" class="px-3 py-4 text-center">
                     <div class="flex justify-center items-center">
                       <div
                         class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#FF613c]"
@@ -377,7 +444,7 @@
                     !getRelatableData(item.id)
                   "
                 >
-                  <td colspan="14" class="p-0">
+                  <td colspan="17" class="p-0">
                     <div class="bg-gray-50 pb-4 px-4">
                       <div class="w-full flex justify-end items-center py-2">
                         <div
@@ -757,7 +824,7 @@
                     getRelatableData(item.id)
                   "
                 >
-                  <td colspan="14" class="p-0">
+                  <td colspan="17" class="p-0">
                     <div class="bg-gray-50 pb-4 px-4">
                       <div class="w-full flex justify-end items-center py-2">
                         <div
@@ -1847,6 +1914,10 @@ import {
   PencilSquareIcon,
   TrashIcon,
   MagnifyingGlassIcon,
+  CheckIcon,
+  XMarkIcon,
+  BackspaceIcon,
+  FolderMinusIcon,
 } from "@heroicons/vue/24/outline";
 import debounce from "lodash/debounce";
 import Swal from "sweetalert2";
@@ -2522,6 +2593,89 @@ const closeModal = () => {
 const onChangeUpdate = async (message) => {
   closeModal();
   await getAction();
+};
+
+const verifyStatus = async (status, id) => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: `Mark this item as ${status}?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#FF613c",
+    cancelButtonColor: "#d33",
+    confirmButtonText: `Yes, ${status}!`,
+  });
+
+  if (result.isConfirmed) {
+    try {
+      const frmData = new FormData();
+      frmData.append("_method", "PUT");
+      frmData.append("bank_verify", status ? 1 : 0);
+
+      await cashImageStore.cashImageBankVerify(frmData, id);
+
+      toast.success(`Item marked as ${status}`);
+
+      await getAction();
+    } catch (error) {
+      toast.error("Verification failed");
+      console.log(error);
+    }
+  }
+};
+
+const selectedItem = ref([]);
+
+const selectedItemAdd = (item) => {
+  if (!selectedItem.value.includes(item)) {
+    selectedItem.value.push(item);
+  } else {
+    selectedItem.value = selectedItem.value.filter((i) => i !== item);
+  }
+
+  console.log(selectedItem.value, "this is selected item");
+};
+
+const cleanSelectedItem = () => {
+  selectedItem.value = [];
+};
+
+const verifySelectedAction = async () => {
+  if (selectedItem.value.length > 0) {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `Mark these items as verified?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#FF613c",
+      cancelButtonColor: "#d33",
+      confirmButtonText: `Yes, verify!`,
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const frmData = new FormData();
+        frmData.append("_method", "PUT");
+        frmData.append("bank_verify", 1);
+
+        for (const itemId of selectedItem.value) {
+          await cashImageStore.cashImageBankVerify(frmData, itemId);
+
+          toast.success(`Item ID ${itemId} marked as verified`);
+        }
+
+        toast.success(`Items marked as verified`);
+
+        await getAction();
+        cleanSelectedItem();
+      } catch (error) {
+        toast.error("Verification failed");
+        console.log(error);
+      }
+    }
+  } else {
+    toast.warning("No items selected");
+  }
 };
 
 onMounted(async () => {

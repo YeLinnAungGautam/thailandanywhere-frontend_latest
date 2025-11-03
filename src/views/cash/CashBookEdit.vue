@@ -50,166 +50,6 @@
         </div>
       </div>
 
-      <!-- Basic Information -->
-      <div class="space-y-4">
-        <h4 class="font-medium text-gray-800">Basic Information</h4>
-
-        <div class="space-y-2">
-          <label class="text-xs font-medium text-gray-700"
-            >Reference Number</label
-          >
-          <input
-            v-model="formData.reference_number"
-            type="text"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Auto-generated if empty"
-          />
-        </div>
-
-        <div class="space-y-2">
-          <label class="text-xs font-medium text-gray-700">Date</label>
-          <input
-            v-model="formData.date_only"
-            type="date"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-
-        <div class="space-y-2">
-          <label class="text-xs font-medium text-gray-700">Type *</label>
-          <select
-            v-model="formData.income_or_expense"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            required
-          >
-            <option value="">Select Type</option>
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </select>
-        </div>
-
-        <div class="space-y-2">
-          <label class="text-xs font-medium text-gray-700"
-            >Cash Structure *</label
-          >
-          <select
-            v-model="formData.cash_structure_id"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            required
-          >
-            <option value="">Select Structure</option>
-            <option
-              v-for="structure in cash_structures?.data ?? []"
-              :key="structure.id"
-              :value="structure.id"
-            >
-              {{ structure.name }}
-            </option>
-          </select>
-        </div>
-
-        <div class="space-y-2">
-          <label class="text-xs font-medium text-gray-700">Interact Bank</label>
-          <select
-            v-model="formData.interact_bank"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">Select Interact Bank</option>
-            <option value="personal">Personal</option>
-            <option value="company">Company</option>
-            <option value="cash_at_office">Cash at Office</option>
-            <option value="to_money_changer">To Money Changer</option>
-            <option value="deposit_management">Deposit Management</option>
-            <option value="pay_to_driver">Pay to Driver</option>
-          </select>
-        </div>
-
-        <div class="space-y-2">
-          <label class="text-xs font-medium text-gray-700">Amount</label>
-          <input
-            v-model="formData.amount"
-            type="number"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-
-        <div class="space-y-2">
-          <label class="text-xs font-medium text-gray-700">Description</label>
-          <textarea
-            v-model="formData.description"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            rows="3"
-            placeholder="Enter description..."
-          ></textarea>
-        </div>
-      </div>
-
-      <!-- Accounts Section -->
-      <div class="space-y-3">
-        <div class="flex justify-between items-center">
-          <h4 class="font-medium text-gray-800">Accounts</h4>
-          <button
-            @click="addAccount"
-            type="button"
-            class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 text-xs rounded transition-colors"
-          >
-            Add Account
-          </button>
-        </div>
-
-        <div
-          v-for="(account, index) in formData.accounts"
-          :key="index"
-          class="border border-gray-200 rounded-lg p-3 space-y-3"
-        >
-          <div class="flex justify-between items-center">
-            <span class="text-xs font-medium text-gray-700"
-              >Account {{ index + 1 }}</span
-            >
-            <button
-              @click="removeAccount(index)"
-              type="button"
-              class="text-red-500 hover:text-red-700 text-xs transition-colors"
-            >
-              Remove
-            </button>
-          </div>
-
-          <div class="space-y-2">
-            <SelectAccount
-              v-model="account.id"
-              :accounts="chartOfAccounts?.data ?? []"
-              @change="onAccountChange($event, index)"
-            />
-
-            <input
-              v-model="account.allocated_amount"
-              type="number"
-              step="0.01"
-              min="0"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Amount"
-              required
-            />
-
-            <select
-              v-model="account.note"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="1">Debit ( + )</option>
-              <option value="2">Credit ( - )</option>
-            </select>
-          </div>
-        </div>
-
-        <div
-          v-if="formData.accounts.length === 0"
-          class="text-center py-4 text-gray-500 text-xs"
-        >
-          No accounts added yet. Click "Add Account" to add an account.
-        </div>
-      </div>
-
       <!-- Slip Images Section - Using TransferImageComponent -->
       <div class="space-y-3">
         <div class="flex justify-between items-center">
@@ -381,6 +221,166 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Basic Information -->
+      <div class="space-y-4">
+        <h4 class="font-medium text-gray-800">Basic Information</h4>
+
+        <div class="space-y-2">
+          <label class="text-xs font-medium text-gray-700"
+            >Reference Number</label
+          >
+          <input
+            v-model="formData.reference_number"
+            type="text"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Auto-generated if empty"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-medium text-gray-700">Date</label>
+          <input
+            v-model="formData.date_only"
+            type="date"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-medium text-gray-700">Type *</label>
+          <select
+            v-model="formData.income_or_expense"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            required
+          >
+            <option value="">Select Type</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-medium text-gray-700"
+            >Cash Structure *</label
+          >
+          <select
+            v-model="formData.cash_structure_id"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            required
+          >
+            <option value="">Select Structure</option>
+            <option
+              v-for="structure in cash_structures?.data ?? []"
+              :key="structure.id"
+              :value="structure.id"
+            >
+              {{ structure.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-medium text-gray-700">Interact Bank</label>
+          <select
+            v-model="formData.interact_bank"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Select Interact Bank</option>
+            <option value="personal">Personal</option>
+            <option value="company">Company</option>
+            <option value="cash_at_office">Cash at Office</option>
+            <option value="to_money_changer">To Money Changer</option>
+            <option value="deposit_management">Deposit Management</option>
+            <option value="pay_to_driver">Pay to Driver</option>
+          </select>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-medium text-gray-700">Amount</label>
+          <input
+            v-model="formData.amount"
+            type="number"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-medium text-gray-700">Description</label>
+          <textarea
+            v-model="formData.description"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            rows="3"
+            placeholder="Enter description..."
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Accounts Section -->
+      <div class="space-y-3">
+        <div class="flex justify-between items-center">
+          <h4 class="font-medium text-gray-800">Accounts</h4>
+          <button
+            @click="addAccount"
+            type="button"
+            class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 text-xs rounded transition-colors"
+          >
+            Add Account
+          </button>
+        </div>
+
+        <div
+          v-for="(account, index) in formData.accounts"
+          :key="index"
+          class="border border-gray-200 rounded-lg p-3 space-y-3"
+        >
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-medium text-gray-700"
+              >Account {{ index + 1 }}</span
+            >
+            <button
+              @click="removeAccount(index)"
+              type="button"
+              class="text-red-500 hover:text-red-700 text-xs transition-colors"
+            >
+              Remove
+            </button>
+          </div>
+
+          <div class="space-y-2">
+            <SelectAccount
+              v-model="account.id"
+              :accounts="chartOfAccounts?.data ?? []"
+              @change="onAccountChange($event, index)"
+            />
+
+            <input
+              v-model="account.allocated_amount"
+              type="number"
+              step="0.01"
+              min="0"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Amount"
+              required
+            />
+
+            <select
+              v-model="account.note"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="1">Debit ( + )</option>
+              <option value="2">Credit ( - )</option>
+            </select>
+          </div>
+        </div>
+
+        <div
+          v-if="formData.accounts.length === 0"
+          class="text-center py-4 text-gray-500 text-xs"
+        >
+          No accounts added yet. Click "Add Account" to add an account.
         </div>
       </div>
 

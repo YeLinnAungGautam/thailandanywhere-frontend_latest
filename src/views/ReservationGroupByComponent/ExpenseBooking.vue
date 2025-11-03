@@ -602,7 +602,7 @@ const mailBodyChange = () => {
     <p class="p1">TAX ID : 0105565081822 TH Anywhere Co.,Ltd.</p>
     <p class="p1">For any requirement you may contact us at 0637602448, 0983498197, 0950423254.</p>
     <p class="p1">Regards<br /> Negyi@Sunshine<br /> Reservation Manager</p>
-<p class="p1">143/50, Thepprasit Rd, Pattaya City, Bang Lamung District, Chon Buri 20150</p>`;
+<p class="p1">100/151 Huay Kaew Rd, Tambon Chang Phueak, Mueang Chiang Mai District, Chiang Mai 50300</p>`;
 };
 
 const imageAddToAttachment = async (fileUrl) => {

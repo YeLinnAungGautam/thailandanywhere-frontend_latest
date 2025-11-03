@@ -234,7 +234,7 @@ const getAdminList = async () => {
     const res = await adminStore.getSaleManager();
     let manager = res.result.data.find((a) => a.id == authStore.user?.id);
 
-    if (authStore.isSuperAdmin) {
+    if (authStore.isSuperAdmin || authStore.isAuditor) {
       // Super admin sees all data - set createdByList to null to include all
       createdByList.value = null;
     } else if (manager) {
@@ -280,6 +280,7 @@ const getUnpaidData = async (monthGet) => {
           // Apply role-based filtering
           const shouldIncludeAgent =
             authStore.isSuperAdmin ||
+            authStore.isAuditor ||
             createdByList.value === null ||
             createdByList.value.includes(agent.name);
 

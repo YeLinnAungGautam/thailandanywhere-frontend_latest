@@ -486,9 +486,10 @@
                       </svg>
                     </div>
                     <div>
-                      <p class="font-bold pb-1">Pattaya Branch</p>
+                      <p class="font-bold pb-1">Chaing Mai Branch</p>
                       <p class="text-xs">
-                        143/50, Thepprasit Rd, Pattaya City, Chon Buri 20150
+                        100/151 Huay Kaew Rd, Tambon Chang Phueak, Mueang Chiang
+                        Mai District, Chiang Mai 50300
                       </p>
                     </div>
                   </div>

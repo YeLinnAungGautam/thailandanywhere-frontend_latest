@@ -30,14 +30,6 @@
             Monthly Agent Summary
             <span class="capitalize">({{ currentShow }})</span>
           </h2>
-          <!-- <div class="text-xs text-gray-600">
-            <div
-              v-for="(currency, amount) in formattedGrandTotals"
-              :key="currency"
-            >
-              {{ currency }}: {{ amount }}
-            </div>
-          </div> -->
           <div class="flex items-center gap-2">
             <button
               @click="currentShow = 'thb'"
@@ -77,10 +69,11 @@
           />
         </div>
       </div>
+
       <!-- Summary Stats -->
       <div class="bg-white p-6 rounded-lg shadow-md col-span-1">
         <h2 class="text-base font-semibold text-gray-800 mb-4">
-          Taday Output & Input
+          Today Output & Input
         </h2>
 
         <div class="grid grid-cols-2 gap-4">
@@ -203,6 +196,155 @@
         </div>
       </div>
 
+      <!-- NEW: Interact Bank Breakdown Section -->
+      <div class="bg-white p-6 rounded-lg shadow-md col-span-1 lg:col-span-2">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-base font-semibold text-gray-800">
+            Income & Expense by Bank/Account Type
+          </h2>
+          <div class="flex items-center gap-2">
+            <button
+              @click="showByType = !showByType"
+              :class="{
+                'bg-orange-500 text-white': showByType,
+                'bg-gray-200 text-gray-700': !showByType,
+              }"
+              class="px-3 py-1 rounded-md text-xs"
+            >
+              {{ showByType ? "Hide By Type" : "Show By Type" }}
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" v-if="showByType">
+          <!-- Income by Interact Bank -->
+          <div>
+            <h3
+              class="text-sm font-semibold text-green-700 mb-3 flex items-center"
+            >
+              <span class="mr-2">💰</span> Income by Bank/Account
+            </h3>
+            <div class="space-y-3">
+              <div
+                v-for="(
+                  bankData, bankName
+                ) in monthlyData?.income_by_interact_bank"
+                :key="'income-' + bankName"
+                class="bg-green-50 p-4 rounded-lg border border-green-200"
+              >
+                <div
+                  class="text-sm font-semibold text-gray-800 mb-2 capitalize"
+                >
+                  {{ formatBankName(bankName) }}
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <!-- THB -->
+                  <div
+                    v-if="bankData.thb.amount > 0"
+                    class="bg-white p-2 rounded"
+                  >
+                    <div class="text-xs text-gray-600">THB</div>
+                    <div class="text-base font-bold text-green-600">
+                      {{ formatAmount(bankData.thb.amount) }}
+                    </div>
+                    <div class="text-[10px] text-gray-500">
+                      {{ bankData.thb.count }} images
+                    </div>
+                  </div>
+                  <!-- MMK -->
+                  <div
+                    v-if="bankData.mmk.amount > 0"
+                    class="bg-white p-2 rounded"
+                  >
+                    <div class="text-xs text-gray-600">MMK</div>
+                    <div class="text-base font-bold text-green-600">
+                      {{ formatAmount(bankData.mmk.amount) }}
+                    </div>
+                    <div class="text-[10px] text-gray-500">
+                      {{ bankData.mmk.count }} images
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Show message if no income data -->
+              <div
+                v-if="
+                  !monthlyData?.income_by_interact_bank ||
+                  Object.keys(monthlyData.income_by_interact_bank).length === 0
+                "
+                class="text-center text-gray-500 py-4"
+              >
+                No income data available
+              </div>
+            </div>
+          </div>
+
+          <!-- Expense by Interact Bank -->
+          <div>
+            <h3
+              class="text-sm font-semibold text-red-700 mb-3 flex items-center"
+            >
+              <span class="mr-2">💸</span> Expense by Bank/Account
+            </h3>
+            <div class="space-y-3">
+              <div
+                v-for="(
+                  bankData, bankName
+                ) in monthlyData?.expense_by_interact_bank"
+                :key="'expense-' + bankName"
+                class="bg-red-50 p-4 rounded-lg border border-red-200"
+              >
+                <div
+                  class="text-sm font-semibold text-gray-800 mb-2 capitalize"
+                >
+                  {{ formatBankName(bankName) }}
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <!-- THB -->
+                  <div
+                    v-if="bankData.thb.amount > 0"
+                    class="bg-white p-2 rounded"
+                  >
+                    <div class="text-xs text-gray-600">THB</div>
+                    <div class="text-base font-bold text-red-600">
+                      {{ formatAmount(bankData.thb.amount) }}
+                    </div>
+                    <div class="text-[10px] text-gray-500">
+                      {{ bankData.thb.count }} images
+                    </div>
+                  </div>
+                  <!-- MMK -->
+                  <div
+                    v-if="bankData.mmk.amount > 0"
+                    class="bg-white p-2 rounded"
+                  >
+                    <div class="text-xs text-gray-600">MMK</div>
+                    <div class="text-base font-bold text-red-600">
+                      {{ formatAmount(bankData.mmk.amount) }}
+                    </div>
+                    <div class="text-[10px] text-gray-500">
+                      {{ bankData.mmk.count }} images
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Show message if no expense data -->
+              <div
+                v-if="
+                  !monthlyData?.expense_by_interact_bank ||
+                  Object.keys(monthlyData.expense_by_interact_bank).length === 0
+                "
+                class="text-center text-gray-500 py-4"
+              >
+                No expense data available
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Daily Cash Amount Charts (THB & MMK) -->
       <div class="bg-white p-6 rounded-lg shadow-md col-span-1 lg:col-span-2">
         <div class="flex justify-between items-center mb-4">
@@ -271,6 +413,8 @@ const cashImageData = ref(null);
 
 // Initialize
 const currentShow = ref("thb");
+
+const showByType = ref(false);
 
 // Chart data
 const monthlyChartData = reactive({
@@ -372,9 +516,6 @@ const monthlyChartOptions = {
           let tooltip = `${context.parsed.y} images`;
           if (agent?.currencies) {
             tooltip += "\n";
-            // Object.entries(agent.currencies).forEach(([currency, data]) => {
-            //   tooltip += `${currency}`;
-            // });
             tooltip += `\nTHB: ${agent.currencies.THB?.total_cash_amount.toLocaleString()} (${
               agent.currencies.THB?.total_cash_images
             } images)`;
@@ -408,11 +549,6 @@ const monthlyChartMMKOptions = {
           let tooltip = `${context.parsed.y} images`;
           if (agent?.currencies) {
             tooltip += "\n";
-            // Object.entries(agent.currencies).forEach(([currency, data]) => {
-            //   tooltip += `${currency}: ${data.total_cash_amount.toLocaleString()} (${
-            //     data.total_cash_images
-            //   } images)\n`;
-            // });
             tooltip += `\nMMK: ${agent.currencies.MMK?.total_cash_amount.toLocaleString()} (${
               agent.currencies.MMK?.total_cash_images
             } images)`;
@@ -509,14 +645,14 @@ const monthlyData = computed(() => {
 
 const topAgents = computed(() => {
   if (!monthlyData.value?.agents) return [];
-  return monthlyData.value.agents.slice(0, 8); // Show more agents
+  return monthlyData.value.agents.slice(0, 8);
 });
 
 const topPerformer = computed(() => {
   if (!monthlyData.value?.agents?.length) return null;
 
   return monthlyData.value?.agents
-    .slice() // Create a copy to avoid mutating original array
+    .slice()
     .sort(
       (a, b) =>
         b.currencies?.THB?.total_cash_amount -
@@ -548,6 +684,15 @@ const formatAmount = (amount) => {
   return parseFloat(amount).toLocaleString();
 };
 
+const formatBankName = (bankName) => {
+  if (!bankName) return "Unknown";
+  // Convert underscore to space and capitalize each word
+  return bankName
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
 const getAgentData = (agentName) => {
   return monthlyData.value?.agents?.find((a) => a.name === agentName);
 };
@@ -576,7 +721,7 @@ const getCashImageReport = async (month) => {
 const updateCharts = () => {
   if (!cashImageData.value) return;
 
-  // Update monthly chart (show total images, not amount)
+  // Update monthly chart
   if (monthlyData.value?.agents) {
     const activeAgents = monthlyData.value.agents.filter(
       (agent) => agent.total_cash_images > 0
@@ -593,11 +738,10 @@ const updateCharts = () => {
     );
   }
 
-  // Update daily charts (separate THB and MMK)
+  // Update daily charts
   if (cashImageData.value.daily_summary) {
     const dailyData = cashImageData.value.daily_summary;
 
-    // Get agents who have THB or MMK transactions
     const agentsWithTHB = [
       ...new Set(
         dailyData.flatMap((day) =>
@@ -618,7 +762,6 @@ const updateCharts = () => {
       ),
     ];
 
-    // Set labels (dates)
     const dateLabels = dailyData.map((day) => {
       const date = new Date(day.date);
       return date.getDate().toString();

@@ -20,6 +20,18 @@
         </option>
       </select>
     </div>
+    <div class="mb-2">
+      <select
+        name=""
+        v-model="selectedType"
+        id=""
+        class="bg-white text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+      >
+        <option :value="''">All</option>
+        <option :value="'have_flight'">Have Flight</option>
+        <option :value="'have_vantour'">Have Vantour</option>
+      </select>
+    </div>
     <div class="mb-4">
       <p class="text-sm text-gray-500">
         Total Receivables:
@@ -34,11 +46,11 @@
     </div>
     <div v-if="loading" class="text-center text-gray-500">Loading...</div>
     <div
-      v-if="!loading && receivables?.length > 0"
+      v-if="!loading && filterResultReceivables?.length > 0"
       class="h-[calc(100vh-270px)] overflow-y-auto"
     >
       <div
-        v-for="r in receivables ?? []"
+        v-for="r in filterResultReceivables ?? []"
         :key="r.id"
         class="mb-4 p-4 bg-white border border-gray-200 rounded-lg shadow text-sm"
       >
@@ -139,6 +151,35 @@ const adminOnlyListAction = async () => {
   }
 };
 
+const selectedType = ref("");
+
+const filterResultReceivables = computed(() => {
+  if (receivables.value) {
+    let filteredReceivables = receivables.value;
+
+    if (selectedAgent.value) {
+      filteredReceivables = filteredReceivables.filter(
+        (r) => r.agent_id === selectedAgent.value
+      );
+    }
+
+    if (selectedType.value == "have_flight") {
+      filteredReceivables = filteredReceivables.filter(
+        (r) => r.include_flight === true
+      );
+    }
+
+    if (selectedType.value == "have_vantour") {
+      filteredReceivables = filteredReceivables.filter(
+        (r) => r.include_vantour === true
+      );
+    }
+
+    return filteredReceivables;
+  }
+  return [];
+});
+
 const getCurrentMonth = () => {
   const date = new Date();
   selectedMonthForSidebar.value = date.toISOString().slice(0, 7);
@@ -169,7 +210,7 @@ const getReceivables = async () => {
     };
 
     // Only add admin_id if a specific agent is selected
-    if (selectedAgent.value || authStore.isSuperAdmin) {
+    if (selectedAgent.value || authStore.isSuperAdmin || authStore.isAuditor) {
       params.admin_id = selectedAgent.value;
     }
 
@@ -177,7 +218,7 @@ const getReceivables = async () => {
     //   params.admin_id = "";
     // }
 
-    if (!authStore.isSuperAdmin) {
+    if (!authStore.isSuperAdmin && !authStore.isAuditor) {
       params.admin_id = authStore.user?.id;
     }
 

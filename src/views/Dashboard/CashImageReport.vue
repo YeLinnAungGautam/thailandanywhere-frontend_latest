@@ -216,130 +216,178 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" v-if="showByType">
-          <!-- Income by Interact Bank -->
-          <div>
-            <h3
-              class="text-sm font-semibold text-green-700 mb-3 flex items-center"
+        <div v-if="showByType">
+          <!-- Get all unique bank names from both income and expense -->
+          <div class="gap-4 grid grid-cols-2">
+            <div
+              v-for="bankName in getAllBankNames()"
+              :key="bankName"
+              class="bg-gray-50 p-5 rounded-lg border border-gray-200"
             >
-              <span class="mr-2">💰</span> Income by Bank/Account
-            </h3>
-            <div class="space-y-3">
+              <!-- Bank Name Header -->
               <div
-                v-for="(
-                  bankData, bankName
-                ) in monthlyData?.income_by_interact_bank"
-                :key="'income-' + bankName"
-                class="bg-green-50 p-4 rounded-lg border border-green-200"
+                class="text-base font-bold text-gray-800 mb-4 capitalize border-b pb-2"
               >
-                <div
-                  class="text-sm font-semibold text-gray-800 mb-2 capitalize"
-                >
-                  {{ formatBankName(bankName) }}
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                  <!-- THB -->
-                  <div
-                    v-if="bankData.thb.amount > 0"
-                    class="bg-white p-2 rounded"
-                  >
-                    <div class="text-xs text-gray-600">THB</div>
-                    <div class="text-base font-bold text-green-600">
-                      {{ formatAmount(bankData.thb.amount) }}
-                    </div>
-                    <div class="text-[10px] text-gray-500">
-                      {{ bankData.thb.count }} images
-                    </div>
-                  </div>
-                  <!-- MMK -->
-                  <div
-                    v-if="bankData.mmk.amount > 0"
-                    class="bg-white p-2 rounded"
-                  >
-                    <div class="text-xs text-gray-600">MMK</div>
-                    <div class="text-base font-bold text-green-600">
-                      {{ formatAmount(bankData.mmk.amount) }}
-                    </div>
-                    <div class="text-[10px] text-gray-500">
-                      {{ bankData.mmk.count }} images
-                    </div>
-                  </div>
-                </div>
+                {{ formatBankName(bankName) }}
               </div>
 
-              <!-- Show message if no income data -->
-              <div
-                v-if="
-                  !monthlyData?.income_by_interact_bank ||
-                  Object.keys(monthlyData.income_by_interact_bank).length === 0
-                "
-                class="text-center text-gray-500 py-4"
-              >
-                No income data available
+              <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+                <!-- Income Column -->
+                <div>
+                  <h4
+                    class="text-sm font-semibold text-green-700 mb-3 flex items-center"
+                  >
+                    <span class="mr-2">💰</span> Income
+                  </h4>
+                  <div class="space-x-2 flex justify-between items-center">
+                    <!-- THB Income -->
+                    <div
+                      v-if="
+                        monthlyData?.income_by_interact_bank?.[bankName]?.thb
+                          ?.amount > 0
+                      "
+                      class="p-3 bg-white w-1/2 rounded border-l-4 border-green-500"
+                    >
+                      <div>
+                        <div class="text-xs text-gray-600">THB</div>
+                        <div class="text-lg font-bold text-green-600">
+                          {{
+                            formatAmount(
+                              monthlyData.income_by_interact_bank[bankName].thb
+                                .amount
+                            )
+                          }}
+                        </div>
+                      </div>
+                      <div class="text-[10px] text-gray-500">
+                        {{
+                          monthlyData.income_by_interact_bank[bankName].thb
+                            .count
+                        }}
+                        images
+                      </div>
+                    </div>
+
+                    <!-- MMK Income -->
+                    <div
+                      v-if="
+                        monthlyData?.income_by_interact_bank?.[bankName]?.mmk
+                          ?.amount > 0
+                      "
+                      class="p-3 bg-white w-1/2 rounded border-l-4 border-green-500"
+                    >
+                      <div>
+                        <div class="text-xs text-gray-600">MMK</div>
+                        <div class="text-lg font-bold text-green-600">
+                          {{
+                            formatAmount(
+                              monthlyData.income_by_interact_bank[bankName].mmk
+                                .amount
+                            )
+                          }}
+                        </div>
+                      </div>
+                      <div class="text-[10px] text-gray-500">
+                        {{
+                          monthlyData.income_by_interact_bank[bankName].mmk
+                            .count
+                        }}
+                        images
+                      </div>
+                    </div>
+
+                    <!-- No income message -->
+                    <div
+                      v-if="!hasIncome(bankName)"
+                      class="text-center text-gray-400 py-3 text-sm"
+                    >
+                      No income
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Expense Column -->
+                <div>
+                  <h4
+                    class="text-sm font-semibold text-red-700 mb-3 flex items-center"
+                  >
+                    <span class="mr-2">💸</span> Expense
+                  </h4>
+                  <div class="space-x-2 flex justify-between items-center">
+                    <!-- THB Expense -->
+                    <div
+                      v-if="
+                        monthlyData?.expense_by_interact_bank?.[bankName]?.thb
+                          ?.amount > 0
+                      "
+                      class="p-3 bg-white w-1/2 rounded border-l-4 border-red-500"
+                    >
+                      <div>
+                        <div class="text-xs text-gray-600">THB</div>
+                        <div class="text-lg font-bold text-red-600">
+                          {{
+                            formatAmount(
+                              monthlyData.expense_by_interact_bank[bankName].thb
+                                .amount
+                            )
+                          }}
+                        </div>
+                      </div>
+                      <div class="text-[10px] text-gray-500">
+                        {{
+                          monthlyData.expense_by_interact_bank[bankName].thb
+                            .count
+                        }}
+                        images
+                      </div>
+                    </div>
+
+                    <!-- MMK Expense -->
+                    <div
+                      v-if="
+                        monthlyData?.expense_by_interact_bank?.[bankName]?.mmk
+                          ?.amount > 0
+                      "
+                      class="p-3 bg-white w-1/2 rounded border-l-4 border-red-500"
+                    >
+                      <div>
+                        <div class="text-xs text-gray-600">MMK</div>
+                        <div class="text-lg font-bold text-red-600">
+                          {{
+                            formatAmount(
+                              monthlyData.expense_by_interact_bank[bankName].mmk
+                                .amount
+                            )
+                          }}
+                        </div>
+                      </div>
+                      <div class="text-[10px] text-gray-500">
+                        {{
+                          monthlyData.expense_by_interact_bank[bankName].mmk
+                            .count
+                        }}
+                        images
+                      </div>
+                    </div>
+
+                    <!-- No expense message -->
+                    <div
+                      v-if="!hasExpense(bankName)"
+                      class="text-center text-gray-400 py-3 text-sm"
+                    >
+                      No expense
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Expense by Interact Bank -->
-          <div>
-            <h3
-              class="text-sm font-semibold text-red-700 mb-3 flex items-center"
+            <!-- Show message if no data at all -->
+            <div
+              v-if="getAllBankNames().length === 0"
+              class="text-center text-gray-500 py-8"
             >
-              <span class="mr-2">💸</span> Expense by Bank/Account
-            </h3>
-            <div class="space-y-3">
-              <div
-                v-for="(
-                  bankData, bankName
-                ) in monthlyData?.expense_by_interact_bank"
-                :key="'expense-' + bankName"
-                class="bg-red-50 p-4 rounded-lg border border-red-200"
-              >
-                <div
-                  class="text-sm font-semibold text-gray-800 mb-2 capitalize"
-                >
-                  {{ formatBankName(bankName) }}
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                  <!-- THB -->
-                  <div
-                    v-if="bankData.thb.amount > 0"
-                    class="bg-white p-2 rounded"
-                  >
-                    <div class="text-xs text-gray-600">THB</div>
-                    <div class="text-base font-bold text-red-600">
-                      {{ formatAmount(bankData.thb.amount) }}
-                    </div>
-                    <div class="text-[10px] text-gray-500">
-                      {{ bankData.thb.count }} images
-                    </div>
-                  </div>
-                  <!-- MMK -->
-                  <div
-                    v-if="bankData.mmk.amount > 0"
-                    class="bg-white p-2 rounded"
-                  >
-                    <div class="text-xs text-gray-600">MMK</div>
-                    <div class="text-base font-bold text-red-600">
-                      {{ formatAmount(bankData.mmk.amount) }}
-                    </div>
-                    <div class="text-[10px] text-gray-500">
-                      {{ bankData.mmk.count }} images
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Show message if no expense data -->
-              <div
-                v-if="
-                  !monthlyData?.expense_by_interact_bank ||
-                  Object.keys(monthlyData.expense_by_interact_bank).length === 0
-                "
-                class="text-center text-gray-500 py-4"
-              >
-                No expense data available
-              </div>
+              No bank transaction data available
             </div>
           </div>
         </div>
@@ -716,6 +764,38 @@ const getCashImageReport = async (month) => {
   } finally {
     loading.value = false;
   }
+};
+
+// Add these helper functions after your existing helper functions
+
+const getAllBankNames = () => {
+  const bankNames = new Set();
+
+  // Get all bank names from income
+  if (monthlyData.value?.income_by_interact_bank) {
+    Object.keys(monthlyData.value.income_by_interact_bank).forEach((bank) => {
+      bankNames.add(bank);
+    });
+  }
+
+  // Get all bank names from expense
+  if (monthlyData.value?.expense_by_interact_bank) {
+    Object.keys(monthlyData.value.expense_by_interact_bank).forEach((bank) => {
+      bankNames.add(bank);
+    });
+  }
+
+  return Array.from(bankNames).sort();
+};
+
+const hasIncome = (bankName) => {
+  const income = monthlyData.value?.income_by_interact_bank?.[bankName];
+  return income && (income.thb?.amount > 0 || income.mmk?.amount > 0);
+};
+
+const hasExpense = (bankName) => {
+  const expense = monthlyData.value?.expense_by_interact_bank?.[bankName];
+  return expense && (expense.thb?.amount > 0 || expense.mmk?.amount > 0);
 };
 
 const updateCharts = () => {

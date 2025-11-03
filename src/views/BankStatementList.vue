@@ -246,6 +246,7 @@
               <th class="text-xs text-center font-medium py-3">Actual VAT</th>
               <th class="text-xs text-center font-medium py-3">Invoice</th>
               <th class="text-xs text-center font-medium py-3">Tax Credit</th>
+              <th class="text-xs text-center font-medium py-3">D Status</th>
               <th class="text-xs text-center font-medium py-3">V Status</th>
               <th class="text-xs text-center font-medium py-3" colspan="2">
                 Bank Verify
@@ -414,6 +415,16 @@
                   </td>
                   <td class="text-center">
                     <CheckBadgeIcon
+                      v-if="item?.data_verify == true"
+                      class="w-5 h-5 text-green-500 inline-block"
+                    />
+                    <XCircleIcon
+                      v-if="item?.data_verify == false"
+                      class="w-5 h-5 text-gray-300 inline-block"
+                    />
+                  </td>
+                  <td class="text-center">
+                    <CheckBadgeIcon
                       v-if="item?.bank_verify == true"
                       class="w-5 h-5 text-green-500 inline-block"
                     />
@@ -432,7 +443,7 @@
 
                 <!-- Loading row -->
                 <tr v-if="loadingDetails[item?.id]">
-                  <td colspan="17" class="px-3 py-4 text-center">
+                  <td colspan="18" class="px-3 py-4 text-center">
                     <div class="flex justify-center items-center">
                       <div
                         class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#FF613c]"
@@ -452,7 +463,7 @@
                     !getRelatableData(item.id)
                   "
                 >
-                  <td colspan="17" class="p-0">
+                  <td colspan="18" class="p-0">
                     <div class="bg-gray-50 pb-4 px-4">
                       <div class="w-full flex justify-end items-center py-2">
                         <div
@@ -832,7 +843,7 @@
                     getRelatableData(item.id)
                   "
                 >
-                  <td colspan="17" class="p-0">
+                  <td colspan="18" class="p-0">
                     <div class="bg-gray-50 pb-4 px-4">
                       <div class="w-full flex justify-end items-center py-2">
                         <div

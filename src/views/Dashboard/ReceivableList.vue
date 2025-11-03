@@ -30,6 +30,7 @@
         <option :value="''">All</option>
         <option :value="'have_flight'">Have Flight</option>
         <option :value="'have_vantour'">Have Vantour</option>
+        <option :value="'no_flight_no_vantour'">No Flight and Vantour</option>
       </select>
     </div>
     <div class="mb-4">
@@ -172,6 +173,12 @@ const filterResultReceivables = computed(() => {
     if (selectedType.value == "have_vantour") {
       filteredReceivables = filteredReceivables.filter(
         (r) => r.include_vantour === true
+      );
+    }
+
+    if (selectedType.value == "no_flight_no_vantour") {
+      filteredReceivables = filteredReceivables.filter(
+        (r) => r.include_flight === false && r.include_vantour === false
       );
     }
 

@@ -785,7 +785,39 @@ const getAllBankNames = () => {
     });
   }
 
-  return Array.from(bankNames).sort();
+  // Define custom sort order
+  const sortOrder = [
+    "company",
+    "personal",
+    "to_money_changer",
+    "cash_at_office",
+    "pay_to_driver",
+    "deposit_management",
+  ];
+
+  // Convert to array and sort with custom order
+  return Array.from(bankNames).sort((a, b) => {
+    const indexA = sortOrder.indexOf(a);
+    const indexB = sortOrder.indexOf(b);
+
+    // If both are in sortOrder, sort by their position
+    if (indexA !== -1 && indexB !== -1) {
+      return indexA - indexB;
+    }
+
+    // If only A is in sortOrder, it comes first
+    if (indexA !== -1) {
+      return -1;
+    }
+
+    // If only B is in sortOrder, it comes first
+    if (indexB !== -1) {
+      return 1;
+    }
+
+    // If neither is in sortOrder, sort alphabetically
+    return a.localeCompare(b);
+  });
 };
 
 const hasIncome = (bankName) => {

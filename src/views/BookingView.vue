@@ -287,6 +287,7 @@ const formatDate = (date) => {
       :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
     >
       <p class="text-2xl text-[#FF613c] font-semibold">Sales.</p>
+
       <p class="text-xs">Manage your daily sales easily.</p>
     </div>
     <div class="flex justify-start items-center gap-x-4">

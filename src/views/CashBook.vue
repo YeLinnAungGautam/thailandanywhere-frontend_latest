@@ -11,14 +11,14 @@
       </p>
     </div>
 
-    <div class="grid grid-cols-1 gap-4">
+    <div class="grid grid-cols-1 gap-2">
       <!-- Header Component -->
       <div>
         <CashHeader />
       </div>
 
       <!-- Filters Section -->
-      <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
+      <div class="mb-2">
         <div class="grid grid-cols-7 gap-4">
           <div class="col-span-1">
             <label class="block text-xs font-medium text-gray-700 mb-1"
@@ -33,7 +33,7 @@
               <option value="expense">Expense</option>
             </select>
           </div>
-          <div class="col-span-1">
+          <!-- <div class="col-span-1">
             <label class="block text-xs font-medium text-gray-700 mb-1"
               >Structure</label
             >
@@ -50,7 +50,7 @@
                 {{ structure.name }}
               </option>
             </select>
-          </div>
+          </div> -->
           <div class="col-span-1">
             <label class="block text-xs font-medium text-gray-700 mb-1"
               >Start Date</label
@@ -83,7 +83,7 @@
               class="w-full border border-gray-300 rounded px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          <div class="col-span-1 flex items-end">
+          <div class="col-span-1 flex items-end mb-1">
             <button
               @click="clearFilters"
               class="w-full bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 text-xs rounded transition-colors"
@@ -91,13 +91,31 @@
               Clear Filters
             </button>
           </div>
-          <div class="col-span-1 flex items-end">
+          <div class="col-span-1 flex items-end mb-1">
             <button
               @click="addNewRow"
               class="w-full bg-[#FF613c] hover:bg-[#e5552f] text-white px-3 py-2 text-xs rounded transition-colors"
             >
               Add Entry
             </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <div class="flex justify-start items-center gap-4">
+          <div
+            class="col-span-1 px-3 py-2 text-xs rounded-lg transition-colors"
+            v-for="structure in cash_structures?.data ?? []"
+            :key="structure.id"
+            @click="filters.cash_structure_id = structure.id"
+            :class="
+              filters.cash_structure_id == structure.id
+                ? 'bg-[#FF613c] hover:bg-[#e5552f] text-white'
+                : 'bg-gray-200 text-black'
+            "
+          >
+            <p class="text-xs">{{ structure.name }}</p>
           </div>
         </div>
       </div>

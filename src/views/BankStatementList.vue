@@ -151,7 +151,10 @@
               class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
             />
           </div>
-          <div class="relative" v-if="authStore.isSuperAdmin">
+          <div
+            class="relative"
+            v-if="authStore.isSuperAdmin || authStore.isAuditor"
+          >
             <select
               name=""
               v-model="interactSearch"
@@ -2374,7 +2377,7 @@ const searchParams = computed(() => {
     params.amount = amountSearch.value;
   }
 
-  if (authStore.isSuperAdmin) {
+  if (authStore.isSuperAdmin || authStore.isAuditor) {
     if (interactSearch.value) {
       params.interact_bank = interactSearch.value;
     }

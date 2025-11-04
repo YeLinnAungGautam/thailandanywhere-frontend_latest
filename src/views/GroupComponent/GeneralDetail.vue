@@ -544,10 +544,13 @@ const calculateEarlyDate = (dateList) => {
   if (dateList && dateList.length > 0) {
     // Extract all service dates and convert to Date objects
     const dates = dateList?.map((item) => new Date(item.service_date));
+    const checkouts = dateList?.map((item) => new Date(item.checkout_date));
 
     // Find earliest and latest dates
     const earliestDate = new Date(Math.min(...dates));
-    const latestDate = new Date(Math.max(...dates));
+    const latestDate = checkouts
+      ? new Date(Math.max(...checkouts))
+      : new Date(Math.max(...dates));
 
     // Format function for "1 March" style
     const formatDate = (date) => {

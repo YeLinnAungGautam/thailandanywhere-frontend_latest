@@ -29,6 +29,7 @@ import {
   startOfYear,
   subMonths,
 } from "date-fns";
+import Allowment from "./Dashboard/Allowment.vue";
 
 const dashboardReservation = ref("sale");
 
@@ -362,6 +363,15 @@ watch(dateForUnpaid, async (newValue) => {
       >
         Account Receivable
       </div>
+      <div
+        class="px-2 py-1 text-xs rounded-lg cursor-pointer flex justify-start items-center gap-1.5"
+        :class="
+          dashboardReservation == 'allowment' ? 'text-white bg-[#ff613c]' : ''
+        "
+        @click="dashboardReservation = 'allowment'"
+      >
+        Availability
+      </div>
     </div>
 
     <div class="" v-if="dashboardReservation == 'sale'">
@@ -578,11 +588,8 @@ watch(dateForUnpaid, async (newValue) => {
     <div class="" v-if="dashboardReservation == 'reservation'">
       <ReservationPartHome />
     </div>
-    <div
-      class="col-span-3 w-full"
-      v-if="dashboardReservation == 'account-receivable'"
-    >
-      <AccountReceivable />
+    <div class="col-span-3 w-full" v-if="dashboardReservation == 'allowment'">
+      <Allowment />
     </div>
   </Layout>
 </template>

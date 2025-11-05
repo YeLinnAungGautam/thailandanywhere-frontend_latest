@@ -58,6 +58,7 @@ import { formattedDate } from "./help/FormatData";
 import CashImageReport from "./Dashboard/CashImageReport.vue";
 import ProductTypeProfit from "./HomeGraph/ProductTypeProfit.vue";
 import ProductTypeExpense from "./HomeGraph/ProductTypeExpense.vue";
+import Allowment from "./Dashboard/Allowment.vue";
 
 Chart.register(...registerables);
 
@@ -825,6 +826,11 @@ watch(homeSectionPartView, (newValue) => {
           :isActive="homeSectionPartView == 'cash-image-report'"
           @click="homeSectionPartView = 'cash-image-report'"
         />
+        <HomeFirstPartVue
+          :title="'Availability'"
+          :isActive="homeSectionPartView == 'availability'"
+          @click="homeSectionPartView = 'availability'"
+        />
       </div>
       <!-- filter -->
       <div
@@ -1184,6 +1190,12 @@ watch(homeSectionPartView, (newValue) => {
         v-if="homeSectionPartView == 'cash-image-report'"
       >
         <CashImageReport />
+      </div>
+      <div
+        class="col-span-3 w-full"
+        v-if="homeSectionPartView == 'availability'"
+      >
+        <Allowment />
       </div>
     </div>
   </Layout>

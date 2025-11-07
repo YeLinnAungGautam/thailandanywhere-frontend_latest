@@ -232,8 +232,12 @@
                       class="bg-white even:bg-gray-50 hover:bg-gray-50"
                     >
                       <td
-                        class="py-1 px-4 text-[10px] whitespace-nowrap font-normal text-left"
+                        class="py-1 px-4 relative text-[10px] whitespace-nowrap font-normal text-left"
                       >
+                        <p
+                          class="w-3 h-3 rounded-full absolute top-0 left-2 bg-[#FF613c]"
+                          v-if="item?.is_allowment_have"
+                        ></p>
                         {{ item.crm_id }}
                       </td>
                       <td

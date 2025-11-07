@@ -191,6 +191,21 @@
                   </select>
                 </div>
                 <div>
+                  <p class="text-[10px] pb-2">Is Allowment Have ?</p>
+                  <!-- customer payment status -->
+                  <select
+                    name=""
+                    v-model="searchKey.is_allowment_have"
+                    id=""
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option class="text-[10px]" value=""></option>
+                    <option class="text-[10px]" :value="true">
+                      allowment have
+                    </option>
+                  </select>
+                </div>
+                <div>
                   <p class="text-[10px] pb-2">Expense Status</p>
                   <!-- expense status -->
                   <select
@@ -427,6 +442,21 @@
             </p>
             <p
               class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              v-if="searchKey.is_allowment_have"
+            >
+              <XCircleIcon
+                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
+                @click="
+                  () => {
+                    searchKey.is_allowment_have = false;
+                    searchAction();
+                  }
+                "
+              />
+              Allowment Have
+            </p>
+            <p
+              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
               v-if="searchKey.expense_item_status != ''"
             >
               <XCircleIcon
@@ -640,6 +670,7 @@ const searchKey = ref({
   user_id: "",
   payment_status: "fully_paid",
   booking_daterange: "",
+  is_allowment_have: false,
 });
 const entranceAction = ref(false);
 
@@ -703,6 +734,7 @@ const clearFilter = () => {
     customer_name: "",
     user_id: "",
     payment_status: "",
+    is_allowment_have: false,
     booking_daterange: "",
   };
   getAllAction();
@@ -744,6 +776,9 @@ const watchSystem = computed(() => {
   }
   if (searchKey.value.payment_status) {
     result.payment_status = searchKey.value.payment_status;
+  }
+  if (searchKey.value.is_allowment_have) {
+    result.is_allowment_have = searchKey.value.is_allowment_have;
   }
   if (searchKey.value.booking_daterange) {
     result.booking_daterange = searchKey.value.booking_daterange;

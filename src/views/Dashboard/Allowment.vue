@@ -160,154 +160,204 @@
             </div>
           </div>
 
-          <!-- Room Details Dropdown -->
+          <!-- Room Details Dropdown - Split View -->
           <div
             v-show="roomData.isExpanded"
             class="p-4 bg-white border-t border-gray-200"
           >
-            <div class="overflow-x-auto max-h-[50vh] overflow-y-auto">
-              <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50 sticky top-0 z-10">
-                  <tr>
-                    <th
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Date
-                    </th>
-                    <th
-                      class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Day
-                    </th>
-                    <th
-                      class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Stock
-                    </th>
-                    <th
-                      class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Booked
-                    </th>
-                    <th
-                      class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Available
-                    </th>
-                    <th
-                      class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Status
-                    </th>
-                    <th
-                      class="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Room Price (×{{ roomQuantity }})
-                    </th>
-                    <th
-                      class="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Cost (×{{ roomQuantity }})
-                    </th>
-                    <th
-                      class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider"
-                    >
-                      Total
-                    </th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                  <tr
-                    v-for="(rateData, date) in roomData.room_rates"
-                    :key="date"
-                    :class="[
-                      rateData.available_rooms < roomQuantity
-                        ? 'bg-red-50'
-                        : rateData.available_rooms <= roomQuantity + 2
-                        ? 'bg-yellow-50'
-                        : 'hover:bg-gray-50',
-                    ]"
-                    class="transition-colors"
-                  >
-                    <td
-                      class="px-4 py-3 whitespace-nowrap text-xs text-gray-900 font-medium"
-                    >
-                      {{ formatDate(date) }}
-                    </td>
-                    <td
-                      class="px-4 py-3 whitespace-nowrap text-xs text-gray-600"
-                    >
-                      {{ rateData.display_date.split(",")[0] }}
-                    </td>
-                    <td
-                      class="px-4 py-3 whitespace-nowrap text-center text-xs text-gray-900"
-                    >
-                      {{ rateData.stock }}
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-center text-xs">
-                      <span
-                        :class="[
-                          'px-2 py-1 rounded-full',
-                          rateData.booked_count > 0
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-gray-100 text-gray-600',
-                        ]"
+            <div class="grid grid-cols-2 gap-6">
+              <!-- Left Side - Table -->
+              <div
+                class="overflow-x-auto max-h-[60vh] overflow-y-auto border border-gray-200 rounded-lg"
+              >
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50 sticky top-0 z-10">
+                    <tr>
+                      <th
+                        class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
                       >
-                        {{ rateData.booked_count }}
-                      </span>
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-center text-xs">
-                      <span
-                        :class="[
-                          'px-2 py-1 rounded-full font-medium',
-                          rateData.available_rooms < roomQuantity
-                            ? 'bg-red-100 text-red-800'
-                            : rateData.available_rooms <= roomQuantity + 2
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-green-100 text-green-800',
-                        ]"
+                        Date
+                      </th>
+                      <th
+                        class="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
                       >
-                        {{ rateData.available_rooms }}
-                      </span>
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-center text-xs">
-                      <span
-                        v-if="rateData.available_rooms < roomQuantity"
-                        class="px-2 py-1 rounded-full bg-red-100 text-red-800 font-medium"
+                        Day
+                      </th>
+                      <th
+                        class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider"
                       >
-                        Insufficient
-                      </span>
-                      <span
-                        v-else
-                        class="px-2 py-1 rounded-full bg-green-100 text-green-800 font-medium"
+                        Stock
+                      </th>
+                      <th
+                        class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider"
                       >
-                        OK
-                      </span>
-                    </td>
-                    <td
-                      class="px-4 py-3 whitespace-nowrap text-right text-xs text-gray-900"
+                        Booked
+                      </th>
+                      <th
+                        class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider"
+                      >
+                        Available
+                      </th>
+                      <th
+                        class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider"
+                      >
+                        Status
+                      </th>
+                      <th
+                        class="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider"
+                      >
+                        Room Price (×{{ roomQuantity }})
+                      </th>
+                      <th
+                        class="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider"
+                      >
+                        Cost (×{{ roomQuantity }})
+                      </th>
+                      <th
+                        class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider"
+                      >
+                        Discount
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr
+                      v-for="(rateData, date) in roomData.room_rates"
+                      :key="date"
+                      :class="[
+                        rateData.available_rooms < roomQuantity
+                          ? 'bg-red-50'
+                          : rateData.available_rooms <= roomQuantity + 2
+                          ? 'bg-yellow-50'
+                          : 'hover:bg-gray-50',
+                      ]"
+                      class="transition-colors"
                     >
-                      ฿
-                      {{ formatNumber(rateData.room_price * roomQuantity) }}
-                    </td>
-                    <td
-                      class="px-4 py-3 whitespace-nowrap text-right text-xs font-bold text-[#FF613c]"
-                    >
-                      ฿
-                      {{ formatNumber(roomData.room?.cost * roomQuantity) }}
-                    </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-center text-xs">
-                      <span
-                        v-if="rateData.discount > 0"
-                        class="text-orange-600 font-medium"
+                      <td
+                        class="px-4 py-3 whitespace-nowrap text-xs text-gray-900 font-medium"
                       >
-                        {{ rateData.discount }}%
-                      </span>
-                      <span v-else class="text-gray-400">-</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                        {{ formatDate(date) }}
+                      </td>
+                      <td
+                        class="px-4 py-3 whitespace-nowrap text-xs text-gray-600"
+                      >
+                        {{ rateData.display_date.split(",")[0] }}
+                      </td>
+                      <td
+                        class="px-4 py-3 whitespace-nowrap text-center text-xs text-gray-900"
+                      >
+                        {{ rateData.stock }}
+                      </td>
+                      <td
+                        class="px-4 py-3 whitespace-nowrap text-center text-xs"
+                      >
+                        <span
+                          :class="[
+                            'px-2 py-1 rounded-full',
+                            rateData.booked_count > 0
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-gray-100 text-gray-600',
+                          ]"
+                        >
+                          {{ rateData.booked_count }}
+                        </span>
+                      </td>
+                      <td
+                        class="px-4 py-3 whitespace-nowrap text-center text-xs"
+                      >
+                        <span
+                          :class="[
+                            'px-2 py-1 rounded-full font-medium',
+                            rateData.available_rooms < roomQuantity
+                              ? 'bg-red-100 text-red-800'
+                              : rateData.available_rooms <= roomQuantity + 2
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-green-100 text-green-800',
+                          ]"
+                        >
+                          {{ rateData.available_rooms }}
+                        </span>
+                      </td>
+                      <td
+                        class="px-4 py-3 whitespace-nowrap text-center text-xs"
+                      >
+                        <span
+                          v-if="rateData.available_rooms < roomQuantity"
+                          class="px-2 py-1 rounded-full bg-red-100 text-red-800 font-medium"
+                        >
+                          Insufficient
+                        </span>
+                        <span
+                          v-else
+                          class="px-2 py-1 rounded-full bg-green-100 text-green-800 font-medium"
+                        >
+                          OK
+                        </span>
+                      </td>
+                      <td
+                        class="px-4 py-3 whitespace-nowrap text-right text-xs text-gray-900"
+                      >
+                        ฿
+                        {{ formatNumber(rateData.room_price * roomQuantity) }}
+                      </td>
+                      <td
+                        class="px-4 py-3 whitespace-nowrap text-right text-xs font-bold text-[#FF613c]"
+                      >
+                        ฿
+                        {{ formatNumber(roomData.room?.cost * roomQuantity) }}
+                      </td>
+                      <td
+                        class="px-4 py-3 whitespace-nowrap text-center text-xs"
+                      >
+                        <span
+                          v-if="rateData.discount > 0"
+                          class="text-orange-600 font-medium"
+                        >
+                          {{ rateData.discount }}%
+                        </span>
+                        <span v-else class="text-gray-400">-</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Right Side - Graph -->
+              <div
+                class="border border-gray-200 rounded-lg p-4 bg-gradient-to-br from-gray-50 to-white"
+              >
+                <div class="mb-4">
+                  <h3 class="text-sm font-bold text-gray-800">
+                    {{ roomData.room?.name }} - Availability Overview
+                  </h3>
+                  <p class="text-xs text-gray-500 mt-1">
+                    Daily room availability for the selected period
+                  </p>
+                </div>
+
+                <div class="chart-container">
+                  <canvas
+                    :data-ref="'chartCanvas_' + index"
+                    :id="'chartCanvas_' + index"
+                  ></canvas>
+                </div>
+
+                <!-- Legend -->
+                <div class="flex justify-center gap-4 mt-4">
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-green-500 rounded"></div>
+                    <span class="text-xs text-gray-600">Available</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-[#FF613c] rounded"></div>
+                    <span class="text-xs text-gray-600">Booked</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-red-600 rounded"></div>
+                    <span class="text-xs text-gray-600">Overbooked</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Alert for incomplete allotment -->
@@ -369,10 +419,13 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, nextTick } from "vue";
 import { useHotelStore } from "../../stores/hotel";
 import { useRoomV2Store } from "../../stores/roomV2";
 import debounce from "lodash/debounce";
+import { Chart, registerables } from "chart.js";
+
+Chart.register(...registerables);
 
 const props = defineProps({
   isOpen: {
@@ -396,6 +449,7 @@ const end_date = ref("");
 const roomQuantity = ref(1);
 const allRoomsData = ref([]);
 const isLoadingRoomData = ref(false);
+const chartInstances = ref({});
 
 const hotelSearch = async () => {
   let data = {
@@ -461,8 +515,197 @@ const searchAllRooms = async () => {
   }
 };
 
-const toggleRoomDropdown = (index) => {
+const toggleRoomDropdown = async (index) => {
   allRoomsData.value[index].isExpanded = !allRoomsData.value[index].isExpanded;
+
+  if (allRoomsData.value[index].isExpanded) {
+    await nextTick();
+    createChart(index);
+  } else {
+    // Destroy chart when closing
+    if (chartInstances.value[index]) {
+      chartInstances.value[index].destroy();
+      delete chartInstances.value[index];
+    }
+  }
+};
+
+const createChart = (index) => {
+  const roomData = allRoomsData.value[index];
+  const canvasId = `chartCanvas_${index}`;
+
+  // Wait a bit for DOM to be ready
+  setTimeout(() => {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) {
+      console.error(`Canvas not found for index ${index}`);
+      return;
+    }
+
+    const ctx = canvas.getContext("2d");
+
+    // Destroy existing chart
+    if (chartInstances.value[index]) {
+      chartInstances.value[index].destroy();
+    }
+
+    // Prepare data from room_rates
+    const dates = Object.keys(roomData.room_rates).sort();
+    const labels = dates.map((date) => formatDateShort(date));
+    const availableData = [];
+    const bookedData = [];
+    const overflowData = [];
+
+    dates.forEach((date) => {
+      const rateData = roomData.room_rates[date];
+      const stock = rateData.stock || 0;
+      const booked = rateData.booked_count || 0;
+
+      if (booked <= stock) {
+        availableData.push(stock - booked);
+        bookedData.push(booked);
+        overflowData.push(0);
+      } else {
+        availableData.push(0);
+        bookedData.push(stock);
+        overflowData.push(booked - stock);
+      }
+    });
+
+    // Calculate max value for y-axis
+    const maxValue = Math.max(
+      ...dates.map((date) => {
+        const rateData = roomData.room_rates[date];
+        return Math.max(rateData.stock || 0, rateData.booked_count || 0);
+      })
+    );
+    const yAxisMax = Math.ceil(maxValue * 1.15) + 2;
+
+    chartInstances.value[index] = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Available",
+            data: availableData,
+            backgroundColor: "#22c55e",
+            borderWidth: 0,
+            barThickness: 20,
+          },
+          {
+            label: "Booked",
+            data: bookedData,
+            backgroundColor: "#FF613c",
+            borderWidth: 0,
+            barThickness: 20,
+          },
+          {
+            label: "Overbooked",
+            data: overflowData,
+            backgroundColor: "#dc2626",
+            borderWidth: 0,
+            barThickness: 20,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 1.5,
+        scales: {
+          x: {
+            stacked: true,
+            grid: {
+              display: false,
+              drawBorder: false,
+            },
+            ticks: {
+              font: {
+                size: 9,
+                weight: "600",
+              },
+              color: "#334155",
+              maxRotation: 45,
+              minRotation: 45,
+              padding: 8,
+            },
+          },
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            max: yAxisMax > 0 ? yAxisMax : 10,
+            grid: {
+              color: "rgba(148, 163, 184, 0.1)",
+              drawBorder: false,
+            },
+            ticks: {
+              callback: function (value) {
+                return Math.round(value);
+              },
+              font: {
+                size: 10,
+                weight: "500",
+              },
+              color: "#64748b",
+              stepSize: Math.max(1, Math.ceil(yAxisMax / 8)),
+            },
+            title: {
+              display: true,
+              text: "Number of Rooms",
+              font: {
+                size: 11,
+                weight: "500",
+              },
+              color: "#64748b",
+            },
+          },
+        },
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            backgroundColor: "rgba(15, 23, 42, 0.95)",
+            titleColor: "#ffffff",
+            bodyColor: "#ffffff",
+            borderColor: "rgba(148, 163, 184, 0.2)",
+            borderWidth: 1,
+            cornerRadius: 8,
+            padding: 12,
+            displayColors: true,
+            bodyFont: {
+              size: 11,
+            },
+            titleFont: {
+              size: 12,
+              weight: "bold",
+            },
+            callbacks: {
+              title: function (context) {
+                const dateIndex = context[0].dataIndex;
+                const date = dates[dateIndex];
+                return formatDateLong(date);
+              },
+              footer: function (tooltipItems) {
+                const dateIndex = tooltipItems[0].dataIndex;
+                const date = dates[dateIndex];
+                const rateData = roomData.room_rates[date];
+                const stock = rateData.stock || 0;
+                const booked = rateData.booked_count || 0;
+
+                return [
+                  `\nTotal Stock: ${stock}`,
+                  `Total Booked: ${booked}`,
+                  `Available: ${Math.max(0, stock - booked)}`,
+                ];
+              },
+            },
+          },
+        },
+      },
+    });
+  }, 100);
 };
 
 const formatNumber = (value) => {
@@ -492,6 +735,23 @@ const formatDate = (dateString) => {
   return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
 };
 
+const formatDateShort = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+};
+
+const formatDateLong = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+};
+
 const selectHotel = (data) => {
   search.value = data.name;
   hotel_id.value = data.id;
@@ -512,4 +772,15 @@ watch(
 );
 </script>
 
-<style lang="stylus" scoped></style>
+<style scoped>
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 350px;
+}
+
+canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+</style>

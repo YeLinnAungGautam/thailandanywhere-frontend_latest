@@ -1,6 +1,9 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 
+// https://api-blog.thanywhere.com
+// http://127.0.0.1:8000
+
 export const useRoomV2Store = defineStore("roomV2", {
   state: () => ({ loading: false }),
   getters: {},

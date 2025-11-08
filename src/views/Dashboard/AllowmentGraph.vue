@@ -15,6 +15,36 @@
     <!-- Filters Row -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
       <div class="flex items-end gap-4 flex-wrap">
+        <!-- Hotel Search Button (triggers modal) -->
+        <div class="relative flex-1 min-w-[200px]">
+          <label class="text-xs font-medium text-gray-700 mb-1.5 block">
+            Hotel
+          </label>
+          <button
+            @click="openModal"
+            class="w-full text-sm px-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white transition-colors text-left flex items-center justify-between hover:bg-gray-50"
+          >
+            <span
+              :class="selectedHotelName ? 'text-gray-900' : 'text-gray-400'"
+            >
+              {{ selectedHotelName || "Search hotel..." }}
+            </span>
+            <svg
+              class="w-4 h-4 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </button>
+        </div>
+
         <!-- Month Selector -->
         <div class="min-w-[140px]">
           <label class="text-xs font-medium text-gray-700 mb-1.5 block">
@@ -59,7 +89,8 @@
           <select
             v-model="selectedRoomId"
             @change="onRoomChange"
-            class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white font-medium text-slate-700"
+            :disabled="!selectedHotelId"
+            class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white font-medium text-slate-700 disabled:bg-gray-100 disabled:cursor-not-allowed"
           >
             <option v-for="room in rooms" :key="room.id" :value="room.id">
               {{ room.name }}
@@ -73,6 +104,24 @@
             {{ dates.length }} days
           </p>
           <p class="text-xs text-orange-500">in period</p>
+        </div>
+      </div>
+
+      <!-- Selected Hotel Info -->
+      <div
+        v-if="selectedHotelId && selectedHotelName"
+        class="mt-3 pt-3 border-t border-gray-100"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+            <p class="text-xs text-gray-600">
+              Selected:
+              <span class="font-semibold text-gray-900">{{
+                selectedHotelName
+              }}</span>
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -111,21 +160,198 @@
       </svg>
       <p class="text-slate-600 font-medium">No room data available</p>
       <p class="text-slate-400 text-sm mt-1">
-        Please add rooms to see availability
+        Please select a hotel to see availability
       </p>
     </div>
+
+    <!-- Hotel Selection Modal -->
+    <Teleport to="body">
+      <div
+        v-if="isModalOpen"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        @click.self="closeModal"
+      >
+        <div
+          class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col"
+        >
+          <!-- Modal Header -->
+          <div
+            class="px-6 py-4 border-b border-gray-200 flex items-center justify-between"
+          >
+            <h3 class="text-lg font-bold text-gray-900">Select Hotel</h3>
+            <button
+              @click="closeModal"
+              class="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Search Input -->
+          <div class="px-6 py-4 border-b border-gray-200">
+            <div class="relative">
+              <input
+                ref="modalSearchInput"
+                class="w-full text-sm px-4 py-3 pl-10 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 bg-white transition-colors"
+                type="search"
+                placeholder="Search hotel by name..."
+                v-model="modalSearch"
+                @input="onModalSearchInput"
+              />
+              <svg
+                class="w-5 h-5 text-gray-400 absolute left-3 top-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Hotel List -->
+          <div class="flex-1 overflow-y-auto p-6">
+            <div
+              v-if="isSearchingHotels && hotelLists.length === 0"
+              class="text-center py-8"
+            >
+              <div class="inline-block">
+                <div
+                  class="w-8 h-8 border-3 border-orange-200 border-t-orange-600 rounded-full animate-spin"
+                ></div>
+              </div>
+              <p class="text-sm text-gray-600 mt-3">Loading hotels...</p>
+            </div>
+
+            <div
+              v-else-if="filteredHotels.length === 0"
+              class="text-center py-8"
+            >
+              <svg
+                class="w-16 h-16 mx-auto text-gray-300 mb-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                />
+              </svg>
+              <p class="text-sm font-medium text-gray-700">No hotels found</p>
+              <p class="text-xs text-gray-500 mt-1">
+                Try a different search term
+              </p>
+            </div>
+
+            <div v-else class="space-y-2">
+              <div
+                v-for="hotel in filteredHotels"
+                :key="hotel.id"
+                @click="selectHotel(hotel)"
+                :class="[
+                  'p-4 rounded-lg border-2 cursor-pointer transition-all',
+                  tempSelectedHotelId === hotel.id
+                    ? 'border-orange-500 bg-orange-50'
+                    : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50/50',
+                ]"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                      <p class="text-sm font-bold text-gray-900">
+                        {{ hotel.name }}
+                      </p>
+                      <span
+                        v-if="tempSelectedHotelId === hotel.id"
+                        class="px-2 py-0.5 text-xs font-semibold bg-orange-500 text-white rounded-full"
+                      >
+                        Selected
+                      </span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">
+                      {{ hotel.rooms?.length || 0 }} room type{{
+                        hotel.rooms?.length !== 1 ? "s" : ""
+                      }}
+                      available
+                    </p>
+                  </div>
+                  <svg
+                    v-if="tempSelectedHotelId === hotel.id"
+                    class="w-6 h-6 text-orange-500"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div
+            class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3"
+          >
+            <button
+              @click="closeModal"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              @click="confirmSelection"
+              :disabled="!tempSelectedHotelId"
+              :class="[
+                'px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors',
+                tempSelectedHotelId
+                  ? 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700'
+                  : 'bg-gray-300 cursor-not-allowed',
+              ]"
+            >
+              Confirm Selection
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, watch, computed, nextTick } from "vue";
 import { Chart, registerables } from "chart.js";
 import { useRoomStore } from "../../stores/room";
-import { useSharedHotel } from "./composables/useSharedHotel";
+import { useHotelStore } from "../../stores/hotel";
+import debounce from "lodash/debounce";
 
 Chart.register(...registerables);
 
 const roomStore = useRoomStore();
+const hotelStore = useHotelStore();
 
 const chartCanvas = ref(null);
 let chartInstance = null;
@@ -135,7 +361,17 @@ const selectedRoomId = ref(null);
 const selectedMonth = ref(new Date().getMonth() + 1);
 const selectedYear = ref(new Date().getFullYear());
 
-const { sharedHotelId } = useSharedHotel();
+// Hotel selection state
+const selectedHotelId = ref(47);
+const selectedHotelName = ref("");
+const isModalOpen = ref(false);
+const modalSearch = ref("");
+const modalSearchInput = ref(null);
+const isSearchingHotels = ref(false);
+const hotelLists = ref([]);
+const allHotels = ref([]);
+const tempSelectedHotelId = ref(null);
+const tempSelectedHotelName = ref("");
 
 const monthOptions = [
   { value: 1, label: "January" },
@@ -155,6 +391,13 @@ const monthOptions = [
 const yearOptions = computed(() => {
   const currentYear = new Date().getFullYear();
   return [currentYear - 1, currentYear, currentYear + 1, currentYear + 2];
+});
+
+const filteredHotels = computed(() => {
+  if (!modalSearch.value.trim()) {
+    return allHotels.value.filter((item) => item.allowment == 1);
+  }
+  return hotelLists.value.filter((item) => item.allowment == 1);
 });
 
 const dates = computed(() => {
@@ -277,6 +520,96 @@ const formatDateShort = (date) => {
     month: "short",
     day: "numeric",
   });
+};
+
+// Hotel Modal Functions
+const openModal = () => {
+  isModalOpen.value = true;
+  tempSelectedHotelId.value = selectedHotelId.value;
+  tempSelectedHotelName.value = selectedHotelName.value;
+  modalSearch.value = "";
+
+  nextTick(() => {
+    modalSearchInput.value?.focus();
+  });
+};
+
+const closeModal = () => {
+  isModalOpen.value = false;
+  modalSearch.value = "";
+};
+
+const loadAllHotels = async () => {
+  isSearchingHotels.value = true;
+
+  let data = {
+    allowment: 1,
+  };
+
+  try {
+    const res = await hotelStore.getListAction(data);
+    allHotels.value = res.result.data || [];
+    hotelLists.value = allHotels.value;
+
+    // Set initial hotel name if ID is 47
+    if (selectedHotelId.value === 47 && allHotels.value.length > 0) {
+      const defaultHotel = allHotels.value.find((h) => h.id === 47);
+      if (defaultHotel) {
+        selectedHotelName.value = defaultHotel.name;
+      }
+    }
+  } catch (error) {
+    console.error("Error loading hotels:", error);
+    allHotels.value = [];
+    hotelLists.value = [];
+  } finally {
+    isSearchingHotels.value = false;
+  }
+};
+
+const hotelSearch = async () => {
+  if (!modalSearch.value.trim()) {
+    hotelLists.value = allHotels.value;
+    return;
+  }
+
+  isSearchingHotels.value = true;
+
+  let data = {
+    search: modalSearch.value,
+    allowment: 1,
+  };
+
+  try {
+    const res = await hotelStore.getListAction(data);
+    hotelLists.value = res.result.data || [];
+  } catch (error) {
+    console.error("Error searching hotels:", error);
+    hotelLists.value = allHotels.value;
+  } finally {
+    isSearchingHotels.value = false;
+  }
+};
+
+const onModalSearchInput = debounce(() => {
+  hotelSearch();
+}, 500);
+
+const selectHotel = (hotel) => {
+  tempSelectedHotelId.value = hotel.id;
+  tempSelectedHotelName.value = hotel.name;
+};
+
+const confirmSelection = async () => {
+  if (tempSelectedHotelId.value) {
+    selectedHotelId.value = tempSelectedHotelId.value;
+    selectedHotelName.value = tempSelectedHotelName.value;
+    closeModal();
+
+    // Reload room data for the new hotel
+    await loadRoomData();
+    createChart();
+  }
 };
 
 const createChart = () => {
@@ -498,16 +831,13 @@ const onPeriodChange = async () => {
   createChart();
 };
 
-watch(sharedHotelId, async () => {
-  await loadRoomData();
-  createChart();
-});
-
 const loadRoomData = async () => {
+  if (!selectedHotelId.value) return;
+
   loading.value = true;
   try {
     const res = await roomStore.getListAction({
-      hotel_id: sharedHotelId.value, // Use shared hotel ID
+      hotel_id: selectedHotelId.value,
       include_rates: true,
       year: selectedYear.value,
       month: selectedMonth.value,
@@ -532,6 +862,7 @@ const loadRoomData = async () => {
 };
 
 onMounted(async () => {
+  await loadAllHotels();
   await loadRoomData();
   createChart();
 });
@@ -565,5 +896,24 @@ watch(
 canvas {
   max-width: 100%;
   height: auto !important;
+}
+
+/* Custom scrollbar for modal */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 </style>

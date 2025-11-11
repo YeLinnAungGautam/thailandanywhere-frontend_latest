@@ -266,5 +266,17 @@ export const useCashImageStore = defineStore("cashImage", {
         throw error;
       }
     },
+
+    async cashImageProfitReport(params) {
+      try {
+        const response = await axios.get(`/cashImage-profit`, {
+          params: params,
+        });
+
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
   },
 });

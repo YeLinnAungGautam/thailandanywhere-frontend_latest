@@ -12,32 +12,32 @@ import {
 } from "@heroicons/vue/24/outline";
 import debounce from "lodash/debounce";
 import Swal from "sweetalert2";
-import { useReservationStore } from "../stores/reservation";
-import AccountanceHeader from "../components/AccountanceHeader.vue";
-import { useAuthStore } from "../stores/auth";
 import YearPickerVue from "./AccountingComponent/yearPicker.vue";
 import { useRoute } from "vue-router";
 import router from "../router";
 import { formattedNumber } from "./help/FormatData";
+import { useCashImageStore } from "../stores/cashImage";
 
 const sideBarStore = useSidebarStore();
 const toast = useToast();
 const { isShowSidebar } = storeToRefs(sideBarStore);
-const reservationStore = useReservationStore();
 const route = useRoute();
-const authStore = useAuthStore();
-const { reservations, loading } = storeToRefs(reservationStore);
+const cashImageStore = useCashImageStore();
 
-const date_range = ref("");
+// Response data
+const profitData = ref(null);
+const loading = ref(false);
+
 const product_type = ref("App\\Models\\Hotel");
-const search = ref("");
-const bookingDateSearch = ref(true);
-const payment_status = ref("fully_paid");
+const interact_bank = ref("company");
+
+// Tabs for payment status
+const activeTab = ref("income"); // income, payable, others
 
 // Set current year and month
 const currentDate = new Date();
 const year = ref(currentDate.getFullYear());
-const selectedMonth = ref(currentDate.getMonth() + 1); // Adding 1 since getMonth() returns 0-11
+const selectedMonth = ref(currentDate.getMonth() + 1);
 
 const monthArray = [
   { id: 1, name: "January" },
@@ -54,133 +54,195 @@ const monthArray = [
   { id: 12, name: "December" },
 ];
 
-// Function to generate date range string for a specific month
-const generateDateRangeForMonth = (month, yearValue) => {
-  // Month should be 1-12 (for Jan-Dec)
-  const startDate = new Date(yearValue, month - 1, 1);
+const interactBankOptions = [
+  { value: "company", label: "Company" },
+  { value: "personal", label: "Personal" },
+  { value: "cash_at_office", label: "Cash at Office" },
+  { value: "to_money_changer", label: "To Money Changer" },
+  { value: "deposit_management", label: "Deposit Management" },
+  { value: "pay_to_driver", label: "Pay to Driver" },
+];
 
-  // Get the last day of the month
-  const endDate = new Date(yearValue, month, 0);
-
-  // Format dates as YYYY-MM-DD
-  const formatDate = (date) => {
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
-    return `${year}-${month}-${day}`;
-  };
-
-  return `${formatDate(startDate)},${formatDate(endDate)}`;
-};
-
-// Set date range based on month and year
-const setMonthDateRange = (month, yearValue) => {
-  date_range.value = generateDateRangeForMonth(month, yearValue);
-};
-
-const watchSystem = computed(() => {
-  let result = {};
-  if (date_range.value) {
-    result.sale_daterange = date_range.value;
+// Computed property to get payment status based on active tab
+const getPaymentStatusFilter = computed(() => {
+  switch (activeTab.value) {
+    case "income":
+      return {
+        booking_payment_status: "fully_paid",
+        booking_item_payment_status: "fully_paid",
+      };
+    case "payable":
+      return {
+        booking_payment_status: "fully_paid",
+        booking_item_payment_status: "not_paid", // or 'partially_paid'
+      };
+    case "others":
+      return {
+        booking_payment_status: "not_paid",
+        booking_item_payment_status: "not_paid",
+      };
+    default:
+      return {
+        booking_payment_status: "fully_paid",
+        booking_item_payment_status: "fully_paid",
+      };
   }
-  if (
-    authStore.isSuperAdmin ||
-    authStore.isReservation ||
-    authStore.isAuditor
-  ) {
-    result.user_id = "";
-  } else {
-    result.user_id = authStore.user.id;
-  }
-  if (payment_status.value != "") {
-    result.customer_payment_status = payment_status.value;
-  }
-  result.booking_date_search = bookingDateSearch.value;
-  result.total_profit = true;
-  result.product_type = product_type.value ?? "App\\Models\\Hotel";
-  return result;
 });
 
-const getAction = async () => {
-  const res = await reservationStore.getListAction(watchSystem.value);
+// Filter booking items based on active tab
+const filteredBookingItems = computed(() => {
+  if (!profitData.value?.data?.booking_items) {
+    return [];
+  }
+
+  return profitData.value.data.booking_items.filter((item) => {
+    const bookingStatus = item.booking_payment_status;
+    const itemStatus = item.payment_status;
+
+    switch (activeTab.value) {
+      case "income":
+        return bookingStatus === "fully_paid" && itemStatus === "fully_paid";
+      case "payable":
+        return bookingStatus === "fully_paid" && itemStatus !== "fully_paid";
+      case "others":
+        return bookingStatus !== "fully_paid" && itemStatus !== "fully_paid";
+      default:
+        return true;
+    }
+  });
+});
+
+// Calculate summary for filtered items
+const filteredSummary = computed(() => {
+  const items = filteredBookingItems.value;
+
+  if (items.length === 0) {
+    return {
+      total_items: 0,
+      total_amount: 0,
+      total_cost: 0,
+      total_profit: 0,
+      average_margin: 0,
+    };
+  }
+
+  const totalAmount = items.reduce(
+    (sum, item) => sum + parseFloat(item.amount || 0),
+    0
+  );
+  const totalCost = items.reduce(
+    (sum, item) => sum + parseFloat(item.total_cost_price || 0),
+    0
+  );
+  const totalProfit = totalAmount - totalCost;
+  const averageMargin = totalAmount > 0 ? totalProfit / totalAmount : 0;
+
+  return {
+    total_items: items.length,
+    total_amount: totalAmount,
+    total_cost: totalCost,
+    total_profit: totalProfit,
+    average_margin: averageMargin,
+  };
+});
+
+const profitAction = async () => {
+  loading.value = true;
+  try {
+    const monthFormatted = `${year.value}-${String(
+      selectedMonth.value
+    ).padStart(2, "0")}`;
+
+    const data = {
+      month: monthFormatted,
+      interact_bank: interact_bank.value,
+      product_type: product_type.value,
+      ...getPaymentStatusFilter.value,
+    };
+
+    const res = await cashImageStore.cashImageProfitReport(data);
+
+    console.log(res);
+
+    if (res.success) {
+      profitData.value = res;
+      console.log(profitData.value);
+    } else {
+      toast.error(res.message || "Failed to load profit report");
+    }
+  } catch (error) {
+    console.error("Error loading profit report:", error);
+    toast.error("An error occurred while loading profit report");
+  } finally {
+    loading.value = false;
+  }
 };
 
-const changePage = async (url) => {
-  await reservationStore.getChangePage(url, watchSystem.value);
+const goToPage = (month, year, bookingId) => {
+  // Get the route object
+  const route = router.resolve({
+    name: "verifyInvoices",
+    query: {
+      month: month,
+      year: year,
+      id: bookingId,
+    },
+  });
+
+  // Open in new tab
+  window.open(route.href, "_blank");
 };
 
 const handleYearChange = (message) => {
   year.value = message;
-  // Update date range when year changes
-  setMonthDateRange(selectedMonth.value, year.value);
 };
 
-// Method to handle month change
 const handleMonthChange = (month) => {
   selectedMonth.value = month;
-  // Update date range when month changes
-  setMonthDateRange(month, year.value);
 };
+
+const handleTabChange = (tab) => {
+  activeTab.value = tab;
+};
+
+// Watch for changes
+watch(
+  [year, selectedMonth, product_type, interact_bank, activeTab],
+  debounce(async () => {
+    await profitAction();
+  }, 500)
+);
 
 onMounted(async () => {
   if (route.query.month && route.query.year) {
-    selectedMonth.value = route.query.month;
-    year.value = route.query.year;
+    selectedMonth.value = parseInt(route.query.month);
+    year.value = parseInt(route.query.year);
   }
-  // Initialize date range with current month and year
-  setMonthDateRange(selectedMonth.value, year.value);
-  // await getAction();
-  const setProductType = () => {
-    let type = "App\\Models\\Hotel"; // Default type
 
-    if (route.query.type == "4-1000-01" || route.query.type == "3-1000-01") {
-      type = "App\\Models\\PrivateVanTour";
+  // Set product type from query
+  if (route.query.type) {
+    if (route.query.type === "4-1000-01" || route.query.type === "3-1000-01") {
+      product_type.value = "App\\Models\\PrivateVanTour";
     } else if (
-      route.query.type == "4-1000-02" ||
-      route.query.type == "3-1000-02"
+      route.query.type === "4-1000-02" ||
+      route.query.type === "3-1000-02"
     ) {
-      type = "App\\Models\\Hotel";
+      product_type.value = "App\\Models\\Hotel";
     } else if (
-      route.query.type == "4-1000-03" ||
-      route.query.type == "3-1000-03"
+      route.query.type === "4-1000-03" ||
+      route.query.type === "3-1000-03"
     ) {
-      type = "App\\Models\\EntranceTicket";
+      product_type.value = "App\\Models\\EntranceTicket";
     }
+  }
 
-    return type;
-  };
-
-  // Set product type
-  product_type.value = setProductType();
+  await profitAction();
 });
-
-// const total = computed(() => {
-//   let total = 0;
-
-//   if (reservations.value && reservations.value.data) {
-//     for (let i = 0; i < reservations.value.data.length; i++) {
-//       total +=
-//         reservations.value?.data[i]?.amount * 1 -
-//         reservations.value?.data[i]?.total_cost_price * 1;
-//     }
-//   }
-
-//   return total;
-// });
-
-// Watch date_range changes
-watch(
-  [date_range, product_type, payment_status, bookingDateSearch],
-  debounce(async (newValue) => {
-    if (newValue) {
-      await getAction();
-    }
-  }, 500)
-);
 </script>
 
 <template>
   <Layout :is_white="true" class="relative">
+    <!-- Header -->
     <div
       :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
       class="space-x-8 col-span-3 flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
@@ -188,7 +250,7 @@ watch(
       <p
         class="text-2xl flex justify-start items-center font-medium text-[#FF613c]"
       >
-        Income Checker
+        Profit Report
         <span
           class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
         ></span>
@@ -196,13 +258,13 @@ watch(
         <span
           class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
         ></span>
-        <span>{{ monthArray.find((m) => m.id == selectedMonth).name }}</span>
+        <span>{{ monthArray.find((m) => m.id == selectedMonth)?.name }}</span>
       </p>
     </div>
 
     <div class="grid grid-cols-5 gap-4">
       <div class="col-span-5">
-        <!-- header -->
+        <!-- Product Type Tabs -->
         <div
           class="mb-4 bg-white rounded-lg shadow grid grid-cols-3 divide-x divide-gray-300 overflow-hidden uppercase"
         >
@@ -210,7 +272,7 @@ watch(
             @click="product_type = 'App\\Models\\Hotel'"
             class="col-span-1 text-center text-sm cursor-pointer font-medium py-2"
             :class="
-              product_type == 'App\\Models\\Hotel'
+              product_type === 'App\\Models\\Hotel'
                 ? 'bg-[#FF613c] text-white'
                 : 'text-gray-500'
             "
@@ -221,7 +283,7 @@ watch(
             @click="product_type = 'App\\Models\\EntranceTicket'"
             class="col-span-1 text-center text-sm cursor-pointer font-medium py-2"
             :class="
-              product_type == 'App\\Models\\EntranceTicket'
+              product_type === 'App\\Models\\EntranceTicket'
                 ? 'bg-[#FF613c] text-white'
                 : 'text-gray-500'
             "
@@ -232,7 +294,7 @@ watch(
             @click="product_type = 'App\\Models\\PrivateVanTour'"
             class="col-span-1 text-center text-sm cursor-pointer font-medium py-2"
             :class="
-              product_type == 'App\\Models\\PrivateVanTour'
+              product_type === 'App\\Models\\PrivateVanTour'
                 ? 'bg-[#FF613c] text-white'
                 : 'text-gray-500'
             "
@@ -241,17 +303,10 @@ watch(
           </div>
         </div>
 
+        <!-- Filters -->
         <div class="pb-4 flex justify-start space-x-2 items-center">
           <YearPickerVue @year-change="handleYearChange" />
-          <select
-            v-model="bookingDateSearch"
-            name=""
-            id=""
-            class="w-1/4 border border-gray-400/20 focus:outline-none rounded-lg px-3 py-2 text-xs"
-          >
-            <option :value="true">Sale Date</option>
-            <option :value="false">Balance Due Date</option>
-          </select>
+
           <select
             v-model="selectedMonth"
             @change="handleMonthChange(selectedMonth)"
@@ -261,52 +316,146 @@ watch(
               {{ m.name }}
             </option>
           </select>
+
           <select
-            v-model="payment_status"
-            name=""
-            id=""
-            class="w-1/4 border border-gray-400/20 focus:outline-none rounded-lg px-3 py-2 text-xs"
+            v-model="interact_bank"
+            class="px-3 text-black text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none"
           >
-            <option value="">All</option>
-            <option value="fully_paid">Fully Paid</option>
-            <option value="not_paid">Not Paid</option>
+            <option
+              :value="bank.value"
+              v-for="bank in interactBankOptions"
+              :key="bank.value"
+            >
+              {{ bank.label }}
+            </option>
           </select>
-          <div class="w-full flex justify-end items-center space-x-2 text-end">
-            <!-- <p class="text-sm">
-              Total :
-              <span class="text-[#FF613c] font-semibold">{{ total }}</span>
-            </p> -->
-            <p class="text-sm">
-              Total Amount :
-              <span class="text-[#FF613c] font-semibold">{{
-                formattedNumber(reservations?.meta?.total_amount)
-              }}</span>
-            </p>
-            <p class="text-sm">
-              Total Cost Price :
-              <span class="text-[#FF613c] font-semibold">{{
-                formattedNumber(reservations?.meta?.total_cost_price)
-              }}</span>
-            </p>
-            <p class="text-sm">
-              Total Profit :
-              <span class="text-[#FF613c] font-semibold">{{
-                formattedNumber(reservations?.meta?.total_profit)
-              }}</span>
-            </p>
-            <p class="text-sm">
-              Total Profit :
-              <span class="text-[#FF613c] font-semibold">{{
-                reservations?.meta?.average_margin.toFixed(3)
-              }}</span>
-            </p>
+
+          <!-- Overall Summary from API -->
+          <!-- <div class="w-full flex justify-end items-center space-x-3 text-end">
+            <div class="text-xs">
+              <p class="text-gray-500 text-[10px]">Total Sales</p>
+              <p class="text-[#FF613c] font-semibold">
+                {{
+                  formattedNumber(profitData?.data?.summary?.total_sales || 0)
+                }}
+              </p>
+            </div>
+            <div class="text-xs">
+              <p class="text-gray-500 text-[10px]">Total Expense</p>
+              <p class="text-red-600 font-semibold">
+                {{
+                  formattedNumber(profitData?.data?.summary?.total_expense || 0)
+                }}
+              </p>
+            </div>
+            <div class="text-xs">
+              <p class="text-gray-500 text-[10px]">Total Profit</p>
+              <p class="text-green-600 font-semibold">
+                {{
+                  formattedNumber(profitData?.data?.summary?.total_profit || 0)
+                }}
+              </p>
+            </div>
+            <div class="text-xs">
+              <p class="text-gray-500 text-[10px]">Profit Margin %</p>
+              <p class="text-blue-600 font-semibold">
+                {{
+                  profitData?.data?.summary?.profit_margin_percentage?.toFixed(
+                    2
+                  ) || 0
+                }}%
+              </p>
+            </div>
+          </div> -->
+        </div>
+
+        <!-- Payment Status Tabs -->
+        <div
+          class="mb-4 bg-white rounded-lg shadow grid grid-cols-3 divide-x divide-gray-300 overflow-hidden"
+        >
+          <div
+            @click="handleTabChange('income')"
+            class="col-span-1 text-center text-xs cursor-pointer font-medium py-3 transition-all"
+            :class="
+              activeTab === 'income'
+                ? 'bg-green-500 text-white'
+                : 'text-gray-500 hover:bg-gray-50'
+            "
+          >
+            <div class="font-semibold">INCOME</div>
+          </div>
+          <div
+            @click="handleTabChange('payable')"
+            class="col-span-1 text-center text-xs cursor-pointer font-medium py-3 transition-all"
+            :class="
+              activeTab === 'payable'
+                ? 'bg-yellow-500 text-white'
+                : 'text-gray-500 hover:bg-gray-50'
+            "
+          >
+            <div class="font-semibold">PAYABLE</div>
+          </div>
+          <div
+            @click="handleTabChange('others')"
+            class="col-span-1 text-center text-xs cursor-pointer font-medium py-3 transition-all"
+            :class="
+              activeTab === 'others'
+                ? 'bg-red-500 text-white'
+                : 'text-gray-500 hover:bg-gray-50'
+            "
+          >
+            <div class="font-semibold">OTHERS</div>
           </div>
         </div>
 
+        <!-- Filtered Summary -->
+        <div
+          class="mb-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg shadow p-4"
+        >
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-semibold text-gray-700">
+              {{ activeTab.toUpperCase() }} Summary
+            </h3>
+            <div class="flex space-x-6 text-xs">
+              <div class="text-center">
+                <p class="text-gray-500 text-[10px]">Items</p>
+                <p class="font-semibold text-gray-800">
+                  {{ filteredSummary.total_items }}
+                </p>
+              </div>
+              <div class="text-center">
+                <p class="text-gray-500 text-[10px]">Amount</p>
+                <p class="font-semibold text-[#FF613c]">
+                  {{ formattedNumber(filteredSummary.total_amount) }}
+                </p>
+              </div>
+              <div class="text-center">
+                <p class="text-gray-500 text-[10px]">Cost</p>
+                <p class="font-semibold text-red-600">
+                  {{ formattedNumber(filteredSummary.total_cost) }}
+                </p>
+              </div>
+              <div class="text-center">
+                <p class="text-gray-500 text-[10px]">Profit</p>
+                <p class="font-semibold text-green-600">
+                  {{ formattedNumber(filteredSummary.total_profit) }}
+                </p>
+              </div>
+              <div class="text-center">
+                <p class="text-gray-500 text-[10px]">Margin %</p>
+                <p class="font-semibold text-blue-600">
+                  {{ filteredSummary.average_margin.toFixed(2) }}%
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table -->
         <div class="grid grid-cols-3 gap-4">
           <div class="overflow-x-auto col-span-3">
             <table
-              class="w-full text-sm text-left text-gray-500 mb-4 dark:text-gray-400 rounded overflow-hidden"
+              class="w-full text-sm text-left text-gray-500 mb-4 rounded overflow-hidden"
             >
               <thead
                 class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-[#FF613c] dark:text-gray-100"
@@ -316,31 +465,37 @@ watch(
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    CRM_Res
+                    CRM ID
                   </th>
                   <th
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    Variation
+                    Customer
                   </th>
                   <th
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    Sales Date
+                    Product
                   </th>
                   <th
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    Se. Date
+                    Service Date
                   </th>
                   <th
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    P. Status
+                    Qty
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    C. Status
                   </th>
                   <th
                     scope="col"
@@ -352,7 +507,7 @@ watch(
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    Income
+                    Amount
                   </th>
                   <th
                     scope="col"
@@ -370,27 +525,7 @@ watch(
                     scope="col"
                     class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    p. Verified
-                  </th>
-
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    E.Verified
-                  </th>
-
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    I.Verified
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    Proof of service Coming
+                    Margin %
                   </th>
                   <th
                     scope="col"
@@ -401,156 +536,157 @@ watch(
 
               <tbody class="border border-gray-400/20" v-if="!loading">
                 <tr
-                  v-for="item in reservations?.data ?? []"
-                  :key="item"
-                  class="border border-gray-400/20 even:bg-gray-50"
+                  v-for="item in filteredBookingItems"
+                  :key="item.booking_item_id"
+                  class="border border-gray-400/20 even:bg-gray-50 hover:bg-blue-50"
                 >
                   <td
-                    scope="col"
                     class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
                   >
-                    {{ item?.crm_id }}
+                    {{ item.crm_id }}
                   </td>
                   <td
-                    scope="col"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    {{ item.customer?.name }}
+                  </td>
+                  <td
                     class="text-[11px] min-w-[200px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
-                    {{ item?.variation?.name }}{{ item?.room?.name
-                    }}{{ item?.car?.name }}
+                    {{ item.product_name }}
                   </td>
                   <td
-                    scope="col"
                     class="text-[11px] font-medium whitespace-nowrap text-gray-800 px-3 py-3 border-l border-gray-400/20"
                   >
-                    {{ item?.booking?.booking_date }}
+                    {{ item.service_date }}
                   </td>
                   <td
-                    scope="col"
-                    class="text-[11px] font-medium whitespace-nowrap text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20 text-center"
                   >
-                    {{ item?.service_date }}
+                    {{ item.quantity }}
                   </td>
                   <td
-                    scope="col"
-                    class="text-[10px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                    :class="{
-                      'text-green-600':
-                        item?.booking?.payment_status == 'fully_paid',
-                      'text-yellow-600':
-                        item?.booking?.payment_status == 'partially_paid',
-                      'text-red-600':
-                        item?.booking?.payment_status == 'not_paid',
-                    }"
+                    class="text-[10px] font-medium px-3 py-3 border-l border-gray-400/20"
                   >
-                    {{ item?.booking?.payment_status }}
-                  </td>
-                  <td
-                    scope="col"
-                    class="text-[10px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                    :class="{
-                      'text-green-600': item?.payment_status == 'fully_paid',
-                      'text-yellow-600':
-                        item?.payment_status == 'partially_paid',
-                      'text-red-600': item?.payment_status == 'not_paid',
-                    }"
-                  >
-                    {{ item?.payment_status }}
-                  </td>
-                  <td
-                    scope="col"
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                  >
-                    {{ item?.amount }}
-                  </td>
-                  <td
-                    scope="col"
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                  >
-                    {{ item?.total_cost_price }}
-                  </td>
-                  <td
-                    scope="col"
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                  >
-                    {{ item?.amount * 1 - item?.total_cost_price * 1 }}
-                  </td>
-                  <td
-                    scope="col"
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                  >
-                    <p
+                    <span
                       :class="{
-                        'text-green-600 bg-green-200 px-2 py-0 rounded-lg text-[10px] text-center':
-                          item?.booking?.verify_status == 'verified',
-                        'text-red-600 bg-red-200 px-2 py-0 rounded-lg text-[10px] text-center':
-                          item?.booking?.verify_status == 'not_verified',
-                        'text-[#FF613c] bg-[#FF613c]/20 px-2 py-0 rounded-lg text-[10px] text-center':
-                          item?.booking?.verify_status == 'pending',
+                        'text-green-600 bg-green-100':
+                          item.booking_payment_status === 'fully_paid',
+                        'text-yellow-600 bg-yellow-100':
+                          item.booking_payment_status === 'partially_paid',
+                        'text-red-600 bg-red-100':
+                          item.booking_payment_status === 'not_paid',
                       }"
+                      class="px-2 py-1 rounded text-[9px] font-semibold"
                     >
-                      {{ item?.booking?.verify_status }}
-                    </p>
-                  </td>
-
-                  <td
-                    scope="col"
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                  >
-                    -
-                  </td>
-
-                  <td
-                    scope="col"
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                  >
-                    -
+                      {{ item.booking_payment_status }}
+                    </span>
                   </td>
                   <td
-                    scope="col"
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                    class="text-[10px] font-medium px-3 py-3 border-l border-gray-400/20"
                   >
-                    coming ...
+                    <span
+                      :class="{
+                        'text-green-600 bg-green-100':
+                          item.payment_status === 'fully_paid',
+                        'text-yellow-600 bg-yellow-100':
+                          item.payment_status === 'partially_paid',
+                        'text-red-600 bg-red-100':
+                          item.payment_status === 'not_paid',
+                      }"
+                      class="px-2 py-1 rounded text-[9px] font-semibold"
+                    >
+                      {{ item.payment_status }}
+                    </span>
                   </td>
                   <td
-                    scope="col"
-                    class="text-[11px] flex justify-end items-center gap-x-8 font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20 text-right"
                   >
-                    <PencilSquareIcon
+                    {{ formattedNumber(item.amount) }}
+                  </td>
+                  <td
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20 text-right"
+                  >
+                    {{ formattedNumber(item.total_cost_price) }}
+                  </td>
+                  <td
+                    class="text-[11px] font-semibold text-green-600 px-3 py-3 border-l border-gray-400/20 text-right"
+                  >
+                    {{ formattedNumber(item.profit) }}
+                  </td>
+                  <td
+                    class="text-[11px] font-semibold text-blue-600 px-3 py-3 border-l border-gray-400/20 text-right"
+                  >
+                    {{ item.profit_margin_percentage }}%
+                  </td>
+                  <td
+                    class="text-[11px] flex justify-end items-center gap-x-4 font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    <EyeIcon
                       @click="
-                        router.push({
-                          name: 'verifyInvoices',
-                          query: {
-                            month: selectedMonth,
-                            year: year,
-                            id: item?.booking?.id,
-                          },
-                        })
+                        // router.push({
+                        //   name: 'verifyInvoices',
+                        //   query: {
+                        //     month: selectedMonth,
+                        //     year: year,
+                        //     id: item?.booking_id,
+                        //   },
+                        // })
+                        goToPage(selectedMonth, year, item?.booking_id)
                       "
-                      class="w-4 h-4 cursor-pointer text-blue-600"
+                      class="w-4 h-4 cursor-pointer text-blue-600 hover:text-blue-800"
                     />
-                    <TrashIcon class="w-4 h-4 cursor-pointer text-red-600" />
+                  </td>
+                </tr>
+
+                <!-- Empty State -->
+                <tr v-if="filteredBookingItems.length === 0">
+                  <td
+                    colspan="12"
+                    class="text-center py-10 text-sm text-gray-500"
+                  >
+                    No booking items found for selected filters
                   </td>
                 </tr>
               </tbody>
-              <tbody class=" " v-if="loading">
-                <tr class="">
-                  <td colspan="13" class="text-center py-10 text-xs">
-                    loading ...
+
+              <tbody v-if="loading">
+                <tr>
+                  <td colspan="12" class="text-center py-10 text-xs">
+                    <div class="flex justify-center items-center space-x-2">
+                      <svg
+                        class="animate-spin h-5 w-5 text-[#FF613c]"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          class="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          stroke-width="4"
+                        ></circle>
+                        <path
+                          class="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      <span>Loading...</span>
+                    </div>
                   </td>
                 </tr>
               </tbody>
             </table>
-            <div>
-              <!-- pagination -->
-              <Pagination
-                v-if="!loading"
-                :data="reservations"
-                @change-page="changePage"
-              />
-            </div>
           </div>
         </div>
       </div>
     </div>
   </Layout>
 </template>
+
+<style scoped>
+/* Add any custom styles if needed */
+</style>

@@ -1,1158 +1,555 @@
 <script setup>
-import Layout from "./Layout.vue";
-import { useRoute, useRouter } from "vue-router";
-import {
-  DoughnutChart,
-  BarChart,
-  LineChart,
-  PieChart,
-  PolarAreaChart,
-  RadarChart,
-  BubbleChart,
-  ScatterChart,
-} from "vue-chart-3";
-import { useAuthStore } from "../stores/auth";
-import { useVantourStore } from "../stores/vantour";
-import { useGrouptourStore } from "../stores/grouptour";
-import { useAirportStore } from "../stores/airport";
-import { useEntranceStore } from "../stores/entrance";
-import { useBookingStore } from "../stores/booking";
 import { storeToRefs } from "pinia";
-import { computed, onMounted, reactive, ref, watch } from "vue";
-import { useHomeStore } from "../stores/home";
-import HomeFirstPartVue from "../components/HomeFirstPart.vue";
-import HomeSecondPartVue from "../components/HomeSecondPart.vue";
-import axios from "axios";
-// import CombineBarLineVue from "../components/CombineBarLine.vue";
-import VueApexCharts from "vue3-apexcharts";
-import AnalysisReport from "./AnalysisReport.vue";
-import SaleByAgent from "../components/SaleByAgent.vue";
-import TopSellingProductVue from "../components/TopSellingProduct.vue";
-import SaleAgentReportByDate from "../components/SaleAgentReportByDate.vue";
-import ReservationPartHome from "../components/homeReservation/ReservationPartHome.vue";
-
-import {
-  endOfMonth,
-  endOfYear,
-  startOfMonth,
-  startOfYear,
-  subMonths,
-} from "date-fns";
-
-import { Chart, registerables } from "chart.js";
-
-import {
-  ArchiveBoxIcon,
-  CalendarIcon,
-  HeartIcon,
-  SquaresPlusIcon,
-  PuzzlePieceIcon,
-  UsersIcon,
-} from "@heroicons/vue/24/outline";
-import ReservationCalendarHome from "./Dashboard/ReservationCalendarHome.vue";
-import AccountReceivable from "./Dashboard/AccountReceivable.vue";
 import { useSidebarStore } from "../stores/sidebar";
-import { formattedDate } from "./help/FormatData";
-import CashImageReport from "./Dashboard/CashImageReport.vue";
+import Layout from "./Layout.vue";
+import { computed, onMounted, ref, watch } from "vue";
+import Pagination from "../components/Pagination.vue";
+import { useToast } from "vue-toastification";
+import {
+  EyeIcon,
+  PencilSquareIcon,
+  TrashIcon,
+} from "@heroicons/vue/24/outline";
+import debounce from "lodash/debounce";
+import Swal from "sweetalert2";
+import { useReservationStore } from "../stores/reservation";
+import AccountanceHeader from "../components/AccountanceHeader.vue";
+import { useAuthStore } from "../stores/auth";
+import YearPickerVue from "./AccountingComponent/yearPicker.vue";
+import { useRoute } from "vue-router";
+import router from "../router";
+import { formattedNumber } from "./help/FormatData";
 
-Chart.register(...registerables);
-
-const authStore = useAuthStore();
-const vantourStore = useVantourStore();
-const grouptourStore = useGrouptourStore();
-const airportStore = useAirportStore();
-const entranceStore = useEntranceStore();
-const bookingStore = useBookingStore();
-const homeStore = useHomeStore();
-const router = useRouter();
+const sideBarStore = useSidebarStore();
+const toast = useToast();
+const { isShowSidebar } = storeToRefs(sideBarStore);
+const reservationStore = useReservationStore();
 const route = useRoute();
-const sidebarStore = useSidebarStore();
-const { isShowSidebar } = storeToRefs(sidebarStore);
+const authStore = useAuthStore();
+const { reservations, loading } = storeToRefs(reservationStore);
 
-const { loading } = storeToRefs(homeStore);
+const date_range = ref("");
+const product_type = ref("App\\Models\\Hotel");
+const search = ref("");
+const bookingDateSearch = ref(true);
+const payment_status = ref("fully_paid");
 
-const dataTest = reactive({ items: [] });
-const dataAmount = reactive({ items: [] });
-const dataPaid = reactive({ items: [] });
-const dataNotPaid = reactive({ items: [] });
+// Set current year and month
+const currentDate = new Date();
+const year = ref(currentDate.getFullYear());
+const selectedMonth = ref(currentDate.getMonth() + 1); // Adding 1 since getMonth() returns 0-11
 
-const totalSaleForShow = computed(() => {
-  if (dataAmount.items.length > 0) {
-    let total = 0;
-    for (let i = 0; i < dataAmount.items.length; i++) {
-      total += dataAmount.items[i];
-    }
-    return total;
-  }
-  return 0;
-});
-
-const saleData = {
-  labels: dataTest.items,
-  datasets: [
-    {
-      label: "Total Sales",
-      type: "line",
-      data: dataAmount.items,
-      backgroundColor: "rgb(255, 87, 51)", // Set background color for dataset 1
-      borderColor: "rgb(255, 87, 51)",
-      borderWidth: 1,
-    },
-    {
-      label: "Fully Paid",
-      type: "bar",
-      data: dataPaid.items,
-      backgroundColor: "rgb(17, 223, 0)", // Set background color for dataset 2
-      borderColor: "rgb(17, 223, 0)",
-      borderWidth: 1,
-    },
-    {
-      label: "Not Paid",
-      type: "bar",
-      data: dataNotPaid.items,
-      backgroundColor: "rgb(223, 0, 0 )", // Set background color for dataset 3
-      borderColor: "rgb(223, 0, 0 )",
-      borderWidth: 1,
-    },
-  ],
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  },
-};
-
-const saleValueAgent = reactive({ items: [] });
-const saleValueKoNayMyo = reactive({ items: [] });
-const saleValueChitSu = reactive({ items: [] });
-const saleValueEiMyat = reactive({ items: [] });
-const saleValueChaw = reactive({ items: [] });
-
-const agentColors = [
-  "#FF0000",
-  "#0032FF",
-  "#04FF00",
-  "#00FFF7",
-  "#FFE400",
-  "#0027FF",
-  "#C500FF",
-  "#FF00A2",
-  "#00BDFF",
+const monthArray = [
+  { id: 1, name: "January" },
+  { id: 2, name: "February" },
+  { id: 3, name: "March" },
+  { id: 4, name: "April" },
+  { id: 5, name: "May" },
+  { id: 6, name: "June" },
+  { id: 7, name: "July" },
+  { id: 8, name: "August" },
+  { id: 9, name: "September" },
+  { id: 10, name: "October" },
+  { id: 11, name: "November" },
+  { id: 12, name: "December" },
 ];
 
-const saleDataAgent = {
-  labels: [],
-  datasets: [],
+// Function to generate date range string for a specific month
+const generateDateRangeForMonth = (month, yearValue) => {
+  // Month should be 1-12 (for Jan-Dec)
+  const startDate = new Date(yearValue, month - 1, 1);
+
+  // Get the last day of the month
+  const endDate = new Date(yearValue, month, 0);
+
+  // Format dates as YYYY-MM-DD
+  const formatDate = (date) => {
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${year}-${month}-${day}`;
+  };
+
+  return `${formatDate(startDate)},${formatDate(endDate)}`;
 };
 
-const saleDataAgentOption = {
-  responsive: true,
-  maintainAspectRatio: false,
-  scales: {
-    y: {
-      beginAtZero: true,
-    },
-  },
-  plugins: {
-    tooltip: {
-      callbacks: {
-        footer: function (a) {
-          console.log(a, "this is a footer");
-          return `Booking - ${a[0].dataset.dataforFooter[a[0].dataIndex]}`;
-        },
-      },
-    },
-  },
+// Set date range based on month and year
+const setMonthDateRange = (month, yearValue) => {
+  date_range.value = generateDateRangeForMonth(month, yearValue);
 };
 
-const totalByAgent = reactive({ items: [] });
-const paidByAgent = reactive({ items: [] });
-const notPaidAgent = reactive({ items: [] });
-const AgentName = ref([]);
-const saleDataByAgent = {
-  labels: [],
-  datasets: [
-    {
-      label: "Total Sales",
-      type: "line",
-      data: totalByAgent.items,
-      footerForCount: [],
-      backgroundColor: "rgb(255, 87, 51)", // Set background color for dataset 1
-      borderColor: "rgb(255, 87, 51)",
-      borderWidth: 1,
-    },
-    {
-      label: "Fully Paid",
-      type: "bar",
-      data: paidByAgent.items,
-      backgroundColor: "rgb(17, 223, 0)", // Set background color for dataset 2
-      borderColor: "rgb(17, 223, 0)",
-      borderWidth: 1,
-    },
-    {
-      label: "Not Paid",
-      type: "bar",
-      data: notPaidAgent.items,
-      backgroundColor: "rgb(223, 0, 0 )", // Set background color for dataset 3
-      borderColor: "rgb(223, 0, 0 )",
-      borderWidth: 1,
-    },
-  ],
-};
-const saleDataByAgentOption = {
-  responsive: true,
-  maintainAspectRatio: false,
-  scales: {
-    y: {
-      beginAtZero: true,
-    },
-  },
-};
-
-const totalBookingsForShow = ref(0);
-const getAllDays = async (monthGet) => {
-  console.log(monthGet, "this is month");
-  const res = await homeStore.getTimeFilterArray(monthGet);
-  console.log(res, "this is for graph");
-
-  dataAmount.items.splice(0);
-  dataPaid.items.splice(0);
-  dataNotPaid.items.splice(0);
-  saleValueAgent.items.splice(0);
-  saleValueKoNayMyo.items.splice(0);
-  saleValueChitSu.items.splice(0);
-  saleValueEiMyat.items.splice(0);
-  saleValueChaw.items.splice(0);
-  dataTest.items.splice(0);
-  totalBookingsForShow.value = 0;
-
-  for (let x = 0; x < res.result.sales.length; x++) {
-    let dataArr = 0;
-    let dataPaidArr = 0;
-    let dataNotPaidArr = 0;
-
-    for (let i = 0; i < res.result.sales[x].agents.length; i++) {
-      dataArr += res.result.sales[x].agents[i].total;
-    }
-    for (let i = 0; i < res.result.sales[x].agents.length; i++) {
-      dataPaidArr += res.result.sales[x].agents[i].total_deposit;
-    }
-    for (let i = 0; i < res.result.sales[x].agents.length; i++) {
-      dataNotPaidArr += res.result.sales[x].agents[i].total_balance;
-    }
-    dataAmount.items.push(dataArr);
-    dataPaid.items.push(dataPaidArr);
-    dataNotPaid.items.push(dataNotPaidArr);
-    dataTest.items.push(res.result.sales[x].date);
+const watchSystem = computed(() => {
+  let result = {};
+  if (date_range.value) {
+    result.sale_daterange = date_range.value;
   }
-  saleDataAgent.datasets = [];
-  saleDataAgent.labels = [];
-
-  saleDataByAgent.labels = [];
-  totalByAgent.items.splice(0);
-  paidByAgent.items.splice(0);
-  notPaidAgent.items.splice(0);
-  saleDataByAgent.datasets.footerForCount = [];
-
-  res.result.sales.forEach((sale) => {
-    saleDataAgent.labels.push(sale.date);
-    saleDataByAgent.labels.push(sale.date);
-
-    sale.agents.forEach((agent, index) => {
-      totalBookingsForShow.value += agent.total_count;
-      // AgentName.value.push(agent.name);
-      const existingAgent = AgentName.value.find((a) => a === agent.name);
-      if (!existingAgent) {
-        AgentName.value.push(agent.name);
-      }
-
-      const existingDataset = saleDataAgent.datasets.find(
-        (dataset) => dataset.label === agent.name
-      );
-
-      if (existingDataset) {
-        existingDataset.data.push(agent.total);
-        existingDataset.dataforFooter.push(agent.total_count);
-      } else {
-        saleDataAgent.datasets.push({
-          label: agent.name,
-          data: [agent.total],
-          dataforFooter: [agent.total_count],
-          backgroundColor: [agentColors[index]],
-          type: "line",
-        });
-      }
-
-      if (priceSalesGraphAgent.value != "") {
-        if (agent.name == priceSalesGraphAgent.value) {
-          totalByAgent.items.push(agent.total);
-          paidByAgent.items.push(agent.total_deposit);
-          notPaidAgent.items.push(agent.total_balance);
-          saleDataByAgent.datasets[0].footerForCount.push(agent.total_count);
-          console.log(agent.total_count);
-        }
-      }
-    });
-  });
-  console.log(saleDataAgent);
-};
-
-const isError = ref(false);
-const dataRes = reactive({ items: [] });
-const dataAmountRes = reactive({ items: [] });
-const dateRes = reactive({ items: [] });
-
-const saleDataRes = {
-  labels: dateRes.items,
-  datasets: [
-    {
-      label: "Reservations",
-      data: dataAmountRes.items,
-      backgroundColor: ["#FF0000"],
-    },
-  ],
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  },
-};
-
-const dataPie = reactive({ items: [] });
-const dataPieQ = reactive({ items: [] });
-const hotelPieData = {
-  labels: dataPie.items,
-  datasets: [
-    {
-      label: "Most Selling Hotels",
-      data: dataPieQ.items,
-      backgroundColor: [
-        "rgb(255, 99, 132)",
-        "rgb(54, 162, 235)",
-        "rgb(255, 205, 86)",
-        "rgb(255,0,0)",
-        "rgb(89, 245, 0 )",
-        "rgb(9, 244, 255)",
-        "rgb(4, 0, 255)",
-        "rgb(200, 41, 255)",
-        "rgb(255, 0, 224 )",
-        "rgb(255, 247, 0)",
-      ],
-      hoverOffset: 4,
-    },
-  ],
-  options: {
-    indexAxis: "y", // Display labels on the y-axis
-    scales: {
-      x: {
-        position: "bottom", // Position x-axis at the bottom
-      },
-    },
-  },
-};
-
-const dataReportChannal = reactive({ items: [] });
-const dataReportChannalAmount = reactive({ items: [] });
-const reportChannalData = {
-  labels: dataReportChannal.items,
-  datasets: [
-    {
-      label: "Selling Channal",
-      data: dataReportChannalAmount.items,
-      backgroundColor: ["rgb(255, 105, 14)"],
-      hoverOffset: 4,
-    },
-  ],
-};
-
-const reportOptions = ref({
-  responsive: true,
-  indexAxis: "y", // Display labels on the y-axis
-  scales: {
-    y: {
-      ticks: {
-        display: true, // Display labels on the y-axis
-      },
-      grid: {
-        display: false,
-      },
-    },
-    x: {
-      type: "linear", // Use linear scale for x-axis
-      position: "bottom",
-      grid: {
-        display: false,
-      },
-      ticks: {
-        stepSize: 1, // Set step size to 1 for numerical values
-        callback: function (value, index, values) {
-          return index; // Display numerical values (0, 1, 2, ...)
-        },
-      },
-    },
-  },
-  plugins: {
-    legend: {
-      position: "bottom",
-    },
-    title: {
-      display: false,
-    },
-  },
-  borderRadius: 20,
-  barPercentage: 0.6,
-});
-const methodOptions = ref({
-  responsive: true,
-  plugins: {
-    legend: {
-      position: "bottom",
-    },
-    title: {
-      display: false,
-    },
-    tooltip: {
-      callbacks: {
-        label: function (context) {
-          return context.parsed.y + " sales"; // Display sales amount in tooltip
-        },
-      },
-    },
-  },
-});
-const paymentOptions = ref({
-  responsive: true,
-  plugins: {
-    legend: {
-      position: "bottom",
-    },
-    title: {
-      display: false,
-    },
-  },
-});
-
-const dataReportMethod = reactive({ items: [] });
-const dataReportMethodAmount = reactive({ items: [] });
-const reportMethodData = {
-  labels: dataReportMethod.items,
-  datasets: [
-    {
-      label: "Selling Method",
-      data: dataReportMethodAmount.items,
-      backgroundColor: [
-        "rgb(232, 88, 0)",
-        "rgb(255, 105, 14)",
-        "rgb(255, 142, 74)",
-        "rgb(255, 168, 115)",
-        "rgb(255, 203, 171)",
-      ],
-      hoverOffset: 4,
-    },
-  ],
-  options: {
-    indexAxis: "y", // Display labels on the y-axis
-    scales: {
-      x: {
-        position: "bottom", // Position x-axis at the bottom
-      },
-    },
-  },
-};
-
-const dataReportStatus = reactive({ items: [] });
-const dataReportStatusAmount = reactive({ items: [] });
-const reportStatusData = {
-  labels: dataReportStatus.items,
-  datasets: [
-    {
-      label: "Selling Status",
-      data: dataReportStatusAmount.items,
-      backgroundColor: [
-        "rgb(14, 232, 0)",
-        "rgb(232, 0, 0)",
-        "rgb(255, 126, 11)",
-      ],
-      hoverOffset: 4,
-    },
-  ],
-};
-
-const series = ref([
-  {
-    data: [],
-  },
-]);
-
-const chartOptions = {
-  legend: { show: false },
-  chart: { height: 650 },
-  title: { text: "" },
-  // Define a color scale for the treemap segments
-  plotOptions: {
-    treemap: {
-      enableShades: true,
-      shadeIntensity: 0.5,
-      reverseNegativeShade: true,
-      colorScale: {
-        ranges: [
-          {
-            from: 1000,
-            to: 50000,
-            color: "#FF5B00",
-          },
-          {
-            from: 50000,
-            to: 1000000,
-            color: "#ff4B00",
-          },
-        ],
-      },
-    },
-  },
-};
-
-const date = ref("");
-const partOfAgent = ref("sale");
-const startDate = ref("");
-const endDate = ref("");
-const priceReservation = ref(false);
-const togglePrice = () => {
-  priceReservation.value = !priceReservation.value;
-  // console.log(priceReservation.value);
-};
-const priceSales = ref(true);
-const togglePriceSales = async () => {
-  priceSales.value = !priceSales.value;
-  // console.log(priceSales.value);
-};
-
-const priceSalesGraph = ref("1");
-const togglePriceSalesGraph = async () => {
-  if (priceSalesGraph.value == 0) {
-    priceSalesGraph.value = 1;
+  if (
+    authStore.isSuperAdmin ||
+    authStore.isReservation ||
+    authStore.isAuditor
+  ) {
+    result.user_id = "";
   } else {
-    priceSalesGraph.value = 0;
+    result.user_id = authStore.user.id;
   }
-};
-
-const priceSalesGraphAgent = ref("");
-
-const hotelPerDay = ref(true);
-const toggleHotalSales = () => {
-  hotelPerDay.value = !hotelPerDay.value;
-  if (hotelPerDay.value) {
-    getHotelMostSelling(hotelSaleDate.value);
-    console.log(hotelSaleDate.value, "this is date for hotel");
-  } else {
-    getHotelMostSelling(onlyMonth(hotelSaleDate.value));
+  if (payment_status.value != "") {
+    result.customer_payment_status = payment_status.value;
   }
+  result.booking_date_search = bookingDateSearch.value;
+  result.total_profit = true;
+  result.product_type = product_type.value ?? "App\\Models\\Hotel";
+  return result;
+});
+
+const getAction = async () => {
+  const res = await reservationStore.getListAction(watchSystem.value);
 };
 
-const onlyMonth = (dateString) => {
-  return dateString.slice(0, 7); // Extracts the substring from index 0 to 6
+const changePage = async (url) => {
+  await reservationStore.getChangePage(url, watchSystem.value);
 };
 
-const dateArrFromSelect = ref([]);
-const loopData = ref([]);
-const monthForGraph = ref("");
-
-const currentMonth = () => {
-  const currentDate = new Date();
-  hotelSaleDate.value = formattedDate(currentDate);
-  const year = currentDate.getFullYear();
-  const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
-
-  monthForGraph.value = `${year}-${month}`;
+const handleYearChange = (message) => {
+  year.value = message;
+  // Update date range when year changes
+  setMonthDateRange(selectedMonth.value, year.value);
 };
 
-const hotelSaleDate = ref("");
-const hotelCondition = ref(false);
-const getHotelMostSelling = async (a) => {
-  const res = await homeStore.getHotelMostSell({ service_date: a });
-  console.log(res, "this is hotel");
-  hotelCondition.value = res.result.length == 0 ? true : false;
-  dataPie.items.splice(0);
-  dataPieQ.items.splice(0);
-  for (let i = 0; i < res.result.length; i++) {
-    dataPie.items.push(res.result[i].hotel_name);
-    dataPieQ.items.push(res.result[i].total_bookings);
-  }
+// Method to handle month change
+const handleMonthChange = (month) => {
+  selectedMonth.value = month;
+  // Update date range when month changes
+  setMonthDateRange(month, year.value);
 };
-
-const dateFilterRange = ref("");
-const presetDates = ref([
-  { label: "Today", value: [new Date(), new Date()] },
-  {
-    label: "Today (Slot)",
-    value: [new Date(), new Date()],
-    slot: "preset-date-range-button",
-  },
-  {
-    label: "This month",
-    value: [startOfMonth(new Date()), endOfMonth(new Date())],
-  },
-  {
-    label: "Last month",
-    value: [
-      startOfMonth(subMonths(new Date(), 1)),
-      endOfMonth(subMonths(new Date(), 1)),
-    ],
-  },
-  {
-    label: "This year",
-    value: [startOfYear(new Date()), endOfYear(new Date())],
-  },
-]);
-
-const saleAgentDataRes = ref(null);
-const allSaleList = ref(null);
 
 onMounted(async () => {
-  // console.log(authStore.isSuperAdmin, "hello");
-
-  if (route.query.day) {
-    homeSectionPartView.value = "sale-analysis";
+  if (route.query.month && route.query.year) {
+    selectedMonth.value = route.query.month;
+    year.value = route.query.year;
   }
+  // Initialize date range with current month and year
+  setMonthDateRange(selectedMonth.value, year.value);
+  // await getAction();
+  const setProductType = () => {
+    let type = "App\\Models\\Hotel"; // Default type
 
-  console.log(allSaleList.value, "this is sale");
-  if (!authStore.isSuperAdmin && !authStore.isExternalAudit) {
-    router.push({ name: "dashboard" });
-  }
+    if (route.query.type == "4-1000-01" || route.query.type == "3-1000-01") {
+      type = "App\\Models\\PrivateVanTour";
+    } else if (
+      route.query.type == "4-1000-02" ||
+      route.query.type == "3-1000-02"
+    ) {
+      type = "App\\Models\\Hotel";
+    } else if (
+      route.query.type == "4-1000-03" ||
+      route.query.type == "3-1000-03"
+    ) {
+      type = "App\\Models\\EntranceTicket";
+    }
 
-  if (authStore.isExternalAudit) {
-    router.push({ name: "bankStatementList" });
-  }
-  // generateDateArray();
-  date.value = new Date();
-  console.log(date.value, "this is date format");
-  // if (date.value) {
-  //   await dateFun();
-  // }
-  // getSaleAgentData();
-  currentMonth();
-  // console.log(hotelSaleDate.value, "this is current date");
-  toggleHotalSales();
-  dateFilterRange.value = [startOfMonth(new Date()), endOfMonth(new Date())];
-  dateForUnpaid.value = [startOfMonth(new Date()), endOfMonth(new Date())];
-  dateForSaleAgent.value = [startOfMonth(new Date()), endOfMonth(new Date())];
-  // console.log(dateFilterRange.value, "this is date filter range");
+    return type;
+  };
+
+  // Set product type
+  product_type.value = setProductType();
 });
 
-const unpaidDataList = ref(null);
-const getUnpaidHandler = async (date) => {
-  let first = date[0];
-  let second = date[1];
-  console.log(formattedDate(first), "this is date", formattedDate(second));
-  let data = {
-    first: formattedDate(first),
-    second: formattedDate(second),
-  };
-  unpaidDataList.value = await homeStore.getUnpaidSales(data);
-  console.log(unpaidDataList.value, "this is unpaid");
-};
+// const total = computed(() => {
+//   let total = 0;
 
-const getDataRangeChangeFunction = async (date) => {
-  let first = date[0];
-  let second = date[1];
-  console.log(formattedDate(first), "this is date", formattedDate(second));
-  let data = {
-    first: formattedDate(first),
-    second: formattedDate(second),
-  };
+//   if (reservations.value && reservations.value.data) {
+//     for (let i = 0; i < reservations.value.data.length; i++) {
+//       total +=
+//         reservations.value?.data[i]?.amount * 1 -
+//         reservations.value?.data[i]?.total_cost_price * 1;
+//     }
+//   }
 
-  // channel
-  const res = await homeStore.getReportByChannel(data);
-  // console.log(res, "this is channel report");
-  dataReportChannal.items.splice(0);
-  dataReportChannalAmount.items.splice(0);
-  for (let i = 0; i < res.result.length; i++) {
-    dataReportChannal.items.push(res.result[i].sold_from);
-    dataReportChannalAmount.items.push(res.result[i].total_amount);
-  }
-
-  allSaleList.value = await homeStore.getSaleCount(data);
-
-  // method
-  const resMethod = await homeStore.getReportByMethod(data);
-  // console.log(resMethod, "this is channel report");
-  dataReportMethod.items.splice(0);
-  dataReportMethodAmount.items.splice(0);
-  for (let i = 0; i < resMethod.result.length; i++) {
-    dataReportMethod.items.push(resMethod.result[i].payment_method);
-    dataReportMethodAmount.items.push(resMethod.result[i].total_amount);
-  }
-
-  // status
-  const resStatus = await homeStore.getReportByStatus(data);
-  // console.log(resStatus, "this is channel report");
-  dataReportStatus.items.splice(0);
-  dataReportStatusAmount.items.splice(0);
-  for (let i = 0; i < resStatus.result.length; i++) {
-    if (
-      resStatus.result[i].payment_status == "fully_paid" ||
-      resStatus.result[i].payment_status == "not_paid"
-    ) {
-      dataReportStatus.items.push(resStatus.result[i].payment_status);
-      dataReportStatusAmount.items.push(resStatus.result[i].total_amount);
-    }
-  }
-
-  // sale method
-  // status
-  const resSaleMethod = await homeStore.getReportByPaymentMethod(data);
-  console.log(resSaleMethod, "this is channel report");
-  series.value[0].data = [];
-  for (let i = 0; i < resSaleMethod.result.length; i++) {
-    series.value[0].data.push({
-      x: `${resSaleMethod.result[i].payment_currency}-${resSaleMethod.result[
-        i
-      ].product_type
-        .split("\\")
-        .pop()}`,
-      y: resSaleMethod.result[i].total_selling_amount,
-    });
-  }
-};
-
-const getSaleAgentData = async (date) => {
-  let first = date[0];
-  let second = date[1];
-  console.log(formattedDate(first), "this is date", formattedDate(second));
-  let data = {
-    first: formattedDate(first),
-    second: formattedDate(second),
-  };
-  const resSaleAgent = await homeStore.getAgentSales(data);
-  console.log(resSaleAgent, "this is sale agent report");
-  saleAgentDataRes.value = resSaleAgent;
-};
-
-const dateForUnpaid = ref("");
-const dateForSaleAgent = ref("");
-
-// watch(date, async (newValue) => {
-//   await getSaleAgentData(date.value);
+//   return total;
 // });
 
-watch(monthForGraph, async (newValue) => {
-  getAllDays(monthForGraph.value);
-});
-
-watch(priceSalesGraphAgent, async (newValue) => {
-  priceSalesGraph.value = 0;
-  getAllDays(monthForGraph.value);
-});
-
-watch(dateFilterRange, async (newValue) => {
-  if (dateFilterRange.value != "" && dateFilterRange.value != null) {
-    await getDataRangeChangeFunction(dateFilterRange.value);
-  }
-});
-
-watch(dateForUnpaid, async (newValue) => {
-  if (dateForUnpaid.value != "" && dateForUnpaid.value != null) {
-    await getUnpaidHandler(dateForUnpaid.value);
-  }
-});
-watch(dateForSaleAgent, async (newValue) => {
-  if (dateForSaleAgent.value != "" && dateForSaleAgent.value != null) {
-    await getSaleAgentData(dateForSaleAgent.value);
-  }
-});
-
-watch(hotelSaleDate, async (newValue) => {
-  toggleHotalSales();
-});
-watch(priceSalesGraph, async (newValue) => {
-  console.log(priceSalesGraph.value);
-});
-
-const homeSectionPartView = ref("sale");
-
-watch(homeSectionPartView, (newValue) => {
-  if (newValue == "sale") {
-    router.push({
-      name: "home",
-    });
-  }
-  // if (newValue == "") {
-  //   router.push({
-  //     name: "homeSaleAnalysis",
-  //   });
-  // }
-});
+// Watch date_range changes
+watch(
+  [date_range, product_type, payment_status, bookingDateSearch],
+  debounce(async (newValue) => {
+    if (newValue) {
+      await getAction();
+    }
+  }, 500)
+);
 </script>
 
 <template>
-  <Layout :title="`Welcome back, ${authStore.user.name.split(' ')[0]}!`">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 mb-3">
-      <div
-        :class="isShowSidebar ? 'left-[250px]' : 'left-[100px]'"
-        class="space-x-8 col-span-3 flex justify-start transistion-all duration-200 items-center gap-2 text-sm pb-4 absolute top-8"
+  <Layout :is_white="true" class="relative">
+    <div
+      :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
+      class="space-x-8 col-span-3 flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
+    >
+      <p
+        class="text-2xl flex justify-start items-center font-medium text-[#FF613c]"
       >
-        <HomeFirstPartVue
-          :title="'Sales Analysis'"
-          :isActive="homeSectionPartView == 'sale'"
-          @click="homeSectionPartView = 'sale'"
-        />
-        <HomeFirstPartVue
-          :title="'Calendar'"
-          :isActive="homeSectionPartView == 'sale-analysis'"
-          @click="homeSectionPartView = 'sale-analysis'"
-        />
-        <HomeFirstPartVue
-          :title="'Account Receivable'"
-          :isActive="homeSectionPartView == 'account-receivable'"
-          @click="homeSectionPartView = 'account-receivable'"
-        />
-        <HomeFirstPartVue
-          :title="'Cash Image Report'"
-          :isActive="homeSectionPartView == 'cash-image-report'"
-          @click="homeSectionPartView = 'cash-image-report'"
-        />
-        <HomeFirstPartVue
-          :title="'Analysis Report'"
-          :isActive="homeSectionPartView == 'analysis-report'"
-          @click="homeSectionPartView = 'analysis-report'"
-        />
-      </div>
-      <!-- filter -->
-      <div
-        v-if="homeSectionPartView == 'sale'"
-        class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 mb-3 col-span-3"
-      >
+        Income Checker
+        <span
+          class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
+        ></span>
+        <span>{{ year }}</span>
+        <span
+          class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
+        ></span>
+        <span>{{ monthArray.find((m) => m.id == selectedMonth).name }}</span>
+      </p>
+    </div>
+
+    <div class="grid grid-cols-5 gap-4">
+      <div class="col-span-5">
+        <!-- header -->
         <div
-          class="flex col-span-3 items-center justify-between py-3 bg-white rounded-md shadow-sm px-4"
+          class="mb-4 bg-white rounded-lg shadow grid grid-cols-3 divide-x divide-gray-300 overflow-hidden uppercase"
         >
-          <p class="text-md font-semibold tracking-wider mr-4">Filter:</p>
-          <div class="w-[30%]">
-            <VueDatePicker
-              v-model="dateFilterRange"
-              range
-              :preset-dates="presetDates"
-              :format="'yyyy-MM-dd'"
-              placeholder="select date range"
-            >
-              <template
-                #preset-date-range-button="{ label, value, presetDate }"
-              >
-                <span
-                  role="button"
-                  :tabindex="0"
-                  @click="presetDate(value)"
-                  @keyup.enter.prevent="presetDate(value)"
-                  @keyup.space.prevent="presetDate(value)"
-                >
-                  {{ label }}
-                </span>
-              </template>
-            </VueDatePicker>
+          <div
+            @click="product_type = 'App\\Models\\Hotel'"
+            class="col-span-1 text-center text-sm cursor-pointer font-medium py-2"
+            :class="
+              product_type == 'App\\Models\\Hotel'
+                ? 'bg-[#FF613c] text-white'
+                : 'text-gray-500'
+            "
+          >
+            Hotel
+          </div>
+          <div
+            @click="product_type = 'App\\Models\\EntranceTicket'"
+            class="col-span-1 text-center text-sm cursor-pointer font-medium py-2"
+            :class="
+              product_type == 'App\\Models\\EntranceTicket'
+                ? 'bg-[#FF613c] text-white'
+                : 'text-gray-500'
+            "
+          >
+            Entrance Ticket
+          </div>
+          <div
+            @click="product_type = 'App\\Models\\PrivateVanTour'"
+            class="col-span-1 text-center text-sm cursor-pointer font-medium py-2"
+            :class="
+              product_type == 'App\\Models\\PrivateVanTour'
+                ? 'bg-[#FF613c] text-white'
+                : 'text-gray-500'
+            "
+          >
+            Private Van Tour
           </div>
         </div>
-        <div class="flex justify-start items-center space-x-2 col-span-3">
-          <HomeSecondPartVue
-            :icon="HeartIcon"
-            :title="'Total Bookings'"
-            :amount="allSaleList?.result?.booking_count"
-            :isActive="true"
-          />
-          <HomeSecondPartVue
-            :icon="PuzzlePieceIcon"
-            :title="'Van Tour Sales'"
-            :amount="allSaleList?.result?.van_tour_sale_count"
-            :isActive="false"
-          />
-          <HomeSecondPartVue
-            :icon="SquaresPlusIcon"
-            :title="'Attraction Sales'"
-            :amount="allSaleList?.result?.attraction_sale_count"
-            :isActive="false"
-          />
-          <HomeSecondPartVue
-            :icon="SquaresPlusIcon"
-            :title="'Hotels Sales'"
-            :amount="allSaleList?.result?.hotel_sale_count"
-            :isActive="false"
-          />
-          <HomeSecondPartVue
-            :icon="SquaresPlusIcon"
-            :title="'Airticket Sales'"
-            :amount="allSaleList?.result?.air_ticket_sale_count"
-            :isActive="false"
-          />
-        </div>
 
-        <div class="col-span-2 bg-white p-4 rounded-lg h-[520px]">
-          <div class="flex justify-between items-start">
-            <div>
-              <p
-                class="mb-3 font-semibold tracking-wide text-sm"
-                v-if="priceSalesGraph"
-              >
-                Overall Sales
-              </p>
-
-              <p
-                class="mb-3 font-semibold tracking-wide text-sm"
-                v-if="!priceSalesGraph"
-              >
-                Sale by Employee
-              </p>
-              <p class="text-sm pb-3">
-                Total Sales :
-                <span class="text-[#FF5B00]">{{ totalSaleForShow }} thb</span>
-              </p>
-              <p class="text-sm pb-3">
-                Total Bookings :
-                <span class="text-[#FF5B00]"
-                  >{{ totalBookingsForShow }} Bookings</span
-                >
-              </p>
-            </div>
-            <div class="flex justify-end items-center gap-3">
-              <select
-                name=""
-                id=""
-                v-if="!priceSalesGraph"
-                v-model="priceSalesGraphAgent"
-                class="px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none"
-              >
-                <option value="" class="py-2">All</option>
-                <!-- AgentName -->
-                <option
-                  :value="a"
-                  class="py-2"
-                  v-for="(a, index) in AgentName ?? []"
-                  :key="index"
-                >
-                  {{ a }}
-                </option>
-              </select>
-
-              <input
-                type="month"
-                name=""
-                v-model="monthForGraph"
-                class="bg-white text-sm w-[200px] px-2 py-2"
-                id=""
-              />
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  @click="togglePriceSalesGraph"
-                  value=""
-                  class="sr-only peer"
-                />
-                <div
-                  class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-600"
-                ></div>
-              </label>
-            </div>
-          </div>
-          <LineChart :chartData="saleData" v-if="priceSalesGraph == '1'" />
-          <LineChart
-            :chartData="saleDataAgent"
-            :options="saleDataAgentOption"
-            v-if="priceSalesGraph == '0' && priceSalesGraphAgent == ''"
-          />
-          <LineChart
-            :chartData="saleDataByAgent"
-            :options="saleDataByAgentOption"
-            v-if="priceSalesGraph == '0' && priceSalesGraphAgent != ''"
-          />
-        </div>
-        <div
-          class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[520px] px-3 bg-white"
-        >
-          <div class="flex justify-between items-center">
-            <!-- <p class="text-gray-600 text-xs font-semibold tracking-wide">
-              Sale By Agent
+        <div class="pb-4 flex justify-start space-x-2 items-center">
+          <YearPickerVue @year-change="handleYearChange" />
+          <select
+            v-model="bookingDateSearch"
+            name=""
+            id=""
+            class="w-1/4 border border-gray-400/20 focus:outline-none rounded-lg px-3 py-2 text-xs"
+          >
+            <option :value="true">Sale Date</option>
+            <option :value="false">Balance Due Date</option>
+          </select>
+          <select
+            v-model="selectedMonth"
+            @change="handleMonthChange(selectedMonth)"
+            class="px-3 text-black text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none"
+          >
+            <option :value="m.id" v-for="m in monthArray" :key="m.id">
+              {{ m.name }}
+            </option>
+          </select>
+          <select
+            v-model="payment_status"
+            name=""
+            id=""
+            class="w-1/4 border border-gray-400/20 focus:outline-none rounded-lg px-3 py-2 text-xs"
+          >
+            <option value="">All</option>
+            <option value="fully_paid">Fully Paid</option>
+            <option value="not_paid">Not Paid</option>
+          </select>
+          <div class="w-full flex justify-end items-center space-x-2 text-end">
+            <!-- <p class="text-sm">
+              Total :
+              <span class="text-[#FF613c] font-semibold">{{ total }}</span>
             </p> -->
-            <div class="bg-white px-4 w-full space-y-4">
-              <div class="flex justify-between items-center tracking-wide">
-                <p class="text-sm font-medium mr-2">AgentSales</p>
-                <VueDatePicker
-                  v-model="dateForSaleAgent"
-                  :format="'yyyy-MM-dd'"
-                  range
-                  :preset-dates="presetDates"
-                  placeholder="select date range"
-                >
-                  <template
-                    #preset-date-range-button="{ label, value, presetDate }"
-                  >
-                    <span
-                      role="button"
-                      :tabindex="0"
-                      @click="presetDate(value)"
-                      @keyup.enter.prevent="presetDate(value)"
-                      @keyup.space.prevent="presetDate(value)"
-                    >
-                      {{ label }}
-                    </span>
-                  </template>
-                </VueDatePicker>
-              </div>
-              <div
-                class="grid grid-cols-2 border border-gray-300 rounded-md divide-x-2 divide-gray-300"
-              >
-                <p
-                  class="text-xs text-center py-1.5 rounded-s-lg"
-                  @click="partOfAgent = 'sale'"
-                  :class="
-                    partOfAgent == 'sale' ? 'bg-[#FF5B00] text-white' : ''
-                  "
-                >
-                  amount
-                </p>
-                <p
-                  class="text-xs text-center py-1.5 rounded-e-lg"
-                  @click="partOfAgent = 'average'"
-                  :class="
-                    partOfAgent == 'average' ? 'bg-[#FF5B00] text-white' : ''
-                  "
-                >
-                  target
-                </p>
-              </div>
-
-              <div
-                class=""
-                v-for="(s, index) in saleAgentDataRes?.result"
-                :key="index"
-              >
-                <SaleAgentReportByDate
-                  :data="s"
-                  :part="partOfAgent"
-                  :date="dateForSaleAgent"
-                />
-              </div>
-            </div>
+            <p class="text-sm">
+              Total Amount :
+              <span class="text-[#FF613c] font-semibold">{{
+                formattedNumber(reservations?.meta?.total_amount)
+              }}</span>
+            </p>
+            <p class="text-sm">
+              Total Cost Price :
+              <span class="text-[#FF613c] font-semibold">{{
+                formattedNumber(reservations?.meta?.total_cost_price)
+              }}</span>
+            </p>
+            <p class="text-sm">
+              Total Profit :
+              <span class="text-[#FF613c] font-semibold">{{
+                formattedNumber(reservations?.meta?.total_profit)
+              }}</span>
+            </p>
+            <p class="text-sm">
+              Total Profit :
+              <span class="text-[#FF613c] font-semibold">{{
+                reservations?.meta?.average_margin.toFixed(3)
+              }}</span>
+            </p>
           </div>
         </div>
-        <div class="col-span-3 grid grid-cols-4 gap-4">
-          <div class="bg-white p-2">
-            <p class="text-sm font-semibold py-2">Channels Sold From</p>
-            <BarChart :chartData="reportChannalData" :options="reportOptions" />
-          </div>
-          <div class="bg-white p-2">
-            <p class="text-sm font-semibold py-2">Payment Method</p>
-            <!-- <DoughnutChart :chartData="reportStatusData" /> -->
-            <!-- <CombineBarLineVue /> -->
-            <VueApexCharts
-              :options="chartOptions"
-              :series="series"
-              type="treemap"
-            />
-          </div>
-          <div class="bg-white p-2">
-            <p class="text-sm font-semibold py-2">Method of Payment</p>
-            <DoughnutChart
-              :chartData="reportMethodData"
-              :options="methodOptions"
-            />
-          </div>
 
-          <div class="bg-white p-2">
-            <p class="text-sm font-semibold py-2">Payment Statuses</p>
-            <DoughnutChart
-              :chartData="reportStatusData"
-              :options="paymentOptions"
-            />
-          </div>
-        </div>
-        <div class="col-span-3 grid grid-cols-6 gap-4">
-          <div class="col-span-4">
-            <TopSellingProductVue />
-          </div>
-          <div class="col-span-2 bg-white">
-            <div
-              class="py-6 rounded-lg shadow-sm backdrop-blur-lg backdrop-filter overflow-y-scroll h-[490px] px-3 bg-white"
+        <div class="grid grid-cols-3 gap-4">
+          <div class="overflow-x-auto col-span-3">
+            <table
+              class="w-full text-sm text-left text-gray-500 mb-4 dark:text-gray-400 rounded overflow-hidden"
             >
-              <div class="flex justify-between items-center">
-                <!-- <p class="text-gray-600 text-xs font-semibold tracking-wide">
-                  Sale By Agent
-                </p> -->
-                <div class="bg-white px-4 w-full space-y-4">
-                  <div class="flex justify-between items-center tracking-wide">
-                    <p class="text-sm font-medium mr-2">Unpaid</p>
-                    <VueDatePicker
-                      v-model="dateForUnpaid"
-                      :format="'yyyy-MM-dd'"
-                      range
-                      :preset-dates="presetDates"
-                      placeholder="select date range"
-                    >
-                      <template
-                        #preset-date-range-button="{ label, value, presetDate }"
-                      >
-                        <span
-                          role="button"
-                          :tabindex="0"
-                          @click="presetDate(value)"
-                          @keyup.enter.prevent="presetDate(value)"
-                          @keyup.space.prevent="presetDate(value)"
-                        >
-                          {{ label }}
-                        </span>
-                      </template>
-                    </VueDatePicker>
-                  </div>
-
-                  <div
-                    class=""
-                    v-for="(s, index) in unpaidDataList?.result"
-                    :key="index"
+              <thead
+                class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-[#FF613c] dark:text-gray-100"
+              >
+                <tr>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
                   >
-                    <SaleByAgent :data="s" />
-                  </div>
-                </div>
-              </div>
+                    CRM_Res
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    Variation
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    Sales Date
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    Se. Date
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    P. Status
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    E. Status
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    Income
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    Cost
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    Profit
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    p. Verified
+                  </th>
+
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    E.Verified
+                  </th>
+
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    I.Verified
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
+                  >
+                    Proof of service Coming
+                  </th>
+                  <th
+                    scope="col"
+                    class="px-3 py-3 border-l border-gray-50/20"
+                  ></th>
+                </tr>
+              </thead>
+
+              <tbody class="border border-gray-400/20" v-if="!loading">
+                <tr
+                  v-for="item in reservations?.data ?? []"
+                  :key="item"
+                  class="border border-gray-400/20 even:bg-gray-50"
+                >
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
+                  >
+                    {{ item?.crm_id }}
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[11px] min-w-[200px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    {{ item?.variation?.name }}{{ item?.room?.name
+                    }}{{ item?.car?.name }}
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium whitespace-nowrap text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    {{ item?.booking?.booking_date }}
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium whitespace-nowrap text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    {{ item?.service_date }}
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[10px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                    :class="{
+                      'text-green-600':
+                        item?.booking?.payment_status == 'fully_paid',
+                      'text-yellow-600':
+                        item?.booking?.payment_status == 'partially_paid',
+                      'text-red-600':
+                        item?.booking?.payment_status == 'not_paid',
+                    }"
+                  >
+                    {{ item?.booking?.payment_status }}
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[10px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                    :class="{
+                      'text-green-600': item?.payment_status == 'fully_paid',
+                      'text-yellow-600':
+                        item?.payment_status == 'partially_paid',
+                      'text-red-600': item?.payment_status == 'not_paid',
+                    }"
+                  >
+                    {{ item?.payment_status }}
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    {{ item?.amount }}
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    {{ item?.total_cost_price }}
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    {{ item?.amount * 1 - item?.total_cost_price * 1 }}
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    <p
+                      :class="{
+                        'text-green-600 bg-green-200 px-2 py-0 rounded-lg text-[10px] text-center':
+                          item?.booking?.verify_status == 'verified',
+                        'text-red-600 bg-red-200 px-2 py-0 rounded-lg text-[10px] text-center':
+                          item?.booking?.verify_status == 'not_verified',
+                        'text-[#FF613c] bg-[#FF613c]/20 px-2 py-0 rounded-lg text-[10px] text-center':
+                          item?.booking?.verify_status == 'pending',
+                      }"
+                    >
+                      {{ item?.booking?.verify_status }}
+                    </p>
+                  </td>
+
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    -
+                  </td>
+
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    -
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    coming ...
+                  </td>
+                  <td
+                    scope="col"
+                    class="text-[11px] flex justify-end items-center gap-x-8 font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                  >
+                    <PencilSquareIcon
+                      @click="
+                        router.push({
+                          name: 'verifyInvoices',
+                          query: {
+                            month: selectedMonth,
+                            year: year,
+                            id: item?.booking?.id,
+                          },
+                        })
+                      "
+                      class="w-4 h-4 cursor-pointer text-blue-600"
+                    />
+                    <TrashIcon class="w-4 h-4 cursor-pointer text-red-600" />
+                  </td>
+                </tr>
+              </tbody>
+              <tbody class=" " v-if="loading">
+                <tr class="">
+                  <td colspan="13" class="text-center py-10 text-xs">
+                    loading ...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div>
+              <!-- pagination -->
+              <Pagination
+                v-if="!loading"
+                :data="reservations"
+                @change-page="changePage"
+              />
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- reservation -->
-      <!-- <div
-        class="col-span-3 w-full"
-        v-if="homeSectionPartView == 'reservation'"
-      >
-        <ReservationPartHome />
-      </div> -->
-
-      <div
-        class="col-span-3 w-full"
-        v-if="homeSectionPartView == 'sale-analysis'"
-      >
-        <ReservationCalendarHome />
-      </div>
-      <div
-        class="col-span-3 w-full"
-        v-if="homeSectionPartView == 'account-receivable'"
-      >
-        <AccountReceivable />
-      </div>
-      <div
-        class="col-span-3 w-full"
-        v-if="homeSectionPartView == 'cash-image-report'"
-      >
-        <CashImageReport />
-      </div>
-      <div
-        class="col-span-3 w-full"
-        v-if="homeSectionPartView == 'analysis-report'"
-      >
-        <AnalysisReport />
       </div>
     </div>
   </Layout>

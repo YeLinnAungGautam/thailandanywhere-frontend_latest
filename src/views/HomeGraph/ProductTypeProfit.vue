@@ -103,7 +103,7 @@ const fetchBookingItems = async (productType, date) => {
     };
 
     const response = await homeStore.getProductTypeBookingItems(params);
-    bookingItems.value = response.data.result;
+    bookingItems.value = response.data.data.booking_items;
     console.log("Booking Items:", bookingItems.value);
   } catch (error) {
     console.error("Error fetching booking items:", error);

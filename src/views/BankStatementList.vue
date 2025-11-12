@@ -175,16 +175,14 @@
               class="pl-3 pr-3 py-2 text-xs border border-gray-400/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20"
               id=""
             >
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="30">30</option>
-              <option value="40">40</option>
               <option value="50">50</option>
-              <option value="60">60</option>
-              <option value="70">70</option>
-              <option value="80">80</option>
-              <option value="90">90</option>
+
               <option value="100">100</option>
+              <option value="200">200</option>
+              <option value="300">300</option>
+              <option value="400">400</option>
+              <option value="500">500</option>
+              <option value="1000">1000</option>
             </select>
           </div>
           <button
@@ -2289,7 +2287,7 @@ const formatTransactionAmount = (item) => {
   const formattedAmount = new Intl.NumberFormat("en-US").format(amount);
   const prefix =
     item?.relatable_type === "App\\Models\\Booking"
-      ? "+"
+      ? ""
       : item?.relatable_type === "App\\Models\\BookingItemGroup"
       ? "-"
       : "-";

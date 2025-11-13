@@ -69,11 +69,15 @@ const generateDateRangeForMonth = (month, yearValue) => {
 const categorizeBookingItem = (item, bookingPaymentStatus) => {
   const itemFullyPaid = item == "fully_paid";
   const bookingFullyPaid = bookingPaymentStatus == "fully_paid";
+  const itemNotPaid = item == "not_paid";
+  const bookingNotPaid = bookingPaymentStatus == "not_paid";
 
   if (itemFullyPaid && bookingFullyPaid) {
     return "income";
   } else if (itemFullyPaid && !bookingFullyPaid) {
     return "payable";
+  } else if (!itemFullyPaid && !bookingNotPaid) {
+    return "receivable";
   } else {
     return "others";
   }
@@ -154,6 +158,9 @@ const categorySummary = computed(() => {
   const payable = expandedData.value.filter(
     (item) => item.category === "payable"
   );
+  const receivable = expandedData.value.filter(
+    (item) => item.category === "receivable"
+  );
   const others = expandedData.value.filter(
     (item) => item.category === "others"
   );
@@ -169,6 +176,13 @@ const categorySummary = computed(() => {
     payable: {
       count: payable.length,
       total: payable.reduce(
+        (sum, item) => sum + parseFloat(item.amount || 0),
+        0
+      ),
+    },
+    receivable: {
+      count: receivable.length,
+      total: receivable.reduce(
         (sum, item) => sum + parseFloat(item.amount || 0),
         0
       ),
@@ -370,7 +384,7 @@ onMounted(async () => {
 
       <!-- Category Tabs (Income/Payable/Others) -->
       <div
-        class="mb-4 bg-white rounded-lg shadow grid grid-cols-3 divide-x divide-gray-300 overflow-hidden"
+        class="mb-4 bg-white rounded-lg shadow grid grid-cols-4 divide-x divide-gray-300 overflow-hidden"
       >
         <div
           @click="activeTab = 'income'"
@@ -398,6 +412,20 @@ onMounted(async () => {
           <div class="font-semibold text-xs uppercase">Payable</div>
           <div class="text-xs mt-1">
             {{ categorySummary.payable.count }} items
+          </div>
+        </div>
+        <div
+          @click="activeTab = 'receivable'"
+          class="col-span-1 text-center flex justify-center items-center gap-x-2 cursor-pointer py-3 transition-colors"
+          :class="
+            activeTab === 'receivable'
+              ? 'bg-orange-500 text-white'
+              : 'text-gray-600 hover:bg-gray-50'
+          "
+        >
+          <div class="font-semibold text-xs uppercase">receivable</div>
+          <div class="text-xs mt-1">
+            {{ categorySummary.receivable.count }} items
           </div>
         </div>
         <div

@@ -72,7 +72,7 @@ const categorizeBookingItem = (item, bookingPaymentStatus) => {
 
   if (itemFullyPaid && bookingFullyPaid) {
     return "income";
-  } else if (!itemFullyPaid && bookingFullyPaid) {
+  } else if (itemFullyPaid && !bookingFullyPaid) {
     return "payable";
   } else {
     return "others";

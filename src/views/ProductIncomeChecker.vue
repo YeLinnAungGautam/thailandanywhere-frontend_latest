@@ -4,7 +4,7 @@ import { storeToRefs } from "pinia";
 import Layout from "./Layout.vue";
 import { useCashImageStore } from "../stores/cashImage";
 import debounce from "lodash/debounce";
-import { EyeIcon } from "@heroicons/vue/24/outline";
+import { BookOpenIcon, EyeIcon } from "@heroicons/vue/24/outline";
 import router from "../router";
 
 const cashImageStore = useCashImageStore();
@@ -252,6 +252,10 @@ const goToPage = (bookingId) => {
   window.open(route.href, "_blank");
 };
 
+const goToBooking = (bookingId) => {
+  window.open(`/bookings/new-update/${bookingId}`, "_blank");
+};
+
 // Watch for filter changes
 watch(
   [year, selectedMonth, product_type],
@@ -459,13 +463,14 @@ onMounted(async () => {
               <th
                 class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
               >
-                Item Status
+                C. Payment Status
               </th>
               <th
                 class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
               >
-                Booking Status
+                E. Payment Status
               </th>
+
               <th
                 class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
               >
@@ -520,24 +525,24 @@ onMounted(async () => {
                 <span
                   class="px-2 py-1 rounded-full text-xs font-medium"
                   :class="
-                    item.payment_status === 'fully_paid'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-yellow-100 text-yellow-800'
-                  "
-                >
-                  {{ item.payment_status || "-" }}
-                </span>
-              </td>
-              <td class="px-4 py-3 text-xs border-r border-gray-300">
-                <span
-                  class="px-2 py-1 rounded-full text-xs font-medium"
-                  :class="
                     item.b_payment_status === 'fully_paid'
                       ? 'bg-green-100 text-green-800'
                       : 'bg-yellow-100 text-yellow-800'
                   "
                 >
                   {{ item.b_payment_status || "-" }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-xs border-r border-gray-300">
+                <span
+                  class="px-2 py-1 rounded-full text-xs font-medium"
+                  :class="
+                    item.payment_status === 'fully_paid'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                  "
+                >
+                  {{ item.payment_status || "-" }}
                 </span>
               </td>
               <td class="px-4 py-3 text-xs border-r border-gray-300">
@@ -549,10 +554,16 @@ onMounted(async () => {
               <td class="px-4 py-3 text-xs border-r border-gray-300">
                 {{ item.profit }}
               </td>
-              <td class="px-4 py-3 text-xs text-center">
+              <td
+                class="px-4 py-3 space-x-2 flex justify-center items-center text-xs text-center"
+              >
                 <EyeIcon
                   @click="goToPage(item.booking_id)"
                   class="w-5 h-5 cursor-pointer text-blue-600 hover:text-blue-800 inline-block"
+                />
+                <BookOpenIcon
+                  @click="goToBooking(item.booking_id)"
+                  class="w-5 h-5 cursor-pointer text-red-600 hover:text-blue-800 inline-block"
                 />
               </td>
             </tr>

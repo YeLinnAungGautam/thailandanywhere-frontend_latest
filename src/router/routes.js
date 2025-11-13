@@ -88,6 +88,7 @@ import RemaindTaxReceiptModal from "../views/TaxReceiptComponent/RemaindTaxRecei
 import duplicateChecker from "../views/DuplateChecker.vue";
 import internalTransferChecker from "../views/InternalTransferChecker.vue";
 import bankVerify from "../views/BankVerify.vue";
+import BankStatementType from "../views/BankStatementType.vue";
 
 const routes = [
   {
@@ -494,6 +495,11 @@ const routes = [
     path: "/bank_statement_list",
     name: "bankStatementList",
     component: BankStatementList,
+  },
+  {
+    path: "/bank_statement_type",
+    name: "bankStatementType",
+    component: BankStatementType,
   },
   {
     path: "/bank_statement_filter",

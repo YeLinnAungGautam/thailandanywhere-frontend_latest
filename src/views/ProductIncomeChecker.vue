@@ -1,44 +1,40 @@
 <script setup>
+import { ref, computed, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
-import { useSidebarStore } from "../stores/sidebar";
 import Layout from "./Layout.vue";
-import { computed, onMounted, ref, watch } from "vue";
-import Pagination from "../components/Pagination.vue";
-import { useToast } from "vue-toastification";
-import {
-  EyeIcon,
-  PencilSquareIcon,
-  TrashIcon,
-} from "@heroicons/vue/24/outline";
-import debounce from "lodash/debounce";
-import Swal from "sweetalert2";
-import YearPickerVue from "./AccountingComponent/yearPicker.vue";
-import { useRoute } from "vue-router";
-import router from "../router";
-import { formattedNumber } from "./help/FormatData";
 import { useCashImageStore } from "../stores/cashImage";
+import debounce from "lodash/debounce";
+import { EyeIcon } from "@heroicons/vue/24/outline";
+import router from "../router";
 
-const sideBarStore = useSidebarStore();
-const toast = useToast();
-const { isShowSidebar } = storeToRefs(sideBarStore);
-const route = useRoute();
 const cashImageStore = useCashImageStore();
+const { loading } = storeToRefs(cashImageStore);
 
 // Response data
-const profitData = ref(null);
-const loading = ref(false);
+const cashImages = ref(null);
 
-const product_type = ref("App\\Models\\Hotel");
-const interact_bank = ref("company");
-
-// Tabs for payment status
-const activeTab = ref("income"); // income, payable, others
-
-// Set current year and month
+// Current date
 const currentDate = new Date();
-const year = ref(currentDate.getFullYear());
-const selectedMonth = ref(currentDate.getMonth() + 1);
+const currentYear = currentDate.getFullYear();
 
+// Filters
+const year = ref(currentYear);
+const selectedMonth = ref(currentDate.getMonth() + 1);
+const product_type = ref("App\\Models\\Hotel");
+
+// Active tab for categorization
+const activeTab = ref("income");
+
+// Year options (last 5 years + current + next year)
+const yearOptions = computed(() => {
+  const years = [];
+  for (let i = currentYear - 5; i <= currentYear + 1; i++) {
+    years.push(i);
+  }
+  return years;
+});
+
+// Month array
 const monthArray = [
   { id: 1, name: "January" },
   { id: 2, name: "February" },
@@ -54,639 +50,523 @@ const monthArray = [
   { id: 12, name: "December" },
 ];
 
-const interactBankOptions = [
-  { value: "company", label: "Company" },
-  { value: "personal", label: "Personal" },
-  { value: "cash_at_office", label: "Cash at Office" },
-  { value: "to_money_changer", label: "To Money Changer" },
-  { value: "deposit_management", label: "Deposit Management" },
-  { value: "pay_to_driver", label: "Pay to Driver" },
-];
+// Generate date range for selected month and year
+const generateDateRangeForMonth = (month, yearValue) => {
+  const startDate = new Date(yearValue, month - 1, 1);
+  const endDate = new Date(yearValue, month, 0);
 
-// Computed property to get payment status based on active tab
-const getPaymentStatusFilter = computed(() => {
-  switch (activeTab.value) {
-    case "income":
-      return {
-        booking_payment_status: "fully_paid",
-        booking_item_payment_status: "fully_paid",
-      };
-    case "payable":
-      return {
-        booking_payment_status: "fully_paid",
-        booking_item_payment_status: "not_paid", // or 'partially_paid'
-      };
-    case "others":
-      return {
-        booking_payment_status: "not_paid",
-        booking_item_payment_status: "not_paid",
-      };
-    default:
-      return {
-        booking_payment_status: "fully_paid",
-        booking_item_payment_status: "fully_paid",
-      };
+  const formatDate = (date) => {
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${year}-${month}-${day}`;
+  };
+
+  return `${formatDate(startDate)},${formatDate(endDate)}`;
+};
+
+// Categorize booking items based on payment status
+const categorizeBookingItem = (item, bookingPaymentStatus) => {
+  const itemFullyPaid = item == "fully_paid";
+  const bookingFullyPaid = bookingPaymentStatus == "fully_paid";
+
+  if (itemFullyPaid && bookingFullyPaid) {
+    return "income";
+  } else if (!itemFullyPaid && bookingFullyPaid) {
+    return "payable";
+  } else {
+    return "others";
   }
-});
+};
 
-// Filter booking items based on active tab
-const filteredBookingItems = computed(() => {
-  if (!profitData.value?.data?.booking_items) {
-    return [];
-  }
+const formatNumber = (number) => {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
 
-  return profitData.value.data.booking_items.filter((item) => {
-    const bookingStatus = item.booking_payment_status;
-    const itemStatus = item.payment_status;
+// Expand data to show all booking items with categorization
+const expandedData = computed(() => {
+  if (!cashImages.value?.data) return [];
 
-    switch (activeTab.value) {
-      case "income":
-        return bookingStatus === "fully_paid" && itemStatus === "fully_paid";
-      case "payable":
-        return bookingStatus === "fully_paid" && itemStatus !== "fully_paid";
-      case "others":
-        return bookingStatus !== "fully_paid" && itemStatus !== "fully_paid";
-      default:
-        return true;
+  const expanded = [];
+  let rowNumber = 1;
+
+  cashImages.value.data.forEach((cashImage) => {
+    if (cashImage.booking_items && cashImage.booking_items.length > 0) {
+      cashImage.booking_items.forEach((item) => {
+        const category = categorizeBookingItem(
+          item.b_payment_status,
+          item.payment_status
+        );
+
+        expanded.push({
+          row_number: rowNumber++,
+          crm_id: cashImage.crm_id,
+          booking_id: cashImage.booking_id,
+          cash_image_id: cashImage.cash_image_id,
+          sender: cashImage.sender,
+          receiver: cashImage.receiver,
+          date: cashImage.date,
+          currency: cashImage.currency,
+          amount: cashImage.amount,
+          b_payment_status:
+            cashImage.b_payment_status || cashImage.payment_status,
+          category: category,
+          ...item,
+        });
+      });
     }
   });
+
+  return expanded;
 });
 
-// Calculate summary for filtered items
-const filteredSummary = computed(() => {
-  const items = filteredBookingItems.value;
-
-  if (items.length === 0) {
-    return {
-      total_items: 0,
-      total_amount: 0,
-      total_cost: 0,
-      total_profit: 0,
-      average_margin: 0,
-    };
-  }
-
-  const totalAmount = items.reduce(
-    (sum, item) => sum + parseFloat(item.amount || 0),
+const amountTotal = computed(() => {
+  return filteredData.value.reduce(
+    (total, item) => total + parseFloat(item.amount || 0),
     0
   );
-  const totalCost = items.reduce(
-    (sum, item) => sum + parseFloat(item.total_cost_price || 0),
+});
+
+const costTotal = computed(() => {
+  return filteredData.value.reduce(
+    (total, item) => total + parseFloat(item.cost || 0),
     0
   );
-  const totalProfit = totalAmount - totalCost;
-  const averageMargin = totalAmount > 0 ? totalProfit / totalAmount : 0;
+});
+
+const profitTotal = computed(() => {
+  return filteredData.value.reduce(
+    (total, item) => total + parseFloat(item.profit || 0),
+    0
+  );
+});
+
+// Filter data by active tab
+const filteredData = computed(() => {
+  return expandedData.value.filter((item) => item.category === activeTab.value);
+});
+
+// Calculate summary for each category
+const categorySummary = computed(() => {
+  const income = expandedData.value.filter(
+    (item) => item.category === "income"
+  );
+  const payable = expandedData.value.filter(
+    (item) => item.category === "payable"
+  );
+  const others = expandedData.value.filter(
+    (item) => item.category === "others"
+  );
 
   return {
-    total_items: items.length,
-    total_amount: totalAmount,
-    total_cost: totalCost,
-    total_profit: totalProfit,
-    average_margin: averageMargin,
+    income: {
+      count: income.length,
+      total: income.reduce(
+        (sum, item) => sum + parseFloat(item.amount || 0),
+        0
+      ),
+    },
+    payable: {
+      count: payable.length,
+      total: payable.reduce(
+        (sum, item) => sum + parseFloat(item.amount || 0),
+        0
+      ),
+    },
+    others: {
+      count: others.length,
+      total: others.reduce(
+        (sum, item) => sum + parseFloat(item.amount || 0),
+        0
+      ),
+    },
   };
 });
 
-const profitAction = async () => {
-  loading.value = true;
+// Format date
+const formatDate = (dateString) => {
+  if (!dateString) return "-";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+};
+
+// Search parameters
+const searchParams = computed(() => {
+  const params = {
+    date: generateDateRangeForMonth(selectedMonth.value, year.value),
+    limit: 500,
+    interact_bank: "company",
+    include_relatable: true,
+    relatable_type: "App\\Models\\Booking",
+  };
+
+  if (product_type.value) {
+    params.product_type = product_type.value;
+  }
+
+  return params;
+});
+
+// Fetch data
+const getAction = async () => {
   try {
-    const monthFormatted = `${year.value}-${String(
-      selectedMonth.value
-    ).padStart(2, "0")}`;
+    const res = await cashImageStore.cashImageProfitReport(searchParams.value);
+    console.log("====================================");
+    console.log(res, "this is response");
+    console.log("====================================");
 
-    const data = {
-      month: monthFormatted,
-      interact_bank: interact_bank.value,
-      product_type: product_type.value,
-      ...getPaymentStatusFilter.value,
-    };
-
-    const res = await cashImageStore.cashImageProfitReport(data);
-
-    console.log(res);
-
-    if (res.success) {
-      profitData.value = res;
-      console.log(profitData.value);
-    } else {
-      toast.error(res.message || "Failed to load profit report");
+    // Set the response to cashImages
+    if (res && res.success) {
+      cashImages.value = res;
     }
   } catch (error) {
-    console.error("Error loading profit report:", error);
-    toast.error("An error occurred while loading profit report");
-  } finally {
-    loading.value = false;
+    console.error("Error fetching cash images:", error);
   }
 };
 
-const goToPage = (month, year, bookingId) => {
-  // Get the route object
+// Change page
+const changePage = async (url) => {
+  try {
+    const res = await cashImageStore.getChangePage(url, searchParams.value);
+    if (res && res.success) {
+      cashImages.value = res;
+    }
+  } catch (error) {
+    console.error("Error changing page:", error);
+  }
+};
+
+const goToPage = (bookingId) => {
   const route = router.resolve({
     name: "verifyInvoices",
     query: {
-      month: month,
-      year: year,
+      month: selectedMonth.value,
+      year: year.value,
       id: bookingId,
     },
   });
-
-  // Open in new tab
   window.open(route.href, "_blank");
 };
 
-const handleYearChange = (message) => {
-  year.value = message;
-};
-
-const handleMonthChange = (month) => {
-  selectedMonth.value = month;
-};
-
-const handleTabChange = (tab) => {
-  activeTab.value = tab;
-};
-
-// Watch for changes
+// Watch for filter changes
 watch(
-  [year, selectedMonth, product_type, interact_bank, activeTab],
+  [year, selectedMonth, product_type],
   debounce(async () => {
-    await profitAction();
+    await getAction();
   }, 500)
 );
 
+// Initial load
 onMounted(async () => {
-  if (route.query.month && route.query.year) {
-    selectedMonth.value = parseInt(route.query.month);
-    year.value = parseInt(route.query.year);
-  }
-
-  // Set product type from query
-  if (route.query.type) {
-    if (route.query.type === "4-1000-01" || route.query.type === "3-1000-01") {
-      product_type.value = "App\\Models\\PrivateVanTour";
-    } else if (
-      route.query.type === "4-1000-02" ||
-      route.query.type === "3-1000-02"
-    ) {
-      product_type.value = "App\\Models\\Hotel";
-    } else if (
-      route.query.type === "4-1000-03" ||
-      route.query.type === "3-1000-03"
-    ) {
-      product_type.value = "App\\Models\\EntranceTicket";
-    }
-  }
-
-  await profitAction();
+  await getAction();
 });
 </script>
 
 <template>
-  <Layout :is_white="true" class="relative">
-    <!-- Header -->
-    <div
-      :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
-      class="space-x-8 col-span-3 flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
-    >
-      <p
-        class="text-2xl flex justify-start items-center font-medium text-[#FF613c]"
+  <Layout :is_white="true">
+    <div class="p-6">
+      <h1 class="text-2xl font-bold text-[#FF613c] mb-6">
+        Income Checker - Booking Items
+      </h1>
+
+      <!-- Product Type Tabs -->
+      <div
+        class="mb-4 bg-white rounded-lg shadow grid grid-cols-3 divide-x divide-gray-300 overflow-hidden"
       >
-        Profit Report
-        <span
-          class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
-        ></span>
-        <span>{{ year }}</span>
-        <span
-          class="w-2 h-2 mx-3 bg-[#FF613c] rounded-full inline-block"
-        ></span>
-        <span>{{ monthArray.find((m) => m.id == selectedMonth)?.name }}</span>
-      </p>
-    </div>
-
-    <div class="grid grid-cols-5 gap-4">
-      <div class="col-span-5">
-        <!-- Product Type Tabs -->
         <div
-          class="mb-4 bg-white rounded-lg shadow grid grid-cols-3 divide-x divide-gray-300 overflow-hidden uppercase"
+          @click="product_type = 'App\\Models\\Hotel'"
+          class="col-span-1 text-center text-xs cursor-pointer font-medium py-2 uppercase"
+          :class="
+            product_type === 'App\\Models\\Hotel'
+              ? 'bg-[#FF613c] text-white'
+              : 'text-gray-500 hover:bg-gray-50'
+          "
         >
-          <div
-            @click="product_type = 'App\\Models\\Hotel'"
-            class="col-span-1 text-center text-sm cursor-pointer font-medium py-2"
-            :class="
-              product_type === 'App\\Models\\Hotel'
-                ? 'bg-[#FF613c] text-white'
-                : 'text-gray-500'
-            "
-          >
-            Hotel
-          </div>
-          <div
-            @click="product_type = 'App\\Models\\EntranceTicket'"
-            class="col-span-1 text-center text-sm cursor-pointer font-medium py-2"
-            :class="
-              product_type === 'App\\Models\\EntranceTicket'
-                ? 'bg-[#FF613c] text-white'
-                : 'text-gray-500'
-            "
-          >
-            Entrance Ticket
-          </div>
-          <div
-            @click="product_type = 'App\\Models\\PrivateVanTour'"
-            class="col-span-1 text-center text-sm cursor-pointer font-medium py-2"
-            :class="
-              product_type === 'App\\Models\\PrivateVanTour'
-                ? 'bg-[#FF613c] text-white'
-                : 'text-gray-500'
-            "
-          >
-            Private Van Tour
-          </div>
+          Hotel
         </div>
+        <div
+          @click="product_type = 'App\\Models\\EntranceTicket'"
+          class="col-span-1 text-center text-xs cursor-pointer font-medium py-2 uppercase"
+          :class="
+            product_type === 'App\\Models\\EntranceTicket'
+              ? 'bg-[#FF613c] text-white'
+              : 'text-gray-500 hover:bg-gray-50'
+          "
+        >
+          Entrance Ticket
+        </div>
+        <div
+          @click="product_type = 'App\\Models\\PrivateVanTour'"
+          class="col-span-1 text-center text-xs cursor-pointer font-medium py-2 uppercase"
+          :class="
+            product_type === 'App\\Models\\PrivateVanTour'
+              ? 'bg-[#FF613c] text-white'
+              : 'text-gray-500 hover:bg-gray-50'
+          "
+        >
+          Private Van Tour
+        </div>
+      </div>
 
+      <div class="flex justify-between items-center mb-6">
         <!-- Filters -->
-        <div class="pb-4 flex justify-start space-x-2 items-center">
-          <YearPickerVue @year-change="handleYearChange" />
+        <div class="flex gap-4">
+          <!-- Year Picker -->
+          <select
+            v-model="year"
+            class="px-4 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
+          >
+            <option v-for="y in yearOptions" :key="y" :value="y">
+              {{ y }}
+            </option>
+          </select>
 
+          <!-- Month Picker -->
           <select
             v-model="selectedMonth"
-            @change="handleMonthChange(selectedMonth)"
-            class="px-3 text-black text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none"
+            class="px-4 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
           >
-            <option :value="m.id" v-for="m in monthArray" :key="m.id">
+            <option v-for="m in monthArray" :key="m.id" :value="m.id">
               {{ m.name }}
             </option>
           </select>
-
-          <select
-            v-model="interact_bank"
-            class="px-3 text-black text-xs py-2 rounded-lg border border-gray-400/20 focus:outline-none"
-          >
-            <option
-              :value="bank.value"
-              v-for="bank in interactBankOptions"
-              :key="bank.value"
-            >
-              {{ bank.label }}
-            </option>
-          </select>
-
-          <!-- Overall Summary from API -->
-          <!-- <div class="w-full flex justify-end items-center space-x-3 text-end">
-            <div class="text-xs">
-              <p class="text-gray-500 text-[10px]">Total Sales</p>
-              <p class="text-[#FF613c] font-semibold">
-                {{
-                  formattedNumber(profitData?.data?.summary?.total_sales || 0)
-                }}
-              </p>
-            </div>
-            <div class="text-xs">
-              <p class="text-gray-500 text-[10px]">Total Expense</p>
-              <p class="text-red-600 font-semibold">
-                {{
-                  formattedNumber(profitData?.data?.summary?.total_expense || 0)
-                }}
-              </p>
-            </div>
-            <div class="text-xs">
-              <p class="text-gray-500 text-[10px]">Total Profit</p>
-              <p class="text-green-600 font-semibold">
-                {{
-                  formattedNumber(profitData?.data?.summary?.total_profit || 0)
-                }}
-              </p>
-            </div>
-            <div class="text-xs">
-              <p class="text-gray-500 text-[10px]">Profit Margin %</p>
-              <p class="text-blue-600 font-semibold">
-                {{
-                  profitData?.data?.summary?.profit_margin_percentage?.toFixed(
-                    2
-                  ) || 0
-                }}%
-              </p>
-            </div>
-          </div> -->
         </div>
 
-        <!-- Payment Status Tabs -->
         <div
-          class="mb-4 bg-white rounded-lg shadow grid grid-cols-3 divide-x divide-gray-300 overflow-hidden"
+          class="px-3 py-2 bg-white rounded-lg shadow-lg flex justify-between items-center gap-x-5"
         >
-          <div
-            @click="handleTabChange('income')"
-            class="col-span-1 text-center text-xs cursor-pointer font-medium py-3 transition-all"
-            :class="
-              activeTab === 'income'
-                ? 'bg-green-500 text-white'
-                : 'text-gray-500 hover:bg-gray-50'
-            "
-          >
-            <div class="font-semibold">INCOME</div>
+          <div class="space-y-2">
+            <p class="text-[10px] text-[#FF613c]">items</p>
+            <p class="text-sm">{{ filteredData.length }}</p>
           </div>
-          <div
-            @click="handleTabChange('payable')"
-            class="col-span-1 text-center text-xs cursor-pointer font-medium py-3 transition-all"
-            :class="
-              activeTab === 'payable'
-                ? 'bg-yellow-500 text-white'
-                : 'text-gray-500 hover:bg-gray-50'
-            "
-          >
-            <div class="font-semibold">PAYABLE</div>
+          <div class="space-y-2">
+            <p class="text-[10px] text-[#FF613c]">Amount</p>
+            <p class="text-sm">{{ formatNumber(amountTotal.toFixed(2)) }}</p>
           </div>
-          <div
-            @click="handleTabChange('others')"
-            class="col-span-1 text-center text-xs cursor-pointer font-medium py-3 transition-all"
-            :class="
-              activeTab === 'others'
-                ? 'bg-red-500 text-white'
-                : 'text-gray-500 hover:bg-gray-50'
-            "
-          >
-            <div class="font-semibold">OTHERS</div>
+          <div class="space-y-2">
+            <p class="text-[10px] text-[#FF613c]">Costs</p>
+            <p class="text-sm">{{ formatNumber(costTotal.toFixed(2)) }}</p>
+          </div>
+          <div class="space-y-2">
+            <p class="text-[10px] text-[#FF613c]">Profit</p>
+            <p class="text-sm">{{ formatNumber(profitTotal.toFixed(2)) }}</p>
+          </div>
+          <div class="space-y-2">
+            <p class="text-[10px] text-[#FF613c]">Margin</p>
+            <p class="text-sm">
+              {{ formatNumber((profitTotal / amountTotal).toFixed(2)) }}
+            </p>
           </div>
         </div>
+      </div>
 
-        <!-- Filtered Summary -->
+      <!-- Category Tabs (Income/Payable/Others) -->
+      <div
+        class="mb-4 bg-white rounded-lg shadow grid grid-cols-3 divide-x divide-gray-300 overflow-hidden"
+      >
         <div
-          class="mb-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg shadow p-4"
+          @click="activeTab = 'income'"
+          class="col-span-1 text-center flex justify-center items-center gap-x-2 cursor-pointer py-3 transition-colors"
+          :class="
+            activeTab === 'income'
+              ? 'bg-green-500 text-white'
+              : 'text-gray-600 hover:bg-gray-50'
+          "
         >
-          <div class="flex justify-between items-center">
-            <h3 class="text-sm font-semibold text-gray-700">
-              {{ activeTab.toUpperCase() }} Summary
-            </h3>
-            <div class="flex space-x-6 text-xs">
-              <div class="text-center">
-                <p class="text-gray-500 text-[10px]">Items</p>
-                <p class="font-semibold text-gray-800">
-                  {{ filteredSummary.total_items }}
-                </p>
-              </div>
-              <div class="text-center">
-                <p class="text-gray-500 text-[10px]">Amount</p>
-                <p class="font-semibold text-[#FF613c]">
-                  {{ formattedNumber(filteredSummary.total_amount) }}
-                </p>
-              </div>
-              <div class="text-center">
-                <p class="text-gray-500 text-[10px]">Cost</p>
-                <p class="font-semibold text-red-600">
-                  {{ formattedNumber(filteredSummary.total_cost) }}
-                </p>
-              </div>
-              <div class="text-center">
-                <p class="text-gray-500 text-[10px]">Profit</p>
-                <p class="font-semibold text-green-600">
-                  {{ formattedNumber(filteredSummary.total_profit) }}
-                </p>
-              </div>
-              <div class="text-center">
-                <p class="text-gray-500 text-[10px]">Margin %</p>
-                <p class="font-semibold text-blue-600">
-                  {{ filteredSummary.average_margin.toFixed(2) }}%
-                </p>
-              </div>
-            </div>
+          <div class="font-semibold text-xs uppercase">Income</div>
+          <div class="text-xs mt-1">
+            {{ categorySummary.income.count }} items
           </div>
         </div>
+        <div
+          @click="activeTab = 'payable'"
+          class="col-span-1 text-center flex justify-center items-center gap-x-2 cursor-pointer py-3 transition-colors"
+          :class="
+            activeTab === 'payable'
+              ? 'bg-orange-500 text-white'
+              : 'text-gray-600 hover:bg-gray-50'
+          "
+        >
+          <div class="font-semibold text-xs uppercase">Payable</div>
+          <div class="text-xs mt-1">
+            {{ categorySummary.payable.count }} items
+          </div>
+        </div>
+        <div
+          @click="activeTab = 'others'"
+          class="col-span-1 text-center flex justify-center items-center gap-x-2 cursor-pointer py-3 transition-colors"
+          :class="
+            activeTab === 'others'
+              ? 'bg-gray-500 text-white'
+              : 'text-gray-600 hover:bg-gray-50'
+          "
+        >
+          <div class="font-semibold text-xs uppercase">Others</div>
+          <div class="text-xs mt-1">
+            {{ categorySummary.others.count }} items
+          </div>
+        </div>
+      </div>
 
-        <!-- Table -->
-        <div class="grid grid-cols-3 gap-4">
-          <div class="overflow-x-auto col-span-3">
-            <table
-              class="w-full text-sm text-left text-gray-500 mb-4 rounded overflow-hidden"
-            >
-              <thead
-                class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-[#FF613c] dark:text-gray-100"
+      <!-- Loading State -->
+      <div v-if="loading" class="text-center py-10">
+        <div
+          class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#FF613c]"
+        ></div>
+        <p class="mt-2 text-gray-600">Loading...</p>
+      </div>
+
+      <!-- Table -->
+      <div v-else-if="filteredData.length > 0" class="overflow-x-auto">
+        <table class="w-full border border-gray-300">
+          <thead>
+            <tr class="bg-[#FF613c] text-white">
+              <th
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
               >
-                <tr>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    CRM ID
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    Customer
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    Product
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    Service Date
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    Qty
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    C. Status
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    E. Status
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    Amount
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    Cost
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    Profit
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20 whitespace-nowrap"
-                  >
-                    Margin %
-                  </th>
-                  <th
-                    scope="col"
-                    class="px-3 py-3 border-l border-gray-50/20"
-                  ></th>
-                </tr>
-              </thead>
+                No.
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
+              >
+                CRM ID
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
+              >
+                B. Crm Id
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
+              >
+                Customer
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
+              >
+                Serivce Date
+              </th>
 
-              <tbody class="border border-gray-400/20" v-if="!loading">
-                <tr
-                  v-for="item in filteredBookingItems"
-                  :key="item.booking_item_id"
-                  class="border border-gray-400/20 even:bg-gray-50 hover:bg-blue-50"
+              <th
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
+              >
+                Item Name
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
+              >
+                Item Status
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
+              >
+                Booking Status
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
+              >
+                Amount
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
+              >
+                Cost
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
+              >
+                Profit
+              </th>
+              <th
+                class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap"
+              >
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(item, index) in filteredData"
+              :key="`${item.cash_image_id}-${item.id}`"
+              class="border-b border-gray-300 hover:bg-gray-50 even:bg-gray-50"
+            >
+              <td class="px-4 py-3 text-xs border-r border-gray-300">
+                {{ index + 1 }}
+              </td>
+              <td class="px-4 py-3 text-xs border-r border-gray-300">
+                {{ item.crm_id || "-" }}
+              </td>
+              <td class="px-4 py-3 text-xs border-r border-gray-300">
+                {{ item.b_crm_id || "-" }}
+              </td>
+              <td class="px-4 py-3 text-xs border-r border-gray-300">
+                {{ item.customer || "-" }}
+              </td>
+              <td
+                class="px-4 py-3 text-xs border-r border-gray-300 whitespace-nowrap"
+              >
+                {{ formatDate(item.service_date) }}
+              </td>
+
+              <td class="px-4 py-3 text-xs border-r border-gray-300">
+                {{ item.product_name || "-" }}
+              </td>
+
+              <td class="px-4 py-3 text-xs border-r border-gray-300">
+                <span
+                  class="px-2 py-1 rounded-full text-xs font-medium"
+                  :class="
+                    item.payment_status === 'fully_paid'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                  "
                 >
-                  <td
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 whitespace-nowrap border-l border-gray-400/20"
-                  >
-                    {{ item.crm_id }}
-                  </td>
-                  <td
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                  >
-                    {{ item.customer?.name }}
-                  </td>
-                  <td
-                    class="text-[11px] min-w-[200px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                  >
-                    {{ item.product_name }}
-                  </td>
-                  <td
-                    class="text-[11px] font-medium whitespace-nowrap text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                  >
-                    {{ item.service_date }}
-                  </td>
-                  <td
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20 text-center"
-                  >
-                    {{ item.quantity }}
-                  </td>
-                  <td
-                    class="text-[10px] font-medium px-3 py-3 border-l border-gray-400/20"
-                  >
-                    <span
-                      :class="{
-                        'text-green-600 bg-green-100':
-                          item.booking_payment_status === 'fully_paid',
-                        'text-yellow-600 bg-yellow-100':
-                          item.booking_payment_status === 'partially_paid',
-                        'text-red-600 bg-red-100':
-                          item.booking_payment_status === 'not_paid',
-                      }"
-                      class="px-2 py-1 rounded text-[9px] font-semibold"
-                    >
-                      {{ item.booking_payment_status }}
-                    </span>
-                  </td>
-                  <td
-                    class="text-[10px] font-medium px-3 py-3 border-l border-gray-400/20"
-                  >
-                    <span
-                      :class="{
-                        'text-green-600 bg-green-100':
-                          item.payment_status === 'fully_paid',
-                        'text-yellow-600 bg-yellow-100':
-                          item.payment_status === 'partially_paid',
-                        'text-red-600 bg-red-100':
-                          item.payment_status === 'not_paid',
-                      }"
-                      class="px-2 py-1 rounded text-[9px] font-semibold"
-                    >
-                      {{ item.payment_status }}
-                    </span>
-                  </td>
-                  <td
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20 text-right"
-                  >
-                    {{ formattedNumber(item.amount) }}
-                  </td>
-                  <td
-                    class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20 text-right"
-                  >
-                    {{ formattedNumber(item.total_cost_price) }}
-                  </td>
-                  <td
-                    class="text-[11px] font-semibold text-green-600 px-3 py-3 border-l border-gray-400/20 text-right"
-                  >
-                    {{ formattedNumber(item.profit) }}
-                  </td>
-                  <td
-                    class="text-[11px] font-semibold text-blue-600 px-3 py-3 border-l border-gray-400/20 text-right"
-                  >
-                    {{ item.profit_margin_percentage }}%
-                  </td>
-                  <td
-                    class="text-[11px] flex justify-end items-center gap-x-4 font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
-                  >
-                    <EyeIcon
-                      @click="
-                        // router.push({
-                        //   name: 'verifyInvoices',
-                        //   query: {
-                        //     month: selectedMonth,
-                        //     year: year,
-                        //     id: item?.booking_id,
-                        //   },
-                        // })
-                        goToPage(selectedMonth, year, item?.booking_id)
-                      "
-                      class="w-4 h-4 cursor-pointer text-blue-600 hover:text-blue-800"
-                    />
-                  </td>
-                </tr>
+                  {{ item.payment_status || "-" }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-xs border-r border-gray-300">
+                <span
+                  class="px-2 py-1 rounded-full text-xs font-medium"
+                  :class="
+                    item.b_payment_status === 'fully_paid'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                  "
+                >
+                  {{ item.b_payment_status || "-" }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-xs border-r border-gray-300">
+                {{ item.amount }}
+              </td>
+              <td class="px-4 py-3 text-xs border-r border-gray-300">
+                {{ item.cost }}
+              </td>
+              <td class="px-4 py-3 text-xs border-r border-gray-300">
+                {{ item.profit }}
+              </td>
+              <td class="px-4 py-3 text-xs text-center">
+                <EyeIcon
+                  @click="goToPage(item.booking_id)"
+                  class="w-5 h-5 cursor-pointer text-blue-600 hover:text-blue-800 inline-block"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-                <!-- Empty State -->
-                <tr v-if="filteredBookingItems.length === 0">
-                  <td
-                    colspan="12"
-                    class="text-center py-10 text-sm text-gray-500"
-                  >
-                    No booking items found for selected filters
-                  </td>
-                </tr>
-              </tbody>
-
-              <tbody v-if="loading">
-                <tr>
-                  <td colspan="12" class="text-center py-10 text-xs">
-                    <div class="flex justify-center items-center space-x-2">
-                      <svg
-                        class="animate-spin h-5 w-5 text-[#FF613c]"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          class="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          stroke-width="4"
-                        ></circle>
-                        <path
-                          class="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      <span>Loading...</span>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <!-- Empty State -->
+      <div v-else class="text-center py-10">
+        <div class="text-gray-400 text-6xl mb-4">📄</div>
+        <p class="text-gray-600">
+          No booking items found for {{ activeTab }} category
+        </p>
       </div>
     </div>
   </Layout>
 </template>
-
-<style scoped>
-/* Add any custom styles if needed */
-</style>

@@ -66,17 +66,18 @@ const generateDateRangeForMonth = (month, yearValue) => {
 };
 
 // Categorize booking items based on payment status
-const categorizeBookingItem = (item, bookingPaymentStatus) => {
+const categorizeBookingItem = (item, bookingPaymentStatus, balance_due) => {
   const itemFullyPaid = item == "fully_paid";
   const bookingFullyPaid = bookingPaymentStatus == "fully_paid";
   const itemNotPaid = item == "not_paid";
   const bookingNotPaid = bookingPaymentStatus == "not_paid";
+  const isBalanceDueMinus = balance_due < 0;
 
-  if (itemFullyPaid && bookingFullyPaid) {
+  if ((itemFullyPaid && bookingFullyPaid) || isBalanceDueMinus) {
     return "income";
   } else if (itemFullyPaid && !bookingFullyPaid) {
     return "payable";
-  } else if (!itemFullyPaid && !bookingNotPaid) {
+  } else if (!itemFullyPaid && !bookingNotPaid && !isBalanceDueMinus) {
     return "receivable";
   } else {
     return "others";
@@ -99,7 +100,8 @@ const expandedData = computed(() => {
       cashImage.booking_items.forEach((item) => {
         const category = categorizeBookingItem(
           item.b_payment_status,
-          item.payment_status
+          item.payment_status,
+          item.balance_due
         );
 
         expanded.push({
@@ -147,6 +149,10 @@ const profitTotal = computed(() => {
 
 // Filter data by active tab
 const filteredData = computed(() => {
+  console.log(
+    expandedData.value.filter((item) => item.category === activeTab.value)
+  );
+
   return expandedData.value.filter((item) => item.category === activeTab.value);
 });
 
@@ -515,6 +521,11 @@ onMounted(async () => {
                 Profit
               </th>
               <th
+                class="px-4 py-3 text-left text-xs font-medium border-r border-white whitespace-nowrap"
+              >
+                Balance Due
+              </th>
+              <th
                 class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap"
               >
                 Actions
@@ -581,6 +592,9 @@ onMounted(async () => {
               </td>
               <td class="px-4 py-3 text-xs border-r border-gray-300">
                 {{ item.profit }}
+              </td>
+              <td class="px-4 py-3 text-xs border-r border-gray-300">
+                {{ item.balance_due }}
               </td>
               <td
                 class="px-4 py-3 space-x-2 flex justify-center items-center text-xs text-center"

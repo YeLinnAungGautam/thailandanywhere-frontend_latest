@@ -309,6 +309,12 @@
                       >
                         Service
                       </th>
+                      <th
+                        scope="col"
+                        class="px-3 py-3 border-l border-gray-50/20"
+                      >
+                        Checkout
+                      </th>
                     </tr>
                   </thead>
 
@@ -383,6 +389,16 @@
                         class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
                       >
                         {{ getFormatDate(item?.service_date) }}
+                      </td>
+                      <td
+                        scope="col"
+                        class="text-[11px] font-medium text-gray-800 px-3 py-3 border-l border-gray-400/20"
+                      >
+                        {{
+                          item?.checkout_date
+                            ? getFormatDate(item?.checkout_date)
+                            : "-"
+                        }}
                       </td>
                     </tr>
                   </tbody>

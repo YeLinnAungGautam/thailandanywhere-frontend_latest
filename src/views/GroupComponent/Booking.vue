@@ -655,12 +655,14 @@ const mailBodyChange = () => {
       </p>
       <p>Passports for the bookings are attached in the email.Please arrange for the customer accordingly.</p>
       <p>Payment transaction will be done soon. Once the payment is received, Please kindly issue receipt with tax ID and send to us by post or mail.</p>
+      <p>IF you need any questions and concerns please feel free to call me at 0637602448 all the time.</p>
     
       <p><strong>Tax ID:</strong> 0105565081822<br>
       <strong>TH ANYWHERE CO.LTD.</strong><br>
       <strong>Invoice Date:</strong> ${format(new Date(), "dd/MM/yyyy")}</p>
       <p>If you may have any questions or concerns, please feel free to call us at <strong>0950423254</strong> LINE ID <strong>0983498197</strong>.</p>
       <p>Thank you,</p>
+      
       <p><strong>Negyi @ Sunshine</strong> (Reservation Manager)</p>
       <p>100/151 Huay Kaew Rd, Tambon Chang Phueak, Mueang Chiang Mai District, Chiang Mai 50300</p>
     `;
@@ -700,10 +702,12 @@ const mailBodyChange = () => {
       </p>
       <p>Passports for the bookings are attached in the email. Please arrange for the customer accordingly.</p>
       <p>Payment transaction will be done soon. Once the payment is received, Please kindly issue receipt with tax ID and send to us by post or mail.</p>
+      <p>IF you need any questions and concerns please feel free to call me at 0637602448 all the time.</p>
       <p><strong>Tax ID:</strong> 0105565081822<br>
       <strong>TH ANYWHERE CO.LTD.</strong><br>
       <strong>Invoice Date:</strong> ${format(new Date(), "dd/MM/yyyy")}</p>
       <p>Thank you,</p>
+      
       <p><strong>Negyi @ Sunshine</strong> (Reservation Manager)</p>
     <p>100/151 Huay Kaew Rd, Tambon Chang Phueak, Mueang Chiang Mai District, Chiang Mai 50300</p>
     `;

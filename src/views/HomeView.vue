@@ -1047,12 +1047,20 @@ watch(homeSectionPartView, (newValue) => {
               >
                 Sale by Employee
               </p>
-              <p class="text-sm pb-3">
-                Total Sales :
-                <span class="text-[#FF5B00]"
-                  >{{ formatNumber(totalSaleForShow) }} thb</span
-                >
-              </p>
+              <div class="flex justify-start items-center gap-x-2">
+                <p class="text-sm pb-3">
+                  Total Sales :
+                  <span class="text-[#FF5B00]"
+                    >{{ formatNumber(totalSaleForShow) }} thb</span
+                  >
+                </p>
+                <p class="text-sm pb-3">
+                  Total Airline :
+                  <span class="text-[#FF5B00]"
+                    >{{ formatNumber(totalAirlineForShow) }} thb
+                  </span>
+                </p>
+              </div>
 
               <p class="text-sm pb-3">
                 Total Bookings :

@@ -63,11 +63,6 @@ import Allowment from "./Dashboard/Allowment.vue";
 Chart.register(...registerables);
 
 const authStore = useAuthStore();
-const vantourStore = useVantourStore();
-const grouptourStore = useGrouptourStore();
-const airportStore = useAirportStore();
-const entranceStore = useEntranceStore();
-const bookingStore = useBookingStore();
 const homeStore = useHomeStore();
 const router = useRouter();
 const route = useRoute();
@@ -151,10 +146,11 @@ const agentColors = [
   "#00BDFF",
 ];
 
-const saleDataAgent = {
+// CHANGED: Make saleDataAgent reactive
+const saleDataAgent = reactive({
   labels: [],
   datasets: [],
-};
+});
 
 const saleDataAgentOption = {
   responsive: true,
@@ -290,8 +286,10 @@ const getAllDays = async (monthGet) => {
     dataNotPaid.items.push(dataNotPaidArr);
     dataTest.items.push(res.result.sales[x].date);
   }
-  saleDataAgent.datasets = [];
-  saleDataAgent.labels = [];
+
+  // CHANGED: Clear the reactive datasets and labels arrays properly
+  saleDataAgent.datasets.splice(0);
+  saleDataAgent.labels.splice(0);
 
   saleDataByAgent.labels = [];
   totalByAgent.items.splice(0);

@@ -221,6 +221,11 @@ const saleDataByAgentOption = {
 };
 
 const totalBookingsForShow = ref(0);
+const totalAirlineForShow = ref(0);
+
+// NEW: Add airline toggle state
+const includeAirline = ref(true);
+
 const getAllDays = async (monthGet) => {
   console.log(monthGet, "this is month");
   const res = await homeStore.getTimeFilterArray(monthGet);
@@ -236,11 +241,32 @@ const getAllDays = async (monthGet) => {
   saleValueChaw.items.splice(0);
   dataTest.items.splice(0);
   totalBookingsForShow.value = 0;
+  totalAirlineForShow.value = 0;
+
+  for (let x = 0; x < res.result.airline_sales.length; x++) {
+    for (let i = 0; i < res.result.airline_sales[x].agents.length; i++) {
+      totalAirlineForShow.value += res.result.airline_sales[x].agents[i].total;
+    }
+  }
 
   for (let x = 0; x < res.result.sales.length; x++) {
     let dataArr = 0;
     let dataPaidArr = 0;
     let dataNotPaidArr = 0;
+
+    // Get airline sales for this day
+    let airlineDataArr = 0;
+    let airlinePaidArr = 0;
+    let airlineNotPaidArr = 0;
+
+    if (res.result.airline_sales[x]) {
+      for (let i = 0; i < res.result.airline_sales[x].agents.length; i++) {
+        airlineDataArr += res.result.airline_sales[x].agents[i].total;
+        airlinePaidArr += res.result.airline_sales[x].agents[i].total_deposit;
+        airlineNotPaidArr +=
+          res.result.airline_sales[x].agents[i].total_balance;
+      }
+    }
 
     for (let i = 0; i < res.result.sales[x].agents.length; i++) {
       dataArr += res.result.sales[x].agents[i].total;
@@ -251,6 +277,14 @@ const getAllDays = async (monthGet) => {
     for (let i = 0; i < res.result.sales[x].agents.length; i++) {
       dataNotPaidArr += res.result.sales[x].agents[i].total_balance;
     }
+
+    // NEW: Subtract airline if includeAirline is false
+    if (!includeAirline.value) {
+      dataArr -= airlineDataArr;
+      dataPaidArr -= airlinePaidArr;
+      dataNotPaidArr -= airlineNotPaidArr;
+    }
+
     dataAmount.items.push(dataArr);
     dataPaid.items.push(dataPaidArr);
     dataNotPaid.items.push(dataNotPaidArr);
@@ -265,16 +299,47 @@ const getAllDays = async (monthGet) => {
   notPaidAgent.items.splice(0);
   saleDataByAgent.datasets.footerForCount = [];
 
-  res.result.sales.forEach((sale) => {
+  res.result.sales.forEach((sale, saleIndex) => {
     saleDataAgent.labels.push(sale.date);
     saleDataByAgent.labels.push(sale.date);
 
+    // Get airline data for this day
+    const airlineSaleForDay = res.result.airline_sales[saleIndex];
+
     sale.agents.forEach((agent, index) => {
       totalBookingsForShow.value += agent.total_count;
-      // AgentName.value.push(agent.name);
+
       const existingAgent = AgentName.value.find((a) => a === agent.name);
       if (!existingAgent) {
         AgentName.value.push(agent.name);
+      }
+
+      // Find matching airline agent data
+      let airlineAgentTotal = 0;
+      let airlineAgentDeposit = 0;
+      let airlineAgentBalance = 0;
+
+      if (airlineSaleForDay) {
+        const airlineAgent = airlineSaleForDay.agents.find(
+          (a) => a.name === agent.name
+        );
+        if (airlineAgent) {
+          airlineAgentTotal = airlineAgent.total;
+          airlineAgentDeposit = airlineAgent.total_deposit;
+          airlineAgentBalance = airlineAgent.total_balance;
+        }
+      }
+
+      // Calculate final values
+      let finalTotal = agent.total;
+      let finalDeposit = agent.total_deposit;
+      let finalBalance = agent.total_balance;
+
+      // NEW: Subtract airline if includeAirline is false
+      if (!includeAirline.value) {
+        finalTotal -= airlineAgentTotal;
+        finalDeposit -= airlineAgentDeposit;
+        finalBalance -= airlineAgentBalance;
       }
 
       const existingDataset = saleDataAgent.datasets.find(
@@ -282,12 +347,12 @@ const getAllDays = async (monthGet) => {
       );
 
       if (existingDataset) {
-        existingDataset.data.push(agent.total);
+        existingDataset.data.push(finalTotal);
         existingDataset.dataforFooter.push(agent.total_count);
       } else {
         saleDataAgent.datasets.push({
           label: agent.name,
-          data: [agent.total],
+          data: [finalTotal],
           dataforFooter: [agent.total_count],
           backgroundColor: [agentColors[index]],
           type: "line",
@@ -296,9 +361,9 @@ const getAllDays = async (monthGet) => {
 
       if (priceSalesGraphAgent.value != "") {
         if (agent.name == priceSalesGraphAgent.value) {
-          totalByAgent.items.push(agent.total);
-          paidByAgent.items.push(agent.total_deposit);
-          notPaidAgent.items.push(agent.total_balance);
+          totalByAgent.items.push(finalTotal);
+          paidByAgent.items.push(finalDeposit);
+          notPaidAgent.items.push(finalBalance);
           saleDataByAgent.datasets[0].footerForCount.push(agent.total_count);
           console.log(agent.total_count);
         }
@@ -553,6 +618,10 @@ const togglePriceSalesGraph = async () => {
 
 const priceSalesGraphAgent = ref("");
 
+const formatNumber = (num) => {
+  return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+};
+
 const hotelPerDay = ref(true);
 const toggleHotalSales = () => {
   hotelPerDay.value = !hotelPerDay.value;
@@ -783,6 +852,12 @@ watch(priceSalesGraph, async (newValue) => {
   console.log(priceSalesGraph.value);
 });
 
+// NEW: Watch includeAirline toggle
+watch(includeAirline, async (newValue) => {
+  console.log("Include airline:", newValue);
+  getAllDays(monthForGraph.value);
+});
+
 const homeSectionPartView = ref("sale");
 
 watch(homeSectionPartView, (newValue) => {
@@ -974,8 +1049,11 @@ watch(homeSectionPartView, (newValue) => {
               </p>
               <p class="text-sm pb-3">
                 Total Sales :
-                <span class="text-[#FF5B00]">{{ totalSaleForShow }} thb</span>
+                <span class="text-[#FF5B00]"
+                  >{{ formatNumber(totalSaleForShow) }} thb</span
+                >
               </p>
+
               <p class="text-sm pb-3">
                 Total Bookings :
                 <span class="text-[#FF5B00]"
@@ -984,6 +1062,22 @@ watch(homeSectionPartView, (newValue) => {
               </p>
             </div>
             <div class="flex justify-end items-center gap-3">
+              <!-- NEW: Airline toggle button -->
+              <div class="flex items-center gap-2">
+                <label class="text-sm font-medium">Include Airline:</label>
+                <button
+                  @click="includeAirline = !includeAirline"
+                  :class="[
+                    'px-3 py-1.5 rounded text-xs font-medium transition-colors',
+                    includeAirline
+                      ? 'bg-[#FF5B00] text-white'
+                      : 'bg-gray-200 text-gray-700',
+                  ]"
+                >
+                  {{ includeAirline ? "Yes" : "No" }}
+                </button>
+              </div>
+
               <input
                 type="month"
                 name=""

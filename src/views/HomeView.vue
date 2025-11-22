@@ -1266,14 +1266,6 @@ watch(homeSectionPartView, (newValue) => {
         </div>
       </div>
 
-      <!-- reservation -->
-      <!-- <div
-        class="col-span-3 w-full"
-        v-if="homeSectionPartView == 'reservation'"
-      >
-        <ReservationPartHome />
-      </div> -->
-
       <div
         class="col-span-3 w-full"
         v-if="homeSectionPartView == 'sale-analysis'"

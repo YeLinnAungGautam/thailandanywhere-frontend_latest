@@ -103,7 +103,7 @@ const fetchBookingItems = async (productType, date) => {
     };
 
     const response = await homeStore.getProductTypeBookingItems(params);
-    bookingItems.value = response.data.data.booking_items;
+    bookingItems.value = response.data.result;
     console.log("Booking Items:", bookingItems.value);
   } catch (error) {
     console.error("Error fetching booking items:", error);
@@ -372,13 +372,23 @@ onMounted(() => {
                   <span class="font-medium">Service:</span>
                   {{ item.service_date }}
                 </p>
+                <p v-if="item.booking">
+                  <span class="font-medium">Service:</span>
+                  {{ item.booking.booking_date }}
+                </p>
                 <p v-if="item.amount">
                   <span class="font-medium">Product Type:</span>
                   {{ item.product_type.split("\\").pop() }}
                 </p>
                 <p>
                   <span class="font-medium">Profit:</span>
-                  <span class="text-[#10B981] font-semibold"
+                  <span
+                    class="font-semibold"
+                    :class="
+                      item.amount > item.total_cost_price
+                        ? 'text-[#10B981]'
+                        : 'text-red-500'
+                    "
                     >{{ item.amount - item.total_cost_price }} THB</span
                   >
                 </p>

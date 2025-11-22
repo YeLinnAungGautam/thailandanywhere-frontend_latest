@@ -28,9 +28,9 @@
           </p>
           <p
             class="text-[#FF5B00] text-sm flex justify-end font-semibold items-center gap-3"
-            v-if="data.total"
+            v-if="displayTotal"
           >
-            {{ data.total }} thb
+            {{ displayTotal }} thb
             <ChevronDownIcon class="w-4 h-4" />
           </p>
         </div>
@@ -67,18 +67,20 @@
           <p
             class="bg-gray-200 text-gray-800 text-[10px] text-start pl-3 w-full py-0.5 rounded-lg"
           >
-            AVG : {{ (data.total / today).toFixed(0) }}
+            AVG : {{ (displayTotal / today).toFixed(0) }}
           </p>
           <p
             :class="
-              data?.created_by?.target_amount < (data.total / today).toFixed(2)
+              data?.created_by?.target_amount <
+              (displayTotal / today).toFixed(2)
                 ? 'bg-green-200 text-green-800'
                 : 'bg-red-200 text-red-800'
             "
             class="bg-gray-200 text-gray-800 text-[10px] px-1 text-center w-full py-0.5 rounded-lg"
           >
             {{
-              data?.created_by?.target_amount < (data.total / today).toFixed(2)
+              data?.created_by?.target_amount <
+              (displayTotal / today).toFixed(2)
                 ? "over target"
                 : "under target"
             }}
@@ -111,6 +113,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  includeAirline: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const dataArray = computed(() => {
@@ -122,32 +128,20 @@ const dataArray = computed(() => {
   }
 });
 
+// Computed property to get the correct total based on includeAirline
+const displayTotal = computed(() => {
+  if (props.includeAirline) {
+    return props.data.total_with_airline || props.data.total;
+  } else {
+    return props.data.total_without_airline || props.data.total;
+  }
+});
+
 const show = ref(false);
 const today = ref(0);
-
-// const getUserData = async () => {
-//   let res = await adminStore.getDetailAction(props?.data.created_by.id);
-//   console.log(res, "this is a new user");
-// };
 
 onMounted(() => {
   const currentDate = new Date();
   today.value = currentDate.getDate().toString().padStart(2, "0");
-  // console.log(new Date(props.date[1]).getDate());
 });
-
-// watch(
-//   () => props.date,
-//   () => {
-//     if (props.date) {
-//       today.value = new Date(props.date[1]).getDate() * 1;
-//       console.log(today.value, "====================================");
-//       // console.log(
-//       //   new Date(props.date[1]).getDate(),
-//       //   new Date(props.date[0]).getDate()
-//       // );
-//       // console.log("====================================");
-//     }
-//   }
-// );
 </script>

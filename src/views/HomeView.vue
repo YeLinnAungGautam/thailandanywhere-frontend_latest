@@ -1175,6 +1175,7 @@ watch(homeSectionPartView, (newValue) => {
               >
                 <SaleAgentReportByDate
                   :data="s"
+                  :includeAirline="includeAirline"
                   :part="partOfAgent"
                   :date="dateForSaleAgent"
                 />

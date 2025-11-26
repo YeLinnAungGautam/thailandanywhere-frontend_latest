@@ -68,6 +68,11 @@
                 "
               />
               <SidebarItem
+                name="homeNew"
+                :icon="Squares2X2Icon"
+                to="/home_new"
+              />
+              <SidebarItem
                 name="Sales"
                 v-if="
                   authStore.isSuperAdmin ||

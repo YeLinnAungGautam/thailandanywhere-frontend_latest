@@ -89,6 +89,7 @@ import duplicateChecker from "../views/DuplateChecker.vue";
 import internalTransferChecker from "../views/InternalTransferChecker.vue";
 import bankVerify from "../views/BankVerify.vue";
 import BankStatementType from "../views/BankStatementType.vue";
+import HomeNewView from "../views/HomeNew.vue";
 
 const routes = [
   {
@@ -103,6 +104,11 @@ const routes = [
     path: "/",
     name: "home",
     component: HomeView,
+  },
+  {
+    path: "/home_new",
+    name: "homeNew",
+    component: HomeNewView,
   },
   {
     path: "/user_dashboard",

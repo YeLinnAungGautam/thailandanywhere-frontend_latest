@@ -15,7 +15,7 @@
           </div>
           <span class="text-gray-700 text-sm font-medium">{{ rep.name }}</span>
         </div>
-        <span> </span>
+        <span> ฿{{ rep.amount.toLocaleString() }} </span>
       </div>
     </div>
   </div>

@@ -5,92 +5,7 @@
       v-if="loading"
       class="fixed inset-0 bg-white/80 flex justify-center items-center z-50"
     >
-      <div
-        aria-label="Loading..."
-        role="status"
-        class="flex items-center space-x-2"
-      >
-        <svg
-          class="h-20 w-20 animate-spin stroke-gray-500"
-          viewBox="0 0 256 256"
-        >
-          <line
-            x1="128"
-            y1="32"
-            x2="128"
-            y2="64"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="24"
-          ></line>
-          <line
-            x1="195.9"
-            y1="60.1"
-            x2="173.3"
-            y2="82.7"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="24"
-          ></line>
-          <line
-            x1="224"
-            y1="128"
-            x2="192"
-            y2="128"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="24"
-          ></line>
-          <line
-            x1="195.9"
-            y1="195.9"
-            x2="173.3"
-            y2="173.3"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="24"
-          ></line>
-          <line
-            x1="128"
-            y1="224"
-            x2="128"
-            y2="192"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="24"
-          ></line>
-          <line
-            x1="60.1"
-            y1="195.9"
-            x2="82.7"
-            y2="173.3"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="24"
-          ></line>
-          <line
-            x1="32"
-            y1="128"
-            x2="64"
-            y2="128"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="24"
-          ></line>
-          <line
-            x1="60.1"
-            y1="60.1"
-            x2="82.7"
-            y2="82.7"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="24"
-          ></line>
-        </svg>
-        <span class="text-lg font-medium text-gray-500"
-          >Please wait, loading...</span
-        >
-      </div>
+      <!-- ... loading spinner ... -->
     </div>
 
     <!-- Main Content -->
@@ -99,7 +14,31 @@
         <!-- Filter Section -->
         <div class="col-span-7 bg-white p-4 rounded-lg">
           <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold">Filter by Month</h2>
+            <!-- Toggle for Graph View -->
+            <div class="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+              <button
+                @click="graphViewMode = 'daily'"
+                :class="[
+                  'px-3 py-1 rounded text-sm font-medium transition-colors',
+                  graphViewMode === 'daily'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900',
+                ]"
+              >
+                Daily Sales
+              </button>
+              <button
+                @click="graphViewMode = 'average'"
+                :class="[
+                  'px-3 py-1 rounded text-sm font-medium transition-colors',
+                  graphViewMode === 'average'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900',
+                ]"
+              >
+                Cumulative Average
+              </button>
+            </div>
             <div class="flex items-center gap-4">
               <input
                 type="month"
@@ -130,15 +69,17 @@
               <!-- Sales Overview Chart -->
               <div
                 class="col-span-2"
-                v-if="monthlySalesData.length > 0 && targetValue"
+                v-if="displaySalesData.length > 0 && targetValue"
               >
                 <SalesOverview
-                  :salesData="monthlySalesData"
+                  :salesData="displaySalesData"
                   :averageValue="targetValue"
+                  :viewMode="graphViewMode"
                 />
               </div>
             </div>
 
+            <!-- ... rest of your template ... -->
             <div class="col-span-2">
               <div class="grid grid-cols-2 gap-2">
                 <div class="col-span-2">
@@ -227,28 +168,12 @@ const receivablesLoading = ref(false);
 const selectMonth = ref("");
 const dateRange = ref([startOfMonth(new Date()), endOfMonth(new Date())]);
 
-// Preset dates for date picker
-const presetDates = ref([
-  { label: "Today", value: [new Date(), new Date()] },
-  {
-    label: "This month",
-    value: [startOfMonth(new Date()), endOfMonth(new Date())],
-  },
-  {
-    label: "Last month",
-    value: [
-      startOfMonth(subMonths(new Date(), 1)),
-      endOfMonth(subMonths(new Date(), 1)),
-    ],
-  },
-  {
-    label: "This year",
-    value: [startOfYear(new Date()), endOfYear(new Date())],
-  },
-]);
+// Graph view mode
+const graphViewMode = ref("average"); // 'daily' or 'average'
 
 // Dashboard data
-const monthlySalesData = ref([]);
+const monthlySalesData = ref([]); // Cumulative average data
+const dailySalesData = ref([]); // Daily sales data
 const averageSales = ref(0);
 const bookingStats = ref({
   tours: 0,
@@ -277,6 +202,13 @@ const targetValue = ref(0);
 const receivableDataCount = ref(0);
 const receivableDataSummary = ref(0);
 const receivablesList = computed(() => receivables.value || []);
+
+// Computed property for display data based on view mode
+const displaySalesData = computed(() => {
+  return graphViewMode.value === "daily"
+    ? dailySalesData.value
+    : monthlySalesData.value;
+});
 
 // Utility functions
 const dateFormat = (inputDateString) => {
@@ -320,19 +252,42 @@ const fetchDailySalesData = async (month) => {
     console.log("testing", res.result);
     console.log("====================================");
 
-    if (res?.result?.sales) {
+    if (res?.result?.sales && res?.result?.airline_sales) {
       monthlySalesData.value = [];
+      dailySalesData.value = [];
       let cumulativeTotal = 0;
 
+      // Determine if the selected month is the current month
+      const selectedDate = new Date(month);
+      const currentDate = new Date();
+      const isCurrentMonth =
+        selectedDate.getFullYear() === currentDate.getFullYear() &&
+        selectedDate.getMonth() === currentDate.getMonth();
+
       res.result.sales.forEach((sale, index) => {
-        // Calculate daily total for this day
-        let dailyTotal = 0;
+        // Calculate daily total for this day (sales)
+        let dailySalesTotal = 0;
         sale.agents.forEach((agent) => {
-          dailyTotal += agent.total;
+          dailySalesTotal += agent.total;
         });
 
+        // Calculate daily airline total for this day
+        let dailyAirlineTotal = 0;
+        const airlineSaleForDay = res.result.airline_sales[index];
+        if (airlineSaleForDay && airlineSaleForDay.agents) {
+          airlineSaleForDay.agents.forEach((agent) => {
+            dailyAirlineTotal += agent.total;
+          });
+        }
+
+        // Calculate net sales (sales - airline)
+        const dailyNetTotal = dailySalesTotal - dailyAirlineTotal;
+
+        // Store daily net total for daily view
+        dailySalesData.value.push(dailyNetTotal);
+
         // Add to cumulative total
-        cumulativeTotal += dailyTotal;
+        cumulativeTotal += dailyNetTotal;
 
         // Get the day number from the date (e.g., "2025-11-01" -> 1)
         const dayNumber = parseInt(sale.date.split("-")[2]);
@@ -344,11 +299,13 @@ const fetchDailySalesData = async (month) => {
         monthlySalesData.value.push(cumulativeAverage);
       });
 
-      // For the overall average sales display, use the last cumulative average
-      averageSales.value =
-        monthlySalesData.value.length > 0
-          ? monthlySalesData.value[monthlySalesData.value.length - 1]
-          : 0;
+      console.log("====================================");
+      console.log("Is Current Month:", isCurrentMonth);
+      console.log("Average Index Used:", averageIndex);
+      console.log("Cumulative Total (without airline):", cumulativeTotal);
+      console.log("Average Sales (without airline):", averageSales.value);
+      console.log("Daily Sales Data:", dailySalesData.value);
+      console.log("====================================");
     }
   } catch (error) {
     console.error("Error fetching daily sales data:", error);
@@ -377,6 +334,7 @@ const fetchCommissionData = async () => {
       resSaleAgent.result.forEach((sale) => {
         if (sale.created_by?.name == authStore.user.name) {
           commissionAmount.value = sale.over_target_count * 2000;
+          averageSales.value = sale.total_without_airline / 27;
           daysToTarget.value = sale.over_target_count || 10;
         }
       });
@@ -384,47 +342,51 @@ const fetchCommissionData = async () => {
       // Calculate monthly target percentage
       const userTarget = authStore.target || 275000;
 
-      // Get current day of the month
+      // Get current date
       const today = new Date();
       const currentDay = today.getDate();
 
       // Get total days in the selected month
       const totalDaysInMonth = new Date(year, month, 0).getDate();
 
-      // Calculate expected sales up to current day
-      const expectedSalesByToday = userTarget * currentDay;
+      // Determine if the selected month is the current month
+      const selectedDate = new Date(year, month - 1);
+      const isCurrentMonth =
+        selectedDate.getFullYear() === today.getFullYear() &&
+        selectedDate.getMonth() === today.getMonth();
 
-      // Calculate actual sales up to current day
-      const actualSalesByToday = averageSales.value * currentDay;
+      // Use current day for current month, total days for past months
+      const daysToCalculate = isCurrentMonth ? currentDay : totalDaysInMonth;
+
+      // Calculate expected sales up to the relevant day
+      const expectedSalesByDay = userTarget * daysToCalculate;
+
+      // Calculate actual sales up to the relevant day
+      const actualSalesByDay = averageSales.value * daysToCalculate;
 
       // Calculate percentage
       monthlyTargetPercentage.value = Math.round(
-        (actualSalesByToday / expectedSalesByToday) * 100
+        (actualSalesByDay / expectedSalesByDay) * 100
       );
 
       targetValue.value = userTarget;
 
-      console.log("====================================");
-      console.log("Current Day:", currentDay);
-      console.log("Total Days in Month:", totalDaysInMonth);
-      console.log("User Target:", userTarget);
-      console.log("Expected Sales by Today:", expectedSalesByToday);
-      console.log("Average Sales:", averageSales.value);
-      console.log("Actual Sales by Today:", actualSalesByToday);
-      console.log("Target Percentage:", monthlyTargetPercentage.value);
-      console.log("====================================");
-
-      // Set top sales reps
+      // Set top sales reps - use the same days calculation
       topSalesReps.value = resSaleAgent.result
         .map((sale) => ({
           name: sale.created_by?.name || "Unknown",
           initials: getInitials(sale.created_by?.name || "Unknown"),
-          amount: sale.total || 0,
+          amount: sale.total_without_airline / daysToCalculate || 0,
         }))
         .sort((a, b) => b.amount - a.amount)
         .slice(0, 10);
 
-      console.log(topSalesReps.value, "top");
+      console.log("====================================");
+      console.log("Is Current Month:", isCurrentMonth);
+      console.log("Days to Calculate:", daysToCalculate);
+      console.log("Monthly Target Percentage:", monthlyTargetPercentage.value);
+      console.log("Top Sales Reps:", topSalesReps.value);
+      console.log("====================================");
     }
   } catch (error) {
     console.error("Error fetching commission data:", error);

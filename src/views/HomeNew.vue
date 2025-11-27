@@ -14,37 +14,8 @@
         <!-- Filter Section -->
         <div class="col-span-7 bg-white p-4 rounded-lg">
           <div class="flex items-center justify-between">
-            <!-- Toggle for Graph View -->
-            <div class="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
-              <button
-                @click="graphViewMode = 'daily'"
-                :class="[
-                  'px-3 py-1 rounded text-sm font-medium transition-colors',
-                  graphViewMode === 'daily'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900',
-                ]"
-              >
-                Daily Sales
-              </button>
-              <button
-                @click="graphViewMode = 'average'"
-                :class="[
-                  'px-3 py-1 rounded text-sm font-medium transition-colors',
-                  graphViewMode === 'average'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900',
-                ]"
-              >
-                Cumulative Average
-              </button>
-            </div>
             <div class="flex items-center gap-4">
-              <input
-                type="month"
-                v-model="selectMonth"
-                class="bg-transparent focus:ring-0 focus:border-gray-300 rounded px-3 py-1"
-              />
+              <MonthDropdown v-model="selectMonth" />
             </div>
           </div>
         </div>
@@ -75,7 +46,34 @@
                   :salesData="displaySalesData"
                   :averageValue="targetValue"
                   :viewMode="graphViewMode"
-                />
+                >
+                  <div
+                    class="flex items-center gap-0 bg-gray-100 rounded-lg p-1"
+                  >
+                    <button
+                      @click="graphViewMode = 'daily'"
+                      :class="[
+                        'px-3 py-1 rounded text-[10px] font-medium transition-colors',
+                        graphViewMode === 'daily'
+                          ? 'bg-white text-gray-900 shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900',
+                      ]"
+                    >
+                      Daily Sales
+                    </button>
+                    <button
+                      @click="graphViewMode = 'average'"
+                      :class="[
+                        'px-3 py-1 rounded text-[10px] font-medium transition-colors',
+                        graphViewMode === 'average'
+                          ? 'bg-white text-gray-900 shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900',
+                      ]"
+                    >
+                      Cumulative Average
+                    </button>
+                  </div>
+                </SalesOverview>
               </div>
             </div>
 
@@ -143,6 +141,7 @@ import { useHomeStore } from "../stores/home";
 import { useReceivableStore } from "../stores/receivable";
 import { useAdminStore } from "../stores/admin";
 import { storeToRefs } from "pinia";
+import MonthDropdown from "./HomeNewComponent/SelectMonth.vue";
 import {
   endOfMonth,
   endOfYear,
@@ -169,7 +168,7 @@ const selectMonth = ref("");
 const dateRange = ref([startOfMonth(new Date()), endOfMonth(new Date())]);
 
 // Graph view mode
-const graphViewMode = ref("average"); // 'daily' or 'average'
+const graphViewMode = ref("daily"); // 'daily' or 'average'
 
 // Dashboard data
 const monthlySalesData = ref([]); // Cumulative average data
@@ -221,7 +220,11 @@ const dateFormat = (inputDateString) => {
 };
 
 const formatCurrency = (value) => {
-  return `฿ ${value.toLocaleString()}`;
+  value = Number(value).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return `฿ ${value}`;
 };
 
 const formatDateForAPI = (dateString) => {
@@ -298,14 +301,6 @@ const fetchDailySalesData = async (month) => {
         // Push the cumulative average to the array
         monthlySalesData.value.push(cumulativeAverage);
       });
-
-      console.log("====================================");
-      console.log("Is Current Month:", isCurrentMonth);
-      console.log("Average Index Used:", averageIndex);
-      console.log("Cumulative Total (without airline):", cumulativeTotal);
-      console.log("Average Sales (without airline):", averageSales.value);
-      console.log("Daily Sales Data:", dailySalesData.value);
-      console.log("====================================");
     }
   } catch (error) {
     console.error("Error fetching daily sales data:", error);
@@ -315,6 +310,10 @@ const fetchDailySalesData = async (month) => {
 // Fetch commission and target data
 const fetchCommissionData = async () => {
   try {
+    // Get current date
+    const today = new Date();
+    const currentDay = today.getDate();
+
     const [year, month] = selectMonth.value.split("-");
     let startDate = new Date(year, month - 1, 1);
     let endDate = new Date(year, month, 0);
@@ -327,24 +326,22 @@ const fetchCommissionData = async () => {
     const resSaleAgent = await homeStore.getAgentSales(data);
 
     console.log("====================================");
-    console.log("testing commission", resSaleAgent.result);
+    console.log("testing commission", resSaleAgent.result, today.getDate());
     console.log("====================================");
 
     if (resSaleAgent?.result) {
       resSaleAgent.result.forEach((sale) => {
         if (sale.created_by?.name == authStore.user.name) {
           commissionAmount.value = sale.over_target_count * 2000;
-          averageSales.value = sale.total_without_airline / 27;
+          averageSales.value = (
+            sale.total_without_airline / today.getDate()
+          ).toFixed(2);
           daysToTarget.value = sale.over_target_count || 10;
         }
       });
 
       // Calculate monthly target percentage
       const userTarget = authStore.target || 275000;
-
-      // Get current date
-      const today = new Date();
-      const currentDay = today.getDate();
 
       // Get total days in the selected month
       const totalDaysInMonth = new Date(year, month, 0).getDate();
@@ -374,19 +371,13 @@ const fetchCommissionData = async () => {
       // Set top sales reps - use the same days calculation
       topSalesReps.value = resSaleAgent.result
         .map((sale) => ({
+          id: sale.created_by?.id,
           name: sale.created_by?.name || "Unknown",
           initials: getInitials(sale.created_by?.name || "Unknown"),
           amount: sale.total_without_airline / daysToCalculate || 0,
         }))
         .sort((a, b) => b.amount - a.amount)
         .slice(0, 10);
-
-      console.log("====================================");
-      console.log("Is Current Month:", isCurrentMonth);
-      console.log("Days to Calculate:", daysToCalculate);
-      console.log("Monthly Target Percentage:", monthlyTargetPercentage.value);
-      console.log("Top Sales Reps:", topSalesReps.value);
-      console.log("====================================");
     }
   } catch (error) {
     console.error("Error fetching commission data:", error);
@@ -498,7 +489,7 @@ const initializeDashboard = async () => {
     ]);
 
     console.log("====================================");
-    console.log(monthlySalesData.value, "this is monthly sale data");
+    console.log(selectMonth.value, "this is monthly sale data");
     console.log("====================================");
   } catch (error) {
     console.error("Error initializing dashboard:", error);

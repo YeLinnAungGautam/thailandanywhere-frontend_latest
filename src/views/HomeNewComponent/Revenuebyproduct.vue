@@ -1,6 +1,6 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm p-6">
-    <p class="text-gray-500 text-sm font-medium mb-4">REVENUE BY PRODUCT</p>
+  <div class="bg-white rounded-lg shadow-sm px-6 pt-6 pb-8">
+    <p class="text-gray-500 text-sm font-medium mb-6">REVENUE BY PRODUCT</p>
     <div class="space-y-4">
       <div v-for="product in products" :key="product.name">
         <div class="flex justify-between items-center mb-1">

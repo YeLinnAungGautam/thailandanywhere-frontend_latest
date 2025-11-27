@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white p-6 rounded-lg shadow-sm h-[48vh] overflow-scroll">
+  <div class="bg-white p-6 rounded-lg shadow-sm h-[50vh] overflow-scroll">
     <!-- Header with filters -->
     <div class="mb-4">
       <h3 class="text-lg font-semibold mb-3">Receivables</h3>

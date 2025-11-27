@@ -1,6 +1,6 @@
 <template>
   <div class="bg-white rounded-lg shadow-sm p-6">
-    <p class="text-gray-500 text-sm font-medium mb-4">TARGET</p>
+    <p class="text-gray-500 text-sm font-medium mb-4">COMPANY TARGET</p>
     <div class="mb-4">
       <div class="w-full bg-gray-200 rounded-full h-3 relative overflow-hidden">
         <!-- Base bar (0-100%) - Orange/Red -->
@@ -16,8 +16,8 @@
         ></div>
       </div>
     </div>
+    <p class="text-gray-500 text-sm font-medium mb-4">PERSONAL TARGET</p>
     <div class="flex items-baseline gap-2">
-      <span class="text-4xl font-bold text-gray-900">{{ percentage }}%</span>
       <div class="w-full bg-gray-200 rounded-full h-3 relative overflow-hidden">
         <!-- Base bar (0-100%) - Orange/Red -->
         <div

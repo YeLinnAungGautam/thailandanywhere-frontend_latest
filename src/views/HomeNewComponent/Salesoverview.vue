@@ -1,21 +1,8 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm p-6 col-span-2">
-    <div class="flex justify-between items-center mb-6">
-      <p class="text-gray-700 text-lg font-semibold">
-        Sales Overview (30 Days)
-      </p>
-      <div class="flex items-center gap-4 text-xs">
-        <div class="flex items-center gap-2">
-          <div class="w-3 h-3 rounded-full bg-orange-500"></div>
-          <span class="text-gray-600">Daily Sales</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <div class="w-3 h-3 bg-red-500"></div>
-          <span class="text-gray-600"
-            >Average (฿{{ averageValue.toLocaleString() }})</span
-          >
-        </div>
-      </div>
+  <div class="bg-white rounded-lg shadow-sm pt-6 pb-10 px-6 col-span-2">
+    <div class="flex justify-between items-center mb-4">
+      <p class="text-gray-700 text-base font-semibold">Sales Overview</p>
+      <slot />
     </div>
     <div class="relative h-64">
       <!-- Y-axis labels -->

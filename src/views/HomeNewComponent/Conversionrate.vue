@@ -15,15 +15,13 @@
     <div class="bg-white rounded-lg shadow-sm p-8">
       <p class="text-gray-500 text-sm font-medium mb-2">COMMISSION</p>
       <div class="flex items-end gap-4 mb-2">
-        <span class="text-4xl font-bold text-gray-900">{{ rate }} MMK</span>
+        <span class="text-4xl font-bold text-gray-900"> --- MMK</span>
       </div>
       <div class="mt-4 pt-4 border-t border-gray-200">
         <p class="text-gray-500 text-sm font-medium mb-2">
           AVERAGE DAILY TARGET
         </p>
-        <p class="text-4xl font-bold text-[#FF613c]">
-          {{ value.toLocaleString() }} DAYS
-        </p>
+        <p class="text-4xl font-bold text-[#FF613c]">--- DAYS</p>
       </div>
     </div>
   </div>

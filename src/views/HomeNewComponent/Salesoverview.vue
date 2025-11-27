@@ -152,7 +152,7 @@ const maxValue = computed(() => {
   const dataMax = Math.max(...props.salesData);
   const max = Math.max(dataMax, props.averageValue);
   // Round up to nearest 50000 for cleaner axis labels
-  return Math.ceil(max / 50000) * 50000;
+  return Math.ceil(max / 20000) * 20000;
 });
 
 // Generate chart points based on sales data

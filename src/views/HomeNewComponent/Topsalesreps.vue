@@ -1,9 +1,9 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm p-6">
+  <div class="bg-white rounded-lg shadow-sm p-6 h-[35vh] overflow-scroll">
     <p class="text-gray-700 text-lg font-semibold mb-4">Top Sales Reps</p>
     <div class="space-y-3">
       <div
-        v-for="(rep, index) in reps"
+        v-for="(rep, index) in salesReps"
         :key="index"
         class="flex items-center justify-between py-2"
       >
@@ -15,17 +15,16 @@
           </div>
           <span class="text-gray-700 text-sm font-medium">{{ rep.name }}</span>
         </div>
-        <span class="text-gray-900 font-semibold"
-          >฿{{ rep.amount.toLocaleString() }}</span
-        >
+        <span> </span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-defineProps({
-  reps: {
+import { defineProps } from "vue";
+const props = defineProps({
+  salesReps: {
     type: Array,
     default: () => [
       { name: "Somchai P.", amount: 340000, initials: "SP" },

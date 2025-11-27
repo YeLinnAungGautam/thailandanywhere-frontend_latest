@@ -22,7 +22,7 @@
           <div class="flex gap-0.5">
             <span class="text-sm font-semibold text-gray-900">฿</span>
             <span class="text-sm font-semibold text-gray-900">{{
-              booking.receiable.toLocaleString()
+              booking?.receiable?.toLocaleString()
             }}</span>
           </div>
         </div>

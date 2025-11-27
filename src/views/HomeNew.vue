@@ -156,7 +156,7 @@
             <!-- Bottom Section -->
             <div class="col-span-5">
               <div class="grid grid-cols-2 gap-2">
-                <BookingsBySource :sourceData="bookingsBySource" />
+                <BookingsBySource :sources="bookingsBySource" />
                 <AverageBookingValue :bookingData="averageBookingData" />
               </div>
             </div>
@@ -170,7 +170,14 @@
             :copercentage="80"
           />
           <TopSalesReps :salesReps="topSalesReps" />
-          <RecentBookings :bookings="recentBookings" />
+          <RecentBookings
+            :bookings="recentBookings"
+            :selectedMonth="selectMonth"
+            :dataCount="receivableDataCount"
+            :dataSummary="receivableDataSummary"
+            :receivablesList="receivablesList"
+            :receivablesLoading="receivablesLoading"
+          />
         </div>
       </div>
     </Layout>
@@ -192,6 +199,8 @@ import RecentBookings from "./HomeNewComponent/Recentbookings.vue";
 import { ref, onMounted, watch, computed } from "vue";
 import { useAuthStore } from "../stores/auth";
 import { useHomeStore } from "../stores/home";
+import { useReceivableStore } from "../stores/receivable";
+import { useAdminStore } from "../stores/admin";
 import { storeToRefs } from "pinia";
 import {
   endOfMonth,
@@ -205,10 +214,14 @@ import {
 // Stores
 const authStore = useAuthStore();
 const homeStore = useHomeStore();
+const receivableStore = useReceivableStore();
+const adminStore = useAdminStore();
 const { user } = storeToRefs(authStore);
+const { receivables } = storeToRefs(receivableStore);
 
 // Loading state
 const loading = ref(false);
+const receivablesLoading = ref(false);
 
 // Date filters
 const selectMonth = ref("");
@@ -252,18 +265,18 @@ const commissionAmount = ref(0);
 const daysToTarget = ref(0);
 const monthlyTargetPercentage = ref(0);
 const topSalesReps = ref([]);
-const bookingsBySource = ref([
-  { source: "Website", value: 0 },
-  { source: "Facebook", value: 0 },
-  { source: "LINE", value: 0 },
-  { source: "Phone", value: 0 },
-]);
+const bookingsBySource = ref([]);
 const averageBookingData = ref({
   value: 0,
   customers: [],
 });
 const recentBookings = ref([]);
 const targetValue = ref(0);
+
+// Receivables data
+const receivableDataCount = ref(0);
+const receivableDataSummary = ref(0);
+const receivablesList = computed(() => receivables.value || []);
 
 // Utility functions
 const dateFormat = (inputDateString) => {
@@ -277,6 +290,12 @@ const dateFormat = (inputDateString) => {
 
 const formatCurrency = (value) => {
   return `฿ ${value.toLocaleString()}`;
+};
+
+const formatDateForAPI = (dateString) => {
+  if (!dateString) return "";
+  const [year, month] = dateString.split("-");
+  return `${month}-${year}`;
 };
 
 const currentDate = new Date();
@@ -412,6 +431,63 @@ const fetchUnpaidBookings = async () => {
   }
 };
 
+// Fetch receivables data
+const fetchReceivables = async () => {
+  if (!selectMonth.value) {
+    console.log("No month selected, skipping receivables API call");
+    return;
+  }
+
+  try {
+    receivablesLoading.value = true;
+    const params = {
+      date: formatDateForAPI(selectMonth.value),
+    };
+
+    // Add admin_id based on user role
+    if (!authStore.isSuperAdmin && !authStore.isAuditor) {
+      params.admin_id = authStore.user?.id;
+    }
+
+    console.log("Receivables API Parameters:", params);
+    const res = await receivableStore.getSimpleList(params);
+    console.log("Receivables Response:", receivables.value);
+
+    if (receivables.value) {
+      receivableDataCount.value = receivables.value.length;
+      receivableDataSummary.value = receivables.value.reduce(
+        (sum, r) => sum + parseFloat(r.balance_due || 0),
+        0
+      );
+    } else {
+      receivableDataCount.value = 0;
+      receivableDataSummary.value = 0;
+    }
+  } catch (error) {
+    console.error("Error fetching receivables:", error);
+  } finally {
+    receivablesLoading.value = false;
+  }
+};
+
+// Fetch channel source
+const fetchChannelSource = async () => {
+  try {
+    const data = {
+      first: dateFormat(dateRange.value[0]),
+      second: dateFormat(dateRange.value[1]),
+    };
+    const res = await homeStore.getReportByChannel(data);
+    console.log("this is channel", res);
+
+    if (res?.result) {
+      bookingsBySource.value = res.result;
+    }
+  } catch (error) {
+    console.error("Error fetching channel source:", error);
+  }
+};
+
 // Helper function to get initials
 const getInitials = (name) => {
   return name
@@ -431,6 +507,8 @@ const initializeDashboard = async () => {
       fetchDailySalesData(selectMonth.value),
       fetchCommissionData(),
       fetchUnpaidBookings(),
+      fetchChannelSource(),
+      fetchReceivables(),
     ]);
 
     console.log("====================================");
@@ -444,10 +522,14 @@ const initializeDashboard = async () => {
 };
 
 // Watchers
-watch(selectMonth, async (newValue) => {
-  if (newValue) {
+watch(selectMonth, async (newValue, oldValue) => {
+  if (newValue && newValue !== oldValue) {
     loading.value = true;
-    await Promise.all([fetchDailySalesData(newValue), fetchCommissionData()]);
+    await Promise.all([
+      fetchDailySalesData(newValue),
+      fetchCommissionData(),
+      fetchReceivables(),
+    ]);
     loading.value = false;
   }
 });

@@ -3,12 +3,12 @@
     <p class="text-gray-700 text-lg font-semibold mb-6">Bookings by Source</p>
     <div class="space-y-4">
       <div
-        v-for="source in sources"
-        :key="source.name"
+        v-for="source in sourcesWithPercentage"
+        :key="source.sold_from"
         class="flex items-center gap-3"
       >
         <span class="text-sm text-gray-700 w-24 text-right">{{
-          source.name
+          source.sold_from
         }}</span>
         <div
           class="flex-1 bg-gray-200 rounded-full h-7 relative overflow-hidden"
@@ -17,25 +17,39 @@
             class="h-full rounded-full transition-all duration-500"
             :style="{
               width: source.percentage + '%',
-              backgroundColor: source.color,
+              backgroundColor: '#FF613c',
             }"
           ></div>
         </div>
+        <span class="text-sm text-gray-600 w-16 text-right">
+          {{ source.percentage.toFixed(1) }}%
+        </span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-defineProps({
+import { computed } from "vue";
+
+const props = defineProps({
   sources: {
     type: Array,
-    default: () => [
-      { name: "Website", percentage: 65, color: "#FF6300" },
-      { name: "Facebook", percentage: 50, color: "#FF6300" },
-      { name: "LINE", percentage: 35, color: "#FF6300" },
-      { name: "Phone", percentage: 25, color: "#FF6300" },
-    ],
+    default: () => [],
   },
+});
+
+const sourcesWithPercentage = computed(() => {
+  // Calculate total amount
+  const total = props.sources.reduce(
+    (sum, source) => sum + source.total_amount,
+    0
+  );
+
+  // Calculate percentage for each source
+  return props.sources.map((source) => ({
+    ...source,
+    percentage: total > 0 ? (source.total_amount / total) * 100 : 0,
+  }));
 });
 </script>

@@ -28,10 +28,10 @@ defineProps({
   products: {
     type: Array,
     default: () => [
-      { name: "Hotels", percentage: 30, color: "#ff6300" },
-      { name: "Tours", percentage: 20, color: "#ff6300" },
-      { name: "Tickets", percentage: 20, color: "#ff6300" },
-      { name: "Packages", percentage: 10, color: "#ff6300" },
+      { name: "Hotels", percentage: 0, color: "#ff6300" },
+      { name: "Tours", percentage: 0, color: "#ff6300" },
+      { name: "Tickets", percentage: 0, color: "#ff6300" },
+      { name: "Packages", percentage: 0, color: "#ff6300" },
     ],
   },
 });

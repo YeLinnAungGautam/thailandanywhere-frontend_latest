@@ -21,7 +21,7 @@
       <div class="pt-2">
         <div class="flex items-center gap-3 mb-3">
           <span class="text-sm text-gray-600">International</span>
-          <span class="text-sm font-medium text-gray-900">John K.</span>
+          <span class="text-sm font-medium text-gray-900">Customer</span>
         </div>
         <div class="flex items-center justify-between">
           <span class="text-sm text-gray-600">Chiang Mai</span>
@@ -38,11 +38,11 @@
 defineProps({
   value: {
     type: Number,
-    default: 27300,
+    default: 0,
   },
   customerName: {
     type: String,
-    default: "Emily W.",
+    default: "Customer Name",
   },
   location: {
     type: String,

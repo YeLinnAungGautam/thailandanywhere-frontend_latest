@@ -383,12 +383,36 @@ const fetchCommissionData = async () => {
 
       // Calculate monthly target percentage
       const userTarget = authStore.target || 275000;
-      const currentTotal = monthlySalesData.value.reduce(
-        (sum, val) => sum + val,
-        0
+
+      // Get current day of the month
+      const today = new Date();
+      const currentDay = today.getDate();
+
+      // Get total days in the selected month
+      const totalDaysInMonth = new Date(year, month, 0).getDate();
+
+      // Calculate expected sales up to current day
+      const expectedSalesByToday = userTarget * currentDay;
+
+      // Calculate actual sales up to current day
+      const actualSalesByToday = averageSales.value * currentDay;
+
+      // Calculate percentage
+      monthlyTargetPercentage.value = Math.round(
+        (actualSalesByToday / expectedSalesByToday) * 100
       );
-      monthlyTargetPercentage.value = Math.round(currentTotal / userTarget);
+
       targetValue.value = userTarget;
+
+      console.log("====================================");
+      console.log("Current Day:", currentDay);
+      console.log("Total Days in Month:", totalDaysInMonth);
+      console.log("User Target:", userTarget);
+      console.log("Expected Sales by Today:", expectedSalesByToday);
+      console.log("Average Sales:", averageSales.value);
+      console.log("Actual Sales by Today:", actualSalesByToday);
+      console.log("Target Percentage:", monthlyTargetPercentage.value);
+      console.log("====================================");
 
       // Set top sales reps
       topSalesReps.value = resSaleAgent.result

@@ -5,7 +5,7 @@
     <!-- Main -->
     <div
       class="w-full h-full"
-      :class="is_white ? 'bg-[#FDFDFD]' : 'bg-gray-100'"
+      :class="is_white ? 'bg-[#FDFDFD]' : 'bg-[#F7F8FA]'"
     >
       <Topbar :title="title" />
       <div class="h-[calc(100vh-80px)] px-[20px] overflow-y-auto py-[20px]">

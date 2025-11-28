@@ -258,8 +258,8 @@
               :data-hotel-id="hotel.id"
               @click="scrollToHotel(hotel.id)"
               :class="[
-                'flex-shrink-0 w-80 bg-white rounded-xl shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
-                selectedHotelId === hotel.id ? 'ring-8 ring-[#FF613c]/10' : '',
+                'flex-shrink-0 w-80  rounded-xl shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
+                selectedHotelId === hotel.id ? 'bg-[#FF613c]' : 'bg-white',
               ]"
             >
               <div class="flex">
@@ -280,7 +280,12 @@
                   <!-- Top Section -->
                   <div>
                     <h3
-                      class="font-semibold text-sm text-gray-900 mb-1 line-clamp-1"
+                      class="font-semibold text-sm mb-1 line-clamp-1"
+                      :class="
+                        selectedHotelId === hotel.id
+                          ? 'text-white'
+                          : 'text-gray-900'
+                      "
                     >
                       {{ hotel.name }}
                     </h3>
@@ -295,7 +300,14 @@
                     <div class="flex items-start justify-between mt-2">
                       <div class="text-right">
                         <!-- Current Price -->
-                        <div class="text-main text-xl font-bold">
+                        <div
+                          class="text-xl font-bold"
+                          :class="
+                            selectedHotelId === hotel.id
+                              ? 'text-white'
+                              : 'text-gray-900'
+                          "
+                        >
                           {{
                             hotel.lowest_room_price?.toLocaleString() || "999"
                           }}
@@ -305,9 +317,14 @@
                     </div>
                     <div
                       @click="router.push('/home/detail/' + hotel.id)"
-                      class="text-white flex px-2 text-xs mt-2 rounded-full justify-center bg-main py-2"
+                      class="flex px-2 text-xs mt-2 rounded-full justify-center py-2"
+                      :class="
+                        selectedHotelId === hotel.id
+                          ? 'text-white bg-white/20'
+                          : 'text-gray-900 bg-gray-300/20'
+                      "
                     >
-                      Book Now
+                      View Detail
                     </div>
                   </div>
                 </div>
@@ -355,7 +372,7 @@ const loading = ref(false);
 const allHotels = ref([]);
 const cityList = ref([]);
 const selectedCity = ref(2);
-const selectedPlace = ref("Pratunam");
+const selectedPlace = ref("");
 const showSearchPanel = ref(false);
 const showHotelList = ref(true);
 const selectedHotelId = ref(2);

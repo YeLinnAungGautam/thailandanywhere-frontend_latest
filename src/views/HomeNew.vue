@@ -16,6 +16,22 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
               <MonthDropdown v-model="selectMonth" />
+              <div class="flex items-center gap-4">
+                <select
+                  v-if="showAgentFilter"
+                  v-model="selectedAgent"
+                  class="bg-white text-sm w-full px-3 focus:outline-none"
+                >
+                  <option value="">All Agents</option>
+                  <option
+                    v-for="agent in agentsList"
+                    :key="agent.id"
+                    :value="agent.id"
+                  >
+                    {{ agent.name }}
+                  </option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -31,11 +47,7 @@
               />
 
               <!-- Booking Stats -->
-              <BookingStats
-                :tours="bookingStats.tours"
-                :tickets="bookingStats.tickets"
-                :packages="bookingStats.packages"
-              />
+              <BookingStats :summary="summary" />
 
               <!-- Sales Overview Chart -->
               <div
@@ -81,7 +93,7 @@
             <div class="col-span-2">
               <div class="grid grid-cols-2 gap-2">
                 <div class="col-span-2">
-                  <RevenueByProduct :revenueData="revenueByProduct" />
+                  <RevenueByProduct :revenueData="summary" />
                 </div>
                 <div class="col-span-2">
                   <ConversionRate
@@ -96,7 +108,7 @@
             <div class="col-span-5">
               <div class="grid grid-cols-2 gap-2">
                 <BookingsBySource :sources="bookingsBySource" />
-                <AverageBookingValue :bookingData="averageBookingData" />
+                <AverageBookingValue :bookingData="summary" />
               </div>
             </div>
           </div>
@@ -150,10 +162,12 @@ import {
   subMonths,
   format,
 } from "date-fns";
+import { useDashboardStore } from "../stores/dashboard";
 
 // Stores
 const authStore = useAuthStore();
 const homeStore = useHomeStore();
+const dashboardStore = useDashboardStore();
 const receivableStore = useReceivableStore();
 const adminStore = useAdminStore();
 const { user } = storeToRefs(authStore);
@@ -190,10 +204,7 @@ const daysToTarget = ref(0);
 const monthlyTargetPercentage = ref(0);
 const topSalesReps = ref([]);
 const bookingsBySource = ref([]);
-const averageBookingData = ref({
-  value: 0,
-  customers: [],
-});
+
 const recentBookings = ref([]);
 const targetValue = ref(0);
 
@@ -233,7 +244,10 @@ const formatDateForAPI = (dateString) => {
   return `${month}-${year}`;
 };
 
-const currentDate = new Date();
+const showAgentFilter = computed(() => {
+  return authStore.isSuperAdmin || authStore.isSaleManager;
+});
+const selectedAgent = ref("");
 
 const getCurrentMonth = () => {
   const currentDate = new Date();
@@ -247,8 +261,14 @@ const fetchDailySalesData = async (month) => {
   try {
     const data = {
       date: month,
-      created_by: authStore.user.id,
     };
+
+    if (!authStore.isSuperAdmin && !authStore.isAuditor) {
+      data.created_by = authStore.user?.id;
+    } else {
+      data.created_by = selectedAgent.value;
+    }
+
     const res = await homeStore.getTimeFilterAdminArray(data);
 
     console.log("====================================");
@@ -424,6 +444,8 @@ const fetchReceivables = async () => {
     // Add admin_id based on user role
     if (!authStore.isSuperAdmin && !authStore.isAuditor) {
       params.admin_id = authStore.user?.id;
+    } else {
+      params.admin_id = selectedAgent.value;
     }
 
     console.log("Receivables API Parameters:", params);
@@ -439,6 +461,43 @@ const fetchReceivables = async () => {
     } else {
       receivableDataCount.value = 0;
       receivableDataSummary.value = 0;
+    }
+  } catch (error) {
+    console.error("Error fetching receivables:", error);
+  } finally {
+    receivablesLoading.value = false;
+  }
+};
+
+const summary = ref({});
+
+const fetchSummary = async () => {
+  if (!selectMonth.value) {
+    console.log("No month selected, skipping receivables API call");
+    return;
+  }
+
+  try {
+    receivablesLoading.value = true;
+    const params = {
+      daterange: formatDateForAPI(selectMonth.value),
+    };
+
+    // Add admin_id based on user role
+    if (!authStore.isSuperAdmin && !authStore.isAuditor) {
+      params.admin_id = authStore.user?.id;
+    } else {
+      params.admin_id = selectedAgent.value;
+    }
+
+    const res = await dashboardStore.getDashboardSummary(params);
+    console.log(" Response for summary:", res);
+
+    if (res?.data?.result) {
+      summary.value = res.data.result;
+      console.log("====================================");
+      console.log(summary.value);
+      console.log("====================================");
     }
   } catch (error) {
     console.error("Error fetching receivables:", error);
@@ -465,6 +524,17 @@ const fetchChannelSource = async () => {
   }
 };
 
+const agentsList = ref([]);
+// Fetch agents list
+const loadAgentsList = async () => {
+  const res = await adminStore.getSimpleListAction();
+  agentsList.value =
+    res.result?.data?.filter(
+      (a) => a.role === "admin" || a.role === "sale_manager"
+    ) || [];
+  console.log(agentsList.value);
+};
+
 // Helper function to get initials
 const getInitials = (name) => {
   return name
@@ -486,6 +556,8 @@ const initializeDashboard = async () => {
       fetchUnpaidBookings(),
       fetchChannelSource(),
       fetchReceivables(),
+      fetchSummary(),
+      loadAgentsList(),
     ]);
 
     console.log("====================================");
@@ -506,6 +578,20 @@ watch(selectMonth, async (newValue, oldValue) => {
       fetchDailySalesData(newValue),
       fetchCommissionData(),
       fetchReceivables(),
+      fetchSummary(),
+    ]);
+    loading.value = false;
+  }
+});
+
+watch(selectedAgent, async (newValue, oldValue) => {
+  if (newValue && newValue !== oldValue) {
+    loading.value = true;
+    await Promise.all([
+      fetchDailySalesData(selectMonth.value),
+      fetchCommissionData(),
+      fetchReceivables(),
+      fetchSummary(),
     ]);
     loading.value = false;
   }

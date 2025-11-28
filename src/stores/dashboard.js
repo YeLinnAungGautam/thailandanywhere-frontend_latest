@@ -48,5 +48,19 @@ export const useDashboardStore = defineStore("dashboard", {
         throw error;
       }
     },
+    async getDashboardSummary(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get("/dashboard-sale-summary", {
+          params: params,
+        });
+        this.loading = false;
+        // console.log(response.data);
+        return response;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
   },
 });

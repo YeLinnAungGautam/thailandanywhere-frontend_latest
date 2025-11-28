@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-white text-white absolute md:relative transition-all duration-500 ease-in-out"
+    class="bg-white z-[1002] text-white absolute md:relative transition-all duration-500 ease-in-out"
     :class="isShowSidebar ? 'w-[260px]' : 'w-[80px]'"
   >
     <div class="h-[80px] w-full flex items-center">

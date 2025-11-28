@@ -1,6 +1,6 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm pt-6 pb-10 px-6 col-span-2">
-    <div class="flex justify-between items-center mb-4">
+  <div class="bg-white rounded-lg shadow-sm pt-6 pb-14 px-6 col-span-2">
+    <div class="flex justify-between items-center mb-12">
       <p class="text-gray-700 text-base font-semibold">Sales Overview</p>
       <slot />
     </div>

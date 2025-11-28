@@ -2,9 +2,11 @@
   <div class="bg-white rounded-lg shadow-sm px-6 pt-6 pb-8">
     <p class="text-gray-500 text-sm font-medium mb-6">REVENUE BY PRODUCT</p>
     <div class="space-y-4">
-      <div v-for="product in products" :key="product.name">
+      <div v-for="product in revenueData?.product_type_summary" :key="product">
         <div class="flex justify-between items-center mb-1">
-          <span class="text-sm text-gray-700">{{ product.name }}</span>
+          <span class="text-sm text-gray-700">{{
+            productType(product.product_type_name)
+          }}</span>
           <span class="text-sm font-medium text-gray-900"
             >{{ product.percentage }}%</span
           >
@@ -14,7 +16,7 @@
             class="h-2 rounded-full transition-all duration-300"
             :style="{
               width: product.percentage + '%',
-              backgroundColor: product.color,
+              backgroundColor: '#FF613c',
             }"
           ></div>
         </div>
@@ -25,14 +27,24 @@
 
 <script setup>
 defineProps({
-  products: {
+  revenueData: {
     type: Array,
-    default: () => [
-      { name: "Hotels", percentage: 0, color: "#ff6300" },
-      { name: "Tours", percentage: 0, color: "#ff6300" },
-      { name: "Tickets", percentage: 0, color: "#ff6300" },
-      { name: "Packages", percentage: 0, color: "#ff6300" },
-    ],
+    default: () => [],
   },
 });
+
+const productType = (type) => {
+  switch (type) {
+    case "Private Van Tour":
+      return "Tours";
+    case "Entrance Ticket":
+      return "Tickets";
+    case "Hotel & Room":
+      return "Hotels";
+    case "Airline":
+      return "Airlines";
+    default:
+      return "Inclusive";
+  }
+};
 </script>

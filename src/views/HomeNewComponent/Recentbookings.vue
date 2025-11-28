@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white p-6 rounded-lg shadow-sm h-[50vh] overflow-scroll">
+  <div class="bg-white p-6 rounded-lg shadow-sm h-[45vh] overflow-scroll">
     <!-- Header with filters -->
     <div class="mb-4">
       <h3 class="text-lg font-semibold mb-3">Receivables</h3>
@@ -199,22 +199,15 @@ const goToBooking = (id) => {
 
 // Load agents list
 const loadAgentsList = async () => {
-  if (authStore.isSuperAdmin) {
-    if (admin.value?.data) {
-      agentsList.value = admin.value.data.filter(
-        (a) => a.role === "admin" || a.role === "sale_manager"
-      );
-    }
-  } else if (authStore.isSaleManager) {
-    const res = await adminStore.getSaleManager();
-    const manager = res.result?.data?.find((a) => a.id === user.value?.id);
-    if (manager) {
-      agentsList.value = [...(manager.subsidiaries || []), manager];
-    }
-  }
+  const res = await adminStore.getSimpleListAction();
+  agentsList.value =
+    res.result?.data?.filter(
+      (a) => a.role === "admin" || a.role === "sale_manager"
+    ) || [];
+  console.log(agentsList.value);
 };
 
-onMounted(() => {
-  loadAgentsList();
+onMounted(async () => {
+  await loadAgentsList();
 });
 </script>

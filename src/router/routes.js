@@ -90,6 +90,7 @@ import internalTransferChecker from "../views/InternalTransferChecker.vue";
 import bankVerify from "../views/BankVerify.vue";
 import BankStatementType from "../views/BankStatementType.vue";
 import HomeNewView from "../views/HomeNew.vue";
+import MapHotel from "../views/MapHotel.vue";
 
 const routes = [
   {
@@ -109,6 +110,11 @@ const routes = [
     path: "/home_new",
     name: "homeNew",
     component: HomeNewView,
+  },
+  {
+    path: "/map_hotel",
+    name: "MapHotel",
+    component: MapHotel,
   },
   {
     path: "/user_dashboard",

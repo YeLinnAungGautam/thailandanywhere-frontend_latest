@@ -72,6 +72,7 @@
                 :icon="Squares2X2Icon"
                 to="/home_new"
               />
+              <SidebarItem name="MapHotel" :icon="MapIcon" to="/map_hotel" />
               <SidebarItem
                 name="Sales"
                 v-if="
@@ -523,6 +524,7 @@ import {
   ChatBubbleBottomCenterTextIcon,
   ArrowPathIcon,
   ListBulletIcon,
+  MapIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";

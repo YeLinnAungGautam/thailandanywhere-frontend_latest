@@ -167,5 +167,23 @@ export const useHotelStore = defineStore("hotel", {
         throw error;
       }
     },
+
+    async getMapListAction(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get(
+          "https://api-blog.thanywhere.com/api/v2/map/hotels",
+          {
+            params: params,
+          }
+        );
+        this.loading = false;
+
+        return response.data;
+      } catch (error) {
+        this.loading = true;
+        throw error;
+      }
+    },
   },
 });

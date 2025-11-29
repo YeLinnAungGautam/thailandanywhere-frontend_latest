@@ -398,7 +398,6 @@
                       </div>
                     </div>
                     <div
-                      @click="router.push('/home/detail/' + hotel.id)"
                       class="flex px-2 text-xs mt-2 rounded-full justify-center py-2"
                       :class="
                         selectedHotelId === hotel.id

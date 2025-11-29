@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm p-6 h-[33.5vh] overflow-scroll">
+  <div class="bg-white rounded-lg shadow-sm p-6 h-[40vh] overflow-scroll">
     <p class="text-gray-700 text-lg font-semibold mb-4">Top Sales Reps</p>
     <div class="space-y-3">
       <div

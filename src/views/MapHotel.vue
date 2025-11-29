@@ -30,6 +30,7 @@
                 selectedCity ? getCityName(selectedCity) : "Hotels in map area"
               }}
               {{ selectedPlace ? ` · ${selectedPlace}` : "" }}
+              {{ priceFilter ? ` · ${getFilterPriceName(priceFilter)}` : "" }}
             </p>
             <p class="text-[10px] text-gray-500">
               {{
@@ -96,7 +97,7 @@
 
       <Modal :isOpen="showSearchPanel" @closeModal="showSearchPanel = false">
         <DialogPanel
-          class="w-full max-w-4xl p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
+          class="w-full max-w-xl p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
         >
           <DialogTitle
             as="h3"
@@ -104,9 +105,81 @@
           >
             Search
           </DialogTitle>
+
           <div class="grid grid-cols-2 gap-2 pt-5">
+            <div class="col-span-2 pb-4">
+              <!-- Price Filter Bar - NEW -->
+              <div class="">
+                <div class="flex justify-start items-center space-x-1.5 pb-1">
+                  <p
+                    @click="setPriceFilter('')"
+                    :class="[
+                      priceFilter == ''
+                        ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                        : 'border-black/10 bg-white',
+                      { 'bg-gray-300 text-black/30': loading },
+                    ]"
+                    class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
+                  >
+                    all
+                  </p>
+
+                  <p
+                    @click="setPriceFilter('0-1200')"
+                    :class="[
+                      priceFilter == '0-1200'
+                        ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                        : 'border-black/10 bg-white',
+                      { 'bg-gray-300 text-black/30': loading },
+                    ]"
+                    class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
+                  >
+                    budget <span class="text-[8px]">(&lt; 1200฿)</span>
+                  </p>
+
+                  <p
+                    @click="setPriceFilter('1200-1800')"
+                    :class="[
+                      priceFilter == '1200-1800'
+                        ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                        : 'border-black/10 bg-white',
+                      { 'bg-gray-300 text-black/30': loading },
+                    ]"
+                    class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
+                  >
+                    standard <span class="text-[8px]">(1200 - 1800฿)</span>
+                  </p>
+
+                  <p
+                    @click="setPriceFilter('1800-3000')"
+                    :class="[
+                      priceFilter == '1800-3000'
+                        ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                        : 'border-black/10 bg-white',
+                      { 'bg-gray-300 text-black/30': loading },
+                    ]"
+                    class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
+                  >
+                    premium <span class="text-[8px]">(1800 - 3000฿)</span>
+                  </p>
+
+                  <p
+                    @click="setPriceFilter('3000-100000')"
+                    :class="[
+                      priceFilter == '3000-100000'
+                        ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                        : 'border-black/10 bg-white',
+                      { 'bg-gray-300 text-black/30': loading },
+                    ]"
+                    class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
+                  >
+                    luxury <span class="text-[8px]">(3000+฿)</span>
+                  </p>
+                </div>
+              </div>
+            </div>
             <div>
-              <h2 class="text-sm text-main font-medium">Choose City</h2>
+              <h2 class="text-sm text-[#FF613c] font-medium">Choose City</h2>
               <div
                 class="space-y-1 h-[200px] pr-2 pl-1 pt-3 overflow-y-scroll scroll-container-y"
               >
@@ -124,7 +197,7 @@
                 >
                   <p
                     class="text-xs w-[110px] mt-1.5 line-clamp-1"
-                    :class="c.id == selectedCity ? 'text-main' : ''"
+                    :class="c.id == selectedCity ? 'text-[#FF613c]' : ''"
                   >
                     {{ c.name }}
                   </p>
@@ -139,7 +212,7 @@
               </div>
             </div>
             <div>
-              <h2 class="text-sm text-main font-medium">Choose Place</h2>
+              <h2 class="text-sm text-[#FF613c] font-medium">Choose Place</h2>
               <div
                 class="space-y-1 h-[200px] overflow-y-scroll scroll-container-y pt-3"
                 v-if="!loadingPlace"
@@ -155,7 +228,7 @@
                 >
                   <p
                     class="text-xs w-[110px] mt-1.5 line-clamp-1"
-                    :class="selectedPlace == '' ? 'text-main' : ''"
+                    :class="selectedPlace == '' ? 'text-[#FF613c]' : ''"
                   >
                     All places
                   </p>
@@ -179,7 +252,7 @@
                 >
                   <p
                     class="text-xs w-[110px] mt-1.5 line-clamp-1"
-                    :class="p == selectedPlace ? 'text-main' : ''"
+                    :class="p == selectedPlace ? 'text-[#FF613c]' : ''"
                   >
                     {{ p }}
                   </p>
@@ -194,13 +267,13 @@
               <div v-else class="flex justify-center items-center h-[200px]">
                 <div class="flex gap-1">
                   <div
-                    class="w-2 h-2 rounded-full bg-main animate-bounce"
+                    class="w-2 h-2 rounded-full bg-[#FF613c] animate-bounce"
                   ></div>
                   <div
-                    class="w-2 h-2 rounded-full bg-main animate-bounce [animation-delay:-.3s]"
+                    class="w-2 h-2 rounded-full bg-[#FF613c] animate-bounce [animation-delay:-.3s]"
                   ></div>
                   <div
-                    class="w-2 h-2 rounded-full bg-main animate-bounce [animation-delay:-.5s]"
+                    class="w-2 h-2 rounded-full bg-[#FF613c] animate-bounce [animation-delay:-.5s]"
                   ></div>
                 </div>
               </div>
@@ -211,19 +284,19 @@
           >
             <p
               @click="showSearchPanel = false"
-              class="text-xs font-medium px-3 py-2 border border-black/10 rounded-full"
+              class="text-xs font-medium px-3 py-2 border border-black/10 rounded-full cursor-pointer"
             >
               Cancel
             </p>
             <p
               @click="resetFilters"
-              class="text-xs font-medium px-3 py-2 bg-red-500 text-white rounded-full"
+              class="text-xs font-medium px-3 py-2 bg-red-500 text-white rounded-full cursor-pointer"
             >
               Reset
             </p>
             <p
               @click="applyFilters"
-              class="text-xs font-medium px-3 py-2 bg-[#FF613c] text-white rounded-full"
+              class="text-xs font-medium px-3 py-2 bg-[#FF613c] text-white rounded-full cursor-pointer"
             >
               Apply
             </p>
@@ -296,7 +369,16 @@
                         "★".repeat(hotel.rating || 0)
                       }}</span>
                     </div>
-                    <p class="text-[10px]">Strating from</p>
+                    <p
+                      class="text-[10px]"
+                      :class="
+                        selectedHotelId === hotel.id
+                          ? 'text-white'
+                          : 'text-gray-900'
+                      "
+                    >
+                      Starting from
+                    </p>
                     <div class="flex items-start justify-between mt-2">
                       <div class="text-right">
                         <!-- Current Price -->
@@ -340,7 +422,7 @@
         class="absolute inset-0 bg-white/80 flex items-center justify-center z-[2000]"
       >
         <div
-          class="w-12 h-12 border-4 border-main/20 border-t-main rounded-full animate-spin"
+          class="w-12 h-12 border-4 border-[#FF613c]/20 border-t-[#FF613c] rounded-full animate-spin"
         ></div>
       </div>
     </div>
@@ -373,6 +455,7 @@ const allHotels = ref([]);
 const cityList = ref([]);
 const selectedCity = ref(2);
 const selectedPlace = ref("");
+const priceFilter = ref(""); // NEW - Price filter state
 const showSearchPanel = ref(false);
 const showHotelList = ref(true);
 const selectedHotelId = ref(2);
@@ -406,6 +489,43 @@ const closeShowDateBox = () => {
   showDateBox.value = false;
 };
 
+// NEW - Price filter function
+const setPriceFilter = (filter) => {
+  if (loading.value) return;
+  priceFilter.value = filter;
+  updateMapMarkers();
+
+  // Center map on filtered hotels after a short delay
+  setTimeout(() => {
+    centerMapOnFilteredHotels();
+  }, 300);
+};
+
+const getFilterPriceName = (filter) => {
+  switch (filter) {
+    case "0-1200":
+      return "budget (< 1200฿)";
+    case "1200-1800":
+      return "standard (1200 - 1800฿)";
+    case "1800-3000":
+      return "premium (1800 - 3000฿)";
+    case "3000-100000":
+      return "luxury (3000+฿)";
+    default:
+      return "all";
+  }
+};
+
+// NEW - Check if hotel price is within the selected range
+const isHotelInPriceRange = (hotel) => {
+  if (!priceFilter.value) return true; // No filter applied
+
+  const price = hotel.lowest_room_price || 0;
+  const [min, max] = priceFilter.value.split("-").map(Number);
+
+  return price >= min && price <= max;
+};
+
 const filteredHotels = computed(() => {
   let filtered = allHotels.value;
 
@@ -415,6 +535,11 @@ const filteredHotels = computed(() => {
 
   if (selectedPlace.value) {
     filtered = filtered.filter((hotel) => hotel.place === selectedPlace.value);
+  }
+
+  // NEW - Apply price filter
+  if (priceFilter.value) {
+    filtered = filtered.filter(isHotelInPriceRange);
   }
 
   return filtered;
@@ -442,8 +567,6 @@ const getCityName = (cityId) => {
   const city = cityList.value.find((c) => c.id == cityId);
   return city ? city.name : "All cities";
 };
-
-// FIXED - Safe area detection with multiple fallback methods
 
 // Methods
 const toggleSearchPanel = () => {
@@ -502,15 +625,6 @@ const scrollToHotel = (hotelId) => {
       });
     }
   }, 100);
-
-  // Remove highlight after 2 seconds
-  // setTimeout(() => {
-  //   selectedHotelId.value = null;
-  //   // Also remove active class from marker
-  //   if (activeMarker) {
-  //     activeMarker.classList.remove("active");
-  //   }
-  // }, 2000);
 };
 
 const getMapList = async () => {
@@ -549,6 +663,7 @@ const applyFilters = () => {
 const resetFilters = () => {
   selectedCity.value = "";
   selectedPlace.value = "";
+  priceFilter.value = ""; // NEW - Reset price filter
   updateMapMarkers();
 };
 
@@ -574,7 +689,7 @@ const initializeMap = () => {
     spiderfyOnMaxZoom: true,
     showCoverageOnHover: false,
     zoomToBoundsOnClick: true,
-    disableClusteringAtZoom: 14, // Changed from 16 to 14 - stops clustering earlier
+    disableClusteringAtZoom: 14,
 
     // Custom cluster icon
     iconCreateFunction: function (cluster) {
@@ -629,7 +744,7 @@ const updateMapMarkers = () => {
         [parseFloat(hotel.latitude), parseFloat(hotel.longitude)],
         {
           icon: priceIcon,
-          hotelData: hotel, // Store hotel data for cluster averaging
+          hotelData: hotel,
         }
       );
 
@@ -663,8 +778,8 @@ const updateMapMarkers = () => {
 };
 
 // Add this computed property to watch for filter changes
-watch([selectedCity, selectedPlace], () => {
-  if (selectedCity.value || selectedPlace.value) {
+watch([selectedCity, selectedPlace, priceFilter], () => {
+  if (selectedCity.value || selectedPlace.value || priceFilter.value) {
     centerMapOnFilteredHotels();
   }
 });
@@ -769,7 +884,7 @@ onUnmounted(() => {
 }
 
 :deep(.price-badge.active) {
-  background: #f97316 !important; /* Orange 500 */
+  background: #f97316 !important;
   color: white !important;
   border-color: #f97316 !important;
   transform: scale(1.1);

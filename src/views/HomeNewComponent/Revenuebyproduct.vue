@@ -1,5 +1,7 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm px-6 pt-6 pb-8">
+  <div
+    class="bg-white rounded-lg h-[39vh] overflow-scroll shadow-sm px-6 pt-6 pb-8"
+  >
     <p class="text-gray-500 text-sm font-medium mb-6">REVENUE BY PRODUCT</p>
     <div class="space-y-4">
       <div v-for="product in revenueData?.product_type_summary" :key="product">

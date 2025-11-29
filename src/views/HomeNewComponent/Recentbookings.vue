@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white p-6 rounded-lg shadow-sm h-[45vh] overflow-scroll">
+  <div class="bg-white p-6 rounded-lg shadow-sm h-[49.5vh] overflow-scroll">
     <!-- Header with filters -->
     <div class="mb-4">
       <h3 class="text-lg font-semibold mb-3">Receivables</h3>
@@ -14,16 +14,6 @@
             {{ agent.name }}
           </option>
         </select>
-
-        <!-- <select
-          v-model="selectedType"
-          class="bg-white text-sm w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-        >
-          <option value="">All</option>
-          <option value="have_flight">Have Flight</option>
-          <option value="have_vantour">Have Vantour</option>
-          <option value="no_flight_no_vantour">No Flight and Vantour</option>
-        </select> -->
       </div>
     </div>
 

@@ -1,6 +1,8 @@
 <template>
   <Layout>
-    <div class="fixed inset-0 w-full h-full overflow-hidden overscroll-none">
+    <div
+      class="fixed inset-0 w-screen h-screen overflow-hidden overscroll-none"
+    >
       <!-- Centered Search Bar (Airbnb Style) -->
       <div
         class="absolute top-5 left-1/2 transform w-[50%] -translate-x-1/2 z-[1001]"
@@ -50,20 +52,7 @@
             @click="toggleSearchPanel"
             class="w-8 h-8 bg-[#FF613c] rounded-full flex items-center justify-center"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="white"
-              stroke-width="3"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.35-4.35"></path>
-            </svg>
+            <FunnelIcon class="w-4 h-4 text-white" />
           </div>
         </button>
       </div>
@@ -441,7 +430,7 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
 import { useRoute, useRouter } from "vue-router";
-import { XMarkIcon } from "@heroicons/vue/24/outline";
+import { FunnelIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 
 const hotelStore = useHotelStore();
 const cityStore = useCityStore();

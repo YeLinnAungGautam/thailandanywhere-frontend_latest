@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm p-6">
+  <div class="bg-white rounded-lg shadow-sm p-6 h-[47.5vh]">
     <p class="text-gray-700 text-lg font-semibold mb-6">Bookings by Source</p>
     <div class="space-y-4">
       <div

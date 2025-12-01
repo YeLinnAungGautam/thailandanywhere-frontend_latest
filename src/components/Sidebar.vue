@@ -67,11 +67,7 @@
                   !authStore.isExternalAudit
                 "
               />
-              <SidebarItem
-                name="homeNew"
-                :icon="Squares2X2Icon"
-                to="/home_new"
-              />
+
               <SidebarItem name="MapHotel" :icon="MapIcon" to="/map_hotel" />
               <SidebarItem
                 name="Sales"

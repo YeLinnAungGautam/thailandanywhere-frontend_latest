@@ -212,10 +212,10 @@ const router = useRouter();
 const route = useRoute();
 
 const openSelection = ref(false);
-const selectedProductType = ref("attraction");
+const selectedProductType = ref("all");
 
 const backgroundCustom = ref("bg-blue-600");
-const productType = ref("App\\Models\\EntranceTicket");
+const productType = ref("");
 
 const chooseType = ref("");
 
@@ -493,7 +493,7 @@ onMounted(async () => {
   }
   if (route.query.selectedProductType) {
     // selectedProductType.value = route.query.selectedProductType;
-    changeBackground(route.query.selectedProductType);
+    changeBackground(route.query.selectedProductType || "all");
   }
   if (route.query.userFilter) {
     userFilter.value = route.query.userFilter;

@@ -30,8 +30,9 @@ import {
   subMonths,
 } from "date-fns";
 import Allowment from "./Dashboard/Allowment.vue";
+import HomeNew from "./HomeNew.vue";
 
-const dashboardReservation = ref("sale");
+const dashboardReservation = ref("overView");
 
 const userSalesShow = ref(false);
 
@@ -338,10 +339,19 @@ watch(dateForUnpaid, async (newValue) => {
     >
       <div
         class="px-2 py-1 text-xs rounded-lg cursor-pointer flex justify-start items-center gap-1.5"
+        :class="
+          dashboardReservation == 'overView' ? 'text-white bg-[#ff613c]' : ''
+        "
+        @click="dashboardReservation = 'overView'"
+      >
+        Sales Overview
+      </div>
+      <div
+        class="px-2 py-1 text-xs rounded-lg cursor-pointer flex justify-start items-center gap-1.5"
         :class="dashboardReservation == 'sale' ? 'text-white bg-[#ff613c]' : ''"
         @click="dashboardReservation = 'sale'"
       >
-        Sales
+        Calendar & Sales
       </div>
       <div
         class="px-2 py-1 text-xs rounded-lg cursor-pointer flex justify-start items-center gap-1.5"
@@ -587,6 +597,9 @@ watch(dateForUnpaid, async (newValue) => {
     </div>
     <div class="" v-if="dashboardReservation == 'reservation'">
       <ReservationPartHome />
+    </div>
+    <div class="" v-if="dashboardReservation == 'overView'">
+      <HomeNew />
     </div>
     <div class="col-span-3 w-full" v-if="dashboardReservation == 'allowment'">
       <Allowment />

@@ -9,129 +9,127 @@
     </div>
 
     <!-- Main Content -->
-    <Layout title="Travel & Tour Agency">
-      <div class="grid grid-cols-7 gap-2">
-        <!-- Filter Section -->
-        <div class="col-span-7 bg-white p-4 rounded-lg">
-          <div class="flex items-center justify-between">
+
+    <div class="grid grid-cols-7 gap-2">
+      <!-- Filter Section -->
+      <div class="col-span-7 bg-white p-4 rounded-lg">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <MonthDropdown v-model="selectMonth" />
             <div class="flex items-center gap-4">
-              <MonthDropdown v-model="selectMonth" />
-              <div class="flex items-center gap-4">
-                <select
-                  v-if="showAgentFilter"
-                  v-model="selectedAgent"
-                  class="bg-white text-sm w-full px-3 focus:outline-none"
-                >
-                  <option value="">All Agents</option>
-                  <option
-                    v-for="agent in agentsList"
-                    :key="agent.id"
-                    :value="agent.id"
-                  >
-                    {{ agent.name }}
-                  </option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Main Dashboard Content -->
-        <div class="col-span-5">
-          <div class="grid grid-cols-5 gap-2">
-            <div class="col-span-3 grid grid-cols-2 gap-2">
-              <!-- Average Sales -->
-              <StatCard
-                title="AVERAGE SALES"
-                :value="formatCurrency(averageSales)"
-              />
-
-              <!-- Booking Stats -->
-              <BookingStats :summary="summary" />
-
-              <!-- Sales Overview Chart -->
-              <div
-                class="col-span-2"
-                v-if="displaySalesData.length > 0 && targetValue"
+              <select
+                v-if="showAgentFilter"
+                v-model="selectedAgent"
+                class="bg-white text-sm w-full px-3 focus:outline-none"
               >
-                <SalesOverview
-                  :salesData="displaySalesData"
-                  :averageValue="targetValue"
-                  :viewMode="graphViewMode"
+                <option value="">All Agents</option>
+                <option
+                  v-for="agent in agentsList"
+                  :key="agent.id"
+                  :value="agent.id"
                 >
-                  <div
-                    class="flex items-center gap-0 bg-gray-100 rounded-lg p-1"
-                  >
-                    <button
-                      @click="graphViewMode = 'daily'"
-                      :class="[
-                        'px-3 py-1 rounded text-[10px] font-medium transition-colors',
-                        graphViewMode === 'daily'
-                          ? 'bg-white text-gray-900 shadow-sm'
-                          : 'text-gray-600 hover:text-gray-900',
-                      ]"
-                    >
-                      Daily Sales
-                    </button>
-                    <button
-                      @click="graphViewMode = 'average'"
-                      :class="[
-                        'px-3 py-1 rounded text-[10px] font-medium transition-colors',
-                        graphViewMode === 'average'
-                          ? 'bg-white text-gray-900 shadow-sm'
-                          : 'text-gray-600 hover:text-gray-900',
-                      ]"
-                    >
-                      Cumulative Average
-                    </button>
-                  </div>
-                </SalesOverview>
-              </div>
-            </div>
-
-            <!-- ... rest of your template ... -->
-            <div class="col-span-2">
-              <div class="grid grid-cols-2 gap-2">
-                <div class="col-span-2">
-                  <RevenueByProduct :revenueData="summary" />
-                </div>
-                <div class="col-span-2">
-                  <ConversionRate
-                    :rate="commissionAmount"
-                    :value="daysToTarget"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <!-- Bottom Section -->
-            <div class="col-span-5">
-              <div class="grid grid-cols-2 gap-2">
-                <BookingsBySource :sources="bookingsBySource" />
-                <AverageBookingValue :bookingData="summary" />
-              </div>
+                  {{ agent.name }}
+                </option>
+              </select>
             </div>
           </div>
-        </div>
-
-        <!-- Right Sidebar -->
-        <div class="col-span-2 space-y-2">
-          <MonthlyTarget
-            :percentage="monthlyTargetPercentage"
-            :copercentage="80"
-          />
-          <TopSalesReps :salesReps="topSalesReps" />
-          <RecentBookings
-            :bookings="recentBookings"
-            :selectedMonth="selectMonth"
-            :dataCount="receivableDataCount"
-            :dataSummary="receivableDataSummary"
-            :receivablesList="receivablesList"
-            :receivablesLoading="receivablesLoading"
-          />
         </div>
       </div>
-    </Layout>
+
+      <!-- Main Dashboard Content -->
+      <div class="col-span-5">
+        <div class="grid grid-cols-5 gap-2">
+          <div class="col-span-3 grid grid-cols-2 gap-2">
+            <!-- Average Sales -->
+            <StatCard
+              title="AVERAGE SALES"
+              :value="formatCurrency(averageSales)"
+            />
+
+            <!-- Booking Stats -->
+            <BookingStats :summary="summary" />
+
+            <!-- Sales Overview Chart -->
+            <div
+              class="col-span-2"
+              v-if="displaySalesData.length > 0 && targetValue"
+            >
+              <SalesOverview
+                :salesData="displaySalesData"
+                :averageValue="targetValue"
+                :viewMode="graphViewMode"
+              >
+                <div class="flex items-center gap-0 bg-gray-100 rounded-lg p-1">
+                  <button
+                    @click="graphViewMode = 'daily'"
+                    :class="[
+                      'px-3 py-1 rounded text-[10px] font-medium transition-colors',
+                      graphViewMode === 'daily'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900',
+                    ]"
+                  >
+                    Daily Sales
+                  </button>
+                  <button
+                    @click="graphViewMode = 'average'"
+                    :class="[
+                      'px-3 py-1 rounded text-[10px] font-medium transition-colors',
+                      graphViewMode === 'average'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900',
+                    ]"
+                  >
+                    Cumulative Average
+                  </button>
+                </div>
+              </SalesOverview>
+            </div>
+          </div>
+
+          <!-- ... rest of your template ... -->
+          <div class="col-span-2">
+            <div class="grid grid-cols-2 gap-2">
+              <div class="col-span-2">
+                <RevenueByProduct :revenueData="summary" />
+              </div>
+              <div class="col-span-2">
+                <ConversionRate
+                  :rate="commissionAmount"
+                  :value="daysToTarget"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Section -->
+          <div class="col-span-5">
+            <div class="grid grid-cols-2 gap-2">
+              <BookingsBySource :sources="bookingsBySource" />
+              <AverageBookingValue :bookingData="summary" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <div class="col-span-2 space-y-2">
+        <MonthlyTarget
+          :selectedAgent="selectedAgent"
+          :selectMonth="selectMonth"
+          :agentsList="agentsList"
+        />
+        <TopSalesReps :salesReps="topSalesReps" />
+        <RecentBookings
+          :bookings="recentBookings"
+          :selectedMonth="selectMonth"
+          :dataCount="receivableDataCount"
+          :dataSummary="receivableDataSummary"
+          :receivablesList="receivablesList"
+          :receivablesLoading="receivablesLoading"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -201,7 +199,6 @@ const revenueByProduct = ref([
 ]);
 const commissionAmount = ref(0);
 const daysToTarget = ref(0);
-const monthlyTargetPercentage = ref(0);
 const topSalesReps = ref([]);
 const bookingsBySource = ref([]);
 
@@ -320,6 +317,11 @@ const fetchDailySalesData = async (month) => {
 
         // Push the cumulative average to the array
         monthlySalesData.value.push(cumulativeAverage);
+
+        averageSales.value = Math.round(
+          cumulativeTotal /
+            (isCurrentMonth ? currentDate.getDate() : res.result.sales.length)
+        );
       });
     }
   } catch (error) {
@@ -374,17 +376,6 @@ const fetchCommissionData = async () => {
 
       // Use current day for current month, total days for past months
       const daysToCalculate = isCurrentMonth ? currentDay : totalDaysInMonth;
-
-      // Calculate expected sales up to the relevant day
-      const expectedSalesByDay = userTarget * daysToCalculate;
-
-      // Calculate actual sales up to the relevant day
-      const actualSalesByDay = averageSales.value * daysToCalculate;
-
-      // Calculate percentage
-      monthlyTargetPercentage.value = Math.round(
-        (actualSalesByDay / expectedSalesByDay) * 100
-      );
 
       targetValue.value = userTarget;
 

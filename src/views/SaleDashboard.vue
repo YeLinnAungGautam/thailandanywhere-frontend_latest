@@ -45,6 +45,7 @@ import ReservationCalendarHome from "./Dashboard/ReservationCalendarHome.vue";
 import { useAdminStore } from "../stores/admin";
 import { useSidebarStore } from "../stores/sidebar";
 import AccountReceivable from "./Dashboard/AccountReceivable.vue";
+import HomeNew from "./HomeNew.vue";
 
 Chart.register(...registerables);
 
@@ -737,7 +738,7 @@ const getSaleAgentData = async (date) => {
 
 onMounted(async () => {
   if (route.query.day) {
-    homeSectionPartView.value = "sale-analysis";
+    homeSectionPartView.value = "analysis";
   }
 
   date.value = new Date();
@@ -771,7 +772,7 @@ watch(priceSalesGraphAgent, async (newValue) => {
   getAllDays(monthForGraph.value);
 });
 
-const homeSectionPartView = ref("sale");
+const homeSectionPartView = ref("analysis");
 </script>
 
 <template>
@@ -781,6 +782,11 @@ const homeSectionPartView = ref("sale");
         :class="isShowSidebar ? 'left-[250px]' : 'left-[100px]'"
         class="space-x-8 col-span-3 flex justify-start transistion-all duration-200 items-center gap-2 text-sm pb-4 absolute top-8"
       >
+        <HomeFirstPartVue
+          :title="'Analysis'"
+          :isActive="homeSectionPartView == 'analysis'"
+          @click="homeSectionPartView = 'analysis'"
+        />
         <HomeFirstPartVue
           :title="'Sales analysis'"
           :isActive="homeSectionPartView == 'sale'"
@@ -1073,6 +1079,9 @@ const homeSectionPartView = ref("sale");
       v-if="homeSectionPartView == 'sale-analysis'"
     >
       <ReservationCalendarHome />
+    </div>
+    <div class="col-span-3 w-full" v-if="homeSectionPartView == 'analysis'">
+      <HomeNew />
     </div>
     <div
       class="col-span-3 w-full"

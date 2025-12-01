@@ -107,11 +107,6 @@ const routes = [
     component: HomeView,
   },
   {
-    path: "/home_new",
-    name: "homeNew",
-    component: HomeNewView,
-  },
-  {
     path: "/map_hotel",
     name: "MapHotel",
     component: MapHotel,

@@ -59,6 +59,7 @@ import CashImageReport from "./Dashboard/CashImageReport.vue";
 import ProductTypeProfit from "./HomeGraph/ProductTypeProfit.vue";
 import ProductTypeExpense from "./HomeGraph/ProductTypeExpense.vue";
 import Allowment from "./Dashboard/Allowment.vue";
+import HomeNew from "./HomeNew.vue";
 
 Chart.register(...registerables);
 
@@ -885,6 +886,11 @@ watch(homeSectionPartView, (newValue) => {
           @click="homeSectionPartView = 'sale'"
         />
         <HomeFirstPartVue
+          :title="'Analysis'"
+          :isActive="homeSectionPartView == 'analysis'"
+          @click="homeSectionPartView = 'analysis'"
+        />
+        <HomeFirstPartVue
           :title="'Calendar'"
           :isActive="homeSectionPartView == 'sale-analysis'"
           @click="homeSectionPartView = 'sale-analysis'"
@@ -1271,6 +1277,9 @@ watch(homeSectionPartView, (newValue) => {
         v-if="homeSectionPartView == 'sale-analysis'"
       >
         <ReservationCalendarHome />
+      </div>
+      <div class="col-span-3 w-full" v-if="homeSectionPartView == 'analysis'">
+        <HomeNew />
       </div>
       <div
         class="col-span-3 w-full"

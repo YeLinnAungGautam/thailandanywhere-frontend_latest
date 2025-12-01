@@ -1,8 +1,6 @@
 <template>
   <Layout>
-    <div
-      class="fixed inset-0 w-screen h-screen overflow-hidden overscroll-none"
-    >
+    <div class="fixed inset-0 w-full h-full overflow-hidden overscroll-none">
       <!-- Centered Search Bar (Airbnb Style) -->
       <div
         class="absolute top-5 left-1/2 transform w-[50%] -translate-x-1/2 z-[1001]"
@@ -61,7 +59,7 @@
       <button
         @click="toggleHotelList"
         :style="{
-          bottom: showHotelList ? `${200}px` : `${40}px`,
+          bottom: showHotelList ? `${250}px` : `${100}px`,
         }"
         :class="showHotelList ? 'rotate-[180deg]' : ''"
         class="absolute right-3 z-[1001] w-12 h-12 bg-white border border-black/10 hover:bg-gray-50 rounded-full shadow-lg flex items-center justify-center transition-all duration-300"
@@ -307,7 +305,7 @@
       >
         <div
           v-if="showHotelList"
-          class="absolute left-5 right-5 z-[999] bottom-5 pointer-events-none"
+          class="absolute left-5 right-5 z-[999] bottom-[100px] pointer-events-none"
         >
           <div
             ref="hotelListContainer"

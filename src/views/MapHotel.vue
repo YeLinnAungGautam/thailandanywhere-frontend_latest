@@ -1,415 +1,419 @@
 <template>
   <Layout>
-    <div class="fixed inset-0 w-full h-full overflow-hidden overscroll-none">
-      <!-- Centered Search Bar (Airbnb Style) -->
-      <div
-        class="absolute top-5 left-1/2 transform w-[50%] -translate-x-1/2 z-[1001]"
-      >
-        <button
-          class="bg-white rounded-full w-full shadow-lg pl-5 pr-5 py-3 flex items-center justify-between gap-3 hover:shadow-xl transition-all duration-300"
-        >
-          <div @click="router.back()">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-5 h-5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
-            </svg>
-          </div>
-          <div class="text-left pl-4" @click="showDateBox = true">
-            <p class="text-sm font-semibold text-gray-900 line-clamp-1">
-              {{
-                selectedCity ? getCityName(selectedCity) : "Hotels in map area"
-              }}
-              {{ selectedPlace ? ` · ${selectedPlace}` : "" }}
-              {{ priceFilter ? ` · ${getFilterPriceName(priceFilter)}` : "" }}
-            </p>
-            <p class="text-[10px] text-gray-500">
-              {{
-                checkin_date && checkout_date && room_qty
-                  ? checkin_date.replace('"', "") +
-                    " - " +
-                    checkout_date.replace('"', "") +
-                    " · " +
-                    room_qty +
-                    " room"
-                  : "Click here to choose dates"
-              }}
-            </p>
-          </div>
-
-          <div
-            @click="toggleSearchPanel"
-            class="w-8 h-8 bg-[#FF613c] rounded-full flex items-center justify-center"
-          >
-            <FunnelIcon class="w-4 h-4 text-white" />
-          </div>
-        </button>
-      </div>
-
-      <!-- Hotel List Toggle Button - FIXED -->
-      <button
-        @click="toggleHotelList"
-        :style="{
-          bottom: showHotelList ? `${250}px` : `${100}px`,
-        }"
-        :class="showHotelList ? 'rotate-[180deg]' : ''"
-        class="absolute right-3 z-[1001] w-12 h-12 bg-white border border-black/10 hover:bg-gray-50 rounded-full shadow-lg flex items-center justify-center transition-all duration-300"
-      >
-        <svg
-          enable-background="new 0 0 32 32"
-          height="20px"
-          id="Layer_1"
-          version="1.1"
-          viewBox="0 0 32 32"
-          width="32px"
-          xml:space="preserve"
-          xmlns="http://www.w3.org/2000/svg"
-          xmlns:xlink="http://www.w3.org/1999/xlink"
-        >
-          <path
-            d="M18.221,7.206l9.585,9.585c0.879,0.879,0.879,2.317,0,3.195l-0.8,0.801c-0.877,0.878-2.316,0.878-3.194,0  l-7.315-7.315l-7.315,7.315c-0.878,0.878-2.317,0.878-3.194,0l-0.8-0.801c-0.879-0.878-0.879-2.316,0-3.195l9.587-9.585  c0.471-0.472,1.103-0.682,1.723-0.647C17.115,6.524,17.748,6.734,18.221,7.206z"
-            fill="#515151"
-          />
-        </svg>
-      </button>
-
-      <Modal :isOpen="showSearchPanel" @closeModal="showSearchPanel = false">
-        <DialogPanel
-          class="w-full max-w-xl p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
-        >
-          <DialogTitle
-            as="h3"
-            class="text-lg font-medium leading-6 text-gray-900"
-          >
-            Search
-          </DialogTitle>
-
-          <div class="grid grid-cols-2 gap-2 pt-5">
-            <div class="col-span-2 pb-4">
-              <!-- Price Filter Bar - NEW -->
-              <div class="">
-                <div class="flex justify-start items-center space-x-1.5 pb-1">
-                  <p
-                    @click="setPriceFilter('')"
-                    :class="[
-                      priceFilter == ''
-                        ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
-                        : 'border-black/10 bg-white',
-                      { 'bg-gray-300 text-black/30': loading },
-                    ]"
-                    class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
-                  >
-                    all
-                  </p>
-
-                  <p
-                    @click="setPriceFilter('0-1200')"
-                    :class="[
-                      priceFilter == '0-1200'
-                        ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
-                        : 'border-black/10 bg-white',
-                      { 'bg-gray-300 text-black/30': loading },
-                    ]"
-                    class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
-                  >
-                    budget <span class="text-[8px]">(&lt; 1200฿)</span>
-                  </p>
-
-                  <p
-                    @click="setPriceFilter('1200-1800')"
-                    :class="[
-                      priceFilter == '1200-1800'
-                        ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
-                        : 'border-black/10 bg-white',
-                      { 'bg-gray-300 text-black/30': loading },
-                    ]"
-                    class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
-                  >
-                    standard <span class="text-[8px]">(1200 - 1800฿)</span>
-                  </p>
-
-                  <p
-                    @click="setPriceFilter('1800-3000')"
-                    :class="[
-                      priceFilter == '1800-3000'
-                        ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
-                        : 'border-black/10 bg-white',
-                      { 'bg-gray-300 text-black/30': loading },
-                    ]"
-                    class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
-                  >
-                    premium <span class="text-[8px]">(1800 - 3000฿)</span>
-                  </p>
-
-                  <p
-                    @click="setPriceFilter('3000-100000')"
-                    :class="[
-                      priceFilter == '3000-100000'
-                        ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
-                        : 'border-black/10 bg-white',
-                      { 'bg-gray-300 text-black/30': loading },
-                    ]"
-                    class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
-                  >
-                    luxury <span class="text-[8px]">(3000+฿)</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div>
-              <h2 class="text-sm text-[#FF613c] font-medium">Choose City</h2>
-              <div
-                class="space-y-1 h-[200px] pr-2 pl-1 pt-3 overflow-y-scroll scroll-container-y"
-              >
-                <div
-                  class="flex justify-between items-center space-y-2 pb-2 pt-0.5 px-2"
-                  v-for="c in cityList ?? []"
-                  :key="c"
-                  :class="c.id == selectedCity ? ' shadow-md rounded-xl' : ''"
-                  @click="
-                    () => {
-                      selectedCity = c.id;
-                      chooseCityName = c.name;
-                    }
-                  "
-                >
-                  <p
-                    class="text-xs w-[110px] mt-1.5 line-clamp-1"
-                    :class="c.id == selectedCity ? 'text-[#FF613c]' : ''"
-                  >
-                    {{ c.name }}
-                  </p>
-                  <input
-                    type="checkbox"
-                    class=""
-                    name=""
-                    :checked="c.id == selectedCity"
-                    id=""
-                  />
-                </div>
-              </div>
-            </div>
-            <div>
-              <h2 class="text-sm text-[#FF613c] font-medium">Choose Place</h2>
-              <div
-                class="space-y-1 h-[200px] overflow-y-scroll scroll-container-y pt-3"
-                v-if="!loadingPlace"
-              >
-                <div
-                  class="flex justify-between items-center space-y-2 pb-2 pt-0.5 px-2"
-                  @click="selectedPlace = ''"
-                  :class="
-                    selectedPlace == ''
-                      ? ' shadow-md border border-black/5 rounded-xl'
-                      : ''
-                  "
-                >
-                  <p
-                    class="text-xs w-[110px] mt-1.5 line-clamp-1"
-                    :class="selectedPlace == '' ? 'text-[#FF613c]' : ''"
-                  >
-                    All places
-                  </p>
-                  <input
-                    type="checkbox"
-                    name=""
-                    :checked="selectedPlace == ''"
-                    id=""
-                  />
-                </div>
-                <div
-                  class="flex justify-between items-center space-y-2 pb-2 pt-0.5 px-2"
-                  v-for="p in getPlaceList ?? []"
-                  :key="p"
-                  :class="
-                    p == selectedPlace
-                      ? ' shadow-md border border-black/5 rounded-xl'
-                      : ''
-                  "
-                  @click="selectedPlace = p"
-                >
-                  <p
-                    class="text-xs w-[110px] mt-1.5 line-clamp-1"
-                    :class="p == selectedPlace ? 'text-[#FF613c]' : ''"
-                  >
-                    {{ p }}
-                  </p>
-                  <input
-                    type="checkbox"
-                    name=""
-                    :checked="p == selectedPlace"
-                    id=""
-                  />
-                </div>
-              </div>
-              <div v-else class="flex justify-center items-center h-[200px]">
-                <div class="flex gap-1">
-                  <div
-                    class="w-2 h-2 rounded-full bg-[#FF613c] animate-bounce"
-                  ></div>
-                  <div
-                    class="w-2 h-2 rounded-full bg-[#FF613c] animate-bounce [animation-delay:-.3s]"
-                  ></div>
-                  <div
-                    class="w-2 h-2 rounded-full bg-[#FF613c] animate-bounce [animation-delay:-.5s]"
-                  ></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            class="flex justify-end items-center gap-x-3 pt-4 border-t border-black/5 mt-3"
-          >
-            <p
-              @click="showSearchPanel = false"
-              class="text-xs font-medium px-3 py-2 border border-black/10 rounded-full cursor-pointer"
-            >
-              Cancel
-            </p>
-            <p
-              @click="resetFilters"
-              class="text-xs font-medium px-3 py-2 bg-red-500 text-white rounded-full cursor-pointer"
-            >
-              Reset
-            </p>
-            <p
-              @click="applyFilters"
-              class="text-xs font-medium px-3 py-2 bg-[#FF613c] text-white rounded-full cursor-pointer"
-            >
-              Apply
-            </p>
-          </div>
-        </DialogPanel>
-      </Modal>
-
-      <!-- Map -->
-      <div id="map" ref="mapRef" class="w-full h-full"></div>
-
-      <!-- Scrollable Hotel Cards at Bottom - FIXED -->
-      <transition
-        enter-active-class="transition-all duration-300 ease-out"
-        enter-from-class="opacity-0 translate-y-8"
-        enter-to-class="opacity-100 translate-y-0"
-        leave-active-class="transition-all duration-200 ease-in"
-        leave-from-class="opacity-100 translate-y-0"
-        leave-to-class="opacity-0 translate-y-8"
-      >
+    <div class="relative w-full h-full">
+      <div class="fixed inset-0 w-full h-full overflow-hidden overscroll-none">
+        <!-- Centered Search Bar (Airbnb Style) -->
         <div
-          v-if="showHotelList"
-          class="absolute left-5 right-5 z-[999] bottom-[100px] pointer-events-none"
+          class="absolute top-5 left-1/2 transform w-[50%] -translate-x-1/2 z-[1001]"
+        >
+          <button
+            class="bg-white rounded-full w-full shadow-lg pl-5 pr-5 py-3 flex items-center justify-between gap-3 hover:shadow-xl transition-all duration-300"
+          >
+            <div @click="router.back()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-5 h-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.75 19.5 8.25 12l7.5-7.5"
+                />
+              </svg>
+            </div>
+            <div class="text-left pl-4" @click="showDateBox = true">
+              <p class="text-sm font-semibold text-gray-900 line-clamp-1">
+                {{
+                  selectedCity
+                    ? getCityName(selectedCity)
+                    : "Hotels in map area"
+                }}
+                {{ selectedPlace ? ` · ${selectedPlace}` : "" }}
+                {{ priceFilter ? ` · ${getFilterPriceName(priceFilter)}` : "" }}
+              </p>
+              <p class="text-[10px] text-gray-500">
+                {{
+                  checkin_date && checkout_date && room_qty
+                    ? checkin_date.replace('"', "") +
+                      " - " +
+                      checkout_date.replace('"', "") +
+                      " · " +
+                      room_qty +
+                      " room"
+                    : "Click here to choose dates"
+                }}
+              </p>
+            </div>
+
+            <div
+              @click="toggleSearchPanel"
+              class="w-8 h-8 bg-[#FF613c] rounded-full flex items-center justify-center"
+            >
+              <FunnelIcon class="w-4 h-4 text-white" />
+            </div>
+          </button>
+        </div>
+
+        <!-- Hotel List Toggle Button - FIXED -->
+        <button
+          @click="toggleHotelList"
+          :style="{
+            bottom: showHotelList ? `${200}px` : `${50}px`,
+          }"
+          :class="showHotelList ? 'rotate-[180deg]' : ''"
+          class="absolute right-3 z-[1001] w-12 h-12 bg-white border border-black/10 hover:bg-gray-50 rounded-full shadow-lg flex items-center justify-center transition-all duration-300"
+        >
+          <svg
+            enable-background="new 0 0 32 32"
+            height="20px"
+            id="Layer_1"
+            version="1.1"
+            viewBox="0 0 32 32"
+            width="32px"
+            xml:space="preserve"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+          >
+            <path
+              d="M18.221,7.206l9.585,9.585c0.879,0.879,0.879,2.317,0,3.195l-0.8,0.801c-0.877,0.878-2.316,0.878-3.194,0  l-7.315-7.315l-7.315,7.315c-0.878,0.878-2.317,0.878-3.194,0l-0.8-0.801c-0.879-0.878-0.879-2.316,0-3.195l9.587-9.585  c0.471-0.472,1.103-0.682,1.723-0.647C17.115,6.524,17.748,6.734,18.221,7.206z"
+              fill="#515151"
+            />
+          </svg>
+        </button>
+
+        <Modal :isOpen="showSearchPanel" @closeModal="showSearchPanel = false">
+          <DialogPanel
+            class="w-full max-w-xl p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
+          >
+            <DialogTitle
+              as="h3"
+              class="text-lg font-medium leading-6 text-gray-900"
+            >
+              Search
+            </DialogTitle>
+
+            <div class="grid grid-cols-2 gap-2 pt-5">
+              <div class="col-span-2 pb-4">
+                <!-- Price Filter Bar - NEW -->
+                <div class="">
+                  <div class="flex justify-start items-center space-x-1.5 pb-1">
+                    <p
+                      @click="setPriceFilter('')"
+                      :class="[
+                        priceFilter == ''
+                          ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                          : 'border-black/10 bg-white',
+                        { 'bg-gray-300 text-black/30': loading },
+                      ]"
+                      class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
+                    >
+                      all
+                    </p>
+
+                    <p
+                      @click="setPriceFilter('0-1200')"
+                      :class="[
+                        priceFilter == '0-1200'
+                          ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                          : 'border-black/10 bg-white',
+                        { 'bg-gray-300 text-black/30': loading },
+                      ]"
+                      class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
+                    >
+                      budget <span class="text-[8px]">(&lt; 1200฿)</span>
+                    </p>
+
+                    <p
+                      @click="setPriceFilter('1200-1800')"
+                      :class="[
+                        priceFilter == '1200-1800'
+                          ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                          : 'border-black/10 bg-white',
+                        { 'bg-gray-300 text-black/30': loading },
+                      ]"
+                      class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
+                    >
+                      standard <span class="text-[8px]">(1200 - 1800฿)</span>
+                    </p>
+
+                    <p
+                      @click="setPriceFilter('1800-3000')"
+                      :class="[
+                        priceFilter == '1800-3000'
+                          ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                          : 'border-black/10 bg-white',
+                        { 'bg-gray-300 text-black/30': loading },
+                      ]"
+                      class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
+                    >
+                      premium <span class="text-[8px]">(1800 - 3000฿)</span>
+                    </p>
+
+                    <p
+                      @click="setPriceFilter('3000-100000')"
+                      :class="[
+                        priceFilter == '3000-100000'
+                          ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                          : 'border-black/10 bg-white',
+                        { 'bg-gray-300 text-black/30': loading },
+                      ]"
+                      class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
+                    >
+                      luxury <span class="text-[8px]">(3000+฿)</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h2 class="text-sm text-[#FF613c] font-medium">Choose City</h2>
+                <div
+                  class="space-y-1 h-[200px] pr-2 pl-1 pt-3 overflow-y-scroll scroll-container-y"
+                >
+                  <div
+                    class="flex justify-between items-center space-y-2 pb-2 pt-0.5 px-2"
+                    v-for="c in cityList ?? []"
+                    :key="c"
+                    :class="c.id == selectedCity ? ' shadow-md rounded-xl' : ''"
+                    @click="
+                      () => {
+                        selectedCity = c.id;
+                        chooseCityName = c.name;
+                      }
+                    "
+                  >
+                    <p
+                      class="text-xs w-[110px] mt-1.5 line-clamp-1"
+                      :class="c.id == selectedCity ? 'text-[#FF613c]' : ''"
+                    >
+                      {{ c.name }}
+                    </p>
+                    <input
+                      type="checkbox"
+                      class=""
+                      name=""
+                      :checked="c.id == selectedCity"
+                      id=""
+                    />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h2 class="text-sm text-[#FF613c] font-medium">Choose Place</h2>
+                <div
+                  class="space-y-1 h-[200px] overflow-y-scroll scroll-container-y pt-3"
+                  v-if="!loadingPlace"
+                >
+                  <div
+                    class="flex justify-between items-center space-y-2 pb-2 pt-0.5 px-2"
+                    @click="selectedPlace = ''"
+                    :class="
+                      selectedPlace == ''
+                        ? ' shadow-md border border-black/5 rounded-xl'
+                        : ''
+                    "
+                  >
+                    <p
+                      class="text-xs w-[110px] mt-1.5 line-clamp-1"
+                      :class="selectedPlace == '' ? 'text-[#FF613c]' : ''"
+                    >
+                      All places
+                    </p>
+                    <input
+                      type="checkbox"
+                      name=""
+                      :checked="selectedPlace == ''"
+                      id=""
+                    />
+                  </div>
+                  <div
+                    class="flex justify-between items-center space-y-2 pb-2 pt-0.5 px-2"
+                    v-for="p in getPlaceList ?? []"
+                    :key="p"
+                    :class="
+                      p == selectedPlace
+                        ? ' shadow-md border border-black/5 rounded-xl'
+                        : ''
+                    "
+                    @click="selectedPlace = p"
+                  >
+                    <p
+                      class="text-xs w-[110px] mt-1.5 line-clamp-1"
+                      :class="p == selectedPlace ? 'text-[#FF613c]' : ''"
+                    >
+                      {{ p }}
+                    </p>
+                    <input
+                      type="checkbox"
+                      name=""
+                      :checked="p == selectedPlace"
+                      id=""
+                    />
+                  </div>
+                </div>
+                <div v-else class="flex justify-center items-center h-[200px]">
+                  <div class="flex gap-1">
+                    <div
+                      class="w-2 h-2 rounded-full bg-[#FF613c] animate-bounce"
+                    ></div>
+                    <div
+                      class="w-2 h-2 rounded-full bg-[#FF613c] animate-bounce [animation-delay:-.3s]"
+                    ></div>
+                    <div
+                      class="w-2 h-2 rounded-full bg-[#FF613c] animate-bounce [animation-delay:-.5s]"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="flex justify-end items-center gap-x-3 pt-4 border-t border-black/5 mt-3"
+            >
+              <p
+                @click="showSearchPanel = false"
+                class="text-xs font-medium px-3 py-2 border border-black/10 rounded-full cursor-pointer"
+              >
+                Cancel
+              </p>
+              <p
+                @click="resetFilters"
+                class="text-xs font-medium px-3 py-2 bg-red-500 text-white rounded-full cursor-pointer"
+              >
+                Reset
+              </p>
+              <p
+                @click="applyFilters"
+                class="text-xs font-medium px-3 py-2 bg-[#FF613c] text-white rounded-full cursor-pointer"
+              >
+                Apply
+              </p>
+            </div>
+          </DialogPanel>
+        </Modal>
+
+        <!-- Map -->
+        <div id="map" ref="mapRef" class="w-full h-full"></div>
+
+        <!-- Scrollable Hotel Cards at Bottom - FIXED -->
+        <transition
+          enter-active-class="transition-all duration-300 ease-out"
+          enter-from-class="opacity-0 translate-y-8"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition-all duration-200 ease-in"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 translate-y-8"
         >
           <div
-            ref="hotelListContainer"
-            class="flex gap-3 overflow-x-auto pb-2 pointer-events-auto scrollbar-hide scroll-smooth"
+            v-if="showHotelList"
+            class="absolute left-5 right-5 z-[999] bottom-5 pointer-events-none"
           >
             <div
-              v-for="hotel in filteredHotels"
-              :key="hotel.id"
-              :ref="(el) => setHotelCardRef(el, hotel.id)"
-              :data-hotel-id="hotel.id"
-              @click="scrollToHotel(hotel.id)"
-              :class="[
-                'flex-shrink-0 w-80  rounded-xl shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
-                selectedHotelId === hotel.id ? 'bg-[#FF613c]' : 'bg-white',
-              ]"
+              ref="hotelListContainer"
+              class="flex gap-3 overflow-x-auto pb-2 pointer-events-auto scrollbar-hide scroll-smooth"
             >
-              <div class="flex">
-                <!-- Hotel Image - Left Side -->
-                <div class="relative w-32 h-[165px] flex-shrink-0">
-                  <img
-                    :src="
-                      hotel.images?.[0]?.image ||
-                      'https://via.placeholder.com/300x300?text=No+Image'
-                    "
-                    :alt="hotel.name"
-                    class="w-full h-full object-cover"
-                  />
-                </div>
-
-                <!-- Hotel Info - Right Side -->
-                <div class="flex-1 p-3 flex flex-col justify-between">
-                  <!-- Top Section -->
-                  <div>
-                    <h3
-                      class="font-semibold text-sm mb-1 line-clamp-1"
-                      :class="
-                        selectedHotelId === hotel.id
-                          ? 'text-white'
-                          : 'text-gray-900'
+              <div
+                v-for="hotel in filteredHotels"
+                :key="hotel.id"
+                :ref="(el) => setHotelCardRef(el, hotel.id)"
+                :data-hotel-id="hotel.id"
+                @click="scrollToHotel(hotel.id)"
+                :class="[
+                  'flex-shrink-0 w-80  rounded-xl shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
+                  selectedHotelId === hotel.id ? 'bg-[#FF613c]' : 'bg-white',
+                ]"
+              >
+                <div class="flex">
+                  <!-- Hotel Image - Left Side -->
+                  <div class="relative w-32 h-[165px] flex-shrink-0">
+                    <img
+                      :src="
+                        hotel.images?.[0]?.image ||
+                        'https://via.placeholder.com/300x300?text=No+Image'
                       "
-                    >
-                      {{ hotel.name }}
-                    </h3>
+                      :alt="hotel.name"
+                      class="w-full h-full object-cover"
+                    />
+                  </div>
 
-                    <!-- Star Rating -->
-                    <div class="flex items-center gap-1 mb-1">
-                      <span class="text-yellow-400 text-sm">{{
-                        "★".repeat(hotel.rating || 0)
-                      }}</span>
-                    </div>
-                    <p
-                      class="text-[10px]"
-                      :class="
-                        selectedHotelId === hotel.id
-                          ? 'text-white'
-                          : 'text-gray-900'
-                      "
-                    >
-                      Starting from
-                    </p>
-                    <div class="flex items-start justify-between mt-2">
-                      <div class="text-right">
-                        <!-- Current Price -->
-                        <div
-                          class="text-xl font-bold"
-                          :class="
-                            selectedHotelId === hotel.id
-                              ? 'text-white'
-                              : 'text-gray-900'
-                          "
-                        >
-                          {{
-                            hotel.lowest_room_price?.toLocaleString() || "999"
-                          }}
-                          <span class="text-base">฿</span>
+                  <!-- Hotel Info - Right Side -->
+                  <div class="flex-1 p-3 flex flex-col justify-between">
+                    <!-- Top Section -->
+                    <div>
+                      <h3
+                        class="font-semibold text-sm mb-1 line-clamp-1"
+                        :class="
+                          selectedHotelId === hotel.id
+                            ? 'text-white'
+                            : 'text-gray-900'
+                        "
+                      >
+                        {{ hotel.name }}
+                      </h3>
+
+                      <!-- Star Rating -->
+                      <div class="flex items-center gap-1 mb-1">
+                        <span class="text-yellow-400 text-sm">{{
+                          "★".repeat(hotel.rating || 0)
+                        }}</span>
+                      </div>
+                      <p
+                        class="text-[10px]"
+                        :class="
+                          selectedHotelId === hotel.id
+                            ? 'text-white'
+                            : 'text-gray-900'
+                        "
+                      >
+                        Starting from
+                      </p>
+                      <div class="flex items-start justify-between mt-2">
+                        <div class="text-right">
+                          <!-- Current Price -->
+                          <div
+                            class="text-xl font-bold"
+                            :class="
+                              selectedHotelId === hotel.id
+                                ? 'text-white'
+                                : 'text-gray-900'
+                            "
+                          >
+                            {{
+                              hotel.lowest_room_price?.toLocaleString() || "999"
+                            }}
+                            <span class="text-base">฿</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div
-                      class="flex px-2 text-xs mt-2 rounded-full justify-center py-2"
-                      :class="
-                        selectedHotelId === hotel.id
-                          ? 'text-white bg-white/20'
-                          : 'text-gray-900 bg-gray-300/20'
-                      "
-                    >
-                      View Detail
+                      <div
+                        class="flex px-2 text-xs mt-2 rounded-full justify-center py-2"
+                        :class="
+                          selectedHotelId === hotel.id
+                            ? 'text-white bg-white/20'
+                            : 'text-gray-900 bg-gray-300/20'
+                        "
+                      >
+                        View Detail
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </transition>
+        </transition>
 
-      <!-- Loading Overlay -->
-      <div
-        v-if="loading"
-        class="absolute inset-0 bg-white/80 flex items-center justify-center z-[2000]"
-      >
+        <!-- Loading Overlay -->
         <div
-          class="w-12 h-12 border-4 border-[#FF613c]/20 border-t-[#FF613c] rounded-full animate-spin"
-        ></div>
+          v-if="loading"
+          class="absolute inset-0 bg-white/80 flex items-center justify-center z-[2000]"
+        >
+          <div
+            class="w-12 h-12 border-4 border-[#FF613c]/20 border-t-[#FF613c] rounded-full animate-spin"
+          ></div>
+        </div>
       </div>
     </div>
   </Layout>

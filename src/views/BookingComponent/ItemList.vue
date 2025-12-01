@@ -450,6 +450,33 @@ const calculateRateRoom = () => {
   }
 };
 
+const score = (item) => {
+  console.log(item, "item score");
+
+  if (item?.total_amount && item?.total_cost_price) {
+    let score =
+      (item?.total_amount * 1 - item?.total_cost_price) /
+      (item?.total_amount * 1);
+    // return score.toFixed(4);
+    if (score < 0.14) {
+      return "low";
+    } else if (score < 0.19) {
+      return "medium";
+    } else {
+      return "high";
+    }
+  }
+  return null;
+};
+
+const getDotClass = (item) => {
+  const scoreValue = score(item);
+  if (scoreValue === "low") return "bg-red-500 w-[30%]";
+  if (scoreValue === "medium") return "bg-orange-500 w-[40%]";
+  if (scoreValue === "high") return "bg-green-500 w-[60%]";
+  return "bg-gray-500";
+};
+
 // Fix 5: Improved watch function for service_date and checkout_date
 watch(
   () => [
@@ -713,6 +740,9 @@ onMounted(() => {
               Amount :
               <span class="font-medium text-sm">{{ i?.total_amount }} ฿</span>
             </p>
+          </div>
+          <div class="flex items-center gap-2 pt-2" v-if="score(i) != null">
+            <span :class="getDotClass(i)" class="h-2 rounded-full"></span>
           </div>
         </div>
       </div>

@@ -217,7 +217,7 @@ const selectedProductType = ref("attraction");
 const backgroundCustom = ref("bg-blue-600");
 const productType = ref("App\\Models\\EntranceTicket");
 
-const chooseType = ref("Attraction");
+const chooseType = ref("");
 
 const adminLists = ref([]);
 

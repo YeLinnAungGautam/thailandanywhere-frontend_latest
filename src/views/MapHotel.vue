@@ -62,7 +62,7 @@
         <button
           @click="toggleHotelList"
           :style="{
-            bottom: showHotelList ? `${200}px` : `${50}px`,
+            bottom: showHotelList ? `${250}px` : `${100}px`,
           }"
           :class="showHotelList ? 'rotate-[180deg]' : ''"
           class="absolute right-3 z-[1001] w-12 h-12 bg-white border border-black/10 hover:bg-gray-50 rounded-full shadow-lg flex items-center justify-center transition-all duration-300"
@@ -308,7 +308,7 @@
         >
           <div
             v-if="showHotelList"
-            class="absolute left-5 right-5 z-[999] bottom-5 pointer-events-none"
+            class="absolute left-5 right-5 z-[999] bottom-[100px] xl:bottom-5 pointer-events-none"
           >
             <div
               ref="hotelListContainer"

@@ -15,7 +15,8 @@
 
       <div class="fixed inset-0 overflow-y-auto">
         <div
-          class="flex h-100 mt-16 justify-center p-4 text-center"
+          class="flex h-100 justify-center p-4 text-center"
+          :class="marginTop"
         >
           <TransitionChild
             as="template"
@@ -49,6 +50,10 @@ const props = defineProps({
   isOpen: {
     type: Boolean,
     default: false,
+  },
+  marginTop: {
+    type: String,
+    default: "mt-16",
   },
 });
 

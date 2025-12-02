@@ -357,11 +357,18 @@
         </Modal>
 
         <!-- Detail Modal -->
-        <Modal :isOpen="hotelModalOpen" @closeModal="closeHotelModal()">
+        <Modal
+          :isOpen="hotelModalOpen"
+          :marginTop="'mt-4'"
+          @closeModal="closeHotelModal()"
+        >
           <DialogPanel
             class="w-full max-w-4xl overflow-hidden text-left align-middle transition-all transform bg-white rounded-2xl shadow-xl"
           >
-            <DetailComponent :hotelId="hotelDetailId" />
+            <DetailComponent
+              :hotelId="hotelDetailId"
+              :closeModal="closeHotelModal"
+            />
           </DialogPanel>
         </Modal>
 

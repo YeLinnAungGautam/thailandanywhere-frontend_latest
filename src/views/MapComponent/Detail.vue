@@ -26,10 +26,13 @@
             </p>
           </div>
         </div>
-        <div
-          class="bg-green-400/50 backdrop-blur-xl px-2 py-1 text-green-700 text-xs rounded-lg inline-block"
-        >
-          <p>Active</p>
+        <div class="gap-x-2 flex flex-nowrap">
+          <div
+            @click="closeModal"
+            class="bg-red-400/50 flex justify-center items-center backdrop-blur-xl px-2 text-red-700 text-xs rounded-lg space-x-2"
+          >
+            <i class="fa-solid fa-xmark text-2xl text-red-600 mr-3"></i> close
+          </div>
         </div>
       </div>
 
@@ -66,6 +69,10 @@ const props = defineProps({
   hotelId: {
     type: [Number, String],
     required: true,
+  },
+  closeModal: {
+    type: Function,
+    required: false,
   },
 });
 

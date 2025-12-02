@@ -14,7 +14,7 @@
 
             <!-- City Filter -->
             <div>
-              <p class="text-xs font-semibold text-gray-700 mb-2">City</p>
+              <p class="text-xs font-semibold text-gray-700 mb-3">City</p>
               <div
                 class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1"
               >
@@ -44,18 +44,18 @@
                 >
                   {{ city.name }}
                 </button>
-                <button
+                <!-- <button
                   @click="showCityModal = true"
                   class="whitespace-nowrap px-4 py-2 text-xs font-medium border border-gray-300 bg-white text-gray-700 rounded-full cursor-pointer transition-all hover:shadow-md hover:border-[#FF613c] hover:text-[#FF613c]"
                 >
                   See more
-                </button>
+                </button> -->
               </div>
             </div>
 
             <!-- Place Filter (shown when city is selected) -->
-            <div v-if="selectedCity && getPlaceList.length > 0">
-              <p class="text-xs font-semibold text-gray-700 mb-2">Place</p>
+            <div v-if="selectedCity && visiblePlaces">
+              <p class="text-xs font-semibold text-gray-700 mb-3">Place</p>
               <div
                 class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1"
               >
@@ -72,7 +72,7 @@
                   All Places
                 </button>
                 <button
-                  v-for="place in getPlaceList.slice(0, 4)"
+                  v-for="place in visiblePlaces"
                   :key="place"
                   @click="setPlace(place.name)"
                   :class="[
@@ -85,19 +85,19 @@
                 >
                   {{ place.name }}
                 </button>
-                <button
+                <!-- <button
                   v-if="getPlaceList.length > 4"
                   @click="showPlaceModal = true"
                   class="whitespace-nowrap px-4 py-2 text-xs font-medium border border-gray-300 bg-white text-gray-700 rounded-full cursor-pointer transition-all hover:shadow-md hover:border-[#FF613c] hover:text-[#FF613c]"
                 >
                   See more
-                </button>
+                </button> -->
               </div>
             </div>
 
             <!-- Price Filter -->
             <div>
-              <p class="text-xs font-semibold text-gray-700 mb-2">
+              <p class="text-xs font-semibold text-gray-700 mb-3">
                 Price Range
               </p>
               <div
@@ -165,191 +165,232 @@
                 </button>
               </div>
             </div>
+
+            <!-- Open Full Filter Panel Button -->
+            <div class="flex justify-end pt-2">
+              <button
+                @click="toggleSearchPanel"
+                class="flex items-center gap-2 px-4 py-2 text-xs font-medium border border-gray-200 bg-white text-gray-600 rounded-full cursor-pointer transition-all hover:bg-gray-600 hover:text-white hover:shadow-md"
+              >
+                See More
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- City Modal -->
         <Modal
-          :isOpen="showCityModal"
-          @closeModal="
-            showCityModal = false;
-            citySearchQuery = '';
-          "
+          :isOpen="showSearchPanel"
+          :marginTop="'mt-16'"
+          @closeModal="toggleSearchPanel()"
         >
           <DialogPanel
-            class="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-white rounded-2xl shadow-xl"
+            class="w-full max-w-lg p-6 overflow-hidden text-left align-middle transition-all transform bg-white rounded-2xl shadow-xl"
           >
-            <DialogTitle
-              as="h3"
-              class="text-lg font-semibold text-gray-900 mb-4"
-            >
-              Select City
-            </DialogTitle>
-
-            <!-- Search Input for Cities -->
-            <div class="mb-4">
-              <div class="relative">
-                <input
-                  v-model="citySearchQuery"
-                  type="text"
-                  placeholder="Search cities..."
-                  class="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent"
-                />
-                <svg
-                  class="absolute left-3 top-2.5 w-5 h-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+            <div>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="col-span-2 pb-3">
+                  <div>
+                    <p class="text-sm text-[#FF613c] font-medium mb-3">
+                      Price Range
+                    </p>
+                    <div
+                      class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1"
+                    >
+                      <button
+                        @click="setPriceFilter('')"
+                        :class="[
+                          priceFilter === ''
+                            ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                            : 'border-gray-300 bg-white text-gray-700',
+                          { 'bg-gray-300 text-black/30': loading },
+                        ]"
+                        class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                      >
+                        All Prices
+                      </button>
+                      <button
+                        @click="setPriceFilter('0-1200')"
+                        :class="[
+                          priceFilter === '0-1200'
+                            ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                            : 'border-gray-300 bg-white text-gray-700',
+                          { 'bg-gray-300 text-black/30': loading },
+                        ]"
+                        class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                      >
+                        Budget <span class="text-[10px]">(&lt; 1200฿)</span>
+                      </button>
+                      <button
+                        @click="setPriceFilter('1200-1800')"
+                        :class="[
+                          priceFilter === '1200-1800'
+                            ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                            : 'border-gray-300 bg-white text-gray-700',
+                          { 'bg-gray-300 text-black/30': loading },
+                        ]"
+                        class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                      >
+                        Standard <span class="text-[10px]">(1200-1800฿)</span>
+                      </button>
+                      <button
+                        @click="setPriceFilter('1800-3000')"
+                        :class="[
+                          priceFilter === '1800-3000'
+                            ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                            : 'border-gray-300 bg-white text-gray-700',
+                          { 'bg-gray-300 text-black/30': loading },
+                        ]"
+                        class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                      >
+                        Premium <span class="text-[10px]">(1800-3000฿)</span>
+                      </button>
+                      <button
+                        @click="setPriceFilter('3000-100000')"
+                        :class="[
+                          priceFilter === '3000-100000'
+                            ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                            : 'border-gray-300 bg-white text-gray-700',
+                          { 'bg-gray-300 text-black/30': loading },
+                        ]"
+                        class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                      >
+                        Luxury <span class="text-[10px]">(3000+฿)</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h2 class="text-sm text-[#FF613c] font-medium">
+                    Choose City
+                  </h2>
+                  <div
+                    class="space-y-1 h-[250px] pr-2 pl-1 pt-3 overflow-y-scroll scroll-container-y"
+                  >
+                    <div
+                      class="flex justify-between items-center space-y-2 pb-3 pt-1.5 px-3 border rounded-full"
+                      v-for="c in cityList ?? []"
+                      :key="c"
+                      :class="
+                        c.id == selectedCity
+                          ? ' border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                          : ''
+                      "
+                      @click="
+                        () => {
+                          selectedCity = c.id;
+                          chooseCityName = c.name;
+                        }
+                      "
+                    >
+                      <p
+                        class="text-xs w-[110px] mt-1.5 line-clamp-1"
+                        :class="c.id == selectedCity ? 'text-[#FF613c]' : ''"
+                      >
+                        {{ c.name }}
+                      </p>
+                      <input
+                        type="checkbox"
+                        class=""
+                        name=""
+                        :checked="c.id == selectedCity"
+                        id=""
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h2 class="text-sm text-[#FF613c] font-medium">
+                    Choose Place
+                  </h2>
+                  <div
+                    class="space-y-1 h-[250px] overflow-y-scroll scroll-container-y pt-3"
+                    v-if="!loadingPlace"
+                  >
+                    <div
+                      class="flex justify-between items-center space-y-2 pb-3 pt-1.5 px-3 border rounded-full"
+                      @click="selectedPlace = ''"
+                      :class="
+                        selectedPlace == ''
+                          ? ' border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                          : ''
+                      "
+                    >
+                      <p
+                        class="text-xs w-[110px] mt-1.5 line-clamp-1"
+                        :class="selectedPlace == '' ? 'text-[#FF613c]' : ''"
+                      >
+                        All places
+                      </p>
+                      <input
+                        type="checkbox"
+                        name=""
+                        :checked="selectedPlace == ''"
+                        id=""
+                      />
+                    </div>
+                    <div
+                      class="flex justify-between items-center space-y-2 pb-3 pt-1.5 px-3 border rounded-full"
+                      v-for="p in getPlaceList ?? []"
+                      :key="p"
+                      :class="
+                        p.name == selectedPlace
+                          ? ' border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                          : ''
+                      "
+                      @click="selectedPlace = p.name"
+                    >
+                      <p
+                        class="text-xs w-[110px] mt-1.5 line-clamp-1"
+                        :class="p.name == selectedPlace ? 'text-[#FF613c]' : ''"
+                      >
+                        {{ p.name }}
+                      </p>
+                      <input
+                        type="checkbox"
+                        name=""
+                        :checked="p.name == selectedPlace"
+                        id=""
+                      />
+                    </div>
+                  </div>
+                  <div
+                    v-else
+                    class="flex justify-center items-center h-[200px]"
+                  >
+                    <div class="flex gap-1">
+                      <div
+                        class="w-2 h-2 rounded-full bg-[#FF613c] animate-bounce"
+                      ></div>
+                      <div
+                        class="w-2 h-2 rounded-full bg-[#FF613c] animate-bounce [animation-delay:-.3s]"
+                      ></div>
+                      <div
+                        class="w-2 h-2 rounded-full bg-[#FF613c] animate-bounce [animation-delay:-.5s]"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div
-              class="max-h-[400px] overflow-y-auto custom-scrollbar space-y-2"
-            >
-              <button
-                @click="
-                  setCity('');
-                  showCityModal = false;
-                  citySearchQuery = '';
-                "
-                :class="[
-                  selectedCity === ''
-                    ? 'bg-[#FF613c]/10 border-[#FF613c] text-[#FF613c]'
-                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50',
-                ]"
-                class="w-full text-left px-4 py-3 border rounded-lg transition-all"
-              >
-                <p class="font-medium">All Cities</p>
-              </button>
-
-              <!-- Show filtered cities -->
-              <button
-                v-for="city in filteredCities"
-                :key="city.id"
-                @click="
-                  setCity(city.id);
-                  showCityModal = false;
-                  citySearchQuery = '';
-                "
-                :class="[
-                  selectedCity === city.id
-                    ? 'bg-[#FF613c]/10 border-[#FF613c] text-[#FF613c]'
-                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50',
-                ]"
-                class="w-full text-left px-4 py-3 border rounded-lg transition-all"
-              >
-                <p class="font-medium">{{ city.name }}</p>
-              </button>
-
-              <!-- No results message -->
               <div
-                v-if="filteredCities.length === 0 && citySearchQuery"
-                class="text-center py-8 text-gray-500"
+                class="flex justify-end items-center gap-x-3 pt-4 border-t border-black/5 mt-3"
               >
-                <p class="text-sm">
-                  No cities found matching "{{ citySearchQuery }}"
+                <p
+                  @click="showSearchPanel = false"
+                  class="text-xs font-medium px-3 py-2 border border-black/10 rounded-full"
+                >
+                  Cancel
                 </p>
-              </div>
-            </div>
-          </DialogPanel>
-        </Modal>
-
-        <!-- Place Modal -->
-        <Modal
-          :isOpen="showPlaceModal"
-          @closeModal="
-            showPlaceModal = false;
-            placeSearchQuery = '';
-          "
-        >
-          <DialogPanel
-            class="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-white rounded-2xl shadow-xl"
-          >
-            <DialogTitle
-              as="h3"
-              class="text-lg font-semibold text-gray-900 mb-4"
-            >
-              Select Place
-            </DialogTitle>
-
-            <!-- Search Input for Places -->
-            <div class="mb-4">
-              <div class="relative">
-                <input
-                  v-model="placeSearchQuery"
-                  type="text"
-                  placeholder="Search places..."
-                  class="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent"
-                />
-                <svg
-                  class="absolute left-3 top-2.5 w-5 h-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <p
+                  @click="resetFilters"
+                  class="text-xs font-medium px-3 py-2 bg-red-500 text-white rounded-full"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            <div
-              class="max-h-[400px] overflow-y-auto custom-scrollbar space-y-2"
-            >
-              <button
-                @click="
-                  selectedPlace = '';
-                  showPlaceModal = false;
-                  placeSearchQuery = '';
-                "
-                :class="[
-                  selectedPlace === ''
-                    ? 'bg-[#FF613c]/10 border-[#FF613c] text-[#FF613c]'
-                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50',
-                ]"
-                class="w-full text-left px-4 py-3 border rounded-lg transition-all"
-              >
-                <p class="font-medium">All Places</p>
-              </button>
-
-              <!-- Show filtered places -->
-              <button
-                v-for="place in filteredPlaces"
-                :key="place"
-                @click="
-                  setPlace(place.name);
-                  showPlaceModal = false;
-                  placeSearchQuery = '';
-                "
-                :class="[
-                  selectedPlace === place.name
-                    ? 'bg-[#FF613c]/10 border-[#FF613c] text-[#FF613c]'
-                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50',
-                ]"
-                class="w-full text-left px-4 py-3 border rounded-lg transition-all"
-              >
-                <p class="font-medium">{{ place.name }}</p>
-              </button>
-
-              <!-- No results message -->
-              <div
-                v-if="filteredPlaces.length === 0 && placeSearchQuery"
-                class="text-center py-8 text-gray-500"
-              >
-                <p class="text-sm">
-                  No places found matching "{{ placeSearchQuery }}"
+                  Reset
+                </p>
+                <p
+                  @click="applyFilters"
+                  class="text-xs font-medium px-3 py-2 bg-[#FF613c] text-white rounded-full"
+                >
+                  Apply
                 </p>
               </div>
             </div>
@@ -584,7 +625,19 @@ let markerClusterGroup = null;
 
 // Show only first 4 cities
 const visibleCities = computed(() => {
-  return cityList.value.slice(0, 4);
+  const selectedIndex = cityList.value.findIndex(
+    (city) => city.id === selectedCity.value
+  );
+  const startIndex = selectedIndex !== -1 ? selectedIndex : 0;
+  return cityList.value.slice(startIndex, startIndex + 4);
+});
+
+const visiblePlaces = computed(() => {
+  const selectedIndex = getPlaceList.value.findIndex(
+    (place) => place.name == selectedPlace.value
+  );
+  const startIndex = selectedIndex !== -1 ? selectedIndex : 0;
+  return getPlaceList.value.slice(startIndex, startIndex + 4);
 });
 
 const closeShowDateBox = () => {

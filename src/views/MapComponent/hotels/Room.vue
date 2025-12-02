@@ -381,7 +381,7 @@ const fetchRooms = async () => {
   }
 };
 
-const part = ref("detail");
+const part = ref("image");
 
 const selectRoom = (room) => {
   selectedRoom.value = room;

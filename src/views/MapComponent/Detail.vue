@@ -31,7 +31,7 @@
             @click="closeModal"
             class="bg-red-400/50 flex justify-center items-center backdrop-blur-xl px-2 text-red-700 text-xs rounded-lg space-x-2"
           >
-            <i class="fa-solid fa-xmark text-2xl text-red-600 mr-3"></i> close
+            <i class="fa-solid fa-xmark text-2xl text-red-600"></i>
           </div>
         </div>
       </div>
@@ -42,6 +42,10 @@
 
       <div v-if="part == 'detail'" class="mt-2 h-[62vh] overflow-y-auto">
         <Detail :detail="detail" @update="handleDetailUpdate" />
+      </div>
+
+      <div v-if="part == 'media'" class="mt-2 h-[62vh] overflow-y-auto">
+        <Images :detail="detail" @refresh-detail="refreshHotelDetail" />
       </div>
 
       <div v-if="part == 'rooms'" class="mt-2 h-[62vh] overflow-y-auto">
@@ -58,7 +62,7 @@ import { storeToRefs } from "pinia";
 import { useToast } from "vue-toastification";
 import Navigation from "./hotels/Navigation.vue";
 import Detail from "./hotels/Detail.vue";
-
+import Images from "./hotels/Images.vue";
 import Room from "./hotels/Room.vue";
 import { useHotelStore } from "../../stores/hotel";
 

@@ -13,7 +13,14 @@
       >
         <span class="text-xs font-medium whitespace-nowrap">Detail</span>
       </div>
-
+      <div
+        ref="navItem"
+        class="flex-1 text-center relative cursor-pointer hover:text-[#FF613c] transition-colors duration-200 py-2"
+        @click="setPart('media')"
+        :class="part == 'media' ? 'text-[#FF613c]' : 'text-gray-600'"
+      >
+        <span class="text-xs font-medium whitespace-nowrap">Image & Video</span>
+      </div>
       <div
         ref="navItem"
         class="flex-1 text-center relative cursor-pointer hover:text-[#FF613c] transition-colors duration-200 py-2"
@@ -52,6 +59,7 @@ const emit = defineEmits(["update:modelValue", "partChanged"]);
 // Navigation items configuration
 const navItems = [
   { key: "detail", label: "Detail" },
+  { key: "media", label: "Images & Videos" },
   { key: "rooms", label: "Rooms" },
 ];
 

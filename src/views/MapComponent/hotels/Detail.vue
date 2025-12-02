@@ -5,6 +5,26 @@
       <div class="p-4">
         <nav>
           <ul class="space-y-1">
+            <li v-if="detail?.nearby_places && detail.nearby_places.length > 0">
+              <a
+                href="#nearby"
+                @click="setActiveSection('nearby')"
+                :class="
+                  activeSection === 'nearby'
+                    ? 'bg-[#FF613c]/10 text-[#FF613c]'
+                    : 'text-gray-700 hover:bg-gray-100'
+                "
+                class="block px-3 py-2 rounded text-xs font-medium transition-colors cursor-pointer"
+              >
+                <span
+                  class="w-2 h-2 inline-block rounded-full mr-1"
+                  :class="
+                    activeSection === 'nearby' ? 'bg-[#FF613c]' : 'bg-gray-400'
+                  "
+                ></span>
+                Nearby Places
+              </a>
+            </li>
             <li v-if="detail?.description">
               <a
                 href="#description"
@@ -74,27 +94,6 @@
               </a>
             </li>
 
-            <li v-if="detail?.nearby_places && detail.nearby_places.length > 0">
-              <a
-                href="#nearby"
-                @click="setActiveSection('nearby')"
-                :class="
-                  activeSection === 'nearby'
-                    ? 'bg-[#FF613c]/10 text-[#FF613c]'
-                    : 'text-gray-700 hover:bg-gray-100'
-                "
-                class="block px-3 py-2 rounded text-xs font-medium transition-colors cursor-pointer"
-              >
-                <span
-                  class="w-2 h-2 inline-block rounded-full mr-1"
-                  :class="
-                    activeSection === 'nearby' ? 'bg-[#FF613c]' : 'bg-gray-400'
-                  "
-                ></span>
-                Nearby Places
-              </a>
-            </li>
-
             <li v-if="detail?.check_in || detail?.check_out">
               <a
                 href="#hours"
@@ -144,6 +143,41 @@
     <!-- Right Content Area -->
     <div class="flex-1 overflow-y-auto">
       <div class="p-6 max-w-full">
+        <!-- Nearby Places Section (Editable) -->
+        <section
+          id="nearby"
+          v-if="detail?.nearby_places && detail.nearby_places.length > 0"
+          class="mb-8 scroll-mt-4"
+        >
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-base font-semibold text-[#FF613c]">
+              Nearby Places
+            </h2>
+            <button
+              @click="openEditModal('nearby')"
+              class="text-xs bg-[#FF613c] text-white px-3 py-1 rounded hover:bg-[#FF613c]/90"
+            >
+              <PencilSquareIcon class="w-4 h-4 inline-block mr-1" /> Edit
+            </button>
+          </div>
+          <div class="space-y-3 bg-gray-50 p-6 rounded-lg min-h-[300px]">
+            <div
+              v-for="place in detail.nearby_places"
+              :key="place.name"
+              class="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-white"
+            >
+              <div class="flex items-center space-x-3">
+                <MapPinIcon class="w-5 h-5 text-[#FF613c]" />
+                <div>
+                  <p class="text-sm font-medium text-gray-700">
+                    {{ place.name }}
+                  </p>
+                  <p class="text-xs text-gray-500">{{ place.distance }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
         <!-- Description Section (Editable) -->
         <section
           id="description"
@@ -225,42 +259,6 @@
                 allowfullscreen=""
                 loading="lazy"
               ></iframe>
-            </div>
-          </div>
-        </section>
-
-        <!-- Nearby Places Section (Editable) -->
-        <section
-          id="nearby"
-          v-if="detail?.nearby_places && detail.nearby_places.length > 0"
-          class="mb-8 scroll-mt-4"
-        >
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-base font-semibold text-[#FF613c]">
-              Nearby Places
-            </h2>
-            <button
-              @click="openEditModal('nearby')"
-              class="text-xs bg-[#FF613c] text-white px-3 py-1 rounded hover:bg-[#FF613c]/90"
-            >
-              <PencilSquareIcon class="w-4 h-4 inline-block mr-1" /> Edit
-            </button>
-          </div>
-          <div class="space-y-3 bg-gray-50 p-6 rounded-lg min-h-[300px]">
-            <div
-              v-for="place in detail.nearby_places"
-              :key="place.name"
-              class="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-white"
-            >
-              <div class="flex items-center space-x-3">
-                <MapPinIcon class="w-5 h-5 text-[#FF613c]" />
-                <div>
-                  <p class="text-sm font-medium text-gray-700">
-                    {{ place.name }}
-                  </p>
-                  <p class="text-xs text-gray-500">{{ place.distance }}</p>
-                </div>
-              </div>
             </div>
           </div>
         </section>

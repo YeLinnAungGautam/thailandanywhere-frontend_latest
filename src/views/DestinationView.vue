@@ -48,6 +48,8 @@ const formData = ref({
   description: "",
   entry_fee: "",
   detail: "",
+  latitude: "",
+  longitude: "",
   summary: "",
   city_id: "",
   place_id: "",
@@ -96,6 +98,8 @@ const addNewHandler = async () => {
   }
   frmData.append("description", formData.value.description);
   frmData.append("entry_fee", formData.value.entry_fee);
+  frmData.append("latitude", formData.value.latitude);
+  frmData.append("longitude", formData.value.longitude);
   frmData.append("detail", formData.value.detail);
   frmData.append("summary", formData.value.summary);
   frmData.append("city_id", formData.value.city_id);
@@ -117,6 +121,8 @@ const addNewHandler = async () => {
       city_name: "",
       description: "",
       entry_fee: "",
+      latitude: "",
+      longitude: "",
       detail: "",
       summary: "",
       city_id: "",
@@ -154,6 +160,8 @@ const updateHandler = async () => {
   }
   frmData.append("description", formData.value.description);
   frmData.append("entry_fee", formData.value.entry_fee);
+  frmData.append("latitude", formData.value.latitude);
+  frmData.append("longitude", formData.value.longitude);
   frmData.append("detail", formData.value.detail);
   frmData.append("summary", formData.value.summary);
   frmData.append("city_id", formData.value.city_id);
@@ -180,9 +188,7 @@ const updateHandler = async () => {
     closeModal();
     await destStore.getListAction();
     toast.success(response.message);
-    changePage(
-      `https://api-blog.thanywhere.com/admin/destinations?page=${pageValue.value}`
-    );
+    await destStore.getListAction();
   } catch (error) {
     if (error.response.data.errors) {
       errors.value = error.response.data.errors;
@@ -208,6 +214,8 @@ const editModalOpenHandler = (data) => {
   formData.value.city_name = data.city?.name;
   formData.value.description = data.description;
   formData.value.entry_fee = data.entry_fee;
+  formData.value.latitude = data.latitude;
+  formData.value.longitude = data.longitude;
   formData.value.city_id = data.city?.id;
   formData.value.detail = data.detail;
   formData.value.summary = data.summary;
@@ -297,6 +305,8 @@ const closeModal = () => {
     city_name: "",
     description: "",
     entry_fee: "",
+    latitude: "",
+    longitude: "",
     detail: "",
     summary: "",
     city_id: "",
@@ -438,6 +448,12 @@ watch(
                 Entry_fee
               </th>
               <th class="p-4 text-xs font-medium tracking-wide text-left">
+                Latitude
+              </th>
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
+                Longitude
+              </th>
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Actions
               </th>
             </tr>
@@ -474,11 +490,18 @@ watch(
               >
                 {{ des.entry_fee }}
               </td>
+
               <td
                 class="p-4 text-xs text-gray-700 whitespace-nowrap"
                 v-if="!des.entry_fee"
               >
                 -
+              </td>
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
+                {{ des?.latitude ? des?.latitude : "-" }}
+              </td>
+              <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
+                {{ des?.longitude ? des?.longitude : "-" }}
               </td>
               <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 <div class="flex items-center gap-2">
@@ -592,6 +615,30 @@ watch(
               />
               <p v-if="errors?.entry_fee" class="mt-1 text-sm text-red-600">
                 {{ errors.entry_fee[0] }}
+              </p>
+            </div>
+            <div class="space-y-1 mb-2">
+              <label for="name" class="text-gray-800 text-sm">Latitude</label>
+              <input
+                type="text"
+                v-model="formData.latitude"
+                id="name"
+                class="h-10 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.latitude" class="mt-1 text-sm text-red-600">
+                {{ errors.latitude[0] }}
+              </p>
+            </div>
+            <div class="space-y-1 mb-2">
+              <label for="name" class="text-gray-800 text-sm">Longitude</label>
+              <input
+                type="text"
+                v-model="formData.longitude"
+                id="name"
+                class="h-10 w-full bg-white/50 border-2 border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.longitude" class="mt-1 text-sm text-red-600">
+                {{ errors.longitude[0] }}
               </p>
             </div>
             <div class="space-y-1 mb-2">

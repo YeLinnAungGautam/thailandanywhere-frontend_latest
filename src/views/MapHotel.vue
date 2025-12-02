@@ -453,7 +453,7 @@
         >
           <div
             v-if="showHotelList"
-            class="absolute left-5 right-5 z-[999] bottom-[100px] xl:bottom-5 pointer-events-none"
+            class="absolute left-[100px] right-5 z-[999] bottom-[100px] xl:bottom-5 pointer-events-none"
           >
             <div
               ref="hotelListContainer"

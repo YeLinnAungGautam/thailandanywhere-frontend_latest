@@ -1655,6 +1655,12 @@ onMounted(async () => {
     }
   }
 
+  // Handle period selection from route
+  if (route.query.room_id && route.query.room_id !== "null") {
+    const res = await roomStore.detailAction(route.query.room_id);
+    editModalOpenHandler(res.result);
+  }
+
   // Perform initial search
   if (search.value || hotel_id.value) {
     performSearch();

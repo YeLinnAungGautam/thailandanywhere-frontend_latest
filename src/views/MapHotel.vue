@@ -2,61 +2,368 @@
   <Layout>
     <div class="relative w-full h-full">
       <div class="fixed inset-0 w-full h-full overflow-hidden overscroll-none">
-        <!-- Centered Search Bar (Airbnb Style) -->
-        <div
-          class="absolute top-5 left-1/2 transform w-[50%] -translate-x-1/2 z-[1001]"
-        >
-          <button
-            class="bg-white rounded-full w-full shadow-lg pl-5 pr-5 py-3 flex items-center justify-between gap-3 hover:shadow-xl transition-all duration-300"
-          >
-            <div @click="router.back()">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-5 h-5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15.75 19.5 8.25 12l7.5-7.5"
-                />
-              </svg>
+        <!-- Redesigned Filter Bar - Always Visible -->
+        <div class="absolute top-5 right-4 transform w-[30%] z-[1001]">
+          <div class="bg-white rounded-2xl shadow-lg p-4 space-y-3">
+            <!-- Back Button Row -->
+            <div class="flex items-center gap-3 pb-4 border-b border-gray-200">
+              <div class="flex-1" @click="showDateBox = true">
+                <p class="text-xs text-gray-500">choose city & place & price</p>
+              </div>
             </div>
-            <div class="text-left pl-4" @click="showDateBox = true">
-              <p class="text-sm font-semibold text-gray-900 line-clamp-1">
-                {{
-                  selectedCity
-                    ? getCityName(selectedCity)
-                    : "Hotels in map area"
-                }}
-                {{ selectedPlace ? ` · ${selectedPlace}` : "" }}
-                {{ priceFilter ? ` · ${getFilterPriceName(priceFilter)}` : "" }}
+
+            <!-- City Filter -->
+            <div>
+              <p class="text-xs font-semibold text-gray-700 mb-2">City</p>
+              <div
+                class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1"
+              >
+                <button
+                  @click="setCity('')"
+                  :class="[
+                    selectedCity === ''
+                      ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                      : 'border-gray-300 bg-white text-gray-700',
+                    { 'bg-gray-300 text-black/30': loading },
+                  ]"
+                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                >
+                  All Cities
+                </button>
+                <button
+                  v-for="city in visibleCities"
+                  :key="city.id"
+                  @click="setCity(city.id)"
+                  :class="[
+                    selectedCity === city.id
+                      ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                      : 'border-gray-300 bg-white text-gray-700',
+                    { 'bg-gray-300 text-black/30': loading },
+                  ]"
+                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                >
+                  {{ city.name }}
+                </button>
+                <button
+                  @click="showCityModal = true"
+                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border border-gray-300 bg-white text-gray-700 rounded-full cursor-pointer transition-all hover:shadow-md hover:border-[#FF613c] hover:text-[#FF613c]"
+                >
+                  See more
+                </button>
+              </div>
+            </div>
+
+            <!-- Place Filter (shown when city is selected) -->
+            <div v-if="selectedCity && getPlaceList.length > 0">
+              <p class="text-xs font-semibold text-gray-700 mb-2">Place</p>
+              <div
+                class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1"
+              >
+                <button
+                  @click="selectedPlace = ''"
+                  :class="[
+                    selectedPlace === ''
+                      ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                      : 'border-gray-300 bg-white text-gray-700',
+                    { 'bg-gray-300 text-black/30': loading },
+                  ]"
+                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                >
+                  All Places
+                </button>
+                <button
+                  v-for="place in getPlaceList.slice(0, 4)"
+                  :key="place"
+                  @click="setPlace(place.name)"
+                  :class="[
+                    selectedPlace === place.name
+                      ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                      : 'border-gray-300 bg-white text-gray-700',
+                    { 'bg-gray-300 text-black/30': loading },
+                  ]"
+                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                >
+                  {{ place.name }}
+                </button>
+                <button
+                  v-if="getPlaceList.length > 4"
+                  @click="showPlaceModal = true"
+                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border border-gray-300 bg-white text-gray-700 rounded-full cursor-pointer transition-all hover:shadow-md hover:border-[#FF613c] hover:text-[#FF613c]"
+                >
+                  See more
+                </button>
+              </div>
+            </div>
+
+            <!-- Price Filter -->
+            <div>
+              <p class="text-xs font-semibold text-gray-700 mb-2">
+                Price Range
               </p>
-              <p class="text-[10px] text-gray-500">
-                {{
-                  checkin_date && checkout_date && room_qty
-                    ? checkin_date.replace('"', "") +
-                      " - " +
-                      checkout_date.replace('"', "") +
-                      " · " +
-                      room_qty +
-                      " room"
-                    : "Click here to choose dates"
-                }}
-              </p>
+              <div
+                class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1"
+              >
+                <button
+                  @click="setPriceFilter('')"
+                  :class="[
+                    priceFilter === ''
+                      ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                      : 'border-gray-300 bg-white text-gray-700',
+                    { 'bg-gray-300 text-black/30': loading },
+                  ]"
+                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                >
+                  All Prices
+                </button>
+                <button
+                  @click="setPriceFilter('0-1200')"
+                  :class="[
+                    priceFilter === '0-1200'
+                      ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                      : 'border-gray-300 bg-white text-gray-700',
+                    { 'bg-gray-300 text-black/30': loading },
+                  ]"
+                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                >
+                  Budget <span class="text-[10px]">(&lt; 1200฿)</span>
+                </button>
+                <button
+                  @click="setPriceFilter('1200-1800')"
+                  :class="[
+                    priceFilter === '1200-1800'
+                      ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                      : 'border-gray-300 bg-white text-gray-700',
+                    { 'bg-gray-300 text-black/30': loading },
+                  ]"
+                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                >
+                  Standard <span class="text-[10px]">(1200-1800฿)</span>
+                </button>
+                <button
+                  @click="setPriceFilter('1800-3000')"
+                  :class="[
+                    priceFilter === '1800-3000'
+                      ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                      : 'border-gray-300 bg-white text-gray-700',
+                    { 'bg-gray-300 text-black/30': loading },
+                  ]"
+                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                >
+                  Premium <span class="text-[10px]">(1800-3000฿)</span>
+                </button>
+                <button
+                  @click="setPriceFilter('3000-100000')"
+                  :class="[
+                    priceFilter === '3000-100000'
+                      ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                      : 'border-gray-300 bg-white text-gray-700',
+                    { 'bg-gray-300 text-black/30': loading },
+                  ]"
+                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                >
+                  Luxury <span class="text-[10px]">(3000+฿)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- City Modal -->
+        <Modal
+          :isOpen="showCityModal"
+          @closeModal="
+            showCityModal = false;
+            citySearchQuery = '';
+          "
+        >
+          <DialogPanel
+            class="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-white rounded-2xl shadow-xl"
+          >
+            <DialogTitle
+              as="h3"
+              class="text-lg font-semibold text-gray-900 mb-4"
+            >
+              Select City
+            </DialogTitle>
+
+            <!-- Search Input for Cities -->
+            <div class="mb-4">
+              <div class="relative">
+                <input
+                  v-model="citySearchQuery"
+                  type="text"
+                  placeholder="Search cities..."
+                  class="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent"
+                />
+                <svg
+                  class="absolute left-3 top-2.5 w-5 h-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
             </div>
 
             <div
-              @click="toggleSearchPanel"
-              class="w-8 h-8 bg-[#FF613c] rounded-full flex items-center justify-center"
+              class="max-h-[400px] overflow-y-auto custom-scrollbar space-y-2"
             >
-              <FunnelIcon class="w-4 h-4 text-white" />
+              <button
+                @click="
+                  setCity('');
+                  showCityModal = false;
+                  citySearchQuery = '';
+                "
+                :class="[
+                  selectedCity === ''
+                    ? 'bg-[#FF613c]/10 border-[#FF613c] text-[#FF613c]'
+                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50',
+                ]"
+                class="w-full text-left px-4 py-3 border rounded-lg transition-all"
+              >
+                <p class="font-medium">All Cities</p>
+              </button>
+
+              <!-- Show filtered cities -->
+              <button
+                v-for="city in filteredCities"
+                :key="city.id"
+                @click="
+                  setCity(city.id);
+                  showCityModal = false;
+                  citySearchQuery = '';
+                "
+                :class="[
+                  selectedCity === city.id
+                    ? 'bg-[#FF613c]/10 border-[#FF613c] text-[#FF613c]'
+                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50',
+                ]"
+                class="w-full text-left px-4 py-3 border rounded-lg transition-all"
+              >
+                <p class="font-medium">{{ city.name }}</p>
+              </button>
+
+              <!-- No results message -->
+              <div
+                v-if="filteredCities.length === 0 && citySearchQuery"
+                class="text-center py-8 text-gray-500"
+              >
+                <p class="text-sm">
+                  No cities found matching "{{ citySearchQuery }}"
+                </p>
+              </div>
             </div>
-          </button>
-        </div>
+          </DialogPanel>
+        </Modal>
+
+        <!-- Place Modal -->
+        <Modal
+          :isOpen="showPlaceModal"
+          @closeModal="
+            showPlaceModal = false;
+            placeSearchQuery = '';
+          "
+        >
+          <DialogPanel
+            class="w-full max-w-md p-6 overflow-hidden text-left align-middle transition-all transform bg-white rounded-2xl shadow-xl"
+          >
+            <DialogTitle
+              as="h3"
+              class="text-lg font-semibold text-gray-900 mb-4"
+            >
+              Select Place
+            </DialogTitle>
+
+            <!-- Search Input for Places -->
+            <div class="mb-4">
+              <div class="relative">
+                <input
+                  v-model="placeSearchQuery"
+                  type="text"
+                  placeholder="Search places..."
+                  class="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent"
+                />
+                <svg
+                  class="absolute left-3 top-2.5 w-5 h-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <div
+              class="max-h-[400px] overflow-y-auto custom-scrollbar space-y-2"
+            >
+              <button
+                @click="
+                  selectedPlace = '';
+                  showPlaceModal = false;
+                  placeSearchQuery = '';
+                "
+                :class="[
+                  selectedPlace === ''
+                    ? 'bg-[#FF613c]/10 border-[#FF613c] text-[#FF613c]'
+                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50',
+                ]"
+                class="w-full text-left px-4 py-3 border rounded-lg transition-all"
+              >
+                <p class="font-medium">All Places</p>
+              </button>
+
+              <!-- Show filtered places -->
+              <button
+                v-for="place in filteredPlaces"
+                :key="place"
+                @click="
+                  setPlace(place.name);
+                  showPlaceModal = false;
+                  placeSearchQuery = '';
+                "
+                :class="[
+                  selectedPlace === place.name
+                    ? 'bg-[#FF613c]/10 border-[#FF613c] text-[#FF613c]'
+                    : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50',
+                ]"
+                class="w-full text-left px-4 py-3 border rounded-lg transition-all"
+              >
+                <p class="font-medium">{{ place.name }}</p>
+              </button>
+
+              <!-- No results message -->
+              <div
+                v-if="filteredPlaces.length === 0 && placeSearchQuery"
+                class="text-center py-8 text-gray-500"
+              >
+                <p class="text-sm">
+                  No places found matching "{{ placeSearchQuery }}"
+                </p>
+              </div>
+            </div>
+          </DialogPanel>
+        </Modal>
+
+        <!-- Detail Modal -->
+        <Modal :isOpen="hotelModalOpen" @closeModal="closeHotelModal()">
+          <DialogPanel
+            class="w-full max-w-4xl overflow-hidden text-left align-middle transition-all transform bg-white rounded-2xl shadow-xl"
+          >
+            <DetailComponent :hotelId="hotelDetailId" />
+          </DialogPanel>
+        </Modal>
 
         <!-- Hotel List Toggle Button - FIXED -->
         <button
@@ -84,215 +391,6 @@
             />
           </svg>
         </button>
-
-        <Modal :isOpen="showSearchPanel" @closeModal="showSearchPanel = false">
-          <DialogPanel
-            class="w-full max-w-xl p-4 overflow-hidden text-left align-middle transition-all transform bg-white rounded-lg shadow-xl"
-          >
-            <DialogTitle
-              as="h3"
-              class="text-lg font-medium leading-6 text-gray-900"
-            >
-              Search
-            </DialogTitle>
-
-            <div class="grid grid-cols-2 gap-2 pt-5">
-              <div class="col-span-2 pb-4">
-                <!-- Price Filter Bar - NEW -->
-                <div class="">
-                  <div class="flex justify-start items-center space-x-1.5 pb-1">
-                    <p
-                      @click="setPriceFilter('')"
-                      :class="[
-                        priceFilter == ''
-                          ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
-                          : 'border-black/10 bg-white',
-                        { 'bg-gray-300 text-black/30': loading },
-                      ]"
-                      class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
-                    >
-                      all
-                    </p>
-
-                    <p
-                      @click="setPriceFilter('0-1200')"
-                      :class="[
-                        priceFilter == '0-1200'
-                          ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
-                          : 'border-black/10 bg-white',
-                        { 'bg-gray-300 text-black/30': loading },
-                      ]"
-                      class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
-                    >
-                      budget <span class="text-[8px]">(&lt; 1200฿)</span>
-                    </p>
-
-                    <p
-                      @click="setPriceFilter('1200-1800')"
-                      :class="[
-                        priceFilter == '1200-1800'
-                          ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
-                          : 'border-black/10 bg-white',
-                        { 'bg-gray-300 text-black/30': loading },
-                      ]"
-                      class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
-                    >
-                      standard <span class="text-[8px]">(1200 - 1800฿)</span>
-                    </p>
-
-                    <p
-                      @click="setPriceFilter('1800-3000')"
-                      :class="[
-                        priceFilter == '1800-3000'
-                          ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
-                          : 'border-black/10 bg-white',
-                        { 'bg-gray-300 text-black/30': loading },
-                      ]"
-                      class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
-                    >
-                      premium <span class="text-[8px]">(1800 - 3000฿)</span>
-                    </p>
-
-                    <p
-                      @click="setPriceFilter('3000-100000')"
-                      :class="[
-                        priceFilter == '3000-100000'
-                          ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
-                          : 'border-black/10 bg-white',
-                        { 'bg-gray-300 text-black/30': loading },
-                      ]"
-                      class="whitespace-nowrap px-3 py-1.5 shadow-md text-[10px] border rounded-full cursor-pointer transition-all"
-                    >
-                      luxury <span class="text-[8px]">(3000+฿)</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h2 class="text-sm text-[#FF613c] font-medium">Choose City</h2>
-                <div
-                  class="space-y-1 h-[200px] pr-2 pl-1 pt-3 overflow-y-scroll scroll-container-y"
-                >
-                  <div
-                    class="flex justify-between items-center space-y-2 pb-2 pt-0.5 px-2"
-                    v-for="c in cityList ?? []"
-                    :key="c"
-                    :class="c.id == selectedCity ? ' shadow-md rounded-xl' : ''"
-                    @click="
-                      () => {
-                        selectedCity = c.id;
-                        chooseCityName = c.name;
-                      }
-                    "
-                  >
-                    <p
-                      class="text-xs w-[110px] mt-1.5 line-clamp-1"
-                      :class="c.id == selectedCity ? 'text-[#FF613c]' : ''"
-                    >
-                      {{ c.name }}
-                    </p>
-                    <input
-                      type="checkbox"
-                      class=""
-                      name=""
-                      :checked="c.id == selectedCity"
-                      id=""
-                    />
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h2 class="text-sm text-[#FF613c] font-medium">Choose Place</h2>
-                <div
-                  class="space-y-1 h-[200px] overflow-y-scroll scroll-container-y pt-3"
-                  v-if="!loadingPlace"
-                >
-                  <div
-                    class="flex justify-between items-center space-y-2 pb-2 pt-0.5 px-2"
-                    @click="selectedPlace = ''"
-                    :class="
-                      selectedPlace == ''
-                        ? ' shadow-md border border-black/5 rounded-xl'
-                        : ''
-                    "
-                  >
-                    <p
-                      class="text-xs w-[110px] mt-1.5 line-clamp-1"
-                      :class="selectedPlace == '' ? 'text-[#FF613c]' : ''"
-                    >
-                      All places
-                    </p>
-                    <input
-                      type="checkbox"
-                      name=""
-                      :checked="selectedPlace == ''"
-                      id=""
-                    />
-                  </div>
-                  <div
-                    class="flex justify-between items-center space-y-2 pb-2 pt-0.5 px-2"
-                    v-for="p in getPlaceList ?? []"
-                    :key="p"
-                    :class="
-                      p == selectedPlace
-                        ? ' shadow-md border border-black/5 rounded-xl'
-                        : ''
-                    "
-                    @click="selectedPlace = p"
-                  >
-                    <p
-                      class="text-xs w-[110px] mt-1.5 line-clamp-1"
-                      :class="p == selectedPlace ? 'text-[#FF613c]' : ''"
-                    >
-                      {{ p }}
-                    </p>
-                    <input
-                      type="checkbox"
-                      name=""
-                      :checked="p == selectedPlace"
-                      id=""
-                    />
-                  </div>
-                </div>
-                <div v-else class="flex justify-center items-center h-[200px]">
-                  <div class="flex gap-1">
-                    <div
-                      class="w-2 h-2 rounded-full bg-[#FF613c] animate-bounce"
-                    ></div>
-                    <div
-                      class="w-2 h-2 rounded-full bg-[#FF613c] animate-bounce [animation-delay:-.3s]"
-                    ></div>
-                    <div
-                      class="w-2 h-2 rounded-full bg-[#FF613c] animate-bounce [animation-delay:-.5s]"
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="flex justify-end items-center gap-x-3 pt-4 border-t border-black/5 mt-3"
-            >
-              <p
-                @click="showSearchPanel = false"
-                class="text-xs font-medium px-3 py-2 border border-black/10 rounded-full cursor-pointer"
-              >
-                Cancel
-              </p>
-              <p
-                @click="resetFilters"
-                class="text-xs font-medium px-3 py-2 bg-red-500 text-white rounded-full cursor-pointer"
-              >
-                Reset
-              </p>
-              <p
-                @click="applyFilters"
-                class="text-xs font-medium px-3 py-2 bg-[#FF613c] text-white rounded-full cursor-pointer"
-              >
-                Apply
-              </p>
-            </div>
-          </DialogPanel>
-        </Modal>
 
         <!-- Map -->
         <div id="map" ref="mapRef" class="w-full h-full"></div>
@@ -389,6 +487,7 @@
                       </div>
                       <div
                         class="flex px-2 text-xs mt-2 rounded-full justify-center py-2"
+                        @click="getViewDetail(hotel.id)"
                         :class="
                           selectedHotelId === hotel.id
                             ? 'text-white bg-white/20'
@@ -423,10 +522,12 @@
 import { onMounted, onUnmounted, ref, computed, watch } from "vue";
 import { useHotelStore } from "../stores/hotel";
 import Layout from "./Layout.vue";
+import DetailComponent from "./MapComponent/Detail.vue";
 import { useCityStore } from "../stores/city";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Modal from "../components/Modal.vue";
+import { DialogPanel, DialogTitle } from "@headlessui/vue";
 // Import marker cluster
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
@@ -445,7 +546,7 @@ const allHotels = ref([]);
 const cityList = ref([]);
 const selectedCity = ref(2);
 const selectedPlace = ref("");
-const priceFilter = ref(""); // NEW - Price filter state
+const priceFilter = ref("");
 const showSearchPanel = ref(false);
 const showHotelList = ref(true);
 const selectedHotelId = ref(2);
@@ -455,6 +556,8 @@ const showDateBox = ref(false);
 const safeAreaBottom = ref(0);
 const loadingPlace = ref(false);
 const chooseCityName = ref("");
+const showCityModal = ref(false);
+const showPlaceModal = ref(false);
 
 const checkin_date = ref(
   localStorage.getItem("checkin_date")
@@ -470,7 +573,12 @@ const room_qty = ref(localStorage.getItem("room_qty") || "");
 
 // Map variables
 let map = null;
-let markerClusterGroup = null; // Cluster group
+let markerClusterGroup = null;
+
+// Show only first 4 cities
+const visibleCities = computed(() => {
+  return cityList.value.slice(0, 4);
+});
 
 const closeShowDateBox = () => {
   checkin_date.value = localStorage.getItem("checkin_date") || "";
@@ -479,13 +587,29 @@ const closeShowDateBox = () => {
   showDateBox.value = false;
 };
 
-// NEW - Price filter function
+const setCity = (cityId) => {
+  if (loading.value) return;
+  selectedCity.value = cityId;
+  selectedPlace.value = ""; // Reset place when city changes
+  updateMapMarkers();
+  setTimeout(() => {
+    centerMapOnFilteredHotels();
+  }, 300);
+};
+
+const setPlace = (place) => {
+  if (loading.value) return;
+  selectedPlace.value = place;
+  updateMapMarkers();
+  setTimeout(() => {
+    centerMapOnFilteredHotels();
+  }, 300);
+};
+
 const setPriceFilter = (filter) => {
   if (loading.value) return;
   priceFilter.value = filter;
   updateMapMarkers();
-
-  // Center map on filtered hotels after a short delay
   setTimeout(() => {
     centerMapOnFilteredHotels();
   }, 300);
@@ -506,15 +630,42 @@ const getFilterPriceName = (filter) => {
   }
 };
 
-// NEW - Check if hotel price is within the selected range
 const isHotelInPriceRange = (hotel) => {
-  if (!priceFilter.value) return true; // No filter applied
-
+  if (!priceFilter.value) return true;
   const price = hotel.lowest_room_price || 0;
   const [min, max] = priceFilter.value.split("-").map(Number);
-
   return price >= min && price <= max;
 };
+
+// ... existing refs
+const citySearchQuery = ref("");
+const placeSearchQuery = ref("");
+
+// ... existing code
+
+// Filtered cities based on search
+const filteredCities = computed(() => {
+  if (!citySearchQuery.value) {
+    return cityList.value;
+  }
+
+  const query = citySearchQuery.value.toLowerCase().trim();
+  return cityList.value.filter((city) =>
+    city.name.toLowerCase().includes(query)
+  );
+});
+
+// Filtered places based on search
+const filteredPlaces = computed(() => {
+  const places = getPlaceList.value;
+
+  if (!placeSearchQuery.value) {
+    return places;
+  }
+
+  const query = placeSearchQuery.value.toLowerCase().trim();
+  return places.filter((place) => place.name.toLowerCase().includes(query));
+});
 
 const filteredHotels = computed(() => {
   let filtered = allHotels.value;
@@ -527,7 +678,6 @@ const filteredHotels = computed(() => {
     filtered = filtered.filter((hotel) => hotel.place === selectedPlace.value);
   }
 
-  // NEW - Apply price filter
   if (priceFilter.value) {
     filtered = filtered.filter(isHotelInPriceRange);
   }
@@ -540,25 +690,37 @@ const getCities = async () => {
     limit: 100,
   });
   cityList.value = res.data;
+  console.log("====================================");
+  console.log(cityList.value, "this is city list");
+  console.log("====================================");
 };
 
 const getPlaceList = computed(() => {
-  if (selectedCity.value != "") {
-    const resp = cityList.value.filter((c) => c.id == selectedCity.value);
-    if (resp.length > 0) {
-      return resp[0].places;
-    }
+  if (!selectedCity.value || !cityList.value.length) {
+    return [];
   }
+
+  const city = cityList.value.find((c) => c.id == selectedCity.value);
+
+  if (city?.places) {
+    if (typeof city.places === "object" && !Array.isArray(city.places)) {
+      // Convert to array of objects with id and name
+      return Object.entries(city.places).map(([id, name]) => ({
+        id,
+        name,
+      }));
+    }
+    return city.places;
+  }
+
   return [];
 });
 
-// Helper method to get city name
 const getCityName = (cityId) => {
   const city = cityList.value.find((c) => c.id == cityId);
   return city ? city.name : "All cities";
 };
 
-// Methods
 const toggleSearchPanel = () => {
   showSearchPanel.value = !showSearchPanel.value;
 };
@@ -567,22 +729,18 @@ const toggleHotelList = () => {
   showHotelList.value = !showHotelList.value;
 };
 
-// Set hotel card refs for scrolling
 const setHotelCardRef = (el, hotelId) => {
   if (el) {
     hotelCardRefs.value[hotelId] = el;
   }
 };
 
-// Scroll to specific hotel in the list
 const scrollToHotel = (hotelId) => {
-  // Remove active class from all markers
   const allMarkers = document.querySelectorAll(".price-badge");
   allMarkers.forEach((marker) => {
     marker.classList.remove("active");
   });
 
-  // Add active class to clicked marker
   const activeMarker = document.querySelector(
     `.price-badge[data-hotel-id="${hotelId}"]`
   );
@@ -590,25 +748,20 @@ const scrollToHotel = (hotelId) => {
     activeMarker.classList.add("active");
   }
 
-  // Make sure hotel list is visible
   if (!showHotelList.value) {
     showHotelList.value = true;
   }
 
-  // Set selected hotel
   selectedHotelId.value = hotelId;
 
-  // Wait for next tick to ensure DOM is updated
   setTimeout(() => {
     const hotelCard = hotelCardRefs.value[hotelId];
     if (hotelCard && hotelListContainer.value) {
-      // Calculate scroll position to center the card
       const containerRect = hotelListContainer.value.getBoundingClientRect();
       const cardRect = hotelCard.getBoundingClientRect();
       const scrollLeft =
         hotelCard.offsetLeft - containerRect.width / 2 + cardRect.width / 2;
 
-      // Smooth scroll to the hotel card
       hotelListContainer.value.scrollTo({
         left: scrollLeft,
         behavior: "smooth",
@@ -626,7 +779,6 @@ const getMapList = async () => {
     if (res.result == 1) {
       allHotels.value = res.data;
       console.log(allHotels.value, "this is map");
-
       initializeMap();
     }
   } catch (error) {
@@ -637,14 +789,12 @@ const getMapList = async () => {
 };
 
 const onFilterChange = () => {
-  // Update markers based on filtered hotels
   updateMapMarkers();
 };
 
 const applyFilters = () => {
   onFilterChange();
   toggleSearchPanel();
-
   setTimeout(() => {
     centerMapOnFilteredHotels();
   }, 300);
@@ -653,15 +803,13 @@ const applyFilters = () => {
 const resetFilters = () => {
   selectedCity.value = "";
   selectedPlace.value = "";
-  priceFilter.value = ""; // NEW - Reset price filter
+  priceFilter.value = "";
   updateMapMarkers();
 };
 
 const initializeMap = () => {
-  // Initialize map centered on Thailand
   map = L.map("map").setView([13.7563, 100.5018], 6);
 
-  // Add light-styled tile layer with English labels
   L.tileLayer(
     "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
     {
@@ -672,16 +820,13 @@ const initializeMap = () => {
     }
   ).addTo(map);
 
-  // Initialize marker cluster group with updated settings
   markerClusterGroup = L.markerClusterGroup({
-    // Clustering options
     maxClusterRadius: 80,
     spiderfyOnMaxZoom: true,
     showCoverageOnHover: false,
     zoomToBoundsOnClick: true,
     disableClusteringAtZoom: 14,
 
-    // Custom cluster icon
     iconCreateFunction: function (cluster) {
       const childCount = cluster.getChildCount();
 
@@ -701,13 +846,10 @@ const initializeMap = () => {
   });
 
   map.addLayer(markerClusterGroup);
-
-  // Add initial hotel markers
   updateMapMarkers();
 };
 
 const updateMapMarkers = () => {
-  // Clear existing markers from cluster group
   if (markerClusterGroup) {
     markerClusterGroup.clearLayers();
   }
@@ -716,12 +858,10 @@ const updateMapMarkers = () => {
 
   filteredHotels.value.forEach((hotel) => {
     if (hotel.latitude && hotel.longitude) {
-      // Format price for display
       const formattedPrice = hotel.lowest_room_price
         ? `฿${hotel.lowest_room_price.toLocaleString()}`
         : "N/A";
 
-      // Custom marker icon with price badge
       const priceIcon = L.divIcon({
         className: "custom-price-marker",
         html: `<div class="price-badge" data-hotel-id="${hotel.id}">${formattedPrice}</div>`,
@@ -738,7 +878,6 @@ const updateMapMarkers = () => {
         }
       );
 
-      // Add click event to scroll to hotel instead of showing popup
       marker.on("click", () => {
         scrollToHotel(hotel.id);
       });
@@ -747,12 +886,10 @@ const updateMapMarkers = () => {
     }
   });
 
-  // Add all markers to cluster group at once
   if (markerClusterGroup) {
     markerClusterGroup.addLayers(markers);
   }
 
-  // Fit map to show all markers
   if (markers.length > 0) {
     const bounds = markerClusterGroup.getBounds();
     if (bounds.isValid()) {
@@ -767,14 +904,12 @@ const updateMapMarkers = () => {
   }
 };
 
-// Add this computed property to watch for filter changes
 watch([selectedCity, selectedPlace, priceFilter], () => {
   if (selectedCity.value || selectedPlace.value || priceFilter.value) {
     centerMapOnFilteredHotels();
   }
 });
 
-// Add this method to center and zoom the map
 const centerMapOnFilteredHotels = () => {
   if (!map || filteredHotels.value.length === 0) return;
 
@@ -785,20 +920,17 @@ const centerMapOnFilteredHotels = () => {
   if (validCoordinates.length === 0) return;
 
   if (validCoordinates.length === 1) {
-    // If only one hotel, center on it with a close zoom
     map.setView(validCoordinates[0], 16, {
       animate: true,
       duration: 1,
     });
   } else {
-    // Calculate center point of all hotels
     const latitudes = validCoordinates.map((coord) => coord[0]);
     const longitudes = validCoordinates.map((coord) => coord[1]);
 
     const centerLat = latitudes.reduce((a, b) => a + b) / latitudes.length;
     const centerLng = longitudes.reduce((a, b) => a + b) / longitudes.length;
 
-    // Zoom to center point with fixed zoom level (closer zoom)
     map.setView([centerLat, centerLng], 15, {
       animate: true,
       duration: 1,
@@ -806,10 +938,20 @@ const centerMapOnFilteredHotels = () => {
   }
 };
 
+const hotelModalOpen = ref(false);
+const hotelDetailId = ref(null);
+const getViewDetail = async (hotelId) => {
+  hotelDetailId.value = hotelId;
+  hotelModalOpen.value = true;
+};
+
+const closeHotelModal = () => {
+  hotelModalOpen.value = false;
+  hotelDetailId.value = null;
+};
+
 onMounted(async () => {
   console.log("Map Page Loaded");
-
-  // Prevent body scroll
   document.body.style.overflow = "hidden";
   document.documentElement.style.overflow = "hidden";
 
@@ -834,12 +976,10 @@ onUnmounted(() => {
   display: none;
 }
 
-/* Smooth scrolling */
 .scroll-smooth {
   scroll-behavior: smooth;
 }
 
-/* Line clamp for text overflow */
 .line-clamp-1 {
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -881,7 +1021,7 @@ onUnmounted(() => {
   box-shadow: 0 4px 16px rgba(249, 115, 22, 0.6);
 }
 
-/* Cluster marker styles - New Design */
+/* Cluster marker styles */
 :deep(.custom-cluster-icon) {
   background: none;
   border: none;
@@ -915,12 +1055,6 @@ onUnmounted(() => {
   line-height: 1.2;
 }
 
-:deep(.cluster-hotel-count) {
-  font-size: 10px;
-  font-weight: 500;
-  color: #666666;
-}
-
 /* Custom scrollbar for modal */
 .custom-scrollbar {
   scrollbar-width: thin;
@@ -943,21 +1077,5 @@ onUnmounted(() => {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #d1d5db;
-}
-
-/* Slide down transition */
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: all 0.3s ease;
-}
-
-.slide-down-enter-from {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-
-.slide-down-leave-to {
-  opacity: 0;
-  transform: translateY(-20px);
 }
 </style>

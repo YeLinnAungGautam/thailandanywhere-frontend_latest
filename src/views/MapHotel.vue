@@ -10,6 +10,15 @@
               <div class="flex-1" @click="showDateBox = true">
                 <p class="text-xs text-gray-500">choose city & place & price</p>
               </div>
+              <!-- Open Full Filter Panel Button -->
+              <div class="flex justify-end">
+                <button
+                  @click="toggleSearchPanel"
+                  class="flex items-center gap-2 text-xs font-medium bg-white text-[#FF613c] rounded-full cursor-pointer transition-all"
+                >
+                  See More
+                </button>
+              </div>
             </div>
 
             <!-- City Filter -->
@@ -164,16 +173,6 @@
                   Luxury <span class="text-[10px]">(3000+฿)</span>
                 </button>
               </div>
-            </div>
-
-            <!-- Open Full Filter Panel Button -->
-            <div class="flex justify-end pt-2">
-              <button
-                @click="toggleSearchPanel"
-                class="flex items-center gap-2 px-4 py-2 text-xs font-medium border border-gray-200 bg-white text-gray-600 rounded-full cursor-pointer transition-all hover:bg-gray-600 hover:text-white hover:shadow-md"
-              >
-                See More
-              </button>
             </div>
           </div>
         </div>

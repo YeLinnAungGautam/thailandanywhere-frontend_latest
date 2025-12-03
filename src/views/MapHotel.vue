@@ -10,20 +10,21 @@
               <div class="flex-1" @click="showDateBox = true">
                 <p class="text-xs text-gray-500">choose city & place & price</p>
               </div>
-              <!-- Open Full Filter Panel Button -->
-              <div class="flex justify-end">
-                <button
-                  @click="toggleSearchPanel"
-                  class="flex items-center gap-2 text-xs font-medium bg-white text-[#FF613c] rounded-full cursor-pointer transition-all"
-                >
-                  See More
-                </button>
-              </div>
             </div>
 
             <!-- City Filter -->
             <div>
-              <p class="text-xs font-semibold text-gray-700 mb-3">City</p>
+              <div class="flex justify-between items-center mb-3">
+                <p class="text-xs font-semibold text-gray-700">City</p>
+                <div class="flex justify-end">
+                  <button
+                    @click="toggleSearchPanel"
+                    class="flex items-center gap-2 text-xs font-medium bg-white text-[#FF613c] rounded-full cursor-pointer transition-all"
+                  >
+                    See More
+                  </button>
+                </div>
+              </div>
               <div
                 class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1"
               >
@@ -64,7 +65,17 @@
 
             <!-- Place Filter (shown when city is selected) -->
             <div v-if="selectedCity && visiblePlaces">
-              <p class="text-xs font-semibold text-gray-700 mb-3">Place</p>
+              <div class="flex justify-between items-center mb-3">
+                <p class="text-xs font-semibold text-gray-700">Place</p>
+                <div class="flex justify-end">
+                  <button
+                    @click="toggleSearchPanel"
+                    class="flex items-center gap-2 text-xs font-medium bg-white text-[#FF613c] rounded-full cursor-pointer transition-all"
+                  >
+                    See More
+                  </button>
+                </div>
+              </div>
               <div
                 class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1"
               >
@@ -106,9 +117,17 @@
 
             <!-- Price Filter -->
             <div>
-              <p class="text-xs font-semibold text-gray-700 mb-3">
-                Price Range
-              </p>
+              <div class="flex justify-between items-center mb-3">
+                <p class="text-xs font-semibold text-gray-700">Price Range</p>
+                <div class="flex justify-end">
+                  <button
+                    @click="toggleSearchPanel"
+                    class="flex items-center gap-2 text-xs font-medium bg-white text-[#FF613c] rounded-full cursor-pointer transition-all"
+                  >
+                    See More
+                  </button>
+                </div>
+              </div>
               <div
                 class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1"
               >
@@ -453,7 +472,7 @@
         >
           <div
             v-if="showHotelList"
-            class="absolute left-[100px] right-5 z-[999] bottom-[100px] xl:bottom-5 pointer-events-none"
+            class="absolute left-4 right-4 md:left-[100px] md:right-5 z-[999] bottom-5 tablet:bottom-[100px] ipad-pro:bottom-[120px] mobile:bottom-[140px] pointer-events-none"
           >
             <div
               ref="hotelListContainer"

@@ -220,6 +220,247 @@
 
         <!-- Modal with Destinations -->
         <Modal
+          :isOpen="openDestinationModal"
+          :marginTop="'mt-6'"
+          @closeModal="openDestinationModal = false"
+        >
+          <DialogPanel
+            class="w-full max-w-2xl p-6 overflow-hidden text-left align-middle transition-all transform bg-white rounded-2xl shadow-xl"
+          >
+            <div class="space-y-4">
+              <!-- Header -->
+              <div
+                class="flex items-center justify-between pb-3 border-b border-gray-200"
+              >
+                <h2 class="text-lg font-semibold text-gray-900">
+                  Search Destinations
+                </h2>
+                <button
+                  @click="openDestinationModal = false"
+                  class="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg
+                    class="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Search Input -->
+              <div class="relative">
+                <input
+                  v-model="destinationSearchQuery"
+                  type="text"
+                  placeholder="Search destinations by name..."
+                  class="w-full px-4 py-3 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4299e1] focus:border-transparent"
+                />
+                <svg
+                  class="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+
+              <!-- City Filter Dropdown -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Filter by City
+                </label>
+                <div
+                  class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1"
+                >
+                  <button
+                    @click="setCity('')"
+                    :class="[
+                      selectedCity === ''
+                        ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                        : 'border-gray-300 bg-white text-gray-700',
+                      { 'bg-gray-300 text-black/30': loading },
+                    ]"
+                    class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                  >
+                    All Cities
+                  </button>
+                  <button
+                    v-for="city in cityList"
+                    :key="city.id"
+                    @click="setCity(city.id)"
+                    :class="[
+                      selectedCity === city.id
+                        ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                        : 'border-gray-300 bg-white text-gray-700',
+                      { 'bg-gray-300 text-black/30': loading },
+                    ]"
+                    class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                  >
+                    {{ city.name }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Destinations List -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="block text-sm font-medium text-gray-700">
+                    Available Destinations ({{
+                      filteredDestinationsForModal.length
+                    }})
+                  </label>
+                  <button
+                    v-if="selectedCity || destinationSearchQuery"
+                    @click="clearDestinationFilters"
+                    class="text-xs text-[#FF613c] hover:text-[#ff4d28] font-medium"
+                  >
+                    Clear Filters
+                  </button>
+                </div>
+
+                <!-- Scrollable Destinations -->
+                <div
+                  class="max-h-[300px] overflow-y-auto scroll-container-y space-y-2 pr-2"
+                >
+                  <div
+                    v-if="filteredDestinationsForModal.length === 0"
+                    class="text-center py-12 text-gray-500"
+                  >
+                    <svg
+                      class="w-16 h-16 mx-auto mb-4 text-gray-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <p class="text-sm">No destinations found</p>
+                    <p class="text-xs mt-1">
+                      Try adjusting your search criteria
+                    </p>
+                  </div>
+
+                  <div
+                    v-for="dest in filteredDestinationsForModal"
+                    :key="dest.id"
+                    @click="selectDestinationFromModal(dest)"
+                    class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:border-[#4299e1] hover:bg-[#4299e1]/5 cursor-pointer transition-all group"
+                    :class="
+                      selectedDestination?.id === dest.id
+                        ? 'border-[#4299e1] bg-[#4299e1]/10'
+                        : ''
+                    "
+                  >
+                    <!-- Destination Image -->
+                    <div
+                      class="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100"
+                    >
+                      <img
+                        :src="
+                          dest.feature_img ||
+                          'https://via.placeholder.com/64x64?text=📍'
+                        "
+                        :alt="dest.name"
+                        class="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    <!-- Destination Info -->
+                    <div class="flex-1 min-w-0">
+                      <h3
+                        class="font-semibold text-sm mb-1 truncate"
+                        :class="
+                          selectedDestination?.id === dest.id
+                            ? 'text-[#4299e1]'
+                            : 'text-gray-900'
+                        "
+                      >
+                        📍 {{ dest.name }}
+                      </h3>
+                      <p class="text-xs text-gray-600 mb-1">
+                        {{ dest.city?.name || "Unknown City" }}
+                      </p>
+                      <span
+                        class="inline-block text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full"
+                      >
+                        {{ getNearbyHotels(dest).length }} hotels nearby
+                      </span>
+                    </div>
+
+                    <!-- Selected Indicator -->
+                    <div
+                      v-if="selectedDestination?.id === dest.id"
+                      class="flex-shrink-0"
+                    >
+                      <svg
+                        class="w-6 h-6 text-[#4299e1]"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer Actions -->
+              <div
+                class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200"
+              >
+                <button
+                  @click="openDestinationModal = false"
+                  class="px-4 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Close
+                </button>
+                <button
+                  v-if="selectedDestination"
+                  @click="
+                    clearDestination();
+                    openDestinationModal = false;
+                  "
+                  class="px-4 py-2 text-xs font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  Clear
+                </button>
+                <button
+                  v-if="selectedDestination"
+                  @click="openDestinationModal = false"
+                  class="px-4 py-2 text-xs font-medium text-white bg-[#FF613c] rounded-lg hover:bg-[#FF613c] transition-colors"
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </DialogPanel>
+        </Modal>
+
+        <!-- Modal with Destinations -->
+        <Modal
           :isOpen="showSearchPanel"
           :marginTop="'mt-16'"
           @closeModal="toggleSearchPanel()"
@@ -435,20 +676,6 @@
                 </p>
               </div>
             </div>
-          </DialogPanel>
-        </Modal>
-
-        <!-- Modal with Destinations -->
-        <Modal
-          :isOpen="openDestinationModal"
-          :marginTop="'mt-16'"
-          @closeModal="openDestinationModal = false"
-        >
-          <DialogPanel
-            class="w-full max-w-lg p-6 overflow-hidden text-left align-middle transition-all transform bg-white rounded-2xl shadow-xl"
-          >
-            <div>destination search</div>
-            <p class="text-xs">coming soon</p>
           </DialogPanel>
         </Modal>
 
@@ -770,6 +997,50 @@ const selectDestination = async (destination) => {
 const selectDestinationFromModal = (destination) => {
   selectDestination(destination);
   showSearchPanel.value = false;
+};
+
+// Add these to your existing data properties
+const destinationSearchQuery = ref("");
+const showDestinationCityDropdown = ref(false);
+
+// Add these computed properties
+const filteredDestinationsForModal = computed(() => {
+  let filtered = destinations.value;
+
+  // Filter by selected city
+  if (selectedCity.value) {
+    filtered = filtered.filter((d) => d.city?.id === selectedCity.value);
+  }
+
+  // Filter by search query
+  if (destinationSearchQuery.value.trim()) {
+    const query = destinationSearchQuery.value.toLowerCase().trim();
+    filtered = filtered.filter(
+      (d) =>
+        d.name.toLowerCase().includes(query) ||
+        d.city?.name.toLowerCase().includes(query)
+    );
+  }
+
+  return filtered;
+});
+
+// Add these methods
+const selectDestinationCity = (cityId) => {
+  selectedDestinationCity.value = cityId;
+  showDestinationCityDropdown.value = false;
+};
+
+const clearDestinationFilters = () => {
+  destinationSearchQuery.value = "";
+  selectedDestinationCity.value = "";
+};
+
+// Close dropdown when clicking outside
+const handleClickOutside = (event) => {
+  if (!event.target.closest(".relative")) {
+    showDestinationCityDropdown.value = false;
+  }
 };
 
 // Highlight destination marker
@@ -1232,6 +1503,7 @@ onMounted(async () => {
   console.log("Map Page Loaded");
   document.body.style.overflow = "hidden";
   document.documentElement.style.overflow = "hidden";
+  document.addEventListener("click", handleClickOutside);
 
   await getCities();
   await getDestinations();
@@ -1245,6 +1517,7 @@ onMounted(async () => {
 onUnmounted(() => {
   document.body.style.overflow = "";
   document.documentElement.style.overflow = "";
+  document.removeEventListener("click", handleClickOutside);
 });
 </script>
 

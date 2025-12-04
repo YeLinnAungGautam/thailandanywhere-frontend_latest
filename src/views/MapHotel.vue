@@ -54,12 +54,6 @@
                 >
                   {{ city.name }}
                 </button>
-                <!-- <button
-                  @click="showCityModal = true"
-                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border border-gray-300 bg-white text-gray-700 rounded-full cursor-pointer transition-all hover:shadow-md hover:border-[#FF613c] hover:text-[#FF613c]"
-                >
-                  See more
-                </button> -->
               </div>
             </div>
 
@@ -105,13 +99,6 @@
                 >
                   {{ place.name }}
                 </button>
-                <!-- <button
-                  v-if="getPlaceList.length > 4"
-                  @click="showPlaceModal = true"
-                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border border-gray-300 bg-white text-gray-700 rounded-full cursor-pointer transition-all hover:shadow-md hover:border-[#FF613c] hover:text-[#FF613c]"
-                >
-                  See more
-                </button> -->
               </div>
             </div>
 
@@ -193,9 +180,45 @@
                 </button>
               </div>
             </div>
+
+            <!-- Destination Filter - Scrollable Horizontal -->
+            <div v-if="destinations.length > 0">
+              <div class="flex justify-between items-center mb-3">
+                <p class="text-xs font-semibold text-gray-700">Destinations</p>
+                <button
+                  class="text-xs font-medium text-red-500 cursor-pointer"
+                  @click="openDestinationModal = true"
+                >
+                  See More
+                </button>
+              </div>
+              <div
+                class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1"
+              >
+                <button
+                  v-for="dest in destinations
+                    ? destinations.find((d) => d.city.id === selectedCity)
+                      ? destinations.filter((d) => d.city.id === selectedCity)
+                      : []
+                    : []"
+                  :key="dest.id"
+                  @click="selectDestination(dest)"
+                  :class="[
+                    selectedDestination?.id === dest.id
+                      ? 'border-[#4299e1] text-[#4299e1] bg-[#4299e1]/10'
+                      : 'border-gray-300 bg-white text-gray-700',
+                  ]"
+                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md flex items-center gap-1"
+                >
+                  <span>📍</span>
+                  <span>{{ dest.name }}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
+        <!-- Modal with Destinations -->
         <Modal
           :isOpen="showSearchPanel"
           :marginTop="'mt-16'"
@@ -285,7 +308,7 @@
                     class="space-y-1 h-[250px] pr-2 pl-1 pt-3 overflow-y-scroll scroll-container-y"
                   >
                     <div
-                      class="flex justify-between items-center space-y-2 pb-3 pt-1.5 px-3 border rounded-full"
+                      class="flex justify-between items-center space-y-2 pb-3 pt-1.5 px-3 border rounded-full cursor-pointer"
                       v-for="c in cityList ?? []"
                       :key="c"
                       :class="
@@ -325,7 +348,7 @@
                     v-if="!loadingPlace"
                   >
                     <div
-                      class="flex justify-between items-center space-y-2 pb-3 pt-1.5 px-3 border rounded-full"
+                      class="flex justify-between items-center space-y-2 pb-3 pt-1.5 px-3 border rounded-full cursor-pointer"
                       @click="selectedPlace = ''"
                       :class="
                         selectedPlace == ''
@@ -347,7 +370,7 @@
                       />
                     </div>
                     <div
-                      class="flex justify-between items-center space-y-2 pb-3 pt-1.5 px-3 border rounded-full"
+                      class="flex justify-between items-center space-y-2 pb-3 pt-1.5 px-3 border rounded-full cursor-pointer"
                       v-for="p in getPlaceList ?? []"
                       :key="p"
                       :class="
@@ -394,24 +417,38 @@
               >
                 <p
                   @click="showSearchPanel = false"
-                  class="text-xs font-medium px-3 py-2 border border-black/10 rounded-full"
+                  class="text-xs font-medium px-3 py-2 border border-black/10 rounded-full cursor-pointer"
                 >
                   Cancel
                 </p>
                 <p
                   @click="resetFilters"
-                  class="text-xs font-medium px-3 py-2 bg-red-500 text-white rounded-full"
+                  class="text-xs font-medium px-3 py-2 bg-red-500 text-white rounded-full cursor-pointer"
                 >
                   Reset
                 </p>
                 <p
                   @click="applyFilters"
-                  class="text-xs font-medium px-3 py-2 bg-[#FF613c] text-white rounded-full"
+                  class="text-xs font-medium px-3 py-2 bg-[#FF613c] text-white rounded-full cursor-pointer"
                 >
                   Apply
                 </p>
               </div>
             </div>
+          </DialogPanel>
+        </Modal>
+
+        <!-- Modal with Destinations -->
+        <Modal
+          :isOpen="openDestinationModal"
+          :marginTop="'mt-16'"
+          @closeModal="openDestinationModal = false"
+        >
+          <DialogPanel
+            class="w-full max-w-lg p-6 overflow-hidden text-left align-middle transition-all transform bg-white rounded-2xl shadow-xl"
+          >
+            <div>destination search</div>
+            <p class="text-xs">coming soon</p>
           </DialogPanel>
         </Modal>
 
@@ -431,7 +468,7 @@
           </DialogPanel>
         </Modal>
 
-        <!-- Hotel List Toggle Button - FIXED -->
+        <!-- Hotel List Toggle Button -->
         <button
           @click="toggleHotelList"
           :style="{
@@ -461,7 +498,7 @@
         <!-- Map -->
         <div id="map" ref="mapRef" class="w-full h-full"></div>
 
-        <!-- Scrollable Hotel Cards at Bottom - FIXED -->
+        <!-- Scrollable Hotel Cards at Bottom -->
         <transition
           enter-active-class="transition-all duration-300 ease-out"
           enter-from-class="opacity-0 translate-y-8"
@@ -585,7 +622,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, computed, watch } from "vue";
+import { onMounted, onUnmounted, ref, computed, watch, nextTick } from "vue";
 import { useHotelStore } from "../stores/hotel";
 import Layout from "./Layout.vue";
 import DetailComponent from "./MapComponent/Detail.vue";
@@ -594,14 +631,16 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Modal from "../components/Modal.vue";
 import { DialogPanel, DialogTitle } from "@headlessui/vue";
-// Import marker cluster
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
 import { useRoute, useRouter } from "vue-router";
 import { FunnelIcon, XMarkIcon } from "@heroicons/vue/24/outline";
+import { useDestinationStore } from "../stores/destination";
+import { storeToRefs } from "pinia";
 
 const hotelStore = useHotelStore();
+const destinationStore = useDestinationStore();
 const cityStore = useCityStore();
 const router = useRouter();
 const route = useRoute();
@@ -615,7 +654,7 @@ const selectedPlace = ref("");
 const priceFilter = ref("");
 const showSearchPanel = ref(false);
 const showHotelList = ref(true);
-const selectedHotelId = ref(2);
+const selectedHotelId = ref("");
 const hotelListContainer = ref(null);
 const hotelCardRefs = ref({});
 const showDateBox = ref(false);
@@ -624,6 +663,12 @@ const loadingPlace = ref(false);
 const chooseCityName = ref("");
 const showCityModal = ref(false);
 const showPlaceModal = ref(false);
+const { dests } = storeToRefs(destinationStore);
+const openDestinationModal = ref(false);
+
+// Destination search refs - 10km radius
+const selectedDestination = ref(null);
+const destinationRadius = ref(5);
 
 const checkin_date = ref(
   localStorage.getItem("checkin_date")
@@ -658,6 +703,105 @@ const visiblePlaces = computed(() => {
   return getPlaceList.value.slice(startIndex, startIndex + 4);
 });
 
+// Calculate distance between two coordinates (Haversine formula)
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; // Radius of the Earth in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // Distance in km
+};
+
+// Get nearby hotels for a destination
+const getNearbyHotels = (destination) => {
+  if (!destination.latitude || !destination.longitude) {
+    return allHotels.value;
+  }
+
+  return allHotels.value.filter((hotel) => {
+    if (!hotel.latitude || !hotel.longitude) return false;
+
+    const distance = calculateDistance(
+      parseFloat(destination.latitude),
+      parseFloat(destination.longitude),
+      parseFloat(hotel.latitude),
+      parseFloat(hotel.longitude)
+    );
+
+    return distance <= destinationRadius.value;
+  });
+};
+
+const selectDestination = async (destination) => {
+  selectedDestination.value = destination;
+
+  // First update the markers
+  await nextTick();
+  updateMapMarkers();
+
+  // Then center and zoom the map on the destination
+  if (map && destination.latitude && destination.longitude) {
+    const destLat = parseFloat(destination.latitude);
+    const destLng = parseFloat(destination.longitude);
+
+    // Always zoom in close to the destination - don't use fitBounds
+    map.setView([destLat, destLng], 15, {
+      animate: true,
+      duration: 1,
+    });
+  }
+
+  // Show hotel list
+  showHotelList.value = true;
+
+  // Highlight marker after animation
+  setTimeout(() => {
+    highlightDestinationMarker(destination.id);
+  }, 300);
+};
+
+// Select destination from modal and close modal
+const selectDestinationFromModal = (destination) => {
+  selectDestination(destination);
+  showSearchPanel.value = false;
+};
+
+// Highlight destination marker
+const highlightDestinationMarker = (destinationId) => {
+  const allDestMarkers = document.querySelectorAll(".destination-badge");
+  allDestMarkers.forEach((marker) => {
+    marker.classList.remove("active");
+  });
+
+  const activeDestMarker = document.querySelector(
+    `.destination-badge[data-destination-id="${destinationId}"]`
+  );
+  if (activeDestMarker) {
+    activeDestMarker.classList.add("active");
+  }
+};
+
+// Clear destination selection
+const clearDestination = () => {
+  selectedDestination.value = null;
+
+  // Restore normal filtered view
+  updateMapMarkers();
+
+  // Re-center map based on current filters
+  setTimeout(() => {
+    if (selectedCity.value || selectedPlace.value || priceFilter.value) {
+      centerMapOnFilteredHotels();
+    }
+  }, 300);
+};
+
 const closeShowDateBox = () => {
   checkin_date.value = localStorage.getItem("checkin_date") || "";
   checkout_date.value = localStorage.getItem("checkout_date") || "";
@@ -668,7 +812,8 @@ const closeShowDateBox = () => {
 const setCity = (cityId) => {
   if (loading.value) return;
   selectedCity.value = cityId;
-  selectedPlace.value = ""; // Reset place when city changes
+  selectedPlace.value = "";
+  clearDestination();
   updateMapMarkers();
   setTimeout(() => {
     centerMapOnFilteredHotels();
@@ -678,6 +823,7 @@ const setCity = (cityId) => {
 const setPlace = (place) => {
   if (loading.value) return;
   selectedPlace.value = place;
+  clearDestination();
   updateMapMarkers();
   setTimeout(() => {
     centerMapOnFilteredHotels();
@@ -693,21 +839,6 @@ const setPriceFilter = (filter) => {
   }, 300);
 };
 
-const getFilterPriceName = (filter) => {
-  switch (filter) {
-    case "0-1200":
-      return "budget (< 1200฿)";
-    case "1200-1800":
-      return "standard (1200 - 1800฿)";
-    case "1800-3000":
-      return "premium (1800 - 3000฿)";
-    case "3000-100000":
-      return "luxury (3000+฿)";
-    default:
-      return "all";
-  }
-};
-
 const isHotelInPriceRange = (hotel) => {
   if (!priceFilter.value) return true;
   const price = hotel.lowest_room_price || 0;
@@ -715,38 +846,13 @@ const isHotelInPriceRange = (hotel) => {
   return price >= min && price <= max;
 };
 
-// ... existing refs
-const citySearchQuery = ref("");
-const placeSearchQuery = ref("");
-
-// ... existing code
-
-// Filtered cities based on search
-const filteredCities = computed(() => {
-  if (!citySearchQuery.value) {
-    return cityList.value;
-  }
-
-  const query = citySearchQuery.value.toLowerCase().trim();
-  return cityList.value.filter((city) =>
-    city.name.toLowerCase().includes(query)
-  );
-});
-
-// Filtered places based on search
-const filteredPlaces = computed(() => {
-  const places = getPlaceList.value;
-
-  if (!placeSearchQuery.value) {
-    return places;
-  }
-
-  const query = placeSearchQuery.value.toLowerCase().trim();
-  return places.filter((place) => place.name.toLowerCase().includes(query));
-});
-
 const filteredHotels = computed(() => {
   let filtered = allHotels.value;
+
+  // If destination is selected, show only nearby hotels (within 10km)
+  if (selectedDestination.value) {
+    filtered = getNearbyHotels(selectedDestination.value);
+  }
 
   if (selectedCity.value) {
     filtered = filtered.filter((hotel) => hotel.city_id == selectedCity.value);
@@ -768,9 +874,23 @@ const getCities = async () => {
     limit: 100,
   });
   cityList.value = res.data;
-  console.log("====================================");
-  console.log(cityList.value, "this is city list");
-  console.log("====================================");
+};
+
+const destinations = ref([]);
+const getDestinations = async () => {
+  try {
+    const params = {
+      limit: 1000,
+      mapping: true,
+    };
+    const response = await destinationStore.getListAction(params);
+    if (response.status === 1 && response.result?.data) {
+      destinations.value = response.result.data;
+      updateMapMarkers();
+    }
+  } catch (error) {
+    console.error("Error fetching destinations:", error);
+  }
 };
 
 const getPlaceList = computed(() => {
@@ -782,7 +902,6 @@ const getPlaceList = computed(() => {
 
   if (city?.places) {
     if (typeof city.places === "object" && !Array.isArray(city.places)) {
-      // Convert to array of objects with id and name
       return Object.entries(city.places).map(([id, name]) => ({
         id,
         name,
@@ -832,6 +951,15 @@ const scrollToHotel = (hotelId) => {
 
   selectedHotelId.value = hotelId;
 
+  const hotel = filteredHotels.value.find((h) => h.id === hotelId);
+
+  if (hotel && hotel.latitude && hotel.longitude && map) {
+    map.setView([parseFloat(hotel.latitude), parseFloat(hotel.longitude)], 17, {
+      animate: true,
+      duration: 1,
+    });
+  }
+
   setTimeout(() => {
     const hotelCard = hotelCardRefs.value[hotelId];
     if (hotelCard && hotelListContainer.value) {
@@ -852,11 +980,9 @@ const getMapList = async () => {
   try {
     loading.value = true;
     const res = await hotelStore.getMapListAction();
-    console.log(res, "this is map");
 
     if (res.result == 1) {
       allHotels.value = res.data;
-      console.log(allHotels.value, "this is map");
       initializeMap();
     }
   } catch (error) {
@@ -882,6 +1008,7 @@ const resetFilters = () => {
   selectedCity.value = "";
   selectedPlace.value = "";
   priceFilter.value = "";
+  clearDestination();
   updateMapMarkers();
 };
 
@@ -906,19 +1033,34 @@ const initializeMap = () => {
     disableClusteringAtZoom: 14,
 
     iconCreateFunction: function (cluster) {
-      const childCount = cluster.getChildCount();
+      const markers = cluster.getAllChildMarkers();
+      const hotelCount = markers.filter(
+        (m) => m.options.type === "hotel"
+      ).length;
+      const destCount = markers.filter(
+        (m) => m.options.type === "destination"
+      ).length;
+
+      let label = "";
+      if (hotelCount > 0 && destCount > 0) {
+        label = `${hotelCount} hotels, ${destCount} destinations`;
+      } else if (hotelCount > 0) {
+        label = `${hotelCount} hotels`;
+      } else if (destCount > 0) {
+        label = `${destCount} destinations`;
+      }
 
       return L.divIcon({
         html: `
           <div class="cluster-marker-new">
             <div class="cluster-content">
-              ${childCount} hotels
+              ${label}
             </div>
           </div>
         `,
         className: "custom-cluster-icon",
-        iconSize: L.point(100, 40),
-        iconAnchor: [50, 20],
+        iconSize: L.point(150, 40),
+        iconAnchor: [75, 20],
       });
     },
   });
@@ -928,12 +1070,14 @@ const initializeMap = () => {
 };
 
 const updateMapMarkers = () => {
+  // Clear existing markers
   if (markerClusterGroup) {
     markerClusterGroup.clearLayers();
   }
 
-  const markers = [];
+  const allMarkers = [];
 
+  // Add hotel markers
   filteredHotels.value.forEach((hotel) => {
     if (hotel.latitude && hotel.longitude) {
       const formattedPrice = hotel.lowest_room_price
@@ -943,43 +1087,103 @@ const updateMapMarkers = () => {
       const priceIcon = L.divIcon({
         className: "custom-price-marker",
         html: `<div class="price-badge" data-hotel-id="${hotel.id}">${formattedPrice}</div>`,
-        iconSize: [80, 32],
-        iconAnchor: [40, 16],
-        popupAnchor: [0, -16],
+        iconSize: [90, 40],
+        iconAnchor: [45, 20],
+        popupAnchor: [0, -20],
       });
 
       const marker = L.marker(
         [parseFloat(hotel.latitude), parseFloat(hotel.longitude)],
+        { icon: priceIcon, hotelData: hotel, type: "hotel" }
+      );
+
+      marker.on("click", () => scrollToHotel(hotel.id));
+      allMarkers.push(marker);
+    }
+  });
+
+  // Add destination markers (now they will cluster too)
+  destinations.value.forEach((destination) => {
+    if (destination.latitude && destination.longitude) {
+      const isSelected = selectedDestination.value?.id === destination.id;
+
+      const destinationIcon = L.divIcon({
+        className: "custom-destination-marker",
+        html: `<div class="destination-badge ${
+          isSelected ? "active" : ""
+        }" data-destination-id="${destination.id}">
+                <span class="marker-icon">📍</span>
+                <span class="destination-name">${destination.name}</span>
+              </div>`,
+        iconSize: [140, 45],
+        iconAnchor: [70, 22],
+        popupAnchor: [0, -22],
+      });
+
+      const marker = L.marker(
+        [parseFloat(destination.latitude), parseFloat(destination.longitude)],
         {
-          icon: priceIcon,
-          hotelData: hotel,
+          icon: destinationIcon,
+          destinationData: destination,
+          type: "destination",
         }
       );
 
       marker.on("click", () => {
-        scrollToHotel(hotel.id);
+        selectDestination(destination);
+        openDestinationPopup(destination);
       });
 
-      markers.push(marker);
+      // Add destination to cluster group instead of directly to map
+      allMarkers.push(marker);
     }
   });
 
+  // Add all markers (hotels + destinations) to cluster group
   if (markerClusterGroup) {
-    markerClusterGroup.addLayers(markers);
+    markerClusterGroup.addLayers(allMarkers);
   }
+};
 
-  if (markers.length > 0) {
-    const bounds = markerClusterGroup.getBounds();
-    if (bounds.isValid()) {
-      map.fitBounds(bounds.pad(0.1));
-    }
-  }
+const openDestinationPopup = (destination) => {
+  const nearbyCount = getNearbyHotels(destination).length;
 
-  if (markers.length > 0) {
-    setTimeout(() => {
-      centerMapOnFilteredHotels();
-    }, 100);
-  }
+  const popupContent = `
+    <div class="destination-popup p-3">
+      <div class="flex items-start gap-3">
+        <div class="w-20 h-20 flex-shrink-0">
+          <img src="${
+            destination.feature_img ||
+            "https://via.placeholder.com/80x80?text=Destination"
+          }" 
+               alt="${destination.name}" 
+               class="w-full h-full object-cover rounded-lg">
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="font-bold text-sm mb-1">${destination.name}</h3>
+          <p class="text-xs text-gray-600 mb-2">${
+            destination.city?.name || ""
+          }</p>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+              ${nearbyCount} hotels within 5km
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  L.popup({
+    closeButton: true,
+    className: "destination-popup",
+  })
+    .setLatLng([
+      parseFloat(destination.latitude),
+      parseFloat(destination.longitude),
+    ])
+    .setContent(popupContent)
+    .openOn(map);
 };
 
 watch([selectedCity, selectedPlace, priceFilter], () => {
@@ -998,18 +1202,14 @@ const centerMapOnFilteredHotels = () => {
   if (validCoordinates.length === 0) return;
 
   if (validCoordinates.length === 1) {
-    map.setView(validCoordinates[0], 16, {
+    map.setView(validCoordinates[0], 14, {
       animate: true,
       duration: 1,
     });
   } else {
-    const latitudes = validCoordinates.map((coord) => coord[0]);
-    const longitudes = validCoordinates.map((coord) => coord[1]);
-
-    const centerLat = latitudes.reduce((a, b) => a + b) / latitudes.length;
-    const centerLng = longitudes.reduce((a, b) => a + b) / longitudes.length;
-
-    map.setView([centerLat, centerLng], 15, {
+    const bounds = L.latLngBounds(validCoordinates);
+    map.fitBounds(bounds, {
+      padding: [100, 100],
       animate: true,
       duration: 1,
     });
@@ -1034,7 +1234,12 @@ onMounted(async () => {
   document.documentElement.style.overflow = "hidden";
 
   await getCities();
+  await getDestinations();
   await getMapList();
+
+  setCity(selectedCity.value || 2);
+
+  initializeMap();
 });
 
 onUnmounted(() => {
@@ -1044,6 +1249,93 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* Destination marker styles */
+:deep(.custom-destination-marker) {
+  background: none;
+  border: none;
+}
+
+:deep(.destination-badge) {
+  background: #ffffff;
+  color: #333;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid #4299e1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+:deep(.destination-badge:hover) {
+  background: #ebf8ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+}
+
+:deep(.marker-icon) {
+  font-size: 16px;
+}
+
+:deep(.destination-name) {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Active state */
+:deep(.destination-badge.active) {
+  background: #4299e1;
+  color: white;
+  border-color: #3182ce;
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(66, 153, 225, 0.5);
+}
+
+/* Popup styles */
+:deep(.destination-popup .leaflet-popup-content-wrapper) {
+  border-radius: 12px;
+  padding: 0;
+}
+
+:deep(.destination-popup .leaflet-popup-content) {
+  margin: 0;
+  width: 280px !important;
+}
+
+/* Cluster marker styles */
+/* Cluster marker styles */
+:deep(.cluster-marker-new) {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 8px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid #ffffff;
+  white-space: nowrap;
+  min-width: 100px;
+  max-width: 200px;
+}
+
+:deep(.cluster-content) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: #000000;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.2;
+  text-align: center;
+}
+
 /* Hide scrollbar but keep functionality */
 .scrollbar-hide {
   -ms-overflow-style: none;
@@ -1099,21 +1391,10 @@ onUnmounted(() => {
   box-shadow: 0 4px 16px rgba(249, 115, 22, 0.6);
 }
 
-/* Cluster marker styles */
+/* Custom cluster icon */
 :deep(.custom-cluster-icon) {
   background: none;
   border: none;
-}
-
-:deep(.cluster-marker-new) {
-  background: #ffffff;
-  border-radius: 24px;
-  padding: 8px 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid #e0e0e0;
-  white-space: nowrap;
 }
 
 :deep(.cluster-marker-new:hover) {
@@ -1121,39 +1402,27 @@ onUnmounted(() => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-:deep(.cluster-content) {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  color: #000000;
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 1.2;
-}
-
-/* Custom scrollbar for modal */
-.custom-scrollbar {
+/* Custom scrollbar for modal and containers */
+.scroll-container-y {
   scrollbar-width: thin;
   scrollbar-color: #e5e7eb #f9fafb;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
+.scroll-container-y::-webkit-scrollbar {
   width: 6px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
+.scroll-container-y::-webkit-scrollbar-track {
   background: #f9fafb;
   border-radius: 10px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
+.scroll-container-y::-webkit-scrollbar-thumb {
   background: #e5e7eb;
   border-radius: 10px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+.scroll-container-y::-webkit-scrollbar-thumb:hover {
   background: #d1d5db;
 }
 </style>

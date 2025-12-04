@@ -29,6 +29,7 @@ import { useProductStore } from "../stores/product";
 import { useCityStore } from "../stores/city";
 import { useRouter, useRoute } from "vue-router";
 import debounce from "lodash/debounce";
+import { usePlaceStore } from "../stores/place";
 
 const destStore = useDestinationStore();
 const productStore = useProductStore();
@@ -36,6 +37,8 @@ const toast = useToast();
 const router = useRouter();
 const route = useRoute();
 const cityStore = useCityStore();
+const placeStore = usePlaceStore();
+const { places } = storeToRefs(placeStore);
 
 const carModalOpen = ref(false);
 
@@ -47,6 +50,7 @@ const formData = ref({
   city_name: "",
   description: "",
   entry_fee: "",
+  placement_id: "",
   detail: "",
   latitude: "",
   longitude: "",
@@ -98,6 +102,7 @@ const addNewHandler = async () => {
   }
   frmData.append("description", formData.value.description);
   frmData.append("entry_fee", formData.value.entry_fee);
+  frmData.append("placement_id", formData.value.placement_id);
   frmData.append("latitude", formData.value.latitude);
   frmData.append("longitude", formData.value.longitude);
   frmData.append("detail", formData.value.detail);
@@ -121,6 +126,7 @@ const addNewHandler = async () => {
       city_name: "",
       description: "",
       entry_fee: "",
+      placement_id: "",
       latitude: "",
       longitude: "",
       detail: "",
@@ -160,6 +166,7 @@ const updateHandler = async () => {
   }
   frmData.append("description", formData.value.description);
   frmData.append("entry_fee", formData.value.entry_fee);
+  frmData.append("placement_id", formData.value.placement_id);
   frmData.append("latitude", formData.value.latitude);
   frmData.append("longitude", formData.value.longitude);
   frmData.append("detail", formData.value.detail);
@@ -182,6 +189,7 @@ const updateHandler = async () => {
       category_id: "",
       description: "",
       entry_fee: "",
+      place_id: "",
     };
     errors.value = null;
     // carModalOpen.value = false;
@@ -214,6 +222,7 @@ const editModalOpenHandler = (data) => {
   formData.value.city_name = data.city?.name;
   formData.value.description = data.description;
   formData.value.entry_fee = data.entry_fee;
+  formData.value.placement_id = data.placement_id;
   formData.value.latitude = data.latitude;
   formData.value.longitude = data.longitude;
   formData.value.city_id = data.city?.id;
@@ -305,6 +314,7 @@ const closeModal = () => {
     city_name: "",
     description: "",
     entry_fee: "",
+    placement_id: "",
     latitude: "",
     longitude: "",
     detail: "",
@@ -358,6 +368,7 @@ watch([productAction, cityAction], async ([newValue, secValue]) => {
 });
 
 onMounted(async () => {
+  await placeStore.getListAction();
   pageValue.value = route.query.pagi;
   console.log(pageValue.value, "this is from page value");
 
@@ -448,6 +459,9 @@ watch(
                 Entry_fee
               </th>
               <th class="p-4 text-xs font-medium tracking-wide text-left">
+                Place
+              </th>
+              <th class="p-4 text-xs font-medium tracking-wide text-left">
                 Latitude
               </th>
               <th class="p-4 text-xs font-medium tracking-wide text-left">
@@ -484,6 +498,7 @@ watch(
               >
                 {{ des.description }}
               </td>
+
               <td
                 class="p-4 text-xs text-gray-700 whitespace-nowrap"
                 v-if="des.entry_fee"
@@ -496,6 +511,11 @@ watch(
                 v-if="!des.entry_fee"
               >
                 -
+              </td>
+              <td
+                class="p-4 text-xs text-gray-700 whitespace-nowrap max-w-[200px] overflow-hidden"
+              >
+                {{ des.placement?.name ? des.placement?.name : "-" }}
               </td>
               <td class="p-4 text-xs text-gray-700 whitespace-nowrap">
                 {{ des?.latitude ? des?.latitude : "-" }}
@@ -603,6 +623,18 @@ watch(
                 :clearable="false"
                 :reduce="(product) => product.id"
                 placeholder="Choose city"
+              ></v-select>
+            </div>
+            <div class="space-y-1 mb-2">
+              <label for="name" class="text-gray-800 text-sm">Place</label>
+              <v-select
+                v-model="formData.placement_id"
+                class="style-chooser"
+                :options="places?.data ?? []"
+                label="name"
+                :clearable="false"
+                :reduce="(d) => d.id"
+                placeholder="Choose place"
               ></v-select>
             </div>
             <div class="space-y-1 mb-2">

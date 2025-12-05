@@ -21,6 +21,9 @@ import {
   CheckIcon,
   UsersIcon,
   AdjustmentsHorizontalIcon,
+  FunnelIcon,
+  MagnifyingGlassIcon,
+  ChatBubbleLeftIcon,
 } from "@heroicons/vue/24/outline";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
@@ -29,7 +32,6 @@ import Button from "../components/Button.vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { storeToRefs } from "pinia";
-import AvailabilyListVue from "../components/AvailabilyList.vue";
 import Modal from "../components/Modal.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useHotelStore } from "../stores/hotel";
@@ -37,7 +39,6 @@ import { useEntranceStore } from "../stores/entrance";
 import { useRoomStore } from "../stores/room";
 import { useVariationStore } from "../stores/variations";
 import { useAvailableStore } from "../stores/available";
-// import { PlusIcon, XCircleIcon, CheckBadgeIcon } from '@heroicons/vue/24/outline';
 
 const router = useRouter();
 const hotelStore = useHotelStore();
@@ -50,251 +51,41 @@ const { availables, loading } = storeToRefs(availableStore);
 const toast = useToast();
 
 const searchModal = ref(false);
-const formModal = ref(false);
+const hoveredRowId = ref(null);
+const popupPosition = ref({ top: 0, left: 0 });
 
-const Product_type = [
-  {
-    id: 1,
-    name: "hotel",
-  },
-  {
-    id: 2,
-    name: "entrance_ticket",
-  },
-];
+const product_type = ref("hotel");
+const product_id = ref("");
+const variation_id = ref("");
+const daterange = ref("");
+const date = ref("");
+const status = ref("");
+const created_by = ref("");
 
-const formData = ref({
-  product_type: "",
-  product_id: "",
-  variation: [],
-});
+const productNameArray = ref([]);
+const productVariationArray = ref([]);
 
-const product_variation = ref({
-  variation_id: "",
-  quantity: "",
-  checkin_date: "",
-  checkout_date: "",
-  date: "",
-  status: "",
-});
 const errors = ref(null);
+
+const statusOptions = [
+  { id: "", name: "All" },
+  { id: "pending", name: "Pending" },
+  { id: "available", name: "Available" },
+  { id: "unavailable", name: "Unavailable" },
+];
 
 const dateFormat = (inputDateString) => {
   if (inputDateString != null) {
     const inputDate = new Date(inputDateString);
-
-    // Get the year, month, and day components
     const year = inputDate.getFullYear();
-    const month = String(inputDate.getMonth() + 1).padStart(2, "0"); // Adding 1 because months are zero-based
+    const month = String(inputDate.getMonth() + 1).padStart(2, "0");
     const day = String(inputDate.getDate()).padStart(2, "0");
-
-    // Format the date in "YYYY-MM-DD" format
     const formattedDate = `${year}-${month}-${day}`;
     return formattedDate;
   } else {
     return null;
   }
 };
-
-const addItem = () => {
-  let data = {
-    variation_id: product_variation.value.variation_id.id,
-    variation_name: product_variation.value.variation_id.name,
-    quantity: product_variation.value.quantity,
-    checkin_date: dateFormat(product_variation.value.checkin_date),
-    checkout_date: dateFormat(product_variation.value.checkout_date),
-    date: dateFormat(product_variation.value.date),
-    status: "pending",
-  };
-  formData.value.variation.push(data);
-  console.log(formData.value.variation);
-  product_variation.value = {
-    variation_id: "",
-    quantity: "",
-    checkin_date: "",
-    checkout_date: "",
-    date: "",
-    status: "",
-  };
-};
-
-const removeItem = (index) => {
-  formData.value.variation.splice(index, 1);
-};
-
-const closeFunction = () => {
-  formData.value = {
-    product_type: "",
-    product_id: "",
-    variation: [],
-  };
-  product_variation.value = {
-    variation_id: "",
-    quantity: "",
-    checkin_date: "",
-    checkout_date: "",
-    date: "",
-    status: "",
-  };
-  formModal.value = false;
-};
-
-const productNameArray = ref([]);
-const chooseTypeAction = async () => {
-  console.log(formData.value.product_type);
-  if (formData.value.product_type == "hotel") {
-    const res = await hotelStore.getSimpleListAction();
-    productNameArray.value = res.result.data;
-    // console.log(res, "this is hotel");
-  } else if (formData.value.product_type == "entrance_ticket") {
-    const res = await entranceStore.getSimpleListAction();
-    // console.log(res, "this is entrance");
-    productNameArray.value = res.result.data;
-  }
-  if (product_type.value == "hotel") {
-    const res = await hotelStore.getSimpleListAction();
-    productNameArray.value = res.result.data;
-    // console.log(res, "this is hotel");
-  } else if (product_type.value == "entrance_ticket") {
-    const res = await entranceStore.getSimpleListAction();
-    // console.log(res, "this is entrance");
-    productNameArray.value = res.result.data;
-  }
-};
-
-const productVariationArray = ref([]);
-const chooseNameAction = async () => {
-  console.log(formData.value.product_id, "this is product");
-  if (formData.value.product_id && formData.value.product_type == "hotel") {
-    const res = await roomStore.getSimpleListAction({
-      hotel_id: formData.value.product_id,
-    });
-    // console.log(res, "this is room");
-    productVariationArray.value = res.result.data;
-  } else if (
-    formData.value.product_id &&
-    formData.value.product_type == "entrance_ticket"
-  ) {
-    const res = await variationStore.getSimpleListAction({
-      entrance_ticket_id: formData.value.product_id,
-    });
-    // console.log(res, "this is entr");
-    productVariationArray.value = res.result.data;
-  }
-  if (product_id.value && product_type.value == "hotel") {
-    const res = await roomStore.getSimpleListAction({
-      hotel_id: product_id.value,
-    });
-    // console.log(res, "this is room");
-    productVariationArray.value = res.result.data;
-  } else if (product_id.value && product_type.value == "entrance_ticket") {
-    const res = await variationStore.getSimpleListAction({
-      entrance_ticket_id: product_id.value,
-    });
-    // console.log(res, "this is entr");
-    productVariationArray.value = res.result.data;
-  }
-};
-
-const createHandler = async () => {
-  // console.log(formData.value);
-  const frmData = new FormData();
-  frmData.append("product_type", formData.value.product_type);
-  frmData.append("product_id", formData.value.product_id);
-  for (let i = 0; i < formData.value.variation.length; i++) {
-    frmData.append(
-      "variations[" + i + "][variable_id]",
-      formData.value.variation[i].variation_id
-    );
-    frmData.append(
-      "variations[" + i + "][quantity]",
-      formData.value.variation[i].quantity
-    );
-    if (formData.value.product_type == "hotel") {
-      frmData.append(
-        "variations[" + i + "][checkin_date]",
-        formData.value.variation[i].checkin_date
-      );
-      frmData.append(
-        "variations[" + i + "][checkout_date]",
-        formData.value.variation[i].checkout_date
-      );
-    } else if (formData.value.product_type == "entrance_ticket") {
-      frmData.append(
-        "variations[" + i + "][date]",
-        formData.value.variation[i].date
-      );
-    }
-    frmData.append(
-      "variations[" + i + "][status]",
-      formData.value.variation[i].status
-    );
-  }
-  const res = await availableStore.addNewAction(frmData);
-  console.log(res);
-  if (res.result) {
-    toast.success(res.message);
-    closeFunction();
-  }
-};
-
-const changePage = async (url) => {
-  await availableStore.getChangePage(url);
-};
-
-const updateAction = async (action, id, quantity) => {
-  console.log(action);
-  const frmData = new FormData();
-  frmData.append("_method", "PUT");
-  frmData.append("status", action);
-  frmData.append("quantity", quantity);
-  const res = await availableStore.updateAction(frmData, id);
-  console.log(res);
-  toast.success("Success Changed !!");
-  await availableStore.getListAction(watchSystem.value);
-};
-
-const deleteAction = async (id) => {
-  Swal.fire({
-    title: "Are you sure?",
-    text: "You won't be able to revert this!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#2463EB",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, delete it!",
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        const res = await availableStore.deleteAction(id);
-        console.log(res);
-        if (res.result) {
-          toast.success("deleted successfully");
-          await availableStore.getListAction(watchSystem.value);
-        }
-      } catch (error) {
-        if (error.response.data.errors) {
-          errors.value = error.response.data.errors;
-        }
-        toast.error(error.response.data.message);
-      }
-      await availableStore.getListAction(watchSystem.value);
-    }
-  });
-};
-
-// const searchData = ref({
-//   product_type: "hotel",
-//   product_id: "",
-//   variation_id: "",
-//   daterange: "",
-//   date: "",
-// });
-const product_type = ref("hotel");
-const product_id = ref("");
-const variation_id = ref("");
-const daterange = ref("");
-const date = ref("");
 
 const watchSystem = computed(() => {
   let result = {};
@@ -313,6 +104,14 @@ const watchSystem = computed(() => {
   if (date.value != "") {
     result.date = date.value;
   }
+  if (status.value != "") {
+    result.status = status.value;
+  }
+  if (!authStore.isSuperAdmin && !authStore.isReservation) {
+    result.created_by = authStore.user?.id;
+  } else if (created_by.value != "") {
+    result.created_by = created_by.value;
+  }
   return result;
 });
 
@@ -320,34 +119,90 @@ watch(product_type, async (newValue) => {
   await availableStore.getListAction(watchSystem.value);
 });
 
+watch(status, async (newValue) => {
+  await availableStore.getListAction(watchSystem.value);
+});
+
+const chooseTypeAction = async () => {
+  if (product_type.value == "hotel") {
+    const res = await hotelStore.getSimpleListAction();
+    productNameArray.value = res.result.data;
+  } else if (product_type.value == "entrance_ticket") {
+    const res = await entranceStore.getSimpleListAction();
+    productNameArray.value = res.result.data;
+  }
+};
+
+const chooseNameAction = async () => {
+  if (product_id.value && product_type.value == "hotel") {
+    const res = await roomStore.getSimpleListAction({
+      hotel_id: product_id.value,
+    });
+    productVariationArray.value = res.result.data;
+  } else if (product_id.value && product_type.value == "entrance_ticket") {
+    const res = await variationStore.getSimpleListAction({
+      entrance_ticket_id: product_id.value,
+    });
+    productVariationArray.value = res.result.data;
+  }
+};
+
+const changePage = async (url) => {
+  await availableStore.getChangePage(url);
+};
+
+const updateAction = async (action, id, quantity) => {
+  const frmData = new FormData();
+  frmData.append("_method", "PUT");
+  frmData.append("status", action);
+  frmData.append("quantity", quantity);
+  const res = await availableStore.updateAction(frmData, id);
+  toast.success("Status changed successfully!");
+  await availableStore.getListAction(watchSystem.value);
+};
+
+const deleteAction = async (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#ff613c",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const res = await availableStore.deleteAction(id);
+        if (res.result) {
+          toast.success("Deleted successfully");
+          await availableStore.getListAction(watchSystem.value);
+        }
+      } catch (error) {
+        if (error.response.data.errors) {
+          errors.value = error.response.data.errors;
+        }
+        toast.error(error.response.data.message);
+      }
+    }
+  });
+};
+
 const closeSearchAction = () => {
-  product_type.value = "";
   product_id.value = "";
   variation_id.value = "";
   daterange.value = "";
   date.value = "";
+  created_by.value = "";
   searchModal.value = false;
 };
 
 const openSearchModal = async () => {
-  //product_type.value = "";
-  //product_id.value = "";
-  //variation_id.value = "";
-  //daterange.value = "";
-  //date.value = "";
   searchModal.value = true;
   await chooseTypeAction();
 };
 
 const searchActionHandler = async () => {
-  // console.log(
-  //   product_type.value,
-  //   product_id.value,
-  //   variation_id.value,
-  //   daterange.value,
-  //   date.value
-  // );
-
   searchModal.value = false;
   if (daterange.value != "" && date.value == "") {
     daterange.value = `${dateFormat(daterange.value[0])} , ${dateFormat(
@@ -360,448 +215,489 @@ const searchActionHandler = async () => {
   await availableStore.getListAction(watchSystem.value);
 };
 
+const getStatusBadgeClass = (statusValue) => {
+  switch (statusValue) {
+    case "pending":
+      return "bg-yellow-100 text-yellow-700";
+    case "available":
+      return "bg-green-100 text-green-700";
+    case "unavailable":
+      return "bg-red-100 text-red-700";
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
+};
+
+const setStatus = (statusValue) => {
+  status.value = statusValue;
+};
+
+const activeFiltersCount = computed(() => {
+  let count = 0;
+  if (product_id.value) count++;
+  if (variation_id.value) count++;
+  if (daterange.value) count++;
+  if (date.value) count++;
+  if (created_by.value) count++;
+  return count;
+});
+
+const handleRowHover = (event, rowId) => {
+  hoveredRowId.value = rowId;
+  const rect = event.currentTarget.getBoundingClientRect();
+  popupPosition.value = {
+    top: rect.top + window.scrollY,
+    left: rect.left + 10,
+  };
+};
+
+const handleRowLeave = () => {
+  hoveredRowId.value = null;
+};
+
+const getCurrentCommand = computed(() => {
+  if (!hoveredRowId.value) return null;
+  const row = availables.value?.data?.find((r) => r.id === hoveredRowId.value);
+  return row?.commands || null;
+});
+
 onMounted(async () => {
   await availableStore.getListAction(watchSystem.value);
-  console.log(availables.value, "this is list");
 });
 </script>
 
 <template>
   <Layout>
-    <div class="mb-5 flex items-center justify-between">
-      <h3 class="text-2xl font-medium text-gray-600">Availabilities</h3>
-      <div class="space-x-3">
-        <Button :leftIcon="PlusIcon" @click="formModal = true">
-          Create Question
-        </Button>
-      </div>
+    <!-- Header -->
+    <div class="mb-5">
+      <h3 class="text-2xl font-medium text-gray-800">Availabilities</h3>
+      <p class="text-sm text-gray-500 mt-1">
+        Manage product availability schedules
+      </p>
     </div>
-    <div class="bg-white/60 p-6 rounded-lg shadow-sm mb-5">
-      <!-- search input sort filter -->
-      <div class="mb-5 flex justify-between items-center">
-        <div class="flex items-center justify-start gap-2 space-x-2">
-          <p
-            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-400 rounded"
-            @click="product_type = 'hotel'"
-            :class="product_type == 'hotel' ? 'bg-[#ff613c] text-white' : ''"
-          >
-            Hotels
-          </p>
-          <p
-            class="text-xs px-4 cursor-pointer hover:bg-[#ff613c] hover:text-white hover:shadow-md py-2 border border-gray-400 rounded"
-            @click="product_type = 'entrance_ticket'"
-            :class="
-              product_type == 'entrance_ticket' ? 'bg-[#ff613c] text-white' : ''
-            "
-          >
-            Attractions
-          </p>
-        </div>
-        <div class="flex justify-end items-center">
-          <div
-            class="bg-white rounded-full p-2 border border-gray-400"
-            @click="openSearchModal"
-          >
-            <AdjustmentsHorizontalIcon class="w-6 h-6" />
+
+    <!-- Main Content -->
+    <div class="bg-white/60 rounded-lg shadow-sm">
+      <!-- Filters -->
+      <div class="p-4 border-b border-gray-200">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <!-- Product Type -->
+            <div
+              class="flex items-center gap-2 border border-gray-300 rounded p-1"
+            >
+              <button
+                @click="product_type = 'hotel'"
+                :class="[
+                  'px-3 py-1 text-xs font-medium rounded transition-all',
+                  product_type == 'hotel'
+                    ? 'bg-[#ff613c] text-white'
+                    : 'text-gray-600 hover:bg-gray-100',
+                ]"
+              >
+                Hotels
+              </button>
+              <button
+                @click="product_type = 'entrance_ticket'"
+                :class="[
+                  'px-3 py-1 text-xs font-medium rounded transition-all',
+                  product_type == 'entrance_ticket'
+                    ? 'bg-[#ff613c] text-white'
+                    : 'text-gray-600 hover:bg-gray-100',
+                ]"
+              >
+                Attractions
+              </button>
+            </div>
+
+            <!-- Status Filters -->
+            <div class="flex items-center gap-2">
+              <button
+                v-for="statusOption in statusOptions"
+                :key="statusOption.id"
+                @click="setStatus(statusOption.id)"
+                :class="[
+                  'px-3 py-1 text-xs font-medium rounded border transition-all',
+                  status === statusOption.id
+                    ? 'border-[#ff613c] bg-[#ff613c] text-white'
+                    : 'border-gray-300 text-gray-600 hover:border-gray-400',
+                ]"
+              >
+                {{ statusOption.name }}
+              </button>
+            </div>
           </div>
+
+          <!-- Advanced Filter Button -->
+          <button
+            @click="openSearchModal"
+            class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-all"
+          >
+            <AdjustmentsHorizontalIcon class="w-4 h-4" />
+            Filters
+            <span
+              v-if="activeFiltersCount > 0"
+              class="ml-1 px-1.5 py-0.5 bg-[#ff613c] text-white rounded-full text-[10px] font-bold"
+            >
+              {{ activeFiltersCount }}
+            </span>
+          </button>
         </div>
       </div>
 
-      <div class="mb-5 overflow-auto rounded-lg shadow">
+      <!-- Table -->
+      <div class="overflow-x-auto relative">
         <table class="w-full">
-          <thead class="border-b-2 border-gray-200 bg-gray-50">
+          <thead class="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th class="w-20 p-3 text-xs font-medium tracking-wide text-left">
-                No.
-              </th>
-              <th class="p-3 text-xs font-medium tracking-wide text-left">
-                Product Type
+              <th
+                class="px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              >
+                ID
               </th>
               <th
-                class="p-3 text-xs font-medium tracking-wide text-left max-w-[300px]"
+                class="px-4 py-2 text-left text-xs font-semibold text-gray-700"
               >
-                Product Name
+                Product
               </th>
               <th
-                class="p-3 text-xs font-medium tracking-wide text-left max-w-[300px]"
+                class="px-4 py-2 text-left text-xs font-semibold text-gray-700"
               >
-                Variation Name
+                Variation
               </th>
-              <th class="p-3 text-xs font-medium tracking-wide text-left">
-                Quantity
+              <th
+                class="px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              >
+                Qty
               </th>
-              <th class="p-3 text-xs font-medium tracking-wide text-left">
+              <th
+                class="px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              >
                 Date
               </th>
-              <th class="p-3 text-xs font-medium tracking-wide text-left">
+              <th
+                class="px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              >
                 Status
               </th>
-              <th class="p-3 text-xs font-medium tracking-wide text-left w-30">
+              <th
+                class="px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              >
+                Created By
+              </th>
+              <th
+                class="px-4 py-2 text-right text-xs font-semibold text-gray-700"
+              >
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-800" v-if="!loading">
+          <tbody v-if="!loading" class="divide-y divide-gray-200">
             <tr
-              class="text-white"
               v-for="r in availables?.data"
               :key="r.id"
-              :class="{
-                'bg-yellow-100': r.status == 'pending',
-                'bg-red-100': r.status == 'unavailable',
-                'bg-green-100': r.status == 'available',
-              }"
+              @mouseenter="handleRowHover($event, r.id)"
+              @mouseleave="handleRowLeave"
+              class="hover:bg-gray-50 transition-colors relative"
             >
-              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-                {{ r.id }}
-              </td>
-              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-                {{
-                  r.ownerable_type == "App\\Models\\Hotel"
-                    ? "Hotel"
-                    : "Entrance Ticket"
-                }}
-              </td>
-              <td class="p-3 text-xs text-gray-700 whitespace-wrap">
-                {{ r.ownerable?.name }}
-              </td>
-              <td class="p-3 text-xs text-gray-700 whitespace-wrap">
-                {{ r.variable?.name }}
+              <!-- ID -->
+              <td class="px-4 py-3 text-xs text-gray-900">
+                <div class="flex items-center gap-2">
+                  #{{ r.id }}
+                  <ChatBubbleLeftIcon
+                    v-if="r.commands"
+                    class="w-3 h-3 text-blue-500"
+                  />
+                </div>
               </td>
 
-              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
+              <!-- Product -->
+              <td class="px-4 py-3">
+                <div class="text-xs text-gray-900 font-medium">
+                  {{ r.ownerable?.name }}
+                </div>
+                <div class="text-[10px] text-gray-500">
+                  {{
+                    r.ownerable_type == "App\\Models\\Hotel"
+                      ? "Hotel"
+                      : "Attraction"
+                  }}
+                </div>
+              </td>
+
+              <!-- Variation -->
+              <td class="px-4 py-3">
+                <div class="text-xs text-gray-900">{{ r.variable?.name }}</div>
+                <div
+                  v-if="r.variable?.room_price"
+                  class="text-[10px] text-gray-500"
+                >
+                  ฿{{ r.variable?.room_price?.toLocaleString() }}
+                </div>
+              </td>
+
+              <!-- Quantity -->
+              <td class="px-4 py-3 text-xs text-gray-900">
                 {{ r.quantity }}
               </td>
-              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-                <p v-if="!r.date">
-                  {{ r.checkin_date }} - {{ r.checkout_date }}
-                </p>
-                <p v-if="r.date">{{ r.date }}</p>
-              </td>
-              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-                <p
-                  class="px-2 py-1 text-center rounded-full flex justify-start items-center gap-3"
-                >
-                  <ExclamationTriangleIcon
-                    class="w-5 h-5"
-                    v-if="r.status == 'pending'"
-                  />
-                  <CheckBadgeIcon
-                    class="w-5 h-5"
-                    v-if="r.status == 'available'"
-                  />
-                  <XCircleIcon
-                    class="w-5 h-5"
-                    v-if="r.status == 'unavailable'"
-                  />
 
-                  {{ r.status }}
-                </p>
+              <!-- Date -->
+              <td class="px-4 py-3">
+                <div v-if="!r.date" class="text-xs text-gray-700">
+                  <div>{{ r.checkin_date }}</div>
+                  <div>{{ r.checkout_date }}</div>
+                </div>
+                <div v-if="r.date" class="text-xs text-gray-700">
+                  {{ r.date }}
+                </div>
               </td>
-              <td class="p-3 text-xs text-gray-700 whitespace-nowrap">
-                <div class="flex items-center gap-2">
-                  <button
+
+              <!-- Status -->
+              <td class="px-4 py-3">
+                <span
+                  :class="getStatusBadgeClass(r.status)"
+                  class="inline-block px-2 py-1 rounded text-[10px] font-medium"
+                >
+                  {{ r.status }}
+                </span>
+              </td>
+
+              <!-- Created By -->
+              <td class="px-4 py-3">
+                <div class="text-xs text-gray-900">
+                  {{ r.created_by?.name }}
+                </div>
+                <div class="text-[10px] text-gray-500">
+                  {{ new Date(r.created_at).toLocaleDateString() }}
+                </div>
+              </td>
+
+              <!-- Actions -->
+              <td class="px-4 py-3">
+                <div class="flex items-center justify-end gap-1">
+                  <div
                     v-if="authStore.isReservation || authStore.isSuperAdmin"
-                    @click.prevent="updateAction('pending', r.id, r.quantity)"
-                    class="hover:bg-yellow-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
+                    class="flex items-center gap-1"
                   >
-                    <ExclamationTriangleIcon class="w-5 h-5" />
-                  </button>
-                  <button
-                    v-if="authStore.isReservation || authStore.isSuperAdmin"
-                    @click.prevent="updateAction('available', r.id, r.quantity)"
-                    class="hover:bg-green-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
-                  >
-                    <CheckIcon class="w-5 h-5" />
-                  </button>
-                  <button
-                    v-if="authStore.isReservation || authStore.isSuperAdmin"
-                    @click.prevent="
-                      updateAction('unavailable', r.id, r.quantity)
-                    "
-                    class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
-                  >
-                    <XMarkIcon class="w-5 h-5" />
-                  </button>
-                  <button
+                    <button
+                      @click.prevent="updateAction('pending', r.id, r.quantity)"
+                      class="p-1.5 text-yellow-600 hover:bg-yellow-50 rounded transition-colors"
+                      title="Pending"
+                    >
+                      <ExclamationTriangleIcon class="w-4 h-4" />
+                    </button>
+                    <button
+                      @click.prevent="
+                        updateAction('available', r.id, r.quantity)
+                      "
+                      class="p-1.5 text-green-600 hover:bg-green-50 rounded transition-colors"
+                      title="Available"
+                    >
+                      <CheckIcon class="w-4 h-4" />
+                    </button>
+                    <button
+                      @click.prevent="
+                        updateAction('unavailable', r.id, r.quantity)
+                      "
+                      class="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
+                      title="Unavailable"
+                    >
+                      <XMarkIcon class="w-4 h-4" />
+                    </button>
+                    <button
+                      v-if="authStore.isSuperAdmin"
+                      @click.prevent="deleteAction(r.id)"
+                      class="p-1.5 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
+                      title="Delete"
+                    >
+                      <TrashIcon class="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div
                     v-if="!authStore.isReservation && !authStore.isSuperAdmin"
-                    class="flex justify-center items-center p-2 text-red-500 transition shadow rounded"
+                    class="text-[10px] text-red-600 px-2 py-1 bg-red-50 rounded"
                   >
-                    <XMarkIcon class="w-5 h-5 mr-2" /> No Permission
-                  </button>
-                  <button
-                    v-if="authStore.isSuperAdmin"
-                    @click.prevent="deleteAction(r.id)"
-                    class="hover:bg-red-500 p-2 bg-white text-blue-500 transition shadow rounded hover:text-white"
-                  >
-                    <TrashIcon class="w-5 h-5" />
-                  </button>
+                    No Access
+                  </div>
                 </div>
               </td>
             </tr>
           </tbody>
         </table>
-      </div>
-      <!-- pagination -->
-      <Pagination
-        v-if="!loading"
-        :data="availables"
-        @change-page="changePage"
-      />
-      <Modal :isOpen="searchModal" @closeModal="closeSearchAction">
-        <DialogPanel
-          class="w-full max-w-lg transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+
+        <!-- Command Popup -->
+        <div
+          v-if="hoveredRowId && getCurrentCommand"
+          :style="{
+            position: 'fixed',
+            top: `${popupPosition.top}px`,
+            left: `${popupPosition.left}px`,
+            zIndex: 9999,
+          }"
+          class="bg-white border border-gray-300 rounded-lg shadow-lg p-3 max-w-sm animate-fadeIn"
         >
-          <DialogTitle
-            as="h3"
-            class="text-lg font-medium leading-6 text-gray-900 mb-5"
+          <p
+            class="text-xs flex justify-start items-center space-x-2 text-gray-700 leading-relaxed"
           >
-            Search
-          </DialogTitle>
-          <div class="space-y-3">
-            <div class="">
-              <p class="text-gray-800 text-xs mb-2">Type</p>
-              <v-select
-                v-model="product_type"
-                class="style-chooser w-full"
-                :options="Product_type ?? []"
-                @option:selected="chooseTypeAction"
-                label="name"
-                :clearable="true"
-                :reduce="(d) => d.name"
-                placeholder="Choose product type"
-              ></v-select>
-              <p v-if="errors?.product_type" class="mt-1 text-xs text-red-600">
-                {{ errors.product_type[0] }}
-              </p>
-            </div>
-            <div class="">
-              <p class="text-gray-800 text-xs mb-2">Product Name</p>
-              <v-select
-                v-model="product_id"
-                class="style-chooser w-full"
-                :options="productNameArray ?? []"
-                @option:selected="chooseNameAction"
-                label="name"
-                :clearable="true"
-                :reduce="(d) => d.id"
-                placeholder="Choose product"
-              ></v-select>
-              <p v-if="errors?.product_type" class="mt-1 text-xs text-red-600">
-                {{ errors.product_type[0] }}
-              </p>
-            </div>
-            <div class="">
-              <p class="text-gray-800 text-xs mb-2">Product Variation</p>
-              <v-select
-                v-model="variation_id"
-                class="style-chooser w-full"
-                :options="productVariationArray ?? []"
-                label="name"
-                :clearable="true"
-                :reduce="(d) => d.id"
-                placeholder="Choose variation"
-              ></v-select>
-            </div>
-            <div class="" v-if="product_type == 'hotel'">
-              <p class="text-gray-800 text-xs mb-2">Date Range</p>
-              <VueDatePicker
-                v-model="daterange"
-                :format="'yyyy-MM-dd'"
-                range
-                placeholder="Choose date range"
-              />
-            </div>
-            <div class="" v-if="product_type != 'hotel'">
-              <p class="text-gray-800 text-xs mb-2">Date</p>
-              <VueDatePicker
-                v-model="date"
-                :format="'yyyy-MM-dd'"
-                placeholder="Choose date"
-              />
-            </div>
-            <div class="grid grid-cols-2 gap-6 pt-4">
-              <p
-                @click="closeSearchAction"
-                class="bg-white text-[#ff613c] border border-[#ff613c] px-2 py-2 rounded-md flex justify-center items-center gap-2"
-              >
-                <XCircleIcon class="w-6 h-6" />Clean & Close
-              </p>
-              <p
-                @click="searchActionHandler"
-                class="bg-[#ff613c] text-white border border-[#ff613c] px-2 py-2 rounded-md flex justify-center items-center gap-2"
-              >
-                <CheckBadgeIcon class="w-6 h-6" />Search
-              </p>
-            </div>
+            <ChatBubbleLeftIcon
+              class="w-4 h-4 text-blue-500 mr-3 flex-shrink-0 mt-0.5"
+            />
+            {{ getCurrentCommand }}
+          </p>
+        </div>
+
+        <!-- Loading -->
+        <div v-if="loading" class="flex justify-center items-center py-12">
+          <div class="flex flex-col items-center gap-3">
+            <div
+              class="w-8 h-8 border-4 border-gray-200 border-t-[#ff613c] rounded-full animate-spin"
+            ></div>
+            <p class="text-xs text-gray-500">Loading...</p>
           </div>
-        </DialogPanel>
-      </Modal>
-      <!-- formModal -->
-      <Modal :isOpen="formModal" @closeModal="formModal = false">
-        <DialogPanel
-          class="w-full max-w-5xl transform rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+        </div>
+
+        <!-- Empty -->
+        <div
+          v-if="!loading && (!availables?.data || availables.data.length === 0)"
+          class="flex flex-col items-center justify-center py-12"
         >
-          <DialogTitle
-            as="h3"
-            class="text-lg font-medium leading-6 text-gray-900 mb-5"
-          >
-            Create Form
-          </DialogTitle>
-          <form action="" class="gap-4 grid grid-cols-2">
-            <div class="">
-              <p class="text-gray-800 text-xs mb-2">Type</p>
-              <v-select
-                v-model="formData.product_type"
-                class="style-chooser w-full"
-                :options="Product_type ?? []"
-                @option:selected="chooseTypeAction"
-                label="name"
-                :clearable="true"
-                :reduce="(d) => d.name"
-                placeholder="Choose product type"
-              ></v-select>
-              <p v-if="errors?.product_type" class="mt-1 text-xs text-red-600">
-                {{ errors.product_type[0] }}
-              </p>
-            </div>
-            <div class="">
-              <p class="text-gray-800 text-xs mb-2">Product Name</p>
-              <v-select
-                v-model="formData.product_id"
-                class="style-chooser w-full"
-                :options="productNameArray ?? []"
-                @option:selected="chooseNameAction"
-                label="name"
-                :clearable="true"
-                :reduce="(d) => d.id"
-                placeholder="Choose product"
-              ></v-select>
-              <p v-if="errors?.product_type" class="mt-1 text-xs text-red-600">
-                {{ errors.product_type[0] }}
-              </p>
-            </div>
-            <div class="col-span-2 space-y-2">
-              <div class="grid grid-cols-9 gap-2">
-                <div class="col-span-3">
-                  <p class="text-gray-800 text-xs mb-2">Product Variation</p>
-                  <v-select
-                    v-model="product_variation.variation_id"
-                    class="style-chooser w-full"
-                    :options="productVariationArray ?? []"
-                    label="name"
-                    :clearable="true"
-                    :reduce="(d) => d"
-                    placeholder="Choose variation"
-                  ></v-select>
-                </div>
-                <div class="col-span-2" v-if="formData.product_type == 'hotel'">
-                  <p class="text-gray-800 text-xs mb-2">Checkin Date</p>
-                  <VueDatePicker
-                    v-model="product_variation.checkin_date"
-                    :format="'yyyy-MM-dd'"
-                    placeholder="checkin date"
-                  />
-                </div>
-                <div class="col-span-2" v-if="formData.product_type == 'hotel'">
-                  <p class="text-gray-800 text-xs mb-2">Checkout Date</p>
-                  <VueDatePicker
-                    v-model="product_variation.checkout_date"
-                    :format="'yyyy-MM-dd'"
-                    placeholder="checkout date"
-                  />
-                </div>
-                <div class="col-span-2" v-if="formData.product_type != 'hotel'">
-                  <p class="text-gray-800 text-xs mb-2">Date</p>
-                  <VueDatePicker
-                    v-model="product_variation.date"
-                    :format="'yyyy-MM-dd'"
-                    placeholder="choose date"
-                  />
-                </div>
-                <div class="">
-                  <p class="text-gray-800 text-xs mb-2 w-full">Quantity</p>
-                  <input
-                    type="number"
-                    v-model="product_variation.quantity"
-                    name=""
-                    class="px-4 w-full py-1.5 rounded border border-gray-400 focus:outline-none"
-                    id=""
-                  />
-                </div>
-                <div class="">
-                  <p class="text-gray-800 text-xs mb-2">Action</p>
-                  <p
-                    class="bg-[#ff613c] text-white px-2 py-2 w-full rounded-md flex justify-center items-center gap-2"
-                    @click="addItem"
-                  >
-                    <PlusIcon class="w-4 h-4" />Add
-                  </p>
-                </div>
-              </div>
-              <div
-                class="text-gray-800 text-xs mb-2 flex justify-between items-center"
-              >
-                <p>Variations</p>
-              </div>
-              <div
-                class="grid grid-cols-4 gap-0 text-xs px-4 py-2 bg-gray-100 hover:bg-gray-100"
-              >
-                <p class="flex justify-start items-center">Product Variation</p>
-                <p class="flex justify-start items-center">Date</p>
-                <p class="flex justify-start items-center">Quantities</p>
-              </div>
-              <div
-                v-for="(i, index) in formData.variation"
-                :key="index"
-                class="grid grid-cols-4 gap-0 text-xs px-4 py-3 bg-yellow-100 hover:bg-gray-100"
-              >
-                <p class="flex justify-start items-center">
-                  {{ i.variation_name }}
-                </p>
-                <p
-                  class="flex justify-start items-center"
-                  v-if="formData.product_type != 'hotel'"
-                >
-                  {{ i.date }}
-                </p>
-                <p
-                  class="flex justify-start items-center"
-                  v-if="formData.product_type == 'hotel'"
-                >
-                  {{ i.checkin_date }} -- {{ i.checkout_date }}
-                </p>
-                <p class="flex justify-start items-center">{{ i.quantity }}</p>
-                <div class="flex items-center justify-end gap-6">
-                  <p class="flex justify-center items-center">
-                    <ExclamationTriangleIcon class="w-5 h-5 mr-4" /> Pending
-                  </p>
-                  <p
-                    @click="removeItem(index)"
-                    class="bg-white text-[#ff613c] border border-[#ff613c] px-2 py-2 rounded-md flex justify-center items-center gap-2"
-                  >
-                    <MinusIcon class="w-4 h-4" />Remove
-                  </p>
-                </div>
-              </div>
-              <div class="flex justify-end items-center space-x-4 pt-6">
-                <p
-                  @click="closeFunction"
-                  class="bg-white text-[#ff613c] border border-[#ff613c] px-2 py-2 rounded-md flex justify-center items-center gap-2"
-                >
-                  <MinusIcon class="w-4 h-4" />Close & Clean Data
-                </p>
-                <p
-                  @click="createHandler"
-                  class="bg-[#ff613c] text-white px-2 py-2 rounded-md flex justify-center items-center gap-2"
-                >
-                  <PlusIcon class="w-4 h-4" />Create New Availabily
-                </p>
-              </div>
-            </div>
-          </form>
-        </DialogPanel>
-      </Modal>
+          <BuildingOfficeIcon class="w-12 h-12 text-gray-300 mb-2" />
+          <p class="text-sm text-gray-500">No availabilities found</p>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div
+        v-if="!loading && availables?.data?.length > 0"
+        class="px-4 py-3 border-t border-gray-200"
+      >
+        <Pagination :data="availables" @change-page="changePage" />
+      </div>
     </div>
+
+    <!-- Filter Modal -->
+    <Modal :isOpen="searchModal" @closeModal="closeSearchAction">
+      <DialogPanel
+        class="w-full max-w-lg transform rounded-lg bg-white p-5 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle as="h3" class="text-lg font-medium text-gray-900 mb-4">
+          Advanced Filters
+        </DialogTitle>
+
+        <div class="space-y-3">
+          <!-- Product Name -->
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">
+              Product Name
+            </label>
+            <v-select
+              v-model="product_id"
+              class="style-chooser w-full"
+              :options="productNameArray ?? []"
+              @option:selected="chooseNameAction"
+              label="name"
+              :clearable="true"
+              :reduce="(d) => d.id"
+              placeholder="Select product"
+            ></v-select>
+          </div>
+
+          <!-- Variation -->
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">
+              Variation
+            </label>
+            <v-select
+              v-model="variation_id"
+              class="style-chooser w-full"
+              :options="productVariationArray ?? []"
+              label="name"
+              :clearable="true"
+              :reduce="(d) => d.id"
+              placeholder="Select variation"
+            ></v-select>
+          </div>
+
+          <!-- Date Range (Hotel) -->
+          <div v-if="product_type == 'hotel'">
+            <label class="block text-xs font-medium text-gray-700 mb-1">
+              Date Range
+            </label>
+            <VueDatePicker
+              v-model="daterange"
+              :format="'yyyy-MM-dd'"
+              range
+              placeholder="Select date range"
+            />
+          </div>
+
+          <!-- Date (Attraction) -->
+          <div v-if="product_type != 'hotel'">
+            <label class="block text-xs font-medium text-gray-700 mb-1">
+              Date
+            </label>
+            <VueDatePicker
+              v-model="date"
+              :format="'yyyy-MM-dd'"
+              placeholder="Select date"
+            />
+          </div>
+
+          <!-- Actions -->
+          <div
+            class="flex items-center justify-end gap-2 pt-4 border-t border-gray-200"
+          >
+            <button
+              @click="closeSearchAction"
+              class="px-4 py-2 text-xs font-medium text-gray-700 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+            >
+              Clear & Close
+            </button>
+            <button
+              @click="searchActionHandler"
+              class="px-4 py-2 text-xs font-medium text-white bg-[#ff613c] rounded hover:bg-[#ff4d28] transition-colors"
+            >
+              Apply Filters
+            </button>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>
+
+<style scoped>
+/* Minimal scrollbar */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f9fafb;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+</style>

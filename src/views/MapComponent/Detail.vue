@@ -48,6 +48,13 @@
       <div v-if="part == 'rooms'" class="mt-2 h-[62vh] overflow-y-auto">
         <Room :detail="detail" @update="handleRoomUpdate" />
       </div>
+
+      <div
+        v-if="part == 'availabilities'"
+        class="mt-2 h-[62vh] overflow-y-auto"
+      >
+        <Availabilities :detail="detail" />
+      </div>
     </div>
   </div>
 </template>
@@ -62,6 +69,7 @@ import Detail from "./hotels/Detail.vue";
 import Images from "./hotels/Images.vue";
 import Room from "./hotels/Room.vue";
 import { useHotelStore } from "../../stores/hotel";
+import Availabilities from "./hotels/Availabilities.vue";
 
 const router = useRouter();
 const toast = useToast();

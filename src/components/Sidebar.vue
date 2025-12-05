@@ -70,6 +70,12 @@
 
               <SidebarItem name="MapHotel" :icon="MapIcon" to="/map_hotel" />
               <SidebarItem
+                name="availabilities"
+                :icon="ChatBubbleOvalLeftEllipsisIcon"
+                to="/availabilities"
+                :activePaths="['availabilities']"
+              />
+              <SidebarItem
                 name="Sales"
                 v-if="
                   authStore.isSuperAdmin ||
@@ -521,6 +527,7 @@ import {
   ArrowPathIcon,
   ListBulletIcon,
   MapIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";

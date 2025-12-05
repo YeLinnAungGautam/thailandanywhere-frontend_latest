@@ -29,6 +29,16 @@
       >
         <span class="text-xs font-medium whitespace-nowrap">Rooms</span>
       </div>
+      <div
+        ref="navItem"
+        class="flex-1 text-center relative cursor-pointer hover:text-[#FF613c] transition-colors duration-200 py-2"
+        @click="setPart('availabilities')"
+        :class="part == 'availabilities' ? 'text-[#FF613c]' : 'text-gray-600'"
+      >
+        <span class="text-xs font-medium whitespace-nowrap"
+          >Availabilities</span
+        >
+      </div>
 
       <!-- Animated sliding underline -->
       <div
@@ -61,6 +71,7 @@ const navItems = [
   { key: "detail", label: "Detail" },
   { key: "media", label: "Images & Videos" },
   { key: "rooms", label: "Rooms" },
+  { key: "availabilities", label: "Availabilities" },
 ];
 
 // Ref for the container to calculate positions

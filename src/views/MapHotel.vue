@@ -210,7 +210,6 @@
                   ]"
                   class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md flex items-center gap-1"
                 >
-                  <span>📍</span>
                   <span>{{ dest.name }}</span>
                 </button>
               </div>
@@ -375,10 +374,7 @@
                       class="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100"
                     >
                       <img
-                        :src="
-                          dest.feature_img ||
-                          'https://via.placeholder.com/64x64?text=📍'
-                        "
+                        :src="dest.feature_img"
                         :alt="dest.name"
                         class="w-full h-full object-cover"
                       />
@@ -394,7 +390,7 @@
                             : 'text-gray-900'
                         "
                       >
-                        📍 {{ dest.name }}
+                        {{ dest.name }}
                       </h3>
                       <p class="text-xs text-gray-600 mb-1">
                         {{ dest.city?.name || "Unknown City" }}
@@ -895,7 +891,7 @@ const openDestinationModal = ref(false);
 
 // Destination search refs - 10km radius
 const selectedDestination = ref(null);
-const destinationRadius = ref(5);
+const destinationRadius = ref(1);
 
 const checkin_date = ref(
   localStorage.getItem("checkin_date")
@@ -1373,23 +1369,34 @@ const updateMapMarkers = () => {
     }
   });
 
-  // Add destination markers (now they will cluster too)
   destinations.value.forEach((destination) => {
     if (destination.latitude && destination.longitude) {
       const isSelected = selectedDestination.value?.id === destination.id;
+      const imageUrl = destination.feature_img;
 
       const destinationIcon = L.divIcon({
         className: "custom-destination-marker",
-        html: `<div class="destination-badge ${
-          isSelected ? "active" : ""
-        }" data-destination-id="${destination.id}">
-                <span class="marker-icon">📍</span>
-                <span class="destination-name">${destination.name}</span>
-              </div>`,
-        iconSize: [140, 45],
-        iconAnchor: [70, 22],
-        popupAnchor: [0, -22],
+        html: `
+          <div class="destination-pin-container ${
+            isSelected ? "active" : ""
+          }" data-destination-id="${destination.id}">
+            <div class="destination-pin">
+              <div class="pin-image-wrapper">
+                <img src="${imageUrl}" alt="${
+          destination.name
+        }" class="pin-image" />
+              </div>
+              <div class="pin-pointer"></div>
+            </div>
+            
+          </div>
+        `,
+        iconSize: [60, 85],
+        iconAnchor: [30, 75],
+        popupAnchor: [0, -75],
       });
+
+      // <div class="pin-label">${destination.name}</div>
 
       const marker = L.marker(
         [parseFloat(destination.latitude), parseFloat(destination.longitude)],
@@ -1405,7 +1412,6 @@ const updateMapMarkers = () => {
         openDestinationPopup(destination);
       });
 
-      // Add destination to cluster group instead of directly to map
       allMarkers.push(marker);
     }
   });
@@ -1437,7 +1443,7 @@ const openDestinationPopup = (destination) => {
           }</p>
           <div class="flex items-center gap-2 mb-2">
             <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-              ${nearbyCount} hotels within 5km
+              ${nearbyCount} hotels within 1km
             </span>
           </div>
         </div>
@@ -1523,54 +1529,130 @@ onUnmounted(() => {
 
 <style scoped>
 /* Destination marker styles */
+/* Google Maps style destination pin */
 :deep(.custom-destination-marker) {
   background: none;
   border: none;
 }
 
-:deep(.destination-badge) {
+:deep(.destination-pin-container) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+:deep(.destination-pin) {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
+  transition: all 0.3s ease;
+}
+
+:deep(.pin-image-wrapper) {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #ffffff;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+:deep(.pin-image) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+:deep(.pin-pointer) {
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 15px solid #ffffff;
+  margin-top: -2px;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+}
+
+:deep(.pin-label) {
+  margin-top: 4px;
   background: #ffffff;
   color: #333;
-  padding: 8px 14px;
-  border-radius: 20px;
+  padding: 4px 10px;
+  border-radius: 12px;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 11px;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 2px solid #4299e1;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-:deep(.destination-badge:hover) {
-  background: #ebf8ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
-}
-
-:deep(.marker-icon) {
-  font-size: 16px;
-}
-
-:deep(.destination-name) {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect */
+:deep(.destination-pin-container:hover .destination-pin) {
+  transform: translateY(-5px) scale(1.1);
+}
+
+:deep(.destination-pin-container:hover .pin-image-wrapper) {
+  border-color: #4299e1;
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
+}
+
+:deep(.destination-pin-container:hover .pin-label) {
+  background: #4299e1;
+  color: white;
+  box-shadow: 0 3px 8px rgba(66, 153, 225, 0.3);
 }
 
 /* Active state */
-:deep(.destination-badge.active) {
-  background: #4299e1;
-  color: white;
-  border-color: #3182ce;
-  transform: scale(1.05);
+:deep(.destination-pin-container.active .destination-pin) {
+  transform: translateY(-5px) scale(1.15);
+}
+
+:deep(.destination-pin-container.active .pin-image-wrapper) {
+  border-color: #4299e1;
+  border-width: 4px;
   box-shadow: 0 4px 16px rgba(66, 153, 225, 0.5);
 }
 
-/* Popup styles */
+:deep(.destination-pin-container.active .pin-pointer) {
+  border-top-color: #4299e1;
+}
+
+:deep(.destination-pin-container.active .pin-label) {
+  background: #4299e1;
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
+}
+
+/* Animation for new markers */
+@keyframes pinDrop {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(10px);
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+:deep(.destination-pin-container) {
+  animation: pinDrop 0.6s ease-out;
+}
+
+/* Popup styles remain the same */
 :deep(.destination-popup .leaflet-popup-content-wrapper) {
   border-radius: 12px;
   padding: 0;

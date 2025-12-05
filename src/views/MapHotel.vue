@@ -891,7 +891,7 @@ const openDestinationModal = ref(false);
 
 // Destination search refs - 10km radius
 const selectedDestination = ref(null);
-const destinationRadius = ref(1);
+const destinationRadius = ref(3);
 
 const checkin_date = ref(
   localStorage.getItem("checkin_date")
@@ -1426,7 +1426,7 @@ const openDestinationPopup = (destination) => {
   const nearbyCount = getNearbyHotels(destination).length;
 
   const popupContent = `
-    <div class="destination-popup p-3">
+    <div class="destination-popup p-2">
       <div class="flex items-start gap-3">
         <div class="w-20 h-20 flex-shrink-0">
           <img src="${
@@ -1437,13 +1437,18 @@ const openDestinationPopup = (destination) => {
                class="w-full h-full object-cover rounded-lg">
         </div>
         <div class="flex-1 min-w-0">
-          <h3 class="font-bold text-sm mb-1">${destination.name}</h3>
-          <p class="text-xs text-gray-600 mb-2">${
-            destination.city?.name || ""
-          }</p>
+          <h3 class="font-bold text-sm ">${destination.name}</h3>
+          <div>
+            <p class="text-xs text-gray-600 ">${
+              destination.city?.name || ""
+            }</p>
+            <p class="text-xs text-gray-600 ">${
+              destination?.category?.name || ""
+            }</p>
+          </div>
           <div class="flex items-center gap-2 mb-2">
             <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-              ${nearbyCount} hotels within 1km
+              ${nearbyCount} hotels within 3km
             </span>
           </div>
         </div>
@@ -1660,7 +1665,7 @@ onUnmounted(() => {
 
 :deep(.destination-popup .leaflet-popup-content) {
   margin: 0;
-  width: 280px !important;
+  width: 250px !important;
 }
 
 /* Cluster marker styles */

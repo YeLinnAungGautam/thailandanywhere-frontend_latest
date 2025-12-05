@@ -27,11 +27,8 @@
           </div>
         </div>
         <div class="gap-x-2 flex flex-nowrap">
-          <div
-            @click="closeModal"
-            class="bg-red-400/50 flex justify-center items-center backdrop-blur-xl px-2 text-red-700 text-xs rounded-lg space-x-2"
-          >
-            <i class="fa-solid fa-xmark text-2xl text-red-600"></i>
+          <div @click="closeModal" class="">
+            <i class="fa-solid fa-xmark text-2xl text-black"></i>
           </div>
         </div>
       </div>

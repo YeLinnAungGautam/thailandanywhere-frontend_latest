@@ -4,10 +4,10 @@
     <div class="mb-6">
       <div class="flex items-center justify-between mb-2">
         <p class="text-gray-500 text-sm font-medium">COMPANY TARGET</p>
-        <p class="text-xs text-gray-400">
+        <!-- <p class="text-xs text-gray-400">
           {{ formatCurrency(companyCurrentSales) }} /
           {{ formatCurrency(companyTargetAmount) }}
-        </p>
+        </p> -->
       </div>
       <div class="w-full bg-gray-200 rounded-full h-3 relative overflow-hidden">
         <div
@@ -173,7 +173,7 @@ const fetchCompanyTarget = async () => {
       // Company target = sum of all agents' targets
 
       // Fallback if agentsList is not available
-      companyTargetAmount.value = 275000; // Default company target
+      companyTargetAmount.value = 350000; // Default company target
 
       console.log(companyCurrentSales.value, "this is from target");
     }
@@ -239,7 +239,7 @@ const fetchPersonalTarget = async () => {
         const agent = props.agentsList.find((a) => a.id == targetUserId);
         console.log(agent, "this is selected agent");
 
-        personalTargetAmount.value = agent?.target_amount || 275000;
+        personalTargetAmount.value = agent?.target_amount || 350000;
       } else {
         // No sales data found for this agent this month
         personalCurrentSales.value = 0;
@@ -248,7 +248,7 @@ const fetchPersonalTarget = async () => {
         const agent = props.agentsList.find((a) => a.id == targetUserId);
         personalAgentName.value = agent?.name || authStore.user?.name || "";
         personalTargetAmount.value =
-          agent?.target || authStore.user?.target || 275000;
+          agent?.target || authStore.user?.target || 350000;
       }
     }
   } catch (error) {

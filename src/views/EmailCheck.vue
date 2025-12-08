@@ -84,6 +84,17 @@
                 </div>
 
                 <div>
+                  <p class="text-[10px] pb-2">Sent booking Request</p>
+                  <select
+                    v-model="searchKey.sent_booking_request"
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
+                  >
+                    <option value="sent">Email Sent</option>
+                    <option value="not_sent">Not Sent</option>
+                  </select>
+                </div>
+
+                <div>
                   <p class="text-[10px] pb-2">Date Range</p>
                   <input
                     type="date"
@@ -163,17 +174,22 @@
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500"
                 >
+                  Mail Status
+                </th>
+                <th
+                  class="px-4 py-3 text-left text-xs font-medium text-gray-500"
+                >
                   CRM ID
                 </th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500"
                 >
-                  Product Name
+                  Hotel Name
                 </th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500"
                 >
-                  Customer
+                  Customer Name
                 </th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500"
@@ -183,17 +199,18 @@
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500"
                 >
-                  Amount
+                  Room Qty
                 </th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500"
                 >
                   C.Status
                 </th>
+
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500"
                 >
-                  Mail Status
+                  Action
                 </th>
               </tr>
             </thead>
@@ -201,20 +218,46 @@
               <tr
                 v-for="item in groups?.data ?? []"
                 :key="item.id"
-                @click="selectItem(item)"
                 class="hover:bg-gray-50 cursor-pointer transition-colors"
                 :class="{ 'bg-blue-50': selectedItem?.id === item.id }"
               >
-                <td class="px-4 py-3 text-xs text-gray-900">
+                <td class="px-4 py-4">
+                  <span
+                    class="px-2 py-1.5 rounded-full text-xs font-medium"
+                    :class="
+                      getStatusClass(
+                        activeTag,
+                        item.sent_booking_request,
+                        item.sent_expense_mail,
+                        item.have_booking_confirm_letter
+                      )
+                    "
+                  >
+                    {{
+                      activeTag == "prove_booking"
+                        ? item.sent_booking_request == 1
+                          ? "Sent"
+                          : "Not Sent"
+                        : activeTag == "expense"
+                        ? item.sent_expense_mail == 1
+                          ? "Sent"
+                          : "Not Sent"
+                        : item.have_booking_confirm_letter == 1
+                        ? "Get"
+                        : "Not Get"
+                    }}
+                  </span>
+                </td>
+                <td class="px-4 py-4 text-sm text-gray-900">
                   {{ item.booking_crm_id }}
                 </td>
-                <td class="px-4 py-3 text-xs text-gray-900">
+                <td class="px-4 py-4 text-sm font-medium text-gray-900">
                   {{ item.product_name }}
                 </td>
-                <td class="px-4 py-3 text-xs text-gray-600">
+                <td class="px-4 py-4 text-sm text-gray-600">
                   {{ item.customer_name }}
                 </td>
-                <td class="px-4 py-3 text-xs text-gray-600">
+                <td class="px-4 py-4 text-sm text-gray-600">
                   {{ item.firstest_service_date }}
                   <span
                     v-if="
@@ -224,35 +267,39 @@
                     - {{ item.latest_service_date }}
                   </span>
                 </td>
-                <td class="px-4 py-3 text-xs text-gray-900">
-                  {{ formatCurrency(item.total_amount) }}
-                </td>
-                <td class="px-4 py-3">
+                <td class="px-4 py-4 text-sm text-gray-900">2 room</td>
+                <td class="px-4 py-4">
                   <span
-                    class="px-2 py-1 rounded-full text-[10px] font-medium"
+                    class="px-2 py-1.5 rounded-full text-xs font-medium"
                     :class="getPaymentStatusClass(item.customer_payment_status)"
                   >
                     {{ formatPaymentStatus(item.customer_payment_status) }}
                   </span>
                 </td>
-                <td class="px-4 py-3">
-                  <span
-                    class="px-2 py-1 rounded-full text-[10px] font-medium"
-                    :class="getStatusClass(item.booking_request_proof)"
+
+                <td
+                  class="px-4 py-4 space-x-4 flex justify-center items-center"
+                >
+                  <button
+                    @click="selectItemEdit(item)"
+                    class="px-2 py-1.5 text-xs shadow-md bg-[#FF613c] rounded-full text-white"
                   >
-                    {{ item.booking_request_proof ? "Sent" : "Not Sent" }}
-                  </span>
+                    Approve
+                  </button>
+                  <button @click="selectItem(item)">
+                    <InformationCircleIcon class="w-6 h-6" />
+                  </button>
                 </td>
               </tr>
               <tr v-if="loading">
-                <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                <td colspan="8" class="px-4 py-8 text-center text-gray-500">
                   Loading...
                 </td>
               </tr>
               <tr
                 v-if="!loading && (!groups?.data || groups.data.length === 0)"
               >
-                <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                <td colspan="8" class="px-4 py-8 text-center text-gray-500">
                   No data found
                 </td>
               </tr>
@@ -507,25 +554,203 @@
                   </div>
                 </div>
               </div>
-
-              <!-- Action Buttons -->
-              <div class="flex gap-3 sticky bottom-0 bg-white pt-4">
-                <button
-                  class="flex-1 bg-[#FF613c] text-white px-4 py-2 rounded-lg hover:bg-[#e5552f] transition-colors text-sm"
-                >
-                  Send Email
-                </button>
-                <button
-                  class="flex-1 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm"
-                >
-                  View Details
-                </button>
-              </div>
             </div>
           </div>
         </div>
       </transition>
     </div>
+
+    <!-- modal -->
+    <Modal :isOpen="showDetailEdit" @closeModal="closeDetailEdit">
+      <DialogPanel
+        class="w-full max-w-4xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start py-3 px-4"
+        >
+          <p>Email Proof</p>
+          <XCircleIcon
+            class="w-6 h-6 text-white cursor-pointer"
+            @click="closeDetailEdit"
+          />
+        </DialogTitle>
+
+        <!-- Content -->
+        <div class="p-4 h-[62vh] overflow-y-auto">
+          <div class="space-y-4">
+            <!-- File Upload Section -->
+            <div>
+              <label class="text-sm font-medium text-gray-700 mb-2 block"
+                >Proof of Expense</label
+              >
+
+              <input
+                multiple
+                type="file"
+                ref="imagesInput"
+                @change="handlerImagesFileChange"
+                class="hidden"
+                accept="image/*"
+              />
+
+              <!-- Empty State - No Images -->
+              <!-- <div
+                v-if="
+                  imagesPreview.length === 0 &&
+                  formData.editImagesPreview.length === 0
+                "
+                @click="openFileImagePicker"
+                class="w-full h-40 border-2 border-dashed border-[#FF613c] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+              >
+                <PlusCircleIcon class="w-12 h-12 text-[#FF613c] mb-2" />
+                <p class="text-sm text-gray-600">Click to upload images</p>
+                <p class="text-xs text-gray-400 mt-1">
+                  PNG, JPG, JPEG supported
+                </p>
+              </div> -->
+
+              <div
+                @click="openFileImagePicker"
+                class="w-full h-80 space-y-6 text-center border-2 border-dashed border-[#FF613c] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                v-if="
+                  imagesPreview.length === 0 &&
+                  formData.editImagesPreview.length === 0
+                "
+              >
+                <div class="flex justify-center">
+                  <div class="bg-[#FF613c]/10 p-4 rounded-full">
+                    <PlusCircleIcon class="w-8 h-8 text-[#FF613c]" />
+                  </div>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-700">
+                    Upload Expense Proof
+                  </p>
+                  <p class="text-xs text-gray-500 mt-1">
+                    Click to browse or drag and drop your files here
+                  </p>
+                  <p class="text-xs text-gray-400 mt-1">
+                    Supported formats: PNG, JPG, JPEG
+                  </p>
+                </div>
+              </div>
+
+              <!-- Images Grid - When images exist -->
+              <div
+                v-else
+                class="grid grid-cols-3 md:grid-cols-4 gap-3 min-h-80"
+              >
+                <!-- New Images Preview -->
+                <div
+                  v-for="(image, index) in imagesPreview"
+                  :key="'new-' + index"
+                  class="relative aspect-square group"
+                >
+                  <img
+                    class="w-full h-full object-cover rounded-lg border border-gray-200 shadow-sm"
+                    :src="image"
+                    alt="Preview"
+                  />
+                  <button
+                    @click="removeImageSelectImage(index)"
+                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <XCircleIcon class="w-5 h-5" />
+                  </button>
+                </div>
+
+                <!-- Existing Images Preview -->
+                <div
+                  v-for="(image, index) in formData.editImagesPreview"
+                  :key="'existing-' + index"
+                  v-show="imagesPreview.length === 0"
+                  class="relative aspect-square group"
+                >
+                  <img
+                    class="w-full h-full object-cover rounded-lg border border-gray-200 shadow-sm"
+                    :src="image.file"
+                    alt="Existing"
+                  />
+                  <button
+                    @click="removeImageUpdateImage(image.id)"
+                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <XCircleIcon class="w-5 h-5" />
+                  </button>
+                  <div
+                    v-if="image?.meta?.amount"
+                    class="absolute bottom-0 left-0 right-0 bg-black/70 px-2 py-1 rounded-b-lg"
+                  >
+                    <p class="text-xs text-white truncate">
+                      {{ image.meta.amount }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Add More Button (last in grid) -->
+                <div
+                  @click="openFileImagePicker"
+                  class="aspect-square border-2 border-dashed border-[#FF613c] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                >
+                  <PlusCircleIcon class="w-8 h-8 text-[#FF613c] mb-1" />
+                  <p class="text-xs text-gray-600">Add more</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Date Input Form -->
+            <div>
+              <label class="text-sm font-medium text-gray-700 mb-2 block"
+                >Date</label
+              >
+              <input
+                type="date"
+                v-model="expenseDate"
+                class="w-full border border-gray-300 px-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div
+          class="border-t border-gray-200 px-4 py-3 flex justify-end space-x-3"
+        >
+          <button
+            @click="closeDetailEdit"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            @click="imagesPreview.length > 0 && updateReservationAction()"
+            :disabled="imagesPreview.length === 0"
+            class="px-6 py-2 text-sm font-medium text-white rounded-lg flex items-center space-x-2 transition-all duration-200"
+            :class="
+              imagesPreview.length > 0
+                ? 'bg-gradient-to-r from-[#FF613c] to-[#FF8C6B] hover:shadow-lg transform hover:scale-105 cursor-pointer'
+                : 'bg-gradient-to-r from-gray-400 to-gray-300 cursor-not-allowed opacity-60'
+            "
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            <span>Update Status</span>
+          </button>
+        </div>
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>
 
@@ -533,10 +758,19 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { storeToRefs } from "pinia";
 import Layout from "./Layout.vue";
-import { FunnelIcon, MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
-import { XCircleIcon } from "@heroicons/vue/24/solid";
+import {
+  FunnelIcon,
+  InformationCircleIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/vue/24/outline";
+import { XCircleIcon, PlusCircleIcon } from "@heroicons/vue/24/solid";
 import { useSidebarStore } from "../stores/sidebar";
 import { useGroupStore } from "../stores/group";
+import { PencilSquareIcon } from "@heroicons/vue/24/outline";
+import Modal from "../components/Modal.vue";
+import { useToast } from "vue-toastification";
+
+const toast = useToast();
 
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
@@ -547,19 +781,119 @@ const { groups, loading } = storeToRefs(groupStore);
 // State
 const showDetail = ref(false);
 const selectedItem = ref(null);
-const activeTag = ref("");
+const activeTag = ref("prove_booking");
 const filterShow = ref(false);
 const currentPage = ref(1);
+const imagesInput = ref(null);
+const is_sent_expense_mail = ref(false);
+const imagesPreview = ref([]);
+
+const formData = ref({
+  images: [],
+  editImagesPreview: [],
+});
+
+const openFileImagePicker = () => {
+  imagesInput.value.click();
+};
+
+const handlerImagesFileChange = (e) => {
+  const selectedFiles = e.target.files;
+  if (selectedFiles) {
+    for (let i = 0; i < selectedFiles.length; i++) {
+      formData.value.images.push(selectedFiles[i]);
+      imagesPreview.value.push(URL.createObjectURL(selectedFiles[i]));
+    }
+  }
+};
+
+const removeImageUpdateImage = async (imageID) => {
+  try {
+    const res = await groupStore.groupDocumentDeleteAction(
+      selectedItem.value.id,
+      imageID
+    );
+    if (res.status == 1) {
+      toast.success("Image successfully deleted");
+      await getProofImage();
+    }
+  } catch (error) {
+    console.error("Delete image error:", error);
+  }
+};
+
+const getProofImage = async (id) => {
+  const res = await groupStore.groupDocumentList(id, {
+    document_type:
+      activeTag.value === "prove_booking"
+        ? "booking_request_proof"
+        : "expense_mail_proof",
+  });
+  formData.value.editImagesPreview = res.result;
+  console.log("====================================");
+  console.log(formData.value.editImagesPreview);
+  console.log("====================================");
+};
+
+const updateReservationAction = async () => {
+  const frmData = new FormData();
+  if (activeTag.value === "prove_booking") {
+    frmData.append("sent_booking_request", 1);
+  } else {
+    frmData.append("sent_expense_mail", 1);
+  }
+  frmData.append("_method", "PUT");
+
+  const res = await groupStore.groupUpdateAction(
+    selectedItem.value.id,
+    frmData
+  );
+  toast.success("Update status");
+
+  const responses = [];
+  if (formData.value.images.length > 0) {
+    for (let i = 0; i < formData.value.images.length; i++) {
+      const secData = new FormData();
+      if (activeTag.value === "prove_booking") {
+        secData.append("document_type", "booking_request_proof");
+      } else {
+        secData.append("document_type", "expense_mail_proof");
+      }
+      secData.append(`documents[${i}][file]`, formData.value.images[i]);
+      secData.append(`documents[${i}][meta][name]`, `proof-${i}`);
+
+      const fileRes = await groupStore.groupDocumentCreateAction(
+        secData,
+        selectedItem.value.id
+      );
+      responses.push(fileRes);
+    }
+  }
+
+  if (responses.length > 0) {
+    toast.success("Update completed successfully");
+  }
+
+  setTimeout(async () => {
+    await fetchData();
+    closeDetailEdit();
+  }, 1000);
+};
+
+const removeImageSelectImage = (index) => {
+  formData.value.images.splice(index, 1);
+  imagesPreview.value.splice(index, 1);
+};
 
 const searchKey = ref({
   searchId: "",
   startDate: "",
   endDate: "",
-  sent_booking_request: null,
-  booking_request_proof: null,
-  sent_expense_mail: null,
-  expense_mail_proof: null,
-  invoice_status: null,
+  sent_booking_request: "not_sent",
+  booking_request_proof: "not_proved",
+  sent_expense_mail: "not_sent",
+  expense_mail_proof: "not_proved",
+  invoice_status: "not_receive",
 });
 
 // Computed
@@ -582,26 +916,34 @@ const watchSystem = computed(() => {
   }
 
   result.product_type = "hotel";
+  result.sorting_type = "service_date";
+  result.sorting = "asc";
 
   // Tag-based filters
-  if (searchKey.value.sent_booking_request !== null) {
+  if (
+    activeTag.value == "prove_booking" &&
+    searchKey.value.sent_booking_request
+  ) {
     result.sent_booking_request = searchKey.value.sent_booking_request;
   }
-  if (searchKey.value.booking_request_proof !== null) {
+  if (
+    activeTag.value == "prove_booking" &&
+    searchKey.value.booking_request_proof
+  ) {
     result.booking_request_proof = searchKey.value.booking_request_proof;
   }
-  if (searchKey.value.sent_expense_mail !== null) {
+  if (activeTag.value == "expense" && searchKey.value.sent_expense_mail) {
     result.sent_expense_mail = searchKey.value.sent_expense_mail;
   }
-  if (searchKey.value.expense_mail_proof !== null) {
+  if (activeTag.value == "expense" && searchKey.value.expense_mail_proof) {
     result.expense_mail_proof = searchKey.value.expense_mail_proof;
   }
-  if (searchKey.value.invoice_status !== null) {
+  if (activeTag.value == "invoice" && searchKey.value.invoice_status) {
     result.invoice_status = searchKey.value.invoice_status;
   }
 
   result.page = currentPage.value;
-  result.per_page = 10;
+  result.per_page = 30;
 
   return result;
 });
@@ -617,8 +959,6 @@ const hasActiveFilters = computed(() => {
 // Methods
 const filterByType = (type) => {
   if (activeTag.value === type) {
-    // Clear the tag
-    activeTag.value = "";
     clearTagFilters();
   } else {
     // Set new tag
@@ -627,14 +967,14 @@ const filterByType = (type) => {
 
     if (type === "prove_booking") {
       // Prove Booking: sent_booking_request = false AND booking_request_proof = 'not_proved'
-      searchKey.value.sent_booking_request = 0;
+      searchKey.value.sent_booking_request = "not_sent";
       searchKey.value.booking_request_proof = "not_proved";
     } else if (type === "invoice") {
       // Invoice: invoice_status = 'not_receive' (no booking_confirm_letter)
-      searchKey.value.invoice_status = "not_receive";
+      searchKey.value.has_booking_confirm_letter = "not_receive";
     } else if (type === "expense") {
       // Expense: sent_expense_mail = false AND expense_mail_proof = 'not_proved'
-      searchKey.value.sent_expense_mail = 0;
+      searchKey.value.sent_expense_mail = "not_sent";
       searchKey.value.expense_mail_proof = "not_proved";
     }
   }
@@ -643,17 +983,11 @@ const filterByType = (type) => {
 };
 
 const clearTagFilters = () => {
-  searchKey.value.sent_booking_request = null;
-  searchKey.value.booking_request_proof = null;
-  searchKey.value.sent_expense_mail = null;
-  searchKey.value.expense_mail_proof = null;
-  searchKey.value.invoice_status = null;
-};
-
-const clearTagFilter = () => {
-  activeTag.value = "";
-  clearTagFilters();
-  searchAction();
+  searchKey.value.sent_booking_request = false;
+  searchKey.value.booking_request_proof = false;
+  searchKey.value.sent_expense_mail = false;
+  searchKey.value.expense_mail_proof = false;
+  searchKey.value.invoice_status = false;
 };
 
 const clearDateFilter = () => {
@@ -667,8 +1001,25 @@ const selectItem = (item) => {
   showDetail.value = true;
 };
 
+const showDetailEdit = ref(false);
+const selectItemEdit = async (item) => {
+  selectedItem.value = item;
+  await getProofImage(item.id);
+  if (activeTag.value == "prove_booking") {
+    is_sent_expense_mail.value = item.sent_booking_request == 0 ? false : true;
+  } else {
+    is_sent_expense_mail.value = item.sent_expense_mail == 0 ? false : true;
+  }
+  showDetailEdit.value = true;
+};
+
 const closeDetail = () => {
   showDetail.value = false;
+  selectedItem.value = null;
+};
+
+const closeDetailEdit = () => {
+  showDetailEdit.value = false;
   selectedItem.value = null;
 };
 
@@ -695,7 +1046,7 @@ const clearFilter = () => {
     expense_mail_proof: null,
     invoice_status: null,
   };
-  activeTag.value = "";
+
   filterShow.value = false;
   searchAction();
 };
@@ -709,30 +1060,34 @@ const getPaymentStatusClass = (status) => {
   return classes[status] || "bg-gray-100 text-gray-800";
 };
 
-const getStatusClass = (status) => {
+const getStatusClass = (tag, status1, status2, status3) => {
+  let status = 0; // default status
+
+  // Determine which status to use based on the tag
+  if (tag === "prove_booking") {
+    status = status1;
+  } else if (tag === "expense") {
+    status = status2;
+  } else if (tag === "invoice") {
+    status = status3;
+  }
+
+  // Return the appropriate class based on status
   const classes = {
     1: "bg-green-100 text-green-800",
     0: "bg-red-100 text-red-800",
   };
+
   return classes[status] || "bg-gray-100 text-gray-800";
 };
 
 const formatPaymentStatus = (status) => {
   const statuses = {
-    paid: "Paid",
+    fully_paid: "Paid",
     not_paid: "Not Paid",
-    partial: "Partial",
+    partially_paid: "Partial",
   };
   return statuses[status] || status;
-};
-
-const formatMailType = (type) => {
-  const types = {
-    prove_booking: "Prove Booking",
-    invoice: "Invoice",
-    expense: "Expense",
-  };
-  return types[type] || type;
 };
 
 const formatCurrency = (amount) => {

@@ -363,7 +363,7 @@ const fetchCommissionData = async () => {
       });
 
       // Calculate monthly target percentage
-      const userTarget = authStore.target || 275000;
+      const userTarget = authStore.target || 350000;
 
       // Get total days in the selected month
       const totalDaysInMonth = new Date(year, month, 0).getDate();

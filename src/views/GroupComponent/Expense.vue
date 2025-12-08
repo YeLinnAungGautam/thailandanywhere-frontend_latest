@@ -1078,6 +1078,9 @@ const expenseUpdateAction = async () => {
             const totalCostPrice = formData.value.multiple_total_cost_price[i];
             frmData.append("total_cost_price", totalCostPrice);
           }
+        } else if (formData.value.multiple_total_cost_price[i]) {
+          const totalCostPrice = formData.value.multiple_total_cost_price[i];
+          frmData.append("total_cost_price", totalCostPrice);
         }
 
         // Send first update request

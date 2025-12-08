@@ -204,6 +204,30 @@
               </p>
             </div>
             <div class="mb-2 space-y-1">
+              <label for="name" class="text-sm text-gray-800">Latitude</label>
+              <input
+                type="text"
+                v-model="formData.latitude"
+                id="name"
+                class="w-full h-10 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.latitude" class="mt-1 text-sm text-red-600">
+                {{ errors.latitude[0] }}
+              </p>
+            </div>
+            <div class="mb-2 space-y-1">
+              <label for="name" class="text-sm text-gray-800">Longitude</label>
+              <input
+                type="text"
+                v-model="formData.longitude"
+                id="name"
+                class="w-full h-10 px-4 py-2 text-gray-900 border-2 border-gray-300 rounded-md shadow-sm bg-white/50 focus:outline-none focus:border-gray-300"
+              />
+              <p v-if="errors?.longitude" class="mt-1 text-sm text-red-600">
+                {{ errors.longitude[0] }}
+              </p>
+            </div>
+            <div class="mb-2 space-y-1">
               <label for="name" class="text-sm text-gray-800">VAT ID</label>
               <input
                 type="text"
@@ -1290,6 +1314,8 @@ const formData = ref({
   account_name: "",
   place: "",
   legal_name: "",
+  latitude: "",
+  longitude: "",
   vat_id: "",
   vat_name: "",
   vat_address: "",
@@ -1324,6 +1350,8 @@ const VantourCreate = () => {
   formData.value.bank_account_number = "";
   formData.value.place = "";
   formData.value.legal_name = "";
+  formData.value.latitude = "";
+  formData.value.longitude = "";
   formData.value.vat_id = "";
   formData.value.vat_name = "";
   formData.value.vat_address = "";
@@ -1366,6 +1394,8 @@ const clearAction = () => {
     account_name: "",
     place: "",
     legal_name: "",
+    latitude: "",
+    longitude: "",
     vat_id: "",
     vat_name: "",
     vat_address: "",
@@ -1494,6 +1524,8 @@ const addNewHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
+  frmData.append("latitude", formData.value.latitude);
+  frmData.append("longitude", formData.value.longitude);
   frmData.append("vat_id", formData.value.vat_id);
   frmData.append("vat_name", formData.value.vat_name);
   frmData.append("vat_address", formData.value.vat_address);
@@ -1581,6 +1613,8 @@ const addNewHandler = async () => {
       place: "",
       contracts: [],
       legal_name: "",
+      latitude: "",
+      longitude: "",
       vat_id: "",
       vat_name: "",
       vat_address: "",
@@ -1647,6 +1681,8 @@ const updateHandler = async () => {
   frmData.append("bank_name", formData.value.bank_name);
   frmData.append("bank_account_number", formData.value.bank_account_number);
   frmData.append("legal_name", formData.value.legal_name);
+  frmData.append("latitude", formData.value.latitude);
+  frmData.append("longitude", formData.value.longitude);
   frmData.append("vat_id", formData.value.vat_id);
   frmData.append("vat_name", formData.value.vat_name);
   frmData.append("vat_address", formData.value.vat_address);
@@ -1740,6 +1776,8 @@ const updateHandler = async () => {
       account_name: "",
       place: "",
       legal_name: "",
+      latitude: "",
+      longitude: "",
       vat_id: "",
       vat_name: "",
       vat_address: "",
@@ -1822,6 +1860,8 @@ const editModalOpenHandler = async (id) => {
     formData.value.bank_account_number = response.result.bank_account_number;
     // formData.value.place = response.result.place;
     formData.value.legal_name = response.result.legal_name;
+    formData.value.latitude = response.result.latitude;
+    formData.value.longitude = response.result.longitude;
     formData.value.vat_id = response.result.vat_id;
     formData.value.vat_name = response.result.vat_name;
     formData.value.vat_address = response.result.vat_address;

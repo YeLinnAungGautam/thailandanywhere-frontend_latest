@@ -27,6 +27,96 @@
 
     <!-- Right Side - Availability Details -->
     <div class="col-span-2 h-[60vh] overflow-y-auto pl-4">
+      <div v-if="!showSuccess" class="flex items-center justify-center h-full">
+        <div class="text-center">
+          <!-- Animated Success Icon -->
+          <div class="relative inline-block mb-6">
+            <!-- Pulsing background circles -->
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div
+                class="w-20 h-20 bg-green-500/20 rounded-full animate-ping"
+              ></div>
+            </div>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div
+                class="w-16 h-16 bg-green-500/30 rounded-full animate-pulse"
+              ></div>
+            </div>
+
+            <!-- Main icon with scale animation -->
+            <div
+              class="relative bg-white rounded-full p-4 shadow-lg animate-scale-in"
+            >
+              <CheckIcon class="w-12 h-12 text-green-500 animate-check-draw" />
+            </div>
+          </div>
+
+          <!-- Success Message with fade-in -->
+          <div class="mb-8 animate-fade-in-up" style="animation-delay: 0.2s">
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+              All Set! 🎉
+            </h3>
+            <p class="text-sm text-gray-600">
+              Your availability has been created successfully
+            </p>
+          </div>
+
+          <!-- Action Buttons with staggered animation -->
+          <div
+            class="flex flex-col sm:flex-row gap-3 justify-center animate-fade-in-up"
+            style="animation-delay: 0.4s"
+          >
+            <button
+              @click="showSuccess = false"
+              class="group relative px-4 py-2 text-xs font-medium text-[#ff613c] bg-white border-2 border-[#ff613c] rounded-lg hover:bg-[#ff613c] hover:text-white transition-all duration-300 overflow-hidden"
+            >
+              <span
+                class="relative z-10 flex items-center justify-center gap-2"
+              >
+                <svg
+                  class="w-4 h-4 transition-transform group-hover:rotate-180 duration-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Create Another
+              </span>
+              <div
+                class="absolute inset-0 bg-[#ff613c] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"
+              ></div>
+            </button>
+
+            <button
+              @click="viewAllAvailabilities"
+              class="group px-4 py-2 text-xs font-medium text-white bg-gradient-to-r from-[#ff613c] to-[#ff4d28] rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300"
+            >
+              <span class="flex items-center justify-center gap-2">
+                View All Availabilities
+                <svg
+                  class="w-4 h-4 transition-transform group-hover:translate-x-1 duration-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                  />
+                </svg>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
       <div
         v-if="!formData.variation_id"
         class="flex items-center justify-center h-full"
@@ -193,6 +283,10 @@ const isFormValid = computed(() => {
   );
 });
 
+const viewAllAvailabilities = () => {
+  window.open("/availabilities", "_blank");
+};
+
 const resetForm = () => {
   formData.value = {
     product_type: "hotel",
@@ -206,6 +300,8 @@ const resetForm = () => {
   };
   selectedRoom.value = null;
 };
+
+const showSuccess = ref(false);
 
 const createAvailability = async () => {
   if (!isFormValid.value) {
@@ -236,7 +332,7 @@ const createAvailability = async () => {
     const res = await availableStore.addNewAction(frmData);
 
     if (res.result) {
-      toast.success("Availability created successfully");
+      showSuccess.value = true;
       resetForm();
     }
   } catch (error) {
@@ -273,5 +369,58 @@ onMounted(() => {
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+@keyframes scale-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes check-draw {
+  0% {
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(0deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-check-draw {
+  animation: check-draw 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
+  opacity: 0;
 }
 </style>

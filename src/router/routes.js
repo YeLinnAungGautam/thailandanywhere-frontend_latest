@@ -91,6 +91,7 @@ import bankVerify from "../views/BankVerify.vue";
 import BankStatementType from "../views/BankStatementType.vue";
 import HomeNewView from "../views/HomeNew.vue";
 import MapHotel from "../views/MapHotel.vue";
+import EmailCheck from "../views/EmailCheck.vue";
 
 const routes = [
   {
@@ -326,6 +327,11 @@ const routes = [
     path: "/group-hotel",
     name: "group-hotel",
     component: GroupHotel,
+  },
+  {
+    path: "/group-hotel-email",
+    name: "group-hotel-email",
+    component: EmailCheck,
   },
   {
     path: "/group-attraction",

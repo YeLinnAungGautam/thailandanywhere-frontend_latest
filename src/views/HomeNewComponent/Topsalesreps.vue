@@ -39,6 +39,8 @@ import chitSu from "../../assets/agents/chitsu.png";
 import maHnin from "../../assets/agents/Hnin_Panei__Senior_Sales_Manager-removebg-preview.png";
 import kaingHninKyi from "../../assets/agents/Khaing_Hnin_Kyi-removebg-preview.png";
 import nyeinNyein from "../../assets/agents/NyeinNyein-removebg-preview.png";
+import ShooneLei from "../../assets/agents/shoonelei2.png";
+import ZarKyi from "../../assets/agents/zarkyi.png";
 
 const props = defineProps({
   salesReps: {
@@ -61,6 +63,10 @@ const getImageByName = (id) => {
       return kaingHninKyi;
     case 28:
       return nyeinNyein;
+    case 47:
+      return ShooneLei;
+    case 46:
+      return ZarKyi;
     default:
       return "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg";
   }

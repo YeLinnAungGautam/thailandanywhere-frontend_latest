@@ -360,6 +360,9 @@
                       <option class="text-[10px]" value="product_name">
                         Product Name
                       </option>
+                      <option class="text-[10px]" value="service_date">
+                        Service Date
+                      </option>
                     </select>
                   </div>
                   <div class="flex justify-between items-center">

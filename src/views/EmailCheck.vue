@@ -308,7 +308,7 @@
                 </td>
                 <td class="px-4 py-4">
                   <span
-                    class="px-2 py-1.5 rounded-full text-xs font-medium"
+                    class="px-2 py-1.5 rounded-full text-xs font-medium whitespace-nowrap"
                     :class="
                       activeTag == 'prove_booking' || activeTag == 'invoice'
                         ? item.sent_booking_request == 1
@@ -358,7 +358,7 @@
                 </td>
                 <td class="px-4 py-4">
                   <span
-                    class="px-2 py-1.5 rounded-full text-xs font-medium"
+                    class="px-2 py-1.5 rounded-full text-xs font-medium whitespace-nowrap"
                     :class="getPaymentStatusClass(item.customer_payment_status)"
                   >
                     {{ formatPaymentStatus(item.customer_payment_status) }}
@@ -539,109 +539,8 @@
                 </div>
               </div>
 
-              <!-- Document Status -->
-              <div class="mb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-3">
-                  Document Status
-                </h3>
-                <div class="bg-gray-50 rounded-lg p-4 space-y-2">
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-600"
-                      >Booking Confirm Letter</span
-                    >
-                    <span
-                      class="px-2 py-1 rounded-full text-xs font-medium"
-                      :class="
-                        selectedItem.has_booking_confirm_letter
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      "
-                    >
-                      {{
-                        selectedItem.has_booking_confirm_letter
-                          ? "Available"
-                          : "Not Available"
-                      }}
-                    </span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-600">Confirm Letter</span>
-                    <span
-                      class="px-2 py-1 rounded-full text-xs font-medium"
-                      :class="
-                        selectedItem.has_confirm_letter
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      "
-                    >
-                      {{
-                        selectedItem.has_confirm_letter
-                          ? "Available"
-                          : "Not Available"
-                      }}
-                    </span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-600">Passport</span>
-                    <span
-                      class="px-2 py-1 rounded-full text-xs font-medium"
-                      :class="
-                        selectedItem.has_passport
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      "
-                    >
-                      {{
-                        selectedItem.has_passport
-                          ? "Available"
-                          : "Not Available"
-                      }}
-                    </span>
-                  </div>
-                  <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-600">Tax Receipt</span>
-                    <span
-                      class="px-2 py-1 rounded-full text-xs font-medium"
-                      :class="
-                        selectedItem.have_tax_receipt
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      "
-                    >
-                      {{
-                        selectedItem.have_tax_receipt
-                          ? "Available"
-                          : "Not Available"
-                      }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Booking Items -->
-              <div v-if="selectedItem.items?.length" class="mb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-3">
-                  Booking Items ({{ selectedItem.items.length }})
-                </h3>
-                <div class="space-y-2">
-                  <div
-                    v-for="item in selectedItem.items"
-                    :key="item.id"
-                    class="p-3 border rounded-lg hover:bg-gray-50"
-                  >
-                    <div class="flex justify-between items-start mb-2">
-                      <div>
-                        <p class="text-sm font-medium text-gray-900">
-                          {{ item.product_name }}
-                        </p>
-                        <p class="text-xs text-gray-500">
-                          {{ item.variant_name }}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <!-- email part -->
+              <p>this is email part</p>
             </div>
           </div>
         </div>
@@ -1142,8 +1041,13 @@ const clearDateFilter = () => {
   searchAction();
 };
 
-const selectItem = (item) => {
+const detail = ref({});
+const selectItem = async (item) => {
   selectedItem.value = item;
+  const res = await groupStore.detailAction(item.id);
+  detail.value = res.result;
+  console.log(detail.value);
+
   showDetail.value = true;
 };
 

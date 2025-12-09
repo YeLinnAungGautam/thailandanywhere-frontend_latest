@@ -1,7 +1,7 @@
 <template>
   <Layout :is_white="true">
     <!-- First Visit Modal -->
-    <Modal :isOpen="showWelcomeModal" @closeModal="handleStay">
+    <!-- <Modal :isOpen="showWelcomeModal" @closeModal="handleStay">
       <DialogPanel
         class="w-full max-w-md transform rounded-lg bg-white p-6 text-left align-middle shadow-xl transition-all"
       >
@@ -35,7 +35,10 @@
           </button>
         </div>
       </DialogPanel>
-    </Modal>
+    </Modal> -->
+    <div class="w-full h-full bg-white" v-if="showWelcomeModal">
+      <GroupHotelHome :goToMainPage="goToMainPage" :handleStay="handleStay" />
+    </div>
     <div
       :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
       class="space-x-8 col-span-3 flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
@@ -46,7 +49,7 @@
         <!-- <span class="pl-2">{{ route.query.id }}</span> -->
       </p>
     </div>
-    <div class="grid gap-4 relative grid-cols-3">
+    <div class="grid gap-4 relative grid-cols-3" v-if="!showWelcomeModal">
       <transition name="slide">
         <div
           class="border shadow-sm rounded-lg p-4"
@@ -682,6 +685,7 @@ import HotelUnlimited from "./Reservation2Component/HotelUnlimited.vue";
 import { XCircleIcon } from "@heroicons/vue/24/solid";
 import { formattedNumber } from "./help/FormatData";
 import { useAuthStore } from "../stores/auth";
+import GroupHotelHome from "../components/GroupHotelHome.vue";
 
 const showSide = ref(1);
 const filterShow = ref(false);

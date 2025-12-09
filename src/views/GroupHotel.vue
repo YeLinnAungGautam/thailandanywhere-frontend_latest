@@ -790,7 +790,7 @@ const ChangeAttractionName = (data) => {
 };
 
 const sorting = ref("asc");
-const sorting_type = ref("");
+const sorting_type = ref("service_date");
 
 const watchSystem = computed(() => {
   let result = {};

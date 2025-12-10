@@ -263,7 +263,13 @@
                   v-if="activeTag == 'invoice'"
                   class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
                 >
-                  Invoice Mail
+                  Comfirm Mail
+                </th>
+                <th
+                  v-if="activeTag == 'expense'"
+                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
+                >
+                  Expense Mail
                 </th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
@@ -300,7 +306,12 @@
                 >
                   C.Status
                 </th>
-
+                <th
+                  v-if="activeTag == 'expense'"
+                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
+                >
+                  E.Status
+                </th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
                 >
@@ -315,30 +326,6 @@
                 class="hover:bg-gray-50 cursor-pointer transition-colors"
                 :class="{ 'bg-blue-50': selectedItem?.id === item.id }"
               >
-                <td class="px-4 py-4" v-if="activeTag == 'invoice'">
-                  <span
-                    class="px-2 py-1.5 rounded-full text-xs font-medium"
-                    :class="
-                      item.have_invoice_mail
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    "
-                  >
-                    {{ item.have_invoice_mail ? "Complete" : "Missing" }}
-                  </span>
-                </td>
-                <td class="px-4 py-4" v-if="activeTag != 'expense'">
-                  <span
-                    class="px-2 py-1.5 rounded-full text-xs font-medium whitespace-nowrap"
-                    :class="
-                      item.sent_booking_request == 1
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    "
-                  >
-                    {{ item.sent_booking_request == 1 ? "Sent" : "Not Sent" }}
-                  </span>
-                </td>
                 <td class="px-4 py-4" v-if="activeTag == 'expense'">
                   <span
                     class="px-2 py-1.5 rounded-full text-xs font-medium whitespace-nowrap"
@@ -351,6 +338,38 @@
                     {{ item.sent_expense_mail == 1 ? "Sent" : "Not Sent" }}
                   </span>
                 </td>
+                <td
+                  class="px-4 py-4"
+                  v-if="activeTag == 'invoice' || activeTag == 'expense'"
+                >
+                  <span
+                    class="px-2 py-1.5 rounded-full text-xs font-medium"
+                    :class="
+                      item.have_invoice_mail
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    "
+                  >
+                    {{ item.have_invoice_mail ? "Complete" : "Missing" }}
+                  </span>
+                </td>
+
+                <td
+                  class="px-4 py-4"
+                  v-if="activeTag == 'prove_booking' || activeTag == 'invoice'"
+                >
+                  <span
+                    class="px-2 py-1.5 rounded-full text-xs font-medium whitespace-nowrap"
+                    :class="
+                      item.sent_booking_request == 1
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    "
+                  >
+                    {{ item.sent_booking_request == 1 ? "Sent" : "Not Sent" }}
+                  </span>
+                </td>
+
                 <td class="px-4 py-4 text-sm text-gray-900 whitespace-nowrap">
                   {{ item.booking_crm_id }}
                 </td>
@@ -381,7 +400,14 @@
                     {{ formatPaymentStatus(item.customer_payment_status) }}
                   </span>
                 </td>
-
+                <td class="px-4 py-4" v-if="activeTag == 'expense'">
+                  <span
+                    class="px-2 py-1.5 rounded-full text-xs font-medium whitespace-nowrap"
+                    :class="getPaymentStatusClass(item.expense_status)"
+                  >
+                    {{ formatPaymentStatus(item.expense_status) }}
+                  </span>
+                </td>
                 <td
                   class="px-4 py-4 space-x-2 flex justify-center items-center"
                 >
@@ -548,7 +574,16 @@
           as="div"
           class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start py-3 px-4"
         >
-          <p>{{ activeTag == "invoice" ? "Confirm" : "" }} Email Screenshot</p>
+          <p>
+            {{
+              activeTag == "invoice"
+                ? "Confirm"
+                : activeTag == "expense"
+                ? "Expense"
+                : ""
+            }}
+            Email Screenshot
+          </p>
           <XCircleIcon
             class="w-6 h-6 text-white cursor-pointer"
             @click="closeDetailEdit"
@@ -634,8 +669,14 @@
             <!-- File Upload Section -->
             <div>
               <label class="text-base font-medium text-gray-700 mb-4 block"
-                >{{ activeTag == "invoice" ? "Confirm" : "" }} Email
-                Screenshot*</label
+                >{{
+                  activeTag == "invoice"
+                    ? "Confirm"
+                    : activeTag == "expense"
+                    ? "Expense"
+                    : ""
+                }}
+                Email Screenshot*</label
               >
 
               <input
@@ -1245,9 +1286,9 @@ const clearFilter = () => {
 
 const getPaymentStatusClass = (status) => {
   const classes = {
-    paid: "bg-green-100 text-green-800",
+    fully_paid: "bg-green-100 text-green-800",
     not_paid: "bg-red-100 text-red-800",
-    partial: "bg-yellow-100 text-yellow-800",
+    partially_paid: "bg-yellow-100 text-yellow-800",
   };
   return classes[status] || "bg-gray-100 text-gray-800";
 };

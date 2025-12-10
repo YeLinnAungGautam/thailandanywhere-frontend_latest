@@ -126,9 +126,6 @@
               </div>
             </div>
           </div>
-          <div class="text-xs text-gray-500">
-            {{ groups?.data?.length || 0 }} items
-          </div>
         </div>
         <!-- Filter and Tags Header -->
         <div class="space-y-4 pb-4">
@@ -203,172 +200,59 @@
               </div>
             </div>
 
-            <!-- Prove Booking Filters -->
-            <div
-              v-if="activeTag == 'prove_booking'"
-              class="flex justify-center items-center bg-[#FF613c] rounded-full shadow overflow-hidden text-white text-xs cursor-pointer"
-            >
-              <p
-                @click="toggleFilter('sent_booking_request', 'sent')"
-                class="px-4 py-2.5 transition-colors"
-                :class="
-                  searchKey.sent_booking_request === 'sent'
-                    ? 'hover:bg-white/10'
-                    : 'bg-white/30'
-                "
-              >
-                Sent
-              </p>
-              <p
-                @click="toggleFilter('sent_booking_request', 'not_sent')"
-                class="px-4 py-2.5 transition-colors"
-                :class="
-                  searchKey.sent_booking_request === 'not_sent'
-                    ? 'hover:bg-white/10'
-                    : 'bg-white/30'
-                "
-              >
-                Not Sent
-              </p>
-            </div>
-            <div
-              v-if="activeTag == 'prove_booking'"
-              class="flex justify-center items-center bg-[#FF613c] rounded-full shadow overflow-hidden text-white text-xs cursor-pointer"
-            >
-              <p
-                @click="toggleFilter('booking_request_proof', 'proved')"
-                class="px-4 py-2.5 transition-colors"
-                :class="
-                  searchKey.booking_request_proof === 'proved'
-                    ? 'hover:bg-white/10'
-                    : 'bg-white/30'
-                "
-              >
-                Proof
-              </p>
-              <p
-                @click="toggleFilter('booking_request_proof', 'not_proved')"
-                class="px-4 py-2.5 transition-colors"
-                :class="
-                  searchKey.booking_request_proof === 'not_proved'
-                    ? 'hover:bg-white/10'
-                    : 'bg-white/30'
-                "
-              >
-                Not Proof
-              </p>
-            </div>
+            <!-- Unified Filters for All Tags -->
+            <div class="flex justify-center items-center gap-x-2">
+              <!-- Sent/Not Sent Dropdown -->
+              <div class="relative">
+                <select
+                  v-model="searchKey.sentStatus"
+                  @change="searchAction"
+                  class="appearance-none bg-[#FF613c] text-white text-xs px-4 py-2.5 pr-8 rounded-full shadow cursor-pointer focus:outline-none"
+                >
+                  <option value="all">All Sent Status</option>
+                  <option value="sent">Sent</option>
+                  <option value="not_sent">Not Sent</option>
+                </select>
+                <svg
+                  class="w-4 h-4 text-white absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
 
-            <!-- Invoice Filters -->
-            <div
-              v-if="activeTag == 'invoice'"
-              class="flex justify-center items-center bg-[#FF613c] rounded-full shadow overflow-hidden text-white text-xs cursor-pointer"
-            >
-              <p
-                @click="toggleFilter('have_invoice_mail', 'sent')"
-                class="px-4 py-2.5 transition-colors"
-                :class="
-                  searchKey.have_invoice_mail === 'sent'
-                    ? 'hover:bg-white/10'
-                    : 'bg-white/30'
-                "
-              >
-                Sent
-              </p>
-              <p
-                @click="toggleFilter('have_invoice_mail', 'not_sent')"
-                class="px-4 py-2.5 transition-colors"
-                :class="
-                  searchKey.have_invoice_mail === 'not_sent'
-                    ? 'hover:bg-white/10'
-                    : 'bg-white/30'
-                "
-              >
-                Not sent
-              </p>
-            </div>
-            <div
-              v-if="activeTag == 'invoice'"
-              class="flex justify-center items-center bg-[#FF613c] rounded-full shadow overflow-hidden text-white text-xs cursor-pointer"
-            >
-              <p
-                @click="toggleFilter('invoice_mail_proof', 'proved')"
-                class="px-4 py-2.5 transition-colors"
-                :class="
-                  searchKey.invoice_mail_proof === 'proved'
-                    ? 'hover:bg-white/10'
-                    : 'bg-white/30'
-                "
-              >
-                Proof
-              </p>
-              <p
-                @click="toggleFilter('invoice_mail_proof', 'not_proved')"
-                class="px-4 py-2.5 transition-colors"
-                :class="
-                  searchKey.invoice_mail_proof === 'not_proved'
-                    ? 'hover:bg-white/10'
-                    : 'bg-white/30'
-                "
-              >
-                Not Proof
-              </p>
-            </div>
-
-            <!-- Expense Filters -->
-            <div
-              v-if="activeTag == 'expense'"
-              class="flex justify-center items-center bg-[#FF613c] rounded-full shadow overflow-hidden text-white text-xs cursor-pointer"
-            >
-              <p
-                @click="toggleFilter('sent_expense_mail', 'sent')"
-                class="px-4 py-2.5 transition-colors"
-                :class="
-                  searchKey.sent_expense_mail === 'sent'
-                    ? 'hover:bg-white/10'
-                    : 'bg-white/30'
-                "
-              >
-                Sent
-              </p>
-              <p
-                @click="toggleFilter('sent_expense_mail', 'not_sent')"
-                class="px-4 py-2.5 transition-colors"
-                :class="
-                  searchKey.sent_expense_mail === 'not_sent'
-                    ? 'hover:bg-white/10'
-                    : 'bg-white/30'
-                "
-              >
-                Not sent
-              </p>
-            </div>
-            <div
-              v-if="activeTag == 'expense'"
-              class="flex justify-center items-center bg-[#FF613c] rounded-full shadow overflow-hidden text-white text-xs cursor-pointer"
-            >
-              <p
-                @click="toggleFilter('expense_mail_proof', 'proved')"
-                class="px-4 py-2.5 transition-colors"
-                :class="
-                  searchKey.expense_mail_proof === 'proved'
-                    ? 'hover:bg-white/10'
-                    : 'bg-white/30'
-                "
-              >
-                Proof
-              </p>
-              <p
-                @click="toggleFilter('expense_mail_proof', 'not_proved')"
-                class="px-4 py-2.5 transition-colors"
-                :class="
-                  searchKey.expense_mail_proof === 'not_proved'
-                    ? 'hover:bg-white/10'
-                    : 'bg-white/30'
-                "
-              >
-                Not Proof
-              </p>
+              <!-- Proof/Not Proof Dropdown -->
+              <div class="relative">
+                <select
+                  v-model="searchKey.proofStatus"
+                  @change="searchAction"
+                  class="appearance-none bg-[#FF613c] text-white text-xs px-4 py-2.5 pr-8 rounded-full shadow cursor-pointer focus:outline-none"
+                >
+                  <option value="all">All Proof Status</option>
+                  <option value="proved">Proof</option>
+                  <option value="not_proved">Not Proof</option>
+                </select>
+                <svg
+                  class="w-4 h-4 text-white absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
 
@@ -378,15 +262,8 @@
             class="flex justify-start items-center overflow-x-scroll no-sidebar-container pt-0.5 space-x-3"
           >
             <p
-              @click="clearFilter"
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap bg-red-500 text-white cursor-pointer"
-            >
-              clear all
-            </p>
-
-            <p
               v-if="searchKey.startDate || searchKey.endDate"
-              class="text-[12px] shadow px-2 py-0.5 rounded-lg whitespace-nowrap relative"
+              class="text-[12px] px-2 py-0.5 rounded-lg whitespace-nowrap relative"
             >
               <XCircleIcon
                 class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
@@ -533,12 +410,6 @@
                     class="px-2 py-1.5 text-xs shadow-md bg-[#FF613c] rounded-full text-white"
                   >
                     Approve
-                  </button>
-                  <button
-                    @click="selectItemView(item)"
-                    class="bg-[#FF613c] p-1 rounded-full"
-                  >
-                    <EyeIcon class="w-5 h-5 text-white" />
                   </button>
                   <button
                     @click="selectItem(item)"
@@ -714,48 +585,10 @@
           </div>
         </div>
       </transition>
-
-      <!-- Detail Panel - Overlays on Right Side -->
-      <transition name="slide-right">
-        <div
-          v-if="showDetailView"
-          class="fixed right-0 top-0 h-screen w-1/2 border-l overflow-hidden shadow-2xl bg-white z-50"
-        >
-          <!-- Close Button -->
-          <div
-            class="sticky top-0 bg-white z-10 p-4 border-b flex items-center justify-between"
-          >
-            <h3 class="text-lg font-medium text-gray-900">
-              Email Proof Images
-            </h3>
-            <button
-              @click="closeSelectItemView"
-              class="text-gray-400 hover:text-gray-600"
-            >
-              <XCircleIcon class="w-6 h-6" />
-            </button>
-          </div>
-
-          <!-- Detail Content -->
-          <div class="p-4">
-            <div
-              v-for="(image, index) in formData.editImagesPreview"
-              :key="'existing-' + index"
-              class=""
-            >
-              <img
-                class="w-full h-full object-cover rounded-lg border border-gray-200 shadow-sm"
-                :src="image.file"
-                alt="Existing"
-              />
-            </div>
-          </div>
-        </div>
-      </transition>
     </div>
 
-    <!-- modal -->
-    <Modal :isOpen="showDetailEdit" @closeModal="closeDetailEdit">
+    <!-- modal for approve/edit -->
+    <Modal :isOpen="showDetailEdit">
       <DialogPanel
         class="w-full max-w-4xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
       >
@@ -811,6 +644,39 @@
                   max="2100"
                   class="w-24 border border-gray-300 px-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center"
                 />
+
+                <!-- Calendar Button -->
+                <div class="relative">
+                  <button
+                    type="button"
+                    @click="openDatePicker"
+                    class="w-36 h-10 flex items-center justify-center bg-[#FF613c] text-white border border-gray-300 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
+                  >
+                    <svg
+                      class="w-5 h-5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span class="text-sm ml-2">Choose Date</span>
+                  </button>
+
+                  <!-- Hidden Date Input -->
+                  <input
+                    ref="datePickerInput"
+                    type="date"
+                    v-model="formData.date"
+                    @change="updateFromDatePicker"
+                    class="absolute opacity-0 pointer-events-none"
+                  />
+                </div>
               </div>
             </div>
             <!-- File Upload Section -->
@@ -890,6 +756,13 @@
                     :src="image.file"
                     alt="Existing"
                   />
+                  <!-- Eye Icon to View Full Image -->
+                  <button
+                    @click="openImageViewer(image.file, index)"
+                    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full p-2 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <EyeIcon class="w-6 h-6" />
+                  </button>
                   <button
                     @click="removeImageUpdateImage(image.id)"
                     class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
@@ -957,6 +830,80 @@
         </div>
       </DialogPanel>
     </Modal>
+
+    <!-- Full Screen Image Viewer Modal -->
+    <Modal :isOpen="showImageViewer">
+      <DialogPanel
+        class="w-full max-w-7xl transform overflow-hidden rounded-lg bg-black text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-sm text-white bg-black/80 font-medium leading-6 flex justify-between items-center py-3 px-4"
+        >
+          <p>
+            Image Viewer ({{ currentImageIndex + 1 }} /
+            {{ formData.editImagesPreview.length }})
+          </p>
+          <XCircleIcon
+            class="w-6 h-6 text-white cursor-pointer hover:text-gray-300"
+            @click="closeImageViewer"
+          />
+        </DialogTitle>
+
+        <!-- Image Display Area -->
+        <div
+          class="relative bg-black h-[80vh] flex items-center justify-center"
+        >
+          <img
+            :src="currentViewImage"
+            alt="Full size"
+            class="max-h-full max-w-full object-contain"
+          />
+
+          <!-- Previous Button -->
+          <button
+            v-if="formData.editImagesPreview.length > 1"
+            @click="previousImage"
+            class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full p-3 transition-all"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+
+          <!-- Next Button -->
+          <button
+            v-if="formData.editImagesPreview.length > 1"
+            @click="nextImage"
+            class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white rounded-full p-3 transition-all"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+        </div>
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>
 
@@ -995,6 +942,11 @@ const imagesInput = ref(null);
 const is_sent_expense_mail = ref(false);
 const imagesPreview = ref([]);
 
+// Image Viewer State
+const showImageViewer = ref(false);
+const currentViewImage = ref("");
+const currentImageIndex = ref(0);
+
 const formData = ref({
   images: [],
   date: null,
@@ -1007,28 +959,63 @@ const year = ref("");
 
 const updateExpenseDate = () => {
   if (day.value && month.value && year.value) {
-    // Pad day and month with leading zeros if needed
     const paddedDay = String(day.value).padStart(2, "0");
     const paddedMonth = String(month.value).padStart(2, "0");
-
-    // Format as YYYY-MM-DD for Laravel backend
     formData.value.date = `${year.value}-${paddedMonth}-${paddedDay}`;
   }
 };
 
-// Optional: Initialize from existing expenseDate
-watch(
-  formData.date,
-  (newVal) => {
-    if (newVal && newVal.includes("-")) {
-      const [y, m, d] = newVal.split("-");
-      year.value = y;
-      month.value = parseInt(m);
-      day.value = parseInt(d);
-    }
-  },
-  { immediate: true }
-);
+const datePickerInput = ref(null);
+const openDatePicker = () => {
+  datePickerInput.value.showPicker();
+};
+
+const updateFromDatePicker = () => {
+  if (formData.value.date && formData.value.date.includes("-")) {
+    const [y, m, d] = formData.value.date.split("-");
+    year.value = y;
+    month.value = parseInt(m);
+    day.value = parseInt(d);
+  }
+};
+
+// Image Viewer Functions
+const openImageViewer = (imageUrl, index) => {
+  currentViewImage.value = imageUrl;
+  currentImageIndex.value = index;
+  showImageViewer.value = true;
+};
+
+const closeImageViewer = () => {
+  showImageViewer.value = false;
+  currentViewImage.value = "";
+  currentImageIndex.value = 0;
+};
+
+const nextImage = () => {
+  if (currentImageIndex.value < formData.value.editImagesPreview.length - 1) {
+    currentImageIndex.value++;
+    currentViewImage.value =
+      formData.value.editImagesPreview[currentImageIndex.value].file;
+  } else {
+    // Loop back to first image
+    currentImageIndex.value = 0;
+    currentViewImage.value = formData.value.editImagesPreview[0].file;
+  }
+};
+
+const previousImage = () => {
+  if (currentImageIndex.value > 0) {
+    currentImageIndex.value--;
+    currentViewImage.value =
+      formData.value.editImagesPreview[currentImageIndex.value].file;
+  } else {
+    // Loop to last image
+    currentImageIndex.value = formData.value.editImagesPreview.length - 1;
+    currentViewImage.value =
+      formData.value.editImagesPreview[currentImageIndex.value].file;
+  }
+};
 
 const openFileImagePicker = () => {
   imagesInput.value.click();
@@ -1150,19 +1137,9 @@ const searchKey = ref({
   searchId: "",
   startDate: "",
   endDate: "",
-  sent_booking_request: "not_sent",
-  booking_request_proof: "not_proved",
-  sent_expense_mail: "not_sent",
-  expense_mail_proof: "not_proved",
-  have_invoice_mail: "not_sent",
-  invoice_mail_proof: "not_proved",
+  sentStatus: "not_sent",
+  proofStatus: "not_proved",
 });
-
-// New toggle filter method
-const toggleFilter = (filterKey, value) => {
-  searchKey.value[filterKey] = value;
-  searchAction();
-};
 
 // Computed
 const watchSystem = computed(() => {
@@ -1178,6 +1155,8 @@ const watchSystem = computed(() => {
     let today = new Date();
     let nextMonth = new Date(today);
     nextMonth.setMonth(nextMonth.getMonth() + 3);
+    searchKey.value.startDate = today.toISOString().split("T")[0];
+    searchKey.value.endDate = nextMonth.toISOString().split("T")[0];
     result.booking_daterange = `${today.toISOString().split("T")[0]},${
       nextMonth.toISOString().split("T")[0]
     }`;
@@ -1187,31 +1166,41 @@ const watchSystem = computed(() => {
   result.sorting_type = "service_date";
   result.sorting = "asc";
 
-  // Tag-based filters
+  // Apply filters based on current tag and dropdown selections
   if (searchKey.value.searchId == "") {
     if (activeTag.value == "prove_booking") {
-      result.sent_booking_request = searchKey.value.sent_booking_request;
-      result.booking_request_proof = searchKey.value.booking_request_proof;
+      if (searchKey.value.sentStatus !== "all") {
+        result.sent_booking_request = searchKey.value.sentStatus;
+      }
+      if (searchKey.value.proofStatus !== "all") {
+        result.booking_request_proof = searchKey.value.proofStatus;
+      }
     }
 
     if (activeTag.value == "invoice") {
-      // Always set booking complete filters
       result.sent_booking_request = "sent";
       result.booking_request_proof = "proved";
-      // Invoice-specific filters
-      result.have_invoice_mail = searchKey.value.have_invoice_mail;
-      result.invoice_mail_proof = searchKey.value.invoice_mail_proof;
+
+      if (searchKey.value.sentStatus !== "all") {
+        result.have_invoice_mail = searchKey.value.sentStatus;
+      }
+      if (searchKey.value.proofStatus !== "all") {
+        result.invoice_mail_proof = searchKey.value.proofStatus;
+      }
     }
 
     if (activeTag.value == "expense") {
-      // Always set booking and invoice complete filters
       result.sent_booking_request = "sent";
       result.booking_request_proof = "proved";
       result.have_invoice_mail = "sent";
       result.invoice_mail_proof = "proved";
-      // Expense-specific filters
-      result.sent_expense_mail = searchKey.value.sent_expense_mail;
-      result.expense_mail_proof = searchKey.value.expense_mail_proof;
+
+      if (searchKey.value.sentStatus !== "all") {
+        result.sent_expense_mail = searchKey.value.sentStatus;
+      }
+      if (searchKey.value.proofStatus !== "all") {
+        result.expense_mail_proof = searchKey.value.proofStatus;
+      }
     }
   }
 
@@ -1232,19 +1221,8 @@ const hasActiveFilters = computed(() => {
 // Methods
 const filterByType = (type) => {
   activeTag.value = type;
-
-  // Reset filters based on tag
-  if (type === "prove_booking") {
-    searchKey.value.sent_booking_request = "not_sent";
-    searchKey.value.booking_request_proof = "not_proved";
-  } else if (type === "invoice") {
-    searchKey.value.have_invoice_mail = "not_sent";
-    searchKey.value.invoice_mail_proof = "not_proved";
-  } else if (type === "expense") {
-    searchKey.value.sent_expense_mail = "not_sent";
-    searchKey.value.expense_mail_proof = "not_proved";
-  }
-
+  searchKey.value.sentStatus = "all";
+  searchKey.value.proofStatus = "all";
   searchAction();
 };
 
@@ -1259,35 +1237,7 @@ const selectItem = async (item) => {
   selectedItem.value = item;
   const res = await groupStore.detailAction(item.id);
   detail.value = res.result;
-
   showDetail.value = true;
-};
-
-const showDetailView = ref(false);
-
-const selectItemView = async (item) => {
-  selectedItem.value = item;
-  formData.value.date =
-    activeTag.value == "prove_booking"
-      ? item.booking_email_sent_date
-      : activeTag.value == "expense"
-      ? item.expense_email_sent_date
-      : item.invoice_mail_sent_date;
-
-  await getProofImage(item.id);
-  if (activeTag.value == "prove_booking") {
-    is_sent_expense_mail.value = item.sent_booking_request == 0 ? false : true;
-  } else {
-    is_sent_expense_mail.value = item.sent_expense_mail == 0 ? false : true;
-  }
-  showDetailView.value = true;
-};
-
-const closeSelectItemView = () => {
-  showDetailView.value = false;
-  selectedItem.value = null;
-  formData.value.date = null;
-  resetCloseAction();
 };
 
 const showDetailEdit = ref(false);
@@ -1345,14 +1295,9 @@ const clearFilter = () => {
     searchId: "",
     startDate: "",
     endDate: "",
-    sent_booking_request: "not_sent",
-    booking_request_proof: "not_proved",
-    sent_expense_mail: "not_sent",
-    expense_mail_proof: "not_proved",
-    have_invoice_mail: "not_sent",
-    invoice_mail_proof: "not_proved",
+    sentStatus: "not_sent",
+    proofStatus: "not_proved",
   };
-
   filterShow.value = false;
   searchAction();
 };
@@ -1363,25 +1308,6 @@ const getPaymentStatusClass = (status) => {
     not_paid: "bg-red-100 text-red-800",
     partial: "bg-yellow-100 text-yellow-800",
   };
-  return classes[status] || "bg-gray-100 text-gray-800";
-};
-
-const getStatusClass = (tag, status1, status2, status3) => {
-  let status = 0;
-
-  if (tag === "prove_booking") {
-    status = status1;
-  } else if (tag === "expense") {
-    status = status2;
-  } else if (tag === "invoice") {
-    status = status3;
-  }
-
-  const classes = {
-    1: "bg-green-100 text-green-800",
-    0: "bg-red-100 text-red-800",
-  };
-
   return classes[status] || "bg-gray-100 text-gray-800";
 };
 
@@ -1401,12 +1327,10 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-// Watch for page changes
 watch(currentPage, () => {
   groupStore.getListAction(watchSystem.value);
 });
 
-// API call
 const fetchData = async () => {
   try {
     await groupStore.getListAction(watchSystem.value);

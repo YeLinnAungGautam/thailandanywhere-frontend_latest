@@ -18,14 +18,9 @@
           <!-- Copy All Button (Alternative) -->
           <div class="flex justify-end">
             <button
-              @click="copyFullEmail"
-              class="text-xs px-4 py-2 border rounded-lg border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+              class="text-xs px-4 py-2 border bg-gray-200 rounded-lg border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              {{
-                copiedFull
-                  ? "Copied Full Email!"
-                  : "Copy Full Email (with mails)"
-              }}
+              Send Email
             </button>
           </div>
         </div>

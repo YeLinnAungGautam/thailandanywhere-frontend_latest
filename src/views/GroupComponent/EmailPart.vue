@@ -9,26 +9,29 @@
           }}
         </h3>
         <div class="flex justify-end items-center gap-x-2">
-          <button
-            @click="copyEmailContent"
-            class="text-xs px-3 py-2 border rounded-lg border-[#FF6300] bg-[#FF6300] text-white hover:bg-[#FF6300]/90 transition-colors"
-          >
-            {{ copied ? "Copied!" : "Copy Email" }}
-          </button>
           <!-- Copy All Button (Alternative) -->
-          <div class="flex justify-end">
+          <!-- <div class="flex justify-end">
             <button
               class="text-xs px-4 py-2 border bg-gray-200 rounded-lg border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Send Email
             </button>
-          </div>
+          </div> -->
         </div>
       </div>
 
       <!-- Email Recipients -->
       <div class="mb-3">
-        <label class="text-xs font-medium text-gray-600 block mb-1">To:</label>
+        <!-- <label class="text-xs font-medium text-gray-600 block mb-1">To:</label> -->
+        <div class="flex justify-between items-center pb-3">
+          <label class="text-xs font-medium text-gray-600 block">To:</label>
+          <button
+            @click="copyMails"
+            class="text-xs px-3 py-1.5 border rounded-lg border-[#FF6300] bg-[#FF6300] text-white hover:bg-[#FF6300]/90 transition-colors"
+          >
+            {{ copiedMails ? "Copied!" : "Copy Mails" }}
+          </button>
+        </div>
         <div class="bg-gray-50 px-3 py-2 rounded border border-gray-200">
           <div class="flex flex-wrap gap-2">
             <span
@@ -50,9 +53,20 @@
 
       <!-- Email Subject -->
       <div class="mb-3">
-        <label class="text-xs font-medium text-gray-600 block mb-1"
+        <!-- <label class="text-xs font-medium text-gray-600 block mb-1"
           >Subject:</label
-        >
+        > -->
+        <div class="flex justify-between items-center pb-3">
+          <label class="text-xs font-medium text-gray-600 block"
+            >Subject:</label
+          >
+          <button
+            @click="copySubject"
+            class="text-xs px-3 py-1.5 border rounded-lg border-[#FF6300] bg-[#FF6300] text-white hover:bg-[#FF6300]/90 transition-colors"
+          >
+            {{ copiedSubject ? "Copied!" : "Copy Subject" }}
+          </button>
+        </div>
         <div
           class="bg-gray-50 px-3 py-2 rounded border border-gray-200 text-sm"
         >
@@ -62,9 +76,15 @@
 
       <!-- Email Body Preview -->
       <div class="mb-3">
-        <label class="text-xs font-medium text-gray-600 block mb-1"
-          >Body:</label
-        >
+        <div class="flex justify-between items-center pb-3">
+          <label class="text-xs font-medium text-gray-600 block">Body:</label>
+          <button
+            @click="copyEmailContent"
+            class="text-xs px-3 py-1.5 border rounded-lg border-[#FF6300] bg-[#FF6300] text-white hover:bg-[#FF6300]/90 transition-colors"
+          >
+            {{ copied ? "Copied!" : "Copy Body" }}
+          </button>
+        </div>
         <div
           ref="emailBodyRef"
           class="bg-gray-50 px-4 py-3 rounded border border-gray-200 text-sm max-h-[400px] overflow-y-auto"
@@ -86,7 +106,8 @@ const props = defineProps({
 
 const emailBodyRef = ref(null);
 const copied = ref(false);
-const copiedFull = ref(false);
+const copiedMails = ref(false);
+const copiedSubject = ref(false);
 
 // Calculate days between dates
 const daysBetween = (a, b) => {
@@ -243,7 +264,8 @@ const copyEmailContent = async () => {
     tempDiv.innerHTML = emailBody.value;
 
     // Get text content
-    const textContent = `Subject: ${emailSubject.value}\n\n${tempDiv.innerText}`;
+    // const textContent = `Subject: ${emailSubject.value}\n\n${tempDiv.innerText}`;
+    const textContent = tempDiv.innerText;
 
     // Copy to clipboard
     await navigator.clipboard.writeText(textContent);
@@ -257,6 +279,32 @@ const copyEmailContent = async () => {
     console.error("Failed to copy:", err);
     // Fallback for older browsers
     fallbackCopy(textContent);
+  }
+};
+
+// Copy email subject
+const copySubject = async () => {
+  try {
+    await navigator.clipboard.writeText(emailSubject.value);
+    copiedSubject.value = true;
+    setTimeout(() => {
+      copiedSubject.value = false;
+    }, 2000);
+  } catch (err) {
+    console.error("Failed to copy:", err);
+  }
+};
+
+// Copy mails
+const copyMails = async () => {
+  try {
+    await navigator.clipboard.writeText(emailRecipients.value.join(", "));
+    copiedMails.value = true;
+    setTimeout(() => {
+      copiedMails.value = false;
+    }, 2000);
+  } catch (err) {
+    console.error("Failed to copy:", err);
   }
 };
 

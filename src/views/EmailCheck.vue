@@ -18,7 +18,7 @@
         <!-- Tags Row -->
         <div class="flex justify-between items-center mb-3">
           <div
-            class="bg-gradient-to-r from-[#FF613c]/60 via-[#FF613c]/80 to-[#FF613c] rounded-full p-1 shadow-md"
+            class="bg-gradient-to-r from-[#FF613c]/80 via-[#FF613c] to-[#f63307] rounded-full p-1 shadow-md"
           >
             <div class="flex justify-start items-center gap-1">
               <!-- Prove Booking -->
@@ -136,7 +136,7 @@
           <div class="flex justify-start items-center gap-x-3 relative">
             <div
               @click="filterShow = !filterShow"
-              class="bg-blue-600 px-2 rounded-full shadow py-2 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer"
+              class="bg-[#FF613c] px-4 rounded-full shadow py-2 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer"
             >
               <FunnelIcon class="w-5 h-5 text-white" />
               <p>Filter</p>
@@ -155,17 +155,6 @@
                   <p class="text-[10px] cursor-pointer" @click="clearFilter">
                     clear
                   </p>
-                </div>
-
-                <div>
-                  <p class="text-[10px] pb-2">Sent booking Request</p>
-                  <select
-                    v-model="searchKey.sent_booking_request"
-                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
-                  >
-                    <option value="sent">Email Sent</option>
-                    <option value="not_sent">Not Sent</option>
-                  </select>
                 </div>
 
                 <div>
@@ -213,6 +202,174 @@
                 <MagnifyingGlassIcon class="w-4 h-4 text-white" />
               </div>
             </div>
+
+            <!-- Prove Booking Filters -->
+            <div
+              v-if="activeTag == 'prove_booking'"
+              class="flex justify-center items-center bg-[#FF613c] rounded-full shadow overflow-hidden text-white text-xs cursor-pointer"
+            >
+              <p
+                @click="toggleFilter('sent_booking_request', 'sent')"
+                class="px-4 py-2.5 transition-colors"
+                :class="
+                  searchKey.sent_booking_request === 'sent'
+                    ? 'hover:bg-white/10'
+                    : 'bg-white/30'
+                "
+              >
+                Sent
+              </p>
+              <p
+                @click="toggleFilter('sent_booking_request', 'not_sent')"
+                class="px-4 py-2.5 transition-colors"
+                :class="
+                  searchKey.sent_booking_request === 'not_sent'
+                    ? 'hover:bg-white/10'
+                    : 'bg-white/30'
+                "
+              >
+                Not Sent
+              </p>
+            </div>
+            <div
+              v-if="activeTag == 'prove_booking'"
+              class="flex justify-center items-center bg-[#FF613c] rounded-full shadow overflow-hidden text-white text-xs cursor-pointer"
+            >
+              <p
+                @click="toggleFilter('booking_request_proof', 'proved')"
+                class="px-4 py-2.5 transition-colors"
+                :class="
+                  searchKey.booking_request_proof === 'proved'
+                    ? 'hover:bg-white/10'
+                    : 'bg-white/30'
+                "
+              >
+                Proof
+              </p>
+              <p
+                @click="toggleFilter('booking_request_proof', 'not_proved')"
+                class="px-4 py-2.5 transition-colors"
+                :class="
+                  searchKey.booking_request_proof === 'not_proved'
+                    ? 'hover:bg-white/10'
+                    : 'bg-white/30'
+                "
+              >
+                Not Proof
+              </p>
+            </div>
+
+            <!-- Invoice Filters -->
+            <div
+              v-if="activeTag == 'invoice'"
+              class="flex justify-center items-center bg-[#FF613c] rounded-full shadow overflow-hidden text-white text-xs cursor-pointer"
+            >
+              <p
+                @click="toggleFilter('have_invoice_mail', 'sent')"
+                class="px-4 py-2.5 transition-colors"
+                :class="
+                  searchKey.have_invoice_mail === 'sent'
+                    ? 'hover:bg-white/10'
+                    : 'bg-white/30'
+                "
+              >
+                Sent
+              </p>
+              <p
+                @click="toggleFilter('have_invoice_mail', 'not_sent')"
+                class="px-4 py-2.5 transition-colors"
+                :class="
+                  searchKey.have_invoice_mail === 'not_sent'
+                    ? 'hover:bg-white/10'
+                    : 'bg-white/30'
+                "
+              >
+                Not sent
+              </p>
+            </div>
+            <div
+              v-if="activeTag == 'invoice'"
+              class="flex justify-center items-center bg-[#FF613c] rounded-full shadow overflow-hidden text-white text-xs cursor-pointer"
+            >
+              <p
+                @click="toggleFilter('invoice_mail_proof', 'proved')"
+                class="px-4 py-2.5 transition-colors"
+                :class="
+                  searchKey.invoice_mail_proof === 'proved'
+                    ? 'hover:bg-white/10'
+                    : 'bg-white/30'
+                "
+              >
+                Proof
+              </p>
+              <p
+                @click="toggleFilter('invoice_mail_proof', 'not_proved')"
+                class="px-4 py-2.5 transition-colors"
+                :class="
+                  searchKey.invoice_mail_proof === 'not_proved'
+                    ? 'hover:bg-white/10'
+                    : 'bg-white/30'
+                "
+              >
+                Not Proof
+              </p>
+            </div>
+
+            <!-- Expense Filters -->
+            <div
+              v-if="activeTag == 'expense'"
+              class="flex justify-center items-center bg-[#FF613c] rounded-full shadow overflow-hidden text-white text-xs cursor-pointer"
+            >
+              <p
+                @click="toggleFilter('sent_expense_mail', 'sent')"
+                class="px-4 py-2.5 transition-colors"
+                :class="
+                  searchKey.sent_expense_mail === 'sent'
+                    ? 'hover:bg-white/10'
+                    : 'bg-white/30'
+                "
+              >
+                Sent
+              </p>
+              <p
+                @click="toggleFilter('sent_expense_mail', 'not_sent')"
+                class="px-4 py-2.5 transition-colors"
+                :class="
+                  searchKey.sent_expense_mail === 'not_sent'
+                    ? 'hover:bg-white/10'
+                    : 'bg-white/30'
+                "
+              >
+                Not sent
+              </p>
+            </div>
+            <div
+              v-if="activeTag == 'expense'"
+              class="flex justify-center items-center bg-[#FF613c] rounded-full shadow overflow-hidden text-white text-xs cursor-pointer"
+            >
+              <p
+                @click="toggleFilter('expense_mail_proof', 'proved')"
+                class="px-4 py-2.5 transition-colors"
+                :class="
+                  searchKey.expense_mail_proof === 'proved'
+                    ? 'hover:bg-white/10'
+                    : 'bg-white/30'
+                "
+              >
+                Proof
+              </p>
+              <p
+                @click="toggleFilter('expense_mail_proof', 'not_proved')"
+                class="px-4 py-2.5 transition-colors"
+                :class="
+                  searchKey.expense_mail_proof === 'not_proved'
+                    ? 'hover:bg-white/10'
+                    : 'bg-white/30'
+                "
+              >
+                Not Proof
+              </p>
+            </div>
           </div>
 
           <!-- Active Filters -->
@@ -241,54 +398,54 @@
         </div>
 
         <!-- Table -->
-        <div class="overflow-x-auto max-h-[65vh] overflow-y-scroll">
+        <div class="overflow-x-auto max-h-[62vh] overflow-y-scroll">
           <table class="w-full text-sm">
             <thead class="bg-gray-50 sticky top-0">
               <tr class="border-b">
                 <th
                   v-if="activeTag == 'invoice'"
-                  class="px-4 py-3 text-left text-xs font-medium text-gray-500"
+                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
                 >
                   Invoice Status
                 </th>
                 <th
-                  class="px-4 py-3 text-left text-xs font-medium text-gray-500"
+                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
                 >
                   Mail Status
                 </th>
                 <th
-                  class="px-4 py-3 text-left text-xs font-medium text-gray-500"
+                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
                 >
                   CRM ID
                 </th>
                 <th
-                  class="px-4 py-3 text-left text-xs font-medium text-gray-500"
+                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
                 >
                   Hotel Name
                 </th>
                 <th
-                  class="px-4 py-3 text-left text-xs font-medium text-gray-500"
+                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
                 >
                   Customer Name
                 </th>
                 <th
-                  class="px-4 py-3 text-left text-xs font-medium text-gray-500"
+                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
                 >
                   Service Date
                 </th>
                 <th
-                  class="px-4 py-3 text-left text-xs font-medium text-gray-500"
+                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
                 >
                   Room Qty
                 </th>
                 <th
-                  class="px-4 py-3 text-left text-xs font-medium text-gray-500"
+                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
                 >
                   C.Status
                 </th>
 
                 <th
-                  class="px-4 py-3 text-left text-xs font-medium text-gray-500"
+                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
                 >
                   Action
                 </th>
@@ -302,36 +459,39 @@
                 :class="{ 'bg-blue-50': selectedItem?.id === item.id }"
               >
                 <td class="px-4 py-4" v-if="activeTag == 'invoice'">
-                  <span class="px-2 py-1.5 rounded-full text-xs font-medium">
-                    {{ item.have_booking_confirm_letter ? "Get" : "Not Get" }}
+                  <span
+                    class="px-2 py-1.5 rounded-full text-xs font-medium"
+                    :class="
+                      item.have_invoice_mail
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    "
+                  >
+                    {{ item.have_invoice_mail ? "Get" : "Not Get" }}
                   </span>
                 </td>
-                <td class="px-4 py-4">
+                <td class="px-4 py-4" v-if="activeTag != 'expense'">
                   <span
                     class="px-2 py-1.5 rounded-full text-xs font-medium whitespace-nowrap"
                     :class="
-                      activeTag == 'prove_booking' || activeTag == 'invoice'
-                        ? item.sent_booking_request == 1
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                        : activeTag == 'expense'
-                        ? item.sent_expense_mail == 1
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                        : ''
+                      item.sent_booking_request == 1
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
                     "
                   >
-                    {{
-                      activeTag == "prove_booking" || activeTag == "invoice"
-                        ? item.sent_booking_request == 1
-                          ? "Sent"
-                          : "Not Sent"
-                        : activeTag == "expense"
-                        ? item.sent_expense_mail == 1
-                          ? "Sent"
-                          : "Not Sent"
-                        : ""
-                    }}
+                    {{ item.sent_booking_request == 1 ? "Sent" : "Not Sent" }}
+                  </span>
+                </td>
+                <td class="px-4 py-4" v-if="activeTag == 'expense'">
+                  <span
+                    class="px-2 py-1.5 rounded-full text-xs font-medium whitespace-nowrap"
+                    :class="
+                      item.sent_expense_mail == 1
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    "
+                  >
+                    {{ item.sent_expense_mail == 1 ? "Sent" : "Not Sent" }}
                   </span>
                 </td>
                 <td class="px-4 py-4 text-sm text-gray-900">
@@ -353,7 +513,7 @@
                     - {{ item.latest_service_date }}
                   </span>
                 </td>
-                <td class="px-4 py-4 text-sm text-gray-900">
+                <td class="px-4 py-4 text-sm text-gray-600">
                   {{ getRoomQty(item) }} room
                 </td>
                 <td class="px-4 py-4">
@@ -366,7 +526,7 @@
                 </td>
 
                 <td
-                  class="px-4 py-4 space-x-4 flex justify-center items-center"
+                  class="px-4 py-4 space-x-2 flex justify-center items-center"
                 >
                   <button
                     @click="selectItemEdit(item)"
@@ -374,8 +534,17 @@
                   >
                     Approve
                   </button>
-                  <button @click="selectItem(item)">
-                    <InformationCircleIcon class="w-6 h-6" />
+                  <button
+                    @click="selectItemView(item)"
+                    class="bg-[#FF613c] p-1 rounded-full"
+                  >
+                    <EyeIcon class="w-5 h-5 text-white" />
+                  </button>
+                  <button
+                    @click="selectItem(item)"
+                    class="bg-[#FF613c] p-1 rounded-full"
+                  >
+                    <InformationCircleIcon class="w-5 h-5 text-white" />
                   </button>
                 </td>
               </tr>
@@ -493,8 +662,11 @@
                 </div>
               </div>
 
+              <!-- email part -->
+              <EmailPart :detail="detail" :activeTag="activeTag" />
+
               <!-- Financial Details -->
-              <div class="mb-6">
+              <div class="mb-6 mt-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-3">
                   Financial Details
                 </h3>
@@ -538,9 +710,44 @@
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </transition>
 
-              <!-- email part -->
-              <p>this is email part</p>
+      <!-- Detail Panel - Overlays on Right Side -->
+      <transition name="slide-right">
+        <div
+          v-if="showDetailView"
+          class="fixed right-0 top-0 h-screen w-1/2 border-l overflow-hidden shadow-2xl bg-white z-50"
+        >
+          <!-- Close Button -->
+          <div
+            class="sticky top-0 bg-white z-10 p-4 border-b flex items-center justify-between"
+          >
+            <h3 class="text-lg font-medium text-gray-900">
+              Email Proof Images
+            </h3>
+            <button
+              @click="closeSelectItemView"
+              class="text-gray-400 hover:text-gray-600"
+            >
+              <XCircleIcon class="w-6 h-6" />
+            </button>
+          </div>
+
+          <!-- Detail Content -->
+          <div class="p-4">
+            <div
+              v-for="(image, index) in formData.editImagesPreview"
+              :key="'existing-' + index"
+              class=""
+            >
+              <img
+                class="w-full h-full object-cover rounded-lg border border-gray-200 shadow-sm"
+                :src="image.file"
+                alt="Existing"
+              />
             </div>
           </div>
         </div>
@@ -609,7 +816,7 @@
             <!-- File Upload Section -->
             <div>
               <label class="text-base font-medium text-gray-700 mb-4 block"
-                >Proof of Expense*</label
+                >Proof*</label
               >
 
               <input
@@ -765,9 +972,10 @@ import {
 import { XCircleIcon, PlusCircleIcon } from "@heroicons/vue/24/solid";
 import { useSidebarStore } from "../stores/sidebar";
 import { useGroupStore } from "../stores/group";
-import { PencilSquareIcon } from "@heroicons/vue/24/outline";
+import { PencilSquareIcon, EyeIcon } from "@heroicons/vue/24/outline";
 import Modal from "../components/Modal.vue";
 import { useToast } from "vue-toastification";
+import EmailPart from "./GroupComponent/EmailPart.vue";
 
 const toast = useToast();
 
@@ -864,12 +1072,11 @@ const getProofImage = async (id) => {
     document_type:
       activeTag.value === "prove_booking"
         ? "booking_request_proof"
-        : "expense_mail_proof",
+        : activeTag.value === "expense"
+        ? "expense_mail_proof"
+        : "invoice_mail_proof",
   });
   formData.value.editImagesPreview = res.result;
-  console.log("====================================");
-  console.log(formData.value.editImagesPreview);
-  console.log("====================================");
 };
 
 const updateReservationAction = async () => {
@@ -877,9 +1084,12 @@ const updateReservationAction = async () => {
   if (activeTag.value === "prove_booking") {
     frmData.append("sent_booking_request", 1);
     frmData.append("booking_email_sent_date", formData.value.date);
-  } else {
+  } else if (activeTag.value === "expense") {
     frmData.append("sent_expense_mail", 1);
     frmData.append("expense_email_sent_date", formData.value.date);
+  } else {
+    frmData.append("have_invoice_mail", 1);
+    frmData.append("invoice_mail_sent_date", formData.value.date);
   }
   frmData.append("_method", "PUT");
 
@@ -895,8 +1105,10 @@ const updateReservationAction = async () => {
       const secData = new FormData();
       if (activeTag.value === "prove_booking") {
         secData.append("document_type", "booking_request_proof");
-      } else {
+      } else if (activeTag.value === "expense") {
         secData.append("document_type", "expense_mail_proof");
+      } else {
+        secData.append("document_type", "invoice_mail_proof");
       }
       secData.append(`documents[${i}][file]`, formData.value.images[i]);
       secData.append(`documents[${i}][meta][name]`, `proof-${i}`);
@@ -942,8 +1154,15 @@ const searchKey = ref({
   booking_request_proof: "not_proved",
   sent_expense_mail: "not_sent",
   expense_mail_proof: "not_proved",
-  invoice_status: "not_receive",
+  have_invoice_mail: "not_sent",
+  invoice_mail_proof: "not_proved",
 });
+
+// New toggle filter method
+const toggleFilter = (filterKey, value) => {
+  searchKey.value[filterKey] = value;
+  searchAction();
+};
 
 // Computed
 const watchSystem = computed(() => {
@@ -969,21 +1188,31 @@ const watchSystem = computed(() => {
   result.sorting = "asc";
 
   // Tag-based filters
-  if (activeTag.value == "prove_booking") {
-    result.sent_booking_request = searchKey.value.sent_booking_request;
-  }
-  if (activeTag.value == "prove_booking") {
-    result.booking_request_proof = searchKey.value.booking_request_proof;
-  }
-  if (activeTag.value == "expense" && searchKey.value.sent_expense_mail) {
-    result.sent_expense_mail = searchKey.value.sent_expense_mail;
-  }
-  if (activeTag.value == "expense" && searchKey.value.expense_mail_proof) {
-    result.expense_mail_proof = searchKey.value.expense_mail_proof;
-  }
-  if (activeTag.value == "invoice") {
-    result.invoice_status = "not_receive";
-    result.sent_booking_request = "sent";
+  if (searchKey.value.searchId == "") {
+    if (activeTag.value == "prove_booking") {
+      result.sent_booking_request = searchKey.value.sent_booking_request;
+      result.booking_request_proof = searchKey.value.booking_request_proof;
+    }
+
+    if (activeTag.value == "invoice") {
+      // Always set booking complete filters
+      result.sent_booking_request = "sent";
+      result.booking_request_proof = "proved";
+      // Invoice-specific filters
+      result.have_invoice_mail = searchKey.value.have_invoice_mail;
+      result.invoice_mail_proof = searchKey.value.invoice_mail_proof;
+    }
+
+    if (activeTag.value == "expense") {
+      // Always set booking and invoice complete filters
+      result.sent_booking_request = "sent";
+      result.booking_request_proof = "proved";
+      result.have_invoice_mail = "sent";
+      result.invoice_mail_proof = "proved";
+      // Expense-specific filters
+      result.sent_expense_mail = searchKey.value.sent_expense_mail;
+      result.expense_mail_proof = searchKey.value.expense_mail_proof;
+    }
   }
 
   result.page = currentPage.value;
@@ -1002,37 +1231,21 @@ const hasActiveFilters = computed(() => {
 
 // Methods
 const filterByType = (type) => {
-  if (activeTag.value === type) {
-    clearTagFilters();
-  } else {
-    // Set new tag
-    activeTag.value = type;
-    clearTagFilters();
+  activeTag.value = type;
 
-    if (type === "prove_booking") {
-      // Prove Booking: sent_booking_request = false AND booking_request_proof = 'not_proved'
-      searchKey.value.sent_booking_request = "not_sent";
-      searchKey.value.booking_request_proof = "not_proved";
-    } else if (type === "invoice") {
-      // Invoice: invoice_status = 'not_receive' (no booking_confirm_letter)
-      searchKey.value.has_booking_confirm_letter = "not_receive";
-      searchKey.value.sent_booking_request = "sent";
-    } else if (type === "expense") {
-      // Expense: sent_expense_mail = false AND expense_mail_proof = 'not_proved'
-      searchKey.value.sent_expense_mail = "not_sent";
-      searchKey.value.expense_mail_proof = "not_proved";
-    }
+  // Reset filters based on tag
+  if (type === "prove_booking") {
+    searchKey.value.sent_booking_request = "not_sent";
+    searchKey.value.booking_request_proof = "not_proved";
+  } else if (type === "invoice") {
+    searchKey.value.have_invoice_mail = "not_sent";
+    searchKey.value.invoice_mail_proof = "not_proved";
+  } else if (type === "expense") {
+    searchKey.value.sent_expense_mail = "not_sent";
+    searchKey.value.expense_mail_proof = "not_proved";
   }
 
   searchAction();
-};
-
-const clearTagFilters = () => {
-  searchKey.value.sent_booking_request = false;
-  searchKey.value.booking_request_proof = false;
-  searchKey.value.sent_expense_mail = false;
-  searchKey.value.expense_mail_proof = false;
-  searchKey.value.invoice_status = false;
 };
 
 const clearDateFilter = () => {
@@ -1046,17 +1259,54 @@ const selectItem = async (item) => {
   selectedItem.value = item;
   const res = await groupStore.detailAction(item.id);
   detail.value = res.result;
-  console.log(detail.value);
 
   showDetail.value = true;
 };
 
+const showDetailView = ref(false);
+
+const selectItemView = async (item) => {
+  selectedItem.value = item;
+  formData.value.date =
+    activeTag.value == "prove_booking"
+      ? item.booking_email_sent_date
+      : activeTag.value == "expense"
+      ? item.expense_email_sent_date
+      : item.invoice_mail_sent_date;
+
+  await getProofImage(item.id);
+  if (activeTag.value == "prove_booking") {
+    is_sent_expense_mail.value = item.sent_booking_request == 0 ? false : true;
+  } else {
+    is_sent_expense_mail.value = item.sent_expense_mail == 0 ? false : true;
+  }
+  showDetailView.value = true;
+};
+
+const closeSelectItemView = () => {
+  showDetailView.value = false;
+  selectedItem.value = null;
+  formData.value.date = null;
+  resetCloseAction();
+};
+
 const showDetailEdit = ref(false);
 const selectItemEdit = async (item) => {
-  console.log(item.booking_email_sent_date, "this is item");
-
   selectedItem.value = item;
-  formData.value.date = item.booking_email_sent_date;
+  formData.value.date =
+    activeTag.value == "prove_booking"
+      ? item.booking_email_sent_date
+      : activeTag.value == "expense"
+      ? item.expense_email_sent_date
+      : item.invoice_mail_sent_date;
+
+  if (formData.value.date && formData.value.date.includes("-")) {
+    const [y, m, d] = formData.value.date.split("-");
+    year.value = y;
+    month.value = parseInt(m);
+    day.value = parseInt(d);
+  }
+
   await getProofImage(item.id);
   if (activeTag.value == "prove_booking") {
     is_sent_expense_mail.value = item.sent_booking_request == 0 ? false : true;
@@ -1068,6 +1318,7 @@ const selectItemEdit = async (item) => {
 
 const closeDetail = () => {
   showDetail.value = false;
+  detail.value = {};
   selectedItem.value = null;
 };
 
@@ -1094,11 +1345,12 @@ const clearFilter = () => {
     searchId: "",
     startDate: "",
     endDate: "",
-    sent_booking_request: null,
-    booking_request_proof: null,
-    sent_expense_mail: null,
-    expense_mail_proof: null,
-    invoice_status: null,
+    sent_booking_request: "not_sent",
+    booking_request_proof: "not_proved",
+    sent_expense_mail: "not_sent",
+    expense_mail_proof: "not_proved",
+    have_invoice_mail: "not_sent",
+    invoice_mail_proof: "not_proved",
   };
 
   filterShow.value = false;
@@ -1115,9 +1367,8 @@ const getPaymentStatusClass = (status) => {
 };
 
 const getStatusClass = (tag, status1, status2, status3) => {
-  let status = 0; // default status
+  let status = 0;
 
-  // Determine which status to use based on the tag
   if (tag === "prove_booking") {
     status = status1;
   } else if (tag === "expense") {
@@ -1126,7 +1377,6 @@ const getStatusClass = (tag, status1, status2, status3) => {
     status = status3;
   }
 
-  // Return the appropriate class based on status
   const classes = {
     1: "bg-green-100 text-green-800",
     0: "bg-red-100 text-red-800",

@@ -80,7 +80,9 @@
                   >
                     2
                   </div>
-                  <p class="text-xs font-medium text-white">Invoice</p>
+                  <p class="text-xs font-medium whitespace-nowrap text-white">
+                    Vendor Confirm
+                  </p>
                 </div>
                 <div
                   v-if="activeTag === 'invoice'"
@@ -261,7 +263,7 @@
                   v-if="activeTag == 'invoice'"
                   class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
                 >
-                  Invoice Status
+                  Invoice Mail
                 </th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
@@ -322,7 +324,7 @@
                         : 'bg-red-100 text-red-800'
                     "
                   >
-                    {{ item.have_invoice_mail ? "Get" : "Not Get" }}
+                    {{ item.have_invoice_mail ? "Complete" : "Missing" }}
                   </span>
                 </td>
                 <td class="px-4 py-4" v-if="activeTag != 'expense'">
@@ -546,7 +548,7 @@
           as="div"
           class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start py-3 px-4"
         >
-          <p>Email Proof</p>
+          <p>{{ activeTag == "invoice" ? "Confirm" : "" }} Email Screenshot</p>
           <XCircleIcon
             class="w-6 h-6 text-white cursor-pointer"
             @click="closeDetailEdit"
@@ -558,8 +560,8 @@
           <div class="space-y-4">
             <!-- Date Input Form -->
             <div>
-              <label class="text-base font-medium text-gray-700 mb-4 block"
-                >Date*</label
+              <label class="text-base font-medium text-gray-700 mb-4 block">
+                {{ activeTag == "invoice" ? "Confirm Email" : "" }} Date*</label
               >
               <div class="flex gap-2">
                 <!-- Day Input -->
@@ -632,7 +634,8 @@
             <!-- File Upload Section -->
             <div>
               <label class="text-base font-medium text-gray-700 mb-4 block"
-                >Proof*</label
+                >{{ activeTag == "invoice" ? "Confirm" : "" }} Email
+                Screenshot*</label
               >
 
               <input
@@ -659,7 +662,7 @@
                 </div>
                 <div>
                   <p class="text-sm font-medium text-gray-700">
-                    Upload Expense Proof
+                    Upload Email Screenshot
                   </p>
                   <p class="text-xs text-gray-500 mt-1">
                     Click to browse or drag and drop your files here

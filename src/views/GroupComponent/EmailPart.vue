@@ -170,87 +170,154 @@ const emailBody = computed(() => {
   if (props.activeTag === "prove_booking") {
     // Booking Request Email
     if (isTicket) {
-      return `
-        <p>Dear ${detail.items[0].product?.name},</p>
-        <p><strong>Greetings from ThAnywhere Co., Ltd.</strong></p>
-        <p>We would like to book the accommodation as per the following description. Please note the booking is already checked and confirmed by phone.</p>
-        <p>
-          ${detail.items
-            .map(
-              (item) => `
-            <p><strong>Ticket Type:</strong> ${item.variation?.name}</p>
-            <p><strong>Service Date:</strong> ${item.service_date}</p>
-            <p><strong>Ticket Qty:</strong> ${item.quantity} Adult, ${
-                item.individual_pricing?.child?.quantity || 0
-              } Child</p>
-            <p><strong>Special request:</strong> ${
-              item.special_request || "None"
-            }</p>
-          `
-            )
-            .join("<hr>")}
-        </p>
-        <p><strong>Booking Code:</strong> ${detail.booking_crm_id}</p>
-        <p>Passports for the bookings are attached in the email. Please arrange for the customer accordingly.</p>
-        <p>Payment transaction will be done soon. Once the payment is received, Please kindly issue receipt with tax ID and send to us by post or mail.</p>
-        <p>If you need any questions and concerns please feel free to call me at 0637602448 all the time.</p>
-        <p><strong>Tax ID:</strong> 0105565081822<br>
-        <strong>TH ANYWHERE CO.LTD.</strong><br>
-        <strong>Invoice Date:</strong> ${format(new Date(), "dd/MM/yyyy")}</p>
-        <p>If you may have any questions or concerns, please feel free to call us at <strong>0950423254</strong> LINE ID <strong>0983498197</strong>.</p>
-        <p>Thank you,</p>
-        <p><strong>Negyi @ Sunshine</strong> (Reservation Manager)</p>
-        <p>100/151 Huay Kaew Rd, Tambon Chang Phueak, Mueang Chiang Mai District, Chiang Mai 50300</p>
-      `;
+      return `Dear ${detail.items[0].product?.name},
+
+Greetings from ThAnywhere Co., Ltd.
+
+We would like to book the tickets as per the following details. Please note the booking has been checked and confirmed by phone.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BOOKING DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${detail.items
+  .map(
+    (item, index) => `
+${index > 0 ? "───────────────────────────────\n" : ""}Ticket Type       : ${
+      item.variation?.name || "N/A"
+    }
+Service Date      : ${item.service_date}
+Ticket Quantity   : ${item.quantity} Adult${
+      item.individual_pricing?.child?.quantity
+        ? `, ${item.individual_pricing.child.quantity} Child`
+        : ""
+    }
+Special Request   : ${item.special_request || "None"}
+`
+  )
+  .join("")}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Booking Code: ${detail.booking_crm_id}
+
+Passports for the bookings are attached to this email. Please arrange for the customer accordingly.
+
+Payment transaction will be completed soon. Once the payment is received, please kindly issue a receipt with our Tax ID and send it to us by post or email.
+
+If you have any questions or concerns, please feel free to call me at 063-760-2448 at any time.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPANY INFORMATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Tax ID        : 0105565081822
+Company       : TH ANYWHERE CO., LTD.
+Invoice Date  : ${format(new Date(), "dd/MM/yyyy")}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For any inquiries, please contact us at:
+  Phone    : 095-042-3254
+  LINE ID  : 0983498197
+
+Thank you for your cooperation.
+
+Best regards,
+
+Negyi @ Sunshine
+Reservation Manager
+TH ANYWHERE CO., LTD.
+
+100/151 Huay Kaew Rd, Tambon Chang Phueak
+Mueang Chiang Mai District, Chiang Mai 50300
+Thailand`;
     } else {
-      return `
-        <p>Dear ${detail.items[0].product?.name},</p>
-        <p><strong>Greetings from ThAnywhere Co., Ltd.</strong></p>
-        <p>We would like to book the accommodation as per the following description. Please note the booking is already checked and confirmed by phone.</p>
-        <p>
-          ${detail.items
-            .map(
-              (item) => `
-            <p><strong>Room Type:</strong> ${item.room?.name}</p>
-            <p><strong>Check In Date:</strong> ${item.checkin_date}</p>
-            <p><strong>Check Out Date:</strong> ${item.checkout_date}</p>
-            <p><strong>Room Count:</strong> ${
-              item.quantity
-            } Rooms, ${daysBetween(
-                item.checkin_date,
-                item.checkout_date
-              )} Nights</p>
-            <p><strong>Special request:</strong> ${
-              item.special_request || "None"
-            }</p>
-          `
-            )
-            .join("<hr>")}
-        </p>
-        <p><strong>Booking Code:</strong> ${detail.booking_crm_id}</p>
-        <p>Passports for the bookings are attached in the email. Please arrange for the customer accordingly.</p>
-        <p>Payment transaction will be done soon. Once the payment is received, Please kindly issue receipt with tax ID and send to us by post or mail.</p>
-        <p>If you need any questions and concerns please feel free to call me at 0637602448 all the time.</p>
-        <p><strong>Tax ID:</strong> 0105565081822<br>
-        <strong>TH ANYWHERE CO.LTD.</strong><br>
-        <strong>Invoice Date:</strong> ${format(new Date(), "dd/MM/yyyy")}</p>
-        <p>Thank you,</p>
-        <p><strong>Negyi @ Sunshine</strong> (Reservation Manager)</p>
-        <p>100/151 Huay Kaew Rd, Tambon Chang Phueak, Mueang Chiang Mai District, Chiang Mai 50300</p>
-      `;
+      // Hotel booking email
+      return `Dear ${detail.items[0].product?.name},
+
+Greetings from ThAnywhere Co., Ltd.
+
+We would like to book the accommodation as per the following details. Please note the booking has been checked and confirmed by phone.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BOOKING DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${detail.items
+  .map(
+    (item, index) => `
+${index > 0 ? "──────────────────────────────\n" : ""}Room Type         : ${
+      item.room?.name || "N/A"
+    }
+Check-in Date     : ${item.checkin_date}
+Check-out Date    : ${item.checkout_date}
+Duration          : ${item.quantity} Room${
+      item.quantity > 1 ? "s" : ""
+    }, ${daysBetween(item.checkin_date, item.checkout_date)} Night${
+      daysBetween(item.checkin_date, item.checkout_date) > 1 ? "s" : ""
+    }
+Special Request   : ${item.special_request || "None"}
+Reservation Code  : ${item.crm_id}
+`
+  )
+  .join("")}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Booking Code: ${detail.booking_crm_id}
+
+Passports for the bookings are attached to this email. Please arrange for the customer accordingly.
+
+Payment transaction will be completed soon. Once the payment is received, please kindly issue a receipt with our Tax ID and send it to us by post or email.
+
+If you have any questions or concerns, please feel free to call me at 063-760-2448 at any time.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPANY INFORMATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Tax ID        : 0105565081822
+Company       : TH ANYWHERE CO., LTD.
+Invoice Date  : ${format(new Date(), "dd/MM/yyyy")}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Thank you for your cooperation.
+
+Best regards,
+
+Negyi @ Sunshine
+Reservation Manager
+TH ANYWHERE CO., LTD.
+
+100/151 Huay Kaew Rd, Tambon Chang Phueak
+Mueang Chiang Mai District, Chiang Mai 50300
+Thailand`;
     }
   } else if (props.activeTag === "expense") {
     // Expense Request Email
-    return `
-      <p>Dear ${detail.items[0].product?.name},</p>
-      <p>Please see our payment slip in the attached file for ${detail.booking_crm_id}.</p>
-      <p>We would like to kindly request a confirmation letter as soon as possible. Please kindly issue a receipt with Tax ID and send it to us by email.</p>
-      <p>Phone: 0950423254, 0637602448.</p>
-      <p>TAX ID : 0105565081822 TH Anywhere Co.,Ltd.</p>
-      <p>For any requirement you may contact us at 0637602448, 0983498197, 0950423254.</p>
-      <p>Regards<br>Negyi@Sunshine<br>Reservation Manager</p>
-      <p>100/151 Huay Kaew Rd, Tambon Chang Phueak, Mueang Chiang Mai District, Chiang Mai 50300</p>
-    `;
+    return `Dear ${detail.items[0].product?.name},
+
+I hope this email finds you well.
+
+Please find attached our payment slip for Booking Code: ${detail.booking_crm_id}.
+
+We kindly request a confirmation letter at your earliest convenience. Please also issue a receipt with our Tax ID and send it to us by email.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPANY INFORMATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Tax ID   : 0105565081822
+Company  : TH ANYWHERE CO., LTD.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For any inquiries or requirements, please contact us at:
+  Phone: 063-760-2448 / 098-349-8197 / 095-042-3254
+
+Thank you for your prompt attention to this matter.
+
+Best regards,
+
+Negyi @ Sunshine
+Reservation Manager
+TH ANYWHERE CO., LTD.
+
+100/151 Huay Kaew Rd, Tambon Chang Phueak
+Mueang Chiang Mai District, Chiang Mai 50300
+Thailand`;
   }
 
   return "";
@@ -259,13 +326,8 @@ const emailBody = computed(() => {
 // Copy email content to clipboard (body only)
 const copyEmailContent = async () => {
   try {
-    // Create a temporary element to convert HTML to plain text
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = emailBody.value;
-
-    // Get text content
-    // const textContent = `Subject: ${emailSubject.value}\n\n${tempDiv.innerText}`;
-    const textContent = tempDiv.innerText;
+    // Direct text content - no HTML conversion needed
+    const textContent = emailBody.value;
 
     // Copy to clipboard
     await navigator.clipboard.writeText(textContent);

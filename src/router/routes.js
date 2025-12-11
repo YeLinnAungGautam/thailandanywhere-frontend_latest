@@ -92,6 +92,7 @@ import BankStatementType from "../views/BankStatementType.vue";
 import HomeNewView from "../views/HomeNew.vue";
 import MapHotel from "../views/MapHotel.vue";
 import EmailCheck from "../views/EmailCheck.vue";
+import MailBox from "../views/MailBox.vue";
 
 const routes = [
   {
@@ -563,6 +564,11 @@ const routes = [
     path: "/tax-missing",
     name: "taxMissing",
     component: RemaindTaxReceiptModal,
+  },
+  {
+    path: "/mail-box",
+    name: "mailBox",
+    component: MailBox,
   },
 ];
 

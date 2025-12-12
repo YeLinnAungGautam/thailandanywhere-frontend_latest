@@ -8,7 +8,12 @@ export const useEntranceStore = defineStore("entrance", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/entrance-tickets?limit=1000&page=1");
+        const response = await axios.get(
+          "/entrance-tickets?limit=1000&page=1",
+          {
+            params: params,
+          }
+        );
         this.entrances = response.data.result;
         this.loading = false;
 

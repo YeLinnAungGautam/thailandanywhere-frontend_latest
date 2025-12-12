@@ -5,10 +5,47 @@
         <!-- Redesigned Filter Bar - Always Visible -->
         <div class="absolute top-5 right-4 transform w-[30%] z-[1001]">
           <div class="bg-white rounded-2xl shadow-lg p-4 space-y-3">
-            <!-- Back Button Row -->
+            <!-- Type Selection Row -->
             <div class="flex items-center gap-3 pb-4 border-b border-gray-200">
-              <div class="flex-1" @click="showDateBox = true">
-                <p class="text-xs text-gray-500">choose city & place & price</p>
+              <div class="flex justify-between items-center w-full">
+                <p class="text-xs text-gray-500">choose type</p>
+                <div
+                  class="flex justify-end items-center border border-gray-200 gap-x-0 rounded-full divide-x divide-x-gray-200 overflow-hidden cursor-pointer"
+                >
+                  <p
+                    class="text-[11px] px-5 py-1"
+                    @click="selectPart = 'all'"
+                    :class="
+                      selectPart === 'all'
+                        ? 'bg-[#FF613c] text-white'
+                        : 'text-gray-600'
+                    "
+                  >
+                    All
+                  </p>
+                  <p
+                    class="text-[11px] px-3 py-1"
+                    @click="selectPart = 'hotel'"
+                    :class="
+                      selectPart === 'hotel'
+                        ? 'bg-[#FF613c] text-white'
+                        : 'text-gray-600'
+                    "
+                  >
+                    Hotels
+                  </p>
+                  <p
+                    class="text-[11px] px-3 py-1"
+                    @click="selectPart = 'attraction'"
+                    :class="
+                      selectPart == 'attraction'
+                        ? 'bg-[#FF613c] text-white'
+                        : 'text-gray-600'
+                    "
+                  >
+                    Attractions
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -102,6 +139,55 @@
               </div>
             </div>
 
+            <!-- Category Filter (only shown when attraction is selected) -->
+            <div
+              v-if="
+                selectPart === 'attraction' && attractionCategories.length > 0
+              "
+            >
+              <div class="flex justify-between items-center mb-3">
+                <p class="text-xs font-semibold text-gray-700">Category</p>
+                <div class="flex justify-end">
+                  <button
+                    @click="toggleSearchPanel"
+                    class="flex items-center gap-2 text-xs font-medium bg-white text-[#9333ea] rounded-full cursor-pointer transition-all"
+                  >
+                    See More
+                  </button>
+                </div>
+              </div>
+              <div
+                class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1"
+              >
+                <button
+                  @click="selectedCategory = ''"
+                  :class="[
+                    selectedCategory === ''
+                      ? 'border-[#9333ea] text-[#9333ea] bg-[#9333ea]/10'
+                      : 'border-gray-300 bg-white text-gray-700',
+                    { 'bg-gray-300 text-black/30': loading },
+                  ]"
+                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                >
+                  All Categories
+                </button>
+                <button
+                  v-for="category in visibleCategories"
+                  :key="category.id"
+                  @click="setCategory(category.id)"
+                  :class="[
+                    selectedCategory === category.id
+                      ? 'border-[#9333ea] text-[#9333ea] bg-[#9333ea]/10'
+                      : 'border-gray-300 bg-white text-gray-700',
+                    { 'bg-gray-300 text-black/30': loading },
+                  ]"
+                  class="whitespace-nowrap px-4 py-2 text-xs font-medium border rounded-full cursor-pointer transition-all hover:shadow-md"
+                >
+                  {{ category.name }}
+                </button>
+              </div>
+            </div>
+
             <!-- Price Filter -->
             <div>
               <div class="flex justify-between items-center mb-3">
@@ -181,8 +267,8 @@
               </div>
             </div>
 
-            <!-- Destination Filter - Scrollable Horizontal -->
-            <div v-if="destinations.length > 0">
+            <!-- Destination Filter - Scrollable Horizontal (only show when not in attraction mode) -->
+            <div v-if="destinations.length > 0 && selectPart !== 'attraction'">
               <div class="flex justify-between items-center mb-3">
                 <p class="text-xs font-semibold text-gray-700">Destinations</p>
                 <button
@@ -537,7 +623,7 @@
                     </div>
                   </div>
                 </div>
-                <div>
+                <div v-if="selectPart != 'attraction'">
                   <h2 class="text-sm text-[#FF613c] font-medium">
                     Choose City
                   </h2>
@@ -576,7 +662,7 @@
                     </div>
                   </div>
                 </div>
-                <div>
+                <div v-if="selectPart != 'attraction'">
                   <h2 class="text-sm text-[#FF613c] font-medium">
                     Choose Place
                   </h2>
@@ -648,6 +734,68 @@
                     </div>
                   </div>
                 </div>
+                <!-- Category Filter (full width for attractions) -->
+                <div class="col-span-2 pb-3" v-if="selectPart === 'attraction'">
+                  <div>
+                    <p class="text-sm text-[#9333ea] font-medium mb-3">
+                      Category
+                    </p>
+                    <div
+                      class="space-y-1 max-h-[350px] overflow-y-scroll scroll-container-y pr-2"
+                    >
+                      <div
+                        class="flex justify-between items-center space-y-2 pb-3 pt-1.5 px-3 border rounded-full cursor-pointer"
+                        @click="selectedCategory = ''"
+                        :class="
+                          selectedCategory == ''
+                            ? ' border-[#9333ea] text-[#9333ea] bg-[#9333ea]/10'
+                            : ''
+                        "
+                      >
+                        <p
+                          class="text-xs w-full mt-1.5 line-clamp-1"
+                          :class="
+                            selectedCategory == '' ? 'text-[#9333ea]' : ''
+                          "
+                        >
+                          All categories
+                        </p>
+                        <input
+                          type="checkbox"
+                          name=""
+                          :checked="selectedCategory == ''"
+                          id=""
+                        />
+                      </div>
+                      <div
+                        class="flex justify-between items-center space-y-2 pb-3 pt-1.5 px-3 border rounded-full cursor-pointer"
+                        v-for="cat in attractionCategories ?? []"
+                        :key="cat.id"
+                        :class="
+                          cat.id == selectedCategory
+                            ? ' border-[#9333ea] text-[#9333ea] bg-[#9333ea]/10'
+                            : ''
+                        "
+                        @click="selectedCategory = cat.id"
+                      >
+                        <p
+                          class="text-xs w-full mt-1.5 line-clamp-1"
+                          :class="
+                            cat.id == selectedCategory ? 'text-[#9333ea]' : ''
+                          "
+                        >
+                          {{ cat.name }}
+                        </p>
+                        <input
+                          type="checkbox"
+                          name=""
+                          :checked="cat.id == selectedCategory"
+                          id=""
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div
                 class="flex justify-end items-center gap-x-3 pt-4 border-t border-black/5 mt-3"
@@ -691,13 +839,13 @@
           </DialogPanel>
         </Modal>
 
-        <!-- Hotel List Toggle Button -->
+        <!-- List Toggle Button -->
         <button
-          @click="toggleHotelList"
+          @click="toggleList"
           :style="{
-            bottom: showHotelList ? `${250}px` : `${100}px`,
+            bottom: showList ? `${250}px` : `${100}px`,
           }"
-          :class="showHotelList ? 'rotate-[180deg]' : ''"
+          :class="showList ? 'rotate-[180deg]' : ''"
           class="absolute right-3 z-[1001] w-12 h-12 bg-white border border-black/10 hover:bg-gray-50 rounded-full shadow-lg flex items-center justify-center transition-all duration-300"
         >
           <svg
@@ -721,7 +869,7 @@
         <!-- Map -->
         <div id="map" ref="mapRef" class="w-full h-full"></div>
 
-        <!-- Scrollable Hotel Cards at Bottom -->
+        <!-- Scrollable Cards at Bottom -->
         <transition
           enter-active-class="transition-all duration-300 ease-out"
           enter-from-class="opacity-0 translate-y-8"
@@ -731,22 +879,27 @@
           leave-to-class="opacity-0 translate-y-8"
         >
           <div
-            v-if="showHotelList"
+            v-if="showList"
             class="absolute left-4 right-4 md:left-[100px] md:right-5 z-[999] bottom-5 tablet:bottom-[100px] ipad-pro:bottom-[120px] mobile:bottom-[140px] pointer-events-none"
           >
             <div
-              ref="hotelListContainer"
+              ref="listContainer"
               class="flex gap-3 overflow-x-auto pb-2 pointer-events-auto scrollbar-hide scroll-smooth"
             >
+              <!-- Hotel Cards -->
               <div
                 v-for="hotel in filteredHotels"
-                :key="hotel.id"
-                :ref="(el) => setHotelCardRef(el, hotel.id)"
-                :data-hotel-id="hotel.id"
-                @click="scrollToHotel(hotel.id)"
+                v-show="selectPart === 'all' || selectPart === 'hotel'"
+                :key="'hotel-' + hotel.id"
+                :ref="(el) => setCardRef(el, 'hotel', hotel.id)"
+                :data-type="'hotel'"
+                :data-id="hotel.id"
+                @click="scrollToItem('hotel', hotel.id)"
                 :class="[
-                  'flex-shrink-0 w-80  rounded-xl shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
-                  selectedHotelId === hotel.id ? 'bg-[#FF613c]' : 'bg-white',
+                  'flex-shrink-0 w-80 rounded-xl shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
+                  selectedItemId === 'hotel-' + hotel.id
+                    ? 'bg-[#FF613c]'
+                    : 'bg-white',
                 ]"
               >
                 <div class="flex">
@@ -769,7 +922,7 @@
                       <h3
                         class="font-semibold text-sm mb-1 line-clamp-1"
                         :class="
-                          selectedHotelId === hotel.id
+                          selectedItemId === 'hotel-' + hotel.id
                             ? 'text-white'
                             : 'text-gray-900'
                         "
@@ -786,7 +939,7 @@
                       <p
                         class="text-[10px]"
                         :class="
-                          selectedHotelId === hotel.id
+                          selectedItemId === 'hotel-' + hotel.id
                             ? 'text-white'
                             : 'text-gray-900'
                         "
@@ -799,7 +952,7 @@
                           <div
                             class="text-xl font-bold"
                             :class="
-                              selectedHotelId === hotel.id
+                              selectedItemId === 'hotel-' + hotel.id
                                 ? 'text-white'
                                 : 'text-gray-900'
                             "
@@ -815,7 +968,105 @@
                         class="flex px-2 text-xs mt-2 rounded-full justify-center py-2"
                         @click="getViewDetail(hotel.id)"
                         :class="
-                          selectedHotelId === hotel.id
+                          selectedItemId === 'hotel-' + hotel.id
+                            ? 'text-white bg-white/20'
+                            : 'text-gray-900 bg-gray-300/20'
+                        "
+                      >
+                        View Detail
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Attraction Cards -->
+              <div
+                v-for="attraction in filteredAttractions"
+                v-show="selectPart === 'all' || selectPart === 'attraction'"
+                :key="'attraction-' + attraction.id"
+                :ref="(el) => setCardRef(el, 'attraction', attraction.id)"
+                :data-type="'attraction'"
+                :data-id="attraction.id"
+                @click="scrollToItem('attraction', attraction.id)"
+                :class="[
+                  'flex-shrink-0 w-80 rounded-xl shadow-md transition-all duration-300 cursor-pointer overflow-hidden',
+                  selectedItemId === 'attraction-' + attraction.id
+                    ? 'bg-[#9333ea]'
+                    : 'bg-white',
+                ]"
+              >
+                <div class="flex">
+                  <!-- Attraction Image - Left Side -->
+                  <div class="relative w-32 h-[165px] flex-shrink-0">
+                    <img
+                      :src="
+                        attraction.cover_image ||
+                        'https://via.placeholder.com/300x300?text=No+Image'
+                      "
+                      :alt="attraction.name"
+                      class="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  <!-- Attraction Info - Right Side -->
+                  <div class="flex-1 p-3 flex flex-col justify-between">
+                    <div>
+                      <h3
+                        class="font-semibold text-sm mb-1 line-clamp-1"
+                        :class="
+                          selectedItemId === 'attraction-' + attraction.id
+                            ? 'text-white'
+                            : 'text-gray-900'
+                        "
+                      >
+                        {{ attraction.name }}
+                      </h3>
+
+                      <p
+                        class="text-[10px] mb-2"
+                        :class="
+                          selectedItemId === 'attraction-' + attraction.id
+                            ? 'text-white'
+                            : 'text-gray-600'
+                        "
+                      >
+                        {{ attraction.cities?.[0]?.name || "Attraction" }}
+                      </p>
+
+                      <p
+                        class="text-[10px]"
+                        :class="
+                          selectedItemId === 'attraction-' + attraction.id
+                            ? 'text-white'
+                            : 'text-gray-900'
+                        "
+                      >
+                        Starting from
+                      </p>
+                      <div class="flex items-start justify-between mt-2">
+                        <div class="text-right">
+                          <div
+                            class="text-xl font-bold"
+                            :class="
+                              selectedItemId === 'attraction-' + attraction.id
+                                ? 'text-white'
+                                : 'text-gray-900'
+                            "
+                          >
+                            {{
+                              attraction.lowest_variation_price?.toLocaleString() ||
+                              "999"
+                            }}
+                            <span class="text-base">฿</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        class="flex px-2 text-xs mt-2 rounded-full justify-center py-2"
+                        @click.stop="viewAttractionDetail(attraction.id)"
+                        :class="
+                          selectedItemId === 'attraction-' + attraction.id
                             ? 'text-white bg-white/20'
                             : 'text-gray-900 bg-gray-300/20'
                         "
@@ -847,22 +1098,23 @@
 <script setup>
 import { onMounted, onUnmounted, ref, computed, watch, nextTick } from "vue";
 import { useHotelStore } from "../stores/hotel";
+import { useEntranceStore } from "../stores/entrance"; // Add this import
 import Layout from "./Layout.vue";
 import DetailComponent from "./MapComponent/Detail.vue";
 import { useCityStore } from "../stores/city";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Modal from "../components/Modal.vue";
-import { DialogPanel, DialogTitle } from "@headlessui/vue";
+import { DialogPanel } from "@headlessui/vue";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
 import { useRoute, useRouter } from "vue-router";
-import { FunnelIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import { useDestinationStore } from "../stores/destination";
 import { storeToRefs } from "pinia";
 
 const hotelStore = useHotelStore();
+const entranceStore = useEntranceStore(); // Add this
 const destinationStore = useDestinationStore();
 const cityStore = useCityStore();
 const router = useRouter();
@@ -871,15 +1123,17 @@ const route = useRoute();
 // State
 const loading = ref(false);
 const allHotels = ref([]);
+const allAttractions = ref([]); // Add this
 const cityList = ref([]);
 const selectedCity = ref(2);
 const selectedPlace = ref("");
+const selectedCategory = ref(""); // Add category filter
 const priceFilter = ref("");
 const showSearchPanel = ref(false);
-const showHotelList = ref(true);
-const selectedHotelId = ref("");
-const hotelListContainer = ref(null);
-const hotelCardRefs = ref({});
+const showList = ref(true); // Renamed from showHotelList
+const selectedItemId = ref(""); // Changed from selectedHotelId
+const listContainer = ref(null); // Renamed from hotelListContainer
+const cardRefs = ref({}); // Changed from hotelCardRefs
 const showDateBox = ref(false);
 const safeAreaBottom = ref(0);
 const loadingPlace = ref(false);
@@ -888,6 +1142,8 @@ const showCityModal = ref(false);
 const showPlaceModal = ref(false);
 const { dests } = storeToRefs(destinationStore);
 const openDestinationModal = ref(false);
+
+const selectPart = ref("all"); // Changed default to "all"
 
 // Destination search refs - 10km radius
 const selectedDestination = ref(null);
@@ -908,6 +1164,34 @@ const room_qty = ref(localStorage.getItem("room_qty") || "");
 // Map variables
 let map = null;
 let markerClusterGroup = null;
+
+// Extract unique categories from attractions
+const attractionCategories = computed(() => {
+  const categoriesMap = new Map();
+
+  allAttractions.value.forEach((attraction) => {
+    if (attraction.categories && Array.isArray(attraction.categories)) {
+      attraction.categories.forEach((category) => {
+        if (!categoriesMap.has(category.id)) {
+          categoriesMap.set(category.id, category);
+        }
+      });
+    }
+  });
+
+  return Array.from(categoriesMap.values()).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+});
+
+// Show only first 4 categories
+const visibleCategories = computed(() => {
+  const selectedIndex = attractionCategories.value.findIndex(
+    (cat) => cat.id === selectedCategory.value
+  );
+  const startIndex = selectedIndex !== -1 ? selectedIndex : 0;
+  return attractionCategories.value.slice(startIndex, startIndex + 4);
+});
 
 // Show only first 4 cities
 const visibleCities = computed(() => {
@@ -981,7 +1265,7 @@ const selectDestination = async (destination) => {
   }
 
   // Show hotel list
-  showHotelList.value = true;
+  showList.value = true;
 
   // Highlight marker after animation
   setTimeout(() => {
@@ -1064,7 +1348,7 @@ const clearDestination = () => {
   // Re-center map based on current filters
   setTimeout(() => {
     if (selectedCity.value || selectedPlace.value || priceFilter.value) {
-      centerMapOnFilteredHotels();
+      centerMapOnFilteredItems();
     }
   }, 300);
 };
@@ -1080,10 +1364,14 @@ const setCity = (cityId) => {
   if (loading.value) return;
   selectedCity.value = cityId;
   selectedPlace.value = "";
+  // Clear category if switching away from attractions
+  if (selectPart.value !== "attraction") {
+    selectedCategory.value = "";
+  }
   clearDestination();
   updateMapMarkers();
   setTimeout(() => {
-    centerMapOnFilteredHotels();
+    centerMapOnFilteredItems();
   }, 300);
 };
 
@@ -1093,7 +1381,16 @@ const setPlace = (place) => {
   clearDestination();
   updateMapMarkers();
   setTimeout(() => {
-    centerMapOnFilteredHotels();
+    centerMapOnFilteredItems();
+  }, 300);
+};
+
+const setCategory = (categoryId) => {
+  if (loading.value) return;
+  selectedCategory.value = categoryId;
+  updateMapMarkers();
+  setTimeout(() => {
+    centerMapOnFilteredItems();
   }, 300);
 };
 
@@ -1102,21 +1399,28 @@ const setPriceFilter = (filter) => {
   priceFilter.value = filter;
   updateMapMarkers();
   setTimeout(() => {
-    centerMapOnFilteredHotels();
+    centerMapOnFilteredItems();
   }, 300);
 };
 
-const isHotelInPriceRange = (hotel) => {
+const isItemInPriceRange = (item) => {
   if (!priceFilter.value) return true;
-  const price = hotel.lowest_room_price || 0;
+
+  // For hotels
+  const hotelPrice = item.lowest_room_price || 0;
+  // For attractions
+  const attractionPrice = item.lowest_variation_price || 0;
+
+  const price = hotelPrice || attractionPrice;
   const [min, max] = priceFilter.value.split("-").map(Number);
   return price >= min && price <= max;
 };
 
+// Updated computed properties for filtering
 const filteredHotels = computed(() => {
   let filtered = allHotels.value;
 
-  // If destination is selected, show only nearby hotels (within 10km)
+  // If destination is selected, show only nearby hotels (within 3km)
   if (selectedDestination.value) {
     filtered = getNearbyHotels(selectedDestination.value);
   }
@@ -1130,7 +1434,37 @@ const filteredHotels = computed(() => {
   }
 
   if (priceFilter.value) {
-    filtered = filtered.filter(isHotelInPriceRange);
+    filtered = filtered.filter(isItemInPriceRange);
+  }
+
+  return filtered;
+});
+
+const filteredAttractions = computed(() => {
+  let filtered = allAttractions.value;
+
+  if (selectedCity.value) {
+    filtered = filtered.filter((attraction) =>
+      attraction.cities?.some((city) => city.id == selectedCity.value)
+    );
+  }
+
+  if (selectedPlace.value) {
+    filtered = filtered.filter(
+      (attraction) => attraction.place === selectedPlace.value
+    );
+  }
+
+  if (selectedCategory.value) {
+    filtered = filtered.filter((attraction) =>
+      attraction.categories?.some(
+        (category) => category.id === selectedCategory.value
+      )
+    );
+  }
+
+  if (priceFilter.value) {
+    filtered = filtered.filter(isItemInPriceRange);
   }
 
   return filtered;
@@ -1189,53 +1523,64 @@ const toggleSearchPanel = () => {
   showSearchPanel.value = !showSearchPanel.value;
 };
 
-const toggleHotelList = () => {
-  showHotelList.value = !showHotelList.value;
+const toggleList = () => {
+  showList.value = !showList.value;
 };
 
-const setHotelCardRef = (el, hotelId) => {
+const setCardRef = (el, type, id) => {
   if (el) {
-    hotelCardRefs.value[hotelId] = el;
+    cardRefs.value[`${type}-${id}`] = el;
   }
 };
 
-const scrollToHotel = (hotelId) => {
-  const allMarkers = document.querySelectorAll(".price-badge");
+const scrollToItem = (type, id) => {
+  const itemKey = `${type}-${id}`;
+
+  // Clear all active markers
+  const allMarkers = document.querySelectorAll(
+    ".price-badge, .attraction-badge"
+  );
   allMarkers.forEach((marker) => {
     marker.classList.remove("active");
   });
 
+  // Activate the clicked marker
   const activeMarker = document.querySelector(
-    `.price-badge[data-hotel-id="${hotelId}"]`
+    `.${
+      type === "hotel" ? "price-badge" : "attraction-badge"
+    }[data-${type}-id="${id}"]`
   );
   if (activeMarker) {
     activeMarker.classList.add("active");
   }
 
-  if (!showHotelList.value) {
-    showHotelList.value = true;
+  if (!showList.value) {
+    showList.value = true;
   }
 
-  selectedHotelId.value = hotelId;
+  selectedItemId.value = itemKey;
 
-  const hotel = filteredHotels.value.find((h) => h.id === hotelId);
+  const item =
+    type === "hotel"
+      ? filteredHotels.value.find((h) => h.id === id)
+      : filteredAttractions.value.find((a) => a.id === id);
 
-  if (hotel && hotel.latitude && hotel.longitude && map) {
-    map.setView([parseFloat(hotel.latitude), parseFloat(hotel.longitude)], 17, {
+  if (item && item.latitude && item.longitude && map) {
+    map.setView([parseFloat(item.latitude), parseFloat(item.longitude)], 17, {
       animate: true,
       duration: 1,
     });
   }
 
   setTimeout(() => {
-    const hotelCard = hotelCardRefs.value[hotelId];
-    if (hotelCard && hotelListContainer.value) {
-      const containerRect = hotelListContainer.value.getBoundingClientRect();
-      const cardRect = hotelCard.getBoundingClientRect();
+    const card = cardRefs.value[itemKey];
+    if (card && listContainer.value) {
+      const containerRect = listContainer.value.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
       const scrollLeft =
-        hotelCard.offsetLeft - containerRect.width / 2 + cardRect.width / 2;
+        card.offsetLeft - containerRect.width / 2 + cardRect.width / 2;
 
-      hotelListContainer.value.scrollTo({
+      listContainer.value.scrollTo({
         left: scrollLeft,
         behavior: "smooth",
       });
@@ -1259,6 +1604,25 @@ const getMapList = async () => {
   }
 };
 
+// Add this new function
+const getAttractionList = async () => {
+  try {
+    loading.value = true;
+    const res = await entranceStore.getSimpleListAction({
+      have_latlong: true,
+    });
+    console.log(res, "this is attraction list");
+
+    if (res.status == 1) {
+      allAttractions.value = res.result.data;
+    }
+  } catch (error) {
+    console.error("Error fetching attractions:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
 const onFilterChange = () => {
   updateMapMarkers();
 };
@@ -1267,13 +1631,14 @@ const applyFilters = () => {
   onFilterChange();
   toggleSearchPanel();
   setTimeout(() => {
-    centerMapOnFilteredHotels();
+    centerMapOnFilteredItems();
   }, 300);
 };
 
 const resetFilters = () => {
   selectedCity.value = "";
   selectedPlace.value = "";
+  selectedCategory.value = "";
   priceFilter.value = "";
   clearDestination();
   updateMapMarkers();
@@ -1304,30 +1669,39 @@ const initializeMap = () => {
       const hotelCount = markers.filter(
         (m) => m.options.type === "hotel"
       ).length;
+      const attractionCount = markers.filter(
+        (m) => m.options.type === "attraction"
+      ).length;
       const destCount = markers.filter(
         (m) => m.options.type === "destination"
       ).length;
 
-      let label = "";
-      if (hotelCount > 0 && destCount > 0) {
-        label = `${hotelCount} hotels, ${destCount} destinations`;
-      } else if (hotelCount > 0) {
-        label = `${hotelCount} hotels`;
-      } else if (destCount > 0) {
-        label = `${destCount} destinations`;
-      }
+      const parts = [];
+      if (hotelCount > 0)
+        parts.push(`${hotelCount} hotel${hotelCount > 1 ? "s" : ""}`);
+      if (attractionCount > 0)
+        parts.push(
+          `${attractionCount} attraction${attractionCount > 1 ? "s" : ""}`
+        );
+      if (destCount > 0)
+        parts.push(`${destCount} destination${destCount > 1 ? "s" : ""}`);
+
+      const label = parts.join(", ");
+
+      // Calculate approximate width based on text length
+      const estimatedWidth = Math.max(120, Math.min(250, label.length * 7));
 
       return L.divIcon({
         html: `
-          <div class="cluster-marker-new">
+          <div class="cluster-marker-new" style="width: ${estimatedWidth}px;">
             <div class="cluster-content">
               ${label}
             </div>
           </div>
         `,
         className: "custom-cluster-icon",
-        iconSize: L.point(150, 40),
-        iconAnchor: [75, 20],
+        iconSize: L.point(estimatedWidth, 40),
+        iconAnchor: [estimatedWidth / 2, 20],
       });
     },
   });
@@ -1344,79 +1718,112 @@ const updateMapMarkers = () => {
 
   const allMarkers = [];
 
-  // Add hotel markers
-  filteredHotels.value.forEach((hotel) => {
-    if (hotel.latitude && hotel.longitude) {
-      const formattedPrice = hotel.lowest_room_price
-        ? `฿${hotel.lowest_room_price.toLocaleString()}`
-        : "N/A";
+  // Add hotel markers (only if selectPart is 'all' or 'hotel')
+  if (selectPart.value === "all" || selectPart.value === "hotel") {
+    filteredHotels.value.forEach((hotel) => {
+      if (hotel.latitude && hotel.longitude) {
+        const formattedPrice = hotel.lowest_room_price
+          ? `฿${hotel.lowest_room_price.toLocaleString()}`
+          : "N/A";
 
-      const priceIcon = L.divIcon({
-        className: "custom-price-marker",
-        html: `<div class="price-badge" data-hotel-id="${hotel.id}">${formattedPrice}</div>`,
-        iconSize: [90, 40],
-        iconAnchor: [45, 20],
-        popupAnchor: [0, -20],
-      });
+        const priceIcon = L.divIcon({
+          className: "custom-price-marker",
+          html: `<div class="price-badge" data-hotel-id="${hotel.id}">${formattedPrice}</div>`,
+          iconSize: [90, 40],
+          iconAnchor: [45, 20],
+          popupAnchor: [0, -20],
+        });
 
-      const marker = L.marker(
-        [parseFloat(hotel.latitude), parseFloat(hotel.longitude)],
-        { icon: priceIcon, hotelData: hotel, type: "hotel" }
-      );
+        const marker = L.marker(
+          [parseFloat(hotel.latitude), parseFloat(hotel.longitude)],
+          { icon: priceIcon, hotelData: hotel, type: "hotel" }
+        );
 
-      marker.on("click", () => scrollToHotel(hotel.id));
-      allMarkers.push(marker);
-    }
-  });
+        marker.on("click", () => scrollToItem("hotel", hotel.id));
+        allMarkers.push(marker);
+      }
+    });
+  }
 
-  destinations.value.forEach((destination) => {
-    if (destination.latitude && destination.longitude) {
-      const isSelected = selectedDestination.value?.id === destination.id;
-      const imageUrl = destination.feature_img;
+  // Add attraction markers (only if selectPart is 'all' or 'attraction')
+  if (selectPart.value === "all" || selectPart.value === "attraction") {
+    filteredAttractions.value.forEach((attraction) => {
+      if (attraction.latitude && attraction.longitude) {
+        const formattedPrice = attraction.lowest_variation_price
+          ? `฿${attraction.lowest_variation_price.toLocaleString()}`
+          : "N/A";
 
-      const destinationIcon = L.divIcon({
-        className: "custom-destination-marker",
-        html: `
-          <div class="destination-pin-container ${
-            isSelected ? "active" : ""
-          }" data-destination-id="${destination.id}">
-            <div class="destination-pin">
-              <div class="pin-image-wrapper">
-                <img src="${imageUrl}" alt="${
-          destination.name
-        }" class="pin-image" />
+        const attractionIcon = L.divIcon({
+          className: "custom-attraction-marker",
+          html: `<div class="attraction-badge" data-attraction-id="${attraction.id}">${formattedPrice}</div>`,
+          iconSize: [90, 40],
+          iconAnchor: [45, 20],
+          popupAnchor: [0, -20],
+        });
+
+        const marker = L.marker(
+          [parseFloat(attraction.latitude), parseFloat(attraction.longitude)],
+          {
+            icon: attractionIcon,
+            attractionData: attraction,
+            type: "attraction",
+          }
+        );
+
+        marker.on("click", () => scrollToItem("attraction", attraction.id));
+        allMarkers.push(marker);
+      }
+    });
+  }
+
+  // Add destination markers (only when not in attraction-only mode)
+  if (selectPart.value !== "attraction") {
+    destinations.value.forEach((destination) => {
+      if (destination.latitude && destination.longitude) {
+        const isSelected = selectedDestination.value?.id === destination.id;
+        const imageUrl = destination.feature_img;
+
+        const destinationIcon = L.divIcon({
+          className: "custom-destination-marker",
+          html: `
+            <div class="destination-pin-container ${
+              isSelected ? "active" : ""
+            }" data-destination-id="${destination.id}">
+              <div class="destination-pin">
+                <div class="pin-image-wrapper">
+                  <img src="${imageUrl}" alt="${
+            destination.name
+          }" class="pin-image" />
+                </div>
+                <div class="pin-pointer"></div>
               </div>
-              <div class="pin-pointer"></div>
             </div>
-            
-          </div>
-        `,
-        iconSize: [60, 85],
-        iconAnchor: [30, 75],
-        popupAnchor: [0, -75],
-      });
+          `,
+          iconSize: [60, 85],
+          iconAnchor: [30, 75],
+          popupAnchor: [0, -75],
+        });
 
-      // <div class="pin-label">${destination.name}</div>
+        const marker = L.marker(
+          [parseFloat(destination.latitude), parseFloat(destination.longitude)],
+          {
+            icon: destinationIcon,
+            destinationData: destination,
+            type: "destination",
+          }
+        );
 
-      const marker = L.marker(
-        [parseFloat(destination.latitude), parseFloat(destination.longitude)],
-        {
-          icon: destinationIcon,
-          destinationData: destination,
-          type: "destination",
-        }
-      );
+        marker.on("click", () => {
+          selectDestination(destination);
+          openDestinationPopup(destination);
+        });
 
-      marker.on("click", () => {
-        selectDestination(destination);
-        openDestinationPopup(destination);
-      });
+        allMarkers.push(marker);
+      }
+    });
+  }
 
-      allMarkers.push(marker);
-    }
-  });
-
-  // Add all markers (hotels + destinations) to cluster group
+  // Add all markers to cluster group
   if (markerClusterGroup) {
     markerClusterGroup.addLayers(allMarkers);
   }
@@ -1468,18 +1875,54 @@ const openDestinationPopup = (destination) => {
     .openOn(map);
 };
 
-watch([selectedCity, selectedPlace, priceFilter], () => {
-  if (selectedCity.value || selectedPlace.value || priceFilter.value) {
-    centerMapOnFilteredHotels();
+// Watch for selectPart changes
+watch(selectPart, () => {
+  // Clear category filter when switching away from attractions
+  if (selectPart.value !== "attraction") {
+    selectedCategory.value = "";
+  }
+  updateMapMarkers();
+  setTimeout(() => {
+    centerMapOnFilteredItems();
+  }, 300);
+});
+
+watch([selectedCity, selectedPlace, priceFilter, selectedCategory], () => {
+  if (
+    selectedCity.value ||
+    selectedPlace.value ||
+    priceFilter.value ||
+    selectedCategory.value
+  ) {
+    centerMapOnFilteredItems();
   }
 });
 
-const centerMapOnFilteredHotels = () => {
-  if (!map || filteredHotels.value.length === 0) return;
+const centerMapOnFilteredItems = () => {
+  if (!map) return;
 
-  const validCoordinates = filteredHotels.value
-    .filter((hotel) => hotel.latitude && hotel.longitude)
-    .map((hotel) => [parseFloat(hotel.latitude), parseFloat(hotel.longitude)]);
+  let validCoordinates = [];
+
+  // Collect coordinates based on selectPart
+  if (selectPart.value === "all" || selectPart.value === "hotel") {
+    const hotelCoords = filteredHotels.value
+      .filter((hotel) => hotel.latitude && hotel.longitude)
+      .map((hotel) => [
+        parseFloat(hotel.latitude),
+        parseFloat(hotel.longitude),
+      ]);
+    validCoordinates = [...validCoordinates, ...hotelCoords];
+  }
+
+  if (selectPart.value === "all" || selectPart.value === "attraction") {
+    const attractionCoords = filteredAttractions.value
+      .filter((attraction) => attraction.latitude && attraction.longitude)
+      .map((attraction) => [
+        parseFloat(attraction.latitude),
+        parseFloat(attraction.longitude),
+      ]);
+    validCoordinates = [...validCoordinates, ...attractionCoords];
+  }
 
   if (validCoordinates.length === 0) return;
 
@@ -1510,6 +1953,12 @@ const closeHotelModal = () => {
   hotelDetailId.value = null;
 };
 
+// Add this function for viewing attraction details
+const viewAttractionDetail = (attractionId) => {
+  // Navigate to attraction detail page or open modal
+  router.push(`/attraction/${attractionId}`);
+};
+
 onMounted(async () => {
   console.log("Map Page Loaded");
   document.body.style.overflow = "hidden";
@@ -1519,6 +1968,7 @@ onMounted(async () => {
   await getCities();
   await getDestinations();
   await getMapList();
+  await getAttractionList(); // Add this
 
   setCity(selectedCity.value || 2);
 
@@ -1669,7 +2119,6 @@ onUnmounted(() => {
 }
 
 /* Cluster marker styles */
-/* Cluster marker styles */
 :deep(.cluster-marker-new) {
   background: #ffffff;
   border-radius: 24px;
@@ -1680,20 +2129,24 @@ onUnmounted(() => {
   border: 2px solid #ffffff;
   white-space: nowrap;
   min-width: 100px;
-  max-width: 200px;
+  max-width: 100%;
+  display: inline-block;
 }
 
 :deep(.cluster-content) {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 2px;
   color: #000000;
   font-weight: 600;
-  font-size: 12px;
-  line-height: 1.2;
+  font-size: 11px;
+  line-height: 1.3;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Hide scrollbar but keep functionality */
@@ -1717,7 +2170,7 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
-/* Custom price marker styles */
+/* Custom price marker styles for hotels */
 :deep(.custom-price-marker) {
   background: none;
   border: none;
@@ -1749,6 +2202,40 @@ onUnmounted(() => {
   border-color: #f97316 !important;
   transform: scale(1.1);
   box-shadow: 0 4px 16px rgba(249, 115, 22, 0.6);
+}
+
+/* Custom attraction marker styles */
+:deep(.custom-attraction-marker) {
+  background: none;
+  border: none;
+}
+
+:deep(.attraction-badge) {
+  background: #ffffff;
+  color: black;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.4);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 0.5px solid #9333ea;
+}
+
+:deep(.attraction-badge:hover) {
+  background: #ffffff;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.6);
+}
+
+:deep(.attraction-badge.active) {
+  background: #9333ea !important;
+  color: white !important;
+  border-color: #9333ea !important;
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(147, 51, 234, 0.6);
 }
 
 /* Custom cluster icon */

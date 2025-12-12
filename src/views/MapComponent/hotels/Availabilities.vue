@@ -27,7 +27,7 @@
 
     <!-- Right Side - Availability Details -->
     <div class="col-span-2 h-[60vh] overflow-y-auto pl-4">
-      <div v-if="!showSuccess" class="flex items-center justify-center h-full">
+      <div v-if="showSuccess" class="flex items-center justify-center h-full">
         <div class="text-center">
           <!-- Animated Success Icon -->
           <div class="relative inline-block mb-6">

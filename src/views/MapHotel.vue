@@ -13,17 +13,6 @@
                   class="flex justify-end items-center border border-gray-200 gap-x-0 rounded-full divide-x divide-x-gray-200 overflow-hidden cursor-pointer"
                 >
                   <p
-                    class="text-[11px] px-5 py-1"
-                    @click="selectPart = 'all'"
-                    :class="
-                      selectPart === 'all'
-                        ? 'bg-[#FF613c] text-white'
-                        : 'text-gray-600'
-                    "
-                  >
-                    All
-                  </p>
-                  <p
                     class="text-[11px] px-3 py-1"
                     @click="selectPart = 'hotel'"
                     :class="
@@ -839,6 +828,22 @@
           </DialogPanel>
         </Modal>
 
+        <!-- Detail Modal -->
+        <Modal
+          :isOpen="attractionModalOpen"
+          :marginTop="'mt-4'"
+          @closeModal="closeAttractionModal()"
+        >
+          <DialogPanel
+            class="w-full max-w-4xl overflow-hidden text-left align-middle transition-all transform bg-white rounded-2xl shadow-xl"
+          >
+            <DetailAttraction
+              :attractionId="attractionDetailId"
+              :closeModal="closeAttractionModal"
+            />
+          </DialogPanel>
+        </Modal>
+
         <!-- List Toggle Button -->
         <button
           @click="toggleList"
@@ -1112,6 +1117,7 @@ import "leaflet.markercluster";
 import { useRoute, useRouter } from "vue-router";
 import { useDestinationStore } from "../stores/destination";
 import { storeToRefs } from "pinia";
+import DetailAttraction from "./MapComponent/DetailAttraction.vue";
 
 const hotelStore = useHotelStore();
 const entranceStore = useEntranceStore(); // Add this
@@ -1143,7 +1149,7 @@ const showPlaceModal = ref(false);
 const { dests } = storeToRefs(destinationStore);
 const openDestinationModal = ref(false);
 
-const selectPart = ref("all"); // Changed default to "all"
+const selectPart = ref("hotel"); // Changed default to "hotel"
 
 // Destination search refs - 10km radius
 const selectedDestination = ref(null);
@@ -1746,7 +1752,7 @@ const updateMapMarkers = () => {
   }
 
   // Add attraction markers (only if selectPart is 'all' or 'attraction')
-  if (selectPart.value === "all" || selectPart.value === "attraction") {
+  if (selectPart.value === "attraction") {
     filteredAttractions.value.forEach((attraction) => {
       if (attraction.latitude && attraction.longitude) {
         const formattedPrice = attraction.lowest_variation_price
@@ -1904,7 +1910,7 @@ const centerMapOnFilteredItems = () => {
   let validCoordinates = [];
 
   // Collect coordinates based on selectPart
-  if (selectPart.value === "all" || selectPart.value === "hotel") {
+  if (selectPart.value === "hotel") {
     const hotelCoords = filteredHotels.value
       .filter((hotel) => hotel.latitude && hotel.longitude)
       .map((hotel) => [
@@ -1914,7 +1920,7 @@ const centerMapOnFilteredItems = () => {
     validCoordinates = [...validCoordinates, ...hotelCoords];
   }
 
-  if (selectPart.value === "all" || selectPart.value === "attraction") {
+  if (selectPart.value === "attraction") {
     const attractionCoords = filteredAttractions.value
       .filter((attraction) => attraction.latitude && attraction.longitude)
       .map((attraction) => [
@@ -1953,10 +1959,19 @@ const closeHotelModal = () => {
   hotelDetailId.value = null;
 };
 
+const attractionModalOpen = ref(false);
+const attractionDetailId = ref(null);
 // Add this function for viewing attraction details
 const viewAttractionDetail = (attractionId) => {
   // Navigate to attraction detail page or open modal
-  router.push(`/attraction/${attractionId}`);
+  // router.push(`/attraction/${attractionId}`);
+  attractionDetailId.value = attractionId;
+  attractionModalOpen.value = true;
+};
+
+const closeAttractionModal = () => {
+  attractionModalOpen.value = false;
+  attractionDetailId.value = null;
 };
 
 onMounted(async () => {

@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-[62vh] bg-white">
     <!-- Left Side - Images -->
-    <div class="w-2/3 pr-4 overflow-y-auto">
+    <!-- <div class="w-2/3 pr-4 overflow-y-auto">
       <div class="p-6">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-base font-semibold text-[#FF613c]">Hotel Images</h2>
@@ -56,8 +56,6 @@
           :loading="loading"
           :getImageUrl="getImageUrl"
         />
-
-        <!-- Loading Indicator -->
         <div
           v-if="loading"
           class="fixed inset-0 bg-white/30 rounded-3xl backdrop-blur-2xl flex items-center justify-center z-50"
@@ -72,10 +70,10 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Right Side - YouTube Video (unchanged) -->
-    <div class="w-1/3 bg-gray-50 border-l border-gray-200 overflow-y-auto">
+    <div class="w-[400px] border-l border-gray-200 overflow-y-auto">
       <div class="p-6">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-base font-semibold text-[#FF613c]">Videos</h2>
@@ -108,6 +106,16 @@
                 allowfullscreen
               ></iframe>
             </div>
+          </div>
+          <div
+            class="text-sm text-gray-600 flex justify-start items-center"
+            v-if="
+              !detail?.youtube_link ||
+              (!detail?.youtube_link?.[0]?.en_link &&
+                !detail?.youtube_link?.[0]?.mm_link)
+            "
+          >
+            coming soon
           </div>
         </section>
       </div>
@@ -199,100 +207,6 @@ const getImageUrl = (image) => {
   return "";
 };
 
-const openImagePicker = (type) => {
-  selectedImageType.value = type;
-  imageInput.value?.click();
-};
-
-const handleImageUpload = async (event) => {
-  const files = Array.from(event.target.files);
-  try {
-    loading.value = true;
-
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append("image", file);
-      formData.append("title", selectedImageType.value);
-      // Call the API to add the image
-      const response = await hotelStore.addImageAction(
-        props.detail.id,
-        formData
-      );
-
-      if (response.status !== 1) {
-        // throw new Error(response.message || 'Failed to upload image');
-        toast.error(response.message || "Failed to upload image");
-      } else {
-        toast.success("Image uploaded successfully!");
-      }
-    }
-
-    // Clear input
-    event.target.value = "";
-
-    // Refresh the hotel detail to get updated images
-    emit("refresh-detail");
-  } catch (error) {
-    console.error("Error uploading images:", error);
-    toast.error("Error uploading images. Please try again.");
-  } finally {
-    loading.value = false;
-  }
-};
-
-const editImage = (image) => {
-  editModal.value = {
-    isOpen: true,
-    image: image,
-    newImageFile: null,
-    newImagePreview: null,
-  };
-  selectedImageType.value = image.title;
-};
-
-const handleEditImageSelect = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    editModal.value.newImageFile = file;
-    editModal.value.newImagePreview = URL.createObjectURL(file);
-  }
-};
-
-const saveImageEdit = async () => {
-  try {
-    loading.value = true;
-
-    const formData = new FormData();
-    if (editModal.value.newImageFile) {
-      formData.append("image", editModal.value.newImageFile);
-    }
-    formData.append("title", selectedImageType.value);
-    // Call the API to edit the image
-    const res = await hotelStore.editImageAction(
-      props.detail.id,
-      editModal.value.image.id,
-      formData
-    );
-
-    if (res.status !== 1) {
-      // throw new Error(res.message || 'Failed to update image');
-      toast.error(res.message || "Failed to update image");
-    } else {
-      toast.success("Image updated successfully!");
-    }
-
-    // Refresh the hotel detail to get updated images
-    emit("refresh-detail");
-
-    closeEditModal();
-  } catch (error) {
-    console.error("Error updating image:", error);
-    toast.error("Error updating image. Please try again.");
-  } finally {
-    loading.value = false;
-  }
-};
-
 const closeEditModal = () => {
   // Clean up preview URL
   if (editModal.value.newImagePreview) {
@@ -310,44 +224,6 @@ const closeEditModal = () => {
   if (editImageInput.value) {
     editImageInput.value.value = "";
   }
-};
-
-const deleteImage = async (image) => {
-  Swal.fire({
-    title: "Are you sure?",
-    text: "This action cannot be undone.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
-    confirmButtonText: "Yes, delete it!",
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        loading.value = true;
-
-        // Call the API to delete the image
-        const res = await hotelStore.deleteImageAction(
-          props.detail.id,
-          image.id
-        );
-
-        if (res.status !== 1) {
-          // throw new Error(res.message || 'Failed to delete image');
-          toast.error(res.message || "Failed to delete image");
-        } else {
-          toast.success("Image deleted successfully!");
-        }
-        // Refresh the hotel detail to get updated images
-        emit("refresh-detail");
-      } catch (error) {
-        console.error("Error deleting image:", error);
-        toast.error("Error deleting image. Please try again.");
-      } finally {
-        loading.value = false;
-      }
-    }
-  });
 };
 
 // Cleanup on unmount

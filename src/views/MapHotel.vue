@@ -859,6 +859,21 @@
           </DialogPanel>
         </Modal>
 
+        <Modal
+          :isOpen="attractionAvailableModalOpen"
+          :marginTop="'mt-4'"
+          @closeModal="closeAttractionModal()"
+        >
+          <DialogPanel
+            class="w-full max-w-4xl overflow-hidden text-left align-middle transition-all transform bg-white rounded-2xl shadow-xl"
+          >
+            <AvailabilityTicket
+              :detailId="attractionDetailId"
+              :closeModal="closeAttractionModal"
+            />
+          </DialogPanel>
+        </Modal>
+
         <!-- List Toggle Button -->
         <button
           @click="toggleList"
@@ -1120,6 +1135,7 @@
                         </div>
                         <div
                           class="flex px-4 text-xs mt-2 shadow-md rounded-full justify-center py-2"
+                          @click="viewAvailableTicket(attraction.id)"
                           :class="
                             selectedItemId === 'attraction-' + attraction.id
                               ? 'text-white bg-white/20'
@@ -1171,6 +1187,7 @@ import { storeToRefs } from "pinia";
 import DetailAttraction from "./MapComponent/DetailAttraction.vue";
 import { PaperAirplaneIcon, QueueListIcon } from "@heroicons/vue/24/outline";
 import Availabilities from "./MapComponent/hotels/Availabilities.vue";
+import AvailabilityTicket from "./MapComponent/attractions/Availabilities.vue";
 
 const hotelStore = useHotelStore();
 const entranceStore = useEntranceStore(); // Add this
@@ -2028,15 +2045,22 @@ const attractionModalOpen = ref(false);
 const attractionDetailId = ref(null);
 // Add this function for viewing attraction details
 const viewAttractionDetail = (attractionId) => {
-  // Navigate to attraction detail page or open modal
-  // router.push(`/attraction/${attractionId}`);
   attractionDetailId.value = attractionId;
   attractionModalOpen.value = true;
+  scrollToItem("attraction", attractionId);
+};
+
+const attractionAvailableModalOpen = ref(false);
+const viewAvailableTicket = (attractionId) => {
+  attractionDetailId.value = attractionId;
+  attractionAvailableModalOpen.value = true;
+  scrollToItem("attraction", attractionId);
 };
 
 const closeAttractionModal = () => {
   attractionModalOpen.value = false;
   attractionDetailId.value = null;
+  attractionAvailableModalOpen.value = false;
 };
 
 onMounted(async () => {

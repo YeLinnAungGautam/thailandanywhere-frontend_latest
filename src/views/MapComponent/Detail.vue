@@ -41,20 +41,20 @@
         <Detail :detail="detail" @update="handleDetailUpdate" />
       </div>
 
-      <div v-if="part == 'media'" class="mt-2 h-[62vh] overflow-y-auto">
-        <Images :detail="detail" @refresh-detail="refreshHotelDetail" />
-      </div>
-
       <div v-if="part == 'rooms'" class="mt-2 h-[62vh] overflow-y-auto">
         <Room :detail="detail" @update="handleRoomUpdate" />
       </div>
 
-      <div
+      <div v-if="part == 'media'" class="mt-2 h-[62vh] overflow-y-auto">
+        <Images :detail="detail" @refresh-detail="refreshHotelDetail" />
+      </div>
+
+      <!-- <div
         v-if="part == 'availabilities'"
         class="mt-2 h-[62vh] overflow-y-auto"
       >
         <Availabilities :detail="detail" />
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

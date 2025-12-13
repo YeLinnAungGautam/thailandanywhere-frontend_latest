@@ -81,7 +81,7 @@ const props = defineProps({
 
 const detail = ref(null);
 
-const part = ref("detail");
+const part = ref("tickets");
 
 const setPart = (value) => {
   part.value = value;

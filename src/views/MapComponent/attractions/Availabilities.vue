@@ -42,7 +42,7 @@
           <p class="text-sm font-semibold text-gray-700 mb-3">Select Room</p>
           <div class="space-y-2">
             <div
-              v-for="room in detail?.rooms"
+              v-for="room in detail?.variations"
               :key="room.id"
               @click="selectRoom(room)"
               :class="[
@@ -54,7 +54,7 @@
             >
               <p class="text-xs font-medium text-gray-800">{{ room.name }}</p>
               <p class="text-xs text-gray-500 mt-1">
-                ฿{{ room.room_price?.toLocaleString() }}
+                ฿{{ room.price?.toLocaleString() }}
               </p>
             </div>
           </div>
@@ -174,18 +174,18 @@
             <!-- Check-in Date -->
             <div>
               <label class="block text-xs font-medium text-gray-700 mb-2">
-                Check-in Date <span class="text-red-500">*</span>
+                Service Date <span class="text-red-500">*</span>
               </label>
               <VueDatePicker
                 v-model="formData.checkin_date"
                 :format="'yyyy-MM-dd'"
-                placeholder="Select check-in date"
+                placeholder="Select service date"
                 :min-date="new Date()"
               />
             </div>
 
             <!-- Check-out Date -->
-            <div>
+            <!-- <div>
               <label class="block text-xs font-medium text-gray-700 mb-2">
                 Check-out Date <span class="text-red-500">*</span>
               </label>
@@ -195,7 +195,7 @@
                 placeholder="Select check-out date"
                 :min-date="formData.checkin_date || new Date()"
               />
-            </div>
+            </div> -->
 
             <!-- Quantity -->
             <div>
@@ -236,7 +236,7 @@
                 </p>
                 <p class="text-xs text-gray-700">
                   <span class="font-medium">Price:</span>
-                  ฿{{ selectedRoom?.room_price?.toLocaleString() }}
+                  ฿{{ selectedRoom?.price?.toLocaleString() }}
                 </p>
               </div>
             </div>
@@ -282,7 +282,7 @@ import {
 } from "@heroicons/vue/24/outline";
 import { useToast } from "vue-toastification";
 import { useAvailableStore } from "../../../stores/available";
-import { useHotelStore } from "../../../stores/hotel";
+import { useEntranceStore } from "../../../stores/entrance";
 
 const props = defineProps({
   detailId: {
@@ -296,16 +296,16 @@ const props = defineProps({
 });
 
 const detail = ref(null);
-const hotelStore = useHotelStore();
+const entranceStore = useEntranceStore();
 const loading = ref(false);
 
 const getDetailAction = async (id) => {
   loading.value = true;
-  const res = await hotelStore.getDetailAction(id);
+  const res = await entranceStore.getDetailAction(id);
   if (res.status == 1) {
     detail.value = res.result;
     console.log(detail.value, "detail");
-    selectRoom(detail.value.rooms[0]);
+    selectRoom(detail.value.variations[0]);
   } else {
     router.push("/");
   }
@@ -316,7 +316,7 @@ const toast = useToast();
 const availableStore = useAvailableStore();
 
 const formData = ref({
-  product_type: "hotel",
+  product_type: "entrance_ticket",
   product_id: null,
   variation_id: null,
   checkin_date: null,
@@ -330,7 +330,7 @@ const selectedRoom = ref(null);
 
 const selectRoom = (room) => {
   formData.value.variation_id = room.id;
-  formData.value.product_id = room.hotel_id;
+  formData.value.product_id = room.entrance_ticket_id;
   selectedRoom.value = room;
 };
 
@@ -347,7 +347,6 @@ const isFormValid = computed(() => {
   return (
     formData.value.variation_id &&
     formData.value.checkin_date &&
-    formData.value.checkout_date &&
     formData.value.quantity > 0
   );
 });
@@ -358,7 +357,7 @@ const viewAllAvailabilities = () => {
 
 const resetForm = () => {
   formData.value = {
-    product_type: "hotel",
+    product_type: "entrance_ticket",
     product_id: null,
     variation_id: null,
     checkin_date: null,
@@ -390,7 +389,7 @@ const createAvailability = async () => {
     );
     frmData.append(
       "variations[0][checkout_date]",
-      dateFormat(formData.value.checkout_date)
+      dateFormat(formData.value.checkin_date)
     );
     frmData.append("variations[0][status]", formData.value.status);
 

@@ -4,34 +4,48 @@
     <div class="w-1/3 bg-gray-50 border-r border-gray-200 overflow-y-auto">
       <div class="p-4">
         <div class="flex justify-between items-center mb-4">
+          <h2 class="text-base font-semibold text-[#FF613c]">Ticket</h2>
+        </div>
+        <div v-if="variations.length > 0" class="space-y-2">
+          <div
+            @click="selectVariation('ticket')"
+            :class="[
+              'p-3 rounded-lg border cursor-pointer transition-all hover:border-[#FF613c]',
+              selectedVariation == 'ticket'
+                ? 'border-[#FF613c] bg-[#FF613c]/5'
+                : 'border-gray-200 bg-white',
+            ]"
+          >
+            <div class="flex-1">
+              <h3 class="text-sm font-medium text-gray-900">
+                {{ detail.name }}
+              </h3>
+
+              <div class="flex items-center mt-2 space-x-2">
+                <div class="flex items-center space-x-1">
+                  <div
+                    :class="[
+                      'w-2 h-2 rounded-full',
+                      detail.images && detail.images.length > 0
+                        ? 'bg-green-400'
+                        : 'bg-red-400',
+                    ]"
+                  ></div>
+                  <span class="text-xs text-gray-500">
+                    {{ detail.images?.length || 0 }} images
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-between items-center mb-4 mt-4">
           <h2 class="text-base font-semibold text-[#FF613c]">
             Ticket Variations
           </h2>
           <span class="text-xs text-gray-500"
             >{{ variations.length }} types</span
           >
-        </div>
-
-        <!-- Pricing Summary -->
-        <div class="mb-4 p-3 bg-white rounded-lg border border-gray-200">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-xs text-gray-500">Starting From</span>
-            <span class="text-lg font-bold text-[#FF613c]"
-              >{{ detail?.lowest_variation_price || "N/A" }} THB</span
-            >
-          </div>
-          <div
-            v-if="
-              detail?.lowest_walk_in_price &&
-              detail.lowest_walk_in_price !== 'null'
-            "
-            class="flex justify-between items-center text-xs"
-          >
-            <span class="text-gray-500">Walk-in Price</span>
-            <span class="text-gray-700"
-              >{{ detail.lowest_walk_in_price }} THB</span
-            >
-          </div>
         </div>
 
         <!-- Loading State -->
@@ -115,7 +129,7 @@
     <div class="flex-1 overflow-y-auto">
       <div class="p-6">
         <div
-          v-if="!selectedVariation"
+          v-if="selectedVariation == 'null'"
           class="flex items-center justify-center h-full"
         >
           <div class="text-center">
@@ -141,15 +155,39 @@
           </div>
         </div>
 
-        <div v-else>
+        <div v-if="selectedVariation == 'ticket'">
+          <div class="mt-6">
+            <h3 class="text-sm font-semibold text-gray-700 mb-3">
+              Ticket Images ({{ detail?.images?.length || 0 }})
+            </h3>
+            <div
+              v-if="detail?.images && detail?.images.length > 0"
+              class="grid grid-cols-2 md:grid-cols-3 gap-4"
+            >
+              <div
+                v-for="(image, index) in detail?.images"
+                :key="image.id"
+                class="relative group"
+              >
+                <img
+                  :src="image.image"
+                  :alt="`Room image ${index + 1}`"
+                  class="w-full h-32 object-cover rounded-lg border border-gray-200"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="selectedVariation != 'ticket' && selectedVariation?.id">
           <!-- Variation Header -->
           <div class="flex justify-between items-start mb-6">
             <div>
               <h1 class="text-xl font-semibold text-gray-900">
-                {{ selectedVariation.name }}
+                {{ selectedVariation?.name }}
               </h1>
               <p class="text-sm text-gray-500 mt-1">
-                Ticket ID: {{ selectedVariation.id }}
+                Ticket ID: {{ selectedVariation?.id }}
               </p>
             </div>
           </div>
@@ -165,19 +203,19 @@
               <div class="bg-white p-4 rounded-lg">
                 <p class="text-xs text-gray-500 mb-1">Online Price</p>
                 <p class="text-2xl font-bold text-[#FF613c]">
-                  {{ selectedVariation.price }} THB
+                  {{ selectedVariation?.price }} THB
                 </p>
               </div>
               <div
                 v-if="
-                  selectedVariation.walk_in_price &&
-                  selectedVariation.walk_in_price !== 'null'
+                  selectedVariation?.walk_in_price &&
+                  selectedVariation?.walk_in_price !== 'null'
                 "
                 class="bg-white p-4 rounded-lg"
               >
                 <p class="text-xs text-gray-500 mb-1">Walk-in Price</p>
                 <p class="text-2xl font-bold text-gray-700">
-                  {{ selectedVariation.walk_in_price }} THB
+                  {{ selectedVariation?.walk_in_price }} THB
                 </p>
               </div>
             </div>
@@ -189,7 +227,7 @@
               Description
             </h3>
             <p class="text-sm text-gray-600 leading-relaxed">
-              {{ selectedVariation.description || "No description available" }}
+              {{ selectedVariation?.description || "No description available" }}
             </p>
           </div>
 
@@ -204,7 +242,7 @@
               >
                 <span class="text-gray-500">Variation Type</span>
                 <span class="text-gray-900 font-medium">{{
-                  selectedVariation.name
+                  selectedVariation?.name
                 }}</span>
               </div>
               <div
@@ -214,12 +252,12 @@
                 <span
                   :class="[
                     'px-2 py-1 rounded-full text-xs font-medium',
-                    selectedVariation.is_active
+                    selectedVariation?.is_active
                       ? 'bg-green-100 text-green-700'
                       : 'bg-gray-100 text-gray-700',
                   ]"
                 >
-                  {{ selectedVariation.is_active ? "Active" : "Inactive" }}
+                  {{ selectedVariation?.is_active ? "Active" : "Inactive" }}
                 </span>
               </div>
             </div>
@@ -254,7 +292,7 @@ const selectVariation = (variation) => {
 onMounted(() => {
   // Auto-select first variation if available
   if (variations.value.length > 0) {
-    selectedVariation.value = variations.value[0];
+    selectedVariation.value = "ticket";
   }
 });
 </script>

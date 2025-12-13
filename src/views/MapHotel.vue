@@ -828,6 +828,21 @@
           </DialogPanel>
         </Modal>
 
+        <Modal
+          :isOpen="hotelAvailableModalOpen"
+          :marginTop="'mt-4'"
+          @closeModal="closeHotelModal()"
+        >
+          <DialogPanel
+            class="w-full max-w-4xl overflow-hidden text-left align-middle transition-all transform bg-white rounded-2xl shadow-xl"
+          >
+            <Availabilities
+              :detailId="hotelDetailId"
+              :closeModal="closeHotelModal"
+            />
+          </DialogPanel>
+        </Modal>
+
         <!-- Detail Modal -->
         <Modal
           :isOpen="attractionModalOpen"
@@ -983,7 +998,7 @@
                         </div>
                         <div
                           class="flex px-4 text-xs mt-2 rounded-full shadow-md justify-center py-2"
-                          @click="getViewDetail(hotel.id)"
+                          @click="getAvailableRooms(hotel.id)"
                           :class="
                             selectedItemId === 'hotel-' + hotel.id
                               ? 'text-white bg-white/20'
@@ -1105,7 +1120,6 @@
                         </div>
                         <div
                           class="flex px-4 text-xs mt-2 shadow-md rounded-full justify-center py-2"
-                          @click="getViewDetail(hotel.id)"
                           :class="
                             selectedItemId === 'attraction-' + attraction.id
                               ? 'text-white bg-white/20'
@@ -1156,6 +1170,7 @@ import { useDestinationStore } from "../stores/destination";
 import { storeToRefs } from "pinia";
 import DetailAttraction from "./MapComponent/DetailAttraction.vue";
 import { PaperAirplaneIcon, QueueListIcon } from "@heroicons/vue/24/outline";
+import Availabilities from "./MapComponent/hotels/Availabilities.vue";
 
 const hotelStore = useHotelStore();
 const entranceStore = useEntranceStore(); // Add this
@@ -1997,8 +2012,15 @@ const getViewDetail = async (hotelId) => {
   hotelModalOpen.value = true;
 };
 
+const hotelAvailableModalOpen = ref(false);
+const getAvailableRooms = async (hotelId) => {
+  hotelDetailId.value = hotelId;
+  hotelAvailableModalOpen.value = true;
+};
+
 const closeHotelModal = () => {
   hotelModalOpen.value = false;
+  hotelAvailableModalOpen.value = false;
   hotelDetailId.value = null;
 };
 

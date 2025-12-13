@@ -1,225 +1,272 @@
 <template>
-  <div class="grid grid-cols-3 gap-4">
-    <!-- Left Side - Room Selection -->
+  <div>
     <div
-      class="col-span-1 h-[60vh] overflow-y-auto border-r border-gray-200 pr-4"
+      v-if="loading"
+      class="w-full h-[88vh] rounded-2xl bg-white flex justify-center items-center"
     >
-      <p class="text-sm font-semibold text-gray-700 mb-3">Select Room</p>
-      <div class="space-y-2">
+      <div class="text-center">
         <div
-          v-for="room in detail?.rooms"
-          :key="room.id"
-          @click="selectRoom(room)"
-          :class="[
-            'p-3 border rounded-lg cursor-pointer transition-all',
-            formData.variation_id === room.id
-              ? 'border-[#ff613c] bg-[#ff613c]/10'
-              : 'border-gray-300 hover:border-gray-400',
-          ]"
-        >
-          <p class="text-xs font-medium text-gray-800">{{ room.name }}</p>
-          <p class="text-xs text-gray-500 mt-1">
-            ฿{{ room.room_price?.toLocaleString() }}
-          </p>
-        </div>
+          class="w-12 h-12 border-4 border-orange-200 border-t-[#FF613c] rounded-full animate-spin mx-auto mb-4"
+        ></div>
+        <p class="text-slate-600 text-sm">Loading property...</p>
       </div>
     </div>
-
-    <!-- Right Side - Availability Details -->
-    <div class="col-span-2 h-[60vh] overflow-y-auto pl-4">
-      <div v-if="showSuccess" class="flex items-center justify-center h-full">
-        <div class="text-center">
-          <!-- Animated Success Icon -->
-          <div class="relative inline-block mb-6">
-            <!-- Pulsing background circles -->
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div
-                class="w-20 h-20 bg-green-500/20 rounded-full animate-ping"
-              ></div>
-            </div>
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div
-                class="w-16 h-16 bg-green-500/30 rounded-full animate-pulse"
-              ></div>
-            </div>
-
-            <!-- Main icon with scale animation -->
-            <div
-              class="relative bg-white rounded-full p-4 shadow-lg animate-scale-in"
-            >
-              <CheckIcon class="w-12 h-12 text-green-500 animate-check-draw" />
-            </div>
-          </div>
-
-          <!-- Success Message with fade-in -->
-          <div class="mb-8 animate-fade-in-up" style="animation-delay: 0.2s">
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">
-              All Set! 🎉
-            </h3>
-            <p class="text-sm text-gray-600">
-              Your availability has been created successfully
-            </p>
-          </div>
-
-          <!-- Action Buttons with staggered animation -->
-          <div
-            class="flex flex-col sm:flex-row gap-3 justify-center animate-fade-in-up"
-            style="animation-delay: 0.4s"
-          >
-            <button
-              @click="showSuccess = false"
-              class="group relative px-4 py-2 text-xs font-medium text-[#ff613c] bg-white border-2 border-[#ff613c] rounded-lg hover:bg-[#ff613c] hover:text-white transition-all duration-300 overflow-hidden"
-            >
-              <span
-                class="relative z-10 flex items-center justify-center gap-2"
-              >
-                <svg
-                  class="w-4 h-4 transition-transform group-hover:rotate-180 duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Create Another
-              </span>
-              <div
-                class="absolute inset-0 bg-[#ff613c] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"
-              ></div>
-            </button>
-
-            <button
-              @click="viewAllAvailabilities"
-              class="group px-4 py-2 text-xs font-medium text-white bg-gradient-to-r from-[#ff613c] to-[#ff4d28] rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300"
-            >
-              <span class="flex items-center justify-center gap-2">
-                View All Availabilities
-                <svg
-                  class="w-4 h-4 transition-transform group-hover:translate-x-1 duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M14 5l7 7m0 0l-7 7m7-7H3"
-                  />
-                </svg>
-              </span>
-            </button>
-          </div>
-        </div>
-      </div>
+    <div
+      v-if="!loading"
+      class="bg-white/80 backdrop-blur-xl p-6 rounded-2xl border border-white/20 shadow-lg shadow-orange-500/10 h-[calc(100vh-150px)]"
+    >
       <div
-        v-if="!formData.variation_id"
-        class="flex items-center justify-center h-full"
+        class="flex justify-between items-start border-b border-gray-200 pb-6"
       >
-        <div class="text-center text-gray-400">
-          <BuildingOfficeIcon class="w-16 h-16 mx-auto mb-4" />
-          <p class="text-sm">Select a room to create availability</p>
-        </div>
-      </div>
-
-      <div v-else class="space-y-4">
-        <!-- Check-in Date -->
         <div>
-          <label class="block text-xs font-medium text-gray-700 mb-2">
-            Check-in Date <span class="text-red-500">*</span>
-          </label>
-          <VueDatePicker
-            v-model="formData.checkin_date"
-            :format="'yyyy-MM-dd'"
-            placeholder="Select check-in date"
-            :min-date="new Date()"
-          />
-        </div>
-
-        <!-- Check-out Date -->
-        <div>
-          <label class="block text-xs font-medium text-gray-700 mb-2">
-            Check-out Date <span class="text-red-500">*</span>
-          </label>
-          <VueDatePicker
-            v-model="formData.checkout_date"
-            :format="'yyyy-MM-dd'"
-            placeholder="Select check-out date"
-            :min-date="formData.checkin_date || new Date()"
-          />
-        </div>
-
-        <!-- Quantity -->
-        <div>
-          <label class="block text-xs font-medium text-gray-700 mb-2">
-            Quantity <span class="text-red-500">*</span>
-          </label>
-          <input
-            type="number"
-            v-model="formData.quantity"
-            min="1"
-            class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
-            placeholder="Enter quantity"
-          />
-        </div>
-
-        <!-- Comment -->
-        <div>
-          <label class="block text-xs font-medium text-gray-700 mb-2">
-            Comment (Optional)
-          </label>
-          <textarea
-            v-model="formData.comment"
-            rows="3"
-            class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent resize-none"
-            placeholder="Add any notes or comments..."
-          ></textarea>
-        </div>
-
-        <!-- Selected Room Summary -->
-        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-          <p class="text-xs font-semibold text-gray-600 mb-2">Selected Room</p>
-          <div class="space-y-1">
-            <p class="text-xs text-gray-700">
-              <span class="font-medium">Room:</span>
-              {{ selectedRoom?.name }}
-            </p>
-            <p class="text-xs text-gray-700">
-              <span class="font-medium">Price:</span>
-              ฿{{ selectedRoom?.room_price?.toLocaleString() }}
+          <p class="text-lg font-semibold text-slate-800">
+            Availabilities for {{ detail?.name }}
+          </p>
+          <div>
+            <p class="text-xs text-gray-500 mt-1">
+              {{ detail?.city?.name }}, Thailand
             </p>
           </div>
         </div>
-
-        <!-- Action Buttons -->
+        <div class="gap-x-2 flex flex-nowrap">
+          <div @click="closeModal" class="">
+            <i class="fa-solid fa-xmark text-2xl text-black"></i>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-3 gap-4 pt-6">
+        <!-- Left Side - Room Selection -->
         <div
-          class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200"
+          class="col-span-1 h-[70vh] pb-10 overflow-y-auto border-r border-gray-200 pr-4"
         >
-          <button
-            @click="resetForm"
-            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+          <p class="text-sm font-semibold text-gray-700 mb-3">Select Room</p>
+          <div class="space-y-2">
+            <div
+              v-for="room in detail?.rooms"
+              :key="room.id"
+              @click="selectRoom(room)"
+              :class="[
+                'p-3 border rounded-lg cursor-pointer transition-all',
+                formData.variation_id === room.id
+                  ? 'border-[#ff613c] bg-[#ff613c]/10'
+                  : 'border-gray-300 hover:border-gray-400',
+              ]"
+            >
+              <p class="text-xs font-medium text-gray-800">{{ room.name }}</p>
+              <p class="text-xs text-gray-500 mt-1">
+                ฿{{ room.room_price?.toLocaleString() }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side - Availability Details -->
+        <div class="col-span-2 h-full overflow-y-auto px-4">
+          <div
+            v-if="showSuccess"
+            class="flex items-center justify-center h-full"
           >
-            <XCircleIcon class="w-4 h-4" />
-            Reset
-          </button>
-          <button
-            @click="createAvailability"
-            :disabled="!isFormValid"
-            :class="[
-              'px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors flex items-center gap-2',
-              isFormValid
-                ? 'bg-[#ff613c] hover:bg-[#ff4d28] cursor-pointer'
-                : 'bg-gray-300 cursor-not-allowed',
-            ]"
+            <div class="text-center">
+              <!-- Animated Success Icon -->
+              <div class="relative inline-block mb-6">
+                <!-- Pulsing background circles -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div
+                    class="w-20 h-20 bg-green-500/20 rounded-full animate-ping"
+                  ></div>
+                </div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div
+                    class="w-16 h-16 bg-green-500/30 rounded-full animate-pulse"
+                  ></div>
+                </div>
+
+                <!-- Main icon with scale animation -->
+                <div
+                  class="relative bg-white rounded-full p-4 shadow-lg animate-scale-in"
+                >
+                  <CheckIcon
+                    class="w-12 h-12 text-green-500 animate-check-draw"
+                  />
+                </div>
+              </div>
+
+              <!-- Success Message with fade-in -->
+              <div
+                class="mb-8 animate-fade-in-up"
+                style="animation-delay: 0.2s"
+              >
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                  All Set! 🎉
+                </h3>
+                <p class="text-sm text-gray-600">
+                  Your availability has been created successfully
+                </p>
+              </div>
+
+              <!-- Action Buttons with staggered animation -->
+              <div
+                class="flex flex-col sm:flex-row gap-3 justify-center animate-fade-in-up"
+                style="animation-delay: 0.4s"
+              >
+                <button
+                  @click="showSuccess = false"
+                  class="group relative px-4 py-2 text-xs font-medium text-[#ff613c] bg-white border-2 border-[#ff613c] rounded-lg hover:bg-[#ff613c] hover:text-white transition-all duration-300 overflow-hidden"
+                >
+                  <span
+                    class="relative z-10 flex items-center justify-center gap-2"
+                  >
+                    <svg
+                      class="w-4 h-4 transition-transform group-hover:rotate-180 duration-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    Create Another
+                  </span>
+                  <div
+                    class="absolute inset-0 bg-[#ff613c] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"
+                  ></div>
+                </button>
+
+                <button
+                  @click="viewAllAvailabilities"
+                  class="group px-4 py-2 text-xs font-medium text-white bg-gradient-to-r from-[#ff613c] to-[#ff4d28] rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300"
+                >
+                  <span class="flex items-center justify-center gap-2">
+                    View All Availabilities
+                    <svg
+                      class="w-4 h-4 transition-transform group-hover:translate-x-1 duration-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      />
+                    </svg>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            v-if="!formData.variation_id"
+            class="flex items-center justify-center h-full"
           >
-            <CheckIcon class="w-4 h-4" />
-            Create Availability
-          </button>
+            <div class="text-center text-gray-400">
+              <BuildingOfficeIcon class="w-16 h-16 mx-auto mb-4" />
+              <p class="text-sm">Select a room to create availability</p>
+            </div>
+          </div>
+
+          <div v-else class="space-y-4">
+            <!-- Check-in Date -->
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-2">
+                Check-in Date <span class="text-red-500">*</span>
+              </label>
+              <VueDatePicker
+                v-model="formData.checkin_date"
+                :format="'yyyy-MM-dd'"
+                placeholder="Select check-in date"
+                :min-date="new Date()"
+              />
+            </div>
+
+            <!-- Check-out Date -->
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-2">
+                Check-out Date <span class="text-red-500">*</span>
+              </label>
+              <VueDatePicker
+                v-model="formData.checkout_date"
+                :format="'yyyy-MM-dd'"
+                placeholder="Select check-out date"
+                :min-date="formData.checkin_date || new Date()"
+              />
+            </div>
+
+            <!-- Quantity -->
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-2">
+                Quantity <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                v-model="formData.quantity"
+                min="1"
+                class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
+                placeholder="Enter quantity"
+              />
+            </div>
+
+            <!-- Comment -->
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-2">
+                Comment (Optional)
+              </label>
+              <textarea
+                v-model="formData.comment"
+                rows="3"
+                class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent resize-none"
+                placeholder="Add any notes or comments..."
+              ></textarea>
+            </div>
+
+            <!-- Selected Room Summary -->
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+              <p class="text-xs font-semibold text-gray-600 mb-2">
+                Selected Room
+              </p>
+              <div class="space-y-1">
+                <p class="text-xs text-gray-700">
+                  <span class="font-medium">Room:</span>
+                  {{ selectedRoom?.name }}
+                </p>
+                <p class="text-xs text-gray-700">
+                  <span class="font-medium">Price:</span>
+                  ฿{{ selectedRoom?.room_price?.toLocaleString() }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div
+              class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200"
+            >
+              <button
+                @click="resetForm"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+              >
+                <XCircleIcon class="w-4 h-4" />
+                Reset
+              </button>
+              <button
+                @click="createAvailability"
+                :disabled="!isFormValid"
+                :class="[
+                  'px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors flex items-center gap-2',
+                  isFormValid
+                    ? 'bg-[#ff613c] hover:bg-[#ff4d28] cursor-pointer'
+                    : 'bg-gray-300 cursor-not-allowed',
+                ]"
+              >
+                <CheckIcon class="w-4 h-4" />
+                Create Availability
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -235,13 +282,34 @@ import {
 } from "@heroicons/vue/24/outline";
 import { useToast } from "vue-toastification";
 import { useAvailableStore } from "../../../stores/available";
+import { useHotelStore } from "../../../stores/hotel";
 
 const props = defineProps({
-  detail: {
-    type: Object,
+  detailId: {
+    type: Number,
+    required: true,
+  },
+  closeModal: {
+    type: Function,
     required: true,
   },
 });
+
+const detail = ref(null);
+const hotelStore = useHotelStore();
+const loading = ref(false);
+
+const getDetailAction = async (id) => {
+  loading.value = true;
+  const res = await hotelStore.getDetailAction(id);
+  if (res.status == 1) {
+    detail.value = res.result;
+    console.log(detail.value, "detail");
+  } else {
+    router.push("/");
+  }
+  loading.value = false;
+};
 
 const toast = useToast();
 const availableStore = useAvailableStore();
@@ -343,11 +411,12 @@ const createAvailability = async () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   console.log(
     "Availability create component mounted with detail:",
-    props.detail
+    props.detailId
   );
+  await getDetailAction(props.detailId);
 });
 </script>
 

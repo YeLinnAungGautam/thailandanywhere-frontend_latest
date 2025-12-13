@@ -266,19 +266,6 @@
                 <td class="px-2 py-2 text-xs text-end">
                   {{ formattedNumber(item.commission) }}
                 </td>
-                <!-- <td class="px-2 py-2 text-xs text-end">
-                  {{ formattedNumber(item.total_sales - item.commission) }}
-                </td>
-
-                <td class="px-2 py-2 text-xs text-end">
-                  {{
-                    formattedNumber(
-                      item.total_sales -
-                        item.commission -
-                        calculateVat(item.total_sales, item.commission)
-                    )
-                  }}
-                </td> -->
 
                 <td class="px-2 py-2 text-xs text-end whitespace-nowrap">
                   {{ formattedNumber(item.cash_amount) }}
@@ -351,41 +338,113 @@
       </DialogPanel>
     </Modal>
 
+    <!-- Enhanced PDF Modal -->
     <Modal :isOpen="showPdfModal" @closeModal="closePdfModal">
       <DialogPanel
-        class="w-full max-w-md transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-2xl transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="h3"
-          class="text-lg font-medium leading-6 text-gray-900 p-4 border-b"
+          class="text-lg font-medium leading-6 p-4 border-b bg-gradient-to-r from-[#FF613c] to-[#e55139] text-white"
         >
-          PDF Generation Status
+          <div class="flex items-center justify-between">
+            <span>PDF Generation Status</span>
+            <span v-if="pdfResponse" class="text-sm font-normal">
+              {{ pdfResponse.total_items }} items in
+              {{ pdfResponse.total_batches }} batches
+            </span>
+          </div>
         </DialogTitle>
 
-        <div class="p-4">
+        <div class="p-6">
+          <!-- Initial Response Info -->
+          <div
+            v-if="pdfResponse && pdfStore.isGenerating"
+            class="mb-6 p-4 bg-blue-50 rounded-lg"
+          >
+            <h4 class="font-semibold text-blue-900 mb-2">
+              📊 Generation Details
+            </h4>
+            <div class="space-y-1 text-sm text-blue-800">
+              <p><strong>Total Items:</strong> {{ pdfResponse.total_items }}</p>
+              <p><strong>Batches:</strong> {{ pdfResponse.total_batches }}</p>
+              <p><strong>Batch Size:</strong> {{ pdfResponse.batch_size }}</p>
+              <p>
+                <strong>Estimated Time:</strong>
+                {{ pdfResponse.estimated_time }}
+              </p>
+              <p>
+                <strong>Master Job ID:</strong>
+                <code class="text-xs bg-white px-2 py-1 rounded">{{
+                  pdfResponse.master_job_id
+                }}</code>
+              </p>
+            </div>
+          </div>
+
           <!-- Progress Section -->
           <div v-if="pdfStore.isGenerating" class="space-y-4">
             <div class="text-center">
-              <div class="text-sm text-gray-600 mb-2">
+              <div class="text-sm text-gray-600 mb-2 font-medium">
                 {{ pdfStore.message }}
               </div>
 
-              <!-- Progress Bar -->
-              <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+              <!-- Enhanced Progress Bar -->
+              <div
+                class="w-full bg-gray-200 rounded-full h-3 mb-2 overflow-hidden"
+              >
                 <div
-                  class="bg-[#FF613c] h-2.5 rounded-full transition-all duration-300"
+                  class="bg-gradient-to-r from-[#FF613c] to-[#e55139] h-3 rounded-full transition-all duration-300 flex items-center justify-end pr-2"
                   :style="{ width: pdfStore.progress + '%' }"
-                ></div>
+                >
+                  <span
+                    v-if="pdfStore.progress > 10"
+                    class="text-xs text-white font-bold"
+                  >
+                    {{ pdfStore.progress }}%
+                  </span>
+                </div>
               </div>
 
-              <div class="text-xs text-gray-500">{{ pdfStore.progress }}%</div>
+              <div class="text-sm font-semibold text-gray-700">
+                {{ pdfStore.progress }}% Complete
+              </div>
+            </div>
+
+            <!-- Batch Progress -->
+            <div v-if="batchStatuses.length > 0" class="mt-4">
+              <h4 class="text-sm font-semibold mb-2 text-gray-700">
+                📦 Batch Progress:
+              </h4>
+              <div class="space-y-2">
+                <div
+                  v-for="(batch, index) in batchStatuses"
+                  :key="index"
+                  class="flex items-center justify-between p-2 bg-gray-50 rounded text-xs"
+                >
+                  <span class="font-medium">Batch {{ index + 1 }}</span>
+                  <span
+                    :class="{
+                      'text-green-600': batch.status === 'completed',
+                      'text-blue-600': batch.status === 'processing',
+                      'text-gray-500': batch.status === 'queued',
+                      'text-red-600': batch.status === 'failed',
+                    }"
+                    class="font-semibold"
+                  >
+                    {{ batch.status }}
+                  </span>
+                </div>
+              </div>
             </div>
 
             <!-- Status Info -->
-            <div class="text-center">
+            <div class="text-center mt-4 p-3 bg-gray-50 rounded-lg">
               <div class="text-sm">
                 <strong>Status:</strong>
-                <span :class="getStatusClass()">{{ getStatusText() }}</span>
+                <span :class="getStatusClass()" class="ml-2 font-semibold">{{
+                  getStatusText()
+                }}</span>
               </div>
 
               <div
@@ -396,13 +455,20 @@
                 Started: {{ formatDateTime(pdfStore.currentJob.startedAt) }}
               </div>
             </div>
+
+            <!-- Animated Loading Spinner -->
+            <div class="flex justify-center mt-4">
+              <div
+                class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF613c]"
+              ></div>
+            </div>
           </div>
 
           <!-- Success Section -->
           <div v-if="pdfStore.isCompleted" class="text-center space-y-4">
             <div class="text-green-600 text-lg">
               <svg
-                class="w-12 h-12 mx-auto mb-2"
+                class="w-16 h-16 mx-auto mb-2 animate-bounce"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -412,17 +478,43 @@
                   clip-rule="evenodd"
                 />
               </svg>
-              PDF ပြီးပါပြီ!
+              <div class="text-2xl font-bold">PDF ပြီးပါပြီ! 🎉</div>
             </div>
 
-            <div class="space-y-2">
-              <div class="text-sm text-gray-600">{{ pdfStore.filename }}</div>
+            <div class="space-y-3 bg-green-50 p-4 rounded-lg">
+              <div class="text-sm text-gray-700">
+                <strong>File:</strong>
+                <code class="bg-white px-2 py-1 rounded text-xs ml-2">{{
+                  pdfStore.filename
+                }}</code>
+              </div>
+
+              <div v-if="pdfResponse" class="text-xs text-gray-600">
+                Successfully generated PDF with
+                {{ pdfResponse.total_items }} items
+              </div>
+
               <button
                 @click="handleDownload"
-                class="w-full px-4 py-2 bg-[#FF613c] text-white rounded-lg hover:bg-[#e55139] transition-colors"
+                class="w-full px-6 py-3 bg-gradient-to-r from-[#FF613c] to-[#e55139] text-white rounded-lg hover:from-[#e55139] hover:to-[#FF613c] transition-all font-semibold text-sm shadow-lg hover:shadow-xl transform hover:scale-105"
               >
-                📄 Download PDF
+                📄 Download PDF Now
               </button>
+
+              <!-- Download URL Display -->
+              <div
+                v-if="pdfStore.downloadUrl"
+                class="mt-2 p-2 bg-white rounded border border-green-200"
+              >
+                <p class="text-xs text-gray-500 mb-1">Download URL:</p>
+                <a
+                  :href="pdfStore.downloadUrl"
+                  target="_blank"
+                  class="text-xs text-blue-600 hover:underline break-all"
+                >
+                  {{ pdfStore.downloadUrl }}
+                </a>
+              </div>
             </div>
           </div>
 
@@ -430,7 +522,7 @@
           <div v-if="pdfStore.isFailed" class="text-center space-y-4">
             <div class="text-red-600 text-lg">
               <svg
-                class="w-12 h-12 mx-auto mb-2"
+                class="w-16 h-16 mx-auto mb-2"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -440,21 +532,26 @@
                   clip-rule="evenodd"
                 />
               </svg>
-              အမှားဖြစ်ပါတယ်
+              <div class="text-xl font-bold">အမှားဖြစ်ပါတယ် ❌</div>
             </div>
 
-            <div class="text-sm text-gray-600 mb-4">{{ pdfStore.error }}</div>
+            <div class="bg-red-50 p-4 rounded-lg">
+              <p class="text-sm text-red-800 font-medium mb-2">
+                Error Details:
+              </p>
+              <p class="text-sm text-red-600">{{ pdfStore.error }}</p>
+            </div>
 
-            <div class="space-x-2">
+            <div class="flex space-x-2 justify-center">
               <button
                 @click="handleRetry"
-                class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                class="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors font-semibold"
               >
                 🔄 Try Again
               </button>
               <button
                 @click="closePdfModal"
-                class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
               >
                 Close
               </button>
@@ -462,11 +559,14 @@
           </div>
         </div>
 
-        <!-- Close button for completed/failed states -->
-        <div v-if="!pdfStore.isGenerating" class="p-4 border-t text-right">
+        <!-- Footer -->
+        <div
+          v-if="!pdfStore.isGenerating"
+          class="p-4 border-t bg-gray-50 text-right"
+        >
           <button
             @click="closePdfModal"
-            class="px-4 py-2 text-gray-500 hover:text-gray-700 transition-colors"
+            class="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors font-medium"
           >
             Close
           </button>
@@ -506,6 +606,8 @@ const router = useRouter();
 const authStore = useAuthStore();
 
 const showPdfModal = ref(false);
+const pdfResponse = ref(null);
+const batchStatuses = ref([]);
 
 const {
   isGenerating: pdfIsGenerating,
@@ -522,7 +624,6 @@ const {
   isProcessing: pdfIsProcessing,
 } = storeToRefs(pdfStore);
 
-// Updated to use cashAccounts instead of cashImages
 const { cashAccounts, loadingCash } = storeToRefs(cashImageStore);
 
 // Search and filter states
@@ -763,8 +864,26 @@ const printPDF = async () => {
   }
 
   try {
-    showPdfModal.value = true; // Show the modal
-    await pdfStore.generatePdf(searchParams.value);
+    showPdfModal.value = true;
+    const response = await pdfStore.generatePdf(searchParams.value);
+
+    // Store the response data
+    if (response && response.success) {
+      pdfResponse.value = response;
+
+      // Initialize batch statuses
+      if (response.batch_jobs && response.batch_jobs.length > 0) {
+        batchStatuses.value = response.batch_jobs.map((job, index) => ({
+          jobId: job,
+          status: "queued",
+          index: index + 1,
+        }));
+      }
+
+      toast.success(
+        `PDF generation စတင်ပြီးပါပြီ! ${response.total_items} items`
+      );
+    }
   } catch (error) {
     console.error("PDF Generation failed:", error);
     toast.error("PDF generation မှာ အမှားဖြစ်ပါတယ်");
@@ -773,23 +892,38 @@ const printPDF = async () => {
 
 // Modal management functions
 const closePdfModal = () => {
-  // Only close if not generating
   if (!pdfStore.isGenerating) {
     showPdfModal.value = false;
+    pdfResponse.value = null;
+    batchStatuses.value = [];
     pdfStore.resetState();
   }
 };
 
 const handleDownload = () => {
   if (pdfStore.downloadUrl && pdfStore.filename) {
-    pdfStore.downloadPdf(pdfStore.downloadUrl, pdfStore.filename);
-    toast.success("PDF downloaded successfully!");
+    // Direct download
+    window.open(pdfStore.downloadUrl, "_blank");
+
+    // Also trigger browser download
+    const link = document.createElement("a");
+    link.href = pdfStore.downloadUrl;
+    link.download = pdfStore.filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success("PDF downloaded successfully! 🎉");
+  } else {
+    toast.error("Download URL not available");
   }
 };
 
 const handleRetry = async () => {
   try {
-    await pdfStore.retryGeneration();
+    pdfResponse.value = null;
+    batchStatuses.value = [];
+    await printPDF();
   } catch (error) {
     console.error("Retry failed:", error);
     toast.error("Retry မှာ အမှားဖြစ်ပါတယ်");
@@ -831,12 +965,19 @@ const formatDateTime = (date) => {
   });
 };
 
-// Watch for PDF completion to show success message
+// Watch for PDF completion
 watch(
   () => pdfStore.isCompleted,
   (newVal) => {
     if (newVal) {
-      toast.success("PDF ပြီးပါပြီ! Download လုပ်လို့ရပါပြီ။");
+      toast.success("PDF ပြီးပါပြီ! Download လုပ်လို့ရပါပြီ။ 🎉");
+
+      // Auto-download option (optional)
+      // setTimeout(() => {
+      //   if (pdfStore.downloadUrl) {
+      //     handleDownload();
+      //   }
+      // }, 1000);
     }
   }
 );
@@ -846,7 +987,17 @@ watch(
   () => pdfStore.isFailed,
   (newVal) => {
     if (newVal) {
-      toast.error("PDF generation မှာ အမှားဖြစ်ပါတယ်");
+      toast.error("PDF generation မှာ အမှားဖြစ်ပါတယ် ❌");
+    }
+  }
+);
+
+// Watch for download URL changes
+watch(
+  () => pdfStore.downloadUrl,
+  (newVal) => {
+    if (newVal) {
+      console.log("Download URL available:", newVal);
     }
   }
 );
@@ -863,7 +1014,6 @@ onMounted(async () => {
   }
 
   setMonthDateRange(selectedMonth.value, year.value);
-  // await getAction();
 });
 
 watch(

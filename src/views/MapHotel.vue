@@ -723,13 +723,63 @@
                     </div>
                   </div>
                 </div>
+                <div v-if="selectPart == 'attraction'" class="col-span-2 pb-4">
+                  <div class="flex justify-between items-center">
+                    <h2 class="text-sm text-[#FF613c] font-medium">
+                      Choose City
+                    </h2>
+                    <p
+                      class="text-xs bg-gray-200 px-4 py-2 rounded-lg"
+                      @click="closeCity = !closeCity"
+                    >
+                      {{ closeCity ? "Close" : "Open" }}
+                    </p>
+                  </div>
+                  <div
+                    v-show="closeCity"
+                    class="space-y-1 h-[250px] overflow-y-scroll scroll-container-y pb-1 pr-2 pl-1 pt-3"
+                  >
+                    <div
+                      class="flex justify-between items-center space-y-2 pb-3 pt-1.5 px-3 border rounded-full cursor-pointer"
+                      v-for="c in cityList ?? []"
+                      :key="c"
+                      :class="
+                        c.id == selectedCity
+                          ? ' border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
+                          : ''
+                      "
+                      @click="
+                        () => {
+                          selectedCity = c.id;
+                          chooseCityName = c.name;
+                        }
+                      "
+                    >
+                      <p
+                        class="text-xs w-[110px] text-center mt-1.5 line-clamp-1"
+                        :class="c.id == selectedCity ? 'text-[#FF613c]' : ''"
+                      >
+                        {{ c.name }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
                 <!-- Category Filter (full width for attractions) -->
                 <div class="col-span-2 pb-3" v-if="selectPart === 'attraction'">
                   <div>
-                    <p class="text-sm text-[#9333ea] font-medium mb-3">
-                      Category
-                    </p>
+                    <div class="flex justify-between items-center pb-2">
+                      <h2 class="text-sm text-[#FF613c] font-medium">
+                        Choose Category
+                      </h2>
+                      <p
+                        class="text-xs bg-gray-200 px-4 py-2 rounded-lg"
+                        @click="closeCategory = !closeCategory"
+                      >
+                        {{ closeCategory ? "Close" : "Open" }}
+                      </p>
+                    </div>
                     <div
+                      v-if="closeCategory"
                       class="space-y-1 max-h-[350px] overflow-y-scroll scroll-container-y pr-2"
                     >
                       <div
@@ -1220,6 +1270,8 @@ const { dests } = storeToRefs(destinationStore);
 const openDestinationModal = ref(false);
 
 const selectPart = ref("hotel"); // Changed default to "hotel"
+const closeCity = ref(false);
+const closeCategory = ref(false);
 
 // Destination search refs - 10km radius
 const selectedDestination = ref(null);
@@ -1958,6 +2010,11 @@ const openDestinationPopup = (destination) => {
 
 // Watch for selectPart changes
 watch(selectPart, () => {
+  router.push({
+    query: {
+      selectPart: selectPart.value,
+    },
+  });
   // Clear category filter when switching away from attractions
   if (selectPart.value !== "attraction") {
     selectedCategory.value = "";
@@ -2064,6 +2121,9 @@ const closeAttractionModal = () => {
 };
 
 onMounted(async () => {
+  if (route.query.selectPart) {
+    selectPart.value = route.query.selectPart;
+  }
   console.log("Map Page Loaded");
   document.body.style.overflow = "hidden";
   document.documentElement.style.overflow = "hidden";

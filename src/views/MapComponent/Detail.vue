@@ -26,7 +26,13 @@
             </p>
           </div>
         </div>
-        <div class="gap-x-2 flex flex-nowrap">
+        <div class="gap-x-2 flex justify-end items-center flex-nowrap">
+          <div
+            @click="editAction"
+            class="bg-[#FF613c] px-3 py-1.5 cursor-pointer rounded-full text-white"
+          >
+            <i class="fa-solid fa-pen text-base text-white"></i> edit
+          </div>
           <div @click="closeModal" class="">
             <i class="fa-solid fa-xmark text-2xl text-black"></i>
           </div>
@@ -92,6 +98,10 @@ const part = ref("rooms");
 
 const setPart = (p) => {
   part.value = p;
+};
+
+const editAction = () => {
+  window.open(`/product/hotel/edit/${props.hotelId}`, "_blank");
 };
 
 const getDetailAction = async (id) => {

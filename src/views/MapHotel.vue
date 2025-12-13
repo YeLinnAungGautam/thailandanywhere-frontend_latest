@@ -84,7 +84,7 @@
             </div>
 
             <!-- Place Filter (shown when city is selected) -->
-            <div v-if="selectedCity && visiblePlaces">
+            <div v-if="selectedCity && visiblePlaces && selectPart == 'hotel'">
               <div class="flex justify-between items-center mb-3">
                 <p class="text-xs font-semibold text-gray-700">Place</p>
                 <div class="flex justify-end">
@@ -139,7 +139,7 @@
                 <div class="flex justify-end">
                   <button
                     @click="toggleSearchPanel"
-                    class="flex items-center gap-2 text-xs font-medium bg-white text-[#9333ea] rounded-full cursor-pointer transition-all"
+                    class="flex items-center gap-2 text-xs font-medium bg-white text-[#FF613c] rounded-full cursor-pointer transition-all"
                   >
                     See More
                   </button>
@@ -152,7 +152,7 @@
                   @click="selectedCategory = ''"
                   :class="[
                     selectedCategory === ''
-                      ? 'border-[#9333ea] text-[#9333ea] bg-[#9333ea]/10'
+                      ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
                       : 'border-gray-300 bg-white text-gray-700',
                     { 'bg-gray-300 text-black/30': loading },
                   ]"
@@ -166,7 +166,7 @@
                   @click="setCategory(category.id)"
                   :class="[
                     selectedCategory === category.id
-                      ? 'border-[#9333ea] text-[#9333ea] bg-[#9333ea]/10'
+                      ? 'border-[#FF613c] text-[#FF613c] bg-[#FF613c]/10'
                       : 'border-gray-300 bg-white text-gray-700',
                     { 'bg-gray-300 text-black/30': loading },
                   ]"
@@ -969,16 +969,29 @@
                           </div>
                         </div>
                       </div>
-                      <div
-                        class="flex px-2 text-xs mt-2 rounded-full justify-center py-2"
-                        @click="getViewDetail(hotel.id)"
-                        :class="
-                          selectedItemId === 'hotel-' + hotel.id
-                            ? 'text-white bg-white/20'
-                            : 'text-gray-900 bg-gray-300/20'
-                        "
-                      >
-                        View Detail
+                      <div class="flex justify-between items-center gap-x-2">
+                        <div
+                          class="flex px-2 text-xs mt-2 rounded-full w-full shadow-md justify-center py-2"
+                          @click="getViewDetail(hotel.id)"
+                          :class="
+                            selectedItemId === 'hotel-' + hotel.id
+                              ? 'text-white bg-white/20'
+                              : 'text-gray-900 bg-gray-300/20'
+                          "
+                        >
+                          Detail
+                        </div>
+                        <div
+                          class="flex px-4 text-xs mt-2 rounded-full shadow-md justify-center py-2"
+                          @click="getViewDetail(hotel.id)"
+                          :class="
+                            selectedItemId === 'hotel-' + hotel.id
+                              ? 'text-white bg-white/20'
+                              : 'text-gray-900 bg-gray-300/20'
+                          "
+                        >
+                          <PaperAirplaneIcon class="w-4 h-4" />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1067,7 +1080,7 @@
                           </div>
                         </div>
                       </div>
-                      <div
+                      <!-- <div
                         class="flex px-2 text-xs mt-2 rounded-full justify-center py-2"
                         @click.stop="viewAttractionDetail(attraction.id)"
                         :class="
@@ -1077,6 +1090,30 @@
                         "
                       >
                         View Detail
+                      </div> -->
+                      <div class="flex justify-between items-center gap-x-2">
+                        <div
+                          class="flex px-2 text-xs mt-2 shadow-md w-full rounded-full justify-center py-2"
+                          @click.stop="viewAttractionDetail(attraction.id)"
+                          :class="
+                            selectedItemId === 'attraction-' + attraction.id
+                              ? 'text-white bg-white/20'
+                              : 'text-gray-900 bg-gray-300/20'
+                          "
+                        >
+                          Detail
+                        </div>
+                        <div
+                          class="flex px-4 text-xs mt-2 shadow-md rounded-full justify-center py-2"
+                          @click="getViewDetail(hotel.id)"
+                          :class="
+                            selectedItemId === 'attraction-' + attraction.id
+                              ? 'text-white bg-white/20'
+                              : 'text-gray-900 bg-gray-300/20'
+                          "
+                        >
+                          <PaperAirplaneIcon class="w-4 h-4" />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1118,6 +1155,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useDestinationStore } from "../stores/destination";
 import { storeToRefs } from "pinia";
 import DetailAttraction from "./MapComponent/DetailAttraction.vue";
+import { PaperAirplaneIcon, QueueListIcon } from "@heroicons/vue/24/outline";
 
 const hotelStore = useHotelStore();
 const entranceStore = useEntranceStore(); // Add this
@@ -1542,24 +1580,6 @@ const setCardRef = (el, type, id) => {
 const scrollToItem = (type, id) => {
   const itemKey = `${type}-${id}`;
 
-  // Clear all active markers
-  const allMarkers = document.querySelectorAll(
-    ".price-badge, .attraction-badge"
-  );
-  allMarkers.forEach((marker) => {
-    marker.classList.remove("active");
-  });
-
-  // Activate the clicked marker
-  const activeMarker = document.querySelector(
-    `.${
-      type === "hotel" ? "price-badge" : "attraction-badge"
-    }[data-${type}-id="${id}"]`
-  );
-  if (activeMarker) {
-    activeMarker.classList.add("active");
-  }
-
   if (!showList.value) {
     showList.value = true;
   }
@@ -1578,20 +1598,42 @@ const scrollToItem = (type, id) => {
     });
   }
 
-  setTimeout(() => {
-    const card = cardRefs.value[itemKey];
-    if (card && listContainer.value) {
-      const containerRect = listContainer.value.getBoundingClientRect();
-      const cardRect = card.getBoundingClientRect();
-      const scrollLeft =
-        card.offsetLeft - containerRect.width / 2 + cardRect.width / 2;
+  // Wait for Vue to render the list before manipulating DOM
+  nextTick(() => {
+    // Clear all active markers
+    const allMarkers = document.querySelectorAll(
+      ".price-badge, .attraction-badge"
+    );
+    allMarkers.forEach((marker) => {
+      marker.classList.remove("active");
+    });
 
-      listContainer.value.scrollTo({
-        left: scrollLeft,
-        behavior: "smooth",
-      });
+    // Activate the clicked marker
+    const activeMarker = document.querySelector(
+      `.${
+        type === "hotel" ? "price-badge" : "attraction-badge"
+      }[data-${type}-id="${id}"]`
+    );
+    if (activeMarker) {
+      activeMarker.classList.add("active");
     }
-  }, 100);
+
+    // Scroll to the card
+    setTimeout(() => {
+      const card = cardRefs.value[itemKey];
+      if (card && listContainer.value) {
+        const containerRect = listContainer.value.getBoundingClientRect();
+        const cardRect = card.getBoundingClientRect();
+        const scrollLeft =
+          card.offsetLeft - containerRect.width / 2 + cardRect.width / 2;
+
+        listContainer.value.scrollTo({
+          left: scrollLeft,
+          behavior: "smooth",
+        });
+      }
+    }, 100);
+  });
 };
 
 const getMapList = async () => {
@@ -1616,6 +1658,7 @@ const getAttractionList = async () => {
     loading.value = true;
     const res = await entranceStore.getSimpleListAction({
       have_latlong: true,
+      show_only: true,
     });
     console.log(res, "this is attraction list");
 

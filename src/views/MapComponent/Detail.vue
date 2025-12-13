@@ -88,7 +88,7 @@ const props = defineProps({
 const hotelStore = useHotelStore();
 const detail = ref(null);
 const loading = ref(false);
-const part = ref("detail");
+const part = ref("rooms");
 
 const setPart = (p) => {
   part.value = p;

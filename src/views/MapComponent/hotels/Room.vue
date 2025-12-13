@@ -4,6 +4,43 @@
     <div class="w-1/3 bg-gray-50 border-r border-gray-200 overflow-y-auto">
       <div class="p-4">
         <div class="flex justify-between items-center mb-4">
+          <h2 class="text-base font-semibold text-[#FF613c]">Hotel</h2>
+        </div>
+        <div v-if="roomList.length > 0" class="space-y-2">
+          <div
+            @click="selectRoom('hotel')"
+            :class="[
+              'p-3 rounded-lg border cursor-pointer transition-all hover:border-[#FF613c]',
+              selectedRoom == 'hotel'
+                ? 'border-[#FF613c] bg-[#FF613c]/5'
+                : 'border-gray-200 bg-white',
+            ]"
+          >
+            <div class="flex-1">
+              <h3 class="text-sm font-medium text-gray-900">
+                {{ detail.name }}
+              </h3>
+
+              <div class="flex items-center mt-2 space-x-2">
+                <div class="flex items-center space-x-1">
+                  <div
+                    :class="[
+                      'w-2 h-2 rounded-full',
+                      detail.images && detail.images.length > 0
+                        ? 'bg-green-400'
+                        : 'bg-red-400',
+                    ]"
+                  ></div>
+                  <span class="text-xs text-gray-500">
+                    {{ detail.images?.length || 0 }} images
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center mb-4 pt-4">
           <h2 class="text-base font-semibold text-[#FF613c]">Hotel Rooms</h2>
           <span class="text-xs text-gray-500"
             >{{ roomList.length }} rooms type</span
@@ -18,7 +55,7 @@
         </div>
 
         <!-- Room List -->
-        <div v-else-if="roomList.length > 0" class="space-y-2">
+        <div v-if="roomList.length > 0" class="space-y-2">
           <div
             v-for="room in roomList"
             :key="room.id"
@@ -90,15 +127,82 @@
           </div>
         </div>
 
-        <div v-else>
+        <div v-if="selectedRoom == 'hotel'">
+          <div class="flex justify-between items-center gap-x-4">
+            <p
+              @click="partHotel = 'image'"
+              class="w-full text-center cursor-pointer rounded-xl py-2 text-xs"
+              :class="
+                partHotel == 'image' ? 'bg-[#FF624c] text-white' : 'bg-gray-200'
+              "
+            >
+              Images
+            </p>
+            <p
+              @click="partHotel = 'facility'"
+              class="w-full text-center cursor-pointer rounded-xl py-2 text-xs"
+              :class="
+                partHotel == 'facility'
+                  ? 'bg-[#FF624c] text-white'
+                  : 'bg-gray-200'
+              "
+            >
+              Facilities
+            </p>
+          </div>
+
+          <div>
+            <div class="mt-6" v-if="partHotel == 'image'">
+              <h3 class="text-sm font-semibold text-gray-700 mb-3">
+                Hotel Images ({{ detail?.images?.length || 0 }})
+              </h3>
+              <div
+                v-if="detail?.images && detail?.images.length > 0"
+                class="grid grid-cols-2 md:grid-cols-3 gap-4"
+              >
+                <div
+                  v-for="(image, index) in detail?.images"
+                  :key="image.id"
+                  class="relative group"
+                >
+                  <img
+                    :src="image.image"
+                    :alt="`Room image ${index + 1}`"
+                    class="w-full h-32 object-cover rounded-lg border border-gray-200"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6" v-if="partHotel == 'facility'">
+              <h3 class="text-sm font-semibold text-gray-700 mb-3">
+                Hotel Facilities ({{ detail?.facilities?.length || 0 }})
+              </h3>
+              <div
+                class="grid grid-cols-2 gap-4 p-6 bg-gray-50 rounded-lg min-h-[300px]"
+              >
+                <div
+                  v-for="facility in detail.facilities"
+                  :key="facility.id"
+                  class="text-sm text-gray-700 flex items-center"
+                >
+                  <img :src="facility.image" alt="" class="w-6 h-6 mr-2" />
+                  {{ facility.name }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="selectedRoom != 'hotel' && selectedRoom">
           <!-- Room Header -->
           <div class="flex justify-between items-start mb-6">
             <div>
               <h1 class="text-xl font-semibold text-gray-900">
-                {{ selectedRoom.name }}
+                {{ selectedRoom?.name }}
               </h1>
               <p class="text-sm text-gray-500 mt-1">
-                Room ID: {{ selectedRoom.id }}
+                Room ID: {{ selectedRoom?.id }}
               </p>
             </div>
             <div class="flex gap-2">
@@ -233,30 +337,7 @@
                   :alt="`Room image ${index + 1}`"
                   class="w-full h-32 object-cover rounded-lg border border-gray-200"
                 />
-                <div
-                  class="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all rounded-lg flex items-center justify-center"
-                >
-                  <button
-                    @click="deleteImage(image.id)"
-                    class="opacity-0 group-hover:opacity-100 p-1 bg-red-600 text-white rounded-full hover:bg-red-700 transition-all"
-                  >
-                    <TrashIcon class="w-4 h-4" />
-                  </button>
-                </div>
               </div>
-            </div>
-            <div
-              v-else
-              class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center"
-            >
-              <PhotoIcon class="mx-auto h-12 w-12 text-gray-400" />
-              <p class="mt-2 text-sm text-gray-600">No images uploaded</p>
-              <button
-                @click="openEditModal('images')"
-                class="mt-2 text-xs text-[#FF613c] hover:text-[#FF613c]/80"
-              >
-                Add room images
-              </button>
             </div>
           </div>
 
@@ -370,7 +451,7 @@ const fetchRooms = async () => {
       roomList.value = roomStore.rooms.data;
       // Select first room by default
       if (roomList.value.length > 0 && !selectedRoom.value) {
-        selectedRoom.value = roomList.value[0];
+        selectedRoom.value = "hotel";
       }
     }
   } catch (error) {
@@ -382,6 +463,7 @@ const fetchRooms = async () => {
 };
 
 const part = ref("image");
+const partHotel = ref("image");
 
 const selectRoom = (room) => {
   selectedRoom.value = room;
@@ -480,94 +562,6 @@ const removeNewImage = (index) => {
     URL.revokeObjectURL(image.preview);
   }
   newImages.value.splice(index, 1);
-};
-
-const uploadImages = async () => {
-  if (!selectedRoom.value || newImages.value.length === 0) return;
-
-  loading.value = true;
-  try {
-    const formData = new FormData();
-
-    // Add hotel_id and other required fields
-    formData.append("hotel_id", props.detail.id);
-    formData.append("name", selectedRoom.value.name);
-    formData.append("description", selectedRoom.value.description || "");
-    formData.append("max_person", selectedRoom.value.max_person || 1);
-    formData.append("room_price", selectedRoom.value.room_price || 0);
-    formData.append("is_extra", selectedRoom.value.is_extra ? 1 : 0);
-    formData.append("has_breakfast", selectedRoom.value.has_breakfast ? 1 : 0);
-    formData.append(
-      "meta[room_size]",
-      selectedRoom.value.meta?.room_size || ""
-    );
-    formData.append(
-      "meta[is_double]",
-      selectedRoom.value.meta?.is_double ? 1 : 0
-    );
-    formData.append("meta[is_twin]", selectedRoom.value.meta?.is_twin ? 1 : 0);
-    formData.append(
-      "meta[is_show_on]",
-      selectedRoom.value.meta?.is_show_on ? 1 : 0
-    );
-
-    // Add new images
-    newImages.value.forEach((image, index) => {
-      formData.append(`images[${index}]`, image.file);
-    });
-
-    formData.append("_method", "PUT");
-
-    const response = await roomStore.updateAction(
-      formData,
-      selectedRoom.value.id
-    );
-
-    toast.success(response.message || "Images uploaded successfully");
-    closeEditModal();
-    await fetchRooms(); // Refresh room list
-
-    // Update selected room
-    const updatedRoom = roomList.value.find(
-      (r) => r.id === selectedRoom.value.id
-    );
-    if (updatedRoom) {
-      selectedRoom.value = updatedRoom;
-    }
-  } catch (error) {
-    console.error("Error uploading images:", error);
-    toast.error(error.response?.data?.message || "Failed to upload images");
-  } finally {
-    loading.value = false;
-  }
-};
-
-const deleteImage = async (imageId) => {
-  if (
-    !selectedRoom.value ||
-    !confirm("Are you sure you want to delete this image?")
-  )
-    return;
-
-  loading.value = true;
-  try {
-    await roomStore.deleteImageAction(selectedRoom.value.id, imageId);
-    toast.success("Image deleted successfully");
-    await fetchRooms(); // Refresh room list
-
-    // Update selected room
-    const updatedRoom = roomList.value.find(
-      (r) => r.id === selectedRoom.value.id
-    );
-    if (updatedRoom) {
-      selectedRoom.value = updatedRoom;
-    }
-  } catch (error) {
-    console.error("Error deleting image:", error);
-    toast.error(error.response?.data?.message || "Failed to delete image");
-  } finally {
-    loading.value = false;
-  }
 };
 
 // Initialize component

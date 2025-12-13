@@ -13,23 +13,23 @@
       >
         <span class="text-xs font-medium whitespace-nowrap">Detail</span>
       </div>
-      <div
+      <!-- <div
         ref="navItem"
         class="flex-1 text-center relative cursor-pointer hover:text-[#FF613c] transition-colors duration-200 py-2"
         @click="setPart('media')"
         :class="part == 'media' ? 'text-[#FF613c]' : 'text-gray-600'"
       >
         <span class="text-xs font-medium whitespace-nowrap">Image & Video</span>
-      </div>
+      </div> -->
       <div
         ref="navItem"
         class="flex-1 text-center relative cursor-pointer hover:text-[#FF613c] transition-colors duration-200 py-2"
         @click="setPart('rooms')"
         :class="part == 'rooms' ? 'text-[#FF613c]' : 'text-gray-600'"
       >
-        <span class="text-xs font-medium whitespace-nowrap">Rooms</span>
+        <span class="text-xs font-medium whitespace-nowrap">Summary</span>
       </div>
-      <div
+      <!-- <div
         ref="navItem"
         class="flex-1 text-center relative cursor-pointer hover:text-[#FF613c] transition-colors duration-200 py-2"
         @click="setPart('availabilities')"
@@ -38,7 +38,7 @@
         <span class="text-xs font-medium whitespace-nowrap"
           >Availabilities</span
         >
-      </div>
+      </div> -->
 
       <!-- Animated sliding underline -->
       <div
@@ -69,9 +69,9 @@ const emit = defineEmits(["update:modelValue", "partChanged"]);
 // Navigation items configuration
 const navItems = [
   { key: "detail", label: "Detail" },
-  { key: "media", label: "Images & Videos" },
+  // { key: "media", label: "Images & Videos" },
   { key: "rooms", label: "Rooms" },
-  { key: "availabilities", label: "Availabilities" },
+  // { key: "availabilities", label: "Availabilities" },
 ];
 
 // Ref for the container to calculate positions

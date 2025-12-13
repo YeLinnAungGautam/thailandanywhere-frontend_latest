@@ -29,7 +29,7 @@
           </div>
         </div>
         <div class="gap-x-2 flex flex-nowrap">
-          <div @click="closeModal" class="">
+          <div @click="closeModal" class="cursor-pointer">
             <i class="fa-solid fa-xmark text-2xl text-black"></i>
           </div>
         </div>
@@ -161,7 +161,7 @@
             </div>
           </div>
           <div
-            v-if="!formData.variation_id"
+            v-if="!formData.variation_id && !showSuccess"
             class="flex items-center justify-center h-full"
           >
             <div class="text-center text-gray-400">
@@ -170,18 +170,85 @@
             </div>
           </div>
 
-          <div v-else class="space-y-4">
+          <div v-if="formData.variation_id && !showSuccess" class="space-y-4">
+            <div>
+              <p class="text-sm font-semibold text-[#FF613c] mb-3">
+                {{ selectedRoom?.name || "No room selected" }}
+              </p>
+            </div>
+
             <!-- Check-in Date -->
             <div>
               <label class="block text-xs font-medium text-gray-700 mb-2">
                 Check-in Date <span class="text-red-500">*</span>
               </label>
-              <VueDatePicker
-                v-model="formData.checkin_date"
-                :format="'yyyy-MM-dd'"
-                placeholder="Select check-in date"
-                :min-date="new Date()"
-              />
+              <div class="flex gap-2">
+                <!-- Day Input -->
+                <input
+                  type="number"
+                  v-model.number="dateFormatData.day"
+                  @input="updateCheckinDate"
+                  placeholder="DD"
+                  min="1"
+                  max="31"
+                  class="w-20 border border-gray-300 px-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center"
+                />
+
+                <!-- Month Input -->
+                <input
+                  type="number"
+                  v-model.number="dateFormatData.month"
+                  @input="updateCheckinDate"
+                  placeholder="MM"
+                  min="1"
+                  max="12"
+                  class="w-20 border border-gray-300 px-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center"
+                />
+
+                <!-- Year Input -->
+                <input
+                  type="number"
+                  v-model.number="dateFormatData.year"
+                  @input="updateCheckinDate"
+                  placeholder="YYYY"
+                  min="1900"
+                  max="2100"
+                  class="w-24 border border-gray-300 px-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center"
+                />
+
+                <!-- Calendar Button -->
+                <div class="relative">
+                  <button
+                    type="button"
+                    @click="openCheckinDatePicker"
+                    class="w-36 h-10 flex items-center justify-center bg-[#FF613c] text-white border border-gray-300 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
+                  >
+                    <svg
+                      class="w-5 h-5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span class="text-sm ml-2">Choose Date</span>
+                  </button>
+
+                  <!-- Hidden Date Input -->
+                  <input
+                    ref="checkinDatePickerInput"
+                    type="date"
+                    v-model="formData.checkin_date"
+                    @change="updateFromCheckinDatePicker"
+                    class="absolute opacity-0 pointer-events-none"
+                  />
+                </div>
+              </div>
             </div>
 
             <!-- Check-out Date -->
@@ -189,24 +256,85 @@
               <label class="block text-xs font-medium text-gray-700 mb-2">
                 Check-out Date <span class="text-red-500">*</span>
               </label>
-              <VueDatePicker
-                v-model="formData.checkout_date"
-                :format="'yyyy-MM-dd'"
-                placeholder="Select check-out date"
-                :min-date="formData.checkin_date || new Date()"
-              />
+              <div class="flex gap-2">
+                <!-- Day Input -->
+                <input
+                  type="number"
+                  v-model.number="dateFormatData.day_checkout"
+                  @input="updateCheckoutDate"
+                  placeholder="DD"
+                  min="1"
+                  max="31"
+                  class="w-20 border border-gray-300 px-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center"
+                />
+
+                <!-- Month Input -->
+                <input
+                  type="number"
+                  v-model.number="dateFormatData.month_checkout"
+                  @input="updateCheckoutDate"
+                  placeholder="MM"
+                  min="1"
+                  max="12"
+                  class="w-20 border border-gray-300 px-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center"
+                />
+
+                <!-- Year Input -->
+                <input
+                  type="number"
+                  v-model.number="dateFormatData.year_checkout"
+                  @input="updateCheckoutDate"
+                  placeholder="YYYY"
+                  min="1900"
+                  max="2100"
+                  class="w-24 border border-gray-300 px-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center"
+                />
+
+                <!-- Calendar Button -->
+                <div class="relative">
+                  <button
+                    type="button"
+                    @click="openCheckoutDatePicker"
+                    class="w-36 h-10 flex items-center justify-center bg-[#FF613c] text-white border border-gray-300 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
+                  >
+                    <svg
+                      class="w-5 h-5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span class="text-sm ml-2">Choose Date</span>
+                  </button>
+
+                  <!-- Hidden Date Input -->
+                  <input
+                    ref="checkoutDatePickerInput"
+                    type="date"
+                    v-model="formData.checkout_date"
+                    @change="updateFromCheckoutDatePicker"
+                    class="absolute opacity-0 pointer-events-none"
+                  />
+                </div>
+              </div>
             </div>
 
             <!-- Quantity -->
             <div>
               <label class="block text-xs font-medium text-gray-700 mb-2">
-                Quantity <span class="text-red-500">*</span>
+                Number Of Rooms <span class="text-red-500">*</span>
               </label>
               <input
                 type="number"
-                v-model="formData.quantity"
+                v-model.number="formData.quantity"
                 min="1"
-                class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
+                class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
                 placeholder="Enter quantity"
               />
             </div>
@@ -218,14 +346,14 @@
               </label>
               <textarea
                 v-model="formData.comment"
-                rows="3"
-                class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent resize-none"
+                rows="4"
+                class="w-full px-4 py-2.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent resize-none"
                 placeholder="Add any notes or comments..."
               ></textarea>
             </div>
 
             <!-- Selected Room Summary -->
-            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <!-- <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
               <p class="text-xs font-semibold text-gray-600 mb-2">
                 Selected Room
               </p>
@@ -239,7 +367,7 @@
                   ฿{{ selectedRoom?.room_price?.toLocaleString() }}
                 </p>
               </div>
-            </div>
+            </div> -->
 
             <!-- Action Buttons -->
             <div
@@ -326,6 +454,85 @@ const formData = ref({
   status: "pending",
 });
 
+const dateFormatData = ref({
+  day: null,
+  month: null,
+  year: null,
+  day_checkout: null,
+  month_checkout: null,
+  year_checkout: null,
+});
+
+// Check-in date functions
+const updateFromCheckinDatePicker = () => {
+  if (
+    formData.value.checkin_date &&
+    formData.value.checkin_date.includes("-")
+  ) {
+    const [y, m, d] = formData.value.checkin_date.split("-");
+    dateFormatData.value.year = parseInt(y);
+    dateFormatData.value.month = parseInt(m);
+    dateFormatData.value.day = parseInt(d);
+  }
+};
+
+const updateCheckinDate = () => {
+  if (
+    dateFormatData.value.day &&
+    dateFormatData.value.month &&
+    dateFormatData.value.year
+  ) {
+    const paddedDay = String(dateFormatData.value.day).padStart(2, "0");
+    const paddedMonth = String(dateFormatData.value.month).padStart(2, "0");
+    formData.value.checkin_date = `${dateFormatData.value.year}-${paddedMonth}-${paddedDay}`;
+  }
+};
+
+const checkinDatePickerInput = ref(null);
+const openCheckinDatePicker = () => {
+  if (checkinDatePickerInput.value) {
+    checkinDatePickerInput.value.showPicker();
+  }
+};
+
+// Check-out date functions
+const updateFromCheckoutDatePicker = () => {
+  if (
+    formData.value.checkout_date &&
+    formData.value.checkout_date.includes("-")
+  ) {
+    const [y, m, d] = formData.value.checkout_date.split("-");
+    dateFormatData.value.year_checkout = parseInt(y);
+    dateFormatData.value.month_checkout = parseInt(m);
+    dateFormatData.value.day_checkout = parseInt(d);
+  }
+};
+
+const updateCheckoutDate = () => {
+  if (
+    dateFormatData.value.day_checkout &&
+    dateFormatData.value.month_checkout &&
+    dateFormatData.value.year_checkout
+  ) {
+    const paddedDay = String(dateFormatData.value.day_checkout).padStart(
+      2,
+      "0"
+    );
+    const paddedMonth = String(dateFormatData.value.month_checkout).padStart(
+      2,
+      "0"
+    );
+    formData.value.checkout_date = `${dateFormatData.value.year_checkout}-${paddedMonth}-${paddedDay}`;
+  }
+};
+
+const checkoutDatePickerInput = ref(null);
+const openCheckoutDatePicker = () => {
+  if (checkoutDatePickerInput.value) {
+    checkoutDatePickerInput.value.showPicker();
+  }
+};
+
 const selectedRoom = ref(null);
 
 const selectRoom = (room) => {
@@ -359,13 +566,21 @@ const viewAllAvailabilities = () => {
 const resetForm = () => {
   formData.value = {
     product_type: "hotel",
-    product_id: null,
+    product_id: formData.value.product_id,
     variation_id: null,
     checkin_date: null,
     checkout_date: null,
     quantity: 1,
     comment: "",
     status: "pending",
+  };
+  dateFormatData.value = {
+    day: null,
+    month: null,
+    year: null,
+    day_checkout: null,
+    month_checkout: null,
+    year_checkout: null,
   };
   selectedRoom.value = null;
 };
@@ -402,7 +617,10 @@ const createAvailability = async () => {
 
     if (res.result) {
       showSuccess.value = true;
+      // Reset form but keep the hotel selected
+      const currentProductId = formData.value.product_id;
       resetForm();
+      formData.value.product_id = currentProductId;
     }
   } catch (error) {
     console.error("Error creating availability:", error);

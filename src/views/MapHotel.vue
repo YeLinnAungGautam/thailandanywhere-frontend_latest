@@ -1314,28 +1314,16 @@ const attractionCategories = computed(() => {
 
 // Show only first 4 categories
 const visibleCategories = computed(() => {
-  const selectedIndex = attractionCategories.value.findIndex(
-    (cat) => cat.id === selectedCategory.value
-  );
-  const startIndex = selectedIndex !== -1 ? selectedIndex : 0;
-  return attractionCategories.value.slice(startIndex, startIndex + 4);
+  return attractionCategories.value;
 });
 
 // Show only first 4 cities
 const visibleCities = computed(() => {
-  const selectedIndex = cityList.value.findIndex(
-    (city) => city.id === selectedCity.value
-  );
-  const startIndex = selectedIndex !== -1 ? selectedIndex : 0;
-  return cityList.value.slice(startIndex, startIndex + 4);
+  return cityList.value;
 });
 
 const visiblePlaces = computed(() => {
-  const selectedIndex = getPlaceList.value.findIndex(
-    (place) => place.name == selectedPlace.value
-  );
-  const startIndex = selectedIndex !== -1 ? selectedIndex : 0;
-  return getPlaceList.value.slice(startIndex, startIndex + 4);
+  return getPlaceList.value;
 });
 
 // Calculate distance between two coordinates (Haversine formula)

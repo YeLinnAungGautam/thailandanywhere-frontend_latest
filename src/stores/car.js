@@ -8,7 +8,7 @@ export const useCarStore = defineStore("car", {
     async getSimpleListAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("/cars");
+        const response = await axios.get("/cars?limit=1000&page=1");
         this.cars = response.data.result;
         this.loading = false;
 

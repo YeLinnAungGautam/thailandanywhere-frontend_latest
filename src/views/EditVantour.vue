@@ -63,6 +63,7 @@ const formData = ref({
 const formPrice = ref({
   car: "",
   price: "",
+  cost: "",
   agent_price: "",
 });
 const addNewPrice = () => {
@@ -71,6 +72,7 @@ const addNewPrice = () => {
   formPrice.value = {
     car: "",
     price: "",
+    cost: "",
     agent_price: "",
   };
 };
@@ -156,6 +158,9 @@ const onSubmitHandler = async () => {
   }
   for (var x = 0; x < formData.value.prices.length; x++) {
     frmData.append("prices[" + x + "]" + [x], formData.value.prices[x].price);
+  }
+  for (var x = 0; x < formData.value.prices.length; x++) {
+    frmData.append("costs[" + x + "]" + [x], formData.value.prices[x].cost);
   }
   for (var x = 0; x < formData.value.prices.length; x++) {
     frmData.append(
@@ -404,6 +409,15 @@ onMounted(async () => {
                 </div>
                 <div class="flex-1">
                   <input
+                    v-model="formPrice.cost"
+                    type="text"
+                    id="title"
+                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    placeholder="enter costs"
+                  />
+                </div>
+                <div class="flex-1">
+                  <input
                     v-model="formPrice.agent_price"
                     type="text"
                     id="title"
@@ -443,6 +457,15 @@ onMounted(async () => {
                     id="title"
                     class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
                     placeholder="enter prices"
+                  />
+                </div>
+                <div class="flex-1">
+                  <input
+                    v-model="price.cost"
+                    type="text"
+                    id="title"
+                    class="h-12 w-full bg-white/50 border border-gray-300 rounded-md shadow-sm px-4 py-2 text-gray-900 focus:outline-none focus:border-gray-300"
+                    placeholder="enter costs"
                   />
                 </div>
                 <div class="flex-1">

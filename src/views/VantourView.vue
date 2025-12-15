@@ -840,7 +840,7 @@ onMounted(async () => {
                       placeholder="enter prices"
                     />
                   </div>
-                  <div class="flex-1" v-if="!authStore.isAgent">
+                  <div class="flex-1">
                     <input
                       v-model="formPrice.cost"
                       type="text"
@@ -900,7 +900,7 @@ onMounted(async () => {
                       placeholder="enter prices"
                     />
                   </div>
-                  <div class="flex-1" v-if="!authStore.isAgent">
+                  <div class="flex-1">
                     <input
                       v-model="price.cost"
                       type="text"

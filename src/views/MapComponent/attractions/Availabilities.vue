@@ -253,7 +253,7 @@
             <!-- Quantity -->
             <div>
               <label class="block text-xs font-medium text-gray-700 mb-2">
-                Number of Tickets <span class="text-red-500">*</span>
+                Number of Adult Tickets <span class="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -261,6 +261,20 @@
                 min="1"
                 class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
                 placeholder="Enter quantity"
+              />
+            </div>
+
+            <!-- Quantity -->
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-2">
+                Number of Child Tickets <span class="text-red-500"></span>
+              </label>
+              <input
+                type="number"
+                v-model="formData.child_qty"
+                min="1"
+                class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
+                placeholder="Enter child quantity"
               />
             </div>
 
@@ -364,6 +378,7 @@ const formData = ref({
   checkin_date: null,
   checkout_date: null,
   quantity: 1,
+  child_qty: 0,
   comment: "",
   status: "pending",
 });
@@ -424,6 +439,7 @@ const resetForm = () => {
     checkin_date: null,
     checkout_date: null,
     quantity: 1,
+    child_qty: 0,
     comment: "",
     status: "pending",
   };
@@ -456,6 +472,7 @@ const createAvailability = async () => {
     frmData.append("product_id", formData.value.product_id);
     frmData.append("variations[0][variable_id]", formData.value.variation_id);
     frmData.append("variations[0][quantity]", formData.value.quantity);
+    frmData.append("variations[0][child_qty]", formData.value.child_qty);
     frmData.append(
       "variations[0][checkin_date]",
       dateFormat(formData.value.checkin_date)

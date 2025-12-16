@@ -179,18 +179,22 @@
 
             <!-- Price Filter -->
             <div>
-              <div class="flex justify-between items-center mb-3">
+              <div
+                class="flex justify-between items-center mb-3"
+                :class="!priceRangeShow ? 'pb-4 border-b ' : ''"
+              >
                 <p class="text-xs font-semibold text-gray-700">Price Range</p>
                 <div class="flex justify-end">
                   <button
-                    @click="toggleSearchPanel"
+                    @click="priceRangeShow = !priceRangeShow"
                     class="flex items-center gap-2 text-xs font-medium bg-white text-[#FF613c] rounded-full cursor-pointer transition-all"
                   >
-                    See More
+                    {{ priceRangeShow ? "Show" : "Hide" }}
                   </button>
                 </div>
               </div>
               <div
+                v-if="priceRangeShow"
                 class="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1"
               >
                 <button
@@ -924,7 +928,204 @@
           </DialogPanel>
         </Modal>
 
-        <!-- List Toggle Button -->
+        <!-- Search Toggle Button / Search Bar - TOP LEFT -->
+        <div
+          class="absolute top-5 left-[100px] z-[1001] transition-all duration-300"
+        >
+          <!-- Search Input Mode -->
+          <div
+            v-if="showSearch"
+            class="flex items-center gap-2 bg-white rounded-full shadow-lg border border-black/10 overflow-hidden"
+          >
+            <input
+              ref="searchInputRef"
+              v-model="searchQuery"
+              type="text"
+              :placeholder="
+                selectPart === 'hotel'
+                  ? 'Search all hotels...'
+                  : selectPart === 'attraction'
+                  ? 'Search all attractions...'
+                  : 'Search...'
+              "
+              class="px-4 py-3 text-sm w-64 focus:outline-none"
+              @input="onSearchInput"
+              @focus="showSearchDropdown = true"
+            />
+            <button
+              @click="closeSearch"
+              class="px-4 py-3 hover:bg-gray-50 transition-colors"
+            >
+              <svg
+                class="w-5 h-5 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Search Icon Button -->
+          <button
+            v-else
+            @click="openSearch"
+            class="w-12 h-12 bg-white border border-black/10 hover:bg-gray-50 rounded-full shadow-lg flex items-center justify-center transition-all duration-300"
+          >
+            <svg
+              class="w-5 h-5 text-gray-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </button>
+
+          <!-- Search Dropdown Results -->
+          <transition
+            enter-active-class="transition-all duration-200 ease-out"
+            enter-from-class="opacity-0 translate-y-2"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition-all duration-150 ease-in"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 translate-y-2"
+          >
+            <div
+              v-if="showSearchDropdown && searchQuery.trim()"
+              class="absolute left-0 mt-2 w-[400px] bg-white rounded-xl shadow-2xl border border-gray-200 max-h-[500px] overflow-y-auto scroll-container-y"
+              style="top: 100%"
+            >
+              <!-- Hotels Results -->
+              <div v-if="searchResults.hotels.length > 0">
+                <div
+                  class="px-4 py-2 bg-gray-50 border-b border-gray-200 sticky top-0"
+                >
+                  <p class="text-xs font-semibold text-gray-700 uppercase">
+                    Hotels ({{ searchResults.hotels.length }})
+                  </p>
+                </div>
+                <div
+                  v-for="hotel in searchResults.hotels"
+                  :key="'search-hotel-' + hotel.id"
+                  @click="selectSearchResult('hotel', hotel)"
+                  class="px-4 py-3 hover:bg-[#FF613c]/5 cursor-pointer border-b border-gray-100 transition-colors"
+                >
+                  <div class="flex items-center gap-3">
+                    <img
+                      :src="
+                        hotel.images?.[0]?.image ||
+                        'https://via.placeholder.com/50x50?text=Hotel'
+                      "
+                      :alt="hotel.name"
+                      class="w-12 h-12 object-cover rounded-lg flex-shrink-0"
+                    />
+                    <div class="flex-1 min-w-0">
+                      <h4 class="text-sm font-semibold text-gray-900 truncate">
+                        {{ hotel.name }}
+                      </h4>
+                      <div class="flex items-center gap-2 mt-1">
+                        <span class="text-xs text-gray-600">{{
+                          hotel.place || getCityNameById(hotel.city_id)
+                        }}</span>
+                        <span class="text-xs font-semibold text-[#FF613c]">
+                          ฿{{
+                            hotel.lowest_room_price?.toLocaleString() || "N/A"
+                          }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Attractions Results -->
+              <div v-if="searchResults.attractions.length > 0">
+                <div
+                  class="px-4 py-2 bg-gray-50 border-b border-gray-200 sticky top-0"
+                >
+                  <p class="text-xs font-semibold text-gray-700 uppercase">
+                    Attractions ({{ searchResults.attractions.length }})
+                  </p>
+                </div>
+                <div
+                  v-for="attraction in searchResults.attractions"
+                  :key="'search-attraction-' + attraction.id"
+                  @click="selectSearchResult('attraction', attraction)"
+                  class="px-4 py-3 hover:bg-[#9333ea]/5 cursor-pointer border-b border-gray-100 transition-colors"
+                >
+                  <div class="flex items-center gap-3">
+                    <img
+                      :src="
+                        attraction.cover_image ||
+                        'https://via.placeholder.com/50x50?text=Attraction'
+                      "
+                      :alt="attraction.name"
+                      class="w-12 h-12 object-cover rounded-lg flex-shrink-0"
+                    />
+                    <div class="flex-1 min-w-0">
+                      <h4 class="text-sm font-semibold text-gray-900 truncate">
+                        {{ attraction.name }}
+                      </h4>
+                      <div class="flex items-center gap-2 mt-1">
+                        <span class="text-xs text-gray-600">{{
+                          attraction.cities?.[0]?.name || "Attraction"
+                        }}</span>
+                        <span class="text-xs font-semibold text-[#9333ea]">
+                          ฿{{
+                            attraction.lowest_variation_price?.toLocaleString() ||
+                            "N/A"
+                          }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- No Results -->
+              <div
+                v-if="
+                  searchQuery.trim() &&
+                  searchResults.hotels.length === 0 &&
+                  searchResults.attractions.length === 0
+                "
+                class="px-4 py-8 text-center"
+              >
+                <svg
+                  class="w-12 h-12 mx-auto mb-3 text-gray-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p class="text-sm text-gray-500">No results found</p>
+                <p class="text-xs text-gray-400 mt-1">
+                  Try a different search term
+                </p>
+              </div>
+            </div>
+          </transition>
+        </div>
+
+        <!-- Keep the original List Toggle Button at bottom right -->
         <button
           @click="toggleList"
           :style="{
@@ -1248,6 +1449,7 @@ const route = useRoute();
 
 // State
 const loading = ref(false);
+const priceRangeShow = ref(false);
 const allHotels = ref([]);
 const allAttractions = ref([]); // Add this
 const cityList = ref([]);
@@ -2108,6 +2310,124 @@ const closeAttractionModal = () => {
   attractionAvailableModalOpen.value = false;
 };
 
+// Add these refs
+const showSearch = ref(false);
+const searchQuery = ref("");
+const showSearchDropdown = ref(false);
+const searchInputRef = ref(null);
+
+// Computed property for search results - searches ALL hotels/attractions
+const searchResults = computed(() => {
+  const query = searchQuery.value.toLowerCase().trim();
+
+  if (!query) {
+    return { hotels: [], attractions: [] };
+  }
+
+  // Search through ALL hotels (not filtered results)
+  const hotels =
+    selectPart.value === "hotel" || selectPart.value === "all"
+      ? allHotels.value
+          .filter(
+            (hotel) =>
+              hotel.name.toLowerCase().includes(query) ||
+              hotel.place?.toLowerCase().includes(query)
+          )
+          .slice(0, 20) // Show more results
+      : [];
+
+  // Search through ALL attractions (not filtered results)
+  const attractions =
+    selectPart.value === "attraction" || selectPart.value === "all"
+      ? allAttractions.value
+          .filter(
+            (attraction) =>
+              attraction.name.toLowerCase().includes(query) ||
+              attraction.cities?.some((city) =>
+                city.name.toLowerCase().includes(query)
+              )
+          )
+          .slice(0, 20) // Show more results
+      : [];
+
+  return { hotels, attractions };
+});
+
+// Helper function to get city name by ID
+const getCityNameById = (cityId) => {
+  const city = cityList.value.find((c) => c.id == cityId);
+  return city ? city.name : "Unknown City";
+};
+
+// Search functions
+const openSearch = () => {
+  showSearch.value = true;
+  nextTick(() => {
+    searchInputRef.value?.focus();
+  });
+};
+
+const closeSearch = () => {
+  showSearch.value = false;
+  searchQuery.value = "";
+  showSearchDropdown.value = false;
+};
+
+const onSearchInput = () => {
+  showSearchDropdown.value = searchQuery.value.trim().length > 0;
+};
+
+const selectSearchResult = (type, item) => {
+  // Close search dropdown
+  showSearchDropdown.value = false;
+
+  // Clear any existing filters to show the selected item
+  selectedCity.value = "";
+  selectedPlace.value = "";
+  priceFilter.value = "";
+  selectedCategory.value = "";
+  clearDestination();
+
+  // If searching for a hotel, set the city filter to show it
+  if (type === "hotel" && item.city_id) {
+    selectedCity.value = item.city_id;
+  }
+
+  // If searching for an attraction, set the city filter to show it
+  if (type === "attraction" && item.cities?.[0]?.id) {
+    selectedCity.value = item.cities[0].id;
+  }
+
+  // Update markers and center map
+  updateMapMarkers();
+
+  // Wait for markers to update
+  setTimeout(() => {
+    // Ensure list is visible
+    if (!showList.value) {
+      showList.value = true;
+    }
+
+    // Select and scroll to the item
+    scrollToItem(type, item.id);
+
+    // Clear search query
+    searchQuery.value = "";
+
+    // Close search bar after a short delay
+    setTimeout(() => {
+      showSearch.value = false;
+    }, 300);
+  }, 300);
+};
+
+// Close dropdown when clicking outside
+const handleSearchClickOutside = (event) => {
+  if (showSearchDropdown.value && !event.target.closest(".absolute.right-3")) {
+    showSearchDropdown.value = false;
+  }
+};
+
 onMounted(async () => {
   if (route.query.selectPart) {
     selectPart.value = route.query.selectPart;
@@ -2116,6 +2436,8 @@ onMounted(async () => {
   document.body.style.overflow = "hidden";
   document.documentElement.style.overflow = "hidden";
   document.addEventListener("click", handleClickOutside);
+
+  document.addEventListener("click", handleSearchClickOutside);
 
   await getCities();
   await getDestinations();
@@ -2131,6 +2453,7 @@ onUnmounted(() => {
   document.body.style.overflow = "";
   document.documentElement.style.overflow = "";
   document.removeEventListener("click", handleClickOutside);
+  document.removeEventListener("click", handleSearchClickOutside);
 });
 </script>
 

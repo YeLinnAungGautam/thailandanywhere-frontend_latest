@@ -297,7 +297,7 @@ onMounted(async () => {
       </p>
     </div>
     <!-- Main Content -->
-    <div class="bg-white/60 rounded-lg shadow-sm">
+    <div class="bg-white/60 w-full rounded-lg shadow-sm">
       <!-- Filters -->
       <div class="p-3 md:p-4 border-b border-gray-200">
         <div class="gap-4">
@@ -533,8 +533,18 @@ onMounted(async () => {
               >
                 {{ r.quantity }}
                 <span class="text-xs text-gray-500">{{
-                  product_type == "hotel" ? "Rooms" : "Tickets"
+                  product_type == "hotel" ? "Rooms" : "Adult"
                 }}</span>
+                <p class="text-sm text-gray-900">
+                  {{
+                    product_type != "hotel" && r.child_qty > 0
+                      ? `${r.child_qty}`
+                      : ""
+                  }}
+                  <span class="text-xs text-gray-500">{{
+                    product_type != "hotel" && r.child_qty > 0 ? "Child" : ""
+                  }}</span>
+                </p>
               </td>
               <!-- Total Nights (only for hotel) -->
               <td
@@ -912,27 +922,68 @@ onMounted(async () => {
                 <p v-else class="text-sm text-gray-400 italic">No comment</p>
               </div>
 
-              <!-- Check-in Date -->
-              <div class="border-b border-gray-200 pb-3">
-                <p class="text-xs text-gray-500 mb-1">
-                  {{
-                    product_type === "hotel" ? "Check-in Date" : "Service Date"
-                  }}
-                </p>
-                <p class="text-sm font-medium text-gray-900">
-                  {{ formatDate(selectedDetailItem.checkin_date) }}
-                </p>
+              <div class="grid grid-cols-2 gap-2">
+                <!-- Check-in Date -->
+                <div
+                  class="border-b border-gray-200 pb-3"
+                  :class="product_type != 'hotel' ? 'col-span-2' : ''"
+                >
+                  <p class="text-xs text-gray-500 mb-1">
+                    {{
+                      product_type === "hotel"
+                        ? "Check-in Date"
+                        : "Service Date"
+                    }}
+                  </p>
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ formatDate(selectedDetailItem.checkin_date) }}
+                  </p>
+                </div>
+
+                <!-- Check-out Date (for hotels only) -->
+                <div
+                  v-if="product_type === 'hotel'"
+                  class="border-b border-gray-200 pb-3"
+                >
+                  <p class="text-xs text-gray-500 mb-1">Check-out Date</p>
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ formatDate(selectedDetailItem.checkout_date) }}
+                  </p>
+                </div>
               </div>
 
-              <!-- Check-out Date (for hotels only) -->
-              <div
-                v-if="product_type === 'hotel'"
-                class="border-b border-gray-200 pb-3"
-              >
-                <p class="text-xs text-gray-500 mb-1">Check-out Date</p>
-                <p class="text-sm font-medium text-gray-900">
-                  {{ formatDate(selectedDetailItem.checkout_date) }}
-                </p>
+              <div class="grid grid-cols-2 gap-2">
+                <!-- Qty & Night -->
+                <div class="border-b border-gray-200 pb-3">
+                  <p class="text-xs text-gray-500 mb-1">
+                    {{
+                      product_type === "hotel"
+                        ? "Room Quantity"
+                        : "Adult Quantity"
+                    }}
+                  </p>
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ selectedDetailItem.quantity }}
+                    {{ product_type == "hotel" ? "Rooms" : "Adult" }}
+                  </p>
+                </div>
+
+                <!-- Check-out Date (for hotels only) -->
+                <div class="border-b border-gray-200 pb-3">
+                  <p class="text-xs text-gray-500 mb-1">
+                    {{ product_type == "hotel" ? "Nights" : "Child" }}
+                  </p>
+                  <p class="text-sm font-medium text-gray-900">
+                    {{
+                      product_type == "hotel"
+                        ? calculateTotalNights(
+                            selectedDetailItem.checkin_date,
+                            selectedDetailItem.checkout_date
+                          )
+                        : selectedDetailItem.child_qty
+                    }}
+                  </p>
+                </div>
               </div>
 
               <!-- Action Buttons -->

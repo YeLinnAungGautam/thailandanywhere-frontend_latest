@@ -5,9 +5,11 @@ export const useAvailableStore = defineStore("available", {
   state: () => ({ availables: null, loading: false }),
   getters: {},
   actions: {
-    async getChangePage(url) {
+    async getChangePage(url, params) {
       this.loading = true;
-      const response = await axios.get(url);
+      const response = await axios.get(url, {
+        params: params,
+      });
       this.availables = response.data;
       this.loading = false;
       return response.data;

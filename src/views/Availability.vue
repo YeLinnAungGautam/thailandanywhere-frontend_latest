@@ -82,6 +82,18 @@ const statusOptions = [
   { id: "unavailable", name: "Unavailable" },
 ];
 
+const deleteAction = async (id) => {
+  const res = await availableStore.deleteAction(id);
+  console.log(res);
+
+  if (res.message == "success") {
+    toast.success("Availability deleted successfully");
+    await availableStore.getListAction(watchSystem.value);
+  } else {
+    console.error("Failed to delete availability", res.message);
+  }
+};
+
 const dateFormat = (inputDateString) => {
   if (inputDateString != null) {
     const inputDate = new Date(inputDateString);
@@ -201,7 +213,7 @@ const chooseNameAction = async () => {
 };
 
 const changePage = async (url) => {
-  await availableStore.getChangePage(url);
+  await availableStore.getChangePage(url, watchSystem.value);
 };
 
 const openChangeStatusModal = (availability) => {
@@ -1001,9 +1013,11 @@ onMounted(async () => {
                   Change Status
                 </button>
 
-                <!-- Delete Button -->
                 <button
-                  v-if="authStore.isSuperAdmin"
+                  v-if="
+                    authStore.isSuperAdmin ||
+                    authStore.user?.id == selectedDetailItem.created_by.id
+                  "
                   @click="
                     deleteAction(selectedDetailItem.id);
                     closeInfoDrawer();

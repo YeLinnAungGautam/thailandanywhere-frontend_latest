@@ -204,8 +204,10 @@
 import { ref, onMounted } from "vue";
 import Layout from "./Layout.vue";
 import { ArrowUturnLeftIcon } from "@heroicons/vue/24/outline";
+import { useEmailStore } from "../stores/email";
 
 // State
+const emailStore = useEmailStore();
 const mails = ref([]);
 const selectedMail = ref(null);
 const showCompose = ref(false);
@@ -221,7 +223,9 @@ const composeMail = ref({
 const fetchMails = async () => {
   try {
     // Replace with your actual API endpoint
-    // const response = await fetch('/api/mails');
+    const response = await emailStore.getEmailAction();
+    console.log(response, "this is email response");
+
     // const data = await response.json();
     // mails.value = data;
 

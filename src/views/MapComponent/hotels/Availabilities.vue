@@ -37,7 +37,7 @@
       <div class="grid grid-cols-3 gap-4 pt-6">
         <!-- Left Side - Room Selection -->
         <div
-          class="col-span-1 h-[70vh] pb-10 overflow-y-auto border-r border-gray-200 pr-4"
+          class="col-span-1 h-[70vh] pb-20 overflow-y-auto border-r border-gray-200 pr-4"
         >
           <p class="text-sm font-semibold text-gray-700 mb-3">Select Room</p>
           <div class="space-y-2">
@@ -61,7 +61,7 @@
         </div>
 
         <!-- Right Side - Availability Details -->
-        <div class="col-span-2 h-full overflow-y-auto px-4">
+        <div class="col-span-2 h-[70vh] overflow-y-auto pb-20 px-4">
           <div
             v-if="showSuccess"
             class="flex items-center justify-center h-full"

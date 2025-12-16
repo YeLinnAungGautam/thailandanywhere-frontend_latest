@@ -24,6 +24,7 @@ import {
   FunnelIcon,
   MagnifyingGlassIcon,
   ChatBubbleLeftIcon,
+  InformationCircleIcon,
 } from "@heroicons/vue/24/outline";
 import Swal from "sweetalert2";
 import { useToast } from "vue-toastification";
@@ -57,9 +58,8 @@ const toast = useToast();
 const searchModal = ref(false);
 const changeStatusModal = ref(false);
 const selectedAvailability = ref(null);
-const hoveredRowId = ref(null);
-const hoveredCommentId = ref(null);
-const popupPosition = ref({ top: 0, left: 0 });
+const infoDrawerOpen = ref(false);
+const selectedDetailItem = ref(null);
 
 const product_type = ref("hotel");
 const product_id = ref("");
@@ -67,7 +67,7 @@ const variation_id = ref("");
 const daterange = ref("");
 const date = ref("");
 const status = ref("");
-const order_by = ref("asc");
+const order_by = ref("desc");
 const created_by = ref("");
 
 const productNameArray = ref([]);
@@ -167,6 +167,15 @@ const formatDate = (dateString) => {
   return `${day} ${month} ${year}`;
 };
 
+const calculateTotalNights = (checkinDate, checkoutDate) => {
+  if (!checkinDate || !checkoutDate) return "-";
+  const checkin = new Date(checkinDate);
+  const checkout = new Date(checkoutDate);
+  const diffTime = Math.abs(checkout - checkin);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+};
+
 const chooseTypeAction = async () => {
   if (product_type.value == "hotel") {
     const res = await hotelStore.getSimpleListAction();
@@ -205,6 +214,16 @@ const closeChangeStatusModal = () => {
   selectedAvailability.value = null;
 };
 
+const openInfoDrawer = (item) => {
+  selectedDetailItem.value = item;
+  infoDrawerOpen.value = true;
+};
+
+const closeInfoDrawer = () => {
+  infoDrawerOpen.value = false;
+  selectedDetailItem.value = null;
+};
+
 const updateAction = async (action, id, quantity) => {
   const frmData = new FormData();
   frmData.append("_method", "PUT");
@@ -214,33 +233,6 @@ const updateAction = async (action, id, quantity) => {
   toast.success("Status changed successfully!");
   closeChangeStatusModal();
   await availableStore.getListAction(watchSystem.value);
-};
-
-const deleteAction = async (id) => {
-  Swal.fire({
-    title: "Are you sure?",
-    text: "You won't be able to revert this!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#ff613c",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, delete it!",
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        const res = await availableStore.deleteAction(id);
-        if (res.result) {
-          toast.success("Deleted successfully");
-          await availableStore.getListAction(watchSystem.value);
-        }
-      } catch (error) {
-        if (error.response.data.errors) {
-          errors.value = error.response.data.errors;
-        }
-        toast.error(error.response.data.message);
-      }
-    }
-  });
 };
 
 const closeSearchAction = () => {
@@ -288,27 +280,6 @@ const activeFiltersCount = computed(() => {
   return count;
 });
 
-const handleCommentHover = (event, rowId) => {
-  hoveredCommentId.value = rowId;
-  const rect = event.currentTarget.getBoundingClientRect();
-  popupPosition.value = {
-    top: rect.top + window.scrollY - 10,
-    left: rect.left + rect.width + 10,
-  };
-};
-
-const handleCommentLeave = () => {
-  hoveredCommentId.value = null;
-};
-
-const getCurrentComment = computed(() => {
-  if (!hoveredCommentId.value) return null;
-  const row = availables.value?.data?.find(
-    (r) => r.id === hoveredCommentId.value
-  );
-  return row?.commands || null;
-});
-
 onMounted(async () => {
   await availableStore.getListAction(watchSystem.value);
 });
@@ -320,7 +291,7 @@ onMounted(async () => {
       :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
       class="flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
     >
-      <p class="text-3xl font-medium text-[#FF613c]">
+      <p class="text-2xl md:text-3xl font-medium text-[#FF613c]">
         Availabilities
         <span class="w-2 h-2 bg-[#FF613c] rounded-full inline-block"></span>
       </p>
@@ -328,15 +299,17 @@ onMounted(async () => {
     <!-- Main Content -->
     <div class="bg-white/60 rounded-lg shadow-sm">
       <!-- Filters -->
-      <div class="p-4 border-b border-gray-200">
+      <div class="p-3 md:p-4 border-b border-gray-200">
         <div class="gap-4">
-          <div class="flex items-center justify-between gap-4">
-            <div class="flex justify-between items-center">
+          <div
+            class="flex flex-col sm:flex-row items-center justify-between gap-4"
+          >
+            <div class="flex justify-between items-center w-full sm:w-auto">
               <div
-                class="bg-gradient-to-r from-[#FF613c]/80 via-[#FF613c] to-[#f63307] rounded-full p-1 shadow-md"
+                class="bg-gradient-to-r from-[#FF613c]/80 via-[#FF613c] to-[#f63307] rounded-full p-1 shadow-md w-full sm:w-auto"
               >
                 <div class="flex justify-start gap-x-2 items-center gap-1">
-                  <!-- Prove Booking -->
+                  <!-- Hotel -->
                   <div
                     @click="product_type = 'hotel'"
                     class="flex-1 px-3 py-2 rounded-full cursor-pointer transition-all duration-300 relative"
@@ -359,6 +332,7 @@ onMounted(async () => {
                     ></div>
                   </div>
 
+                  <!-- Ticket -->
                   <div
                     @click="product_type = 'entrance_ticket'"
                     class="flex-1 px-3 py-2 rounded-full cursor-pointer transition-all duration-300 relative"
@@ -384,12 +358,14 @@ onMounted(async () => {
               </div>
             </div>
 
-            <div class="flex justify-center items-center gap-x-2">
-              <!-- Sent/Not Sent Dropdown -->
-              <div class="relative">
+            <div
+              class="flex justify-center items-center gap-x-2 w-full sm:w-auto"
+            >
+              <!-- Status Dropdown -->
+              <div class="relative flex-1 sm:flex-initial">
                 <select
                   v-model="status"
-                  class="appearance-none bg-[#FF613c] text-white text-xs px-4 py-3 pr-8 rounded-full shadow cursor-pointer focus:outline-none"
+                  class="appearance-none bg-[#FF613c] text-white text-xs px-4 py-3 pr-8 rounded-full shadow cursor-pointer focus:outline-none w-full"
                 >
                   <option
                     :value="statusOption.id"
@@ -413,12 +389,14 @@ onMounted(async () => {
                   />
                 </svg>
               </div>
-              <div class="relative">
+
+              <!-- Order Dropdown -->
+              <div class="relative flex-1 sm:flex-initial">
                 <select
                   v-model="order_by"
-                  class="appearance-none bg-[#FF613c] text-white text-xs px-4 py-3 pr-8 rounded-full shadow cursor-pointer focus:outline-none"
+                  class="appearance-none bg-[#FF613c] text-white text-xs px-4 py-3 pr-8 rounded-full shadow cursor-pointer focus:outline-none w-full"
                 >
-                  <option value="asc">Asscending</option>
+                  <option value="asc">Ascending</option>
                   <option value="desc">Descending</option>
                 </select>
                 <svg
@@ -446,52 +424,54 @@ onMounted(async () => {
           <thead class="bg-gray-50 border-b border-gray-200">
             <tr>
               <th
-                class="px-4 py-2 text-left text-xs font-semibold text-gray-700"
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
               >
                 ID
               </th>
               <th
-                class="px-4 py-2 text-left text-xs font-semibold text-gray-700"
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
               >
                 Status
               </th>
               <th
-                class="px-4 whitespace-nowrap py-2 text-left text-xs font-semibold text-gray-700"
+                class="px-2 md:px-4 whitespace-nowrap py-2 text-left text-xs font-semibold text-gray-700"
               >
-                Create Date
+                {{ product_type == "hotel" ? "Checkin Date" : "Service Date" }}
+              </th>
+
+              <th
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              >
+                {{ product_type == "hotel" ? "Hotel" : "Attraction" }}
               </th>
               <th
-                class="px-4 py-2 text-left text-xs font-semibold text-gray-700"
-              >
-                Product
-              </th>
-              <th
-                class="px-4 py-2 text-left text-xs font-semibold text-gray-700"
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
               >
                 {{ product_type == "hotel" ? "Room" : "Ticket" }} Type
               </th>
               <th
-                class="px-4 py-2 text-left text-xs font-semibold text-gray-700"
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
               >
                 {{ product_type == "hotel" ? "Room" : "Ticket" }}
               </th>
               <th
-                class="px-4 py-2 text-left text-xs font-semibold text-gray-700"
+                v-if="product_type == 'hotel'"
+                class="px-2 md:px-4 whitespace-nowrap py-2 text-left text-xs font-semibold text-gray-700"
               >
-                {{ product_type == "hotel" ? "Checkin Date" : "Service Date" }}
+                Total Nights
               </th>
               <th
-                class="px-4 py-2 text-left text-xs font-semibold text-gray-700"
+                class="px-2 md:px-4 whitespace-nowrap py-2 text-left text-xs font-semibold text-gray-700"
               >
-                Comment
+                Create Date
               </th>
               <th
-                class="px-4 py-2 text-left text-xs font-semibold text-gray-700"
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
               >
                 Request By
               </th>
               <th
-                class="px-4 py-2 text-right text-xs font-semibold text-gray-700"
+                class="px-2 md:px-4 py-2 text-right text-xs font-semibold text-gray-700"
               >
                 Actions
               </th>
@@ -504,108 +484,108 @@ onMounted(async () => {
               class="hover:bg-gray-50 transition-colors relative"
             >
               <!-- ID -->
-              <td class="px-4 py-4 text-sm text-gray-900">
+              <td class="px-2 md:px-4 py-4 text-sm text-gray-900">
                 <div class="flex items-center gap-2">#{{ r.id }}</div>
               </td>
 
               <!-- Status -->
-              <td class="px-4 py-4">
+              <td class="px-2 md:px-4 py-4">
                 <span
                   :class="getStatusBadgeClass(r.status)"
-                  class="inline-block px-2 py-1 rounded text-sm font-medium"
+                  class="inline-block px-2 py-1 rounded text-xs md:text-sm font-medium"
                 >
                   {{ r.status }}
                 </span>
               </td>
 
-              <!-- Quantity -->
-              <td class="px-4 py-4 text-sm text-gray-900">
-                {{ formatDate(r.created_at.split("T")[0]) }}
+              <!-- Checkin/Service Date -->
+              <td class="px-2 md:px-4 py-4 min-w-[120px]">
+                <div v-if="!r.date" class="text-sm text-gray-700">
+                  <div>{{ formatDate(r.checkin_date) }}</div>
+                  <div
+                    v-if="product_type == 'hotel'"
+                    class="text-xs text-gray-500"
+                  >
+                    to {{ formatDate(r.checkout_date) }}
+                  </div>
+                </div>
               </td>
 
               <!-- Product -->
-              <td class="px-4 py-4">
-                <div class="text-sm text-gray-900 w-[150px] font-medium">
+              <td class="px-2 md:px-4 py-4">
+                <div
+                  class="text-sm text-gray-900 max-w-[150px] font-medium truncate"
+                >
                   {{ r.ownerable?.name }}
                 </div>
               </td>
 
               <!-- Variation -->
-              <td class="px-4 py-4">
-                <div class="text-sm text-gray-900 w-[150px]">
+              <td class="px-2 md:px-4 py-4">
+                <div class="text-sm text-gray-900 max-w-[150px] truncate">
                   {{ r.variable?.name }}
                 </div>
               </td>
 
               <!-- Quantity -->
-              <td class="px-4 py-4 text-sm text-gray-900">
-                {{ r.quantity }}
-                {{ product_type == "hotel" ? "Rooms" : "Tickets" }}
-              </td>
-
-              <!-- Date -->
-              <td class="px-4 py-4">
-                <div v-if="!r.date" class="text-sm text-gray-700">
-                  <div>{{ formatDate(r.checkin_date) }}</div>
-                  <div v-if="product_type == 'hotel'">
-                    {{ formatDate(r.checkout_date) }}
-                  </div>
-                </div>
-              </td>
-
-              <!-- Comment -->
               <td
-                v-if="r.commands"
-                class="px-2 py-2 w-[100px] cursor-pointer text-gray-900 relative"
-                @mouseenter="handleCommentHover($event, r.id)"
-                @mouseleave="handleCommentLeave"
+                class="px-2 md:px-4 py-4 text-sm text-gray-900 whitespace-nowrap"
               >
-                <p
-                  class="bg-gray-300 text-sm text-gray-500 px-2 py-1 rounded-lg line-clamp-1"
-                >
-                  {{ r.commands }}
-                </p>
+                {{ r.quantity }}
+                <span class="text-xs text-gray-500">{{
+                  product_type == "hotel" ? "Rooms" : "Tickets"
+                }}</span>
               </td>
+              <!-- Total Nights (only for hotel) -->
               <td
-                v-if="!r.commands"
-                class="px-2 py-2 w-[100px] cursor-pointer text-gray-900 relative"
-              ></td>
+                v-if="product_type == 'hotel'"
+                class="px-2 md:px-4 py-4 text-sm text-gray-900"
+              >
+                {{ calculateTotalNights(r.checkin_date, r.checkout_date) }}
+                <span
+                  v-if="
+                    calculateTotalNights(r.checkin_date, r.checkout_date) !==
+                    '-'
+                  "
+                  class="text-xs text-gray-500"
+                >
+                  {{
+                    calculateTotalNights(r.checkin_date, r.checkout_date) === 1
+                      ? "night"
+                      : "nights"
+                  }}
+                </span>
+              </td>
+              <!-- Create Date -->
+              <td class="px-2 md:px-4 py-4 text-sm text-gray-900 min-w-[120px]">
+                {{ formatDate(r.created_at.split("T")[0]) }}
+              </td>
 
               <!-- Created By -->
-              <td class="px-4 py-4">
-                <div class="text-sm text-gray-900">
+              <td class="px-2 md:px-4 py-4">
+                <div class="text-sm text-gray-900 max-w-[120px] truncate">
                   {{ r.created_by?.name }}
                 </div>
               </td>
 
               <!-- Actions -->
-              <td class="px-4 py-4">
+              <td class="px-2 md:px-4 py-4">
                 <div class="flex items-center justify-end gap-1">
-                  <div
-                    v-if="authStore.isReservation || authStore.isSuperAdmin"
-                    class="flex items-center gap-1"
-                  >
+                  <div class="flex items-center gap-1">
                     <button
-                      v-if="authStore.isSuperAdmin"
+                      v-if="authStore.isSuperAdmin || authStore.isReservation"
                       @click="openChangeStatusModal(r)"
-                      class="px-3 py-2 text-xs text-white bg-[#FF613c] rounded-lg transition-all duration-200 hover:bg-[#e55139] hover:shadow-md active:scale-95"
+                      class="px-2 md:px-3 py-2 text-xs text-white bg-[#FF613c] rounded-lg transition-all duration-200 hover:bg-[#e55139] hover:shadow-md active:scale-95"
                     >
                       Change
                     </button>
                     <button
-                      v-if="authStore.isSuperAdmin"
-                      @click.prevent="deleteAction(r.id)"
-                      class="p-1.5 bg-red-100 text-red-600 rounded-lg transition-all duration-200 hover:bg-red-200 hover:shadow-md active:scale-95"
-                      title="Delete"
+                      @click="openInfoDrawer(r)"
+                      class="p-1.5 bg-blue-100 text-blue-600 rounded-lg transition-all duration-200 hover:bg-blue-200 hover:shadow-md active:scale-95"
+                      title="View Details"
                     >
-                      <TrashIcon class="w-5 h-5" />
+                      <InformationCircleIcon class="w-5 h-5" />
                     </button>
-                  </div>
-                  <div
-                    v-if="!authStore.isReservation && !authStore.isSuperAdmin"
-                    class="text-[10px] text-red-600 px-2 py-1 bg-red-50 rounded"
-                  >
-                    No Access
                   </div>
                 </div>
               </td>
@@ -631,41 +611,12 @@ onMounted(async () => {
           <BuildingOfficeIcon class="w-12 h-12 text-gray-300 mb-2" />
           <p class="text-sm text-gray-500">No availabilities found</p>
         </div>
-
-        <!-- Comment Hover Popup -->
-        <Teleport to="body">
-          <div
-            v-if="hoveredCommentId && getCurrentComment"
-            :style="{
-              position: 'fixed',
-              top: popupPosition.top + 'px',
-              left: popupPosition.left + 'px',
-              zIndex: 9999,
-            }"
-            class="bg-gray-800 text-white px-4 py-3 rounded-lg shadow-2xl max-w-md animate-fadeIn"
-          >
-            <div class="flex items-start gap-2">
-              <ChatBubbleLeftIcon
-                class="w-5 h-5 text-gray-300 flex-shrink-0 mt-0.5"
-              />
-              <div>
-                <p class="text-xs font-semibold text-gray-200 mb-1">Comment:</p>
-                <p class="text-sm text-white whitespace-pre-wrap">
-                  {{ getCurrentComment }}
-                </p>
-              </div>
-            </div>
-            <div
-              class="absolute -left-2 top-4 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-8 border-r-gray-800"
-            ></div>
-          </div>
-        </Teleport>
       </div>
 
       <!-- Pagination -->
       <div
         v-if="!loading && availables?.data?.length > 0"
-        class="px-4 py-3 border-t border-gray-200"
+        class="px-3 md:px-4 py-3 border-t border-gray-200"
       >
         <Pagination :data="availables" @change-page="changePage" />
       </div>
@@ -803,7 +754,7 @@ onMounted(async () => {
                 </div>
                 <div class="text-left">
                   <p class="text-sm font-medium text-gray-900">Pending</p>
-                  <p class="text-xs text-gray-500">Awaiting review</p>
+                  <p class="text-xs text-gray-500">Awaiting</p>
                 </div>
               </div>
               <CheckIcon
@@ -835,7 +786,7 @@ onMounted(async () => {
                 </div>
                 <div class="text-left">
                   <p class="text-sm font-medium text-gray-900">Available</p>
-                  <p class="text-xs text-gray-500">Ready to use</p>
+                  <p class="text-xs text-gray-500">Ready to book</p>
                 </div>
               </div>
               <CheckIcon
@@ -889,6 +840,155 @@ onMounted(async () => {
         </div>
       </DialogPanel>
     </Modal>
+
+    <!-- Info Drawer -->
+    <Teleport to="body">
+      <div
+        v-if="infoDrawerOpen"
+        class="fixed inset-0 z-50 overflow-hidden"
+        @click.self="closeInfoDrawer"
+      >
+        <!-- Overlay -->
+        <div
+          class="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+          @click="closeInfoDrawer"
+        ></div>
+
+        <!-- Drawer -->
+        <div
+          class="absolute right-0 top-0 h-full w-full sm:w-96 bg-white shadow-xl transform transition-transform duration-300 ease-in-out overflow-y-auto"
+          :class="infoDrawerOpen ? 'translate-x-0' : 'translate-x-full'"
+        >
+          <div class="p-6">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+              <h3
+                class="text-xl font-semibold text-gray-900 flex items-center gap-2"
+              >
+                <InformationCircleIcon class="w-6 h-6 text-[#FF613c]" />
+                Details
+              </h3>
+              <button
+                @click="closeInfoDrawer"
+                class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <XMarkIcon class="w-6 h-6 text-gray-500" />
+              </button>
+            </div>
+
+            <!-- Content -->
+            <div v-if="selectedDetailItem" class="space-y-4">
+              <!-- Name -->
+              <div class="border-b border-gray-200 pb-3">
+                <p class="text-xs text-gray-500 mb-1">
+                  {{ product_type == "hotel" ? "Hotel" : "Attraction" }}
+                </p>
+                <p class="text-sm font-medium text-gray-900">
+                  {{ selectedDetailItem.ownerable?.name }}
+                </p>
+              </div>
+
+              <!-- Type -->
+              <div class="border-b border-gray-200 pb-3">
+                <p class="text-xs text-gray-500 mb-1">
+                  {{ product_type == "hotel" ? "Room" : "ticket" }}
+                </p>
+                <p class="text-sm font-medium text-gray-900">
+                  {{ selectedDetailItem.variable?.name }}
+                </p>
+              </div>
+
+              <!-- Comment -->
+              <div class="border-b border-gray-200 pb-3">
+                <p class="text-xs text-gray-500 mb-2">Comment</p>
+                <div
+                  v-if="selectedDetailItem.commands"
+                  class="bg-gray-50 rounded-lg p-3"
+                >
+                  <p class="text-sm text-gray-700 whitespace-pre-wrap">
+                    {{ selectedDetailItem.commands }}
+                  </p>
+                </div>
+                <p v-else class="text-sm text-gray-400 italic">No comment</p>
+              </div>
+
+              <!-- Check-in Date -->
+              <div class="border-b border-gray-200 pb-3">
+                <p class="text-xs text-gray-500 mb-1">
+                  {{
+                    product_type === "hotel" ? "Check-in Date" : "Service Date"
+                  }}
+                </p>
+                <p class="text-sm font-medium text-gray-900">
+                  {{ formatDate(selectedDetailItem.checkin_date) }}
+                </p>
+              </div>
+
+              <!-- Check-out Date (for hotels only) -->
+              <div
+                v-if="product_type === 'hotel'"
+                class="border-b border-gray-200 pb-3"
+              >
+                <p class="text-xs text-gray-500 mb-1">Check-out Date</p>
+                <p class="text-sm font-medium text-gray-900">
+                  {{ formatDate(selectedDetailItem.checkout_date) }}
+                </p>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="space-y-3 pt-4">
+                <!-- Change Status Button -->
+                <button
+                  v-if="authStore.isSuperAdmin || authStore.isReservation"
+                  @click="
+                    openChangeStatusModal(selectedDetailItem);
+                    closeInfoDrawer();
+                  "
+                  class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-[#FF613c] rounded-lg transition-all duration-200 hover:bg-[#e55139] hover:shadow-md active:scale-95"
+                >
+                  <AdjustmentsHorizontalIcon class="w-5 h-5" />
+                  Change Status
+                </button>
+
+                <!-- Delete Button -->
+                <button
+                  v-if="authStore.isSuperAdmin"
+                  @click="
+                    deleteAction(selectedDetailItem.id);
+                    closeInfoDrawer();
+                  "
+                  class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-red-600 rounded-lg transition-all duration-200 hover:bg-red-700 hover:shadow-md active:scale-95"
+                >
+                  <TrashIcon class="w-5 h-5" />
+                  Delete
+                </button>
+
+                <!-- Call Button (Disabled) -->
+                <button
+                  disabled
+                  class="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-gray-400 bg-gray-200 rounded-lg cursor-not-allowed opacity-60"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    />
+                  </svg>
+                  Call (Coming Soon)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </Layout>
 </template>
 
@@ -911,19 +1011,21 @@ onMounted(async () => {
   background: #9ca3af;
 }
 
-/* Fade in animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Drawer scrollbar */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.2s ease-out;
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f9fafb;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 </style>

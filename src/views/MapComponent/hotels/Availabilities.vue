@@ -338,7 +338,28 @@
                 placeholder="Enter quantity"
               />
             </div>
-
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-2">
+                Bed Type <span class="text-gray-400">(Optional)</span>
+              </label>
+              <div
+                class="flex justify-start items-center pb-3 gap-x-2 overflow-x-auto"
+              >
+                <button
+                  v-for="bedType in bedTypes"
+                  :key="bedType"
+                  @click="selectedBedTypeAction(bedType)"
+                  :class="[
+                    'px-4 py-3 text-xs font-medium whitespace-nowrap rounded-lg border transition-all',
+                    selectedBedType === bedType
+                      ? 'bg-[#FF613c] text-white border-[#FF613c]'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-[#FF613c] hover:text-[#FF613c]',
+                  ]"
+                >
+                  {{ bedType }}
+                </button>
+              </div>
+            </div>
             <!-- Comment -->
             <div>
               <label class="block text-xs font-medium text-gray-700 mb-2">
@@ -454,6 +475,8 @@ const formData = ref({
   status: "pending",
 });
 
+const selectedBedType = ref(null);
+
 const dateFormatData = ref({
   day: null,
   month: null,
@@ -473,6 +496,41 @@ const updateFromCheckinDatePicker = () => {
     dateFormatData.value.year = parseInt(y);
     dateFormatData.value.month = parseInt(m);
     dateFormatData.value.day = parseInt(d);
+  }
+};
+
+const bedTypes = ref([
+  "Single bed room",
+  "Twin bed room",
+  "Double bed room",
+  "Queen bed room",
+  "King bed room",
+  "Super King bed room",
+  "Triple bed room",
+  "Quad bed room",
+  "Bunk bed room",
+  "Sofa bed room",
+  "Murphy bed room",
+  "Hollywood twin beds",
+]);
+
+const selectedBedTypeAction = (bedType) => {
+  selectedBedType.value = bedType;
+
+  // Remove existing "Bed Type : ..." pattern from comment
+  let currentComment = formData.value.comment || "";
+
+  // Remove "Bed Type : xxxx | " pattern if it exists at the beginning
+  currentComment = currentComment.replace(/^Bed Type : [^|]*\|\s*/, "");
+
+  // Create new comment with bed type
+  let newComment = `Bed Type : ${selectedBedType.value} |`;
+
+  // Add existing comment if there's any content left
+  if (currentComment.trim()) {
+    formData.value.comment = newComment + " " + currentComment;
+  } else {
+    formData.value.comment = newComment;
   }
 };
 

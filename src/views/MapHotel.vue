@@ -2311,7 +2311,7 @@ const closeAttractionModal = () => {
 };
 
 // Add these refs
-const showSearch = ref(false);
+const showSearch = ref(true);
 const searchQuery = ref("");
 const showSearchDropdown = ref(false);
 const searchInputRef = ref(null);
@@ -2368,7 +2368,7 @@ const openSearch = () => {
 };
 
 const closeSearch = () => {
-  showSearch.value = false;
+  showSearch.value = true;
   searchQuery.value = "";
   showSearchDropdown.value = false;
 };

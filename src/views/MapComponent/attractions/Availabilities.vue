@@ -250,32 +250,34 @@
               </div>
             </div>
 
-            <!-- Customer Name -->
-            <div>
-              <label class="block text-xs font-medium text-gray-700 mb-2">
-                Customer Name <span class="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                v-model="formData.customer_name"
-                min="1"
-                class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
-                placeholder="Enter Customer Name"
-              />
-            </div>
+            <div class="flex justify-between items-center gap-x-4">
+              <!-- Customer Name -->
+              <div class="w-full">
+                <label class="block text-xs font-medium text-gray-700 mb-2">
+                  Customer Name <span class="text-red-500"></span>
+                </label>
+                <input
+                  type="text"
+                  v-model="formData.customer_name"
+                  min="1"
+                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
+                  placeholder="Enter Customer Name"
+                />
+              </div>
 
-            <!-- Customer Ph Number -->
-            <div>
-              <label class="block text-xs font-medium text-gray-700 mb-2">
-                    Customer Phone Number<span class="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                v-model="formData.customer_phnumber"
-                min="1"
-                class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
-                placeholder="Enter Customer Phone Number"
-              />
+              <!-- Customer Ph Number -->
+              <div class="w-full">
+                <label class="block text-xs font-medium text-gray-700 mb-2">
+                  Customer Phone Number<span class="text-red-500"></span>
+                </label>
+                <input
+                  type="text"
+                  v-model="formData.customer_phnumber"
+                  min="1"
+                  class="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:border-transparent"
+                  placeholder="Enter Customer Phone Number"
+                />
+              </div>
             </div>
 
             <!-- Quantity -->
@@ -405,8 +407,8 @@ const formData = ref({
   variation_id: null,
   checkin_date: null,
   checkout_date: null,
-  customer_name:null,
-  customer_phnumber:null,
+  customer_name: null,
+  customer_phnumber: null,
   quantity: 1,
   child_qty: 0,
   comment: "",
@@ -468,8 +470,8 @@ const resetForm = () => {
     variation_id: null,
     checkin_date: null,
     checkout_date: null,
-    customer_name:null,
-    customer_phnumber:null,
+    customer_name: null,
+    customer_phnumber: null,
     quantity: 1,
     child_qty: 0,
     comment: "",
@@ -520,11 +522,17 @@ const createAvailability = async () => {
     }
 
     if (formData.value.customer_name) {
-      frmData.append("variations[0][customer_name]", formData.value.customer_name);
+      frmData.append(
+        "variations[0][customer_name]",
+        formData.value.customer_name
+      );
     }
 
     if (formData.value.customer_phnumber) {
-      frmData.append("variations[0][customer_phnumber]", formData.value.customer_phnumber);
+      frmData.append(
+        "variations[0][customer_phnumber]",
+        formData.value.customer_phnumber
+      );
     }
 
     const res = await availableStore.addNewAction(frmData);

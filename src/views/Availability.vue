@@ -73,7 +73,7 @@ const created_by = ref("");
 const productNameArray = ref([]);
 const productVariationArray = ref([]);
 
-const selectedRows = ref([])
+const selectedRows = ref([]);
 
 const errors = ref(null);
 
@@ -82,7 +82,36 @@ const statusOptions = [
   { id: "pending", name: "Pending" },
   { id: "available", name: "Available" },
   { id: "unavailable", name: "Unavailable" },
+  { id: "other", name: "Other" },
 ];
+
+const deleteAction = async (id) => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Confirm",
+  })
+    .then(async (result) => {
+      if (result.isConfirmed) {
+        const res = await availableStore.deleteAction(id);
+        console.log(res);
+
+        if (res.message == "success") {
+          toast.success("Availability deleted successfully");
+          await availableStore.getListAction(watchSystem.value);
+        } else {
+          console.error("Failed to delete availability", res.message);
+        }
+      }
+    })
+    .catch((error) => {
+      toast.error(error.response.data.message);
+    });
+};
 
 const dateFormat = (inputDateString) => {
   if (inputDateString != null) {
@@ -145,9 +174,11 @@ watch(order_by, async (newValue) => {
 watch(
   () => availables?.data,
   () => {
-    selectedRows.value = selectedRows.value.filter(id =>
-      availables.value?.data.some(r => r.id === id && r.status === 'available')
-    )
+    selectedRows.value = selectedRows.value.filter((id) =>
+      availables.value?.data.some(
+        (r) => r.id === id && r.status === "available"
+      )
+    );
   }
 );
 
@@ -212,7 +243,7 @@ const chooseNameAction = async () => {
 };
 
 const changePage = async (url) => {
-  await availableStore.getChangePage(url);
+  await availableStore.getChangePage(url, watchSystem.value);
 };
 
 const openChangeStatusModal = (availability) => {
@@ -235,11 +266,12 @@ const closeInfoDrawer = () => {
   selectedDetailItem.value = null;
 };
 
-const updateAction = async (action, id, quantity) => {
+const updateAction = async (action, id, quantity, res_comment = "") => {
   const frmData = new FormData();
   frmData.append("_method", "PUT");
   frmData.append("status", action);
   frmData.append("quantity", quantity);
+  frmData.append("res_comment", res_comment);
   const res = await availableStore.updateAction(frmData, id);
   toast.success("Status changed successfully!");
   closeChangeStatusModal();
@@ -276,6 +308,8 @@ const getStatusBadgeClass = (statusValue) => {
       return "bg-green-100 text-green-700";
     case "unavailable":
       return "bg-red-100 text-red-700";
+    case "other":
+      return "bg-purple-100 text-purple-700";
     default:
       return "bg-gray-100 text-gray-700";
   }
@@ -291,11 +325,10 @@ const activeFiltersCount = computed(() => {
   return count;
 });
 
-
 //Booking Progress
 const bookSelected = () => {
-  console.log('Selected Available IDs:', selectedRows.value)
-}
+  console.log("Selected Available IDs:", selectedRows.value);
+};
 
 onMounted(async () => {
   await availableStore.getListAction(watchSystem.value);
@@ -378,8 +411,7 @@ onMounted(async () => {
             <div
               class="flex justify-center items-center gap-x-2 w-full sm:w-auto"
             >
-            
-            <!-- Booking Button -->
+              <!-- Booking Button -->
               <button
                 v-if="selectedRows.length > 0"
                 @click="bookSelected"
@@ -450,7 +482,9 @@ onMounted(async () => {
         <table class="w-full">
           <thead class="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"></th>
+              <th
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              ></th>
               <th
                 class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
               >
@@ -506,140 +540,161 @@ onMounted(async () => {
             </tr>
           </thead>
           <tbody v-if="!loading" class="divide-y divide-gray-200">
-            <tr
-              v-for="r in availables?.data"
-              :key="r.id"
-              class="hover:bg-gray-50 transition-colors relative"
-            >
+            <template v-for="r in availables?.data" :key="r.id">
+              <tr class="hover:bg-gray-50 transition-colors relative">
+                <td class="px-4 py-4">
+                  <input
+                    v-if="r.status === 'available'"
+                    type="checkbox"
+                    :value="r.id"
+                    v-model="selectedRows"
+                    class="w-4 h-4 rounded cursor-pointer border-gray-300 text-[#FF613c] focus:ring-[#FF613c]"
+                  />
+                </td>
+                <!-- ID -->
+                <td class="px-2 md:px-4 py-4 text-sm text-gray-900">
+                  <div class="flex items-center gap-2">#{{ r.id }}</div>
+                </td>
 
-            <!-- Check Box For Only Available -->
-              <td class="px-4 py-4">
-                <input
-                  v-if="r.status === 'available'"
-                  type="checkbox"
-                  :value="r.id"
-                  v-model="selectedRows"
-                  class="w-4 h-4  rounded cursor-pointer border-gray-300  text-[#FF613c] focus:ring-[#FF613c]"
-                />
-              </td>
+                <!-- Status -->
+                <td class="px-2 md:px-4 py-4">
+                  <span
+                    :class="getStatusBadgeClass(r.status)"
+                    class="inline-block px-2 py-1 rounded text-xs md:text-sm font-medium"
+                  >
+                    {{ r.status }}
+                  </span>
+                </td>
 
-              <!-- ID -->
-              <td class="px-2 md:px-4 py-4 text-sm text-gray-900">
-                <div class="flex items-center gap-2">#{{ r.id }}</div>
-              </td>
+                <!-- Checkin/Service Date -->
+                <td class="px-2 md:px-4 py-4 min-w-[120px]">
+                  <div v-if="!r.date" class="text-sm text-gray-700">
+                    <div>{{ formatDate(r.checkin_date) }}</div>
+                    <div
+                      v-if="product_type == 'hotel'"
+                      class="text-xs text-gray-500"
+                    >
+                      to {{ formatDate(r.checkout_date) }}
+                    </div>
+                  </div>
+                </td>
 
-              <!-- Status -->
-              <td class="px-2 md:px-4 py-4">
-                <span
-                  :class="getStatusBadgeClass(r.status)"
-                  class="inline-block px-2 py-1 rounded text-xs md:text-sm font-medium"
-                >
-                  {{ r.status }}
-                </span>
-              </td>
-
-              <!-- Checkin/Service Date -->
-              <td class="px-2 md:px-4 py-4 min-w-[120px]">
-                <div v-if="!r.date" class="text-sm text-gray-700">
-                  <div>{{ formatDate(r.checkin_date) }}</div>
+                <!-- Product -->
+                <td class="px-2 md:px-4 py-4">
                   <div
-                    v-if="product_type == 'hotel'"
+                    class="text-sm text-gray-900 max-w-[150px] font-medium truncate"
+                  >
+                    {{ r.ownerable?.name }}
+                  </div>
+                </td>
+
+                <!-- Variation -->
+                <td class="px-2 md:px-4 py-4">
+                  <div class="text-sm text-gray-900 max-w-[150px] truncate">
+                    {{ r.variable?.name }}
+                  </div>
+                </td>
+
+                <!-- Quantity -->
+                <td
+                  class="px-2 md:px-4 py-4 text-sm text-gray-900 whitespace-nowrap"
+                >
+                  {{ r.quantity }}
+                  <span class="text-xs text-gray-500">{{
+                    product_type == "hotel" ? "Rooms" : "Adult"
+                  }}</span>
+                  <p class="text-sm text-gray-900">
+                    {{
+                      product_type != "hotel" && r.child_qty > 0
+                        ? `${r.child_qty}`
+                        : ""
+                    }}
+                    <span class="text-xs text-gray-500">{{
+                      product_type != "hotel" && r.child_qty > 0 ? "Child" : ""
+                    }}</span>
+                  </p>
+                </td>
+
+                <!-- Total Nights (only for hotel) -->
+                <td
+                  v-if="product_type == 'hotel'"
+                  class="px-2 md:px-4 py-4 text-sm text-gray-900"
+                >
+                  {{ calculateTotalNights(r.checkin_date, r.checkout_date) }}
+                  <span
+                    v-if="
+                      calculateTotalNights(r.checkin_date, r.checkout_date) !==
+                      '-'
+                    "
                     class="text-xs text-gray-500"
                   >
-                    to {{ formatDate(r.checkout_date) }}
-                  </div>
-                </div>
-              </td>
+                    {{
+                      calculateTotalNights(r.checkin_date, r.checkout_date) ===
+                      1
+                        ? "night"
+                        : "nights"
+                    }}
+                  </span>
+                </td>
 
-              <!-- Product -->
-              <td class="px-2 md:px-4 py-4">
-                <div
-                  class="text-sm text-gray-900 max-w-[150px] font-medium truncate"
+                <!-- Create Date -->
+                <td
+                  class="px-2 md:px-4 py-4 text-sm text-gray-900 min-w-[120px]"
                 >
-                  {{ r.ownerable?.name }}
-                </div>
-              </td>
+                  {{ formatDate(r.created_at.split("T")[0]) }}
+                </td>
 
-              <!-- Variation -->
-              <td class="px-2 md:px-4 py-4">
-                <div class="text-sm text-gray-900 max-w-[150px] truncate">
-                  {{ r.variable?.name }}
-                </div>
-              </td>
-
-              <!-- Quantity -->
-              <td
-                class="px-2 md:px-4 py-4 text-sm text-gray-900 whitespace-nowrap"
-              >
-                {{ r.quantity }}
-                <span class="text-xs text-gray-500">{{
-                  product_type == "hotel" ? "Rooms" : "Adult"
-                }}</span>
-                <p class="text-sm text-gray-900">
-                  {{
-                    product_type != "hotel" && r.child_qty > 0
-                      ? `${r.child_qty}`
-                      : ""
-                  }}
-                  <span class="text-xs text-gray-500">{{
-                    product_type != "hotel" && r.child_qty > 0 ? "Child" : ""
-                  }}</span>
-                </p>
-              </td>
-              <!-- Total Nights (only for hotel) -->
-              <td
-                v-if="product_type == 'hotel'"
-                class="px-2 md:px-4 py-4 text-sm text-gray-900"
-              >
-                {{ calculateTotalNights(r.checkin_date, r.checkout_date) }}
-                <span
-                  v-if="
-                    calculateTotalNights(r.checkin_date, r.checkout_date) !==
-                    '-'
-                  "
-                  class="text-xs text-gray-500"
-                >
-                  {{
-                    calculateTotalNights(r.checkin_date, r.checkout_date) === 1
-                      ? "night"
-                      : "nights"
-                  }}
-                </span>
-              </td>
-              <!-- Create Date -->
-              <td class="px-2 md:px-4 py-4 text-sm text-gray-900 min-w-[120px]">
-                {{ formatDate(r.created_at.split("T")[0]) }}
-              </td>
-
-              <!-- Created By -->
-              <td class="px-2 md:px-4 py-4">
-                <div class="text-sm text-gray-900 max-w-[120px] truncate">
-                  {{ r.created_by?.name }}
-                </div>
-              </td>
-
-              <!-- Actions -->
-              <td class="px-2 md:px-4 py-4">
-                <div class="flex items-center justify-end gap-1">
-                  <div class="flex items-center gap-1">
-                    <button
-                      v-if="authStore.isSuperAdmin || authStore.isReservation"
-                      @click="openChangeStatusModal(r)"
-                      class="px-2 md:px-3 py-2 text-xs text-white bg-[#FF613c] rounded-lg transition-all duration-200 hover:bg-[#e55139] hover:shadow-md active:scale-95"
-                    >
-                      Change
-                    </button>
-                    <button
-                      @click="openInfoDrawer(r)"
-                      class="p-1.5 bg-blue-100 text-blue-600 rounded-lg transition-all duration-200 hover:bg-blue-200 hover:shadow-md active:scale-95"
-                      title="View Details"
-                    >
-                      <InformationCircleIcon class="w-5 h-5" />
-                    </button>
+                <!-- Created By -->
+                <td class="px-2 md:px-4 py-4">
+                  <div class="text-sm text-gray-900 max-w-[120px] truncate">
+                    {{ r.created_by?.name }}
                   </div>
-                </div>
-              </td>
-            </tr>
+                </td>
+
+                <!-- Actions -->
+                <td class="px-2 md:px-4 py-4">
+                  <div class="flex items-center justify-end gap-1">
+                    <div class="flex items-center gap-1">
+                      <button
+                        v-if="authStore.isSuperAdmin || authStore.isReservation"
+                        @click="openChangeStatusModal(r)"
+                        class="px-2 md:px-3 py-2 text-xs text-white bg-[#FF613c] rounded-lg transition-all duration-200 hover:bg-[#e55139] hover:shadow-md active:scale-95"
+                      >
+                        Change
+                      </button>
+                      <button
+                        @click="openInfoDrawer(r)"
+                        class="p-1.5 bg-blue-100 text-blue-600 rounded-lg transition-all duration-200 hover:bg-blue-200 hover:shadow-md active:scale-95"
+                        title="View Details"
+                      >
+                        <InformationCircleIcon class="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Comment Row - Only show if status is 'other' and res_comment exists -->
+              <tr
+                v-if="r.status === 'other' && r.res_comment"
+                class="bg-yellow-50"
+              >
+                <td
+                  :colspan="product_type == 'hotel' ? 10 : 9"
+                  class="px-2 md:px-4 py-3"
+                >
+                  <div class="flex items-start gap-2">
+                    <span
+                      class="text-xs font-semibold text-gray-600 whitespace-nowrap"
+                      >Reservation :</span
+                    >
+                    <span class="text-sm text-gray-700">{{
+                      r.res_comment
+                    }}</span>
+                  </div>
+                </td>
+              </tr>
+            </template>
           </tbody>
         </table>
 
@@ -764,7 +819,7 @@ onMounted(async () => {
     <!-- Change Status Modal -->
     <Modal :isOpen="changeStatusModal" @closeModal="closeChangeStatusModal">
       <DialogPanel
-        class="w-full max-w-md transform rounded-xl bg-white p-6 text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-xl transform rounded-xl bg-white p-6 text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="h3"
@@ -777,10 +832,6 @@ onMounted(async () => {
         <div v-if="selectedAvailability" class="space-y-4">
           <!-- Status Options -->
           <div class="space-y-2">
-            <p class="text-sm font-medium text-gray-700 mb-3">
-              Select New Status:
-            </p>
-
             <button
               @click="
                 updateAction(
@@ -876,13 +927,66 @@ onMounted(async () => {
                 class="w-5 h-5 text-red-600"
               />
             </button>
+
+            <button
+              @click="selectedAvailability.status = 'other'"
+              class="w-full flex items-center justify-between px-4 py-3 border-2 border-purple-200 rounded-lg hover:bg-purple-50 transition-all duration-200 group"
+              :class="
+                selectedAvailability.status === 'other'
+                  ? 'bg-purple-50 border-purple-400'
+                  : ''
+              "
+            >
+              <div class="flex items-center gap-3">
+                <div
+                  class="p-2 bg-purple-100 rounded-full group-hover:bg-purple-200 transition-colors"
+                >
+                  <InformationCircleIcon class="w-5 h-5 text-purple-600" />
+                </div>
+                <div class="text-left">
+                  <p class="text-sm font-medium text-gray-900">Other</p>
+                  <p class="text-xs text-gray-500">Other Recommendation</p>
+                </div>
+              </div>
+              <CheckIcon
+                v-if="selectedAvailability.status === 'other'"
+                class="w-5 h-5 text-purple-600"
+              />
+            </button>
+            <textarea
+              name=""
+              id=""
+              class="bg-purple-50 border border-purple-200 w-full focus:outline-none rounded-lg p-3 text-sm"
+              rows="4"
+              v-model="selectedAvailability.res_comment"
+              v-if="selectedAvailability.status === 'other'"
+              placeholder="Enter other recommendation"
+            ></textarea>
+            <button
+              @click="
+                updateAction(
+                  'other',
+                  selectedAvailability.id,
+                  selectedAvailability.quantity,
+                  selectedAvailability.res_comment
+                )
+              "
+              v-if="
+                selectedAvailability.status === 'other' &&
+                selectedAvailability.res_comment
+              "
+              class="flex justify-center items-center w-full text-sm gap-x-4 py-2 rounded-full px-3 bg-purple-600 text-white"
+            >
+              <CheckIcon class="w-5 h-5 text-white" />
+              Save Recommendation
+            </button>
           </div>
 
           <!-- Cancel Button -->
           <div class="pt-4 border-t border-gray-200">
             <button
               @click="closeChangeStatusModal"
-              class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
@@ -1027,25 +1131,27 @@ onMounted(async () => {
               </div>
 
               <!-- Customer Detail -->
-              <div v-if="selectedDetailItem.customer_name !== null && 
-                        selectedDetailItem.customer_phnumber !== null" class="grid grid-cols-2 gap-2">          
-
-                  <div class="border-b border-gray-200 pb-3">
-                    <p class="text-xs text-gray-500 mb-1">
-                      Customer Name
-                    </p>
-                    <p class="text-sm font-medium text-gray-900">
-                        {{ selectedDetailItem.customer_name }}
-                    </p>
-                  </div>
-                  <div class="border-b border-gray-200 pb-3">
-                    <p class="text-xs text-gray-500 mb-1">
-                        Customer Phone Number
-                    </p>
-                    <p class="text-sm font-medium text-gray-900">
-                        {{ selectedDetailItem.customer_phnumber }}
-                    </p>
-                  </div>
+              <div
+                v-if="
+                  selectedDetailItem.customer_name !== null &&
+                  selectedDetailItem.customer_phnumber !== null
+                "
+                class="grid grid-cols-2 gap-2"
+              >
+                <div class="border-b border-gray-200 pb-3">
+                  <p class="text-xs text-gray-500 mb-1">Customer Name</p>
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ selectedDetailItem.customer_name }}
+                  </p>
+                </div>
+                <div class="border-b border-gray-200 pb-3">
+                  <p class="text-xs text-gray-500 mb-1">
+                    Customer Phone Number
+                  </p>
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ selectedDetailItem.customer_phnumber }}
+                  </p>
+                </div>
               </div>
 
               <!-- Action Buttons -->
@@ -1063,9 +1169,11 @@ onMounted(async () => {
                   Change Status
                 </button>
 
-                <!-- Delete Button -->
                 <button
-                  v-if="authStore.isSuperAdmin"
+                  v-if="
+                    authStore.isSuperAdmin ||
+                    authStore.user?.id == selectedDetailItem.created_by.id
+                  "
                   @click="
                     deleteAction(selectedDetailItem.id);
                     closeInfoDrawer();

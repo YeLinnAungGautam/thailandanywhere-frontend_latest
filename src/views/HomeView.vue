@@ -876,9 +876,10 @@ watch(homeSectionPartView, (newValue) => {
 <template>
   <Layout :title="`Welcome back, ${authStore.user.name.split(' ')[0]}!`">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 mb-3">
+      <!-- Desktop version (xl and above) -->
       <div
         :class="isShowSidebar ? 'left-[250px]' : 'left-[100px]'"
-        class="space-x-8 col-span-3 flex justify-start transistion-all duration-200 items-center gap-2 text-sm pb-4 absolute top-8"
+        class="hidden xl:flex space-x-8 col-span-3 justify-start transition-all duration-200 items-center gap-2 text-sm pb-4 absolute top-8"
       >
         <HomeFirstPartVue
           :title="'Sales Analysis'"
@@ -910,6 +911,24 @@ watch(homeSectionPartView, (newValue) => {
           :isActive="homeSectionPartView == 'availability'"
           @click="homeSectionPartView = 'availability'"
         />
+      </div>
+
+      <!-- Mobile/Tablet dropdown version (lg and below) -->
+      <div
+        :class="isShowSidebar ? 'left-[250px]' : 'left-[100px]'"
+        class="xl:hidden col-span-3 absolute top-6 pb-4 transition-all duration-200"
+      >
+        <select
+          v-model="homeSectionPartView"
+          class="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-full shadow-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="sale">Sales Analysis</option>
+          <option value="analysis">Analysis</option>
+          <option value="sale-analysis">Calendar</option>
+          <option value="account-receivable">Account Receivable</option>
+          <option value="cash-image-report">Cash Image Report</option>
+          <option value="availability">Availability</option>
+        </select>
       </div>
       <!-- filter -->
       <div

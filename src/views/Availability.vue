@@ -665,22 +665,64 @@ onMounted(async () => {
 
               <!-- Comment Row - Only show if status is 'other' and res_comment exists -->
               <tr
-                v-if="r.status === 'other' && r.res_comment"
-                class="bg-yellow-50"
+                v-if="r.status === 'other' || r.res_comment || r.commands"
+                class="bg-gray-50"
               >
                 <td
                   :colspan="product_type == 'hotel' ? 10 : 9"
                   class="px-2 md:px-4 py-3 border-t-2 border-gray-200"
                   style="box-shadow: inset 0 8px 6px -6px rgba(0, 0, 0, 0.1)"
                 >
-                  <div class="flex items-start gap-2">
-                    <span
-                      class="text-xs font-semibold text-gray-600 whitespace-nowrap"
-                      >Reservation :</span
-                    >
-                    <span class="text-sm text-gray-700">{{
-                      r.res_comment
-                    }}</span>
+                  <div class="space-y-2">
+                    <!-- Sale Message -->
+                    <div v-if="r.commands" class="flex items-center gap-2">
+                      <div class="flex-shrink-0">
+                        <div
+                          class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-semibold"
+                        >
+                          {{ r.created_by?.name.charAt(0) }}
+                        </div>
+                      </div>
+                      <div class="flex-1">
+                        <div
+                          class="bg-blue-100 flex justify-start items-center gap-x-4 rounded-lg shadow-sm px-3 py-2 border border-gray-200"
+                        >
+                          <div
+                            class="text-xs font-semibold bg-blue-300 text-blue-600 px-2 py-1 rounded-lg"
+                          >
+                            {{ r.created_by?.name }}
+                          </div>
+                          <div class="text-sm text-gray-700">
+                            {{ r.commands }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Reservation Message -->
+                    <div v-if="r.res_comment" class="flex items-center gap-2">
+                      <div class="flex-shrink-0">
+                        <div
+                          class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-semibold"
+                        >
+                          {{ r.updated_by?.name.charAt(0) }}
+                        </div>
+                      </div>
+                      <div class="flex-1">
+                        <div
+                          class="bg-orange-100 flex justify-start items-center gap-x-4 rounded-lg shadow-sm px-3 py-2 border border-gray-200"
+                        >
+                          <div
+                            class="text-xs font-semibold bg-orange-300 text-orange-600 px-2 py-1 rounded-lg"
+                          >
+                            {{ r.updated_by?.name }}
+                          </div>
+                          <div class="text-sm text-gray-700">
+                            {{ r.res_comment }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </td>
               </tr>

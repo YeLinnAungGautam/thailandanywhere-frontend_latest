@@ -41,6 +41,7 @@ import { useRoomStore } from "../stores/room";
 import { useVariationStore } from "../stores/variations";
 import { useAvailableStore } from "../stores/available";
 import { useSidebarStore } from "../stores/sidebar";
+import { formattedDateTime } from "./help/FormatData";
 
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
@@ -519,12 +520,18 @@ onMounted(async () => {
 
                 <!-- Status -->
                 <td class="px-2 md:px-4 py-4">
-                  <span
+                  <p
                     :class="getStatusBadgeClass(r.status)"
-                    class="inline-block px-2 py-1 rounded text-xs md:text-sm font-medium"
+                    class="inline-block px-2 py-1 rounded text-xs font-medium"
                   >
                     {{ r.status }}
-                  </span>
+                  </p>
+                  <p
+                    v-if="r.status === 'unavailable'"
+                    class="text-xs text-gray-500 pt-1"
+                  >
+                    by {{ r.updated_by?.name }}
+                  </p>
                 </td>
 
                 <!-- Checkin/Service Date -->
@@ -599,10 +606,13 @@ onMounted(async () => {
                 </td>
 
                 <!-- Create Date -->
-                <td
-                  class="px-2 md:px-4 py-4 text-sm text-gray-900 min-w-[120px]"
-                >
-                  {{ formatDate(r.created_at.split("T")[0]) }}
+                <td class="px-2 md:px-4 py-4 text-sm text-gray-900">
+                  <p class="whitespace-nowrap">
+                    {{ formattedDateTime(r.created_at) }}
+                  </p>
+                  <span class="text-xs text-gray-500"
+                    >to {{ formattedDateTime(r.updated_at) }}</span
+                  >
                 </td>
 
                 <!-- Created By -->

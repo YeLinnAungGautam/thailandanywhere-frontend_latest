@@ -446,6 +446,27 @@ onMounted(async () => {
                   />
                 </svg>
               </div>
+
+              <!-- refresh button -->
+              <button
+                @click="searchActionHandler"
+                class="flex items-center gap-2 px-4 py-3 text-sm font-medium text-white bg-[#FF613c] rounded-full cursor-pointer"
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+                Refresh
+              </button>
             </div>
           </div>
         </div>
@@ -526,10 +547,7 @@ onMounted(async () => {
                   >
                     {{ r.status }}
                   </p>
-                  <p
-                    v-if="r.status === 'unavailable'"
-                    class="text-xs text-gray-500 pt-1"
-                  >
+                  <p v-if="r.updated_by" class="text-xs text-gray-500 pt-1">
                     by {{ r.updated_by?.name }}
                   </p>
                 </td>
@@ -611,7 +629,7 @@ onMounted(async () => {
                     {{ formattedDateTime(r.created_at) }}
                   </p>
                   <span class="text-xs text-gray-500"
-                    >to {{ formattedDateTime(r.updated_at) }}</span
+                    >at {{ formattedDateTime(r.updated_at) }}</span
                   >
                 </td>
 
@@ -652,7 +670,8 @@ onMounted(async () => {
               >
                 <td
                   :colspan="product_type == 'hotel' ? 10 : 9"
-                  class="px-2 md:px-4 py-3"
+                  class="px-2 md:px-4 py-3 border-t-2 border-gray-200"
+                  style="box-shadow: inset 0 8px 6px -6px rgba(0, 0, 0, 0.1)"
                 >
                   <div class="flex items-start gap-2">
                     <span

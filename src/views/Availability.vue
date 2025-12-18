@@ -74,6 +74,8 @@ const created_by = ref("");
 const productNameArray = ref([]);
 const productVariationArray = ref([]);
 
+const selectedRows = ref([]);
+
 const errors = ref(null);
 
 const statusOptions = [
@@ -169,6 +171,17 @@ watch(order_by, async (newValue) => {
   console.log("order_by", order_by.value);
   await availableStore.getListAction(watchSystem.value);
 });
+
+watch(
+  () => availables?.data,
+  () => {
+    selectedRows.value = selectedRows.value.filter((id) =>
+      availables.value?.data.some(
+        (r) => r.id === id && r.status === "available"
+      )
+    );
+  }
+);
 
 const formatDate = (dateString) => {
   if (!dateString) return "";
@@ -313,6 +326,11 @@ const activeFiltersCount = computed(() => {
   return count;
 });
 
+//Booking Progress
+const bookSelected = () => {
+  console.log("Selected Available IDs:", selectedRows.value);
+};
+
 onMounted(async () => {
   await availableStore.getListAction(watchSystem.value);
 });
@@ -394,6 +412,15 @@ onMounted(async () => {
             <div
               class="flex justify-center items-center gap-x-2 w-full sm:w-auto"
             >
+              <!-- Booking Button -->
+              <button
+                v-if="selectedRows.length > 0"
+                @click="bookSelected"
+                class="appearance-none bg-[#FF613c] text-white text-xs px-4 py-3 rounded-full shadow cursor-pointer focus:outline-none"
+              >
+                Book ({{ selectedRows.length }})
+              </button>
+
               <!-- Status Dropdown -->
               <div class="relative flex-1 sm:flex-initial">
                 <select
@@ -479,6 +506,9 @@ onMounted(async () => {
             <tr>
               <th
                 class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              ></th>
+              <th
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
               >
                 ID
               </th>
@@ -534,6 +564,15 @@ onMounted(async () => {
           <tbody v-if="!loading" class="divide-y divide-gray-200">
             <template v-for="r in availables?.data" :key="r.id">
               <tr class="hover:bg-gray-50 transition-colors relative">
+                <td class="px-4 py-4">
+                  <input
+                    v-if="r.status === 'available'"
+                    type="checkbox"
+                    :value="r.id"
+                    v-model="selectedRows"
+                    class="w-4 h-4 rounded cursor-pointer border-gray-300 text-[#FF613c] focus:ring-[#FF613c]"
+                  />
+                </td>
                 <!-- ID -->
                 <td class="px-2 md:px-4 py-4 text-sm text-gray-900">
                   <div class="flex items-center gap-2">#{{ r.id }}</div>
@@ -1158,6 +1197,30 @@ onMounted(async () => {
                           )
                         : selectedDetailItem.child_qty
                     }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Customer Detail -->
+              <div
+                v-if="
+                  selectedDetailItem.customer_name !== null &&
+                  selectedDetailItem.customer_phnumber !== null
+                "
+                class="grid grid-cols-2 gap-2"
+              >
+                <div class="border-b border-gray-200 pb-3">
+                  <p class="text-xs text-gray-500 mb-1">Customer Name</p>
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ selectedDetailItem.customer_name }}
+                  </p>
+                </div>
+                <div class="border-b border-gray-200 pb-3">
+                  <p class="text-xs text-gray-500 mb-1">
+                    Customer Phone Number
+                  </p>
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ selectedDetailItem.customer_phnumber }}
                   </p>
                 </div>
               </div>

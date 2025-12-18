@@ -38,6 +38,17 @@ export const useAvailableStore = defineStore("available", {
         throw error;
       }
     },
+    async changeStatus(ids) {
+      try {
+        const response = await axios.put(
+          "/product-available-schedules/bulk/change-status",
+          { ids: ids } // Send as plain object, not FormData
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
     async updateAction(data, id) {
       try {
         const response = await axios.post(

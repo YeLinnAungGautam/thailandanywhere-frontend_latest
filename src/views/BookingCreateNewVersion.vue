@@ -806,51 +806,6 @@ const processSubmission = async () => {
       }
     }
 
-    // if (formData.value.receipt_image?.length > 0) {
-    //   for (let x = 0; x < formData.value.receipt_image.length; x++) {
-    //     frmData.append(
-    //       "receipt_image[" + x + "][file]",
-    //       formData.value.receipt_image[x].file
-    //     );
-    //     frmData.append(
-    //       "receipt_image[" + x + "][amount]",
-    //       formData.value.receipt_image[x].amount
-    //     );
-    //     frmData.append(
-    //       "receipt_image[" + x + "][date]",
-    //       formatDateDb(formData.value.receipt_image[x].date)
-    //     );
-    //     frmData.append(
-    //       "receipt_image[" + x + "][bank_name]",
-    //       formData.value.receipt_image[x].bank_name ?? "other..."
-    //     );
-    //     frmData.append(
-    //       "receipt_image[" + x + "][sender]",
-    //       formData.value.receipt_image[x].sender
-    //     );
-    //     frmData.append(
-    //       "receipt_image[" + x + "][reciever]",
-    //       formData.value.receipt_image[x].reciever
-    //     );
-    //     frmData.append(
-    //       "receipt_image[" + x + "][interact_bank]",
-    //       formData.value.receipt_image[x].interact_bank
-    //     );
-    //     frmData.append(
-    //       "receipt_image[" + x + "][currency]",
-    //       formData.value.receipt_image[x].currency
-    //     );
-    //     frmData.append(
-    //       "receipt_image[" + x + "][is_corporate]",
-    //       formData.value.receipt_image[x].is_corporate ? 1 : 0
-    //     );
-    //     frmData.append(
-    //       "receipt_image[" + x + "][note]",
-    //       formData.value.receipt_image[x].comment
-    //     );
-    //   }
-    // }
-
     if (formData.value.receipt_image?.length > 0) {
       for (let x = 0; x < formData.value.receipt_image.length; x++) {
         const receipt = formData.value.receipt_image[x];
@@ -986,12 +941,7 @@ const processSubmission = async () => {
           formData.value.items[x].pickup_time
         );
       }
-      // if (formData.value.items[x].is_driver_collect) {
-      //   frmData.append(
-      //     "items[" + x + "][is_driver_collect]",
-      //     formData.value.items[x].is_driver_collect ? 1 : 0
-      //   );
-      // }
+
       if (formData.value.items[x].customer_attachment) {
         frmData.append(
           "items[" + x + "][customer_attachment]",

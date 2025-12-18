@@ -42,6 +42,7 @@ import { useVariationStore } from "../stores/variations";
 import { useAvailableStore } from "../stores/available";
 import { useSidebarStore } from "../stores/sidebar";
 import { formattedDateTime } from "./help/FormatData";
+import MainPage from "./ConvertToBookingComponent/MainPage.vue";
 
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
@@ -75,6 +76,7 @@ const productNameArray = ref([]);
 const productVariationArray = ref([]);
 
 const selectedRows = ref([]);
+const showBookingTable = ref(false);
 
 const errors = ref(null);
 
@@ -129,8 +131,15 @@ const dateFormat = (inputDateString) => {
 
 const watchSystem = computed(() => {
   let result = {};
-  if (product_type.value != "") {
-    result.product_type = product_type.value;
+  if (!openBookingTable.value) {
+    if (product_type.value != "") {
+      result.product_type = product_type.value;
+    }
+    if (status.value != "") {
+      result.status = status.value;
+    }
+  } else {
+    result.status = "available";
   }
   if (product_id.value != "") {
     result.product_id = product_id.value;
@@ -144,9 +153,7 @@ const watchSystem = computed(() => {
   if (date.value != "") {
     result.date = date.value;
   }
-  if (status.value != "") {
-    result.status = status.value;
-  }
+
   if (order_by.value != "") {
     result.order_by = order_by.value;
   }
@@ -175,9 +182,9 @@ watch(order_by, async (newValue) => {
 watch(
   () => availables?.data,
   () => {
-    selectedRows.value = selectedRows.value.filter((id) =>
+    selectedRows.value = selectedRows.value.filter((row) =>
       availables.value?.data.some(
-        (r) => r.id === id && r.status === "available"
+        (r) => r.id === row.id && r.status === "available"
       )
     );
   }
@@ -326,10 +333,43 @@ const activeFiltersCount = computed(() => {
   return count;
 });
 
-//Booking Progress
-const bookSelected = () => {
-  console.log("Selected Available IDs:", selectedRows.value);
+const showBookingDrawer = ref(false);
+
+const openBookingTable = async () => {
+  showBookingTable.value = true;
+  await availableStore.getListAction(
+    Object.assign({}, watchSystem.value, {
+      status: "available",
+      product_type: "",
+    })
+  );
+
+  selectedRows.value = [];
 };
+
+const closeBookingTable = async () => {
+  showBookingTable.value = false;
+  selectedRows.value = [];
+  await availableStore.getListAction(
+    Object.assign({}, watchSystem.value, {
+      status: status.value,
+      product_type: product_type.value,
+    })
+  );
+};
+
+const generateBooking = () => {
+  console.log("Selected Available IDs:", selectedRows.value);
+  showBookingDrawer.value = true;
+  // showBookingTable.value = false;
+};
+
+// Filter only available items for booking table
+const availableItems = computed(() => {
+  return (
+    availables.value?.data?.filter((item) => item.status === "available") || []
+  );
+});
 
 onMounted(async () => {
   await availableStore.getListAction(watchSystem.value);
@@ -347,10 +387,225 @@ onMounted(async () => {
         <span class="w-2 h-2 bg-[#FF613c] rounded-full inline-block"></span>
       </p>
     </div>
+
+    <!-- Booking Table View -->
+    <div
+      v-if="showBookingTable"
+      class="bg-white/60 w-full rounded-lg shadow-sm"
+    >
+      <!-- Header -->
+      <div
+        class="p-3 md:p-4 border-b border-gray-200 sticky bg-white -top-6 z-20"
+      >
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-lg font-semibold text-gray-900">
+            Select Items for Booking
+          </h2>
+          <div class="flex items-center gap-2">
+            <button
+              @click="generateBooking"
+              class="appearance-none bg-[#FF613c] text-white text-xs px-4 py-3 rounded-full shadow cursor-pointer focus:outline-none"
+              :disabled="selectedRows.length === 0"
+              :class="selectedRows.length === 0 ? 'opacity-50' : ''"
+            >
+              Generate Booking ({{ selectedRows.length }})
+            </button>
+            <button
+              @click="closeBookingTable"
+              class="appearance-none bg-gray-500 text-white text-xs px-4 py-3 rounded-full shadow cursor-pointer focus:outline-none"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto relative">
+        <table class="w-full">
+          <thead class="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              ></th>
+              <th
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              >
+                ID
+              </th>
+              <th
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              >
+                Type
+              </th>
+              <th
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              >
+                Status
+              </th>
+              <th
+                class="px-2 md:px-4 whitespace-nowrap py-2 text-left text-xs font-semibold text-gray-700"
+              >
+                Date
+              </th>
+              <th
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              >
+                Product
+              </th>
+              <th
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              >
+                Variation
+              </th>
+              <th
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              >
+                Quantity
+              </th>
+              <th
+                class="px-2 md:px-4 whitespace-nowrap py-2 text-left text-xs font-semibold text-gray-700"
+              >
+                Created Date
+              </th>
+              <th
+                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
+              >
+                Request By
+              </th>
+            </tr>
+          </thead>
+          <tbody v-if="!loading" class="divide-y divide-gray-200">
+            <tr
+              v-for="r in availableItems"
+              :key="r.id"
+              class="hover:bg-gray-50 transition-colors"
+            >
+              <td class="px-4 py-4">
+                <input
+                  type="checkbox"
+                  :value="r"
+                  :disabled="r.finish_booking"
+                  v-model="selectedRows"
+                  class="w-4 h-4 rounded cursor-pointer border-gray-300 text-[#FF613c] focus:ring-[#FF613c]"
+                />
+              </td>
+              <td class="px-2 md:px-4 py-4 text-sm text-gray-900">
+                #{{ r.id }}
+              </td>
+              <td class="px-2 md:px-4 py-4 text-sm text-gray-900">
+                <span
+                  class="inline-block px-2 py-1 rounded text-xs font-medium bg-blue-100"
+                  :class="
+                    r.ownerable_type === 'App\\Models\\Hotel'
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-orange-100 text-orange-800'
+                  "
+                >
+                  {{
+                    r.ownerable_type === "App\\Models\\Hotel"
+                      ? "Hotel"
+                      : "Ticket"
+                  }}
+                </span>
+              </td>
+              <td class="px-2 md:px-4 py-4">
+                <p
+                  :class="getStatusBadgeClass(r.status)"
+                  class="inline-block px-2 py-1 rounded text-xs font-medium"
+                >
+                  {{ r.status }}
+                </p>
+              </td>
+              <td class="px-2 md:px-4 py-4 min-w-[120px]">
+                <div class="text-sm text-gray-700">
+                  <div>{{ formatDate(r.checkin_date) }}</div>
+                  <div
+                    v-if="r.ownerable_type === 'App\\Models\\Hotel'"
+                    class="text-xs text-gray-500"
+                  >
+                    to {{ formatDate(r.checkout_date) }}
+                  </div>
+                </div>
+              </td>
+              <td class="px-2 md:px-4 py-4">
+                <div
+                  class="text-sm text-gray-900 max-w-[150px] font-medium truncate"
+                >
+                  {{ r.ownerable?.name }}
+                </div>
+              </td>
+              <td class="px-2 md:px-4 py-4">
+                <div class="text-sm text-gray-900 max-w-[150px] truncate">
+                  {{ r.variable?.name }}
+                </div>
+              </td>
+              <td
+                class="px-2 md:px-4 py-4 text-sm text-gray-900 whitespace-nowrap"
+              >
+                {{ r.quantity }}
+                <span class="text-xs text-gray-500">{{
+                  r.ownerable_type === "App\\Models\\Hotel" ? "Rooms" : "Adult"
+                }}</span>
+                <p
+                  v-if="
+                    r.ownerable_type !== 'App\\Models\\Hotel' && r.child_qty > 0
+                  "
+                  class="text-sm text-gray-900"
+                >
+                  {{ r.child_qty }}
+                  <span class="text-xs text-gray-500">Child</span>
+                </p>
+              </td>
+              <td class="px-2 md:px-4 py-4 text-sm text-gray-900">
+                <p class="whitespace-nowrap">
+                  {{ formattedDateTime(r.created_at) }}
+                </p>
+              </td>
+              <td class="px-2 md:px-4 py-4">
+                <div class="text-sm text-gray-900 max-w-[120px] truncate">
+                  {{ r.created_by?.name }}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Loading -->
+        <div v-if="loading" class="flex justify-center items-center py-12">
+          <div class="flex flex-col items-center gap-3">
+            <div
+              class="w-8 h-8 border-4 border-gray-200 border-t-[#ff613c] rounded-full animate-spin"
+            ></div>
+            <p class="text-xs text-gray-500">Loading...</p>
+          </div>
+        </div>
+
+        <!-- Empty -->
+        <div
+          v-if="!loading && availableItems.length === 0"
+          class="flex flex-col items-center justify-center py-12"
+        >
+          <BuildingOfficeIcon class="w-12 h-12 text-gray-300 mb-2" />
+          <p class="text-sm text-gray-500">No available items found</p>
+        </div>
+
+        <!-- Pagination -->
+        <div
+          v-if="!loading && availables?.data?.length > 0"
+          class="px-3 md:px-4 py-3 border-t border-gray-200"
+        >
+          <Pagination :data="availables" @change-page="changePage" />
+        </div>
+      </div>
+    </div>
+
     <!-- Main Content -->
-    <div class="bg-white/60 w-full rounded-lg shadow-sm">
+    <div v-else class="bg-white/60 w-full rounded-lg shadow-sm">
       <!-- Filters -->
-      <div class="p-3 md:p-4 border-b border-gray-200">
+      <div
+        class="p-3 md:p-4 border-b border-gray-200 sticky bg-white -top-6 z-20"
+      >
         <div class="gap-4">
           <div
             class="flex flex-col sm:flex-row items-center justify-between gap-4"
@@ -412,13 +667,13 @@ onMounted(async () => {
             <div
               class="flex justify-center items-center gap-x-2 w-full sm:w-auto"
             >
-              <!-- Booking Button -->
+              <!-- Create Booking Button -->
               <button
-                v-if="selectedRows.length > 0"
-                @click="bookSelected"
-                class="appearance-none bg-[#FF613c] text-white text-xs px-4 py-3 rounded-full shadow cursor-pointer focus:outline-none"
+                @click="openBookingTable"
+                class="flex items-center gap-2 appearance-none bg-green-600 text-white text-xs px-4 py-3 rounded-full shadow cursor-pointer focus:outline-none hover:bg-green-700 transition-colors"
               >
-                Book ({{ selectedRows.length }})
+                <PlusIcon class="w-4 h-4" />
+                Create Booking
               </button>
 
               <!-- Status Dropdown -->
@@ -477,7 +732,7 @@ onMounted(async () => {
               <!-- refresh button -->
               <button
                 @click="searchActionHandler"
-                class="flex items-center gap-2 px-4 py-3 text-sm font-medium text-white bg-[#FF613c] rounded-full cursor-pointer"
+                class="flex items-center gap-2 px-4 py-3 text-xs text-white bg-[#FF613c] rounded-full cursor-pointer"
               >
                 <svg
                   class="w-5 h-5"
@@ -506,9 +761,6 @@ onMounted(async () => {
             <tr>
               <th
                 class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
-              ></th>
-              <th
-                class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
               >
                 ID
               </th>
@@ -522,7 +774,6 @@ onMounted(async () => {
               >
                 {{ product_type == "hotel" ? "Checkin Date" : "Service Date" }}
               </th>
-
               <th
                 class="px-2 md:px-4 py-2 text-left text-xs font-semibold text-gray-700"
               >
@@ -564,15 +815,6 @@ onMounted(async () => {
           <tbody v-if="!loading" class="divide-y divide-gray-200">
             <template v-for="r in availables?.data" :key="r.id">
               <tr class="hover:bg-gray-50 transition-colors relative">
-                <td class="px-4 py-4">
-                  <input
-                    v-if="r.status === 'available'"
-                    type="checkbox"
-                    :value="r.id"
-                    v-model="selectedRows"
-                    class="w-4 h-4 rounded cursor-pointer border-gray-300 text-[#FF613c] focus:ring-[#FF613c]"
-                  />
-                </td>
                 <!-- ID -->
                 <td class="px-2 md:px-4 py-4 text-sm text-gray-900">
                   <div class="flex items-center gap-2">#{{ r.id }}</div>
@@ -709,7 +951,7 @@ onMounted(async () => {
               >
                 <td
                   :colspan="product_type == 'hotel' ? 10 : 9"
-                  class="px-2 md:px-4 py-3 border-t-2 border-gray-200"
+                  class="pr-4 pl-16 py-3 border-t-2 border-gray-200"
                   style="box-shadow: inset 0 8px 6px -6px rgba(0, 0, 0, 0.1)"
                 >
                   <div class="space-y-2">
@@ -1204,7 +1446,7 @@ onMounted(async () => {
               <!-- Customer Detail -->
               <div
                 v-if="
-                  selectedDetailItem.customer_name !== null &&
+                  selectedDetailItem.customer_name !== null ||
                   selectedDetailItem.customer_phnumber !== null
                 "
                 class="grid grid-cols-2 gap-2"
@@ -1212,7 +1454,7 @@ onMounted(async () => {
                 <div class="border-b border-gray-200 pb-3">
                   <p class="text-xs text-gray-500 mb-1">Customer Name</p>
                   <p class="text-sm font-medium text-gray-900">
-                    {{ selectedDetailItem.customer_name }}
+                    {{ selectedDetailItem.customer_name ?? "-" }}
                   </p>
                 </div>
                 <div class="border-b border-gray-200 pb-3">
@@ -1220,7 +1462,7 @@ onMounted(async () => {
                     Customer Phone Number
                   </p>
                   <p class="text-sm font-medium text-gray-900">
-                    {{ selectedDetailItem.customer_phnumber }}
+                    {{ selectedDetailItem.customer_phnumber ?? "-" }}
                   </p>
                 </div>
               </div>
@@ -1276,6 +1518,50 @@ onMounted(async () => {
                   Call (Coming Soon)
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Booking Drawer -->
+    <Teleport to="body">
+      <div
+        v-if="showBookingDrawer"
+        class="fixed inset-0 z-50 overflow-hidden"
+        @click.self="showBookingDrawer = false"
+      >
+        <!-- Overlay -->
+        <div
+          class="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+          @click="showBookingDrawer = false"
+        ></div>
+
+        <!-- Drawer -->
+        <div
+          class="absolute right-0 top-0 h-full w-full sm:w-[50%] bg-white shadow-xl transform transition-transform duration-300 ease-in-out overflow-y-auto"
+          :class="showBookingDrawer ? 'translate-x-0' : 'translate-x-full'"
+        >
+          <div class="p-6">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+              <h3
+                class="text-xl font-semibold text-gray-900 flex items-center gap-2"
+              >
+                <InformationCircleIcon class="w-6 h-6 text-[#FF613c]" />
+                Convert to Booking
+              </h3>
+              <button
+                @click="showBookingDrawer = false"
+                class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <XMarkIcon class="w-6 h-6 text-gray-500" />
+              </button>
+            </div>
+
+            <!-- Content -->
+            <div class="px-4">
+              <MainPage :selectedRows="selectedRows" />
             </div>
           </div>
         </div>

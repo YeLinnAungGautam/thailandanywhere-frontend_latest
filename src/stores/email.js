@@ -20,7 +20,7 @@ export const useEmailStore = defineStore("email", {
     async getEmailAction(params) {
       try {
         this.loading = true;
-        const response = await axios.get("gmail/inbox", {
+        const response = await axios.get("/gmail/inbox", {
           params: params,
         });
         this.emails = response.data.result;

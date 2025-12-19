@@ -11,7 +11,11 @@
         <FillData :fillData="fillData" :selectedRows="selectedRows" />
       </div>
       <div v-if="activeTab == 2">
-        <ConfirmItem :confirmItem="confirmItem" :selectedRows="selectedRows" />
+        <ConfirmItem
+          :confirmItem="confirmItem"
+          :cancel="cancel"
+          :selectedRows="selectedRows"
+        />
       </div>
       <div v-if="activeTab == 3">
         <Success :response="responseData" :loading="loading" />
@@ -40,6 +44,7 @@ const toast = useToast();
 
 const props = defineProps({
   selectedRows: Array,
+  cancel: Function,
 });
 
 const formData = ref({

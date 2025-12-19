@@ -251,7 +251,15 @@ const chooseNameAction = async () => {
 };
 
 const changePage = async (url) => {
-  await availableStore.getChangePage(url, watchSystem.value);
+  await availableStore.getChangePage(
+    url,
+    showBookingTable
+      ? Object.assign({}, watchSystem.value, {
+          status: "available",
+          product_type: "",
+        })
+      : watchSystem.value
+  );
 };
 
 const openChangeStatusModal = (availability) => {
@@ -349,6 +357,7 @@ const openBookingTable = async () => {
 
 const closeBookingTable = async () => {
   showBookingTable.value = false;
+  showBookingDrawer.value = false;
   selectedRows.value = [];
   await availableStore.getListAction(
     Object.assign({}, watchSystem.value, {
@@ -1561,7 +1570,10 @@ onMounted(async () => {
 
             <!-- Content -->
             <div class="px-4">
-              <MainPage :selectedRows="selectedRows" />
+              <MainPage
+                :selectedRows="selectedRows"
+                :cancel="closeBookingTable"
+              />
             </div>
           </div>
         </div>

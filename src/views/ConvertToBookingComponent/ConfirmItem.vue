@@ -192,7 +192,7 @@
                   <span
                     class="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full"
                   >
-                    Entrance Ticket
+                    Attraction
                   </span>
                 </div>
                 <div>
@@ -403,6 +403,7 @@ import { onMounted } from "vue";
 const props = defineProps({
   confirmItem: Function,
   selectedRows: Array,
+  cancel: Function,
 });
 
 const emit = defineEmits(["cancel", "confirm"]);
@@ -715,7 +716,7 @@ const handleConfirm = () => {
 
 // Handle cancel
 const handleCancel = () => {
-  emit("cancel");
+  props.cancel();
 };
 </script>
 

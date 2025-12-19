@@ -43,6 +43,7 @@ import { useAvailableStore } from "../stores/available";
 import { useSidebarStore } from "../stores/sidebar";
 import { formattedDateTime } from "./help/FormatData";
 import MainPage from "./ConvertToBookingComponent/MainPage.vue";
+import { DocumentDuplicateIcon } from "@heroicons/vue/24/solid";
 
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
@@ -190,6 +191,17 @@ watch(
   }
 );
 
+const toggleRows = (row) => {
+  if (row.finish_booking) return;
+
+  const index = selectedRows.value.findIndex((r) => r.id === row.id);
+  if (index > -1) {
+    selectedRows.value.splice(index, 1);
+  } else {
+    selectedRows.value.push(row);
+  }
+};
+
 const formatDate = (dateString) => {
   if (!dateString) return "";
 
@@ -331,15 +343,40 @@ const getStatusBadgeClass = (statusValue) => {
   }
 };
 
-const activeFiltersCount = computed(() => {
-  let count = 0;
-  if (product_id.value) count++;
-  if (variation_id.value) count++;
-  if (daterange.value) count++;
-  if (date.value) count++;
-  if (created_by.value) count++;
-  return count;
-});
+const copyAction = (data) => {
+  console.log("data", data);
+  if (data.ownerable_type == "App\\Models\\Hotel") {
+    let text = `
+${data.ownerable.name}
+${data.variable.name}
+${data.quantity} Rooms
+
+${calculateTotalNights(data.checkin_date, data.checkout_date)} Nights
+
+Check In: ${data.checkin_date}
+Check Out: ${data.checkout_date}
+Comment: ${data.commands || ""}
+    `;
+
+    navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard!");
+  }
+
+  if (data.ownerable_type == "App\\Models\\EntranceTicket") {
+    let text = `
+${data.ownerable.name}
+${data.variable.name}
+
+${data.quantity} Adult ${data.child_qty ? data.child_qty + " Child" : ""} 
+
+Date: ${data.checkin_date}
+Comment: ${data.commands || ""}
+    `;
+
+    navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard!");
+  }
+};
 
 const showBookingDrawer = ref(false);
 
@@ -488,7 +525,11 @@ onMounted(async () => {
             <tr
               v-for="r in availableItems"
               :key="r.id"
-              class="hover:bg-gray-50 transition-colors"
+              :class="
+                selectedRows.includes(r) ? 'bg-[#FF613c]/20 text-white' : ''
+              "
+              @click="toggleRows(r)"
+              class="transition-colors cursor-pointer"
             >
               <td class="px-4 py-4">
                 <input
@@ -678,6 +719,7 @@ onMounted(async () => {
             >
               <!-- Create Booking Button -->
               <button
+                v-if="!authStore.isReservation"
                 @click="openBookingTable"
                 class="flex items-center gap-2 appearance-none bg-green-600 text-white text-xs px-4 py-3 rounded-full shadow cursor-pointer focus:outline-none hover:bg-green-700 transition-colors"
               >
@@ -798,12 +840,7 @@ onMounted(async () => {
               >
                 {{ product_type == "hotel" ? "Room" : "Ticket" }}
               </th>
-              <th
-                v-if="product_type == 'hotel'"
-                class="px-2 md:px-4 whitespace-nowrap py-2 text-left text-xs font-semibold text-gray-700"
-              >
-                Total Nights
-              </th>
+
               <th
                 class="px-2 md:px-4 whitespace-nowrap py-2 text-left text-xs font-semibold text-gray-700"
               >
@@ -879,6 +916,7 @@ onMounted(async () => {
                   <span class="text-xs text-gray-500">{{
                     product_type == "hotel" ? "Rooms" : "Adult"
                   }}</span>
+
                   <p class="text-sm text-gray-900">
                     {{
                       product_type != "hotel" && r.child_qty > 0
@@ -888,29 +926,18 @@ onMounted(async () => {
                     <span class="text-xs text-gray-500">{{
                       product_type != "hotel" && r.child_qty > 0 ? "Child" : ""
                     }}</span>
-                  </p>
-                </td>
-
-                <!-- Total Nights (only for hotel) -->
-                <td
-                  v-if="product_type == 'hotel'"
-                  class="px-2 md:px-4 py-4 text-sm text-gray-900"
-                >
-                  {{ calculateTotalNights(r.checkin_date, r.checkout_date) }}
-                  <span
-                    v-if="
-                      calculateTotalNights(r.checkin_date, r.checkout_date) !==
-                      '-'
-                    "
-                    class="text-xs text-gray-500"
-                  >
                     {{
-                      calculateTotalNights(r.checkin_date, r.checkout_date) ===
-                      1
-                        ? "night"
-                        : "nights"
+                      product_type == "hotel"
+                        ? calculateTotalNights(
+                            r.checkin_date,
+                            r.checkout_date
+                          ) + ""
+                        : ""
                     }}
-                  </span>
+                    <span class="text-xs text-gray-500">{{
+                      product_type == "hotel" ? "nights" : ""
+                    }}</span>
+                  </p>
                 </td>
 
                 <!-- Create Date -->
@@ -947,6 +974,13 @@ onMounted(async () => {
                         title="View Details"
                       >
                         <InformationCircleIcon class="w-5 h-5" />
+                      </button>
+                      <button
+                        @click="copyAction(r)"
+                        class="p-1.5 bg-orange-100 text-orange-600 rounded-lg transition-all duration-200 hover:bg-orange-200 hover:shadow-md active:scale-95"
+                        title="View Details"
+                      >
+                        <DocumentDuplicateIcon class="w-5 h-5" />
                       </button>
                     </div>
                   </div>

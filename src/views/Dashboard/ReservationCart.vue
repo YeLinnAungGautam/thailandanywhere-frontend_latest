@@ -372,10 +372,11 @@
           <p
             class="text-[10px] text-gray-600"
             @click="
-              router.push({
-                name: 'update_new_bookings',
-                params: { id: data.booking.id },
-              })
+              // router.push({
+              //   name: 'update_new_bookings',
+              //   params: { id: data.booking.id },
+              // })
+              goToBooking(data?.booking?.id)
             "
           >
             <PencilSquareIcon class="w-4 h-4" />
@@ -428,7 +429,10 @@
             },
           }) -->
           <p class="text-[10px] text-gray-600">
-            <PencilSquareIcon class="w-4 h-4" @click="goToPassportInfo" />
+            <PencilSquareIcon
+              class="w-4 h-4"
+              @click="goToReservationDetail(data)"
+            />
           </p>
         </div>
       </div>
@@ -568,7 +572,7 @@
           </p>
           <p
             class="text-[10px] text-gray-600"
-            @click="goToExpense"
+            @click="goToReservationDetail(data)"
             v-if="data?.product_type == 'App\\Models\\EntranceTicket'"
           >
             <PencilSquareIcon class="w-4 h-4" />
@@ -753,10 +757,11 @@
           </p>
           <p
             @click="
-              router.push({
-                name: 'update_new_bookings',
-                params: { id: data.booking.id },
-              })
+              // router.push({
+              //   name: 'update_new_bookings',
+              //   params: { id: data.booking.id },
+              // })
+              goToBooking(data?.booking?.id)
             "
             class="text-[10px] bg-green-600 shadow-lg rounded-lg text-white px-3 py-1 cursor-pointer"
           >
@@ -1007,16 +1012,28 @@ const goToReservationDetail = (data) => {
   // console.log(data);
   // console.log("====================================");
   if (data.product_type == "App\\Models\\EntranceTicket") {
-    router.push("/reservation-second?id=" + data.id);
+    // router.push("/reservation-second?id=" + data.id);
+    window.open("/group-attraction?id=" + data?.group_id, "_blank", "_blank");
+  }
+  if (data.product_type == "App\\Models\\PrivateVanTour") {
+    // router.push("/reservation-second?id=" + data.id);
+    window.open("/group-vantour?id=" + data?.group_id, "_blank", "_blank");
   }
   if (data.product_type == "App\\Models\\Hotel") {
-    router.push(
-      "/reservation-hotel?id=" +
-        data?.booking?.id +
-        "&product_id=" +
-        data?.product?.id
-    );
+    // router.push(
+    //   "/reservation-hotel?id=" +
+    //     data?.booking?.id +
+    //     "&product_id=" +
+    //     data?.product?.id
+    // );
+    window.open("/group-hotel?id=" + data?.group_id, "_blank", "_blank");
+    // console.log(data);
   }
+};
+
+const goToBooking = (id) => {
+  window.open(`/bookings/new-update/${id}`, "_blank");
+  console.log("Navigating to booking:", id);
 };
 
 const expenseCancelAction = () => {

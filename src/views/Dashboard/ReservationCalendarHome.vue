@@ -1,13 +1,23 @@
 <template>
   <div class="grid grid-cols-12 gap-4 relative">
-    <!-- <div
-      v-if="loading"
-      class="absolute top-[30%] left-[30%] rounded-2xl bg-black/50 z-20 w-[300px] h-[300px]"
-    >
-      <div class="flex justify-center items-center h-full">
-        <p class="text-center my-auto text-white">loading</p>
+    <!-- Rest of your template remains the same -->
+    <div class="col-span-4 space-y-2">
+      <div
+        class="text-xs font-medium shadow bg-white py-4 px-4 rounded-lg flex justify-between items-center"
+      >
+        <p class="">Chosen Date</p>
+        <p>
+          <span class="text-[#ff613c] rounded-lg font-medium">{{
+            selectedDay ? `${selectedDay}` : ``
+          }}</span>
+        </p>
       </div>
-    </div> -->
+      <div class="bg-white h-[579px] shadow p-2 rounded-lg">
+        <div class="h-auto font-poppins">
+          <CalendarPartVue @change="changesFromCalendar" />
+        </div>
+      </div>
+    </div>
     <div class="space-y-2 col-span-2">
       <div
         class="flex justify-between items-center shadow bg-white py-4 px-3 rounded-lg"
@@ -27,7 +37,7 @@
           </p>
           <div
             v-if="openSelection"
-            class="absolute top-8 right-0 bg-white duration-150 shadow rounded-lg divide-y-2 divide-white"
+            class="absolute top-8 right-0 bg-white duration-150 shadow rounded-lg divide-y-2 divide-white z-10"
           >
             <p
               @click="changeBackground('all')"
@@ -66,6 +76,15 @@
               >Vantour
             </p>
             <p
+              @click="changeBackground('inclusive')"
+              class="px-2 py-2 text-[12px] flex justify-start cursor-pointer items-center gap-x-2"
+            >
+              <span
+                class="text-xs bg-purple-600 w-2 h-2 inline-block rounded-lg"
+              ></span
+              >Inclusive
+            </p>
+            <p
               @click="changeBackground('all-without-van')"
               class="px-2 py-2 text-[12px] whitespace-nowrap flex justify-start cursor-pointer items-center gap-x-2"
             >
@@ -95,30 +114,6 @@
             :driver_not="driver_not"
             @filterType="changeFilterType"
           />
-        </div>
-      </div>
-    </div>
-
-    <div class="col-span-4 space-y-2">
-      <!-- <p class="text-sm">
-        Calendar
-        <span class="text-[#ff613c] rounded-lg font-medium">{{
-          selectedDay ? `at ${selectedDay}` : ``
-        }}</span>
-      </p> -->
-      <div
-        class="text-xs font-medium shadow bg-white py-4 px-4 rounded-lg flex justify-between items-center"
-      >
-        <p class="">Chosen Date</p>
-        <p>
-          <span class="text-[#ff613c] rounded-lg font-medium">{{
-            selectedDay ? `${selectedDay}` : ``
-          }}</span>
-        </p>
-      </div>
-      <div class="bg-white h-[579px] shadow p-2 rounded-lg">
-        <div class="h-auto font-poppins">
-          <CalendarPartVue @change="changesFromCalendar" />
         </div>
       </div>
     </div>
@@ -227,9 +222,8 @@ const getListUser = async () => {
     console.log(res, "this is admin list");
 
     adminLists.value = res.result.data
-      .filter((item) => item.role === "admin")
+      .filter((item) => item.role === "admin" || item.role === "sale_manager")
       .map((item) => {
-        // Return desired structure or transformation here
         return {
           id: item.id,
           name: item.name,
@@ -269,6 +263,12 @@ const changeBackground = (type) => {
       chooseType.value = "Van Tour";
       openSelection.value = false;
       break;
+    case "inclusive":
+      backgroundCustom.value = "bg-red-600";
+      productType.value = "inclusive"; // Special marker for inclusive filter
+      chooseType.value = "Inclusive";
+      openSelection.value = false;
+      break;
     case "all-without-van":
       backgroundCustom.value = "bg-black";
       productType.value = "";
@@ -301,15 +301,20 @@ const getTodaySale = async () => {
   loading.value = true;
 
   let dataFilter = {
-    limit: 100,
+    limit: 300,
     page: 1,
-
     service_date: selectedDay.value,
   };
 
-  if (productType.value != "") {
+  // Handle product type filter
+  if (productType.value != "" && productType.value != "inclusive") {
     dataFilter.product_type = productType.value;
   }
+
+  //  Handle inclusive filter
+  // if (productType.value === "inclusive") {
+  //   dataFilter.is_inclusive = 1;
+  // }
 
   if (authStore.isSuperAdmin || authStore.isReservation) {
     dataFilter.user_id = "";
@@ -365,13 +370,19 @@ const without_vantours = ref(null);
 const filterGetTodaySale = (data) => {
   let getData = "";
 
-  if (selectedProductType.value != "all-without-van") {
+  if (
+    selectedProductType.value != "all-without-van" &&
+    selectedProductType.value != "inclusive"
+  ) {
     getData = data.data;
     without_vantours.value = data.data;
-  } else {
+  } else if (selectedProductType.value == "all-without-van") {
     getData = data.data.filter(
       (item) => item.product_type != "App\\Models\\PrivateVanTour"
     );
+  } else if (selectedProductType.value == "inclusive") {
+    // Filter already applied in API call, just use the data
+    getData = data.data.filter((item) => item.booking.is_inclusive != 0);
   }
 
   reservation_list.value = getData;
@@ -454,7 +465,6 @@ watch(
       oldSelectedProductType,
     ]
   ) => {
-    // Correctly destructured variables
     router.push({
       name: authStore.isSuperAdmin
         ? "home"
@@ -492,7 +502,6 @@ onMounted(async () => {
     productType.value = route.query.productType;
   }
   if (route.query.selectedProductType) {
-    // selectedProductType.value = route.query.selectedProductType;
     changeBackground(route.query.selectedProductType || "all");
   }
   if (route.query.userFilter) {
@@ -504,7 +513,6 @@ onMounted(async () => {
 
   await getListUser();
 
-  // await getTodaySale();
   console.log("====================================");
   console.log(selectedDay.value, selectedProductType.value);
   console.log("====================================");

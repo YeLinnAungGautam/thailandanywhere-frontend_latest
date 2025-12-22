@@ -93,6 +93,7 @@ import HomeNewView from "../views/HomeNew.vue";
 import MapHotel from "../views/MapHotel.vue";
 import EmailCheck from "../views/EmailCheck.vue";
 import MailBox from "../views/MailBox.vue";
+import ExpensePart from "../views/ExpensePart.vue";
 
 const routes = [
   {
@@ -333,6 +334,11 @@ const routes = [
     path: "/group-hotel-email",
     name: "group-hotel-email",
     component: EmailCheck,
+  },
+  {
+    path: "/group-hotel-expense",
+    name: "group-hotel-expense",
+    component: ExpensePart,
   },
   {
     path: "/group-attraction",

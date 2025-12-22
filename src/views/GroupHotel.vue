@@ -1,43 +1,11 @@
 <template>
   <Layout :is_white="true">
-    <!-- First Visit Modal -->
-    <!-- <Modal :isOpen="showWelcomeModal" @closeModal="handleStay">
-      <DialogPanel
-        class="w-full max-w-md transform rounded-lg bg-white p-6 text-left align-middle shadow-xl transition-all"
-      >
-        <DialogTitle
-          as="h3"
-          class="text-lg font-medium leading-6 text-gray-900 mb-4"
-        >
-          Welcome to Reservation Group Hotels
-        </DialogTitle>
-
-        <div class="mt-2">
-          <p class="text-sm text-gray-500">
-            Would you like to stay on this page or go to the mail page?
-          </p>
-        </div>
-
-        <div class="mt-6 flex justify-end space-x-3">
-          <button
-            type="button"
-            class="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
-            @click="goToMainPage"
-          >
-            Go to Mail Page
-          </button>
-          <button
-            type="button"
-            class="inline-flex justify-center rounded-md border border-transparent bg-[#FF613c] px-4 py-2 text-sm font-medium text-white hover:bg-[#e5552f] focus:outline-none"
-            @click="handleStay"
-          >
-            Stay Here
-          </button>
-        </div>
-      </DialogPanel>
-    </Modal> -->
     <div class="w-full h-full bg-white" v-if="showWelcomeModal">
-      <GroupHotelHome :goToMainPage="goToMainPage" :handleStay="handleStay" />
+      <GroupHotelHome
+        :goToMainPage="goToMainPage"
+        :handleStay="handleStay"
+        :goToExpense="goToExpensePage"
+      />
     </div>
     <div
       :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
@@ -941,6 +909,11 @@ const handleStay = () => {
 const goToMainPage = () => {
   showWelcomeModal.value = false;
   router.push({ name: "group-hotel-email" }); // or your main page route name
+};
+
+const goToExpensePage = () => {
+  showWelcomeModal.value = false;
+  router.push({ name: "group-hotel-expense" }); // or your main page route name
 };
 
 // Check if first visit

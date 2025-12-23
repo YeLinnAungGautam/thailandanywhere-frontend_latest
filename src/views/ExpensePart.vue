@@ -329,10 +329,10 @@
       </div>
 
       <!-- Table -->
-      <div class="overflow-x-auto relative w-[92vw]">
+      <div class="overflow-x-auto relative w-[92vw] h-[62vh] overflow-y-auto">
         <table class="w-full">
-          <thead class="bg-gray-50 border-b border-gray-200">
-            <tr>
+          <thead class="bg-gray-50 border-b border-gray-200 z-10">
+            <tr class="sticky top-0 z-10 bg-gray-50">
               <th
                 class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
               >
@@ -472,7 +472,7 @@
                   </p>
 
                   <button
-                    @click.stop="openInfoDrawer(item)"
+                    @click.stop="openBooking(item.booking_id)"
                     class="text-sm font-medium whitespace-nowrap px-3 py-1.5 bg-[#FF613c] text-white shadow-md rounded-full"
                   >
                     {{ item.booking_crm_id }}
@@ -707,7 +707,9 @@
                         </p>
                         <div class="flex items-start justify-between gap-2">
                           <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 mb-1">
+                            <p
+                              class="text-sm font-medium line-clamp-1 max-w-[300px] text-gray-900 mb-1"
+                            >
                               {{ roomItem.variant_name }}
                             </p>
                             <div
@@ -1225,6 +1227,10 @@ const addCommentAction = async () => {
     console.error("Error adding comment:", error);
     toast.error("Failed to add comment");
   }
+};
+
+const openBooking = (bookingId) => {
+  window.open(`/bookings/new-update/${bookingId}`);
 };
 
 const goToRoomDetail = (id) => {

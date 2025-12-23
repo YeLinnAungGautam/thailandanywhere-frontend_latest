@@ -5,14 +5,130 @@
       :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
       class="flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
     >
-      <p class="text-2xl md:text-3xl font-medium text-[#FF613c]">
-        Expense Management
-        <span class="w-2 h-2 bg-[#FF613c] rounded-full inline-block"></span>
-      </p>
+      <div
+        class="text-2xl md:text-3xl flex justify-start items-center font-medium text-[#FF613c]"
+      >
+        Expense
+        <div class="flex justify-start items-center gap-x-4 pl-4">
+          <div class="w-4 h-4 bg-red-500 rounded-full"></div>
+          <p class="text-xs">Deadline</p>
+          <div class="w-4 h-4 bg-yellow-500 rounded-full"></div>
+          <p class="text-xs">2 Day Deadline</p>
+          <div class="w-4 h-4 bg-gray-500 rounded-full"></div>
+          <p class="text-xs">5 Day Deadline</p>
+        </div>
+      </div>
     </div>
 
     <!-- Main Content -->
-    <div class="bg-white/60 w-full rounded-lg shadow-sm">
+    <div class="w-full rounded-lg shadow-sm">
+      <div class="flex justify-between items-center mb-3">
+        <div
+          class="bg-gradient-to-r from-[#FF613c]/80 via-[#FF613c] to-[#f63307] rounded-full p-1 shadow-md"
+        >
+          <div class="flex justify-start items-center gap-1">
+            <!-- Prove Booking -->
+            <div
+              @click="activeTag = 1"
+              class="flex-1 px-3 py-2 rounded-full cursor-pointer transition-all duration-300 relative"
+              :class="activeTag == 1 ? 'bg-white/20' : 'hover:bg-white/10'"
+            >
+              <div class="flex items-center justify-center gap-2">
+                <div
+                  class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white text-[#FF613c]"
+                >
+                  1
+                </div>
+                <p class="text-xs font-medium text-white whitespace-nowrap">
+                  Get Invoice
+                </p>
+              </div>
+              <div
+                v-if="activeTag == 1"
+                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-0.5 bg-white rounded-full"
+              ></div>
+            </div>
+
+            <!-- Arrow 1->2 -->
+            <div class="flex items-center justify-center">
+              <svg
+                class="w-5 h-5 text-white/60"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </div>
+
+            <!-- Invoice -->
+            <div
+              @click="activeTag = 2"
+              class="flex-1 px-3 py-2 rounded-full cursor-pointer transition-all duration-300 relative"
+              :class="activeTag == 2 ? 'bg-white/20' : 'hover:bg-white/10'"
+            >
+              <div class="flex items-center justify-center gap-2">
+                <div
+                  class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white text-[#FF613c]"
+                >
+                  2
+                </div>
+                <p class="text-xs font-medium whitespace-nowrap text-white">
+                  Pay Expense
+                </p>
+              </div>
+              <div
+                v-if="activeTag == 2"
+                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-0.5 bg-white rounded-full"
+              ></div>
+            </div>
+
+            <!-- Arrow 2->3 -->
+            <div class="flex items-center justify-center">
+              <svg
+                class="w-5 h-5 text-white/60"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </div>
+
+            <!-- Expense -->
+            <div
+              @click="activeTag = 3"
+              class="flex-1 px-3 py-2 rounded-full cursor-pointer transition-all duration-300 relative"
+              :class="activeTag == 3 ? 'bg-white/20' : 'hover:bg-white/10'"
+            >
+              <div class="flex items-center justify-center gap-2">
+                <div
+                  class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white text-[#FF613c]"
+                >
+                  3
+                </div>
+                <p class="text-xs font-medium whitespace-nowrap text-white">
+                  Expense Mail
+                </p>
+              </div>
+              <div
+                v-if="activeTag == 3"
+                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-0.5 bg-white rounded-full"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- Filters -->
       <div
         class="p-3 md:p-4 border-b border-gray-200 sticky bg-white -top-6 z-20"
@@ -42,7 +158,14 @@
               class="bg-[#FF613c] px-4 rounded-full shadow py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer"
             >
               <FunnelIcon class="w-5 h-5 text-white" />
-              <p>Filter</p>
+              <p>Date Range</p>
+            </button>
+            <button
+              @click="deadlineFilterShow = !deadlineFilterShow"
+              class="bg-[#FF613c] px-4 rounded-full shadow py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer"
+            >
+              <FunnelIcon class="w-5 h-5 text-white" />
+              <p>Deadline filter</p>
             </button>
           </div>
 
@@ -126,41 +249,80 @@
 
         <!-- Filter Dropdown -->
         <transition name="slide-down">
-          <div
-            v-if="filterShow"
-            class="mt-3 px-4 py-3 bg-white rounded-lg shadow-lg border border-gray-100 space-y-3"
-          >
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <p class="text-xs font-medium mb-2">Start Date</p>
-                <input
-                  type="date"
-                  v-model="startDate"
-                  class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-xs rounded-lg"
-                />
+          <div>
+            <div
+              v-if="filterShow"
+              class="mt-3 px-4 py-3 bg-white rounded-lg shadow-lg border border-gray-100 space-y-3"
+            >
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <p class="text-xs font-medium mb-2">Start Date</p>
+                  <input
+                    type="date"
+                    v-model="startDate"
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-xs rounded-lg"
+                  />
+                </div>
+                <div>
+                  <p class="text-xs font-medium mb-2">End Date</p>
+                  <input
+                    type="date"
+                    v-model="endDate"
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-xs rounded-lg"
+                  />
+                </div>
               </div>
-              <div>
-                <p class="text-xs font-medium mb-2">End Date</p>
-                <input
-                  type="date"
-                  v-model="endDate"
-                  class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-xs rounded-lg"
-                />
+              <div class="flex items-center gap-2 pt-2">
+                <button
+                  @click="clearFilter"
+                  class="flex-1 text-xs bg-gray-100 px-2 py-2 rounded-lg text-center text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors"
+                >
+                  Clear
+                </button>
+                <button
+                  @click="searchAction"
+                  class="flex-1 text-xs bg-[#FF613c] px-2 py-2 rounded-lg text-center text-white cursor-pointer hover:bg-[#e55139] transition-colors"
+                >
+                  Apply
+                </button>
               </div>
             </div>
-            <div class="flex items-center gap-2 pt-2">
-              <button
-                @click="clearFilter"
-                class="flex-1 text-xs bg-gray-100 px-2 py-2 rounded-lg text-center text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors"
-              >
-                Clear
-              </button>
-              <button
-                @click="searchAction"
-                class="flex-1 text-xs bg-[#FF613c] px-2 py-2 rounded-lg text-center text-white cursor-pointer hover:bg-[#e55139] transition-colors"
-              >
-                Apply
-              </button>
+            <div
+              v-if="deadlineFilterShow"
+              class="mt-3 px-4 py-3 bg-white rounded-lg shadow-lg border border-gray-100 space-y-3"
+            >
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <p class="text-xs font-medium mb-2">Filter Date</p>
+                  <input
+                    type="date"
+                    v-model="deadlineDate"
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-xs rounded-lg"
+                  />
+                </div>
+                <div>
+                  <p class="text-xs font-medium mb-2">Deadline Days</p>
+                  <input
+                    type="number"
+                    v-model="deadlineNumber"
+                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-xs rounded-lg"
+                  />
+                </div>
+              </div>
+              <div class="flex items-center gap-2 pt-2">
+                <button
+                  @click="clearDeadlineFilter"
+                  class="flex-1 text-xs bg-gray-100 px-2 py-2 rounded-lg text-center text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors"
+                >
+                  Clear
+                </button>
+                <button
+                  @click="searchAction"
+                  class="flex-1 text-xs bg-[#FF613c] px-2 py-2 rounded-lg text-center text-white cursor-pointer hover:bg-[#e55139] transition-colors"
+                >
+                  Apply
+                </button>
+              </div>
             </div>
           </div>
         </transition>
@@ -233,6 +395,11 @@
                 Total Item
               </th>
               <th
+                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
+              >
+                Margin Score
+              </th>
+              <th
                 class="px-2 md:px-4 py-3 text-right text-xs font-semibold text-gray-700"
               >
                 Actions
@@ -247,7 +414,19 @@
                 @click="toggleRow(item.id)"
               >
                 <!-- CRM ID -->
-                <td class="px-2 md:px-4 py-4">
+                <td class="px-2 md:px-4 py-4 relative">
+                  <p
+                    v-if="checkStatusClass(item.items) == 'red'"
+                    class="w-4 h-4 bg-red-500 absolute rounded-full top-2 left-2"
+                  ></p>
+                  <p
+                    v-if="checkStatusClass(item.items) == 'yellow'"
+                    class="w-4 h-4 bg-yellow-500 absolute rounded-full top-2 left-2"
+                  ></p>
+                  <p
+                    v-if="checkStatusClass(item.items) == 'orange'"
+                    class="w-4 h-4 bg-gray-500 absolute rounded-full top-2 left-2"
+                  ></p>
                   <button
                     @click.stop="openInfoDrawer(item)"
                     class="text-sm font-medium whitespace-nowrap px-3 py-1.5 bg-[#FF613c] text-white shadow-md rounded-full"
@@ -346,6 +525,11 @@
                   {{ item.items.length }}
                 </td>
 
+                <!-- Margin Score -->
+                <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
+                  {{ marginCalc(item.total_amount, item.total_cost_price) }}
+                </td>
+
                 <!-- Actions -->
                 <td class="px-2 md:px-4 py-4">
                   <div class="flex items-center justify-end gap-1">
@@ -385,7 +569,7 @@
                 class="bg-gray-50"
               >
                 <td
-                  colspan="13"
+                  colspan="14"
                   class="pr-4 pl-16 py-3 border-t-2 border-gray-200"
                   style="box-shadow: inset 0 8px 6px -6px rgba(0, 0, 0, 0.1)"
                 >
@@ -924,6 +1108,9 @@ const loading = ref(false);
 const searchKey = ref("");
 const statusFilter = ref("all");
 const filterShow = ref(false);
+const deadlineFilterShow = ref(false);
+const deadlineDate = ref("");
+const deadlineNumber = ref(2);
 const startDate = ref("");
 const endDate = ref("");
 const infoDrawerOpen = ref(false);
@@ -936,6 +1123,8 @@ const sorting_type = ref("service_date");
 const sorting = ref("asc");
 const expandedRows = ref([]);
 const openCommentModal = ref(false);
+
+const activeTag = ref(1);
 
 const comment = ref("");
 const authStore = useAuthStore();
@@ -951,6 +1140,12 @@ const closeCommentModal = () => {
   openCommentModal.value = false;
   comment.value = "";
   selectedItem.value = null;
+};
+
+const marginCalc = (sale, cost) => {
+  if (cost === 0) return "N/A";
+  const margin = ((sale - cost) / sale) * 100;
+  return margin.toFixed(2) + "%";
 };
 
 const addCommentAction = async () => {
@@ -993,6 +1188,44 @@ const statusChangeData = ref({
   currency: "THB",
 });
 
+const checkStatusClass = (items) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time to start of day
+
+  const deadlineNumber = 2; // Days before check-in to show warning
+  const weekNumber = 7;
+  const deadlineDate = new Date(today);
+  deadlineDate.setDate(today.getDate() + deadlineNumber);
+  const weekDate = new Date(today);
+  weekDate.setDate(today.getDate() + weekNumber);
+
+  for (const item of items) {
+    const checkinDate = new Date(item.checkin_date);
+    checkinDate.setHours(0, 0, 0, 0);
+
+    // Check if check-in date is today - RED (highest priority)
+    if (checkinDate.getTime() === today.getTime()) {
+      return "red"; // or 'status-red' depending on your CSS
+    }
+
+    // Check if check-in date is within deadline (today to today+2) - YELLOW
+    if (checkinDate >= today && checkinDate <= deadlineDate) {
+      return "yellow"; // or 'status-warning'
+    }
+    if (checkinDate >= today && checkinDate <= weekDate) {
+      return "orange"; // or 'status-warning'
+    }
+  }
+
+  return ""; // No special status
+};
+
+const clearDeadlineFilter = () => {
+  deadlineDate.value = "";
+  deadlineNumber.value = 2;
+  deadlineFilterShow.value = false;
+};
+
 const watchSystem = computed(() => {
   let result = {};
 
@@ -1007,6 +1240,11 @@ const watchSystem = computed(() => {
   }
   if (startDate.value && endDate.value) {
     result.booking_daterange = startDate.value + "," + endDate.value;
+  }
+
+  if (deadlineDate.value) {
+    result.deadline_date = deadlineDate.value;
+    result.deadline_days = deadlineNumber.value;
   }
 
   if (sorting_type.value) {

@@ -14,7 +14,7 @@
           <p class="text-xs">Deadline</p>
           <div class="w-4 h-4 bg-yellow-500 rounded-full"></div>
           <p class="text-xs">2 Day Deadline</p>
-          <div class="w-4 h-4 bg-gray-500 rounded-full"></div>
+          <div class="w-4 h-4 bg-green-500 rounded-full"></div>
           <p class="text-xs">5 Day Deadline</p>
         </div>
       </div>
@@ -417,16 +417,60 @@
                 <td class="px-2 md:px-4 py-4 relative">
                   <p
                     v-if="checkStatusClass(item.items) == 'red'"
-                    class="w-4 h-4 bg-red-500 absolute rounded-full top-2 left-2"
-                  ></p>
+                    class="w-6 h-6 bg-red-500 absolute border border-white flex justify-center items-center rounded-full top-2 left-0"
+                  >
+                    <ChevronDownIcon
+                      :class="
+                        !expandedRows.includes(item.id) ? 'rotate-180' : ''
+                      "
+                      class="w-5 h-5 text-white"
+                    />
+                  </p>
+                  <p
+                    v-if="checkStatusClass(item.items) == 'red'"
+                    class="w-6 h-6 bg-red-500 absolute border border-white flex justify-center items-center rounded-full top-2 left-0"
+                  >
+                    <ChevronDownIcon
+                      :class="
+                        !expandedRows.includes(item.id) ? 'rotate-180' : ''
+                      "
+                      class="w-5 h-5 text-white"
+                    />
+                  </p>
                   <p
                     v-if="checkStatusClass(item.items) == 'yellow'"
-                    class="w-4 h-4 bg-yellow-500 absolute rounded-full top-2 left-2"
-                  ></p>
+                    class="w-6 h-6 bg-yellow-500 absolute border border-white flex justify-center items-center rounded-full top-2 left-0"
+                  >
+                    <ChevronDownIcon
+                      :class="
+                        !expandedRows.includes(item.id) ? 'rotate-180' : ''
+                      "
+                      class="w-5 h-5 text-white"
+                    />
+                  </p>
                   <p
                     v-if="checkStatusClass(item.items) == 'orange'"
-                    class="w-4 h-4 bg-gray-500 absolute rounded-full top-2 left-2"
-                  ></p>
+                    class="w-6 h-6 bg-green-500 absolute border border-white flex justify-center items-center rounded-full top-2 left-0"
+                  >
+                    <ChevronDownIcon
+                      :class="
+                        !expandedRows.includes(item.id) ? 'rotate-180' : ''
+                      "
+                      class="w-5 h-5 text-white"
+                    />
+                  </p>
+                  <p
+                    v-if="checkStatusClass(item.items) == ''"
+                    class="w-6 h-6 bg-gray-400 absolute border border-white flex justify-center items-center rounded-full top-2 left-0"
+                  >
+                    <ChevronDownIcon
+                      :class="
+                        !expandedRows.includes(item.id) ? 'rotate-180' : ''
+                      "
+                      class="w-5 h-5 text-white"
+                    />
+                  </p>
+
                   <button
                     @click.stop="openInfoDrawer(item)"
                     class="text-sm font-medium whitespace-nowrap px-3 py-1.5 bg-[#FF613c] text-white shadow-md rounded-full"
@@ -569,7 +613,7 @@
                 class="bg-gray-50"
               >
                 <td
-                  colspan="14"
+                  colspan="18"
                   class="pr-4 pl-16 py-3 border-t-2 border-gray-200"
                   style="box-shadow: inset 0 8px 6px -6px rgba(0, 0, 0, 0.1)"
                 >
@@ -625,7 +669,7 @@
 
               <!-- Expandable Room Details Row -->
               <tr v-show="expandedRows.includes(item.id)">
-                <td colspan="10" class="px-2 md:px-4 py-0">
+                <td colspan="18" class="px-2 md:px-4 py-0">
                   <div class="bg-gray-50 rounded-lg p-4 mb-2">
                     <div
                       class="text-xs font-semibold text-gray-700 mb-3 flex items-center gap-2"
@@ -646,13 +690,21 @@
                       Room Details
                     </div>
                     <div
-                      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
+                      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
                     >
                       <div
                         v-for="(roomItem, index) in item.items"
                         :key="index"
-                        class="bg-white rounded-lg p-3 border border-gray-200 hover:border-[#FF613c] transition-colors"
+                        class="bg-white relative rounded-lg p-3 border border-gray-200 hover:border-[#FF613c] transition-colors"
                       >
+                        <p
+                          class="absolute right-0 top-0"
+                          @click="goToRoomDetail(roomItem?.variation.id)"
+                        >
+                          <PencilSquareIcon
+                            class="w-5 h-5 text-gray-800 hover:text-[#FF613c] m-2"
+                          />
+                        </p>
                         <div class="flex items-start justify-between gap-2">
                           <div class="flex-1">
                             <p class="text-sm font-medium text-gray-900 mb-1">
@@ -1085,6 +1137,8 @@ import {
   ExclamationTriangleIcon,
   ChatBubbleBottomCenterIcon,
   WalletIcon,
+  ChevronDownIcon,
+  PencilSquareIcon,
 } from "@heroicons/vue/24/outline";
 import { CheckBadgeIcon, DocumentDuplicateIcon } from "@heroicons/vue/24/solid";
 import { useToast } from "vue-toastification";
@@ -1171,6 +1225,10 @@ const addCommentAction = async () => {
     console.error("Error adding comment:", error);
     toast.error("Failed to add comment");
   }
+};
+
+const goToRoomDetail = (id) => {
+  window.open(`/products/3?room_id=${id}`);
 };
 
 // Status change data

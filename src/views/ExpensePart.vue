@@ -167,7 +167,7 @@
       </div>
 
       <!-- Table -->
-      <div class="overflow-x-auto relative">
+      <div class="overflow-x-auto relative w-[92vw]">
         <table class="w-full">
           <thead class="bg-gray-50 border-b border-gray-200">
             <tr>
@@ -182,9 +182,9 @@
                 Expense Status
               </th>
               <th
-                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
+                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700"
               >
-                Booking Date
+                Booking Start & End Date
               </th>
               <th
                 class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700"
@@ -194,18 +194,24 @@
               <th
                 class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
               >
+                Customer Name
+              </th>
+              <th
+                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
+              >
                 Customer Status
+              </th>
+              <th
+                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
+              >
+                Invoice
               </th>
               <th
                 class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700"
               >
                 Deadline
               </th>
-              <th
-                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700"
-              >
-                Agent
-              </th>
+
               <th
                 class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
               >
@@ -215,6 +221,16 @@
                 class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
               >
                 Expense Amount
+              </th>
+              <th
+                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
+              >
+                Discount
+              </th>
+              <th
+                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
+              >
+                Total Item
               </th>
               <th
                 class="px-2 md:px-4 py-3 text-right text-xs font-semibold text-gray-700"
@@ -234,7 +250,7 @@
                 <td class="px-2 md:px-4 py-4">
                   <button
                     @click.stop="openInfoDrawer(item)"
-                    class="text-sm font-medium whitespace-nowrap text-blue-600 hover:text-blue-800 hover:underline"
+                    class="text-sm font-medium whitespace-nowrap px-3 py-1.5 bg-[#FF613c] text-white shadow-md rounded-full"
                   >
                     {{ item.booking_crm_id }}
                   </button>
@@ -261,9 +277,21 @@
                 </td>
 
                 <!-- Hotel Name -->
+                <td
+                  class="px-2 md:px-4 py-4"
+                  @click="goToProduct(item.product_id)"
+                >
+                  <div
+                    class="text-sm text-white max-w-[150px] px-3 py-1.5 bg-[#FF613c] rounded-full shadow-md truncate"
+                  >
+                    {{ item.product_name }}
+                  </div>
+                </td>
+
+                <!-- Customer Status -->
                 <td class="px-2 md:px-4 py-4">
                   <div class="text-sm text-gray-900 max-w-[150px] truncate">
-                    {{ item.product_name }}
+                    {{ item.customer_name }}
                   </div>
                 </td>
 
@@ -277,17 +305,24 @@
                   </span>
                 </td>
 
+                <!-- Invoice -->
+                <td class="px-2 md:px-4 py-4">
+                  <div class="text-sm text-gray-900 max-w-[150px] truncate">
+                    <XCircleIcon
+                      class="w-5 h-5 text-red-500"
+                      v-if="!item.has_booking_confirm_letter"
+                    />
+                    <CheckBadgeIcon
+                      class="w-5 h-5 text-green-500"
+                      v-if="item.has_booking_confirm_letter"
+                    />
+                  </div>
+                </td>
+
                 <!-- Deadline -->
                 <td class="px-2 md:px-4 py-4">
                   <div class="text-sm text-gray-900 whitespace-nowrap">
                     {{ getDeadlineDate(item.firstest_service_date) }}
-                  </div>
-                </td>
-
-                <!-- Agent -->
-                <td class="px-2 md:px-4 py-4">
-                  <div class="text-sm text-gray-900 max-w-[120px] truncate">
-                    {{ item.booking_crm_id.split("-")[0] }}
                   </div>
                 </td>
 
@@ -301,32 +336,42 @@
                   {{ formatCurrency(item.total_cost_price) }}
                 </td>
 
+                <!-- Discount Amount -->
+                <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
+                  {{ totalDiscount(item.items) }}
+                </td>
+
+                <!-- Res Count -->
+                <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
+                  {{ item.items.length }}
+                </td>
+
                 <!-- Actions -->
                 <td class="px-2 md:px-4 py-4">
                   <div class="flex items-center justify-end gap-1">
                     <button
                       @click.stop="openPayDrawer(item)"
-                      class="px-3 py-2 text-xs text-white bg-green-600 rounded-lg transition-all duration-200 hover:bg-green-700 hover:shadow-md active:scale-95"
+                      class="px-3 py-2 text-xs text-white bg-green-600 rounded-lg shadow-md transition-all duration-200 hover:bg-green-700 hover:shadow-md active:scale-95"
                     >
                       Pay
                     </button>
                     <button
                       @click.stop="copyReservation(item)"
-                      class="p-1.5 bg-orange-100 text-orange-600 rounded-lg transition-all duration-200 hover:bg-orange-200 hover:shadow-md active:scale-95"
+                      class="p-1.5 bg-orange-100 text-orange-600 rounded-lg shadow-md transition-all duration-200 hover:bg-orange-200 hover:shadow-md active:scale-95"
                       title="Copy"
                     >
                       <DocumentDuplicateIcon class="w-5 h-5" />
                     </button>
                     <button
                       @click.stop="openInfoDrawer(item)"
-                      class="p-1.5 bg-blue-100 text-blue-600 rounded-lg transition-all duration-200 hover:bg-blue-200 hover:shadow-md active:scale-95"
+                      class="p-1.5 bg-blue-100 text-blue-600 rounded-lg shadow-md transition-all duration-200 hover:bg-blue-200 hover:shadow-md active:scale-95"
                       title="View Details"
                     >
                       <InformationCircleIcon class="w-5 h-5" />
                     </button>
                     <button
                       @click.stop="openCommentAction(item)"
-                      class="p-1.5 bg-orange-100 text-orange-600 rounded-lg transition-all duration-200 hover:bg-orange-200 hover:shadow-md active:scale-95"
+                      class="p-1.5 bg-orange-100 text-orange-600 rounded-lg shadow-md transition-all duration-200 hover:bg-orange-200 hover:shadow-md active:scale-95"
                       title="Comments"
                     >
                       <ChatBubbleBottomCenterIcon class="w-5 h-5" />
@@ -340,7 +385,7 @@
                 class="bg-gray-50"
               >
                 <td
-                  colspan="10"
+                  colspan="13"
                   class="pr-4 pl-16 py-3 border-t-2 border-gray-200"
                   style="box-shadow: inset 0 8px 6px -6px rgba(0, 0, 0, 0.1)"
                 >
@@ -857,7 +902,7 @@ import {
   ChatBubbleBottomCenterIcon,
   WalletIcon,
 } from "@heroicons/vue/24/outline";
-import { DocumentDuplicateIcon } from "@heroicons/vue/24/solid";
+import { CheckBadgeIcon, DocumentDuplicateIcon } from "@heroicons/vue/24/solid";
 import { useToast } from "vue-toastification";
 import { useGroupStore } from "../stores/group";
 import { useCashImageStore } from "../stores/cashImage";
@@ -1048,6 +1093,18 @@ const formatCurrency = (amount) => {
     style: "currency",
     currency: "THB",
   }).format(amount);
+};
+
+const goToProduct = (id) => {
+  window.open(`/product/hotel/edit/${id}`);
+};
+
+const totalDiscount = (item) => {
+  let total = 0;
+  for (let i = 0; i < item.length; i++) {
+    total += item[i].discount || 0;
+  }
+  return total;
 };
 
 const getDeadlineDate = (serviceDateStr) => {

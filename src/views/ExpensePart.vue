@@ -22,35 +22,40 @@
 
     <!-- Main Content -->
     <div class="w-full rounded-lg shadow-sm">
+      <!-- Tab Navigation -->
       <div class="flex justify-between items-center mb-3">
         <div
           class="bg-gradient-to-r from-[#FF613c]/80 via-[#FF613c] to-[#f63307] rounded-full p-1 shadow-md"
         >
           <div class="flex justify-start items-center gap-1">
-            <!-- Prove Booking -->
             <div
-              @click="activeTag = 1"
+              v-for="tab in tabs"
+              :key="tab.id"
+              @click="activeTag = tab.id"
               class="flex-1 px-3 py-2 rounded-full cursor-pointer transition-all duration-300 relative"
-              :class="activeTag == 1 ? 'bg-white/20' : 'hover:bg-white/10'"
+              :class="activeTag == tab.id ? 'bg-white/20' : 'hover:bg-white/10'"
             >
               <div class="flex items-center justify-center gap-2">
                 <div
                   class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white text-[#FF613c]"
                 >
-                  1
+                  {{ tab.id }}
                 </div>
                 <p class="text-xs font-medium text-white whitespace-nowrap">
-                  Get Invoice
+                  {{ tab.label }}
                 </p>
               </div>
               <div
-                v-if="activeTag == 1"
+                v-if="activeTag == tab.id"
                 class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-0.5 bg-white rounded-full"
               ></div>
             </div>
 
-            <!-- Arrow 1->2 -->
-            <div class="flex items-center justify-center">
+            <div
+              v-for="(arrow, index) in [1, 2]"
+              :key="`arrow-${index}`"
+              class="flex items-center justify-center"
+            >
               <svg
                 class="w-5 h-5 text-white/60"
                 fill="none"
@@ -64,71 +69,11 @@
                   d="M9 5l7 7-7 7"
                 />
               </svg>
-            </div>
-
-            <!-- Invoice -->
-            <div
-              @click="activeTag = 2"
-              class="flex-1 px-3 py-2 rounded-full cursor-pointer transition-all duration-300 relative"
-              :class="activeTag == 2 ? 'bg-white/20' : 'hover:bg-white/10'"
-            >
-              <div class="flex items-center justify-center gap-2">
-                <div
-                  class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white text-[#FF613c]"
-                >
-                  2
-                </div>
-                <p class="text-xs font-medium whitespace-nowrap text-white">
-                  Pay Expense
-                </p>
-              </div>
-              <div
-                v-if="activeTag == 2"
-                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-0.5 bg-white rounded-full"
-              ></div>
-            </div>
-
-            <!-- Arrow 2->3 -->
-            <div class="flex items-center justify-center">
-              <svg
-                class="w-5 h-5 text-white/60"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </div>
-
-            <!-- Expense -->
-            <div
-              @click="activeTag = 3"
-              class="flex-1 px-3 py-2 rounded-full cursor-pointer transition-all duration-300 relative"
-              :class="activeTag == 3 ? 'bg-white/20' : 'hover:bg-white/10'"
-            >
-              <div class="flex items-center justify-center gap-2">
-                <div
-                  class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white text-[#FF613c]"
-                >
-                  3
-                </div>
-                <p class="text-xs font-medium whitespace-nowrap text-white">
-                  Expense Mail
-                </p>
-              </div>
-              <div
-                v-if="activeTag == 3"
-                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-0.5 bg-white rounded-full"
-              ></div>
             </div>
           </div>
         </div>
       </div>
+
       <!-- Filters -->
       <div
         class="p-3 md:p-4 border-b border-gray-200 sticky bg-white -top-6 z-20"
@@ -152,7 +97,7 @@
               </div>
             </div>
 
-            <!-- Filter Button -->
+            <!-- Filter Buttons -->
             <button
               @click="filterShow = !filterShow"
               class="bg-[#FF613c] px-4 rounded-full shadow py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer"
@@ -182,19 +127,9 @@
                 <option value="partially_paid">Customer Partially Paid</option>
                 <option value="fully_paid">Customer Fully Paid</option>
               </select>
-              <svg
+              <ChevronDownIcon
                 class="w-4 h-4 text-white absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
+              />
             </div>
 
             <!-- Expense Status Dropdown -->
@@ -209,19 +144,9 @@
                 <option value="partially_paid">Expense Partially Paid</option>
                 <option value="fully_paid">Expense Fully Paid</option>
               </select>
-              <svg
+              <ChevronDownIcon
                 class="w-4 h-4 text-white absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
+              />
             </div>
 
             <!-- Refresh Button -->
@@ -247,9 +172,10 @@
           </div>
         </div>
 
-        <!-- Filter Dropdown -->
+        <!-- Filter Dropdowns -->
         <transition name="slide-down">
           <div>
+            <!-- Date Range Filter -->
             <div
               v-if="filterShow"
               class="mt-3 px-4 py-3 bg-white rounded-lg shadow-lg border border-gray-100 space-y-3"
@@ -287,6 +213,8 @@
                 </button>
               </div>
             </div>
+
+            <!-- Deadline Filter -->
             <div
               v-if="deadlineFilterShow"
               class="mt-3 px-4 py-3 bg-white rounded-lg shadow-lg border border-gray-100 space-y-3"
@@ -334,75 +262,12 @@
           <thead class="bg-gray-50 border-b border-gray-200 z-10">
             <tr class="sticky top-0 z-10 bg-gray-50">
               <th
-                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
-              >
-                CRM ID
-              </th>
-              <th
+                v-for="header in tableHeaders"
+                :key="header.key"
                 class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700"
+                :class="header.class"
               >
-                Expense Status
-              </th>
-              <th
-                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700"
-              >
-                Booking Start & End Date
-              </th>
-              <th
-                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700"
-              >
-                Hotel Name
-              </th>
-              <th
-                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
-              >
-                Customer Name
-              </th>
-              <th
-                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
-              >
-                Customer Status
-              </th>
-              <th
-                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
-              >
-                Invoice
-              </th>
-              <th
-                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700"
-              >
-                Deadline
-              </th>
-
-              <th
-                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
-              >
-                Sale Amount
-              </th>
-              <th
-                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
-              >
-                Expense Amount
-              </th>
-              <th
-                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
-              >
-                Discount
-              </th>
-              <th
-                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
-              >
-                Total Item
-              </th>
-              <th
-                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
-              >
-                Margin Score
-              </th>
-              <th
-                class="px-2 md:px-4 py-3 text-right text-xs font-semibold text-gray-700"
-              >
-                Actions
+                {{ header.label }}
               </th>
             </tr>
           </thead>
@@ -415,9 +280,9 @@
               >
                 <!-- CRM ID -->
                 <td class="px-2 md:px-4 py-4 relative">
-                  <p
-                    v-if="checkStatusClass(item.items) == 'red'"
-                    class="w-6 h-6 bg-red-500 absolute border border-white flex justify-center items-center rounded-full top-2 left-0"
+                  <div
+                    :class="getDeadlineIconClass(item.items)"
+                    class="w-6 h-6 absolute border border-white flex justify-center items-center rounded-full top-2 left-0"
                   >
                     <ChevronDownIcon
                       :class="
@@ -425,51 +290,7 @@
                       "
                       class="w-5 h-5 text-white"
                     />
-                  </p>
-                  <p
-                    v-if="checkStatusClass(item.items) == 'red'"
-                    class="w-6 h-6 bg-red-500 absolute border border-white flex justify-center items-center rounded-full top-2 left-0"
-                  >
-                    <ChevronDownIcon
-                      :class="
-                        !expandedRows.includes(item.id) ? 'rotate-180' : ''
-                      "
-                      class="w-5 h-5 text-white"
-                    />
-                  </p>
-                  <p
-                    v-if="checkStatusClass(item.items) == 'yellow'"
-                    class="w-6 h-6 bg-yellow-500 absolute border border-white flex justify-center items-center rounded-full top-2 left-0"
-                  >
-                    <ChevronDownIcon
-                      :class="
-                        !expandedRows.includes(item.id) ? 'rotate-180' : ''
-                      "
-                      class="w-5 h-5 text-white"
-                    />
-                  </p>
-                  <p
-                    v-if="checkStatusClass(item.items) == 'orange'"
-                    class="w-6 h-6 bg-green-500 absolute border border-white flex justify-center items-center rounded-full top-2 left-0"
-                  >
-                    <ChevronDownIcon
-                      :class="
-                        !expandedRows.includes(item.id) ? 'rotate-180' : ''
-                      "
-                      class="w-5 h-5 text-white"
-                    />
-                  </p>
-                  <p
-                    v-if="checkStatusClass(item.items) == ''"
-                    class="w-6 h-6 bg-gray-400 absolute border border-white flex justify-center items-center rounded-full top-2 left-0"
-                  >
-                    <ChevronDownIcon
-                      :class="
-                        !expandedRows.includes(item.id) ? 'rotate-180' : ''
-                      "
-                      class="w-5 h-5 text-white"
-                    />
-                  </p>
+                  </div>
 
                   <button
                     @click.stop="openBooking(item.booking_id)"
@@ -479,13 +300,36 @@
                   </button>
                 </td>
 
+                <!-- Hotel Name -->
+                <td
+                  class="px-2 md:px-4 py-4 cursor-pointer relative"
+                  @click.stop="goToProduct(item.product_id)"
+                >
+                  <div
+                    class="text-sm text-white line-clamp-1 min-w-[150px] px-3 py-1.5 bg-[#FF613c] rounded-full shadow-md truncate"
+                  >
+                    <p
+                      class="absolute top-2 right-4 bg-white text-black px-2 py-1 text-xs rounded-full border border-[#FF613c] font-medium"
+                    >
+                      {{ item.items.length }}
+                    </p>
+                    {{ item.product_name }}
+                  </div>
+                </td>
+
                 <!-- Expense Status -->
                 <td class="px-2 md:px-4 py-4">
-                  <span
+                  <p
                     class="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
                     :class="getExpenseStatusClass(item.expense_status)"
                   >
                     {{ formatExpenseStatus(item.expense_status) }}
+                  </p>
+                  <span
+                    class="px-1 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap"
+                    :class="getPaymentStatusClass(item.customer_payment_status)"
+                  >
+                    C: {{ formatPaymentStatus(item.customer_payment_status) }}
                   </span>
                 </td>
 
@@ -499,47 +343,30 @@
                   </div>
                 </td>
 
-                <!-- Hotel Name -->
-                <td
-                  class="px-2 md:px-4 py-4"
-                  @click="goToProduct(item.product_id)"
-                >
-                  <div
-                    class="text-sm text-white max-w-[150px] px-3 py-1.5 bg-[#FF613c] rounded-full shadow-md truncate"
-                  >
-                    {{ item.product_name }}
-                  </div>
-                </td>
-
-                <!-- Customer Status -->
-                <td class="px-2 md:px-4 py-4">
+                <!-- Customer Name -->
+                <!-- <td class="px-2 md:px-4 py-4">
                   <div class="text-sm text-gray-900 max-w-[150px] truncate">
                     {{ item.customer_name }}
                   </div>
-                </td>
+                </td> -->
 
                 <!-- Customer Payment Status -->
-                <td class="px-2 md:px-4 py-4">
+                <!-- <td class="px-2 md:px-4 py-4">
                   <span
                     class="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
                     :class="getPaymentStatusClass(item.customer_payment_status)"
                   >
                     {{ formatPaymentStatus(item.customer_payment_status) }}
                   </span>
-                </td>
+                </td> -->
 
                 <!-- Invoice -->
                 <td class="px-2 md:px-4 py-4">
-                  <div class="text-sm text-gray-900 max-w-[150px] truncate">
-                    <XCircleIcon
-                      class="w-5 h-5 text-red-500"
-                      v-if="!item.has_booking_confirm_letter"
-                    />
-                    <CheckBadgeIcon
-                      class="w-5 h-5 text-green-500"
-                      v-if="item.has_booking_confirm_letter"
-                    />
-                  </div>
+                  <XCircleIcon
+                    class="w-5 h-5 text-red-500"
+                    v-if="!item.has_booking_confirm_letter"
+                  />
+                  <CheckBadgeIcon class="w-5 h-5 text-green-500" v-else />
                 </td>
 
                 <!-- Deadline -->
@@ -551,125 +378,54 @@
 
                 <!-- Sale Amount -->
                 <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
-                  {{ formatCurrency(item.total_amount) }}
+                  <p class="text-red-600">
+                    {{ formatCurrency(item.total_cost_price) }}
+                  </p>
+                  <span class="text-xs text-gray-600">
+                    {{ formatCurrency(item.total_amount) }}
+                  </span>
                 </td>
 
                 <!-- Expense Amount -->
-                <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
+                <!-- <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
                   {{ formatCurrency(item.total_cost_price) }}
-                </td>
+                </td> -->
 
-                <!-- Discount Amount -->
-                <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
+                <!-- Discount -->
+                <!-- <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
                   {{ totalDiscount(item.items) }}
-                </td>
-
-                <!-- Res Count -->
-                <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
-                  {{ item.items.length }}
-                </td>
+                </td> -->
 
                 <!-- Margin Score -->
                 <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
-                  {{ marginCalc(item.total_amount, item.total_cost_price) }}
+                  <p>
+                    {{ marginCalc(item.total_amount, item.total_cost_price) }}
+                  </p>
+                  <span class="text-xs text-gray-500">
+                    D: {{ totalDiscount(item.items) }}
+                  </span>
                 </td>
 
                 <!-- Actions -->
                 <td class="px-2 md:px-4 py-4">
                   <div class="flex items-center justify-end gap-1">
                     <button
-                      @click.stop="openPayDrawer(item)"
-                      class="px-3 py-2 text-xs text-white bg-green-600 rounded-lg shadow-md transition-all duration-200 hover:bg-green-700 hover:shadow-md active:scale-95"
+                      v-for="action in tableActions"
+                      :key="action.name"
+                      @click.stop="action.handler(item)"
+                      :class="action.class"
+                      :title="action.title"
                     >
-                      Pay
+                      <component :is="action.icon" class="w-5 h-5" />
+                      <span v-if="action.label">{{ action.label }}</span>
                     </button>
-                    <button
-                      @click.stop="copyReservation(item)"
-                      class="p-1.5 bg-orange-100 text-orange-600 rounded-lg shadow-md transition-all duration-200 hover:bg-orange-200 hover:shadow-md active:scale-95"
-                      title="Copy"
-                    >
-                      <DocumentDuplicateIcon class="w-5 h-5" />
-                    </button>
-                    <button
-                      @click.stop="openInfoDrawer(item)"
-                      class="p-1.5 bg-blue-100 text-blue-600 rounded-lg shadow-md transition-all duration-200 hover:bg-blue-200 hover:shadow-md active:scale-95"
-                      title="View Details"
-                    >
-                      <InformationCircleIcon class="w-5 h-5" />
-                    </button>
-                    <button
-                      @click.stop="openCommentAction(item)"
-                      class="p-1.5 bg-orange-100 text-orange-600 rounded-lg shadow-md transition-all duration-200 hover:bg-orange-200 hover:shadow-md active:scale-95"
-                      title="Comments"
-                    >
-                      <ChatBubbleBottomCenterIcon class="w-5 h-5" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-
-              <tr
-                v-if="item.comment_sale || item.comment_res"
-                class="bg-gray-50"
-              >
-                <td
-                  colspan="18"
-                  class="pr-4 pl-16 py-3 border-t-2 border-gray-200"
-                  style="box-shadow: inset 0 8px 6px -6px rgba(0, 0, 0, 0.1)"
-                >
-                  <div class="space-y-2">
-                    <!-- Sale Message -->
-                    <div
-                      v-if="item.comment_sale"
-                      class="flex items-center gap-2"
-                    >
-                      <div class="flex-shrink-0">
-                        <div
-                          class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-semibold"
-                        >
-                          Sale
-                        </div>
-                      </div>
-                      <div class="flex-1">
-                        <div
-                          class="bg-blue-100 flex justify-start items-center gap-x-4 rounded-lg shadow-sm px-3 py-2 border border-gray-200"
-                        >
-                          <div class="text-sm text-gray-700">
-                            {{ item.comment_sale }}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Reservation Message -->
-                    <div
-                      v-if="item.comment_res"
-                      class="flex items-center gap-2"
-                    >
-                      <div class="flex-shrink-0">
-                        <div
-                          class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-semibold"
-                        >
-                          Res
-                        </div>
-                      </div>
-                      <div class="flex-1">
-                        <div
-                          class="bg-orange-100 flex justify-start items-center gap-x-4 rounded-lg shadow-sm px-3 py-2 border border-gray-200"
-                        >
-                          <div class="text-sm text-gray-700">
-                            {{ item.comment_res }}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </td>
               </tr>
 
               <!-- Expandable Room Details Row -->
               <tr v-show="expandedRows.includes(item.id)">
-                <td colspan="18" class="px-2 md:px-4 py-0">
+                <td colspan="14" class="px-2 md:px-4 py-0">
                   <div class="bg-gray-50 rounded-lg p-4 mb-2">
                     <div
                       class="text-xs font-semibold text-gray-700 mb-3 flex items-center gap-2"
@@ -697,14 +453,14 @@
                         :key="index"
                         class="bg-white relative rounded-lg p-3 border border-gray-200 hover:border-[#FF613c] transition-colors"
                       >
-                        <p
-                          class="absolute right-0 top-0"
-                          @click="goToRoomDetail(roomItem?.variation.id)"
+                        <button
+                          @click.stop="goToRoomDetail(roomItem?.variation?.id)"
+                          class="absolute right-2 top-2"
                         >
                           <PencilSquareIcon
-                            class="w-5 h-5 text-gray-800 hover:text-[#FF613c] m-2"
+                            class="w-5 h-5 text-gray-800 hover:text-[#FF613c]"
                           />
-                        </p>
+                        </button>
                         <div class="flex items-start justify-between gap-2">
                           <div class="flex-1">
                             <p
@@ -728,12 +484,51 @@
                                   d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                                 />
                               </svg>
-                              <span
-                                >Quantity: {{ roomItem.quantity }} ,
+                              <span>
+                                Quantity: {{ roomItem.quantity }},
                                 {{ roomItem.service_date }} to
-                                {{ formatDate(roomItem.checkout_date) }}</span
-                              >
+                                {{ formatDate(roomItem.checkout_date) }}
+                              </span>
                             </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Comments Row -->
+              <tr
+                v-if="item.comment_sale || item.comment_res"
+                class="bg-gray-50"
+              >
+                <td
+                  colspan="14"
+                  class="pr-4 pl-16 py-3 border-t-2 border-gray-200"
+                  style="box-shadow: inset 0 8px 6px -6px rgba(0, 0, 0, 0.1)"
+                >
+                  <div class="space-y-2">
+                    <div
+                      v-for="comment in getComments(item)"
+                      :key="comment.type"
+                      class="flex items-center gap-2"
+                    >
+                      <div class="flex-shrink-0">
+                        <div
+                          :class="comment.badgeClass"
+                          class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold"
+                        >
+                          {{ comment.type }}
+                        </div>
+                      </div>
+                      <div class="flex-1">
+                        <div
+                          :class="comment.bgClass"
+                          class="flex justify-start items-center gap-x-4 rounded-lg shadow-sm px-3 py-2 border border-gray-200"
+                        >
+                          <div class="text-sm text-gray-700">
+                            {{ comment.text }}
                           </div>
                         </div>
                       </div>
@@ -745,7 +540,7 @@
           </tbody>
         </table>
 
-        <!-- Loading -->
+        <!-- Loading State -->
         <div v-if="loading" class="flex justify-center items-center py-12">
           <div class="flex flex-col items-center gap-3">
             <div
@@ -755,9 +550,9 @@
           </div>
         </div>
 
-        <!-- Empty -->
+        <!-- Empty State -->
         <div
-          v-if="(!loading && !groups?.data) || groups?.data.length === 0"
+          v-if="(!loading && !groups?.data) || groups?.data?.length === 0"
           class="flex flex-col items-center justify-center py-12"
         >
           <BuildingOfficeIcon class="w-12 h-12 text-gray-300 mb-2" />
@@ -767,33 +562,30 @@
 
       <!-- Pagination -->
       <div
-        v-if="!loading && groups?.data && groups?.data.length > 0"
+        v-if="!loading && groups?.data && groups.data.length > 0"
         class="px-3 md:px-4 py-3 border-t border-gray-200"
       >
-        <Pagination v-if="!loading" :data="groups" @change-page="changePage" />
+        <Pagination :data="groups" @change-page="changePage" />
       </div>
     </div>
 
-    <!-- Enhanced Info Drawer with Full Details -->
+    <!-- Info Drawer -->
     <Teleport to="body">
       <div
         v-if="infoDrawerOpen"
         class="fixed inset-0 z-50 overflow-hidden"
         @click.self="closeInfoDrawer"
       >
-        <!-- Overlay -->
         <div
           class="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
           @click="closeInfoDrawer"
         ></div>
 
-        <!-- Drawer -->
         <div
           class="absolute right-0 top-0 h-full w-full sm:w-[600px] bg-white shadow-xl transform transition-transform duration-300 ease-in-out overflow-y-auto"
           :class="infoDrawerOpen ? 'translate-x-0' : 'translate-x-full'"
         >
           <div class="p-6">
-            <!-- Header -->
             <div
               class="flex items-center justify-between mb-6 sticky top-0 bg-white pb-4 border-b z-10"
             >
@@ -811,9 +603,7 @@
               </button>
             </div>
 
-            <!-- Content -->
             <div v-if="detailData" class="space-y-6">
-              <!-- Add your detail content here -->
               <Payment
                 :detail="detailData"
                 :getDetailAction="getDetailAction"
@@ -824,259 +614,385 @@
       </div>
     </Teleport>
 
-    <!-- Status Change Modal -->
+    <!-- Pay Drawer Modal -->
     <Modal :isOpen="payDrawerOpen" @closeModal="closePayDrawer">
       <DialogPanel
-        class="w-full max-w-xl transform rounded-xl bg-white p-6 text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-5xl transform rounded-xl bg-white p-6 text-left align-middle shadow-xl transition-all max-h-[90vh] overflow-y-auto"
       >
         <DialogTitle
-          as="h3"
-          class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"
+          as="div"
+          class="text-lg font-semibold text-gray-900 mb-4 flex justify-between items-center gap-2"
         >
-          <AdjustmentsHorizontalIcon class="w-6 h-6 text-[#FF613c]" />
-          Change Status
-        </DialogTitle>
-
-        <div class="space-y-4">
-          <!-- Status Options -->
-          <div class="space-y-2">
-            <button
-              @click="openModalStatus('not_paid')"
-              class="w-full flex items-center justify-between px-4 py-3 border-2 border-red-200 rounded-lg hover:bg-red-50 transition-all duration-200 group"
-            >
-              <div class="flex items-center gap-3">
-                <div
-                  class="p-2 bg-red-100 rounded-full group-hover:bg-red-200 transition-colors"
-                >
-                  <ExclamationTriangleIcon class="w-5 h-5 text-red-600" />
-                </div>
-                <div class="text-left">
-                  <p class="text-sm font-medium text-gray-900">Not Paid</p>
-                  <p class="text-xs text-gray-500">Awaiting payment</p>
-                </div>
-              </div>
-            </button>
-            <button
-              @click="openModalStatus('partially_paid')"
-              class="w-full flex items-center justify-between px-4 py-3 border-2 border-orange-200 rounded-lg hover:bg-orange-50 transition-all duration-200 group"
-            >
-              <div class="flex items-center gap-3">
-                <div
-                  class="p-2 bg-orange-100 rounded-full group-hover:bg-orange-200 transition-colors"
-                >
-                  <WalletIcon class="w-5 h-5 text-orange-600" />
-                </div>
-                <div class="text-left">
-                  <p class="text-sm font-medium text-gray-900">
-                    Partially Paid
-                  </p>
-                  <p class="text-xs text-gray-500">Payment isn't complete</p>
-                </div>
-              </div>
-            </button>
-            <button
-              @click="openModalStatus('fully_paid')"
-              class="w-full flex items-center justify-between px-4 py-3 border-2 border-green-200 rounded-lg hover:bg-green-50 transition-all duration-200 group"
-            >
-              <div class="flex items-center gap-3">
-                <div
-                  class="p-2 bg-green-100 rounded-full group-hover:bg-green-200 transition-colors"
-                >
-                  <CheckIcon class="w-5 h-5 text-green-600" />
-                </div>
-                <div class="text-left">
-                  <p class="text-sm font-medium text-gray-900">Fully Paid</p>
-                  <p class="text-xs text-gray-500">Payment is complete</p>
-                </div>
-              </div>
-            </button>
-          </div>
-
-          <!-- Cancel Button -->
-          <div class="pt-4 border-t border-gray-200">
-            <button
-              @click="closePayDrawer"
-              class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </DialogPanel>
-    </Modal>
-
-    <!-- File Upload Modal -->
-    <Modal :isOpen="fileModalOpen" @closeModal="closeFileModal">
-      <DialogPanel
-        class="w-full max-w-3xl transform rounded-xl bg-white p-6 text-left align-middle shadow-xl transition-all"
-      >
-        <DialogTitle
-          as="h3"
-          class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"
-        >
-          <AdjustmentsHorizontalIcon class="w-6 h-6 text-[#FF613c]" />
-          Upload Expense Payment Slip
-        </DialogTitle>
-
-        <div class="space-y-4">
-          <p class="text-xs text-gray-600">
-            Please upload the payment slip to update status to
-            <span class="font-semibold">{{
-              formatExpenseStatus(statusChangeData.status)
-            }}</span>
+          <p class="flex justify-start items-center gap-x-2">
+            <AdjustmentsHorizontalIcon class="w-6 h-6 text-[#FF613c]" />
+            Change Expense Status
           </p>
+          <p
+            class="text-sm font-normal px-2 py-1 rounded-full"
+            :class="getExpenseStatusClass(detailData?.expense_status)"
+          >
+            {{ detailData?.expense_status }}
+          </p>
+        </DialogTitle>
 
-          <!-- Image Upload Section -->
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <input
-                type="file"
-                id="statusImageInput"
-                ref="statusFileInput"
-                class="hidden"
-                @change="handleStatusImageChange"
-                accept="image/*"
-              />
-
-              <div
-                v-if="!statusChangeData.imagePreview"
-                @click="openStatusFilePicker"
-                class="w-full h-[300px] border-2 border-dashed border-[#FF613c] rounded-lg flex flex-col justify-center items-center cursor-pointer hover:bg-gray-50 transition-colors"
+        <div class="space-y-6">
+          <!-- Status Selection -->
+          <div class="border-t pt-4">
+            <h4 class="text-sm font-semibold text-gray-900 mb-3">
+              Select New Status *
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <button
+                v-for="status in statusOptions"
+                :key="status.value"
+                @click="selectedStatus = status.value"
+                :class="[
+                  'flex items-center gap-3 px-4 py-3 border-2 rounded-lg transition-all',
+                  selectedStatus === status.value
+                    ? `border-${status.color}-500 bg-${status.color}-50 shadow-md`
+                    : `border-${status.color}-200 hover:bg-${status.color}-50`,
+                ]"
               >
-                <svg
-                  class="w-12 h-12 text-[#FF613c] mb-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 4v16m8-8H4"
+                <div :class="`p-2 bg-${status.color}-100 rounded-full`">
+                  <component
+                    :is="status.icon"
+                    :class="`w-5 h-5 text-${status.color}-600`"
                   />
-                </svg>
-                <p class="text-sm text-[#FF613c] font-medium">
-                  Upload Payment Slip
-                </p>
-                <p class="text-xs text-gray-500 mt-1">Click to select image</p>
-              </div>
-
-              <div v-else class="relative">
-                <img
-                  :src="statusChangeData.imagePreview"
-                  alt="Payment Slip Preview"
-                  class="w-full h-[300px] object-cover rounded-lg"
-                />
-                <button
-                  @click="
-                    statusChangeData.imagePreview = null;
-                    statusChangeData.image = null;
-                  "
-                  class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                </div>
+                <div class="text-left flex-1">
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ status.label }}
+                  </p>
+                  <p class="text-xs text-gray-500">{{ status.description }}</p>
+                </div>
+                <div
+                  v-if="selectedStatus === status.value"
+                  class="flex-shrink-0"
                 >
-                  <XCircleIcon class="w-5 h-5" />
-                </button>
+                  <CheckIcon :class="`w-5 h-5 text-${status.color}-600`" />
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Payment Slips -->
+          <div class="border-t pt-4">
+            <div
+              v-if="newSlips.length > 0"
+              class="space-y-3 max-h-[400px] overflow-y-auto"
+            >
+              <div
+                v-for="(slip, index) in newSlips"
+                :key="index"
+                class="bg-gray-50 border border-gray-200 rounded-lg p-3 relative"
+              >
+                <!-- <button
+                  v-if="newSlips.length > 1 && !slip.id"
+                  @click="removeSlip(index)"
+                  class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
+                  title="Remove slip"
+                >
+                  <XCircleIcon class="w-4 h-4" />
+                </button> -->
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <!-- Image Upload/Display -->
+                  <div>
+                    <label class="text-xs font-medium text-gray-700 mb-1 block">
+                      {{ slip.id ? "Existing" : "Payment" }} Slip Image *
+                    </label>
+                    <div v-if="!slip.id">
+                      <input
+                        type="file"
+                        :id="`slipImageInput${index}`"
+                        class="hidden"
+                        @change="(e) => handleSlipImageChange(e, index)"
+                        accept="image/*"
+                      />
+
+                      <div
+                        v-if="!slip.imagePreview"
+                        @click="openSlipFilePicker(index)"
+                        class="w-full h-[180px] border-2 border-dashed border-[#FF613c] rounded-lg flex flex-col justify-center items-center cursor-pointer hover:bg-white transition-colors"
+                      >
+                        <svg
+                          class="w-10 h-10 text-[#FF613c] mb-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 4v16m8-8H4"
+                          />
+                        </svg>
+                        <p class="text-xs text-[#FF613c] font-medium">
+                          Click to Upload
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">
+                          Slip #{{ index + 1 }}
+                        </p>
+                      </div>
+
+                      <div v-else class="relative">
+                        <img
+                          :src="slip.imagePreview"
+                          alt="Payment Slip"
+                          class="w-full h-[180px] object-cover rounded-lg"
+                        />
+                        <button
+                          @click="clearSlipImage(index)"
+                          class="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                        >
+                          <XCircleIcon class="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <img
+                      v-else
+                      :src="slip.imagePreview"
+                      alt="Payment Slip"
+                      class="w-full h-[180px] object-cover rounded-lg border"
+                    />
+                  </div>
+
+                  <!-- Payment Details Column 1 -->
+                  <div class="space-y-2">
+                    <div>
+                      <label
+                        class="text-xs font-medium text-gray-700 mb-1 block"
+                      >
+                        Date & Time *
+                      </label>
+                      <input
+                        v-if="!slip.id"
+                        type="datetime-local"
+                        v-model="slip.date"
+                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
+                      />
+                      <p
+                        v-else
+                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-lg"
+                      >
+                        {{ slip.date }}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label
+                        class="text-xs font-medium text-gray-700 mb-1 block"
+                      >
+                        Amount *
+                      </label>
+                      <input
+                        type="number"
+                        v-model="slip.amount"
+                        placeholder="Enter amount"
+                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        class="text-xs font-medium text-gray-700 mb-1 block"
+                      >
+                        Currency *
+                      </label>
+                      <select
+                        v-model="slip.currency"
+                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
+                      >
+                        <option
+                          v-for="currency in currencies"
+                          :key="currency"
+                          :value="currency"
+                        >
+                          {{ currency }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Payment Details Column 2 -->
+                  <div class="space-y-2">
+                    <div>
+                      <label
+                        class="text-xs font-medium text-gray-700 mb-1 block"
+                      >
+                        Sender
+                      </label>
+                      <input
+                        type="text"
+                        v-model="slip.sender"
+                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        class="text-xs font-medium text-gray-700 mb-1 block"
+                      >
+                        Receiver
+                      </label>
+                      <input
+                        type="text"
+                        v-model="slip.reciever"
+                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        class="text-xs font-medium text-gray-700 mb-1 block"
+                      >
+                        Bank Type
+                      </label>
+                      <select
+                        v-model="slip.interact_bank"
+                        class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
+                      >
+                        <option
+                          v-for="bank in bankTypes"
+                          :key="bank.value"
+                          :value="bank.value"
+                        >
+                          {{ bank.label }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="col-span-3 text-end">
+                    <template v-if="!slip.id">
+                      <button
+                        @click="saveNewSlip(slip, index)"
+                        class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 text-sm mr-2 rounded-lg transition-colors"
+                      >
+                        Save
+                      </button>
+                      <button
+                        @click="removeNewSlip(index)"
+                        class="bg-gray-200 hover:bg-gray-300 px-3 py-1 text-sm mr-3 rounded-lg transition-colors"
+                      >
+                        Clear
+                      </button>
+                    </template>
+                    <template v-else>
+                      <button
+                        @click="updateExistingSlip(slip, index)"
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 text-sm mr-2 rounded-lg transition-colors"
+                      >
+                        Update
+                      </button>
+                      <button
+                        @click="resetSlipToOriginal(slip, index)"
+                        class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 text-sm mr-2 rounded-lg transition-colors"
+                      >
+                        Reset
+                      </button>
+                      <button
+                        @click="deleteSlip(slip.id)"
+                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 text-sm mr-3 rounded-lg transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </template>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Payment Details -->
-            <div class="space-y-3">
-              <div>
-                <label class="text-xs font-medium text-gray-700 mb-1 block"
-                  >Date & Time</label
-                >
-                <input
-                  type="datetime-local"
-                  v-model="statusChangeData.date"
-                  class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
+            <!-- Empty State -->
+            <div
+              v-else
+              class="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"
+            >
+              <svg
+                class="w-12 h-12 text-gray-400 mx-auto mb-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
-              </div>
-
-              <div>
-                <label class="text-xs font-medium text-gray-700 mb-1 block"
-                  >Amount (THB)</label
-                >
-                <input
-                  type="number"
-                  v-model="statusChangeData.amount"
-                  placeholder="Enter amount"
-                  class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
-                />
-              </div>
-
-              <div>
-                <label class="text-xs font-medium text-gray-700 mb-1 block"
-                  >Sender</label
-                >
-                <input
-                  type="text"
-                  v-model="statusChangeData.sender"
-                  class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
-                />
-              </div>
-
-              <div>
-                <label class="text-xs font-medium text-gray-700 mb-1 block"
-                  >Receiver</label
-                >
-                <input
-                  type="text"
-                  v-model="statusChangeData.reciever"
-                  class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
-                />
-              </div>
-
-              <div>
-                <label class="text-xs font-medium text-gray-700 mb-1 block"
-                  >Bank Account Type</label
-                >
-                <select
-                  v-model="statusChangeData.interact_bank"
-                  class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
-                >
-                  <option value="personal">Personal</option>
-                  <option value="company">Company</option>
-                  <option value="cash_at_office">Cash at Office</option>
-                  <option value="to_money_changer">To Money Changer</option>
-                  <option value="deposit_management">Deposit Management</option>
-                  <option value="pay_to_driver">Pay to Driver</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="text-xs font-medium text-gray-700 mb-1 block"
-                  >Currency</label
-                >
-                <select
-                  v-model="statusChangeData.currency"
-                  class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
-                >
-                  <option value="THB">THB</option>
-                  <option value="MMK">MMK</option>
-                  <option value="USD">USD</option>
-                </select>
-              </div>
+              </svg>
+              <p class="text-sm text-gray-600 mb-2">
+                No new payment slips added
+              </p>
+              <p class="text-xs text-gray-500">
+                Click "Add Payment Slip" to add new slips
+              </p>
             </div>
           </div>
 
           <!-- Action Buttons -->
           <div
-            class="flex items-center justify-end gap-2 pt-4 border-t border-gray-200"
+            class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200"
           >
             <button
-              @click="closeFileModal"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              @click="closePayDrawer"
+              class="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
             <button
-              @click="submitStatusChangeWithImage"
-              :disabled="!statusChangeData.image || loading"
-              class="px-4 py-2 text-sm font-medium text-white bg-[#FF613c] rounded-lg hover:bg-[#e55139] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              @click="confirmStatusChange"
+              :disabled="!selectedStatus || loading"
+              class="px-6 py-2.5 text-sm font-medium text-white bg-[#FF613c] rounded-lg hover:bg-[#e55139] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {{ loading ? "Submitting..." : "Submit & Update Status" }}
+              <svg
+                v-if="loading"
+                class="animate-spin h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              {{ loading ? "Processing..." : "Confirm & Update Status" }}
             </button>
+          </div>
+
+          <!-- Validation Messages -->
+          <div
+            v-if="!selectedStatus"
+            class="bg-yellow-50 border border-yellow-200 rounded-lg p-3"
+          >
+            <p class="text-xs text-yellow-800">
+              <svg
+                class="w-4 h-4 inline mr-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+              Please select a new status to continue
+            </p>
           </div>
         </div>
       </DialogPanel>
@@ -1096,16 +1012,12 @@
         </DialogTitle>
 
         <div class="space-y-4">
-          <!-- Status Options -->
           <textarea
-            name=""
+            v-model="comment"
             class="w-full rounded-lg border border-gray-200 focus:outline-none px-4 py-3 text-sm text-gray-700"
             rows="5"
-            v-model="comment"
             placeholder="Comment"
-            id=""
           ></textarea>
-          <!-- Cancel Button -->
           <div class="pt-4 border-t border-gray-200">
             <button
               @click="addCommentAction"
@@ -1151,6 +1063,7 @@ import Modal from "../components/Modal.vue";
 import { useReservationStore } from "../stores/reservation";
 import { useAuthStore } from "../stores/auth";
 
+// Stores
 const toast = useToast();
 const reservationStore = useReservationStore();
 const sidebarStore = useSidebarStore();
@@ -1158,6 +1071,8 @@ const { isShowSidebar } = storeToRefs(sidebarStore);
 const groupStore = useGroupStore();
 const cashImageStore = useCashImageStore();
 const { groups } = storeToRefs(groupStore);
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
 
 // State
 const loading = ref(false);
@@ -1171,7 +1086,6 @@ const startDate = ref("");
 const endDate = ref("");
 const infoDrawerOpen = ref(false);
 const payDrawerOpen = ref(false);
-const fileModalOpen = ref(false);
 const selectedItem = ref(null);
 const detailData = ref(null);
 const paymentStatus = ref("all");
@@ -1179,198 +1093,95 @@ const sorting_type = ref("service_date");
 const sorting = ref("asc");
 const expandedRows = ref([]);
 const openCommentModal = ref(false);
-
 const activeTag = ref(1);
-
 const comment = ref("");
-const authStore = useAuthStore();
-const { user } = storeToRefs(authStore);
-
-// Methods to open/close drawers and modals
-const openCommentAction = async (item) => {
-  selectedItem.value = item;
-  openCommentModal.value = true;
-};
-
-const closeCommentModal = () => {
-  openCommentModal.value = false;
-  comment.value = "";
-  selectedItem.value = null;
-};
-
-const marginCalc = (sale, cost) => {
-  if (cost === 0) return "N/A";
-  const margin = ((sale - cost) / sale) * 100;
-  return margin.toFixed(2) + "%";
-};
-
-const addCommentAction = async () => {
-  if (!comment.value.trim()) {
-    toast.error("Comment cannot be empty");
-    return;
-  }
-  try {
-    const groupFrmData = new FormData();
-    groupFrmData.append("_method", "PUT");
-    if (authStore.isReservation) {
-      groupFrmData.append("comment_res", comment.value);
-    } else {
-      groupFrmData.append("comment_sale", comment.value);
-    }
-
-    await groupStore.groupUpdateAction(selectedItem.value.id, groupFrmData);
-    toast.success("Comment added successfully");
-
-    closeCommentModal();
-    await getListAction();
-  } catch (error) {
-    console.error("Error adding comment:", error);
-    toast.error("Failed to add comment");
-  }
-};
-
-const openBooking = (bookingId) => {
-  window.open(`/bookings/new-update/${bookingId}`);
-};
-
-const goToRoomDetail = (id) => {
-  window.open(`/products/3?room_id=${id}`);
-};
-
-// Status change data
+const newSlips = ref([]);
 const selectedStatus = ref(null);
-const statusChangeData = ref({
-  status: null,
-  image: null,
-  imagePreview: null,
-  amount: 0,
-  date: "",
-  bank_name: "",
-  sender: "MR. THIHA@KUMAR BHUSAL",
-  reciever: "",
-  interact_bank: "personal",
-  currency: "THB",
-});
 
-const checkStatusClass = (items) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Reset time to start of day
+// Constants
+const tabs = [
+  { id: 1, label: "Get Invoice" },
+  { id: 2, label: "Pay Expense" },
+  { id: 3, label: "Expense Mail" },
+];
 
-  const deadlineNumber = 2; // Days before check-in to show warning
-  const weekNumber = 7;
-  const deadlineDate = new Date(today);
-  deadlineDate.setDate(today.getDate() + deadlineNumber);
-  const weekDate = new Date(today);
-  weekDate.setDate(today.getDate() + weekNumber);
+const tableHeaders = [
+  { key: "crm_id", label: "CRM ID", class: "whitespace-nowrap" },
+  { key: "hotel_name", label: "Hotel Name", class: "" },
+  { key: "expense_status", label: "Expense Status", class: "" },
+  { key: "booking_date", label: "Booking Start & End Date", class: "" },
 
-  for (const item of items) {
-    const checkinDate = new Date(item.checkin_date);
-    checkinDate.setHours(0, 0, 0, 0);
+  // { key: "customer_name", label: "Customer Name", class: "whitespace-nowrap" },
+  // {
+  //   key: "customer_status",
+  //   label: "Customer Status",
+  //   class: "whitespace-nowrap",
+  // },
+  { key: "invoice", label: "Invoice", class: "whitespace-nowrap" },
+  { key: "deadline", label: "Deadline", class: "" },
+  { key: "expense", label: "Expense", class: "whitespace-nowrap" },
+  // {
+  //   key: "expense_amount",
+  //   label: "Expense Amount",
+  //   class: "whitespace-nowrap",
+  // },
+  // { key: "discount", label: "Discount", class: "whitespace-nowrap" },
+  { key: "margin_score", label: "Margin Score", class: "whitespace-nowrap" },
+  { key: "actions", label: "Actions", class: "text-right" },
+];
 
-    // Check if check-in date is today - RED (highest priority)
-    if (checkinDate.getTime() === today.getTime()) {
-      return "red"; // or 'status-red' depending on your CSS
-    }
+const statusOptions = [
+  {
+    value: "not_paid",
+    label: "Not Paid",
+    description: "Mark as unpaid",
+    icon: ExclamationTriangleIcon,
+    color: "red",
+  },
+  {
+    value: "partially_paid",
+    label: "Partially Paid",
+    description: "Partial payment",
+    icon: WalletIcon,
+    color: "orange",
+  },
+  {
+    value: "fully_paid",
+    label: "Fully Paid",
+    description: "Complete payment",
+    icon: CheckIcon,
+    color: "green",
+  },
+];
 
-    // Check if check-in date is within deadline (today to today+2) - YELLOW
-    if (checkinDate >= today && checkinDate <= deadlineDate) {
-      return "yellow"; // or 'status-warning'
-    }
-    if (checkinDate >= today && checkinDate <= weekDate) {
-      return "orange"; // or 'status-warning'
-    }
-  }
+const currencies = ["THB", "MMK", "USD"];
 
-  return ""; // No special status
-};
+const bankTypes = [
+  { value: "personal", label: "Personal" },
+  { value: "company", label: "Company" },
+  { value: "cash_at_office", label: "Cash at Office" },
+  { value: "to_money_changer", label: "To Money Changer" },
+  { value: "deposit_management", label: "Deposit Management" },
+  { value: "pay_to_driver", label: "Pay to Driver" },
+];
 
-const clearDeadlineFilter = () => {
-  deadlineDate.value = "";
-  deadlineNumber.value = 2;
-  deadlineFilterShow.value = false;
-};
-
-const watchSystem = computed(() => {
-  let result = {};
-
-  if (searchKey.value) {
-    result.crm_id = searchKey.value;
-  }
-  if (statusFilter.value && statusFilter.value !== "all") {
-    result.expense_item_status = statusFilter.value;
-  }
-  if (paymentStatus.value != "all") {
-    result.payment_status = paymentStatus.value;
-  }
-  if (startDate.value && endDate.value) {
-    result.booking_daterange = startDate.value + "," + endDate.value;
-  }
-
-  if (deadlineDate.value) {
-    result.deadline_date = deadlineDate.value;
-    result.deadline_days = deadlineNumber.value;
-  }
-
-  if (sorting_type.value) {
-    result.sorting_type = sorting_type.value;
-  }
-
-  if (!authStore.isReservation && !authStore.isSuperAdmin) {
-    result.user_id = user.value.id;
-  }
-
-  result.sorting = sorting.value;
-  result.product_type = "hotel";
-  result.per_page = 10;
-
-  return result;
-});
-
-const getListAction = async () => {
-  loading.value = true;
-  await groupStore.getListAction(watchSystem.value);
-  loading.value = false;
-};
-
-const getDetailAction = async (id) => {
-  try {
-    const res = await groupStore.detailAction(id);
-    detailData.value = res.result;
-    return res.result;
-  } catch (error) {
-    console.error("Error fetching detail:", error);
-    toast.error("Failed to load details");
-  }
-};
-
-// Toggle row expansion
-const toggleRow = (itemId) => {
-  const index = expandedRows.value.indexOf(itemId);
-  if (index > -1) {
-    expandedRows.value.splice(index, 1);
-  } else {
-    expandedRows.value.push(itemId);
-  }
-};
-
-// Utility function to format datetime for database
+// Helper Functions
 const formattedDateTimeDB = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(date.getDate()).padStart(2, "0")} ${String(
+    date.getHours()
+  ).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(
+    date.getSeconds()
+  ).padStart(2, "0")}`;
 };
 
-// Methods
 const formatDate = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, "0");
   const monthNames = [
     "Jan",
     "Feb",
@@ -1385,9 +1196,9 @@ const formatDate = (dateString) => {
     "Nov",
     "Dec",
   ];
-  const month = monthNames[date.getMonth()];
-  const year = date.getFullYear();
-  return `${day} ${month} ${year}`;
+  return `${String(date.getDate()).padStart(2, "0")} ${
+    monthNames[date.getMonth()]
+  } ${date.getFullYear()}`;
 };
 
 const formatCurrency = (amount) => {
@@ -1397,16 +1208,8 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-const goToProduct = (id) => {
-  window.open(`/product/hotel/edit/${id}`);
-};
-
-const totalDiscount = (item) => {
-  let total = 0;
-  for (let i = 0; i < item.length; i++) {
-    total += item[i].discount || 0;
-  }
-  return total;
+const totalDiscount = (items) => {
+  return items.reduce((total, item) => total + (item.discount || 0), 0);
 };
 
 const getDeadlineDate = (serviceDateStr) => {
@@ -1418,6 +1221,11 @@ const getDeadlineDate = (serviceDateStr) => {
     day: "numeric",
     year: "numeric",
   });
+};
+
+const marginCalc = (sale, cost) => {
+  if (cost === 0) return "N/A";
+  return (((sale - cost) / sale) * 100).toFixed(2) + "%";
 };
 
 const getExpenseStatusClass = (status) => {
@@ -1440,11 +1248,11 @@ const formatExpenseStatus = (status) => {
 
 const getPaymentStatusClass = (status) => {
   const classes = {
-    fully_paid: "bg-green-100 text-green-800",
-    not_paid: "bg-red-100 text-red-800",
-    partially_paid: "bg-yellow-100 text-yellow-800",
+    fully_paid: " text-green-500",
+    not_paid: " text-red-500",
+    partially_paid: " text-yellow-500",
   };
-  return classes[status] || "bg-gray-100 text-gray-800";
+  return classes[status] || " text-gray-500";
 };
 
 const formatPaymentStatus = (status) => {
@@ -1456,8 +1264,85 @@ const formatPaymentStatus = (status) => {
   return statuses[status] || status;
 };
 
+const getDeadlineIconClass = (items) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const deadlineDate = new Date(today);
+  deadlineDate.setDate(today.getDate() + 2);
+
+  const weekDate = new Date(today);
+  weekDate.setDate(today.getDate() + 7);
+
+  for (const item of items) {
+    const checkinDate = new Date(item.checkin_date);
+    checkinDate.setHours(0, 0, 0, 0);
+
+    if (checkinDate.getTime() === today.getTime()) return "bg-red-500";
+    if (checkinDate >= today && checkinDate <= deadlineDate)
+      return "bg-yellow-500";
+    if (checkinDate >= today && checkinDate <= weekDate) return "bg-green-500";
+  }
+
+  return "bg-gray-400";
+};
+
+const getComments = (item) => {
+  const comments = [];
+  if (item.comment_sale) {
+    comments.push({
+      type: "Sale",
+      text: item.comment_sale,
+      badgeClass: "bg-blue-500",
+      bgClass: "bg-blue-100",
+    });
+  }
+  if (item.comment_res) {
+    comments.push({
+      type: "Res",
+      text: item.comment_res,
+      badgeClass: "bg-orange-500",
+      bgClass: "bg-orange-100",
+    });
+  }
+  return comments;
+};
+
+// API Functions
+const getListAction = async () => {
+  loading.value = true;
+  await groupStore.getListAction(watchSystem.value);
+  loading.value = false;
+};
+
+const getDetailAction = async (id) => {
+  try {
+    const res = await groupStore.detailAction(id);
+    detailData.value = res.result;
+    return res.result;
+  } catch (error) {
+    console.error("Error fetching detail:", error);
+    toast.error("Failed to load details");
+  }
+};
+
+const changePage = async (url) => {
+  await groupStore.getChangePage(url, watchSystem.value);
+};
+
+// UI Actions
+const toggleRow = (itemId) => {
+  const index = expandedRows.value.indexOf(itemId);
+  if (index > -1) {
+    expandedRows.value.splice(index, 1);
+  } else {
+    expandedRows.value.push(itemId);
+  }
+};
+
 const searchAction = async () => {
   filterShow.value = false;
+  deadlineFilterShow.value = false;
   await getListAction();
 };
 
@@ -1469,165 +1354,25 @@ const clearFilter = () => {
   filterShow.value = false;
 };
 
-const copyReservation = async (item) => {
-  try {
-    const response = await groupStore.detailAction(item.id);
-    let res = response.result;
-    console.log(res, "this is copy");
-
-    // Check if we have data and items
-    if (!res || !res.items || res.items.length === 0) {
-      toast.error("No reservation items found");
-      return;
-    }
-
-    // Helper function to check if a date is today, tomorrow, or the day after tomorrow
-    function getUrgencyLabel(dateString) {
-      if (!dateString || dateString === "null" || dateString === "-") return "";
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-
-      const dayAfterTomorrow = new Date(today);
-      dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-
-      // Parse the service date
-      const serviceDateParts = dateString.split("-");
-      // Assuming format is YYYY-MM-DD or DD-MM-YYYY
-      let serviceDate;
-
-      if (serviceDateParts[0].length === 4) {
-        // YYYY-MM-DD format
-        serviceDate = new Date(dateString);
-      } else {
-        // DD-MM-YYYY format
-        serviceDate = new Date(
-          `${serviceDateParts[2]}-${serviceDateParts[1]}-${serviceDateParts[0]}`
-        );
-      }
-
-      serviceDate.setHours(0, 0, 0, 0);
-
-      if (serviceDate.getTime() === today.getTime()) {
-        return "*Urgent: Today*  \n";
-      } else if (serviceDate.getTime() === tomorrow.getTime()) {
-        return "*Urgent: Tomorrow*  \n";
-      } else if (serviceDate.getTime() === dayAfterTomorrow.getTime()) {
-        return "*Urgent: Day After Tomorrow*  \n";
-      }
-
-      return "";
-    }
-
-    // Calculate discount from items
-    let discount = 0;
-    for (let i = 0; i < res.items.length; i++) {
-      discount += res.items[i].discount || 0;
-    }
-
-    // Calculate score using booking data
-    let score = 0;
-    let total_amount = 0;
-    if (res.items && res.total_cost_price) {
-      // FIXED: Changed from forEach(res.items, ...) to res.items.forEach(...)
-      res.items.forEach((item) => {
-        total_amount += item.amount * 1;
-      });
-      score = (total_amount - res.total_cost_price) / total_amount;
-    }
-
-    // Check for earliest service date across all items
-    let earliestServiceDate = null;
-    for (const item of res.items) {
-      if (item.service_date && item.service_date !== "null") {
-        if (!earliestServiceDate || item.service_date < earliestServiceDate) {
-          earliestServiceDate = item.service_date;
-        }
-      }
-    }
-
-    // Get urgency label based on earliest service date
-    const urgencyLabel = earliestServiceDate
-      ? getUrgencyLabel(earliestServiceDate)
-      : "";
-
-    // Create formatted output for all items
-    let allFormattedOutput = "";
-
-    // Add urgency label at the top if needed
-    if (urgencyLabel) {
-      allFormattedOutput += urgencyLabel;
-    }
-
-    // Add booking header using booking data
-    allFormattedOutput += `💰 Total Cost: ${res.total_cost_price} THB
-🏦 Bank Name: ${res.expense_bank_name ?? res.items[0]?.product?.bank_name}  
-🔢 Bank Account Number: ${
-      res.expense_bank_account
-        ? `➖${res.expense_bank_account}`
-        : `➖${res.items[0]?.product?.bank_account_number}`
-    }
-#️⃣ CRM ID: ${res.booking_crm_id}
-🧑‍💼 Account Name: ${res.items[0]?.product?.account_name || "-"} 
----------------------
-🏨 Product Name: ${res.items[0]?.product?.name}
-💵 Price: ${total_amount || 0} THB 
-💸 Discount : ${res.booking?.discount || discount} THB 
-💵 Balance Due: ${res.booking?.balance_due || 0} THB 
-📝 Payment Status: ${res.booking?.payment_status || "unknown"}
----------------------
-`;
-
-    if (res.product_type == "Hotel") {
-      res.items.forEach((item, index) => {
-        const itemUrgencyLabel = getUrgencyLabel(item.checkin_date).trim();
-        const urgencyPrefix = itemUrgencyLabel ? `[${itemUrgencyLabel}] ` : "";
-        allFormattedOutput += `🏩 Room Name: ${item.room?.name}
-📆 Check-in Date: ${urgencyPrefix}${item.checkin_date || item.service_date} : ${
-          item.checkout_date || ""
-        }
-#️⃣ Reservation Code: ${item.crm_id}: S: (${item.sale_price || item.amount})
----------------------\n`;
-      });
-    } else {
-      res.items.forEach((item, index) => {
-        const itemUrgencyLabel = getUrgencyLabel(item.service_date).trim();
-        const urgencyPrefix = itemUrgencyLabel ? `[${itemUrgencyLabel}] ` : "";
-        allFormattedOutput += `🎫 Ticket Name: ${item.variation?.name}
-📆 Service Date: ${urgencyPrefix}${item.service_date}
-#️⃣ Reservation Code: ${item.crm_id}: S: (${item.sale_price || item.amount})
-🧑‍🧑‍🧒 Quantity: ${item.quantity || 1}A${
-          item.individual_pricing?.child?.quantity
-            ? ` - ${item.individual_pricing.child.quantity}C`
-            : ""
-        }
----------------------\n`;
-      });
-    }
-
-    allFormattedOutput += `💵 Total Sale Amount: ${
-      res.booking?.grand_total || 0
-    } THB 
-📅 Sale Date: ${res.booking?.booking_date}
-🤑 Score : ${score.toFixed(2)}
-🚨 Verify Status : ${res.booking?.verify_status}\n`;
-
-    // Copy to clipboard
-    setTimeout(() => {
-      navigator.clipboard.writeText(allFormattedOutput);
-      toast.success("Success copy reservation");
-    }, 0);
-
-    return allFormattedOutput;
-  } catch (error) {
-    console.error("Error copying reservations:", error);
-    toast.error("Failed to copy reservation");
-  }
+const clearDeadlineFilter = () => {
+  deadlineDate.value = "";
+  deadlineNumber.value = 2;
+  deadlineFilterShow.value = false;
 };
 
+const openBooking = (bookingId) => {
+  window.open(`/bookings/new-update/${bookingId}`);
+};
+
+const goToProduct = (id) => {
+  window.open(`/product/hotel/edit/${id}`);
+};
+
+const goToRoomDetail = (id) => {
+  window.open(`/products/3?room_id=${id}`);
+};
+
+// Drawer Actions
 const openInfoDrawer = async (item) => {
   selectedItem.value = item;
   infoDrawerOpen.value = true;
@@ -1640,63 +1385,406 @@ const closeInfoDrawer = () => {
   detailData.value = null;
 };
 
+const originalSlipsData = ref({});
+
+// Modify the openPayDrawer function to store original data
 const openPayDrawer = async (item) => {
   selectedItem.value = item;
-  payDrawerOpen.value = true;
   await getDetailAction(item.id);
+  selectedStatus.value = detailData.value.expense_status;
+
+  // Store original data for reset functionality
+  originalSlipsData.value = {};
+
+  newSlips.value = detailData.value.expense.map((slip) => {
+    const slipData = {
+      image: slip.image || null,
+      imagePreview: slip.image_url || null,
+      amount: slip.amount || 0,
+      date: slip.date,
+      sender: slip.sender || "MR. THIHA@KUMAR BHUSAL",
+      reciever:
+        slip.reciever ||
+        detailData.value?.items?.[0]?.product?.account_name ||
+        "",
+      interact_bank: slip.interact_bank || "personal",
+      currency: slip.currency || "THB",
+      id: slip.id,
+    };
+
+    // Store original data for slips with ID
+    if (slip.id) {
+      originalSlipsData.value[slip.id] = { ...slipData };
+    }
+
+    return slipData;
+  });
+
+  addNewSlip();
+  payDrawerOpen.value = true;
 };
 
+// Add reset function
+const resetSlipToOriginal = (slip, index) => {
+  if (!slip.id || !originalSlipsData.value[slip.id]) {
+    toast.error("Cannot reset: No original data found");
+    return;
+  }
+
+  const originalData = originalSlipsData.value[slip.id];
+
+  // Reset the slip to original values
+  newSlips.value[index] = {
+    ...originalData,
+    // Create a deep copy to avoid reference issues
+    image: originalData.image,
+    imagePreview: originalData.imagePreview,
+    amount: originalData.amount,
+    date: originalData.date,
+    sender: originalData.sender,
+    reciever: originalData.reciever,
+    interact_bank: originalData.interact_bank,
+    currency: originalData.currency,
+    id: originalData.id,
+  };
+
+  toast.success("Slip data reset to original values");
+};
+
+// Also update closePayDrawer to clear original data
 const closePayDrawer = () => {
   payDrawerOpen.value = false;
   selectedItem.value = null;
   detailData.value = null;
+  selectedStatus.value = null;
+  newSlips.value = [];
+  originalSlipsData.value = {}; // Clear original data
 };
 
-// Status change functions
-const openModalStatus = (status) => {
-  selectedStatus.value = status;
+const openCommentAction = (item) => {
+  selectedItem.value = item;
+  openCommentModal.value = true;
+};
 
-  // If status is "not_paid", skip image upload and directly update status
-  if (status === "not_paid") {
-    updateExpenseStatus(status);
-    closePayDrawer();
-  } else {
-    // For "partially_paid" or "fully_paid", open file modal
-    fileModalOpen.value = true;
-    payDrawerOpen.value = false;
+const closeCommentModal = () => {
+  openCommentModal.value = false;
+  comment.value = "";
+  selectedItem.value = null;
+};
 
-    // Initialize status change data
-    statusChangeData.value = {
-      status: status,
-      image: null,
-      imagePreview: null,
-      amount: detailData.value?.total_cost_price || 0,
-      date: new Date().toISOString().slice(0, 16),
-      bank_name: detailData.value?.expense_bank_name || "",
-      sender: "MR. THIHA@KUMAR BHUSAL",
-      reciever: detailData.value?.items?.[0]?.product?.account_name || "",
-      interact_bank: "personal",
-      currency: "THB",
+// Copy Reservation
+const copyReservation = async (item) => {
+  try {
+    const response = await groupStore.detailAction(item.id);
+    const res = response.result;
+
+    if (!res || !res.items || res.items.length === 0) {
+      toast.error("No reservation items found");
+      return;
+    }
+
+    const getUrgencyLabel = (dateString) => {
+      if (!dateString || dateString === "null" || dateString === "-") return "";
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const serviceDate = new Date(dateString);
+      serviceDate.setHours(0, 0, 0, 0);
+
+      const diffDays = Math.floor(
+        (serviceDate - today) / (1000 * 60 * 60 * 24)
+      );
+
+      if (diffDays === 0) return "*Urgent: Today*  \n";
+      if (diffDays === 1) return "*Urgent: Tomorrow*  \n";
+      if (diffDays === 2) return "*Urgent: Day After Tomorrow*  \n";
+      return "";
     };
+
+    const discount = res.items.reduce(
+      (sum, item) => sum + (item.discount || 0),
+      0
+    );
+    const total_amount = res.items.reduce((sum, item) => sum + item.amount, 0);
+    const score = res.total_cost_price
+      ? ((total_amount - res.total_cost_price) / total_amount).toFixed(2)
+      : 0;
+
+    const earliestServiceDate = res.items.reduce((earliest, item) => {
+      if (item.service_date && item.service_date !== "null") {
+        return !earliest || item.service_date < earliest
+          ? item.service_date
+          : earliest;
+      }
+      return earliest;
+    }, null);
+
+    const urgencyLabel = earliestServiceDate
+      ? getUrgencyLabel(earliestServiceDate)
+      : "";
+
+    let output = urgencyLabel;
+    output += `💰 Total Cost: ${res.total_cost_price} THB
+🏦 Bank Name: ${res.expense_bank_name ?? res.items[0]?.product?.bank_name}  
+🔢 Bank Account Number: ${
+      res.expense_bank_account
+        ? `➖${res.expense_bank_account}`
+        : `➖${res.items[0]?.product?.bank_account_number}`
+    }
+#️⃣ CRM ID: ${res.booking_crm_id}
+🧑‍💼 Account Name: ${res.items[0]?.product?.account_name || "-"} 
+---------------------
+🏨 Product Name: ${res.items[0]?.product?.name}
+💵 Price: ${total_amount || 0} THB 
+💸 Discount: ${res.booking?.discount || discount} THB 
+💵 Balance Due: ${res.booking?.balance_due || 0} THB 
+📝 Payment Status: ${res.booking?.payment_status || "unknown"}
+---------------------
+`;
+
+    res.items.forEach((item) => {
+      const itemUrgencyLabel = getUrgencyLabel(
+        item.checkin_date || item.service_date
+      ).trim();
+      const urgencyPrefix = itemUrgencyLabel ? `[${itemUrgencyLabel}] ` : "";
+
+      if (res.product_type === "Hotel") {
+        output += `🏩 Room Name: ${item.room?.name}
+📆 Check-in Date: ${urgencyPrefix}${item.checkin_date || item.service_date} : ${
+          item.checkout_date || ""
+        }
+#️⃣ Reservation Code: ${item.crm_id}: S: (${item.sale_price || item.amount})
+---------------------\n`;
+      } else {
+        output += `🎫 Ticket Name: ${item.variation?.name}
+📆 Service Date: ${urgencyPrefix}${item.service_date}
+#️⃣ Reservation Code: ${item.crm_id}: S: (${item.sale_price || item.amount})
+🧑‍🧑‍🧒 Quantity: ${item.quantity || 1}A${
+          item.individual_pricing?.child?.quantity
+            ? ` - ${item.individual_pricing.child.quantity}C`
+            : ""
+        }
+---------------------\n`;
+      }
+    });
+
+    output += `💵 Total Sale Amount: ${res.booking?.grand_total || 0} THB 
+📅 Sale Date: ${res.booking?.booking_date}
+🤑 Score: ${score}
+🚨 Verify Status: ${res.booking?.verify_status}\n`;
+
+    await navigator.clipboard.writeText(output);
+    toast.success("Success copy reservation");
+  } catch (error) {
+    console.error("Error copying reservations:", error);
+    toast.error("Failed to copy reservation");
   }
 };
 
-// Handle file selection for status change
-const handleStatusImageChange = (e) => {
+// TABLE ACTIONS - MOVED HERE AFTER FUNCTION DEFINITIONS
+const tableActions = [
+  {
+    name: "pay",
+    label: "Pay",
+    icon: null,
+    handler: openPayDrawer,
+    class:
+      "px-3 py-2 text-xs text-white bg-green-600 rounded-lg shadow-md transition-all duration-200 hover:bg-green-700 hover:shadow-md active:scale-95",
+    title: "Pay",
+  },
+  {
+    name: "copy",
+    icon: DocumentDuplicateIcon,
+    handler: copyReservation,
+    class:
+      "p-1.5 bg-orange-100 text-orange-600 rounded-lg shadow-md transition-all duration-200 hover:bg-orange-200 hover:shadow-md active:scale-95",
+    title: "Copy",
+  },
+  {
+    name: "info",
+    icon: InformationCircleIcon,
+    handler: openInfoDrawer,
+    class:
+      "p-1.5 bg-blue-100 text-blue-600 rounded-lg shadow-md transition-all duration-200 hover:bg-blue-200 hover:shadow-md active:scale-95",
+    title: "View Details",
+  },
+  {
+    name: "comment",
+    icon: ChatBubbleBottomCenterIcon,
+    handler: openCommentAction,
+    class:
+      "p-1.5 bg-orange-100 text-orange-600 rounded-lg shadow-md transition-all duration-200 hover:bg-orange-200 hover:shadow-md active:scale-95",
+    title: "Comments",
+  },
+];
+
+// Slip Actions
+const addNewSlip = () => {
+  newSlips.value.unshift({
+    image: null,
+    imagePreview: null,
+    amount: detailData.value?.total_cost_price || 0,
+    date: new Date().toISOString().slice(0, 16),
+    sender: "MR. THIHA@KUMAR BHUSAL",
+    reciever: detailData.value?.items?.[0]?.product?.account_name || "",
+    interact_bank: "personal",
+    currency: "THB",
+    id: null,
+  });
+};
+
+const removeSlip = (index) => {
+  if (newSlips.value.length > 1) {
+    newSlips.value.splice(index, 1);
+  }
+  addNewSlip();
+};
+
+const handleSlipImageChange = (e, index) => {
   const file = e.target.files[0];
   if (file) {
-    statusChangeData.value.image = file;
-    statusChangeData.value.imagePreview = URL.createObjectURL(file);
+    newSlips.value[index].image = file;
+    newSlips.value[index].imagePreview = URL.createObjectURL(file);
   }
 };
 
-// Open file picker for status change
-const openStatusFilePicker = () => {
-  document.getElementById("statusImageInput").click();
+const openSlipFilePicker = (index) => {
+  document.getElementById(`slipImageInput${index}`).click();
 };
 
-// Update expense status (for not_paid - no image needed)
-const updateExpenseStatus = async (status) => {
+const clearSlipImage = (index) => {
+  newSlips.value[index].image = null;
+  newSlips.value[index].imagePreview = null;
+};
+
+const saveNewSlip = async (slip, index) => {
+  if (!slip.image) {
+    toast.error("Please upload a payment slip image");
+    return;
+  }
+  if (!slip.amount || slip.amount <= 0) {
+    toast.error("Please enter a valid amount");
+    return;
+  }
+  if (!slip.date) {
+    toast.error("Please select a date and time");
+    return;
+  }
+
+  try {
+    loading.value = true;
+    const expenseFrmData = new FormData();
+    expenseFrmData.append("relatable_type", "App\\Models\\BookingItemGroup");
+    expenseFrmData.append("relatable_id", selectedItem.value.id);
+    expenseFrmData.append("amount", slip.amount);
+    expenseFrmData.append("sender", slip.sender);
+    expenseFrmData.append("reciever", slip.reciever);
+    expenseFrmData.append("interact_bank", slip.interact_bank);
+    expenseFrmData.append("currency", slip.currency);
+    expenseFrmData.append("date", formattedDateTimeDB(slip.date));
+    expenseFrmData.append("image", slip.image);
+
+    const response = await cashImageStore.addNewAction(expenseFrmData);
+
+    if (response.status === 1) {
+      toast.success("Payment slip saved successfully");
+      await getDetailAction(selectedItem.value.id);
+      newSlips.value[index].id = response.result.id;
+      newSlips.value[index].imagePreview = response.result.image_url;
+    } else {
+      toast.error("Failed to save payment slip");
+    }
+  } catch (error) {
+    console.error("Error saving slip:", error);
+    toast.error("An error occurred while saving the slip");
+  } finally {
+    loading.value = false;
+    addNewSlip();
+  }
+};
+
+const removeNewSlip = (index) => {
+  const slip = newSlips.value[index];
+  if (!slip.id) {
+    if (newSlips.value.length > 1) {
+      newSlips.value.splice(index, 1);
+      toast.success("Slip removed");
+      addNewSlip();
+    } else {
+      toast.error("At least one slip is required");
+    }
+  } else {
+    toast.error("Use delete button for saved slips");
+  }
+};
+
+const updateExistingSlip = async (slip, index) => {
+  if (!slip.id) {
+    toast.error("Invalid slip ID");
+    return;
+  }
+
+  try {
+    loading.value = true;
+    const expenseFrmData = new FormData();
+    expenseFrmData.append("_method", "PUT");
+    expenseFrmData.append("amount", slip.amount);
+    expenseFrmData.append("sender", slip.sender);
+    expenseFrmData.append("reciever", slip.reciever);
+    expenseFrmData.append("interact_bank", slip.interact_bank);
+    expenseFrmData.append("currency", slip.currency);
+    expenseFrmData.append("date", formattedDateTimeDB(slip.date));
+
+    const response = await cashImageStore.updateAction(expenseFrmData, slip.id);
+
+    if (response.status === 1) {
+      toast.success("Payment slip updated successfully");
+      await getDetailAction(selectedItem.value.id);
+    } else {
+      toast.error("Failed to update payment slip");
+    }
+  } catch (error) {
+    console.error("Error updating slip:", error);
+    toast.error("An error occurred while updating the slip");
+  } finally {
+    loading.value = false;
+  }
+};
+
+const deleteSlip = async (slipId) => {
+  if (!slipId) {
+    toast.error("Invalid slip ID");
+    return;
+  }
+
+  try {
+    loading.value = true;
+    const response = await cashImageStore.deleteAction(slipId);
+
+    if (response.status === 1) {
+      toast.success("Payment slip deleted successfully");
+      await getDetailAction(selectedItem.value.id);
+      const index = newSlips.value.findIndex((slip) => slip.id === slipId);
+      if (index > -1) {
+        newSlips.value.splice(index, 1);
+      }
+    } else {
+      toast.error("Failed to delete payment slip");
+    }
+  } catch (error) {
+    console.error("Error deleting slip:", error);
+    toast.error("An error occurred while deleting the slip");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Status Change
+const confirmStatusChange = async () => {
+  if (!selectedStatus.value) {
+    toast.error("Please select a status");
+    return;
+  }
   if (!selectedItem.value?.id) {
     toast.error("No item selected");
     return;
@@ -1704,44 +1792,31 @@ const updateExpenseStatus = async (status) => {
 
   try {
     loading.value = true;
-    let successCount = 0;
-    let failCount = 0;
-
-    // Get detail data to access all items
     const detail = await getDetailAction(selectedItem.value.id);
 
     if (!detail || !detail.items || detail.items.length === 0) {
       toast.error("No items found to update");
-      loading.value = false;
       return;
     }
 
-    // First, update each item's payment_status
-    for (let i = 0; i < detail.items.length; i++) {
+    let successCount = 0;
+    for (const item of detail.items) {
       try {
-        const item = detail.items[i];
         const frmData = new FormData();
         frmData.append("_method", "PUT");
-        frmData.append("payment_status", status);
+        frmData.append("payment_status", selectedStatus.value);
 
         const response = await reservationStore.updateAction(frmData, item.id);
-
-        if (response.status === 1) {
-          successCount++;
-        } else {
-          failCount++;
-        }
+        if (response.status === 1) successCount++;
       } catch (error) {
-        console.error(`Error updating item ${detail.items[i].id}:`, error);
-        failCount++;
+        console.error(`Error updating item ${item.id}:`, error);
       }
     }
 
-    // Then, update the group's expense_status
     if (successCount > 0) {
       const groupFrmData = new FormData();
       groupFrmData.append("_method", "PUT");
-      groupFrmData.append("expense_status", status);
+      groupFrmData.append("expense_status", selectedStatus.value);
 
       const groupRes = await groupStore.groupUpdateAction(
         selectedItem.value.id,
@@ -1751,7 +1826,7 @@ const updateExpenseStatus = async (status) => {
       if (groupRes.status === 1) {
         toast.success(
           `Status updated to ${formatExpenseStatus(
-            status
+            selectedStatus.value
           )} for ${successCount} items`
         );
         await getListAction();
@@ -1770,136 +1845,64 @@ const updateExpenseStatus = async (status) => {
   }
 };
 
-// Submit status change with image (for partially_paid and fully_paid)
-const submitStatusChangeWithImage = async () => {
-  if (!statusChangeData.value.image) {
-    toast.error("Please upload a payment slip");
-    return;
-  }
-
-  if (!statusChangeData.value.amount || statusChangeData.value.amount <= 0) {
-    toast.error("Please enter a valid amount");
-    return;
-  }
-
-  if (!selectedItem.value?.id) {
-    toast.error("No item selected");
+// Comment Action
+const addCommentAction = async () => {
+  if (!comment.value.trim()) {
+    toast.error("Comment cannot be empty");
     return;
   }
 
   try {
-    loading.value = true;
-    let successCount = 0;
-    let failCount = 0;
+    const groupFrmData = new FormData();
+    groupFrmData.append("_method", "PUT");
+    groupFrmData.append(
+      authStore.isReservation ? "comment_res" : "comment_sale",
+      comment.value
+    );
 
-    // Get detail data to access all items
-    const detail = await getDetailAction(selectedItem.value.id);
-
-    if (!detail || !detail.items || detail.items.length === 0) {
-      toast.error("No items found to update");
-      loading.value = false;
-      return;
-    }
-
-    // First, update each item's payment_status
-    for (let i = 0; i < detail.items.length; i++) {
-      try {
-        const item = detail.items[i];
-        const frmData = new FormData();
-        frmData.append("_method", "PUT");
-        frmData.append("payment_status", statusChangeData.value.status);
-
-        const response = await reservationStore.updateAction(frmData, item.id);
-
-        if (response.status === 1) {
-          successCount++;
-        } else {
-          failCount++;
-        }
-      } catch (error) {
-        console.error(`Error updating item ${detail.items[i].id}:`, error);
-        failCount++;
-      }
-    }
-
-    // If items were updated successfully, proceed with image upload and group status update
-    if (successCount > 0) {
-      // Create the expense image
-      const expenseFrmData = new FormData();
-      expenseFrmData.append("relatable_type", "App\\Models\\BookingItemGroup");
-      expenseFrmData.append("relatable_id", selectedItem.value.id);
-      expenseFrmData.append("amount", statusChangeData.value.amount);
-      expenseFrmData.append("sender", statusChangeData.value.sender);
-      expenseFrmData.append("reciever", statusChangeData.value.reciever);
-      expenseFrmData.append(
-        "interact_bank",
-        statusChangeData.value.interact_bank
-      );
-      expenseFrmData.append("currency", statusChangeData.value.currency);
-      expenseFrmData.append(
-        "date",
-        formattedDateTimeDB(statusChangeData.value.date)
-      );
-      expenseFrmData.append("image", statusChangeData.value.image);
-
-      const expenseRes = await cashImageStore.addNewAction(expenseFrmData);
-
-      if (expenseRes.status === 1) {
-        // Then update the group's expense_status
-        const statusFrmData = new FormData();
-        statusFrmData.append("_method", "PUT");
-        statusFrmData.append("expense_status", statusChangeData.value.status);
-
-        const statusRes = await groupStore.groupUpdateAction(
-          selectedItem.value.id,
-          statusFrmData
-        );
-
-        if (statusRes.status === 1) {
-          toast.success(
-            `Status updated to ${formatExpenseStatus(
-              statusChangeData.value.status
-            )} with payment slip for ${successCount} items`
-          );
-          await getListAction();
-          closeFileModal();
-        } else {
-          toast.error(
-            "Payment slip uploaded but failed to update group status"
-          );
-        }
-      } else {
-        toast.error("Failed to upload payment slip");
-      }
-    } else {
-      toast.error("Failed to update all items");
-    }
+    await groupStore.groupUpdateAction(selectedItem.value.id, groupFrmData);
+    toast.success("Comment added successfully");
+    closeCommentModal();
+    await getListAction();
   } catch (error) {
-    console.error("Error submitting status change:", error);
-    toast.error("An error occurred while processing your request");
-  } finally {
-    loading.value = false;
+    console.error("Error adding comment:", error);
+    toast.error("Failed to add comment");
   }
 };
 
-// Close file modal
-const closeFileModal = () => {
-  fileModalOpen.value = false;
-  statusChangeData.value = {
-    status: null,
-    image: null,
-    imagePreview: null,
-    amount: 0,
-    date: "",
-    bank_name: "",
-    sender: "MR. THIHA@KUMAR BHUSAL",
-    reciever: "",
-    interact_bank: "personal",
-    currency: "THB",
+// Computed - MOVED HERE AFTER ALL FUNCTIONS ARE DEFINED
+const watchSystem = computed(() => {
+  const result = {
+    sorting: sorting.value,
+    product_type: "hotel",
+    per_page: 10,
   };
-  selectedStatus.value = null;
-};
 
+  if (searchKey.value) result.crm_id = searchKey.value;
+  if (statusFilter.value && statusFilter.value !== "all") {
+    result.expense_item_status = statusFilter.value;
+  }
+  if (paymentStatus.value !== "all") {
+    result.payment_status = paymentStatus.value;
+  }
+  if (startDate.value && endDate.value) {
+    result.booking_daterange = `${startDate.value},${endDate.value}`;
+  }
+  if (deadlineDate.value) {
+    result.deadline_date = deadlineDate.value;
+    result.deadline_days = deadlineNumber.value;
+  }
+  if (sorting_type.value) {
+    result.sorting_type = sorting_type.value;
+  }
+  if (!authStore.isReservation && !authStore.isSuperAdmin) {
+    result.user_id = user.value.id;
+  }
+
+  return result;
+});
+
+// Initialization
 const setStartAndEndDate = () => {
   const now = new Date();
   const start = new Date(now);
@@ -1908,10 +1911,6 @@ const setStartAndEndDate = () => {
 
   startDate.value = start.toISOString().split("T")[0];
   endDate.value = end.toISOString().split("T")[0];
-};
-
-const changePage = async (url) => {
-  await groupStore.getChangePage(url, watchSystem.value);
 };
 
 onMounted(async () => {
@@ -1926,37 +1925,24 @@ onMounted(async () => {
   transition: all 0.2s ease;
 }
 
-.slide-down-enter-from {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
+.slide-down-enter-from,
 .slide-down-leave-to {
   opacity: 0;
   transform: translateY(-10px);
 }
 
-.overflow-x-auto::-webkit-scrollbar {
-  height: 6px;
-}
-
-.overflow-x-auto::-webkit-scrollbar-track {
-  background: #f9fafb;
-}
-
-.overflow-x-auto::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 3px;
-}
-
+.overflow-x-auto::-webkit-scrollbar,
 .overflow-y-auto::-webkit-scrollbar {
+  height: 6px;
   width: 6px;
 }
 
+.overflow-x-auto::-webkit-scrollbar-track,
 .overflow-y-auto::-webkit-scrollbar-track {
   background: #f9fafb;
 }
 
+.overflow-x-auto::-webkit-scrollbar-thumb,
 .overflow-y-auto::-webkit-scrollbar-thumb {
   background: #d1d5db;
   border-radius: 3px;

@@ -9,66 +9,236 @@
         class="text-2xl md:text-3xl flex justify-start items-center font-medium text-[#FF613c]"
       >
         Expense
-        <div class="flex justify-start items-center gap-x-4 pl-4">
-          <div class="w-4 h-4 bg-red-500 rounded-full"></div>
-          <p class="text-xs">Deadline</p>
-          <div class="w-4 h-4 bg-yellow-500 rounded-full"></div>
-          <p class="text-xs">2 Day Deadline</p>
-          <div class="w-4 h-4 bg-green-500 rounded-full"></div>
-          <p class="text-xs">5 Day Deadline</p>
-        </div>
       </div>
     </div>
 
     <!-- Main Content -->
     <div class="w-full rounded-lg shadow-sm">
-      <!-- Tab Navigation -->
-      <div class="flex justify-between items-center mb-3">
+      <!-- Scorecard Section -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        <!-- Invoice Next 3 Days Card -->
         <div
-          class="bg-gradient-to-r from-[#FF613c]/80 via-[#FF613c] to-[#f63307] rounded-full p-1 shadow-md"
+          class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow"
         >
-          <div class="flex justify-start items-center gap-1">
-            <div
-              v-for="tab in tabs"
-              :key="tab.id"
-              @click="activeTag = tab.id"
-              class="flex-1 px-3 py-2 rounded-full cursor-pointer transition-all duration-300 relative"
-              :class="activeTag == tab.id ? 'bg-white/20' : 'hover:bg-white/10'"
-            >
-              <div class="flex items-center justify-center gap-2">
-                <div
-                  class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white text-[#FF613c]"
-                >
-                  {{ tab.id }}
-                </div>
-                <p class="text-xs font-medium text-white whitespace-nowrap">
-                  {{ tab.label }}
+          <div class="bg-gradient-to-r from-yellow-600 to-yellow-700 p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white text-sm font-medium opacity-90">
+                  Invoice Next 3 Days
                 </p>
+                <div class="flex items-baseline gap-2 mt-2">
+                  <span class="text-3xl font-bold text-white">
+                    {{ groups?.meta?.without_confirmation_letter || 0 }}
+                  </span>
+                  <span class="text-white text-lg opacity-75">/</span>
+                  <span class="text-xl text-white opacity-90">
+                    {{ groups?.meta?.total_next_7_days || 0 }}
+                  </span>
+                </div>
               </div>
+              <div class="bg-white/20 p-3 rounded-full">
+                <DocumentDuplicateIcon class="w-8 h-8 text-white" />
+              </div>
+            </div>
+          </div>
+          <div class="p-4 bg-gray-50">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600">Finish Rate</span>
+              <span class="font-semibold text-gray-900">
+                {{
+                  groups?.meta?.total_next_7_days > 0
+                    ? (
+                        (groups?.meta?.without_confirmation_letter /
+                          groups?.meta?.total_next_7_days) *
+                        100
+                      ).toFixed(1)
+                    : 0
+                }}%
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
               <div
-                v-if="activeTag == tab.id"
-                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-0.5 bg-white rounded-full"
+                class="bg-orange-500 h-2 rounded-full transition-all duration-500"
+                :style="{
+                  width:
+                    groups?.meta?.total_next_7_days > 0
+                      ? (groups?.meta?.without_confirmation_letter /
+                          groups?.meta?.total_next_7_days) *
+                          100 +
+                        '%'
+                      : '0%',
+                }"
               ></div>
             </div>
+          </div>
+        </div>
+        <!-- Expense Next 7 Days Card -->
+        <div
+          class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow"
+        >
+          <div class="bg-gradient-to-r from-red-500 to-red-600 p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white text-sm font-medium opacity-90">
+                  Expense Next 3 Days
+                </p>
+                <div class="flex items-baseline gap-2 mt-2">
+                  <span class="text-3xl font-bold text-white">
+                    {{ groups?.meta?.expense_not_fully_paid || 0 }}
+                  </span>
+                  <span class="text-white text-lg opacity-75">/</span>
+                  <span class="text-xl text-white opacity-90">
+                    {{ groups?.meta?.total_next_7_days || 0 }}
+                  </span>
+                </div>
+              </div>
+              <div class="bg-white/20 p-3 rounded-full">
+                <WalletIcon class="w-8 h-8 text-white" />
+              </div>
+            </div>
+          </div>
+          <div class="p-4 bg-gray-50">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600">Finish Rate</span>
+              <span class="font-semibold text-gray-900">
+                {{
+                  groups?.meta?.total_next_7_days > 0
+                    ? (
+                        (groups?.meta?.expense_not_fully_paid /
+                          groups?.meta?.total_next_7_days) *
+                        100
+                      ).toFixed(1)
+                    : 0
+                }}%
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+              <div
+                class="bg-red-500 h-2 rounded-full transition-all duration-500"
+                :style="{
+                  width:
+                    groups?.meta?.total_next_7_days > 0
+                      ? (groups?.meta?.expense_not_fully_paid /
+                          groups?.meta?.total_next_7_days) *
+                          100 +
+                        '%'
+                      : '0%',
+                }"
+              ></div>
+            </div>
+          </div>
+        </div>
 
-            <div
-              v-for="(arrow, index) in [1, 2]"
-              :key="`arrow-${index}`"
-              class="flex items-center justify-center"
-            >
-              <svg
-                class="w-5 h-5 text-white/60"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
+        <!-- Customer Next 7 Days Card -->
+        <div
+          class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow"
+        >
+          <div class="bg-gradient-to-r from-orange-500 to-orange-600 p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white text-sm font-medium opacity-90">
+                  Customer Next 3 Days
+                </p>
+                <div class="flex items-baseline gap-2 mt-2">
+                  <span class="text-3xl font-bold text-white">
+                    {{ groups?.meta?.customer_fully_paid || 0 }}
+                  </span>
+                  <span class="text-white text-lg opacity-75">/</span>
+                  <span class="text-xl text-white opacity-90">
+                    {{ groups?.meta?.total_next_7_days || 0 }}
+                  </span>
+                </div>
+              </div>
+              <div class="bg-white/20 p-3 rounded-full">
+                <WalletIcon class="w-8 h-8 text-white" />
+              </div>
+            </div>
+          </div>
+          <div class="p-4 bg-gray-50">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600">Finish Rate</span>
+              <span class="font-semibold text-gray-900">
+                {{
+                  groups?.meta?.total_next_7_days > 0
+                    ? (
+                        (groups?.meta?.customer_fully_paid /
+                          groups?.meta?.total_next_7_days) *
+                        100
+                      ).toFixed(1)
+                    : 0
+                }}%
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+              <div
+                class="bg-red-500 h-2 rounded-full transition-all duration-500"
+                :style="{
+                  width:
+                    groups?.meta?.total_next_7_days > 0
+                      ? (groups?.meta?.customer_fully_paid /
+                          groups?.meta?.total_next_7_days) *
+                          100 +
+                        '%'
+                      : '0%',
+                }"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expense Mail Sent Next 7 Days Card -->
+        <div
+          class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow"
+        >
+          <div class="bg-gradient-to-r from-green-500 to-green-600 p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white text-sm font-medium opacity-90">
+                  Mail Sent 3 Days
+                </p>
+                <div class="flex items-baseline gap-2 mt-2">
+                  <span class="text-3xl font-bold text-white">
+                    {{ groups?.meta?.expense_mail_sent || 0 }}
+                  </span>
+                  <span class="text-white text-lg opacity-75">/</span>
+                  <span class="text-xl text-white opacity-90">
+                    {{ groups?.meta?.total_next_7_days || 0 }}
+                  </span>
+                </div>
+              </div>
+              <div class="bg-white/20 p-3 rounded-full">
+                <WalletIcon class="w-8 h-8 text-white" />
+              </div>
+            </div>
+          </div>
+          <div class="p-4 bg-gray-50">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600">Finish Rate</span>
+              <span class="font-semibold text-gray-900">
+                {{
+                  groups?.meta?.total_next_7_days > 0
+                    ? (
+                        (groups?.meta?.expense_mail_sent /
+                          groups?.meta?.total_next_7_days) *
+                        100
+                      ).toFixed(1)
+                    : 0
+                }}%
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+              <div
+                class="bg-red-500 h-2 rounded-full transition-all duration-500"
+                :style="{
+                  width:
+                    groups?.meta?.total_next_7_days > 0
+                      ? (groups?.meta?.expense_mail_sent /
+                          groups?.meta?.total_next_7_days) *
+                          100 +
+                        '%'
+                      : '0%',
+                }"
+              ></div>
             </div>
           </div>
         </div>
@@ -79,83 +249,80 @@
         class="p-3 md:p-4 border-b border-gray-200 sticky bg-white -top-6 z-20"
       >
         <div class="flex items-center justify-between gap-4">
-          <div class="flex items-center gap-2">
-            <!-- Search Input -->
-            <div class="relative min-w-[200px] max-w-[400px]">
+          <div class="flex items-center gap-2 flex-1">
+            <!-- Search CRM ID -->
+            <div class="relative min-w-[180px]">
               <input
                 type="search"
                 v-model="searchKey"
-                placeholder="Search by CRM ID"
-                class="w-full px-4 py-3 rounded-full shadow border border-gray-100 focus:outline-none text-xs"
+                placeholder="Search CRM ID"
+                class="w-full px-4 py-2.5 rounded-full shadow-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#FF613c] text-xs"
                 @keyup.enter="searchAction"
               />
               <div
                 @click="searchAction"
-                class="absolute right-2 top-2 rounded-full text-xs p-1 bg-[#FF613c] cursor-pointer"
+                class="absolute right-1 top-1 rounded-full text-xs p-1.5 bg-[#FF613c] cursor-pointer hover:bg-[#e55139] transition-colors"
               >
                 <MagnifyingGlassIcon class="w-4 h-4 text-white" />
               </div>
             </div>
 
-            <!-- Filter Buttons -->
+            <!-- Search Hotel Name -->
+            <div class="relative min-w-[180px]">
+              <input
+                type="search"
+                v-model="hotelName"
+                placeholder="Search Hotel"
+                class="w-full px-4 py-2.5 rounded-full shadow-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#FF613c] text-xs"
+                @keyup.enter="searchAction"
+              />
+            </div>
+
+            <!-- Expense Status Filter -->
+            <div class="relative min-w-[160px]">
+              <select
+                v-model="statusFilter"
+                @change="searchAction"
+                class="appearance-none bg-white border border-gray-200 text-gray-700 text-xs px-4 py-2.5 pr-8 rounded-full shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full"
+              >
+                <option value="all">All Status</option>
+                <option value="not_paid">Not Paid</option>
+                <option value="partially_paid">Partially Paid</option>
+                <option value="fully_paid">Fully Paid</option>
+              </select>
+              <ChevronDownIcon
+                class="w-4 h-4 text-gray-500 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+              />
+            </div>
+            <button
+              @click="searchAction"
+              class="bg-[#FF613c] px-4 rounded-full shadow-sm py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer hover:bg-[#e55139] transition-colors"
+            >
+              <FunnelIcon class="w-4 h-4 text-white" />
+              <p>Search</p>
+            </button>
+            <!-- Filters Button -->
             <button
               @click="filterShow = !filterShow"
-              class="bg-[#FF613c] px-4 rounded-full shadow py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer"
+              class="bg-[#FF613c] px-4 rounded-full shadow-sm py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer hover:bg-[#e55139] transition-colors"
             >
-              <FunnelIcon class="w-5 h-5 text-white" />
-              <p>Date Range</p>
-            </button>
-            <button
-              @click="deadlineFilterShow = !deadlineFilterShow"
-              class="bg-[#FF613c] px-4 rounded-full shadow py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer"
-            >
-              <FunnelIcon class="w-5 h-5 text-white" />
-              <p>Deadline filter</p>
+              <FunnelIcon class="w-4 h-4 text-white" />
+              <p>More Filters</p>
+              <ChevronDownIcon
+                class="w-4 h-4 text-white transition-transform"
+                :class="filterShow ? 'rotate-180' : ''"
+              />
             </button>
           </div>
 
           <div class="flex items-center gap-2">
-            <!-- Customer Status Dropdown -->
-            <div class="relative">
-              <select
-                v-model="paymentStatus"
-                @change="searchAction"
-                class="appearance-none bg-[#FF613c] text-white text-xs px-4 py-3 pr-8 rounded-full shadow cursor-pointer focus:outline-none"
-              >
-                <option value="all">Customer Status</option>
-                <option value="not_paid">Customer Not Paid</option>
-                <option value="partially_paid">Customer Partially Paid</option>
-                <option value="fully_paid">Customer Fully Paid</option>
-              </select>
-              <ChevronDownIcon
-                class="w-4 h-4 text-white absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
-              />
-            </div>
-
-            <!-- Expense Status Dropdown -->
-            <div class="relative">
-              <select
-                v-model="statusFilter"
-                @change="searchAction"
-                class="appearance-none bg-[#FF613c] text-white text-xs px-4 py-3 pr-8 rounded-full shadow cursor-pointer focus:outline-none"
-              >
-                <option value="all">Expense Status</option>
-                <option value="not_paid">Expense Not Paid</option>
-                <option value="partially_paid">Expense Partially Paid</option>
-                <option value="fully_paid">Expense Fully Paid</option>
-              </select>
-              <ChevronDownIcon
-                class="w-4 h-4 text-white absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
-              />
-            </div>
-
             <!-- Refresh Button -->
             <button
               @click="searchAction"
-              class="flex items-center gap-2 px-4 py-2.5 text-xs text-white bg-[#FF613c] rounded-full cursor-pointer hover:bg-[#e55139] transition-colors"
+              class="flex items-center gap-2 px-4 py-2.5 text-xs text-white bg-[#FF613c] rounded-full cursor-pointer hover:bg-[#e55139] transition-colors shadow-sm"
             >
               <svg
-                class="w-5 h-5"
+                class="w-4 h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -171,89 +338,6 @@
             </button>
           </div>
         </div>
-
-        <!-- Filter Dropdowns -->
-        <transition name="slide-down">
-          <div>
-            <!-- Date Range Filter -->
-            <div
-              v-if="filterShow"
-              class="mt-3 px-4 py-3 bg-white rounded-lg shadow-lg border border-gray-100 space-y-3"
-            >
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <p class="text-xs font-medium mb-2">Start Date</p>
-                  <input
-                    type="date"
-                    v-model="startDate"
-                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-xs rounded-lg"
-                  />
-                </div>
-                <div>
-                  <p class="text-xs font-medium mb-2">End Date</p>
-                  <input
-                    type="date"
-                    v-model="endDate"
-                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-xs rounded-lg"
-                  />
-                </div>
-              </div>
-              <div class="flex items-center gap-2 pt-2">
-                <button
-                  @click="clearFilter"
-                  class="flex-1 text-xs bg-gray-100 px-2 py-2 rounded-lg text-center text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors"
-                >
-                  Clear
-                </button>
-                <button
-                  @click="searchAction"
-                  class="flex-1 text-xs bg-[#FF613c] px-2 py-2 rounded-lg text-center text-white cursor-pointer hover:bg-[#e55139] transition-colors"
-                >
-                  Apply
-                </button>
-              </div>
-            </div>
-
-            <!-- Deadline Filter -->
-            <div
-              v-if="deadlineFilterShow"
-              class="mt-3 px-4 py-3 bg-white rounded-lg shadow-lg border border-gray-100 space-y-3"
-            >
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <p class="text-xs font-medium mb-2">Filter Date</p>
-                  <input
-                    type="date"
-                    v-model="deadlineDate"
-                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-xs rounded-lg"
-                  />
-                </div>
-                <div>
-                  <p class="text-xs font-medium mb-2">Deadline Days</p>
-                  <input
-                    type="number"
-                    v-model="deadlineNumber"
-                    class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-xs rounded-lg"
-                  />
-                </div>
-              </div>
-              <div class="flex items-center gap-2 pt-2">
-                <button
-                  @click="clearDeadlineFilter"
-                  class="flex-1 text-xs bg-gray-100 px-2 py-2 rounded-lg text-center text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors"
-                >
-                  Clear
-                </button>
-                <button
-                  @click="searchAction"
-                  class="flex-1 text-xs bg-[#FF613c] px-2 py-2 rounded-lg text-center text-white cursor-pointer hover:bg-[#e55139] transition-colors"
-                >
-                  Apply
-                </button>
-              </div>
-            </div>
-          </div>
-        </transition>
       </div>
 
       <!-- Table -->
@@ -278,11 +362,10 @@
                 class="hover:bg-gray-50 transition-colors cursor-pointer"
                 @click="toggleRow(item.id)"
               >
-                <!-- CRM ID -->
-                <td class="px-2 md:px-4 py-4 relative">
+                <td class="pl-4">
                   <div
-                    :class="getDeadlineIconClass(item.items)"
-                    class="w-6 h-6 absolute border border-white flex justify-center items-center rounded-full top-2 left-0"
+                    :class="getExpenseStatusIconClass(item.expense_status)"
+                    class="w-6 h-6 border border-white flex justify-center items-center rounded-full"
                   >
                     <ChevronDownIcon
                       :class="
@@ -291,7 +374,9 @@
                       class="w-5 h-5 text-white"
                     />
                   </div>
-
+                </td>
+                <!-- CRM ID -->
+                <td class="px-2 md:px-4 py-4 relative">
                   <button
                     @click.stop="openBooking(item.booking_id)"
                     class="text-sm font-medium whitespace-nowrap px-3 py-1.5 bg-[#FF613c] text-white shadow-md rounded-full"
@@ -305,15 +390,17 @@
                   class="px-2 md:px-4 py-4 cursor-pointer relative"
                   @click.stop="goToProduct(item.product_id)"
                 >
-                  <div
-                    class="text-sm text-white line-clamp-1 min-w-[150px] px-3 py-1.5 bg-[#FF613c] rounded-full shadow-md truncate"
-                  >
+                  <div class="">
                     <p
                       class="absolute top-2 right-4 bg-white text-black px-2 py-1 text-xs rounded-full border border-[#FF613c] font-medium"
                     >
                       {{ item.items.length }}
                     </p>
-                    {{ item.product_name }}
+                    <p
+                      class="text-sm text-white line-clamp-1 px-3 py-1.5 bg-[#FF613c] rounded-full shadow-md truncate min-w-[100px] max-w-[200px] cursor-pointer"
+                    >
+                      {{ item.product_name }}
+                    </p>
                   </div>
                 </td>
 
@@ -343,23 +430,6 @@
                   </div>
                 </td>
 
-                <!-- Customer Name -->
-                <!-- <td class="px-2 md:px-4 py-4">
-                  <div class="text-sm text-gray-900 max-w-[150px] truncate">
-                    {{ item.customer_name }}
-                  </div>
-                </td> -->
-
-                <!-- Customer Payment Status -->
-                <!-- <td class="px-2 md:px-4 py-4">
-                  <span
-                    class="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
-                    :class="getPaymentStatusClass(item.customer_payment_status)"
-                  >
-                    {{ formatPaymentStatus(item.customer_payment_status) }}
-                  </span>
-                </td> -->
-
                 <!-- Invoice -->
                 <td class="px-2 md:px-4 py-4">
                   <XCircleIcon
@@ -385,16 +455,6 @@
                     {{ formatCurrency(item.total_amount) }}
                   </span>
                 </td>
-
-                <!-- Expense Amount -->
-                <!-- <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
-                  {{ formatCurrency(item.total_cost_price) }}
-                </td> -->
-
-                <!-- Discount -->
-                <!-- <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
-                  {{ totalDiscount(item.items) }}
-                </td> -->
 
                 <!-- Margin Score -->
                 <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
@@ -569,6 +629,119 @@
       </div>
     </div>
 
+    <!-- Filter Modal -->
+    <Modal :isOpen="filterShow" @closeModal="filterShow = false">
+      <DialogPanel
+        class="w-full max-w-2xl transform rounded-xl bg-white p-6 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-lg font-semibold text-gray-900 mb-4 flex justify-between items-center"
+        >
+          <div class="flex items-center gap-2">
+            <FunnelIcon class="w-6 h-6 text-[#FF613c]" />
+            Advanced Filters
+          </div>
+          <button
+            @click="filterShow = false"
+            class="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <XMarkIcon class="w-5 h-5 text-gray-500" />
+          </button>
+        </DialogTitle>
+
+        <div class="space-y-4">
+          <!-- Date Range Filter -->
+          <div>
+            <label class="text-xs font-medium text-gray-700 mb-2 block">
+              Service Date Range
+            </label>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs text-gray-600 mb-1 block"
+                  >Start Date</label
+                >
+                <input
+                  type="date"
+                  v-model="startDate"
+                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-xs rounded-lg"
+                />
+              </div>
+              <div>
+                <label class="text-xs text-gray-600 mb-1 block">End Date</label>
+                <input
+                  type="date"
+                  v-model="endDate"
+                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-xs rounded-lg"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Deadline Filter -->
+          <div class="pt-3 border-t">
+            <label class="text-xs font-medium text-gray-700 mb-2 block">
+              Deadline Filter
+            </label>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs text-gray-600 mb-1 block"
+                  >Filter Date</label
+                >
+                <input
+                  type="date"
+                  v-model="deadlineDate"
+                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-xs rounded-lg"
+                />
+              </div>
+              <div>
+                <label class="text-xs text-gray-600 mb-1 block"
+                  >Deadline Days</label
+                >
+                <input
+                  type="number"
+                  v-model="deadlineNumber"
+                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-xs rounded-lg"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer Payment Status -->
+          <div class="pt-3 border-t">
+            <label class="text-xs font-medium text-gray-700 mb-2 block">
+              Customer Payment Status
+            </label>
+            <select
+              v-model="paymentStatus"
+              class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-xs rounded-lg"
+            >
+              <option value="all">All Status</option>
+              <option value="not_paid">Not Paid</option>
+              <option value="partially_paid">Partially Paid</option>
+              <option value="fully_paid">Fully Paid</option>
+            </select>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center gap-3 pt-4 border-t">
+            <button
+              @click="clearAllFilters"
+              class="flex-1 text-xs bg-gray-100 px-4 py-2.5 rounded-lg text-center text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors font-medium"
+            >
+              Clear All
+            </button>
+            <button
+              @click="applyFilters"
+              class="flex-1 text-xs bg-[#FF613c] px-4 py-2.5 rounded-lg text-center text-white cursor-pointer hover:bg-[#e55139] transition-colors font-medium"
+            >
+              Apply Filters
+            </button>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+
     <!-- Info Drawer -->
     <Teleport to="body">
       <div
@@ -635,7 +808,7 @@
           </p>
         </DialogTitle>
 
-        <div class="space-y-6">
+        <div class="space-y-6" v-if="!loadingDetail">
           <!-- Status Selection -->
           <div class="border-t pt-4">
             <h4 class="text-sm font-semibold text-gray-900 mb-3">
@@ -686,15 +859,6 @@
                 :key="index"
                 class="bg-gray-50 border border-gray-200 rounded-lg p-3 relative"
               >
-                <!-- <button
-                  v-if="newSlips.length > 1 && !slip.id"
-                  @click="removeSlip(index)"
-                  class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
-                  title="Remove slip"
-                >
-                  <XCircleIcon class="w-4 h-4" />
-                </button> -->
-
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <!-- Image Upload/Display -->
                   <div>
@@ -754,7 +918,8 @@
                       v-else
                       :src="slip.imagePreview"
                       alt="Payment Slip"
-                      class="w-full h-[180px] object-cover rounded-lg border"
+                      @click="viewSlipImage(slip.imagePreview)"
+                      class="w-full h-[180px] object-cover rounded-lg border cursor-pointer"
                     />
                   </div>
 
@@ -944,11 +1109,11 @@
             </button>
             <button
               @click="confirmStatusChange"
-              :disabled="!selectedStatus || loading"
+              :disabled="!selectedStatus || loadingIn"
               class="px-6 py-2.5 text-sm font-medium text-white bg-[#FF613c] rounded-lg hover:bg-[#e55139] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               <svg
-                v-if="loading"
+                v-if="loadingIn"
                 class="animate-spin h-4 w-4 text-white"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -968,7 +1133,7 @@
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              {{ loading ? "Processing..." : "Confirm & Update Status" }}
+              {{ loadingIn ? "Processing..." : "Confirm & Update Status" }}
             </button>
           </div>
 
@@ -994,6 +1159,14 @@
               Please select a new status to continue
             </p>
           </div>
+        </div>
+        <div
+          v-if="loadingDetail"
+          class="h-[50vh] flex justify-center items-center"
+        >
+          <div
+            class="w-8 h-8 border-4 border-gray-200 border-t-[#ff613c] rounded-full animate-spin"
+          ></div>
         </div>
       </DialogPanel>
     </Modal>
@@ -1036,7 +1209,6 @@
 import { ref, computed, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import Layout from "./Layout.vue";
-import { useSidebarStore } from "../stores/sidebar";
 import Payment from "./GroupComponent/ExpensePart/Payment.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import {
@@ -1062,6 +1234,7 @@ import Pagination from "../components/Pagination.vue";
 import Modal from "../components/Modal.vue";
 import { useReservationStore } from "../stores/reservation";
 import { useAuthStore } from "../stores/auth";
+import { useSidebarStore } from "../stores/sidebar";
 
 // Stores
 const toast = useToast();
@@ -1070,16 +1243,16 @@ const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
 const groupStore = useGroupStore();
 const cashImageStore = useCashImageStore();
-const { groups } = storeToRefs(groupStore);
+const { groups, loading } = storeToRefs(groupStore);
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
 
 // State
-const loading = ref(false);
+const loadingIn = ref(false);
 const searchKey = ref("");
+const hotelName = ref("");
 const statusFilter = ref("all");
 const filterShow = ref(false);
-const deadlineFilterShow = ref(false);
 const deadlineDate = ref("");
 const deadlineNumber = ref(2);
 const startDate = ref("");
@@ -1089,43 +1262,24 @@ const payDrawerOpen = ref(false);
 const selectedItem = ref(null);
 const detailData = ref(null);
 const paymentStatus = ref("all");
-const sorting_type = ref("service_date");
-const sorting = ref("asc");
 const expandedRows = ref([]);
 const openCommentModal = ref(false);
-const activeTag = ref(1);
 const comment = ref("");
 const newSlips = ref([]);
 const selectedStatus = ref(null);
+const loadingDetail = ref(false);
+const originalSlipsData = ref({});
 
 // Constants
-const tabs = [
-  { id: 1, label: "Get Invoice" },
-  { id: 2, label: "Pay Expense" },
-  { id: 3, label: "Expense Mail" },
-];
-
 const tableHeaders = [
+  { key: "down", label: "", class: "whitespace-nowrap" },
   { key: "crm_id", label: "CRM ID", class: "whitespace-nowrap" },
   { key: "hotel_name", label: "Hotel Name", class: "" },
   { key: "expense_status", label: "Expense Status", class: "" },
   { key: "booking_date", label: "Booking Start & End Date", class: "" },
-
-  // { key: "customer_name", label: "Customer Name", class: "whitespace-nowrap" },
-  // {
-  //   key: "customer_status",
-  //   label: "Customer Status",
-  //   class: "whitespace-nowrap",
-  // },
   { key: "invoice", label: "Invoice", class: "whitespace-nowrap" },
   { key: "deadline", label: "Deadline", class: "" },
   { key: "expense", label: "Expense", class: "whitespace-nowrap" },
-  // {
-  //   key: "expense_amount",
-  //   label: "Expense Amount",
-  //   class: "whitespace-nowrap",
-  // },
-  // { key: "discount", label: "Discount", class: "whitespace-nowrap" },
   { key: "margin_score", label: "Margin Score", class: "whitespace-nowrap" },
   { key: "actions", label: "Actions", class: "text-right" },
 ];
@@ -1237,6 +1391,15 @@ const getExpenseStatusClass = (status) => {
   return classes[status] || "bg-gray-100 text-gray-800";
 };
 
+const getExpenseStatusIconClass = (status) => {
+  const classes = {
+    not_paid: "bg-red-600 ",
+    partially_paid: "bg-yellow-600 ",
+    fully_paid: "bg-green-600 ",
+  };
+  return classes[status] || "bg-gray-600 ";
+};
+
 const formatExpenseStatus = (status) => {
   const statuses = {
     not_paid: "Not Paid",
@@ -1264,29 +1427,6 @@ const formatPaymentStatus = (status) => {
   return statuses[status] || status;
 };
 
-const getDeadlineIconClass = (items) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const deadlineDate = new Date(today);
-  deadlineDate.setDate(today.getDate() + 2);
-
-  const weekDate = new Date(today);
-  weekDate.setDate(today.getDate() + 7);
-
-  for (const item of items) {
-    const checkinDate = new Date(item.checkin_date);
-    checkinDate.setHours(0, 0, 0, 0);
-
-    if (checkinDate.getTime() === today.getTime()) return "bg-red-500";
-    if (checkinDate >= today && checkinDate <= deadlineDate)
-      return "bg-yellow-500";
-    if (checkinDate >= today && checkinDate <= weekDate) return "bg-green-500";
-  }
-
-  return "bg-gray-400";
-};
-
 const getComments = (item) => {
   const comments = [];
   if (item.comment_sale) {
@@ -1310,9 +1450,7 @@ const getComments = (item) => {
 
 // API Functions
 const getListAction = async () => {
-  loading.value = true;
   await groupStore.getListAction(watchSystem.value);
-  loading.value = false;
 };
 
 const getDetailAction = async (id) => {
@@ -1342,22 +1480,21 @@ const toggleRow = (itemId) => {
 
 const searchAction = async () => {
   filterShow.value = false;
-  deadlineFilterShow.value = false;
   await getListAction();
 };
 
-const clearFilter = () => {
-  startDate.value = "";
-  endDate.value = "";
-  searchKey.value = "";
-  statusFilter.value = "all";
+const clearAllFilters = () => {
+  // startDate.value = "";
+  // endDate.value = "";
+  deadlineDate.value = "";
+  deadlineNumber.value = 2;
+  paymentStatus.value = "all";
   filterShow.value = false;
 };
 
-const clearDeadlineFilter = () => {
-  deadlineDate.value = "";
-  deadlineNumber.value = 2;
-  deadlineFilterShow.value = false;
+const applyFilters = () => {
+  filterShow.value = false;
+  searchAction();
 };
 
 const openBooking = (bookingId) => {
@@ -1385,21 +1522,20 @@ const closeInfoDrawer = () => {
   detailData.value = null;
 };
 
-const originalSlipsData = ref({});
-
-// Modify the openPayDrawer function to store original data
 const openPayDrawer = async (item) => {
+  loadingDetail.value = true;
+  payDrawerOpen.value = true;
   selectedItem.value = item;
+
   await getDetailAction(item.id);
   selectedStatus.value = detailData.value.expense_status;
 
-  // Store original data for reset functionality
   originalSlipsData.value = {};
 
   newSlips.value = detailData.value.expense.map((slip) => {
     const slipData = {
       image: slip.image || null,
-      imagePreview: slip.image_url || null,
+      imagePreview: slip.image || null,
       amount: slip.amount || 0,
       date: slip.date,
       sender: slip.sender || "MR. THIHA@KUMAR BHUSAL",
@@ -1412,7 +1548,6 @@ const openPayDrawer = async (item) => {
       id: slip.id,
     };
 
-    // Store original data for slips with ID
     if (slip.id) {
       originalSlipsData.value[slip.id] = { ...slipData };
     }
@@ -1421,10 +1556,9 @@ const openPayDrawer = async (item) => {
   });
 
   addNewSlip();
-  payDrawerOpen.value = true;
+  loadingDetail.value = false;
 };
 
-// Add reset function
 const resetSlipToOriginal = (slip, index) => {
   if (!slip.id || !originalSlipsData.value[slip.id]) {
     toast.error("Cannot reset: No original data found");
@@ -1433,10 +1567,8 @@ const resetSlipToOriginal = (slip, index) => {
 
   const originalData = originalSlipsData.value[slip.id];
 
-  // Reset the slip to original values
   newSlips.value[index] = {
     ...originalData,
-    // Create a deep copy to avoid reference issues
     image: originalData.image,
     imagePreview: originalData.imagePreview,
     amount: originalData.amount,
@@ -1451,14 +1583,13 @@ const resetSlipToOriginal = (slip, index) => {
   toast.success("Slip data reset to original values");
 };
 
-// Also update closePayDrawer to clear original data
 const closePayDrawer = () => {
   payDrawerOpen.value = false;
   selectedItem.value = null;
   detailData.value = null;
   selectedStatus.value = null;
   newSlips.value = [];
-  originalSlipsData.value = {}; // Clear original data
+  originalSlipsData.value = {};
 };
 
 const openCommentAction = (item) => {
@@ -1581,8 +1712,8 @@ const copyReservation = async (item) => {
   }
 };
 
-// TABLE ACTIONS - MOVED HERE AFTER FUNCTION DEFINITIONS
-const tableActions = [
+// TABLE ACTIONS
+const tableActions = ref([
   {
     name: "pay",
     label: "Pay",
@@ -1616,7 +1747,7 @@ const tableActions = [
       "p-1.5 bg-orange-100 text-orange-600 rounded-lg shadow-md transition-all duration-200 hover:bg-orange-200 hover:shadow-md active:scale-95",
     title: "Comments",
   },
-];
+]);
 
 // Slip Actions
 const addNewSlip = () => {
@@ -1633,18 +1764,19 @@ const addNewSlip = () => {
   });
 };
 
-const removeSlip = (index) => {
-  if (newSlips.value.length > 1) {
-    newSlips.value.splice(index, 1);
-  }
-  addNewSlip();
-};
-
 const handleSlipImageChange = (e, index) => {
   const file = e.target.files[0];
   if (file) {
     newSlips.value[index].image = file;
     newSlips.value[index].imagePreview = URL.createObjectURL(file);
+  }
+};
+
+const viewSlipImage = (slip) => {
+  if (slip) {
+    window.open(slip, "_blank");
+  } else {
+    toast.error("No image available");
   }
 };
 
@@ -1672,7 +1804,7 @@ const saveNewSlip = async (slip, index) => {
   }
 
   try {
-    loading.value = true;
+    loadingIn.value = true;
     const expenseFrmData = new FormData();
     expenseFrmData.append("relatable_type", "App\\Models\\BookingItemGroup");
     expenseFrmData.append("relatable_id", selectedItem.value.id);
@@ -1698,7 +1830,7 @@ const saveNewSlip = async (slip, index) => {
     console.error("Error saving slip:", error);
     toast.error("An error occurred while saving the slip");
   } finally {
-    loading.value = false;
+    loadingIn.value = false;
     addNewSlip();
   }
 };
@@ -1725,7 +1857,7 @@ const updateExistingSlip = async (slip, index) => {
   }
 
   try {
-    loading.value = true;
+    loadingIn.value = true;
     const expenseFrmData = new FormData();
     expenseFrmData.append("_method", "PUT");
     expenseFrmData.append("amount", slip.amount);
@@ -1747,7 +1879,7 @@ const updateExistingSlip = async (slip, index) => {
     console.error("Error updating slip:", error);
     toast.error("An error occurred while updating the slip");
   } finally {
-    loading.value = false;
+    loadingIn.value = false;
   }
 };
 
@@ -1758,7 +1890,7 @@ const deleteSlip = async (slipId) => {
   }
 
   try {
-    loading.value = true;
+    loadingIn.value = true;
     const response = await cashImageStore.deleteAction(slipId);
 
     if (response.status === 1) {
@@ -1775,7 +1907,7 @@ const deleteSlip = async (slipId) => {
     console.error("Error deleting slip:", error);
     toast.error("An error occurred while deleting the slip");
   } finally {
-    loading.value = false;
+    loadingIn.value = false;
   }
 };
 
@@ -1791,7 +1923,7 @@ const confirmStatusChange = async () => {
   }
 
   try {
-    loading.value = true;
+    loadingIn.value = true;
     const detail = await getDetailAction(selectedItem.value.id);
 
     if (!detail || !detail.items || detail.items.length === 0) {
@@ -1841,7 +1973,7 @@ const confirmStatusChange = async () => {
     console.error("Error updating status:", error);
     toast.error("An error occurred while updating status");
   } finally {
-    loading.value = false;
+    loadingIn.value = false;
   }
 };
 
@@ -1870,15 +2002,16 @@ const addCommentAction = async () => {
   }
 };
 
-// Computed - MOVED HERE AFTER ALL FUNCTIONS ARE DEFINED
+// Computed
 const watchSystem = computed(() => {
   const result = {
-    sorting: sorting.value,
+    sorting: "asc",
     product_type: "hotel",
     per_page: 10,
   };
 
   if (searchKey.value) result.crm_id = searchKey.value;
+  if (hotelName.value) result.product_name = hotelName.value;
   if (statusFilter.value && statusFilter.value !== "all") {
     result.expense_item_status = statusFilter.value;
   }
@@ -1891,9 +2024,6 @@ const watchSystem = computed(() => {
   if (deadlineDate.value) {
     result.deadline_date = deadlineDate.value;
     result.deadline_days = deadlineNumber.value;
-  }
-  if (sorting_type.value) {
-    result.sorting_type = sorting_type.value;
   }
   if (!authStore.isReservation && !authStore.isSuperAdmin) {
     result.user_id = user.value.id;
@@ -1920,17 +2050,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: all 0.2s ease;
-}
-
-.slide-down-enter-from,
-.slide-down-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
 .overflow-x-auto::-webkit-scrollbar,
 .overflow-y-auto::-webkit-scrollbar {
   height: 6px;

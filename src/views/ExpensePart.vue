@@ -16,7 +16,7 @@
     <div class="w-full rounded-lg shadow-sm">
       <!-- Scorecard Section -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-        <!-- Invoice Next 3 Days Card -->
+        <!-- Invoice Next 7 Days Card -->
         <div
           @click="activeSelectAction('invoice')"
           class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
@@ -30,7 +30,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-white text-sm font-medium opacity-90">
-                  Invoice Next 3 Days
+                  Invoice Next 7 Days
                 </p>
                 <div class="flex items-baseline gap-2 mt-2">
                   <span class="text-3xl font-bold text-white">
@@ -78,7 +78,7 @@
             </div>
           </div>
         </div>
-        <!-- Expense Next 7 Days Card -->
+        <!-- Expense Next 3 Days Card -->
         <div
           @click="activeSelectAction('expense')"
           class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
@@ -131,69 +131,6 @@
                   width:
                     groups?.meta?.total_next_7_days > 0
                       ? (groups?.meta?.expense_not_fully_paid /
-                          groups?.meta?.total_next_7_days) *
-                          100 +
-                        '%'
-                      : '0%',
-                }"
-              ></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Customer Next 7 Days Card -->
-        <div
-          @click="activeSelectAction('customer')"
-          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
-          :class="
-            activeSelect == 'customer'
-              ? 'border-4 border-gray-600'
-              : 'border border-gray-100'
-          "
-        >
-          <div class="bg-gradient-to-r from-gray-500 to-gray-600 p-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-white text-sm font-medium opacity-90">
-                  Customer Next 3 Days
-                </p>
-                <div class="flex items-baseline gap-2 mt-2">
-                  <span class="text-3xl font-bold text-white">
-                    {{ groups?.meta?.customer_fully_paid || 0 }}
-                  </span>
-                  <span class="text-white text-lg opacity-75">/</span>
-                  <span class="text-xl text-white opacity-90">
-                    {{ groups?.meta?.total_next_7_days || 0 }}
-                  </span>
-                </div>
-              </div>
-              <div class="bg-white/20 p-3 rounded-full">
-                <WalletIcon class="w-8 h-8 text-white" />
-              </div>
-            </div>
-          </div>
-          <div class="p-4 bg-gray-50">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-600">Finish Rate</span>
-              <span class="font-semibold text-gray-900">
-                {{
-                  groups?.meta?.total_next_7_days > 0
-                    ? (
-                        groups?.meta?.total_next_7_days -
-                        groups?.meta?.customer_fully_paid
-                      ).toFixed(0)
-                    : 0
-                }}
-                ခုကျန်
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div
-                class="bg-gray-500 h-2 rounded-full transition-all duration-500"
-                :style="{
-                  width:
-                    groups?.meta?.total_next_7_days > 0
-                      ? (groups?.meta?.customer_fully_paid /
                           groups?.meta?.total_next_7_days) *
                           100 +
                         '%'
@@ -266,6 +203,68 @@
             </div>
           </div>
         </div>
+        <!-- Customer Next 2 Days Card -->
+        <div
+          @click="activeSelectAction('customer')"
+          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+          :class="
+            activeSelect == 'customer'
+              ? 'border-4 border-gray-600'
+              : 'border border-gray-100'
+          "
+        >
+          <div class="bg-gradient-to-r from-gray-500 to-gray-600 p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white text-sm font-medium opacity-90">
+                  Customer Next 2 Days
+                </p>
+                <div class="flex items-baseline gap-2 mt-2">
+                  <span class="text-3xl font-bold text-white">
+                    {{ groups?.meta?.customer_fully_paid || 0 }}
+                  </span>
+                  <span class="text-white text-lg opacity-75">/</span>
+                  <span class="text-xl text-white opacity-90">
+                    {{ groups?.meta?.total_next_7_days || 0 }}
+                  </span>
+                </div>
+              </div>
+              <div class="bg-white/20 p-3 rounded-full">
+                <WalletIcon class="w-8 h-8 text-white" />
+              </div>
+            </div>
+          </div>
+          <div class="p-4 bg-gray-50">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600">Finish Rate</span>
+              <span class="font-semibold text-gray-900">
+                {{
+                  groups?.meta?.total_next_7_days > 0
+                    ? (
+                        groups?.meta?.total_next_7_days -
+                        groups?.meta?.customer_fully_paid
+                      ).toFixed(0)
+                    : 0
+                }}
+                ခုကျန်
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+              <div
+                class="bg-gray-500 h-2 rounded-full transition-all duration-500"
+                :style="{
+                  width:
+                    groups?.meta?.total_next_7_days > 0
+                      ? (groups?.meta?.customer_fully_paid /
+                          groups?.meta?.total_next_7_days) *
+                          100 +
+                        '%'
+                      : '0%',
+                }"
+              ></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Filters -->
@@ -321,7 +320,7 @@
             </button>
             <!-- Refresh Button -->
             <button
-              @click="searchAction"
+              @click="clearAllFilters"
               class="flex items-center gap-2 px-4 py-2.5 text-xs text-white bg-[#FF613c] rounded-full cursor-pointer hover:bg-[#e55139] transition-colors shadow-lg"
             >
               <svg
@@ -337,7 +336,7 @@
                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                 />
               </svg>
-              Refresh
+              Reset
             </button>
           </div>
         </div>
@@ -1583,7 +1582,7 @@ const activeSelectAction = (option) => {
       searchAction();
     } else {
       activeSelect.value = "";
-      setStartAndEndDate();
+
       clearAllFilters();
     }
   }
@@ -1831,6 +1830,9 @@ const clearAllFilters = () => {
   invoiceStatus.value = "all";
   paymentStatus.value = "all";
   filterShow.value = false;
+  setStartAndEndDate();
+  activeSelect.value = "";
+  statusFilter.value = "all";
   searchAction();
 };
 

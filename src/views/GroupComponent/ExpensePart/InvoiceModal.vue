@@ -740,73 +740,106 @@
 
           <!-- Step 3: Amount -->
           <div v-show="currentStep === 3" class="space-y-4">
-            <div class="mb-4">
-              <h3 class="text-lg font-semibold text-gray-900 mb-1">
-                Amount Details
-              </h3>
-              <p class="text-[10px] text-gray-500">
-                Enter tax withholding and total amounts
-              </p>
-            </div>
-
-            <!-- Total After Tax -->
-            <div>
-              <label class="text-xs font-medium text-gray-700 mb-1.5 block">
-                Total After Tax (Auto-calculated)
-              </label>
-              <div class="relative">
-                <input
-                  type="number"
-                  step="0.01"
-                  v-model="totalAfterTax"
-                  placeholder="Auto-calculated"
-                  class="border text-sm border-gray-200 px-4 py-3 rounded-lg w-full"
-                />
-                <div
-                  v-if="totalAfterTax > 0"
-                  class="absolute right-3 top-1/2 -translate-y-1/2"
-                >
-                  <span class="text-xs font-semibold text-green-600">
-                    {{ formatCurrency(totalAfterTax) }}
-                  </span>
+            <div class="grid grid-cols-2 gap-x-4">
+              <div class="space-y-4">
+                <div class="mb-4">
+                  <h3 class="text-lg font-semibold text-gray-900 mb-1">
+                    Amount Details
+                  </h3>
+                  <p class="text-[10px] text-gray-500">
+                    Enter tax withholding and total amounts
+                  </p>
+                </div>
+                <!-- Total After Tax -->
+                <div>
+                  <label class="text-xs font-medium text-gray-700 mb-1.5 block">
+                    Total After Tax (Auto-calculated)
+                  </label>
+                  <div class="relative">
+                    <input
+                      type="number"
+                      step="0.01"
+                      v-model="totalAfterTax"
+                      placeholder="Auto-calculated"
+                      class="border text-sm border-gray-200 px-4 py-3 rounded-lg w-full"
+                    />
+                    <div
+                      v-if="totalAfterTax > 0"
+                      class="absolute right-3 top-1/2 -translate-y-1/2"
+                    >
+                      <span class="text-xs font-semibold text-green-600">
+                        {{ formatCurrency(totalAfterTax) }}
+                      </span>
+                    </div>
+                  </div>
+                  <p
+                    v-if="groupData?.total_cost_price"
+                    class="text-xs text-blue-600 mt-1"
+                  >
+                    💡 Suggested:
+                    {{ formatCurrency(groupData.total_cost_price) }} (from
+                    booking cost)
+                  </p>
+                </div>
+                <!-- Total Before Tax -->
+                <div>
+                  <label class="text-xs font-medium text-gray-700 mb-1.5 block">
+                    Total Before Tax
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    v-model="formData.total_tax_amount"
+                    placeholder="Enter tax amount"
+                    :disabled="loading"
+                    class="border text-sm border-gray-200 px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20 focus:border-[#FF613c] disabled:bg-gray-50"
+                  />
+                </div>
+                <!-- Total Tax Withheld -->
+                <div>
+                  <label class="text-xs font-medium text-gray-700 mb-1.5 block">
+                    Total Tax Withheld
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    v-model="formData.total_tax_withold"
+                    placeholder="Enter tax withheld amount"
+                    :disabled="loading"
+                    class="border text-sm border-gray-200 px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20 focus:border-[#FF613c] disabled:bg-gray-50"
+                  />
                 </div>
               </div>
-              <p
-                v-if="groupData?.total_cost_price"
-                class="text-xs text-blue-600 mt-1"
-              >
-                💡 Suggested:
-                {{ formatCurrency(groupData.total_cost_price) }} (from booking
-                cost)
-              </p>
-            </div>
-            <!-- Total Before Tax -->
-            <div>
-              <label class="text-xs font-medium text-gray-700 mb-1.5 block">
-                Total Before Tax
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                v-model="formData.total_tax_amount"
-                placeholder="Enter tax amount"
-                :disabled="loading"
-                class="border text-sm border-gray-200 px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20 focus:border-[#FF613c] disabled:bg-gray-50"
-              />
-            </div>
-            <!-- Total Tax Withheld -->
-            <div>
-              <label class="text-xs font-medium text-gray-700 mb-1.5 block">
-                Total Tax Withheld
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                v-model="formData.total_tax_withold"
-                placeholder="Enter tax withheld amount"
-                :disabled="loading"
-                class="border text-sm border-gray-200 px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20 focus:border-[#FF613c] disabled:bg-gray-50"
-              />
+              <div class="bg-white border border-gray-200 rounded-xl px-4">
+                <p class="font-medium py-2 border-b border-gray-400">
+                  Room Detail
+                </p>
+                <div
+                  class="px-2 py-2 border-b border-gray-300"
+                  v-for="room in groupData.items"
+                  :key="room.id"
+                >
+                  <div class="flex justify-between space-x-3 items-start py-1">
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">
+                        {{ room.variant_name }}
+                      </p>
+                      <p class="text-xs text-gray-700">
+                        Qty: {{ room.quantity }} | Nights: {{ room.days }}
+                      </p>
+                    </div>
+                    <div>
+                      <div class="text-sm font-semibold text-gray-900">
+                        <p class="whitespace-nowrap">{{ room.checkin_date }}</p>
+
+                        <p class="text-xs whitespace-nowrap">
+                          to {{ room.checkout_date }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -925,7 +958,31 @@
           Cancel
         </button>
 
+        <!-- previous -->
+        <!-- next -->
         <button
+          v-if="currentStep > 1"
+          @click="currentStep--"
+          :disabled="loading"
+          class="px-4 py-2.5 bg-gray-200 text-black text-sm rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          <ChevronLeftIcon class="w-4 h-4" />
+          Previous
+        </button>
+
+        <!-- next -->
+        <button
+          v-if="currentStep < 4"
+          @click="currentStep++"
+          :disabled="loading"
+          class="px-4 py-2.5 bg-[#FF613c] text-white text-sm rounded-lg hover:bg-[#e55139] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          Next
+          <ChevronRightIcon class="w-4 h-4" />
+        </button>
+
+        <button
+          v-if="currentStep == 4"
           @click="handleSave"
           :disabled="loading || !isFormValid"
           class="px-4 py-2.5 bg-[#FF613c] text-white text-sm rounded-lg hover:bg-[#e55139] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
@@ -1037,34 +1094,20 @@ const invoiceOptions = [
 // Computed Properties
 
 const totalAfterTax = ref(0);
-const lastEditedField = ref("tax"); // 'tax' or 'total'
+const lastEditedField = ref("none"); // 'total_tax_amount', 'total_tax_withold', 'totalAfterTax', 'none'
 
-// Watch tax fields to update total (when user edits tax fields manually)
-watch(
-  () => [formData.value.total_tax_amount, formData.value.total_tax_withold],
-  ([taxAmount, taxWithhold]) => {
-    if (lastEditedField.value === "total") {
-      lastEditedField.value = "tax";
-      return;
-    }
-
-    lastEditedField.value = "tax";
-    const newTotal = Number(taxAmount || 0) + Number(taxWithhold || 0);
-    totalAfterTax.value = Math.round(newTotal * 100) / 100;
-  },
-  { immediate: true }
-);
-
-// Watch total to calculate tax fields (when user edits total)
+// Watch totalAfterTax to auto-calculate the other two fields
 watch(
   () => totalAfterTax.value,
   (newTotal) => {
-    if (lastEditedField.value === "tax") {
-      lastEditedField.value = "total";
+    if (
+      lastEditedField.value === "total_tax_amount" ||
+      lastEditedField.value === "total_tax_withold"
+    ) {
       return;
     }
 
-    lastEditedField.value = "total";
+    lastEditedField.value = "totalAfterTax";
 
     if (newTotal > 0) {
       // Calculate total_tax_amount = totalAfterTax / 1.07
@@ -1081,8 +1124,11 @@ watch(
       formData.value.total_tax_amount = 0;
       formData.value.total_tax_withold = 0;
     }
-  },
-  { immediate: true }
+
+    setTimeout(() => {
+      lastEditedField.value = "none";
+    }, 50);
+  }
 );
 
 const isFormValid = computed(() => {
@@ -1690,6 +1736,7 @@ watch(
         invoice_number: newData.meta?.invoice_number || "",
       };
       productSearch.value = newData.meta?.product_name || "";
+      totalAfterTax.value = newData.meta?.total_after_tax || 0;
       invoicePreview.value = "";
       invoiceFile.value = null;
       isAutoFilled.value = false;
@@ -1701,6 +1748,8 @@ watch(
 watch(
   () => props.groupData,
   async (newData) => {
+    console.log("this is new", newData);
+
     if (newData && !props.invoiceData) {
       isAutoFilled.value = true;
 
@@ -1733,6 +1782,9 @@ watch(
           newData.latest_service_date
         );
       }
+
+      formData.value.receipt_date =
+        new Date().toISOString().split("T")[0] + "T12:00:00";
 
       // Auto-fill amounts
       if (newData.total_cost_price) {

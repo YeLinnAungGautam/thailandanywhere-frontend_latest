@@ -810,13 +810,16 @@
                   />
                 </div>
               </div>
-              <div class="bg-white border border-gray-200 rounded-xl px-4">
+              <div
+                class="bg-white border border-gray-200 rounded-xl px-4"
+                v-if="groupData"
+              >
                 <p class="font-medium py-2 border-b border-gray-400">
                   Room Detail
                 </p>
                 <div
                   class="px-2 py-2 border-b border-gray-300"
-                  v-for="room in groupData.items"
+                  v-for="room in (groupData.items && groupData.items) || []"
                   :key="room.id"
                 >
                   <div class="flex justify-between space-x-3 items-start py-1">

@@ -18,7 +18,13 @@
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
         <!-- Invoice Next 3 Days Card -->
         <div
-          class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow"
+          @click="activeSelectAction('invoice')"
+          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+          :class="
+            activeSelect == 'invoice'
+              ? 'border-4 border-yellow-600'
+              : 'border border-gray-100'
+          "
         >
           <div class="bg-gradient-to-r from-yellow-600 to-yellow-700 p-4">
             <div class="flex items-center justify-between">
@@ -48,12 +54,12 @@
                 {{
                   groups?.meta?.total_next_7_days > 0
                     ? (
-                        (groups?.meta?.without_confirmation_letter /
-                          groups?.meta?.total_next_7_days) *
-                        100
-                      ).toFixed(1)
+                        groups?.meta?.total_next_7_days -
+                        groups?.meta?.without_confirmation_letter
+                      ).toFixed(0)
                     : 0
-                }}%
+                }}
+                ခုကျန်
               </span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
@@ -74,9 +80,15 @@
         </div>
         <!-- Expense Next 7 Days Card -->
         <div
-          class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow"
+          @click="activeSelectAction('expense')"
+          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+          :class="
+            activeSelect == 'expense'
+              ? 'border-4 border-gray-600'
+              : 'border border-gray-100'
+          "
         >
-          <div class="bg-gradient-to-r from-red-500 to-red-600 p-4">
+          <div class="bg-gradient-to-r from-gray-500 to-gray-600 p-4">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-white text-sm font-medium opacity-90">
@@ -104,17 +116,17 @@
                 {{
                   groups?.meta?.total_next_7_days > 0
                     ? (
-                        (groups?.meta?.expense_not_fully_paid /
-                          groups?.meta?.total_next_7_days) *
-                        100
-                      ).toFixed(1)
+                        groups?.meta?.total_next_7_days -
+                        groups?.meta?.expense_not_fully_paid
+                      ).toFixed(0)
                     : 0
-                }}%
+                }}
+                ခုကျန်
               </span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
               <div
-                class="bg-red-500 h-2 rounded-full transition-all duration-500"
+                class="bg-gray-500 h-2 rounded-full transition-all duration-500"
                 :style="{
                   width:
                     groups?.meta?.total_next_7_days > 0
@@ -131,9 +143,15 @@
 
         <!-- Customer Next 7 Days Card -->
         <div
-          class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow"
+          @click="activeSelectAction('customer')"
+          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+          :class="
+            activeSelect == 'customer'
+              ? 'border-4 border-gray-600'
+              : 'border border-gray-100'
+          "
         >
-          <div class="bg-gradient-to-r from-orange-500 to-orange-600 p-4">
+          <div class="bg-gradient-to-r from-gray-500 to-gray-600 p-4">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-white text-sm font-medium opacity-90">
@@ -161,17 +179,17 @@
                 {{
                   groups?.meta?.total_next_7_days > 0
                     ? (
-                        (groups?.meta?.customer_fully_paid /
-                          groups?.meta?.total_next_7_days) *
-                        100
-                      ).toFixed(1)
+                        groups?.meta?.total_next_7_days -
+                        groups?.meta?.customer_fully_paid
+                      ).toFixed(0)
                     : 0
-                }}%
+                }}
+                ခုကျန်
               </span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
               <div
-                class="bg-red-500 h-2 rounded-full transition-all duration-500"
+                class="bg-gray-500 h-2 rounded-full transition-all duration-500"
                 :style="{
                   width:
                     groups?.meta?.total_next_7_days > 0
@@ -188,9 +206,15 @@
 
         <!-- Expense Mail Sent Next 7 Days Card -->
         <div
-          class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow"
+          @click="activeSelectAction('mail')"
+          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+          :class="
+            activeSelect == 'mail'
+              ? 'border-4 border-gray-600'
+              : 'border border-gray-100'
+          "
         >
-          <div class="bg-gradient-to-r from-green-500 to-green-600 p-4">
+          <div class="bg-gradient-to-r from-gray-500 to-gray-600 p-4">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-white text-sm font-medium opacity-90">
@@ -218,17 +242,17 @@
                 {{
                   groups?.meta?.total_next_7_days > 0
                     ? (
-                        (groups?.meta?.expense_mail_sent /
-                          groups?.meta?.total_next_7_days) *
-                        100
-                      ).toFixed(1)
+                        groups?.meta?.total_next_7_days -
+                        groups?.meta?.expense_mail_sent
+                      ).toFixed(0)
                     : 0
-                }}%
+                }}
+                ခုကျန်
               </span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
               <div
-                class="bg-red-500 h-2 rounded-full transition-all duration-500"
+                class="bg-gray-500 h-2 rounded-full transition-all duration-500"
                 :style="{
                   width:
                     groups?.meta?.total_next_7_days > 0
@@ -277,49 +301,28 @@
                 @keyup.enter="searchAction"
               />
             </div>
-
-            <!-- Expense Status Filter -->
-            <div class="relative min-w-[160px]">
-              <select
-                v-model="statusFilter"
-                @change="searchAction"
-                class="appearance-none bg-white border border-gray-200 text-gray-700 text-xs px-4 py-2.5 pr-8 rounded-full shadow-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full"
-              >
-                <option value="all">All Status</option>
-                <option value="not_paid">Not Paid</option>
-                <option value="partially_paid">Partially Paid</option>
-                <option value="fully_paid">Fully Paid</option>
-              </select>
-              <ChevronDownIcon
-                class="w-4 h-4 text-gray-500 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
-              />
-            </div>
             <button
               @click="searchAction"
-              class="bg-[#FF613c] px-4 rounded-full shadow-sm py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer hover:bg-[#e55139] transition-colors"
+              class="bg-[#FF613c] px-4 rounded-full shadow-lg py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer hover:bg-[#e55139] transition-colors"
             >
-              <FunnelIcon class="w-4 h-4 text-white" />
+              <MagnifyingGlassIcon class="w-4 h-4 text-white" />
               <p>Search</p>
-            </button>
-            <!-- Filters Button -->
-            <button
-              @click="filterShow = !filterShow"
-              class="bg-[#FF613c] px-4 rounded-full shadow-sm py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer hover:bg-[#e55139] transition-colors"
-            >
-              <FunnelIcon class="w-4 h-4 text-white" />
-              <p>More Filters</p>
-              <ChevronDownIcon
-                class="w-4 h-4 text-white transition-transform"
-                :class="filterShow ? 'rotate-180' : ''"
-              />
             </button>
           </div>
 
           <div class="flex items-center gap-2">
+            <!-- Filters Button -->
+            <button
+              @click="filterShow = !filterShow"
+              class="bg-[#FF613c] px-4 rounded-full shadow-lg py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer hover:bg-[#e55139] transition-colors"
+            >
+              <FunnelIcon class="w-4 h-4 text-white" />
+              <p>Filters</p>
+            </button>
             <!-- Refresh Button -->
             <button
               @click="searchAction"
-              class="flex items-center gap-2 px-4 py-2.5 text-xs text-white bg-[#FF613c] rounded-full cursor-pointer hover:bg-[#e55139] transition-colors shadow-sm"
+              class="flex items-center gap-2 px-4 py-2.5 text-xs text-white bg-[#FF613c] rounded-full cursor-pointer hover:bg-[#e55139] transition-colors shadow-lg"
             >
               <svg
                 class="w-4 h-4"
@@ -362,18 +365,26 @@
                 class="hover:bg-gray-50 transition-colors cursor-pointer"
                 @click="toggleRow(item.id)"
               >
-                <td class="pl-4">
-                  <div
-                    :class="getExpenseStatusIconClass(item.expense_status)"
-                    class="w-6 h-6 border border-white flex justify-center items-center rounded-full"
-                  >
-                    <ChevronDownIcon
-                      :class="
-                        !expandedRows.includes(item.id) ? 'rotate-180' : ''
-                      "
-                      class="w-5 h-5 text-white"
-                    />
-                  </div>
+                <td class="px-2 md:px-4 py-4">
+                  <XCircleIcon
+                    v-if="
+                      !expandedRows.includes(item.id) &&
+                      !item.has_booking_confirm_letter
+                    "
+                    class="w-5 h-5 text-red-500"
+                  />
+                  <ArrowDownCircleIcon
+                    v-if="
+                      expandedRows.includes(item.id) &&
+                      !item.has_booking_confirm_letter
+                    "
+                    class="w-5 h-5 text-red-500"
+                  />
+                  <CheckBadgeIcon
+                    v-if="item.has_booking_confirm_letter"
+                    :class="expandedRows.includes(item.id) ? 'rotate-180' : ''"
+                    class="w-5 h-5 text-green-500"
+                  />
                 </td>
                 <!-- CRM ID -->
                 <td class="px-2 md:px-4 py-4 relative">
@@ -431,13 +442,6 @@
                 </td>
 
                 <!-- Invoice -->
-                <td class="px-2 md:px-4 py-4">
-                  <XCircleIcon
-                    class="w-5 h-5 text-red-500"
-                    v-if="!item.has_booking_confirm_letter"
-                  />
-                  <CheckBadgeIcon class="w-5 h-5 text-green-500" v-else />
-                </td>
 
                 <!-- Deadline -->
                 <td class="px-2 md:px-4 py-4">
@@ -468,30 +472,19 @@
 
                 <!-- Actions -->
                 <td class="px-2 md:px-4 py-4">
-                  <div class="flex items-center justify-end gap-1">
+                  <div class="relative group">
+                    <!-- Main action button (always visible) -->
                     <button
-                      v-for="action in tableActions"
-                      :key="action.name"
-                      @click.stop="action.handler(item)"
-                      :class="action.class"
-                      :title="action.title"
+                      :class="tableActions[0]?.class"
+                      :title="tableActions[0]?.title"
+                      class="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all"
                     >
-                      <component :is="action.icon" class="w-5 h-5" />
-                      <span v-if="action.label">{{ action.label }}</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                      <span v-if="tableActions[0]?.label">Action</span>
 
-              <!-- Expandable Room Details Row -->
-              <tr v-show="expandedRows.includes(item.id)">
-                <td colspan="14" class="px-2 md:px-4 py-0">
-                  <div class="bg-gray-50 rounded-lg p-4 mb-2">
-                    <div
-                      class="text-xs font-semibold text-gray-700 mb-3 flex items-center gap-2"
-                    >
+                      <!-- Dropdown indicator (shows if more than 1 action) -->
                       <svg
-                        class="w-4 h-4"
+                        v-if="tableActions.length > 1"
+                        class="w-4 h-4 transition-transform group-hover:rotate-180"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -500,55 +493,248 @@
                           stroke-linecap="round"
                           stroke-linejoin="round"
                           stroke-width="2"
-                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                          d="M19 9l-7 7-7-7"
                         />
                       </svg>
-                      Room Details
-                    </div>
+                    </button>
+
+                    <!-- Dropdown menu (visible on hover) -->
                     <div
-                      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
+                      v-if="tableActions.length > 1"
+                      class="absolute right-0 top-full p-2 w-36 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 space-y-2"
+                    >
+                      <button
+                        v-for="(action, index) in tableActions"
+                        :key="action.name"
+                        @click.stop="action.handler(item)"
+                        :class="action.class"
+                        :title="action.title"
+                        class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg"
+                      >
+                        <component :is="action.icon" class="w-5 h-5" />
+                        <span class="text-xs">{{
+                          action.label || action.name
+                        }}</span>
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Expandable Room Details Row -->
+              <tr v-show="expandedRows.includes(item.id)">
+                <td colspan="14" class="px-2 md:px-4 py-0">
+                  <div class="bg-gray-50 rounded-lg p-4 mb-2">
+                    <!-- Tab Switch -->
+                    <div class="flex items-center gap-2 mb-4">
+                      <button
+                        @click="activeTab[item.id] = 'invoices'"
+                        :class="[
+                          'flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all',
+                          activeTab[item.id] === 'invoices' ||
+                          !activeTab[item.id]
+                            ? 'bg-white text-[#FF613c] shadow-sm border border-[#FF613c]'
+                            : 'bg-transparent text-gray-600 hover:bg-white/50',
+                        ]"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                        Invoice List
+                      </button>
+
+                      <button
+                        @click="activeTab[item.id] = 'rooms'"
+                        :class="[
+                          'flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all',
+                          activeTab[item.id] === 'rooms'
+                            ? 'bg-white text-[#FF613c] shadow-sm border border-[#FF613c]'
+                            : 'bg-transparent text-gray-600 hover:bg-white/50',
+                        ]"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                          />
+                        </svg>
+                        Room Details
+                      </button>
+                    </div>
+
+                    <!-- Room Details Section -->
+                    <div v-show="activeTab[item.id] === 'rooms'">
+                      <div
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
+                      >
+                        <div
+                          v-for="(roomItem, index) in item.items"
+                          :key="index"
+                          class="bg-white relative rounded-lg p-3 border border-gray-200 hover:border-[#FF613c] transition-colors"
+                        >
+                          <button
+                            @click.stop="
+                              goToRoomDetail(roomItem?.variation?.id)
+                            "
+                            class="absolute right-2 top-2"
+                          >
+                            <PencilSquareIcon
+                              class="w-5 h-5 text-gray-800 hover:text-[#FF613c]"
+                            />
+                          </button>
+                          <div class="flex items-start justify-between gap-2">
+                            <div class="flex-1">
+                              <p
+                                class="text-sm font-medium line-clamp-1 max-w-[250px] text-gray-900 mb-1"
+                              >
+                                {{ roomItem.variant_name }}
+                              </p>
+                              <div
+                                class="flex items-center gap-1 text-xs text-gray-500"
+                              >
+                                <svg
+                                  class="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                                  />
+                                </svg>
+                                <span>
+                                  Quantity: {{ roomItem.quantity }},
+                                  {{ roomItem.service_date }} to
+                                  {{ formatDate(roomItem.checkout_date) }}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Invoice List Section -->
+                    <div
+                      v-show="
+                        activeTab[item.id] === 'invoices' || !activeTab[item.id]
+                      "
                     >
                       <div
-                        v-for="(roomItem, index) in item.items"
-                        :key="index"
-                        class="bg-white relative rounded-lg p-3 border border-gray-200 hover:border-[#FF613c] transition-colors"
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
                       >
-                        <button
-                          @click.stop="goToRoomDetail(roomItem?.variation?.id)"
-                          class="absolute right-2 top-2"
+                        <!-- Add New Invoice Card -->
+                        <div
+                          @click="openNewInvoiceModal(item)"
+                          class="bg-white rounded-lg min-h-[120px] cursor-pointer text-[#FF613c] text-sm flex justify-center items-center border border-[#FF613c] p-4 border-dashed hover:bg-[#FF613c]/5 transition-colors group"
                         >
-                          <PencilSquareIcon
-                            class="w-5 h-5 text-gray-800 hover:text-[#FF613c]"
-                          />
-                        </button>
-                        <div class="flex items-start justify-between gap-2">
-                          <div class="flex-1">
-                            <p
-                              class="text-sm font-medium line-clamp-1 max-w-[300px] text-gray-900 mb-1"
-                            >
-                              {{ roomItem.variant_name }}
-                            </p>
+                          <PlusCircleIcon class="w-5 h-5 mr-2" />
+                          Add New Invoice
+                        </div>
+
+                        <!-- Invoice Cards -->
+                        <div
+                          v-for="invoice in invoiceLists[item.id] || []"
+                          :key="invoice.id"
+                          @click="openEditInvoiceModal(invoice, item)"
+                          class="bg-white rounded-lg p-4 border border-gray-200 hover:border-[#FF613c] transition-colors group cursor-pointer"
+                        >
+                          <div class="flex items-start gap-3">
+                            <!-- Invoice Icon/Image -->
                             <div
-                              class="flex items-center gap-1 text-xs text-gray-500"
+                              class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center flex-shrink-0"
                             >
-                              <svg
-                                class="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
+                              <DocumentDuplicateIcon
+                                class="w-6 h-6 text-blue-600"
+                              />
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                              <!-- Invoice Number & Status -->
+                              <div
+                                class="flex items-start justify-between gap-2 mb-2"
                               >
-                                <path
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  stroke-width="2"
-                                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                                />
-                              </svg>
-                              <span>
-                                Quantity: {{ roomItem.quantity }},
-                                {{ roomItem.service_date }} to
-                                {{ formatDate(roomItem.checkout_date) }}
-                              </span>
+                                <h4
+                                  class="text-sm font-semibold text-gray-900 truncate"
+                                >
+                                  {{
+                                    invoice.meta?.invoice_number || "No Number"
+                                  }}
+                                </h4>
+                                <span
+                                  class="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full whitespace-nowrap"
+                                >
+                                  {{
+                                    invoice.meta?.product_type?.includes(
+                                      "Hotel"
+                                    )
+                                      ? "Hotel"
+                                      : "Ticket"
+                                  }}
+                                </span>
+                              </div>
+
+                              <!-- Invoice Details -->
+                              <div class="space-y-1">
+                                <div
+                                  class="flex items-center justify-between text-xs"
+                                >
+                                  <span class="text-gray-500">Amount:</span>
+                                  <span class="font-medium text-gray-900">
+                                    {{
+                                      invoice.meta?.total_after_tax
+                                        ? formatCurrency(
+                                            invoice.meta.total_after_tax
+                                          )
+                                        : "-"
+                                    }}
+                                  </span>
+                                </div>
+                                <div
+                                  class="flex items-center justify-between text-xs"
+                                >
+                                  <span class="text-gray-500">Product:</span>
+                                  <span class="text-gray-700 truncate ml-2">{{
+                                    invoice.meta?.product_name || "-"
+                                  }}</span>
+                                </div>
+                                <div
+                                  class="flex items-center justify-between text-xs"
+                                >
+                                  <span class="text-gray-500">Company:</span>
+                                  <span class="text-gray-700 truncate ml-2">{{
+                                    invoice.meta?.company_legal_name || "-"
+                                  }}</span>
+                                </div>
+                              </div>
+
+                              <!-- View/Edit Indicator -->
+                              <div
+                                class="mt-3 text-xs text-[#FF613c] font-medium flex items-center"
+                              >
+                                <PencilSquareIcon class="w-4 h-4 mr-1" />
+                                Click to edit
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -632,7 +818,7 @@
     <!-- Filter Modal -->
     <Modal :isOpen="filterShow" @closeModal="filterShow = false">
       <DialogPanel
-        class="w-full max-w-2xl transform rounded-xl bg-white p-6 text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-5xl transform rounded-xl bg-white p-6 text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
@@ -651,6 +837,118 @@
         </DialogTitle>
 
         <div class="space-y-4">
+          <!-- invoice status -->
+          <div>
+            <label class="text-xs font-medium text-gray-700 mb-3 block">
+              Invoice Status
+            </label>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <button
+                v-for="status in invoiceOptions"
+                :key="status.value"
+                @click="invoiceStatus = status.value"
+                :class="[
+                  'flex items-center gap-3 px-4 py-3 border-2 rounded-lg transition-all',
+                  invoiceStatus === status.value
+                    ? `border-${status.color}-500 bg-${status.color}-50 shadow-md`
+                    : `border-${status.color}-200 hover:bg-${status.color}-50`,
+                ]"
+              >
+                <div :class="`p-2 bg-${status.color}-100 rounded-full`">
+                  <component
+                    :is="status.icon"
+                    :class="`w-5 h-5 text-${status.color}-600`"
+                  />
+                </div>
+                <div class="text-left flex-1">
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ status.label }}
+                  </p>
+                  <p class="text-xs text-gray-500">{{ status.description }}</p>
+                </div>
+                <div
+                  v-if="invoiceStatus === status.value"
+                  class="flex-shrink-0"
+                >
+                  <CheckIcon :class="`w-5 h-5 text-${status.color}-600`" />
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- expense filter -->
+          <div>
+            <label class="text-xs font-medium text-gray-700 mb-3 block">
+              Expense Status
+            </label>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <button
+                v-for="status in statusOptions"
+                :key="status.value"
+                @click="statusFilter = status.value"
+                :class="[
+                  'flex items-center gap-3 px-4 py-3 border-2 rounded-lg transition-all',
+                  statusFilter === status.value
+                    ? `border-${status.color}-500 bg-${status.color}-50 shadow-md`
+                    : `border-${status.color}-200 hover:bg-${status.color}-50`,
+                ]"
+              >
+                <div :class="`p-2 bg-${status.color}-100 rounded-full`">
+                  <component
+                    :is="status.icon"
+                    :class="`w-5 h-5 text-${status.color}-600`"
+                  />
+                </div>
+                <div class="text-left flex-1">
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ status.label }}
+                  </p>
+                  <p class="text-xs text-gray-500">{{ status.description }}</p>
+                </div>
+                <div v-if="statusFilter === status.value" class="flex-shrink-0">
+                  <CheckIcon :class="`w-5 h-5 text-${status.color}-600`" />
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-medium text-gray-700 mb-3 block">
+              Customer Payment Status
+            </label>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <button
+                v-for="status in statusOptions"
+                :key="status.value"
+                @click="paymentStatus = status.value"
+                :class="[
+                  'flex items-center gap-3 px-4 py-3 border-2 rounded-lg transition-all',
+                  paymentStatus === status.value
+                    ? `border-${status.color}-500 bg-${status.color}-50 shadow-md`
+                    : `border-${status.color}-200 hover:bg-${status.color}-50`,
+                ]"
+              >
+                <div :class="`p-2 bg-${status.color}-100 rounded-full`">
+                  <component
+                    :is="status.icon"
+                    :class="`w-5 h-5 text-${status.color}-600`"
+                  />
+                </div>
+                <div class="text-left flex-1">
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ status.label }}
+                  </p>
+                  <p class="text-xs text-gray-500">{{ status.description }}</p>
+                </div>
+                <div
+                  v-if="paymentStatus === status.value"
+                  class="flex-shrink-0"
+                >
+                  <CheckIcon :class="`w-5 h-5 text-${status.color}-600`" />
+                </div>
+              </button>
+            </div>
+          </div>
           <!-- Date Range Filter -->
           <div>
             <label class="text-xs font-medium text-gray-700 mb-2 block">
@@ -664,7 +962,7 @@
                 <input
                   type="date"
                   v-model="startDate"
-                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-xs rounded-lg"
+                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-sm rounded-full shadow-sm"
                 />
               </div>
               <div>
@@ -672,7 +970,7 @@
                 <input
                   type="date"
                   v-model="endDate"
-                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-xs rounded-lg"
+                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-sm rounded-full shadow-sm"
                 />
               </div>
             </div>
@@ -691,7 +989,7 @@
                 <input
                   type="date"
                   v-model="deadlineDate"
-                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-xs rounded-lg"
+                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-sm rounded-full shadow-sm"
                 />
               </div>
               <div>
@@ -701,39 +999,23 @@
                 <input
                   type="number"
                   v-model="deadlineNumber"
-                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-xs rounded-lg"
+                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-sm rounded-full shadow-sm"
                 />
               </div>
             </div>
-          </div>
-
-          <!-- Customer Payment Status -->
-          <div class="pt-3 border-t">
-            <label class="text-xs font-medium text-gray-700 mb-2 block">
-              Customer Payment Status
-            </label>
-            <select
-              v-model="paymentStatus"
-              class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-xs rounded-lg"
-            >
-              <option value="all">All Status</option>
-              <option value="not_paid">Not Paid</option>
-              <option value="partially_paid">Partially Paid</option>
-              <option value="fully_paid">Fully Paid</option>
-            </select>
           </div>
 
           <!-- Action Buttons -->
           <div class="flex items-center gap-3 pt-4 border-t">
             <button
               @click="clearAllFilters"
-              class="flex-1 text-xs bg-gray-100 px-4 py-2.5 rounded-lg text-center text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors font-medium"
+              class="flex-1 text-sm bg-gray-100 px-4 py-2.5 rounded-full text-center text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors font-medium"
             >
               Clear All
             </button>
             <button
               @click="applyFilters"
-              class="flex-1 text-xs bg-[#FF613c] px-4 py-2.5 rounded-lg text-center text-white cursor-pointer hover:bg-[#e55139] transition-colors font-medium"
+              class="flex-1 text-sm bg-[#FF613c] px-4 py-2.5 rounded-full text-center text-white cursor-pointer hover:bg-[#e55139] transition-colors font-medium"
             >
               Apply Filters
             </button>
@@ -1202,6 +1484,15 @@
         </div>
       </DialogPanel>
     </Modal>
+
+    <InvoiceModal
+      :isOpen="invoiceModalOpen"
+      :invoiceData="selectedInvoice"
+      :groupId="selectedItem?.id"
+      :groupData="selectedItem"
+      @close="closeInvoiceModal"
+      @refresh="refreshInvoices"
+    />
   </Layout>
 </template>
 
@@ -1225,6 +1516,8 @@ import {
   WalletIcon,
   ChevronDownIcon,
   PencilSquareIcon,
+  ArrowDownCircleIcon,
+  CurrencyDollarIcon,
 } from "@heroicons/vue/24/outline";
 import { CheckBadgeIcon, DocumentDuplicateIcon } from "@heroicons/vue/24/solid";
 import { useToast } from "vue-toastification";
@@ -1235,6 +1528,7 @@ import Modal from "../components/Modal.vue";
 import { useReservationStore } from "../stores/reservation";
 import { useAuthStore } from "../stores/auth";
 import { useSidebarStore } from "../stores/sidebar";
+import InvoiceModal from "./GroupComponent/ExpensePart/InvoiceModal.vue";
 
 // Stores
 const toast = useToast();
@@ -1257,27 +1551,52 @@ const deadlineDate = ref("");
 const deadlineNumber = ref(2);
 const startDate = ref("");
 const endDate = ref("");
+const threeDatesAgo = ref("");
 const infoDrawerOpen = ref(false);
 const payDrawerOpen = ref(false);
 const selectedItem = ref(null);
 const detailData = ref(null);
 const paymentStatus = ref("all");
 const expandedRows = ref([]);
+const activeTab = ref({});
 const openCommentModal = ref(false);
 const comment = ref("");
 const newSlips = ref([]);
 const selectedStatus = ref(null);
 const loadingDetail = ref(false);
 const originalSlipsData = ref({});
+const invoiceStatus = ref("all");
+const activeSelect = ref("");
+
+const activeSelectAction = (option) => {
+  // activeSelect.value = option;
+  console.log(activeSelect.value, "this is selected");
+  if (option == "invoice") {
+    if (activeSelect.value == "") {
+      activeSelect.value = "invoice";
+      invoiceStatus.value = "not_receive";
+      let today = new Date();
+      let threeDaysLater = new Date(today);
+      threeDaysLater.setDate(today.getDate() + 3);
+      endDate.value = threeDaysLater.toISOString().split("T")[0];
+      startDate.value = today.toISOString().split("T")[0];
+      searchAction();
+    } else {
+      activeSelect.value = "";
+      setStartAndEndDate();
+      clearAllFilters();
+    }
+  }
+};
 
 // Constants
 const tableHeaders = [
-  { key: "down", label: "", class: "whitespace-nowrap" },
+  { key: "invoice", label: "Invoice", class: "whitespace-nowrap" },
   { key: "crm_id", label: "CRM ID", class: "whitespace-nowrap" },
   { key: "hotel_name", label: "Hotel Name", class: "" },
   { key: "expense_status", label: "Expense Status", class: "" },
-  { key: "booking_date", label: "Booking Start & End Date", class: "" },
-  { key: "invoice", label: "Invoice", class: "whitespace-nowrap" },
+  { key: "booking_date", label: "Booking Date", class: "" },
+  // { key: "invoice", label: "Invoice", class: "whitespace-nowrap" },
   { key: "deadline", label: "Deadline", class: "" },
   { key: "expense", label: "Expense", class: "whitespace-nowrap" },
   { key: "margin_score", label: "Margin Score", class: "whitespace-nowrap" },
@@ -1303,6 +1622,23 @@ const statusOptions = [
     value: "fully_paid",
     label: "Fully Paid",
     description: "Complete payment",
+    icon: CheckIcon,
+    color: "green",
+  },
+];
+
+const invoiceOptions = [
+  {
+    value: "not_receive",
+    label: "Not Received",
+    description: "Awaiting invoice",
+    icon: ExclamationTriangleIcon,
+    color: "red",
+  },
+  {
+    value: "receive",
+    label: "Received",
+    description: "Invoice received",
     icon: CheckIcon,
     color: "green",
   },
@@ -1468,13 +1804,17 @@ const changePage = async (url) => {
   await groupStore.getChangePage(url, watchSystem.value);
 };
 
-// UI Actions
-const toggleRow = (itemId) => {
+// Fetch invoices when row is expanded
+const toggleRow = async (itemId) => {
   const index = expandedRows.value.indexOf(itemId);
   if (index > -1) {
     expandedRows.value.splice(index, 1);
   } else {
     expandedRows.value.push(itemId);
+    // Fetch invoices when expanding
+    if (!invoiceLists.value[itemId]) {
+      await fetchGroupInvoices(itemId);
+    }
   }
 };
 
@@ -1488,8 +1828,10 @@ const clearAllFilters = () => {
   // endDate.value = "";
   deadlineDate.value = "";
   deadlineNumber.value = 2;
+  invoiceStatus.value = "all";
   paymentStatus.value = "all";
   filterShow.value = false;
+  searchAction();
 };
 
 const applyFilters = () => {
@@ -1717,7 +2059,7 @@ const tableActions = ref([
   {
     name: "pay",
     label: "Pay",
-    icon: null,
+    icon: CurrencyDollarIcon,
     handler: openPayDrawer,
     class:
       "px-3 py-2 text-xs text-white bg-green-600 rounded-lg shadow-md transition-all duration-200 hover:bg-green-700 hover:shadow-md active:scale-95",
@@ -2025,6 +2367,9 @@ const watchSystem = computed(() => {
     result.deadline_date = deadlineDate.value;
     result.deadline_days = deadlineNumber.value;
   }
+  if (invoiceStatus.value && invoiceStatus.value !== "all") {
+    result.invoice_status = invoiceStatus.value;
+  }
   if (!authStore.isReservation && !authStore.isSuperAdmin) {
     result.user_id = user.value.id;
   }
@@ -2041,6 +2386,55 @@ const setStartAndEndDate = () => {
 
   startDate.value = start.toISOString().split("T")[0];
   endDate.value = end.toISOString().split("T")[0];
+};
+
+// Add these new refs
+const invoiceModalOpen = ref(false);
+const selectedInvoice = ref(null);
+const invoiceLists = ref({});
+
+// Add function to fetch invoices for a specific group
+const fetchGroupInvoices = async (groupId) => {
+  try {
+    const response = await groupStore.groupDocumentList(groupId, {
+      document_type: "booking_confirm_letter",
+    });
+
+    if (response?.result) {
+      invoiceLists.value[groupId] = response.result;
+    }
+  } catch (error) {
+    console.error("Error fetching invoices:", error);
+  }
+};
+
+// Open modal for new invoice
+const openNewInvoiceModal = (item) => {
+  selectedInvoice.value = null;
+  selectedItem.value = item;
+  invoiceModalOpen.value = true;
+};
+
+// Open modal for editing invoice
+const openEditInvoiceModal = (invoice, item) => {
+  selectedInvoice.value = invoice;
+  selectedItem.value = item;
+  invoiceModalOpen.value = true;
+};
+
+// Close modal
+const closeInvoiceModal = () => {
+  invoiceModalOpen.value = false;
+  selectedInvoice.value = null;
+  selectedItem.value = null;
+};
+
+// Refresh invoices after CRUD operation
+const refreshInvoices = async () => {
+  if (selectedItem.value?.id) {
+    await fetchGroupInvoices(selectedItem.value.id);
+    await getListAction(); // Refresh main list
+  }
 };
 
 onMounted(async () => {

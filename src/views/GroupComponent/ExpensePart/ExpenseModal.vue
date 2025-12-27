@@ -497,179 +497,154 @@
 
       <!-- Footer -->
       <div
-        class="border-t p-6 pt-4 flex items-center justify-end gap-3 bg-gray-50"
+        class="border-t flex justify-between items-center p-6 pt-4 gap-3 bg-gray-50"
       >
-        <button
-          v-if="formData.id"
-          @click="handleDelete"
-          :disabled="loading"
-          class="px-4 py-2.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-        >
-          <span v-if="loading && currentAction === 'delete'">
-            <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-                fill="none"
-              />
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-          </span>
-          Delete
-        </button>
-
-        <button
-          @click="handleClose"
-          :disabled="loading"
-          class="px-4 py-2.5 bg-white border border-gray-300 text-sm rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Cancel
-        </button>
-
-        <button
-          v-if="currentStep > 1"
-          @click="currentStep--"
-          :disabled="loading"
-          class="px-4 py-2.5 bg-gray-200 text-black text-sm rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-        >
-          <ChevronLeftIcon class="w-4 h-4" />
-          Previous
-        </button>
-
-        <button
-          v-if="currentStep < 2 && !formData.id"
-          @click="currentStep++"
-          :disabled="loading || !isStep1Complete"
-          class="px-4 py-2.5 bg-[#FF613c] text-white text-sm rounded-lg hover:bg-[#e55139] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-        >
-          Next
-          <ChevronRightIcon class="w-4 h-4" />
-        </button>
-
-        <!-- Next & Update Button for Edit Mode in Step 1 -->
-        <button
-          v-if="currentStep === 1 && formData.id"
-          @click="handleNextAndUpdate"
-          :disabled="loading || !isStep1Complete"
-          class="px-4 py-2.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-        >
-          <span v-if="loading && currentAction === 'next_update'">
-            <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-                fill="none"
-              />
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-          </span>
-          Next & Update
-          <ChevronRightIcon class="w-4 h-4" />
-        </button>
-        <button
-          v-if="currentStep === 1 && formData.id"
-          @click="currentStep++"
-          :disabled="loading || !isStep1Complete"
-          class="px-4 py-2.5 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-        >
-          <span v-if="loading && currentAction === 'next_update'">
-            <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-                fill="none"
-              />
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-          </span>
-          Next & No Update
-          <ChevronRightIcon class="w-4 h-4" />
-        </button>
-
-        <!-- Final Save/Update Button -->
-        <button
-          v-if="currentStep === 2"
-          @click="isCreateMode ? handleSave() : updateOnlyStatus()"
-          :disabled="loading || !isFormValid"
-          class="px-4 py-2.5 bg-[#FF613c] text-white text-sm rounded-lg hover:bg-[#e55139] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-        >
-          <span
-            v-if="
-              loading &&
-              (currentAction === 'save' || currentAction === 'status')
-            "
+        <div class="flex justify-start items-center gap-x-3">
+          <button
+            v-if="currentStep > 1"
+            @click="currentStep--"
+            :disabled="loading"
+            class="px-4 py-2.5 bg-gray-200 text-black text-sm rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-                fill="none"
-              />
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-          </span>
-          {{ formData.id ? "Update Status" : "Create Expense" }}
-        </button>
+            <ChevronLeftIcon class="w-4 h-4" />
+            Previous
+          </button>
 
-        <!-- Full Update Button in Step 2 for Edit Mode -->
-        <button
-          v-if="currentStep === 2 && formData.id"
-          @click="handleSave"
-          :disabled="loading || !isFormValid"
-          class="px-4 py-2.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-        >
-          <span v-if="loading && currentAction === 'save'">
-            <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-                fill="none"
-              />
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-          </span>
-          Update All
-        </button>
+          <button
+            v-if="currentStep < 2 && !formData.id"
+            @click="currentStep++"
+            :disabled="loading || !isStep1Complete"
+            class="px-4 py-2.5 bg-[#FF613c] text-white text-sm rounded-lg hover:bg-[#e55139] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            Next
+            <ChevronRightIcon class="w-4 h-4" />
+          </button>
+
+          <button
+            v-if="currentStep === 1 && formData.id"
+            @click="currentStep++"
+            :disabled="loading || !isStep1Complete"
+            class="px-4 py-2.5 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            <span v-if="loading && currentAction === 'next_update'">
+              <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                  fill="none"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            </span>
+            Next
+            <ChevronRightIcon class="w-4 h-4" />
+          </button>
+        </div>
+        <div class="flex justify-start items-center gap-x-3">
+          <button
+            v-if="formData.id"
+            @click="handleDelete"
+            :disabled="loading"
+            class="px-4 py-2.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            <span v-if="loading && currentAction === 'delete'">
+              <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                  fill="none"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            </span>
+            Delete
+          </button>
+
+          <button
+            @click="handleClose"
+            :disabled="loading"
+            class="px-4 py-2.5 bg-white border border-gray-300 text-sm rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Cancel
+          </button>
+
+          <!-- Final Save/Update Button -->
+          <button
+            v-if="currentStep === 2 && isCreateMode"
+            @click="isCreateMode ? handleSave() : updateOnlyStatus()"
+            :disabled="loading || !isFormValid"
+            class="px-4 py-2.5 bg-[#FF613c] text-white text-sm rounded-lg hover:bg-[#e55139] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            <span
+              v-if="
+                loading &&
+                (currentAction === 'save' || currentAction === 'status')
+              "
+            >
+              <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                  fill="none"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            </span>
+            {{ formData.id ? "Update Status" : "Create Expense" }}
+          </button>
+
+          <!-- Full Update Button in Step 2 for Edit Mode -->
+          <button
+            v-if="currentStep === 2 && formData.id"
+            @click="handleSave"
+            :disabled="loading || !isFormValid"
+            class="px-4 py-2.5 bg-[#FF613c] text-white text-sm rounded-lg hover:bg-[#e55139] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            <span v-if="loading && currentAction === 'save'">
+              <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                  fill="none"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            </span>
+            Update Status
+          </button>
+        </div>
       </div>
     </DialogPanel>
   </Modal>

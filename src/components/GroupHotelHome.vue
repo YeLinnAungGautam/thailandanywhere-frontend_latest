@@ -55,7 +55,7 @@
               />
             </svg>
           </div>
-          <h2 class="text-2xl font-semibold text-gray-800">Emails</h2>
+          <h2 class="text-2xl font-semibold text-gray-800">Reserve</h2>
           <p class="text-gray-500 text-xs text-center">
             View and manage your emails
           </p>
@@ -93,7 +93,7 @@
       </div>
 
       <!-- Invoices Card -->
-      <div
+      <!-- <div
         @click="goToMainPage"
         class="bg-white rounded-2xl shadow-lg p-8 cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-105"
       >
@@ -120,10 +120,10 @@
             View and manage your invoices
           </p>
         </div>
-      </div>
+      </div> -->
 
       <!-- Tickets Card -->
-      <div
+      <!-- <div
         @click="goToMainPage"
         class="bg-white rounded-2xl shadow-lg p-8 cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-105"
       >
@@ -150,7 +150,7 @@
             View and manage your tickets
           </p>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

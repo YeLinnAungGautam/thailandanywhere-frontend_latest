@@ -9,6 +9,32 @@
         class="text-2xl md:text-3xl flex justify-start items-center font-medium text-[#FF613c]"
       >
         Expense
+        <div
+          class="flex justify-start items-center cursor-pointer ml-3 text-lg divide-x-2 border border-gray-200 rounded-full shadow-lg overflow-hidden"
+        >
+          <p
+            class="px-4 py-1"
+            :class="
+              productType == 'hotel'
+                ? 'text-white bg-[#FF613c]'
+                : 'text-gray-400'
+            "
+            @click="productType = 'hotel'"
+          >
+            hotel
+          </p>
+          <p
+            class="px-4 py-1"
+            :class="
+              productType == 'attraction'
+                ? 'bg-[#FF613c] text-white'
+                : 'text-gray-400'
+            "
+            @click="productType = 'attraction'"
+          >
+            ticket
+          </p>
+        </div>
       </div>
     </div>
 
@@ -433,8 +459,13 @@
                 <!-- Booking Date -->
                 <td class="px-2 md:px-4 py-4">
                   <div class="text-sm text-gray-700">
-                    <div>{{ formatDate(item.firstest_service_date) }}</div>
-                    <div class="text-xs text-gray-500 whitespace-nowrap">
+                    <div class="whitespace-nowrap">
+                      {{ formatDate(item.firstest_service_date) }}
+                    </div>
+                    <div
+                      class="text-xs text-gray-500 whitespace-nowrap"
+                      v-if="productType == 'hotel'"
+                    >
                       to {{ formatDate(item.latest_service_date) }}
                     </div>
                   </div>
@@ -609,7 +640,9 @@
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                           />
                         </svg>
-                        Room Details ({{ item.items.length }})
+                        Room Details ({{
+                          itemLists[item.id] && itemLists[item.id].items.length
+                        }})
                       </button>
                     </div>
 
@@ -619,14 +652,14 @@
                         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
                       >
                         <div
-                          v-for="(roomItem, index) in item.items"
+                          v-for="(roomItem, index) in (itemLists[item.id] &&
+                            itemLists[item.id].items) ||
+                          []"
                           :key="index"
                           class="bg-white relative rounded-lg p-3 border border-gray-200 hover:border-[#FF613c] transition-colors"
                         >
                           <button
-                            @click.stop="
-                              goToRoomDetail(roomItem?.variation?.id)
-                            "
+                            @click.stop="goToRoomDetail(roomItem?.room.id)"
                             class="absolute right-2 top-2"
                           >
                             <PencilSquareIcon
@@ -638,7 +671,11 @@
                               <p
                                 class="text-sm font-medium line-clamp-1 max-w-[250px] text-gray-900 mb-1"
                               >
-                                {{ roomItem.variant_name }}
+                                {{
+                                  productType == "hotel"
+                                    ? roomItem?.room?.name
+                                    : roomItem?.variation?.name
+                                }}
                               </p>
                               <div
                                 class="flex items-center gap-1 text-xs text-gray-500"
@@ -658,9 +695,23 @@
                                 </svg>
                                 <span>
                                   Quantity: {{ roomItem.quantity }},
-                                  {{ roomItem.service_date }} to
-                                  {{ formatDate(roomItem.checkout_date) }}
+                                  {{ roomItem.service_date }}
+                                  <span v-if="productType == 'hotel'"
+                                    >to
+                                    {{
+                                      formatDate(roomItem.checkout_date)
+                                    }}</span
+                                  >
                                 </span>
+                              </div>
+                              <div
+                                class="flex items-center mt-1 gap-1 text-xs text-gray-500"
+                              >
+                                <DocumentCurrencyDollarIcon class="w-4 h-4" />
+                                <span>
+                                  Cost : {{ roomItem.cost_price }} (total :
+                                  {{ roomItem.total_cost_price }})</span
+                                >
                               </div>
                             </div>
                           </div>
@@ -1367,6 +1418,8 @@
       :invoiceData="selectedInvoice"
       :groupId="selectedItem?.id"
       :groupData="selectedItem"
+      :openEditItemCost="openEditItemCost"
+      :itemData="itemLists[selectedItem?.id]"
       @close="closeInvoiceModal"
       @refresh="refreshInvoices"
     />
@@ -1379,11 +1432,19 @@
       @close="closeExpenseModal"
       @refresh="refreshExpenses"
     />
+
+    <!-- Edit Item Cost Modal -->
+    <ItemCostModal
+      :isOpen="showEditItemCost"
+      :groupData="itemLists[selectedItem?.id]"
+      :closeAction="closeEditItemCost"
+      :refreshAction="refreshExpenses"
+    />
   </Layout>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { storeToRefs } from "pinia";
 import Layout from "./Layout.vue";
 import Payment from "./GroupComponent/ExpensePart/Payment.vue";
@@ -1405,6 +1466,7 @@ import {
   ArrowDownCircleIcon,
   CurrencyDollarIcon,
   PlusCircleIcon,
+  DocumentCurrencyDollarIcon,
 } from "@heroicons/vue/24/outline";
 import { CheckBadgeIcon, DocumentDuplicateIcon } from "@heroicons/vue/24/solid";
 import { useToast } from "vue-toastification";
@@ -1417,6 +1479,7 @@ import { useAuthStore } from "../stores/auth";
 import { useSidebarStore } from "../stores/sidebar";
 import InvoiceModal from "./GroupComponent/ExpensePart/InvoiceModal.vue";
 import ExpenseModal from "./GroupComponent/ExpensePart/ExpenseModal.vue";
+import ItemCostModal from "./GroupComponent/ExpensePart/ItemCostModal.vue";
 
 // Stores
 const toast = useToast();
@@ -1455,6 +1518,24 @@ const loadingDetail = ref(false);
 const originalSlipsData = ref({});
 const invoiceStatus = ref("all");
 const activeSelect = ref("");
+
+// Add to refs
+const showEditItemCost = ref(false);
+
+// Add method to open the modal
+const openEditItemCost = () => {
+  if (selectedItem) {
+    showEditItemCost.value = true;
+    invoiceModalOpen.value = false;
+  } else {
+    toast.error("No booking data available");
+  }
+};
+
+// Add method to close the modal
+const closeEditItemCost = () => {
+  showEditItemCost.value = false;
+};
 
 const activeSelectAction = (option) => {
   // activeSelect.value = option;
@@ -2307,14 +2388,16 @@ const addCommentAction = async () => {
 };
 
 const sentExpenseMail = ref("");
+const productType = ref("hotel");
 // Computed
 const watchSystem = computed(() => {
   const result = {
     sorting: "asc",
-    product_type: "hotel",
+
     per_page: 10,
   };
 
+  if (productType.value) result.product_type = productType.value;
   if (searchKey.value) result.crm_id = searchKey.value;
   if (hotelName.value) result.product_name = hotelName.value;
   if (statusFilter.value && statusFilter.value !== "all") {
@@ -2391,8 +2474,6 @@ const openEditInvoiceModal = (invoice, item) => {
 // Close modal
 const closeInvoiceModal = () => {
   invoiceModalOpen.value = false;
-  selectedInvoice.value = null;
-  selectedItem.value = null;
 };
 
 // Refresh invoices after CRUD operation
@@ -2407,6 +2488,7 @@ const refreshInvoices = async () => {
 const expenseModalOpen = ref(false);
 const selectedExpense = ref(null);
 const expenseLists = ref({});
+const itemLists = ref({});
 
 // Fetch expenses for a specific group
 const fetchGroupExpenses = async (groupId) => {
@@ -2414,6 +2496,8 @@ const fetchGroupExpenses = async (groupId) => {
     const response = await groupStore.detailAction(groupId);
     if (response?.result?.expense) {
       expenseLists.value[groupId] = response.result.expense;
+      console.log(response.result, "this is group expense");
+      itemLists.value[groupId] = response.result;
     }
   } catch (error) {
     console.error("Error fetching expenses:", error);
@@ -2448,6 +2532,10 @@ const refreshExpenses = async () => {
     await getListAction(); // Refresh main list
   }
 };
+
+watch(productType, async (newValue) => {
+  await getListAction();
+});
 
 onMounted(async () => {
   setStartAndEndDate();

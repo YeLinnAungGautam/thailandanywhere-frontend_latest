@@ -470,7 +470,15 @@
                 </td>
 
                 <!-- Actions -->
-                <td class="px-2 md:px-4 py-4">
+                <td
+                  class="px-2 flex justify-end items-center space-x-2 md:px-4 py-4"
+                >
+                  <button
+                    @click.stop="copyReservation(item)"
+                    class="flex bg-[#FF613c] text-white items-center gap-2 px-1.5 py-1.5 transition-colors rounded-lg"
+                  >
+                    <component :is="DocumentDuplicateIcon" class="w-5 h-5" />
+                  </button>
                   <div class="relative group">
                     <!-- Main action button (always visible) -->
                     <button
@@ -1927,10 +1935,15 @@ const copyReservation = async (item) => {
       (sum, item) => sum + (item.discount || 0),
       0
     );
-    const total_amount = res.items.reduce((sum, item) => sum + item.amount, 0);
-    const score = res.total_cost_price
+    const total_amount = res.items.reduce(
+      (sum, item) => sum + item.amount * 1,
+      0
+    );
+    let score = res.total_cost_price
       ? ((total_amount - res.total_cost_price) / total_amount).toFixed(2)
       : 0;
+
+    console.log(total_amount, res.total_cost_price, score, "this is copy test");
 
     const earliestServiceDate = res.items.reduce((earliest, item) => {
       if (item.service_date && item.service_date !== "null") {
@@ -2014,14 +2027,14 @@ const tableActions = ref([
       "px-3 py-2 text-xs text-white bg-green-600 rounded-lg shadow-md transition-all duration-200 hover:bg-green-700 hover:shadow-md active:scale-95",
     title: "Pay",
   },
-  {
-    name: "copy",
-    icon: DocumentDuplicateIcon,
-    handler: copyReservation,
-    class:
-      "p-1.5 bg-orange-100 text-orange-600 rounded-lg shadow-md transition-all duration-200 hover:bg-orange-200 hover:shadow-md active:scale-95",
-    title: "Copy",
-  },
+  // {
+  //   name: "copy",
+  //   icon: DocumentDuplicateIcon,
+  //   handler: copyReservation,
+  //   class:
+  //     "p-1.5 bg-orange-100 text-orange-600 rounded-lg shadow-md transition-all duration-200 hover:bg-orange-200 hover:shadow-md active:scale-95",
+  //   title: "Copy",
+  // },
   {
     name: "info",
     icon: InformationCircleIcon,

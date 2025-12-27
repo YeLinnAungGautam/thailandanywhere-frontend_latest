@@ -1589,7 +1589,25 @@ const createInvoice = async () => {
     if (response?.status === 1) {
       toast.success("Invoice created successfully");
       emit("refresh");
-      handleClose();
+      // Show confirmation dialog
+      const result = await Swal.fire({
+        title: "Success!",
+        text: "Do you want to create another invoice?",
+        icon: "success",
+        showCancelButton: true,
+        confirmButtonColor: "#FF613c",
+        cancelButtonColor: "#6B7280",
+        confirmButtonText: "Yes, create another",
+        cancelButtonText: "No, close",
+      });
+
+      if (result.isConfirmed) {
+        // Reset form for new invoice
+        resetFormForNewInvoice();
+      } else {
+        // Close modal
+        handleClose();
+      }
     } else {
       throw new Error("Failed to create invoice");
     }
@@ -1600,6 +1618,49 @@ const createInvoice = async () => {
     loading.value = false;
     currentAction.value = "";
   }
+};
+
+// Add new function to reset form while keeping modal open
+const resetFormForNewInvoice = () => {
+  // Reset form data but keep product type and company info from groupData
+  formData.value = {
+    id: "",
+    product_type:
+      props.groupData?.product_type === "Hotel"
+        ? "App\\Models\\Hotel"
+        : "App\\Models\\EntranceTicket",
+    product_id: props.groupData?.product_id || null,
+    company_legal_name: formData.value.company_legal_name, // Keep company name
+    receipt_date: new Date().toISOString().split("T")[0] + "T12:00:00",
+    service_start_date: props.groupData?.firstest_service_date
+      ? parseDateToLocal(props.groupData.firstest_service_date)
+      : "",
+    service_end_date: props.groupData?.latest_service_date
+      ? parseDateToLocal(props.groupData.latest_service_date)
+      : "",
+    total_tax_withold: 0,
+    total_tax_amount: 0,
+    invoice_number: "",
+    file: "",
+  };
+
+  // Reset other states
+  invoicePreview.value = "";
+  invoiceFile.value = null;
+  totalAfterTax.value = props.groupData?.total_cost_price || 0;
+  currentStep.value = 1;
+
+  // Keep product search value
+  if (props.groupData?.product_id) {
+    fetchProductDetails(
+      props.groupData.product_id,
+      formData.value.product_type
+    );
+  }
+
+  if (fileInput.value) fileInput.value.value = "";
+
+  toast.info("Form reset. Ready for new invoice!");
 };
 
 const updateInvoice = async () => {

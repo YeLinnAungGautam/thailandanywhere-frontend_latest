@@ -2393,12 +2393,12 @@ const productType = ref("hotel");
 const watchSystem = computed(() => {
   const result = {
     sorting: "asc",
-
+    sorting_type: "service_date",
     per_page: 10,
   };
 
   if (productType.value) result.product_type = productType.value;
-  if (searchKey.value) result.crm_id = searchKey.value;
+
   if (hotelName.value) result.product_name = hotelName.value;
   if (statusFilter.value && statusFilter.value !== "all") {
     result.expense_item_status = statusFilter.value;
@@ -2406,7 +2406,8 @@ const watchSystem = computed(() => {
   if (paymentStatus.value !== "all") {
     result.payment_status = paymentStatus.value;
   }
-  if (startDate.value && endDate.value) {
+  if (searchKey.value) result.crm_id = searchKey.value;
+  if (startDate.value && endDate.value && searchKey.value == "") {
     result.booking_daterange = `${startDate.value},${endDate.value}`;
   }
   if (deadlineDate.value) {

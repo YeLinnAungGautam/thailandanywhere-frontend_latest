@@ -42,12 +42,12 @@
     <div class="w-full rounded-lg shadow-sm">
       <!-- Scorecard Section -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-        <!-- Invoice Card -->
+        <!-- Passport Card -->
         <div
-          @click="activeSelectAction('invoice')"
+          @click="activeSelectAction('passport')"
           class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
           :class="
-            activeSelect == 'invoice'
+            activeSelect == 'passport'
               ? 'border-4 border-yellow-600'
               : 'border border-gray-100'
           "
@@ -56,7 +56,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-white text-sm font-medium opacity-90">
-                  Data Complete Next 7 Days
+                  Passport Next 2 Days
                 </p>
                 <div class="flex items-baseline gap-2 mt-2">
                   <span class="text-3xl font-bold text-white">
@@ -157,6 +157,64 @@
             </div>
           </div>
         </div>
+
+        <!-- Invoice Card -->
+        <div
+          @click="activeSelectAction('comment')"
+          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+          :class="
+            activeSelect == 'comment'
+              ? 'border-4 border-green-600'
+              : 'border border-gray-100'
+          "
+        >
+          <div class="bg-gradient-to-r from-green-600 to-green-700 p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white text-sm font-medium opacity-90">
+                  Comment Next 2 Days
+                </p>
+                <div class="flex items-baseline gap-2 mt-2">
+                  <span class="text-3xl font-bold text-white">
+                    {{ groups?.meta?.without_confirmation_letter || 0 }}
+                  </span>
+                  <span class="text-white text-lg opacity-75">/</span>
+                  <span class="text-xl text-white opacity-90">
+                    {{ groups?.meta?.total_next_7_days || 0 }}
+                  </span>
+                </div>
+              </div>
+              <div class="bg-white/20 p-3 rounded-full">
+                <DocumentDuplicateIcon class="w-8 h-8 text-white" />
+              </div>
+            </div>
+          </div>
+          <div class="p-4 bg-gray-50">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600">Finish Rate</span>
+              <span class="font-semibold text-gray-900">
+                {{
+                  calculateRemaining(
+                    groups?.meta?.total_next_7_days,
+                    groups?.meta?.without_confirmation_letter
+                  )
+                }}
+                ခုကျန်
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+              <div
+                class="bg-orange-500 h-2 rounded-full transition-all duration-500"
+                :style="{
+                  width: calculatePercentage(
+                    groups?.meta?.without_confirmation_letter,
+                    groups?.meta?.total_next_7_days
+                  ),
+                }"
+              ></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Filters -->
@@ -187,7 +245,9 @@
               <input
                 type="search"
                 v-model="hotelName"
-                placeholder="Search Hotel"
+                :placeholder="
+                  productType == 'hotel' ? 'Search Hotel' : 'Search Attraction'
+                "
                 class="w-full px-4 py-2.5 rounded-full shadow-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#FF613c] text-xs"
                 @keyup.enter="searchAction"
               />
@@ -355,6 +415,35 @@
                   </div>
                 </td>
 
+                <!-- Total Sale -->
+                <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
+                  <p>
+                    {{ item.booking_sale_amount }}
+                  </p>
+                </td>
+
+                <!-- Balance Due -->
+                <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
+                  <p>
+                    {{ item.booking_balance_due }}
+                  </p>
+                </td>
+
+                <!-- Comment status -->
+                <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
+                  <p
+                    :class="
+                      item.fill_status == 'pending' || item.fill_status == null
+                        ? 'text-red-500'
+                        : 'text-green-500'
+                    "
+                  >
+                    {{
+                      item.fill_status == null ? "pending" : item.fill_status
+                    }}
+                  </p>
+                </td>
+
                 <!-- Margin Score -->
                 <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
                   <p>
@@ -476,6 +565,32 @@
                           itemLists[item.id]?.items?.length || 0
                         }})
                       </button>
+                      <button
+                        @click="activeTab[item.id] = 'slips'"
+                        :class="[
+                          'flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all',
+                          activeTab[item.id] === 'slips'
+                            ? 'bg-white text-[#FF613c] shadow-sm border border-[#FF613c]'
+                            : 'bg-transparent text-gray-600 hover:bg-white/50',
+                        ]"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                          />
+                        </svg>
+                        Payment Slips ({{
+                          itemLists[item.id]?.booking?.receipts.length || 0
+                        }})
+                      </button>
                     </div>
 
                     <!-- Room Details Section -->
@@ -544,6 +659,37 @@
                                   {{ roomItem.total_cost_price }})</span
                                 >
                               </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Slip Section -->
+                    <div v-show="activeTab[item.id] === 'slips'">
+                      <div
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
+                      >
+                        <div
+                          v-for="(slip, index) in itemLists[item.id]?.booking
+                            ?.receipts || []"
+                          :key="index"
+                          class="bg-white relative flex gap-x-2 justify-between rounded-lg p-3 border border-gray-200 hover:border-[#FF613c] transition-colors"
+                        >
+                          <img
+                            :src="slip.image"
+                            class="w-20 h-20 object-cover"
+                            alt=""
+                          />
+                          <div>
+                            <p class="text-sm font-medium text-gray-900 mb-1">
+                              {{ slip.receiver }}
+                            </p>
+                            <div
+                              class="flex items-center gap-1 text-xs text-gray-500"
+                            >
+                              <DocumentCurrencyDollarIcon class="w-4 h-4" />
+                              <span>A : {{ slip.amount }}</span>
                             </div>
                           </div>
                         </div>
@@ -714,81 +860,6 @@
         </DialogTitle>
 
         <div class="space-y-4">
-          <!-- Invoice Status -->
-          <div>
-            <label class="text-xs font-medium text-gray-700 mb-3 block"
-              >Invoice Status</label
-            >
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <button
-                v-for="status in invoiceOptions"
-                :key="status.value"
-                @click="invoiceStatus = status.value"
-                :class="[
-                  'flex items-center gap-3 px-4 py-3 border-2 rounded-lg transition-all',
-                  invoiceStatus === status.value
-                    ? `border-${status.color}-500 bg-${status.color}-50 shadow-md`
-                    : `border-${status.color}-200 hover:bg-${status.color}-50`,
-                ]"
-              >
-                <div :class="`p-2 bg-${status.color}-100 rounded-full`">
-                  <component
-                    :is="status.icon"
-                    :class="`w-5 h-5 text-${status.color}-600`"
-                  />
-                </div>
-                <div class="text-left flex-1">
-                  <p class="text-sm font-medium text-gray-900">
-                    {{ status.label }}
-                  </p>
-                  <p class="text-xs text-gray-500">{{ status.description }}</p>
-                </div>
-                <div
-                  v-if="invoiceStatus === status.value"
-                  class="flex-shrink-0"
-                >
-                  <CheckIcon :class="`w-5 h-5 text-${status.color}-600`" />
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <!-- Expense Filter -->
-          <div>
-            <label class="text-xs font-medium text-gray-700 mb-3 block"
-              >Expense Status</label
-            >
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <button
-                v-for="status in statusOptions"
-                :key="status.value"
-                @click="statusFilter = status.value"
-                :class="[
-                  'flex items-center gap-3 px-4 py-3 border-2 rounded-lg transition-all',
-                  statusFilter === status.value
-                    ? `border-${status.color}-500 bg-${status.color}-50 shadow-md`
-                    : `border-${status.color}-200 hover:bg-${status.color}-50`,
-                ]"
-              >
-                <div :class="`p-2 bg-${status.color}-100 rounded-full`">
-                  <component
-                    :is="status.icon"
-                    :class="`w-5 h-5 text-${status.color}-600`"
-                  />
-                </div>
-                <div class="text-left flex-1">
-                  <p class="text-sm font-medium text-gray-900">
-                    {{ status.label }}
-                  </p>
-                  <p class="text-xs text-gray-500">{{ status.description }}</p>
-                </div>
-                <div v-if="statusFilter === status.value" class="flex-shrink-0">
-                  <CheckIcon :class="`w-5 h-5 text-${status.color}-600`" />
-                </div>
-              </button>
-            </div>
-          </div>
-
           <!-- Customer Payment Status -->
           <div>
             <label class="text-xs font-medium text-gray-700 mb-3 block"
@@ -841,7 +912,7 @@
                 <input
                   type="date"
                   v-model="startDate"
-                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-sm rounded-full shadow-sm"
+                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-base rounded-full shadow-sm"
                 />
               </div>
               <div>
@@ -849,36 +920,7 @@
                 <input
                   type="date"
                   v-model="endDate"
-                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-sm rounded-full shadow-sm"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Deadline Filter -->
-          <div class="pt-3 border-t">
-            <label class="text-xs font-medium text-gray-700 mb-2 block"
-              >Deadline Filter</label
-            >
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="text-xs text-gray-600 mb-1 block"
-                  >Filter Date</label
-                >
-                <input
-                  type="date"
-                  v-model="deadlineDate"
-                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-sm rounded-full shadow-sm"
-                />
-              </div>
-              <div>
-                <label class="text-xs text-gray-600 mb-1 block"
-                  >Deadline Days</label
-                >
-                <input
-                  type="number"
-                  v-model="deadlineNumber"
-                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-sm rounded-full shadow-sm"
+                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-base rounded-full shadow-sm"
                 />
               </div>
             </div>
@@ -1108,6 +1150,9 @@ const tableHeaders = [
   { key: "hotel_name", label: "Product Name", class: "" },
   { key: "payment_status", label: "Payment Status", class: "" },
   { key: "booking_date", label: "Booking Date", class: "" },
+  { key: "sale_amount", label: "Sale Amount", class: "" },
+  { key: "balance_due", label: "Balance Due", class: "" },
+  { key: "comment", label: "Comment", class: "" },
   { key: "margin_score", label: "Margin Score", class: "whitespace-nowrap" },
   { key: "actions", label: "Actions", class: "text-right" },
 ];
@@ -1342,13 +1387,22 @@ const tableActions = ref([
     title: "Comments",
   },
   {
-    name: "add passport",
-    label: "Add Passport",
+    name: "cancel",
+    label: "Cancel",
+    icon: InformationCircleIcon,
+    handler: () => {},
+    class:
+      "px-3 py-2 text-xs text-white bg-red-600 rounded-lg shadow-md transition-all duration-200 hover:bg-red-700 hover:shadow-md active:scale-95",
+    title: "Cancel",
+  },
+  {
+    name: " passport",
+    label: " Passport",
     icon: InformationCircleIcon,
     handler: openNewPassportModal,
     class:
       "px-3 py-2 text-xs text-white bg-green-600 rounded-lg shadow-md transition-all duration-200 hover:bg-green-700 hover:shadow-md active:scale-95",
-    title: "Add Passport",
+    title: " Passport",
   },
 ]);
 const expense_date_selected = ref("");
@@ -1366,7 +1420,7 @@ const getExpenseDate = async (date) => {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const tomorrowDate = tomorrow.toISOString().split("T")[0];
-      startDate.value = today;
+      startDate.value = tomorrowDate;
       endDate.value = tomorrowDate;
       await getListAction();
       break;
@@ -1482,6 +1536,7 @@ const fetchGroupExpenses = async (groupId) => {
     const response = await groupStore.detailAction(groupId);
     if (response?.result) {
       itemLists.value[groupId] = response.result;
+      console.log(response, "this is item response");
     }
   } catch (error) {
     console.error("Error fetching expenses:", error);

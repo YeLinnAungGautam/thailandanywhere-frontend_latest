@@ -1010,12 +1010,15 @@ import { useToast } from "vue-toastification";
 import EmailPart from "./GroupComponent/EmailPart.vue";
 import Pagination from "../components/Pagination.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import { useRoute } from "vue-router";
+import router from "../router";
 
 const toast = useToast();
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
 const groupStore = useGroupStore();
 const { groups, loading } = storeToRefs(groupStore);
+const route = useRoute();
 
 // State
 const showDetail = ref(false);
@@ -1406,6 +1409,13 @@ watch(product_type, () => {
 
 onMounted(() => {
   fetchData();
+
+  if (route.query.product_type && route.query.activeTag && route.query.crm_id) {
+    product_type.value = route.query.product_type;
+    activeTag.value = route.query.activeTag;
+    searchKey.value.searchId = route.query.crm_id;
+    searchAction();
+  }
 });
 </script>
 

@@ -501,7 +501,19 @@
                 <!-- Deadline -->
                 <td class="px-2 md:px-4 py-4">
                   <div class="text-sm text-gray-900 whitespace-nowrap">
-                    {{ getDeadlineDate(item.firstest_service_date) }}
+                    <button
+                      @click="goToVConfirm(item)"
+                      class="px-3 py-1.5 shadow-md text-sm rounded-full"
+                      :class="
+                        item.has_booking_confirm_letter
+                          ? 'bg-green-500 text-white'
+                          : 'bg-red-500 text-white'
+                      "
+                    >
+                      {{
+                        item.has_booking_confirm_letter ? "Confirm" : "Not Yet!"
+                      }}
+                    </button>
                   </div>
                 </td>
 
@@ -1164,7 +1176,7 @@
                 <input
                   type="date"
                   v-model="startDate"
-                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-sm rounded-full shadow-sm"
+                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-base rounded-full shadow-sm"
                 />
               </div>
               <div>
@@ -1172,7 +1184,7 @@
                 <input
                   type="date"
                   v-model="endDate"
-                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-sm rounded-full shadow-sm"
+                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-base rounded-full shadow-sm"
                 />
               </div>
             </div>
@@ -1505,9 +1517,11 @@ import { useSidebarStore } from "../stores/sidebar";
 import InvoiceModal from "./GroupComponent/ExpensePart/InvoiceModal.vue";
 import ExpenseModal from "./GroupComponent/ExpensePart/ExpenseModal.vue";
 import ItemCostModal from "./GroupComponent/ExpensePart/ItemCostModal.vue";
+import { useRouter } from "vue-router";
 
 // Stores
 const toast = useToast();
+const router = useRouter();
 const reservationStore = useReservationStore();
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
@@ -1556,6 +1570,17 @@ const openEditItemCost = () => {
   } else {
     toast.error("No booking data available");
   }
+};
+
+const goToVConfirm = (item) => {
+  window.open(
+    "/group-hotel-email?crm_id=" +
+      item.booking_crm_id +
+      "&product_type=" +
+      productType.value +
+      "&activeTag=invoice",
+    "_blank"
+  );
 };
 
 // Add method to close the modal
@@ -1648,7 +1673,7 @@ const tableHeaders = [
   { key: "expense_status", label: "Expense Status", class: "" },
   { key: "booking_date", label: "Booking Date", class: "" },
   // { key: "invoice", label: "Invoice", class: "whitespace-nowrap" },
-  { key: "deadline", label: "Deadline", class: "" },
+  { key: "v_confirm", label: "V.Confirm", class: "" },
   { key: "expense", label: "Expense", class: "whitespace-nowrap" },
   { key: "margin_score", label: "Margin Score", class: "whitespace-nowrap" },
   { key: "actions", label: "Actions", class: "text-right" },
@@ -2268,7 +2293,7 @@ const getExpenseDate = async (date) => {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       let tomorrowDate = tomorrow.toISOString().split("T")[0];
-      startDate.value = today;
+      startDate.value = tomorrowDate;
       endDate.value = tomorrowDate;
       await getListAction();
       break;

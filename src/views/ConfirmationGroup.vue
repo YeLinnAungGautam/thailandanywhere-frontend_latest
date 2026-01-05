@@ -8,7 +8,7 @@
       <div
         class="text-2xl md:text-3xl flex justify-start items-center font-medium text-[#FF613c]"
       >
-        Expense
+        Confirmation
         <div
           class="flex justify-start items-center cursor-pointer ml-3 text-lg divide-x-2 border border-gray-200 rounded-full shadow-lg overflow-hidden"
         >
@@ -42,10 +42,10 @@
     <div class="w-full rounded-lg shadow-sm">
       <!-- Scorecard Section -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-        <!-- Invoice Next 7 Days Card -->
+        <!-- Invoice Card -->
         <div
           @click="activeSelectAction('invoice')"
-          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
           :class="
             activeSelect == 'invoice'
               ? 'border-4 border-yellow-600'
@@ -56,7 +56,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-white text-sm font-medium opacity-90">
-                  Invoice Next 7 Days
+                  Data Complete Next 7 Days
                 </p>
                 <div class="flex items-baseline gap-2 mt-2">
                   <span class="text-3xl font-bold text-white">
@@ -78,12 +78,10 @@
               <span class="text-gray-600">Finish Rate</span>
               <span class="font-semibold text-gray-900">
                 {{
-                  groups?.meta?.total_next_7_days > 0
-                    ? (
-                        groups?.meta?.total_next_7_days -
-                        groups?.meta?.without_confirmation_letter
-                      ).toFixed(0)
-                    : 0
+                  calculateRemaining(
+                    groups?.meta?.total_next_7_days,
+                    groups?.meta?.without_confirmation_letter
+                  )
                 }}
                 ခုကျန်
               </span>
@@ -92,147 +90,20 @@
               <div
                 class="bg-orange-500 h-2 rounded-full transition-all duration-500"
                 :style="{
-                  width:
-                    groups?.meta?.total_next_7_days > 0
-                      ? (groups?.meta?.without_confirmation_letter /
-                          groups?.meta?.total_next_7_days) *
-                          100 +
-                        '%'
-                      : '0%',
-                }"
-              ></div>
-            </div>
-          </div>
-        </div>
-        <!-- Expense Next 3 Days Card -->
-        <div
-          @click="activeSelectAction('expense')"
-          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
-          :class="
-            activeSelect == 'expense'
-              ? 'border-4 border-red-600'
-              : 'border border-gray-100'
-          "
-        >
-          <div class="bg-gradient-to-r from-red-500 to-red-600 p-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-white text-sm font-medium opacity-90">
-                  Expense Next 2 Days
-                </p>
-                <div class="flex items-baseline gap-2 mt-2">
-                  <span class="text-3xl font-bold text-white">
-                    {{ groups?.meta?.expense_not_fully_paid || 0 }}
-                  </span>
-                  <span class="text-white text-lg opacity-75">/</span>
-                  <span class="text-xl text-white opacity-90">
-                    {{ groups?.meta?.total_next_2_days || 0 }}
-                  </span>
-                </div>
-              </div>
-              <div class="bg-white/20 p-3 rounded-full">
-                <WalletIcon class="w-8 h-8 text-white" />
-              </div>
-            </div>
-          </div>
-          <div class="p-4 bg-gray-50">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-600">Finish Rate</span>
-              <span class="font-semibold text-gray-900">
-                {{
-                  groups?.meta?.total_next_2_days > 0
-                    ? (
-                        groups?.meta?.total_next_2_days -
-                        groups?.meta?.expense_not_fully_paid
-                      ).toFixed(0)
-                    : 0
-                }}
-                ခုကျန်
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div
-                class="bg-red-500 h-2 rounded-full transition-all duration-500"
-                :style="{
-                  width:
-                    groups?.meta?.total_next_2_days > 0
-                      ? (groups?.meta?.expense_not_fully_paid /
-                          groups?.meta?.total_next_2_days) *
-                          100 +
-                        '%'
-                      : '0%',
+                  width: calculatePercentage(
+                    groups?.meta?.without_confirmation_letter,
+                    groups?.meta?.total_next_7_days
+                  ),
                 }"
               ></div>
             </div>
           </div>
         </div>
 
-        <!-- Expense Mail Sent Next 7 Days Card -->
-        <div
-          @click="activeSelectAction('mail')"
-          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
-          :class="
-            activeSelect == 'mail'
-              ? 'border-4 border-orange-600'
-              : 'border border-gray-100'
-          "
-        >
-          <div class="bg-gradient-to-r from-orange-500 to-orange-600 p-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-white text-sm font-medium opacity-90">
-                  Mail Sent 3 Days
-                </p>
-                <div class="flex items-baseline gap-2 mt-2">
-                  <span class="text-3xl font-bold text-white">
-                    {{ groups?.meta?.expense_mail_sent || 0 }}
-                  </span>
-                  <span class="text-white text-lg opacity-75">/</span>
-                  <span class="text-xl text-white opacity-90">
-                    {{ groups?.meta?.total_next_3_days || 0 }}
-                  </span>
-                </div>
-              </div>
-              <div class="bg-white/20 p-3 rounded-full">
-                <WalletIcon class="w-8 h-8 text-white" />
-              </div>
-            </div>
-          </div>
-          <div class="p-4 bg-gray-50">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-600">Finish Rate</span>
-              <span class="font-semibold text-gray-900">
-                {{
-                  groups?.meta?.total_next_3_days > 0
-                    ? (
-                        groups?.meta?.total_next_3_days -
-                        groups?.meta?.expense_mail_sent
-                      ).toFixed(0)
-                    : 0
-                }}
-                ခုကျန်
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div
-                class="bg-orange-500 h-2 rounded-full transition-all duration-500"
-                :style="{
-                  width:
-                    groups?.meta?.total_next_3_days > 0
-                      ? (groups?.meta?.expense_mail_sent /
-                          groups?.meta?.total_next_3_days) *
-                          100 +
-                        '%'
-                      : '0%',
-                }"
-              ></div>
-            </div>
-          </div>
-        </div>
-        <!-- Customer Next 2 Days Card -->
+        <!-- Customer Card -->
         <div
           @click="activeSelectAction('customer')"
-          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
           :class="
             activeSelect == 'customer'
               ? 'border-4 border-blue-600'
@@ -265,12 +136,10 @@
               <span class="text-gray-600">Finish Rate</span>
               <span class="font-semibold text-gray-900">
                 {{
-                  groups?.meta?.total_next_2_days > 0
-                    ? (
-                        groups?.meta?.total_next_2_days -
-                        groups?.meta?.customer_fully_paid
-                      ).toFixed(0)
-                    : 0
+                  calculateRemaining(
+                    groups?.meta?.total_next_2_days,
+                    groups?.meta?.customer_fully_paid
+                  )
                 }}
                 ခုကျန်
               </span>
@@ -279,13 +148,126 @@
               <div
                 class="bg-blue-500 h-2 rounded-full transition-all duration-500"
                 :style="{
-                  width:
-                    groups?.meta?.total_next_2_days > 0
-                      ? (groups?.meta?.customer_fully_paid /
-                          groups?.meta?.total_next_2_days) *
-                          100 +
-                        '%'
-                      : '0%',
+                  width: calculatePercentage(
+                    groups?.meta?.customer_fully_paid,
+                    groups?.meta?.total_next_2_days
+                  ),
+                }"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mail Sent Card -->
+        <div
+          @click="activeSelectAction('mail')"
+          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+          :class="
+            activeSelect == 'mail'
+              ? 'border-4 border-orange-600'
+              : 'border border-gray-100'
+          "
+        >
+          <div class="bg-gradient-to-r from-orange-500 to-orange-600 p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white text-sm font-medium opacity-90">
+                  Mail Sent 3 Days
+                </p>
+                <div class="flex items-baseline gap-2 mt-2">
+                  <span class="text-3xl font-bold text-white">
+                    {{ groups?.meta?.expense_mail_sent || 0 }}
+                  </span>
+                  <span class="text-white text-lg opacity-75">/</span>
+                  <span class="text-xl text-white opacity-90">
+                    {{ groups?.meta?.total_next_3_days || 0 }}
+                  </span>
+                </div>
+              </div>
+              <div class="bg-white/20 p-3 rounded-full">
+                <WalletIcon class="w-8 h-8 text-white" />
+              </div>
+            </div>
+          </div>
+          <div class="p-4 bg-gray-50">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600">Finish Rate</span>
+              <span class="font-semibold text-gray-900">
+                {{
+                  calculateRemaining(
+                    groups?.meta?.total_next_3_days,
+                    groups?.meta?.expense_mail_sent
+                  )
+                }}
+                ခုကျန်
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+              <div
+                class="bg-orange-500 h-2 rounded-full transition-all duration-500"
+                :style="{
+                  width: calculatePercentage(
+                    groups?.meta?.expense_mail_sent,
+                    groups?.meta?.total_next_3_days
+                  ),
+                }"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expense Card -->
+        <div
+          @click="activeSelectAction('expense')"
+          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+          :class="
+            activeSelect == 'expense'
+              ? 'border-4 border-red-600'
+              : 'border border-gray-100'
+          "
+        >
+          <div class="bg-gradient-to-r from-red-500 to-red-600 p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white text-sm font-medium opacity-90">
+                  Expense Next 3 Days
+                </p>
+                <div class="flex items-baseline gap-2 mt-2">
+                  <span class="text-3xl font-bold text-white">
+                    {{ groups?.meta?.expense_not_fully_paid || 0 }}
+                  </span>
+                  <span class="text-white text-lg opacity-75">/</span>
+                  <span class="text-xl text-white opacity-90">
+                    {{ groups?.meta?.total_next_3_days || 0 }}
+                  </span>
+                </div>
+              </div>
+              <div class="bg-white/20 p-3 rounded-full">
+                <WalletIcon class="w-8 h-8 text-white" />
+              </div>
+            </div>
+          </div>
+          <div class="p-4 bg-gray-50">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600">Finish Rate</span>
+              <span class="font-semibold text-gray-900">
+                {{
+                  calculateRemaining(
+                    groups?.meta?.total_next_3_days,
+                    groups?.meta?.expense_not_fully_paid
+                  )
+                }}
+                ခုကျန်
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+              <div
+                class="bg-red-500 h-2 rounded-full transition-all duration-500"
+                :style="{
+                  width: calculatePercentage(
+                    groups?.meta?.expense_not_fully_paid,
+                    groups?.meta?.total_next_3_days
+                  ),
                 }"
               ></div>
             </div>
@@ -321,9 +303,7 @@
               <input
                 type="search"
                 v-model="hotelName"
-                :placeholder="
-                  productType == 'hotel' ? 'Search Hotel' : 'Search Attraction'
-                "
+                placeholder="Search Hotel"
                 class="w-full px-4 py-2.5 rounded-full shadow-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#FF613c] text-xs"
                 @keyup.enter="searchAction"
               />
@@ -341,23 +321,13 @@
             <!-- Day filter -->
             <button
               @click="getExpenseDate('today')"
-              :class="
-                expense_date_selected == 'today'
-                  ? 'text-white bg-[#e55139]'
-                  : 'text-[#FF613c] bg-white'
-              "
-              class="flex items-center gap-2 px-4 py-2.5 text-xs border border-gray-200 hover:text-white rounded-full cursor-pointer hover:bg-[#e55139] transition-colors shadow-lg"
+              class="flex items-center gap-2 px-4 py-2.5 text-xs text-[#FF613c] bg-white border border-gray-200 hover:text-white rounded-full cursor-pointer hover:bg-[#e55139] transition-colors shadow-lg"
             >
               Today
             </button>
             <button
               @click="getExpenseDate('tomorrow')"
-              :class="
-                expense_date_selected == 'tomorrow'
-                  ? 'text-white bg-[#e55139]'
-                  : 'text-[#FF613c] bg-white'
-              "
-              class="flex items-center gap-2 px-4 py-2.5 text-xs border border-gray-200 hover:text-white rounded-full cursor-pointer hover:bg-[#e55139] transition-colors shadow-lg"
+              class="flex items-center gap-2 px-4 py-2.5 text-xs text-[#FF613c] bg-white border border-gray-200 hover:text-white rounded-full cursor-pointer hover:bg-[#e55139] transition-colors shadow-lg"
             >
               Tomorrow
             </button>
@@ -417,25 +387,20 @@
               >
                 <td class="px-2 md:px-4 py-4">
                   <XCircleIcon
-                    v-if="
-                      !expandedRows.includes(item.id) &&
-                      !item.has_booking_confirm_letter
-                    "
+                    v-if="!expandedRows.includes(item.id) && !item.has_passport"
                     class="w-5 h-5 text-red-500"
                   />
                   <ArrowDownCircleIcon
-                    v-if="
-                      expandedRows.includes(item.id) &&
-                      !item.has_booking_confirm_letter
-                    "
+                    v-if="expandedRows.includes(item.id) && !item.has_passport"
                     class="w-5 h-5 text-red-500"
                   />
                   <CheckBadgeIcon
-                    v-if="item.has_booking_confirm_letter"
+                    v-if="item.has_passport"
                     :class="expandedRows.includes(item.id) ? 'rotate-180' : ''"
                     class="w-5 h-5 text-green-500"
                   />
                 </td>
+
                 <!-- CRM ID -->
                 <td class="px-2 md:px-4 py-4 relative">
                   <button
@@ -469,15 +434,15 @@
                 <td class="px-2 md:px-4 py-4">
                   <p
                     class="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
-                    :class="getExpenseStatusClass(item.expense_status)"
+                    :class="getExpenseStatusClass(item.customer_payment_status)"
                   >
-                    {{ formatExpenseStatus(item.expense_status) }}
+                    {{ formatExpenseStatus(item.customer_payment_status) }}
                   </p>
                   <span
                     class="px-1 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap"
-                    :class="getPaymentStatusClass(item.customer_payment_status)"
+                    :class="getPaymentStatusClass(item.expense_status)"
                   >
-                    C: {{ formatPaymentStatus(item.customer_payment_status) }}
+                    E: {{ formatPaymentStatus(item.expense_status) }}
                   </span>
                 </td>
 
@@ -496,33 +461,14 @@
                   </div>
                 </td>
 
-                <!-- Invoice -->
-
-                <!-- Deadline -->
-                <td class="px-2 md:px-4 py-4">
-                  <div class="text-sm text-gray-900 whitespace-nowrap">
-                    {{ getDeadlineDate(item.firstest_service_date) }}
-                  </div>
-                </td>
-
-                <!-- Sale Amount -->
-                <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
-                  <p class="text-red-600">
-                    {{ formatCurrency(item.total_cost_price) }}
-                  </p>
-                  <span class="text-xs text-gray-600">
-                    {{ formatCurrency(item.total_amount) }}
-                  </span>
-                </td>
-
                 <!-- Margin Score -->
                 <td class="px-2 md:px-4 py-4 text-sm font-medium text-gray-900">
                   <p>
                     {{ marginCalc(item.total_amount, item.total_cost_price) }}
                   </p>
-                  <span class="text-xs text-gray-500">
-                    D: {{ totalDiscount(item.items) }}
-                  </span>
+                  <span class="text-xs text-gray-500"
+                    >D: {{ totalDiscount(item.items) }}</span
+                  >
                 </td>
 
                 <!-- Actions -->
@@ -533,18 +479,16 @@
                     @click.stop="copyReservation(item)"
                     class="flex bg-[#FF613c] text-white items-center gap-2 px-1.5 py-1.5 transition-colors rounded-lg"
                   >
-                    <component :is="DocumentDuplicateIcon" class="w-5 h-5" />
+                    <DocumentDuplicateIcon class="w-5 h-5" />
                   </button>
                   <div class="relative group">
-                    <!-- Main action button (always visible) -->
+                    <!-- Main action button -->
                     <button
                       :class="tableActions[0]?.class"
                       :title="tableActions[0]?.title"
                       class="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all"
                     >
                       <span v-if="tableActions[0]?.label">Action</span>
-
-                      <!-- Dropdown indicator (shows if more than 1 action) -->
                       <svg
                         v-if="tableActions.length > 1"
                         class="w-4 h-4 transition-transform group-hover:rotate-180"
@@ -561,13 +505,13 @@
                       </svg>
                     </button>
 
-                    <!-- Dropdown menu (visible on hover) -->
+                    <!-- Dropdown menu -->
                     <div
                       v-if="tableActions.length > 1"
                       class="absolute right-0 top-full p-2 w-36 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 space-y-2"
                     >
                       <button
-                        v-for="(action, index) in tableActions"
+                        v-for="action in tableActions"
                         :key="action.name"
                         @click.stop="action.handler(item)"
                         :class="action.class"
@@ -584,17 +528,17 @@
                 </td>
               </tr>
 
-              <!-- Expandable Room Details Row -->
+              <!-- Expandable Details Row -->
               <tr v-show="expandedRows.includes(item.id)">
                 <td colspan="14" class="px-2 md:px-4 py-0">
                   <div class="bg-gray-50 rounded-lg p-4 mb-2">
                     <!-- Tab Switch -->
                     <div class="flex items-center gap-2 mb-4">
                       <button
-                        @click="activeTab[item.id] = 'invoices'"
+                        @click="activeTab[item.id] = 'passport'"
                         :class="[
                           'flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all',
-                          activeTab[item.id] === 'invoices' ||
+                          activeTab[item.id] === 'passport' ||
                           !activeTab[item.id]
                             ? 'bg-white text-[#FF613c] shadow-sm border border-[#FF613c]'
                             : 'bg-transparent text-gray-600 hover:bg-white/50',
@@ -613,36 +557,11 @@
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                           />
                         </svg>
-                        Invoice List ({{
-                          invoiceLists[item.id] && invoiceLists[item.id].length
+                        Confirmation Lists ({{
+                          passportLists[item.id]?.length || 0
                         }})
                       </button>
-                      <button
-                        @click="activeTab[item.id] = 'expense'"
-                        :class="[
-                          'flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all',
-                          activeTab[item.id] === 'expense'
-                            ? 'bg-white text-[#FF613c] shadow-sm border border-[#FF613c]'
-                            : 'bg-transparent text-gray-600 hover:bg-white/50',
-                        ]"
-                      >
-                        <svg
-                          class="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                          />
-                        </svg>
-                        Expense List ({{
-                          expenseLists[item.id] && expenseLists[item.id].length
-                        }})
-                      </button>
+
                       <button
                         @click="activeTab[item.id] = 'rooms'"
                         :class="[
@@ -666,7 +585,7 @@
                           />
                         </svg>
                         Room Details ({{
-                          itemLists[item.id] && itemLists[item.id].items.length
+                          itemLists[item.id]?.items?.length || 0
                         }})
                       </button>
                     </div>
@@ -677,14 +596,13 @@
                         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
                       >
                         <div
-                          v-for="(roomItem, index) in (itemLists[item.id] &&
-                            itemLists[item.id].items) ||
-                          []"
+                          v-for="(roomItem, index) in itemLists[item.id]
+                            ?.items || []"
                           :key="index"
                           class="bg-white relative rounded-lg p-3 border border-gray-200 hover:border-[#FF613c] transition-colors"
                         >
                           <button
-                            @click.stop="goToRoomDetail(roomItem?.room.id)"
+                            @click.stop="goToRoomDetail(roomItem?.room?.id)"
                             class="absolute right-2 top-2"
                           >
                             <PencilSquareIcon
@@ -733,8 +651,8 @@
                                 class="flex items-center mt-1 gap-1 text-xs text-gray-500"
                               >
                                 <DocumentCurrencyDollarIcon class="w-4 h-4" />
-                                <span>
-                                  Cost : {{ roomItem.cost_price }} (total :
+                                <span
+                                  >Cost : {{ roomItem.cost_price }} (total :
                                   {{ roomItem.total_cost_price }})</span
                                 >
                               </div>
@@ -744,33 +662,32 @@
                       </div>
                     </div>
 
-                    <!-- Invoice List Section -->
+                    <!-- Passport List Section -->
                     <div
                       v-show="
-                        activeTab[item.id] === 'invoices' || !activeTab[item.id]
+                        activeTab[item.id] === 'passport' || !activeTab[item.id]
                       "
                     >
                       <div
                         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
                       >
-                        <!-- Add New Invoice Card -->
+                        <!-- Add New Passport Card -->
                         <div
-                          @click="openNewInvoiceModal(item)"
-                          class="bg-white rounded-lg min-h-[120px] cursor-pointer text-[#FF613c] text-sm flex justify-center items-center border border-[#FF613c] p-4 border-dashed hover:bg-[#FF613c]/5 transition-colors group"
+                          @click="openNewPassportModal(item)"
+                          class="bg-white rounded-lg min-h-[100px] cursor-pointer text-[#FF613c] text-sm flex justify-center items-center border border-[#FF613c] p-4 border-dashed hover:bg-[#FF613c]/5 transition-colors group"
                         >
                           <PlusCircleIcon class="w-5 h-5 mr-2" />
-                          Add New Invoice
+                          Add New Confirmation
                         </div>
 
-                        <!-- Invoice Cards -->
+                        <!-- Passport Cards -->
                         <div
-                          v-for="invoice in invoiceLists[item.id] || []"
-                          :key="invoice.id"
-                          @click="openEditInvoiceModal(invoice, item)"
+                          v-for="passport in passportLists[item.id] || []"
+                          :key="passport.id"
+                          @click="openEditPassportModal(passport, item)"
                           class="bg-white rounded-lg p-4 border border-gray-200 hover:border-[#FF613c] transition-colors group cursor-pointer"
                         >
                           <div class="flex items-start gap-3">
-                            <!-- Invoice Icon/Image -->
                             <div
                               class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center flex-shrink-0"
                             >
@@ -780,157 +697,27 @@
                             </div>
 
                             <div class="flex-1 min-w-0">
-                              <!-- Invoice Number & Status -->
                               <div
                                 class="flex items-start justify-between gap-2 mb-2"
                               >
                                 <h4
                                   class="text-sm font-semibold text-gray-900 truncate"
                                 >
-                                  {{
-                                    invoice.meta?.invoice_number || "No Number"
-                                  }}
+                                  {{ passport.meta?.name || "No Name" }}
                                 </h4>
-                                <span
-                                  class="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full whitespace-nowrap"
-                                >
-                                  {{
-                                    invoice.meta?.product_type?.includes(
-                                      "Hotel"
-                                    )
-                                      ? "Hotel"
-                                      : "Ticket"
-                                  }}
-                                </span>
                               </div>
 
-                              <!-- Invoice Details -->
                               <div class="space-y-1">
                                 <div
                                   class="flex items-center justify-between text-xs"
                                 >
-                                  <span class="text-gray-500">Amount:</span>
+                                  <span class="text-gray-500">Pass NO.:</span>
                                   <span class="font-medium text-gray-900">
-                                    {{
-                                      invoice.meta?.total_after_tax
-                                        ? formatCurrency(
-                                            invoice.meta.total_after_tax
-                                          )
-                                        : "-"
-                                    }}
-                                  </span>
-                                </div>
-                                <div
-                                  class="flex items-center justify-between text-xs"
-                                >
-                                  <span class="text-gray-500">Product:</span>
-                                  <span class="text-gray-700 truncate ml-2">{{
-                                    invoice.meta?.product_name || "-"
-                                  }}</span>
-                                </div>
-                                <div
-                                  class="flex items-center justify-between text-xs"
-                                >
-                                  <span class="text-gray-500">Company:</span>
-                                  <span class="text-gray-700 truncate ml-2">{{
-                                    invoice.meta?.company_legal_name || "-"
-                                  }}</span>
-                                </div>
-                              </div>
-
-                              <!-- View/Edit Indicator -->
-                              <div
-                                class="mt-3 text-xs text-[#FF613c] font-medium flex items-center"
-                              >
-                                <PencilSquareIcon class="w-4 h-4 mr-1" />
-                                Click to edit
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <!-- Expense List Section -->
-                    <div v-show="activeTab[item.id] === 'expense'">
-                      <div
-                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
-                      >
-                        <!-- Add New Expense Card -->
-                        <div
-                          @click="openNewExpenseModal(item)"
-                          class="bg-white rounded-lg min-h-[120px] cursor-pointer text-[#FF613c] text-sm flex justify-center items-center border border-[#FF613c] p-4 border-dashed hover:bg-[#FF613c]/5 transition-colors group"
-                        >
-                          <PlusCircleIcon class="w-5 h-5 mr-2" />
-                          Add New Expense
-                        </div>
-
-                        <!-- Expense Cards -->
-                        <div
-                          v-for="expense in expenseLists[item.id] || []"
-                          :key="expense.id"
-                          @click="openEditExpenseModal(expense, item)"
-                          class="bg-white rounded-lg p-4 border border-gray-200 hover:border-[#FF613c] transition-colors group cursor-pointer"
-                        >
-                          <div class="flex items-start gap-3">
-                            <!-- Expense Icon/Image -->
-                            <div
-                              class="w-12 h-12 rounded-lg bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center flex-shrink-0"
-                            >
-                              <WalletIcon class="w-6 h-6 text-green-600" />
-                            </div>
-
-                            <div class="flex-1 min-w-0">
-                              <!-- Expense Amount & Date -->
-                              <div
-                                class="flex items-start justify-between gap-2 mb-2"
-                              >
-                                <h4 class="text-sm font-semibold text-gray-900">
-                                  {{ formatCurrency(expense.amount) }}
-                                </h4>
-                                <span
-                                  class="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full whitespace-nowrap"
-                                >
-                                  {{ expense.currency }}
-                                </span>
-                              </div>
-
-                              <!-- Expense Details -->
-                              <div class="space-y-1">
-                                <div
-                                  class="flex items-center justify-between text-xs"
-                                >
-                                  <span class="text-gray-500">Date:</span>
-                                  <span class="font-medium text-gray-900">
-                                    {{ expense.date }}
-                                  </span>
-                                </div>
-                                <div
-                                  class="flex items-center justify-between text-xs"
-                                >
-                                  <span class="text-gray-500">Sender:</span>
-                                  <span class="text-gray-700 truncate ml-2">
-                                    {{ expense.sender || "-" }}
-                                  </span>
-                                </div>
-                                <div
-                                  class="flex items-center justify-between text-xs"
-                                >
-                                  <span class="text-gray-500">Receiver:</span>
-                                  <span class="text-gray-700 truncate ml-2">
-                                    {{ expense.reciever || "-" }}
-                                  </span>
-                                </div>
-                                <div
-                                  class="flex items-center justify-between text-xs"
-                                >
-                                  <span class="text-gray-500">Bank:</span>
-                                  <span class="text-gray-700">
-                                    {{ expense.interact_bank || "-" }}
+                                    {{ passport.meta?.passport_number }}
                                   </span>
                                 </div>
                               </div>
 
-                              <!-- View/Edit Indicator -->
                               <div
                                 class="mt-3 text-xs text-[#FF613c] font-medium flex items-center"
                               >
@@ -1000,7 +787,7 @@
 
         <!-- Empty State -->
         <div
-          v-if="(!loading && !groups?.data) || groups?.data?.length === 0"
+          v-if="!loading && (!groups?.data || groups.data.length === 0)"
           class="flex flex-col items-center justify-center py-12"
         >
           <BuildingOfficeIcon class="w-12 h-12 text-gray-300 mb-2" />
@@ -1039,11 +826,11 @@
         </DialogTitle>
 
         <div class="space-y-4">
-          <!-- invoice status -->
+          <!-- Invoice Status -->
           <div>
-            <label class="text-xs font-medium text-gray-700 mb-3 block">
-              Invoice Status
-            </label>
+            <label class="text-xs font-medium text-gray-700 mb-3 block"
+              >Invoice Status</label
+            >
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
               <button
                 v-for="status in invoiceOptions"
@@ -1078,11 +865,11 @@
             </div>
           </div>
 
-          <!-- expense filter -->
+          <!-- Expense Filter -->
           <div>
-            <label class="text-xs font-medium text-gray-700 mb-3 block">
-              Expense Status
-            </label>
+            <label class="text-xs font-medium text-gray-700 mb-3 block"
+              >Expense Status</label
+            >
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
               <button
                 v-for="status in statusOptions"
@@ -1114,10 +901,11 @@
             </div>
           </div>
 
+          <!-- Customer Payment Status -->
           <div>
-            <label class="text-xs font-medium text-gray-700 mb-3 block">
-              Customer Payment Status
-            </label>
+            <label class="text-xs font-medium text-gray-700 mb-3 block"
+              >Customer Payment Status</label
+            >
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
               <button
                 v-for="status in statusOptions"
@@ -1151,11 +939,12 @@
               </button>
             </div>
           </div>
+
           <!-- Date Range Filter -->
           <div>
-            <label class="text-xs font-medium text-gray-700 mb-2 block">
-              Service Date Range
-            </label>
+            <label class="text-xs font-medium text-gray-700 mb-2 block"
+              >Service Date Range</label
+            >
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="text-xs text-gray-600 mb-1 block"
@@ -1180,9 +969,9 @@
 
           <!-- Deadline Filter -->
           <div class="pt-3 border-t">
-            <label class="text-xs font-medium text-gray-700 mb-2 block">
-              Deadline Filter
-            </label>
+            <label class="text-xs font-medium text-gray-700 mb-2 block"
+              >Deadline Filter</label
+            >
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="text-xs text-gray-600 mb-1 block"
@@ -1271,141 +1060,6 @@
       </div>
     </Teleport>
 
-    <!-- Pay Drawer Modal -->
-    <Modal :isOpen="payDrawerOpen" @closeModal="closePayDrawer">
-      <DialogPanel
-        class="w-full max-w-5xl transform rounded-xl bg-white p-6 text-left align-middle shadow-xl transition-all max-h-[90vh] overflow-y-auto"
-      >
-        <DialogTitle
-          as="div"
-          class="text-lg font-semibold text-gray-900 mb-4 flex justify-between items-center gap-2"
-        >
-          <p class="flex justify-start items-center gap-x-2">
-            <AdjustmentsHorizontalIcon class="w-6 h-6 text-[#FF613c]" />
-            Change Expense Status
-          </p>
-          <p
-            class="text-sm font-normal px-2 py-1 rounded-full"
-            :class="getExpenseStatusClass(detailData?.expense_status)"
-          >
-            {{ detailData?.expense_status }}
-          </p>
-        </DialogTitle>
-
-        <div class="space-y-6" v-if="!loadingDetail">
-          <!-- Status Selection -->
-          <div class="border-t pt-4">
-            <h4 class="text-sm font-semibold text-gray-900 mb-3">
-              Select New Status *
-            </h4>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <button
-                v-for="status in statusOptions"
-                :key="status.value"
-                @click="selectedStatus = status.value"
-                :class="[
-                  'flex items-center gap-3 px-4 py-3 border-2 rounded-lg transition-all',
-                  selectedStatus === status.value
-                    ? `border-${status.color}-500 bg-${status.color}-50 shadow-md`
-                    : `border-${status.color}-200 hover:bg-${status.color}-50`,
-                ]"
-              >
-                <div :class="`p-2 bg-${status.color}-100 rounded-full`">
-                  <component
-                    :is="status.icon"
-                    :class="`w-5 h-5 text-${status.color}-600`"
-                  />
-                </div>
-                <div class="text-left flex-1">
-                  <p class="text-sm font-medium text-gray-900">
-                    {{ status.label }}
-                  </p>
-                  <p class="text-xs text-gray-500">{{ status.description }}</p>
-                </div>
-                <div
-                  v-if="selectedStatus === status.value"
-                  class="flex-shrink-0"
-                >
-                  <CheckIcon :class="`w-5 h-5 text-${status.color}-600`" />
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div
-            class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200"
-          >
-            <button
-              @click="closePayDrawer"
-              class="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              @click="confirmStatusChange"
-              :disabled="!selectedStatus || loadingIn"
-              class="px-6 py-2.5 text-sm font-medium text-white bg-[#FF613c] rounded-lg hover:bg-[#e55139] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              <svg
-                v-if="loadingIn"
-                class="animate-spin h-4 w-4 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                ></circle>
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              {{ loadingIn ? "Processing..." : "Confirm & Update Status" }}
-            </button>
-          </div>
-
-          <!-- Validation Messages -->
-          <div
-            v-if="!selectedStatus"
-            class="bg-yellow-50 border border-yellow-200 rounded-lg p-3"
-          >
-            <p class="text-xs text-yellow-800">
-              <svg
-                class="w-4 h-4 inline mr-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-              Please select a new status to continue
-            </p>
-          </div>
-        </div>
-        <div
-          v-if="loadingDetail"
-          class="h-[50vh] flex justify-center items-center"
-        >
-          <div
-            class="w-8 h-8 border-4 border-gray-200 border-t-[#ff613c] rounded-full animate-spin"
-          ></div>
-        </div>
-      </DialogPanel>
-    </Modal>
-
     <!-- Comment Modal -->
     <Modal :isOpen="openCommentModal" @closeModal="closeCommentModal">
       <DialogPanel
@@ -1438,32 +1092,14 @@
       </DialogPanel>
     </Modal>
 
-    <InvoiceModal
+    <!-- Passport Modal -->
+    <PassportModal
       :isOpen="invoiceModalOpen"
-      :invoiceData="selectedInvoice"
+      :passportData="selectedInvoice"
       :groupId="selectedItem?.id"
       :groupData="selectedItem"
-      :openEditItemCost="openEditItemCost"
-      :itemData="itemLists[selectedItem?.id]"
-      @close="closeInvoiceModal"
-      @refresh="refreshInvoices"
-    />
-
-    <ExpenseModal
-      :isOpen="expenseModalOpen"
-      :expenseData="selectedExpense"
-      :groupId="selectedItem?.id"
-      :groupData="selectedItem"
-      @close="closeExpenseModal"
-      @refresh="refreshExpenses"
-    />
-
-    <!-- Edit Item Cost Modal -->
-    <ItemCostModal
-      :isOpen="showEditItemCost"
-      :groupData="itemLists[selectedItem?.id]"
-      :closeAction="closeEditItemCost"
-      :refreshAction="refreshExpenses"
+      @close="closePassportModal"
+      @refresh="refreshPassports"
     />
   </Layout>
 </template>
@@ -1486,10 +1122,8 @@ import {
   ExclamationTriangleIcon,
   ChatBubbleBottomCenterIcon,
   WalletIcon,
-  ChevronDownIcon,
   PencilSquareIcon,
   ArrowDownCircleIcon,
-  CurrencyDollarIcon,
   PlusCircleIcon,
   DocumentCurrencyDollarIcon,
 } from "@heroicons/vue/24/outline";
@@ -1502,9 +1136,7 @@ import Modal from "../components/Modal.vue";
 import { useReservationStore } from "../stores/reservation";
 import { useAuthStore } from "../stores/auth";
 import { useSidebarStore } from "../stores/sidebar";
-import InvoiceModal from "./GroupComponent/ExpensePart/InvoiceModal.vue";
-import ExpenseModal from "./GroupComponent/ExpensePart/ExpenseModal.vue";
-import ItemCostModal from "./GroupComponent/ExpensePart/ItemCostModal.vue";
+import PassportModal from "./GroupComponent/ExpensePart/Passport.vue";
 
 // Stores
 const toast = useToast();
@@ -1512,13 +1144,11 @@ const reservationStore = useReservationStore();
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
 const groupStore = useGroupStore();
-const cashImageStore = useCashImageStore();
 const { groups, loading } = storeToRefs(groupStore);
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
 
 // State
-const loadingIn = ref(false);
 const searchKey = ref("");
 const hotelName = ref("");
 const statusFilter = ref("all");
@@ -1527,9 +1157,7 @@ const deadlineDate = ref("");
 const deadlineNumber = ref(2);
 const startDate = ref("");
 const endDate = ref("");
-const threeDatesAgo = ref("");
 const infoDrawerOpen = ref(false);
-const payDrawerOpen = ref(false);
 const selectedItem = ref(null);
 const detailData = ref(null);
 const paymentStatus = ref("all");
@@ -1537,119 +1165,22 @@ const expandedRows = ref([]);
 const activeTab = ref({});
 const openCommentModal = ref(false);
 const comment = ref("");
-const newSlips = ref([]);
-const selectedStatus = ref(null);
-const loadingDetail = ref(false);
-const originalSlipsData = ref({});
 const invoiceStatus = ref("all");
 const activeSelect = ref("");
+const sentExpenseMail = ref("");
 const productType = ref("hotel");
-
-// Add to refs
-const showEditItemCost = ref(false);
-
-// Add method to open the modal
-const openEditItemCost = () => {
-  if (selectedItem) {
-    showEditItemCost.value = true;
-    invoiceModalOpen.value = false;
-  } else {
-    toast.error("No booking data available");
-  }
-};
-
-// Add method to close the modal
-const closeEditItemCost = () => {
-  showEditItemCost.value = false;
-};
-
-const activeSelectAction = (option) => {
-  // activeSelect.value = option;
-  console.log(activeSelect.value, "this is selected");
-  if (option == "invoice") {
-    clearFirst();
-    if (activeSelect.value != "invoice") {
-      activeSelect.value = "invoice";
-      invoiceStatus.value = "not_receive";
-      let today = new Date();
-      let threeDaysLater = new Date(today);
-      threeDaysLater.setDate(today.getDate() + 7);
-      endDate.value = threeDaysLater.toISOString().split("T")[0];
-      startDate.value = today.toISOString().split("T")[0];
-      searchAction();
-    } else {
-      activeSelect.value = "";
-
-      clearAllFilters();
-    }
-  }
-  if (option == "expense") {
-    clearFirst();
-    if (activeSelect.value != "expense") {
-      activeSelect.value = "expense";
-      statusFilter.value = "not_fully_paid";
-      let today = new Date();
-      let threeDaysLater = new Date(today);
-      threeDaysLater.setDate(today.getDate() + 2);
-      endDate.value = threeDaysLater.toISOString().split("T")[0];
-      startDate.value = today.toISOString().split("T")[0];
-      searchAction();
-    } else {
-      activeSelect.value = "";
-
-      clearAllFilters();
-    }
-  }
-  if (option == "mail") {
-    clearFirst();
-    if (activeSelect.value != "mail") {
-      activeSelect.value = "mail";
-      sentExpenseMail.value = "not_sent";
-      let today = new Date();
-      let threeDaysLater = new Date(today);
-      threeDaysLater.setDate(today.getDate() + 3);
-      endDate.value = threeDaysLater.toISOString().split("T")[0];
-      startDate.value = today.toISOString().split("T")[0];
-      searchAction();
-    } else {
-      activeSelect.value = "";
-
-      clearAllFilters();
-    }
-  }
-  if (option == "customer") {
-    clearFirst();
-    if (activeSelect.value != "customer") {
-      activeSelect.value = "customer";
-      paymentStatus.value = "not_fully_paid";
-      let today = new Date();
-      let threeDaysLater = new Date(today);
-      threeDaysLater.setDate(today.getDate() + 2);
-      endDate.value = threeDaysLater.toISOString().split("T")[0];
-      startDate.value = today.toISOString().split("T")[0];
-      searchAction();
-    } else {
-      activeSelect.value = "";
-
-      clearAllFilters();
-    }
-  }
-};
+const invoiceModalOpen = ref(false);
+const selectedInvoice = ref(null);
+const passportLists = ref({});
+const itemLists = ref({});
 
 // Constants
 const tableHeaders = [
-  { key: "invoice", label: "Invoice", class: "whitespace-nowrap" },
+  { key: "data", label: "Data", class: "whitespace-nowrap" },
   { key: "crm_id", label: "CRM ID", class: "whitespace-nowrap" },
-  {
-    key: "hotel_name",
-    label: "Product Name",
-    class: "",
-  },
-  { key: "expense_status", label: "Expense Status", class: "" },
+  { key: "hotel_name", label: "Product Name", class: "" },
+  { key: "payment_status", label: "Payment Status", class: "" },
   { key: "booking_date", label: "Booking Date", class: "" },
-  // { key: "invoice", label: "Invoice", class: "whitespace-nowrap" },
-  { key: "deadline", label: "Deadline", class: "" },
-  { key: "expense", label: "Expense", class: "whitespace-nowrap" },
   { key: "margin_score", label: "Margin Score", class: "whitespace-nowrap" },
   { key: "actions", label: "Actions", class: "text-right" },
 ];
@@ -1695,29 +1226,15 @@ const invoiceOptions = [
   },
 ];
 
-const currencies = ["THB", "MMK", "USD"];
-
-const bankTypes = [
-  { value: "personal", label: "Personal" },
-  { value: "company", label: "Company" },
-  { value: "cash_at_office", label: "Cash at Office" },
-  { value: "to_money_changer", label: "To Money Changer" },
-  { value: "deposit_management", label: "Deposit Management" },
-  { value: "pay_to_driver", label: "Pay to Driver" },
-];
-
 // Helper Functions
-const formattedDateTimeDB = (dateString) => {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}-${String(date.getDate()).padStart(2, "0")} ${String(
-    date.getHours()
-  ).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(
-    date.getSeconds()
-  ).padStart(2, "0")}`;
+const calculateRemaining = (total, completed) => {
+  if (!total) return 0;
+  return (total - (completed || 0)).toFixed(0);
+};
+
+const calculatePercentage = (value, total) => {
+  if (!total) return "0%";
+  return (value / total) * 100 + "%";
 };
 
 const formatDate = (dateString) => {
@@ -1742,26 +1259,8 @@ const formatDate = (dateString) => {
   } ${date.getFullYear()}`;
 };
 
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "THB",
-  }).format(amount);
-};
-
 const totalDiscount = (items) => {
   return items.reduce((total, item) => total + (item.discount || 0), 0);
-};
-
-const getDeadlineDate = (serviceDateStr) => {
-  const serviceDate = new Date(serviceDateStr);
-  const deadline = new Date(serviceDate);
-  deadline.setDate(deadline.getDate() - 1);
-  return deadline.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
 };
 
 const marginCalc = (sale, cost) => {
@@ -1778,15 +1277,6 @@ const getExpenseStatusClass = (status) => {
   return classes[status] || "bg-gray-100 text-gray-800";
 };
 
-const getExpenseStatusIconClass = (status) => {
-  const classes = {
-    not_paid: "bg-red-600 ",
-    partially_paid: "bg-yellow-600 ",
-    fully_paid: "bg-green-600 ",
-  };
-  return classes[status] || "bg-gray-600 ";
-};
-
 const formatExpenseStatus = (status) => {
   const statuses = {
     not_paid: "Not Paid",
@@ -1798,11 +1288,11 @@ const formatExpenseStatus = (status) => {
 
 const getPaymentStatusClass = (status) => {
   const classes = {
-    fully_paid: " text-green-500",
-    not_paid: " text-red-500",
-    partially_paid: " text-yellow-500",
+    fully_paid: "text-green-500",
+    not_paid: "text-red-500",
+    partially_paid: "text-yellow-500",
   };
-  return classes[status] || " text-gray-500";
+  return classes[status] || "text-gray-500";
 };
 
 const formatPaymentStatus = (status) => {
@@ -1861,12 +1351,8 @@ const toggleRow = async (itemId) => {
     expandedRows.value.splice(index, 1);
   } else {
     expandedRows.value.push(itemId);
-    // Fetch both invoices and expenses when expanding
-    if (!invoiceLists.value[itemId]) {
-      await fetchGroupInvoices(itemId);
-    }
-    if (!expenseLists.value[itemId]) {
-      await fetchGroupExpenses(itemId);
+    if (!passportLists.value[itemId]) {
+      await fetchPassports(itemId);
     }
   }
 };
@@ -1877,8 +1363,6 @@ const searchAction = async () => {
 };
 
 const clearAllFilters = () => {
-  // startDate.value = "";
-  // endDate.value = "";
   deadlineDate.value = "";
   deadlineNumber.value = 2;
   invoiceStatus.value = "all";
@@ -1889,18 +1373,6 @@ const clearAllFilters = () => {
   sentExpenseMail.value = "";
   statusFilter.value = "all";
   searchAction();
-  expense_date_selected.value = "";
-};
-
-const clearFirst = () => {
-  deadlineDate.value = "";
-  deadlineNumber.value = 2;
-  invoiceStatus.value = "all";
-  paymentStatus.value = "all";
-  filterShow.value = false;
-
-  sentExpenseMail.value = "";
-  statusFilter.value = "all";
 };
 
 const applyFilters = () => {
@@ -1933,76 +1405,6 @@ const closeInfoDrawer = () => {
   detailData.value = null;
 };
 
-const openPayDrawer = async (item) => {
-  loadingDetail.value = true;
-  payDrawerOpen.value = true;
-  selectedItem.value = item;
-
-  await getDetailAction(item.id);
-  selectedStatus.value = detailData.value.expense_status;
-
-  originalSlipsData.value = {};
-
-  newSlips.value = detailData.value.expense.map((slip) => {
-    const slipData = {
-      image: slip.image || null,
-      imagePreview: slip.image || null,
-      amount: slip.amount || 0,
-      date: slip.date,
-      sender: slip.sender || "MR. THIHA@KUMAR BHUSAL",
-      reciever:
-        slip.reciever ||
-        detailData.value?.items?.[0]?.product?.account_name ||
-        "",
-      interact_bank: slip.interact_bank || "personal",
-      currency: slip.currency || "THB",
-      id: slip.id,
-    };
-
-    if (slip.id) {
-      originalSlipsData.value[slip.id] = { ...slipData };
-    }
-
-    return slipData;
-  });
-
-  addNewSlip();
-  loadingDetail.value = false;
-};
-
-const resetSlipToOriginal = (slip, index) => {
-  if (!slip.id || !originalSlipsData.value[slip.id]) {
-    toast.error("Cannot reset: No original data found");
-    return;
-  }
-
-  const originalData = originalSlipsData.value[slip.id];
-
-  newSlips.value[index] = {
-    ...originalData,
-    image: originalData.image,
-    imagePreview: originalData.imagePreview,
-    amount: originalData.amount,
-    date: originalData.date,
-    sender: originalData.sender,
-    reciever: originalData.reciever,
-    interact_bank: originalData.interact_bank,
-    currency: originalData.currency,
-    id: originalData.id,
-  };
-
-  toast.success("Slip data reset to original values");
-};
-
-const closePayDrawer = () => {
-  payDrawerOpen.value = false;
-  selectedItem.value = null;
-  detailData.value = null;
-  selectedStatus.value = null;
-  newSlips.value = [];
-  originalSlipsData.value = {};
-};
-
 const openCommentAction = (item) => {
   selectedItem.value = item;
   openCommentModal.value = true;
@@ -2020,7 +1422,7 @@ const copyReservation = async (item) => {
     const response = await groupStore.detailAction(item.id);
     const res = response.result;
 
-    if (!res || !res.items || res.items.length === 0) {
+    if (!res?.items?.length) {
       toast.error("No reservation items found");
       return;
     }
@@ -2051,11 +1453,9 @@ const copyReservation = async (item) => {
       (sum, item) => sum + item.amount * 1,
       0
     );
-    let score = res.total_cost_price
+    const score = res.total_cost_price
       ? ((total_amount - res.total_cost_price) / total_amount).toFixed(2)
       : 0;
-
-    console.log(total_amount, res.total_cost_price, score, "this is copy test");
 
     const earliestServiceDate = res.items.reduce((earliest, item) => {
       if (item.service_date && item.service_date !== "null") {
@@ -2131,291 +1531,41 @@ const copyReservation = async (item) => {
 // TABLE ACTIONS
 const tableActions = ref([
   {
-    name: "pay",
-    label: "Pay",
-    icon: CurrencyDollarIcon,
-    handler: openPayDrawer,
-    class:
-      "px-3 py-2 text-xs text-white bg-green-600 rounded-lg shadow-md transition-all duration-200 hover:bg-green-700 hover:shadow-md active:scale-95",
-    title: "Pay",
-  },
-  // {
-  //   name: "copy",
-  //   icon: DocumentDuplicateIcon,
-  //   handler: copyReservation,
-  //   class:
-  //     "p-1.5 bg-orange-100 text-orange-600 rounded-lg shadow-md transition-all duration-200 hover:bg-orange-200 hover:shadow-md active:scale-95",
-  //   title: "Copy",
-  // },
-  {
-    name: "info",
-    icon: InformationCircleIcon,
-    handler: openInfoDrawer,
-    class:
-      "p-1.5 bg-blue-100 text-blue-600 rounded-lg shadow-md transition-all duration-200 hover:bg-blue-200 hover:shadow-md active:scale-95",
-    title: "View Details",
-  },
-  {
     name: "comment",
     icon: ChatBubbleBottomCenterIcon,
     handler: openCommentAction,
+    label: "Comments",
     class:
-      "p-1.5 bg-orange-100 text-orange-600 rounded-lg shadow-md transition-all duration-200 hover:bg-orange-200 hover:shadow-md active:scale-95",
+      "p-1.5 bg-orange-100 text-xs text-orange-600 rounded-lg shadow-md transition-all duration-200 hover:bg-orange-200 hover:shadow-md active:scale-95",
     title: "Comments",
+  },
+  {
+    name: "info",
+    label: "info",
+    icon: InformationCircleIcon,
+    handler: openInfoDrawer,
+    class:
+      "px-3 py-2 text-xs text-white bg-green-600 rounded-lg shadow-md transition-all duration-200 hover:bg-green-700 hover:shadow-md active:scale-95",
+    title: "Info",
   },
 ]);
 
-// Slip Actions
-const addNewSlip = () => {
-  newSlips.value.unshift({
-    image: null,
-    imagePreview: null,
-    amount: detailData.value?.total_cost_price || 0,
-    date: new Date().toISOString().slice(0, 16),
-    sender: "MR. THIHA@KUMAR BHUSAL",
-    reciever: detailData.value?.items?.[0]?.product?.account_name || "",
-    interact_bank: "personal",
-    currency: "THB",
-    id: null,
-  });
-};
-
-const handleSlipImageChange = (e, index) => {
-  const file = e.target.files[0];
-  if (file) {
-    newSlips.value[index].image = file;
-    newSlips.value[index].imagePreview = URL.createObjectURL(file);
-  }
-};
-
-const viewSlipImage = (slip) => {
-  if (slip) {
-    window.open(slip, "_blank");
-  } else {
-    toast.error("No image available");
-  }
-};
-
-const openSlipFilePicker = (index) => {
-  document.getElementById(`slipImageInput${index}`).click();
-};
-
-const clearSlipImage = (index) => {
-  newSlips.value[index].image = null;
-  newSlips.value[index].imagePreview = null;
-};
-
-const saveNewSlip = async (slip, index) => {
-  if (!slip.image) {
-    toast.error("Please upload a payment slip image");
-    return;
-  }
-  if (!slip.amount || slip.amount <= 0) {
-    toast.error("Please enter a valid amount");
-    return;
-  }
-  if (!slip.date) {
-    toast.error("Please select a date and time");
-    return;
-  }
-
-  try {
-    loadingIn.value = true;
-    const expenseFrmData = new FormData();
-    expenseFrmData.append("relatable_type", "App\\Models\\BookingItemGroup");
-    expenseFrmData.append("relatable_id", selectedItem.value.id);
-    expenseFrmData.append("amount", slip.amount);
-    expenseFrmData.append("sender", slip.sender);
-    expenseFrmData.append("reciever", slip.reciever);
-    expenseFrmData.append("interact_bank", slip.interact_bank);
-    expenseFrmData.append("currency", slip.currency);
-    expenseFrmData.append("date", formattedDateTimeDB(slip.date));
-    expenseFrmData.append("image", slip.image);
-
-    const response = await cashImageStore.addNewAction(expenseFrmData);
-
-    if (response.status === 1) {
-      toast.success("Payment slip saved successfully");
-      await getDetailAction(selectedItem.value.id);
-      newSlips.value[index].id = response.result.id;
-      newSlips.value[index].imagePreview = response.result.image_url;
-    } else {
-      toast.error("Failed to save payment slip");
-    }
-  } catch (error) {
-    console.error("Error saving slip:", error);
-    toast.error("An error occurred while saving the slip");
-  } finally {
-    loadingIn.value = false;
-    addNewSlip();
-  }
-};
-
-const expense_date_selected = ref("");
-
 const getExpenseDate = async (date) => {
-  let today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];
   switch (date) {
     case "today":
-      expense_date_selected.value = "today";
       startDate.value = today;
       endDate.value = today;
       await getListAction();
-
       break;
     case "tomorrow":
-      expense_date_selected.value = "tomorrow";
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      let tomorrowDate = tomorrow.toISOString().split("T")[0];
+      const tomorrowDate = tomorrow.toISOString().split("T")[0];
       startDate.value = today;
       endDate.value = tomorrowDate;
       await getListAction();
       break;
-    default:
-      return "";
-  }
-};
-
-const removeNewSlip = (index) => {
-  const slip = newSlips.value[index];
-  if (!slip.id) {
-    if (newSlips.value.length > 1) {
-      newSlips.value.splice(index, 1);
-      toast.success("Slip removed");
-      addNewSlip();
-    } else {
-      toast.error("At least one slip is required");
-    }
-  } else {
-    toast.error("Use delete button for saved slips");
-  }
-};
-
-const updateExistingSlip = async (slip, index) => {
-  if (!slip.id) {
-    toast.error("Invalid slip ID");
-    return;
-  }
-
-  try {
-    loadingIn.value = true;
-    const expenseFrmData = new FormData();
-    expenseFrmData.append("_method", "PUT");
-    expenseFrmData.append("amount", slip.amount);
-    expenseFrmData.append("sender", slip.sender);
-    expenseFrmData.append("reciever", slip.reciever);
-    expenseFrmData.append("interact_bank", slip.interact_bank);
-    expenseFrmData.append("currency", slip.currency);
-    expenseFrmData.append("date", formattedDateTimeDB(slip.date));
-
-    const response = await cashImageStore.updateAction(expenseFrmData, slip.id);
-
-    if (response.status === 1) {
-      toast.success("Payment slip updated successfully");
-      await getDetailAction(selectedItem.value.id);
-    } else {
-      toast.error("Failed to update payment slip");
-    }
-  } catch (error) {
-    console.error("Error updating slip:", error);
-    toast.error("An error occurred while updating the slip");
-  } finally {
-    loadingIn.value = false;
-  }
-};
-
-const deleteSlip = async (slipId) => {
-  if (!slipId) {
-    toast.error("Invalid slip ID");
-    return;
-  }
-
-  try {
-    loadingIn.value = true;
-    const response = await cashImageStore.deleteAction(slipId);
-
-    if (response.status === 1) {
-      toast.success("Payment slip deleted successfully");
-      await getDetailAction(selectedItem.value.id);
-      const index = newSlips.value.findIndex((slip) => slip.id === slipId);
-      if (index > -1) {
-        newSlips.value.splice(index, 1);
-      }
-    } else {
-      toast.error("Failed to delete payment slip");
-    }
-  } catch (error) {
-    console.error("Error deleting slip:", error);
-    toast.error("An error occurred while deleting the slip");
-  } finally {
-    loadingIn.value = false;
-  }
-};
-
-// Status Change
-const confirmStatusChange = async () => {
-  if (!selectedStatus.value) {
-    toast.error("Please select a status");
-    return;
-  }
-  if (!selectedItem.value?.id) {
-    toast.error("No item selected");
-    return;
-  }
-
-  try {
-    loadingIn.value = true;
-    const detail = await getDetailAction(selectedItem.value.id);
-
-    if (!detail || !detail.items || detail.items.length === 0) {
-      toast.error("No items found to update");
-      return;
-    }
-
-    let successCount = 0;
-    for (const item of detail.items) {
-      try {
-        const frmData = new FormData();
-        frmData.append("_method", "PUT");
-        frmData.append("payment_status", selectedStatus.value);
-
-        const response = await reservationStore.updateAction(frmData, item.id);
-        if (response.status === 1) successCount++;
-      } catch (error) {
-        console.error(`Error updating item ${item.id}:`, error);
-      }
-    }
-
-    if (successCount > 0) {
-      const groupFrmData = new FormData();
-      groupFrmData.append("_method", "PUT");
-      groupFrmData.append("expense_status", selectedStatus.value);
-
-      const groupRes = await groupStore.groupUpdateAction(
-        selectedItem.value.id,
-        groupFrmData
-      );
-
-      if (groupRes.status === 1) {
-        toast.success(
-          `Status updated to ${formatExpenseStatus(
-            selectedStatus.value
-          )} for ${successCount} items`
-        );
-        await getListAction();
-        closePayDrawer();
-      } else {
-        toast.error("Items updated but failed to update group status");
-      }
-    } else {
-      toast.error("Failed to update all items");
-    }
-  } catch (error) {
-    console.error("Error updating status:", error);
-    toast.error("An error occurred while updating status");
-  } finally {
-    loadingIn.value = false;
   }
 };
 
@@ -2444,7 +1594,106 @@ const addCommentAction = async () => {
   }
 };
 
-const sentExpenseMail = ref("");
+const activeSelectAction = (option) => {
+  const filterConfigs = {
+    invoice: { status: "not_receive", days: 7, field: "invoiceStatus" },
+    expense: { status: "not_fully_paid", days: 3, field: "statusFilter" },
+    mail: { status: "not_sent", days: 3, field: "sentExpenseMail" },
+    customer: { status: "not_fully_paid", days: 2, field: "paymentStatus" },
+  };
+
+  const config = filterConfigs[option];
+  if (!config) return;
+
+  if (activeSelect.value !== option) {
+    clearFirst();
+    activeSelect.value = option;
+
+    if (config.field === "invoiceStatus") {
+      invoiceStatus.value = config.status;
+    } else if (config.field === "statusFilter") {
+      statusFilter.value = config.status;
+    } else if (config.field === "sentExpenseMail") {
+      sentExpenseMail.value = config.status;
+    } else if (config.field === "paymentStatus") {
+      paymentStatus.value = config.status;
+    }
+
+    const today = new Date();
+    const futureDate = new Date(today);
+    futureDate.setDate(today.getDate() + config.days);
+
+    endDate.value = futureDate.toISOString().split("T")[0];
+    startDate.value = today.toISOString().split("T")[0];
+    searchAction();
+  } else {
+    activeSelect.value = "";
+    clearAllFilters();
+  }
+};
+
+const clearFirst = () => {
+  deadlineDate.value = "";
+  deadlineNumber.value = 2;
+  invoiceStatus.value = "all";
+  paymentStatus.value = "all";
+  filterShow.value = false;
+  sentExpenseMail.value = "";
+  statusFilter.value = "all";
+};
+
+// Fetch passports
+const fetchPassports = async (groupId) => {
+  try {
+    const response = await groupStore.groupDocumentList(groupId, {
+      document_type: "confirmation_letter",
+    });
+    console.log(response, "this is confirmation");
+
+    if (response?.result) {
+      passportLists.value[groupId] = response.result;
+    }
+    await fetchGroupExpenses(groupId);
+  } catch (error) {
+    console.error("Error fetching passports:", error);
+  }
+};
+
+// Open/Close passport modal
+const openNewPassportModal = (item) => {
+  selectedInvoice.value = null;
+  selectedItem.value = item;
+  invoiceModalOpen.value = true;
+};
+
+const openEditPassportModal = (invoice, item) => {
+  selectedInvoice.value = invoice;
+  selectedItem.value = item;
+  invoiceModalOpen.value = true;
+};
+
+const closePassportModal = () => {
+  invoiceModalOpen.value = false;
+};
+
+const refreshPassports = async () => {
+  if (selectedItem.value?.id) {
+    await fetchPassports(selectedItem.value.id);
+    await getListAction();
+  }
+};
+
+// Fetch expenses
+const fetchGroupExpenses = async (groupId) => {
+  try {
+    const response = await groupStore.detailAction(groupId);
+    if (response?.result) {
+      itemLists.value[groupId] = response.result;
+    }
+  } catch (error) {
+    console.error("Error fetching expenses:", error);
+  }
+};
 
 // Computed
 const watchSystem = computed(() => {
@@ -2455,31 +1704,24 @@ const watchSystem = computed(() => {
   };
 
   if (productType.value) result.product_type = productType.value;
-
   if (hotelName.value) result.product_name = hotelName.value;
-  if (statusFilter.value && statusFilter.value !== "all") {
+  if (statusFilter.value && statusFilter.value !== "all")
     result.expense_item_status = statusFilter.value;
-  }
-  if (paymentStatus.value !== "all") {
+  if (paymentStatus.value !== "all")
     result.payment_status = paymentStatus.value;
-  }
   if (searchKey.value) result.crm_id = searchKey.value;
-  if (startDate.value && endDate.value && searchKey.value == "") {
+  if (startDate.value && endDate.value && !searchKey.value) {
     result.booking_daterange = `${startDate.value},${endDate.value}`;
   }
   if (deadlineDate.value) {
     result.deadline_date = deadlineDate.value;
     result.deadline_days = deadlineNumber.value;
   }
-  if (sentExpenseMail.value && sentExpenseMail.value !== "") {
-    result.sent_expense_mail = sentExpenseMail.value;
-  }
-  if (invoiceStatus.value && invoiceStatus.value !== "all") {
+  if (sentExpenseMail.value) result.sent_expense_mail = sentExpenseMail.value;
+  if (invoiceStatus.value && invoiceStatus.value !== "all")
     result.invoice_status = invoiceStatus.value;
-  }
-  if (!authStore.isReservation && !authStore.isSuperAdmin) {
+  if (!authStore.isReservation && !authStore.isSuperAdmin)
     result.user_id = user.value.id;
-  }
 
   return result;
 });
@@ -2495,103 +1737,7 @@ const setStartAndEndDate = () => {
   endDate.value = end.toISOString().split("T")[0];
 };
 
-// Add these new refs
-const invoiceModalOpen = ref(false);
-const selectedInvoice = ref(null);
-const invoiceLists = ref({});
-
-// Add function to fetch invoices for a specific group
-const fetchGroupInvoices = async (groupId) => {
-  try {
-    const response = await groupStore.groupDocumentList(groupId, {
-      document_type: "booking_confirm_letter",
-    });
-
-    if (response?.result) {
-      invoiceLists.value[groupId] = response.result;
-    }
-  } catch (error) {
-    console.error("Error fetching invoices:", error);
-  }
-};
-
-// Open modal for new invoice
-const openNewInvoiceModal = (item) => {
-  selectedInvoice.value = null;
-  selectedItem.value = item;
-  invoiceModalOpen.value = true;
-};
-
-// Open modal for editing invoice
-const openEditInvoiceModal = (invoice, item) => {
-  selectedInvoice.value = invoice;
-  selectedItem.value = item;
-  invoiceModalOpen.value = true;
-};
-
-// Close modal
-const closeInvoiceModal = () => {
-  invoiceModalOpen.value = false;
-};
-
-// Refresh invoices after CRUD operation
-const refreshInvoices = async () => {
-  if (selectedItem.value?.id) {
-    await fetchGroupInvoices(selectedItem.value.id);
-    await getListAction(); // Refresh main list
-  }
-};
-
-// Add these refs
-const expenseModalOpen = ref(false);
-const selectedExpense = ref(null);
-const expenseLists = ref({});
-const itemLists = ref({});
-
-// Fetch expenses for a specific group
-const fetchGroupExpenses = async (groupId) => {
-  try {
-    const response = await groupStore.detailAction(groupId);
-    if (response?.result?.expense) {
-      expenseLists.value[groupId] = response.result.expense;
-      console.log(response.result, "this is group expense");
-      itemLists.value[groupId] = response.result;
-    }
-  } catch (error) {
-    console.error("Error fetching expenses:", error);
-  }
-};
-
-// Open modal for new expense
-const openNewExpenseModal = (item) => {
-  selectedExpense.value = null;
-  selectedItem.value = item;
-  expenseModalOpen.value = true;
-};
-
-// Open modal for editing expense
-const openEditExpenseModal = (expense, item) => {
-  selectedExpense.value = expense;
-  selectedItem.value = item;
-  expenseModalOpen.value = true;
-};
-
-// Close modal
-const closeExpenseModal = () => {
-  expenseModalOpen.value = false;
-  selectedExpense.value = null;
-  selectedItem.value = null;
-};
-
-// Refresh expenses after CRUD operation
-const refreshExpenses = async () => {
-  if (selectedItem.value?.id) {
-    await fetchGroupExpenses(selectedItem.value.id);
-    await getListAction(); // Refresh main list
-  }
-};
-
-watch(productType, async (newValue) => {
+watch(productType, async () => {
   await getListAction();
 });
 

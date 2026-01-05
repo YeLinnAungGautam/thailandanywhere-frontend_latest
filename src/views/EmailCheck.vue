@@ -5,468 +5,570 @@
       :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
       class="flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
     >
-      <p class="text-3xl font-medium text-[#FF613c]">
+      <div
+        class="text-2xl md:text-3xl flex justify-start items-center font-medium text-[#FF613c]"
+      >
         Mail Management
-        <span class="w-2 h-2 bg-[#FF613c] rounded-full inline-block"></span>
-      </p>
+        <div
+          class="flex justify-start items-center cursor-pointer ml-3 text-lg divide-x-2 border border-gray-200 rounded-full shadow-lg overflow-hidden"
+        >
+          <p
+            class="px-4 py-1"
+            :class="
+              product_type == 'hotel'
+                ? 'text-white bg-[#f63307]'
+                : 'text-gray-400'
+            "
+            @click="product_type = 'hotel'"
+          >
+            Hotel
+          </p>
+          <p
+            class="px-4 py-1"
+            :class="
+              product_type == 'attraction'
+                ? 'bg-[#f63307] text-white'
+                : 'text-gray-400'
+            "
+            @click="product_type = 'attraction'"
+          >
+            Ticket
+          </p>
+        </div>
+      </div>
     </div>
 
-    <!-- Main Container -->
-    <div class="relative">
-      <!-- Table Section -->
+    <!-- Main Content -->
+    <div class="w-full rounded-lg shadow-sm">
+      <!-- Scorecard Section -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <!-- Prove Booking Card -->
+        <div
+          @click="filterByType('prove_booking')"
+          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+          :class="
+            activeTag == 'prove_booking'
+              ? 'border-4 border-yellow-600'
+              : 'border border-gray-100'
+          "
+        >
+          <div class="bg-gradient-to-r from-yellow-600 to-yellow-700 p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white text-sm font-medium opacity-90">
+                  Prove Booking
+                </p>
+                <div class="flex items-baseline gap-2 mt-2">
+                  <span class="text-3xl font-bold text-white">Step 1</span>
+                </div>
+              </div>
+              <div class="bg-white/20 p-3 rounded-full">
+                <div
+                  class="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold bg-white text-yellow-600"
+                >
+                  1
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 bg-gray-50">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600">Booking Requests</span>
+              <span class="font-semibold text-gray-900">Pending Review</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vendor Confirm Card -->
+        <div
+          @click="filterByType('invoice')"
+          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+          :class="
+            activeTag == 'invoice'
+              ? 'border-4 border-blue-600'
+              : 'border border-gray-100'
+          "
+        >
+          <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white text-sm font-medium opacity-90">
+                  Vendor Confirm
+                </p>
+                <div class="flex items-baseline gap-2 mt-2">
+                  <span class="text-3xl font-bold text-white">Step 2</span>
+                </div>
+              </div>
+              <div class="bg-white/20 p-3 rounded-full">
+                <div
+                  class="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold bg-white text-blue-600"
+                >
+                  2
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 bg-gray-50">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600">Invoice Confirmations</span>
+              <span class="font-semibold text-gray-900">Awaiting Response</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expense Card -->
+        <div
+          @click="filterByType('expense')"
+          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+          :class="
+            activeTag == 'expense'
+              ? 'border-4 border-orange-600'
+              : 'border border-gray-100'
+          "
+        >
+          <div class="bg-gradient-to-r from-orange-500 to-orange-600 p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white text-sm font-medium opacity-90">Expense</p>
+                <div class="flex items-baseline gap-2 mt-2">
+                  <span class="text-3xl font-bold text-white">Step 3</span>
+                </div>
+              </div>
+              <div class="bg-white/20 p-3 rounded-full">
+                <div
+                  class="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold bg-white text-orange-600"
+                >
+                  3
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 bg-gray-50">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600">Expense Submissions</span>
+              <span class="font-semibold text-gray-900">Processing</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
       <div
-        class="border shadow-sm rounded-lg pt-4 px-4 transition-all duration-300"
+        class="p-3 md:p-4 border-b border-gray-200 sticky bg-white -top-6 z-20"
       >
-        <!-- Tags Row -->
-        <div class="flex justify-between items-center mb-3">
-          <div
-            class="bg-gradient-to-r from-[#FF613c]/80 via-[#FF613c] to-[#f63307] rounded-full p-1 shadow-md"
-          >
-            <div class="flex justify-start items-center gap-1">
-              <!-- Prove Booking -->
-              <div
-                @click="filterByType('prove_booking')"
-                class="flex-1 px-3 py-2 rounded-full cursor-pointer transition-all duration-300 relative"
-                :class="
-                  activeTag === 'prove_booking'
-                    ? 'bg-white/20'
-                    : 'hover:bg-white/10'
-                "
-              >
-                <div class="flex items-center justify-center gap-2">
-                  <div
-                    class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white text-[#FF613c]"
-                  >
-                    1
-                  </div>
-                  <p class="text-xs font-medium text-white whitespace-nowrap">
-                    Prove Booking
-                  </p>
-                </div>
-                <div
-                  v-if="activeTag === 'prove_booking'"
-                  class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-0.5 bg-white rounded-full"
-                ></div>
-              </div>
-
-              <!-- Arrow 1->2 -->
-              <div class="flex items-center justify-center">
-                <svg
-                  class="w-5 h-5 text-white/60"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </div>
-
-              <!-- Invoice -->
-              <div
-                @click="filterByType('invoice')"
-                class="flex-1 px-3 py-2 rounded-full cursor-pointer transition-all duration-300 relative"
-                :class="
-                  activeTag === 'invoice' ? 'bg-white/20' : 'hover:bg-white/10'
-                "
-              >
-                <div class="flex items-center justify-center gap-2">
-                  <div
-                    class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white text-[#FF613c]"
-                  >
-                    2
-                  </div>
-                  <p class="text-xs font-medium whitespace-nowrap text-white">
-                    Vendor Confirm
-                  </p>
-                </div>
-                <div
-                  v-if="activeTag === 'invoice'"
-                  class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-0.5 bg-white rounded-full"
-                ></div>
-              </div>
-
-              <!-- Arrow 2->3 -->
-              <div class="flex items-center justify-center">
-                <svg
-                  class="w-5 h-5 text-white/60"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </div>
-
-              <!-- Expense -->
-              <div
-                @click="filterByType('expense')"
-                class="flex-1 px-3 py-2 rounded-full cursor-pointer transition-all duration-300 relative"
-                :class="
-                  activeTag === 'expense' ? 'bg-white/20' : 'hover:bg-white/10'
-                "
-              >
-                <div class="flex items-center justify-center gap-2">
-                  <div
-                    class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-white text-[#FF613c]"
-                  >
-                    3
-                  </div>
-                  <p class="text-xs font-medium text-white">Expense</p>
-                </div>
-                <div
-                  v-if="activeTag === 'expense'"
-                  class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-0.5 bg-white rounded-full"
-                ></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Filter and Tags Header -->
-        <div class="space-y-4 pb-4">
-          <!-- Filter Button and Search Row -->
-          <div class="flex justify-between items-center">
-            <div class="flex justify-start items-center gap-x-3 relative">
-              <div
-                @click="filterShow = !filterShow"
-                class="bg-[#FF613c] px-4 rounded-full shadow py-2 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer"
-              >
-                <FunnelIcon class="w-5 h-5 text-white" />
-                <p>Filter</p>
-              </div>
-
-              <!-- Filter Dropdown -->
-              <transition name="slide-down">
-                <div
-                  v-if="filterShow"
-                  class="absolute top-full px-4 left-0 w-[300px] mt-2 transition-all duration-150 bg-white rounded-lg shadow-lg z-50 border border-gray-100 space-y-2 max-h-[50vh] overflow-y-scroll"
-                >
-                  <div
-                    class="flex justify-between items-center pt-4 border-b border-gray-100 pb-1 sticky top-0 bg-white"
-                  >
-                    <p class="text-xs font-medium">Filter</p>
-                    <p class="text-[10px] cursor-pointer" @click="clearFilter">
-                      clear
-                    </p>
-                  </div>
-
-                  <div>
-                    <p class="text-[10px] pb-2">Date Range</p>
-                    <input
-                      type="date"
-                      v-model="searchKey.startDate"
-                      class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg mb-2"
-                      placeholder="Start Date"
-                    />
-                    <input
-                      type="date"
-                      v-model="searchKey.endDate"
-                      class="border border-gray-300 px-4 focus:outline-none w-full py-2 text-[10px] rounded-lg"
-                      placeholder="End Date"
-                    />
-                  </div>
-
-                  <div
-                    class="sticky bottom-0 w-full pb-4 pt-2 border-t border-gray-200 bg-white"
-                  >
-                    <p
-                      class="text-[12px] bg-[#FF613c] px-2 py-2 rounded-lg text-center text-white cursor-pointer"
-                      @click="searchAction"
-                    >
-                      Search
-                    </p>
-                  </div>
-                </div>
-              </transition>
-
-              <!-- Search Input -->
-              <div class="relative min-w-[200px] max-w-[400px] flex-1">
-                <input
-                  type="search"
-                  v-model="searchKey.searchId"
-                  placeholder="Search by CRM ID"
-                  class="w-full px-4 py-2.5 rounded-full shadow border border-gray-100 focus:outline-none text-xs"
-                  @keyup.enter="searchAction"
-                />
-                <div
-                  @click="searchAction"
-                  class="absolute right-2 top-2 rounded-full text-xs p-1 bg-[#FF613c] cursor-pointer"
-                >
-                  <MagnifyingGlassIcon class="w-4 h-4 text-white" />
-                </div>
-              </div>
-
-              <!-- Unified Filters for All Tags -->
-            </div>
-            <div class="flex justify-center items-center gap-x-2">
-              <!-- Sent/Not Sent Dropdown -->
-              <div class="relative">
-                <select
-                  v-model="searchKey.sentStatus"
-                  @change="searchAction"
-                  class="appearance-none bg-[#FF613c] text-white text-xs px-4 py-2.5 pr-8 rounded-full shadow cursor-pointer focus:outline-none"
-                >
-                  <option value="all">All Sent Status</option>
-                  <option value="sent">Sent</option>
-                  <option value="not_sent">Not Sent</option>
-                </select>
-                <svg
-                  class="w-4 h-4 text-white absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <!-- Active Filters -->
-          <div
-            v-if="hasActiveFilters"
-            class="flex justify-start items-center overflow-x-scroll no-sidebar-container pt-0.5 space-x-3"
-          >
-            <p
-              v-if="searchKey.startDate || searchKey.endDate"
-              class="text-[12px] px-2 py-0.5 rounded-lg whitespace-nowrap relative"
-            >
-              <XCircleIcon
-                class="w-4 h-4 text-[#FF613c] cursor-pointer absolute -top-1 -right-2"
-                @click="clearDateFilter"
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-2 flex-1">
+            <!-- Search CRM ID -->
+            <div class="relative min-w-[180px]">
+              <input
+                type="search"
+                v-model="searchKey.searchId"
+                placeholder="Search CRM ID"
+                class="w-full px-4 py-2.5 rounded-full shadow-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#FF613c] text-xs"
+                @keyup.enter="searchAction"
               />
-              Date: {{ searchKey.startDate }} - {{ searchKey.endDate }}
-            </p>
+              <div
+                @click="searchAction"
+                class="absolute right-1 top-1 rounded-full text-xs p-1.5 bg-[#FF613c] cursor-pointer hover:bg-[#e55139] transition-colors"
+              >
+                <MagnifyingGlassIcon class="w-4 h-4 text-white" />
+              </div>
+            </div>
+
+            <button
+              @click="searchAction"
+              class="bg-[#FF613c] px-4 rounded-full shadow-lg py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer hover:bg-[#e55139] transition-colors"
+            >
+              <MagnifyingGlassIcon class="w-4 h-4 text-white" />
+              <p>Search</p>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Sent Status Dropdown -->
+            <div class="relative">
+              <select
+                v-model="searchKey.sentStatus"
+                @change="searchAction"
+                class="appearance-none bg-white text-[#FF613c] border border-gray-200 text-xs px-4 py-2.5 pr-8 rounded-full shadow-lg cursor-pointer hover:bg-[#e55139] hover:text-white transition-colors focus:outline-none"
+              >
+                <option value="all">All Status</option>
+                <option value="sent">Sent</option>
+                <option value="not_sent">Not Sent</option>
+              </select>
+              <svg
+                class="w-4 h-4 text-[#FF613c] absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+
+            <!-- Filters Button -->
+            <button
+              @click="filterShow = !filterShow"
+              class="bg-[#FF613c] px-4 rounded-full shadow-lg py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer hover:bg-[#e55139] transition-colors"
+            >
+              <FunnelIcon class="w-4 h-4 text-white" />
+              <p>Filters</p>
+            </button>
+
+            <!-- Reset Button -->
+            <button
+              @click="clearFilter"
+              class="flex items-center gap-2 px-4 py-2.5 text-xs text-white bg-[#FF613c] rounded-full cursor-pointer hover:bg-[#e55139] transition-colors shadow-lg"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              Reset
+            </button>
           </div>
         </div>
 
-        <!-- Table -->
-        <div class="overflow-x-auto max-h-[57vh] overflow-y-scroll">
-          <table class="w-full text-sm">
-            <thead class="bg-gray-50 sticky top-0">
-              <tr class="border-b">
-                <th
-                  v-if="activeTag == 'invoice'"
-                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
-                >
-                  Comfirm Mail
-                </th>
-                <th
-                  v-if="activeTag == 'expense'"
-                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
-                >
-                  Expense Mail
-                </th>
-                <th
-                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
-                >
-                  Mail Status
-                </th>
-                <th
-                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
-                >
-                  CRM ID
-                </th>
-                <th
-                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
-                >
-                  Hotel Name
-                </th>
-                <th
-                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
-                >
-                  Customer Name
-                </th>
-                <th
-                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
-                >
-                  Service Date
-                </th>
-                <th
-                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
-                >
-                  Room Qty
-                </th>
-                <th
-                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
-                >
-                  C.Status
-                </th>
-                <th
-                  v-if="activeTag == 'expense'"
-                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
-                >
-                  E.Status
-                </th>
-                <th
-                  class="px-4 py-3 text-left text-xs font-medium whitespace-nowrap text-gray-500"
-                >
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr
-                v-for="item in groups?.data ?? []"
-                :key="item.id"
-                class="hover:bg-gray-50 cursor-pointer transition-colors"
-                :class="{ 'bg-blue-50': selectedItem?.id === item.id }"
+        <!-- Filter Dropdown -->
+        <transition name="slide-down">
+          <div
+            v-if="filterShow"
+            class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200"
+          >
+            <div class="flex items-center justify-between mb-3">
+              <p class="text-sm font-medium text-gray-700">Date Range Filter</p>
+              <button
+                @click="clearDateFilter"
+                class="text-xs text-[#FF613c] hover:text-[#e55139]"
               >
-                <td class="px-4 py-4" v-if="activeTag == 'expense'">
-                  <span
-                    class="px-2 py-1.5 rounded-full text-xs font-medium whitespace-nowrap"
-                    :class="
-                      item.sent_expense_mail == 1
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    "
-                  >
-                    {{ item.sent_expense_mail == 1 ? "Sent" : "Not Sent" }}
-                  </span>
-                </td>
-                <td
-                  class="px-4 py-4"
-                  v-if="activeTag == 'invoice' || activeTag == 'expense'"
+                Clear Dates
+              </button>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs text-gray-600 mb-1 block"
+                  >Start Date</label
                 >
-                  <span
-                    class="px-2 py-1.5 rounded-full text-xs font-medium"
-                    :class="
-                      item.have_invoice_mail
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    "
-                  >
-                    {{ item.have_invoice_mail ? "Complete" : "Missing" }}
-                  </span>
+                <input
+                  type="date"
+                  v-model="searchKey.startDate"
+                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-xs rounded-full shadow-sm"
+                />
+              </div>
+              <div>
+                <label class="text-xs text-gray-600 mb-1 block">End Date</label>
+                <input
+                  type="date"
+                  v-model="searchKey.endDate"
+                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-xs rounded-full shadow-sm"
+                />
+              </div>
+            </div>
+            <button
+              @click="searchAction"
+              class="w-full mt-3 bg-[#FF613c] text-white text-xs px-4 py-2 rounded-full hover:bg-[#e55139] transition-colors"
+            >
+              Apply Filters
+            </button>
+          </div>
+        </transition>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto relative w-[92vw] h-[62vh] overflow-y-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50 border-b border-gray-200 z-10">
+            <tr class="sticky top-0 z-10 bg-gray-50">
+              <th
+                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
+              >
+                Mail Status
+              </th>
+              <th
+                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
+              >
+                CRM ID
+              </th>
+              <th
+                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
+              >
+                Product Name
+              </th>
+              <th
+                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
+              >
+                Customer
+              </th>
+              <th
+                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
+              >
+                Service Date
+              </th>
+              <th
+                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
+              >
+                Room Qty
+              </th>
+              <th
+                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
+              >
+                C.Status
+              </th>
+              <th
+                v-if="activeTag == 'expense'"
+                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
+              >
+                E.Status
+              </th>
+              <th
+                class="px-2 md:px-4 py-3 text-right text-xs font-semibold text-gray-700 whitespace-nowrap"
+              >
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody v-if="!loading" class="divide-y divide-gray-200">
+            <template v-for="item in groups?.data ?? []" :key="item.id">
+              <!-- Main row -->
+              <tr
+                class="hover:bg-gray-50 transition-colors cursor-pointer"
+                @click="toggleRow(item.id)"
+              >
+                <!-- Mail Status Column -->
+                <td class="px-2 md:px-4 py-4">
+                  <div class="flex flex-col gap-1">
+                    <span
+                      v-if="
+                        activeTag == 'prove_booking' || activeTag == 'invoice'
+                      "
+                      class="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
+                      :class="
+                        item.sent_booking_request == 1
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      "
+                    >
+                      {{ item.sent_booking_request == 1 ? "Sent" : "Not Sent" }}
+                    </span>
+                    <span
+                      v-if="activeTag == 'invoice' || activeTag == 'expense'"
+                      class="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
+                      :class="
+                        item.have_invoice_mail
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      "
+                    >
+                      {{ item.have_invoice_mail ? "Complete" : "Missing" }}
+                    </span>
+                    <span
+                      v-if="activeTag == 'expense'"
+                      class="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
+                      :class="
+                        item.sent_expense_mail == 1
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      "
+                    >
+                      Exp:
+                      {{ item.sent_expense_mail == 1 ? "Sent" : "Not Sent" }}
+                    </span>
+                  </div>
                 </td>
 
-                <td
-                  class="px-4 py-4"
-                  v-if="activeTag == 'prove_booking' || activeTag == 'invoice'"
-                >
-                  <span
-                    class="px-2 py-1.5 rounded-full text-xs font-medium whitespace-nowrap"
-                    :class="
-                      item.sent_booking_request == 1
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    "
+                <!-- CRM ID -->
+                <td class="px-2 md:px-4 py-4">
+                  <p
+                    class="text-sm font-medium whitespace-nowrap px-3 py-1.5 bg-[#FF613c] text-white shadow-md rounded-full inline-block"
                   >
-                    {{ item.sent_booking_request == 1 ? "Sent" : "Not Sent" }}
-                  </span>
+                    {{ item.booking_crm_id }}
+                  </p>
                 </td>
 
-                <td class="px-4 py-4 text-sm text-gray-900 whitespace-nowrap">
-                  {{ item.booking_crm_id }}
-                </td>
-                <td class="px-4 py-4 text-sm font-medium text-gray-900">
-                  {{ item.product_name }}
-                </td>
-                <td class="px-4 py-4 text-sm text-gray-600">
-                  {{ item.customer_name }}
-                </td>
-                <td class="px-4 py-4 text-sm text-gray-600">
-                  {{ item.firstest_service_date }}
-                  <span
-                    v-if="
-                      item.latest_service_date !== item.firstest_service_date
-                    "
+                <!-- Product Name -->
+                <td class="px-2 md:px-4 py-4">
+                  <p
+                    class="text-sm text-white px-3 py-1.5 bg-[#FF613c] rounded-full shadow-md truncate max-w-[200px]"
                   >
-                    - {{ item.latest_service_date }}
-                  </span>
+                    {{ item.product_name }}
+                  </p>
                 </td>
-                <td class="px-4 py-4 text-sm text-gray-600">
-                  {{ getRoomQty(item) }} room
+
+                <!-- Customer Name -->
+                <td class="px-2 md:px-4 py-4">
+                  <p class="text-sm text-gray-700">{{ item.customer_name }}</p>
                 </td>
-                <td class="px-4 py-4">
+
+                <!-- Service Date -->
+                <td class="px-2 md:px-4 py-4">
+                  <div class="text-sm text-gray-700">
+                    <div class="whitespace-nowrap">
+                      {{ item.firstest_service_date }}
+                    </div>
+                    <div
+                      class="text-xs text-gray-500 whitespace-nowrap"
+                      v-if="
+                        item.latest_service_date !== item.firstest_service_date
+                      "
+                    >
+                      to {{ item.latest_service_date }}
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Room Qty -->
+                <td class="px-2 md:px-4 py-4">
+                  <p class="text-sm text-gray-700">
+                    {{ getRoomQty(item) }} room
+                  </p>
+                </td>
+
+                <!-- Customer Status -->
+                <td class="px-2 md:px-4 py-4">
                   <span
-                    class="px-2 py-1.5 rounded-full text-xs font-medium whitespace-nowrap"
+                    class="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
                     :class="getPaymentStatusClass(item.customer_payment_status)"
                   >
                     {{ formatPaymentStatus(item.customer_payment_status) }}
                   </span>
                 </td>
-                <td class="px-4 py-4" v-if="activeTag == 'expense'">
+
+                <!-- Expense Status -->
+                <td v-if="activeTag == 'expense'" class="px-2 md:px-4 py-4">
                   <span
-                    class="px-2 py-1.5 rounded-full text-xs font-medium whitespace-nowrap"
+                    class="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
                     :class="getPaymentStatusClass(item.expense_status)"
                   >
                     {{ formatPaymentStatus(item.expense_status) }}
                   </span>
                 </td>
+
+                <!-- Actions -->
                 <td
-                  class="px-4 py-4 space-x-2 flex justify-center items-center"
+                  class="px-2 flex justify-end items-center space-x-2 md:px-4 py-4"
                 >
                   <button
-                    @click="selectItemEdit(item)"
-                    class="px-2 py-1.5 text-xs shadow-md bg-[#FF613c] rounded-full text-white"
+                    @click.stop="selectItem(item)"
+                    class="flex bg-green-600 text-white items-center gap-2 px-3 py-1.5 transition-colors rounded-lg hover:bg-green-700"
                   >
-                    Approve
-                  </button>
-                  <button
-                    @click="selectItem(item)"
-                    class="bg-[#FF613c] p-1 rounded-full"
-                  >
-                    <InformationCircleIcon class="w-5 h-5 text-white" />
+                    <InformationCircleIcon class="w-5 h-5" />
+                    <span class="text-xs">Info</span>
                   </button>
                 </td>
               </tr>
-              <tr v-if="loading">
-                <td colspan="8" class="px-4 py-8 text-center text-gray-500">
-                  Loading...
+
+              <!-- Expandable Approve Row -->
+              <tr v-show="expandedRows.includes(item.id)">
+                <td colspan="20" class="px-2 md:px-4 py-0">
+                  <div class="bg-gray-50 rounded-lg p-4 mb-2">
+                    <div class="flex justify-between items-center">
+                      <h4 class="text-sm font-semibold text-gray-900">
+                        Approval Actions
+                      </h4>
+                      <button
+                        @click="selectItemEdit(item)"
+                        class="px-4 py-2 text-xs shadow-md bg-[#FF613c] rounded-full text-white hover:bg-[#e55139] transition-colors flex items-center gap-2"
+                      >
+                        <svg
+                          class="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        Approve & Update
+                      </button>
+                    </div>
+                  </div>
                 </td>
               </tr>
-              <tr
-                v-if="!loading && (!groups?.data || groups.data.length === 0)"
-              >
-                <td colspan="8" class="px-4 py-8 text-center text-gray-500">
-                  No data found
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div v-if="groups?.meta" class="pt-5">
-          <div class="overflow-x-scroll no-sidebar-container py-2">
-            <Pagination
-              v-if="!loading"
-              :data="groups"
-              @change-page="changePage"
-            />
+            </template>
+          </tbody>
+        </table>
+
+        <!-- Loading State -->
+        <div v-if="loading" class="flex justify-center items-center py-12">
+          <div class="flex flex-col items-center gap-3">
+            <div
+              class="w-8 h-8 border-4 border-gray-200 border-t-[#ff613c] rounded-full animate-spin"
+            ></div>
+            <p class="text-xs text-gray-500">Loading...</p>
           </div>
         </div>
+
+        <!-- Empty State -->
+        <div
+          v-if="!loading && (!groups?.data || groups.data.length === 0)"
+          class="flex flex-col items-center justify-center py-12"
+        >
+          <svg
+            class="w-12 h-12 text-gray-300 mb-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+            />
+          </svg>
+          <p class="text-sm text-gray-500">No mail records found</p>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div
+        v-if="!loading && groups?.data && groups.data.length > 0"
+        class="px-3 md:px-4 py-3 border-t border-gray-200"
+      >
+        <Pagination :data="groups" @change-page="changePage" />
       </div>
     </div>
 
+    <!-- Detail Modal -->
     <Modal :isOpen="showDetail">
       <DialogPanel
-        class="w-full max-w-5xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-5xl transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
-          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start py-3 px-4"
+          class="text-lg font-semibold text-gray-900 mb-4 flex justify-between items-center p-6 border-b"
         >
-          <p>Email Detail</p>
-          <XCircleIcon
-            class="w-6 h-6 text-white cursor-pointer"
+          <div class="flex items-center gap-2">
+            <InformationCircleIcon class="w-6 h-6 text-[#FF613c]" />
+            Email Details
+          </div>
+          <button
             @click="closeDetail"
-          />
+            class="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <XCircleIcon class="w-5 h-5 text-gray-500" />
+          </button>
         </DialogTitle>
-        <div class="p-6 overflow-y-scroll h-[calc(100vh-80px)]">
+
+        <div class="p-6 overflow-y-scroll max-h-[calc(100vh-200px)]">
           <div v-if="selectedItem">
             <!-- Booking Header -->
             <div class="border-b pb-4 mb-4">
@@ -514,7 +616,7 @@
               </div>
             </div>
 
-            <!-- email part -->
+            <!-- Email Part -->
             <EmailPart :detail="detail" :activeTag="activeTag" />
 
             <!-- Financial Details -->
@@ -565,41 +667,55 @@
       </DialogPanel>
     </Modal>
 
-    <!-- modal for approve/edit -->
+    <!-- Approve/Edit Modal -->
     <Modal :isOpen="showDetailEdit">
       <DialogPanel
-        class="w-full max-w-4xl transform overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
+        class="w-full max-w-4xl transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
-          class="text-sm text-white bg-[#FF613c] font-medium leading-6 flex justify-between items-start py-3 px-4"
+          class="text-lg font-semibold text-gray-900 mb-4 flex justify-between items-center p-6 border-b"
         >
-          <p>
+          <div class="flex items-center gap-2">
+            <svg
+              class="w-6 h-6 text-[#FF613c]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
             {{
               activeTag == "invoice"
                 ? "Confirm"
                 : activeTag == "expense"
                 ? "Expense"
-                : ""
+                : "Booking"
             }}
             Email Screenshot
-          </p>
-          <XCircleIcon
-            class="w-6 h-6 text-white cursor-pointer"
+          </div>
+          <button
             @click="closeDetailEdit"
-          />
+            class="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <XCircleIcon class="w-5 h-5 text-gray-500" />
+          </button>
         </DialogTitle>
 
         <!-- Content -->
-        <div class="p-6 h-[62vh] overflow-y-auto">
+        <div class="p-6 max-h-[62vh] overflow-y-auto">
           <div class="space-y-4">
             <!-- Date Input Form -->
             <div>
-              <label class="text-base font-medium text-gray-700 mb-4 block">
-                {{ activeTag == "invoice" ? "Confirm Email" : "" }} Date*</label
-              >
+              <label class="text-sm font-medium text-gray-700 mb-3 block">
+                {{ activeTag == "invoice" ? "Confirm Email" : "Booking" }} Date*
+              </label>
               <div class="flex gap-2">
-                <!-- Day Input -->
                 <input
                   type="number"
                   v-model="day"
@@ -607,10 +723,8 @@
                   placeholder="DD"
                   min="1"
                   max="31"
-                  class="w-20 border border-gray-300 px-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center"
+                  class="w-20 border border-gray-300 px-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] text-center"
                 />
-
-                <!-- Month Input -->
                 <input
                   type="number"
                   v-model="month"
@@ -618,10 +732,8 @@
                   placeholder="MM"
                   min="1"
                   max="12"
-                  class="w-20 border border-gray-300 px-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center"
+                  class="w-20 border border-gray-300 px-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] text-center"
                 />
-
-                <!-- Year Input -->
                 <input
                   type="number"
                   v-model="year"
@@ -629,15 +741,13 @@
                   placeholder="YYYY"
                   min="1900"
                   max="2100"
-                  class="w-24 border border-gray-300 px-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] focus:border-transparent text-center"
+                  class="w-24 border border-gray-300 px-4 py-2 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF613c] text-center"
                 />
-
-                <!-- Calendar Button -->
                 <div class="relative">
                   <button
                     type="button"
                     @click="openDatePicker"
-                    class="w-36 h-10 flex items-center justify-center bg-[#FF613c] text-white border border-gray-300 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#FF613c]"
+                    class="w-36 h-10 flex items-center justify-center bg-[#FF613c] text-white rounded-lg transition-colors hover:bg-[#e55139]"
                   >
                     <svg
                       class="w-5 h-5 text-white"
@@ -654,8 +764,6 @@
                     </svg>
                     <span class="text-sm ml-2">Choose Date</span>
                   </button>
-
-                  <!-- Hidden Date Input -->
                   <input
                     ref="datePickerInput"
                     type="date"
@@ -666,18 +774,19 @@
                 </div>
               </div>
             </div>
+
             <!-- File Upload Section -->
             <div>
-              <label class="text-base font-medium text-gray-700 mb-4 block"
-                >{{
+              <label class="text-sm font-medium text-gray-700 mb-3 block">
+                {{
                   activeTag == "invoice"
                     ? "Confirm"
                     : activeTag == "expense"
                     ? "Expense"
-                    : ""
+                    : "Booking"
                 }}
-                Email Screenshot*</label
-              >
+                Email Screenshot*
+              </label>
 
               <input
                 multiple
@@ -689,56 +798,52 @@
               />
 
               <div
-                @click="openFileImagePicker"
-                class="w-full h-80 space-y-6 text-center border-2 border-dashed border-[#FF613c] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                 v-if="
                   imagesPreview.length === 0 &&
                   formData.editImagesPreview.length === 0
                 "
+                @click="openFileImagePicker"
+                class="w-full h-80 border-2 border-dashed border-[#FF613c] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
               >
-                <div class="flex justify-center">
-                  <div class="bg-[#FF613c]/10 p-4 rounded-full">
-                    <PlusCircleIcon class="w-8 h-8 text-[#FF613c]" />
-                  </div>
+                <div class="bg-[#FF613c]/10 p-4 rounded-full">
+                  <PlusCircleIcon class="w-8 h-8 text-[#FF613c]" />
                 </div>
-                <div>
+                <div class="mt-4 text-center">
                   <p class="text-sm font-medium text-gray-700">
                     Upload Email Screenshot
                   </p>
                   <p class="text-xs text-gray-500 mt-1">
-                    Click to browse or drag and drop your files here
+                    Click to browse or drag and drop
                   </p>
-                  <p class="text-xs text-gray-400 mt-1">
-                    Supported formats: PNG, JPG, JPEG
-                  </p>
+                  <p class="text-xs text-gray-400 mt-1">PNG, JPG, JPEG</p>
                 </div>
               </div>
 
-              <!-- Images Grid - When images exist -->
+              <!-- Images Grid -->
               <div
                 v-else
                 class="grid grid-cols-3 md:grid-cols-4 gap-3 min-h-80"
               >
-                <!-- New Images Preview -->
+                <!-- New Images -->
                 <div
                   v-for="(image, index) in imagesPreview"
                   :key="'new-' + index"
                   class="relative aspect-square group"
                 >
                   <img
-                    class="w-full h-full object-cover rounded-lg border border-gray-200 shadow-sm"
+                    class="w-full h-full object-cover rounded-lg border border-gray-200"
                     :src="image"
                     alt="Preview"
                   />
                   <button
                     @click="removeImageSelectImage(index)"
-                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <XCircleIcon class="w-5 h-5" />
                   </button>
                 </div>
 
-                <!-- Existing Images Preview -->
+                <!-- Existing Images -->
                 <div
                   v-for="(image, index) in formData.editImagesPreview"
                   :key="'existing-' + index"
@@ -746,40 +851,31 @@
                   class="relative aspect-square group"
                 >
                   <img
-                    class="w-full h-full object-cover rounded-lg border border-gray-200 shadow-sm"
+                    class="w-full h-full object-cover rounded-lg border border-gray-200"
                     :src="image.file"
                     alt="Existing"
                   />
-                  <!-- Eye Icon to View Full Image -->
                   <button
                     @click="openImageViewer(image.file, index)"
-                    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full p-2 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <EyeIcon class="w-6 h-6" />
                   </button>
                   <button
                     @click="removeImageUpdateImage(image.id)"
-                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <XCircleIcon class="w-5 h-5" />
                   </button>
-                  <div
-                    v-if="image?.meta?.amount"
-                    class="absolute bottom-0 left-0 right-0 bg-black/70 px-2 py-1 rounded-b-lg"
-                  >
-                    <p class="text-xs text-white truncate">
-                      {{ image.meta.amount }}
-                    </p>
-                  </div>
                 </div>
 
-                <!-- Add More Button (last in grid) -->
+                <!-- Add More Button -->
                 <div
                   @click="openFileImagePicker"
                   class="aspect-square border-2 border-dashed border-[#FF613c] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
                 >
-                  <PlusCircleIcon class="w-8 h-8 text-[#FF613c] mb-1" />
-                  <p class="text-xs text-gray-600">Add more</p>
+                  <PlusCircleIcon class="w-8 h-8 text-[#FF613c]" />
+                  <p class="text-xs text-gray-600 mt-1">Add more</p>
                 </div>
               </div>
             </div>
@@ -787,9 +883,7 @@
         </div>
 
         <!-- Footer -->
-        <div
-          class="border-t border-gray-200 px-4 py-3 flex justify-end space-x-3"
-        >
+        <div class="border-t px-6 py-3 flex justify-end space-x-3">
           <button
             @click="closeDetailEdit"
             class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -799,11 +893,11 @@
           <button
             @click="imagesPreview.length > 0 && updateReservationAction()"
             :disabled="imagesPreview.length === 0"
-            class="px-6 py-2 text-sm font-medium text-white rounded-lg flex items-center space-x-2 transition-all duration-200"
+            class="px-6 py-2 text-sm font-medium text-white rounded-lg flex items-center space-x-2 transition-all"
             :class="
               imagesPreview.length > 0
-                ? 'bg-gradient-to-r from-[#FF613c] to-[#FF8C6B] hover:shadow-lg transform hover:scale-105 cursor-pointer'
-                : 'bg-gradient-to-r from-gray-400 to-gray-300 cursor-not-allowed opacity-60'
+                ? 'bg-[#FF613c] hover:bg-[#e55139] cursor-pointer'
+                : 'bg-gray-400 cursor-not-allowed opacity-60'
             "
           >
             <svg
@@ -825,14 +919,14 @@
       </DialogPanel>
     </Modal>
 
-    <!-- Full Screen Image Viewer Modal -->
+    <!-- Image Viewer Modal -->
     <Modal :isOpen="showImageViewer">
       <DialogPanel
         class="w-full max-w-7xl transform overflow-hidden rounded-lg bg-black text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="div"
-          class="text-sm text-white bg-black/80 font-medium leading-6 flex justify-between items-center py-3 px-4"
+          class="text-sm text-white bg-black/80 font-medium flex justify-between items-center py-3 px-4"
         >
           <p>
             Image Viewer ({{ currentImageIndex + 1 }} /
@@ -844,7 +938,6 @@
           />
         </DialogTitle>
 
-        <!-- Image Display Area -->
         <div
           class="relative bg-black h-[80vh] flex items-center justify-center"
         >
@@ -854,7 +947,6 @@
             class="max-h-full max-w-full object-contain"
           />
 
-          <!-- Previous Button -->
           <button
             v-if="formData.editImagesPreview.length > 1"
             @click="previousImage"
@@ -875,7 +967,6 @@
             </svg>
           </button>
 
-          <!-- Next Button -->
           <button
             v-if="formData.editImagesPreview.length > 1"
             @click="nextImage"
@@ -918,12 +1009,11 @@ import Modal from "../components/Modal.vue";
 import { useToast } from "vue-toastification";
 import EmailPart from "./GroupComponent/EmailPart.vue";
 import Pagination from "../components/Pagination.vue";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const toast = useToast();
-
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
-
 const groupStore = useGroupStore();
 const { groups, loading } = storeToRefs(groupStore);
 
@@ -934,13 +1024,12 @@ const activeTag = ref("prove_booking");
 const filterShow = ref(false);
 const currentPage = ref(1);
 const imagesInput = ref(null);
-const is_sent_expense_mail = ref(false);
 const imagesPreview = ref([]);
-
-// Image Viewer State
+const product_type = ref("hotel");
 const showImageViewer = ref(false);
 const currentViewImage = ref("");
 const currentImageIndex = ref(0);
+const expandedRows = ref([]);
 
 const formData = ref({
   images: [],
@@ -952,6 +1041,28 @@ const day = ref("");
 const month = ref("");
 const year = ref("");
 
+const searchKey = ref({
+  searchId: "",
+  startDate: "",
+  endDate: "",
+  sentStatus: "all",
+});
+
+const detail = ref({});
+const showDetailEdit = ref(false);
+const datePickerInput = ref(null);
+
+// Toggle row expansion
+const toggleRow = (itemId) => {
+  const index = expandedRows.value.indexOf(itemId);
+  if (index > -1) {
+    expandedRows.value.splice(index, 1);
+  } else {
+    expandedRows.value.push(itemId);
+  }
+};
+
+// Date functions
 const updateExpenseDate = () => {
   if (day.value && month.value && year.value) {
     const paddedDay = String(day.value).padStart(2, "0");
@@ -960,7 +1071,6 @@ const updateExpenseDate = () => {
   }
 };
 
-const datePickerInput = ref(null);
 const openDatePicker = () => {
   datePickerInput.value.showPicker();
 };
@@ -974,7 +1084,7 @@ const updateFromDatePicker = () => {
   }
 };
 
-// Image Viewer Functions
+// Image viewer functions
 const openImageViewer = (imageUrl, index) => {
   currentViewImage.value = imageUrl;
   currentImageIndex.value = index;
@@ -990,26 +1100,21 @@ const closeImageViewer = () => {
 const nextImage = () => {
   if (currentImageIndex.value < formData.value.editImagesPreview.length - 1) {
     currentImageIndex.value++;
-    currentViewImage.value =
-      formData.value.editImagesPreview[currentImageIndex.value].file;
   } else {
-    // Loop back to first image
     currentImageIndex.value = 0;
-    currentViewImage.value = formData.value.editImagesPreview[0].file;
   }
+  currentViewImage.value =
+    formData.value.editImagesPreview[currentImageIndex.value].file;
 };
 
 const previousImage = () => {
   if (currentImageIndex.value > 0) {
     currentImageIndex.value--;
-    currentViewImage.value =
-      formData.value.editImagesPreview[currentImageIndex.value].file;
   } else {
-    // Loop to last image
     currentImageIndex.value = formData.value.editImagesPreview.length - 1;
-    currentViewImage.value =
-      formData.value.editImagesPreview[currentImageIndex.value].file;
   }
+  currentViewImage.value =
+    formData.value.editImagesPreview[currentImageIndex.value].file;
 };
 
 const openFileImagePicker = () => {
@@ -1042,7 +1147,7 @@ const removeImageUpdateImage = async (imageID) => {
     );
     if (res.status == 1) {
       toast.success("Image successfully deleted");
-      await getProofImage();
+      await getProofImage(selectedItem.value.id);
     }
   } catch (error) {
     console.error("Delete image error:", error);
@@ -1075,10 +1180,7 @@ const updateReservationAction = async () => {
   }
   frmData.append("_method", "PUT");
 
-  const res = await groupStore.groupUpdateAction(
-    selectedItem.value.id,
-    frmData
-  );
+  await groupStore.groupUpdateAction(selectedItem.value.id, frmData);
   toast.success("Update status");
 
   const responses = [];
@@ -1128,14 +1230,6 @@ const removeImageSelectImage = (index) => {
   imagesPreview.value.splice(index, 1);
 };
 
-const searchKey = ref({
-  searchId: "",
-  startDate: "",
-  endDate: "",
-  sentStatus: "all",
-});
-
-// Computed
 const watchSystem = computed(() => {
   let result = {};
 
@@ -1156,11 +1250,12 @@ const watchSystem = computed(() => {
     }`;
   }
 
-  result.product_type = "hotel";
+  if (product_type.value) {
+    result.product_type = product_type.value;
+  }
   result.sorting_type = "service_date";
   result.sorting = "asc";
 
-  // Apply filters based on current tag and dropdown selections
   if (searchKey.value.searchId == "") {
     if (activeTag.value == "prove_booking") {
       if (searchKey.value.sentStatus !== "all") {
@@ -1195,15 +1290,6 @@ const watchSystem = computed(() => {
   return result;
 });
 
-const hasActiveFilters = computed(() => {
-  return (
-    searchKey.value.searchId ||
-    searchKey.value.startDate ||
-    searchKey.value.endDate
-  );
-});
-
-// Methods
 const filterByType = (type) => {
   activeTag.value = type;
   searchKey.value.sentStatus = "all";
@@ -1216,7 +1302,6 @@ const clearDateFilter = () => {
   searchAction();
 };
 
-const detail = ref({});
 const selectItem = async (item) => {
   selectedItem.value = item;
   const res = await groupStore.detailAction(item.id);
@@ -1224,7 +1309,6 @@ const selectItem = async (item) => {
   showDetail.value = true;
 };
 
-const showDetailEdit = ref(false);
 const selectItemEdit = async (item) => {
   selectedItem.value = item;
   formData.value.date =
@@ -1242,11 +1326,6 @@ const selectItemEdit = async (item) => {
   }
 
   await getProofImage(item.id);
-  if (activeTag.value == "prove_booking") {
-    is_sent_expense_mail.value = item.sent_booking_request == 0 ? false : true;
-  } else {
-    is_sent_expense_mail.value = item.sent_expense_mail == 0 ? false : true;
-  }
   showDetailEdit.value = true;
 };
 
@@ -1309,10 +1388,6 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-watch(currentPage, () => {
-  groupStore.getListAction(watchSystem.value);
-});
-
 const fetchData = async () => {
   try {
     await groupStore.getListAction(watchSystem.value);
@@ -1321,27 +1396,20 @@ const fetchData = async () => {
   }
 };
 
+watch(currentPage, () => {
+  groupStore.getListAction(watchSystem.value);
+});
+
+watch(product_type, () => {
+  groupStore.getListAction(watchSystem.value);
+});
+
 onMounted(() => {
   fetchData();
 });
 </script>
 
 <style scoped>
-.slide-right-enter-active,
-.slide-right-leave-active {
-  transition: all 0.3s ease;
-}
-
-.slide-right-enter-from {
-  transform: translateX(100%);
-  opacity: 0;
-}
-
-.slide-right-leave-to {
-  transform: translateX(100%);
-  opacity: 0;
-}
-
 .slide-down-enter-active,
 .slide-down-leave-active {
   transition: all 0.2s ease;
@@ -1357,12 +1425,20 @@ onMounted(() => {
   transform: translateY(-10px);
 }
 
-.no-sidebar-container::-webkit-scrollbar {
-  display: none;
+.overflow-x-auto::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
 }
 
-.no-sidebar-container {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.overflow-x-auto::-webkit-scrollbar-track,
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f9fafb;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
 }
 </style>

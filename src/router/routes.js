@@ -94,6 +94,8 @@ import MapHotel from "../views/MapHotel.vue";
 import EmailCheck from "../views/EmailCheck.vue";
 import MailBox from "../views/MailBox.vue";
 import ExpensePart from "../views/ExpensePart.vue";
+import FillData from "../views/FillData.vue";
+import ConfirmationGroup from "../views/ConfirmationGroup.vue";
 
 const routes = [
   {
@@ -339,6 +341,16 @@ const routes = [
     path: "/group-hotel-expense",
     name: "group-hotel-expense",
     component: ExpensePart,
+  },
+  {
+    path: "/group-fill-data",
+    name: "group-fill-data",
+    component: FillData,
+  },
+  {
+    path: "/group-confirmation",
+    name: "group-confirmation",
+    component: ConfirmationGroup,
   },
   {
     path: "/group-attraction",

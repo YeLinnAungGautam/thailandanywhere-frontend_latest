@@ -11,7 +11,7 @@
           min="1"
           max="31"
           placeholder="DD"
-          class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
         />
       </div>
 
@@ -24,12 +24,12 @@
           min="1"
           max="12"
           placeholder="MM"
-          class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
         /> -->
         <select
           v-model="month"
           @change="updateDOB"
-          class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
         >
           <option value="" disabled selected>MM</option>
           <option v-for="m in monthOptions" :key="m" :value="m.value">
@@ -47,7 +47,7 @@
           min="1900"
           max="2100"
           placeholder="YYYY"
-          class="w-full px-2 py-1.5 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
+          class="w-full px-2 py-2 rounded-lg shadow border border-gray-100 focus:outline-none text-sm"
         />
       </div>
     </div>

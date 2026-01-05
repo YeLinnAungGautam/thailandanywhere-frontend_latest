@@ -158,11 +158,11 @@ const watchSystem = computed(() => {
   if (order_by.value != "") {
     result.order_by = order_by.value;
   }
-  if (!authStore.isSuperAdmin && !authStore.isReservation) {
-    result.created_by = authStore.user?.id;
-  } else if (created_by.value != "") {
-    result.created_by = created_by.value;
-  }
+  // if (!authStore.isSuperAdmin && !authStore.isReservation) {
+  //   result.created_by = authStore.user?.id;
+  // } else if (created_by.value != "") {
+  //   result.created_by = created_by.value;
+  // }
   return result;
 });
 

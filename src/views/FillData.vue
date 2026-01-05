@@ -384,6 +384,17 @@
                   </div>
                 </td>
 
+                <!-- Customer Name -->
+                <td class="px-2 md:px-4 py-4 cursor-pointer relative">
+                  <div class="">
+                    <p
+                      class="text-sm line-clamp-1 truncate min-w-[100px] max-w-[200px] cursor-pointer"
+                    >
+                      {{ item.customer_name }}
+                    </p>
+                  </div>
+                </td>
+
                 <!-- Expense Status -->
                 <td class="px-2 md:px-4 py-4">
                   <p
@@ -1145,6 +1156,7 @@ const tableHeaders = [
   { key: "data", label: "Data", class: "whitespace-nowrap" },
   { key: "crm_id", label: "CRM ID", class: "whitespace-nowrap" },
   { key: "hotel_name", label: "Product Name", class: "" },
+  { key: "customer_name", label: "Customer Name", class: "" },
   { key: "payment_status", label: "Payment Status", class: "" },
   { key: "booking_date", label: "Booking Date", class: "" },
   { key: "sale_amount", label: "Sale Amount", class: "" },

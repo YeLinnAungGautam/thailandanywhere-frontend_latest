@@ -475,29 +475,42 @@
               <tr v-show="expandedRows.includes(item.id)">
                 <td colspan="20" class="px-2 md:px-4 py-0">
                   <div class="bg-gray-50 rounded-lg p-4 mb-2">
-                    <div class="flex justify-between items-center">
-                      <h4 class="text-sm font-semibold text-gray-900">
-                        Approval Actions
-                      </h4>
-                      <button
-                        @click="selectItemEdit(item)"
-                        class="px-4 py-2 text-xs shadow-md bg-[#FF613c] rounded-full text-white hover:bg-[#e55139] transition-colors flex items-center gap-2"
+                    <div class="grid grid-cols-5 gap-3">
+                      <!-- <div
+                        class="w-full h-full rounded-lg overflow-hidden"
+                        v-for="image in imageList[item.id]"
+                        :key="image"
                       >
-                        <svg
-                          class="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                        <img :src="image.file" alt="" class="w-full h-full" />
+                      </div> -->
+                      <div
+                        v-for="(image, index) in imageList[item.id]"
+                        :key="'existing-' + index"
+                        v-show="imagesPreview.length === 0"
+                        class="relative aspect-square h-[150px] w-full group"
+                      >
+                        <img
+                          class="w-full h-full object-cover rounded-lg border border-gray-200"
+                          :src="image.file"
+                          alt="Existing"
+                        />
+                        <button
+                          @click="openImageViewer(image.file, index)"
+                          class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                        Approve & Update
-                      </button>
+                          <EyeIcon class="w-6 h-6" />
+                        </button>
+                      </div>
+                      <div
+                        @click="selectItemEdit(item)"
+                        class="w-full h-full min-h-[100px] cursor-pointer rounded-lg overflow-hidden border border-dashed border-[#FF613c] flex justify-center items-center"
+                      >
+                        <p
+                          class="text-[#FF613c] text-sm flex justify-center items-center gap-x-3"
+                        >
+                          <PlusCircleIcon class="w-6 h-6" />Add New Image
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -1056,12 +1069,23 @@ const showDetailEdit = ref(false);
 const datePickerInput = ref(null);
 
 // Toggle row expansion
-const toggleRow = (itemId) => {
+const imageList = ref({});
+
+const toggleRow = async (itemId) => {
   const index = expandedRows.value.indexOf(itemId);
+
   if (index > -1) {
     expandedRows.value.splice(index, 1);
   } else {
+    if (imageList.value[itemId] === undefined) {
+      const data = await getProofImage(itemId);
+      imageList.value[itemId] = data;
+    }
     expandedRows.value.push(itemId);
+
+    console.log("====================================");
+    console.log(imageList.value, "this is image list");
+    console.log("====================================");
   }
 };
 
@@ -1167,6 +1191,7 @@ const getProofImage = async (id) => {
         : "invoice_mail_proof",
   });
   formData.value.editImagesPreview = res.result;
+  return res.result;
 };
 
 const updateReservationAction = async () => {
@@ -1296,6 +1321,8 @@ const watchSystem = computed(() => {
 const filterByType = (type) => {
   activeTag.value = type;
   searchKey.value.sentStatus = "all";
+  expandedRows.value = [];
+  imageList.value = {};
   searchAction();
 };
 

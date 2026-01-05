@@ -130,6 +130,8 @@ const dateFormat = (inputDateString) => {
   }
 };
 
+const onlyMe = ref(false);
+
 const watchSystem = computed(() => {
   let result = {};
   if (!openBookingTable.value) {
@@ -158,11 +160,13 @@ const watchSystem = computed(() => {
   if (order_by.value != "") {
     result.order_by = order_by.value;
   }
-  // if (!authStore.isSuperAdmin && !authStore.isReservation) {
-  //   result.created_by = authStore.user?.id;
-  // } else if (created_by.value != "") {
-  //   result.created_by = created_by.value;
-  // }
+  if (!authStore.isSuperAdmin && !authStore.isReservation) {
+    if (onlyMe.value) {
+      result.created_by = authStore.user?.id;
+    }
+  } else if (created_by.value != "") {
+    result.created_by = created_by.value;
+  }
   return result;
 });
 
@@ -190,6 +194,11 @@ watch(
     );
   }
 );
+
+watch(onlyMe, async () => {
+  console.log("onlyMe", onlyMe.value);
+  await availableStore.getListAction(watchSystem.value);
+});
 
 const toggleRows = (row) => {
   if (row.finish_booking) return;
@@ -717,6 +726,21 @@ onMounted(async () => {
             <div
               class="flex justify-center items-center gap-x-2 w-full sm:w-auto"
             >
+              <!-- Create Booking Button -->
+              <button
+                @click="onlyMe = !onlyMe"
+                :class="
+                  onlyMe
+                    ? 'bg-blue-600 text-white'
+                    : 'text-blue-600 border border-blue-300 bg-white'
+                "
+                class="flex items-center gap-2 appearance-none text-xs px-4 py-3 rounded-full shadow cursor-pointer focus:outline-none hover:bg-blue-100 transition-colors"
+              >
+                <EyeIcon class="w-4 h-4" />
+                {{
+                  onlyMe ? "See All Availabilities" : "See My Availabilities"
+                }}
+              </button>
               <!-- Create Booking Button -->
               <button
                 v-if="!authStore.isReservation"

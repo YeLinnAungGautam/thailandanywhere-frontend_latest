@@ -768,10 +768,7 @@
               </tr>
 
               <!-- Comments Row -->
-              <tr
-                v-if="item.fill_comment || item.comment_res"
-                class="bg-gray-50"
-              >
+              <tr v-if="item.fill_comment" class="bg-gray-50">
                 <td
                   colspan="14"
                   class="pr-4 pl-16 py-3 border-t-2 border-gray-200"
@@ -1293,14 +1290,7 @@ const getComments = (item) => {
       bgClass: "bg-blue-100",
     });
   }
-  if (item.comment_res) {
-    comments.push({
-      type: "Res",
-      text: item.comment_res,
-      badgeClass: "bg-orange-500",
-      bgClass: "bg-orange-100",
-    });
-  }
+
   return comments;
 };
 

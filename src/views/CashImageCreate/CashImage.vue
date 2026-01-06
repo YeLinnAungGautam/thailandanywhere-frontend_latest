@@ -1,5 +1,15 @@
 <template>
-  <div class="p-3">
+  <div class="p-3 relative">
+    <!-- Loading Overlay -->
+    <div
+      v-if="isExtractingData"
+      class="absolute inset-0 bg-white/80 flex items-center justify-center z-10"
+    >
+      <div class="text-center">
+        <i class="fa-solid fa-spinner fa-spin text-4xl text-[#ff613c] mb-2"></i>
+        <p class="text-sm font-medium">Extracting data from image...</p>
+      </div>
+    </div>
     <!-- Step 1: Choose Transfer Type -->
     <div v-if="step === 1" class="max-w-2xl mx-auto">
       <div class="grid grid-cols-2 gap-3 mt-3">
@@ -445,6 +455,19 @@
           </button>
         </div>
 
+        <!-- Loading Overlay -->
+        <div
+          v-if="isExtractingData"
+          class="absolute inset-0 bg-white/80 flex items-center justify-center z-10"
+        >
+          <div class="text-center">
+            <i
+              class="fa-solid fa-spinner fa-spin text-4xl text-[#ff613c] mb-2"
+            ></i>
+            <p class="text-sm font-medium">Extracting data from image...</p>
+          </div>
+        </div>
+
         <div class="p-4">
           <div class="grid grid-cols-2 gap-6">
             <!-- Image Upload Section -->
@@ -597,9 +620,17 @@ import { onMounted } from "vue";
 import { ref, computed, defineProps, watch } from "vue";
 import { useCashImageStore } from "../../stores/cashImage";
 import { useToast } from "vue-toastification";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const cashImageStore = useCashImageStore();
 const toast = useToast();
+
+// Initialize Gemini API
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY; // Replace with your API key
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+
+// Add loading state for AI extraction
+const isExtractingData = ref(false);
 
 // Define emits
 const emit = defineEmits([
@@ -713,28 +744,201 @@ const resetCashImageForm = () => {
   };
 };
 
-const handleCashImageFileChange = (event) => {
+// Updated handleCashImageFileChange with AI extraction
+const handleCashImageFileChange = async (event) => {
   const file = event.target.files[0];
   if (file) {
     cashImageForm.value.image = file;
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       cashImageForm.value.preview = e.target.result;
+
+      // Auto-extract data using Gemini
+      await extractTransactionData(file);
     };
     reader.readAsDataURL(file);
   }
 };
 
-const handleDirectFileChange = (event) => {
+// Updated handleDirectFileChange with AI extraction
+const handleDirectFileChange = async (event) => {
   const file = event.target.files[0];
   if (file) {
     directBankingForm.value.image = file;
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       directBankingForm.value.preview = e.target.result;
+
+      // Auto-extract data using Gemini
+      await extractDirectBankingData(file);
+      emitDirectBankingData();
     };
     reader.readAsDataURL(file);
-    emitDirectBankingData();
+  }
+};
+
+// Function to convert file to base64 for Gemini
+const fileToGenerativePart = async (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Data = reader.result.split(",")[1];
+      resolve({
+        inlineData: {
+          data: base64Data,
+          mimeType: file.type,
+        },
+      });
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+// Extract transaction data from cash image modal
+const extractTransactionData = async (file) => {
+  try {
+    isExtractingData.value = true;
+    toast.info("Extracting data from image...");
+
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    const imagePart = await fileToGenerativePart(file);
+
+    const prompt = `Analyze this bank transaction receipt/slip image and extract the following information in JSON format:
+    {
+      "sender": "sender name or account holder name",
+      "receiver": "receiver name or recipient name or destination",
+      "amount": "transaction amount (numbers only, no currency symbol)",
+      "currency": "currency code (THB, USD, or MMK)",
+      "date": "transaction date and time in ISO format (YYYY-MM-DDTHH:mm)",
+      "bank": "bank name if visible"
+    }
+    
+    Rules:
+    - Extract only visible information from the image
+    - For currency: detect THB (Thai Baht), USD (US Dollar), or MMK (Myanmar Kyat)
+    - For date: convert to ISO format. If time is not visible, use 00:00
+    - If any field is not clearly visible, use empty string ""
+    - Return ONLY valid JSON, no additional text
+    - Amount should be numeric value only
+    
+    Important: The image shows a transaction from "${
+      currentDirection.value === "from"
+        ? "source account"
+        : "destination account"
+    }".`;
+
+    const result = await model.generateContent([prompt, imagePart]);
+    const response = await result.response;
+    const text = response.text();
+
+    // Parse the JSON response
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const extractedData = JSON.parse(jsonMatch[0]);
+
+      // Auto-fill the form
+      if (extractedData.sender)
+        cashImageForm.value.sender = extractedData.sender;
+      if (extractedData.receiver)
+        cashImageForm.value.receiver = extractedData.receiver;
+      if (extractedData.amount)
+        cashImageForm.value.amount = parseFloat(extractedData.amount);
+      if (
+        extractedData.currency &&
+        ["THB", "USD", "MMK"].includes(extractedData.currency)
+      ) {
+        cashImageForm.value.currency = extractedData.currency;
+      }
+      if (extractedData.date) {
+        // Convert to datetime-local format
+        const dateObj = new Date(extractedData.date);
+        if (!isNaN(dateObj.getTime())) {
+          cashImageForm.value.date = dateObj.toISOString().slice(0, 16);
+        }
+      }
+
+      toast.success(
+        "Data extracted successfully! Please verify the information."
+      );
+    } else {
+      toast.warning("Could not extract data. Please fill manually.");
+    }
+  } catch (error) {
+    console.error("Error extracting data:", error);
+    toast.error("Failed to extract data. Please fill manually.");
+  } finally {
+    isExtractingData.value = false;
+  }
+};
+
+// Extract transaction data for direct banking
+const extractDirectBankingData = async (file) => {
+  try {
+    isExtractingData.value = true;
+    toast.info("Extracting data from image...");
+
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+    const imagePart = await fileToGenerativePart(file);
+
+    const prompt = `Analyze this bank transaction receipt/slip image and extract the following information in JSON format:
+    {
+      "sender": "sender name or account holder name",
+      "receiver": "receiver name or recipient name",
+      "amount": "transaction amount (numbers only)",
+      "currency": "currency code (THB, USD, or MMK)",
+      "date": "transaction date and time in ISO format (YYYY-MM-DDTHH:mm)"
+    }
+    
+    Rules:
+    - Extract only visible information
+    - For currency: detect THB, USD, or MMK
+    - For date: convert to ISO format
+    - If any field is not visible, use empty string ""
+    - Return ONLY valid JSON, no additional text`;
+
+    const result = await model.generateContent([prompt, imagePart]);
+    const response = await result.response;
+    const text = response.text();
+
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const extractedData = JSON.parse(jsonMatch[0]);
+
+      if (extractedData.sender)
+        directBankingForm.value.sender = extractedData.sender;
+      if (extractedData.receiver)
+        directBankingForm.value.receiver = extractedData.receiver;
+      if (extractedData.receiver.includes("TH ANYWHERE CO.,LTD."))
+        directBankingForm.value.interact_bank = "company";
+      if (extractedData.amount)
+        directBankingForm.value.amount = parseFloat(extractedData.amount);
+      if (
+        extractedData.currency &&
+        ["THB", "USD", "MMK"].includes(extractedData.currency)
+      ) {
+        directBankingForm.value.currency = extractedData.currency;
+      }
+      if (extractedData.date) {
+        const dateObj = new Date(extractedData.date);
+        if (!isNaN(dateObj.getTime())) {
+          directBankingForm.value.date = dateObj.toISOString().slice(0, 16);
+        }
+      }
+
+      toast.success(
+        "Data extracted successfully! Please verify the information."
+      );
+    } else {
+      toast.warning("Could not extract data. Please fill manually.");
+    }
+  } catch (error) {
+    console.error("Error extracting data:", error);
+    toast.error("Failed to extract data. Please fill manually.");
+  } finally {
+    isExtractingData.value = false;
   }
 };
 

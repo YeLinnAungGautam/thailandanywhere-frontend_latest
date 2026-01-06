@@ -111,10 +111,10 @@
                   to="/availabilities"
                   :activePaths="['availabilities']"
                 />
-                <div
+                <!-- <div
                   v-if="!authStore.isExternalAudit"
                   @click="toggleGroupShow"
-                  class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
+                  class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] pr-[10px] pl-[5px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
                 >
                   <ClipboardDocumentListIcon class="w-4 h-4" />
                   <p
@@ -133,12 +133,8 @@
                       v-if="isGroupShow"
                     />
                   </p>
-                </div>
-                <div
-                  class="transition-all duration-150"
-                  :class="isGroupShow ? '' : ''"
-                  v-if="isGroupShow"
-                >
+                </div> -->
+                <div class="transition-all duration-150">
                   <SidebarItem
                     name="Group Attraction"
                     label="attraction"
@@ -188,7 +184,7 @@
                 <div
                   v-if="!authStore.isExternalAudit"
                   @click="sidebarStore.toggleAccount"
-                  class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
+                  class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] pr-[10px] pl-[5px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
                 >
                   <FolderIcon class="w-4 h-4" />
                   <p
@@ -390,7 +386,7 @@
               <div
                 v-if="!authStore.isAuditor && !authStore.isExternalAudit"
                 @click="toggleSidebarShowSetting"
-                class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
+                class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] pr-[10px] pl-[5px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
               >
                 <Cog6ToothIcon class="w-4 h-4" />
                 <p

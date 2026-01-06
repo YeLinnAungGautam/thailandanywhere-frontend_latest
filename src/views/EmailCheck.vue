@@ -3,45 +3,18 @@
     <!-- Header -->
     <div
       :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
-      class="flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
+      class="space-y-1 transition-all duration-200 gap-2 text-sm pb-4 absolute top-4"
     >
-      <div
-        class="text-2xl md:text-3xl flex justify-start items-center font-medium text-[#FF613c]"
-      >
-        Mail Management
-        <div
-          class="flex justify-start items-center cursor-pointer ml-3 text-lg divide-x-2 border border-gray-200 rounded-full shadow-lg overflow-hidden"
-        >
-          <p
-            class="px-4 py-1"
-            :class="
-              product_type == 'hotel'
-                ? 'text-white bg-[#f63307]'
-                : 'text-gray-400'
-            "
-            @click="product_type = 'hotel'"
-          >
-            Hotel
-          </p>
-          <p
-            class="px-4 py-1"
-            :class="
-              product_type == 'attraction'
-                ? 'bg-[#f63307] text-white'
-                : 'text-gray-400'
-            "
-            @click="product_type = 'attraction'"
-          >
-            Ticket
-          </p>
-        </div>
-      </div>
+      <div class="text-xl font-semibold text-[#FF613c]">Mail Management</div>
+      <p class="text-gray-600">
+        Use the following module to make sure all data are added ahead of time.
+      </p>
     </div>
 
     <!-- Main Content -->
     <div class="w-full rounded-lg shadow-sm">
       <!-- Scorecard Section -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
         <!-- Prove Booking Card -->
         <div
           @click="filterByType('prove_booking')"
@@ -116,6 +89,41 @@
           </div>
         </div>
 
+        <!-- Invoice Card -->
+        <div
+          @click="filterByType('invoice_confirm')"
+          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+          :class="
+            activeTag == 'invoice_confirm'
+              ? 'border-4 border-red-600'
+              : 'border border-gray-100'
+          "
+        >
+          <div class="bg-gradient-to-r from-red-500 to-red-600 p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white text-sm font-medium opacity-90">Invoice</p>
+                <div class="flex items-baseline gap-2 mt-2">
+                  <span class="text-3xl font-bold text-white">Step 3</span>
+                </div>
+              </div>
+              <div class="bg-white/20 p-3 rounded-full">
+                <div
+                  class="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold bg-white text-red-600"
+                >
+                  3
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 bg-gray-50">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600">Invoice Submissions</span>
+              <span class="font-semibold text-gray-900">Awaiting Invoice</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Expense Card -->
         <div
           @click="filterByType('expense')"
@@ -131,14 +139,14 @@
               <div>
                 <p class="text-white text-sm font-medium opacity-90">Expense</p>
                 <div class="flex items-baseline gap-2 mt-2">
-                  <span class="text-3xl font-bold text-white">Step 3</span>
+                  <span class="text-3xl font-bold text-white">Step 4</span>
                 </div>
               </div>
               <div class="bg-white/20 p-3 rounded-full">
                 <div
                   class="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold bg-white text-orange-600"
                 >
-                  3
+                  4
                 </div>
               </div>
             </div>
@@ -158,6 +166,34 @@
       >
         <div class="flex items-center justify-between gap-4">
           <div class="flex items-center gap-2 flex-1">
+            <div class="relative">
+              <div
+                class="flex justify-between cursor-pointer items-center space-x-2"
+                @click="showToggleType = !showToggleType"
+              >
+                <p class="capitalize text-[#FF613c] font-semibold text-xl">
+                  {{ product_type }}
+                </p>
+                <ChevronDownIcon class="w-5 text-[#FF613c] h-5" />
+              </div>
+              <div
+                v-if="showToggleType"
+                class="absolute top-10 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
+              >
+                <p
+                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  @click="product_type = 'hotel'"
+                >
+                  Hotel
+                </p>
+                <p
+                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  @click="product_type = 'attraction'"
+                >
+                  Attraction
+                </p>
+              </div>
+            </div>
             <!-- Search CRM ID -->
             <div class="relative min-w-[180px]">
               <input
@@ -376,6 +412,19 @@
                       {{ item.have_invoice_mail ? "Complete" : "Missing" }}
                     </span>
                     <span
+                      v-if="activeTag == 'invoice_confirm'"
+                      class="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
+                      :class="
+                        item.have_booking_confirm_letter
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      "
+                    >
+                      {{
+                        item.have_booking_confirm_letter ? "Have" : "Missing"
+                      }}
+                    </span>
+                    <span
                       v-if="activeTag == 'expense'"
                       class="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
                       :class="
@@ -475,14 +524,10 @@
               <tr v-show="expandedRows.includes(item.id)">
                 <td colspan="20" class="px-2 md:px-4 py-0">
                   <div class="bg-gray-50 rounded-lg p-4 mb-2">
-                    <div class="grid grid-cols-5 gap-3">
-                      <!-- <div
-                        class="w-full h-full rounded-lg overflow-hidden"
-                        v-for="image in imageList[item.id]"
-                        :key="image"
-                      >
-                        <img :src="image.file" alt="" class="w-full h-full" />
-                      </div> -->
+                    <div
+                      class="grid grid-cols-5 gap-3"
+                      v-if="activeTag != 'invoice_confirm'"
+                    >
                       <div
                         v-for="(image, index) in imageList[item.id]"
                         :key="'existing-' + index"
@@ -510,6 +555,104 @@
                         >
                           <PlusCircleIcon class="w-6 h-6" />Add New Image
                         </p>
+                      </div>
+                    </div>
+                    <div
+                      v-if="activeTag == 'invoice_confirm'"
+                      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
+                    >
+                      <!-- Add New Invoice Card -->
+                      <div
+                        @click="openNewInvoiceModal(item)"
+                        class="bg-white rounded-lg min-h-[120px] cursor-pointer text-[#FF613c] text-sm flex justify-center items-center border border-[#FF613c] p-4 border-dashed hover:bg-[#FF613c]/5 transition-colors group"
+                      >
+                        <PlusCircleIcon class="w-5 h-5 mr-2" />
+                        Add New Invoice
+                      </div>
+
+                      <!-- Invoice Cards -->
+                      <div
+                        v-for="invoice in invoiceLists[item.id] || []"
+                        :key="invoice.id"
+                        @click="openEditInvoiceModal(invoice, item)"
+                        class="bg-white rounded-lg p-4 border border-gray-200 hover:border-[#FF613c] transition-colors group cursor-pointer"
+                      >
+                        <div class="flex items-start gap-3">
+                          <!-- Invoice Icon/Image -->
+                          <div
+                            class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center flex-shrink-0"
+                          >
+                            <DocumentDuplicateIcon
+                              class="w-6 h-6 text-blue-600"
+                            />
+                          </div>
+
+                          <div class="flex-1 min-w-0">
+                            <!-- Invoice Number & Status -->
+                            <div
+                              class="flex items-start justify-between gap-2 mb-2"
+                            >
+                              <h4
+                                class="text-sm font-semibold text-gray-900 truncate"
+                              >
+                                {{
+                                  invoice.meta?.invoice_number || "No Number"
+                                }}
+                              </h4>
+                              <span
+                                class="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full whitespace-nowrap"
+                              >
+                                {{
+                                  invoice.meta?.product_type?.includes("Hotel")
+                                    ? "Hotel"
+                                    : "Ticket"
+                                }}
+                              </span>
+                            </div>
+
+                            <!-- Invoice Details -->
+                            <div class="space-y-1">
+                              <div
+                                class="flex items-center justify-between text-xs"
+                              >
+                                <span class="text-gray-500">Amount:</span>
+                                <span class="font-medium text-gray-900">
+                                  {{
+                                    invoice.meta?.total_after_tax
+                                      ? formatCurrency(
+                                          invoice.meta.total_after_tax
+                                        )
+                                      : "-"
+                                  }}
+                                </span>
+                              </div>
+                              <div
+                                class="flex items-center justify-between text-xs"
+                              >
+                                <span class="text-gray-500">Product:</span>
+                                <span class="text-gray-700 truncate ml-2">{{
+                                  invoice.meta?.product_name || "-"
+                                }}</span>
+                              </div>
+                              <div
+                                class="flex items-center justify-between text-xs"
+                              >
+                                <span class="text-gray-500">Company:</span>
+                                <span class="text-gray-700 truncate ml-2">{{
+                                  invoice.meta?.company_legal_name || "-"
+                                }}</span>
+                              </div>
+                            </div>
+
+                            <!-- View/Edit Indicator -->
+                            <div
+                              class="mt-3 text-xs text-[#FF613c] font-medium flex items-center"
+                            >
+                              <PencilSquareIcon class="w-4 h-4 mr-1" />
+                              Click to edit
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1002,6 +1145,56 @@
         </div>
       </DialogPanel>
     </Modal>
+
+    <!-- Comment Modal -->
+    <Modal :isOpen="openCommentModal" @closeModal="closeCommentModal">
+      <DialogPanel
+        class="w-full max-w-xl transform rounded-xl bg-white p-6 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"
+        >
+          <AdjustmentsHorizontalIcon class="w-6 h-6 text-[#FF613c]" />
+          Add Comment
+        </DialogTitle>
+
+        <div class="space-y-4">
+          <textarea
+            v-model="comment"
+            class="w-full rounded-lg border border-gray-200 focus:outline-none px-4 py-3 text-sm text-gray-700"
+            rows="5"
+            placeholder="Comment"
+          ></textarea>
+          <div class="pt-4 border-t border-gray-200">
+            <button
+              @click="addCommentAction"
+              class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+            >
+              + Add Comment
+            </button>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+
+    <InvoiceModal
+      :isOpen="invoiceModalOpen"
+      :invoiceData="selectedInvoice"
+      :groupId="selectedItem?.id"
+      :groupData="selectedItem"
+      :openEditItemCost="openEditItemCost"
+      :itemData="itemLists[selectedItem?.id]"
+      @close="closeInvoiceModal"
+      @refresh="refreshInvoices"
+    />
+
+    <ItemCostModal
+      :isOpen="showEditItemCost"
+      :groupData="itemLists[selectedItem?.id] || {}"
+      :closeAction="closeEditItemCost"
+      :refreshAction="refreshExpenses"
+    />
   </Layout>
 </template>
 
@@ -1017,7 +1210,11 @@ import {
 import { XCircleIcon, PlusCircleIcon } from "@heroicons/vue/24/solid";
 import { useSidebarStore } from "../stores/sidebar";
 import { useGroupStore } from "../stores/group";
-import { PencilSquareIcon, EyeIcon } from "@heroicons/vue/24/outline";
+import {
+  PencilSquareIcon,
+  EyeIcon,
+  ChevronDownIcon,
+} from "@heroicons/vue/24/outline";
 import Modal from "../components/Modal.vue";
 import { useToast } from "vue-toastification";
 import EmailPart from "./GroupComponent/EmailPart.vue";
@@ -1025,6 +1222,8 @@ import Pagination from "../components/Pagination.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute } from "vue-router";
 import router from "../router";
+import InvoiceModal from "./GroupComponent/ExpensePart/InvoiceModal.vue";
+import ItemCostModal from "./GroupComponent/ExpensePart/ItemCostModal.vue";
 
 const toast = useToast();
 const sidebarStore = useSidebarStore();
@@ -1046,12 +1245,27 @@ const showImageViewer = ref(false);
 const currentViewImage = ref("");
 const currentImageIndex = ref(0);
 const expandedRows = ref([]);
+const showToggleType = ref(false);
 
 const formData = ref({
   images: [],
   date: null,
   editImagesPreview: [],
 });
+
+const showEditItemCost = ref(false);
+
+const openEditItemCost = () => {
+  if (selectedItem.value) {
+    console.log("Selected Item:", selectedItem.value);
+    console.log("Item Lists:", itemLists.value);
+    console.log("Current Group Data:", itemLists.value[selectedItem.value.id]);
+    showEditItemCost.value = true;
+    invoiceModalOpen.value = false;
+  } else {
+    toast.error("No booking data available");
+  }
+};
 
 const day = ref("");
 const month = ref("");
@@ -1071,15 +1285,41 @@ const datePickerInput = ref(null);
 // Toggle row expansion
 const imageList = ref({});
 
+const invoiceLists = ref({});
+
+// Add function to fetch invoices for a specific group
+const fetchGroupInvoices = async (groupId) => {
+  try {
+    const response = await groupStore.groupDocumentList(groupId, {
+      document_type: "booking_confirm_letter",
+    });
+
+    if (response?.result) {
+      invoiceLists.value[groupId] = response.result;
+    }
+  } catch (error) {
+    console.error("Error fetching invoices:", error);
+  }
+};
+
 const toggleRow = async (itemId) => {
   const index = expandedRows.value.indexOf(itemId);
 
   if (index > -1) {
     expandedRows.value.splice(index, 1);
   } else {
-    if (imageList.value[itemId] === undefined) {
-      const data = await getProofImage(itemId);
-      imageList.value[itemId] = data;
+    if (activeTag.value != "invoice_confirm") {
+      if (imageList.value[itemId] === undefined) {
+        const data = await getProofImage(itemId);
+        imageList.value[itemId] = data;
+      }
+    } else {
+      if (!invoiceLists.value[itemId]) {
+        await fetchGroupInvoices(itemId);
+      }
+      if (!itemLists.value[itemId]) {
+        await fetchGroupExpenses(itemId);
+      }
     }
     expandedRows.value.push(itemId);
 
@@ -1087,6 +1327,26 @@ const toggleRow = async (itemId) => {
     console.log(imageList.value, "this is image list");
     console.log("====================================");
   }
+};
+
+const selectedInvoice = ref(null);
+const invoiceModalOpen = ref(false);
+
+const openNewInvoiceModal = (item) => {
+  selectedInvoice.value = null;
+  selectedItem.value = item;
+  invoiceModalOpen.value = true;
+};
+
+const closeEditItemCost = () => {
+  showEditItemCost.value = false;
+};
+
+// Open modal for editing invoice
+const openEditInvoiceModal = (invoice, item) => {
+  selectedInvoice.value = invoice;
+  selectedItem.value = item;
+  invoiceModalOpen.value = true;
 };
 
 // Date functions
@@ -1181,6 +1441,13 @@ const removeImageUpdateImage = async (imageID) => {
   }
 };
 
+const refreshExpenses = async () => {
+  if (selectedItem.value?.id) {
+    await fetchGroupExpenses(selectedItem.value.id);
+    await getListAction(); // Refresh main list
+  }
+};
+
 const getProofImage = async (id) => {
   const res = await groupStore.groupDocumentList(id, {
     document_type:
@@ -1251,6 +1518,10 @@ const resetCloseAction = () => {
   year.value = "";
   formData.value.editImagesPreview = [];
   formData.value.date = null;
+};
+
+const closeInvoiceModal = () => {
+  invoiceModalOpen.value = false;
 };
 
 const removeImageSelectImage = (index) => {
@@ -1339,6 +1610,14 @@ const selectItem = async (item) => {
   showDetail.value = true;
 };
 
+const refreshInvoices = async () => {
+  if (selectedItem.value?.id) {
+    await fetchGroupInvoices(selectedItem.value.id);
+
+    await getListAction(); // Refresh main list
+  }
+};
+
 const selectItemEdit = async (item) => {
   selectedItem.value = item;
   formData.value.date =
@@ -1416,6 +1695,29 @@ const formatCurrency = (amount) => {
     style: "currency",
     currency: "THB",
   }).format(amount);
+};
+
+// Add this near your other ref declarations at the top
+const expenseLists = ref({});
+const itemLists = ref({});
+
+// Update the fetchGroupExpenses function
+const fetchGroupExpenses = async (groupId) => {
+  try {
+    const response = await groupStore.detailAction(groupId);
+    if (response?.result) {
+      // Store the expense data
+      if (response.result.expense) {
+        expenseLists.value[groupId] = response.result.expense;
+      }
+      // Store the full result including items
+      itemLists.value[groupId] = response.result;
+      console.log(response.result, "this is group expense");
+    }
+  } catch (error) {
+    console.error("Error fetching expenses:", error);
+    toast.error("Failed to fetch expense data");
+  }
 };
 
 const fetchData = async () => {

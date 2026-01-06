@@ -5,7 +5,7 @@
       :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
       class="space-y-1 transition-all duration-200 gap-2 text-sm pb-4 absolute top-4"
     >
-      <div class="text-lg font-semibold text-[#FF613c]">Fill Data</div>
+      <div class="text-xl font-semibold text-[#FF613c]">Fill Data</div>
       <p class="text-gray-600">
         Use the following module to make sure all data are added ahead of time.
       </p>
@@ -18,13 +18,17 @@
         <!-- Passport Card -->
         <div
           @click="activeSelectAction('passport')"
-          class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+          class="bg-white relative rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
           :class="
             activeSelect == 'passport'
               ? 'border-4 border-orange-600'
               : 'border-4 border-gray-100'
           "
         >
+          <div
+            v-if="activeSelect == 'passport'"
+            class="w-3 h-3 bg-white rounded-full absolute top-[46px] right-4 shadow-white shadow-xl"
+          ></div>
           <div class="bg-gradient-to-r from-orange-600 to-orange-700 p-4">
             <div class="flex items-center space-x-4 justify-between">
               <div class="bg-white/20 p-3 rounded-xl">
@@ -51,13 +55,17 @@
         <!-- Customer Card -->
         <div
           @click="activeSelectAction('customer')"
-          class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+          class="bg-white relative rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
           :class="
             activeSelect == 'customer'
               ? 'border-4 border-blue-600'
               : 'border-4 border-gray-100'
           "
         >
+          <div
+            v-if="activeSelect == 'customer'"
+            class="w-3 h-3 bg-white rounded-full absolute top-[46px] right-4 shadow-white shadow-xl"
+          ></div>
           <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
             <div class="flex items-center space-x-4 justify-between">
               <div class="bg-white/20 p-3 rounded-xl">
@@ -84,13 +92,17 @@
         <!-- Invoice Card -->
         <div
           @click="activeSelectAction('comment')"
-          class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+          class="bg-white relative rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
           :class="
             activeSelect == 'comment'
               ? 'border-4 border-green-600'
               : 'border-4 border-gray-100'
           "
         >
+          <div
+            v-if="activeSelect == 'comment'"
+            class="w-3 h-3 bg-white rounded-full absolute top-[46px] right-4 shadow-white shadow-xl"
+          ></div>
           <div class="bg-gradient-to-r from-green-600 to-green-700 p-4">
             <div class="flex items-center space-x-4 justify-between">
               <div class="bg-white/20 p-3 rounded-xl">
@@ -120,7 +132,7 @@
         class="p-3 md:p-4 border-b border-gray-200 sticky bg-white -top-6 z-20"
       >
         <div class="flex items-center justify-between gap-4">
-          <div
+          <!-- <div
             class="flex justify-start items-center cursor-pointer ml-3 text-sm divide-x-2 border border-gray-200 rounded-full shadow-lg overflow-hidden"
           >
             <p
@@ -145,8 +157,91 @@
             >
               Ticket
             </p>
+          </div> -->
+          <div class="relative">
+            <div
+              class="flex justify-between cursor-pointer items-center space-x-2"
+              @click="showToggleType = !showToggleType"
+            >
+              <p class="capitalize text-[#FF613c] font-semibold text-xl">
+                {{ productType }}
+              </p>
+              <ChevronDownIcon class="w-5 text-[#FF613c] h-5" />
+            </div>
+            <div
+              v-if="showToggleType"
+              class="absolute top-10 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
+            >
+              <p
+                class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                @click="productType = 'hotel'"
+              >
+                Hotel
+              </p>
+              <p
+                class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                @click="productType = 'attraction'"
+              >
+                Attraction
+              </p>
+            </div>
           </div>
           <div class="flex items-center gap-2 flex-1">
+            <!-- <button
+              @click="searchAction"
+              class="bg-[#FF613c] px-4 rounded-full shadow-lg py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer hover:bg-[#e55139] transition-colors"
+            >
+              <MagnifyingGlassIcon class="w-4 h-4 text-white" />
+              <p>Search</p>
+            </button> -->
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Day filter -->
+            <button
+              @click="getExpenseDate('today')"
+              :class="
+                expense_date_selected == 'today'
+                  ? 'text-white bg-[#e55139]'
+                  : 'text-[#FF613c] bg-white'
+              "
+              class="flex items-center gap-2 px-4 py-2.5 text-xs hover:text-white rounded-full cursor-pointer hover:bg-[#e55139] transition-colors"
+            >
+              Today
+            </button>
+            <button
+              @click="getExpenseDate('tomorrow')"
+              :class="
+                expense_date_selected == 'tomorrow'
+                  ? 'text-white bg-[#e55139]'
+                  : 'text-[#FF613c] bg-white'
+              "
+              class="flex items-center gap-2 px-4 py-2.5 text-xs hover:text-white rounded-full cursor-pointer hover:bg-[#e55139] transition-colors"
+            >
+              Tomorrow
+            </button>
+            <button
+              @click="getExpenseDate('next 2 days')"
+              :class="
+                expense_date_selected == 'next 2 days'
+                  ? 'text-white bg-[#e55139]'
+                  : 'text-[#FF613c] bg-white'
+              "
+              class="flex items-center gap-2 px-4 py-2.5 text-xs hover:text-white rounded-full cursor-pointer hover:bg-[#e55139] transition-colors"
+            >
+              Next 2 Days
+            </button>
+            <button
+              @click="getExpenseDate('this month')"
+              :class="
+                expense_date_selected == 'this month'
+                  ? 'text-white bg-[#e55139]'
+                  : 'text-[#FF613c] bg-white'
+              "
+              class="flex items-center gap-2 px-4 py-2.5 text-xs hover:text-white rounded-full cursor-pointer hover:bg-[#e55139] transition-colors"
+            >
+              This Month
+            </button>
             <!-- Search CRM ID -->
             <div class="relative min-w-[180px]">
               <input
@@ -175,47 +270,20 @@
                 class="w-full px-4 py-2.5 rounded-full shadow-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#FF613c] text-xs"
                 @keyup.enter="searchAction"
               />
+              <div
+                @click="searchAction"
+                class="absolute right-1 top-1 rounded-full text-xs p-1.5 bg-[#FF613c] cursor-pointer hover:bg-[#e55139] transition-colors"
+              >
+                <MagnifyingGlassIcon class="w-4 h-4 text-white" />
+              </div>
             </div>
-            <button
-              @click="searchAction"
-              class="bg-[#FF613c] px-4 rounded-full shadow-lg py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer hover:bg-[#e55139] transition-colors"
-            >
-              <MagnifyingGlassIcon class="w-4 h-4 text-white" />
-              <p>Search</p>
-            </button>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <!-- Day filter -->
-            <button
-              @click="getExpenseDate('today')"
-              :class="
-                expense_date_selected == 'today'
-                  ? 'text-white bg-[#e55139]'
-                  : 'text-[#FF613c] bg-white'
-              "
-              class="flex items-center gap-2 px-4 py-2.5 text-xs border border-gray-200 hover:text-white rounded-full cursor-pointer hover:bg-[#e55139] transition-colors shadow-lg"
-            >
-              Today
-            </button>
-            <button
-              @click="getExpenseDate('tomorrow')"
-              :class="
-                expense_date_selected == 'tomorrow'
-                  ? 'text-white bg-[#e55139]'
-                  : 'text-[#FF613c] bg-white'
-              "
-              class="flex items-center gap-2 px-4 py-2.5 text-xs border border-gray-200 hover:text-white rounded-full cursor-pointer hover:bg-[#e55139] transition-colors shadow-lg"
-            >
-              Tomorrow
-            </button>
             <!-- Filters Button -->
             <button
               @click="filterShow = !filterShow"
               class="bg-[#FF613c] px-4 rounded-full shadow-lg py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer hover:bg-[#e55139] transition-colors"
             >
-              <FunnelIcon class="w-4 h-4 text-white" />
-              <p>Filters</p>
+              <Bars3BottomRightIcon class="w-4 h-4 text-white" />
+              <!-- <p>Filters</p> -->
             </button>
             <!-- Refresh Button -->
             <button
@@ -1100,6 +1168,7 @@ import {
   ArrowDownCircleIcon,
   PlusCircleIcon,
   DocumentCurrencyDollarIcon,
+  Bars3BottomRightIcon,
 } from "@heroicons/vue/24/outline";
 import {
   ChatBubbleBottomCenterTextIcon,
@@ -1117,6 +1186,7 @@ import { useReservationStore } from "../stores/reservation";
 import { useAuthStore } from "../stores/auth";
 import { useSidebarStore } from "../stores/sidebar";
 import PassportModal from "./GroupComponent/ExpensePart/Passport.vue";
+import { ChevronDownIcon } from "@heroicons/vue/24/outline";
 
 // Stores
 const toast = useToast();
@@ -1156,6 +1226,7 @@ const invoiceModalOpen = ref(false);
 const selectedInvoice = ref(null);
 const passportLists = ref({});
 const itemLists = ref({});
+const showToggleType = ref(false);
 
 // Constants
 const tableHeaders = [
@@ -1442,6 +1513,7 @@ const tableActions = ref([
 const expense_date_selected = ref("");
 const getExpenseDate = async (date) => {
   const today = new Date().toISOString().split("T")[0];
+
   switch (date) {
     case "today":
       expense_date_selected.value = "today";
@@ -1449,6 +1521,7 @@ const getExpenseDate = async (date) => {
       endDate.value = today;
       await getListAction();
       break;
+
     case "tomorrow":
       expense_date_selected.value = "tomorrow";
       const tomorrow = new Date();
@@ -1456,6 +1529,30 @@ const getExpenseDate = async (date) => {
       const tomorrowDate = tomorrow.toISOString().split("T")[0];
       startDate.value = tomorrowDate;
       endDate.value = tomorrowDate;
+      await getListAction();
+      break;
+
+    case "next 2 days":
+      expense_date_selected.value = "next 2 days";
+      const next = new Date();
+      next.setDate(next.getDate() + 2);
+      const nextDate = next.toISOString().split("T")[0];
+      startDate.value = nextDate;
+      endDate.value = nextDate;
+      await getListAction();
+      break;
+
+    case "this month":
+      expense_date_selected.value = "this month";
+      const now = new Date();
+
+      // Start date is today
+      startDate.value = today;
+
+      // End date is last day of current month
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      endDate.value = lastDay.toISOString().split("T")[0];
+
       await getListAction();
       break;
   }

@@ -566,6 +566,7 @@ import { useHotelStore } from "../../../stores/hotel";
 import { useGroupStore } from "../../../stores/group";
 import { formattedNumber } from "../../help/FormatData";
 import { daysBetween } from "../../help/DateBetween";
+import { onMounted } from "vue";
 
 const props = defineProps({
   isOpen: Boolean,
@@ -664,6 +665,8 @@ const showItemPriceBreakdown = async (item, index) => {
 // Initialize local data
 const initializeLocalData = () => {
   if (props.groupData?.items && props.groupData.items.length > 0) {
+    // Initialize local data
+
     localItems.value = props.groupData.items.map((item) => ({
       id: item.id,
       cost_price: item.cost_price || 0,
@@ -683,6 +686,8 @@ const initializeLocalData = () => {
     displayValues.value = localItems.value.map((item) =>
       item.total_cost_price > 0 ? formattedNumber(item.total_cost_price) : ""
     );
+
+    console.log(localItems.value, "this is item");
   }
 };
 

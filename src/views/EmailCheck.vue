@@ -521,6 +521,13 @@
                     <PencilSquareIcon class="w-5 h-5" />
                   </button>
                   <button
+                    v-show="activeTag != 'invoice_confirm'"
+                    @click.stop="copyModalAction(item)"
+                    class="flex bg-orange-600 text-white items-center gap-2 px-2 py-1.5 transition-colors rounded-lg hover:bg-orange-700"
+                  >
+                    <DocumentDuplicateIcon class="w-5 h-5" />
+                  </button>
+                  <button
                     @click.stop="selectItem(item)"
                     class="flex bg-green-600 text-white items-center gap-2 px-2 py-1.5 transition-colors rounded-lg hover:bg-green-700"
                   >
@@ -1118,6 +1125,94 @@
       </DialogPanel>
     </Modal>
 
+    <Modal :isOpen="showCopyModal">
+      <DialogPanel
+        class="w-full max-w-xl transform overflow-hidden rounded-xl bg-white text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-lg font-semibold text-gray-900 mb-4 flex justify-between items-center p-6 border-b"
+        >
+          <div class="flex items-center gap-2">
+            <svg
+              class="w-6 h-6 text-[#FF613c]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            <span>Copy Line or Email</span>
+          </div>
+          <button
+            @click="closeDetailEdit"
+            class="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <XCircleIcon class="w-5 h-5 text-gray-500" />
+          </button>
+        </DialogTitle>
+
+        <div>
+          <div class="p-6 flex justify-between space-x-4 items-center">
+            <div
+              v-if="product_type == 'attraction'"
+              @click="
+                () => {
+                  showLineCopyModal = true;
+                  showCopyModal = false;
+                }
+              "
+              class="flex items-center w-full bg-orange-200 shadow-inner p-4 rounded-xl gap-2"
+            >
+              <svg
+                class="w-6 h-6 text-[#FF613c]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              <span>Copy Line</span>
+            </div>
+            <div
+              @click="
+                () => {
+                  showDetail = true;
+                  showCopyModal = false;
+                }
+              "
+              class="flex items-center w-full bg-green-200 shadow-inner p-4 rounded-xl gap-2"
+            >
+              <svg
+                class="w-6 h-6 text-[#FF613c]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              <span>Copy Email</span>
+            </div>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
+
     <!-- Image Viewer Modal -->
     <Modal :isOpen="showImageViewer">
       <DialogPanel
@@ -1238,6 +1333,12 @@
       :closeAction="closeEditItemCost"
       :refreshAction="refreshExpenses"
     />
+
+    <BookingCopyModel
+      :openModal="showLineCopyModal"
+      :closeModal="closeDetail"
+      :bookingItem="detail"
+    />
   </Layout>
 </template>
 
@@ -1268,6 +1369,7 @@ import { useRoute } from "vue-router";
 import router from "../router";
 import InvoiceModal from "./GroupComponent/ExpensePart/InvoiceModal.vue";
 import ItemCostModal from "./GroupComponent/ExpensePart/ItemCostModal.vue";
+import BookingCopyModel from "./GroupComponent/BookingCopyModel.vue";
 
 const toast = useToast();
 const sidebarStore = useSidebarStore();
@@ -1290,6 +1392,7 @@ const currentViewImage = ref("");
 const currentImageIndex = ref(0);
 const expandedRows = ref([]);
 const showToggleType = ref(false);
+const showLineCopyModal = ref(false);
 
 const formData = ref({
   images: [],
@@ -1672,6 +1775,15 @@ const selectItem = async (item) => {
   showDetail.value = true;
 };
 
+const showCopyModal = ref(false);
+const copyModalAction = async (item) => {
+  selectedItem.value = item;
+  const res = await groupStore.detailAction(item.id);
+  detail.value = res.result;
+
+  showCopyModal.value = true;
+};
+
 const handleEdit = async (item) => {
   selectedItem.value = item;
   // console.log("Selected Item:", selectedItem.value);
@@ -1717,11 +1829,13 @@ const closeDetail = () => {
   showDetail.value = false;
   detail.value = {};
   selectedItem.value = null;
+  showLineCopyModal.value = false;
 };
 
 const closeDetailEdit = () => {
   showDetailEdit.value = false;
   selectedItem.value = null;
+  showCopyModal.value = false;
   resetCloseAction();
 };
 

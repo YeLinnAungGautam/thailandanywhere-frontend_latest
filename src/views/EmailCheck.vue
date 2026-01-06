@@ -332,7 +332,11 @@
               <th
                 class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
               >
-                Mail Status
+                {{
+                  activeTag != "invoice_confirm"
+                    ? "Mail Status"
+                    : "Invoice Status"
+                }}
               </th>
               <th
                 class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
@@ -415,14 +419,12 @@
                       v-if="activeTag == 'invoice_confirm'"
                       class="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
                       :class="
-                        item.have_booking_confirm_letter
+                        item.has_booking_confirm_letter
                           ? 'bg-green-100 text-green-800'
                           : 'bg-red-100 text-red-800'
                       "
                     >
-                      {{
-                        item.have_booking_confirm_letter ? "Have" : "Missing"
-                      }}
+                      {{ item.has_booking_confirm_letter ? "Have" : "Missing" }}
                     </span>
                     <span
                       v-if="activeTag == 'expense'"
@@ -482,7 +484,8 @@
                 <!-- Room Qty -->
                 <td class="px-2 md:px-4 py-4">
                   <p class="text-sm text-gray-700">
-                    {{ getRoomQty(item) }} room
+                    {{ getRoomQty(item) }}
+                    {{ product_type == "hotel" ? "Room" : "Ticket" }}
                   </p>
                 </td>
 
@@ -511,11 +514,17 @@
                   class="px-2 flex justify-end items-center space-x-2 md:px-4 py-4"
                 >
                   <button
+                    v-show="activeTag == 'invoice_confirm'"
+                    @click.stop="handleEdit(item)"
+                    class="flex bg-blue-600 text-white items-center gap-2 px-2 py-1.5 transition-colors rounded-lg hover:bg-blue-700"
+                  >
+                    <PencilSquareIcon class="w-5 h-5" />
+                  </button>
+                  <button
                     @click.stop="selectItem(item)"
-                    class="flex bg-green-600 text-white items-center gap-2 px-3 py-1.5 transition-colors rounded-lg hover:bg-green-700"
+                    class="flex bg-green-600 text-white items-center gap-2 px-2 py-1.5 transition-colors rounded-lg hover:bg-green-700"
                   >
                     <InformationCircleIcon class="w-5 h-5" />
-                    <span class="text-xs">Info</span>
                   </button>
                 </td>
               </tr>
@@ -651,6 +660,40 @@
                               <PencilSquareIcon class="w-4 h-4 mr-1" />
                               Click to edit
                             </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="item.fill_comment" class="bg-gray-50">
+                <td
+                  colspan="14"
+                  class="pr-4 pl-16 py-3 border-t-2 border-gray-200"
+                  style="box-shadow: inset 0 8px 6px -6px rgba(0, 0, 0, 0.1)"
+                >
+                  <div class="space-y-2">
+                    <div
+                      v-for="comment in getComments(item)"
+                      :key="comment.type"
+                      class="flex items-center gap-2"
+                    >
+                      <div class="flex-shrink-0">
+                        <div
+                          :class="comment.badgeClass"
+                          class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold"
+                        >
+                          {{ comment.type }}
+                        </div>
+                      </div>
+                      <div class="flex-1">
+                        <div
+                          :class="comment.bgClass"
+                          class="flex justify-start items-center gap-x-4 rounded-lg shadow-sm px-3 py-2 border border-gray-200"
+                        >
+                          <div class="text-sm text-gray-700">
+                            {{ comment.text }}
                           </div>
                         </div>
                       </div>
@@ -1203,6 +1246,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import { storeToRefs } from "pinia";
 import Layout from "./Layout.vue";
 import {
+  DocumentDuplicateIcon,
   FunnelIcon,
   InformationCircleIcon,
   MagnifyingGlassIcon,
@@ -1411,7 +1455,11 @@ const openFileImagePicker = () => {
 const getRoomQty = (item) => {
   let total = 0;
   item?.items.forEach((room) => {
-    total += room.quantity * room.days;
+    if (room.days) {
+      total += room.quantity * room.days;
+    } else {
+      total += room.quantity;
+    }
   });
   return total;
 };
@@ -1524,6 +1572,20 @@ const closeInvoiceModal = () => {
   invoiceModalOpen.value = false;
 };
 
+const getComments = (item) => {
+  const comments = [];
+  if (item.fill_comment) {
+    comments.push({
+      type: "Sale",
+      text: item.fill_comment,
+      badgeClass: "bg-blue-500",
+      bgClass: "bg-blue-100",
+    });
+  }
+
+  return comments;
+};
+
 const removeImageSelectImage = (index) => {
   formData.value.images.splice(index, 1);
   imagesPreview.value.splice(index, 1);
@@ -1608,6 +1670,19 @@ const selectItem = async (item) => {
   const res = await groupStore.detailAction(item.id);
   detail.value = res.result;
   showDetail.value = true;
+};
+
+const handleEdit = async (item) => {
+  selectedItem.value = item;
+  // console.log("Selected Item:", selectedItem.value);
+  // console.log("Item Lists:", itemLists.value);
+  // console.log("Current Group Data:", itemLists.value[selectedItem.value.id]);
+
+  if (!itemLists.value[selectedItem.value.id]) {
+    await fetchGroupExpenses(selectedItem.value.id);
+  }
+  showEditItemCost.value = true;
+  invoiceModalOpen.value = false;
 };
 
 const refreshInvoices = async () => {

@@ -3,99 +3,47 @@
     <!-- Header -->
     <div
       :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
-      class="flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
+      class="space-y-1 transition-all duration-200 gap-2 text-sm pb-4 absolute top-4"
     >
-      <div
-        class="text-2xl md:text-3xl flex justify-start items-center font-medium text-[#FF613c]"
-      >
-        Fill Data
-        <div
-          class="flex justify-start items-center cursor-pointer ml-3 text-lg divide-x-2 border border-gray-200 rounded-full shadow-lg overflow-hidden"
-        >
-          <p
-            class="px-4 py-1"
-            :class="
-              productType == 'hotel'
-                ? 'text-white bg-[#f63307]'
-                : 'text-gray-400'
-            "
-            @click="productType = 'hotel'"
-          >
-            Hotel
-          </p>
-          <p
-            class="px-4 py-1"
-            :class="
-              productType == 'attraction'
-                ? 'bg-[#f63307] text-white'
-                : 'text-gray-400'
-            "
-            @click="productType = 'attraction'"
-          >
-            Ticket
-          </p>
-        </div>
-      </div>
+      <div class="text-lg font-semibold text-[#FF613c]">Fill Data</div>
+      <p class="text-gray-600">
+        Use the following module to make sure all data are added ahead of time.
+      </p>
     </div>
 
     <!-- Main Content -->
     <div class="w-full rounded-lg shadow-sm">
       <!-- Scorecard Section -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-4">
         <!-- Passport Card -->
         <div
           @click="activeSelectAction('passport')"
-          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+          class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
           :class="
             activeSelect == 'passport'
-              ? 'border-4 border-yellow-600'
-              : 'border border-gray-100'
+              ? 'border-4 border-orange-600'
+              : 'border-4 border-gray-100'
           "
         >
-          <div class="bg-gradient-to-r from-yellow-600 to-yellow-700 p-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-white text-sm font-medium opacity-90">
-                  Passport Next 2 Days
+          <div class="bg-gradient-to-r from-orange-600 to-orange-700 p-4">
+            <div class="flex items-center space-x-4 justify-between">
+              <div class="bg-white/20 p-3 rounded-xl">
+                <DocumentDuplicateIcon class="w-10 h-10 text-white" />
+              </div>
+              <div class="w-full">
+                <p class="text-white text-lg font-medium opacity-90">
+                  Passports
                 </p>
-                <div class="flex items-baseline gap-2 mt-2">
-                  <span class="text-3xl font-bold text-white">
-                    {{ groups?.meta?.without_confirmation_letter || 0 }}
+                <div class="flex items-baseline gap-2">
+                  <span class="text-4xl font-bold text-white">
+                    {{ groups?.meta?.passport_have_2_days || 0 }}
                   </span>
                   <span class="text-white text-lg opacity-75">/</span>
-                  <span class="text-xl text-white opacity-90">
-                    {{ groups?.meta?.total_next_7_days || 0 }}
+                  <span class="text-xl text-white font-medium opacity-90">
+                    {{ groups?.meta?.total_next_2_days || 0 }}
                   </span>
                 </div>
               </div>
-              <div class="bg-white/20 p-3 rounded-full">
-                <DocumentDuplicateIcon class="w-8 h-8 text-white" />
-              </div>
-            </div>
-          </div>
-          <div class="p-4 bg-gray-50">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-600">Finish Rate</span>
-              <span class="font-semibold text-gray-900">
-                {{
-                  calculateRemaining(
-                    groups?.meta?.total_next_7_days,
-                    groups?.meta?.without_confirmation_letter
-                  )
-                }}
-                ခုကျန်
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div
-                class="bg-orange-500 h-2 rounded-full transition-all duration-500"
-                :style="{
-                  width: calculatePercentage(
-                    groups?.meta?.without_confirmation_letter,
-                    groups?.meta?.total_next_7_days
-                  ),
-                }"
-              ></div>
             </div>
           </div>
         </div>
@@ -103,57 +51,32 @@
         <!-- Customer Card -->
         <div
           @click="activeSelectAction('customer')"
-          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+          class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
           :class="
             activeSelect == 'customer'
               ? 'border-4 border-blue-600'
-              : 'border border-gray-100'
+              : 'border-4 border-gray-100'
           "
         >
-          <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-white text-sm font-medium opacity-90">
-                  Customer Next 2 Days
+          <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
+            <div class="flex items-center space-x-4 justify-between">
+              <div class="bg-white/20 p-3 rounded-xl">
+                <CurrencyDollarIcon class="w-10 h-10 text-white" />
+              </div>
+              <div class="w-full">
+                <p class="text-white text-lg font-medium opacity-90">
+                  Customers
                 </p>
-                <div class="flex items-baseline gap-2 mt-2">
-                  <span class="text-3xl font-bold text-white">
+                <div class="flex items-baseline gap-2">
+                  <span class="text-4xl font-bold text-white">
                     {{ groups?.meta?.customer_fully_paid || 0 }}
                   </span>
                   <span class="text-white text-lg opacity-75">/</span>
-                  <span class="text-xl text-white opacity-90">
+                  <span class="text-xl text-white font-medium opacity-90">
                     {{ groups?.meta?.total_next_2_days || 0 }}
                   </span>
                 </div>
               </div>
-              <div class="bg-white/20 p-3 rounded-full">
-                <WalletIcon class="w-8 h-8 text-white" />
-              </div>
-            </div>
-          </div>
-          <div class="p-4 bg-gray-50">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-600">Finish Rate</span>
-              <span class="font-semibold text-gray-900">
-                {{
-                  calculateRemaining(
-                    groups?.meta?.total_next_2_days,
-                    groups?.meta?.customer_fully_paid
-                  )
-                }}
-                ခုကျန်
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div
-                class="bg-blue-500 h-2 rounded-full transition-all duration-500"
-                :style="{
-                  width: calculatePercentage(
-                    groups?.meta?.customer_fully_paid,
-                    groups?.meta?.total_next_2_days
-                  ),
-                }"
-              ></div>
             </div>
           </div>
         </div>
@@ -161,57 +84,32 @@
         <!-- Invoice Card -->
         <div
           @click="activeSelectAction('comment')"
-          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+          class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
           :class="
             activeSelect == 'comment'
               ? 'border-4 border-green-600'
-              : 'border border-gray-100'
+              : 'border-4 border-gray-100'
           "
         >
           <div class="bg-gradient-to-r from-green-600 to-green-700 p-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-white text-sm font-medium opacity-90">
-                  Comment Next 2 Days
+            <div class="flex items-center space-x-4 justify-between">
+              <div class="bg-white/20 p-3 rounded-xl">
+                <ChatBubbleBottomCenterTextIcon class="w-10 h-10 text-white" />
+              </div>
+              <div class="w-full">
+                <p class="text-white text-lg font-medium opacity-90">
+                  Comments
                 </p>
-                <div class="flex items-baseline gap-2 mt-2">
-                  <span class="text-3xl font-bold text-white">
-                    {{ groups?.meta?.without_confirmation_letter || 0 }}
+                <div class="flex items-baseline gap-2">
+                  <span class="text-4xl font-bold text-white">
+                    {{ groups?.meta?.fill_status_not_pending_2_days || 0 }}
                   </span>
                   <span class="text-white text-lg opacity-75">/</span>
-                  <span class="text-xl text-white opacity-90">
-                    {{ groups?.meta?.total_next_7_days || 0 }}
+                  <span class="text-xl text-white font-medium opacity-90">
+                    {{ groups?.meta?.total_next_2_days || 0 }}
                   </span>
                 </div>
               </div>
-              <div class="bg-white/20 p-3 rounded-full">
-                <DocumentDuplicateIcon class="w-8 h-8 text-white" />
-              </div>
-            </div>
-          </div>
-          <div class="p-4 bg-gray-50">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-600">Finish Rate</span>
-              <span class="font-semibold text-gray-900">
-                {{
-                  calculateRemaining(
-                    groups?.meta?.total_next_7_days,
-                    groups?.meta?.without_confirmation_letter
-                  )
-                }}
-                ခုကျန်
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div
-                class="bg-orange-500 h-2 rounded-full transition-all duration-500"
-                :style="{
-                  width: calculatePercentage(
-                    groups?.meta?.without_confirmation_letter,
-                    groups?.meta?.total_next_7_days
-                  ),
-                }"
-              ></div>
             </div>
           </div>
         </div>
@@ -222,6 +120,32 @@
         class="p-3 md:p-4 border-b border-gray-200 sticky bg-white -top-6 z-20"
       >
         <div class="flex items-center justify-between gap-4">
+          <div
+            class="flex justify-start items-center cursor-pointer ml-3 text-sm divide-x-2 border border-gray-200 rounded-full shadow-lg overflow-hidden"
+          >
+            <p
+              class="px-4 py-2"
+              :class="
+                productType == 'hotel'
+                  ? 'text-white bg-[#f63307]'
+                  : 'text-gray-400'
+              "
+              @click="productType = 'hotel'"
+            >
+              Hotel
+            </p>
+            <p
+              class="px-4 py-2"
+              :class="
+                productType == 'attraction'
+                  ? 'bg-[#f63307] text-white'
+                  : 'text-gray-400'
+              "
+              @click="productType = 'attraction'"
+            >
+              Ticket
+            </p>
+          </div>
           <div class="flex items-center gap-2 flex-1">
             <!-- Search CRM ID -->
             <div class="relative min-w-[180px]">
@@ -906,6 +830,80 @@
               </button>
             </div>
           </div>
+          <div>
+            <label class="text-xs font-medium text-gray-700 mb-3 block"
+              >Passport</label
+            >
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <button
+                v-for="status in passportOptons"
+                :key="status.value"
+                @click="passportFilter = status.value"
+                :class="[
+                  'flex items-center gap-3 px-4 py-3 border-2 rounded-lg transition-all',
+                  passportFilter === status.value
+                    ? `border-${status.color}-500 bg-${status.color}-50 shadow-md`
+                    : `border-${status.color}-200 hover:bg-${status.color}-50`,
+                ]"
+              >
+                <div :class="`p-2 bg-${status.color}-100 rounded-full`">
+                  <component
+                    :is="status.icon"
+                    :class="`w-5 h-5 text-${status.color}-600`"
+                  />
+                </div>
+                <div class="text-left flex-1">
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ status.label }}
+                  </p>
+                  <p class="text-xs text-gray-500">{{ status.description }}</p>
+                </div>
+                <div
+                  v-if="passportFilter === status.value"
+                  class="flex-shrink-0"
+                >
+                  <CheckIcon :class="`w-5 h-5 text-${status.color}-600`" />
+                </div>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="text-xs font-medium text-gray-700 mb-3 block"
+              >Comments</label
+            >
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <button
+                v-for="status in commmentOptons"
+                :key="status.value"
+                @click="commentFilter = status.value"
+                :class="[
+                  'flex items-center gap-3 px-4 py-3 border-2 rounded-lg transition-all',
+                  commentFilter === status.value
+                    ? `border-${status.color}-500 bg-${status.color}-50 shadow-md`
+                    : `border-${status.color}-200 hover:bg-${status.color}-50`,
+                ]"
+              >
+                <div :class="`p-2 bg-${status.color}-100 rounded-full`">
+                  <component
+                    :is="status.icon"
+                    :class="`w-5 h-5 text-${status.color}-600`"
+                  />
+                </div>
+                <div class="text-left flex-1">
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ status.label }}
+                  </p>
+                  <p class="text-xs text-gray-500">{{ status.description }}</p>
+                </div>
+                <div
+                  v-if="commentFilter === status.value"
+                  class="flex-shrink-0"
+                >
+                  <CheckIcon :class="`w-5 h-5 text-${status.color}-600`" />
+                </div>
+              </button>
+            </div>
+          </div>
 
           <!-- Date Range Filter -->
           <div>
@@ -1103,7 +1101,13 @@ import {
   PlusCircleIcon,
   DocumentCurrencyDollarIcon,
 } from "@heroicons/vue/24/outline";
-import { CheckBadgeIcon, DocumentDuplicateIcon } from "@heroicons/vue/24/solid";
+import {
+  ChatBubbleBottomCenterTextIcon,
+  CheckBadgeIcon,
+  CurrencyBangladeshiIcon,
+  CurrencyDollarIcon,
+  DocumentDuplicateIcon,
+} from "@heroicons/vue/24/solid";
 import { useToast } from "vue-toastification";
 import { useGroupStore } from "../stores/group";
 import { useCashImageStore } from "../stores/cashImage";
@@ -1145,6 +1149,8 @@ const fill_status = ref("pending");
 const invoiceStatus = ref("all");
 const activeSelect = ref("");
 const sentExpenseMail = ref("");
+const passportFilter = ref("");
+const commentFilter = ref("");
 const productType = ref("hotel");
 const invoiceModalOpen = ref(false);
 const selectedInvoice = ref(null);
@@ -1190,18 +1196,42 @@ const statusOptions = [
   },
 ];
 
-const invoiceOptions = [
+const passportOptons = [
   {
-    value: "not_receive",
-    label: "Not Received",
-    description: "Awaiting invoice",
+    value: "not_have",
+    label: "Not Have",
+    description: "Awaiting passport",
     icon: ExclamationTriangleIcon,
     color: "red",
   },
   {
-    value: "receive",
-    label: "Received",
-    description: "Invoice received",
+    value: "have",
+    label: "Have",
+    description: "Passport received",
+    icon: CheckIcon,
+    color: "green",
+  },
+];
+
+const commmentOptons = [
+  {
+    value: "pending",
+    label: "Pending",
+    description: "Awaiting comment",
+    icon: ExclamationTriangleIcon,
+    color: "red",
+  },
+  {
+    value: "no_comment",
+    label: "No Comment",
+    description: "No comment",
+    icon: CheckIcon,
+    color: "green",
+  },
+  {
+    value: "other",
+    label: "Other",
+    description: "Other",
     icon: CheckIcon,
     color: "green",
   },
@@ -1341,6 +1371,8 @@ const clearAllFilters = () => {
   setStartAndEndDate();
   activeSelect.value = "";
   sentExpenseMail.value = "";
+  passportFilter.value = "";
+  commentFilter.value = "";
   statusFilter.value = "all";
   searchAction();
   expense_date_selected.value = "";
@@ -1453,9 +1485,16 @@ const addCommentAction = async () => {
 
 const activeSelectAction = (option) => {
   const filterConfigs = {
-    invoice: { status: "not_receive", days: 7, field: "invoiceStatus" },
-    expense: { status: "not_fully_paid", days: 3, field: "statusFilter" },
-    mail: { status: "not_sent", days: 3, field: "sentExpenseMail" },
+    passport: {
+      status: "not_have",
+      days: 2,
+      field: "passportFilter",
+    },
+    comment: {
+      status: "pending",
+      days: 2,
+      field: "commentFilter",
+    },
     customer: { status: "not_fully_paid", days: 2, field: "paymentStatus" },
   };
 
@@ -1466,12 +1505,10 @@ const activeSelectAction = (option) => {
     clearFirst();
     activeSelect.value = option;
 
-    if (config.field === "invoiceStatus") {
-      invoiceStatus.value = config.status;
-    } else if (config.field === "statusFilter") {
-      statusFilter.value = config.status;
-    } else if (config.field === "sentExpenseMail") {
-      sentExpenseMail.value = config.status;
+    if (config.field === "passportFilter") {
+      passportFilter.value = config.status;
+    } else if (config.field === "commentFilter") {
+      commentFilter.value = config.status;
     } else if (config.field === "paymentStatus") {
       paymentStatus.value = config.status;
     }
@@ -1496,6 +1533,8 @@ const clearFirst = () => {
   paymentStatus.value = "all";
   filterShow.value = false;
   sentExpenseMail.value = "";
+  passportFilter.value = "";
+  commentFilter.value = "";
   statusFilter.value = "all";
 };
 
@@ -1568,6 +1607,9 @@ const watchSystem = computed(() => {
     result.deadline_days = deadlineNumber.value;
   }
   if (sentExpenseMail.value) result.sent_expense_mail = sentExpenseMail.value;
+  if (passportFilter.value) result.passportFilter = passportFilter.value;
+  if (commentFilter.value) result.commentFilter = commentFilter.value;
+
   if (invoiceStatus.value && invoiceStatus.value !== "all")
     result.invoice_status = invoiceStatus.value;
   if (!authStore.isReservation && !authStore.isSuperAdmin)

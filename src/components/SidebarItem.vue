@@ -5,7 +5,7 @@
       'text-white bg-[#FF5B00]': isActive(),
       'text-gray-600 bg-white': !isActive(),
     }"
-    class="inline-flex mb-1 text-[10px] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] group hover:bg-[#FF5B00]/20 transition duration-150"
+    class="mb-1 text-[10px] rounded-xl relative items-center py-[8px] px-[10px] w-full flex justify-start text-sm font-roboto hover:text-[#FF5B00] group hover:bg-[#FF5B00]/20 transition duration-150"
   >
     <component v-if="icon" :is="icon" class="w-4 h-4"></component>
     <p

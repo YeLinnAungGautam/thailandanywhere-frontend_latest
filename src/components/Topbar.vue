@@ -1,6 +1,6 @@
 <template>
   <div
-    class="h-[80px] relative flex items-center justify-between px-[20px] w-full"
+    class="h-[80px] relative flex items-center border-b border-gray-200 justify-between px-[20px] w-full"
   >
     <div class="flex items-center gap-3"></div>
     <div class="">

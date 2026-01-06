@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-white z-[1002] text-white absolute md:relative transition-all duration-500 ease-in-out"
+    class="bg-white z-[1002] text-white absolute md:relative border-r border-gray-200 shadow-inner-custom transition-all duration-500 ease-in-out"
     :class="isShowSidebar ? 'w-[260px]' : 'w-[80px]'"
   >
     <div class="h-[80px] w-full flex items-center">
@@ -33,279 +33,292 @@
     <div class="h-[calc(100vh-80px)] bg-opacity-0 py-[20px] z-50 relative">
       <div class="flex justify-between h-full space-y-[10px]">
         <div
-          class="flex flex-col justify-between space-y-3 px-[14px] h-full overflow-y-auto no-scrollbar"
+          :class="!isShowSidebar ? 'pl-[14px]' : 'px-[14px]'"
+          class="flex flex-col justify-between h-full overflow-y-auto no-scrollbar"
         >
           <div>
             <!-- Sidebar items here -->
             <div>
-              <SidebarItem
-                name="Dashboard"
-                :icon="Squares2X2Icon"
-                to="/"
-                v-show="authStore.isSuperAdmin"
-              />
-              <SidebarItem
-                name="Dashboard"
-                :icon="Squares2X2Icon"
-                to="/auditor_dashboard"
-                v-show="authStore.isAuditor"
-              />
-              <SidebarItem
-                name="Dashboard"
-                :icon="Squares2X2Icon"
-                to="/sales_dashboard"
-                v-show="authStore.isSaleAdmin"
-              />
-              <SidebarItem
-                name="Dashboard"
-                :icon="Squares2X2Icon"
-                to="/user_dashboard"
-                v-show="
-                  !authStore.isSuperAdmin &&
-                  !authStore.isAuditor &&
-                  !authStore.isSaleAdmin &&
-                  !authStore.isExternalAudit
-                "
-              />
+              <div class="bg-white">
+                <p class="text-black font-semibold text-[8px]">Dashboard</p>
+                <SidebarItem
+                  name="Dashboard"
+                  :icon="Squares2X2Icon"
+                  to="/"
+                  v-show="authStore.isSuperAdmin"
+                />
+                <SidebarItem
+                  name="Dashboard"
+                  :icon="Squares2X2Icon"
+                  to="/auditor_dashboard"
+                  v-show="authStore.isAuditor"
+                />
+                <SidebarItem
+                  name="Dashboard"
+                  :icon="Squares2X2Icon"
+                  to="/sales_dashboard"
+                  v-show="authStore.isSaleAdmin"
+                />
+                <SidebarItem
+                  name="Dashboard"
+                  :icon="Squares2X2Icon"
+                  to="/user_dashboard"
+                  v-show="
+                    !authStore.isSuperAdmin &&
+                    !authStore.isAuditor &&
+                    !authStore.isSaleAdmin &&
+                    !authStore.isExternalAudit
+                  "
+                />
+              </div>
 
-              <SidebarItem name="MapHotel" :icon="MapIcon" to="/map_hotel" />
-              <SidebarItem
-                name="availabilities"
-                :icon="ChatBubbleOvalLeftEllipsisIcon"
-                to="/availabilities"
-                :activePaths="['availabilities']"
-              />
-              <SidebarItem
-                name="Sales"
-                v-if="
-                  authStore.isSuperAdmin ||
-                  authStore.isCashier ||
-                  authStore.isAdmin ||
-                  authStore.isSaleAdmin ||
-                  authStore.isAuditor
-                "
-                :icon="CalendarIcon"
-                to="/bookings/%25/%25/%25"
-                :activePaths="[
-                  'bookings',
-                  'bookings_create',
-                  'edit_bookings',
-                  'update_bookings',
-                  'bookings_new_create',
-                  'update_new_bookings',
-                ]"
-              />
-              <SidebarItem
-                v-if="!authStore.isExternalAudit && !authStore.isAuditor"
-                name="Order"
-                :icon="ListBulletIcon"
-                to="/order"
-                :activePaths="['order']"
-              />
-              <div
-                v-if="!authStore.isExternalAudit"
-                @click="toggleGroupShow"
-                class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
-              >
-                <ClipboardDocumentListIcon class="w-4 h-4" />
-                <p
-                  class="flex justify-between w-[80%] text-[12px] ml-[1.2rem] items-center"
-                  v-if="isShowSidebar"
+              <div>
+                <p class="text-black font-semibold text-[8px]">Sale</p>
+                <SidebarItem
+                  name="Sales"
+                  v-if="
+                    authStore.isSuperAdmin ||
+                    authStore.isCashier ||
+                    authStore.isAdmin ||
+                    authStore.isSaleAdmin ||
+                    authStore.isAuditor
+                  "
+                  :icon="CalendarIcon"
+                  to="/bookings/%25/%25/%25"
+                  :activePaths="[
+                    'bookings',
+                    'bookings_create',
+                    'edit_bookings',
+                    'update_bookings',
+                    'bookings_new_create',
+                    'update_new_bookings',
+                  ]"
+                />
+                <SidebarItem
+                  v-if="!authStore.isExternalAudit && !authStore.isAuditor"
+                  name="Order"
+                  :icon="ListBulletIcon"
+                  to="/order"
+                  :activePaths="['order']"
+                />
+              </div>
+              <div>
+                <p class="text-black font-semibold text-[8px]">Booking</p>
+                <SidebarItem name="MapHotel" :icon="MapIcon" to="/map_hotel" />
+                <SidebarItem
+                  name="availabilities"
+                  :icon="ChatBubbleOvalLeftEllipsisIcon"
+                  to="/availabilities"
+                  :activePaths="['availabilities']"
+                />
+                <div
+                  v-if="!authStore.isExternalAudit"
+                  @click="toggleGroupShow"
+                  class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
                 >
-                  Group new
-                  <ChevronDownIcon
-                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
-                    :class="isGroupShow ? 'opacity-0' : 'opacity-100'"
-                    v-if="!isGroupShow"
-                  />
-                  <ChevronUpIcon
-                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
-                    :class="isGroupShow ? 'opacity-100' : 'opacity-0'"
-                    v-if="isGroupShow"
-                  />
-                </p>
-              </div>
-              <div
-                class="transition-all duration-150"
-                :class="isGroupShow ? 'ml-5' : ''"
-                v-if="isGroupShow"
-              >
-                <SidebarItem
-                  name="Group Attraction"
-                  label="attraction"
-                  :icon="TicketIcon"
-                  to="/group-attraction"
-                  :activePaths="['group-attraction']"
-                />
-                <SidebarItem
-                  name="Group Hotel"
-                  label="hotel"
-                  :icon="HomeModernIcon"
-                  to="/group-hotel"
-                  :activePaths="['group-hotel']"
-                />
-                <SidebarItem
-                  name="Group Vantour"
-                  label="vantour"
-                  :icon="TruckIcon"
-                  to="/group-vantour"
-                  :activePaths="['group-vantour']"
-                />
-              </div>
-              <SidebarItem
-                name="MailBox"
-                :icon="EnvelopeIcon"
-                to="/mail-box"
-                :activePaths="['mailBox']"
-              />
-              <SidebarItem
-                v-if="authStore.isSuperAdmin"
-                name="Amend"
-                :icon="ArrowPathIcon"
-                to="/amend"
-                :activePaths="['amend']"
-              />
-
-              <SidebarItem
-                name="Accounting"
-                v-if="!authStore.isExternalAudit"
-                :icon="CalculatorIcon"
-                to="/accounting"
-                :activePaths="['accounting']"
-              />
-              <div
-                v-if="!authStore.isExternalAudit"
-                @click="sidebarStore.toggleAccount"
-                class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
-              >
-                <FolderIcon class="w-4 h-4" />
-                <p
-                  class="flex justify-between w-[80%] text-[12px] ml-[1.2rem] items-center"
-                  v-if="isShowSidebar"
+                  <ClipboardDocumentListIcon class="w-4 h-4" />
+                  <p
+                    class="flex justify-between w-[80%] text-[12px] ml-[1.2rem] items-center"
+                    v-if="isShowSidebar"
+                  >
+                    Group new
+                    <ChevronDownIcon
+                      class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                      :class="isGroupShow ? 'opacity-0' : 'opacity-100'"
+                      v-if="!isGroupShow"
+                    />
+                    <ChevronUpIcon
+                      class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                      :class="isGroupShow ? 'opacity-100' : 'opacity-0'"
+                      v-if="isGroupShow"
+                    />
+                  </p>
+                </div>
+                <div
+                  class="transition-all duration-150"
+                  :class="isGroupShow ? '' : ''"
+                  v-if="isGroupShow"
                 >
-                  Accountance
-                  <ChevronDownIcon
-                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
-                    :class="isShowAccount ? 'opacity-0' : 'opacity-100'"
-                    v-if="!isShowAccount"
+                  <SidebarItem
+                    name="Group Attraction"
+                    label="attraction"
+                    :icon="TicketIcon"
+                    to="/group-attraction"
+                    :activePaths="['group-attraction']"
                   />
-                  <ChevronUpIcon
-                    class="w-4 h-4 transition-opacity duration-500 ease-in-out"
-                    :class="isShowAccount ? 'opacity-100' : 'opacity-0'"
-                    v-if="isShowAccount"
+                  <SidebarItem
+                    name="Group Hotel"
+                    label="hotel"
+                    :icon="HomeModernIcon"
+                    to="/group-hotel"
+                    :activePaths="['group-hotel']"
                   />
-                </p>
+                  <SidebarItem
+                    name="Group Vantour"
+                    label="vantour"
+                    :icon="TruckIcon"
+                    to="/group-vantour"
+                    :activePaths="['group-vantour']"
+                  />
+                </div>
+                <SidebarItem
+                  name="MailBox"
+                  :icon="EnvelopeIcon"
+                  to="/mail-box"
+                  :activePaths="['mailBox']"
+                />
+                <SidebarItem
+                  v-if="authStore.isSuperAdmin"
+                  name="Amend"
+                  :icon="ArrowPathIcon"
+                  to="/amend"
+                  :activePaths="['amend']"
+                />
               </div>
-              <div
-                class="transition-all duration-150"
-                :class="isShowAccount ? 'ml-5' : ''"
-                v-if="isShowAccount"
-              >
+
+              <div>
+                <p class="text-black font-semibold text-[8px]">Account</p>
                 <SidebarItem
-                  name="Accountance PDF"
-                  label="PDF"
-                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                  :icon="FolderIcon"
-                  to="/accountance-pdf"
+                  name="Accounting"
+                  v-if="!authStore.isExternalAudit"
+                  :icon="CalculatorIcon"
+                  to="/accounting"
+                  :activePaths="['accounting']"
                 />
-                <SidebarItem
-                  name="Chart of Accounts"
-                  label="COA"
-                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                  :icon="FolderIcon"
-                  to="/chart_of_account"
-                />
-                <SidebarItem
-                  name="Income Checker"
-                  label="ICheck"
-                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                  :icon="FolderIcon"
-                  to="/product_income_checker"
-                />
-                <SidebarItem
-                  name="Receiptable Checker"
-                  label="RCheck"
-                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                  :icon="FolderIcon"
-                  to="/receiptable_checker"
-                />
-                <SidebarItem
-                  name="Verify Invoices"
-                  label="VInvoice"
-                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                  :icon="FolderIcon"
-                  to="/data_verify"
-                />
-                <SidebarItem
-                  name="Cash Book"
-                  label="Cash Book"
-                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                  :icon="FolderIcon"
-                  to="/cash_book"
-                />
-                <!-- <SidebarItem
-                  name="Account Head"
-                  label="AHead"
-                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                  :icon="FolderIcon"
-                  to="/account_head"
-                /> -->
-                <SidebarItem
-                  name="Tax Receipts"
-                  label="Tax"
-                  :icon="FolderIcon"
-                  to="/tax_receipt"
-                />
+                <div
+                  v-if="!authStore.isExternalAudit"
+                  @click="sidebarStore.toggleAccount"
+                  class="text-gray-600 bg-white cursor-pointer inline-flex mb-1 text-[.75rem] rounded-xl relative items-center py-[8px] px-[10px] w-full text-sm font-roboto hover:text-[#FF5B00] hover:bg-[#FF5B00]/20 transition duration-150"
+                >
+                  <FolderIcon class="w-4 h-4" />
+                  <p
+                    class="flex justify-between w-[80%] text-[12px] ml-[1.2rem] items-center"
+                    v-if="isShowSidebar"
+                  >
+                    Accountance
+                    <ChevronDownIcon
+                      class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                      :class="isShowAccount ? 'opacity-0' : 'opacity-100'"
+                      v-if="!isShowAccount"
+                    />
+                    <ChevronUpIcon
+                      class="w-4 h-4 transition-opacity duration-500 ease-in-out"
+                      :class="isShowAccount ? 'opacity-100' : 'opacity-0'"
+                      v-if="isShowAccount"
+                    />
+                  </p>
+                </div>
+                <div
+                  class="transition-all duration-150"
+                  :class="isShowAccount ? '' : ''"
+                  v-if="isShowAccount"
+                >
+                  <SidebarItem
+                    name="Accountance PDF"
+                    label="PDF"
+                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
+                    :icon="FolderIcon"
+                    to="/accountance-pdf"
+                  />
+                  <SidebarItem
+                    name="Chart of Accounts"
+                    label="COA"
+                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
+                    :icon="FolderIcon"
+                    to="/chart_of_account"
+                  />
+                  <SidebarItem
+                    name="Income Checker"
+                    label="ICheck"
+                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
+                    :icon="FolderIcon"
+                    to="/product_income_checker"
+                  />
+                  <SidebarItem
+                    name="Receiptable Checker"
+                    label="RCheck"
+                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
+                    :icon="FolderIcon"
+                    to="/receiptable_checker"
+                  />
+                  <SidebarItem
+                    name="Verify Invoices"
+                    label="VInvoice"
+                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
+                    :icon="FolderIcon"
+                    to="/data_verify"
+                  />
+                  <SidebarItem
+                    name="Cash Book"
+                    label="Cash Book"
+                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
+                    :icon="FolderIcon"
+                    to="/cash_book"
+                  />
+                  <!-- <SidebarItem
+                    name="Account Head"
+                    label="AHead"
+                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
+                    :icon="FolderIcon"
+                    to="/account_head"
+                  /> -->
+                  <SidebarItem
+                    name="Tax Receipts"
+                    label="Tax"
+                    :icon="FolderIcon"
+                    to="/tax_receipt"
+                  />
+
+                  <SidebarItem
+                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
+                    name="Bank Statement"
+                    label="Statement"
+                    :icon="FolderIcon"
+                    to="/bank_statement_list"
+                  />
+                  <SidebarItem
+                    v-if="authStore.isSuperAdmin || authStore.isAuditor"
+                    name="Bank Statement"
+                    label="Statement"
+                    :icon="FolderIcon"
+                    to="/bank_statement_type"
+                  />
+                </div>
 
                 <SidebarItem
-                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
+                  v-if="authStore.isExternalAudit"
                   name="Bank Statement"
                   label="Statement"
                   :icon="FolderIcon"
                   to="/bank_statement_list"
                 />
+
                 <SidebarItem
-                  v-if="authStore.isSuperAdmin || authStore.isAuditor"
-                  name="Bank Statement"
+                  v-if="
+                    authStore.isExternalAudit ||
+                    authStore.isAuditor ||
+                    authStore.isSuperAdmin
+                  "
+                  name="external audit"
+                  label="External"
+                  :icon="FolderIcon"
+                  to="/invoice_audit"
+                />
+                <!-- <SidebarItem
+                  v-if="authStore.isSuperAdmin || authStore.isReservation"
+                  name="Bank Statement Filter"
                   label="Statement"
                   :icon="FolderIcon"
-                  to="/bank_statement_type"
+                  to="/bank_statement_filter"
+                /> -->
+                <SidebarItem
+                  v-if="authStore.isSuperAdmin || authStore.isReservation"
+                  name="Bank Purchase"
+                  label="Purchase"
+                  :icon="FolderIcon"
+                  to="/bank_statement_purchese"
                 />
               </div>
-
-              <SidebarItem
-                v-if="authStore.isExternalAudit"
-                name="Bank Statement"
-                label="Statement"
-                :icon="FolderIcon"
-                to="/bank_statement_list"
-              />
-
-              <SidebarItem
-                v-if="
-                  authStore.isExternalAudit ||
-                  authStore.isAuditor ||
-                  authStore.isSuperAdmin
-                "
-                name="external audit"
-                label="External"
-                :icon="FolderIcon"
-                to="/invoice_audit"
-              />
-              <!-- <SidebarItem
-                v-if="authStore.isSuperAdmin || authStore.isReservation"
-                name="Bank Statement Filter"
-                label="Statement"
-                :icon="FolderIcon"
-                to="/bank_statement_filter"
-              /> -->
-              <SidebarItem
-                v-if="authStore.isSuperAdmin || authStore.isReservation"
-                name="Bank Purchase"
-                label="Purchase"
-                :icon="FolderIcon"
-                to="/bank_statement_purchese"
-              />
               <SidebarItem
                 v-if="!authStore.isAgent && !authStore.isExternalAudit"
                 name="Products"
@@ -399,7 +412,7 @@
               </div>
               <div
                 class="transition-all duration-150"
-                :class="isShowSetting ? 'ml-5' : ''"
+                :class="isShowSetting ? '' : ''"
                 v-if="isShowSetting"
               >
                 <SidebarItem
@@ -536,6 +549,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.shadow-inner-custom {
+  box-shadow: inset -10px 0 10px -10px rgba(0, 0, 0, 0.1);
+}
 .sidebar-enter-active,
 .sidebar-leave-active {
   transition: width 0.5s ease-in-out;

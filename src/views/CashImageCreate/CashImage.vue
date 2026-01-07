@@ -626,8 +626,23 @@ const cashImageStore = useCashImageStore();
 const toast = useToast();
 
 // Initialize Gemini API
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY; // Replace with your API key
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+// At the top of your script, modify the Gemini initialization
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GEMINI_API_KEY_2 = import.meta.env.VITE_GEMINI_API_KEY_2;
+let genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+let currentApiKeyIndex = 1; // Track which key we're using
+
+// Add a helper function to switch API keys
+const switchToBackupKey = () => {
+  if (currentApiKeyIndex === 1) {
+    console.log("Switching to backup API key...");
+    genAI = new GoogleGenerativeAI(GEMINI_API_KEY_2);
+    currentApiKeyIndex = 2;
+    toast.info("Switching to backup API key...");
+    return true;
+  }
+  return false; // No more backup keys
+};
 
 // Add loading state for AI extraction
 const isExtractingData = ref(false);
@@ -867,7 +882,20 @@ const extractTransactionData = async (file) => {
     }
   } catch (error) {
     console.error("Error extracting data:", error);
-    toast.error("Failed to extract data. Please fill manually.");
+    // toast.error("Failed to extract data. Please fill manually.");
+    // Check if it's a quota/rate limit error
+    if (
+      (error.message?.includes("429") ||
+        error.message?.includes("quota") ||
+        error.message?.includes("rate limit")) &&
+      retryWithBackup
+    ) {
+      // Try switching to backup key
+      if (switchToBackupKey()) {
+        toast.info("Retrying with backup API key...");
+        return await extractTransactionData(file, false); // Retry once with backup key
+      }
+    }
   } finally {
     isExtractingData.value = false;
   }
@@ -932,11 +960,25 @@ const extractDirectBankingData = async (file) => {
         "Data extracted successfully! Please verify the information."
       );
     } else {
-      toast.warning("Could not extract data. Please fill manually.");
+      // toast.warning("Could not extract data. Please fill manually.");
+      console.log("error", error);
     }
   } catch (error) {
     console.error("Error extracting data:", error);
-    toast.error("Failed to extract data. Please fill manually.");
+    // toast.error("Failed to extract data. Please fill manually.");
+    // Check if it's a quota/rate limit error
+    if (
+      (error.message?.includes("429") ||
+        error.message?.includes("quota") ||
+        error.message?.includes("rate limit")) &&
+      retryWithBackup
+    ) {
+      // Try switching to backup key
+      if (switchToBackupKey()) {
+        toast.info("Retrying with backup API key...");
+        return await extractDirectBankingData(file, false); // Retry once with backup key
+      }
+    }
   } finally {
     isExtractingData.value = false;
   }

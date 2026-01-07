@@ -4,6 +4,40 @@
     <DialogPanel
       class="w-full max-w-6xl transform rounded-xl bg-white text-left align-middle shadow-xl transition-all max-h-[95vh] overflow-hidden flex flex-col"
     >
+      <!-- Loading Overlay for AI Extraction -->
+      <div
+        v-if="isExtractingData"
+        class="absolute inset-0 bg-white/90 flex items-center justify-center z-50"
+      >
+        <div class="text-center">
+          <svg
+            class="animate-spin h-12 w-12 text-[#FF613c] mx-auto mb-4"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+              fill="none"
+            />
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+          <p class="text-lg font-semibold text-gray-900">
+            Extracting data from image...
+          </p>
+          <p class="text-sm text-gray-600 mt-2">
+            AI is analyzing the payment slip
+          </p>
+        </div>
+      </div>
+
       <!-- Header -->
       <DialogTitle
         as="div"
@@ -196,7 +230,8 @@
                 Payment Slip Details
               </h3>
               <p class="text-[10px] text-gray-500">
-                Upload payment slip and enter payment information
+                Upload payment slip and enter payment information (AI will
+                auto-extract data)
               </p>
             </div>
 
@@ -239,6 +274,9 @@
                   <span class="mt-1 text-xs text-gray-500">
                     PNG, JPG, JPEG up to 10MB
                   </span>
+                  <span class="mt-2 text-xs text-[#FF613c] font-semibold">
+                    ✨ AI will auto-extract data
+                  </span>
                 </div>
 
                 <!-- Preview New Image -->
@@ -266,7 +304,7 @@
                   class="hidden"
                   @change="handleFileChange"
                   accept="image/*"
-                  :disabled="loading"
+                  :disabled="loading || isExtractingData"
                 />
               </div>
 
@@ -279,7 +317,7 @@
                   <input
                     type="datetime-local"
                     v-model="formData.date"
-                    :disabled="loading"
+                    :disabled="loading || isExtractingData"
                     class="border text-sm border-gray-200 px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20 focus:border-[#FF613c] disabled:bg-gray-50"
                     required
                   />
@@ -295,7 +333,7 @@
                     step="0.01"
                     v-model="formData.amount"
                     placeholder="Enter amount"
-                    :disabled="loading"
+                    :disabled="loading || isExtractingData"
                     class="border text-sm border-gray-200 px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20 focus:border-[#FF613c] disabled:bg-gray-50"
                     required
                   />
@@ -315,7 +353,7 @@
                   </label>
                   <select
                     v-model="formData.currency"
-                    :disabled="loading"
+                    :disabled="loading || isExtractingData"
                     class="border text-sm border-gray-200 px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20 focus:border-[#FF613c] disabled:bg-gray-50"
                     required
                   >
@@ -332,7 +370,7 @@
                   </label>
                   <select
                     v-model="formData.interact_bank"
-                    :disabled="loading"
+                    :disabled="loading || isExtractingData"
                     class="border text-sm border-gray-200 px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20 focus:border-[#FF613c] disabled:bg-gray-50"
                     required
                   >
@@ -356,7 +394,7 @@
                     type="text"
                     v-model="formData.sender"
                     placeholder="Enter sender name"
-                    :disabled="loading"
+                    :disabled="loading || isExtractingData"
                     class="border text-sm border-gray-200 px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20 focus:border-[#FF613c] disabled:bg-gray-50"
                   />
                 </div>
@@ -370,7 +408,7 @@
                     type="text"
                     v-model="formData.receiver"
                     placeholder="Enter receiver name"
-                    :disabled="loading"
+                    :disabled="loading || isExtractingData"
                     class="border text-sm border-gray-200 px-4 py-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#FF613c]/20 focus:border-[#FF613c] disabled:bg-gray-50"
                   />
                   <p
@@ -503,7 +541,7 @@
           <button
             v-if="currentStep > 1"
             @click="currentStep--"
-            :disabled="loading"
+            :disabled="loading || isExtractingData"
             class="px-4 py-2.5 bg-gray-200 text-black text-sm rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             <ChevronLeftIcon class="w-4 h-4" />
@@ -513,7 +551,7 @@
           <button
             v-if="currentStep < 2 && !formData.id"
             @click="currentStep++"
-            :disabled="loading || !isStep1Complete"
+            :disabled="loading || !isStep1Complete || isExtractingData"
             class="px-4 py-2.5 bg-[#FF613c] text-white text-sm rounded-lg hover:bg-[#e55139] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             Next
@@ -523,7 +561,7 @@
           <button
             v-if="currentStep === 1 && formData.id"
             @click="currentStep++"
-            :disabled="loading || !isStep1Complete"
+            :disabled="loading || !isStep1Complete || isExtractingData"
             class="px-4 py-2.5 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             <span v-if="loading && currentAction === 'next_update'">
@@ -552,7 +590,7 @@
           <button
             v-if="formData.id"
             @click="handleDelete"
-            :disabled="loading"
+            :disabled="loading || isExtractingData"
             class="px-4 py-2.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             <span v-if="loading && currentAction === 'delete'">
@@ -578,7 +616,7 @@
 
           <button
             @click="handleClose"
-            :disabled="loading"
+            :disabled="loading || isExtractingData"
             class="px-4 py-2.5 bg-white border border-gray-300 text-sm rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
@@ -588,7 +626,7 @@
           <button
             v-if="currentStep === 2 && isCreateMode"
             @click="isCreateMode ? handleSave() : updateOnlyStatus()"
-            :disabled="loading || !isFormValid"
+            :disabled="loading || !isFormValid || isExtractingData"
             class="px-4 py-2.5 bg-[#FF613c] text-white text-sm rounded-lg hover:bg-[#e55139] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             <span
@@ -621,7 +659,7 @@
           <button
             v-if="currentStep === 2 && formData.id"
             @click="handleSave"
-            :disabled="loading || !isFormValid"
+            :disabled="loading || !isFormValid || isExtractingData"
             class="px-4 py-2.5 bg-[#FF613c] text-white text-sm rounded-lg hover:bg-[#e55139] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             <span v-if="loading && currentAction === 'save'">
@@ -671,6 +709,7 @@ import { useCashImageStore } from "../../../stores/cashImage";
 import { useGroupStore } from "../../../stores/group";
 import { useReservationStore } from "../../../stores/reservation";
 import Swal from "sweetalert2";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const props = defineProps({
   isOpen: Boolean,
@@ -686,7 +725,14 @@ const cashImageStore = useCashImageStore();
 const groupStore = useGroupStore();
 const reservationStore = useReservationStore();
 
+// Initialize Gemini API with dual key support
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GEMINI_API_KEY_2 = import.meta.env.VITE_GEMINI_API_KEY_2;
+let genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+let currentApiKeyIndex = 1;
+
 const loading = ref(false);
+const isExtractingData = ref(false);
 const currentAction = ref("");
 const fileInput = ref(null);
 const newImagePreview = ref("");
@@ -730,6 +776,158 @@ const statusOptions = [
   },
 ];
 
+// Helper function to switch API keys
+const switchToBackupKey = () => {
+  if (currentApiKeyIndex === 1) {
+    console.log("Switching to backup API key...");
+    genAI = new GoogleGenerativeAI(GEMINI_API_KEY_2);
+    currentApiKeyIndex = 2;
+    toast.info("Switching to backup API key...");
+    return true;
+  }
+  return false;
+};
+
+// Function to convert file to base64 for Gemini
+const fileToGenerativePart = async (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Data = reader.result.split(",")[1];
+      resolve({
+        inlineData: {
+          data: base64Data,
+          mimeType: file.type,
+        },
+      });
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+// Extract expense data from payment slip
+const extractExpenseData = async (file, retryWithBackup = true) => {
+  try {
+    isExtractingData.value = true;
+    toast.info("🤖 AI is analyzing the payment slip...");
+
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const imagePart = await fileToGenerativePart(file);
+
+    const prompt = `Analyze this payment slip/bank transaction receipt image and extract the following information in JSON format:
+    {
+      "sender": "sender name or account holder name",
+      "receiver": "receiver name or recipient name or beneficiary",
+      "amount": "transaction amount (numbers only, no currency symbol or commas)",
+      "currency": "currency code (THB, USD, or MMK)",
+      "date": "transaction date and time in ISO format (YYYY-MM-DDTHH:mm)",
+      "bank_type": "type of transaction (personal, company, cash_at_office, to_money_changer, deposit_management, or pay_to_driver)"
+    }
+    
+    Rules:
+    - Extract only visible information from the image
+    - For currency: detect THB (Thai Baht), USD (US Dollar), or MMK (Myanmar Kyat)
+    - For date: convert to ISO format. If time is not visible, use current time
+    - For bank_type: try to infer from context (default to "personal" if unclear)
+    - If receiver contains "TH ANYWHERE CO.,LTD." or similar company names, set bank_type to "company"
+    - Amount should be numeric value only (remove commas and currency symbols)
+    - If any field is not clearly visible, use empty string ""
+    - Return ONLY valid JSON, no additional text or markdown
+    
+    Important: Focus on extracting accurate transaction details from the payment slip.`;
+
+    const result = await model.generateContent([prompt, imagePart]);
+    const response = await result.response;
+    const text = response.text();
+
+    console.log("AI Response:", text);
+
+    // Parse the JSON response
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const extractedData = JSON.parse(jsonMatch[0]);
+
+      // Auto-fill the form
+      if (extractedData.sender) {
+        formData.value.sender = extractedData.sender;
+      }
+
+      if (extractedData.receiver) {
+        formData.value.receiver = extractedData.receiver;
+
+        // Auto-detect company transactions
+        if (
+          extractedData.receiver.toUpperCase().includes("TH ANYWHERE") ||
+          extractedData.receiver.toUpperCase().includes("CO.,LTD") ||
+          extractedData.receiver.toUpperCase().includes("COMPANY")
+        ) {
+          formData.value.interact_bank = "company";
+        }
+      }
+
+      if (extractedData.amount) {
+        // Remove any commas and parse as float
+        const cleanAmount = String(extractedData.amount).replace(/,/g, "");
+        formData.value.amount = parseFloat(cleanAmount);
+      }
+
+      if (
+        extractedData.currency &&
+        ["THB", "USD", "MMK"].includes(extractedData.currency)
+      ) {
+        formData.value.currency = extractedData.currency;
+      }
+
+      if (extractedData.date) {
+        const dateObj = new Date(extractedData.date);
+        if (!isNaN(dateObj.getTime())) {
+          formData.value.date = dateObj.toISOString().slice(0, 16);
+        }
+      }
+
+      if (
+        extractedData.bank_type &&
+        [
+          "personal",
+          "company",
+          "cash_at_office",
+          "to_money_changer",
+          "deposit_management",
+          "pay_to_driver",
+        ].includes(extractedData.bank_type)
+      ) {
+        formData.value.interact_bank = extractedData.bank_type;
+      }
+
+      toast.success(
+        "✅ Data extracted successfully! Please verify the information."
+      );
+    } else {
+      toast.warning("⚠️ Could not extract data. Please fill manually.");
+    }
+  } catch (error) {
+    console.error("Error extracting data:", error);
+
+    // Check if it's a quota/rate limit error
+    if (
+      (error.message?.includes("429") ||
+        error.message?.includes("quota") ||
+        error.message?.includes("rate limit")) &&
+      retryWithBackup
+    ) {
+      if (switchToBackupKey()) {
+        toast.info("🔄 Retrying with backup API key...");
+        return await extractExpenseData(file, false);
+      }
+    }
+
+    toast.error("❌ Failed to extract data. Please fill manually.");
+  } finally {
+    isExtractingData.value = false;
+  }
+};
+
 // Computed Properties
 const isCreateMode = computed(() => !formData.value.id);
 
@@ -769,14 +967,10 @@ const completionPercentage = computed(() => {
 
 // Status Change Control
 const canChangeStatus = (statusValue) => {
-  // In update mode, all statuses can be changed
   if (!isCreateMode.value) {
     return true;
   }
 
-  // In create mode:
-  // - If Step 1 is NOT complete, only "not_paid" can be selected
-  // - If Step 1 IS complete, all statuses can be selected
   if (!isStep1Complete.value) {
     return statusValue === "not_paid";
   }
@@ -804,12 +998,10 @@ const formatExpenseStatus = (status) => {
 const formattedDateTimeDB = (dateString) => {
   if (!dateString) return "";
 
-  // Handle datetime-local format (YYYY-MM-DDTHH:mm)
   if (dateString.includes("T")) {
     return dateString.replace("T", " ") + ":00";
   }
 
-  // Handle DD-MM-YYYY HH:mm:ss format
   const ddmmyyyyRegex = /^(\d{2})-(\d{2})-(\d{4})\s(.*)$/;
   const match = dateString.match(ddmmyyyyRegex);
 
@@ -817,30 +1009,25 @@ const formattedDateTimeDB = (dateString) => {
     return `${match[3]}-${match[2]}-${match[1]} ${match[4]}`;
   }
 
-  // If already in correct format or other format, return as-is
   return dateString;
 };
 
 const formatDateForInput = (dateString) => {
   if (!dateString) return "";
 
-  // Handle DD-MM-YYYY HH:mm:ss format from DB
   const ddmmyyyyRegex = /^(\d{2})-(\d{2})-(\d{4})\s(\d{2}):(\d{2}):(\d{2})$/;
   const match = dateString.match(ddmmyyyyRegex);
 
   if (match) {
-    // Convert to YYYY-MM-DDTHH:mm format for datetime-local input
     return `${match[3]}-${match[2]}-${match[1]}T${match[4]}:${match[5]}`;
   }
 
-  // Handle YYYY-MM-DD HH:mm:ss format
   if (dateString.includes(" ")) {
     const [datePart, timePart] = dateString.split(" ");
     const [hours, minutes] = timePart.split(":");
     return `${datePart}T${hours}:${minutes}`;
   }
 
-  // If already in correct format
   if (dateString.includes("T")) {
     return dateString.slice(0, 16);
   }
@@ -848,17 +1035,22 @@ const formatDateForInput = (dateString) => {
   return dateString;
 };
 
-// File Functions
-const handleFileChange = (e) => {
+// File Functions - Updated with AI extraction
+const handleFileChange = async (e) => {
   const file = e.target.files[0];
   if (file) {
     newImageFile.value = file;
     newImagePreview.value = URL.createObjectURL(file);
+
+    // Trigger AI extraction automatically
+    await extractExpenseData(file);
   }
 };
 
 const openFileUpload = () => {
-  if (!loading.value) fileInput.value?.click();
+  if (!loading.value && !isExtractingData.value) {
+    fileInput.value?.click();
+  }
 };
 
 const clearImage = () => {
@@ -925,9 +1117,7 @@ const createExpense = async () => {
     const response = await cashImageStore.addNewAction(expenseFrmData);
 
     if (response.status === 1) {
-      // Update group status
       await updateGroupStatus(formData.value.status);
-
       toast.success("Expense payment slip created successfully");
       emit("refresh");
       handleClose();
@@ -1000,9 +1190,7 @@ const updateExpenseAndStatus = async () => {
     );
 
     if (response.status === 1) {
-      // Update group status
       await updateGroupStatus(formData.value.status);
-
       toast.success("Expense payment slip and status updated successfully");
       emit("refresh");
       handleClose();
@@ -1039,7 +1227,6 @@ const updateOnlyStatus = async () => {
 
 const updateGroupStatus = async (status) => {
   try {
-    // Update all items in the group
     if (props.groupData?.items && props.groupData.items.length > 0) {
       for (const item of props.groupData.items) {
         const frmData = new FormData();
@@ -1049,7 +1236,6 @@ const updateGroupStatus = async (status) => {
       }
     }
 
-    // Update group expense status
     const groupFrmData = new FormData();
     groupFrmData.append("_method", "PUT");
     groupFrmData.append("expense_status", status);
@@ -1142,7 +1328,6 @@ watch(
 watch(
   () => props.groupData,
   (newData) => {
-    console.log("this is new", newData);
     if (newData && !props.expenseData && props.isOpen) {
       formData.value.amount = newData.total_cost_price || 0;
       formData.value.receiver = newData.account_name || "";

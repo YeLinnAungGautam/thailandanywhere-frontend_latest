@@ -96,6 +96,7 @@ import MailBox from "../views/MailBox.vue";
 import ExpensePart from "../views/ExpensePart.vue";
 import FillData from "../views/FillData.vue";
 import ConfirmationGroup from "../views/ConfirmationGroup.vue";
+import ReservationGroup from "../views/ReservationGroup.vue";
 
 const routes = [
   {
@@ -326,6 +327,11 @@ const routes = [
     path: "/reservation-attraction",
     name: "reservation-attraction",
     component: ReservationAttractionView,
+  },
+  {
+    path: "/reservation-group",
+    name: "reservation-group",
+    component: ReservationGroup,
   },
   {
     path: "/group-hotel",

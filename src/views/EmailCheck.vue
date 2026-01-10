@@ -2,11 +2,11 @@
   <Layout :is_white="true">
     <!-- Header -->
     <div
-      :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
+      :class="isShowSidebar ? 'left-[200px]' : 'left-[100px]'"
       class="space-y-1 transition-all duration-200 gap-2 text-sm pb-4 absolute top-4"
     >
       <div class="text-xl font-semibold text-[#FF613c]">Mail Management</div>
-      <p class="text-gray-600">
+      <p class="text-gray-800 font-light text-xs">
         Use the following module to make sure all data are added ahead of time.
       </p>
     </div>
@@ -14,150 +14,142 @@
     <!-- Main Content -->
     <div class="w-full rounded-lg shadow-sm">
       <!-- Scorecard Section -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+      <div
+        v-if="product_type !== 'private_van_tour'"
+        class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4"
+      >
         <!-- Prove Booking Card -->
-        <div
-          @click="filterByType('prove_booking')"
-          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-          :class="
-            activeTag == 'prove_booking'
-              ? 'border-4 border-yellow-600'
-              : 'border border-gray-100'
+        <ScoreCard
+          :is-active="activeTag == 'prove_booking'"
+          title="Prove Booking"
+          :current-value="groups?.meta?.prove_booking_sent_next_30_days || 0"
+          :total-value="groups?.meta?.total_next_30_days || 0"
+          :icon="DocumentDuplicateIcon"
+          explain_text="Booking proved next 30 days record"
+          gradient-from="#ca8a04"
+          gradient-to="#a16207"
+          border-color="#ca8a04"
+          progress-color="#f97316"
+          footer-label="Finish Rate"
+          :footer-value="`${calculateFinishRate(
+            groups?.meta?.total_next_30_days,
+            groups?.meta?.prove_booking_sent_next_30_days
+          )} ခုကျန်`"
+          :progress-width="
+            calculateProgressWidth(
+              groups?.meta?.total_next_30_days,
+              groups?.meta?.prove_booking_sent_next_30_days
+            )
           "
-        >
-          <div class="bg-gradient-to-r from-yellow-600 to-yellow-700 p-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-white text-sm font-medium opacity-90">
-                  Prove Booking
-                </p>
-                <div class="flex items-baseline gap-2 mt-2">
-                  <span class="text-3xl font-bold text-white">Step 1</span>
-                </div>
-              </div>
-              <div class="bg-white/20 p-3 rounded-full">
-                <div
-                  class="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold bg-white text-yellow-600"
-                >
-                  1
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="p-4 bg-gray-50">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-600">Booking Requests</span>
-              <span class="font-semibold text-gray-900">Pending Review</span>
-            </div>
-          </div>
-        </div>
+          @click="filterByType('prove_booking')"
+        />
 
         <!-- Vendor Confirm Card -->
-        <div
-          @click="filterByType('invoice')"
-          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-          :class="
-            activeTag == 'invoice'
-              ? 'border-4 border-blue-600'
-              : 'border border-gray-100'
+        <ScoreCard
+          :is-active="activeTag == 'invoice'"
+          title="Vendor Confirm"
+          :current-value="groups?.meta?.invoice_mail_sent_next_7_days || 0"
+          :total-value="groups?.meta?.total_next_7_days || 0"
+          :icon="DocumentDuplicateIcon"
+          explain_text="Invoice sent next 7 days record"
+          gradient-from="#f97316"
+          gradient-to="#ea580c"
+          border-color="#ea580c"
+          progress-color="#f97316"
+          footer-label="Finish Rate"
+          :footer-value="`${calculateFinishRate(
+            groups?.meta?.total_next_7_days,
+            groups?.meta?.invoice_mail_sent_next_7_days
+          )} ခုကျန်`"
+          :progress-width="
+            calculateProgressWidth(
+              groups?.meta?.total_next_7_days,
+              groups?.meta?.invoice_mail_sent_next_7_days
+            )
           "
-        >
-          <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-white text-sm font-medium opacity-90">
-                  Vendor Confirm
-                </p>
-                <div class="flex items-baseline gap-2 mt-2">
-                  <span class="text-3xl font-bold text-white">Step 2</span>
-                </div>
-              </div>
-              <div class="bg-white/20 p-3 rounded-full">
-                <div
-                  class="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold bg-white text-blue-600"
-                >
-                  2
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="p-4 bg-gray-50">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-600">Invoice Confirmations</span>
-              <span class="font-semibold text-gray-900">Awaiting Response</span>
-            </div>
-          </div>
-        </div>
+          @click="filterByType('invoice')"
+        />
 
         <!-- Invoice Card -->
-        <div
-          @click="filterByType('invoice_confirm')"
-          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-          :class="
-            activeTag == 'invoice_confirm'
-              ? 'border-4 border-red-600'
-              : 'border border-gray-100'
+        <ScoreCard
+          :is-active="activeTag == 'invoice_confirm'"
+          title="Invoice"
+          :current-value="groups?.meta?.invoice_confirmed_next_7_days || 0"
+          :total-value="groups?.meta?.total_next_7_days || 0"
+          :icon="DocumentDuplicateIcon"
+          explain_text="Invoice confirm next 7 days record"
+          gradient-from="#3b82f6"
+          gradient-to="#2563eb"
+          border-color="#2563eb"
+          progress-color="#3b82f6"
+          footer-label="Finish Rate"
+          :footer-value="`${calculateFinishRate(
+            groups?.meta?.total_next_7_days,
+            groups?.meta?.invoice_confirmed_next_7_days
+          )} ခုကျန်`"
+          :progress-width="
+            calculateProgressWidth(
+              groups?.meta?.total_next_2_days,
+              groups?.meta?.invoice_confirmed_next_7_days
+            )
           "
-        >
-          <div class="bg-gradient-to-r from-red-500 to-red-600 p-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-white text-sm font-medium opacity-90">Invoice</p>
-                <div class="flex items-baseline gap-2 mt-2">
-                  <span class="text-3xl font-bold text-white">Step 3</span>
-                </div>
-              </div>
-              <div class="bg-white/20 p-3 rounded-full">
-                <div
-                  class="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold bg-white text-red-600"
-                >
-                  3
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="p-4 bg-gray-50">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-600">Invoice Submissions</span>
-              <span class="font-semibold text-gray-900">Awaiting Invoice</span>
-            </div>
-          </div>
-        </div>
+          @click="filterByType('invoice_confirm')"
+        />
 
         <!-- Expense Card -->
-        <div
-          @click="filterByType('expense')"
-          class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-          :class="
-            activeTag == 'expense'
-              ? 'border-4 border-orange-600'
-              : 'border border-gray-100'
+        <ScoreCard
+          :is-active="activeTag == 'expense'"
+          title="Expense"
+          :current-value="groups?.meta?.expense_mail_sent_next_7_days || 0"
+          :total-value="groups?.meta?.total_next_7_days || 0"
+          :icon="DocumentDuplicateIcon"
+          explain_text="expense fully paid next 7 days record"
+          gradient-from="#ef4444"
+          gradient-to="#dc2626"
+          border-color="#dc2626"
+          progress-color="#ef4444"
+          footer-label="Finish Rate"
+          :footer-value="`${calculateFinishRate(
+            groups?.meta?.total_next_2_days,
+            groups?.meta?.expense_mail_sent_next_7_days
+          )} ခုကျန်`"
+          :progress-width="
+            calculateProgressWidth(
+              groups?.meta?.total_next_7_days,
+              groups?.meta?.expense_mail_sent_next_7_days
+            )
           "
-        >
-          <div class="bg-gradient-to-r from-orange-500 to-orange-600 p-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-white text-sm font-medium opacity-90">Expense</p>
-                <div class="flex items-baseline gap-2 mt-2">
-                  <span class="text-3xl font-bold text-white">Step 4</span>
-                </div>
-              </div>
-              <div class="bg-white/20 p-3 rounded-full">
-                <div
-                  class="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold bg-white text-orange-600"
-                >
-                  4
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="p-4 bg-gray-50">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-600">Expense Submissions</span>
-              <span class="font-semibold text-gray-900">Processing</span>
-            </div>
-          </div>
-        </div>
+          @click="filterByType('expense')"
+        />
+      </div>
+
+      <!-- Scorecard Section for Van Tour -->
+      <div v-else class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        <!-- Assign to Driver Card -->
+        <ScoreCard
+          :is-active="activeTag == 'assign_driver'"
+          title="Assign to Driver"
+          :current-value="groups?.meta?.assigned_driver_next_2_days || 0"
+          :total-value="groups?.meta?.total_next_2_days || 0"
+          :icon="UsersIcon"
+          explain_text="Driver assigned next 2 days record"
+          gradient-from="#a855f7"
+          gradient-to="#9333ea"
+          border-color="#9333ea"
+          progress-color="#9333ea"
+          footer-label="Finish Rate"
+          :footer-value="`${calculateFinishRate(
+            groups?.meta?.total_next_2_days,
+            groups?.meta?.assigned_driver_next_2_days
+          )} ခုကျန်`"
+          :progress-width="
+            calculateProgressWidth(
+              groups?.meta?.total_next_2_days,
+              groups?.meta?.assigned_driver_next_2_days
+            )
+          "
+          @click="filterByType('assign_driver')"
+        />
       </div>
 
       <!-- Filters -->
@@ -172,7 +164,11 @@
                 @click="showToggleType = !showToggleType"
               >
                 <p class="capitalize text-[#FF613c] font-semibold text-xl">
-                  {{ product_type }}
+                  {{
+                    product_type == "private_van_tour"
+                      ? "Van Tour"
+                      : product_type || "Hotel"
+                  }}
                 </p>
                 <ChevronDownIcon class="w-5 text-[#FF613c] h-5" />
               </div>
@@ -182,18 +178,27 @@
               >
                 <p
                   class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  @click="product_type = 'hotel'"
+                  @click="changeProductType('hotel')"
                 >
                   Hotel
                 </p>
                 <p
                   class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  @click="product_type = 'attraction'"
+                  @click="changeProductType('attraction')"
                 >
                   Attraction
                 </p>
+                <p
+                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  @click="changeProductType('private_van_tour')"
+                >
+                  Van Tour
+                </p>
               </div>
             </div>
+          </div>
+
+          <div class="flex items-center gap-2">
             <!-- Search CRM ID -->
             <div class="relative min-w-[180px]">
               <input
@@ -210,17 +215,6 @@
                 <MagnifyingGlassIcon class="w-4 h-4 text-white" />
               </div>
             </div>
-
-            <button
-              @click="searchAction"
-              class="bg-[#FF613c] px-4 rounded-full shadow-lg py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer hover:bg-[#e55139] transition-colors"
-            >
-              <MagnifyingGlassIcon class="w-4 h-4 text-white" />
-              <p>Search</p>
-            </button>
-          </div>
-
-          <div class="flex items-center gap-2">
             <!-- Sent Status Dropdown -->
             <div class="relative">
               <select
@@ -279,57 +273,83 @@
           </div>
         </div>
 
-        <!-- Filter Dropdown -->
-        <transition name="slide-down">
-          <div
-            v-if="filterShow"
-            class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200"
+        <Modal :isOpen="filterShow" @closeModal="filterShow = false">
+          <DialogPanel
+            class="w-full max-w-5xl transform rounded-xl bg-white p-6 text-left align-middle shadow-xl transition-all"
           >
-            <div class="flex items-center justify-between mb-3">
-              <p class="text-sm font-medium text-gray-700">Date Range Filter</p>
-              <button
-                @click="clearDateFilter"
-                class="text-xs text-[#FF613c] hover:text-[#e55139]"
-              >
-                Clear Dates
-              </button>
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="text-xs text-gray-600 mb-1 block"
-                  >Start Date</label
-                >
-                <input
-                  type="date"
-                  v-model="searchKey.startDate"
-                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-xs rounded-full shadow-sm"
-                />
-              </div>
-              <div>
-                <label class="text-xs text-gray-600 mb-1 block">End Date</label>
-                <input
-                  type="date"
-                  v-model="searchKey.endDate"
-                  class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-xs rounded-full shadow-sm"
-                />
-              </div>
-            </div>
-            <button
-              @click="searchAction"
-              class="w-full mt-3 bg-[#FF613c] text-white text-xs px-4 py-2 rounded-full hover:bg-[#e55139] transition-colors"
+            <DialogTitle
+              as="div"
+              class="text-lg font-semibold text-gray-900 mb-4 flex justify-between items-center"
             >
-              Apply Filters
-            </button>
-          </div>
-        </transition>
+              <div class="flex items-center gap-2">
+                <FunnelIcon class="w-6 h-6 text-[#FF613c]" />
+                Advanced Filters
+              </div>
+              <button
+                @click="filterShow = false"
+                class="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <XMarkIcon class="w-5 h-5 text-gray-500" />
+              </button>
+            </DialogTitle>
+
+            <div class="space-y-4">
+              <!-- Date Range Filter -->
+              <div>
+                <label class="text-xs font-medium text-gray-700 mb-2 block"
+                  >Service Date Range</label
+                >
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="text-xs text-gray-600 mb-1 block"
+                      >Start Date</label
+                    >
+                    <input
+                      type="date"
+                      v-model="searchKey.startDate"
+                      class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-base rounded-full shadow-sm"
+                    />
+                  </div>
+                  <div>
+                    <label class="text-xs text-gray-600 mb-1 block"
+                      >End Date</label
+                    >
+                    <input
+                      type="date"
+                      v-model="searchKey.endDate"
+                      class="border border-gray-300 px-3 focus:outline-none focus:ring-2 focus:ring-[#FF613c] w-full py-2 text-base rounded-full shadow-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex items-center gap-3 pt-4 border-t">
+                <button
+                  @click="clearDateFilter"
+                  class="flex-1 text-sm bg-gray-100 px-4 py-2.5 rounded-full text-center text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors font-medium"
+                >
+                  Clear All
+                </button>
+                <button
+                  @click="searchAction"
+                  class="flex-1 text-sm bg-[#FF613c] px-4 py-2.5 rounded-full text-center text-white cursor-pointer hover:bg-[#e55139] transition-colors font-medium"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </div>
+          </DialogPanel>
+        </Modal>
       </div>
 
       <!-- Table -->
-      <div class="overflow-x-auto relative w-[92vw] h-[62vh] overflow-y-auto">
+      <div class="overflow-x-auto relative w-[90.5vw] h-[62vh] overflow-y-auto">
         <table class="w-full">
           <thead class="bg-gray-50 border-b border-gray-200 z-10">
             <tr class="sticky top-0 z-10 bg-gray-50">
               <th
+                v-if="product_type !== 'private_van_tour'"
                 class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
               >
                 {{
@@ -337,6 +357,12 @@
                     ? "Mail Status"
                     : "Invoice Status"
                 }}
+              </th>
+              <th
+                v-else
+                class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
+              >
+                Driver Status
               </th>
               <th
                 class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
@@ -361,7 +387,14 @@
               <th
                 class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
               >
-                Room Qty
+                {{
+                  product_type == "hotel"
+                    ? "Room"
+                    : product_type == "private_van_tour"
+                    ? "Van"
+                    : "Ticket"
+                }}
+                Qty
               </th>
               <th
                 class="px-2 md:px-4 py-3 text-left text-xs font-semibold text-gray-700 whitespace-nowrap"
@@ -389,8 +422,13 @@
                 @click="toggleRow(item.id)"
               >
                 <!-- Mail Status Column -->
+                <!-- Mail/Driver Status Column -->
                 <td class="px-2 md:px-4 py-4">
-                  <div class="flex flex-col gap-1">
+                  <div
+                    v-if="product_type !== 'private_van_tour'"
+                    class="flex flex-col gap-1"
+                  >
+                    <!-- Existing mail status badges -->
                     <span
                       v-if="
                         activeTag == 'prove_booking' || activeTag == 'invoice'
@@ -437,6 +475,19 @@
                     >
                       Exp:
                       {{ item.sent_expense_mail == 1 ? "Sent" : "Not Sent" }}
+                    </span>
+                  </div>
+                  <div v-else class="flex flex-col gap-1">
+                    <!-- Van Tour Driver Status -->
+                    <span
+                      class="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
+                      :class="
+                        item.booking_items_assigned
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                      "
+                    >
+                      {{ item.booking_items_assigned ? "Assigned" : "Pending" }}
                     </span>
                   </div>
                 </td>
@@ -536,136 +587,352 @@
                 </td>
               </tr>
 
-              <!-- Expandable Approve Row -->
-              <tr v-show="expandedRows.includes(item.id)">
-                <td colspan="20" class="px-2 md:px-4 py-0">
+              <!-- Expandable Row -->
+              <tr v-show="expandedRowId === item.id">
+                <td
+                  :colspan="product_type === 'private_van_tour' ? 9 : 20"
+                  class="px-2 md:px-4 py-0"
+                >
                   <div class="bg-gray-50 rounded-lg p-4 mb-2">
+                    <!-- Loading State for Expanded Content -->
                     <div
-                      class="grid grid-cols-5 gap-3"
-                      v-if="activeTag != 'invoice_confirm'"
+                      v-if="loadingExpandedRow === item.id"
+                      class="flex justify-center items-center py-8"
                     >
-                      <div
-                        v-for="(image, index) in imageList[item.id]"
-                        :key="'existing-' + index"
-                        v-show="imagesPreview.length === 0"
-                        class="relative aspect-square h-[150px] w-full group"
-                      >
-                        <img
-                          class="w-full h-full object-cover rounded-lg border border-gray-200"
-                          :src="image.file"
-                          alt="Existing"
-                        />
-                        <button
-                          @click="openImageViewer(image.file, index)"
-                          class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <EyeIcon class="w-6 h-6" />
-                        </button>
-                      </div>
-                      <div
-                        @click="selectItemEdit(item)"
-                        class="w-full h-full min-h-[100px] cursor-pointer rounded-lg overflow-hidden border border-dashed border-[#FF613c] flex justify-center items-center"
-                      >
-                        <p
-                          class="text-[#FF613c] text-sm flex justify-center items-center gap-x-3"
-                        >
-                          <PlusCircleIcon class="w-6 h-6" />Add New Image
-                        </p>
+                      <div class="flex flex-col items-center gap-3">
+                        <div
+                          class="w-6 h-6 border-4 border-gray-200 border-t-[#ff613c] rounded-full animate-spin"
+                        ></div>
+                        <p class="text-xs text-gray-500">Loading details...</p>
                       </div>
                     </div>
-                    <div
-                      v-if="activeTag == 'invoice_confirm'"
-                      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
-                    >
-                      <!-- Add New Invoice Card -->
-                      <div
-                        @click="openNewInvoiceModal(item)"
-                        class="bg-white rounded-lg min-h-[120px] cursor-pointer text-[#FF613c] text-sm flex justify-center items-center border border-[#FF613c] p-4 border-dashed hover:bg-[#FF613c]/5 transition-colors group"
-                      >
-                        <PlusCircleIcon class="w-5 h-5 mr-2" />
-                        Add New Invoice
-                      </div>
 
-                      <!-- Invoice Cards -->
+                    <!-- Content after loading -->
+                    <div v-else>
+                      <!-- Van Tour Route Details -->
                       <div
-                        v-for="invoice in invoiceLists[item.id] || []"
-                        :key="invoice.id"
-                        @click="openEditInvoiceModal(invoice, item)"
-                        class="bg-white rounded-lg p-4 border border-gray-200 hover:border-[#FF613c] transition-colors group cursor-pointer"
+                        v-if="product_type === 'private_van_tour'"
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
                       >
-                        <div class="flex items-start gap-3">
-                          <!-- Invoice Icon/Image -->
-                          <div
-                            class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center flex-shrink-0"
-                          >
-                            <DocumentDuplicateIcon
-                              class="w-6 h-6 text-blue-600"
-                            />
-                          </div>
-
-                          <div class="flex-1 min-w-0">
-                            <!-- Invoice Number & Status -->
+                        <div
+                          v-for="carItem in cachedData[item.id]?.items || []"
+                          :key="carItem.id"
+                          @click="openAssignDriverModal(carItem, item)"
+                          class="bg-white rounded-lg p-4 border border-gray-200 hover:border-[#FF613c] transition-colors group cursor-pointer"
+                        >
+                          <div class="flex items-start gap-3">
                             <div
-                              class="flex items-start justify-between gap-2 mb-2"
+                              class="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center flex-shrink-0"
                             >
-                              <h4
-                                class="text-sm font-semibold text-gray-900 truncate"
+                              <svg
+                                class="w-6 h-6 text-orange-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
                               >
-                                {{
-                                  invoice.meta?.invoice_number || "No Number"
-                                }}
-                              </h4>
-                              <span
-                                class="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full whitespace-nowrap"
-                              >
-                                {{
-                                  invoice.meta?.product_type?.includes("Hotel")
-                                    ? "Hotel"
-                                    : "Ticket"
-                                }}
-                              </span>
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                                />
+                              </svg>
                             </div>
 
-                            <!-- Invoice Details -->
-                            <div class="space-y-1">
+                            <div class="flex-1 min-w-0">
                               <div
-                                class="flex items-center justify-between text-xs"
+                                class="flex items-start justify-between gap-2 mb-2"
                               >
-                                <span class="text-gray-500">Amount:</span>
-                                <span class="font-medium text-gray-900">
-                                  {{
-                                    invoice.meta?.total_after_tax
-                                      ? formatCurrency(
-                                          invoice.meta.total_after_tax
-                                        )
-                                      : "-"
-                                  }}
+                                <h4
+                                  class="text-sm font-semibold text-gray-900 truncate"
+                                >
+                                  {{ carItem.car?.name || "No Car" }}
+                                </h4>
+                                <span
+                                  class="px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-700 rounded-full whitespace-nowrap"
+                                >
+                                  {{ formatDate(carItem.service_date) }}
                                 </span>
                               </div>
-                              <div
-                                class="flex items-center justify-between text-xs"
-                              >
-                                <span class="text-gray-500">Product:</span>
-                                <span class="text-gray-700 truncate ml-2">{{
-                                  invoice.meta?.product_name || "-"
-                                }}</span>
+
+                              <div class="space-y-1">
+                                <div
+                                  class="flex items-center gap-1 text-xs text-gray-500"
+                                >
+                                  <svg
+                                    class="w-3 h-3"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
+                                  </svg>
+                                  <span
+                                    >Pickup:
+                                    {{ carItem.pickup_time || "-" }}</span
+                                  >
+                                </div>
+                                <div
+                                  class="flex items-center gap-1 text-xs text-gray-500"
+                                >
+                                  <svg
+                                    class="w-3 h-3"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                                    />
+                                  </svg>
+                                  <span
+                                    >Pax: {{ carItem.total_pax || "-" }}</span
+                                  >
+                                </div>
+                                <div
+                                  class="flex items-center gap-1 text-xs text-gray-500"
+                                >
+                                  <svg
+                                    class="w-3 h-3"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                    />
+                                    <path
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                    />
+                                  </svg>
+                                  <span class="truncate">{{
+                                    carItem.pickup_location ||
+                                    "No pickup location"
+                                  }}</span>
+                                </div>
+                                <div
+                                  v-if="carItem.route_plan"
+                                  class="flex items-start gap-1 text-xs text-gray-500"
+                                >
+                                  <svg
+                                    class="w-3 h-3 mt-0.5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                                    />
+                                  </svg>
+                                  <span class="line-clamp-2">{{
+                                    carItem.route_plan
+                                  }}</span>
+                                </div>
+                                <div
+                                  v-if="carItem.driver_name"
+                                  class="flex items-center gap-1 text-xs text-purple-600 font-medium"
+                                >
+                                  <svg
+                                    class="w-3 h-3"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                    />
+                                  </svg>
+                                  <span>Driver: {{ carItem.driver_name }}</span>
+                                </div>
                               </div>
-                              <div
-                                class="flex items-center justify-between text-xs"
+
+                              <!-- <div
+                                class="mt-3 text-xs text-[#FF613c] font-medium flex items-center"
                               >
-                                <span class="text-gray-500">Company:</span>
-                                <span class="text-gray-700 truncate ml-2">{{
-                                  invoice.meta?.company_legal_name || "-"
-                                }}</span>
+                                <PencilSquareIcon class="w-4 h-4 mr-1" />
+                                Click to edit route & assign driver
+                              </div> -->
+
+                              <div
+                                class="mt-3 text-xs text-purple-600 font-medium flex items-center"
+                              >
+                                <svg
+                                  class="w-4 h-4 mr-1"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                  />
+                                </svg>
+                                Click to assign driver
                               </div>
                             </div>
+                          </div>
+                        </div>
+                      </div>
 
-                            <!-- View/Edit Indicator -->
-                            <div
-                              class="mt-3 text-xs text-[#FF613c] font-medium flex items-center"
+                      <!-- Hotel/Attraction Images (existing code) -->
+                      <div v-else>
+                        <div
+                          v-if="activeTag != 'invoice_confirm'"
+                          class="grid grid-cols-5 gap-3"
+                        >
+                          <!-- Keep existing image display code -->
+                          <div
+                            v-for="(image, index) in cachedData[item.id]
+                              ?.images || []"
+                            :key="'existing-' + index"
+                            v-show="imagesPreview.length === 0"
+                            class="relative aspect-square h-[150px] w-full group"
+                          >
+                            <img
+                              class="w-full h-full object-cover rounded-lg border border-gray-200"
+                              :src="image.file"
+                              alt="Existing"
+                            />
+                            <button
+                              @click="openImageViewer(image.file, index)"
+                              class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
                             >
-                              <PencilSquareIcon class="w-4 h-4 mr-1" />
-                              Click to edit
+                              <EyeIcon class="w-6 h-6" />
+                            </button>
+                          </div>
+                          <div
+                            v-if="activeTag != 'invoice_confirm'"
+                            @click="selectItemEdit(item)"
+                            class="w-full h-full min-h-[100px] cursor-pointer rounded-lg overflow-hidden border border-dashed border-[#FF613c] flex justify-center items-center"
+                          >
+                            <p
+                              class="text-[#FF613c] text-sm flex justify-center items-center gap-x-3"
+                            >
+                              <PlusCircleIcon class="w-6 h-6" />Add New Image
+                            </p>
+                          </div>
+                        </div>
+                        <div
+                          v-if="activeTag == 'invoice_confirm'"
+                          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
+                        >
+                          <!-- Add New Invoice Card -->
+                          <div
+                            @click="openNewInvoiceModal(item)"
+                            class="bg-white rounded-lg min-h-[120px] cursor-pointer text-[#FF613c] text-sm flex justify-center items-center border border-[#FF613c] p-4 border-dashed hover:bg-[#FF613c]/5 transition-colors group"
+                          >
+                            <PlusCircleIcon class="w-5 h-5 mr-2" />
+                            Add New Invoice
+                          </div>
+
+                          <!-- Invoice Cards -->
+                          <div
+                            v-for="invoice in cachedData[item.id]?.invoices ||
+                            []"
+                            :key="invoice.id"
+                            @click="openEditInvoiceModal(invoice, item)"
+                            class="bg-white rounded-lg p-4 border border-gray-200 hover:border-[#FF613c] transition-colors group cursor-pointer"
+                          >
+                            <div class="flex items-start gap-3">
+                              <!-- Invoice Icon/Image -->
+                              <div
+                                class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center flex-shrink-0"
+                              >
+                                <DocumentDuplicateIcon
+                                  class="w-6 h-6 text-blue-600"
+                                />
+                              </div>
+
+                              <div class="flex-1 min-w-0">
+                                <!-- Invoice Number & Status -->
+                                <div
+                                  class="flex items-start justify-between gap-2 mb-2"
+                                >
+                                  <h4
+                                    class="text-sm font-semibold text-gray-900 truncate"
+                                  >
+                                    {{
+                                      invoice.meta?.invoice_number ||
+                                      "No Number"
+                                    }}
+                                  </h4>
+                                  <span
+                                    class="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full whitespace-nowrap"
+                                  >
+                                    {{
+                                      invoice.meta?.product_type?.includes(
+                                        "Hotel"
+                                      )
+                                        ? "Hotel"
+                                        : "Ticket"
+                                    }}
+                                  </span>
+                                </div>
+
+                                <!-- Invoice Details -->
+                                <div class="space-y-1">
+                                  <div
+                                    class="flex items-center justify-between text-xs"
+                                  >
+                                    <span class="text-gray-500">Amount:</span>
+                                    <span class="font-medium text-gray-900">
+                                      {{
+                                        invoice.meta?.total_after_tax
+                                          ? formatCurrency(
+                                              invoice.meta.total_after_tax
+                                            )
+                                          : "-"
+                                      }}
+                                    </span>
+                                  </div>
+                                  <div
+                                    class="flex items-center justify-between text-xs"
+                                  >
+                                    <span class="text-gray-500">Product:</span>
+                                    <span class="text-gray-700 truncate ml-2">{{
+                                      invoice.meta?.product_name || "-"
+                                    }}</span>
+                                  </div>
+                                  <div
+                                    class="flex items-center justify-between text-xs"
+                                  >
+                                    <span class="text-gray-500">Company:</span>
+                                    <span class="text-gray-700 truncate ml-2">{{
+                                      invoice.meta?.company_legal_name || "-"
+                                    }}</span>
+                                  </div>
+                                </div>
+
+                                <!-- View/Edit Indicator -->
+                                <div
+                                  class="mt-3 text-xs text-[#FF613c] font-medium flex items-center"
+                                >
+                                  <PencilSquareIcon class="w-4 h-4 mr-1" />
+                                  Click to edit
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -674,6 +941,8 @@
                   </div>
                 </td>
               </tr>
+
+              <!-- Comments row remains the same -->
               <tr v-if="item.fill_comment" class="bg-gray-50">
                 <td
                   colspan="14"
@@ -753,6 +1022,7 @@
       </div>
     </div>
 
+    <!-- Modals remain the same... -->
     <!-- Detail Modal -->
     <Modal :isOpen="showDetail">
       <DialogPanel
@@ -873,6 +1143,7 @@
       </DialogPanel>
     </Modal>
 
+    <!-- Other modals remain the same... -->
     <!-- Approve/Edit Modal -->
     <Modal :isOpen="showDetailEdit">
       <DialogPanel
@@ -1157,7 +1428,7 @@
           </button>
         </DialogTitle>
 
-        <div>
+        <div v-if="detail && detail.id">
           <div class="p-6 flex justify-between space-x-4 items-center">
             <div
               v-if="product_type == 'attraction'"
@@ -1208,6 +1479,14 @@
               </svg>
               <span>Copy Email</span>
             </div>
+          </div>
+        </div>
+        <div class="h-[200px] flex justify-center items-center" v-else>
+          <div class="flex flex-col items-center gap-3">
+            <div
+              class="w-8 h-8 border-4 border-gray-200 border-t-[#ff613c] rounded-full animate-spin"
+            ></div>
+            <p class="text-xs text-gray-500">Loading...</p>
           </div>
         </div>
       </DialogPanel>
@@ -1284,52 +1563,20 @@
       </DialogPanel>
     </Modal>
 
-    <!-- Comment Modal -->
-    <Modal :isOpen="openCommentModal" @closeModal="closeCommentModal">
-      <DialogPanel
-        class="w-full max-w-xl transform rounded-xl bg-white p-6 text-left align-middle shadow-xl transition-all"
-      >
-        <DialogTitle
-          as="h3"
-          class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"
-        >
-          <AdjustmentsHorizontalIcon class="w-6 h-6 text-[#FF613c]" />
-          Add Comment
-        </DialogTitle>
-
-        <div class="space-y-4">
-          <textarea
-            v-model="comment"
-            class="w-full rounded-lg border border-gray-200 focus:outline-none px-4 py-3 text-sm text-gray-700"
-            rows="5"
-            placeholder="Comment"
-          ></textarea>
-          <div class="pt-4 border-t border-gray-200">
-            <button
-              @click="addCommentAction"
-              class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
-            >
-              + Add Comment
-            </button>
-          </div>
-        </div>
-      </DialogPanel>
-    </Modal>
-
     <InvoiceModal
       :isOpen="invoiceModalOpen"
       :invoiceData="selectedInvoice"
       :groupId="selectedItem?.id"
       :groupData="selectedItem"
       :openEditItemCost="openEditItemCost"
-      :itemData="itemLists[selectedItem?.id]"
+      :itemData="cachedData[selectedItem?.id]?.items || {}"
       @close="closeInvoiceModal"
       @refresh="refreshInvoices"
     />
 
     <ItemCostModal
       :isOpen="showEditItemCost"
-      :groupData="itemLists[selectedItem?.id] || {}"
+      :groupData="cachedData[selectedItem?.id]?.items || {}"
       :closeAction="closeEditItemCost"
       :refreshAction="refreshExpenses"
     />
@@ -1337,7 +1584,25 @@
     <BookingCopyModel
       :openModal="showLineCopyModal"
       :closeModal="closeDetail"
-      :bookingItem="detail"
+      :bookingItem="detail || ''"
+    />
+
+    <RouteModal
+      :isOpen="routeModalOpen"
+      :routeData="selectedRoute"
+      :itemData="selectedRoute"
+      :groupId="selectedItem?.id"
+      @close="closeRouteModal"
+      @refresh="refreshRoutes"
+    />
+
+    <AssignDriverModal
+      :isOpen="assignDriverModalOpen"
+      :driverData="selectedDriverItem"
+      :itemData="selectedDriverItem"
+      :groupId="selectedItem?.id"
+      @close="closeAssignDriverModal"
+      @refresh="refreshDriverAssignments"
     />
   </Layout>
 </template>
@@ -1351,6 +1616,7 @@ import {
   FunnelIcon,
   InformationCircleIcon,
   MagnifyingGlassIcon,
+  UsersIcon,
 } from "@heroicons/vue/24/outline";
 import { XCircleIcon, PlusCircleIcon } from "@heroicons/vue/24/solid";
 import { useSidebarStore } from "../stores/sidebar";
@@ -1366,10 +1632,12 @@ import EmailPart from "./GroupComponent/EmailPart.vue";
 import Pagination from "../components/Pagination.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import { useRoute } from "vue-router";
-import router from "../router";
 import InvoiceModal from "./GroupComponent/ExpensePart/InvoiceModal.vue";
 import ItemCostModal from "./GroupComponent/ExpensePart/ItemCostModal.vue";
 import BookingCopyModel from "./GroupComponent/BookingCopyModel.vue";
+import RouteModal from "./GroupComponent/ExpensePart/RouteModal.vue";
+import AssignDriverModal from "./GroupComponent/ExpensePart/AssignDriverModal.vue";
+import ScoreCard from "./GroupComponent/ExpensePart/CartScale.vue";
 
 const toast = useToast();
 const sidebarStore = useSidebarStore();
@@ -1390,9 +1658,17 @@ const product_type = ref("hotel");
 const showImageViewer = ref(false);
 const currentViewImage = ref("");
 const currentImageIndex = ref(0);
-const expandedRows = ref([]);
+const expandedRowId = ref(null); // Changed from array to single ID
 const showToggleType = ref(false);
 const showLineCopyModal = ref(false);
+const loadingExpandedRow = ref(null);
+const routeModalOpen = ref(false);
+const selectedRoute = ref(null);
+const assignDriverModalOpen = ref(false);
+const selectedDriverItem = ref(null);
+
+// Cached data for rows
+const cachedData = ref({});
 
 const formData = ref({
   images: [],
@@ -1404,14 +1680,53 @@ const showEditItemCost = ref(false);
 
 const openEditItemCost = () => {
   if (selectedItem.value) {
-    console.log("Selected Item:", selectedItem.value);
-    console.log("Item Lists:", itemLists.value);
-    console.log("Current Group Data:", itemLists.value[selectedItem.value.id]);
     showEditItemCost.value = true;
     invoiceModalOpen.value = false;
   } else {
     toast.error("No booking data available");
   }
+};
+
+// Add this function to open the assign driver modal
+const openAssignDriverModal = (carItem, item) => {
+  selectedDriverItem.value = carItem;
+  selectedItem.value = item;
+  assignDriverModalOpen.value = true;
+};
+
+const closeAssignDriverModal = () => {
+  assignDriverModalOpen.value = false;
+  selectedDriverItem.value = null;
+};
+
+const refreshDriverAssignments = async () => {
+  if (selectedItem.value?.id) {
+    delete cachedData.value[selectedItem.value.id];
+    await fetchGroupExpenses(selectedItem.value.id);
+    await getListAction();
+  }
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  return `${String(date.getDate()).padStart(2, "0")} ${
+    monthNames[date.getMonth()]
+  } ${date.getFullYear()}`;
 };
 
 const day = ref("");
@@ -1425,54 +1740,60 @@ const searchKey = ref({
   sentStatus: "all",
 });
 
+const calculateFinishRate = (total, remaining) => {
+  return total > 0 ? (total - remaining).toFixed(0) : 0;
+};
+
+const calculateProgressWidth = (total, remaining) => {
+  return total > 0 ? (remaining / total) * 100 + "%" : "0%";
+};
+
 const detail = ref({});
 const showDetailEdit = ref(false);
 const datePickerInput = ref(null);
 
-// Toggle row expansion
-const imageList = ref({});
-
-const invoiceLists = ref({});
-
-// Add function to fetch invoices for a specific group
-const fetchGroupInvoices = async (groupId) => {
-  try {
-    const response = await groupStore.groupDocumentList(groupId, {
-      document_type: "booking_confirm_letter",
-    });
-
-    if (response?.result) {
-      invoiceLists.value[groupId] = response.result;
-    }
-  } catch (error) {
-    console.error("Error fetching invoices:", error);
-  }
-};
-
+// Optimized toggle row with caching and loading state
 const toggleRow = async (itemId) => {
-  const index = expandedRows.value.indexOf(itemId);
+  // If clicking the same row, close it
+  if (expandedRowId.value === itemId) {
+    expandedRowId.value = null;
+    loadingExpandedRow.value = null;
+    return;
+  }
 
-  if (index > -1) {
-    expandedRows.value.splice(index, 1);
-  } else {
-    if (activeTag.value != "invoice_confirm") {
-      if (imageList.value[itemId] === undefined) {
-        const data = await getProofImage(itemId);
-        imageList.value[itemId] = data;
+  // Close previous row and open new one
+  expandedRowId.value = itemId;
+
+  // Load data if not cached
+  if (!cachedData.value[itemId]) {
+    try {
+      // Set loading state for this specific row
+      loadingExpandedRow.value = itemId;
+
+      if (
+        activeTag.value !== "invoice_confirm" &&
+        activeTag.value !== "assign_driver"
+      ) {
+        // Fetch images
+        const images = await getProofImage(itemId);
+        cachedData.value[itemId] = { images };
+      } else if (activeTag.value == "invoice_confirm") {
+        // Fetch invoices and items in parallel
+        const [invoices, items] = await Promise.all([
+          fetchGroupInvoices(itemId),
+          fetchGroupExpenses(itemId),
+        ]);
+        cachedData.value[itemId] = { invoices, items };
+      } else if (activeTag.value == "assign_driver") {
+        fetchGroupExpenses(itemId);
       }
-    } else {
-      if (!invoiceLists.value[itemId]) {
-        await fetchGroupInvoices(itemId);
-      }
-      if (!itemLists.value[itemId]) {
-        await fetchGroupExpenses(itemId);
-      }
+    } catch (error) {
+      console.error("Error loading row data:", error);
+      toast.error("Failed to load data");
+    } finally {
+      // Clear loading state
+      loadingExpandedRow.value = null;
     }
-    expandedRows.value.push(itemId);
-
-    console.log("====================================");
-    console.log(imageList.value, "this is image list");
-    console.log("====================================");
   }
 };
 
@@ -1489,14 +1810,13 @@ const closeEditItemCost = () => {
   showEditItemCost.value = false;
 };
 
-// Open modal for editing invoice
 const openEditInvoiceModal = (invoice, item) => {
   selectedInvoice.value = invoice;
   selectedItem.value = item;
   invoiceModalOpen.value = true;
 };
 
-// Date functions
+// Optimized date functions
 const updateExpenseDate = () => {
   if (day.value && month.value && year.value) {
     const paddedDay = String(day.value).padStart(2, "0");
@@ -1506,11 +1826,11 @@ const updateExpenseDate = () => {
 };
 
 const openDatePicker = () => {
-  datePickerInput.value.showPicker();
+  datePickerInput.value?.showPicker();
 };
 
 const updateFromDatePicker = () => {
-  if (formData.value.date && formData.value.date.includes("-")) {
+  if (formData.value.date?.includes("-")) {
     const [y, m, d] = formData.value.date.split("-");
     year.value = y;
     month.value = parseInt(m);
@@ -1532,49 +1852,37 @@ const closeImageViewer = () => {
 };
 
 const nextImage = () => {
-  if (currentImageIndex.value < formData.value.editImagesPreview.length - 1) {
-    currentImageIndex.value++;
-  } else {
-    currentImageIndex.value = 0;
-  }
+  const total = formData.value.editImagesPreview.length;
+  currentImageIndex.value = (currentImageIndex.value + 1) % total;
   currentViewImage.value =
     formData.value.editImagesPreview[currentImageIndex.value].file;
 };
 
 const previousImage = () => {
-  if (currentImageIndex.value > 0) {
-    currentImageIndex.value--;
-  } else {
-    currentImageIndex.value = formData.value.editImagesPreview.length - 1;
-  }
+  const total = formData.value.editImagesPreview.length;
+  currentImageIndex.value = (currentImageIndex.value - 1 + total) % total;
   currentViewImage.value =
     formData.value.editImagesPreview[currentImageIndex.value].file;
 };
 
 const openFileImagePicker = () => {
-  imagesInput.value.click();
+  imagesInput.value?.click();
 };
 
 const getRoomQty = (item) => {
-  let total = 0;
-  item?.items.forEach((room) => {
-    if (room.days) {
-      total += room.quantity * room.days;
-    } else {
-      total += room.quantity;
-    }
-  });
-  return total;
+  return (
+    item?.items?.reduce((total, room) => {
+      return total + (room.days ? room.quantity * room.days : room.quantity);
+    }, 0) || 0
+  );
 };
 
 const handlerImagesFileChange = (e) => {
-  const selectedFiles = e.target.files;
-  if (selectedFiles) {
-    for (let i = 0; i < selectedFiles.length; i++) {
-      formData.value.images.push(selectedFiles[i]);
-      imagesPreview.value.push(URL.createObjectURL(selectedFiles[i]));
-    }
-  }
+  const selectedFiles = Array.from(e.target.files || []);
+  selectedFiles.forEach((file) => {
+    formData.value.images.push(file);
+    imagesPreview.value.push(URL.createObjectURL(file));
+  });
 };
 
 const removeImageUpdateImage = async (imageID) => {
@@ -1583,37 +1891,52 @@ const removeImageUpdateImage = async (imageID) => {
       selectedItem.value.id,
       imageID
     );
-    if (res.status == 1) {
+    if (res.status === 1) {
       toast.success("Image successfully deleted");
-      await getProofImage(selectedItem.value.id);
+      // Update cache
+      const images = await getProofImage(selectedItem.value.id);
+      if (cachedData.value[selectedItem.value.id]) {
+        cachedData.value[selectedItem.value.id].images = images;
+      }
     }
   } catch (error) {
     console.error("Delete image error:", error);
+    toast.error("Failed to delete image");
   }
 };
 
 const refreshExpenses = async () => {
   if (selectedItem.value?.id) {
-    await fetchGroupExpenses(selectedItem.value.id);
-    await getListAction(); // Refresh main list
+    const items = await fetchGroupExpenses(selectedItem.value.id);
+    if (cachedData.value[selectedItem.value.id]) {
+      cachedData.value[selectedItem.value.id].items = items;
+    }
+    await getListAction();
   }
 };
 
 const getProofImage = async (id) => {
-  const res = await groupStore.groupDocumentList(id, {
-    document_type:
+  if (id && id != undefined) {
+    const documentType =
       activeTag.value === "prove_booking"
         ? "booking_request_proof"
         : activeTag.value === "expense"
         ? "expense_mail_proof"
-        : "invoice_mail_proof",
-  });
-  formData.value.editImagesPreview = res.result;
-  return res.result;
+        : "invoice_mail_proof";
+
+    const res = await groupStore.groupDocumentList(id, {
+      document_type: documentType,
+    });
+    formData.value.editImagesPreview = res.result;
+    return res.result;
+  } else {
+    return [];
+  }
 };
 
 const updateReservationAction = async () => {
   const frmData = new FormData();
+
   if (activeTag.value === "prove_booking") {
     frmData.append("sent_booking_request", 1);
     frmData.append("booking_email_sent_date", formData.value.date);
@@ -1629,30 +1952,39 @@ const updateReservationAction = async () => {
   await groupStore.groupUpdateAction(selectedItem.value.id, frmData);
   toast.success("Update status");
 
-  const responses = [];
   if (formData.value.images.length > 0) {
-    for (let i = 0; i < formData.value.images.length; i++) {
+    const uploadPromises = formData.value.images.map((file, i) => {
       const secData = new FormData();
-      if (activeTag.value === "prove_booking") {
-        secData.append("document_type", "booking_request_proof");
-      } else if (activeTag.value === "expense") {
-        secData.append("document_type", "expense_mail_proof");
-      } else {
-        secData.append("document_type", "invoice_mail_proof");
-      }
-      secData.append(`documents[${i}][file]`, formData.value.images[i]);
+      const docType =
+        activeTag.value === "prove_booking"
+          ? "booking_request_proof"
+          : activeTag.value === "expense"
+          ? "expense_mail_proof"
+          : "invoice_mail_proof";
+
+      secData.append("document_type", docType);
+      secData.append(`documents[${i}][file]`, file);
       secData.append(`documents[${i}][meta][name]`, `proof-${i}`);
 
-      const fileRes = await groupStore.groupDocumentCreateAction(
+      return groupStore.groupDocumentCreateAction(
         secData,
         selectedItem.value.id
       );
-      responses.push(fileRes);
-    }
+    });
+
+    await Promise.all(uploadPromises);
+    // toast.success("Upload completed successfully");
   }
 
-  if (responses.length > 0) {
-    toast.success("Update completed successfully");
+  // Clear cache for this item to force refresh
+  // delete cachedData.value[selectedItem.value.id];
+
+  console.log(selectedItem.value.id, "this is created item");
+
+  // Update cache
+  const images = await getProofImage(selectedItem.value.id);
+  if (cachedData.value[selectedItem.value.id]) {
+    cachedData.value[selectedItem.value.id].images = images;
   }
 
   setTimeout(async () => {
@@ -1676,17 +2008,35 @@ const closeInvoiceModal = () => {
 };
 
 const getComments = (item) => {
-  const comments = [];
-  if (item.fill_comment) {
-    comments.push({
+  if (!item.fill_comment) return [];
+
+  return [
+    {
       type: "Sale",
       text: item.fill_comment,
       badgeClass: "bg-blue-500",
       bgClass: "bg-blue-100",
-    });
-  }
+    },
+  ];
+};
 
-  return comments;
+const openEditRouteModal = (carItem, item) => {
+  selectedRoute.value = carItem;
+  selectedItem.value = item;
+  routeModalOpen.value = true;
+};
+
+const closeRouteModal = () => {
+  routeModalOpen.value = false;
+  selectedRoute.value = null;
+};
+
+const refreshRoutes = async () => {
+  if (selectedItem.value?.id) {
+    delete cachedData.value[selectedItem.value.id];
+    await fetchGroupExpenses(selectedItem.value.id);
+    await getListAction();
+  }
 };
 
 const removeImageSelectImage = (index) => {
@@ -1695,70 +2045,86 @@ const removeImageSelectImage = (index) => {
 };
 
 const watchSystem = computed(() => {
-  let result = {};
+  const result = {
+    page: currentPage.value,
+    per_page: 30,
+    sorting_type: "service_date",
+    sorting: "asc",
+  };
 
   if (searchKey.value.searchId) {
     result.crm_id = searchKey.value.searchId;
   }
 
+  // Date range
   if (searchKey.value.startDate && searchKey.value.endDate) {
     result.booking_daterange = `${searchKey.value.startDate},${searchKey.value.endDate}`;
   } else {
-    let today = new Date();
-    let nextMonth = new Date(today);
+    const today = new Date();
+    const nextMonth = new Date(today);
     nextMonth.setMonth(nextMonth.getMonth() + 3);
-    searchKey.value.startDate = today.toISOString().split("T")[0];
-    searchKey.value.endDate = nextMonth.toISOString().split("T")[0];
-    result.booking_daterange = `${today.toISOString().split("T")[0]},${
-      nextMonth.toISOString().split("T")[0]
-    }`;
+    const startDate = today.toISOString().split("T")[0];
+    const endDate = nextMonth.toISOString().split("T")[0];
+    searchKey.value.startDate = startDate;
+    searchKey.value.endDate = endDate;
+    result.booking_daterange = `${startDate},${endDate}`;
   }
 
   if (product_type.value) {
     result.product_type = product_type.value;
   }
-  result.sorting_type = "service_date";
-  result.sorting = "asc";
 
-  if (searchKey.value.searchId == "") {
-    if (activeTag.value == "prove_booking") {
+  // Status filters based on active tag
+  if (!searchKey.value.searchId) {
+    if (activeTag.value === "prove_booking") {
       if (searchKey.value.sentStatus !== "all") {
         result.sent_booking_request = searchKey.value.sentStatus;
       }
-    }
-
-    if (activeTag.value == "invoice") {
+    } else if (activeTag.value === "invoice") {
       result.sent_booking_request = "sent";
       result.booking_request_proof = "proved";
-
       if (searchKey.value.sentStatus !== "all") {
         result.have_invoice_mail = searchKey.value.sentStatus;
       }
-    }
-
-    if (activeTag.value == "expense") {
+    } else if (activeTag.value === "expense") {
       result.sent_booking_request = "sent";
       result.booking_request_proof = "proved";
       result.have_invoice_mail = "sent";
       result.invoice_mail_proof = "proved";
-
       if (searchKey.value.sentStatus !== "all") {
         result.sent_expense_mail = searchKey.value.sentStatus;
       }
     }
   }
 
-  result.page = currentPage.value;
-  result.per_page = 30;
-
   return result;
 });
 
+// Modify the changeProductType function
+const changeProductType = (type) => {
+  product_type.value = type;
+  showToggleType.value = false;
+
+  // Reset filters when changing product type
+  if (type === "private_van_tour") {
+    activeTag.value = "assign_driver";
+  } else {
+    activeTag.value = "prove_booking";
+  }
+
+  // Clear cache and reload
+  cachedData.value = {};
+  expandedRowId.value = null;
+  searchAction();
+};
+
+// Modify the filterByType function to handle van tour
 const filterByType = (type) => {
   activeTag.value = type;
   searchKey.value.sentStatus = "all";
-  expandedRows.value = [];
-  imageList.value = {};
+  expandedRowId.value = null;
+  loadingExpandedRow.value = null;
+  cachedData.value = {};
   searchAction();
 };
 
@@ -1776,46 +2142,53 @@ const selectItem = async (item) => {
 };
 
 const showCopyModal = ref(false);
+
 const copyModalAction = async (item) => {
+  showCopyModal.value = true;
   selectedItem.value = item;
   const res = await groupStore.detailAction(item.id);
   detail.value = res.result;
-
-  showCopyModal.value = true;
 };
 
 const handleEdit = async (item) => {
   selectedItem.value = item;
-  // console.log("Selected Item:", selectedItem.value);
-  // console.log("Item Lists:", itemLists.value);
-  // console.log("Current Group Data:", itemLists.value[selectedItem.value.id]);
 
-  if (!itemLists.value[selectedItem.value.id]) {
-    await fetchGroupExpenses(selectedItem.value.id);
+  if (!cachedData.value[item.id]?.items) {
+    const items = await fetchGroupExpenses(item.id);
+    if (!cachedData.value[item.id]) {
+      cachedData.value[item.id] = {};
+    }
+    cachedData.value[item.id].items = items;
   }
+
   showEditItemCost.value = true;
   invoiceModalOpen.value = false;
 };
 
 const refreshInvoices = async () => {
   if (selectedItem.value?.id) {
-    await fetchGroupInvoices(selectedItem.value.id);
-
-    await getListAction(); // Refresh main list
+    const invoices = await fetchGroupInvoices(selectedItem.value.id);
+    if (cachedData.value[selectedItem.value.id]) {
+      cachedData.value[selectedItem.value.id].invoices = invoices;
+    }
+    await getListAction();
   }
 };
 
 const selectItemEdit = async (item) => {
   selectedItem.value = item;
-  formData.value.date =
-    activeTag.value == "prove_booking"
+
+  const dateField =
+    activeTag.value === "prove_booking"
       ? item.booking_email_sent_date
-      : activeTag.value == "expense"
+      : activeTag.value === "expense"
       ? item.expense_email_sent_date
       : item.invoice_mail_sent_date;
 
-  if (formData.value.date && formData.value.date.includes("-")) {
-    const [y, m, d] = formData.value.date.split("-");
+  formData.value.date = dateField;
+
+  if (dateField?.includes("-")) {
+    const [y, m, d] = dateField.split("-");
     year.value = y;
     month.value = parseInt(m);
     day.value = parseInt(d);
@@ -1836,12 +2209,16 @@ const closeDetailEdit = () => {
   showDetailEdit.value = false;
   selectedItem.value = null;
   showCopyModal.value = false;
+  detail.value = {};
   resetCloseAction();
 };
 
 const searchAction = async () => {
   filterShow.value = false;
   currentPage.value = 1;
+  cachedData.value = {}; // Clear cache on new search
+  expandedRowId.value = null; // Close expanded rows
+  loadingExpandedRow.value = null;
   await groupStore.getListAction(watchSystem.value);
 };
 
@@ -1886,26 +2263,36 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-// Add this near your other ref declarations at the top
-const expenseLists = ref({});
-const itemLists = ref({});
+// Optimized fetch functions that return data
+const fetchGroupInvoices = async (groupId) => {
+  try {
+    const response = await groupStore.groupDocumentList(groupId, {
+      document_type: "booking_confirm_letter",
+    });
+    return response?.result || [];
+  } catch (error) {
+    console.error("Error fetching invoices:", error);
+    return [];
+  }
+};
 
-// Update the fetchGroupExpenses function
+// Modify the fetchGroupExpenses to fetch car items for van tours
 const fetchGroupExpenses = async (groupId) => {
   try {
+    loadingExpandedRow.value = groupId;
     const response = await groupStore.detailAction(groupId);
+
     if (response?.result) {
-      // Store the expense data
-      if (response.result.expense) {
-        expenseLists.value[groupId] = response.result.expense;
-      }
-      // Store the full result including items
-      itemLists.value[groupId] = response.result;
-      console.log(response.result, "this is group expense");
+      cachedData.value[groupId] = {
+        items: response.result.items || [],
+      };
     }
+
+    console.log(cachedData.value, "this is ");
   } catch (error) {
     console.error("Error fetching expenses:", error);
-    toast.error("Failed to fetch expense data");
+  } finally {
+    loadingExpandedRow.value = null;
   }
 };
 
@@ -1917,22 +2304,27 @@ const fetchData = async () => {
   }
 };
 
+const getListAction = () => groupStore.getListAction(watchSystem.value);
+
+// Watchers
 watch(currentPage, () => {
   groupStore.getListAction(watchSystem.value);
 });
 
 watch(product_type, () => {
+  cachedData.value = {}; // Clear cache when product type changes
+  expandedRowId.value = null;
   groupStore.getListAction(watchSystem.value);
 });
 
 onMounted(() => {
-  fetchData();
-
   if (route.query.product_type && route.query.activeTag && route.query.crm_id) {
     product_type.value = route.query.product_type;
     activeTag.value = route.query.activeTag;
     searchKey.value.searchId = route.query.crm_id;
     searchAction();
+  } else {
+    fetchData();
   }
 });
 </script>

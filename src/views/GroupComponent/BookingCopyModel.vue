@@ -162,13 +162,15 @@ const groupStore = useGroupStore();
 
 const getListAction = async () => {
   loading.value = true;
-  const id = route.query.id;
-  const res = await groupStore.groupDocumentList(id, {
-    document_type: "passport",
-  });
-  console.log(res);
-  passportLists.value = res.result;
-  loading.value = false;
+  const id = props.bookingItem.id;
+  if (id) {
+    const res = await groupStore.groupDocumentList(id, {
+      document_type: "passport",
+    });
+    console.log(res);
+    passportLists.value = res.result;
+    loading.value = false;
+  }
 };
 
 const selected = ref(null);
@@ -233,7 +235,9 @@ Thank You ❤️
 };
 
 onMounted(() => {
-  console.log(props.bookingItem);
-  getListAction();
+  console.log(props.bookingItem, "this is booking item from booking ");
+  if (props.bookingItem) {
+    getListAction();
+  }
 });
 </script>

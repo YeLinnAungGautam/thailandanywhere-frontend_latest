@@ -161,6 +161,9 @@ const emailSubject = computed(() => {
 
 // Computed email body based on activeTag
 const emailBody = computed(() => {
+  console.log("====================================");
+  console.log(props.detail);
+  console.log("====================================");
   if (!props.detail?.items?.[0]) return "";
 
   const detail = props.detail;

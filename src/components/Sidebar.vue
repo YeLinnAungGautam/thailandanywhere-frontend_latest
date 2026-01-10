@@ -136,25 +136,20 @@
                 </div> -->
                 <div class="transition-all duration-150">
                   <SidebarItem
-                    name="Group Attraction"
-                    label="attraction"
-                    :icon="TicketIcon"
-                    to="/group-attraction"
-                    :activePaths="['group-attraction']"
-                  />
-                  <SidebarItem
-                    name="Group Hotel"
-                    label="hotel"
-                    :icon="HomeModernIcon"
-                    to="/group-hotel"
-                    :activePaths="['group-hotel']"
-                  />
-                  <SidebarItem
-                    name="Group Vantour"
-                    label="vantour"
-                    :icon="TruckIcon"
-                    to="/group-vantour"
-                    :activePaths="['group-vantour']"
+                    name="Reservation"
+                    label="reservation"
+                    :icon="RectangleGroupIcon"
+                    to="/reservation-group"
+                    :activePaths="[
+                      'group-vantour',
+                      'group-attraction',
+                      'group-hotel',
+                      'reservation-group',
+                      'group-fill-data',
+                      'group-hotel-email',
+                      'group-hotel-expense',
+                      'group-confirmation',
+                    ]"
                   />
                 </div>
                 <SidebarItem
@@ -489,6 +484,7 @@ import {
   MapIcon,
   ChatBubbleOvalLeftEllipsisIcon,
   EnvelopeIcon,
+  RectangleGroupIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";

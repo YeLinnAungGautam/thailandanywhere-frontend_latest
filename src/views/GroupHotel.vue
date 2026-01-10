@@ -1,12 +1,5 @@
 <template>
   <Layout :is_white="true">
-    <div class="w-full h-full bg-white" v-if="showWelcomeModal">
-      <GroupHotelHome
-        :goToMainPage="goToMainPage"
-        :handleStay="handleStay"
-        :goToExpense="goToExpensePage"
-      />
-    </div>
     <div
       :class="isShowSidebar ? 'left-[240px]' : 'left-[100px]'"
       class="space-x-8 col-span-3 flex justify-start items-center transition-all duration-200 gap-2 text-sm pb-4 absolute top-6"
@@ -17,7 +10,7 @@
         <!-- <span class="pl-2">{{ route.query.id }}</span> -->
       </p>
     </div>
-    <div class="grid gap-4 relative grid-cols-3" v-if="!showWelcomeModal">
+    <div class="grid gap-4 relative grid-cols-3">
       <transition name="slide">
         <div
           class="border shadow-sm rounded-lg p-4"
@@ -897,31 +890,6 @@ const expense_total_amount = computed(() => {
   }
   return total;
 });
-
-// Add these refs
-const showWelcomeModal = ref(false);
-
-// Add these methods
-const handleStay = () => {
-  showWelcomeModal.value = false;
-};
-
-const goToMainPage = () => {
-  showWelcomeModal.value = false;
-  router.push({ name: "group-hotel-email" }); // or your main page route name
-};
-
-const goToExpensePage = () => {
-  showWelcomeModal.value = false;
-  router.push({ name: "group-hotel-expense" }); // or your main page route name
-};
-
-// Check if first visit
-const checkFirstVisit = () => {
-  if (showWelcomeModal.value == false) {
-    showWelcomeModal.value = true;
-  }
-};
 
 onMounted(async () => {
   setStartAndEndDate();

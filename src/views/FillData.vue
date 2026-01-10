@@ -14,117 +14,112 @@
     <!-- Main Content -->
     <div class="w-full rounded-lg shadow-sm">
       <!-- Scorecard Section -->
-      <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-4">
         <!-- Passport Card -->
-        <div
-          @click="activeSelectAction('passport')"
-          class="bg-white relative rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-          :class="
-            activeSelect == 'passport'
-              ? 'border-4 border-orange-600'
-              : 'border-4 border-gray-100'
+
+        <ScoreCard
+          v-if="productType !== 'private_van_tour'"
+          :is-active="activeSelect === 'passport'"
+          title="Passports Next 2 Days"
+          :current-value="groups?.meta?.passport_have_2_days || 0"
+          :total-value="groups?.meta?.total_next_2_days || 0"
+          :icon="DocumentDuplicateIcon"
+          explain_text="Passport filled next 2 days record"
+          gradient-from="#ca8a04"
+          gradient-to="#a16207"
+          border-color="#ca8a04"
+          progress-color="#f97316"
+          footer-label="Finish Rate"
+          :footer-value="`${calculateFinishRate(
+            groups?.meta?.total_next_2_days,
+            groups?.meta?.passport_have_2_days
+          )} ခုကျန်`"
+          :progress-width="
+            calculateProgressWidth(
+              groups?.meta?.total_next_2_days,
+              groups?.meta?.passport_have_2_days
+            )
           "
-        >
-          <div
-            v-if="activeSelect == 'passport'"
-            class="w-3 h-3 bg-white rounded-full absolute top-[46px] right-4 shadow-white shadow-xl"
-          ></div>
-          <div class="bg-gradient-to-r from-orange-600 to-orange-700 p-4">
-            <div class="flex items-center space-x-4 justify-between">
-              <div class="bg-white/20 p-3 rounded-xl">
-                <DocumentDuplicateIcon class="w-10 h-10 text-white" />
-              </div>
-              <div class="w-full">
-                <p class="text-white text-lg font-medium opacity-90">
-                  Passports
-                </p>
-                <div class="flex items-baseline gap-2">
-                  <span class="text-4xl font-bold text-white">
-                    {{ groups?.meta?.passport_have_2_days || 0 }}
-                  </span>
-                  <span class="text-white text-lg opacity-75">/</span>
-                  <span class="text-xl text-white font-medium opacity-90">
-                    {{ groups?.meta?.total_next_2_days || 0 }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          @click="activeSelectAction('passport')"
+        />
+
+        <ScoreCard
+          v-if="productType === 'private_van_tour'"
+          :is-active="activeSelect === 'trip'"
+          title="Trips Next 2 Days"
+          :current-value="groups?.meta?.filled_next_2_days || 0"
+          :total-value="groups?.meta?.total_next_2_days || 0"
+          :icon="TruckIcon"
+          explain_text="Trip filled next 2 days record"
+          gradient-from="#a855f7"
+          gradient-to="#9333ea"
+          border-color="#9333ea"
+          progress-color="#9333ea"
+          footer-label="Finish Rate"
+          :footer-value="`${calculateFinishRate(
+            groups?.meta?.total_next_2_days,
+            groups?.meta?.filled_next_2_days
+          )} ခုကျန်`"
+          :progress-width="
+            calculateProgressWidth(
+              groups?.meta?.total_next_2_days,
+              groups?.meta?.filled_next_2_days
+            )
+          "
+          @click="activeSelectAction('trip')"
+        />
 
         <!-- Customer Card -->
-        <div
+        <ScoreCard
+          :is-active="activeSelect === 'customer'"
+          title="Customers Next 2 Days"
+          :current-value="groups?.meta?.customer_fully_paid || 0"
+          :total-value="groups?.meta?.total_next_2_days || 0"
+          :icon="CurrencyDollarIcon"
+          explain_text="Customer fully paid next 2 days record"
+          gradient-from="#ef4444"
+          gradient-to="#dc2626"
+          border-color="#dc2626"
+          progress-color="#ef4444"
+          footer-label="Finish Rate"
+          :footer-value="`${calculateFinishRate(
+            groups?.meta?.total_next_2_days,
+            groups?.meta?.customer_fully_paid
+          )} ခုကျန်`"
+          :progress-width="
+            calculateProgressWidth(
+              groups?.meta?.total_next_2_days,
+              groups?.meta?.customer_fully_paid
+            )
+          "
           @click="activeSelectAction('customer')"
-          class="bg-white relative rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-          :class="
-            activeSelect == 'customer'
-              ? 'border-4 border-blue-600'
-              : 'border-4 border-gray-100'
-          "
-        >
-          <div
-            v-if="activeSelect == 'customer'"
-            class="w-3 h-3 bg-white rounded-full absolute top-[46px] right-4 shadow-white shadow-xl"
-          ></div>
-          <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
-            <div class="flex items-center space-x-4 justify-between">
-              <div class="bg-white/20 p-3 rounded-xl">
-                <CurrencyDollarIcon class="w-10 h-10 text-white" />
-              </div>
-              <div class="w-full">
-                <p class="text-white text-lg font-medium opacity-90">
-                  Customers
-                </p>
-                <div class="flex items-baseline gap-2">
-                  <span class="text-4xl font-bold text-white">
-                    {{ groups?.meta?.customer_fully_paid || 0 }}
-                  </span>
-                  <span class="text-white text-lg opacity-75">/</span>
-                  <span class="text-xl text-white font-medium opacity-90">
-                    {{ groups?.meta?.total_next_2_days || 0 }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        />
 
-        <!-- Invoice Card -->
-        <div
-          @click="activeSelectAction('comment')"
-          class="bg-white relative rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-          :class="
-            activeSelect == 'comment'
-              ? 'border-4 border-green-600'
-              : 'border-4 border-gray-100'
+        <!-- Customer Card -->
+        <ScoreCard
+          :is-active="activeSelect === 'comment'"
+          title="Comments Next 2 Days"
+          :current-value="groups?.meta?.fill_status_not_pending_2_days || 0"
+          :total-value="groups?.meta?.total_next_2_days || 0"
+          :icon="ChatBubbleBottomCenterTextIcon"
+          explain_text="Comments have next 2 days record"
+          gradient-from="#3b82f6"
+          gradient-to="#2563eb"
+          border-color="#2563eb"
+          progress-color="#3b82f6"
+          footer-label="Finish Rate"
+          :footer-value="`${calculateFinishRate(
+            groups?.meta?.total_next_2_days,
+            groups?.meta?.fill_status_not_pending_2_days
+          )} ခုကျန်`"
+          :progress-width="
+            calculateProgressWidth(
+              groups?.meta?.total_next_2_days,
+              groups?.meta?.fill_status_not_pending_2_days
+            )
           "
-        >
-          <div
-            v-if="activeSelect == 'comment'"
-            class="w-3 h-3 bg-white rounded-full absolute top-[46px] right-4 shadow-white shadow-xl"
-          ></div>
-          <div class="bg-gradient-to-r from-green-600 to-green-700 p-4">
-            <div class="flex items-center space-x-4 justify-between">
-              <div class="bg-white/20 p-3 rounded-xl">
-                <ChatBubbleBottomCenterTextIcon class="w-10 h-10 text-white" />
-              </div>
-              <div class="w-full">
-                <p class="text-white text-lg font-medium opacity-90">
-                  Comments
-                </p>
-                <div class="flex items-baseline gap-2">
-                  <span class="text-4xl font-bold text-white">
-                    {{ groups?.meta?.fill_status_not_pending_2_days || 0 }}
-                  </span>
-                  <span class="text-white text-lg opacity-75">/</span>
-                  <span class="text-xl text-white font-medium opacity-90">
-                    {{ groups?.meta?.total_next_2_days || 0 }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          @click="activeSelectAction('comment')"
+        />
       </div>
 
       <!-- Filters -->
@@ -132,39 +127,21 @@
         class="p-3 md:p-4 border-b border-gray-200 sticky bg-white -top-6 z-20"
       >
         <div class="flex items-center justify-between gap-4">
-          <!-- <div
-            class="flex justify-start items-center cursor-pointer ml-3 text-sm divide-x-2 border border-gray-200 rounded-full shadow-lg overflow-hidden"
-          >
-            <p
-              class="px-4 py-2"
-              :class="
-                productType == 'hotel'
-                  ? 'text-white bg-[#f63307]'
-                  : 'text-gray-400'
-              "
-              @click="productType = 'hotel'"
-            >
-              Hotel
-            </p>
-            <p
-              class="px-4 py-2"
-              :class="
-                productType == 'attraction'
-                  ? 'bg-[#f63307] text-white'
-                  : 'text-gray-400'
-              "
-              @click="productType = 'attraction'"
-            >
-              Ticket
-            </p>
-          </div> -->
           <div class="relative">
             <div
               class="flex justify-between cursor-pointer items-center space-x-2"
               @click="showToggleType = !showToggleType"
             >
-              <p class="capitalize text-[#FF613c] font-semibold text-xl">
-                {{ productType }}
+              <p
+                class="capitalize whitespace-nowrap text-[#FF613c] font-semibold text-xl"
+              >
+                {{
+                  productType == "hotel"
+                    ? "Hotel"
+                    : productType == "attraction"
+                    ? "Attraction"
+                    : "Van Tour"
+                }}
               </p>
               <ChevronDownIcon class="w-5 text-[#FF613c] h-5" />
             </div>
@@ -184,17 +161,15 @@
               >
                 Attraction
               </p>
+              <p
+                class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                @click="productType = 'private_van_tour'"
+              >
+                Van Tour
+              </p>
             </div>
           </div>
-          <div class="flex items-center gap-2 flex-1">
-            <!-- <button
-              @click="searchAction"
-              class="bg-[#FF613c] px-4 rounded-full shadow-lg py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer hover:bg-[#e55139] transition-colors"
-            >
-              <MagnifyingGlassIcon class="w-4 h-4 text-white" />
-              <p>Search</p>
-            </button> -->
-          </div>
+          <div class="flex items-center gap-2 flex-1"></div>
 
           <div class="flex items-center gap-2">
             <!-- Day filter -->
@@ -265,7 +240,11 @@
                 type="search"
                 v-model="hotelName"
                 :placeholder="
-                  productType == 'hotel' ? 'Search Hotel' : 'Search Attraction'
+                  productType == 'hotel'
+                    ? 'Search Hotel'
+                    : productType == 'attraction'
+                    ? 'Search Attraction'
+                    : 'Search Van Tour'
                 "
                 class="w-full px-4 py-2.5 rounded-full shadow-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#FF613c] text-xs"
                 @keyup.enter="searchAction"
@@ -283,7 +262,6 @@
               class="bg-[#FF613c] px-4 rounded-full shadow-lg py-2.5 flex justify-center items-center gap-x-2 text-white text-xs cursor-pointer hover:bg-[#e55139] transition-colors"
             >
               <Bars3BottomRightIcon class="w-4 h-4 text-white" />
-              <!-- <p>Filters</p> -->
             </button>
             <!-- Refresh Button -->
             <button
@@ -310,7 +288,7 @@
       </div>
 
       <!-- Table -->
-      <div class="overflow-x-auto relative w-[92vw] h-[62vh] overflow-y-auto">
+      <div class="overflow-x-auto relative w-[90vw] h-[62vh] overflow-y-auto">
         <table class="w-full">
           <thead class="bg-gray-50 border-b border-gray-200 z-10">
             <tr class="sticky top-0 z-10 bg-gray-50">
@@ -332,19 +310,48 @@
                 @click="toggleRow(item.id)"
               >
                 <td class="px-2 md:px-4 py-4">
-                  <XCircleIcon
-                    v-if="!expandedRows.includes(item.id) && !item.has_passport"
-                    class="w-5 h-5 text-red-500"
-                  />
-                  <ArrowDownCircleIcon
-                    v-if="expandedRows.includes(item.id) && !item.has_passport"
-                    class="w-5 h-5 text-red-500"
-                  />
-                  <CheckBadgeIcon
-                    v-if="item.has_passport"
-                    :class="expandedRows.includes(item.id) ? 'rotate-180' : ''"
-                    class="w-5 h-5 text-green-500"
-                  />
+                  <div class="flex items-center justify-center">
+                    <div
+                      v-if="rowLoading === item.id"
+                      class="w-5 h-5 border-2 border-gray-200 border-t-[#FF613c] rounded-full animate-spin"
+                    ></div>
+                    <template v-else>
+                      <div v-if="productType != 'private_van_tour'">
+                        <XCircleIcon
+                          v-if="expandedRow !== item.id && !item.has_passport"
+                          class="w-5 h-5 text-red-500"
+                        />
+                        <ArrowDownCircleIcon
+                          v-if="expandedRow === item.id && !item.has_passport"
+                          class="w-5 h-5 text-red-500"
+                        />
+                        <CheckBadgeIcon
+                          v-if="item.has_passport"
+                          :class="expandedRow === item.id ? 'rotate-180' : ''"
+                          class="w-5 h-5 text-green-500"
+                        />
+                      </div>
+                      <div v-else>
+                        <XCircleIcon
+                          v-if="
+                            expandedRow !== item.id && !item.is_fully_filled
+                          "
+                          class="w-5 h-5 text-red-500"
+                        />
+                        <ArrowDownCircleIcon
+                          v-if="
+                            expandedRow === item.id && !item.is_fully_filled
+                          "
+                          class="w-5 h-5 text-red-500"
+                        />
+                        <CheckBadgeIcon
+                          v-if="item.is_fully_filled"
+                          :class="expandedRow === item.id ? 'rotate-180' : ''"
+                          class="w-5 h-5 text-green-500"
+                        />
+                      </div>
+                    </template>
+                  </div>
                 </td>
 
                 <!-- CRM ID -->
@@ -369,7 +376,7 @@
                       {{ item.items.length }}
                     </p>
                     <p
-                      class="text-sm text-white line-clamp-1 px-3 py-1.5 bg-[#FF613c] rounded-full shadow-md truncate min-w-[100px] max-w-[200px] cursor-pointer"
+                      class="text-sm text-white line-clamp-1 px-3 py-1.5 bg-[#FF613c] rounded-full shadow-md truncate min-w-[100px] max-w-[180px] cursor-pointer"
                     >
                       {{ item.product_name }}
                     </p>
@@ -509,7 +516,7 @@
               </tr>
 
               <!-- Expandable Details Row -->
-              <tr v-show="expandedRows.includes(item.id)">
+              <tr v-show="expandedRow === item.id">
                 <td colspan="14" class="px-2 md:px-4 py-0">
                   <div class="bg-gray-50 rounded-lg p-4 mb-2">
                     <!-- Tab Switch -->
@@ -537,9 +544,40 @@
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                           />
                         </svg>
-                        Passport List ({{
-                          passportLists[item.id]?.length || 0
-                        }})
+                        {{
+                          productType == "hotel" || productType == "attraction"
+                            ? "Passport"
+                            : "Route"
+                        }}
+                        List
+                        <p v-if="productType != 'private_van_tour'">
+                          <span
+                            v-if="passportLoading[item.id]"
+                            class="inline-block"
+                          >
+                            <div
+                              class="w-3 h-3 border-2 border-gray-300 border-t-[#FF613c] rounded-full animate-spin"
+                            ></div>
+                          </span>
+                          <span v-else
+                            >({{ passportLists[item.id]?.length || 0 }})</span
+                          >
+                        </p>
+                        <p v-if="productType == 'private_van_tour'">
+                          <span
+                            v-if="passportLoading[item.id]"
+                            class="inline-block"
+                          >
+                            <div
+                              class="w-3 h-3 border-2 border-gray-300 border-t-[#FF613c] rounded-full animate-spin"
+                            ></div>
+                          </span>
+                          <span v-else
+                            >({{
+                              itemLists[item.id]?.items?.length || 0
+                            }})</span
+                          >
+                        </p>
                       </button>
 
                       <button
@@ -564,9 +602,22 @@
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                           />
                         </svg>
-                        Room Details ({{
-                          itemLists[item.id]?.items?.length || 0
-                        }})
+                        {{
+                          productType == "hotel"
+                            ? "Room"
+                            : productType == "attraction"
+                            ? "Ticket"
+                            : "Car"
+                        }}
+                        Details
+                        <span v-if="itemLoading[item.id]" class="inline-block">
+                          <div
+                            class="w-3 h-3 border-2 border-gray-300 border-t-[#FF613c] rounded-full animate-spin"
+                          ></div>
+                        </span>
+                        <span v-else
+                          >({{ itemLists[item.id]?.items?.length || 0 }})</span
+                        >
                       </button>
                       <button
                         @click="activeTab[item.id] = 'slips'"
@@ -590,15 +641,35 @@
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                           />
                         </svg>
-                        Payment Slips ({{
-                          itemLists[item.id]?.booking?.receipts.length || 0
-                        }})
+                        Payment Slips
+                        <span v-if="itemLoading[item.id]" class="inline-block">
+                          <div
+                            class="w-3 h-3 border-2 border-gray-300 border-t-[#FF613c] rounded-full animate-spin"
+                          ></div>
+                        </span>
+                        <span v-else
+                          >({{
+                            itemLists[item.id]?.booking?.receipts?.length || 0
+                          }})</span
+                        >
                       </button>
                     </div>
 
                     <!-- Room Details Section -->
                     <div v-show="activeTab[item.id] === 'rooms'">
                       <div
+                        v-if="itemLoading[item.id]"
+                        class="flex justify-center items-center py-8"
+                      >
+                        <div class="flex flex-col items-center gap-3">
+                          <div
+                            class="w-8 h-8 border-4 border-gray-200 border-t-[#FF613c] rounded-full animate-spin"
+                          ></div>
+                          <p class="text-xs text-gray-500">Loading rooms...</p>
+                        </div>
+                      </div>
+                      <div
+                        v-else
                         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
                       >
                         <div
@@ -608,7 +679,7 @@
                           class="bg-white relative rounded-lg p-3 border border-gray-200 hover:border-[#FF613c] transition-colors"
                         >
                           <button
-                            @click.stop="goToRoomDetail(roomItem?.room?.id)"
+                            @click.stop="goToRoomDetail(roomItem)"
                             class="absolute right-2 top-2"
                           >
                             <PencilSquareIcon
@@ -623,7 +694,9 @@
                                 {{
                                   productType == "hotel"
                                     ? roomItem?.room?.name
-                                    : roomItem?.variation?.name
+                                    : productType == "attraction"
+                                    ? roomItem?.variation?.name
+                                    : roomItem?.car?.name
                                 }}
                               </p>
                               <div
@@ -671,6 +744,20 @@
                     <!-- Slip Section -->
                     <div v-show="activeTab[item.id] === 'slips'">
                       <div
+                        v-if="itemLoading[item.id]"
+                        class="flex justify-center items-center py-8"
+                      >
+                        <div class="flex flex-col items-center gap-3">
+                          <div
+                            class="w-8 h-8 border-4 border-gray-200 border-t-[#FF613c] rounded-full animate-spin"
+                          ></div>
+                          <p class="text-xs text-gray-500">
+                            Loading payment slips...
+                          </p>
+                        </div>
+                      </div>
+                      <div
+                        v-else
                         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
                       >
                         <div
@@ -706,64 +793,237 @@
                       "
                     >
                       <div
+                        v-if="passportLoading[item.id]"
+                        class="flex justify-center items-center py-8"
+                      >
+                        <div class="flex flex-col items-center gap-3">
+                          <div
+                            class="w-8 h-8 border-4 border-gray-200 border-t-[#FF613c] rounded-full animate-spin"
+                          ></div>
+                          <p class="text-xs text-gray-500">
+                            {{
+                              productType === "private_van_tour"
+                                ? "Loading routes..."
+                                : "Loading passports..."
+                            }}
+                          </p>
+                        </div>
+                      </div>
+                      <!-- Content -->
+                      <div
+                        v-else
                         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"
                       >
-                        <!-- Add New Passport Card -->
-                        <div
-                          @click="openNewPassportModal(item)"
-                          class="bg-white rounded-lg min-h-[100px] cursor-pointer text-[#FF613c] text-sm flex justify-center items-center border border-[#FF613c] p-4 border-dashed hover:bg-[#FF613c]/5 transition-colors group"
-                        >
-                          <PlusCircleIcon class="w-5 h-5 mr-2" />
-                          Add New Passport
-                        </div>
-
-                        <!-- Passport Cards -->
-                        <div
-                          v-for="passport in passportLists[item.id] || []"
-                          :key="passport.id"
-                          @click="openEditPassportModal(passport, item)"
-                          class="bg-white rounded-lg p-4 border border-gray-200 hover:border-[#FF613c] transition-colors group cursor-pointer"
-                        >
-                          <div class="flex items-start gap-3">
-                            <div
-                              class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center flex-shrink-0"
-                            >
-                              <DocumentDuplicateIcon
-                                class="w-6 h-6 text-blue-600"
-                              />
-                            </div>
-
-                            <div class="flex-1 min-w-0">
+                        <!-- Van Tour - Show Car Items with Route Data -->
+                        <template v-if="productType === 'private_van_tour'">
+                          <div
+                            v-for="carItem in itemLists[item.id]?.items || []"
+                            :key="carItem.id"
+                            @click="openEditRouteModal(carItem, item)"
+                            class="bg-white rounded-lg p-4 border border-gray-200 hover:border-[#FF613c] transition-colors group cursor-pointer"
+                          >
+                            <div class="flex items-start gap-3">
                               <div
-                                class="flex items-start justify-between gap-2 mb-2"
+                                class="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center flex-shrink-0"
                               >
-                                <h4
-                                  class="text-sm font-semibold text-gray-900 truncate"
-                                >
-                                  {{ passport.meta?.name || "No Name" }}
-                                </h4>
+                                <TruckIcon class="w-6 h-6 text-orange-600" />
                               </div>
 
-                              <div class="space-y-1">
+                              <div class="flex-1 min-w-0">
+                                <!-- Car Name & Date -->
                                 <div
-                                  class="flex items-center justify-between text-xs"
+                                  class="flex items-start justify-between gap-2 mb-2"
                                 >
-                                  <span class="text-gray-500">Pass NO.:</span>
-                                  <span class="font-medium text-gray-900">
-                                    {{ passport.meta?.passport_number }}
+                                  <h4
+                                    class="text-sm font-semibold text-gray-900 truncate"
+                                  >
+                                    {{ carItem.car?.name || "No Car" }}
+                                  </h4>
+                                  <span
+                                    class="px-2 py-0.5 text-xs font-medium bg-orange-100 text-orange-700 rounded-full whitespace-nowrap"
+                                  >
+                                    {{ formatDate(carItem.service_date) }}
                                   </span>
                                 </div>
-                              </div>
 
-                              <div
-                                class="mt-3 text-xs text-[#FF613c] font-medium flex items-center"
-                              >
-                                <PencilSquareIcon class="w-4 h-4 mr-1" />
-                                Click to edit
+                                <!-- Route Details -->
+                                <div class="space-y-1">
+                                  <div
+                                    class="flex items-center gap-1 text-xs text-gray-500"
+                                  >
+                                    <svg
+                                      class="w-3 h-3"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                      />
+                                    </svg>
+                                    <span class="line-clamp-1"
+                                      >Pickup:
+                                      {{ carItem.pickup_time || "-" }}</span
+                                    >
+                                  </div>
+                                  <div
+                                    class="flex items-center gap-1 text-xs text-gray-500"
+                                  >
+                                    <svg
+                                      class="w-3 h-3"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                                      />
+                                    </svg>
+                                    <span
+                                      >Pax: {{ carItem.total_pax || "-" }}</span
+                                    >
+                                  </div>
+                                  <div
+                                    class="flex items-center gap-1 text-xs text-gray-500"
+                                  >
+                                    <svg
+                                      class="w-3 h-3"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                      />
+                                      <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                      />
+                                    </svg>
+                                    <span class="truncate line-clamp-1">{{
+                                      carItem.pickup_location ||
+                                      "No pickup location"
+                                    }}</span>
+                                  </div>
+                                  <div
+                                    v-if="carItem.route_plan"
+                                    class="flex items-start gap-1 text-xs text-gray-500"
+                                  >
+                                    <svg
+                                      class="w-3 h-3 mt-0.5"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                                      />
+                                    </svg>
+                                    <span class="truncate line-clamp-2">{{
+                                      carItem.route_plan
+                                    }}</span>
+                                  </div>
+                                  <div
+                                    v-if="carItem.extra_collect_amount"
+                                    class="flex items-center gap-1 text-xs"
+                                  >
+                                    <CurrencyDollarIcon
+                                      class="w-3 h-3 text-green-600"
+                                    />
+                                    <span class="font-medium text-green-600"
+                                      >{{
+                                        carItem.extra_collect_amount
+                                      }}
+                                      THB</span
+                                    >
+                                  </div>
+                                </div>
+
+                                <!-- Edit Indicator -->
+                                <div
+                                  class="mt-3 text-xs text-[#FF613c] font-medium flex items-center"
+                                >
+                                  <PencilSquareIcon class="w-4 h-4 mr-1" />
+                                  Click to edit route
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
+                        </template>
+
+                        <!-- Hotel/Attraction - Show Passport List -->
+                        <template v-else>
+                          <!-- Add New Passport Card -->
+                          <div
+                            @click="openNewPassportModal(item)"
+                            class="bg-white rounded-lg min-h-[100px] cursor-pointer text-[#FF613c] text-sm flex justify-center items-center border border-[#FF613c] p-4 border-dashed hover:bg-[#FF613c]/5 transition-colors group"
+                          >
+                            <PlusCircleIcon class="w-5 h-5 mr-2" />
+                            Add New Passport
+                          </div>
+
+                          <!-- Passport Cards -->
+                          <div
+                            v-for="passport in passportLists[item.id] || []"
+                            :key="passport.id"
+                            @click="openEditPassportModal(passport, item)"
+                            class="bg-white rounded-lg p-4 border border-gray-200 hover:border-[#FF613c] transition-colors group cursor-pointer"
+                          >
+                            <div class="flex items-start gap-3">
+                              <div
+                                class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center flex-shrink-0"
+                              >
+                                <DocumentDuplicateIcon
+                                  class="w-6 h-6 text-blue-600"
+                                />
+                              </div>
+
+                              <div class="flex-1 min-w-0">
+                                <div
+                                  class="flex items-start justify-between gap-2 mb-2"
+                                >
+                                  <h4
+                                    class="text-sm font-semibold text-gray-900 truncate"
+                                  >
+                                    {{ passport.meta?.name || "No Name" }}
+                                  </h4>
+                                </div>
+
+                                <div class="space-y-1">
+                                  <div
+                                    class="flex items-center justify-between text-xs"
+                                  >
+                                    <span class="text-gray-500">Pass NO.:</span>
+                                    <span class="font-medium text-gray-900">
+                                      {{ passport.meta?.passport_number }}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div
+                                  class="mt-3 text-xs text-[#FF613c] font-medium flex items-center"
+                                >
+                                  <PencilSquareIcon class="w-4 h-4 mr-1" />
+                                  Click to edit
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </template>
                       </div>
                     </div>
                   </div>
@@ -865,7 +1125,7 @@
             <label class="text-xs font-medium text-gray-700 mb-3 block"
               >Customer Payment Status</label
             >
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
               <button
                 v-for="status in statusOptions"
                 :key="status.value"
@@ -898,11 +1158,11 @@
               </button>
             </div>
           </div>
-          <div>
+          <div v-if="productType != 'private_van_tour'">
             <label class="text-xs font-medium text-gray-700 mb-3 block"
               >Passport</label
             >
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
               <button
                 v-for="status in passportOptons"
                 :key="status.value"
@@ -939,7 +1199,7 @@
             <label class="text-xs font-medium text-gray-700 mb-3 block"
               >Comments</label
             >
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
               <button
                 v-for="status in commmentOptons"
                 :key="status.value"
@@ -965,6 +1225,43 @@
                 </div>
                 <div
                   v-if="commentFilter === status.value"
+                  class="flex-shrink-0"
+                >
+                  <CheckIcon :class="`w-5 h-5 text-${status.color}-600`" />
+                </div>
+              </button>
+            </div>
+          </div>
+          <div v-if="productType == 'private_van_tour'">
+            <label class="text-xs font-medium text-gray-700 mb-3 block"
+              >Fill Status</label
+            >
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <button
+                v-for="status in fillOptons"
+                :key="status.value"
+                @click="fillStatusFilter = status.value"
+                :class="[
+                  'flex items-center gap-3 px-4 py-3 border-2 rounded-lg transition-all',
+                  fillStatusFilter === status.value
+                    ? `border-${status.color}-500 bg-${status.color}-50 shadow-md`
+                    : `border-${status.color}-200 hover:bg-${status.color}-50`,
+                ]"
+              >
+                <div :class="`p-2 bg-${status.color}-100 rounded-full`">
+                  <component
+                    :is="status.icon"
+                    :class="`w-5 h-5 text-${status.color}-600`"
+                  />
+                </div>
+                <div class="text-left flex-1">
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ status.label }}
+                  </p>
+                  <p class="text-xs text-gray-500">{{ status.description }}</p>
+                </div>
+                <div
+                  v-if="fillStatusFilter === status.value"
                   class="flex-shrink-0"
                 >
                   <CheckIcon :class="`w-5 h-5 text-${status.color}-600`" />
@@ -1125,9 +1422,14 @@
           <div class="pt-4 border-t border-gray-200">
             <button
               @click="addCommentAction"
-              class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+              :disabled="commentSubmitting"
+              class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              + Save
+              <div
+                v-if="commentSubmitting"
+                class="w-4 h-4 border-2 border-gray-300 border-t-[#FF613c] rounded-full animate-spin"
+              ></div>
+              <span>{{ commentSubmitting ? "Saving..." : "+ Save" }}</span>
             </button>
           </div>
         </div>
@@ -1143,6 +1445,16 @@
       @close="closePassportModal"
       @refresh="refreshPassports"
     />
+
+    <!-- Route Modal -->
+    <RouteModal
+      :isOpen="routeModalOpen"
+      :routeData="selectedRoute"
+      :itemData="selectedRoute"
+      :groupId="selectedItem?.id"
+      @close="closeRouteModal"
+      @refresh="refreshRoutes"
+    />
   </Layout>
 </template>
 
@@ -1150,7 +1462,6 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { storeToRefs } from "pinia";
 import Layout from "./Layout.vue";
-import Payment from "./GroupComponent/ExpensePart/Payment.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 import {
   FunnelIcon,
@@ -1169,36 +1480,36 @@ import {
   PlusCircleIcon,
   DocumentCurrencyDollarIcon,
   Bars3BottomRightIcon,
+  ChevronDownIcon,
+  TruckIcon,
 } from "@heroicons/vue/24/outline";
 import {
   ChatBubbleBottomCenterTextIcon,
   CheckBadgeIcon,
-  CurrencyBangladeshiIcon,
   CurrencyDollarIcon,
   DocumentDuplicateIcon,
 } from "@heroicons/vue/24/solid";
 import { useToast } from "vue-toastification";
 import { useGroupStore } from "../stores/group";
-import { useCashImageStore } from "../stores/cashImage";
 import Pagination from "../components/Pagination.vue";
 import Modal from "../components/Modal.vue";
-import { useReservationStore } from "../stores/reservation";
 import { useAuthStore } from "../stores/auth";
 import { useSidebarStore } from "../stores/sidebar";
 import PassportModal from "./GroupComponent/ExpensePart/Passport.vue";
-import { ChevronDownIcon } from "@heroicons/vue/24/outline";
+import RouteModal from "./GroupComponent/ExpensePart/RouteModal.vue";
+import { useCarBookingStore } from "../stores/carbooking";
+import ScoreCard from "./GroupComponent/ExpensePart/CartScale.vue";
 
-// Stores
 const toast = useToast();
-const reservationStore = useReservationStore();
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
 const groupStore = useGroupStore();
 const { groups, loading } = storeToRefs(groupStore);
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
+// Add store
+const carBookingStore = useCarBookingStore();
 
-// State
 const searchKey = ref("");
 const hotelName = ref("");
 const statusFilter = ref("all");
@@ -1207,11 +1518,10 @@ const deadlineDate = ref("");
 const deadlineNumber = ref(2);
 const startDate = ref("");
 const endDate = ref("");
-const infoDrawerOpen = ref(false);
 const selectedItem = ref(null);
-const detailData = ref(null);
 const paymentStatus = ref("all");
-const expandedRows = ref([]);
+const expandedRow = ref(null);
+const rowLoading = ref(null);
 const activeTab = ref({});
 const openCommentModal = ref(false);
 const comment = ref("");
@@ -1221,14 +1531,20 @@ const activeSelect = ref("");
 const sentExpenseMail = ref("");
 const passportFilter = ref("");
 const commentFilter = ref("");
+const fillStatusFilter = ref("");
 const productType = ref("hotel");
 const invoiceModalOpen = ref(false);
 const selectedInvoice = ref(null);
 const passportLists = ref({});
 const itemLists = ref({});
 const showToggleType = ref(false);
+const expense_date_selected = ref("");
+const commentSubmitting = ref(false);
+const passportLoading = ref({});
+const itemLoading = ref({});
+const routeModalOpen = ref(false);
+const selectedRoute = ref(null);
 
-// Constants
 const tableHeaders = [
   { key: "data", label: "Data", class: "whitespace-nowrap" },
   { key: "crm_id", label: "CRM ID", class: "whitespace-nowrap" },
@@ -1244,6 +1560,13 @@ const tableHeaders = [
 ];
 
 const statusOptions = [
+  {
+    value: "",
+    label: "Clear",
+    description: "Status clear",
+    icon: XMarkIcon,
+    color: "gray",
+  },
   {
     value: "not_paid",
     label: "Not Paid",
@@ -1269,6 +1592,13 @@ const statusOptions = [
 
 const passportOptons = [
   {
+    value: "",
+    label: "Clear",
+    description: "Status clear",
+    icon: XMarkIcon,
+    color: "gray",
+  },
+  {
     value: "not_have",
     label: "Not Have",
     description: "Awaiting passport",
@@ -1285,6 +1615,13 @@ const passportOptons = [
 ];
 
 const commmentOptons = [
+  {
+    value: "",
+    label: "Clear",
+    description: "Status clear",
+    icon: XMarkIcon,
+    color: "gray",
+  },
   {
     value: "pending",
     label: "Pending",
@@ -1308,16 +1645,29 @@ const commmentOptons = [
   },
 ];
 
-// Helper Functions
-const calculateRemaining = (total, completed) => {
-  if (!total) return 0;
-  return (total - (completed || 0)).toFixed(0);
-};
-
-const calculatePercentage = (value, total) => {
-  if (!total) return "0%";
-  return (value / total) * 100 + "%";
-};
+const fillOptons = [
+  {
+    value: "",
+    label: "Clear",
+    description: "Status clear",
+    icon: XMarkIcon,
+    color: "gray",
+  },
+  {
+    value: "unfilled",
+    label: "Unfilled",
+    description: "Awaiting filled",
+    icon: ExclamationTriangleIcon,
+    color: "red",
+  },
+  {
+    value: "filled",
+    label: "Filled",
+    description: "Filled",
+    icon: CheckIcon,
+    color: "green",
+  },
+];
 
 const formatDate = (dateString) => {
   if (!dateString) return "";
@@ -1341,19 +1691,12 @@ const formatDate = (dateString) => {
   } ${date.getFullYear()}`;
 };
 
-// Open/Close passport modal
-const openNewPassportModal = (item) => {
-  selectedInvoice.value = null;
-  selectedItem.value = item;
-  invoiceModalOpen.value = true;
-};
-
 const totalDiscount = (items) => {
   return items.reduce((total, item) => total + (item.discount || 0), 0);
 };
 
 const marginCalc = (sale, cost) => {
-  if (cost === 0) return "N/A";
+  if (cost === 0) return "Missing ";
   return (((sale - cost) / sale) * 100).toFixed(2) + "%";
 };
 
@@ -1403,11 +1746,9 @@ const getComments = (item) => {
       bgClass: "bg-blue-100",
     });
   }
-
   return comments;
 };
 
-// API Functions
 const getListAction = async () => {
   await groupStore.getListAction(watchSystem.value);
 };
@@ -1417,14 +1758,17 @@ const changePage = async (url) => {
 };
 
 const toggleRow = async (itemId) => {
-  const index = expandedRows.value.indexOf(itemId);
-  if (index > -1) {
-    expandedRows.value.splice(index, 1);
+  if (expandedRow.value === itemId) {
+    expandedRow.value = null;
   } else {
-    expandedRows.value.push(itemId);
-    if (!passportLists.value[itemId]) {
-      await fetchPassports(itemId);
+    rowLoading.value = itemId;
+    expandedRow.value = itemId;
+
+    if (!passportLists.value[itemId] && !itemLists.value[itemId]) {
+      await Promise.all([fetchPassports(itemId), fetchGroupExpenses(itemId)]);
     }
+
+    rowLoading.value = null;
   }
 };
 
@@ -1444,6 +1788,7 @@ const clearAllFilters = () => {
   sentExpenseMail.value = "";
   passportFilter.value = "";
   commentFilter.value = "";
+  fillStatusFilter.value = "";
   statusFilter.value = "all";
   searchAction();
   expense_date_selected.value = "";
@@ -1462,8 +1807,32 @@ const goToProduct = (id) => {
   window.open(`/product/hotel/edit/${id}`);
 };
 
-const goToRoomDetail = (id) => {
-  window.open(`/products/3?room_id=${id}`);
+const goToRoomDetail = (item) => {
+  console.log("====================================");
+  console.log(item);
+  console.log("====================================");
+
+  switch (productType.value) {
+    case "hotel":
+      window.open(`/products/3?room_id=${item.room.id}`);
+      break;
+    case "attraction":
+      window.open(`/products/6?edit=${item.variation.id}`);
+      break;
+    case "private_van_tour":
+      window.open(`/vantour/view/${item.product.id}/edit`);
+      break;
+    default:
+      break;
+  }
+};
+
+const calculateFinishRate = (total, remaining) => {
+  return total > 0 ? (total - remaining).toFixed(0) : 0;
+};
+
+const calculateProgressWidth = (total, remaining) => {
+  return total > 0 ? (remaining / total) * 100 + "%" : "0%";
 };
 
 const openCommentAction = (item) => {
@@ -1480,7 +1849,41 @@ const closeCommentModal = () => {
   fill_status.value = "";
 };
 
-// TABLE ACTIONS
+const openNewPassportModal = (item) => {
+  selectedInvoice.value = null;
+  selectedItem.value = item;
+  invoiceModalOpen.value = true;
+};
+
+// Add functions
+const openEditRouteModal = (carItem, item) => {
+  selectedRoute.value = carItem;
+  selectedItem.value = item;
+  routeModalOpen.value = true;
+};
+
+const closeRouteModal = () => {
+  routeModalOpen.value = false;
+  selectedRoute.value = null;
+};
+
+const refreshRoutes = async () => {
+  console.log("this is refresh", selectedItem.value?.id);
+  if (selectedItem.value?.id) {
+    // Clear the cached data to force refresh
+
+    itemLists.value[selectedItem.value.id] = null;
+
+    // Force reactivity update
+    itemLists.value = {};
+
+    // Fetch fresh data
+    await fetchGroupExpenses(selectedItem.value.id);
+    await getListAction();
+    console.log(itemLists.value[selectedItem.value.id]);
+  }
+};
+
 const tableActions = ref([
   {
     name: "comment",
@@ -1510,7 +1913,7 @@ const tableActions = ref([
     title: " Passport",
   },
 ]);
-const expense_date_selected = ref("");
+
 const getExpenseDate = async (date) => {
   const today = new Date().toISOString().split("T")[0];
 
@@ -1545,22 +1948,17 @@ const getExpenseDate = async (date) => {
     case "this month":
       expense_date_selected.value = "this month";
       const now = new Date();
-
-      // Start date is today
       startDate.value = today;
-
-      // End date is last day of current month
       const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       endDate.value = lastDay.toISOString().split("T")[0];
-
       await getListAction();
       break;
   }
 };
 
-// Comment Action
 const addCommentAction = async () => {
   try {
+    commentSubmitting.value = true;
     const groupFrmData = new FormData();
     groupFrmData.append("_method", "PUT");
     groupFrmData.append("fill_status", fill_status.value);
@@ -1577,22 +1975,17 @@ const addCommentAction = async () => {
   } catch (error) {
     console.error("Error adding comment:", error);
     toast.error("Failed to add comment");
+  } finally {
+    commentSubmitting.value = false;
   }
 };
 
 const activeSelectAction = (option) => {
   const filterConfigs = {
-    passport: {
-      status: "not_have",
-      days: 2,
-      field: "passportFilter",
-    },
-    comment: {
-      status: "pending",
-      days: 2,
-      field: "commentFilter",
-    },
+    passport: { status: "not_have", days: 2, field: "passportFilter" },
+    comment: { status: "pending", days: 2, field: "commentFilter" },
     customer: { status: "not_fully_paid", days: 2, field: "paymentStatus" },
+    trip: { status: "unfilled", days: 2, field: "filled_status" },
   };
 
   const config = filterConfigs[option];
@@ -1608,6 +2001,8 @@ const activeSelectAction = (option) => {
       commentFilter.value = config.status;
     } else if (config.field === "paymentStatus") {
       paymentStatus.value = config.status;
+    } else if (config.field === "filled_status") {
+      fillStatusFilter.value = config.status;
     }
 
     const today = new Date();
@@ -1632,12 +2027,13 @@ const clearFirst = () => {
   sentExpenseMail.value = "";
   passportFilter.value = "";
   commentFilter.value = "";
+  fillStatusFilter.value = "";
   statusFilter.value = "all";
 };
 
-// Fetch passports
 const fetchPassports = async (groupId) => {
   try {
+    passportLoading.value[groupId] = true;
     const response = await groupStore.groupDocumentList(groupId, {
       document_type: "passport",
     });
@@ -1645,9 +2041,10 @@ const fetchPassports = async (groupId) => {
     if (response?.result) {
       passportLists.value[groupId] = response.result;
     }
-    await fetchGroupExpenses(groupId);
   } catch (error) {
     console.error("Error fetching passports:", error);
+  } finally {
+    passportLoading.value[groupId] = false;
   }
 };
 
@@ -1668,20 +2065,20 @@ const refreshPassports = async () => {
   }
 };
 
-// Fetch expenses
 const fetchGroupExpenses = async (groupId) => {
   try {
+    itemLoading.value[groupId] = true;
     const response = await groupStore.detailAction(groupId);
     if (response?.result) {
       itemLists.value[groupId] = response.result;
-      console.log(response, "this is item response");
     }
   } catch (error) {
     console.error("Error fetching expenses:", error);
+  } finally {
+    itemLoading.value[groupId] = false;
   }
 };
 
-// Computed
 const watchSystem = computed(() => {
   const result = {
     sorting: "asc",
@@ -1706,7 +2103,7 @@ const watchSystem = computed(() => {
   if (sentExpenseMail.value) result.sent_expense_mail = sentExpenseMail.value;
   if (passportFilter.value) result.passportFilter = passportFilter.value;
   if (commentFilter.value) result.commentFilter = commentFilter.value;
-
+  if (fillStatusFilter.value) result.fillStatusFilter = fillStatusFilter.value;
   if (invoiceStatus.value && invoiceStatus.value !== "all")
     result.invoice_status = invoiceStatus.value;
   if (!authStore.isReservation && !authStore.isSuperAdmin)
@@ -1715,7 +2112,6 @@ const watchSystem = computed(() => {
   return result;
 });
 
-// Initialization
 const setStartAndEndDate = () => {
   const now = new Date();
   const start = new Date(now);

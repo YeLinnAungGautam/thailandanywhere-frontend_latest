@@ -36,6 +36,9 @@ import { usePlaceStore } from "../stores/place";
 import AddonPage from "./Addon/AddonPage.vue";
 import HotelConfrimationDemo from "./PngGenerate/HotelConfirmationDemo.vue";
 import AddSlugPage from "../components/Slug/HotelSlug.vue";
+import GoodToKnow from "./GoodToKnow.vue";
+import NearByPlace from "./NearByPlace.vue";
+import KeyHighLight from "./KeyHighLight.vue";
 // import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
 
 const createModalOpen = ref(false);
@@ -155,6 +158,9 @@ const formData = ref({
   contracts: [],
   images: [],
   facilities: [],
+  good_to_knows: [],
+  key_highlights: [],
+  near_by_places: [],
   youtube_link: {
     mm_link: "",
     en_link: "",
@@ -744,6 +750,9 @@ const updateHandler = async () => {
       full_description_en: null,
       location_map_title: "",
       location_map: "",
+      good_to_knows: [],
+      key_highlights: [],
+      near_by_places: [],
       rating: "",
       latitude: "",
       longitude: "",
@@ -829,6 +838,9 @@ const getDetail = async (params) => {
     formData.value.latitude = data.latitude;
     formData.value.longitude = data.longitude;
     formData.value.nearby_places = [];
+    formData.value.good_to_knows = data.good_to_knows;
+    formData.value.key_highlights = data.key_highlights;
+    formData.value.near_by_places = data.near_by_places;
     formData.value.youtube_link = {
       mm_link: "",
       en_link: "",
@@ -888,6 +900,10 @@ const getDetail = async (params) => {
     }
     console.log(formData.value.facilities);
     createModalOpen.value = true;
+
+    if (route.query.quiteSwitch) {
+      quiteSwitch.value = route.query.quiteSwitch;
+    }
   }
 };
 
@@ -950,6 +966,19 @@ const cityAction = ref(false);
 const placeAction = ref(false);
 const categoryAction = ref(false);
 
+const changeSwitch = (val) => {
+  quiteSwitch.value = val;
+  router.push({
+    name: "hoteledit",
+    params: {
+      id: route.params.id,
+    },
+    query: {
+      quiteSwitch: val,
+    },
+  });
+};
+
 watch(
   [cityAction, categoryAction, placeAction],
   async ([newCity, newCategory, newPlace]) => {
@@ -977,7 +1006,7 @@ onMounted(async () => {
   <Layout>
     <div class="h-auto col-span-2">
       <div class="h-auto pb-4">
-        <div class="flex px-4 justify-between items-center py-2">
+        <div class="py-2 px-4 space-y-4">
           <h3>
             {{
               formData.id
@@ -985,7 +1014,7 @@ onMounted(async () => {
                 : `Creating Hotel ${formData.name}`
             }}
           </h3>
-          <div class="flex justify-end items-center gap-2 text-xs">
+          <div class="flex justify-start items-center gap-2 text-xs">
             <p
               class="px-4 py-2 cursor-pointer rounded-md"
               @click="quiteSwitch = 1"
@@ -1052,9 +1081,47 @@ onMounted(async () => {
             >
               slugs
             </p>
+            <p
+              v-if="formData.id"
+              class="px-4 py-2 cursor-pointer rounded-md"
+              @click="changeSwitch(8)"
+              :class="
+                quiteSwitch == 8 ? 'bg-[#ff613c] text-white' : 'bg-gray-200'
+              "
+            >
+              Good to know
+            </p>
+            <p
+              v-if="formData.id"
+              class="px-4 py-2 cursor-pointer rounded-md"
+              @click="changeSwitch(9)"
+              :class="
+                quiteSwitch == 9 ? 'bg-[#ff613c] text-white' : 'bg-gray-200'
+              "
+            >
+              Key Highlight
+            </p>
+            <p
+              v-if="formData.id"
+              class="px-4 py-2 cursor-pointer rounded-md"
+              @click="changeSwitch(10)"
+              :class="
+                quiteSwitch == 10 ? 'bg-[#ff613c] text-white' : 'bg-gray-200'
+              "
+            >
+              Near Places
+            </p>
           </div>
         </div>
-        <div class="px-4" v-if="quiteSwitch != 7">
+        <div
+          class="px-4"
+          v-if="
+            quiteSwitch != 7 &&
+            quiteSwitch != 8 &&
+            quiteSwitch != 9 &&
+            quiteSwitch != 10
+          "
+        >
           <form
             @submit.prevent="onSubmitHandler"
             class="mt-2 grid grid-cols-3 gap-4 bg-white rounded-xl p-6"
@@ -1880,7 +1947,13 @@ onMounted(async () => {
             </div>
             <div
               class="text-end flex justify-end items-center col-span-3"
-              v-if="quiteSwitch != 5 && quiteSwitch != 7"
+              v-if="
+                quiteSwitch != 5 &&
+                quiteSwitch != 7 &&
+                quiteSwitch != 8 &&
+                quiteSwitch != 9 &&
+                quiteSwitch != 10
+              "
             >
               <p
                 class="text-[#ff613c] cursor-pointer px-2 py-1.5 mr-2 rounded bg-transparent border border-[#ff613c]"
@@ -1902,6 +1975,27 @@ onMounted(async () => {
             :id="formData.id"
             :type="'hotel'"
             :slugs="formData.slug"
+          />
+        </div>
+        <div class="col-span-3" v-if="quiteSwitch == 8">
+          <GoodToKnow
+            :id="formData.id"
+            :type="'hotel'"
+            :productData="formData"
+          />
+        </div>
+        <div class="col-span-3" v-if="quiteSwitch == 9">
+          <KeyHighLight
+            :id="formData.id"
+            :type="'hotel'"
+            :highlightData="formData"
+          />
+        </div>
+        <div class="col-span-3" v-if="quiteSwitch == 10">
+          <NearByPlace
+            :id="formData.id"
+            :type="'hotel'"
+            :placeData="formData"
           />
         </div>
       </div>

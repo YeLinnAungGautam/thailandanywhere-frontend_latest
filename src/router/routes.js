@@ -97,6 +97,7 @@ import ExpensePart from "../views/ExpensePart.vue";
 import FillData from "../views/FillData.vue";
 import ConfirmationGroup from "../views/ConfirmationGroup.vue";
 import ReservationGroup from "../views/ReservationGroup.vue";
+import ChatView from "../views/ChatView.vue";
 
 const routes = [
   {
@@ -593,6 +594,11 @@ const routes = [
     path: "/mail-box",
     name: "mailBox",
     component: MailBox,
+  },
+  {
+    path: "/chat",
+    name: "chat",
+    component: ChatView,
   },
 ];
 

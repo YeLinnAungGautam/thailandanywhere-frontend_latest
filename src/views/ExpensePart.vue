@@ -236,17 +236,29 @@
                 Next 2 Days
               </button>
               <button
-                @click="getExpenseDate('this month')"
+                @click="getExpenseDate('this week')"
                 :class="
-                  expense_date_selected == 'this month'
+                  expense_date_selected == 'this week'
                     ? 'text-white bg-[#e55139]'
                     : 'text-[#FF613c] bg-white'
                 "
                 class="flex items-center gap-2 px-4 py-2.5 text-xs hover:text-white rounded-full cursor-pointer hover:bg-[#e55139] transition-colors"
               >
-                This Month
+                This Week
               </button>
             </template>
+
+            <button
+              @click="overExpenseShow = !overExpenseShow"
+              :class="
+                overExpenseShow
+                  ? 'text-white bg-[#e55139]'
+                  : 'text-[#FF613c] bg-white'
+              "
+              class="flex items-center gap-2 px-4 py-2.5 text-xs hover:text-white rounded-full cursor-pointer hover:bg-[#e55139] transition-colors"
+            >
+              Over Expense 20K
+            </button>
 
             <!-- Search CRM ID -->
             <div class="relative min-w-[180px]">
@@ -1749,6 +1761,7 @@ const deadlineDate = ref("");
 const deadlineNumber = ref(2);
 const startDate = ref("");
 const endDate = ref("");
+const overExpenseShow = ref(false);
 
 // Constants
 // Remove the const tableHeaders and replace with:
@@ -2197,6 +2210,7 @@ const getExpenseDate = async (dateType) => {
     today: { start: 0, end: 0 },
     tomorrow: { start: 1, end: 1 },
     "next 2 days": { start: 2, end: 2 },
+    "this week": { start: 0, end: 7 },
     "this month": {
       start: 0,
       end:
@@ -2752,6 +2766,7 @@ const watchSystem = computed(() => {
 
   if (productType.value) result.product_type = productType.value;
   if (hotelName.value) result.product_name = hotelName.value;
+  if (overExpenseShow.value) result.over_expense_amount = 20000;
   if (statusFilter.value && statusFilter.value !== "all")
     result.expense_item_status = statusFilter.value;
   if (paymentStatus.value !== "all")
@@ -2785,6 +2800,9 @@ const setStartAndEndDate = () => {
 
 // Watchers
 watch(productType, async () => {
+  await getListAction();
+});
+watch(overExpenseShow, async () => {
   await getListAction();
 });
 

@@ -33,4 +33,10 @@ app.component("VueDatePicker", VueDatePicker);
 app.use(createPinia());
 app.use(VTooltip);
 app.use(router);
+
+// Load auth from storage before mounting
+import { useAuthStore } from "./stores/auth";
+const authStore = useAuthStore();
+authStore.loadFromStorage();
+
 app.mount("#app");

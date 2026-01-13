@@ -764,7 +764,7 @@ Rating: ${props.productData?.rating || "N/A"}
 Based on this information:
 ${productContext}
 
-Generate exactly 5 helpful "Good to Know" items in JSON format. Each item should provide valuable information for travelers.
+Generate exactly 8 helpful "Good to Know" items in JSON format. Each item should provide valuable information for travelers.
 
 Requirements:
 1. Create 8 unique items covering different aspects (location, facilities, policies, tips, etc.)

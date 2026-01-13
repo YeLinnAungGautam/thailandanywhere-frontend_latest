@@ -732,7 +732,7 @@ Rating: ${props.highlightData?.rating || "N/A"}
 Based on this information:
 ${highlightContext}
 
-Generate exactly 4 key highlights in JSON format. Each highlight should emphasize the most attractive and unique features.
+Generate exactly 8 key highlights in JSON format. Each highlight should emphasize the most attractive and unique features.
 
 Requirements:
 1. Create 8 unique highlights focusing on: location/access, facilities/amenities, experience/atmosphere, and value/service

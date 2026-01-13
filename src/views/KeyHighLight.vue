@@ -735,13 +735,14 @@ ${highlightContext}
 Generate exactly 4 key highlights in JSON format. Each highlight should emphasize the most attractive and unique features.
 
 Requirements:
-1. Create 4 unique highlights focusing on: location/access, facilities/amenities, experience/atmosphere, and value/service
+1. Create 8 unique highlights focusing on: location/access, facilities/amenities, experience/atmosphere, and value/service
 2. Each title should be catchy and concise (3-6 words)
 3. Descriptions should be compelling and highlight benefits (2-3 sentences)
 4. Provide both Myanmar (Burmese) and English descriptions
-5. Set order from 0 to 3
+5. Set order from 0 to 7
 6. All items should be active (is_active: true)
 7. DO NOT include any image URLs or image-related fields
+8. Rank the highlight based on the importance for the user
 
 Example highlight types to focus on:
 - "Prime Location" - Easy access to attractions, transport

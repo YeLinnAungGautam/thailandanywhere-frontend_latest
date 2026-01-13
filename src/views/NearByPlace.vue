@@ -922,9 +922,8 @@ Generate at least 12-16 nearby places covering ALL categories with proper subcat
 REQUIRED DISTRIBUTION (generate at least these numbers per category):
 1. Transport (3-4 places): train, bus, airport, taxi, boat
 2. Landmarks (3-4 places): temple, museum, monument, park, beach
-3. Essentials (3-4 places): shopping, hospital, bank, pharmacy, police
+3. Essentials (3-4 places): shopping, hospital, bank, pharmacy, police. include at least one  nearest 7-11 convenience store item 
 4. Others (3-4 places): restaurant, cafe, bar, spa, gym
-
 Requirements for each place:
 - Use realistic names for the location
 - Provide accurate distance estimates

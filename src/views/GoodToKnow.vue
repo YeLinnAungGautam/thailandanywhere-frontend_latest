@@ -767,14 +767,15 @@ ${productContext}
 Generate exactly 5 helpful "Good to Know" items in JSON format. Each item should provide valuable information for travelers.
 
 Requirements:
-1. Create 5 unique items covering different aspects (location, facilities, policies, tips, etc.)
+1. Create 8 unique items covering different aspects (location, facilities, policies, tips, etc.)
 2. Each title should be short (3-5 words)
 3. Descriptions should be informative and helpful (2-3 sentences)
 4. Provide both Myanmar (Burmese) and English descriptions
 5. For icon, provide Font Awesome icon class (e.g., "fa-solid fa-home", "fa-solid fa-clock")
 6. Use appropriate Font Awesome icons from the solid style
-7. Set order from 0 to 4
+7. Set order from 0 to 7
 8. All items should be active (is_active: true)
+9. Rank the highlight based on the importance for the user
 
 Font Awesome icon suggestions by category:
 - Location/Building: fa-solid fa-home, fa-solid fa-building, fa-solid fa-map-marker-alt, fa-solid fa-hotel

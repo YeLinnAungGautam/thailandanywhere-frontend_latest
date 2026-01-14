@@ -771,7 +771,7 @@ const updateHandler = async () => {
     closeModal();
 
     toast.success(response.message);
-    router.push("/product/hotel/edit/" + route.params.id);
+    // router.push("/product/hotel/edit/" + route.params.id);
     window.location.reload();
   } catch (error) {
     if (error.response.data.errors) {

@@ -581,7 +581,8 @@ const filteredHotelList = computed(() => {
 // const incomplete = ref(false);
 
 const goEditPage = (data) => {
-  router.push({ name: "hoteledit", params: { id: data } });
+  // router.push({ name: "hoteledit", params: { id: data } });
+  window.open(`/product/hotel/edit/${data}`, "_blank");
   console.log(data);
 };
 

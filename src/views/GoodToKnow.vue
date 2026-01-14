@@ -19,6 +19,13 @@
           <span class="text-xl">+</span>
           <span>Add New Item</span>
         </button>
+        <!-- deteleAll -->
+        <button
+          @click="deteleAll"
+          class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
+        >
+          <span>Delete All Items</span>
+        </button>
       </div>
     </div>
 
@@ -209,29 +216,41 @@
               <h3 class="text-2xl font-bold text-gray-900">
                 {{ isEditMode ? "Edit Item" : "Create New Items" }}
               </h3>
-              <button
-                @click="closeModal"
-                class="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <svg
-                  class="w-6 h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+              <div class="flex justify-end items-center gap-x-4">
+                <button
+                  type="submit"
+                  @click="handleSubmit"
+                  class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  :disabled="submitting"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
+                  {{
+                    submitting ? "Saving..." : isEditMode ? "Update" : "Create"
+                  }}
+                </button>
+                <button
+                  @click="closeModal"
+                  class="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg
+                    class="w-6 h-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <!-- Body -->
             <div class="px-6 py-6 max-h-[70vh] overflow-y-auto">
-              <form @submit.prevent="handleSubmit">
+              <form>
                 <!-- Multiple Items (Create Mode) -->
                 <div v-if="!isEditMode" class="space-y-6">
                   <div
@@ -522,19 +541,6 @@
                   >
                     Cancel
                   </button>
-                  <button
-                    type="submit"
-                    class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                    :disabled="submitting"
-                  >
-                    {{
-                      submitting
-                        ? "Saving..."
-                        : isEditMode
-                        ? "Update"
-                        : "Create"
-                    }}
-                  </button>
                 </div>
               </form>
             </div>
@@ -644,6 +650,7 @@ import {
   PencilIcon,
   TrashIcon,
 } from "@heroicons/vue/24/solid";
+import Swal from "sweetalert2";
 
 // Props
 const props = defineProps({
@@ -768,7 +775,7 @@ Generate exactly 8 helpful "Good to Know" items in JSON format. Each item should
 
 Requirements:
 1. Create 8 unique items covering different aspects (location, facilities, policies, tips, etc.)
-2. Each title should be short (3-5 words)
+2. Each title should be short (3-5 words) only english language use
 3. Descriptions should be informative and helpful (2-3 sentences)
 4. Provide both Myanmar (Burmese) and English descriptions
 5. For icon, provide Font Awesome icon class (e.g., "fa-solid fa-home", "fa-solid fa-clock")
@@ -776,6 +783,7 @@ Requirements:
 7. Set order from 0 to 7
 8. All items should be active (is_active: true)
 9. Rank the highlight based on the importance for the user
+10. Checkin, Checkout info in one line , don't split as two and add warning to know
 
 Font Awesome icon suggestions by category:
 - Location/Building: fa-solid fa-home, fa-solid fa-building, fa-solid fa-map-marker-alt, fa-solid fa-hotel
@@ -789,7 +797,7 @@ Font Awesome icon suggestions by category:
 Return ONLY valid JSON in this exact format (no markdown, no additional text):
 [
   {
-    "title": "Check-in Information",
+    "title": "Check-in, Check-out Information",
     "description_mm": "ချက်အင်အချိန် ၁၄:၀၀ နာရီဖြစ်ပြီး၊ စောစီးချက်အင်လုပ်ရန် ကြိုတင်ဆက်သွယ်နိုင်ပါသည်။",
     "description_en": "Check-in time is 14:00. Early check-in available upon request and availability.",
     "icon": "fa-solid fa-clock",
@@ -998,6 +1006,31 @@ const handleDelete = async () => {
   } finally {
     submitting.value = false;
   }
+};
+
+const deteleAll = async () => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        for (let i = 0; i < items.value.length; i++) {
+          await store.deleteAction(items.value[i].id);
+          // items.value.splice(i, 1);
+        }
+        showToast("All Items are deleted");
+        items.value = [];
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  });
 };
 
 const onDragEnd = async () => {

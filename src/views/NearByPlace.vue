@@ -19,6 +19,12 @@
           <span class="text-xl">+</span>
           <span>Add New Place</span>
         </button>
+        <button
+          @click="deteleAll"
+          class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
+        >
+          <span>Delete All Items</span>
+        </button>
       </div>
     </div>
 
@@ -215,28 +221,40 @@
               <h3 class="text-2xl font-bold text-gray-900">
                 {{ isEditMode ? "Edit Place" : "Create New Places" }}
               </h3>
-              <button
-                @click="closeModal"
-                class="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <svg
-                  class="w-6 h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+              <div class="flex justify-end items-center gap-x-4">
+                <button
+                  type="submit"
+                  @click="handleSubmit"
+                  class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  :disabled="submitting"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
+                  {{
+                    submitting ? "Saving..." : isEditMode ? "Update" : "Create"
+                  }}
+                </button>
+                <button
+                  @click="closeModal"
+                  class="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg
+                    class="w-6 h-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <div class="px-6 py-6 max-h-[70vh] overflow-y-auto">
-              <form @submit.prevent="handleSubmit">
+              <form>
                 <!-- Multiple Places (Create Mode) -->
                 <div v-if="!isEditMode" class="space-y-6">
                   <div
@@ -683,19 +701,6 @@
                   >
                     Cancel
                   </button>
-                  <button
-                    type="submit"
-                    class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                    :disabled="submitting"
-                  >
-                    {{
-                      submitting
-                        ? "Saving..."
-                        : isEditMode
-                        ? "Update"
-                        : "Create"
-                    }}
-                  </button>
                 </div>
               </form>
             </div>
@@ -803,6 +808,7 @@ import {
   PencilIcon,
   TrashIcon,
 } from "@heroicons/vue/24/solid";
+import Swal from "sweetalert2";
 
 const props = defineProps({
   id: {
@@ -1187,6 +1193,31 @@ const onDragEnd = async () => {
     console.error("Error:", error);
     showToast("Failed to update order", "error");
   }
+};
+
+const deteleAll = async () => {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#2463EB",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        for (let i = 0; i < places.value.length; i++) {
+          await store.deleteAction(places.value[i].id);
+          // items.value.splice(i, 1);
+        }
+        showToast("All Items are deleted");
+        places.value = [];
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  });
 };
 
 onMounted(() => {

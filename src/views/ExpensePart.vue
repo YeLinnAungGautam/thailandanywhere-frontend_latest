@@ -34,12 +34,12 @@
           footer-label="Finish Rate"
           :footer-value="`${calculateFinishRate(
             groups?.meta?.total_next_7_days,
-            groups?.meta?.without_confirmation_letter
+            groups?.meta?.without_confirmation_letter,
           )} ခုကျန်`"
           :progress-width="
             calculateProgressWidth(
               groups?.meta?.total_next_7_days,
-              groups?.meta?.without_confirmation_letter
+              groups?.meta?.without_confirmation_letter,
             )
           "
           @click="activeSelectAction('invoice')"
@@ -60,12 +60,12 @@
           footer-label="Finish Rate"
           :footer-value="`${calculateFinishRate(
             groups?.meta?.total_next_2_days,
-            groups?.meta?.expense_not_fully_paid
+            groups?.meta?.expense_not_fully_paid,
           )} ခုကျန်`"
           :progress-width="
             calculateProgressWidth(
               groups?.meta?.total_next_2_days,
-              groups?.meta?.expense_not_fully_paid
+              groups?.meta?.expense_not_fully_paid,
             )
           "
           @click="activeSelectAction('expense')"
@@ -86,12 +86,12 @@
           footer-label="Finish Rate"
           :footer-value="`${calculateFinishRate(
             groups?.meta?.total_next_3_days,
-            groups?.meta?.expense_mail_sent
+            groups?.meta?.expense_mail_sent,
           )} ခုကျန်`"
           :progress-width="
             calculateProgressWidth(
               groups?.meta?.total_next_3_days,
-              groups?.meta?.expense_mail_sent
+              groups?.meta?.expense_mail_sent,
             )
           "
           @click="activeSelectAction('mail')"
@@ -112,12 +112,12 @@
           footer-label="Finish Rate"
           :footer-value="`${calculateFinishRate(
             groups?.meta?.total_next_2_days,
-            groups?.meta?.customer_fully_paid
+            groups?.meta?.customer_fully_paid,
           )} ခုကျန်`"
           :progress-width="
             calculateProgressWidth(
               groups?.meta?.total_next_2_days,
-              groups?.meta?.customer_fully_paid
+              groups?.meta?.customer_fully_paid,
             )
           "
           @click="activeSelectAction('customer')"
@@ -141,12 +141,12 @@
           footer-label="Finish Rate"
           :footer-value="`${calculateFinishRate(
             groups?.meta?.total_next_2_days,
-            groups?.meta?.customer_fully_paid
+            groups?.meta?.customer_fully_paid,
           )} ခုကျန်`"
           :progress-width="
             calculateProgressWidth(
               groups?.meta?.total_next_2_days,
-              groups?.meta?.customer_fully_paid
+              groups?.meta?.customer_fully_paid,
             )
           "
           @click="activeSelectAction('assigned')"
@@ -255,9 +255,9 @@
                   ? 'text-white bg-[#e55139]'
                   : 'text-[#FF613c] bg-white'
               "
-              class="flex items-center gap-2 px-4 py-2.5 text-xs hover:text-white rounded-full cursor-pointer hover:bg-[#e55139] transition-colors"
+              class="flex items-center whitespace-nowrap gap-2 px-4 py-2.5 text-xs hover:text-white rounded-full cursor-pointer hover:bg-[#e55139] transition-colors"
             >
-              Over Expense 20K
+              Over 20K
             </button>
 
             <!-- Search CRM ID -->
@@ -927,7 +927,7 @@
                                     >
                                       {{
                                         invoice.meta?.product_type?.includes(
-                                          "Hotel"
+                                          "Hotel",
                                         )
                                           ? "Hotel"
                                           : "Ticket"
@@ -943,7 +943,7 @@
                                         {{
                                           invoice.meta?.total_after_tax
                                             ? formatCurrency(
-                                                invoice.meta.total_after_tax
+                                                invoice.meta.total_after_tax,
                                               )
                                             : "-"
                                         }}
@@ -1193,7 +1193,7 @@
                   getFilterStatusClass(
                     invoiceStatus,
                     status.value,
-                    status.color
+                    status.color,
                   )
                 "
               >
@@ -1299,7 +1299,7 @@
                   getFilterStatusClass(
                     paymentStatus,
                     status.value,
-                    status.color
+                    status.color,
                   )
                 "
               >
@@ -1479,7 +1479,7 @@
                   getFilterStatusClass(
                     selectedStatus,
                     status.value,
-                    status.color
+                    status.color,
                   )
                 "
               >
@@ -1953,11 +1953,11 @@ const formattedDateTimeDB = (dateString) => {
   const date = new Date(dateString);
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
     2,
-    "0"
+    "0",
   )}-${String(date.getDate()).padStart(2, "0")} ${String(
-    date.getHours()
+    date.getHours(),
   ).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(
-    date.getSeconds()
+    date.getSeconds(),
   ).padStart(2, "0")}`;
 };
 
@@ -2152,7 +2152,7 @@ const toggleRow = async (itemId) => {
           [
             !invoiceLists.value[itemId] && fetchGroupInvoices(itemId),
             !expenseLists.value[itemId] && fetchGroupExpenses(itemId),
-          ].filter(Boolean)
+          ].filter(Boolean),
         );
       }
     } finally {
@@ -2282,7 +2282,7 @@ const goToRoomDetail = (id) => {
 const goToVConfirm = (item) => {
   window.open(
     `/group-hotel-email?crm_id=${item.booking_crm_id}&product_type=${productType.value}&activeTag=invoice`,
-    "_blank"
+    "_blank",
   );
 };
 
@@ -2416,7 +2416,7 @@ const copyReservation = async (item) => {
       const serviceDate = new Date(dateString);
       serviceDate.setHours(0, 0, 0, 0);
       const diffDays = Math.floor(
-        (serviceDate - today) / (1000 * 60 * 60 * 24)
+        (serviceDate - today) / (1000 * 60 * 60 * 24),
       );
 
       const labels = {
@@ -2429,11 +2429,11 @@ const copyReservation = async (item) => {
 
     const discount = res.items.reduce(
       (sum, item) => sum + (item.discount || 0),
-      0
+      0,
     );
     const total_amount = res.items.reduce(
       (sum, item) => sum + item.amount * 1,
-      0
+      0,
     );
     const score = res.total_cost_price
       ? ((total_amount - res.total_cost_price) / total_amount).toFixed(2)
@@ -2473,7 +2473,7 @@ const copyReservation = async (item) => {
 
     res.items.forEach((item) => {
       const itemUrgencyLabel = getUrgencyLabel(
-        item.checkin_date || item.service_date
+        item.checkin_date || item.service_date,
       ).trim();
       const urgencyPrefix = itemUrgencyLabel ? `[${itemUrgencyLabel}] ` : "";
 
@@ -2545,7 +2545,7 @@ const copyVanReservation = async (booking) => {
       } else {
         // DD-MM-YYYY format
         serviceDate = new Date(
-          `${serviceDateParts[2]}-${serviceDateParts[1]}-${serviceDateParts[0]}`
+          `${serviceDateParts[2]}-${serviceDateParts[1]}-${serviceDateParts[0]}`,
         );
       }
 
@@ -2677,7 +2677,7 @@ const addCommentAction = async () => {
     groupFrmData.append("_method", "PUT");
     groupFrmData.append(
       authStore.isReservation ? "comment_res" : "comment_sale",
-      comment.value
+      comment.value,
     );
 
     await groupStore.groupUpdateAction(selectedItem.value.id, groupFrmData);
@@ -2731,14 +2731,14 @@ const confirmStatusChange = async () => {
 
       const groupRes = await groupStore.groupUpdateAction(
         selectedItem.value.id,
-        groupFrmData
+        groupFrmData,
       );
 
       if (groupRes.status === 1) {
         toast.success(
           `Status updated to ${formatExpenseStatus(
-            selectedStatus.value
-          )} for ${successCount} items`
+            selectedStatus.value,
+          )} for ${successCount} items`,
         );
         await getListAction();
         closePayDrawer();

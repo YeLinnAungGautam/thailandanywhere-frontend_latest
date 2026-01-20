@@ -27,7 +27,8 @@
         <span
           class="px-3 py-1 text-xs font-medium rounded-full"
           :class="{
-            'bg-blue-100 text-blue-800': conversation.type === 'admin-to-admin',
+            'bg-orange-100 text-orange-800':
+              conversation.type === 'admin-to-admin',
             'bg-green-100 text-green-800': conversation.type === 'admin-group',
             'bg-purple-100 text-purple-800':
               conversation.type === 'admin-to-user',
@@ -59,7 +60,7 @@ const conversationName = computed(() => {
 
   const currentUserId = authStore.user?.id;
   const otherParticipant = conversation.value.participants.find(
-    (p) => p.id != currentUserId
+    (p) => p.id != currentUserId,
   );
 
   return otherParticipant?.name || "Unknown";

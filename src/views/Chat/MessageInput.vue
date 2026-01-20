@@ -11,7 +11,7 @@
           @keydown.enter.exact.prevent="handleSubmit"
           rows="1"
           placeholder="Type a message..."
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          class="w-full px-4 py-2 border border-gray-300 rounded-full resize-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           style="max-height: 120px"
         ></textarea>
       </div>
@@ -20,7 +20,7 @@
       <button
         type="submit"
         :disabled="!message.trim() || sending"
-        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+        class="px-6 py-2 bg-orange-600 mb-1.5 text-white rounded-full hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
       >
         {{ sending ? "Sending..." : "Send" }}
       </button>

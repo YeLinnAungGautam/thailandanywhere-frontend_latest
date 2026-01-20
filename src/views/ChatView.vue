@@ -1,7 +1,7 @@
 <template>
   <div>
     <Layout>
-      <div class="h-screen flex flex-col bg-gray-50">
+      <div class="h-[85vh] flex flex-col bg-gray-50">
         <!-- Loading State -->
         <div
           v-if="chatStore.loading"

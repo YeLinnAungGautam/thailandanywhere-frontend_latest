@@ -11,7 +11,7 @@
         v-model="searchQuery"
         type="text"
         placeholder="Search conversations..."
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
       />
     </div>
 
@@ -38,8 +38,8 @@
           @click="selectConversation(conversation)"
           class="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition"
           :class="{
-            'bg-blue-50 border-l-4 border-l-blue-600': isSelected(
-              conversation._id
+            'bg-orange-50 border-l-4 border-l-orange-600': isSelected(
+              conversation._id,
             ),
           }"
         >
@@ -71,7 +71,7 @@
               <!-- Unread Badge -->
               <div v-if="conversation.unreadCount > 0" class="mt-1">
                 <span
-                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-600 text-white"
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-600 text-white"
                 >
                   {{ conversation.unreadCount }}
                 </span>
@@ -119,7 +119,7 @@ function getConversationName(conversation) {
   // Get other participant name
   const currentUserId = authStore.user?.id;
   const otherParticipant = conversation.participants.find(
-    (p) => p.id != currentUserId
+    (p) => p.id != currentUserId,
   );
 
   return otherParticipant?.name || "Unknown";

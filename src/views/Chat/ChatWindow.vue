@@ -121,7 +121,7 @@ watch(
   () => chatStore.currentMessages.length,
   () => {
     scrollToBottom();
-  }
+  },
 );
 
 // Scroll to bottom when conversation changes
@@ -129,6 +129,6 @@ watch(
   () => chatStore.currentConversation,
   () => {
     scrollToBottom();
-  }
+  },
 );
 </script>

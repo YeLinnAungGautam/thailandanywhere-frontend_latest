@@ -33,12 +33,12 @@
           footer-label="Finish Rate"
           :footer-value="`${calculateFinishRate(
             groups?.meta?.total_next_30_days,
-            groups?.meta?.prove_booking_sent_next_30_days
+            groups?.meta?.prove_booking_sent_next_30_days,
           )} ခုကျန်`"
           :progress-width="
             calculateProgressWidth(
               groups?.meta?.total_next_30_days,
-              groups?.meta?.prove_booking_sent_next_30_days
+              groups?.meta?.prove_booking_sent_next_30_days,
             )
           "
           @click="filterByType('prove_booking')"
@@ -59,12 +59,12 @@
           footer-label="Finish Rate"
           :footer-value="`${calculateFinishRate(
             groups?.meta?.total_next_7_days,
-            groups?.meta?.invoice_mail_sent_next_7_days
+            groups?.meta?.invoice_mail_sent_next_7_days,
           )} ခုကျန်`"
           :progress-width="
             calculateProgressWidth(
               groups?.meta?.total_next_7_days,
-              groups?.meta?.invoice_mail_sent_next_7_days
+              groups?.meta?.invoice_mail_sent_next_7_days,
             )
           "
           @click="filterByType('invoice')"
@@ -85,12 +85,12 @@
           footer-label="Finish Rate"
           :footer-value="`${calculateFinishRate(
             groups?.meta?.total_next_7_days,
-            groups?.meta?.invoice_confirmed_next_7_days
+            groups?.meta?.invoice_confirmed_next_7_days,
           )} ခုကျန်`"
           :progress-width="
             calculateProgressWidth(
               groups?.meta?.total_next_2_days,
-              groups?.meta?.invoice_confirmed_next_7_days
+              groups?.meta?.invoice_confirmed_next_7_days,
             )
           "
           @click="filterByType('invoice_confirm')"
@@ -111,12 +111,12 @@
           footer-label="Finish Rate"
           :footer-value="`${calculateFinishRate(
             groups?.meta?.total_next_2_days,
-            groups?.meta?.expense_mail_sent_next_7_days
+            groups?.meta?.expense_mail_sent_next_7_days,
           )} ခုကျန်`"
           :progress-width="
             calculateProgressWidth(
               groups?.meta?.total_next_7_days,
-              groups?.meta?.expense_mail_sent_next_7_days
+              groups?.meta?.expense_mail_sent_next_7_days,
             )
           "
           @click="filterByType('expense')"
@@ -140,12 +140,12 @@
           footer-label="Finish Rate"
           :footer-value="`${calculateFinishRate(
             groups?.meta?.total_next_2_days,
-            groups?.meta?.assigned_driver_next_2_days
+            groups?.meta?.assigned_driver_next_2_days,
           )} ခုကျန်`"
           :progress-width="
             calculateProgressWidth(
               groups?.meta?.total_next_2_days,
-              groups?.meta?.assigned_driver_next_2_days
+              groups?.meta?.assigned_driver_next_2_days,
             )
           "
           @click="filterByType('assign_driver')"
@@ -584,6 +584,13 @@
                   >
                     <InformationCircleIcon class="w-5 h-5" />
                   </button>
+                  <button
+                    @click.stop="openCommentAction(item)"
+                    class="flex bg-orange-600 text-white items-center gap-2 px-2 py-1.5 transition-colors rounded-lg hover:bg-orange-700"
+                  >
+                    <ChatBubbleLeftRightIcon class="w-5 h-5" />
+                  </button>
+                  <!-- openCommentAction -->
                 </td>
               </tr>
 
@@ -883,7 +890,7 @@
                                   >
                                     {{
                                       invoice.meta?.product_type?.includes(
-                                        "Hotel"
+                                        "Hotel",
                                       )
                                         ? "Hotel"
                                         : "Ticket"
@@ -901,7 +908,7 @@
                                       {{
                                         invoice.meta?.total_after_tax
                                           ? formatCurrency(
-                                              invoice.meta.total_after_tax
+                                              invoice.meta.total_after_tax,
                                             )
                                           : "-"
                                       }}
@@ -946,7 +953,7 @@
               <tr v-if="item.fill_comment" class="bg-gray-50">
                 <td
                   colspan="14"
-                  class="pr-4 pl-16 py-3 border-t-2 border-gray-200"
+                  class="pr-4 pl-12 py-3 border-t-2 border-gray-200"
                   style="box-shadow: inset 0 8px 6px -6px rgba(0, 0, 0, 0.1)"
                 >
                   <div class="space-y-2">
@@ -1604,6 +1611,37 @@
       @close="closeAssignDriverModal"
       @refresh="refreshDriverAssignments"
     />
+
+    <Modal :isOpen="openCommentModal" @closeModal="closeCommentModal">
+      <DialogPanel
+        class="w-full max-w-xl transform rounded-xl bg-white p-6 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="h3"
+          class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"
+        >
+          <AdjustmentsHorizontalIcon class="w-6 h-6 text-[#FF613c]" />
+          Add Comment
+        </DialogTitle>
+
+        <div class="space-y-4">
+          <textarea
+            v-model="comment"
+            class="w-full rounded-lg border border-gray-200 focus:outline-none px-4 py-3 text-sm text-gray-700"
+            rows="5"
+            placeholder="Comment"
+          ></textarea>
+          <div class="pt-4 border-t border-gray-200">
+            <button
+              @click="addCommentAction"
+              class="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+            >
+              + Add Comment
+            </button>
+          </div>
+        </div>
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>
 
@@ -1612,6 +1650,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import { storeToRefs } from "pinia";
 import Layout from "./Layout.vue";
 import {
+  ChatBubbleLeftRightIcon,
   DocumentDuplicateIcon,
   FunnelIcon,
   InformationCircleIcon,
@@ -1889,7 +1928,7 @@ const removeImageUpdateImage = async (imageID) => {
   try {
     const res = await groupStore.groupDocumentDeleteAction(
       selectedItem.value.id,
-      imageID
+      imageID,
     );
     if (res.status === 1) {
       toast.success("Image successfully deleted");
@@ -1934,6 +1973,29 @@ const getProofImage = async (id) => {
   }
 };
 
+const comment = ref("");
+// Comment Action
+const addCommentAction = async () => {
+  if (!comment.value.trim()) {
+    toast.error("Comment cannot be empty");
+    return;
+  }
+
+  try {
+    const groupFrmData = new FormData();
+    groupFrmData.append("_method", "PUT");
+    groupFrmData.append("comment_reserve", comment.value);
+
+    await groupStore.groupUpdateAction(selectedItem.value.id, groupFrmData);
+    toast.success("Comment added successfully");
+    closeCommentModal();
+    await getListAction();
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    toast.error("Failed to add comment");
+  }
+};
+
 const updateReservationAction = async () => {
   const frmData = new FormData();
 
@@ -1968,7 +2030,7 @@ const updateReservationAction = async () => {
 
       return groupStore.groupDocumentCreateAction(
         secData,
-        selectedItem.value.id
+        selectedItem.value.id,
       );
     });
 
@@ -2007,17 +2069,38 @@ const closeInvoiceModal = () => {
   invoiceModalOpen.value = false;
 };
 
-const getComments = (item) => {
-  if (!item.fill_comment) return [];
+const openCommentModal = ref(false);
+function openCommentAction(item) {
+  selectedItem.value = item;
+  comment.value = item.comment_reserve;
+  openCommentModal.value = true;
+}
 
-  return [
-    {
+function closeCommentModal() {
+  openCommentModal.value = false;
+  comment.value = "";
+  selectedItem.value = null;
+}
+
+const getComments = (item) => {
+  const comments = [];
+  if (item.fill_comment) {
+    comments.push({
       type: "Sale",
       text: item.fill_comment,
       badgeClass: "bg-blue-500",
       bgClass: "bg-blue-100",
-    },
-  ];
+    });
+  }
+  if (item.comment_reserve) {
+    comments.push({
+      type: "Res",
+      text: item.comment_reserve,
+      badgeClass: "bg-orange-500",
+      bgClass: "bg-orange-100",
+    });
+  }
+  return comments;
 };
 
 const openEditRouteModal = (carItem, item) => {

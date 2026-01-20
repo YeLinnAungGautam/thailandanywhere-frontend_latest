@@ -94,6 +94,14 @@ onMounted(async () => {
 
   console.log("🚀 Chat view mounted");
 
+  // ✅ ADD THIS - Request notification permission
+  if ("Notification" in window && Notification.permission === "default") {
+    console.log("📢 Requesting notification permission...");
+    Notification.requestPermission().then((permission) => {
+      console.log("Notification permission:", permission);
+    });
+  }
+
   // Check authentication
   if (!authStore.isAuthenticated) {
     console.error("❌ Not authenticated");
@@ -101,14 +109,18 @@ onMounted(async () => {
   }
 
   try {
-    // Fetch conversations (with防duplicate check inside)
+    // Fetch conversations
     await chatStore.fetchConversations();
 
-    // Small delay before connecting socket
-    setTimeout(() => {
-      // Connect to socket (with duplicate check inside)
-      socketStore.connect();
-    }, 500);
+    // ✅ MODIFY THIS - Only connect if not already connected
+    if (!socketStore.connected && !socketStore.isConnecting) {
+      console.log("🔌 Connecting socket from Chat.vue...");
+      setTimeout(() => {
+        socketStore.connect();
+      }, 500);
+    } else {
+      console.log("ℹ️ Socket already connected/connecting");
+    }
   } catch (error) {
     console.error("❌ Failed to initialize chat:", error);
   }
@@ -116,7 +128,8 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   console.log("🔌 Chat view unmounting");
-  socketStore.disconnect();
+  // ✅ DON'T disconnect here if using global socket
+  // socketStore.disconnect();
   mounted = false;
 });
 

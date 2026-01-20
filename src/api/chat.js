@@ -97,7 +97,7 @@ export const chatApiService = {
       const params = type ? { type } : {};
       const response = await chatApi.get("/conversations", { params });
       console.log(
-        `✅ Got ${response.data.conversations?.length || 0} conversations`
+        `✅ Got ${response.data.conversations?.length || 0} conversations`,
       );
       return response.data;
     } catch (error) {
@@ -177,6 +177,53 @@ export const chatApiService = {
       return response.data;
     } catch (error) {
       console.error("❌ Get online users failed:", error.message);
+      throw error;
+    }
+  },
+
+  // ✅ ADD THIS - Notification methods
+  async getUnreadNotifications() {
+    try {
+      console.log("📥 Getting unread notifications...");
+      const response = await chatApi.get("/notifications/unread");
+      console.log(`✅ Got ${response.data.count} unread notifications`);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Get unread notifications failed:", error.message);
+      throw error;
+    }
+  },
+
+  async getAllNotifications(page = 1, limit = 20) {
+    try {
+      const response = await chatApi.get("/notifications", {
+        params: { page, limit },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("❌ Get notifications failed:", error.message);
+      throw error;
+    }
+  },
+
+  async markNotificationAsRead(notificationId) {
+    try {
+      const response = await chatApi.put(
+        `/notifications/${notificationId}/read`,
+      );
+      return response.data;
+    } catch (error) {
+      console.error("❌ Mark notification read failed:", error.message);
+      throw error;
+    }
+  },
+
+  async markAllNotificationsAsRead() {
+    try {
+      const response = await chatApi.put("/notifications/read-all");
+      return response.data;
+    } catch (error) {
+      console.error("❌ Mark all read failed:", error.message);
       throw error;
     }
   },

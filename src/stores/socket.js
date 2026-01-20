@@ -33,7 +33,7 @@ export const useSocketStore = defineStore("socket", () => {
     console.log(
       "  - From localStorage:",
       !!tokenFromLocalStorage,
-      tokenFromLocalStorage?.length
+      tokenFromLocalStorage?.length,
     );
     console.log("  - Tokens match:", tokenFromStore === tokenFromLocalStorage);
 
@@ -63,6 +63,47 @@ export const useSocketStore = defineStore("socket", () => {
 
   function setupEventListeners() {
     const chatStore = useChatStore();
+    const authStore = useAuthStore();
+
+    // ✅ ADD THIS - Handle pending notifications
+    socketService.on("pending_notifications", (data) => {
+      console.log(`📬 Received ${data.count} pending notifications`);
+      console.log("Notifications:", data.notifications);
+
+      // Refresh conversations to show unread counts and new messages
+      console.log(
+        "🔄 Refreshing conversations due to pending notifications...",
+      );
+      chatStore.fetchConversations();
+
+      // Show browser notification (optional)
+      if (data.count > 0) {
+        showNotification(
+          `You have ${data.count} new message${data.count > 1 ? "s" : ""}`,
+        );
+      }
+    });
+
+    // ✅ ADD THIS - Listen for new conversations
+    if (authStore.user?.id && authStore.user?.type) {
+      socketService.listenToPersonalRoom(
+        authStore.user.id,
+        authStore.user.type,
+        (data) => {
+          console.log("📨 Personal room event received:", data);
+
+          if (data.event === "new_conversation") {
+            console.log("🆕 New conversation created:", data.conversation);
+
+            // Add to conversation list
+            chatStore.addNewConversation(data.conversation);
+
+            // Show notification (optional)
+            showNotification(data.message);
+          }
+        },
+      );
+    }
 
     // New message
     socketService.on("new_message", (data) => {
@@ -81,7 +122,7 @@ export const useSocketStore = defineStore("socket", () => {
       chatStore.updateMessageReadStatus(
         data.conversationId,
         data.userId,
-        data.userName
+        data.userName,
       );
     });
 
@@ -94,7 +135,7 @@ export const useSocketStore = defineStore("socket", () => {
         isConnecting.value = false;
         console.log(
           "📊 Connection state updated: connected =",
-          connected.value
+          connected.value,
         );
 
         // ✅ Small delay before joining conversations
@@ -129,7 +170,7 @@ export const useSocketStore = defineStore("socket", () => {
     // User status
     socketService.on("user_status", (data) => {
       console.log(
-        `👤 User ${data.userName} is ${data.isOnline ? "online" : "offline"}`
+        `👤 User ${data.userName} is ${data.isOnline ? "online" : "offline"}`,
       );
       chatStore.updateUserStatus(data.userId, data.isOnline);
     });
@@ -138,6 +179,57 @@ export const useSocketStore = defineStore("socket", () => {
     socketService.on("error", (error) => {
       console.error("Socket error:", error);
     });
+  }
+
+  // ✅ ADD THIS - Browser notification helper
+  function showNotification(message) {
+    if (!("Notification" in window)) {
+      console.log("❌ Browser doesn't support notifications");
+      return;
+    }
+
+    if (Notification.permission === "granted") {
+      new Notification("Chat Notification", {
+        body: message,
+        icon: "/favicon.ico",
+        badge: "/favicon.ico",
+      });
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          new Notification("Chat Notification", {
+            body: message,
+            icon: "/favicon.ico",
+          });
+        }
+      });
+    }
+  }
+
+  // ✅ ADD THIS - Show browser notification
+  function showNotification(message) {
+    // Check if browser supports notifications
+    if (!("Notification" in window)) {
+      console.log("❌ Browser doesn't support notifications");
+      return;
+    }
+
+    // Request permission
+    if (Notification.permission === "granted") {
+      new Notification("New Conversation", {
+        body: message,
+        icon: "/favicon.ico",
+      });
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          new Notification("New Conversation", {
+            body: message,
+            icon: "/favicon.ico",
+          });
+        }
+      });
+    }
   }
 
   function disconnect() {
@@ -204,5 +296,6 @@ export const useSocketStore = defineStore("socket", () => {
     joinConversation,
     getTypingUsers,
     markAsRead,
+    showNotification,
   };
 });

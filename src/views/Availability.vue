@@ -44,6 +44,7 @@ import { useSidebarStore } from "../stores/sidebar";
 import { formattedDateTime } from "./help/FormatData";
 import MainPage from "./ConvertToBookingComponent/MainPage.vue";
 import { DocumentDuplicateIcon } from "@heroicons/vue/24/solid";
+import { useAdminStore } from "../stores/admin";
 
 const sidebarStore = useSidebarStore();
 const { isShowSidebar } = storeToRefs(sidebarStore);
@@ -51,6 +52,7 @@ const { isShowSidebar } = storeToRefs(sidebarStore);
 const router = useRouter();
 const hotelStore = useHotelStore();
 const entranceStore = useEntranceStore();
+const adminStore = useAdminStore();
 const authStore = useAuthStore();
 const roomStore = useRoomStore();
 const variationStore = useVariationStore();
@@ -80,6 +82,28 @@ const selectedRows = ref([]);
 const showBookingTable = ref(false);
 
 const errors = ref(null);
+
+const adminLists = ref([]);
+
+const getListUser = async () => {
+  try {
+    const res = await adminStore.getSimpleListAction();
+    console.log(res, "this is admin list");
+
+    adminLists.value = res.result.data
+      .filter((item) => item.role === "admin" || item.role === "sale_manager")
+      .map((item) => {
+        return {
+          id: item.id,
+          name: item.name,
+        };
+      });
+  } catch (error) {
+    console.log("====================================");
+    console.log(error);
+    console.log("====================================");
+  }
+};
 
 const statusOptions = [
   { id: "", name: "All" },
@@ -189,14 +213,19 @@ watch(
   () => {
     selectedRows.value = selectedRows.value.filter((row) =>
       availables.value?.data.some(
-        (r) => r.id === row.id && r.status === "available"
-      )
+        (r) => r.id === row.id && r.status === "available",
+      ),
     );
-  }
+  },
 );
 
 watch(onlyMe, async () => {
   console.log("onlyMe", onlyMe.value);
+  await availableStore.getListAction(watchSystem.value);
+});
+
+watch(created_by, async () => {
+  console.log("created_by", created_by.value);
   await availableStore.getListAction(watchSystem.value);
 });
 
@@ -274,12 +303,12 @@ const chooseNameAction = async () => {
 const changePage = async (url) => {
   await availableStore.getChangePage(
     url,
-    showBookingTable
+    showBookingTable.value
       ? Object.assign({}, watchSystem.value, {
           status: "available",
           product_type: "",
         })
-      : watchSystem.value
+      : watchSystem.value,
   );
 };
 
@@ -328,7 +357,7 @@ const searchActionHandler = async () => {
   searchModal.value = false;
   if (daterange.value != "" && date.value == "") {
     daterange.value = `${dateFormat(daterange.value[0])} , ${dateFormat(
-      daterange.value[1]
+      daterange.value[1],
     )}`;
   }
   if (date.value != "" && daterange.value == "") {
@@ -395,7 +424,7 @@ const openBookingTable = async () => {
     Object.assign({}, watchSystem.value, {
       status: "available",
       product_type: "",
-    })
+    }),
   );
 
   selectedRows.value = [];
@@ -409,7 +438,7 @@ const closeBookingTable = async () => {
     Object.assign({}, watchSystem.value, {
       status: status.value,
       product_type: product_type.value,
-    })
+    }),
   );
 };
 
@@ -428,6 +457,7 @@ const availableItems = computed(() => {
 
 onMounted(async () => {
   await availableStore.getListAction(watchSystem.value);
+  await getListUser();
 });
 </script>
 
@@ -728,6 +758,7 @@ onMounted(async () => {
             >
               <!-- Create Booking Button -->
               <button
+                v-if="!authStore.isSuperAdmin && !authStore.isReservation"
                 @click="onlyMe = !onlyMe"
                 :class="
                   onlyMe
@@ -741,6 +772,19 @@ onMounted(async () => {
                   onlyMe ? "See All Availabilities" : "See My Availabilities"
                 }}
               </button>
+              <!-- select admin -->
+              <select
+                v-if="authStore.isSuperAdmin || authStore.isReservation"
+                name=""
+                v-model="created_by"
+                id=""
+                class="px-4 py-2.5 rounded-full text-xs border border-[#FF613c] text-[#FF613c] focus:outline-none"
+              >
+                <option value="">All</option>
+                <option :value="a.id" v-for="a in adminLists ?? []" :key="a">
+                  {{ a.name }}
+                </option>
+              </select>
               <!-- Create Booking Button -->
               <button
                 v-if="!authStore.isReservation"
@@ -954,7 +998,7 @@ onMounted(async () => {
                       product_type == "hotel"
                         ? calculateTotalNights(
                             r.checkin_date,
-                            r.checkout_date
+                            r.checkout_date,
                           ) + ""
                         : ""
                     }}
@@ -1217,7 +1261,7 @@ onMounted(async () => {
                 updateAction(
                   'pending',
                   selectedAvailability.id,
-                  selectedAvailability.quantity
+                  selectedAvailability.quantity,
                 )
               "
               class="w-full flex items-center justify-between px-4 py-3 border-2 border-yellow-200 rounded-lg hover:bg-yellow-50 transition-all duration-200 group"
@@ -1249,7 +1293,7 @@ onMounted(async () => {
                 updateAction(
                   'available',
                   selectedAvailability.id,
-                  selectedAvailability.quantity
+                  selectedAvailability.quantity,
                 )
               "
               class="w-full flex items-center justify-between px-4 py-3 border-2 border-green-200 rounded-lg hover:bg-green-50 transition-all duration-200 group"
@@ -1281,7 +1325,7 @@ onMounted(async () => {
                 updateAction(
                   'unavailable',
                   selectedAvailability.id,
-                  selectedAvailability.quantity
+                  selectedAvailability.quantity,
                 )
               "
               class="w-full flex items-center justify-between px-4 py-3 border-2 border-red-200 rounded-lg hover:bg-red-50 transition-all duration-200 group"
@@ -1348,7 +1392,7 @@ onMounted(async () => {
                   'other',
                   selectedAvailability.id,
                   selectedAvailability.quantity,
-                  selectedAvailability.res_comment
+                  selectedAvailability.res_comment,
                 )
               "
               v-if="
@@ -1502,7 +1546,7 @@ onMounted(async () => {
                       product_type == "hotel"
                         ? calculateTotalNights(
                             selectedDetailItem.checkin_date,
-                            selectedDetailItem.checkout_date
+                            selectedDetailItem.checkout_date,
                           )
                         : selectedDetailItem.child_qty
                     }}

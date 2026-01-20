@@ -1,15 +1,70 @@
 <template>
   <Layout>
     <div class="w-full mx-auto">
+      <!-- Gmail Connection Status Banner -->
+      <div
+        v-if="!emailStore.isConnected && !emailStore.loading"
+        class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-5 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">⚠️</span>
+          <div>
+            <p class="font-semibold text-yellow-800">Gmail Not Connected</p>
+            <p class="text-sm text-yellow-700">
+              Connect your Gmail account to start managing emails
+            </p>
+          </div>
+        </div>
+        <button
+          @click="connectGmail"
+          class="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+        >
+          Connect Gmail
+        </button>
+      </div>
+
+      <!-- Connected Status -->
+      <div
+        v-else-if="emailStore.connectionStatus?.connected"
+        class="bg-green-50 border border-green-200 rounded-xl p-4 mb-5 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">✅</span>
+          <div>
+            <p class="font-semibold text-green-800">Gmail Connected</p>
+            <p class="text-sm text-green-700">
+              {{ emailStore.connectionStatus.email_address }}
+            </p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button
+            @click="syncEmails"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+          >
+            🔄 Sync Emails
+          </button>
+          <button
+            @click="disconnectGmail"
+            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+          >
+            Disconnect
+          </button>
+        </div>
+      </div>
+
       <!-- Loading Overlay -->
       <div
         v-if="emailStore.loading"
         class="fixed inset-0 bg-black/20 flex items-center justify-center z-50"
       >
-        <div class="bg-white rounded-lg p-4 shadow-xl">
+        <div
+          class="bg-white rounded-lg p-6 shadow-xl flex flex-col items-center"
+        >
           <div
-            class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF613c]"
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF613c] mb-3"
           ></div>
+          <p class="text-gray-600">Loading...</p>
         </div>
       </div>
 
@@ -32,7 +87,10 @@
             <option value="">All Status</option>
             <option value="sent">Sent</option>
             <option value="received">Received</option>
+            <option value="delivered">Delivered</option>
+            <option value="read">Read</option>
             <option value="failed">Failed</option>
+            <option value="pending">Pending</option>
           </select>
 
           <label
@@ -49,14 +107,15 @@
 
           <button
             @click="showCompose = true"
-            class="bg-[#FF613c] hover:bg-[#e55534] text-white px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+            :disabled="!emailStore.isConnected"
+            class="bg-[#FF613c] hover:bg-[#e55534] text-white px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             + New Email
           </button>
         </div>
 
         <!-- Stats -->
-        <div v-if="emailStore.stats" class="flex gap-4 mt-4 text-sm">
+        <div v-if="emailStore.stats" class="flex gap-4 mt-4 text-sm flex-wrap">
           <div class="text-gray-600">
             Total:
             <span class="font-semibold">{{
@@ -69,21 +128,39 @@
               emailStore.stats.unread_count
             }}</span>
           </div>
-          <div class="text-gray-600">
+          <div class="text-green-600">
             Sent:
             <span class="font-semibold">{{ emailStore.stats.sent_count }}</span>
           </div>
-          <div class="text-gray-600">
+          <div class="text-blue-600">
             Received:
             <span class="font-semibold">{{
               emailStore.stats.received_count
+            }}</span>
+          </div>
+          <div class="text-red-600">
+            Failed:
+            <span class="font-semibold">{{
+              emailStore.stats.failed_count
+            }}</span>
+          </div>
+          <div class="text-gray-600">
+            Today:
+            <span class="font-semibold">{{
+              emailStore.stats.today_count
+            }}</span>
+          </div>
+          <div class="text-gray-600">
+            This Week:
+            <span class="font-semibold">{{
+              emailStore.stats.this_week_count
             }}</span>
           </div>
         </div>
       </div>
 
       <div
-        class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-5 h-[calc(100vh-220px)]"
+        class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-5 h-[calc(100vh-280px)]"
       >
         <!-- Mail List Sidebar -->
         <div
@@ -96,13 +173,13 @@
             <span
               class="bg-gray-100 text-gray-600 px-3 py-1 rounded-xl text-sm font-medium"
             >
-              {{ emailStore.emails?.data?.length || 0 }}
+              {{ emailStore.emails?.length || 0 }}
             </span>
           </div>
 
           <div class="overflow-y-auto flex-1">
             <div
-              v-for="email in emailStore.emails?.data"
+              v-for="email in emailStore.emails"
               :key="email.id"
               @click="selectEmail(email)"
               :class="[
@@ -110,7 +187,7 @@
                 selectedEmail?.id === email.id
                   ? 'bg-[#fff5f2] border-l-4 border-l-[#FF613c]'
                   : 'hover:bg-gray-50',
-                !email.is_read && 'bg-blue-50',
+                !email.is_read && 'bg-blue-50 font-semibold',
               ]"
             >
               <div class="flex justify-between items-start mb-1.5">
@@ -118,64 +195,68 @@
                   <div class="flex items-center gap-2">
                     <span
                       :class="[
-                        'font-semibold text-sm truncate',
-                        !email.is_read ? 'text-gray-900' : 'text-gray-700',
+                        'text-sm truncate',
+                        !email.is_read
+                          ? 'font-bold text-gray-900'
+                          : 'text-gray-700',
                       ]"
                     >
                       {{
                         email.type === "sent"
-                          ? email.to_email
-                          : email.from_email
+                          ? email.to.display
+                          : email.from.display
                       }}
                     </span>
                     <span
                       v-if="email.has_attachments"
-                      class="text-gray-400"
-                      title="Has attachments"
+                      class="text-gray-400 flex-shrink-0"
+                      :title="`${email.attachment_count} attachment(s)`"
                     >
                       📎
                     </span>
                   </div>
-                  <span class="text-xs text-gray-500">
-                    {{ email.from_name || "No name" }}
-                  </span>
                 </div>
                 <span class="text-xs text-gray-400 ml-2 whitespace-nowrap">
-                  {{ formatTime(email.created_at) }}
+                  {{ formatTime(email.dates.created_at) }}
                 </span>
               </div>
 
               <div
                 :class="[
                   'text-sm mb-1 truncate',
-                  !email.is_read
-                    ? 'font-semibold text-gray-900'
-                    : 'text-gray-700',
+                  !email.is_read ? 'font-bold text-gray-900' : 'text-gray-700',
                 ]"
               >
                 {{ email.subject }}
               </div>
 
               <div class="text-sm text-gray-500 truncate">
-                {{ email.preview || stripHtml(email.body) }}
+                {{ email.preview }}
               </div>
 
-              <div class="flex gap-2 mt-2">
+              <div class="flex gap-2 mt-2 flex-wrap">
                 <span
                   :class="[
                     'text-xs px-2 py-0.5 rounded-full',
-                    email.type === 'sent'
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-blue-100 text-blue-700',
+                    getTypeClass(email.type),
                   ]"
                 >
-                  {{ email.type }}
+                  {{ email.type_label }}
                 </span>
                 <span
-                  v-if="email.status === 'failed'"
-                  class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700"
+                  :class="[
+                    'text-xs px-2 py-0.5 rounded-full',
+                    getStatusClass(email.status),
+                  ]"
                 >
-                  Failed
+                  {{ email.status }}
+                </span>
+                <span
+                  v-if="email.related_booking"
+                  class="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700"
+                  :title="`Booking: ${email.related_booking.customer_name}`"
+                >
+                  {{ email.related_booking.crm_id }}
                 </span>
               </div>
             </div>
@@ -183,43 +264,43 @@
 
           <!-- Pagination -->
           <div
-            v-if="emailStore.emails?.pagination"
+            v-if="paginationData"
             class="px-5 py-3 border-t border-gray-100 flex justify-between items-center"
           >
             <button
               @click="previousPage"
-              :disabled="emailStore.emails.pagination.current_page === 1"
+              :disabled="paginationData.current_page === 1"
               :class="[
-                'px-3 py-1 rounded text-sm',
-                emailStore.emails.pagination.current_page === 1
+                'px-3 py-1 rounded text-sm transition-all',
+                paginationData.current_page === 1
                   ? 'text-gray-400 cursor-not-allowed'
                   : 'text-[#FF613c] hover:bg-[#fff5f2]',
               ]"
             >
-              Previous
+              ← Previous
             </button>
 
             <span class="text-sm text-gray-600">
-              Page {{ emailStore.emails.pagination.current_page }} of
-              {{ emailStore.emails.pagination.last_page }}
+              Page {{ paginationData.current_page }} of
+              {{ paginationData.last_page }}
             </span>
 
             <button
               @click="nextPage"
-              :disabled="!emailStore.emails.pagination.has_more"
+              :disabled="!paginationData.has_more"
               :class="[
-                'px-3 py-1 rounded text-sm',
-                !emailStore.emails.pagination.has_more
+                'px-3 py-1 rounded text-sm transition-all',
+                !paginationData.has_more
                   ? 'text-gray-400 cursor-not-allowed'
                   : 'text-[#FF613c] hover:bg-[#fff5f2]',
               ]"
             >
-              Next
+              Next →
             </button>
           </div>
 
           <div
-            v-if="!emailStore.emails?.data?.length && !emailStore.loading"
+            v-if="!emailStore.emails?.length && !emailStore.loading"
             class="flex flex-col items-center justify-center py-16 px-5 text-gray-400"
           >
             <div class="text-5xl mb-3">📭</div>
@@ -245,13 +326,13 @@
                       >
                       <div>
                         <span class="text-[#FF613c] font-medium">{{
-                          selectedEmail.from_email
+                          selectedEmail.from.email
                         }}</span>
                         <span
-                          v-if="selectedEmail.from_name"
+                          v-if="selectedEmail.from.name"
                           class="text-gray-600 ml-2"
                         >
-                          ({{ selectedEmail.from_name }})
+                          ({{ selectedEmail.from.name }})
                         </span>
                       </div>
                     </div>
@@ -260,15 +341,18 @@
                         >To:</span
                       >
                       <span class="text-gray-700">{{
-                        selectedEmail.to_email
+                        selectedEmail.to.display
                       }}</span>
                     </div>
-                    <div v-if="selectedEmail.cc" class="flex items-start gap-2">
+                    <div
+                      v-if="selectedEmail.cc?.length"
+                      class="flex items-start gap-2"
+                    >
                       <span class="font-medium text-gray-600 min-w-[60px]"
                         >CC:</span
                       >
                       <span class="text-gray-700">{{
-                        formatArray(selectedEmail.cc)
+                        selectedEmail.cc.join(", ")
                       }}</span>
                     </div>
                     <div class="flex items-start gap-2">
@@ -276,19 +360,33 @@
                         >Date:</span
                       >
                       <span class="text-gray-700">{{
-                        formatFullTime(selectedEmail.created_at)
+                        formatFullTime(selectedEmail.dates.created_at)
                       }}</span>
                     </div>
+                    <div class="flex items-start gap-2">
+                      <span class="font-medium text-gray-600 min-w-[60px]"
+                        >Status:</span
+                      >
+                      <span
+                        :class="[
+                          'px-2 py-0.5 rounded text-xs font-medium',
+                          getStatusClass(selectedEmail.status),
+                        ]"
+                      >
+                        {{ selectedEmail.status }}
+                      </span>
+                    </div>
                     <div
-                      v-if="selectedEmail.booking"
+                      v-if="selectedEmail.related_booking"
                       class="flex items-start gap-2"
                     >
                       <span class="font-medium text-gray-600 min-w-[60px]"
                         >Booking:</span
                       >
-                      <span class="text-gray-700"
-                        >#{{ selectedEmail.booking.crm_id }}</span
-                      >
+                      <span class="text-gray-700">
+                        {{ selectedEmail.related_booking.crm_id }} -
+                        {{ selectedEmail.related_booking.customer_name }}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -303,6 +401,18 @@
                     "
                   >
                     {{ selectedEmail.is_read ? "Mark Unread" : "Mark Read" }}
+                  </button>
+                  <button
+                    @click="archiveEmail"
+                    class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-300 text-gray-600 transition-all duration-200 hover:bg-gray-50"
+                  >
+                    📦 Archive
+                  </button>
+                  <button
+                    @click="deleteEmail"
+                    class="px-4 py-2 rounded-lg text-sm font-medium border-2 border-red-300 text-red-600 transition-all duration-200 hover:bg-red-50"
+                  >
+                    🗑️ Delete
                   </button>
                   <button
                     @click="startReply"
@@ -323,7 +433,7 @@
 
               <!-- Attachments -->
               <div
-                v-if="selectedEmail.attachments"
+                v-if="selectedEmail.attachments?.length"
                 class="mt-6 pt-6 border-t border-gray-100"
               >
                 <h3 class="text-sm font-semibold text-gray-900 mb-3">
@@ -331,16 +441,12 @@
                 </h3>
                 <div class="flex flex-wrap gap-2">
                   <div
-                    v-for="(attachment, index) in parseAttachments(
-                      selectedEmail.attachments,
-                    )"
+                    v-for="(attachment, index) in selectedEmail.attachments"
                     :key="index"
-                    class="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200"
+                    class="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 cursor-pointer"
                   >
                     <span class="text-gray-600">📎</span>
-                    <span class="text-sm text-gray-700">{{
-                      attachment.name
-                    }}</span>
+                    <span class="text-sm text-gray-700">{{ attachment }}</span>
                   </div>
                 </div>
               </div>
@@ -353,7 +459,7 @@
             >
               <div class="flex justify-between items-center mb-4">
                 <h3 class="text-base font-semibold text-gray-900">
-                  Reply to {{ selectedEmail.from_email }}
+                  Reply to {{ selectedEmail.from.display }}
                 </h3>
                 <button
                   @click="showReply = false"
@@ -362,6 +468,12 @@
                   ✕
                 </button>
               </div>
+              <input
+                v-model="replySubject"
+                type="text"
+                placeholder="Subject"
+                class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm mb-3 focus:outline-none focus:border-[#FF613c]"
+              />
               <textarea
                 v-model="replyMessage"
                 placeholder="Type your reply..."
@@ -423,6 +535,20 @@
               placeholder="To: recipient@example.com"
               class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm mb-3 focus:outline-none focus:border-[#FF613c]"
             />
+            <div class="flex gap-3 mb-3">
+              <input
+                v-model="ccInput"
+                type="text"
+                placeholder="CC: (comma separated)"
+                class="flex-1 px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#FF613c]"
+              />
+              <input
+                v-model="bccInput"
+                type="text"
+                placeholder="BCC: (comma separated)"
+                class="flex-1 px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#FF613c]"
+              />
+            </div>
             <input
               v-model="composeMail.subject"
               type="text"
@@ -460,7 +586,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import Layout from "./Layout.vue";
 import { ArrowUturnLeftIcon } from "@heroicons/vue/24/outline";
 import { useEmailStore } from "../stores/email";
@@ -472,28 +598,87 @@ const selectedEmail = ref(null);
 const showCompose = ref(false);
 const showReply = ref(false);
 const replyMessage = ref("");
+const replySubject = ref("");
 const composeMail = ref({
   to: "",
   subject: "",
   body: "",
 });
+const ccInput = ref("");
+const bccInput = ref("");
+const paginationData = ref(null);
 
 const filters = ref({
   search: "",
   status: "",
   unread_only: false,
   per_page: 20,
+  page: 1,
 });
 
 let searchTimeout = null;
 
+// Computed
+const currentPage = computed(() => filters.value.page);
+
+// Gmail Connection Methods
+const connectGmail = async () => {
+  try {
+    const response = await emailStore.getAuthUrl();
+    console.log(response, "this is auth url");
+
+    if (response.result.auth_url) {
+      // Redirect to Google OAuth
+      window.location.href = response.result.auth_url;
+    }
+  } catch (error) {
+    console.error("Error getting auth URL:", error);
+    alert("Failed to get authorization URL");
+  }
+};
+
+const disconnectGmail = async () => {
+  if (!confirm("Are you sure you want to disconnect Gmail?")) return;
+
+  try {
+    await emailStore.disconnect();
+    alert("Gmail disconnected successfully");
+    emailStore.emails = null;
+    selectedEmail.value = null;
+  } catch (error) {
+    console.error("Error disconnecting Gmail:", error);
+    alert("Failed to disconnect Gmail");
+  }
+};
+
+const syncEmails = async () => {
+  if (!confirm("Sync recent emails from Gmail? This may take a moment."))
+    return;
+
+  try {
+    const response = await emailStore.syncFromGmail(50);
+    alert(`Successfully synced ${response.data.synced_count} emails`);
+    await fetchEmails();
+  } catch (error) {
+    console.error("Error syncing emails:", error);
+    alert("Failed to sync emails");
+  }
+};
+
 // Fetch emails
 const fetchEmails = async () => {
   try {
-    await emailStore.getInbox(filters.value);
+    const response = await emailStore.getInbox(filters.value);
+    if (response.data.pagination) {
+      paginationData.value = response.data.pagination;
+    }
   } catch (error) {
     console.error("Error fetching emails:", error);
-    alert("Failed to load emails");
+    if (error.response?.status === 401) {
+      alert("Gmail connection expired. Please reconnect.");
+    } else {
+      alert("Failed to load emails");
+    }
   }
 };
 
@@ -501,6 +686,7 @@ const fetchEmails = async () => {
 const debounceSearch = () => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
+    filters.value.page = 1;
     fetchEmails();
   }, 500);
 };
@@ -545,10 +731,43 @@ const toggleReadStatus = async () => {
   }
 };
 
+// Archive email
+const archiveEmail = async () => {
+  if (!selectedEmail.value) return;
+  if (!confirm("Archive this email?")) return;
+
+  try {
+    await emailStore.archiveEmails([selectedEmail.value.id]);
+    alert("Email archived successfully");
+    selectedEmail.value = null;
+    await fetchEmails();
+  } catch (error) {
+    console.error("Error archiving email:", error);
+    alert("Failed to archive email");
+  }
+};
+
+// Delete email
+const deleteEmail = async () => {
+  if (!selectedEmail.value) return;
+  if (!confirm("Delete this email? This action cannot be undone.")) return;
+
+  try {
+    await emailStore.deleteEmails([selectedEmail.value.id]);
+    alert("Email deleted successfully");
+    selectedEmail.value = null;
+    await fetchEmails();
+  } catch (error) {
+    console.error("Error deleting email:", error);
+    alert("Failed to delete email");
+  }
+};
+
 // Start reply
 const startReply = () => {
   showReply.value = true;
   replyMessage.value = "";
+  replySubject.value = `Re: ${selectedEmail.value.subject}`;
 };
 
 // Send reply
@@ -558,15 +777,17 @@ const sendReply = async () => {
   try {
     const response = await emailStore.sendReply(selectedEmail.value.id, {
       body: replyMessage.value,
+      subject: replySubject.value,
     });
 
     alert("Reply sent successfully!");
     showReply.value = false;
     replyMessage.value = "";
-    fetchEmails(); // Refresh emails
+    replySubject.value = "";
+    await fetchEmails();
   } catch (error) {
     console.error("Error sending reply:", error);
-    alert("Failed to send reply");
+    alert(error.response?.data?.message || "Failed to send reply");
   }
 };
 
@@ -577,33 +798,55 @@ const sendNewEmail = async () => {
     !composeMail.value.subject ||
     !composeMail.value.body
   ) {
-    alert("Please fill in all fields");
+    alert("Please fill in all required fields");
     return;
   }
 
   try {
-    await emailStore.composeEmail(composeMail.value);
+    const emailData = {
+      to: composeMail.value.to,
+      subject: composeMail.value.subject,
+      body: composeMail.value.body,
+    };
+
+    // Parse CC and BCC
+    if (ccInput.value.trim()) {
+      emailData.cc = ccInput.value
+        .split(",")
+        .map((email) => email.trim())
+        .filter(Boolean);
+    }
+    if (bccInput.value.trim()) {
+      emailData.bcc = bccInput.value
+        .split(",")
+        .map((email) => email.trim())
+        .filter(Boolean);
+    }
+
+    await emailStore.composeEmail(emailData);
     alert("Message sent successfully!");
     showCompose.value = false;
     composeMail.value = { to: "", subject: "", body: "" };
-    fetchEmails(); // Refresh emails
+    ccInput.value = "";
+    bccInput.value = "";
+    await fetchEmails();
   } catch (error) {
     console.error("Error sending email:", error);
-    alert("Failed to send message");
+    alert(error.response?.data?.message || "Failed to send message");
   }
 };
 
 // Pagination
 const nextPage = () => {
-  if (emailStore.emails?.pagination?.has_more) {
-    filters.value.page = emailStore.emails.pagination.current_page + 1;
+  if (paginationData.value?.has_more) {
+    filters.value.page++;
     fetchEmails();
   }
 };
 
 const previousPage = () => {
-  if (emailStore.emails?.pagination?.current_page > 1) {
-    filters.value.page = emailStore.emails.pagination.current_page - 1;
+  if (filters.value.page > 1) {
+    filters.value.page--;
     fetchEmails();
   }
 };
@@ -633,36 +876,50 @@ const formatFullTime = (dateString) => {
   });
 };
 
-const stripHtml = (html) => {
-  const temp = document.createElement("div");
-  temp.innerHTML = html;
-  return temp.textContent || temp.innerText || "";
+const getTypeClass = (type) => {
+  const classes = {
+    sent: "bg-green-100 text-green-700",
+    received: "bg-blue-100 text-blue-700",
+  };
+  return classes[type] || "bg-gray-100 text-gray-700";
 };
 
-const formatArray = (arr) => {
-  if (typeof arr === "string") {
+const getStatusClass = (status) => {
+  const classes = {
+    sent: "bg-green-100 text-green-700",
+    delivered: "bg-blue-100 text-blue-700",
+    read: "bg-purple-100 text-purple-700",
+    failed: "bg-red-100 text-red-700",
+    pending: "bg-yellow-100 text-yellow-700",
+  };
+  return classes[status] || "bg-gray-100 text-gray-700";
+};
+
+// Check connection status and OAuth callback on mount
+onMounted(async () => {
+  // Check if there's an OAuth code in the URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get("code");
+
+  if (code) {
     try {
-      arr = JSON.parse(arr);
-    } catch (e) {
-      return arr;
+      await emailStore.handleCallback(code);
+      // Remove code from URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      alert("Gmail connected successfully!");
+    } catch (error) {
+      console.error("Error handling OAuth callback:", error);
+      alert("Failed to connect Gmail");
     }
   }
-  return Array.isArray(arr) ? arr.join(", ") : arr;
-};
 
-const parseAttachments = (attachments) => {
-  if (typeof attachments === "string") {
-    try {
-      return JSON.parse(attachments);
-    } catch (e) {
-      return [];
-    }
+  // Check connection status
+  await emailStore.checkConnectionStatus();
+
+  // Fetch emails if connected
+  if (emailStore.isConnected) {
+    await fetchEmails();
   }
-  return attachments || [];
-};
-
-onMounted(() => {
-  fetchEmails();
 });
 </script>
 

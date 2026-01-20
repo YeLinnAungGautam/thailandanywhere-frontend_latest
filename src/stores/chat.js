@@ -75,7 +75,7 @@ export const useChatStore = defineStore("chat", () => {
 
     console.log("📋 Selecting conversation:", conversationId);
     currentConversation.value = conversations.value.find(
-      (c) => c._id === conversationId
+      (c) => c._id === conversationId,
     );
 
     if (currentConversation.value) {
@@ -132,6 +132,34 @@ export const useChatStore = defineStore("chat", () => {
     }
   }
 
+  // ✅ ADD THIS - Add new conversation to list
+  function addNewConversation(conversation) {
+    // Check if conversation already exists
+    const exists = conversations.value.some((c) => c._id === conversation._id);
+
+    if (exists) {
+      console.log("ℹ️ Conversation already exists, updating...");
+
+      // Update existing conversation
+      const index = conversations.value.findIndex(
+        (c) => c._id === conversation._id,
+      );
+      if (index !== -1) {
+        conversations.value[index] = conversation;
+      }
+    } else {
+      console.log("✅ Adding new conversation to list");
+
+      // Add to beginning of list
+      conversations.value.unshift(conversation);
+    }
+
+    // Sort by updated time
+    conversations.value.sort((a, b) => {
+      return new Date(b.updatedAt) - new Date(a.updatedAt);
+    });
+  }
+
   function addMessage(message) {
     // Prevent duplicate messages
     const exists = messages.value.some((m) => m._id === message._id);
@@ -145,8 +173,9 @@ export const useChatStore = defineStore("chat", () => {
 
     // Update last message in conversation
     const conversation = conversations.value.find(
-      (c) => c._id === message.conversationId
+      (c) => c._id === message.conversationId,
     );
+
     if (conversation) {
       conversation.lastMessage = {
         message: message.message,
@@ -156,11 +185,17 @@ export const useChatStore = defineStore("chat", () => {
       };
       conversation.updatedAt = message.createdAt;
 
-      // Move to top
-      conversations.value = [
-        conversation,
-        ...conversations.value.filter((c) => c._id !== message.conversationId),
-      ];
+      // ✅ Move conversation to top
+      const index = conversations.value.findIndex(
+        (c) => c._id === message.conversationId,
+      );
+
+      if (index > 0) {
+        const conv = conversations.value.splice(index, 1)[0];
+        conversations.value.unshift(conv);
+      }
+
+      console.log("✅ Conversation updated and moved to top");
     }
   }
 
@@ -183,7 +218,7 @@ export const useChatStore = defineStore("chat", () => {
 
     // Update unread count
     const conversation = conversations.value.find(
-      (c) => c._id === conversationId
+      (c) => c._id === conversationId,
     );
     if (conversation) {
       conversation.unreadCount = 0;
@@ -232,6 +267,7 @@ export const useChatStore = defineStore("chat", () => {
     sortedConversations,
     unreadCount,
     currentMessages,
+    addNewConversation,
     // Actions
     fetchConversations,
     selectConversation,

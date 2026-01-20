@@ -2190,8 +2190,9 @@ const activeSelectAction = async (option) => {
         statusFilter.value = settings.status;
       } else if (settings.statusKey === "assigned") {
         assigned.value = settings.status;
+      } else if (settings.statusKey === "paymentStatus") {
+        paymentStatus.value = settings.status;
       }
-
       startDate.value = today.toISOString().split("T")[0];
       const endDay = new Date(today);
       endDay.setDate(today.getDate() + settings.days);

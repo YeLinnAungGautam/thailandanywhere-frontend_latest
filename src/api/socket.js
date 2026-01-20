@@ -53,6 +53,21 @@ class SocketService {
     return this.socket;
   }
 
+  listenToPersonalRoom(userId, userType, callback) {
+    if (!this.socket) {
+      console.error("❌ Socket not initialized");
+      return;
+    }
+
+    const roomName = `user_${userId}_${userType}`;
+    console.log(`👂 Listening to personal room: ${roomName}`);
+
+    this.socket.on(roomName, (data) => {
+      console.log(`📨 Received event in ${roomName}:`, data);
+      callback(data);
+    });
+  }
+
   disconnect() {
     if (this.socket) {
       console.log("🔌 Disconnecting socket...");

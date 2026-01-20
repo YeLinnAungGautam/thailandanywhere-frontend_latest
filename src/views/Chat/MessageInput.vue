@@ -6,6 +6,7 @@
         <textarea
           v-model="message"
           ref="textareaRef"
+          :disabled="sending"
           @input="handleInput"
           @keydown.enter.exact.prevent="handleSubmit"
           rows="1"
@@ -18,10 +19,10 @@
       <!-- Send Button -->
       <button
         type="submit"
-        :disabled="!message.trim()"
-        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 disabled:bg-gray-300 disabled:cursor-not-allowed transition flex-shrink-0"
+        :disabled="!message.trim() || sending"
+        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
       >
-        Send
+        {{ sending ? "Sending..." : "Send" }}
       </button>
     </form>
   </div>
@@ -39,6 +40,7 @@ const socketStore = useSocketStore();
 
 const message = ref("");
 const textareaRef = ref(null);
+const sending = ref(false);
 let typingTimeout = null;
 
 function handleInput() {
@@ -63,6 +65,8 @@ function handleSubmit() {
   const text = message.value.trim();
   if (!text) return;
 
+  sending.value = true;
+
   emit("send", text);
   message.value = "";
 
@@ -75,6 +79,8 @@ function handleSubmit() {
   if (chatStore.currentConversation) {
     socketStore.stopTyping(chatStore.currentConversation._id);
   }
+
+  sending.value = false;
 }
 
 // Stop typing when conversation changes
@@ -84,6 +90,6 @@ watch(
     if (typingTimeout) {
       clearTimeout(typingTimeout);
     }
-  }
+  },
 );
 </script>

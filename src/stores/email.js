@@ -9,12 +9,60 @@ export const useEmailStore = defineStore("email", {
     selectedThread: null,
     loading: false,
     stats: null,
+    connectionStatus: null,
   }),
   getters: {
     unreadCount: (state) => state.stats?.unread_count || 0,
     totalEmails: (state) => state.stats?.total_emails || 0,
+    isConnected: (state) => state.connectionStatus?.connected || false,
   },
   actions: {
+    // Check Gmail connection status
+    async checkConnectionStatus() {
+      try {
+        const response = await axios.get("/gmail/auth/status");
+        this.connectionStatus = response.data.data;
+        return response.data;
+      } catch (error) {
+        this.connectionStatus = { connected: false };
+        throw error;
+      }
+    },
+
+    // Get Gmail auth URL
+    async getAuthUrl() {
+      try {
+        const response = await axios.get("/gmail/auth/url");
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    // Handle OAuth callback
+    async handleCallback(code) {
+      try {
+        const response = await axios.post("/gmail/auth/callback", {
+          code: code,
+        });
+        this.connectionStatus = response.data.data;
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    // Disconnect Gmail
+    async disconnect() {
+      try {
+        const response = await axios.delete("/gmail/auth/disconnect");
+        this.connectionStatus = { connected: false };
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
     // Get inbox emails with filters
     async getInbox(params = {}) {
       try {
@@ -31,8 +79,8 @@ export const useEmailStore = defineStore("email", {
           },
         });
 
-        this.emails = response.data.result.emails;
-        this.stats = response.data.result.stats;
+        this.emails = response.data.data.emails;
+        this.stats = response.data.data.stats;
         this.loading = false;
         return response.data;
       } catch (error) {
@@ -53,7 +101,7 @@ export const useEmailStore = defineStore("email", {
           },
         });
 
-        this.threads = response.data.result.threads;
+        this.threads = response.data.data;
         this.loading = false;
         return response.data;
       } catch (error) {
@@ -67,7 +115,7 @@ export const useEmailStore = defineStore("email", {
       try {
         this.loading = true;
         const response = await axios.get(`/gmail/threads/${threadId}`);
-        this.selectedThread = response.data.result;
+        this.selectedThread = response.data.data;
         this.loading = false;
         return response.data;
       } catch (error) {
@@ -79,7 +127,7 @@ export const useEmailStore = defineStore("email", {
     // Mark emails as read
     async markAsRead(emailIds) {
       try {
-        const response = await axios.post("/gmail/inbox/mark-read", {
+        const response = await axios.patch("/gmail/emails/mark-read", {
           email_ids: emailIds,
         });
         return response.data;
@@ -91,8 +139,34 @@ export const useEmailStore = defineStore("email", {
     // Mark emails as unread
     async markAsUnread(emailIds) {
       try {
-        const response = await axios.post("/gmail/inbox/mark-unread", {
+        const response = await axios.patch("/gmail/emails/mark-unread", {
           email_ids: emailIds,
+        });
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    // Archive emails
+    async archiveEmails(emailIds) {
+      try {
+        const response = await axios.patch("/gmail/emails/archive", {
+          email_ids: emailIds,
+        });
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    // Delete emails
+    async deleteEmails(emailIds) {
+      try {
+        const response = await axios.delete("/gmail/emails", {
+          data: {
+            email_ids: emailIds,
+          },
         });
         return response.data;
       } catch (error) {
@@ -104,7 +178,7 @@ export const useEmailStore = defineStore("email", {
     async sendReply(emailId, data) {
       try {
         const response = await axios.post(
-          `/gmail/inbox/reply/${emailId}`,
+          `/gmail/emails/${emailId}/reply`,
           data,
         );
         return response.data;
@@ -116,23 +190,24 @@ export const useEmailStore = defineStore("email", {
     // Compose new email
     async composeEmail(data) {
       try {
-        const response = await axios.post("/gmail/inbox/compose", data);
+        const response = await axios.post("/gmail/compose", data);
         return response.data;
       } catch (error) {
         throw error;
       }
     },
 
-    // Pagination helper
-    async getChangePage(url, params) {
-      this.loading = true;
-      const response = await axios.get(url, {
-        params: params,
-      });
-      this.emails = response.data.result.emails;
-      this.stats = response.data.result.stats;
-      this.loading = false;
-      return response.data;
+    // Sync from Gmail
+    async syncFromGmail(limit = 50) {
+      try {
+        this.loading = true;
+        const response = await axios.post(`/gmail/sync?limit=${limit}`);
+        this.loading = false;
+        return response.data;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
     },
   },
 });

@@ -158,12 +158,12 @@
                   to="/mail-box"
                   :activePaths="['mailBox']"
                 />
-                <!-- <SidebarItem
+                <SidebarItem
                   name="Chat"
                   :icon="EnvelopeIcon"
                   to="/chat"
                   :activePaths="['chat']"
-                /> -->
+                />
                 <SidebarItem
                   v-if="authStore.isSuperAdmin"
                   name="Amend"

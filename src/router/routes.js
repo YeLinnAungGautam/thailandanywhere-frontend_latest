@@ -300,7 +300,7 @@ const routes = [
     component: EntranceCreateView,
   },
   {
-    path: "/entrance/update/:id/:action",
+    path: "/entrance/update/:id",
     name: "entranceupdate",
     component: EntranceUpdateView,
   },

@@ -98,6 +98,9 @@ export const useSocketStore = defineStore("socket", () => {
             // Add to conversation list
             chatStore.addNewConversation(data.conversation);
 
+            // ✅ Join the new conversation room
+            joinConversation(data.conversation._id);
+
             // Show notification (optional)
             showNotification(data.message);
           }

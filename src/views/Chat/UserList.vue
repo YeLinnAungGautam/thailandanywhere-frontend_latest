@@ -94,11 +94,13 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useChatStore } from "../../stores/chat";
+import { useSocketStore } from "../../stores/socket";
 import { chatApiService } from "../../api/chat";
 
 const emit = defineEmits(["close"]);
 
 const chatStore = useChatStore();
+const socketStore = useSocketStore();
 
 const searchQuery = ref("");
 const loading = ref(false);
@@ -140,6 +142,10 @@ async function startChat(admin) {
 
     // Select the conversation
     await chatStore.selectConversation(conversation._id);
+
+    // ✅ Join the socket room immediately
+    socketStore.joinConversation(conversation._id);
+
     closeModal();
   } catch (err) {
     console.error("Failed to create conversation:", err);

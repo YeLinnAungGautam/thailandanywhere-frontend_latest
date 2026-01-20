@@ -3,6 +3,7 @@ import { ref, computed, nextTick } from "vue";
 import { socketService } from "../api/socket";
 import { useChatStore } from "./chat";
 import { useAuthStore } from "./auth";
+import { useNotificationStore } from "./notification";
 
 export const useSocketStore = defineStore("socket", () => {
   const socket = ref(null);
@@ -64,11 +65,17 @@ export const useSocketStore = defineStore("socket", () => {
   function setupEventListeners() {
     const chatStore = useChatStore();
     const authStore = useAuthStore();
+    const notificationStore = useNotificationStore();
 
     // ✅ ADD THIS - Handle pending notifications
     socketService.on("pending_notifications", (data) => {
       console.log(`📬 Received ${data.count} pending notifications`);
       console.log("Notifications:", data.notifications);
+
+      // ✅ Add notifications to store
+      data.notifications.forEach((notification) => {
+        notificationStore.addNotification(notification);
+      });
 
       // Refresh conversations to show unread counts and new messages
       console.log(
@@ -76,7 +83,7 @@ export const useSocketStore = defineStore("socket", () => {
       );
       chatStore.fetchConversations();
 
-      // Show browser notification (optional)
+      // Show browser notification
       if (data.count > 0) {
         showNotification(
           `You have ${data.count} new message${data.count > 1 ? "s" : ""}`,
@@ -184,31 +191,6 @@ export const useSocketStore = defineStore("socket", () => {
     });
   }
 
-  // ✅ ADD THIS - Browser notification helper
-  function showNotification(message) {
-    if (!("Notification" in window)) {
-      console.log("❌ Browser doesn't support notifications");
-      return;
-    }
-
-    if (Notification.permission === "granted") {
-      new Notification("Chat Notification", {
-        body: message,
-        icon: "/favicon.ico",
-        badge: "/favicon.ico",
-      });
-    } else if (Notification.permission !== "denied") {
-      Notification.requestPermission().then((permission) => {
-        if (permission === "granted") {
-          new Notification("Chat Notification", {
-            body: message,
-            icon: "/favicon.ico",
-          });
-        }
-      });
-    }
-  }
-
   // ✅ ADD THIS - Show browser notification
   function showNotification(message) {
     // Check if browser supports notifications
@@ -221,14 +203,14 @@ export const useSocketStore = defineStore("socket", () => {
     if (Notification.permission === "granted") {
       new Notification("New Conversation", {
         body: message,
-        icon: "/favicon.ico",
+        icon: "../../public/web-logo.png",
       });
     } else if (Notification.permission !== "denied") {
       Notification.requestPermission().then((permission) => {
         if (permission === "granted") {
           new Notification("New Conversation", {
             body: message,
-            icon: "/favicon.ico",
+            icon: "../../public/web-logo.png",
           });
         }
       });

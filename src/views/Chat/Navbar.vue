@@ -22,7 +22,7 @@
         <!-- New Chat Button -->
         <button
           @click="showNewChatModal = true"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          class="px-4 rounded-full py-2 bg-orange-600 text-white hover:bg-orange-700 transition"
         >
           + New Chat
         </button>

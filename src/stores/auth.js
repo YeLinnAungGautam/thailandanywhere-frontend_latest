@@ -1,5 +1,8 @@
 import { defineStore } from "pinia";
 import axios from "axios";
+import { useChatStore } from "./chat"; // ✅ ADD THIS
+import { useSocketStore } from "./socket"; // ✅ ADD THIS
+import { useNotificationStore } from "./notification"; // ✅ ADD THIS
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -123,6 +126,18 @@ export const useAuthStore = defineStore("auth", {
       try {
         console.log("🚪 Logging out...");
         const response = await axios.post("/logout");
+
+        // ✅ ADD THIS - Reset all stores before clearing auth
+        const chatStore = useChatStore();
+        const socketStore = useSocketStore();
+        const notificationStore = useNotificationStore();
+
+        // Disconnect socket
+        socketStore.disconnect();
+
+        // Reset stores
+        chatStore.reset();
+        notificationStore.reset();
 
         // Clear state
         this.clearAuth();

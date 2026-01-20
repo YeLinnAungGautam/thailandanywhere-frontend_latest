@@ -160,7 +160,7 @@
                 />
                 <SidebarItem
                   name="Chat"
-                  :icon="EnvelopeIcon"
+                  :icon="ChatBubbleOvalLeftIcon"
                   to="/chat"
                   :activePaths="['chat']"
                 />
@@ -491,6 +491,7 @@ import {
   ChatBubbleOvalLeftEllipsisIcon,
   EnvelopeIcon,
   RectangleGroupIcon,
+  ChatBubbleOvalLeftIcon,
 } from "@heroicons/vue/24/outline";
 import { onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";

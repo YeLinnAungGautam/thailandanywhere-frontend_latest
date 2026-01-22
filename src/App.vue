@@ -12,20 +12,24 @@ const chatStore = useChatStore();
 onMounted(async () => {
   console.log("🚀 App mounted");
 
-  // Load auth from localStorage first
+  // Step 1: Load auth from localStorage
   authStore.loadFromStorage();
 
-  // Only proceed if we have a token
-  if (authStore.token && authStore.user) {
-    console.log("✅ Auth loaded from storage, initializing app...");
+  // Step 2: Check if user is authenticated
+  if (authStore.isAuthenticated && authStore.token) {
+    console.log("✅ User authenticated, initializing app...");
 
     try {
-      // Connect socket after a small delay to ensure auth is ready
+      // Wait a bit to ensure everything is ready
       await new Promise((resolve) => setTimeout(resolve, 300));
-      socketStore.connect();
 
-      // Load initial chat data
+      // Step 3: Connect socket with token ⭐ ဒါက အရေးကြီးတယ်!
+      socketStore.connect(authStore.token);
+
+      // Step 4: Load chat data
       await chatStore.loadInitialData();
+
+      console.log("✅ App initialization complete");
     } catch (error) {
       console.error("❌ App initialization failed:", error);
     }
@@ -33,14 +37,21 @@ onMounted(async () => {
     console.log("ℹ️ No auth token, skipping initialization");
   }
 
-  // Listen for login events to initialize after login
+  // Listen for login events
   window.addEventListener("auth:login", async (event) => {
-    console.log("🔔 Login event detected, initializing...");
+    console.log("🔔 Login event detected");
+    const token = event.detail.token;
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 300));
-      socketStore.connect();
+
+      // ⭐ Pass token to socket
+      socketStore.connect(token);
+
+      // Load chat data
       await chatStore.loadInitialData();
+
+      console.log("✅ Post-login initialization complete");
     } catch (error) {
       console.error("❌ Post-login initialization failed:", error);
     }

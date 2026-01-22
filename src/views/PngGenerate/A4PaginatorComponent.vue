@@ -242,7 +242,7 @@
             class="text-start pl-6 pt-3 pb-4 font-semibold text-[#FF613c] text-sm"
           >
             ဖုန်းနံပါတ်။ ။​ <span class="pl-4">🇲🇲 +959 963394746</span>
-            <span class="pl-4">🇹🇭 +66 614367473</span>
+            <span class="pl-4">🇹🇭 +66 637602448</span>
           </p>
         </div>
       </div>
@@ -661,6 +661,6 @@ watch(
       generatePNGs();
     }
   },
-  { deep: true }
+  { deep: true },
 );
 </script>

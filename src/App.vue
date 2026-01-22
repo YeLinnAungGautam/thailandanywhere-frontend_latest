@@ -1,37 +1,49 @@
-<!-- <script setup>
-import { RouterLink, RouterView } from "vue-router";
-</script> -->
-
 <script setup>
 import { onMounted } from "vue";
 import { useAuthStore } from "./stores/auth";
 import { useSocketStore } from "./stores/socket";
-import { RouterLink, RouterView } from "vue-router";
+import { useChatStore } from "./stores/chat";
+import { RouterView } from "vue-router";
 
 const authStore = useAuthStore();
 const socketStore = useSocketStore();
+const chatStore = useChatStore();
 
-onMounted(() => {
+onMounted(async () => {
   console.log("🚀 App mounted");
 
-  // Load auth from localStorage
+  // Load auth from localStorage first
   authStore.loadFromStorage();
 
-  // ✅ ADD THIS - Auto-connect socket if logged in
-  if (authStore.isAuthenticated && authStore.token) {
-    console.log("✅ User authenticated, connecting socket...");
+  // Only proceed if we have a token
+  if (authStore.token && authStore.user) {
+    console.log("✅ Auth loaded from storage, initializing app...");
 
-    setTimeout(() => {
+    try {
+      // Connect socket after a small delay to ensure auth is ready
+      await new Promise((resolve) => setTimeout(resolve, 300));
       socketStore.connect();
-    }, 1000);
+
+      // Load initial chat data
+      await chatStore.loadInitialData();
+    } catch (error) {
+      console.error("❌ App initialization failed:", error);
+    }
+  } else {
+    console.log("ℹ️ No auth token, skipping initialization");
   }
 
-  // ✅ ADD THIS - Listen for login events
-  window.addEventListener("auth:login", (event) => {
-    console.log("🔔 Login event detected");
-    setTimeout(() => {
+  // Listen for login events to initialize after login
+  window.addEventListener("auth:login", async (event) => {
+    console.log("🔔 Login event detected, initializing...");
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 300));
       socketStore.connect();
-    }, 500);
+      await chatStore.loadInitialData();
+    } catch (error) {
+      console.error("❌ Post-login initialization failed:", error);
+    }
   });
 });
 </script>

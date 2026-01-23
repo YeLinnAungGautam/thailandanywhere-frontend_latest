@@ -342,6 +342,13 @@
                 to="/products/page"
               />
               <SidebarItem
+                v-if="authStore.isSuperAdmin"
+                name="Product V2"
+                :icon="FolderIcon"
+                to="/products-v2"
+                :activePaths="['products-v2']"
+              />
+              <SidebarItem
                 v-if="!authStore.isAgent && !authStore.isExternalAudit"
                 name="Database"
                 :icon="CircleStackIcon"

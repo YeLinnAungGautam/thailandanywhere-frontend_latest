@@ -74,8 +74,8 @@
           <div class="relative">
             <img
               :src="getImageByName(rep.user_id)"
-              :alt="rep.user_name"
-              class="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+              :alt="rep.user?.name || 'User'"
+              class="w-10 h-10 rounded-full object-contain border-2 border-gray-200"
             />
             <!-- Crown for top 3 -->
             <div
@@ -88,21 +88,30 @@
           </div>
           <div>
             <span class="text-gray-700 text-sm font-medium block">
-              {{ rep.user_name }}
+              {{ rep.user?.name || "Unknown" }}
             </span>
 
-            <span class="text-xs text-[#FF613c] block">
-              {{ rep.total_quantity }} units
-            </span>
-            <span class="text-gray-500 text-xs" v-if="rep.total_child_qty > 0">
-              {{ rep.total_child_qty }} children
-            </span>
+            <!-- Product Type Breakdown -->
+            <div class="flex gap-2 text-xs mt-1">
+              <span v-if="rep.hotel_count > 0" class="text-blue-600">
+                🏨 {{ rep.hotel_count }}
+              </span>
+              <span v-if="rep.entrance_ticket_count > 0" class="text-green-600">
+                🎫 {{ rep.entrance_ticket_count }}
+              </span>
+              <span v-if="rep.other_count > 0" class="text-purple-600">
+                📦 {{ rep.other_count }}
+              </span>
+            </div>
+
+            <!-- <span class="text-xs text-gray-500 block mt-0.5">
+              {{ rep.user?.email || "" }}
+            </span> -->
           </div>
         </div>
         <div class="text-right">
-          <span class="font-semibold text-[#FF613c] block">
-            <!-- {{ rep.total_quantity }} units -->
-            {{ rep.total_bookings }}
+          <span class="font-semibold text-[#FF613c] text-lg block">
+            {{ rep.total_count }}
           </span>
         </div>
       </div>
@@ -111,8 +120,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
-import { useAvailableStore } from "@/stores/available"; // Adjust path as needed
+import { ref, onMounted, watch } from "vue";
+import { useAvailableStore } from "@/stores/available";
 import chitSu from "../../assets/agents/chitsu.png";
 import maHnin from "../../assets/agents/Hnin_Panei__Senior_Sales_Manager-removebg-preview.png";
 import kaingHninKyi from "../../assets/agents/Khaing_Hnin_Kyi-removebg-preview.png";
@@ -199,7 +208,6 @@ const getCrownTitle = (index) => {
 };
 
 // Watch for period type changes
-import { watch } from "vue";
 watch(periodType, () => {
   fetchRankings();
 });
@@ -211,22 +219,22 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Add custom scrollbar styling if needed */
-.overflow-scroll::-webkit-scrollbar {
+/* Custom scrollbar styling */
+.overflow-y-scroll::-webkit-scrollbar {
   width: 6px;
 }
 
-.overflow-scroll::-webkit-scrollbar-track {
+.overflow-y-scroll::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 10px;
 }
 
-.overflow-scroll::-webkit-scrollbar-thumb {
+.overflow-y-scroll::-webkit-scrollbar-thumb {
   background: #ff613c;
   border-radius: 10px;
 }
 
-.overflow-scroll::-webkit-scrollbar-thumb:hover {
+.overflow-y-scroll::-webkit-scrollbar-thumb:hover {
   background: #e5512f;
 }
 </style>

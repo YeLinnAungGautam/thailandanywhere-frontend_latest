@@ -104,9 +104,10 @@
 
           <!-- Bottom Section -->
           <div class="col-span-5">
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-3 gap-2">
               <BookingsBySource :sources="bookingsBySource" />
               <AverageBookingValue :bookingData="summary" />
+              <CreatorRanking />
             </div>
           </div>
         </div>
@@ -161,6 +162,7 @@ import {
   format,
 } from "date-fns";
 import { useDashboardStore } from "../stores/dashboard";
+import CreatorRanking from "./HomeNewComponent/CreatorRanking.vue";
 
 // Stores
 const authStore = useAuthStore();
@@ -320,7 +322,7 @@ const fetchDailySalesData = async (month) => {
 
         averageSales.value = Math.round(
           cumulativeTotal /
-            (isCurrentMonth ? currentDate.getDate() : res.result.sales.length)
+            (isCurrentMonth ? currentDate.getDate() : res.result.sales.length),
         );
       });
     }
@@ -447,7 +449,7 @@ const fetchReceivables = async () => {
       receivableDataCount.value = receivables.value.length;
       receivableDataSummary.value = receivables.value.reduce(
         (sum, r) => sum + parseFloat(r.balance_due || 0),
-        0
+        0,
       );
     } else {
       receivableDataCount.value = 0;
@@ -521,7 +523,7 @@ const loadAgentsList = async () => {
   const res = await adminStore.getSimpleListAction();
   agentsList.value =
     res.result?.data?.filter(
-      (a) => a.role === "admin" || a.role === "sale_manager"
+      (a) => a.role === "admin" || a.role === "sale_manager",
     ) || [];
   console.log(agentsList.value);
 };

@@ -29,6 +29,24 @@ export const useAvailableStore = defineStore("available", {
         throw error;
       }
     },
+    async getRankingListAction(params) {
+      try {
+        this.loading = true;
+        const response = await axios.get(
+          "/product-schedules/creator-rankings",
+          {
+            params: params,
+          },
+        );
+
+        this.loading = false;
+        console.log(response);
+        return response.data;
+      } catch (error) {
+        this.loading = false;
+        throw error;
+      }
+    },
     async addNewAction(data) {
       try {
         const response = await axios.post("/product-available-schedules", data);
@@ -42,7 +60,7 @@ export const useAvailableStore = defineStore("available", {
       try {
         const response = await axios.put(
           "/product-available-schedules/bulk/change-status",
-          { ids: ids } // Send as plain object, not FormData
+          { ids: ids }, // Send as plain object, not FormData
         );
         return response.data;
       } catch (error) {
@@ -53,7 +71,7 @@ export const useAvailableStore = defineStore("available", {
       try {
         const response = await axios.post(
           "/product-available-schedules/" + id,
-          data
+          data,
         );
         return response.data;
       } catch (error) {
@@ -63,7 +81,7 @@ export const useAvailableStore = defineStore("available", {
     async deleteAction(id) {
       try {
         const response = await axios.delete(
-          "/product-available-schedules/" + id
+          "/product-available-schedules/" + id,
         );
         return response.data;
       } catch (error) {

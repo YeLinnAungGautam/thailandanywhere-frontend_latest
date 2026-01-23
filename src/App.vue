@@ -1,13 +1,13 @@
 <script setup>
 import { onMounted } from "vue";
 import { useAuthStore } from "./stores/auth";
-import { useSocketStore } from "./stores/socket";
-import { useChatStore } from "./stores/chat";
+// import { useSocketStore } from "./stores/socket";
+// import { useChatStore } from "./stores/chat";
 import { RouterView } from "vue-router";
 
 const authStore = useAuthStore();
-const socketStore = useSocketStore();
-const chatStore = useChatStore();
+// const socketStore = useSocketStore();
+// const chatStore = useChatStore();
 
 onMounted(async () => {
   console.log("🚀 App mounted");
@@ -19,43 +19,43 @@ onMounted(async () => {
   if (authStore.isAuthenticated && authStore.token) {
     console.log("✅ User authenticated, initializing app...");
 
-    try {
-      // Wait a bit to ensure everything is ready
-      await new Promise((resolve) => setTimeout(resolve, 300));
+    // try {
+    //   // Wait a bit to ensure everything is ready
+    //   await new Promise((resolve) => setTimeout(resolve, 300));
 
-      // Step 3: Connect socket with token ⭐ ဒါက အရေးကြီးတယ်!
-      socketStore.connect(authStore.token);
+    //   // Step 3: Connect socket with token ⭐ ဒါက အရေးကြီးတယ်!
+    //   socketStore.connect(authStore.token);
 
-      // Step 4: Load chat data
-      await chatStore.loadInitialData();
+    //   // Step 4: Load chat data
+    //   await chatStore.loadInitialData();
 
-      console.log("✅ App initialization complete");
-    } catch (error) {
-      console.error("❌ App initialization failed:", error);
-    }
+    //   console.log("✅ App initialization complete");
+    // } catch (error) {
+    //   console.error("❌ App initialization failed:", error);
+    // }
   } else {
     console.log("ℹ️ No auth token, skipping initialization");
   }
 
   // Listen for login events
-  window.addEventListener("auth:login", async (event) => {
-    console.log("🔔 Login event detected");
-    const token = event.detail.token;
+  // window.addEventListener("auth:login", async (event) => {
+  //   console.log("🔔 Login event detected");
+  //   const token = event.detail.token;
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
+  //   try {
+  //     await new Promise((resolve) => setTimeout(resolve, 300));
 
-      // ⭐ Pass token to socket
-      socketStore.connect(token);
+  //     // ⭐ Pass token to socket
+  //     socketStore.connect(token);
 
-      // Load chat data
-      await chatStore.loadInitialData();
+  //     // Load chat data
+  //     await chatStore.loadInitialData();
 
-      console.log("✅ Post-login initialization complete");
-    } catch (error) {
-      console.error("❌ Post-login initialization failed:", error);
-    }
-  });
+  //     console.log("✅ Post-login initialization complete");
+  //   } catch (error) {
+  //     console.error("❌ Post-login initialization failed:", error);
+  //   }
+  // });
 });
 </script>
 

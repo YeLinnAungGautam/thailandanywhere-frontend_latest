@@ -550,7 +550,11 @@ onMounted(async () => {
   await fetchTodayOrders();
 
   // ✅ ADD THIS - Fetch notifications
-  await notificationStore.fetchUnreadNotifications();
+  try {
+    await notificationStore.fetchUnreadNotifications();
+  } catch (error) {
+    console.error("Failed to load notifications:", error);
+  }
 
   // ✅ ADD THIS - Add click outside listener
   document.addEventListener("click", handleClickOutside);

@@ -11,9 +11,8 @@ export const useChatStore = defineStore("chat", () => {
   const messagesLoading = ref(false);
   const onlineUsers = ref([]);
   const error = ref(null);
-
-  // Prevent multiple simultaneous fetches
   const isFetching = ref(false);
+  const isInitialized = ref(false); // ✅ Add this
 
   // Getters
   const sortedConversations = computed(() => {
@@ -38,10 +37,10 @@ export const useChatStore = defineStore("chat", () => {
     });
   });
 
+  // ✅ Updated - Only load if not already initialized
   async function loadInitialData() {
-    // စစ်ဆေးတယ် - အရင်တင် load လုပ်ပြီးသား လား
-    if (isFetching.value) {
-      console.log("ℹ️ Already loading initial data");
+    if (isFetching.value || isInitialized.value) {
+      console.log("ℹ️ Already initialized or loading");
       return;
     }
 
@@ -49,50 +48,35 @@ export const useChatStore = defineStore("chat", () => {
       console.log("📦 Loading initial chat data...");
       isFetching.value = true;
 
-      // ၂ ခု တပြိုင်နက် လုပ်မယ် (ပိုမြန်ဖို့)
       const [conversationsResult, onlineUsersResult] = await Promise.allSettled(
         [chatApiService.getConversations(), chatApiService.getOnlineUsers()],
       );
 
-      // Conversations ရလား စစ်တယ်
       if (conversationsResult.status === "fulfilled") {
         const response = conversationsResult.value;
         if (response.success) {
           conversations.value = response.conversations || [];
           console.log(`✅ Loaded ${conversations.value.length} conversations`);
         }
-      } else {
-        console.error(
-          "❌ Failed to load conversations:",
-          conversationsResult.reason,
-        );
       }
 
-      // Online users ရလား စစ်တယ်
       if (onlineUsersResult.status === "fulfilled") {
         const response = onlineUsersResult.value;
         if (response.success) {
           onlineUsers.value = response.users || [];
           console.log(`✅ Loaded ${onlineUsers.value.length} online users`);
         }
-      } else {
-        console.error(
-          "❌ Failed to load online users:",
-          onlineUsersResult.reason,
-        );
       }
+
+      isInitialized.value = true; // ✅ Mark as initialized
     } catch (error) {
       console.error("❌ Failed to load initial data:", error);
-      // Error ဖြစ်လည်း app က ဆက်အလုပ်လုပ်နိုင်အောင်
-      // throw လုပ်မထားဘူး
     } finally {
       isFetching.value = false;
     }
   }
 
-  // Actions
   async function fetchConversations() {
-    // Prevent duplicate fetches
     if (isFetching.value || loading.value) {
       console.log("⚠️ Already fetching conversations, skipping...");
       return;
@@ -169,7 +153,6 @@ export const useChatStore = defineStore("chat", () => {
       });
 
       if (response.success) {
-        // Add to conversations if new
         if (response.isNew) {
           conversations.value.unshift(response.conversation);
           console.log("✅ New conversation created");
@@ -184,15 +167,11 @@ export const useChatStore = defineStore("chat", () => {
     }
   }
 
-  // ✅ ADD THIS - Add new conversation to list
   function addNewConversation(conversation) {
-    // Check if conversation already exists
     const exists = conversations.value.some((c) => c._id === conversation._id);
 
     if (exists) {
       console.log("ℹ️ Conversation already exists, updating...");
-
-      // Update existing conversation
       const index = conversations.value.findIndex(
         (c) => c._id === conversation._id,
       );
@@ -201,19 +180,15 @@ export const useChatStore = defineStore("chat", () => {
       }
     } else {
       console.log("✅ Adding new conversation to list");
-
-      // Add to beginning of list
       conversations.value.unshift(conversation);
     }
 
-    // Sort by updated time
     conversations.value.sort((a, b) => {
       return new Date(b.updatedAt) - new Date(a.updatedAt);
     });
   }
 
   function addMessage(message) {
-    // Prevent duplicate messages
     const exists = messages.value.some((m) => m._id === message._id);
     if (exists) {
       console.log("⚠️ Message already exists, skipping");
@@ -223,7 +198,6 @@ export const useChatStore = defineStore("chat", () => {
     console.log("💬 Adding new message:", message._id);
     messages.value.push(message);
 
-    // Update last message in conversation
     const conversation = conversations.value.find(
       (c) => c._id === message.conversationId,
     );
@@ -237,7 +211,6 @@ export const useChatStore = defineStore("chat", () => {
       };
       conversation.updatedAt = message.createdAt;
 
-      // ✅ Move conversation to top
       const index = conversations.value.findIndex(
         (c) => c._id === message.conversationId,
       );
@@ -268,7 +241,6 @@ export const useChatStore = defineStore("chat", () => {
       }
     });
 
-    // Update unread count
     const conversation = conversations.value.find(
       (c) => c._id === conversationId,
     );
@@ -304,10 +276,10 @@ export const useChatStore = defineStore("chat", () => {
     onlineUsers.value = [];
     error.value = null;
     isFetching.value = false;
+    isInitialized.value = false; // ✅ Reset initialization flag
   }
 
   return {
-    // State
     conversations,
     currentConversation,
     messages,
@@ -315,13 +287,12 @@ export const useChatStore = defineStore("chat", () => {
     messagesLoading,
     onlineUsers,
     error,
-    // Getters
+    isInitialized, // ✅ Expose this
     sortedConversations,
     unreadCount,
     currentMessages,
     addNewConversation,
     loadInitialData,
-    // Actions
     fetchConversations,
     selectConversation,
     fetchMessages,

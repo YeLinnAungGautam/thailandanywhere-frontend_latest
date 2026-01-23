@@ -19,13 +19,31 @@
               :class="
                 newCustomerOrdersCount > 0 ? 'border border-[#FF613c]/20' : ''
               "
-              class="bg-white space-x-2 shadow pl-4 py-2 pr-2 rounded-full flex justify-center items-center hover:shadow-md transition-shadow"
+              class="bg-white space-x-2 shadow pl-2.5 py-2 pr-2.5 rounded-full flex justify-center items-center hover:shadow-md transition-shadow"
             >
-              <img
+              <!-- <img
                 src="https://cdn-icons-png.flaticon.com/128/3565/3565856.png"
                 alt="Orders"
                 class="w-6 h-6"
-              />
+              /> -->
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-shopping-bag-icon lucide-shopping-bag w-5 h-5"
+              >
+                <path d="M16 10a4 4 0 0 1-8 0" />
+                <path d="M3.103 6.034h17.794" />
+                <path
+                  d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"
+                />
+              </svg>
             </div>
           </div>
 

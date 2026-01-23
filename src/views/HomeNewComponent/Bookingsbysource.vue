@@ -1,17 +1,17 @@
 <template>
   <div class="bg-white rounded-lg shadow-sm p-6 h-[47.5vh]">
     <p class="text-gray-700 text-lg font-semibold mb-6">Bookings by Source</p>
-    <div class="space-y-4">
+    <div class="space-y-2">
       <div
         v-for="source in sourcesWithPercentage"
         :key="source.sold_from"
-        class="flex items-center gap-3"
+        class=""
       >
         <span class="text-sm text-gray-700 w-24 text-right">{{
           source.sold_from
         }}</span>
         <div
-          class="flex-1 bg-gray-200 rounded-full h-7 relative overflow-hidden"
+          class="flex-1 bg-gray-200 rounded-full h-3 relative overflow-hidden"
         >
           <div
             class="h-full rounded-full transition-all duration-500"
@@ -43,7 +43,7 @@ const sourcesWithPercentage = computed(() => {
   // Calculate total amount
   const total = props.sources.reduce(
     (sum, source) => sum + source.total_amount,
-    0
+    0,
   );
 
   // Calculate percentage for each source

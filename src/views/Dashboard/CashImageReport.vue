@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen">
+  <Layout class="min-h-screen">
     <div
       class="mb-4 bg-white p-2 rounded-lg drop-shadow flex justify-between items-center"
     >
@@ -18,7 +18,12 @@
 
     <!-- Loading State -->
     <div v-if="loading" class="flex justify-center items-center h-64">
-      <div class="text-base text-gray-600">Loading...</div>
+      <div class="text-center">
+        <div
+          class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5B00] mb-4"
+        ></div>
+        <p class="text-gray-600">Loading cash image report...</p>
+      </div>
     </div>
 
     <!-- Charts Container -->
@@ -67,6 +72,15 @@
             :chartData="monthlyChartMMKData"
             :options="monthlyChartMMKOptions"
           />
+          <div
+            v-if="
+              monthlyChartData.labels.length === 0 &&
+              monthlyChartMMKData.labels.length === 0
+            "
+            class="flex items-center justify-center h-full text-gray-500"
+          >
+            No data available
+          </div>
         </div>
       </div>
 
@@ -85,7 +99,7 @@
               THB
               {{
                 formattedNumber(
-                  cashImageData?.today_summary?.booking_summary.thb
+                  cashImageData?.today_summary?.booking_summary.thb,
                 ) || 0
               }}
             </div>
@@ -96,7 +110,7 @@
               THB -
               {{
                 formattedNumber(
-                  cashImageData?.today_summary?.other_summary.thb
+                  cashImageData?.today_summary?.other_summary.thb,
                 ) || 0
               }}
             </div>
@@ -109,7 +123,7 @@
               MMK
               {{
                 formattedNumber(
-                  cashImageData?.today_summary?.booking_summary.mmk
+                  cashImageData?.today_summary?.booking_summary.mmk,
                 ) || 0
               }}
             </div>
@@ -121,7 +135,7 @@
               MMK -
               {{
                 formattedNumber(
-                  cashImageData?.today_summary?.other_summary.mmk
+                  cashImageData?.today_summary?.other_summary.mmk,
                 ) || 0
               }}
             </div>
@@ -152,17 +166,17 @@
                 {{ currency }}
                 {{
                   formatAmount(
-                    monthlyData?.expense_summary[
+                    monthlyData?.expense_summary?.[
                       currency == "THB" ? "thb" : "mmk"
-                    ].amount
+                    ]?.amount || 0,
                   )
                 }}
               </div>
               <div class="text-[10px] text-red-800">
                 {{
-                  monthlyData?.expense_summary[
+                  monthlyData?.expense_summary?.[
                     currency == "THB" ? "thb" : "mmk"
-                  ].count
+                  ]?.count || 0
                 }}
                 images
               </div>
@@ -196,7 +210,7 @@
         </div>
       </div>
 
-      <!-- NEW: Interact Bank Breakdown Section -->
+      <!-- Income & Expense by Bank/Account Type -->
       <div class="bg-white p-6 rounded-lg shadow-md col-span-1 lg:col-span-2">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-base font-semibold text-gray-800">
@@ -217,7 +231,6 @@
         </div>
 
         <div v-if="showByType">
-          <!-- Get all unique bank names from both income and expense -->
           <div class="gap-4 grid grid-cols-2">
             <div
               v-for="bankName in getAllBankNames()"
@@ -254,7 +267,7 @@
                           {{
                             formatAmount(
                               monthlyData.income_by_interact_bank[bankName].thb
-                                .amount
+                                .amount,
                             )
                           }}
                         </div>
@@ -282,7 +295,7 @@
                           {{
                             formatAmount(
                               monthlyData.income_by_interact_bank[bankName].mmk
-                                .amount
+                                .amount,
                             )
                           }}
                         </div>
@@ -299,7 +312,7 @@
                     <!-- No income message -->
                     <div
                       v-if="!hasIncome(bankName)"
-                      class="text-center text-gray-400 py-3 text-sm"
+                      class="text-center text-gray-400 py-3 text-sm w-full"
                     >
                       No income
                     </div>
@@ -328,7 +341,7 @@
                           {{
                             formatAmount(
                               monthlyData.expense_by_interact_bank[bankName].thb
-                                .amount
+                                .amount,
                             )
                           }}
                         </div>
@@ -356,7 +369,7 @@
                           {{
                             formatAmount(
                               monthlyData.expense_by_interact_bank[bankName].mmk
-                                .amount
+                                .amount,
                             )
                           }}
                         </div>
@@ -373,7 +386,7 @@
                     <!-- No expense message -->
                     <div
                       v-if="!hasExpense(bankName)"
-                      class="text-center text-gray-400 py-3 text-sm"
+                      class="text-center text-gray-400 py-3 text-sm w-full"
                     >
                       No expense
                     </div>
@@ -385,7 +398,7 @@
             <!-- Show message if no data at all -->
             <div
               v-if="getAllBankNames().length === 0"
-              class="text-center text-gray-500 py-8"
+              class="text-center text-gray-500 py-8 col-span-2"
             >
               No bank transaction data available
             </div>
@@ -443,15 +456,18 @@
         </div>
       </div>
     </div>
-  </div>
+  </Layout>
 </template>
 
 <script setup>
 import { onMounted, ref, watch, computed, reactive } from "vue";
 import { useHomeStore } from "../../stores/home";
 import { BarChart, LineChart } from "vue-chart-3";
-import { Switch } from "@headlessui/vue";
 import { formattedNumber } from "../help/FormatData";
+import Layout from "../Layout.vue";
+import { Chart, registerables } from "chart.js";
+
+Chart.register(...registerables);
 
 const homeStore = useHomeStore();
 
@@ -461,7 +477,6 @@ const cashImageData = ref(null);
 
 // Initialize
 const currentShow = ref("thb");
-
 const showByType = ref(false);
 
 // Chart data
@@ -562,10 +577,9 @@ const monthlyChartOptions = {
         label: function (context) {
           const agent = getAgentData(context.label);
           let tooltip = `${context.parsed.y} images`;
-          if (agent?.currencies) {
-            tooltip += "\n";
-            tooltip += `\nTHB: ${agent.currencies.THB?.total_cash_amount.toLocaleString()} (${
-              agent.currencies.THB?.total_cash_images
+          if (agent?.currencies?.THB) {
+            tooltip += `\nTHB: ${agent.currencies.THB.total_cash_amount.toLocaleString()} (${
+              agent.currencies.THB.total_cash_images
             } images)`;
           }
           return tooltip;
@@ -595,10 +609,9 @@ const monthlyChartMMKOptions = {
         label: function (context) {
           const agent = getAgentData(context.label);
           let tooltip = `${context.parsed.y} images`;
-          if (agent?.currencies) {
-            tooltip += "\n";
-            tooltip += `\nMMK: ${agent.currencies.MMK?.total_cash_amount.toLocaleString()} (${
-              agent.currencies.MMK?.total_cash_images
+          if (agent?.currencies?.MMK) {
+            tooltip += `\nMMK: ${agent.currencies.MMK.total_cash_amount.toLocaleString()} (${
+              agent.currencies.MMK.total_cash_images
             } images)`;
           }
           return tooltip;
@@ -691,50 +704,26 @@ const monthlyData = computed(() => {
   return cashImageData.value?.monthly_summary || null;
 });
 
-const topAgents = computed(() => {
-  if (!monthlyData.value?.agents) return [];
-  return monthlyData.value.agents.slice(0, 8);
-});
-
 const topPerformer = computed(() => {
   if (!monthlyData.value?.agents?.length) return null;
 
-  return monthlyData.value?.agents
+  return monthlyData.value.agents
     .slice()
     .sort(
       (a, b) =>
-        b.currencies?.THB?.total_cash_amount -
-        a.currencies?.THB?.total_cash_amount
+        (b.currencies?.THB?.total_cash_amount || 0) -
+        (a.currencies?.THB?.total_cash_amount || 0),
     )[0];
-});
-
-const activeAgentsCount = computed(() => {
-  if (!monthlyData.value?.agents) return 0;
-  return monthlyData.value.agents.filter((agent) => agent.total_cash_images > 0)
-    .length;
-});
-
-const formattedGrandTotals = computed(() => {
-  if (!monthlyData.value?.grand_totals_by_currency) return {};
-
-  const formatted = {};
-  Object.entries(monthlyData.value.grand_totals_by_currency).forEach(
-    ([currency, data]) => {
-      formatted[currency] = formatAmount(data.total_cash_amount);
-    }
-  );
-  return formatted;
 });
 
 // Helper functions
 const formatAmount = (amount) => {
-  if (!amount) return "0";
+  if (!amount && amount !== 0) return "0";
   return parseFloat(amount).toLocaleString();
 };
 
 const formatBankName = (bankName) => {
   if (!bankName) return "Unknown";
-  // Convert underscore to space and capitalize each word
   return bankName
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -755,8 +744,9 @@ const currentMonth = () => {
 const getCashImageReport = async (month) => {
   loading.value = true;
   try {
+    console.log("Fetching cash image report for:", month);
     const res = await homeStore.generalCashImageReport(month);
-    console.log(res, "cash image report");
+    console.log("Cash image report response:", res);
     cashImageData.value = res.result;
     updateCharts();
   } catch (error) {
@@ -766,26 +756,21 @@ const getCashImageReport = async (month) => {
   }
 };
 
-// Add these helper functions after your existing helper functions
-
 const getAllBankNames = () => {
   const bankNames = new Set();
 
-  // Get all bank names from income
   if (monthlyData.value?.income_by_interact_bank) {
     Object.keys(monthlyData.value.income_by_interact_bank).forEach((bank) => {
       bankNames.add(bank);
     });
   }
 
-  // Get all bank names from expense
   if (monthlyData.value?.expense_by_interact_bank) {
     Object.keys(monthlyData.value.expense_by_interact_bank).forEach((bank) => {
       bankNames.add(bank);
     });
   }
 
-  // Define custom sort order
   const sortOrder = [
     "company",
     "personal",
@@ -795,27 +780,22 @@ const getAllBankNames = () => {
     "deposit_management",
   ];
 
-  // Convert to array and sort with custom order
   return Array.from(bankNames).sort((a, b) => {
     const indexA = sortOrder.indexOf(a);
     const indexB = sortOrder.indexOf(b);
 
-    // If both are in sortOrder, sort by their position
     if (indexA !== -1 && indexB !== -1) {
       return indexA - indexB;
     }
 
-    // If only A is in sortOrder, it comes first
     if (indexA !== -1) {
       return -1;
     }
 
-    // If only B is in sortOrder, it comes first
     if (indexB !== -1) {
       return 1;
     }
 
-    // If neither is in sortOrder, sort alphabetically
     return a.localeCompare(b);
   });
 };
@@ -831,23 +811,31 @@ const hasExpense = (bankName) => {
 };
 
 const updateCharts = () => {
-  if (!cashImageData.value) return;
+  if (!cashImageData.value) {
+    console.log("No cash image data available");
+    return;
+  }
 
   // Update monthly chart
   if (monthlyData.value?.agents) {
     const activeAgents = monthlyData.value.agents.filter(
-      (agent) => agent.total_cash_images > 0
+      (agent) => agent.total_cash_images > 0,
     );
 
     monthlyChartData.labels = activeAgents.map((agent) => agent.name);
     monthlyChartData.datasets[0].data = activeAgents.map(
-      (agent) => agent?.currencies?.THB?.total_cash_amount || 0
+      (agent) => agent?.currencies?.THB?.total_cash_amount || 0,
     );
 
     monthlyChartMMKData.labels = activeAgents.map((agent) => agent.name);
     monthlyChartMMKData.datasets[0].data = activeAgents.map(
-      (agent) => agent?.currencies?.MMK?.total_cash_amount || 0
+      (agent) => agent?.currencies?.MMK?.total_cash_amount || 0,
     );
+
+    console.log("Monthly chart data updated:", {
+      thb: monthlyChartData,
+      mmk: monthlyChartMMKData,
+    });
   }
 
   // Update daily charts
@@ -859,8 +847,8 @@ const updateCharts = () => {
         dailyData.flatMap((day) =>
           day.agents
             .filter((agent) => agent.currencies?.THB?.total_cash_amount > 0)
-            .map((agent) => agent.name)
-        )
+            .map((agent) => agent.name),
+        ),
       ),
     ];
 
@@ -869,8 +857,8 @@ const updateCharts = () => {
         dailyData.flatMap((day) =>
           day.agents
             .filter((agent) => agent.currencies?.MMK?.total_cash_amount > 0)
-            .map((agent) => agent.name)
-        )
+            .map((agent) => agent.name),
+        ),
       ),
     ];
 
@@ -908,12 +896,17 @@ const updateCharts = () => {
       tension: 0.1,
       fill: false,
     }));
+
+    console.log("Daily chart data updated:", {
+      thb: dailyTHBChartData,
+      mmk: dailyMMKChartData,
+    });
   }
 };
 
 watch(monthForGraph, async (newValue) => {
   if (newValue) {
-    getCashImageReport(newValue);
+    await getCashImageReport(newValue);
   }
 });
 

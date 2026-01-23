@@ -98,6 +98,12 @@ import FillData from "../views/FillData.vue";
 import ConfirmationGroup from "../views/ConfirmationGroup.vue";
 import ReservationGroup from "../views/ReservationGroup.vue";
 import ChatView from "../views/ChatView.vue";
+import HomeSaleAnalysics from "../views/DashboardPageSplit/SaleAnalysics.vue";
+import HomeNew from "../views/HomeNew.vue";
+import HomeCalendarView from "../views/Dashboard/ReservationCalendarHome.vue";
+import HomeReceivableView from "../views/Dashboard/AccountReceivable.vue";
+import HomeCashImageReportView from "../views/Dashboard/CashImageReport.vue";
+import HomeReservationsView from "../components/homeReservation/ReservationPartHome.vue";
 
 const routes = [
   {
@@ -112,6 +118,36 @@ const routes = [
     path: "/",
     name: "home",
     component: HomeView,
+  },
+  {
+    path: "/home/sale-analysics",
+    name: "home_sale_analysics",
+    component: HomeSaleAnalysics,
+  },
+  {
+    path: "/home/overall-analysics",
+    name: "home_overall_analysics",
+    component: HomeNew,
+  },
+  {
+    path: "/home/calendar",
+    name: "home_calendar",
+    component: HomeCalendarView,
+  },
+  {
+    path: "/home/receivable",
+    name: "home_receivable",
+    component: HomeReceivableView,
+  },
+  {
+    path: "/home/cashImageReport",
+    name: "home_cashImageReport",
+    component: HomeCashImageReportView,
+  },
+  {
+    path: "/home/reservations",
+    name: "home_reservations",
+    component: HomeReservationsView,
   },
   {
     path: "/map_hotel",

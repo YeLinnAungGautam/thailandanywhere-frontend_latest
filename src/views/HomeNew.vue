@@ -1,22 +1,27 @@
 <template>
-  <div>
+  <Layout>
     <!-- Loading Screen -->
     <div
       v-if="loading"
       class="fixed inset-0 bg-white/80 flex justify-center items-center z-50"
     >
-      <!-- ... loading spinner ... -->
+      <div class="text-center">
+        <div
+          class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5B00] mb-4"
+        ></div>
+        <p class="text-gray-600">{{ loadingMessage }}</p>
+      </div>
     </div>
 
     <!-- Main Content -->
 
-    <div class="grid grid-cols-7 gap-2">
+    <div class="grid grid-cols-7 gap-3">
       <!-- Filter Section -->
       <div class="col-span-7 bg-white p-4 rounded-lg">
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3">
             <MonthDropdown v-model="selectMonth" />
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
               <select
                 v-if="showAgentFilter"
                 v-model="selectedAgent"
@@ -38,8 +43,8 @@
 
       <!-- Main Dashboard Content -->
       <div class="col-span-5">
-        <div class="grid grid-cols-5 gap-2">
-          <div class="col-span-3 grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-5 gap-3">
+          <div class="col-span-3 grid grid-cols-2 gap-3">
             <!-- Average Sales -->
             <StatCard
               title="AVERAGE SALES"
@@ -89,7 +94,7 @@
 
           <!-- ... rest of your template ... -->
           <div class="col-span-2">
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-2 gap-3">
               <div class="col-span-2">
                 <RevenueByProduct :revenueData="summary" />
               </div>
@@ -104,7 +109,7 @@
 
           <!-- Bottom Section -->
           <div class="col-span-5">
-            <div class="grid grid-cols-3 gap-2">
+            <div class="grid grid-cols-3 gap-3">
               <BookingsBySource :sources="bookingsBySource" />
               <AverageBookingValue :bookingData="summary" />
               <CreatorRanking />
@@ -114,7 +119,7 @@
       </div>
 
       <!-- Right Sidebar -->
-      <div class="col-span-2 space-y-2">
+      <div class="col-span-2 space-y-3">
         <MonthlyTarget
           :selectedAgent="selectedAgent"
           :selectMonth="selectMonth"
@@ -131,7 +136,7 @@
         />
       </div>
     </div>
-  </div>
+  </Layout>
 </template>
 
 <script setup>
@@ -175,6 +180,7 @@ const { receivables } = storeToRefs(receivableStore);
 
 // Loading state
 const loading = ref(false);
+const loadingMessage = ref("Loading...");
 const receivablesLoading = ref(false);
 
 // Date filters
@@ -258,6 +264,7 @@ const getCurrentMonth = () => {
 // Fetch daily sales data for chart
 const fetchDailySalesData = async (month) => {
   try {
+    loadingMessage.value = "Loading sales data...";
     const data = {
       date: month,
     };
@@ -270,9 +277,7 @@ const fetchDailySalesData = async (month) => {
 
     const res = await homeStore.getTimeFilterAdminArray(data);
 
-    console.log("====================================");
-    console.log("testing", res.result);
-    console.log("====================================");
+    console.log("Step 1: Sales data loaded", res.result);
 
     if (res?.result?.sales && res?.result?.airline_sales) {
       monthlySalesData.value = [];
@@ -334,6 +339,7 @@ const fetchDailySalesData = async (month) => {
 // Fetch commission and target data
 const fetchCommissionData = async () => {
   try {
+    loadingMessage.value = "Loading commission data...";
     // Get current date
     const today = new Date();
     const currentDay = today.getDate();
@@ -349,9 +355,7 @@ const fetchCommissionData = async () => {
 
     const resSaleAgent = await homeStore.getAgentSales(data);
 
-    console.log("====================================");
-    console.log("testing commission", resSaleAgent.result, today.getDate());
-    console.log("====================================");
+    console.log("Step 2: Commission data loaded", resSaleAgent.result);
 
     if (resSaleAgent?.result) {
       resSaleAgent.result.forEach((sale) => {
@@ -400,6 +404,7 @@ const fetchCommissionData = async () => {
 // Fetch unpaid bookings
 const fetchUnpaidBookings = async () => {
   try {
+    loadingMessage.value = "Loading unpaid bookings...";
     const data = {
       first: dateFormat(dateRange.value[0]),
       second: dateFormat(dateRange.value[1]),
@@ -407,6 +412,8 @@ const fetchUnpaidBookings = async () => {
     };
 
     const result = await homeStore.unpaidAgentSales(data);
+
+    console.log("Step 3: Unpaid bookings loaded");
 
     if (result?.result) {
       recentBookings.value = result.result
@@ -429,6 +436,7 @@ const fetchReceivables = async () => {
   }
 
   try {
+    loadingMessage.value = "Loading receivables...";
     receivablesLoading.value = true;
     const params = {
       date: formatDateForAPI(selectMonth.value),
@@ -441,9 +449,9 @@ const fetchReceivables = async () => {
       params.admin_id = selectedAgent.value;
     }
 
-    console.log("Receivables API Parameters:", params);
+    console.log("Step 4: Receivables parameters:", params);
     const res = await receivableStore.getSimpleList(params);
-    console.log("Receivables Response:", receivables.value);
+    console.log("Step 4: Receivables loaded:", receivables.value);
 
     if (receivables.value) {
       receivableDataCount.value = receivables.value.length;
@@ -466,11 +474,12 @@ const summary = ref({});
 
 const fetchSummary = async () => {
   if (!selectMonth.value) {
-    console.log("No month selected, skipping receivables API call");
+    console.log("No month selected, skipping summary API call");
     return;
   }
 
   try {
+    loadingMessage.value = "Loading summary...";
     receivablesLoading.value = true;
     const params = {
       daterange: formatDateForAPI(selectMonth.value),
@@ -484,16 +493,13 @@ const fetchSummary = async () => {
     }
 
     const res = await dashboardStore.getDashboardSummary(params);
-    console.log(" Response for summary:", res);
+    console.log("Step 5: Summary loaded:", res);
 
     if (res?.data?.result) {
       summary.value = res.data.result;
-      console.log("====================================");
-      console.log(summary.value);
-      console.log("====================================");
     }
   } catch (error) {
-    console.error("Error fetching receivables:", error);
+    console.error("Error fetching summary:", error);
   } finally {
     receivablesLoading.value = false;
   }
@@ -502,12 +508,13 @@ const fetchSummary = async () => {
 // Fetch channel source
 const fetchChannelSource = async () => {
   try {
+    loadingMessage.value = "Loading channel data...";
     const data = {
       first: dateFormat(dateRange.value[0]),
       second: dateFormat(dateRange.value[1]),
     };
     const res = await homeStore.getReportByChannel(data);
-    console.log("this is channel", res);
+    console.log("Step 6: Channel data loaded", res);
 
     if (res?.result) {
       bookingsBySource.value = res.result;
@@ -520,12 +527,17 @@ const fetchChannelSource = async () => {
 const agentsList = ref([]);
 // Fetch agents list
 const loadAgentsList = async () => {
-  const res = await adminStore.getSimpleListAction();
-  agentsList.value =
-    res.result?.data?.filter(
-      (a) => a.role === "admin" || a.role === "sale_manager",
-    ) || [];
-  console.log(agentsList.value);
+  try {
+    loadingMessage.value = "Loading agents list...";
+    const res = await adminStore.getSimpleListAction();
+    agentsList.value =
+      res.result?.data?.filter(
+        (a) => a.role === "admin" || a.role === "sale_manager",
+      ) || [];
+    console.log("Step 7: Agents list loaded", agentsList.value);
+  } catch (error) {
+    console.error("Error loading agents list:", error);
+  }
 };
 
 // Helper function to get initials
@@ -538,55 +550,97 @@ const getInitials = (name) => {
     .slice(0, 2);
 };
 
-// Initialize dashboard
+// Initialize dashboard - SEQUENTIAL API CALLS
 const initializeDashboard = async () => {
   loading.value = true;
   try {
     selectMonth.value = getCurrentMonth();
-    await Promise.all([
-      fetchDailySalesData(selectMonth.value),
-      fetchCommissionData(),
-      fetchUnpaidBookings(),
-      fetchChannelSource(),
-      fetchReceivables(),
-      fetchSummary(),
-      loadAgentsList(),
-    ]);
 
-    console.log("====================================");
-    console.log(selectMonth.value, "this is monthly sale data");
-    console.log("====================================");
+    // Call APIs one by one sequentially
+    console.log("=== Starting Sequential API Calls ===");
+
+    await fetchDailySalesData(selectMonth.value);
+    console.log("✓ Step 1 complete: Sales data");
+
+    await fetchCommissionData();
+    console.log("✓ Step 2 complete: Commission data");
+
+    await fetchUnpaidBookings();
+    console.log("✓ Step 3 complete: Unpaid bookings");
+
+    await fetchChannelSource();
+    console.log("✓ Step 4 complete: Channel data");
+
+    await fetchReceivables();
+    console.log("✓ Step 5 complete: Receivables");
+
+    await fetchSummary();
+    console.log("✓ Step 6 complete: Summary");
+
+    await loadAgentsList();
+    console.log("✓ Step 7 complete: Agents list");
+
+    console.log("=== All API Calls Complete ===");
   } catch (error) {
     console.error("Error initializing dashboard:", error);
   } finally {
     loading.value = false;
+    loadingMessage.value = "Loading...";
   }
 };
 
-// Watchers
+// Watchers - also sequential
 watch(selectMonth, async (newValue, oldValue) => {
   if (newValue && newValue !== oldValue) {
     loading.value = true;
-    await Promise.all([
-      fetchDailySalesData(newValue),
-      fetchCommissionData(),
-      fetchReceivables(),
-      fetchSummary(),
-    ]);
-    loading.value = false;
+    try {
+      console.log("=== Month Changed - Starting Sequential API Calls ===");
+
+      await fetchDailySalesData(newValue);
+      console.log("✓ Sales data reloaded");
+
+      await fetchCommissionData();
+      console.log("✓ Commission data reloaded");
+
+      await fetchReceivables();
+      console.log("✓ Receivables reloaded");
+
+      await fetchSummary();
+      console.log("✓ Summary reloaded");
+
+      console.log("=== Month Change Complete ===");
+    } catch (error) {
+      console.error("Error on month change:", error);
+    } finally {
+      loading.value = false;
+    }
   }
 });
 
 watch(selectedAgent, async (newValue, oldValue) => {
   if (newValue && newValue !== oldValue) {
     loading.value = true;
-    await Promise.all([
-      fetchDailySalesData(selectMonth.value),
-      fetchCommissionData(),
-      fetchReceivables(),
-      fetchSummary(),
-    ]);
-    loading.value = false;
+    try {
+      console.log("=== Agent Changed - Starting Sequential API Calls ===");
+
+      await fetchDailySalesData(selectMonth.value);
+      console.log("✓ Sales data reloaded");
+
+      await fetchCommissionData();
+      console.log("✓ Commission data reloaded");
+
+      await fetchReceivables();
+      console.log("✓ Receivables reloaded");
+
+      await fetchSummary();
+      console.log("✓ Summary reloaded");
+
+      console.log("=== Agent Change Complete ===");
+    } catch (error) {
+      console.error("Error on agent change:", error);
+    } finally {
+      loading.value = false;
+    }
   }
 });
 

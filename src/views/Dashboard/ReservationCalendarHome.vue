@@ -1,182 +1,187 @@
 <template>
-  <div class="grid grid-cols-12 gap-4 relative">
-    <!-- Rest of your template remains the same -->
-    <div class="col-span-4 space-y-2">
-      <div
-        class="text-xs font-medium shadow bg-white py-4 px-4 rounded-lg flex justify-between items-center"
-      >
-        <p class="">Chosen Date</p>
-        <p>
-          <span class="text-[#ff613c] rounded-lg font-medium">{{
-            selectedDay ? `${selectedDay}` : ``
-          }}</span>
-        </p>
-      </div>
-      <div class="bg-white h-[579px] shadow p-2 rounded-lg">
-        <div class="h-auto font-poppins">
-          <CalendarPartVue @change="changesFromCalendar" />
-        </div>
-      </div>
-    </div>
-    <div class="space-y-2 col-span-2">
-      <div
-        class="flex justify-between items-center shadow bg-white py-4 px-3 rounded-lg"
-      >
-        <p class="text-[10px] font-medium">Type:</p>
-        <div class="relative">
-          <p
-            class="flex justify-start items-center gap-x-2"
-            @click="openSelection = !openSelection"
-          >
-            <span
-              class="text-xs w-2 h-2 inline-block rounded-lg"
-              :class="backgroundCustom"
-            ></span
-            ><span class="text-[10px] font-medium">{{ chooseType }}</span>
-            <ChevronDownIcon class="w-3 h-3" />
+  <Layout>
+    <div class="grid grid-cols-12 gap-4 relative">
+      <!-- Rest of your template remains the same -->
+      <div class="col-span-4 space-y-2">
+        <div
+          class="text-xs font-medium shadow bg-white py-4 px-4 rounded-lg flex justify-between items-center"
+        >
+          <p class="">Chosen Date</p>
+          <p>
+            <span class="text-[#ff613c] rounded-lg font-medium">{{
+              selectedDay ? `${selectedDay}` : ``
+            }}</span>
           </p>
-          <div
-            v-if="openSelection"
-            class="absolute top-8 right-0 bg-white duration-150 shadow rounded-lg divide-y-2 divide-white z-10"
-          >
-            <p
-              @click="changeBackground('all')"
-              class="px-2 py-2 text-[12px] flex justify-start cursor-pointer items-center gap-x-2"
-            >
-              <span
-                class="text-xs bg-gray-600 w-2 h-2 inline-block rounded-lg"
-              ></span
-              >All
-            </p>
-            <p
-              @click="changeBackground('attraction')"
-              class="px-2 py-2 text-[12px] flex justify-start cursor-pointer items-center gap-x-2"
-            >
-              <span
-                class="text-xs bg-blue-600 w-2 h-2 inline-block rounded-lg"
-              ></span
-              >Attraction
-            </p>
-            <p
-              @click="changeBackground('hotel')"
-              class="px-2 py-2 text-[12px] flex justify-start cursor-pointer items-center gap-x-2"
-            >
-              <span
-                class="text-xs bg-green-600 w-2 h-2 inline-block rounded-lg"
-              ></span
-              >Hotel
-            </p>
-            <p
-              @click="changeBackground('private-van-tour')"
-              class="px-2 py-2 text-[12px] flex justify-start cursor-pointer items-center gap-x-2"
-            >
-              <span
-                class="text-xs bg-yellow-600 w-2 h-2 inline-block rounded-lg"
-              ></span
-              >Vantour
-            </p>
-            <p
-              @click="changeBackground('inclusive')"
-              class="px-2 py-2 text-[12px] flex justify-start cursor-pointer items-center gap-x-2"
-            >
-              <span
-                class="text-xs bg-purple-600 w-2 h-2 inline-block rounded-lg"
-              ></span
-              >Inclusive
-            </p>
-            <p
-              @click="changeBackground('all-without-van')"
-              class="px-2 py-2 text-[12px] whitespace-nowrap flex justify-start cursor-pointer items-center gap-x-2"
-            >
-              <span
-                class="text-xs bg-black w-2 h-2 inline-block rounded-lg"
-              ></span
-              >All w/o van
-            </p>
+        </div>
+        <div class="bg-white h-[579px] shadow p-2 rounded-lg">
+          <div class="h-auto font-poppins">
+            <CalendarPartVue @change="changesFromCalendar" />
           </div>
         </div>
       </div>
-      <div class="">
-        <div>
-          <InformationVue
-            :selectedDay="selectedDay"
-            :backgroundCustom="backgroundCustom"
-            :reservationTotal="reservationTotal"
-            :expense="expense"
-            :booking_receipt="booking_receipt"
-            :loading="loading"
-            :customer_not_paid="customer_not_paid"
-            :passport_missing_count="passport_missing_count"
-            :booking_request_count="booking_request_count"
-            :expense_mail_count="expense_mail_count"
-            :filterType="filterType"
-            :supplier_not="supplier_not"
-            :driver_not="driver_not"
-            @filterType="changeFilterType"
-          />
-        </div>
-      </div>
-    </div>
-    <div class="col-span-6 space-y-2">
-      <div
-        class="text-xs font-medium shadow flex justify-between items-center bg-white px-4 rounded-lg"
-        :class="filterType != '' || chooseType != '' ? 'py-3' : 'py-4'"
-      >
-        <p>Filtered By</p>
-        <div class="flex justify-end items-center gap-x-2">
-          <select
-            v-if="authStore.isSuperAdmin || authStore.isReservation"
-            name=""
-            id=""
-            v-model="userFilter"
-            class="px-1 text-[10px] py-1 focus:border-gray-300 border border-gray-300 placeholder-sm bg-white rounded-lg w-[100px] text-gray-400 space-y-2 focus:outline-none"
-          >
-            <option :value="null" disabled class="bg-gray-200 text-sm">
-              Filter By User
-            </option>
-            <option value="" class="text-sm">All User</option>
-            <option
-              :value="key.id"
-              v-for="(key, index) in adminLists"
-              :key="index"
-              class="text-sm"
+      <div class="space-y-2 col-span-2">
+        <div
+          class="flex justify-between items-center shadow bg-white py-4 px-3 rounded-lg"
+        >
+          <p class="text-[10px] font-medium">Type:</p>
+          <div class="relative">
+            <p
+              class="flex justify-start items-center gap-x-2"
+              @click="openSelection = !openSelection"
             >
-              {{ key.name }}
-            </option>
-          </select>
-          <p
-            class="text-white text-[10px] px-2 py-1 rounded-lg"
-            v-if="chooseType"
-            :class="backgroundCustom"
-          >
-            {{ chooseType }}
-          </p>
-          <p
-            class="text-white text-[10px] bg-[#ff613c] px-2 py-1 rounded-lg"
-            v-if="filterType"
-          >
-            {{ filterType }}
-          </p>
+              <span
+                class="text-xs w-2 h-2 inline-block rounded-lg"
+                :class="backgroundCustom"
+              ></span
+              ><span class="text-[10px] font-medium">{{ chooseType }}</span>
+              <ChevronDownIcon class="w-3 h-3" />
+            </p>
+            <div
+              v-if="openSelection"
+              class="absolute top-8 right-0 bg-white duration-150 shadow rounded-lg divide-y-2 divide-white z-10"
+            >
+              <p
+                @click="changeBackground('all')"
+                class="px-2 py-2 text-[12px] flex justify-start cursor-pointer items-center gap-x-2"
+              >
+                <span
+                  class="text-xs bg-gray-600 w-2 h-2 inline-block rounded-lg"
+                ></span
+                >All
+              </p>
+              <p
+                @click="changeBackground('attraction')"
+                class="px-2 py-2 text-[12px] flex justify-start cursor-pointer items-center gap-x-2"
+              >
+                <span
+                  class="text-xs bg-blue-600 w-2 h-2 inline-block rounded-lg"
+                ></span
+                >Attraction
+              </p>
+              <p
+                @click="changeBackground('hotel')"
+                class="px-2 py-2 text-[12px] flex justify-start cursor-pointer items-center gap-x-2"
+              >
+                <span
+                  class="text-xs bg-green-600 w-2 h-2 inline-block rounded-lg"
+                ></span
+                >Hotel
+              </p>
+              <p
+                @click="changeBackground('private-van-tour')"
+                class="px-2 py-2 text-[12px] flex justify-start cursor-pointer items-center gap-x-2"
+              >
+                <span
+                  class="text-xs bg-yellow-600 w-2 h-2 inline-block rounded-lg"
+                ></span
+                >Vantour
+              </p>
+              <p
+                @click="changeBackground('inclusive')"
+                class="px-2 py-2 text-[12px] flex justify-start cursor-pointer items-center gap-x-2"
+              >
+                <span
+                  class="text-xs bg-purple-600 w-2 h-2 inline-block rounded-lg"
+                ></span
+                >Inclusive
+              </p>
+              <p
+                @click="changeBackground('all-without-van')"
+                class="px-2 py-2 text-[12px] whitespace-nowrap flex justify-start cursor-pointer items-center gap-x-2"
+              >
+                <span
+                  class="text-xs bg-black w-2 h-2 inline-block rounded-lg"
+                ></span
+                >All w/o van
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="">
+          <div>
+            <InformationVue
+              :selectedDay="selectedDay"
+              :backgroundCustom="backgroundCustom"
+              :reservationTotal="reservationTotal"
+              :expense="expense"
+              :booking_receipt="booking_receipt"
+              :loading="loading"
+              :customer_not_paid="customer_not_paid"
+              :passport_missing_count="passport_missing_count"
+              :booking_request_count="booking_request_count"
+              :expense_mail_count="expense_mail_count"
+              :filterType="filterType"
+              :supplier_not="supplier_not"
+              :driver_not="driver_not"
+              @filterType="changeFilterType"
+            />
+          </div>
         </div>
       </div>
-      <div
-        v-if="!loading"
-        class="bg-white shadow rounded-lg divide-y-2 divide-gray-300 max-h-[579px] overflow-scroll"
-      >
-        <div class="" v-for="i in getListing ?? []" :key="i">
-          <ReservationCartVue :backgroundCustom="backgroundCustom" :data="i" />
+      <div class="col-span-6 space-y-2">
+        <div
+          class="text-xs font-medium shadow flex justify-between items-center bg-white px-4 rounded-lg"
+          :class="filterType != '' || chooseType != '' ? 'py-3' : 'py-4'"
+        >
+          <p>Filtered By</p>
+          <div class="flex justify-end items-center gap-x-2">
+            <select
+              v-if="authStore.isSuperAdmin || authStore.isReservation"
+              name=""
+              id=""
+              v-model="userFilter"
+              class="px-1 text-[10px] py-1 focus:border-gray-300 border border-gray-300 placeholder-sm bg-white rounded-lg w-[100px] text-gray-400 space-y-2 focus:outline-none"
+            >
+              <option :value="null" disabled class="bg-gray-200 text-sm">
+                Filter By User
+              </option>
+              <option value="" class="text-sm">All User</option>
+              <option
+                :value="key.id"
+                v-for="(key, index) in adminLists"
+                :key="index"
+                class="text-sm"
+              >
+                {{ key.name }}
+              </option>
+            </select>
+            <p
+              class="text-white text-[10px] px-2 py-1 rounded-lg"
+              v-if="chooseType"
+              :class="backgroundCustom"
+            >
+              {{ chooseType }}
+            </p>
+            <p
+              class="text-white text-[10px] bg-[#ff613c] px-2 py-1 rounded-lg"
+              v-if="filterType"
+            >
+              {{ filterType }}
+            </p>
+          </div>
         </div>
-      </div>
-      <div
-        v-if="loading"
-        class="bg-white shadow rounded-lg divide-y-4 divide-gray-200 max-h-[579px] overflow-scroll"
-      >
-        <div class="" v-for="i in 5 ?? []" :key="i">
-          <ReservationCartLoadingVue :backgroundCustom="backgroundCustom" />
+        <div
+          v-if="!loading"
+          class="bg-white shadow rounded-lg divide-y-2 divide-gray-300 max-h-[579px] overflow-scroll"
+        >
+          <div class="" v-for="i in getListing ?? []" :key="i">
+            <ReservationCartVue
+              :backgroundCustom="backgroundCustom"
+              :data="i"
+            />
+          </div>
+        </div>
+        <div
+          v-if="loading"
+          class="bg-white shadow rounded-lg divide-y-4 divide-gray-200 max-h-[579px] overflow-scroll"
+        >
+          <div class="" v-for="i in 5 ?? []" :key="i">
+            <ReservationCartLoadingVue :backgroundCustom="backgroundCustom" />
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </Layout>
 </template>
 
 <script setup>
@@ -193,6 +198,7 @@ import ReservationCartLoadingVue from "./ReservationCartLoading.vue";
 import { useAuthStore } from "../../stores/auth";
 import { useAdminStore } from "../../stores/admin";
 import { useRouter, useRoute } from "vue-router";
+import Layout from "../Layout.vue";
 
 const authStore = useAuthStore();
 const dashboardStore = useDashboardStore();
@@ -378,7 +384,7 @@ const filterGetTodaySale = (data) => {
     without_vantours.value = data.data;
   } else if (selectedProductType.value == "all-without-van") {
     getData = data.data.filter(
-      (item) => item.product_type != "App\\Models\\PrivateVanTour"
+      (item) => item.product_type != "App\\Models\\PrivateVanTour",
     );
   } else if (selectedProductType.value == "inclusive") {
     // Filter already applied in API call, just use the data
@@ -390,7 +396,7 @@ const filterGetTodaySale = (data) => {
   reservationTotal.value = getData.length;
 
   expense_data.value = getData.filter(
-    (item) => item.payment_status === "not_paid"
+    (item) => item.payment_status === "not_paid",
   );
   expense.value = expense_data.value.length;
 
@@ -398,36 +404,36 @@ const filterGetTodaySale = (data) => {
   booking_receipt.value = reservation_data.value.length;
 
   customer_not.value = getData.filter(
-    (item) => item.booking.payment_status == "not_paid"
+    (item) => item.booking.payment_status == "not_paid",
   );
   customer_not_paid.value = customer_not.value.length;
 
   passport_missing.value = getData.filter(
-    (item) => item.customer_passports.length == 0
+    (item) => item.customer_passports.length == 0,
   );
   passport_missing_count.value = passport_missing.value.length;
 
   booking_request.value = getData.filter(
-    (item) => item.is_booking_request == 0
+    (item) => item.is_booking_request == 0,
   );
   booking_request_count.value = booking_request.value.length;
 
   expense_mail.value = getData.filter(
-    (item) => item.is_expense_email_sent == 0
+    (item) => item.is_expense_email_sent == 0,
   );
   expense_mail_count.value = expense_mail.value.length;
 
   supplier_not_list.value = getData.filter(
     (item) =>
       item.reservation_car_info == null ||
-      item.reservation_car_info?.supplier_id == ""
+      item.reservation_car_info?.supplier_id == "",
   );
   supplier_not.value = supplier_not_list.value.length;
 
   driver_not_list.value = getData.filter(
     (item) =>
       item.reservation_car_info == null ||
-      item.reservation_car_info?.driver_id == ""
+      item.reservation_car_info?.driver_id == "",
   );
   driver_not.value = driver_not_list.value.length;
 
@@ -463,14 +469,10 @@ watch(
       oldUserFilter,
       oldFilterType,
       oldSelectedProductType,
-    ]
+    ],
   ) => {
     router.push({
-      name: authStore.isSuperAdmin
-        ? "home"
-        : authStore.isSaleAdmin
-        ? "sales_dashboard"
-        : "dashboard",
+      name: "home_calendar",
       query: {
         day: newSelectedDay != null ? newSelectedDay : "",
         productType: newProductType,
@@ -479,7 +481,7 @@ watch(
         selectedProductType: newSelectedProductType,
       },
     });
-  }
+  },
 );
 
 onMounted(async () => {

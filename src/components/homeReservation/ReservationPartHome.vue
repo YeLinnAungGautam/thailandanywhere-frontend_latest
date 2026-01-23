@@ -16,6 +16,7 @@ import { useAuthStore } from "../../stores/auth";
 import Pagination from "../PaginationExpense.vue";
 import HotelPartReservation from "./HotelPartReservation.vue";
 import AttractionPartHome from "./AttractionPartHome.vue";
+import Layout from "../../views/Layout.vue";
 
 const carBookingStore = useCarBookingStore();
 const homeStore = useHomeStore();
@@ -75,7 +76,7 @@ const changeServiceDate = (data) => {
   } else if (data == "7day") {
     let startDate = formatDate(new Date());
     let endDate = formatDate(
-      new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+      new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
     );
     console.log(`${startDate},${endDate}`);
     dateFilterRange.value = `${startDate},${endDate}`;
@@ -83,7 +84,7 @@ const changeServiceDate = (data) => {
   } else if (data == "30day") {
     let startDate = formatDate(new Date());
     let endDate = formatDate(
-      new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
+      new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
     );
     console.log(`${startDate},${endDate}`);
     dateFilterRange.value = `${startDate},${endDate}`;
@@ -230,7 +231,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
+  <Layout>
     <div
       class="flex items-center justify-between py-5 bg-white/60 rounded-md shadow-sm p-4 mb-2"
     >
@@ -454,5 +455,5 @@ onMounted(async () => {
     <div v-if="part == 'attraction'">
       <AttractionPartHome :date="dateFilterRange" :searchId="searchId" />
     </div>
-  </div>
+  </Layout>
 </template>

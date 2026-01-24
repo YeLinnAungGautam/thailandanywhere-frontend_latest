@@ -98,12 +98,15 @@ import FillData from "../views/FillData.vue";
 import ConfirmationGroup from "../views/ConfirmationGroup.vue";
 import ReservationGroup from "../views/ReservationGroup.vue";
 import ChatView from "../views/ChatView.vue";
+
 import HomeSaleAnalysics from "../views/DashboardPageSplit/SaleAnalysics.vue";
 import HomeNew from "../views/HomeNew.vue";
 import HomeCalendarView from "../views/Dashboard/ReservationCalendarHome.vue";
 import HomeReceivableView from "../views/Dashboard/AccountReceivable.vue";
 import HomeCashImageReportView from "../views/Dashboard/CashImageReport.vue";
 import HomeReservationsView from "../components/homeReservation/ReservationPartHome.vue";
+import ProductVersion2View from "../views/ProductVersion2View.vue";
+import HotelViewVersion2 from "../views/HotelViewVersion2.vue";
 
 const routes = [
   {
@@ -183,6 +186,16 @@ const routes = [
     path: "/products/:id",
     name: "products",
     component: ProductView,
+  },
+  {
+    path: "/products-v2/",
+    name: "products-v2",
+    component: ProductVersion2View,
+  },
+  {
+    path: "/hotel-v2/",
+    name: "hotel-v2",
+    component: HotelViewVersion2,
   },
   // {
   //   path: "/sales",

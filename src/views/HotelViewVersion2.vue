@@ -918,7 +918,7 @@ const totalPages = computed(() => {
 
 const getHotelImage = (hotel) => {
   if (hotel.images && Array.isArray(hotel.images) && hotel.images.length > 0) {
-    return hotel.images[0];
+    return hotel.images[0].image;
   }
   return "https://www.rcuw.org/wp-content/themes/champion/images/SM-placeholder.png";
 };

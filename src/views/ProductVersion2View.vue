@@ -75,7 +75,7 @@ const productCards = ref([
     title: "Attractions",
     count: "124",
     icon: "../../public/favorite-place-svgrepo-com.svg",
-    routeName: "products",
+    routeName: "attraction-v2",
     params: { id: 6 },
     bgColor: "bg-orange-500",
     iconColor: "text-white",

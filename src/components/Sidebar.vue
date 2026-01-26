@@ -342,7 +342,6 @@
                 to="/products/page"
               />
               <SidebarItem
-                v-if="authStore.isSuperAdmin"
                 name="Product V2"
                 :icon="FolderIcon"
                 to="/products-v2"

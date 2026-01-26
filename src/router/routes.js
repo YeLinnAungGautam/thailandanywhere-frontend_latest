@@ -107,6 +107,7 @@ import HomeCashImageReportView from "../views/Dashboard/CashImageReport.vue";
 import HomeReservationsView from "../components/homeReservation/ReservationPartHome.vue";
 import ProductVersion2View from "../views/ProductVersion2View.vue";
 import HotelViewVersion2 from "../views/HotelViewVersion2.vue";
+import AttractionViewVersion2 from "../views/AttractionViewVersion2.vue";
 
 const routes = [
   {
@@ -196,6 +197,11 @@ const routes = [
     path: "/hotel-v2/",
     name: "hotel-v2",
     component: HotelViewVersion2,
+  },
+  {
+    path: "/attraction-v2/",
+    name: "attraction-v2",
+    component: AttractionViewVersion2,
   },
   // {
   //   path: "/sales",

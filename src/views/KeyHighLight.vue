@@ -463,7 +463,7 @@
                         class="relative inline-block"
                       >
                         <img
-                          :src="getImageUrl(editingHighlight.image_url)"
+                          :src="editingHighlight.image_url"
                           alt="Current"
                           class="w-32 h-32 object-cover rounded-lg border-2 border-gray-300"
                         />

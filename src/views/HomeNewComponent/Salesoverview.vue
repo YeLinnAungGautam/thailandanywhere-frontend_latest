@@ -4,7 +4,7 @@
       <p class="text-gray-700 text-base font-semibold">Sales Overview</p>
       <slot />
     </div>
-    <div class="relative h-64">
+    <div class="relative h-[270px]">
       <!-- Y-axis labels -->
       <div
         class="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-xs text-gray-500"

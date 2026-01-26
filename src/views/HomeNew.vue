@@ -44,12 +44,12 @@
       <!-- Main Dashboard Content -->
       <div class="col-span-5">
         <div class="grid grid-cols-5 gap-3">
-          <div class="col-span-3 grid grid-cols-2 gap-3">
+          <div class="col-span-3 space-y-3 grid grid-cols-1">
             <!-- Average Sales -->
-            <StatCard
+            <!-- <StatCard
               title="AVERAGE SALES"
               :value="formatCurrency(averageSales)"
-            />
+            /> -->
 
             <!-- Booking Stats -->
             <BookingStats :summary="summary" />

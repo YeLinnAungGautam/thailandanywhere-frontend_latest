@@ -92,7 +92,7 @@
                       class="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border-2 border-gray-200"
                     >
                       <img
-                        :src="getImageUrl(element.image_url)"
+                        :src="element.image_url || ''"
                         :alt="element.title"
                         class="w-full h-full object-cover"
                       />
@@ -698,10 +698,6 @@ const toast = reactive({
   type: "success",
 });
 
-const getImageUrl = (filename) => {
-  return `/storage/images/${filename}`;
-};
-
 const switchToBackupKey = () => {
   if (currentApiKeyIndex === 1) {
     genAI = new GoogleGenerativeAI(GEMINI_API_KEY_2);
@@ -792,7 +788,7 @@ Focus on creating compelling highlights that would attract guests to stay at thi
 
         showToast(
           `✅ AI generated ${generatedHighlights.length} highlights! Add images and save.`,
-          "success"
+          "success",
         );
         openCreateModal();
       } else {
@@ -948,11 +944,11 @@ const handleSubmit = async () => {
       formDataToSend.append("description_en", editingHighlight.description_en);
       formDataToSend.append(
         "highlightable_type",
-        editingHighlight.highlightable_type
+        editingHighlight.highlightable_type,
       );
       formDataToSend.append(
         "highlightable_id",
-        editingHighlight.highlightable_id
+        editingHighlight.highlightable_id,
       );
       formDataToSend.append("order", editingHighlight.order);
       formDataToSend.append("is_active", editingHighlight.is_active ? 1 : 0);
@@ -965,13 +961,13 @@ const handleSubmit = async () => {
 
       let response = await store.updateAction(
         formDataToSend,
-        editingHighlight.id
+        editingHighlight.id,
       );
 
       console.log(response, "tisi ");
 
       const index = highlights.value.findIndex(
-        (h) => h.id === editingHighlight.id
+        (h) => h.id === editingHighlight.id,
       );
       if (index !== -1) {
         highlights.value[index] = response.message;
@@ -992,24 +988,24 @@ const handleSubmit = async () => {
         formDataToSend.append(`highlights[${index}][title]`, highlight.title);
         formDataToSend.append(
           `highlights[${index}][description_mm]`,
-          highlight.description_mm
+          highlight.description_mm,
         );
         formDataToSend.append(
           `highlights[${index}][description_en]`,
-          highlight.description_en
+          highlight.description_en,
         );
         formDataToSend.append(
           `highlights[${index}][highlightable_type]`,
-          highlight.highlightable_type
+          highlight.highlightable_type,
         );
         formDataToSend.append(
           `highlights[${index}][highlightable_id]`,
-          highlight.highlightable_id
+          highlight.highlightable_id,
         );
         formDataToSend.append(`highlights[${index}][order]`, highlight.order);
         formDataToSend.append(
           `highlights[${index}][is_active]`,
-          highlight.is_active ? 1 : 0
+          highlight.is_active ? 1 : 0,
         );
 
         if (highlight.image) {
@@ -1055,7 +1051,7 @@ const toggleStatus = async (highlight) => {
     showToast(
       `Highlight ${
         highlight.is_active ? "activated" : "deactivated"
-      } successfully!`
+      } successfully!`,
     );
   } catch (error) {
     console.error("Error:", error);
@@ -1075,7 +1071,7 @@ const handleDelete = async () => {
     await store.deleteAction(highlightToDelete.value.id);
 
     highlights.value = highlights.value.filter(
-      (h) => h.id !== highlightToDelete.value.id
+      (h) => h.id !== highlightToDelete.value.id,
     );
 
     showToast("Highlight deleted successfully!");
@@ -1143,7 +1139,7 @@ onMounted(() => {
     props.highlightData.key_highlights.length > 0
   ) {
     highlights.value = [...props.highlightData.key_highlights].sort(
-      (a, b) => a.order - b.order
+      (a, b) => a.order - b.order,
     );
   }
 });

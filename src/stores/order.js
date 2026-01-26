@@ -1,5 +1,6 @@
 import axios from "axios";
 import { defineStore } from "pinia";
+import { useRouter } from "vue-router";
 
 export const useOrderStore = defineStore("order", {
   state: () => ({ orders: null, loading: false }),
@@ -26,6 +27,7 @@ export const useOrderStore = defineStore("order", {
       return response.data;
     },
     async getListAction(params) {
+      const router = useRouter();
       try {
         this.loading = true;
         const response = await axios.get("/orders", {
@@ -33,10 +35,12 @@ export const useOrderStore = defineStore("order", {
         });
         this.orders = response.data.result;
         this.loading = false;
-        console.log(response);
+        console.log(response, "this is order report");
         return response.data;
       } catch (error) {
         this.loading = false;
+        console.log(error, "this is order ");
+        router.push("/login");
         throw error;
       }
     },
@@ -54,7 +58,7 @@ export const useOrderStore = defineStore("order", {
       try {
         const response = await axios.post(
           "/orders/" + id + "/change-status",
-          params
+          params,
         );
         return response.data;
       } catch (error) {
@@ -74,7 +78,7 @@ export const useOrderStore = defineStore("order", {
     async changeToBooking(id) {
       try {
         const response = await axios.post(
-          "/orders/" + id + "/change-to-booking"
+          "/orders/" + id + "/change-to-booking",
         );
         return response.data;
       } catch (error) {

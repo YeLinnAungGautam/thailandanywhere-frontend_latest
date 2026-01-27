@@ -27,6 +27,7 @@ import {
   AdjustmentsHorizontalIcon,
 } from "@heroicons/vue/24/outline";
 import PlaceView from "./PlaceView.vue";
+import Guide from "./Guide.vue";
 
 const sidebarStore = useSidebarStore();
 const router = useRouter();
@@ -165,6 +166,17 @@ onMounted(() => {
               Supplier
             </button>
           </Tab>
+          <Tab as="template" v-slot="{ selected }" @click="changeTab(9)">
+            <button
+              :class="{
+                'bg-[#ff613c] text-white': selected,
+                'bg-white text-black': !selected,
+              }"
+              class="flex items-center gap-3 tracking-wide text-sm cursor-pointer py-3 px-5 bg-[#ff613c] focus:outline-none text-gray-600 shadow rounded-md"
+            >
+              Guide
+            </button>
+          </Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -193,6 +205,9 @@ onMounted(() => {
           </TabPanel>
           <TabPanel>
             <SupplierView />
+          </TabPanel>
+          <TabPanel>
+            <Guide />
           </TabPanel>
         </TabPanels>
       </TabGroup>

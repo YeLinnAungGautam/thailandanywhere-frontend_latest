@@ -32,6 +32,7 @@ import {
   UsersIcon,
   AdjustmentsHorizontalIcon,
 } from "@heroicons/vue/24/outline";
+import Guide from "./Guide.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -73,7 +74,7 @@ watch(
   (newParams) => {
     changeUseRouter();
   },
-  { deep: true } // Ensures nested properties like `id` are watched
+  { deep: true }, // Ensures nested properties like `id` are watched
 );
 
 // Also watch for query changes to update tab if needed
@@ -83,7 +84,7 @@ watch(
     // Handle query parameter changes if needed
     console.log("Query parameters changed:", newQuery);
   },
-  { deep: true }
+  { deep: true },
 );
 </script>
 
@@ -114,7 +115,7 @@ watch(
                 class="text-xs"
                 :class="selected ? 'text-white' : 'text-gray-900'"
               >
-                <p class="font-semibold">124</p>
+                <p class="font-semibold">...</p>
                 <p class="text-[10px]">Van Tours</p>
               </div>
             </button>
@@ -136,7 +137,7 @@ watch(
                 class="text-xs"
                 :class="selected ? 'text-white' : 'text-gray-900'"
               >
-                <p class="font-semibold">124</p>
+                <p class="font-semibold">...</p>
                 <p class="text-[10px]">Group Tours</p>
               </div>
             </button>
@@ -159,7 +160,7 @@ watch(
                 class="text-xs"
                 :class="selected ? 'text-white' : 'text-gray-900'"
               >
-                <p class="font-semibold">124</p>
+                <p class="font-semibold">...</p>
                 <p class="text-[10px]">Hotels</p>
               </div>
             </button>
@@ -181,7 +182,7 @@ watch(
                 class="text-xs"
                 :class="selected ? 'text-white' : 'text-gray-900'"
               >
-                <p class="font-semibold">124</p>
+                <p class="font-semibold">...</p>
                 <p class="text-[10px]">Rooms</p>
               </div>
             </button>
@@ -203,7 +204,7 @@ watch(
                 class="text-xs"
                 :class="selected ? 'text-white' : 'text-gray-900'"
               >
-                <p class="font-semibold">124</p>
+                <p class="font-semibold">...</p>
                 <p class="text-[10px]">AirLines</p>
               </div>
             </button>
@@ -225,7 +226,7 @@ watch(
                 class="text-xs"
                 :class="selected ? 'text-white' : 'text-gray-900'"
               >
-                <p class="font-semibold">124</p>
+                <p class="font-semibold">...</p>
                 <p class="text-[10px]">AirLine Tickets</p>
               </div>
             </button>
@@ -247,7 +248,7 @@ watch(
                 class="text-xs"
                 :class="selected ? 'text-white' : 'text-gray-900'"
               >
-                <p class="font-semibold">124</p>
+                <p class="font-semibold">...</p>
                 <p class="text-[10px]">Attractions</p>
               </div>
             </button>
@@ -269,7 +270,7 @@ watch(
                 class="text-xs"
                 :class="selected ? 'text-white' : 'text-gray-900'"
               >
-                <p class="font-semibold">124</p>
+                <p class="font-semibold">...</p>
                 <p class="text-[10px]">Entrance Tickets</p>
               </div>
             </button>
@@ -291,7 +292,7 @@ watch(
                 class="text-xs"
                 :class="selected ? 'text-white' : 'text-gray-900'"
               >
-                <p class="font-semibold">124</p>
+                <p class="font-semibold">...</p>
                 <p class="text-[10px]">Restaurants</p>
               </div>
             </button>
@@ -313,7 +314,7 @@ watch(
                 class="text-xs"
                 :class="selected ? 'text-white' : 'text-gray-900'"
               >
-                <p class="font-semibold">124</p>
+                <p class="font-semibold">...</p>
                 <p class="text-[10px]">Meals</p>
               </div>
             </button>
@@ -335,7 +336,7 @@ watch(
                 class="text-xs"
                 :class="selected ? 'text-white' : 'text-gray-900'"
               >
-                <p class="font-semibold">124</p>
+                <p class="font-semibold">...</p>
                 <p class="text-[10px]">Inclusive</p>
               </div>
             </button>

@@ -343,7 +343,7 @@
               />
               <SidebarItem
                 name="Product V2"
-                :icon="FolderIcon"
+                :icon="ArchiveBoxIcon"
                 to="/products-v2"
                 :activePaths="['products-v2']"
               />

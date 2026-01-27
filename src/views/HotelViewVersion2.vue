@@ -1,6 +1,6 @@
 <template>
   <Layout>
-    <div class="mb-5 w-[90%] flex gap-x-6 items-center">
+    <div class="mb-5 w-full flex gap-x-6 items-center">
       <button
         @click="$router.push('/products-v2')"
         class="p-3 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-gray-50"
@@ -20,9 +20,18 @@
         </svg>
       </button>
       <div class="text-xl font-semibold">Hotel</div>
+      <div class="flex-1"></div>
+      <div
+        @click="router.push('/products-v2/hotel/create')"
+        class="pl-2 pr-3 py-2 bg-[#FF5B00] text-white cursor-pointer rounded-full hover:bg-[#ff4400] transition-colors"
+      >
+        <div class="flex items-center gap-2 text-xs">
+          <PlusCircleIcon class="w-5 h-5" /> Create Hotel
+        </div>
+      </div>
     </div>
 
-    <div :class="sidebarStore.isShowSidebar ? 'w-[80vw]' : 'w-[90vw]'">
+    <div :class="sidebarStore.isShowSidebar ? 'w-[82vw]' : 'w-[90vw]'">
       <div
         class="hidden p-6 mb-5 rounded-lg shadow-sm bg-white/60 md:col-span-3 md:block"
       >
@@ -697,6 +706,7 @@ import {
   ShareIcon,
   PlusIcon,
   DocumentPlusIcon,
+  PlusCircleIcon,
 } from "@heroicons/vue/24/outline";
 import Pagination from "../components/Pagination.vue";
 import Layout from "./Layout.vue";
@@ -975,7 +985,6 @@ const getHotelImage = (hotel) => {
   return "https://www.rcuw.org/wp-content/themes/champion/images/SM-placeholder.png";
 };
 
-
 const selectBookingType = (type) => {
   bookingType.value = type;
   currentPage.value = 1;
@@ -1043,7 +1052,7 @@ const clearAllFilters = () => {
 
   // const bangkokId = findBangkokId();
   // selectedCity.value = bangkokId || "";
-  selectedCity.value =  "";
+  selectedCity.value = "";
   selectedPriceCategory.value = "all";
   selectedArea.value = "";
   selectedAmenities.value = [];
@@ -1162,7 +1171,6 @@ const changePage = async (url) => {
     search: search.value,
     limit: 12,
   };
-
 
   if (bookingType.value === "direct_booking") {
     data.type = "direct_booking";

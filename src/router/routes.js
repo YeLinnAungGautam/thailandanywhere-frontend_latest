@@ -111,6 +111,7 @@ import ProductVersion2View from "../views/ProductVersion2View.vue";
 import HotelViewVersion2 from "../views/HotelViewVersion2.vue";
 import AttractionViewVersion2 from "../views/AttractionViewVersion2.vue";
 import HotelEditViewVersion2 from "../views/HotelEditPageVersion2.vue";
+import HotelCreateVersionV2 from "../views/HotelCreateVersionV2.vue";
 
 const routes = [
   {
@@ -191,7 +192,7 @@ const routes = [
     name: "products",
     component: ProductView,
   },
-  
+
   //version 2 routes
   {
     path: "/products-v2/",
@@ -212,6 +213,11 @@ const routes = [
     path: "/products-v2/hotel/edit/:id",
     name: "hoteledit-v2",
     component: HotelEditViewVersion2,
+  },
+  {
+    path: "/products-v2/hotel/create",
+    name: "hotelcreate-v2",
+    component: HotelCreateVersionV2,
   },
   // {
   //   path: "/sales",

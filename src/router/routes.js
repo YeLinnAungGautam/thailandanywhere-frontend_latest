@@ -105,9 +105,12 @@ import HomeCalendarView from "../views/Dashboard/ReservationCalendarHome.vue";
 import HomeReceivableView from "../views/Dashboard/AccountReceivable.vue";
 import HomeCashImageReportView from "../views/Dashboard/CashImageReport.vue";
 import HomeReservationsView from "../components/homeReservation/ReservationPartHome.vue";
+
+//version 2 imports
 import ProductVersion2View from "../views/ProductVersion2View.vue";
 import HotelViewVersion2 from "../views/HotelViewVersion2.vue";
 import AttractionViewVersion2 from "../views/AttractionViewVersion2.vue";
+import HotelEditViewVersion2 from "../views/HotelEditPageVersion2.vue";
 
 const routes = [
   {
@@ -188,6 +191,8 @@ const routes = [
     name: "products",
     component: ProductView,
   },
+  
+  //version 2 routes
   {
     path: "/products-v2/",
     name: "products-v2",
@@ -202,6 +207,11 @@ const routes = [
     path: "/attraction-v2/",
     name: "attraction-v2",
     component: AttractionViewVersion2,
+  },
+  {
+    path: "/products-v2/hotel/edit/:id",
+    name: "hoteledit-v2",
+    component: HotelEditViewVersion2,
   },
   // {
   //   path: "/sales",

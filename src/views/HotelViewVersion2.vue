@@ -1197,7 +1197,7 @@ const changePage = async (url) => {
 };
 
 const goEditPage = (data) => {
-  window.open(`/product/hotel/edit/${data}`, "_blank");
+  window.open(`/products-v2/hotel/edit/${data}`, "_blank");
 };
 
 const onDeleteHandler = async (id) => {

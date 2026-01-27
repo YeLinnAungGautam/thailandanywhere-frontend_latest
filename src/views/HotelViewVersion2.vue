@@ -116,6 +116,63 @@
 
               <div class="mb-5 border-b pb-4">
                 <div class="flex justify-between items-center mb-2">
+                  <h5 class="text-xs font-semibold text-gray-600">
+                    Booking Type
+                  </h5>
+                  <button @click="showBookingType = !showBookingType">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="w-4 h-4 text-gray-400 transition-transform"
+                      :class="{ 'rotate-180': !showBookingType }"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div v-if="showBookingType" class="space-y-1">
+                  <label
+                    class="flex items-center gap-2 text-xs cursor-pointer hover:bg-gray-50 rounded-md p-2"
+                    :class="
+                      bookingType === 'direct_booking'
+                        ? 'text-[#FF5B00]'
+                        : 'text-black'
+                    "
+                    @click="selectBookingType('direct_booking')"
+                  >
+                    <input
+                      type="radio"
+                      :checked="bookingType === 'direct_booking'"
+                      class="accent-[#FF5B00]"
+                    />
+                    Direct Booking
+                  </label>
+
+                  <label
+                    class="flex items-center gap-2 text-xs cursor-pointer hover:bg-gray-50 rounded-md p-2"
+                    :class="
+                      bookingType === 'other_booking'
+                        ? 'text-[#FF5B00]'
+                        : 'text-black'
+                    "
+                    @click="selectBookingType('other_booking')"
+                  >
+                    <input
+                      type="radio"
+                      :checked="bookingType === 'other_booking'"
+                      class="accent-[#FF5B00]"
+                    />
+                    Other Booking
+                  </label>
+                </div>
+              </div>
+
+              <div class="mb-5 border-b pb-4">
+                <div class="flex justify-between items-center mb-2">
                   <h5 class="text-xs font-semibold text-gray-600">Cities</h5>
                   <button @click="showCities = !showCities">
                     <svg
@@ -672,12 +729,13 @@ const { facilities } = storeToRefs(facilityStore);
 
 const search = ref("");
 const selectedFilter = ref("");
-const bookingType = ref("direct");
+const bookingType = ref("direct_booking");
 const hotelShowList = ref([]);
 const currentPage = ref(1);
 const itemsPerPage = ref(12);
 const loadingPlaces = ref(false);
 
+const showBookingType = ref(true);
 const showCities = ref(true);
 const showPrice = ref(true);
 const showArea = ref(true);
@@ -775,6 +833,7 @@ const filteredAmenities = computed(() => {
 
 const filterCount = computed(() => {
   let count = 0;
+  if (bookingType.value !== "direct_booking") count++;
   if (selectedCity.value) count++;
   if (selectedPriceCategory.value !== "all") count++;
   if (selectedArea.value) count++;
@@ -880,19 +939,12 @@ const filteredHotelList = computed(() => {
       (c) => c.id === selectedPriceCategory.value,
     );
     if (category) {
-      // if (category.id === 'custom') {
       const min = customMinPrice.value || 0;
       const max = customMaxPrice.value || 50000;
       filtered = filtered.filter((hotel) => {
         const hotelPrice = getHotelPrice(hotel);
         return hotelPrice >= min && hotelPrice <= max;
       });
-      // } else {
-      //   filtered = filtered.filter(hotel => {
-      //     const hotelPrice = getHotelPrice(hotel);
-      //     return hotelPrice >= category.min && hotelPrice <= category.max;
-      //   });
-      // }
     }
   }
 
@@ -923,12 +975,13 @@ const getHotelImage = (hotel) => {
   return "https://www.rcuw.org/wp-content/themes/champion/images/SM-placeholder.png";
 };
 
-// const selectCity = (cityId) => {
-//   selectedCity.value = cityId;
-//   selectedArea.value = "";
-//   currentPage.value = 1;
-//   fetchHotels();
-// };
+
+const selectBookingType = (type) => {
+  bookingType.value = type;
+  currentPage.value = 1;
+  fetchHotels();
+};
+
 const selectCity = (cityId) => {
   selectedCity.value = cityId;
   selectedArea.value = "";
@@ -950,10 +1003,8 @@ const selectPriceCategory = (categoryId) => {
 };
 
 const onCustomPriceChange = debounce(() => {
-  // if (selectedPriceCategory.value === 'custom') {
   currentPage.value = 1;
   fetchHotels();
-  // }
 }, 500);
 
 const selectArea = (area) => {
@@ -988,9 +1039,11 @@ const onSearchInput = debounce(() => {
 const clearAllFilters = () => {
   search.value = "";
   selectedFilter.value = "";
+  bookingType.value = "direct_booking";
 
-  const bangkokId = findBangkokId();
-  selectedCity.value = bangkokId || "";
+  // const bangkokId = findBangkokId();
+  // selectedCity.value = bangkokId || "";
+  selectedCity.value =  "";
   selectedPriceCategory.value = "all";
   selectedArea.value = "";
   selectedAmenities.value = [];
@@ -1001,13 +1054,18 @@ const clearAllFilters = () => {
   fetchHotels();
 };
 
-// Update fetchHotels to always set totalHotelsCount
 const fetchHotels = async () => {
   const params = {
     search: search.value,
     page: currentPage.value,
     limit: selectedFilter.value ? 1000 : 12,
   };
+
+  if (bookingType.value === "direct_booking") {
+    params.type = "direct_booking";
+  } else if (bookingType.value === "other_booking") {
+    params.type = "other_booking";
+  }
 
   if (selectedCity.value) {
     params.city_id = selectedCity.value;
@@ -1102,9 +1160,15 @@ const prevPage = () => {
 const changePage = async (url) => {
   const data = {
     search: search.value,
-    type: bookingType.value === "other" ? "other_booking" : "direct_booking",
     limit: 12,
   };
+
+
+  if (bookingType.value === "direct_booking") {
+    data.type = "direct_booking";
+  } else if (bookingType.value === "other_booking") {
+    data.type = "other_booking";
+  }
 
   if (selectedCity.value) {
     data.city_id = selectedCity.value;
@@ -1115,13 +1179,9 @@ const changePage = async (url) => {
       (c) => c.id === selectedPriceCategory.value,
     );
     if (category) {
-      // if (category.id === 'custom') {
       const min = customMinPrice.value || 0;
       const max = customMaxPrice.value || 50000;
       data.price_range = `${min}-${max}`;
-      // } else {
-      //   data.price_range = `${category.min}-${category.max}`;
-      // }
     }
   }
 
@@ -1137,7 +1197,7 @@ const changePage = async (url) => {
 };
 
 const goEditPage = (data) => {
-  window.open(`/product/hotel/edit/${data}`, "_blank");
+  window.open(`/products-v2/hotel/edit/${data}`, "_blank");
 };
 
 const onDeleteHandler = async (id) => {
@@ -1235,8 +1295,6 @@ watch(bookingType, () => {
 
 // Initialize
 onMounted(async () => {
-  // await fetchTotalHotelsCount();
-
   await Promise.all([
     cityStore.getListHotelCityAction({ limit: 100 }),
     facilityStore.getListAction(),
@@ -1244,7 +1302,6 @@ onMounted(async () => {
 
   const bangkokId = findBangkokId();
   if (bangkokId) {
-    // selectedCity.value = bangkokId;
     console.log(bangkokId);
   } else if (citiesList.value.length > 0) {
     selectedCity.value = citiesList.value[0].id;

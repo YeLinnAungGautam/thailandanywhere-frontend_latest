@@ -3,6 +3,7 @@ import Layout from "./Layout.vue";
 import {
   PlusIcon,
   TrashIcon,
+  PlusCircleIcon,
   XCircleIcon,
   ArrowDownTrayIcon,
   PhotoIcon,
@@ -498,6 +499,24 @@ onMounted(async () => {
 
 <template>
   <Layout>
+            <button
+        @click="$router.push('/hotel-v2')"
+        class="p-3 mb-5 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-gray-50"
+      >
+        <svg
+          class="w-5 h-5 text-gray-700"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+      </button>
     <div class="h-auto col-span-2 bg-white">
       <div class="h-auto pb-4">
         <div class="py-2 px-6">
@@ -507,18 +526,50 @@ onMounted(async () => {
               <div class="relative">
                 <v-select
                   v-model="formData.type"
-                  class="style-chooser-type rounded-md"
+                  class="style-chooser-type  bg-orange-500 rounded-lg p-0.5 w-full max-w-[170px]"
                   :class="
                     validationErrors?.type
                       ? 'border-2 border-red-500'
                       : 'border border-orange-600'
                   "
+                  :style="{
+                    '--vs-dropdown-bg': '#ffffff',
+                    '--vs-selected-bg': '#f97316',
+                    '--vs-selected-color': '#ffffff',
+                    '--vs-dropdown-option-color': '#ffffff',
+                    '--vs-border-color': 'transparent',
+                    '--vs-border-width': '0px',
+                  }"
                   :options="typeList ?? []"
                   label="name"
                   :clearable="false"
                   :reduce="(d) => d.value"
                   placeholder="Select Type"
-                ></v-select>
+                >
+                <template #open-indicator="{ attributes }">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="19"
+                      height="19"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="white"
+                      stroke-width="3"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="feather feather-chevron-down"
+                      v-bind="attributes"
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </template>
+                  <template #option="{ name }">
+                    <div class="text-black hover:text-white">{{ name }}</div>
+                  </template>
+                  <template #selected-option="{ name }">
+                    <div class="text-white">{{ name }}</div>
+                  </template>
+              </v-select>
                 <p
                   v-if="validationErrors?.type"
                   class="mt-1 text-sm text-red-500"
@@ -531,23 +582,23 @@ onMounted(async () => {
 
           <div class="flex justify-start items-center gap-2 mt-6">
             <p
-              class="px-4 py-2 cursor-pointer text-sm rounded-md transition-all duration-200 shadow-sm"
+              class="px-4 py-2 cursor-pointer text-sm rounded-lg  transition-all duration-200"
               @click="activeTab = 1"
               :class="
                 activeTab == 1
-                  ? 'bg-white text-[#ff613c] border border-gray-200 shadow-lg'
-                  : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                  ? 'bg-white text-[#ff613c] shadow-md' 
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
               "
             >
               General
             </p>
             <p
-              class="px-4 py-2 cursor-pointer rounded-md text-sm transition-all duration-200 shadow-sm"
+              class="px-4 py-2 cursor-pointer text-sm rounded-lg  transition-all duration-200"
               @click="activeTab = 2"
               :class="
                 activeTab == 2
-                  ? 'bg-white text-[#ff613c] border border-gray-200 shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                  ? 'bg-white text-[#ff613c] shadow-md' 
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
               "
             >
               Product Description
@@ -556,7 +607,17 @@ onMounted(async () => {
         </div>
 
         <div v-if="activeTab == 1">
-          <form @submit.prevent="addNewHandler" class="bg-white rounded-xl p-6">
+          <form @submit.prevent="addNewHandler" class="bg-white rounded-xl p-6 relative">
+                <button
+                type="submit"
+                :disabled="loading"
+                class="absolute  -top-20 right-6  text-xs p-1.5 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+              <div class="flex gap-1">
+                <span>{{ loading ? 'Creating...' : 'Create' }}</span>
+                <PlusIcon class="w-4 h-4" />
+              </div>
+            </button>
             <div class="grid grid-cols-2 gap-8">
               <div class="space-y-8">
                 <div
@@ -670,12 +731,12 @@ onMounted(async () => {
                         class="text-sm font-medium text-gray-700 flex justify-between items-center"
                       >
                         <div>Place <span class="text-red-500">*</span></div>
-                        <router-link
-                          class="text-xs text-blue-500 hover:text-blue-600 hover:underline transition-colors"
-                          to="/database/5"
-                        >
-                          Create new
-                        </router-link>
+                            <router-link class="text-xs text-orange-500 hover:text-orange-600 hover:underline transition-colors" to="/database/5">
+                            <div class="flex items-center gap-1">
+                              <PlusIcon class="w-4 h-4" />
+                              <p>Create place</p>
+                            </div>
+                            </router-link>
                       </label>
                       <div
                         v-if="!placeAction || !formData.city_id"
@@ -1027,7 +1088,7 @@ onMounted(async () => {
                           : 'bg-[#ff613c] text-white hover:bg-[#e05530]',
                       ]"
                     >
-                      <PlusIcon class="w-3 h-3" />
+                        <PlusCircleIcon class="w-4 h-4" /> 
                       <p
                         v-if="validationErrors?.contracts || errors?.contracts"
                       >
@@ -1092,7 +1153,7 @@ onMounted(async () => {
               </div>
             </div>
 
-            <div
+            <!-- <div
               class="mt-8 pt-6 border-t border-gray-200 flex justify-end gap-4"
             >
               <button
@@ -1109,15 +1170,25 @@ onMounted(async () => {
               >
                 {{ loading ? "Creating..." : "Create Hotel" }}
               </button>
-            </div>
+            </div> -->
           </form>
         </div>
 
         <div v-if="activeTab == 2">
           <form
             @submit.prevent="addNewHandler"
-            class="mt-2 bg-white rounded-xl p-6"
+            class="bg-white rounded-xl p-6 relative"
           >
+          <button
+                type="submit"
+                :disabled="loading"
+                class="absolute  -top-20 right-6  text-xs p-1.5 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+              <div class="flex gap-1">
+                <span>{{ loading ? 'Creating...' : 'Create' }}</span>
+                <PlusIcon class="w-4 h-4" />
+              </div>
+            </button>
             <div class="grid grid-cols-2 gap-8">
               <div class="space-y-8">
                 <div
@@ -1253,7 +1324,7 @@ onMounted(async () => {
                         @click.prevent="openFileImagePicker"
                         class="h-8 px-3 bg-[#ff613c] text-white text-xs font-medium rounded-md hover:bg-[#e05530] transition-colors flex items-center gap-1"
                       >
-                        <PlusIcon class="w-3 h-3" />
+                        <PlusCircleIcon class="w-4 h-4" />
                         Add Images
                       </button>
                     </div>
@@ -1404,7 +1475,7 @@ onMounted(async () => {
               </div>
             </div>
 
-            <div
+            <!-- <div
               class="mt-8 pt-6 border-t border-gray-200 flex justify-end gap-4"
             >
               <button
@@ -1421,7 +1492,7 @@ onMounted(async () => {
               >
                 {{ loading ? "Creating..." : "Create Hotel" }}
               </button>
-            </div>
+            </div> -->
           </form>
         </div>
       </div>

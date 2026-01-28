@@ -23,7 +23,7 @@
       <div class="flex-1"></div>
       <div
         @click="router.push('/products-v2/hotel/create')"
-        class="pl-2 pr-3 py-2 bg-[#FF5B00] text-white cursor-pointer rounded-full hover:bg-[#ff4400] transition-colors"
+        class="pl-2 pr-3 me-7 py-2 bg-[#FF5B00] text-white cursor-pointer rounded-full hover:bg-[#ff4400] transition-colors"
       >
         <div class="flex items-center gap-2 text-xs">
           <PlusCircleIcon class="w-5 h-5" /> Create Hotel
@@ -35,42 +35,66 @@
       <div
         class="hidden p-6 mb-5 rounded-lg shadow-sm bg-white/60 md:col-span-3 md:block"
       >
-        <div class="flex gap-4 mb-5">
-          <div
-            class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-48"
-          >
-            <div class="flex items-center gap-2 mb-1">
-              <span class="text-2xl font-medium text-black-800">{{
-                totalHotelsCount
-              }}</span>
-              <span
-                class="text-sm text-green-600 font-semibold"
-                v-if="totalHotelsGrowth > 0"
-              >
-                ▲ {{ totalHotelsGrowth }}%
-              </span>
-              <span
-                class="text-sm text-red-600 font-semibold"
-                v-else-if="totalHotelsGrowth < 0"
-              >
-                ▼ {{ Math.abs(totalHotelsGrowth) }}%
-              </span>
+        <div class="flex justify-between items-center mb-5">
+          <div class="flex gap-4">
+            <div
+              class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-48"
+            >
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-2xl font-medium text-black-800">{{
+                  totalHotelsCount
+                }}</span>
+                <span
+                  class="text-sm text-green-600 font-semibold"
+                  v-if="totalHotelsGrowth > 0"
+                >
+                  ▲ {{ totalHotelsGrowth }}%
+                </span>
+                <span
+                  class="text-sm text-red-600 font-semibold"
+                  v-else-if="totalHotelsGrowth < 0"
+                >
+                  ▼ {{ Math.abs(totalHotelsGrowth) }}%
+                </span>
+              </div>
+              <p class="text-sm text-black-500">Total Hotels</p>
             </div>
-            <p class="text-sm text-black-500">Total Hotels</p>
-          </div>
 
-          <div
-            class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-48"
-          >
-            <div class="flex items-center gap-2 mb-1">
-              <span
-                v-if="displayedHotelsCount > 0"
-                class="text-2xl font-medium text-black-800"
-                >{{ displayedHotelsCount }}</span
-              >
-              <span v-else class="text-2xl font-medium text-black-800">0</span>
+            <div
+              class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-48"
+            >
+              <div class="flex items-center gap-2 mb-1">
+                <span
+                  v-if="displayedHotelsCount > 0"
+                  class="text-2xl font-medium text-black-800"
+                  >{{ displayedHotelsCount }}</span
+                >
+                <span v-else class="text-2xl font-medium text-black-800">0</span>
+              </div>
+              <p class="text-sm text-black-500">Search Result</p>
             </div>
-            <p class="text-sm text-black-500">Search Result</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex justify-center items-center border-2 shadow-md rounded-full overflow-hidden">
+              <div
+                class="cursor-pointer px-4 py-2 text-xs"
+                :class="viewMode === 'grid' ? 'bg-[#ff613c] text-white' : 'bg-white'"
+                @click="viewMode = 'grid'"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+              </div>
+              <div
+                class="cursor-pointer px-4 py-2 text-xs"
+                @click="viewMode = 'list'"
+                :class="viewMode === 'list' ? 'bg-[#ff613c] text-white' : 'bg-white'"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -463,7 +487,7 @@
           </div>
 
           <div class="flex-1">
-            <div v-if="!loading" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div v-if="viewMode === 'grid' && !loading" class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div
                 v-for="hotel in displayedHotels"
                 :key="hotel.id"
@@ -556,6 +580,153 @@
                         ฿ {{ room.room_price }}
                       </span>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="viewMode === 'list' && !loading" class="bg-white rounded-lg shadow">
+              <div class="mb-5 overflow-auto rounded-lg shadow">
+                <div class="grid grid-cols-6 gap-2 bg-gray-100">
+                  <div class="py-3 text-xs font-medium tracking-wide text-center">
+                    No.
+                  </div>
+                  <div class="py-3 text-xs font-medium tracking-wide">
+                    Name
+                  </div>
+                  <div class="py-3 text-xs font-medium tracking-wide ps-6">
+                    City
+                  </div>
+                  <div class="py-3 text-xs font-medium tracking-wide">
+                    Place
+                  </div>
+                  <div class="py-3 text-xs font-medium tracking-wide text-center">
+                    Rating
+                  </div>
+                  <div class="py-3 text-xs font-medium tracking-wide text-center">
+                    Actions
+                  </div>
+                </div>
+
+                <div v-show="!loading">
+                  <div v-for="hotel in displayedHotels" :key="hotel.id" class="border-b border-gray-200">
+                    <div 
+                      @click="toggleExpandedHotel(hotel.id)"
+                      class="w-full hover:bg-gray-50 cursor-pointer"
+                    >
+                      <div class="grid grid-cols-6 gap-2 bg-white py-3">
+                        <div class="flex justify-center items-center text-xs text-gray-700 whitespace-nowrap">
+                          {{ hotel.id }}
+                        </div>
+                        <div class="flex  items-center text-xs text-gray-700 whitespace-nowrap overflow-hidden">
+                          {{ hotel.name }}
+                        </div>
+                        <div class="flex  items-center text-xs text-gray-700 whitespace-nowrap ps-6">
+                          {{ hotel.city?.name }}
+                        </div>
+                        <div class="flex justify-start items-center text-xs text-gray-700 whitespace-nowrap overflow-hidden">
+                          {{ hotel.hotel_place ? hotel.hotel_place?.name : "-" }}
+                        </div>
+                        <div class="flex justify-center items-center text-xs text-gray-700 whitespace-nowrap">
+                          <div class="flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="text-yellow-500" viewBox="0 0 24 24">
+                              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                            <span>{{ hotel.rating || 5 }}</span>
+                          </div>
+                        </div>
+                        <div class="flex items-center justify-center space-x-2 text-xs text-gray-700 whitespace-nowrap">
+                          		    <button
+                        			class="px-3 py-1.5 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
+                      >
+                        <i class="fa-solid fa-chevron-down"></i>
+												</button>
+                          <button
+                            @click.stop="goEditPage(hotel.id)"
+                            class="px-3 py-1.5 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                          <button
+                            v-if="authStore.isSuperAdmin"
+                            @click.stop="onDeleteHandler(hotel.id)"
+                            class="px-3 py-1.5 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <transition
+                      enter-active-class="transition duration-150 ease-out"
+                      enter-from-class="transform scale-95 opacity-0"
+                      enter-to-class="transform scale-100 opacity-100"
+                      leave-active-class="transition duration-75 ease-out"
+                      leave-from-class="transform scale-100 opacity-100"
+                      leave-to-class="transform scale-95 opacity-0"
+                    >
+                      <div v-if="expandedHotel === hotel.id" class="w-full text-gray-500 bg-gray-50">
+                        <div class="grid grid-cols-6 gap-2 bg-gray-300 py-2">
+                          <div class="py-2 text-xs font-medium tracking-wide text-center">
+                            No.
+                          </div>
+                          <div class="py-2 text-xs col-span-2 font-medium tracking-wide text-start pl-[7px]">
+                            Room Name
+                          </div>
+                          <div class="py-2 text-xs font-medium tracking-wide text-start">
+                            Is Extra
+                          </div>
+                          <div class="py-2 text-xs font-medium tracking-wide text-start">
+                            Has Breakfast
+                          </div>
+                          <div class="py-2 text-xs font-medium tracking-wide text-center">
+                            Price
+                          </div>
+                        </div>
+                        
+                        <div
+                          class="grid w-full grid-cols-6 gap-2 bg-white py-2 hover:bg-gray-100 cursor-pointer"
+                          v-for="room in hotel?.rooms"
+                          :key="room.id"
+                          @click="goRoomPage(room.hotel_id)"
+                        >
+                          <div class="p-2 text-xs text-center text-gray-700 whitespace-nowrap">
+                            {{ room?.id }}
+                          </div>
+                          <div class="p-2 text-xs col-span-2 text-start text-gray-700 whitespace-nowrap overflow-hidden pl-17">
+                            <p>{{ room?.name }}</p>
+                          </div>
+                          <div class="p-2 text-xs text-gray-700 whitespace-nowrap overflow-hidden">
+                            <p
+                              class="text-white inline-block px-2 py-0.5 rounded-full"
+                              :class="room?.is_extra == 1 ? 'bg-green-600' : 'bg-red-600'"
+                            >
+                              {{ room?.is_extra == 1 ? "Yes" : "No" }}
+                            </p>
+                          </div>
+                          <div class="p-2 text-xs text-gray-700 whitespace-nowrap overflow-hidden">
+                            <p
+                              class="text-white inline-block px-2 py-0.5 rounded-full"
+                              :class="room?.has_breakfast == 1 ? 'bg-green-600' : 'bg-red-600'"
+                            >
+                              {{ room?.has_breakfast == 1 ? "Yes" : "No" }}
+                            </p>
+                          </div>
+                          <div class="p-2 text-xs text-center text-gray-700 whitespace-nowrap overflow-hidden">
+                            <p>{{ room?.room_price }} THB</p>
+                          </div>
+                        </div>
+                        
+                        <div v-if="!hotel?.rooms || hotel?.rooms.length === 0" class="p-4 text-center text-gray-500 text-sm">
+                          No rooms available for this hotel
+                        </div>
+                      </div>
+                    </transition>
                   </div>
                 </div>
               </div>
@@ -736,6 +907,9 @@ const router = useRouter();
 const { hotels, loading, importLoading } = storeToRefs(hotelStore);
 const { cities } = storeToRefs(cityStore);
 const { facilities } = storeToRefs(facilityStore);
+
+const viewMode = ref('grid');
+const expandedHotel = ref(null);
 
 const search = ref("");
 const selectedFilter = ref("");
@@ -983,6 +1157,10 @@ const getHotelImage = (hotel) => {
     return hotel.images[0].image;
   }
   return "https://www.rcuw.org/wp-content/themes/champion/images/SM-placeholder.png";
+};
+
+const toggleExpandedHotel = (hotelId) => {
+  expandedHotel.value = expandedHotel.value === hotelId ? null : hotelId;
 };
 
 const selectBookingType = (type) => {
@@ -1327,5 +1505,16 @@ onMounted(async () => {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+.expanded-enter-active,
+.expanded-leave-active {
+  transition: all 0.2s ease;
+}
+
+.expanded-enter-from,
+.expanded-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>

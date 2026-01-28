@@ -35,28 +35,52 @@
 
 		<div :class="sidebarStore.isShowSidebar ? 'w-[80vw]' : 'w-[90vw]'">
 			<div class="hidden p-6 mb-5 rounded-lg shadow-sm bg-white/60 md:col-span-3 md:block">
-				<div class="flex gap-4 mb-5">
-					<div class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-48">
-						<div class="flex items-center gap-2 mb-1">
-							<span class="text-2xl font-medium text-black-800">{{ totalAttractionsCount }}</span>
-							<span class="text-sm text-green-600 font-semibold" v-if="totalAttractionsGrowth > 0">
-								▲ {{ totalAttractionsGrowth }}%
-							</span>
-							<span class="text-sm text-red-600 font-semibold" v-else-if="totalAttractionsGrowth < 0">
-								▼ {{ Math.abs(totalAttractionsGrowth) }}%
-							</span>
+				<div class="flex justify-between items-center mb-5">
+					<div class="flex gap-4">
+						<div class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-48">
+							<div class="flex items-center gap-2 mb-1">
+								<span class="text-2xl font-medium text-black-800">{{ totalAttractionsCount }}</span>
+								<span class="text-sm text-green-600 font-semibold" v-if="totalAttractionsGrowth > 0">
+									▲ {{ totalAttractionsGrowth }}%
+								</span>
+								<span class="text-sm text-red-600 font-semibold" v-else-if="totalAttractionsGrowth < 0">
+									▼ {{ Math.abs(totalAttractionsGrowth) }}%
+								</span>
+							</div>
+							<p class="text-sm text-black-500">Total Attractions</p>
 						</div>
-						<p class="text-sm text-black-500">Total Attractions</p>
-					</div>
 
-					<div class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-48">
-						<div class="flex items-center gap-2 mb-1">
-							<span v-if="displayedAttractionsCount > 0" class="text-2xl font-medium text-black-800">{{
-								displayedAttractionsCount
-							}}</span>
-							<span v-else class="text-2xl font-medium text-black-800">0</span>
+						<div class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-48">
+							<div class="flex items-center gap-2 mb-1">
+								<span v-if="displayedAttractionsCount > 0" class="text-2xl font-medium text-black-800">{{
+									displayedAttractionsCount
+								}}</span>
+								<span v-else class="text-2xl font-medium text-black-800">0</span>
+							</div>
+							<p class="text-sm text-black-500">Search Result</p>
 						</div>
-						<p class="text-sm text-black-500">Search Result</p>
+					</div>
+					<div class="flex items-center gap-2">
+						<div class="flex justify-center items-center border-2 shadow-md rounded-full overflow-hidden">
+							<div
+								class="cursor-pointer px-4 py-2 text-xs"
+								:class="viewMode === 'grid' ? 'bg-[#ff613c] text-white' : 'bg-white'"
+								@click="viewMode = 'grid'"
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+								</svg>
+							</div>
+							<div
+								class="cursor-pointer px-4 py-2 text-xs"
+								@click="viewMode = 'list'"
+								:class="viewMode === 'list' ? 'bg-[#ff613c] text-white' : 'bg-white'"
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+								</svg>
+							</div>
+						</div>
 					</div>
 				</div>
 
@@ -293,7 +317,7 @@
 					</div>
 
 					<div class="flex-1">
-						<div v-if="!loading" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+						<div v-if="viewMode === 'grid' && !loading" class="grid grid-cols-1 md:grid-cols-2 gap-6">
 							<div
 								v-for="attraction in displayedAttractions"
 								:key="attraction.id"
@@ -334,21 +358,6 @@
 												{{ attraction.name }}
 											</h4>
 											<p class="text-xs text-black-500 flex items-center gap-1 mt-2">
-												<!-- <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          class="text-black-400"
-                        >
-                          <path
-                            d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"
-                          />
-                          <circle cx="12" cy="10" r="3" />
-                        </svg> -->
 												<MapPinIcon class="w-3 h-3 text-black" />
 
 												<span v-if="attraction.cities.length !== 0">{{ attraction.cities[0]["name"] }}</span>
@@ -413,6 +422,166 @@
 
 									<div v-else class="text-center py-4">
 										<p class="text-xs text-gray-500">No tickets available</p>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div v-if="viewMode === 'list' && !loading" class="bg-white rounded-lg shadow">
+							<div class="mb-5 overflow-auto rounded-lg shadow">
+								<div class="grid grid-cols-5 gap-2 bg-gray-100">
+									<div class="py-3 text-xs font-medium tracking-wide text-center">
+										No.
+									</div>
+									<div class="py-3 text-xs font-medium tracking-wide">
+										Image
+									</div>
+									<div class="py-3 text-xs font-medium tracking-wide">
+										Name
+									</div>
+									<div class="py-3 text-xs font-medium tracking-wide text-center">
+										Is Show
+									</div>
+									<div class="py-3 text-xs font-medium tracking-wide text-center">
+										Actions
+									</div>
+								</div>
+
+								<div v-show="!loading">
+									<div v-for="attraction in displayedAttractions" :key="attraction.id" class="border-b border-gray-200">
+										<div 
+											@click="toggleExpandedAttraction(attraction.id)"
+											class="w-full hover:bg-gray-50 cursor-pointer"
+										>
+											<div class="grid grid-cols-5 gap-2 bg-white py-3">
+												<div class="flex justify-center items-center text-xs text-gray-700 whitespace-nowrap">
+													{{ attraction.id }}
+												</div>
+												<div class="flex  items-center text-xs text-gray-700 pl-4">
+													        <img
+                    v-if="attraction.cover_image"
+                    :src="attraction.cover_image"
+                    class="w-14 h-10 rounded-lg object-cover"
+                    alt="Cover"
+                  />
+                  <span v-else class="text-gray-400">-</span>
+												</div>
+												<div class="flex  items-center text-xs text-gray-700 truncate whitespace-nowrap">
+													{{ attraction.name }}
+												</div>
+												<div class="flex justify-center items-center text-xs text-gray-700 whitespace-nowrap">
+										<span
+												class="px-2 py-0.5 rounded-full text-white text-xs"
+												:class="
+													attraction.meta_data?.is_show == 1
+														? 'bg-green-500'
+														: 'bg-red-500'
+												"
+											>
+												{{ attraction.meta_data?.is_show == 1 ? "Yes" : "No" }}
+                  </span>
+												</div>
+												<div class="flex items-center justify-center space-x-2 text-xs text-gray-700 whitespace-nowrap">
+											<button
+                        class="px-3 py-1.5 text-blue-500 transition bg-white rounded shadow hover:bg-blue-500 hover:text-white"
+                      >
+                        <i class="fa-solid fa-chevron-down"></i>
+												</button>
+													<button
+														@click.stop="goEditPage(attraction.id)"
+														class="px-3 py-1.5 text-blue-500 transition bg-white rounded shadow hover:bg-yellow-500 hover:text-white"
+													>
+														<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+															<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+														</svg>
+													</button>
+													<button
+														v-if="authStore.isSuperAdmin"
+														@click.stop="onDeleteHandler(attraction.id)"
+														class="px-3 py-1.5 text-blue-500 transition bg-white rounded shadow hover:bg-red-500 hover:text-white"
+													>
+														<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+															<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+														</svg>
+													</button>
+												</div>
+											</div>
+										</div>
+										
+										<transition
+											enter-active-class="transition duration-150 ease-out"
+											enter-from-class="transform scale-95 opacity-0"
+											enter-to-class="transform scale-100 opacity-100"
+											leave-active-class="transition duration-75 ease-out"
+											leave-from-class="transform scale-100 opacity-100"
+											leave-to-class="transform scale-95 opacity-0"
+										>
+											<div v-if="expandedAttraction === attraction.id" class="w-full text-gray-500 bg-gray-50">
+												<div class="grid grid-cols-6 gap-2 bg-gray-300 py-2">
+													<div class="py-2 text-xs font-medium tracking-wide text-center">
+														No.
+													</div>
+													<div class="py-2 text-xs col-span-2 font-medium tracking-wide text-start pl-[9px]">
+														Ticket Name
+													</div>
+													<div class="py-2 text-xs font-medium tracking-wide text-start">
+														Is Main
+													</div>
+													<div class="py-2 text-xs font-medium tracking-wide text-start">
+														Is Show
+													</div>
+													<div class="py-2 text-xs font-medium tracking-wide text-center">
+														Price
+													</div>
+												</div>
+												
+												<div
+													class="grid w-full grid-cols-6 gap-2 bg-white py-2 hover:bg-gray-100 cursor-pointer"
+													v-for="variation in attraction?.variations"
+													:key="variation.id"
+													@click="goVariationPage(attraction.id)"
+												>
+													<div class="p-2 text-xs text-center text-gray-700 whitespace-nowrap">
+														{{ variation?.id }}
+													</div>
+													<div class="p-2 text-xs col-span-2  text-gray-700 whitespace-nowrap overflow-hidden pl-17">
+														<p>{{ variation?.name }}</p>
+													</div>
+													<div class="p-2 text-xs text-gray-700 whitespace-nowrap overflow-hidden">
+														<span
+                      v-if="variation.meta_data"
+                      class="text-white inline-block px-2 py-0.5 rounded-full text-xs"
+                      :class="
+                        JSON.parse(variation.meta_data)[0]?.is_main == 1
+                          ? 'bg-green-600'
+                          : 'bg-red-600'
+                      "
+                    >
+                      {{
+                        JSON.parse(variation.meta_data)[0]?.is_main == 1
+                          ? "Yes"
+                          : "No"
+                      }}
+                    </span>
+													</div>
+													<div class="p-2 text-xs text-gray-700 whitespace-nowrap overflow-hidden">
+														<p
+															class="text-white inline-block px-2 py-0.5 rounded-full"
+															:class="variation?.is_show == 1 ? 'bg-green-600' : 'bg-red-600'"
+														>
+															{{ variation?.is_show == 1 ? "Yes" : "No" }}
+														</p>
+													</div>
+													<div class="p-2 text-xs text-center text-gray-700 whitespace-nowrap overflow-hidden">
+														<p>฿ {{ variation?.price || "0" }}</p>
+													</div>
+												</div>
+												
+												<div v-if="!attraction?.variations || attraction?.variations.length === 0" class="p-4 text-center text-gray-500 text-sm">
+													No tickets available for this attraction
+												</div>
+											</div>
+										</transition>
 									</div>
 								</div>
 							</div>
@@ -556,6 +725,9 @@ const router = useRouter();
 
 const { entrances, loading, importLoading } = storeToRefs(entranceStore);
 const { cities } = storeToRefs(cityStore);
+
+const viewMode = ref('grid');
+const expandedAttraction = ref(null);
 
 const search = ref("");
 const selectedFilter = ref("");
@@ -712,6 +884,10 @@ const getAttractionImage = (attraction) => {
 		return attraction.images[0];
 	}
 	return "https://www.rcuw.org/wp-content/themes/champion/images/SM-placeholder.png";
+};
+
+const toggleExpandedAttraction = (attractionId) => {
+	expandedAttraction.value = expandedAttraction.value === attractionId ? null : attractionId;
 };
 
 const selectCity = (cityId) => {
@@ -1032,5 +1208,16 @@ onMounted(async () => {
 
 .scrollbar-hide::-webkit-scrollbar {
 	display: none;
+}
+
+.expanded-enter-active,
+.expanded-leave-active {
+	transition: all 0.2s ease;
+}
+
+.expanded-enter-from,
+.expanded-leave-to {
+	opacity: 0;
+	transform: translateY(-10px);
 }
 </style>

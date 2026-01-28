@@ -3,6 +3,7 @@ import Layout from "./Layout.vue";
 import {
   PencilSquareIcon,
   TrashIcon,
+  PlusCircleIcon,
   ShareIcon,
   EyeIcon,
   TicketIcon,
@@ -552,52 +553,52 @@ const cancelButtonAction = () => {
   router.push("/products/2");
 };
 
-const openCreate = () => {
-  formData.value.name = "";
-  formData.value.city_id = null;
-  formData.value.category_id = null;
-  formData.value.vat_inclusion = "";
-  formData.value.place_id = null;
-  formData.value.type = "other_booking";
-  formData.value.payment_method = "";
-  formData.value.bank_name = "";
-  formData.value.account_name = "";
-  formData.value.check_in = "";
-  formData.value.check_out = "";
-  formData.value.cancellation_policy = "";
-  formData.value.official_address = "";
-  formData.value.vat_id = "";
-  formData.value.vat_name = "";
-  formData.value.vat_address = "";
-  formData.value.official_phone_number = "";
-  formData.value.official_email = "";
-  formData.value.official_remark = "";
-  formData.value.official_logo = "";
-  formData.value.bank_account_number = "";
-  formData.value.place = "";
-  formData.value.legal_name = "";
-  formData.value.email = [];
-  formData.value.description = "";
-  formData.value.full_description = "";
-  formData.value.full_description_en = "";
-  formData.value.location_map_title = "";
-  formData.value.location_map = "";
-  formData.value.rating = "";
-  formData.value.latitude = "";
-  formData.value.longitude = "";
-  formData.value.nearby_places = [];
-  formData.value.youtube_link = {
-    mm_link: "",
-    en_link: "",
-  };
-  formData.value.contract_due = "";
-  formData.value.contracts = [];
-  formData.value.contract_files_preview = [];
-  linkContract.value = {};
-  imagesPreview.value = [];
-  editImagesPreview.value = [];
-  createModalOpen.value = true;
-};
+// const openCreate = () => {
+//   formData.value.name = "";
+//   formData.value.city_id = null;
+//   formData.value.category_id = null;
+//   formData.value.vat_inclusion = "";
+//   formData.value.place_id = null;
+//   formData.value.type = "other_booking";
+//   formData.value.payment_method = "";
+//   formData.value.bank_name = "";
+//   formData.value.account_name = "";
+//   formData.value.check_in = "";
+//   formData.value.check_out = "";
+//   formData.value.cancellation_policy = "";
+//   formData.value.official_address = "";
+//   formData.value.vat_id = "";
+//   formData.value.vat_name = "";
+//   formData.value.vat_address = "";
+//   formData.value.official_phone_number = "";
+//   formData.value.official_email = "";
+//   formData.value.official_remark = "";
+//   formData.value.official_logo = "";
+//   formData.value.bank_account_number = "";
+//   formData.value.place = "";
+//   formData.value.legal_name = "";
+//   formData.value.email = [];
+//   formData.value.description = "";
+//   formData.value.full_description = "";
+//   formData.value.full_description_en = "";
+//   formData.value.location_map_title = "";
+//   formData.value.location_map = "";
+//   formData.value.rating = "";
+//   formData.value.latitude = "";
+//   formData.value.longitude = "";
+//   formData.value.nearby_places = [];
+//   formData.value.youtube_link = {
+//     mm_link: "",
+//     en_link: "",
+//   };
+//   formData.value.contract_due = "";
+//   formData.value.contracts = [];
+//   formData.value.contract_files_preview = [];
+//   linkContract.value = {};
+//   imagesPreview.value = [];
+//   editImagesPreview.value = [];
+//   createModalOpen.value = true;
+// };
 
 const updateHandler = async () => {
   const frmData = new FormData();
@@ -629,13 +630,23 @@ const updateHandler = async () => {
   frmData.append("vat_name", formData.value.vat_name);
   frmData.append("vat_address", formData.value.vat_address);
   frmData.append("official_phone_number", formData.value.official_phone_number);
-  frmData.append("official_email", formData.value.official_email);
+
+  if (formData.value.official_email && formData.value.official_email !== null) {
+    frmData.append("official_email", formData.value.official_email);
+  }
+
   frmData.append("official_remark", formData.value.official_remark);
   if (formData.value.official_logo) {
     frmData.append("official_logo", formData.value.official_logo);
   }
-  frmData.append("check_in", formData.value.check_in);
-  frmData.append("check_out", formData.value.check_out);
+
+  if (formData.value.check_in && formData.value.check_in !== null) {
+    frmData.append("check_in", formData.value.check_in);
+  }
+
+  if (formData.value.check_out && formData.value.check_out !== null) {
+    frmData.append("check_out", formData.value.check_out);
+  }
   frmData.append("cancellation_policy", formData.value.cancellation_policy);
 
   frmData.append("legal_name", formData.value.legal_name);
@@ -652,7 +663,8 @@ const updateHandler = async () => {
   }
   frmData.append("location_map_title", formData.value.location_map_title);
   frmData.append("location_map", formData.value.location_map);
-  if (formData.value.rating != "") {
+
+  if (formData.value.rating !== "" && formData.value.rating !== null) {
     frmData.append("rating", formData.value.rating);
   }
   if (formData.value.latitude && formData.value.longitude) {
@@ -1017,6 +1029,24 @@ onMounted(async () => {
 
 <template>
   <Layout>
+    <button
+      @click="$router.push('/hotel-v2')"
+      class="p-3 mb-5 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-gray-50"
+    >
+      <svg
+        class="w-5 h-5 text-gray-700"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M15 19l-7-7 7-7"
+        />
+      </svg>
+    </button>
     <div class="h-auto col-span-2 bg-white">
       <div class="h-auto pb-4">
         <div class="py-2 px-6">
@@ -1028,14 +1058,46 @@ onMounted(async () => {
               <div class="relative">
                 <v-select
                   v-model="formData.type"
-                  class="style-chooser-type border border-orange-600 rounded-md"
+                  class="style-chooser-type bg-orange-500 rounded-lg p-0.5 w-full max-w-[170px]"
                   :class="errors?.name ? 'border border-red-500' : ''"
                   :options="typeList ?? []"
+                  :style="{
+                    '--vs-dropdown-bg': '#ffffff',
+                    '--vs-selected-bg': '#f97316',
+                    '--vs-selected-color': '#ffffff',
+                    '--vs-dropdown-option-color': '#ffffff',
+                    '--vs-border-color': 'transparent',
+                    '--vs-border-width': '0px',
+                  }"
                   label="name"
                   :clearable="false"
                   :reduce="(d) => d.value"
                   placeholder="Select Type"
-                ></v-select>
+                >
+                  <template #open-indicator="{ attributes }">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="19"
+                      height="19"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="white"
+                      stroke-width="3"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="feather feather-chevron-down"
+                      v-bind="attributes"
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </template>
+                  <template #option="{ name }">
+                    <div class="text-black hover:text-white">{{ name }}</div>
+                  </template>
+                  <template #selected-option="{ name }">
+                    <div class="text-white">{{ name }}</div>
+                  </template>
+                </v-select>
                 <p v-if="errors?.type" class="mt-1 text-sm text-red-500">
                   {{ errors.type[0] }}
                 </p>
@@ -1045,7 +1107,7 @@ onMounted(async () => {
 
           <div class="flex gap-4 mt-7">
             <div
-              class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-50"
+              class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-full max-w-52"
             >
               <div class="flex items-center gap-2 mb-1">
                 <span class="text-2xl font-medium text-black-800">23</span>
@@ -1057,7 +1119,7 @@ onMounted(async () => {
               <p class="text-sm text-black-500">Total Sales This Month</p>
             </div>
             <div
-              class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-50"
+              class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-full max-w-52"
             >
               <div class="flex items-center gap-2 mb-1">
                 <span class="text-2xl font-medium text-black-800">23</span>
@@ -1072,26 +1134,26 @@ onMounted(async () => {
 
           <div class="flex justify-start items-center gap-2 mt-6">
             <p
-              class="px-4 py-2 cursor-pointer text-sm rounded-md transition-all duration-200 shadow-sm"
+              class="px-4 py-2 cursor-pointer text-sm rounded-lg transition-all duration-200"
               @click="quiteSwitch = 1"
               :class="
                 quiteSwitch == 1
-                  ? 'bg-white text-[#ff613c] border border-gray-200   shadow-lg'
-                  : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                  ? 'bg-white text-[#ff613c] shadow-md'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
               "
             >
               General
             </p>
             <p
-              class="px-4 py-2 cursor-pointer rounded-md text-sm transition-all duration-200 shadow-sm"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
               @click="quiteSwitch = 2"
               :class="
                 quiteSwitch == 2
-                  ? 'bg-white text-[#ff613c] border border-gray-200 shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                  ? 'bg-white text-[#ff613c] shadow-md'
+                  : 'bg-white text-gray-700  hover:bg-gray-50'
               "
             >
-              Product Description
+              Hotel Detail & Info
             </p>
           </div>
         </div>
@@ -1099,8 +1161,15 @@ onMounted(async () => {
         <div v-if="quiteSwitch == 1" class="">
           <form
             @submit.prevent="onSubmitHandler"
-            class="bg-white rounded-xl p-6"
+            class="bg-white rounded-xl px-6 pb-6 pt-4 relative"
           >
+            <button
+              type="submit"
+              :disabled="loading"
+              class="absolute -top-20 right-6 text-xs p-1.5 px-5 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {{ loading ? "Updating..." : "Update" }}
+            </button>
             <div class="grid grid-cols-2 gap-8">
               <div class="space-y-8">
                 <div
@@ -1123,7 +1192,7 @@ onMounted(async () => {
                         v-model="formData.name"
                         id="hotel-name"
                         class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
-                        :class="errors?.name ? 'border border-red-500' : ''"
+                        :class="errors?.name ? 'border-2 border-red-500' : ''"
                       />
                       <p v-if="errors?.name" class="mt-1 text-sm text-red-500">
                         {{ errors.name[0] }}
@@ -1166,7 +1235,7 @@ onMounted(async () => {
                         v-if="cityAction"
                         class="style-chooser bg-gray-100 border-0"
                         :options="citylist ?? []"
-                        :class="errors?.name ? 'border border-red-500' : ''"
+                        :class="errors?.city_id ? 'border border-red-500' : ''"
                         label="name"
                         :clearable="false"
                         :reduce="(city) => city.id"
@@ -1197,10 +1266,13 @@ onMounted(async () => {
                           >
                         </div>
                         <router-link
-                          class="text-xs text-blue-500 hover:text-blue-600 hover:underline transition-colors"
+                          class="text-xs text-orange-500 hover:text-orange-600 hover:underline transition-colors"
                           to="/database/5"
                         >
-                          Create new
+                          <div class="flex items-center gap-1">
+                            <PlusIcon class="w-4 h-4" />
+                            <p>Create place</p>
+                          </div>
                         </router-link>
                       </label>
                       <div
@@ -1541,7 +1613,7 @@ onMounted(async () => {
                           : 'bg-[#ff613c] text-white hover:bg-[#e05530]',
                       ]"
                     >
-                      <PlusIcon class="w-3 h-3" />
+                      <PlusCircleIcon class="w-4 h-4" />
                       <p v-if="errors?.contracts">Files needed</p>
                       <p v-else>Add Contract</p>
                     </button>
@@ -1612,17 +1684,15 @@ onMounted(async () => {
                     </div>
 
                     <p class="text-xs text-gray-500">
-                      You can upload multiple contract files (PDF, DOC, DOCX,
-                      TXT, XLS, XLSX)
+                      You can upload multiple contract files (PDF, DOC, JPG,
+                      JPEG, PNG, XLSX)
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div
-              class="mt-8 pt-6 border-t border-gray-200 flex justify-end gap-4"
-            >
+            <!-- <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end gap-4">
               <button
                 type="button"
                 @click="cancelButtonAction"
@@ -1637,15 +1707,22 @@ onMounted(async () => {
               >
                 {{ loading ? "Saving..." : "Save Changes" }}
               </button>
-            </div>
+            </div> -->
           </form>
         </div>
 
         <div v-if="quiteSwitch == 2" class="">
           <form
             @submit.prevent="onSubmitHandler"
-            class="mt-2 bg-white rounded-xl p-6"
+            class="bg-white rounded-xl px-6 pb-6 pt-4 relative"
           >
+            <button
+              type="submit"
+              :disabled="loading"
+              class="absolute -top-20 right-6 text-xs p-1.5 px-5 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {{ loading ? "Updating..." : "Update" }}
+            </button>
             <div class="grid grid-cols-2 gap-8">
               <div class="space-y-8">
                 <div
@@ -1736,7 +1813,7 @@ onMounted(async () => {
                                 @click.prevent="removeImageSelectImage(0)"
                                 class="absolute top-2 right-2 bg-[#ff613c] text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                               >
-                                <XCircleIcon class="w-5 h-5" />
+                                <XMarkIcon class="w-4 h-4" />
                               </button>
                               <img
                                 :src="imagesPreview[0]"
@@ -1757,7 +1834,7 @@ onMounted(async () => {
                                 "
                                 class="absolute top-2 right-2 bg-[#ff613c] text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                               >
-                                <XCircleIcon class="w-5 h-5" />
+                                <XMarkIcon class="w-3 h-3" />
                               </button>
                               <img
                                 :src="editImagesPreview[0].image"
@@ -1781,7 +1858,7 @@ onMounted(async () => {
                                   "
                                   class="absolute top-1 right-1 bg-[#ff613c] text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                 >
-                                  <XCircleIcon class="w-4 h-4" />
+                                  <XMarkIcon class="w-3 h-3" />
                                 </button>
                                 <img
                                   :src="image"
@@ -1806,7 +1883,7 @@ onMounted(async () => {
                                   "
                                   class="absolute top-1 right-1 bg-[#ff613c] text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                 >
-                                  <XCircleIcon class="w-4 h-4" />
+                                  <XMarkIcon class="w-3 h-3" />
                                 </button>
                                 <img
                                   :src="image.image"
@@ -1844,7 +1921,7 @@ onMounted(async () => {
                         @click.prevent="openFileImagePicker"
                         class="h-8 px-3 bg-[#ff613c] text-white text-xs font-medium rounded-md hover:bg-[#e05530] transition-colors flex items-center gap-1"
                       >
-                        <PlusIcon class="w-3 h-3" />
+                        <PlusCircleIcon class="w-4 h-4" />
                         Add Images
                       </button>
                     </div>
@@ -2029,9 +2106,7 @@ onMounted(async () => {
               </div>
             </div>
 
-            <div
-              class="mt-8 pt-6 border-t border-gray-200 flex justify-end gap-4"
-            >
+            <!-- <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end gap-4">
               <button
                 type="button"
                 @click="cancelButtonAction"
@@ -2046,7 +2121,7 @@ onMounted(async () => {
               >
                 {{ loading ? "Saving..." : "Save Changes" }}
               </button>
-            </div>
+            </div> -->
           </form>
         </div>
       </div>

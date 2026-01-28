@@ -41,6 +41,7 @@ import AddSlugPage from "../components/Slug/HotelSlug.vue";
 import GoodToKnow from "./GoodToKnow.vue";
 import NearByPlace from "./NearByPlace.vue";
 import KeyHighLight from "./KeyHighLight.vue";
+import AiDescriptionEditor from "./GenerateAI/DescriptionAi.vue";
 
 const createModalOpen = ref(false);
 const toast = useToast();
@@ -347,13 +348,13 @@ const handleContractFileChange = (e) => {
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i];
       formData.value.contracts.push(file);
-      
+
       const preview = {
         name: file.name,
-        size: (file.size / 1024).toFixed(2) + ' KB',
+        size: (file.size / 1024).toFixed(2) + " KB",
         type: file.type,
         url: URL.createObjectURL(file),
-        file: file
+        file: file,
       };
       formData.value.contract_files_preview.push(preview);
     }
@@ -434,28 +435,28 @@ const addNewHandler = async () => {
     "youtube_link[0][mm_link]",
     formData.value.youtube_link.mm_link
       ? formData.value.youtube_link.mm_link
-      : ""
+      : "",
   );
   frmData.append(
     "youtube_link[0][en_link]",
     formData.value.youtube_link.en_link
       ? formData.value.youtube_link.en_link
-      : ""
+      : "",
   );
 
   if (formData.value.nearby_places.length > 0) {
     for (let i = 0; i < formData.value.nearby_places.length; i++) {
       frmData.append(
         "nearby_places[" + i + "][image]",
-        formData.value.nearby_places[i].img
+        formData.value.nearby_places[i].img,
       );
       frmData.append(
         "nearby_places[" + i + "][name]",
-        formData.value.nearby_places[i].place
+        formData.value.nearby_places[i].place,
       );
       frmData.append(
         "nearby_places[" + i + "][distance]",
-        formData.value.nearby_places[i].distance
+        formData.value.nearby_places[i].distance,
       );
     }
   }
@@ -469,7 +470,7 @@ const addNewHandler = async () => {
       frmData.append("facilities[" + f + "]", formData.value.facilities[f]);
     }
   }
-  
+
   // Append contract files
   if (formData.value.contracts.length > 0) {
     for (let i = 0; i < formData.value.contracts.length; i++) {
@@ -658,7 +659,7 @@ const updateHandler = async () => {
     frmData.append("latitude", formData.value.latitude);
     frmData.append("longitude", formData.value.longitude);
   }
-  
+
   // Append new contract files
   if (formData.value.contracts.length > 0) {
     for (let i = 0; i < formData.value.contracts.length; i++) {
@@ -666,56 +667,56 @@ const updateHandler = async () => {
       frmData.append("contracts[" + i + "]", file);
     }
   }
-  
+
   if (formData.value.email.length > 0) {
     for (let i = 0; i < formData.value.email.length; i++) {
       frmData.append("email[" + i + "]", formData.value.email[i]);
     }
   }
-  
+
   frmData.append(
     "youtube_link[0][mm_link]",
     formData.value.youtube_link.mm_link
       ? formData.value.youtube_link.mm_link
-      : ""
+      : "",
   );
   frmData.append(
     "youtube_link[0][en_link]",
     formData.value.youtube_link.en_link
       ? formData.value.youtube_link.en_link
-      : ""
+      : "",
   );
-  
+
   if (formData.value.nearby_places.length > 0) {
     for (let i = 0; i < formData.value.nearby_places.length; i++) {
       if (formData.value.nearby_places[i].img) {
         frmData.append(
           "nearby_places[" + i + "][image]",
-          formData.value.nearby_places[i].img
+          formData.value.nearby_places[i].img,
         );
       } else {
         frmData.append(
           "nearby_places[" + i + "][image]",
-          formData.value.nearby_places[i].image
+          formData.value.nearby_places[i].image,
         );
       }
       frmData.append(
         "nearby_places[" + i + "][name]",
-        formData.value.nearby_places[i].place
+        formData.value.nearby_places[i].place,
       );
       frmData.append(
         "nearby_places[" + i + "][distance]",
-        formData.value.nearby_places[i].distance
+        formData.value.nearby_places[i].distance,
       );
     }
   }
-  
+
   if (formData.value.facilities.length > 0) {
     for (let f = 0; f < formData.value.facilities.length; f++) {
       frmData.append("facilities[" + f + "]", formData.value.facilities[f]);
     }
   }
-  
+
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -872,24 +873,24 @@ const getDetail = async (params) => {
     formData.value.contracts = [];
     formData.value.contract_files_preview = [];
     linkContract.value = data;
-    
+
     if (data.images.length > 0) {
       for (let i = 0; i < data.images.length; i++) {
         editImagesPreview.value.push(data.images[i]);
       }
     }
-    
+
     if (data.facilities.length > 0) {
       formData.value.facilities = [];
       for (let i = 0; i < data.facilities.length; i++) {
         formData.value.facilities.push(data.facilities[i].id);
       }
     }
-    
+
     formData.value.location_map = data.location_map;
     formData.value.location_map_title = data.location_map_title;
     formData.value.rating = data.rating;
-    
+
     if (data.youtube_link != null && data.youtube_link.length > 0) {
       formData.value.youtube_link = {
         mm_link: data.youtube_link[0].mm_link,
@@ -907,7 +908,7 @@ const getDetail = async (params) => {
         formData.value.nearby_places.push(obj);
       }
     }
-    
+
     createModalOpen.value = true;
 
     if (route.query.quiteSwitch) {
@@ -997,14 +998,17 @@ watch(
     if (newPlace == true) {
       await placeStore.getSimpleListAction();
     }
-  }
+  },
 );
 
-watch(() => formData.value.city_id, (newCityId) => {
-  if (newCityId) {
-    placeAction.value = true;
-  }
-});
+watch(
+  () => formData.value.city_id,
+  (newCityId) => {
+    if (newCityId) {
+      placeAction.value = true;
+    }
+  },
+);
 
 onMounted(async () => {
   await getDetail(route.params.id);
@@ -1018,11 +1022,7 @@ onMounted(async () => {
         <div class="py-2 px-6">
           <div class="flex gap-6 items-center mt-5">
             <h3 class="text-xl font-bold text-gray-800">
-              {{
-                formData.id
-                  ? `${formData.name}`
-                  : `${formData.name}`
-              }}
+              {{ formData.id ? `${formData.name}` : `${formData.name}` }}
             </h3>
             <div class="flex gap-2 items-center">
               <div class="relative">
@@ -1036,59 +1036,47 @@ onMounted(async () => {
                   :reduce="(d) => d.value"
                   placeholder="Select Type"
                 ></v-select>
-                      <p v-if="errors?.type" class="mt-1 text-sm text-red-500">
-                        {{ errors.type[0] }}
-                      </p>
+                <p v-if="errors?.type" class="mt-1 text-sm text-red-500">
+                  {{ errors.type[0] }}
+                </p>
               </div>
             </div>
           </div>
-          
+
           <div class="flex gap-4 mt-7">
-          <div
-            class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-50"
-          >
-            <div class="flex items-center gap-2 mb-1">
-              <span class="text-2xl font-medium text-black-800">23</span>
-              <span
-                class="text-sm text-green-600 font-semibold"
-              >
-                ▲ 32%
-              </span>
-              <span
-                class="text-sm text-red-600 font-semibold"
-              >
-                ▼ 2%
-              </span>
+            <div
+              class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-50"
+            >
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-2xl font-medium text-black-800">23</span>
+                <span class="text-sm text-green-600 font-semibold">
+                  ▲ 32%
+                </span>
+                <span class="text-sm text-red-600 font-semibold"> ▼ 2% </span>
+              </div>
+              <p class="text-sm text-black-500">Total Sales This Month</p>
             </div>
-            <p class="text-sm text-black-500">Total Sales This Month</p>
-          </div>
-                  <div
-            class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-50"
-          >
-            <div class="flex items-center gap-2 mb-1">
-              <span class="text-2xl font-medium text-black-800">23</span>
-              <span
-                class="text-sm text-green-600 font-semibold"
-              >
-                ▲ 32%
-              </span>
-              <span
-                class="text-sm text-red-600 font-semibold"
-              >
-                ▼ 2%
-              </span>
+            <div
+              class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-5 w-50"
+            >
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-2xl font-medium text-black-800">23</span>
+                <span class="text-sm text-green-600 font-semibold">
+                  ▲ 32%
+                </span>
+                <span class="text-sm text-red-600 font-semibold"> ▼ 2% </span>
+              </div>
+              <p class="text-sm text-black-500">Hotel Views</p>
             </div>
-            <p class="text-sm text-black-500">Hotel Views</p>
           </div>
-        </div>
 
           <div class="flex justify-start items-center gap-2 mt-6">
             <p
               class="px-4 py-2 cursor-pointer text-sm rounded-md transition-all duration-200 shadow-sm"
               @click="quiteSwitch = 1"
               :class="
-                quiteSwitch == 1 
-                  ? 'bg-white text-[#ff613c] border border-gray-200   shadow-lg' 
+                quiteSwitch == 1
+                  ? 'bg-white text-[#ff613c] border border-gray-200   shadow-lg'
                   : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
               "
             >
@@ -1098,8 +1086,8 @@ onMounted(async () => {
               class="px-4 py-2 cursor-pointer rounded-md text-sm transition-all duration-200 shadow-sm"
               @click="quiteSwitch = 2"
               :class="
-                quiteSwitch == 2 
-                  ? 'bg-white text-[#ff613c] border border-gray-200 shadow-md' 
+                quiteSwitch == 2
+                  ? 'bg-white text-[#ff613c] border border-gray-200 shadow-md'
                   : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
               "
             >
@@ -1107,16 +1095,29 @@ onMounted(async () => {
             </p>
           </div>
         </div>
-        
+
         <div v-if="quiteSwitch == 1" class="">
-          <form @submit.prevent="onSubmitHandler" class="bg-white rounded-xl p-6">
+          <form
+            @submit.prevent="onSubmitHandler"
+            class="bg-white rounded-xl p-6"
+          >
             <div class="grid grid-cols-2 gap-8">
               <div class="space-y-8">
-                <div class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30">
-                  <h4 class="text-lg font-semibold text-gray-800 mb-6 pb-3  border-gray-200">General Information</h4>
+                <div
+                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
+                >
+                  <h4
+                    class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
+                  >
+                    General Information
+                  </h4>
                   <div class="space-y-5">
                     <div class="space-y-2">
-                      <label for="hotel-name" class="text-sm font-medium text-gray-700">Hotel Name *</label>
+                      <label
+                        for="hotel-name"
+                        class="text-sm font-medium text-gray-700"
+                        >Hotel Name *</label
+                      >
                       <input
                         type="text"
                         v-model="formData.name"
@@ -1128,9 +1129,13 @@ onMounted(async () => {
                         {{ errors.name[0] }}
                       </p>
                     </div>
-                    
+
                     <div class="space-y-2">
-                      <label for="legal-name" class="text-sm font-medium text-gray-700">Legal Name</label>
+                      <label
+                        for="legal-name"
+                        class="text-sm font-medium text-gray-700"
+                        >Legal Name</label
+                      >
                       <input
                         type="text"
                         v-model="formData.legal_name"
@@ -1138,11 +1143,16 @@ onMounted(async () => {
                         class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
                       />
                     </div>
-                    
+
                     <div class="space-y-2">
-                      <label for="city" class="text-sm font-medium text-gray-700">Cities  <span 
-                        :class="errors?.city_id ? 'text-red-500' : ''"
-                        >*</span></label>
+                      <label
+                        for="city"
+                        class="text-sm font-medium text-gray-700"
+                        >Cities
+                        <span :class="errors?.city_id ? 'text-red-500' : ''"
+                          >*</span
+                        ></label
+                      >
                       <div
                         v-if="!cityAction"
                         @click="cityAction = true"
@@ -1161,30 +1171,52 @@ onMounted(async () => {
                         :clearable="false"
                         :reduce="(city) => city.id"
                         placeholder="Choose City"
-                        @input="placeAction = false; formData.place_id = null; placeName = ''"
+                        @input="
+                          placeAction = false;
+                          formData.place_id = null;
+                          placeName = '';
+                        "
                       ></v-select>
-                        <p v-if="errors?.city_id" class="mt-1 text-sm text-red-500">
+                      <p
+                        v-if="errors?.city_id"
+                        class="mt-1 text-sm text-red-500"
+                      >
                         {{ errors.city_id[0] }}
                       </p>
                     </div>
-                    
+
                     <div class="space-y-2">
-                     <label for="place" class="text-sm font-medium text-gray-700 flex justify-between items-center">
-    <div>
-      Place <span :class="errors?.place_id ? 'text-red-500' : ''">*</span>
-    </div>
-    <router-link class="text-xs text-blue-500 hover:text-blue-600 hover:underline transition-colors" to="/database/5">
-      Create new
-    </router-link>
-  </label>
+                      <label
+                        for="place"
+                        class="text-sm font-medium text-gray-700 flex justify-between items-center"
+                      >
+                        <div>
+                          Place
+                          <span :class="errors?.place_id ? 'text-red-500' : ''"
+                            >*</span
+                          >
+                        </div>
+                        <router-link
+                          class="text-xs text-blue-500 hover:text-blue-600 hover:underline transition-colors"
+                          to="/database/5"
+                        >
+                          Create new
+                        </router-link>
+                      </label>
                       <div
                         v-if="!placeAction || !formData.city_id"
                         @click="placeAction = true"
                         class="text-sm text-gray-500 hover:text-gray-600 bg-gray-100 rounded-md px-4 py-2.5 w-full flex justify-between items-center"
-                        :class="!formData.city_id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'"
+                        :class="
+                          !formData.city_id
+                            ? 'opacity-50 cursor-not-allowed'
+                            : 'cursor-pointer'
+                        "
                         :disabled="!formData.city_id"
                       >
-                        <p>{{ placeName == "" ? "Choose place" : placeName }}</p>
+                        <p>
+                          {{ placeName == "" ? "Choose place" : placeName }}
+                        </p>
                         <ArrowDownTrayIcon class="w-4 h-4" />
                       </div>
                       <v-select
@@ -1199,22 +1231,38 @@ onMounted(async () => {
                         placeholder="Choose Place"
                         :disabled="!formData.city_id"
                       ></v-select>
-                      <p v-if="!formData.city_id" class="text-xs text-gray-500 mt-1">
+                      <p
+                        v-if="!formData.city_id"
+                        class="text-xs text-gray-500 mt-1"
+                      >
                         Please select a city first
                       </p>
-                    <p v-if="errors?.place_id" class="mt-1 text-sm text-red-500">
+                      <p
+                        v-if="errors?.place_id"
+                        class="mt-1 text-sm text-red-500"
+                      >
                         {{ errors.place_id[0] }}
                       </p>
                     </div>
-                    
+
                     <div class="space-y-2">
-                      <label for="category" class="text-sm font-medium text-gray-700">Category</label>
+                      <label
+                        for="category"
+                        class="text-sm font-medium text-gray-700"
+                        >Category</label
+                      >
                       <div
                         v-if="!categoryAction"
                         @click="categoryAction = true"
                         class="text-sm text-gray-500 hover:text-gray-600 bg-gray-100 rounded-md px-4 py-2.5 w-full flex justify-between items-center cursor-pointer"
                       >
-                        <p>{{ categoryName == "" ? "Choose category" : categoryName }}</p>
+                        <p>
+                          {{
+                            categoryName == ""
+                              ? "Choose category"
+                              : categoryName
+                          }}
+                        </p>
                         <ArrowDownTrayIcon class="w-4 h-4" />
                       </div>
                       <v-select
@@ -1230,12 +1278,22 @@ onMounted(async () => {
                     </div>
                   </div>
                 </div>
-                
-                <div class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30">
-                  <h4 class="text-lg font-semibold text-gray-800 mb-6 pb-3  border-gray-200">Contact Detail</h4>
+
+                <div
+                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
+                >
+                  <h4
+                    class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
+                  >
+                    Contact Detail
+                  </h4>
                   <div class="space-y-5">
                     <div class="space-y-2">
-                      <label for="official-phone" class="text-sm font-medium text-gray-700">Official Phone Number *</label>
+                      <label
+                        for="official-phone"
+                        class="text-sm font-medium text-gray-700"
+                        >Official Phone Number *</label
+                      >
                       <input
                         type="text"
                         v-model="formData.official_phone_number"
@@ -1243,9 +1301,13 @@ onMounted(async () => {
                         class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
                       />
                     </div>
-                    
+
                     <div class="space-y-2">
-                      <label for="official-email" class="text-sm font-medium text-gray-700">Official Email</label>
+                      <label
+                        for="official-email"
+                        class="text-sm font-medium text-gray-700"
+                        >Official Email</label
+                      >
                       <input
                         type="email"
                         v-model="formData.official_email"
@@ -1253,9 +1315,13 @@ onMounted(async () => {
                         class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
                       />
                     </div>
-                    
+
                     <div class="space-y-2">
-                      <label for="booking-emails" class="text-sm font-medium text-gray-700">Emails for booking</label>
+                      <label
+                        for="booking-emails"
+                        class="text-sm font-medium text-gray-700"
+                        >Emails for booking</label
+                      >
                       <div class="space-y-2">
                         <div class="flex gap-2">
                           <input
@@ -1265,17 +1331,23 @@ onMounted(async () => {
                             placeholder="Add email address"
                             class="flex-1 h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
                           />
-                          <div class="h-10 w-10 flex items-center justify-center">
-                          <button
-                            type="button"
-                            @click="addEmailAction"
-                            class="p-1 bg-blue-500 text-white text-sm font-medium rounded-full  transition-colors"
+                          <div
+                            class="h-10 w-10 flex items-center justify-center"
                           >
-                            <PlusIcon class="w-5 h-5" />
-                          </button>
+                            <button
+                              type="button"
+                              @click="addEmailAction"
+                              class="p-1 bg-blue-500 text-white text-sm font-medium rounded-full transition-colors"
+                            >
+                              <PlusIcon class="w-5 h-5" />
+                            </button>
                           </div>
                         </div>
-                        <div v-for="(email, index) in formData.email" :key="index" class="flex items-center gap-2">
+                        <div
+                          v-for="(email, index) in formData.email"
+                          :key="index"
+                          class="flex items-center gap-2"
+                        >
                           <input
                             type="email"
                             v-model="formData.email[index]"
@@ -1294,54 +1366,83 @@ onMounted(async () => {
                   </div>
                 </div>
               </div>
-              
+
               <div class="space-y-8">
-                <div class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30">
-                  <h4 class="text-lg font-semibold text-gray-800 mb-6 pb-3  border-gray-200">Payment Detail</h4>
+                <div
+                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
+                >
+                  <h4
+                    class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
+                  >
+                    Payment Detail
+                  </h4>
                   <div class="space-y-5">
                     <div class="space-y-2">
-                      <label for="vat-inclusion" class="text-sm font-medium text-gray-700">VAT Inclusion <span 
-                        :class="errors?.vat_inclusion ? 'text-red-500' : ''"
-                        >*</span></label>
+                      <label
+                        for="vat-inclusion"
+                        class="text-sm font-medium text-gray-700"
+                        >VAT Inclusion
+                        <span
+                          :class="errors?.vat_inclusion ? 'text-red-500' : ''"
+                          >*</span
+                        ></label
+                      >
                       <v-select
                         v-model="formData.vat_inclusion"
                         class="style-chooser bg-gray-100 border-0"
                         :options="vat_inclusion_array ?? []"
-                        :class="errors?.vat_inclusion ? 'border border-red-500' : ''"
+                        :class="
+                          errors?.vat_inclusion ? 'border border-red-500' : ''
+                        "
                         label="name"
                         :clearable="false"
                         :reduce="(h) => h.name"
                         placeholder="Select VAT inclusion"
                       ></v-select>
-                      <p v-if="errors?.vat_inclusion" class="mt-1 text-sm text-red-500">
+                      <p
+                        v-if="errors?.vat_inclusion"
+                        class="mt-1 text-sm text-red-500"
+                      >
                         {{ errors.vat_inclusion[0] }}
                       </p>
                     </div>
-                    
+
                     <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                      <label for="vat-id" class="text-sm font-medium text-gray-700">VAT ID</label>
-                      <input
-                        type="text"
-                        v-model="formData.vat_id"
-                        id="vat-id"
-                        class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
-                      />
+                      <div class="space-y-2">
+                        <label
+                          for="vat-id"
+                          class="text-sm font-medium text-gray-700"
+                          >VAT ID</label
+                        >
+                        <input
+                          type="text"
+                          v-model="formData.vat_id"
+                          id="vat-id"
+                          class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                        />
+                      </div>
+
+                      <div class="space-y-2">
+                        <label
+                          for="vat-name"
+                          class="text-sm font-medium text-gray-700"
+                          >VAT Name</label
+                        >
+                        <input
+                          type="text"
+                          v-model="formData.vat_name"
+                          id="vat-name"
+                          class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                        />
+                      </div>
                     </div>
-                    
+
                     <div class="space-y-2">
-                      <label for="vat-name" class="text-sm font-medium text-gray-700">VAT Name</label>
-                      <input
-                        type="text"
-                        v-model="formData.vat_name"
-                        id="vat-name"
-                        class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
-                      />
-                    </div>
-                    </div>
-                    
-                    <div class="space-y-2">
-                      <label for="vat-address" class="text-sm font-medium text-gray-700">VAT Address</label>
+                      <label
+                        for="vat-address"
+                        class="text-sm font-medium text-gray-700"
+                        >VAT Address</label
+                      >
                       <textarea
                         v-model="formData.vat_address"
                         id="vat-address"
@@ -1349,9 +1450,13 @@ onMounted(async () => {
                         class="w-full text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
                       ></textarea>
                     </div>
-                    
+
                     <div class="space-y-2">
-                      <label for="bank-account-name" class="text-sm font-medium text-gray-700">Bank Account Name</label>
+                      <label
+                        for="bank-account-name"
+                        class="text-sm font-medium text-gray-700"
+                        >Bank Account Name</label
+                      >
                       <input
                         type="text"
                         v-model="formData.account_name"
@@ -1359,9 +1464,13 @@ onMounted(async () => {
                         class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
                       />
                     </div>
-                    
+
                     <div class="space-y-2">
-                      <label for="bank-name" class="text-sm font-medium text-gray-700">Bank Name</label>
+                      <label
+                        for="bank-name"
+                        class="text-sm font-medium text-gray-700"
+                        >Bank Name</label
+                      >
                       <v-select
                         v-model="formData.bank_name"
                         class="style-chooser bg-gray-100"
@@ -1372,9 +1481,13 @@ onMounted(async () => {
                         placeholder="Choose Bank"
                       ></v-select>
                     </div>
-                    
+
                     <div class="space-y-2">
-                      <label for="bank-acc-number" class="text-sm font-medium text-gray-700">Bank Account Number</label>
+                      <label
+                        for="bank-acc-number"
+                        class="text-sm font-medium text-gray-700"
+                        >Bank Account Number</label
+                      >
                       <input
                         type="text"
                         v-model="formData.bank_account_number"
@@ -1382,9 +1495,13 @@ onMounted(async () => {
                         class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
                       />
                     </div>
-                    
+
                     <div class="space-y-2">
-                      <label for="payment-method" class="text-sm font-medium text-gray-700">Payment Method</label>
+                      <label
+                        for="payment-method"
+                        class="text-sm font-medium text-gray-700"
+                        >Payment Method</label
+                      >
                       <v-select
                         v-model="formData.payment_method"
                         class="style-chooser bg-gray-100"
@@ -1397,10 +1514,16 @@ onMounted(async () => {
                     </div>
                   </div>
                 </div>
-                
-                <div class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30">
-                  <div class="flex justify-between items-center mb-6 pb-3  border-gray-200">
-                    <h4 class="text-lg font-semibold text-gray-800">Contracts</h4>
+
+                <div
+                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
+                >
+                  <div
+                    class="flex justify-between items-center mb-6 pb-3 border-gray-200"
+                  >
+                    <h4 class="text-lg font-semibold text-gray-800">
+                      Contracts
+                    </h4>
                     <input
                       type="file"
                       ref="contractInput"
@@ -1408,28 +1531,41 @@ onMounted(async () => {
                       @change="handleContractFileChange"
                       class="hidden"
                     />
-                <button
-  type="button"
-  @click="openContractFilePicker"
-  class="h-8 px-3 font-medium rounded-md shadow-sm text-[11px]  transition-colors flex items-center gap-1"
-  :class="[
-    errors?.contracts 
-      ? 'border border-red-500 bg-white text-red-600 hover:bg-red-50' 
-      : 'bg-[#ff613c] text-white hover:bg-[#e05530]'
-  ]"
->
-  <PlusIcon class="w-3 h-3" />
-  <p v-if="errors?.contracts ">Files needed</p>  <p v-else>Add Contract</p> 
-</button>
+                    <button
+                      type="button"
+                      @click="openContractFilePicker"
+                      class="h-8 px-3 font-medium rounded-md shadow-sm text-[11px] transition-colors flex items-center gap-1"
+                      :class="[
+                        errors?.contracts
+                          ? 'border border-red-500 bg-white text-red-600 hover:bg-red-50'
+                          : 'bg-[#ff613c] text-white hover:bg-[#e05530]',
+                      ]"
+                    >
+                      <PlusIcon class="w-3 h-3" />
+                      <p v-if="errors?.contracts">Files needed</p>
+                      <p v-else>Add Contract</p>
+                    </button>
                   </div>
                   <div class="space-y-4">
-                    <div v-if="linkContract.contacts && linkContract.contacts.length > 0" class="space-y-2">
-                      <p class="text-sm font-medium text-gray-700">Existing Contracts:</p>
-                      <div v-for="(contract, index) in linkContract.contacts" :key="index" class="flex items-center gap-2">
+                    <div
+                      v-if="
+                        linkContract.contacts &&
+                        linkContract.contacts.length > 0
+                      "
+                      class="space-y-2"
+                    >
+                      <p class="text-sm font-medium text-gray-700">
+                        Existing Contracts:
+                      </p>
+                      <div
+                        v-for="(contract, index) in linkContract.contacts"
+                        :key="index"
+                        class="flex items-center gap-2"
+                      >
                         <a
                           :href="contract.file"
                           target="_blank"
-                          class="flex-1 text-sm  hover:underline bg-gray-100 px-3 py-2 rounded truncate"
+                          class="flex-1 text-sm hover:underline bg-gray-100 px-3 py-2 rounded truncate"
                         >
                           contract link {{ index + 1 }}
                         </a>
@@ -1442,13 +1578,28 @@ onMounted(async () => {
                         </button>
                       </div>
                     </div>
-                    
-                    <div v-if="formData.contract_files_preview.length > 0" class="space-y-2 mt-4">
-                      <p class="text-sm font-medium text-gray-700">New Contracts to Upload:</p>
-                      <div v-for="(contract, index) in formData.contract_files_preview" :key="'new-' + index" class="flex items-center gap-2">
-                        <div class="flex-1 text-sm text-gray-700 bg-gray-100 px-3 py-2 rounded truncate">
+
+                    <div
+                      v-if="formData.contract_files_preview.length > 0"
+                      class="space-y-2 mt-4"
+                    >
+                      <p class="text-sm font-medium text-gray-700">
+                        New Contracts to Upload:
+                      </p>
+                      <div
+                        v-for="(
+                          contract, index
+                        ) in formData.contract_files_preview"
+                        :key="'new-' + index"
+                        class="flex items-center gap-2"
+                      >
+                        <div
+                          class="flex-1 text-sm text-gray-700 bg-gray-100 px-3 py-2 rounded truncate"
+                        >
                           <div class="font-medium">{{ contract.name }}</div>
-                          <div class="text-xs text-gray-500">{{ contract.size }} • {{ contract.type }}</div>
+                          <div class="text-xs text-gray-500">
+                            {{ contract.size }} • {{ contract.type }}
+                          </div>
                         </div>
                         <button
                           type="button"
@@ -1459,14 +1610,19 @@ onMounted(async () => {
                         </button>
                       </div>
                     </div>
-                    
-                    <p class="text-xs text-gray-500">You can upload multiple contract files (PDF, DOC, DOCX, TXT, XLS, XLSX)</p>
+
+                    <p class="text-xs text-gray-500">
+                      You can upload multiple contract files (PDF, DOC, DOCX,
+                      TXT, XLS, XLSX)
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
-            
-            <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end gap-4">
+
+            <div
+              class="mt-8 pt-6 border-t border-gray-200 flex justify-end gap-4"
+            >
               <button
                 type="button"
                 @click="cancelButtonAction"
@@ -1479,22 +1635,35 @@ onMounted(async () => {
                 :disabled="loading"
                 class="px-6 py-2.5 text-sm font-medium text-white bg-[#ff613c] border border-transparent rounded-full shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {{ loading ? 'Saving...' : 'Save Changes' }}
+                {{ loading ? "Saving..." : "Save Changes" }}
               </button>
             </div>
           </form>
         </div>
-        
+
         <div v-if="quiteSwitch == 2" class="">
-          <form @submit.prevent="onSubmitHandler" class="mt-2 bg-white rounded-xl p-6">
+          <form
+            @submit.prevent="onSubmitHandler"
+            class="mt-2 bg-white rounded-xl p-6"
+          >
             <div class="grid grid-cols-2 gap-8">
               <div class="space-y-8">
-                <div class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30">
-                  <h4 class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200">Description (Myanmar)</h4>
+                <div
+                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
+                >
+                  <h4
+                    class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
+                  >
+                    Description (Myanmar)
+                  </h4>
                   <div class="space-y-4">
                     <div class="space-y-2">
-                      <label for="description-mm" class="text-sm font-medium text-gray-700">Full description (mm)</label>
-                      <QuillEditor
+                      <!-- <label
+                        for="description-mm"
+                        class="text-sm font-medium text-gray-700"
+                        >Full description (mm)</label
+                      > -->
+                      <!-- <QuillEditor
                         ref="textEditor"
                         :options="editorOptions"
                         theme="snow"
@@ -1502,150 +1671,203 @@ onMounted(async () => {
                         toolbar="essential"
                         contentType="html"
                         v-model:content="formData.full_description"
+                      /> -->
+                      <AiDescriptionEditor
+                        v-model="formData.full_description"
+                        label="Full description (mm)"
+                        language="mm"
+                        :product-data="formData"
+                        :product-type="'hotel'"
+                        :show-ai-button="true"
+                        placeholder="Enter Myanmar description..."
+                        hint="AI can generate a professional description based on your hotel information"
                       />
                     </div>
                   </div>
                 </div>
-                
-             <div class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30">
-  <h4 class="text-lg font-semibold text-gray-800 mb-6 pb-3  border-gray-200">Hotel Images</h4>
-  <div class="space-y-4">
-    <div class="grid grid-cols-3 gap-4">
-      <div class="col-span-1">
-        <input
-          multiple
-          type="file"
-          ref="imagesInput"
-          @change="handlerImagesFileChange"
-          class="hidden"
-          accept="image/*"
-        />
-        <div
-          @click.prevent="openFileImagePicker"
-          class="cursor-pointer h-[200px] border-2 border-dashed border-gray-400 rounded-lg flex flex-col justify-center items-center hover:border-[#ff613c] transition-colors bg-gray-100"
-        >
-          <span class="text-gray-400">
-            <PhotoIcon class="w-8 h-8 mx-auto mb-2 text-[#ff613c]" />
-            <span class="text-xs block text-center">Click to upload image</span>
-          </span>
-        </div>
-      </div>
-      
 
-      <div class="col-span-2">
-        <div class="grid grid-cols-2 gap-3 h-full">
-
-          <template v-if="imagesPreview.length > 0 || editImagesPreview.length > 0">
-
-            <div
-              v-if="imagesPreview[0]"
-              class="relative group row-span-2"
-            >
-              <button
-                @click.prevent="removeImageSelectImage(0)"
-                class="absolute top-2 right-2 bg-[#ff613c] text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-              >
-                <XCircleIcon class="w-5 h-5" />
-              </button>
-              <img 
-                :src="imagesPreview[0]" 
-                alt="Hotel image" 
-                class="w-full h-[200px] object-cover rounded-md" 
-              />
-            </div>
-            <div
-              v-if="!imagesPreview[0] && editImagesPreview[0]"
-              class="relative group row-span-2"
-            >
-              <button
-                @click.prevent="removeImageUpdateImage(formData.id, editImagesPreview[0].id)"
-                class="absolute top-2 right-2 bg-[#ff613c] text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-              >
-                <XCircleIcon class="w-5 h-5" />
-              </button>
-              <img 
-                :src="editImagesPreview[0].image" 
-                alt="Hotel image" 
-                class="w-full h-[200px] object-cover rounded-md" 
-              />
-            </div>
-            
-
-            <div class="grid grid-cols-2 gap-2">
-              <div
-                v-for="(image, index) in imagesPreview.slice(1, 5)"
-                :key="`new-${index}`"
-                class="relative group"
-              >
-                <button
-                  @click.prevent="removeImageSelectImage(index + 1)"
-                  class="absolute top-1 right-1 bg-[#ff613c] text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                <div
+                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
                 >
-                  <XCircleIcon class="w-4 h-4" />
-                </button>
-                <img 
-                  :src="image" 
-                  alt="Hotel image" 
-                  class="w-full h-[94px] object-cover rounded-md" 
-                />
-              </div>
-              
-              <div
-                v-for="(image, index) in editImagesPreview.slice(1, 5)"
-                :key="`existing-${index}`"
-                class="relative group"
-              >
-                <button
-                  @click.prevent="removeImageUpdateImage(formData.id, image.id)"
-                  class="absolute top-1 right-1 bg-[#ff613c] text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                >
-                  <XCircleIcon class="w-4 h-4" />
-                </button>
-                <img 
-                  :src="image.image" 
-                  alt="Hotel image" 
-                  class="w-full h-[94px] object-cover rounded-md" 
-                />
-              </div>
-            </div>
-          </template>
-          
-          <!-- Empty state -->
-          <template v-else>
-            <div class="row-span-2 bg-gray-100 rounded-md flex items-center justify-center">
-              <span class="text-gray-400 text-sm">No images</span>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <div v-for="i in 4" :key="i" class="bg-gray-100 rounded-md h-[94px]"></div>
-            </div>
-          </template>
-        </div>
-      </div>
-    </div>
-    
+                  <h4
+                    class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
+                  >
+                    Hotel Images
+                  </h4>
+                  <div class="space-y-4">
+                    <div class="grid grid-cols-3 gap-4">
+                      <div class="col-span-1">
+                        <input
+                          multiple
+                          type="file"
+                          ref="imagesInput"
+                          @change="handlerImagesFileChange"
+                          class="hidden"
+                          accept="image/*"
+                        />
+                        <div
+                          @click.prevent="openFileImagePicker"
+                          class="cursor-pointer h-[200px] border-2 border-dashed border-gray-400 rounded-lg flex flex-col justify-center items-center hover:border-[#ff613c] transition-colors bg-gray-100"
+                        >
+                          <span class="text-gray-400">
+                            <PhotoIcon
+                              class="w-8 h-8 mx-auto mb-2 text-[#ff613c]"
+                            />
+                            <span class="text-xs block text-center"
+                              >Click to upload image</span
+                            >
+                          </span>
+                        </div>
+                      </div>
 
-    <div class="pt-4 ms-8">
-      <button
-        type="button"
-        @click.prevent="openFileImagePicker"
-        class="h-8 px-3 bg-[#ff613c] text-white text-xs font-medium rounded-md hover:bg-[#e05530] transition-colors flex items-center gap-1"
-      >
-        <PlusIcon class="w-3 h-3" />
-        Add Images
-      </button>
-    </div>
-  </div>
-</div>
+                      <div class="col-span-2">
+                        <div class="grid grid-cols-2 gap-3 h-full">
+                          <template
+                            v-if="
+                              imagesPreview.length > 0 ||
+                              editImagesPreview.length > 0
+                            "
+                          >
+                            <div
+                              v-if="imagesPreview[0]"
+                              class="relative group row-span-2"
+                            >
+                              <button
+                                @click.prevent="removeImageSelectImage(0)"
+                                class="absolute top-2 right-2 bg-[#ff613c] text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                              >
+                                <XCircleIcon class="w-5 h-5" />
+                              </button>
+                              <img
+                                :src="imagesPreview[0]"
+                                alt="Hotel image"
+                                class="w-full h-[200px] object-cover rounded-md"
+                              />
+                            </div>
+                            <div
+                              v-if="!imagesPreview[0] && editImagesPreview[0]"
+                              class="relative group row-span-2"
+                            >
+                              <button
+                                @click.prevent="
+                                  removeImageUpdateImage(
+                                    formData.id,
+                                    editImagesPreview[0].id,
+                                  )
+                                "
+                                class="absolute top-2 right-2 bg-[#ff613c] text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                              >
+                                <XCircleIcon class="w-5 h-5" />
+                              </button>
+                              <img
+                                :src="editImagesPreview[0].image"
+                                alt="Hotel image"
+                                class="w-full h-[200px] object-cover rounded-md"
+                              />
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                              <div
+                                v-for="(image, index) in imagesPreview.slice(
+                                  1,
+                                  5,
+                                )"
+                                :key="`new-${index}`"
+                                class="relative group"
+                              >
+                                <button
+                                  @click.prevent="
+                                    removeImageSelectImage(index + 1)
+                                  "
+                                  class="absolute top-1 right-1 bg-[#ff613c] text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                >
+                                  <XCircleIcon class="w-4 h-4" />
+                                </button>
+                                <img
+                                  :src="image"
+                                  alt="Hotel image"
+                                  class="w-full h-[94px] object-cover rounded-md"
+                                />
+                              </div>
+
+                              <div
+                                v-for="(
+                                  image, index
+                                ) in editImagesPreview.slice(1, 5)"
+                                :key="`existing-${index}`"
+                                class="relative group"
+                              >
+                                <button
+                                  @click.prevent="
+                                    removeImageUpdateImage(
+                                      formData.id,
+                                      image.id,
+                                    )
+                                  "
+                                  class="absolute top-1 right-1 bg-[#ff613c] text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                >
+                                  <XCircleIcon class="w-4 h-4" />
+                                </button>
+                                <img
+                                  :src="image.image"
+                                  alt="Hotel image"
+                                  class="w-full h-[94px] object-cover rounded-md"
+                                />
+                              </div>
+                            </div>
+                          </template>
+
+                          <!-- Empty state -->
+                          <template v-else>
+                            <div
+                              class="row-span-2 bg-gray-100 rounded-md flex items-center justify-center"
+                            >
+                              <span class="text-gray-400 text-sm"
+                                >No images</span
+                              >
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                              <div
+                                v-for="i in 4"
+                                :key="i"
+                                class="bg-gray-100 rounded-md h-[94px]"
+                              ></div>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="pt-4 ms-8">
+                      <button
+                        type="button"
+                        @click.prevent="openFileImagePicker"
+                        class="h-8 px-3 bg-[#ff613c] text-white text-xs font-medium rounded-md hover:bg-[#e05530] transition-colors flex items-center gap-1"
+                      >
+                        <PlusIcon class="w-3 h-3" />
+                        Add Images
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
-              
 
               <div class="space-y-8">
-
-                <div class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30">
-                  <h4 class="text-lg font-semibold text-gray-800 mb-6 pb-3  border-gray-200">Description (English)</h4>
+                <div
+                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
+                >
+                  <h4
+                    class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
+                  >
+                    Description (English)
+                  </h4>
                   <div class="space-y-4">
                     <div class="space-y-2">
-                      <label for="full-description-en" class="text-sm font-medium text-gray-700">Full description (en)</label>
+                      <!-- <label
+                        for="full-description-en"
+                        class="text-sm font-medium text-gray-700"
+                        >Full description (en)</label
+                      >
                       <QuillEditor
                         ref="textEditor"
                         :options="editorOptions"
@@ -1654,18 +1876,37 @@ onMounted(async () => {
                         toolbar="essential"
                         contentType="html"
                         v-model:content="formData.full_description_en"
+                      /> -->
+                      <AiDescriptionEditor
+                        v-model="formData.full_description_en"
+                        label="Full description (en)"
+                        language="mm"
+                        :product-data="formData"
+                        :product-type="'hotel'"
+                        :show-ai-button="true"
+                        placeholder="Enter English description..."
+                        hint="AI can generate a professional description based on your hotel information"
                       />
                     </div>
                   </div>
                 </div>
-                
 
-                <div class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30">
-                  <h4 class="text-lg font-semibold text-gray-800 mb-6 pb-3  border-gray-200">Additional Detail</h4>
+                <div
+                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
+                >
+                  <h4
+                    class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
+                  >
+                    Additional Detail
+                  </h4>
                   <div class="space-y-6">
                     <div class="grid grid-cols-2 gap-4">
                       <div class="space-y-2">
-                        <label for="check-in" class="text-sm font-medium text-gray-700">Check In Time</label>
+                        <label
+                          for="check-in"
+                          class="text-sm font-medium text-gray-700"
+                          >Check In Time</label
+                        >
                         <input
                           type="text"
                           v-model="formData.check_in"
@@ -1674,9 +1915,13 @@ onMounted(async () => {
                           class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
                         />
                       </div>
-                      
+
                       <div class="space-y-2">
-                        <label for="check-out" class="text-sm font-medium text-gray-700">Check Out Time</label>
+                        <label
+                          for="check-out"
+                          class="text-sm font-medium text-gray-700"
+                          >Check Out Time</label
+                        >
                         <input
                           type="text"
                           v-model="formData.check_out"
@@ -1686,10 +1931,13 @@ onMounted(async () => {
                         />
                       </div>
                     </div>
-                    
 
                     <div class="space-y-2">
-                      <label for="cancellation-policy" class="text-sm font-medium text-gray-700">Cancellation Policy</label>
+                      <label
+                        for="cancellation-policy"
+                        class="text-sm font-medium text-gray-700"
+                        >Cancellation Policy</label
+                      >
                       <textarea
                         v-model="formData.cancellation_policy"
                         id="cancellation-policy"
@@ -1698,10 +1946,11 @@ onMounted(async () => {
                         class="w-full text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
                       ></textarea>
                     </div>
-                    
 
                     <div class="space-y-2">
-                      <label class="text-sm font-medium text-gray-700">Official Logo</label>
+                      <label class="text-sm font-medium text-gray-700"
+                        >Official Logo</label
+                      >
                       <input
                         type="file"
                         id="official-logo"
@@ -1715,11 +1964,22 @@ onMounted(async () => {
                           @click.prevent="openOfficialLogoImagePicker"
                           class="cursor-pointer w-40 h-40 border-2 border-dashed border-gray-400 rounded-lg flex flex-col justify-center items-center hover:border-[#ff613c] transition-colors bg-gray-100"
                         >
-                          <span v-if="!official_logo_preview && !formData.official_logo_has" class="text-gray-400">
-                            <PhotoIcon class="w-8 h-8 mx-auto mb-2 text-[#ff613c]" />
+                          <span
+                            v-if="
+                              !official_logo_preview &&
+                              !formData.official_logo_has
+                            "
+                            class="text-gray-400"
+                          >
+                            <PhotoIcon
+                              class="w-8 h-8 mx-auto mb-2 text-[#ff613c]"
+                            />
                             <span class="text-xs">Upload Logo</span>
                           </span>
-                          <div v-if="official_logo_preview" class="relative w-full h-full">
+                          <div
+                            v-if="official_logo_preview"
+                            class="relative w-full h-full"
+                          >
                             <img
                               :src="official_logo_preview"
                               alt="Official logo preview"
@@ -1733,7 +1993,13 @@ onMounted(async () => {
                               Change
                             </button>
                           </div>
-                          <div v-if="formData.official_logo_has && !official_logo_preview" class="relative w-full h-full">
+                          <div
+                            v-if="
+                              formData.official_logo_has &&
+                              !official_logo_preview
+                            "
+                            class="relative w-full h-full"
+                          >
                             <img
                               :src="formData.official_logo_has"
                               alt="Official logo"
@@ -1749,8 +2015,12 @@ onMounted(async () => {
                           </div>
                         </div>
                         <div>
-                          <p class="text-sm text-gray-600">Upload official hotel logo</p>
-                          <p class="text-xs text-gray-500">Recommended size: 200x200px</p>
+                          <p class="text-sm text-gray-600">
+                            Upload official hotel logo
+                          </p>
+                          <p class="text-xs text-gray-500">
+                            Recommended size: 200x200px
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -1758,9 +2028,10 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
-            
 
-            <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end gap-4">
+            <div
+              class="mt-8 pt-6 border-t border-gray-200 flex justify-end gap-4"
+            >
               <button
                 type="button"
                 @click="cancelButtonAction"
@@ -1773,7 +2044,7 @@ onMounted(async () => {
                 :disabled="loading"
                 class="px-6 py-2.5 text-sm font-medium text-white bg-[#ff613c] border border-transparent rounded-md shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {{ loading ? 'Saving...' : 'Save Changes' }}
+                {{ loading ? "Saving..." : "Save Changes" }}
               </button>
             </div>
           </form>
@@ -1838,7 +2109,9 @@ onMounted(async () => {
   background-color: rgba(249, 250, 251, 0.3);
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
   @apply ring-2 ring-[#ff613c] ring-opacity-50;
 }
 </style>

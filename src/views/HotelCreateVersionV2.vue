@@ -17,6 +17,7 @@ import { useCityStore } from "../stores/city";
 import { useHotelStore } from "../stores/hotel";
 import { useHotelCategoryStore } from "../stores/hotelcategory";
 import { usePlaceStore } from "../stores/place";
+import AiDescriptionEditor from "./GenerateAI/DescriptionAi.vue";
 
 const toast = useToast();
 const cityStore = useCityStore();
@@ -1130,7 +1131,7 @@ onMounted(async () => {
                   </h4>
                   <div class="space-y-4">
                     <div class="space-y-2">
-                      <label
+                      <!-- <label
                         for="description-mm"
                         class="text-sm font-medium text-gray-700"
                         >Full description (mm)</label
@@ -1142,6 +1143,16 @@ onMounted(async () => {
                         toolbar="essential"
                         contentType="html"
                         v-model:content="formData.full_description"
+                      /> -->
+                      <AiDescriptionEditor
+                        v-model="formData.full_description"
+                        label="Full description (en)"
+                        language="mm"
+                        :product-data="formData"
+                        :product-type="'hotel'"
+                        :show-ai-button="true"
+                        placeholder="Enter Myanmar description..."
+                        hint="AI can generate a professional description based on your hotel information"
                       />
                     </div>
                   </div>
@@ -1272,7 +1283,7 @@ onMounted(async () => {
                   </h4>
                   <div class="space-y-4">
                     <div class="space-y-2">
-                      <label
+                      <!-- <label
                         for="full-description-en"
                         class="text-sm font-medium text-gray-700"
                         >Full description (en)</label
@@ -1284,6 +1295,16 @@ onMounted(async () => {
                         toolbar="essential"
                         contentType="html"
                         v-model:content="formData.full_description_en"
+                      /> -->
+                      <AiDescriptionEditor
+                        v-model="formData.full_description_en"
+                        label="Full description (en)"
+                        language="mm"
+                        :product-data="formData"
+                        :product-type="'hotel'"
+                        :show-ai-button="true"
+                        placeholder="Enter English description..."
+                        hint="AI can generate a professional description based on your hotel information"
                       />
                     </div>
                   </div>

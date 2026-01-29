@@ -270,6 +270,66 @@
             <p class="text-gray-500 text-sm">View cash flow and liquidity</p>
           </div>
         </div>
+
+        <!-- 5. Cash Flow Report -->
+        <div
+          @click="navigateTo('/home/funnel-report')"
+          class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden border border-gray-100 hover:border-indigo-300 transform hover:-translate-y-1"
+        >
+          <div
+            class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-bl-full opacity-10 group-hover:opacity-20 transition-opacity"
+          ></div>
+          <div class="p-6 relative z-10">
+            <div class="flex items-center justify-between mb-4">
+              <div
+                class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#FFFFFF"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="lucide lucide-view-icon lucide-view"
+                >
+                  <path d="M21 17v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2" />
+                  <path d="M21 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2" />
+                  <circle cx="12" cy="12" r="1" />
+                  <path
+                    d="M18.944 12.33a1 1 0 0 0 0-.66 7.5 7.5 0 0 0-13.888 0 1 1 0 0 0 0 .66 7.5 7.5 0 0 0 13.888 0"
+                  />
+                </svg>
+              </div>
+              <span
+                class="text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </span>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">
+              Funnel Report
+            </h3>
+            <p class="text-gray-500 text-sm">
+              View funnel analytics and conversion
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </Layout>

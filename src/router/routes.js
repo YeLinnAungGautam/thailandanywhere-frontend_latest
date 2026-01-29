@@ -112,6 +112,7 @@ import HotelViewVersion2 from "../views/HotelViewVersion2.vue";
 import AttractionViewVersion2 from "../views/AttractionViewVersion2.vue";
 import HotelEditViewVersion2 from "../views/HotelEditPageVersion2.vue";
 import HotelCreateVersionV2 from "../views/HotelCreateVersionV2.vue";
+import FunnelReport from "../views/FunnelReport.vue";
 
 const routes = [
   {
@@ -156,6 +157,11 @@ const routes = [
     path: "/home/reservations",
     name: "home_reservations",
     component: HomeReservationsView,
+  },
+  {
+    path: "/home/funnel-report",
+    name: "home_funnel_report",
+    component: FunnelReport,
   },
   {
     path: "/map_hotel",
@@ -610,6 +616,17 @@ const routes = [
     path: "/bank_statement_type",
     name: "bankStatementType",
     component: BankStatementType,
+  },
+
+  {
+    path: "/rooms/create",
+    name: "rooms-create",
+    component: () => import("../views/RoomCreate.vue"),
+  },
+  {
+    path: "/rooms/:id/edit",
+    name: "rooms-edit",
+    component: () => import("../views/RoomCreate.vue"),
   },
   {
     path: "/bank_statement_filter",

@@ -629,6 +629,7 @@ const toast = useToast();
 // At the top of your script, modify the Gemini initialization
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GEMINI_API_KEY_2 = import.meta.env.VITE_GEMINI_API_KEY_2;
+const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL;
 let genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 let currentApiKeyIndex = 1; // Track which key we're using
 
@@ -816,7 +817,7 @@ const extractTransactionData = async (file) => {
     isExtractingData.value = true;
     toast.info("Extracting data from image...");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
     const imagePart = await fileToGenerativePart(file);
 
@@ -875,7 +876,7 @@ const extractTransactionData = async (file) => {
       }
 
       toast.success(
-        "Data extracted successfully! Please verify the information."
+        "Data extracted successfully! Please verify the information.",
       );
     } else {
       toast.warning("Could not extract data. Please fill manually.");
@@ -907,7 +908,7 @@ const extractDirectBankingData = async (file) => {
     isExtractingData.value = true;
     toast.info("Extracting data from image...");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
     const imagePart = await fileToGenerativePart(file);
 
@@ -957,7 +958,7 @@ const extractDirectBankingData = async (file) => {
       }
 
       toast.success(
-        "Data extracted successfully! Please verify the information."
+        "Data extracted successfully! Please verify the information.",
       );
     } else {
       // toast.warning("Could not extract data. Please fill manually.");

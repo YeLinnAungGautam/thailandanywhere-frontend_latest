@@ -233,7 +233,6 @@ const removeImageSelectImage = (index) => {
   imagesPreview.value.splice(index, 1);
 };
 
-
 const imageGalleryModal = ref(false);
 const galleryUploadInput = ref(null);
 
@@ -258,7 +257,10 @@ const handleGalleryImageChange = (e) => {
 const removeImageInGallery = async (index, isEditImage = false) => {
   try {
     if (isEditImage) {
-      const res = await hotelStore.deleteImageAction(formData.value.id, editImagesPreview.value[index].id);
+      const res = await hotelStore.deleteImageAction(
+        formData.value.id,
+        editImagesPreview.value[index].id,
+      );
       toast.success("Image deleted successfully");
       editImagesPreview.value.splice(index, 1);
     } else {
@@ -275,9 +277,10 @@ const removeImageInGallery = async (index, isEditImage = false) => {
 };
 
 const getRemainingImageCount = () => {
-  const totalImages = editImagesPreview.value.length + imagesPreview.value.length;
+  const totalImages =
+    editImagesPreview.value.length + imagesPreview.value.length;
   return Math.max(0, totalImages - 5);
-}
+};
 
 const textEditor = ref(null);
 
@@ -1862,7 +1865,9 @@ onMounted(async () => {
                             <PhotoIcon
                               class="w-8 h-8 mx-auto mb-2 text-[#ff613c]"
                             />
-                            <span class="text-xs block text-center">Click to upload image</span>
+                            <span class="text-xs block text-center"
+                              >Click to upload image</span
+                            >
                           </span>
                         </div>
                       </div>
@@ -1933,16 +1938,22 @@ onMounted(async () => {
                                       alt="Hotel image"
                                       class="w-full h-[94px] object-cover rounded-md"
                                     />
-                                            <div 
-                            v-if="index === 4" 
-                            class="absolute inset-0 bg-black/40 rounded-md flex flex-col items-center justify-center cursor-pointer"
-                            @click="openImageGallery"
-                          >
-                            <span class="text-white font-bold text-lg">+{{ getRemainingImageCount() }}</span>
-                            <span class="text-white text-xs">More</span>
-                      </div>
+                                    <div
+                                      v-if="index === 4"
+                                      class="absolute inset-0 bg-black/40 rounded-md flex flex-col items-center justify-center cursor-pointer"
+                                      @click="openImageGallery"
+                                    >
+                                      <span class="text-white font-bold text-lg"
+                                        >+{{ getRemainingImageCount() }}</span
+                                      >
+                                      <span class="text-white text-xs"
+                                        >More</span
+                                      >
+                                    </div>
                                   </template>
-                                  <template v-else-if="editImagesPreview[index]">
+                                  <template
+                                    v-else-if="editImagesPreview[index]"
+                                  >
                                     <button
                                       @click.prevent="
                                         removeImageUpdateImage(
@@ -1959,14 +1970,18 @@ onMounted(async () => {
                                       alt="Hotel image"
                                       class="w-full h-[94px] object-cover rounded-md"
                                     />
-                      <div 
-                            v-if="index === 4" 
-                          @click="openImageGallery"
-                            class="absolute inset-0 bg-black/40 rounded-md flex flex-col items-center justify-center cursor-pointer"
-                          >
-                            <span class="text-white font-bold text-lg">+{{ getRemainingImageCount() }}</span>
-                            <span class="text-white text-xs">More</span>
-                      </div>
+                                    <div
+                                      v-if="index === 4"
+                                      @click="openImageGallery"
+                                      class="absolute inset-0 bg-black/40 rounded-md flex flex-col items-center justify-center cursor-pointer"
+                                    >
+                                      <span class="text-white font-bold text-lg"
+                                        >+{{ getRemainingImageCount() }}</span
+                                      >
+                                      <span class="text-white text-xs"
+                                        >More</span
+                                      >
+                                    </div>
                                   </template>
                                 </div>
                                 <div
@@ -1974,7 +1989,9 @@ onMounted(async () => {
                                   :key="`empty-${index}`"
                                   class="w-full h-[94px] bg-gray-100 rounded-md flex items-center justify-center"
                                 >
-                                  <span class="text-xs text-gray-400">No image</span>
+                                  <span class="text-xs text-gray-400"
+                                    >No image</span
+                                  >
                                 </div>
                               </template>
                             </div>
@@ -1984,7 +2001,9 @@ onMounted(async () => {
                             <div
                               class="row-span-2 bg-gray-100 rounded-md flex items-center justify-center"
                             >
-                              <span class="text-gray-400 text-sm">No images</span>
+                              <span class="text-gray-400 text-sm"
+                                >No images</span
+                              >
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                               <div
@@ -1992,7 +2011,9 @@ onMounted(async () => {
                                 :key="i"
                                 class="bg-gray-100 rounded-md h-[94px] flex items-center justify-center"
                               >
-                                <span class="text-xs text-gray-400">No image</span>
+                                <span class="text-xs text-gray-400"
+                                  >No image</span
+                                >
                               </div>
                             </div>
                           </template>
@@ -2000,7 +2021,7 @@ onMounted(async () => {
                       </div>
                     </div>
 
-                    <div class="pt-4  flex justify-between items-center">
+                    <div class="pt-4 flex justify-between items-center">
                       <div class="flex items-center gap-2">
                         <button
                           type="button"
@@ -2020,7 +2041,11 @@ onMounted(async () => {
                         </button>
                       </div>
                       <p class="text-sm text-gray-600">
-                        Total {{ editImagesPreview.length + imagesPreview.length }} images
+                        Total
+                        {{
+                          editImagesPreview.length + imagesPreview.length
+                        }}
+                        images
                       </p>
                     </div>
                   </div>
@@ -2041,7 +2066,7 @@ onMounted(async () => {
                       <AiDescriptionEditor
                         v-model="formData.full_description_en"
                         label="Full description (en)"
-                        language="mm"
+                        language="en"
                         :product-data="formData"
                         :product-type="'hotel'"
                         :show-ai-button="true"
@@ -2193,34 +2218,44 @@ onMounted(async () => {
         </div>
 
         <div v-if="quiteSwitch == 3" class="">
-          <form @submit.prevent="onSubmitHandler" class="bg-white rounded-xl px-6 pb-6 pt-4 relative">
-           <button
+          <form
+            @submit.prevent="onSubmitHandler"
+            class="bg-white rounded-xl px-6 pb-6 pt-4 relative"
+          >
+            <button
               type="submit"
               :disabled="loading"
               class="absolute -top-20 right-6 text-xs p-1.5 px-5 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {{ loading ? "Updating..." : "Update" }}
             </button>
-            
-            <div class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30">
-              <h4 class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200">
+
+            <div
+              class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
+            >
+              <h4
+                class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
+              >
                 Hotel Facilities
               </h4>
               <p class="text-sm text-gray-600 mb-6">
-                Select all facilities available at your hotel. These will be displayed to guests.
+                Select all facilities available at your hotel. These will be
+                displayed to guests.
               </p>
-              
+
               <FacilitoryStoreVue
                 @Change="onGetArray"
                 :data="formData.facilities"
               />
-              
+
               <div class="mt-6 p-4 bg-blue-50 rounded-lg">
                 <p class="text-sm text-blue-700">
-                  <span class="font-medium">Selected facilities:</span> {{ formData.facilities.length }}
+                  <span class="font-medium">Selected facilities:</span>
+                  {{ formData.facilities.length }}
                 </p>
                 <p class="text-xs text-blue-600 mt-1">
-                  The selected facilities will be saved when you create the hotel.
+                  The selected facilities will be saved when you create the
+                  hotel.
                 </p>
               </div>
             </div>
@@ -2512,7 +2547,10 @@ onMounted(async () => {
                     </div>
 
                     <div
-                      v-if="formData.location_map && formData.location_map !== 'null'"
+                      v-if="
+                        formData.location_map &&
+                        formData.location_map !== 'null'
+                      "
                       class="mt-6"
                     >
                       <p class="text-sm font-medium text-gray-700 mb-3">
@@ -2805,23 +2843,29 @@ onMounted(async () => {
                 </button>
               </div>
               <p class="text-gray-600 mt-2">
-                Manage your hotel images. You can upload new images or delete existing ones.
+                Manage your hotel images. You can upload new images or delete
+                existing ones.
               </p>
             </div>
 
             <div class="p-8">
               <div class="mb-8">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                  All Images ({{ editImagesPreview.length + imagesPreview.length }} total)
+                  All Images ({{
+                    editImagesPreview.length + imagesPreview.length
+                  }}
+                  total)
                 </h3>
-                
+
                 <div class="grid grid-cols-3 gap-3">
                   <div
                     v-for="(image, index) in editImagesPreview"
                     :key="`edit-${index}`"
                     class="relative group"
                   >
-                    <div class="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                    <div
+                      class="aspect-video rounded-lg overflow-hidden bg-gray-100"
+                    >
                       <img
                         :src="image.image"
                         :alt="`Hotel image ${index + 1}`"
@@ -2835,13 +2879,15 @@ onMounted(async () => {
                       <XMarkIcon class="w-4 h-4" />
                     </button>
                   </div>
-                  
+
                   <div
                     v-for="(image, index) in imagesPreview"
                     :key="`new-${index}`"
                     class="relative group"
                   >
-                    <div class="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                    <div
+                      class="aspect-video rounded-lg overflow-hidden bg-gray-100"
+                    >
                       <img
                         :src="image"
                         :alt="`New image ${index + 1}`"
@@ -2849,7 +2895,12 @@ onMounted(async () => {
                       />
                     </div>
                     <button
-                      @click="removeImageInGallery(editImagesPreview.length + index, false)"
+                      @click="
+                        removeImageInGallery(
+                          editImagesPreview.length + index,
+                          false,
+                        )
+                      "
                       class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
                     >
                       <XMarkIcon class="w-4 h-4" />

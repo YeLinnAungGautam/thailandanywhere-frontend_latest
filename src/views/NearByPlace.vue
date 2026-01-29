@@ -829,6 +829,7 @@ const store = useNearByPlaceStore();
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GEMINI_API_KEY_2 = import.meta.env.VITE_GEMINI_API_KEY_2;
+const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL;
 let genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 let currentApiKeyIndex = 1;
 
@@ -905,7 +906,7 @@ const generateWithAI = async (retryWithBackup = true) => {
     isGenerating.value = true;
     showToast("🤖 AI is generating nearby places...", "success");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
     const locationContext = `
 Place Type: ${props.type}
@@ -975,7 +976,7 @@ IMPORTANT: Generate at least 12 places with good variety across all 4 categories
         formData.nearby_places = generatedPlaces;
         showToast(
           `✅ AI generated ${generatedPlaces.length} places! Review and save them.`,
-          "success"
+          "success",
         );
         openCreateModal();
       } else {
@@ -1138,7 +1139,7 @@ const toggleStatus = async (place) => {
     place.is_active = !place.is_active;
 
     showToast(
-      `Place ${place.is_active ? "activated" : "deactivated"} successfully!`
+      `Place ${place.is_active ? "activated" : "deactivated"} successfully!`,
     );
   } catch (error) {
     console.error("Error:", error);
@@ -1158,7 +1159,7 @@ const handleDelete = async () => {
     await store.deleteAction(placeToDelete.value.id);
 
     places.value = places.value.filter(
-      (place) => place.id !== placeToDelete.value.id
+      (place) => place.id !== placeToDelete.value.id,
     );
 
     showToast("Place deleted successfully!");
@@ -1226,7 +1227,7 @@ onMounted(() => {
     props.placeData.near_by_places.length > 0
   ) {
     places.value = [...props.placeData.near_by_places].sort(
-      (a, b) => a.order - b.order
+      (a, b) => a.order - b.order,
     );
   }
 });

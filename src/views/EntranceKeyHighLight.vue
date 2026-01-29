@@ -642,6 +642,7 @@ const store = useKeyHighLightStore();
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GEMINI_API_KEY_2 = import.meta.env.VITE_GEMINI_API_KEY_2;
+const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL;
 let genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 let currentApiKeyIndex = 1;
 
@@ -717,7 +718,7 @@ const generateWithAI = async (retryWithBackup = true) => {
     isGenerating.value = true;
     showToast("🤖 AI is generating key highlights...", "success");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
     // Build context for attraction/entrance ticket
     const highlightContext = `

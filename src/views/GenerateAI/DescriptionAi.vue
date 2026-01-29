@@ -111,6 +111,7 @@ const emit = defineEmits(["update:modelValue"]);
 // Gemini AI Setup
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GEMINI_API_KEY_2 = import.meta.env.VITE_GEMINI_API_KEY_2;
+const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL;
 let genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 let currentApiKeyIndex = 1;
 
@@ -217,7 +218,7 @@ const generateWithAI = async (retryWithBackup = true) => {
     isGenerating.value = true;
     showToast("🤖 AI is generating content...", "success");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
     const productContext = buildProductContext();
 

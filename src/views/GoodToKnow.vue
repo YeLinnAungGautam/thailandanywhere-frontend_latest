@@ -674,6 +674,7 @@ const store = useGoodToKnowStore();
 // Gemini AI Setup
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GEMINI_API_KEY_2 = import.meta.env.VITE_GEMINI_API_KEY_2;
+const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL;
 let genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 let currentApiKeyIndex = 1;
 
@@ -747,7 +748,7 @@ const generateWithAI = async (retryWithBackup = true) => {
     isGenerating.value = true;
     showToast("🤖 AI is generating Good to Know items...", "success");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
     // Build context from product data
     const productContext = `
@@ -973,7 +974,7 @@ const toggleStatus = async (item) => {
     item.is_active = !item.is_active;
 
     showToast(
-      `Item ${item.is_active ? "activated" : "deactivated"} successfully!`
+      `Item ${item.is_active ? "activated" : "deactivated"} successfully!`,
     );
   } catch (error) {
     console.error("Error:", error);
@@ -994,7 +995,7 @@ const handleDelete = async () => {
 
     // Remove from local list
     items.value = items.value.filter(
-      (item) => item.id !== itemToDelete.value.id
+      (item) => item.id !== itemToDelete.value.id,
     );
 
     showToast("Item deleted successfully!");
@@ -1072,7 +1073,7 @@ onMounted(() => {
     props.productData.good_to_knows.length > 0
   ) {
     items.value = [...props.productData.good_to_knows].sort(
-      (a, b) => a.order - b.order
+      (a, b) => a.order - b.order,
     );
   }
 });

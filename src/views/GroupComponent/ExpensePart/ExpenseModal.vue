@@ -728,6 +728,7 @@ const reservationStore = useReservationStore();
 // Initialize Gemini API with dual key support
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GEMINI_API_KEY_2 = import.meta.env.VITE_GEMINI_API_KEY_2;
+const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL;
 let genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 let currentApiKeyIndex = 1;
 
@@ -812,7 +813,7 @@ const extractExpenseData = async (file, retryWithBackup = true) => {
     isExtractingData.value = true;
     toast.info("🤖 AI is analyzing the payment slip...");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
     const imagePart = await fileToGenerativePart(file);
 
     const prompt = `Analyze this payment slip/bank transaction receipt image and extract the following information in JSON format:
@@ -901,7 +902,7 @@ const extractExpenseData = async (file, retryWithBackup = true) => {
       }
 
       toast.success(
-        "✅ Data extracted successfully! Please verify the information."
+        "✅ Data extracted successfully! Please verify the information.",
       );
     } else {
       toast.warning("⚠️ Could not extract data. Please fill manually.");
@@ -1151,7 +1152,7 @@ const updateExpenseOnly = async () => {
 
     const response = await cashImageStore.updateAction(
       expenseFrmData,
-      formData.value.id
+      formData.value.id,
     );
 
     if (response.status === 1) {
@@ -1186,7 +1187,7 @@ const updateExpenseAndStatus = async () => {
 
     const response = await cashImageStore.updateAction(
       expenseFrmData,
-      formData.value.id
+      formData.value.id,
     );
 
     if (response.status === 1) {
@@ -1322,7 +1323,7 @@ watch(
       newImageFile.value = null;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
@@ -1335,7 +1336,7 @@ watch(
       formData.value.status = newData.expense_status || "not_paid";
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 

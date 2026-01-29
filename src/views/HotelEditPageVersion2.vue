@@ -23,7 +23,7 @@ import {
 import { QuillEditor } from "@vueup/vue-quill";
 import Pagination from "../components/Pagination.vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, nextTick } from "vue";
 import Button from "../components/Button.vue";
 import { storeToRefs } from "pinia";
 import { useRoute, useRouter } from "vue-router";
@@ -199,7 +199,9 @@ const official_logo_preview = ref(null);
 const official_logo_input = ref(null);
 
 const openOfficialLogoImagePicker = () => {
-  official_logo_input.value.click();
+  if (official_logo_input.value) {
+    official_logo_input.value.click();
+  }
 };
 
 const handlerOfficialLogoFileChange = (e) => {
@@ -211,7 +213,9 @@ const handlerOfficialLogoFileChange = (e) => {
 };
 
 const openFileImagePicker = () => {
-  imagesInput.value.click();
+  if (imagesInput.value) {
+    imagesInput.value.click();
+  }
 };
 
 const handlerImagesFileChange = (e) => {
@@ -228,6 +232,52 @@ const removeImageSelectImage = (index) => {
   formData.value.images.splice(index, 1);
   imagesPreview.value.splice(index, 1);
 };
+
+
+const imageGalleryModal = ref(false);
+const galleryUploadInput = ref(null);
+
+const openImageGallery = () => {
+  imageGalleryModal.value = true;
+};
+
+const closeImageGallery = () => {
+  imageGalleryModal.value = false;
+};
+
+const handleGalleryImageChange = (e) => {
+  let selectedFiles = e.target.files;
+  if (selectedFiles) {
+    for (let index = 0; index < selectedFiles.length; index++) {
+      formData.value.images.push(selectedFiles[index]);
+      imagesPreview.value.push(URL.createObjectURL(selectedFiles[index]));
+    }
+  }
+};
+
+const removeImageInGallery = async (index, isEditImage = false) => {
+  try {
+    if (isEditImage) {
+      const res = await hotelStore.deleteImageAction(formData.value.id, editImagesPreview.value[index].id);
+      toast.success("Image deleted successfully");
+      editImagesPreview.value.splice(index, 1);
+    } else {
+      const newIndex = index - editImagesPreview.value.length;
+      if (newIndex >= 0 && newIndex < formData.value.images.length) {
+        formData.value.images.splice(newIndex, 1);
+        imagesPreview.value.splice(newIndex, 1);
+      }
+    }
+  } catch (error) {
+    console.error("Error removing image:", error);
+    toast.error("Failed to delete image");
+  }
+};
+
+const getRemainingImageCount = () => {
+  const totalImages = editImagesPreview.value.length + imagesPreview.value.length;
+  return Math.max(0, totalImages - 5);
+}
 
 const textEditor = ref(null);
 
@@ -283,6 +333,7 @@ const closeModal = () => {
   quiteSwitch.value = true;
   imagesPreview.value = [];
   createModalOpen.value = false;
+  imageGalleryModal.value = false;
   if (formData.value.full_description == null) {
     clearEditorContent();
   }
@@ -300,7 +351,9 @@ const clearEditorContent = () => {
 const nearByImgInput = ref(null);
 
 const openFileNearByPicker = () => {
-  nearByImgInput.value.click();
+  if (nearByImgInput.value) {
+    nearByImgInput.value.click();
+  }
 };
 
 const handlerNearByFileChange = (e) => {
@@ -340,7 +393,9 @@ const removeNearByItem = (index) => {
 const contractInput = ref(null);
 
 const openContractFilePicker = () => {
-  contractInput.value.click();
+  if (contractInput.value) {
+    contractInput.value.click();
+  }
 };
 
 const handleContractFileChange = (e) => {
@@ -552,53 +607,6 @@ const addNewHandler = async () => {
 const cancelButtonAction = () => {
   router.push("/products/2");
 };
-
-// const openCreate = () => {
-//   formData.value.name = "";
-//   formData.value.city_id = null;
-//   formData.value.category_id = null;
-//   formData.value.vat_inclusion = "";
-//   formData.value.place_id = null;
-//   formData.value.type = "other_booking";
-//   formData.value.payment_method = "";
-//   formData.value.bank_name = "";
-//   formData.value.account_name = "";
-//   formData.value.check_in = "";
-//   formData.value.check_out = "";
-//   formData.value.cancellation_policy = "";
-//   formData.value.official_address = "";
-//   formData.value.vat_id = "";
-//   formData.value.vat_name = "";
-//   formData.value.vat_address = "";
-//   formData.value.official_phone_number = "";
-//   formData.value.official_email = "";
-//   formData.value.official_remark = "";
-//   formData.value.official_logo = "";
-//   formData.value.bank_account_number = "";
-//   formData.value.place = "";
-//   formData.value.legal_name = "";
-//   formData.value.email = [];
-//   formData.value.description = "";
-//   formData.value.full_description = "";
-//   formData.value.full_description_en = "";
-//   formData.value.location_map_title = "";
-//   formData.value.location_map = "";
-//   formData.value.rating = "";
-//   formData.value.latitude = "";
-//   formData.value.longitude = "";
-//   formData.value.nearby_places = [];
-//   formData.value.youtube_link = {
-//     mm_link: "",
-//     en_link: "",
-//   };
-//   formData.value.contract_due = "";
-//   formData.value.contracts = [];
-//   formData.value.contract_files_preview = [];
-//   linkContract.value = {};
-//   imagesPreview.value = [];
-//   editImagesPreview.value = [];
-//   createModalOpen.value = true;
-// };
 
 const updateHandler = async () => {
   const frmData = new FormData();
@@ -887,6 +895,7 @@ const getDetail = async (params) => {
     linkContract.value = data;
 
     if (data.images.length > 0) {
+      editImagesPreview.value = [];
       for (let i = 0; i < data.images.length; i++) {
         editImagesPreview.value.push(data.images[i]);
       }
@@ -987,7 +996,7 @@ const categoryAction = ref(false);
 const changeSwitch = (val) => {
   quiteSwitch.value = val;
   router.push({
-    name: "hoteledit",
+    name: "hoteledit-v2",
     params: {
       id: route.params.id,
     },
@@ -1154,6 +1163,100 @@ onMounted(async () => {
               "
             >
               Hotel Detail & Info
+            </p>
+            <p
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              @click="quiteSwitch = 3"
+              :class="
+                quiteSwitch == 3
+                  ? 'bg-white text-[#ff613c] shadow-md'
+                  : 'bg-white text-gray-700  hover:bg-gray-50'
+              "
+            >
+              Facilities
+            </p>
+            <p
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              @click="quiteSwitch = 4"
+              :class="
+                quiteSwitch == 4
+                  ? 'bg-white text-[#ff613c] shadow-md'
+                  : 'bg-white text-gray-700  hover:bg-gray-50'
+              "
+            >
+              Location & More Details
+            </p>
+            <p
+              v-if="formData.id"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              @click="quiteSwitch = 5"
+              :class="
+                quiteSwitch == 5
+                  ? 'bg-white text-[#ff613c] shadow-md'
+                  : 'bg-white text-gray-700  hover:bg-gray-50'
+              "
+            >
+              Add On
+            </p>
+            <!-- <p
+              v-if="formData.id"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              @click="quiteSwitch = 6"
+              :class="
+                quiteSwitch == 6
+                  ? 'bg-white text-[#ff613c] shadow-md'
+                  : 'bg-white text-gray-700  hover:bg-gray-50'
+              "
+            >
+              VAT & Confirmation
+            </p> -->
+            <p
+              v-if="formData.id"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              @click="quiteSwitch = 7"
+              :class="
+                quiteSwitch == 7
+                  ? 'bg-white text-[#ff613c] shadow-md'
+                  : 'bg-white text-gray-700  hover:bg-gray-50'
+              "
+            >
+              Slugs
+            </p>
+            <p
+              v-if="formData.id"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              @click="changeSwitch(8)"
+              :class="
+                quiteSwitch == 8
+                  ? 'bg-white text-[#ff613c] shadow-md'
+                  : 'bg-white text-gray-700  hover:bg-gray-50'
+              "
+            >
+              Good to Know
+            </p>
+            <p
+              v-if="formData.id"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              @click="changeSwitch(9)"
+              :class="
+                quiteSwitch == 9
+                  ? 'bg-white text-[#ff613c] shadow-md'
+                  : 'bg-white text-gray-700  hover:bg-gray-50'
+              "
+            >
+              Key Highlight
+            </p>
+            <p
+              v-if="formData.id"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              @click="changeSwitch(10)"
+              :class="
+                quiteSwitch == 10
+                  ? 'bg-white text-[#ff613c] shadow-md'
+                  : 'bg-white text-gray-700  hover:bg-gray-50'
+              "
+            >
+              Near Places
             </p>
           </div>
         </div>
@@ -1615,7 +1718,7 @@ onMounted(async () => {
                     >
                       <PlusCircleIcon class="w-4 h-4" />
                       <p v-if="errors?.contracts">Files needed</p>
-                      <p v-else>Add Contract</p>
+                      <p v-else>Add Files</p>
                     </button>
                   </div>
                   <div class="space-y-4">
@@ -1691,23 +1794,6 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
-
-            <!-- <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end gap-4">
-              <button
-                type="button"
-                @click="cancelButtonAction"
-                class="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                :disabled="loading"
-                class="px-6 py-2.5 text-sm font-medium text-white bg-[#ff613c] border border-transparent rounded-full shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {{ loading ? "Saving..." : "Save Changes" }}
-              </button>
-            </div> -->
           </form>
         </div>
 
@@ -1735,20 +1821,6 @@ onMounted(async () => {
                   </h4>
                   <div class="space-y-4">
                     <div class="space-y-2">
-                      <!-- <label
-                        for="description-mm"
-                        class="text-sm font-medium text-gray-700"
-                        >Full description (mm)</label
-                      > -->
-                      <!-- <QuillEditor
-                        ref="textEditor"
-                        :options="editorOptions"
-                        theme="snow"
-                        class="h-64 !bg-gray-100 !border-none !rounded-md !shadow-sm"
-                        toolbar="essential"
-                        contentType="html"
-                        v-model:content="formData.full_description"
-                      /> -->
                       <AiDescriptionEditor
                         v-model="formData.full_description"
                         label="Full description (mm)"
@@ -1790,9 +1862,7 @@ onMounted(async () => {
                             <PhotoIcon
                               class="w-8 h-8 mx-auto mb-2 text-[#ff613c]"
                             />
-                            <span class="text-xs block text-center"
-                              >Click to upload image</span
-                            >
+                            <span class="text-xs block text-center">Click to upload image</span>
                           </span>
                         </div>
                       </div>
@@ -1805,125 +1875,153 @@ onMounted(async () => {
                               editImagesPreview.length > 0
                             "
                           >
-                            <div
-                              v-if="imagesPreview[0]"
-                              class="relative group row-span-2"
-                            >
-                              <button
-                                @click.prevent="removeImageSelectImage(0)"
-                                class="absolute top-2 right-2 bg-[#ff613c] text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                              >
-                                <XMarkIcon class="w-4 h-4" />
-                              </button>
-                              <img
-                                :src="imagesPreview[0]"
-                                alt="Hotel image"
-                                class="w-full h-[200px] object-cover rounded-md"
-                              />
-                            </div>
-                            <div
-                              v-if="!imagesPreview[0] && editImagesPreview[0]"
-                              class="relative group row-span-2"
-                            >
-                              <button
-                                @click.prevent="
-                                  removeImageUpdateImage(
-                                    formData.id,
-                                    editImagesPreview[0].id,
-                                  )
-                                "
-                                class="absolute top-2 right-2 bg-[#ff613c] text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                              >
-                                <XMarkIcon class="w-3 h-3" />
-                              </button>
-                              <img
-                                :src="editImagesPreview[0].image"
-                                alt="Hotel image"
-                                class="w-full h-[200px] object-cover rounded-md"
-                              />
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-2">
-                              <div
-                                v-for="(image, index) in imagesPreview.slice(
-                                  1,
-                                  5,
-                                )"
-                                :key="`new-${index}`"
-                                class="relative group"
-                              >
+                            <div class="relative group row-span-2">
+                              <template v-if="imagesPreview[0]">
                                 <button
-                                  @click.prevent="
-                                    removeImageSelectImage(index + 1)
-                                  "
-                                  class="absolute top-1 right-1 bg-[#ff613c] text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                  @click.prevent="removeImageSelectImage(0)"
+                                  class="absolute top-2 right-2 bg-[#ff613c] text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                 >
-                                  <XMarkIcon class="w-3 h-3" />
+                                  <XMarkIcon class="w-4 h-4" />
                                 </button>
                                 <img
-                                  :src="image"
+                                  :src="imagesPreview[0]"
                                   alt="Hotel image"
-                                  class="w-full h-[94px] object-cover rounded-md"
+                                  class="w-full h-[200px] object-cover rounded-md"
                                 />
-                              </div>
-
-                              <div
-                                v-for="(
-                                  image, index
-                                ) in editImagesPreview.slice(1, 5)"
-                                :key="`existing-${index}`"
-                                class="relative group"
-                              >
+                              </template>
+                              <template v-else-if="editImagesPreview[0]">
                                 <button
                                   @click.prevent="
                                     removeImageUpdateImage(
                                       formData.id,
-                                      image.id,
+                                      editImagesPreview[0].id,
                                     )
                                   "
-                                  class="absolute top-1 right-1 bg-[#ff613c] text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                  class="absolute top-2 right-2 bg-[#ff613c] text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                 >
-                                  <XMarkIcon class="w-3 h-3" />
+                                  <XMarkIcon class="w-4 h-4" />
                                 </button>
                                 <img
-                                  :src="image.image"
+                                  :src="editImagesPreview[0].image"
                                   alt="Hotel image"
-                                  class="w-full h-[94px] object-cover rounded-md"
+                                  class="w-full h-[200px] object-cover rounded-md"
                                 />
-                              </div>
+                              </template>
+                            </div>
+                            <!-- smaller images -->
+                            <div class="grid grid-cols-2 gap-2">
+                              <template v-for="index in 4">
+                                <div
+                                  v-if="
+                                    imagesPreview[index] ||
+                                    editImagesPreview[index]
+                                  "
+                                  :key="`image-${index}`"
+                                  class="relative group"
+                                >
+                                  <template v-if="imagesPreview[index]">
+                                    <button
+                                      @click.prevent="
+                                        removeImageSelectImage(index)
+                                      "
+                                      class="absolute top-1 right-1 bg-[#ff613c] text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                    >
+                                      <XMarkIcon class="w-3 h-3" />
+                                    </button>
+                                    <img
+                                      :src="imagesPreview[index]"
+                                      alt="Hotel image"
+                                      class="w-full h-[94px] object-cover rounded-md"
+                                    />
+                                            <div 
+                            v-if="index === 4" 
+                            class="absolute inset-0 bg-black/40 rounded-md flex flex-col items-center justify-center cursor-pointer"
+                            @click="openImageGallery"
+                          >
+                            <span class="text-white font-bold text-lg">+{{ getRemainingImageCount() }}</span>
+                            <span class="text-white text-xs">More</span>
+                      </div>
+                                  </template>
+                                  <template v-else-if="editImagesPreview[index]">
+                                    <button
+                                      @click.prevent="
+                                        removeImageUpdateImage(
+                                          formData.id,
+                                          editImagesPreview[index].id,
+                                        )
+                                      "
+                                      class="absolute top-1 right-1 bg-[#ff613c] text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                    >
+                                      <XMarkIcon class="w-3 h-3" />
+                                    </button>
+                                    <img
+                                      :src="editImagesPreview[index].image"
+                                      alt="Hotel image"
+                                      class="w-full h-[94px] object-cover rounded-md"
+                                    />
+                      <div 
+                            v-if="index === 4" 
+                          @click="openImageGallery"
+                            class="absolute inset-0 bg-black/40 rounded-md flex flex-col items-center justify-center cursor-pointer"
+                          >
+                            <span class="text-white font-bold text-lg">+{{ getRemainingImageCount() }}</span>
+                            <span class="text-white text-xs">More</span>
+                      </div>
+                                  </template>
+                                </div>
+                                <div
+                                  v-else
+                                  :key="`empty-${index}`"
+                                  class="w-full h-[94px] bg-gray-100 rounded-md flex items-center justify-center"
+                                >
+                                  <span class="text-xs text-gray-400">No image</span>
+                                </div>
+                              </template>
                             </div>
                           </template>
 
-                          <!-- Empty state -->
                           <template v-else>
                             <div
                               class="row-span-2 bg-gray-100 rounded-md flex items-center justify-center"
                             >
-                              <span class="text-gray-400 text-sm"
-                                >No images</span
-                              >
+                              <span class="text-gray-400 text-sm">No images</span>
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                               <div
                                 v-for="i in 4"
                                 :key="i"
-                                class="bg-gray-100 rounded-md h-[94px]"
-                              ></div>
+                                class="bg-gray-100 rounded-md h-[94px] flex items-center justify-center"
+                              >
+                                <span class="text-xs text-gray-400">No image</span>
+                              </div>
                             </div>
                           </template>
                         </div>
                       </div>
                     </div>
 
-                    <div class="pt-4 ms-8">
-                      <button
-                        type="button"
-                        @click.prevent="openFileImagePicker"
-                        class="h-8 px-3 bg-[#ff613c] text-white text-xs font-medium rounded-md hover:bg-[#e05530] transition-colors flex items-center gap-1"
-                      >
-                        <PlusCircleIcon class="w-4 h-4" />
-                        Add Images
-                      </button>
+                    <div class="pt-4  flex justify-between items-center">
+                      <div class="flex items-center gap-2">
+                        <button
+                          type="button"
+                          @click.prevent="openFileImagePicker"
+                          class="h-8 px-3 bg-[#ff613c] text-white text-xs font-medium rounded-md hover:bg-[#e05530] transition-colors flex items-center gap-1"
+                        >
+                          <PlusCircleIcon class="w-4 h-4" />
+                          Add Images
+                        </button>
+                        <button
+                          type="button"
+                          @click="openImageGallery"
+                          class="h-8 px-3 bg-white text-gray-700 text-xs font-medium rounded-md border border-gray-300 hover:bg-gray-50 transition-colors flex items-center gap-1"
+                        >
+                          <EyeIcon class="w-4 h-4" />
+                          View All Images
+                        </button>
+                      </div>
+                      <p class="text-sm text-gray-600">
+                        Total {{ editImagesPreview.length + imagesPreview.length }} images
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1940,20 +2038,6 @@ onMounted(async () => {
                   </h4>
                   <div class="space-y-4">
                     <div class="space-y-2">
-                      <!-- <label
-                        for="full-description-en"
-                        class="text-sm font-medium text-gray-700"
-                        >Full description (en)</label
-                      >
-                      <QuillEditor
-                        ref="textEditor"
-                        :options="editorOptions"
-                        theme="snow"
-                        class="h-64 !bg-gray-100 !border-none !rounded-md !shadow-sm"
-                        toolbar="essential"
-                        contentType="html"
-                        v-model:content="formData.full_description_en"
-                      /> -->
                       <AiDescriptionEditor
                         v-model="formData.full_description_en"
                         label="Full description (en)"
@@ -2105,27 +2189,724 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
+          </form>
+        </div>
 
-            <!-- <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end gap-4">
-              <button
-                type="button"
-                @click="cancelButtonAction"
-                class="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] transition-colors"
-              >
-                Cancel
-              </button>
+        <div v-if="quiteSwitch == 3" class="">
+          <form @submit.prevent="onSubmitHandler" class="bg-white rounded-xl px-6 pb-6 pt-4 relative">
+           <button
+              type="submit"
+              :disabled="loading"
+              class="absolute -top-20 right-6 text-xs p-1.5 px-5 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {{ loading ? "Updating..." : "Update" }}
+            </button>
+            
+            <div class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30">
+              <h4 class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200">
+                Hotel Facilities
+              </h4>
+              <p class="text-sm text-gray-600 mb-6">
+                Select all facilities available at your hotel. These will be displayed to guests.
+              </p>
+              
+              <FacilitoryStoreVue
+                @Change="onGetArray"
+                :data="formData.facilities"
+              />
+              
+              <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                <p class="text-sm text-blue-700">
+                  <span class="font-medium">Selected facilities:</span> {{ formData.facilities.length }}
+                </p>
+                <p class="text-xs text-blue-600 mt-1">
+                  The selected facilities will be saved when you create the hotel.
+                </p>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div v-if="quiteSwitch == 4" class="">
+          <form
+            @submit.prevent="onSubmitHandler"
+            class="bg-white rounded-xl px-6 pb-6 pt-4 relative"
+          >
+            <button
+              type="submit"
+              :disabled="loading"
+              class="absolute -top-20 right-6 text-xs p-1.5 px-5 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {{ loading ? "Updating..." : "Update" }}
+            </button>
+            <div class="grid grid-cols-2 gap-8">
+              <div class="space-y-8">
+                <div
+                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
+                >
+                  <h4
+                    class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
+                  >
+                    Location Details
+                  </h4>
+                  <div class="space-y-5">
+                    <div class="space-y-2">
+                      <label
+                        for="location-map-title"
+                        class="text-sm font-medium text-gray-700"
+                        >Location Map Title (Address)</label
+                      >
+                      <input
+                        type="text"
+                        v-model="formData.location_map_title"
+                        id="location-map-title"
+                        placeholder="Enter hotel address"
+                        class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                      />
+                    </div>
+
+                    <div class="space-y-2">
+                      <label
+                        for="location-map"
+                        class="text-sm font-medium text-gray-700"
+                        >Location Link</label
+                      >
+                      <input
+                        type="text"
+                        v-model="formData.location_map"
+                        id="location-map"
+                        placeholder="Paste hotel location map link"
+                        class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                      />
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                      <div class="space-y-2">
+                        <label
+                          for="latitude"
+                          class="text-sm font-medium text-gray-700"
+                          >Latitude</label
+                        >
+                        <input
+                          type="text"
+                          v-model="formData.latitude"
+                          id="latitude"
+                          class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                        />
+                      </div>
+
+                      <div class="space-y-2">
+                        <label
+                          for="longitude"
+                          class="text-sm font-medium text-gray-700"
+                          >Longitude</label
+                        >
+                        <input
+                          type="text"
+                          v-model="formData.longitude"
+                          id="longitude"
+                          class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="space-y-2">
+                      <label class="text-sm font-medium text-gray-700"
+                        >Rating</label
+                      >
+                      <div class="flex justify-start items-center gap-2">
+                        <div
+                          v-for="i in 5"
+                          :key="i"
+                          class="flex justify-center cursor-pointer items-center gap-1 px-3 py-1.5 border border-gray-300 rounded-md"
+                          :class="
+                            i == formData.rating
+                              ? 'bg-[#ff613c] text-white'
+                              : 'bg-gray-100 hover:bg-gray-200'
+                          "
+                          @click="formData.rating = i"
+                        >
+                          <p class="text-sm">{{ i }}</p>
+                          <StarIcon
+                            class="w-4 h-4"
+                            :class="
+                              i == formData.rating
+                                ? 'text-white'
+                                : 'text-[#ff613c]'
+                            "
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
+                >
+                  <h4
+                    class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
+                  >
+                    YouTube Links
+                  </h4>
+                  <div class="space-y-5">
+                    <div class="space-y-2">
+                      <label
+                        for="youtube-mm"
+                        class="text-sm font-medium text-gray-700"
+                        >YouTube Link (Myanmar)</label
+                      >
+                      <input
+                        type="text"
+                        v-model="formData.youtube_link.mm_link"
+                        id="youtube-mm"
+                        placeholder="Enter YouTube video code (e.g., 8E7X00VVApo)"
+                        class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                      />
+                    </div>
+
+                    <div class="space-y-2">
+                      <label
+                        for="youtube-en"
+                        class="text-sm font-medium text-gray-700"
+                        >YouTube Link (English)</label
+                      >
+                      <input
+                        type="text"
+                        v-model="formData.youtube_link.en_link"
+                        id="youtube-en"
+                        placeholder="Enter YouTube video code (e.g., 8E7X00VVApo)"
+                        class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                      />
+                    </div>
+
+                    <div class="p-3 bg-gray-100 rounded-md">
+                      <p class="text-xs text-gray-600">
+                        <span class="font-medium">Note:</span> Use only the code
+                        after v= in YouTube URL. For example, from
+                        https://www.youtube.com/watch?v=
+                        <span class="font-semibold text-blue-600"
+                          >8E7X00VVApo</span
+                        >, use <span class="font-semibold">8E7X00VVApo</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-8">
+                <div
+                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
+                >
+                  <h4
+                    class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
+                  >
+                    Nearby Places
+                  </h4>
+                  <div class="space-y-5">
+                    <div class="space-y-3">
+                      <div class="flex items-center gap-2">
+                        <input
+                          type="file"
+                          ref="nearByImgInput"
+                          @change="handlerNearByFileChange"
+                          class="hidden"
+                          accept="image/*"
+                        />
+                        <div
+                          @click="openFileNearByPicker"
+                          v-if="!nearby.img_preview"
+                          class="cursor-pointer w-16 h-12 border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center hover:border-[#ff613c] transition-colors bg-gray-100"
+                        >
+                          <PhotoIcon class="w-5 h-5 text-gray-400" />
+                        </div>
+                        <div
+                          @click="openFileNearByPicker"
+                          v-if="nearby.img_preview"
+                          class="cursor-pointer w-16 h-12 border-2 border-gray-300 rounded-md overflow-hidden"
+                        >
+                          <img
+                            :src="nearby.img_preview"
+                            alt="Nearby place"
+                            class="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div class="flex-1 grid grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            v-model="nearby.place"
+                            placeholder="Enter place name"
+                            class="h-10 text-sm px-3 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                          />
+                          <input
+                            type="text"
+                            v-model="nearby.distance"
+                            placeholder="Distance (e.g., 3 min drive)"
+                            class="h-10 text-sm px-3 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          @click="addNewNearBy"
+                          class="h-10 w-10 flex items-center justify-center bg-[#ff613c] text-white rounded-md hover:bg-[#e05530] transition-colors"
+                        >
+                          <PlusIcon class="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div
+                      v-if="formData.nearby_places.length > 0"
+                      class="space-y-3"
+                    >
+                      <p class="text-sm font-medium text-gray-700">
+                        Added Nearby Places:
+                      </p>
+                      <div
+                        v-for="(place, index) in formData.nearby_places"
+                        :key="index"
+                        class="flex items-center gap-2 p-3 bg-gray-50 rounded-md"
+                      >
+                        <div class="w-12 h-12 rounded-md overflow-hidden">
+                          <img
+                            v-if="place.img_preview"
+                            :src="place.img_preview"
+                            alt="Nearby place"
+                            class="w-full h-full object-cover"
+                          />
+                          <img
+                            v-else-if="place.image"
+                            :src="place.image"
+                            alt="Nearby place"
+                            class="w-full h-full object-cover"
+                          />
+                          <div
+                            v-else
+                            class="w-full h-full bg-gray-200 flex items-center justify-center"
+                          >
+                            <PhotoIcon class="w-5 h-5 text-gray-400" />
+                          </div>
+                        </div>
+                        <div class="flex-1">
+                          <input
+                            type="text"
+                            v-model="place.place"
+                            class="w-full h-8 text-sm px-2 py-1 text-gray-900 bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#ff613c]"
+                          />
+                        </div>
+                        <div class="w-32">
+                          <input
+                            type="text"
+                            v-model="place.distance"
+                            class="w-full h-8 text-sm px-2 py-1 text-gray-900 bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#ff613c]"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          @click="removeNearByItem(index)"
+                          class="h-8 w-8 flex items-center justify-center bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                        >
+                          <TrashIcon class="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div
+                      v-if="formData.location_map && formData.location_map !== 'null'"
+                      class="mt-6"
+                    >
+                      <p class="text-sm font-medium text-gray-700 mb-3">
+                        Location Map Preview
+                      </p>
+                      <iframe
+                        :src="formData.location_map"
+                        class="w-full h-64 rounded-lg border-0"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                      ></iframe>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- <div class="flex justify-end mt-8">
               <button
                 type="submit"
                 :disabled="loading"
-                class="px-6 py-2.5 text-sm font-medium text-white bg-[#ff613c] border border-transparent rounded-md shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                class="px-6 py-2.5 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {{ loading ? "Saving..." : "Save Changes" }}
+                {{ loading ? "Updating..." : "Update Location Details" }}
               </button>
             </div> -->
           </form>
         </div>
+
+        <div v-if="quiteSwitch == 5" class="">
+          <AddonPage :id="formData.id" :type="'hotel'" />
+        </div>
+
+        <div v-if="quiteSwitch == 6" class="">
+          <form
+            @submit.prevent="onSubmitHandler"
+            class="bg-white rounded-xl px-6 pb-6 pt-4"
+          >
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-xl font-bold text-gray-800">
+                VAT & Confirmation Details
+              </h3>
+              <button
+                type="button"
+                @click="showConfirmation = true"
+                class="px-4 py-2 text-sm font-medium text-white bg-[#ff613c] rounded-lg hover:bg-[#e05530] transition-colors flex items-center gap-2"
+              >
+                <DocumentIcon class="w-4 h-4" />
+                Generate Confirmation PNG (DEMO)
+              </button>
+            </div>
+            <div class="grid grid-cols-2 gap-8">
+              <div class="space-y-8">
+                <div
+                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
+                >
+                  <h4
+                    class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
+                  >
+                    Hotel Information
+                  </h4>
+                  <div class="space-y-5">
+                    <div class="space-y-2">
+                      <label
+                        for="official-address"
+                        class="text-sm font-medium text-gray-700"
+                        >Official Address</label
+                      >
+                      <textarea
+                        v-model="formData.official_address"
+                        id="official-address"
+                        rows="3"
+                        class="w-full text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                      ></textarea>
+                    </div>
+
+                    <div class="space-y-2">
+                      <label
+                        for="official-remark"
+                        class="text-sm font-medium text-gray-700"
+                        >Official Remark</label
+                      >
+                      <textarea
+                        v-model="formData.official_remark"
+                        id="official-remark"
+                        rows="3"
+                        class="w-full text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                      ></textarea>
+                    </div>
+
+                    <!-- <div class="grid grid-cols-2 gap-4">
+                      <div class="space-y-2">
+                        <label
+                          for="check-in-time"
+                          class="text-sm font-medium text-gray-700"
+                          >Check-in Time</label
+                        >
+                        <input
+                          type="text"
+                          v-model="formData.check_in"
+                          id="check-in-time"
+                          placeholder="e.g., 14:00"
+                          class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                        />
+                      </div>
+
+                      <div class="space-y-2">
+                        <label
+                          for="check-out-time"
+                          class="text-sm font-medium text-gray-700"
+                          >Check-out Time</label
+                        >
+                        <input
+                          type="text"
+                          v-model="formData.check_out"
+                          id="check-out-time"
+                          placeholder="e.g., 12:00"
+                          class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                        />
+                      </div>
+                    </div> -->
+                  </div>
+                </div>
+
+                <!-- <div
+                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
+                >
+                  <h4
+                    class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
+                  >
+                    Cancellation Policy
+                  </h4>
+                  <div class="space-y-2">
+                    <textarea
+                      v-model="formData.cancellation_policy"
+                      rows="6"
+                      class="w-full text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
+                      placeholder="Enter detailed cancellation policy..."
+                    ></textarea>
+                  </div>
+                </div> -->
+              </div>
+
+              <!-- <div class="space-y-8">
+                <div
+                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
+                >
+                  <h4
+                    class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
+                  >
+                    Official Logo
+                  </h4>
+                  <div class="space-y-4">
+                    <input
+                      type="file"
+                      id="vat-official-logo"
+                      ref="official_logo_input"
+                      class="hidden"
+                      @change="handlerOfficialLogoFileChange"
+                      accept="image/*"
+                    />
+                    <div
+                      @click.prevent="openOfficialLogoImagePicker"
+                      class="cursor-pointer w-full h-48 border-2 border-dashed border-gray-400 rounded-lg flex flex-col justify-center items-center hover:border-[#ff613c] transition-colors bg-gray-100"
+                    >
+                      <span
+                        v-if="
+                          !official_logo_preview &&
+                          !formData.official_logo_has
+                        "
+                        class="text-gray-400"
+                      >
+                        <PhotoIcon
+                          class="w-12 h-12 mx-auto mb-3 text-[#ff613c]"
+                        />
+                        <span class="text-sm">Click to upload official logo</span>
+                        <p class="text-xs text-gray-500 mt-1">
+                          Recommended size: 200x200px
+                        </p>
+                      </span>
+                      <div
+                        v-if="official_logo_preview"
+                        class="relative w-full h-full"
+                      >
+                        <img
+                          :src="official_logo_preview"
+                          alt="Official logo preview"
+                          class="w-full h-full object-contain p-4"
+                        />
+                        <button
+                          type="button"
+                          @click.prevent="openOfficialLogoImagePicker"
+                          class="absolute top-3 right-3 bg-[#ff613c] text-white text-xs px-3 py-1.5 rounded hover:bg-[#e05530]"
+                        >
+                          Change Logo
+                        </button>
+                      </div>
+                      <div
+                        v-if="
+                          formData.official_logo_has &&
+                          !official_logo_preview
+                        "
+                        class="relative w-full h-full"
+                      >
+                        <img
+                          :src="formData.official_logo_has"
+                          alt="Official logo"
+                          class="w-full h-full object-contain p-4"
+                        />
+                        <button
+                          type="button"
+                          @click.prevent="openOfficialLogoImagePicker"
+                          class="absolute top-3 right-3 bg-[#ff613c] text-white text-xs px-3 py-1.5 rounded hover:bg-[#e05530]"
+                        >
+                          Change Logo
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> -->
+            </div>
+            <div class="flex justify-end mt-8">
+              <button
+                type="submit"
+                :disabled="loading"
+                class="px-6 py-2.5 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {{ loading ? "Updating..." : "Update VAT & Confirmation" }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div v-if="quiteSwitch == 7" class="">
+          <AddSlugPage
+            :id="formData.id"
+            :type="'hotel'"
+            :slugs="formData.slug"
+          />
+        </div>
+
+        <div v-if="quiteSwitch == 8" class="">
+          <GoodToKnow
+            :id="formData.id"
+            :type="'hotel'"
+            :productData="formData"
+          />
+        </div>
+
+        <div v-if="quiteSwitch == 9" class="">
+          <KeyHighLight
+            :id="formData.id"
+            :type="'hotel'"
+            :highlightData="formData"
+          />
+        </div>
+
+        <div v-if="quiteSwitch == 10" class="">
+          <NearByPlace
+            :id="formData.id"
+            :type="'hotel'"
+            :placeData="formData"
+          />
+        </div>
       </div>
     </div>
+
+    <Dialog
+      :open="imageGalleryModal"
+      @close="closeImageGallery"
+      class="relative z-50"
+    >
+      <div class="fixed inset-0 bg-black/70" aria-hidden="true" />
+      <div class="fixed inset-0 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+          <DialogPanel
+            class="w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden"
+          >
+            <div class="bg-white border-b border-gray-200 px-8 py-6">
+              <div class="flex items-center justify-between">
+                <DialogTitle class="text-2xl font-bold text-gray-800">
+                  Hotel Images Gallery
+                </DialogTitle>
+                <button
+                  @click="closeImageGallery"
+                  class="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <XMarkIcon class="w-6 h-6" />
+                </button>
+              </div>
+              <p class="text-gray-600 mt-2">
+                Manage your hotel images. You can upload new images or delete existing ones.
+              </p>
+            </div>
+
+            <div class="p-8">
+              <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                  All Images ({{ editImagesPreview.length + imagesPreview.length }} total)
+                </h3>
+                
+                <div class="grid grid-cols-3 gap-3">
+                  <div
+                    v-for="(image, index) in editImagesPreview"
+                    :key="`edit-${index}`"
+                    class="relative group"
+                  >
+                    <div class="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                      <img
+                        :src="image.image"
+                        :alt="`Hotel image ${index + 1}`"
+                        class="w-full h-32 object-cover hover:scale-105 transition-transform duration-200"
+                      />
+                    </div>
+                    <button
+                      @click="removeImageInGallery(index, true)"
+                      class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                    >
+                      <XMarkIcon class="w-4 h-4" />
+                    </button>
+                  </div>
+                  
+                  <div
+                    v-for="(image, index) in imagesPreview"
+                    :key="`new-${index}`"
+                    class="relative group"
+                  >
+                    <div class="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                      <img
+                        :src="image"
+                        :alt="`New image ${index + 1}`"
+                        class="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+                      />
+                    </div>
+                    <button
+                      @click="removeImageInGallery(editImagesPreview.length + index, false)"
+                      class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                    >
+                      <XMarkIcon class="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div class="">
+                    <input
+                      type="file"
+                      ref="galleryUploadInput"
+                      multiple
+                      @change="handleGalleryImageChange"
+                      class="hidden"
+                      accept="image/*"
+                    />
+                    <div
+                      @click="galleryUploadInput?.click()"
+                      class="w-full border-2 border-dashed border-gray-400 rounded-xl p-6 hover:border-[#ff613c] transition-colors bg-gray-50 flex text-center flex-col items-center justify-center cursor-pointer"
+                    >
+                      <PlusCircleIcon class="w-10 h-10 text-[#ff613c] mb-3" />
+                      <p class="text-base font-medium text-gray-700 mb-2">
+                        Upload More Images
+                      </p>
+                      <p class="text-sm text-gray-500">
+                        Click here or drag and drop to add more images
+                      </p>
+                      <p class="text-xs text-gray-400 mt-2">
+                        Supports JPG, PNG, GIF • Max 10MB per image
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </DialogPanel>
+        </div>
+      </div>
+    </Dialog>
+
+    <Modal :isOpen="showConfirmation" @closeModal="showConfirmation = false">
+      <DialogPanel
+        class="w-full max-w-6xl transform overflow-hidden rounded-lg bg-white p-4 text-left align-middle shadow-xl transition-all"
+      >
+        <DialogTitle
+          as="div"
+          class="text-lg font-medium leading-6 text-gray-900 flex justify-between items-center"
+        >
+          <span class="">Hotel Confirmation DEMO</span>
+          <XMarkIcon
+            class="w-6 h-6 text-black cursor-pointer"
+            @click="showConfirmation = false"
+          />
+        </DialogTitle>
+        <div>
+          <HotelConfrimationDemo :data="formData" />
+        </div>
+      </DialogPanel>
+    </Modal>
   </Layout>
 </template>
 

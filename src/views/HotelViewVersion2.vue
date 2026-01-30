@@ -99,7 +99,7 @@
         </div>
 
         <div class="flex gap-6">
-          <div class="w-80 flex-shrink-0">
+          <div class="w-80 flex-shrink-0 h-[calc(100vh-100px)] overflow-y-auto">
             <div
               class="bg-white rounded-2xl shadow-lg p-5 pb-7 sticky top-6 border border-gray-200"
             >

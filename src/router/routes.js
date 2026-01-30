@@ -113,6 +113,7 @@ import AttractionViewVersion2 from "../views/AttractionViewVersion2.vue";
 import HotelEditViewVersion2 from "../views/HotelEditPageVersion2.vue";
 import HotelCreateVersionV2 from "../views/HotelCreateVersionV2.vue";
 import FunnelReport from "../views/FunnelReport.vue";
+import EntranceCreateVersion2 from "../views/EntranceCreateVersion2.vue";
 
 const routes = [
   {
@@ -214,6 +215,11 @@ const routes = [
     path: "/attraction-v2/",
     name: "attraction-v2",
     component: AttractionViewVersion2,
+  },
+    {
+    path: "/products-v2/attraction/create",
+    name: "attraction-create-v2",
+    component: EntranceCreateVersion2,
   },
   {
     path: "/products-v2/hotel/edit/:id",

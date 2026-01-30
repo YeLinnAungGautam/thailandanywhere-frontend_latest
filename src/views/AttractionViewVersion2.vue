@@ -1,6 +1,7 @@
 <template>
 	<Layout>
-		<div class="mb-5 w-[90%] flex gap-x-6 items-center">
+		<div class="mb-5  flex gap-x-6 items-center justify-between">
+			<div class="flex items-center gap-4">
 			<button
 				@click="$router.push('/products-v2')"
 				class="p-3 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-gray-50"
@@ -10,7 +11,15 @@
 				</svg>
 			</button>
 			<div class="text-xl font-semibold">Attractions</div>
-			<div class="flex-1"></div>
+			</div>
+			<div
+        @click="router.push('/products-v2/attraction/create')"
+        class="pl-2 pr-3 me-7 py-2 bg-[#FF5B00] text-white cursor-pointer rounded-full hover:bg-[#ff4400] transition-colors"
+      >
+        <div class="flex items-center gap-2 text-xs">
+          <PlusCircleIcon class="w-5 h-5" /> Create Attraction
+        </div>
+      </div>
 			<!-- <div class="space-x-3">
         <Button
           :leftIcon="DocumentPlusIcon"
@@ -85,7 +94,7 @@
 				</div>
 
 				<div class="flex gap-6">
-					<div class="w-80 flex-shrink-0">
+					<div class="w-80 flex-shrink-0 h-[calc(100vh-100px)] overflow-y-auto">
 						<div class="bg-white rounded-2xl shadow-lg p-5 pb-7 sticky top-6 border border-gray-200">
 							<div class="mb-6 mt-2">
 								<div class="relative">
@@ -291,7 +300,7 @@
 									</button>
 								</div>
 
-								<div v-if="showCategories" class="space-y-1 max-h-60 overflow-y-auto pr-1">
+								<div v-if="showCategories" class="space-y-1 min-h-60 pr-1">
 									<label
 										class="flex items-center gap-2 text-xs cursor-pointer hover:bg-gray-50 rounded-md p-2"
 										:class="selectedCategory === '' ? 'text-[#FF5B00]' : 'text-black'"
@@ -699,7 +708,7 @@
 
 <script setup>
 import { MapPinIcon } from "@heroicons/vue/24/solid";
-import { PencilSquareIcon, TrashIcon, ShareIcon, PlusIcon, DocumentPlusIcon } from "@heroicons/vue/24/outline";
+import { PencilSquareIcon, TrashIcon, ShareIcon, PlusIcon, DocumentPlusIcon,   PlusCircleIcon, } from "@heroicons/vue/24/outline";
 import Pagination from "../components/Pagination.vue";
 import Layout from "./Layout.vue";
 import { useSidebarStore } from "../stores/sidebar";

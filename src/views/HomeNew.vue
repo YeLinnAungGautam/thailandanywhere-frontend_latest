@@ -44,15 +44,21 @@
       <!-- Main Dashboard Content -->
       <div class="col-span-5">
         <div class="grid grid-cols-5 gap-3">
-          <div class="col-span-3 space-y-3 grid grid-cols-1">
-            <!-- Average Sales -->
-            <!-- <StatCard
-              title="AVERAGE SALES"
-              :value="formatCurrency(averageSales)"
-            /> -->
+          <div class="col-span-3 space-y-2 grid grid-cols-1">
+            <div
+              class="grid gap-3"
+              :class="authStore.isSuperAdmin ? 'grid-cols-2' : 'grid-cols-1'"
+            >
+              <!-- Average Sales -->
+              <StatCard
+                v-if="authStore.isSuperAdmin"
+                title="AVERAGE SALES"
+                :value="formatCurrency(averageSales)"
+              />
 
-            <!-- Booking Stats -->
-            <BookingStats :summary="summary" />
+              <!-- Booking Stats -->
+              <BookingStats :summary="summary" />
+            </div>
 
             <!-- Sales Overview Chart -->
             <div

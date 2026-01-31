@@ -2042,9 +2042,7 @@ onMounted(async () => {
                       </div>
                       <p class="text-sm text-gray-600">
                         Total
-                        {{
-                          editImagesPreview.length + imagesPreview.length
-                        }}
+                        {{ editImagesPreview.length + imagesPreview.length }}
                         images
                       </p>
                     </div>
@@ -2246,6 +2244,7 @@ onMounted(async () => {
               <FacilitoryStoreVue
                 @Change="onGetArray"
                 :data="formData.facilities"
+                :hotelData="formData"
               />
 
               <div class="mt-6 p-4 bg-blue-50 rounded-lg">

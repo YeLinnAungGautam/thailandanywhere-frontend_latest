@@ -401,28 +401,28 @@ const addNewHandler = async () => {
     "youtube_link[0][mm_link]",
     formData.value.youtube_link.mm_link
       ? formData.value.youtube_link.mm_link
-      : ""
+      : "",
   );
   frmData.append(
     "youtube_link[0][en_link]",
     formData.value.youtube_link.en_link
       ? formData.value.youtube_link.en_link
-      : ""
+      : "",
   );
 
   if (formData.value.nearby_places.length > 0) {
     for (let i = 0; i < formData.value.nearby_places.length; i++) {
       frmData.append(
         "nearby_places[" + i + "][image]",
-        formData.value.nearby_places[i].img
+        formData.value.nearby_places[i].img,
       );
       frmData.append(
         "nearby_places[" + i + "][name]",
-        formData.value.nearby_places[i].place
+        formData.value.nearby_places[i].place,
       );
       frmData.append(
         "nearby_places[" + i + "][distance]",
-        formData.value.nearby_places[i].distance
+        formData.value.nearby_places[i].distance,
       );
     }
   }
@@ -447,7 +447,7 @@ const addNewHandler = async () => {
 
   console.log(
     formData.value.bank_account_number,
-    "this is bank account number"
+    "this is bank account number",
   );
 
   try {
@@ -672,34 +672,34 @@ const updateHandler = async () => {
     "youtube_link[0][mm_link]",
     formData.value.youtube_link.mm_link
       ? formData.value.youtube_link.mm_link
-      : ""
+      : "",
   );
   frmData.append(
     "youtube_link[0][en_link]",
     formData.value.youtube_link.en_link
       ? formData.value.youtube_link.en_link
-      : ""
+      : "",
   );
   if (formData.value.nearby_places.length > 0) {
     for (let i = 0; i < formData.value.nearby_places.length; i++) {
       if (formData.value.nearby_places[i].img) {
         frmData.append(
           "nearby_places[" + i + "][image]",
-          formData.value.nearby_places[i].img
+          formData.value.nearby_places[i].img,
         );
       } else {
         frmData.append(
           "nearby_places[" + i + "][image]",
-          formData.value.nearby_places[i].image
+          formData.value.nearby_places[i].image,
         );
       }
       frmData.append(
         "nearby_places[" + i + "][name]",
-        formData.value.nearby_places[i].place
+        formData.value.nearby_places[i].place,
       );
       frmData.append(
         "nearby_places[" + i + "][distance]",
-        formData.value.nearby_places[i].distance
+        formData.value.nearby_places[i].distance,
       );
     }
   }
@@ -993,7 +993,7 @@ watch(
       await placeStore.getSimpleListAction();
       console.log(places.value, "this is places");
     }
-  }
+  },
 );
 
 onMounted(async () => {
@@ -1517,6 +1517,7 @@ onMounted(async () => {
               <FacilitoryStoreVue
                 @Change="onGetArray"
                 :data="formData.facilities"
+                :hotelData="formData"
               />
             </div>
 

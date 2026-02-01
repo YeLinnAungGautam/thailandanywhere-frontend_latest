@@ -158,6 +158,7 @@ const formData = ref({
   rating: "",
   nearby_places: [],
   contract_due: "",
+  data_checked: false,
   contracts: [],
   contract_files_preview: [],
   images: [],
@@ -326,6 +327,7 @@ const closeModal = () => {
       en_link: "",
     },
     contract_due: "",
+    data_checked: false,
     contracts: [],
     contract_files_preview: [],
     images: [],
@@ -483,6 +485,7 @@ const addNewHandler = async () => {
     frmData.append("longitude", formData.value.longitude);
   }
   frmData.append("contract_due", formData.value.contract_due);
+  frmData.append("data_checked", formData.value.data_checked ? 1 : 0);
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -579,6 +582,7 @@ const addNewHandler = async () => {
         en_link: "",
       },
       contract_due: "",
+      data_checked: false,
       contracts: [],
       contract_files_preview: [],
       images: [],
@@ -672,6 +676,7 @@ const updateHandler = async () => {
   ) {
     frmData.append("contract_due", formData.value.contract_due);
   }
+  frmData.append("data_checked", formData.value.data_checked ? 1 : 0);
   frmData.append("location_map_title", formData.value.location_map_title);
   frmData.append("location_map", formData.value.location_map);
 
@@ -777,6 +782,7 @@ const updateHandler = async () => {
       legal_name: "",
       email: [],
       contract_due: "",
+      data_checked: false,
       description: "",
       full_description: null,
       full_description_en: null,
@@ -878,6 +884,7 @@ const getDetail = async (params) => {
       en_link: "",
     };
     formData.value.contract_due = formatDate(data.contract_due);
+    formData.value.data_checked = data.data_checked;
     formData.value.bank_account_number = data.bank_account_number;
     formData.value.account_name = data.account_name;
     formData.value.check_in = data.check_in;
@@ -1723,6 +1730,32 @@ onMounted(async () => {
                       <p v-if="errors?.contracts">Files needed</p>
                       <p v-else>Add Files</p>
                     </button>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <div class="mb-2 space-y-1">
+                      <label for="name" class="text-sm text-gray-800"
+                        >Contract Due Date</label
+                      >
+                      <input
+                        v-model="formData.contract_due"
+                        type="date"
+                        class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                      />
+                      <!-- <p>{{ formData.contract_due }}</p> -->
+                    </div>
+                    <div class="mb-2 space-y-1">
+                      <label for="name" class="text-sm text-gray-800"
+                        >Data Checked</label
+                      >
+                      <div class="text-end">
+                        <input
+                          type="checkbox"
+                          v-model="formData.data_checked"
+                          class="w-8 h-8 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                        />
+                      </div>
+                      <!-- <p>{{ formData.contract_due }}</p> -->
+                    </div>
                   </div>
                   <div class="space-y-4">
                     <div

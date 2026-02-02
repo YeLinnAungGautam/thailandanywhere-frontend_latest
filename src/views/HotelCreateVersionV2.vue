@@ -391,6 +391,7 @@ const addNewHandler = async () => {
   frmData.append("official_phone_number", formData.value.official_phone_number);
   frmData.append("official_email", formData.value.official_email);
   frmData.append("official_remark", formData.value.official_remark);
+  frmData.append("data_checked", 0);
 
   if (formData.value.official_logo) {
     frmData.append("official_logo", formData.value.official_logo);

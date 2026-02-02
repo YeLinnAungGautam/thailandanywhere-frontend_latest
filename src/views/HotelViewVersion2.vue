@@ -599,11 +599,11 @@
                     <span class="text-right text-[#FF5B00]">Price</span>
                   </div>
 
-                  <div class="space-y-1">
+                  <div class="space-y-1 h-[90px] overflow-y-auto pr-3">
                     <div
-                      v-for="room in hotel.rooms?.slice(0, 3)"
+                      v-for="room in hotel.rooms"
                       :key="room.id"
-                      @click="goRoomPage(room.hotel_id)"
+                      @click="goRoomPage(room.hotel_id, room.id)"
                       class="grid grid-cols-2 text-xs py-1 cursor-pointer hover:bg-gray-50 rounded-md"
                     >
                       <span class="text-black-700 truncate">
@@ -795,7 +795,7 @@
                           class="grid w-full grid-cols-6 gap-2 bg-white py-2 hover:bg-gray-100 cursor-pointer"
                           v-for="room in hotel?.rooms"
                           :key="room.id"
-                          @click="goRoomPage(room.hotel_id)"
+                          @click="goRoomPage(room.hotel_id, room.id)"
                         >
                           <div
                             class="p-2 text-xs text-center text-gray-700 whitespace-nowrap"
@@ -1576,8 +1576,10 @@ const importActionHandler = async () => {
   }
 };
 
-const goRoomPage = (hotelId) => {
-  router.push(`/products/3?edit=${hotelId}`);
+const goRoomPage = (hotelId, roomId) => {
+  router.push(
+    `/products-v2/hotel/edit/${hotelId}?room_id=${roomId}&quiteSwitch=11`,
+  );
 };
 
 watch(hotels, (newValue) => {

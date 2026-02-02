@@ -537,6 +537,8 @@ import { Switch } from "@headlessui/vue";
 import { useRoomStore } from "../stores/room";
 import RoomAmenitiesComponent from "./RoomPart/Amenties.vue";
 import Swal from "sweetalert2";
+import router from "../router";
+import { useRoute } from "vue-router";
 
 const props = defineProps({
   id: {
@@ -546,6 +548,7 @@ const props = defineProps({
 });
 
 const toast = useToast();
+const route = useRoute();
 const roomStore = useRoomStore();
 
 // State
@@ -607,9 +610,23 @@ const fetchRooms = async () => {
   try {
     const response = await roomStore.getListAction({
       hotel_id: props.id,
-      limit: 1000,
+      limit: 100,
     });
     rooms.value = response.result.data || [];
+
+    if (route.query.room_id) {
+      console.log(route.query.room_id, filteredRooms.value, "this is room");
+
+      const roomToSelect = filteredRooms.value.find(
+        (r) => r.id == route.query.room_id,
+      );
+
+      if (roomToSelect) {
+        selectRoom(roomToSelect);
+      }
+
+      console.log(roomToSelect, "this is room selected");
+    }
   } catch (error) {
     toast.error("Failed to load rooms");
     console.error(error);
@@ -620,6 +637,7 @@ const fetchRooms = async () => {
 
 const selectRoom = async (room) => {
   selectedRoomId.value = room.id;
+  router.push({ query: { room_id: room.id, quiteSwitch: 11 } });
   currentTab.value = "basic";
 
   // Load full room details

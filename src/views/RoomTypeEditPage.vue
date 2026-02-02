@@ -4,13 +4,24 @@
     <div class="w-1/3 bg-white rounded-lg shadow-sm p-4 overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold text-gray-700">Rooms</h3>
-        <button
-          @click="createNewRoom"
-          class="px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors"
-        >
-          <i class="fa-solid fa-plus mr-1"></i>
-          New Room
-        </button>
+        <div class="flex justify-end items-center gap-x-3">
+          <div class="flex justify-end gap-x-2 items-center">
+            <p
+              @click="onlyShowOn = !onlyShowOn"
+              :class="onlyShowOn ? 'bg-[#FF613c] text-white' : 'bg-gray-300'"
+              class="px-2 cursor-pointer py-1.5 text-sm rounded-lg"
+            >
+              Only show on
+            </p>
+          </div>
+          <button
+            @click="createNewRoom"
+            class="px-3 py-1.5 bg-[#FF613c] hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            <i class="fa-solid fa-plus mr-1"></i>
+            New Room
+          </button>
+        </div>
       </div>
 
       <!-- Search -->
@@ -572,6 +583,7 @@ const selectedRoomId = ref(null);
 const searchQuery = ref("");
 const currentTab = ref("basic");
 const imageInput = ref(null);
+const onlyShowOn = ref(false);
 
 const tabs = [
   { id: "basic", label: "Basic Info" },
@@ -622,14 +634,24 @@ const imagePreviews = ref([]);
 const isEditing = computed(() => selectedRoomId.value !== null);
 
 const filteredRooms = computed(() => {
-  if (!searchQuery.value) return rooms.value;
+  let filtered = rooms.value;
 
-  const query = searchQuery.value.toLowerCase();
-  return rooms.value.filter(
-    (room) =>
-      room.name.toLowerCase().includes(query) ||
-      room.description?.toLowerCase().includes(query),
-  );
+  // Apply search filter
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(
+      (room) =>
+        room.name.toLowerCase().includes(query) ||
+        room.description?.toLowerCase().includes(query),
+    );
+  }
+
+  // Apply onlyShowOn filter
+  if (onlyShowOn.value) {
+    filtered = filtered.filter((room) => room?.meta?.is_show_on === "1");
+  }
+
+  return filtered;
 });
 
 // Methods

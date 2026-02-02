@@ -1236,7 +1236,7 @@ onMounted(async () => {
 
 <template>
   <Layout>
-    <button
+    <!-- <button
       @click="$router.push('/hotel-v2')"
       class="p-3 mb-5 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-gray-50"
     >
@@ -1253,7 +1253,7 @@ onMounted(async () => {
           d="M15 19l-7-7 7-7"
         />
       </svg>
-    </button>
+    </button> -->
     <div class="h-auto col-span-2 bg-white">
       <div class="h-auto pb-4">
         <div class="py-2 px-6">
@@ -2933,9 +2933,7 @@ onMounted(async () => {
         </div>
 
         <div v-if="quiteSwitch == 11" class="">
-          <RoomTypeEditPage
-            :id="formData.id"
-          />
+          <RoomTypeEditPage :id="formData.id" />
         </div>
       </div>
     </div>

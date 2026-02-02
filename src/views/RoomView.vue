@@ -384,7 +384,8 @@ const goToCreate = () => {
 };
 
 const goToEdit = (id) => {
-  router.push({ name: "rooms-edit", params: { id } });
+  // router.push({ name: "rooms-edit", params: { id } });
+  window.open(`/rooms/${id}/edit`, "_blank");
 };
 
 // Hotel search functions

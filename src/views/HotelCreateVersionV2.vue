@@ -262,7 +262,7 @@ const removeImageInGallery = async (index) => {
 const getRemainingImageCount = () => {
   const totalImages = imagesPreview.value.length;
   return Math.max(0, totalImages - 5);
-}
+};
 
 const onGetArray = (data) => {
   formData.value.facilities = [];
@@ -299,7 +299,7 @@ const addNewNearBy = () => {
   if (nearby.value.place && nearby.value.distance) {
     formData.value.nearby_places.push({
       ...nearby.value,
-      id: Date.now()
+      id: Date.now(),
     });
     nearby.value = {
       img: null,
@@ -417,11 +417,11 @@ const addNewHandler = async () => {
   // YouTube links
   frmData.append(
     "youtube_link[0][mm_link]",
-    formData.value.youtube_link.mm_link || ""
+    formData.value.youtube_link.mm_link || "",
   );
   frmData.append(
     "youtube_link[0][en_link]",
-    formData.value.youtube_link.en_link || ""
+    formData.value.youtube_link.en_link || "",
   );
 
   // Images
@@ -438,16 +438,16 @@ const addNewHandler = async () => {
       if (formData.value.nearby_places[i].img) {
         frmData.append(
           "nearby_places[" + i + "][image]",
-          formData.value.nearby_places[i].img
+          formData.value.nearby_places[i].img,
         );
       }
       frmData.append(
         "nearby_places[" + i + "][name]",
-        formData.value.nearby_places[i].place
+        formData.value.nearby_places[i].place,
       );
       frmData.append(
         "nearby_places[" + i + "][distance]",
-        formData.value.nearby_places[i].distance
+        formData.value.nearby_places[i].distance,
       );
     }
   }
@@ -597,7 +597,7 @@ onMounted(async () => {
         />
       </svg>
     </button>
-    
+
     <div class="h-auto col-span-2 bg-white">
       <div class="h-auto pb-4">
         <div class="py-2 px-6">
@@ -607,7 +607,7 @@ onMounted(async () => {
               <div class="relative">
                 <v-select
                   v-model="formData.type"
-                  class="style-chooser-type bg-orange-500 rounded-lg p-0.5 w-full max-w-[170px]"
+                  class="style-chooser-type bg-[#ff613c] rounded-lg p-0.5 w-full max-w-[170px]"
                   :class="
                     validationErrors?.type
                       ? 'border-2 border-red-500'
@@ -651,7 +651,10 @@ onMounted(async () => {
                     <div class="text-white">{{ name }}</div>
                   </template>
                 </v-select>
-                <p v-if="validationErrors?.type" class="mt-1 text-sm text-red-500">
+                <p
+                  v-if="validationErrors?.type"
+                  class="mt-1 text-sm text-red-500"
+                >
                   {{ validationErrors.type }}
                 </p>
               </div>
@@ -664,7 +667,7 @@ onMounted(async () => {
               @click="activeTab = 1"
               :class="
                 activeTab == 1
-                  ? 'bg-white text-[#ff613c] shadow-md'
+                  ? 'bg-[#ff613c] text-white shadow-md'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               "
             >
@@ -675,7 +678,7 @@ onMounted(async () => {
               @click="activeTab = 2"
               :class="
                 activeTab == 2
-                  ? 'bg-white text-[#ff613c] shadow-md'
+                  ? 'bg-[#ff613c] text-white shadow-md'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               "
             >
@@ -683,21 +686,10 @@ onMounted(async () => {
             </p>
             <p
               class="px-4 py-2 cursor-pointer text-sm rounded-lg transition-all duration-200"
-              @click="activeTab = 3"
-              :class="
-                activeTab == 3
-                  ? 'bg-white text-[#ff613c] shadow-md'
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              "
-            >
-              Facilities
-            </p>
-            <p
-              class="px-4 py-2 cursor-pointer text-sm rounded-lg transition-all duration-200"
               @click="activeTab = 4"
               :class="
                 activeTab == 4
-                  ? 'bg-white text-[#ff613c] shadow-md'
+                  ? 'bg-[#ff613c] text-white shadow-md'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               "
             >
@@ -707,14 +699,17 @@ onMounted(async () => {
         </div>
 
         <div v-if="activeTab == 1">
-          <form @submit.prevent="addNewHandler" class="bg-white rounded-xl p-6 relative">
+          <form
+            @submit.prevent="addNewHandler"
+            class="bg-white rounded-xl p-6 relative"
+          >
             <button
               type="submit"
               :disabled="loading"
-              class="absolute -top-20 right-6 text-xs p-1.5 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="absolute -top-12 right-6 text-sm py-2 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <div class="flex gap-1">
-                <span>{{ loading ? 'Creating...' : 'Create' }}</span>
+                <span>{{ loading ? "Creating..." : "Create" }}</span>
                 <PlusIcon class="w-4 h-4" />
               </div>
             </button>
@@ -747,7 +742,10 @@ onMounted(async () => {
                             : ''
                         "
                       />
-                      <p v-if="validationErrors?.name" class="mt-1 text-sm text-red-500">
+                      <p
+                        v-if="validationErrors?.name"
+                        class="mt-1 text-sm text-red-500"
+                      >
                         {{ validationErrors.name }}
                       </p>
                       <p v-if="errors?.name" class="mt-1 text-sm text-red-500">
@@ -808,10 +806,16 @@ onMounted(async () => {
                           formData.place_id = null;
                         "
                       ></v-select>
-                      <p v-if="validationErrors?.city_id" class="mt-1 text-sm text-red-500">
+                      <p
+                        v-if="validationErrors?.city_id"
+                        class="mt-1 text-sm text-red-500"
+                      >
                         {{ validationErrors.city_id }}
                       </p>
-                      <p v-if="errors?.city_id" class="mt-1 text-sm text-red-500">
+                      <p
+                        v-if="errors?.city_id"
+                        class="mt-1 text-sm text-red-500"
+                      >
                         {{ errors.city_id[0] }}
                       </p>
                     </div>
@@ -822,7 +826,10 @@ onMounted(async () => {
                         class="text-sm font-medium text-gray-700 flex justify-between items-center"
                       >
                         <div>Place <span class="text-red-500">*</span></div>
-                        <router-link class="text-xs text-orange-500 hover:text-orange-600 hover:underline transition-colors" to="/database/5">
+                        <router-link
+                          class="text-xs text-orange-500 hover:text-orange-600 hover:underline transition-colors"
+                          to="/database/5"
+                        >
                           <div class="flex items-center gap-1">
                             <PlusIcon class="w-4 h-4" />
                             <p>Create place</p>
@@ -863,13 +870,22 @@ onMounted(async () => {
                         :disabled="!formData.city_id"
                         @update:modelValue="handlePlaceChange"
                       ></v-select>
-                      <p v-if="!formData.city_id" class="text-xs text-gray-500 mt-1">
+                      <p
+                        v-if="!formData.city_id"
+                        class="text-xs text-gray-500 mt-1"
+                      >
                         Please select a city first
                       </p>
-                      <p v-if="validationErrors?.place_id" class="mt-1 text-sm text-red-500">
+                      <p
+                        v-if="validationErrors?.place_id"
+                        class="mt-1 text-sm text-red-500"
+                      >
                         {{ validationErrors.place_id }}
                       </p>
-                      <p v-if="errors?.place_id" class="mt-1 text-sm text-red-500">
+                      <p
+                        v-if="errors?.place_id"
+                        class="mt-1 text-sm text-red-500"
+                      >
                         {{ errors.place_id[0] }}
                       </p>
                     </div>
@@ -954,7 +970,9 @@ onMounted(async () => {
                             placeholder="Add email address"
                             class="flex-1 h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
                           />
-                          <div class="h-10 w-10 flex items-center justify-center">
+                          <div
+                            class="h-10 w-10 flex items-center justify-center"
+                          >
                             <button
                               type="button"
                               @click="addEmailAction"
@@ -1020,10 +1038,16 @@ onMounted(async () => {
                         :reduce="(h) => h.name"
                         placeholder="Select VAT inclusion"
                       ></v-select>
-                      <p v-if="validationErrors?.vat_inclusion" class="mt-1 text-sm text-red-500">
+                      <p
+                        v-if="validationErrors?.vat_inclusion"
+                        class="mt-1 text-sm text-red-500"
+                      >
                         {{ validationErrors.vat_inclusion }}
                       </p>
-                      <p v-if="errors?.vat_inclusion" class="mt-1 text-sm text-red-500">
+                      <p
+                        v-if="errors?.vat_inclusion"
+                        class="mt-1 text-sm text-red-500"
+                      >
                         {{ errors.vat_inclusion[0] }}
                       </p>
                     </div>
@@ -1155,7 +1179,7 @@ onMounted(async () => {
                     <button
                       type="button"
                       @click="openContractFilePicker"
-                      class="h-8 px-3 font-medium rounded-md shadow-sm text-[11px] transition-colors flex items-center gap-1"
+                      class="py-2.5 px-3 font-medium rounded-lg shadow-sm text-[13px] transition-colors flex items-center gap-1"
                       :class="[
                         validationErrors?.contracts || errors?.contracts
                           ? 'border-2 border-red-500 bg-white text-red-600 hover:bg-red-50'
@@ -1163,7 +1187,9 @@ onMounted(async () => {
                       ]"
                     >
                       <PlusCircleIcon class="w-4 h-4" />
-                      <p v-if="validationErrors?.contracts || errors?.contracts">
+                      <p
+                        v-if="validationErrors?.contracts || errors?.contracts"
+                      >
                         Files needed
                       </p>
                       <p v-else>Add Contract</p>
@@ -1178,7 +1204,9 @@ onMounted(async () => {
                         Contract Files:
                       </p>
                       <div
-                        v-for="(contract, index) in formData.contract_files_preview"
+                        v-for="(
+                          contract, index
+                        ) in formData.contract_files_preview"
                         :key="index"
                         class="flex items-center gap-2"
                       >
@@ -1226,20 +1254,23 @@ onMounted(async () => {
         </div>
 
         <div v-if="activeTab == 2">
-          <form @submit.prevent="addNewHandler" class="bg-white rounded-xl p-6 relative">
+          <form
+            @submit.prevent="addNewHandler"
+            class="bg-white rounded-xl p-6 relative"
+          >
             <button
               type="submit"
               :disabled="loading"
-              class="absolute -top-20 right-6 text-xs p-1.5 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="absolute -top-12 right-6 text-sm py-2 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <div class="flex gap-1">
-                <span>{{ loading ? 'Creating...' : 'Create' }}</span>
+                <span>{{ loading ? "Creating..." : "Create" }}</span>
                 <PlusIcon class="w-4 h-4" />
               </div>
             </button>
             <div class="grid grid-cols-2 gap-8">
               <div class="space-y-8">
-                <div
+                <!-- <div
                   class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
                 >
                   <h4
@@ -1261,7 +1292,7 @@ onMounted(async () => {
                       />
                     </div>
                   </div>
-                </div>
+                </div> -->
 
                 <div
                   class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
@@ -1287,7 +1318,9 @@ onMounted(async () => {
                           class="cursor-pointer h-[200px] border-2 border-dashed border-gray-400 rounded-lg flex flex-col justify-center items-center hover:border-[#ff613c] transition-colors bg-gray-100"
                         >
                           <span class="text-gray-400">
-                            <PhotoIcon class="w-8 h-8 mx-auto mb-2 text-[#ff613c]" />
+                            <PhotoIcon
+                              class="w-8 h-8 mx-auto mb-2 text-[#ff613c]"
+                            />
                             <span class="text-xs block text-center"
                               >Click to upload image</span
                             >
@@ -1323,7 +1356,9 @@ onMounted(async () => {
                                 >
                                   <template v-if="imagesPreview[index]">
                                     <button
-                                      @click.prevent="removeImageSelectImage(index)"
+                                      @click.prevent="
+                                        removeImageSelectImage(index)
+                                      "
                                       class="absolute top-1 right-1 bg-[#ff613c] text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                     >
                                       <XMarkIcon class="w-3 h-3" />
@@ -1338,8 +1373,12 @@ onMounted(async () => {
                                       class="absolute inset-0 bg-black/40 rounded-md flex flex-col items-center justify-center cursor-pointer"
                                       @click="openImageGallery"
                                     >
-                                      <span class="text-white font-bold text-lg">+{{ getRemainingImageCount() }}</span>
-                                      <span class="text-white text-xs">More</span>
+                                      <span class="text-white font-bold text-lg"
+                                        >+{{ getRemainingImageCount() }}</span
+                                      >
+                                      <span class="text-white text-xs"
+                                        >More</span
+                                      >
                                     </div>
                                   </template>
                                 </div>
@@ -1348,7 +1387,9 @@ onMounted(async () => {
                                   :key="`empty-${index}`"
                                   class="w-full h-[94px] bg-gray-100 rounded-md flex items-center justify-center"
                                 >
-                                  <span class="text-xs text-gray-400">No image</span>
+                                  <span class="text-xs text-gray-400"
+                                    >No image</span
+                                  >
                                 </div>
                               </template>
                             </div>
@@ -1358,7 +1399,9 @@ onMounted(async () => {
                             <div
                               class="row-span-2 bg-gray-100 rounded-md flex items-center justify-center"
                             >
-                              <span class="text-gray-400 text-sm">No images</span>
+                              <span class="text-gray-400 text-sm"
+                                >No images</span
+                              >
                             </div>
                             <div class="grid grid-cols-2 gap-2">
                               <div
@@ -1366,7 +1409,9 @@ onMounted(async () => {
                                 :key="i"
                                 class="bg-gray-100 rounded-md h-[94px] flex items-center justify-center"
                               >
-                                <span class="text-xs text-gray-400">No image</span>
+                                <span class="text-xs text-gray-400"
+                                  >No image</span
+                                >
                               </div>
                             </div>
                           </template>
@@ -1402,7 +1447,7 @@ onMounted(async () => {
               </div>
 
               <div class="space-y-8">
-                <div
+                <!-- <div
                   class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
                 >
                   <h4
@@ -1424,7 +1469,7 @@ onMounted(async () => {
                       />
                     </div>
                   </div>
-                </div>
+                </div> -->
 
                 <div
                   class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
@@ -1499,11 +1544,19 @@ onMounted(async () => {
                           @click.prevent="openOfficialLogoImagePicker"
                           class="cursor-pointer w-40 h-40 border-2 border-dashed border-gray-400 rounded-lg flex flex-col justify-center items-center hover:border-[#ff613c] transition-colors bg-gray-100"
                         >
-                          <span v-if="!official_logo_preview" class="text-gray-400">
-                            <PhotoIcon class="w-8 h-8 mx-auto mb-2 text-[#ff613c]" />
+                          <span
+                            v-if="!official_logo_preview"
+                            class="text-gray-400"
+                          >
+                            <PhotoIcon
+                              class="w-8 h-8 mx-auto mb-2 text-[#ff613c]"
+                            />
                             <span class="text-xs">Upload Logo</span>
                           </span>
-                          <div v-if="official_logo_preview" class="relative w-full h-full">
+                          <div
+                            v-if="official_logo_preview"
+                            class="relative w-full h-full"
+                          >
                             <img
                               :src="official_logo_preview"
                               alt="Official logo preview"
@@ -1535,56 +1588,18 @@ onMounted(async () => {
           </form>
         </div>
 
-        <div v-if="activeTab == 3" class="">
-          <form @submit.prevent="addNewHandler" class="bg-white rounded-xl p-6 relative">
-             <button
-              type="submit"
-              :disabled="loading"
-              class="absolute -top-20 right-6 text-xs p-1.5 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <div class="flex gap-1">
-                <span>{{ loading ? 'Creating...' : 'Create' }}</span>
-                <PlusIcon class="w-4 h-4" />
-              </div>
-            </button>
-            
-            <div class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30">
-              <h4 class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200">
-                Hotel Facilities
-              </h4>
-              <p class="text-sm text-gray-600 mb-6">
-                Select all facilities available at your hotel. These will be displayed to guests.
-              </p>
-              
-              <FacilitoryStoreVue
-                @Change="onGetArray"
-                :data="formData.facilities"
-              />
-              
-              <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-                <p class="text-sm text-blue-700">
-                  <span class="font-medium">Selected facilities:</span> {{ formData.facilities.length }}
-                </p>
-                <p class="text-xs text-blue-600 mt-1">
-                  The selected facilities will be saved when you create the hotel.
-                </p>
-              </div>
-            </div>
-          </form>
-        </div>
-
         <div v-if="activeTab == 4" class="">
           <form
             @submit.prevent="addNewHandler"
             class="bg-white rounded-xl p-6 relative"
           >
-          <button
+            <button
               type="submit"
               :disabled="loading"
-              class="absolute -top-20 right-6 text-xs p-1.5 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="absolute -top-12 right-6 text-sm py-2 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <div class="flex gap-1">
-                <span>{{ loading ? 'Creating...' : 'Create' }}</span>
+                <span>{{ loading ? "Creating..." : "Create" }}</span>
                 <PlusIcon class="w-4 h-4" />
               </div>
             </button>
@@ -1861,7 +1876,10 @@ onMounted(async () => {
                     </div>
 
                     <div
-                      v-if="formData.location_map && formData.location_map !== 'null'"
+                      v-if="
+                        formData.location_map &&
+                        formData.location_map !== 'null'
+                      "
                       class="mt-6"
                     >
                       <p class="text-sm font-medium text-gray-700 mb-3">
@@ -1893,7 +1911,6 @@ onMounted(async () => {
       </div>
     </div>
 
-
     <Dialog
       :open="imageGalleryModal"
       @close="closeImageGallery"
@@ -1918,7 +1935,8 @@ onMounted(async () => {
                 </button>
               </div>
               <p class="text-gray-600 mt-2">
-                Manage your hotel images. You can upload new images or delete existing ones.
+                Manage your hotel images. You can upload new images or delete
+                existing ones.
               </p>
             </div>
 
@@ -1927,14 +1945,16 @@ onMounted(async () => {
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">
                   All Images ({{ imagesPreview.length }} total)
                 </h3>
-                
+
                 <div class="grid grid-cols-3 gap-3">
                   <div
                     v-for="(image, index) in imagesPreview"
                     :key="`new-${index}`"
                     class="relative group"
                   >
-                    <div class="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                    <div
+                      class="aspect-video rounded-lg overflow-hidden bg-gray-100"
+                    >
                       <img
                         :src="image"
                         :alt="`New image ${index + 1}`"
@@ -1948,7 +1968,7 @@ onMounted(async () => {
                       <XMarkIcon class="w-4 h-4" />
                     </button>
                   </div>
-                  
+
                   <!-- Upload More Button -->
                   <div class="">
                     <input
@@ -2008,6 +2028,35 @@ onMounted(async () => {
 
 .style-chooser .vs__selected {
   @apply text-sm bg-transparent;
+}
+
+.vs__search,
+.vs__search:focus {
+  color: var(--vs-search-input-color);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  line-height: var(--vs-line-height);
+  border: 1px solid transparent;
+  border-left: none;
+  outline: none;
+  margin: 4px 0 0;
+  padding: 4px 7px !important;
+  font-size: 14px !important;
+  background: none;
+  box-shadow: none;
+  width: 0;
+  max-width: 100%;
+  flex-grow: 1;
+}
+.vs__search .vs__placeholder {
+  font-size: 12px !important;
+}
+.style-chooser .vs__dropdown-toggle .vs__selected-options .vs__selected {
+  padding: 6px 5px;
+  border: none;
+  font-size: 14px !important;
+  /* white-space: nowrap !important; */
 }
 
 .style-chooser .vs__search {

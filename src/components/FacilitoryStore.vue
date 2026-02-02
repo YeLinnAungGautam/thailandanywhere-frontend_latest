@@ -1,9 +1,25 @@
 <template>
-  <div class="w-full p-6 mx-auto">
+  <div class="w-full p-2 mx-auto">
     <!-- Header -->
     <div class="flex justify-between items-center mb-8">
-      <h2 class="text-xl font-bold text-gray-800">Hotel Facilities</h2>
+      <div>
+        <h2 class="text-xl font-bold text-gray-800">Hotel Facilities</h2>
+        <p class="text-sm">
+          Don't forget to click update after changes or reorder.
+        </p>
+      </div>
       <div class="flex items-center gap-3">
+        <!-- Delete All Button -->
+        <button
+          v-if="selectedFacilityIds.length > 0"
+          type="button"
+          @click="confirmDeleteAll"
+          class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
+        >
+          <TrashIcon class="w-5 h-5" />
+          <span>Delete All ({{ selectedFacilityIds.length }})</span>
+        </button>
+
         <!-- AI Generate Button -->
         <button
           type="button"
@@ -89,9 +105,18 @@
         v-if="selectedFacilities.length > 0"
         class="bg-white p-4 rounded-lg border border-gray-200"
       >
-        <h3 class="text-sm font-medium text-gray-700 mb-3">
-          Drag to Reorder (Display Order on Hotel Page)
-        </h3>
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-sm font-medium text-gray-700">
+            Drag to Reorder (Display Order on Hotel Page)
+          </h3>
+          <button
+            @click="confirmDeleteAll"
+            class="text-xs text-red-600 hover:text-red-800 hover:underline font-medium flex items-center gap-1"
+          >
+            <TrashIcon class="w-4 h-4" />
+            Clear All
+          </button>
+        </div>
         <draggable
           v-model="selectedFacilities"
           @end="onDragEnd"
@@ -147,6 +172,7 @@
               <!-- Remove Button -->
               <button
                 @click="removeFacility(element.id)"
+                type="button"
                 class="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
               >
                 <TrashIcon class="w-4 h-4" />
@@ -201,6 +227,7 @@
               <h3 class="text-2xl font-bold text-gray-900">Add New Facility</h3>
               <button
                 @click="closeModal"
+                type="button"
                 class="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <svg
@@ -327,6 +354,80 @@
       </div>
     </Transition>
 
+    <!-- Delete All Confirmation Modal -->
+    <Transition name="modal">
+      <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 overflow-y-auto">
+        <div
+          class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0"
+        >
+          <div
+            class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+            @click="showDeleteConfirm = false"
+          ></div>
+
+          <div
+            class="relative inline-block w-full max-w-md my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl"
+          >
+            <!-- Header -->
+            <div class="px-6 py-4 bg-red-50 border-b border-red-100">
+              <div class="flex items-center gap-3">
+                <div
+                  class="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full"
+                >
+                  <TrashIcon class="w-6 h-6 text-red-600" />
+                </div>
+                <div>
+                  <h3 class="text-lg font-bold text-gray-900">
+                    Delete All Facilities?
+                  </h3>
+                  <p class="text-sm text-gray-600">
+                    This will remove all {{ selectedFacilityIds.length }}
+                    facilities
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Body -->
+            <div class="px-6 py-4">
+              <p class="text-sm text-gray-700">
+                Are you sure you want to remove all selected facilities from
+                this hotel? This action cannot be undone.
+              </p>
+              <div
+                class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg"
+              >
+                <p class="text-xs text-yellow-800">
+                  ⚠️ Note: This only removes facilities from this hotel. The
+                  facilities themselves will still exist in the system.
+                </p>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div
+              class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3"
+            >
+              <button
+                type="button"
+                @click="showDeleteConfirm = false"
+                class="px-4 py-2 bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-lg transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                @click="deleteAllFacilities"
+                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
+              >
+                Yes, Delete All
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Toast Notification -->
     <Transition name="toast">
       <div
@@ -381,6 +482,7 @@ let currentApiKeyIndex = 1;
 const isGenerating = ref(false);
 const submitting = ref(false);
 const showModal = ref(false);
+const showDeleteConfirm = ref(false);
 const selectedFacilityIds = ref([]);
 const imagePreview = ref(null);
 const imageInput = ref(null);
@@ -434,6 +536,24 @@ const switchToBackupKey = () => {
     return true;
   }
   return false;
+};
+
+// ✅ Confirm Delete All
+const confirmDeleteAll = () => {
+  if (selectedFacilityIds.value.length === 0) {
+    showToast("No facilities to delete", "warning");
+    return;
+  }
+  showDeleteConfirm.value = true;
+};
+
+// ✅ Delete All Facilities
+const deleteAllFacilities = () => {
+  const count = selectedFacilityIds.value.length;
+  selectedFacilityIds.value = [];
+  emit("change", selectedFacilityIds.value);
+  showDeleteConfirm.value = false;
+  showToast(`🗑️ Removed all ${count} facilities`, "success");
 };
 
 // ✅ Generate facilities with AI

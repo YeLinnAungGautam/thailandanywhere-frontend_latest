@@ -43,6 +43,7 @@ import GoodToKnow from "./GoodToKnow.vue";
 import NearByPlace from "./NearByPlace.vue";
 import KeyHighLight from "./KeyHighLight.vue";
 import AiDescriptionEditor from "./GenerateAI/DescriptionAi.vue";
+import RoomTypeEditPage from "./RoomTypeEditPage.vue";
 
 const createModalOpen = ref(false);
 const toast = useToast();
@@ -432,6 +433,25 @@ const removeContractFile = (index) => {
   }
 };
 
+// Helper function to check if value is empty
+const isEmpty = (value) => {
+  if (value === null || value === undefined) return true;
+  if (typeof value === "string" && value.trim() === "") return true;
+  if (Array.isArray(value) && value.length === 0) return true;
+  if (typeof value === "object" && Object.keys(value).length === 0) return true;
+  return false;
+};
+
+// Helper function to compare values
+const hasChanged = (oldValue, newValue) => {
+  if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+    return !isEmpty(newValue);
+  }
+  return false;
+};
+
+const originalFormData = ref({});
+
 const addNewHandler = async () => {
   const frmData = new FormData();
   frmData.append("name", formData.value.name);
@@ -611,19 +631,34 @@ const addNewHandler = async () => {
   }
 };
 
-const cancelButtonAction = () => {
-  router.push("/products/2");
-};
-
 const updateHandler = async () => {
   const frmData = new FormData();
-  frmData.append("name", formData.value.name);
-  frmData.append("place", formData.value.place);
-  frmData.append("city_id", formData.value.city_id);
-  if (formData.value.place_id != null) {
+
+  // Only add changed and non-empty fields
+  if (hasChanged(originalFormData.value.name, formData.value.name)) {
+    frmData.append("name", formData.value.name);
+  }
+
+  if (hasChanged(originalFormData.value.place, formData.value.place)) {
+    frmData.append("place", formData.value.place);
+  }
+
+  if (hasChanged(originalFormData.value.city_id, formData.value.city_id)) {
+    frmData.append("city_id", formData.value.city_id);
+  }
+
+  if (
+    hasChanged(originalFormData.value.place_id, formData.value.place_id) &&
+    formData.value.place_id != null
+  ) {
     frmData.append("place_id", formData.value.place_id);
   }
+
   if (
+    hasChanged(
+      originalFormData.value.category_id,
+      formData.value.category_id,
+    ) &&
     formData.value.category_id != undefined &&
     formData.value.category_id != "undefined" &&
     formData.value.category_id != "" &&
@@ -631,64 +666,215 @@ const updateHandler = async () => {
   ) {
     frmData.append("category_id", formData.value.category_id);
   }
-  if (formData.value.vat_inclusion != "") {
+
+  if (
+    hasChanged(
+      originalFormData.value.vat_inclusion,
+      formData.value.vat_inclusion,
+    ) &&
+    formData.value.vat_inclusion != ""
+  ) {
     frmData.append("vat_inclusion", formData.value.vat_inclusion);
   }
-  frmData.append("type", formData.value.type);
-  frmData.append("payment_method", formData.value.payment_method);
-  frmData.append("bank_name", formData.value.bank_name);
-  frmData.append("bank_account_number", formData.value.bank_account_number);
-  frmData.append("account_name", formData.value.account_name);
 
-  frmData.append("official_address", formData.value.official_address);
-  frmData.append("vat_id", formData.value.vat_id);
-  frmData.append("vat_name", formData.value.vat_name);
-  frmData.append("vat_address", formData.value.vat_address);
-  frmData.append("official_phone_number", formData.value.official_phone_number);
+  if (hasChanged(originalFormData.value.type, formData.value.type)) {
+    frmData.append("type", formData.value.type);
+  }
 
-  if (formData.value.official_email && formData.value.official_email !== null) {
+  if (
+    hasChanged(
+      originalFormData.value.payment_method,
+      formData.value.payment_method,
+    )
+  ) {
+    frmData.append("payment_method", formData.value.payment_method);
+  }
+
+  if (hasChanged(originalFormData.value.bank_name, formData.value.bank_name)) {
+    frmData.append("bank_name", formData.value.bank_name);
+  }
+
+  if (
+    hasChanged(
+      originalFormData.value.bank_account_number,
+      formData.value.bank_account_number,
+    )
+  ) {
+    frmData.append("bank_account_number", formData.value.bank_account_number);
+  }
+
+  if (
+    hasChanged(originalFormData.value.account_name, formData.value.account_name)
+  ) {
+    frmData.append("account_name", formData.value.account_name);
+  }
+
+  if (
+    hasChanged(
+      originalFormData.value.official_address,
+      formData.value.official_address,
+    )
+  ) {
+    frmData.append("official_address", formData.value.official_address);
+  }
+
+  if (hasChanged(originalFormData.value.vat_id, formData.value.vat_id)) {
+    frmData.append("vat_id", formData.value.vat_id);
+  }
+
+  if (hasChanged(originalFormData.value.vat_name, formData.value.vat_name)) {
+    frmData.append("vat_name", formData.value.vat_name);
+  }
+
+  if (
+    hasChanged(originalFormData.value.vat_address, formData.value.vat_address)
+  ) {
+    frmData.append("vat_address", formData.value.vat_address);
+  }
+
+  if (
+    hasChanged(
+      originalFormData.value.official_phone_number,
+      formData.value.official_phone_number,
+    )
+  ) {
+    frmData.append(
+      "official_phone_number",
+      formData.value.official_phone_number,
+    );
+  }
+
+  if (
+    hasChanged(
+      originalFormData.value.official_email,
+      formData.value.official_email,
+    ) &&
+    formData.value.official_email &&
+    formData.value.official_email !== null
+  ) {
     frmData.append("official_email", formData.value.official_email);
   }
 
-  frmData.append("official_remark", formData.value.official_remark);
-  if (formData.value.official_logo) {
+  if (
+    hasChanged(
+      originalFormData.value.official_remark,
+      formData.value.official_remark,
+    )
+  ) {
+    frmData.append("official_remark", formData.value.official_remark);
+  }
+
+  if (
+    formData.value.official_logo &&
+    formData.value.official_logo instanceof File
+  ) {
     frmData.append("official_logo", formData.value.official_logo);
   }
 
-  if (formData.value.check_in && formData.value.check_in !== null) {
+  if (
+    hasChanged(originalFormData.value.check_in, formData.value.check_in) &&
+    formData.value.check_in &&
+    formData.value.check_in !== null
+  ) {
     frmData.append("check_in", formData.value.check_in);
   }
 
-  if (formData.value.check_out && formData.value.check_out !== null) {
+  if (
+    hasChanged(originalFormData.value.check_out, formData.value.check_out) &&
+    formData.value.check_out &&
+    formData.value.check_out !== null
+  ) {
     frmData.append("check_out", formData.value.check_out);
   }
-  frmData.append("cancellation_policy", formData.value.cancellation_policy);
 
-  frmData.append("legal_name", formData.value.legal_name);
-  frmData.append("description", formData.value.description);
-  frmData.append("full_description", formData.value.full_description);
-  frmData.append("full_description_en", formData.value.full_description_en);
   if (
+    hasChanged(
+      originalFormData.value.cancellation_policy,
+      formData.value.cancellation_policy,
+    )
+  ) {
+    frmData.append("cancellation_policy", formData.value.cancellation_policy);
+  }
+
+  if (
+    hasChanged(originalFormData.value.legal_name, formData.value.legal_name)
+  ) {
+    frmData.append("legal_name", formData.value.legal_name);
+  }
+
+  if (
+    hasChanged(originalFormData.value.description, formData.value.description)
+  ) {
+    frmData.append("description", formData.value.description);
+  }
+
+  if (
+    hasChanged(
+      originalFormData.value.full_description,
+      formData.value.full_description,
+    )
+  ) {
+    frmData.append("full_description", formData.value.full_description);
+  }
+
+  if (
+    hasChanged(
+      originalFormData.value.full_description_en,
+      formData.value.full_description_en,
+    )
+  ) {
+    frmData.append("full_description_en", formData.value.full_description_en);
+  }
+
+  if (
+    hasChanged(
+      originalFormData.value.contract_due,
+      formData.value.contract_due,
+    ) &&
     formData.value.contract_due != null &&
     formData.value.contract_due != undefined &&
     formData.value.contract_due != "null" &&
-    formData.value.contract_due != "undefinded"
+    formData.value.contract_due != "undefined"
   ) {
     frmData.append("contract_due", formData.value.contract_due);
   }
-  frmData.append("data_checked", formData.value.data_checked ? 1 : 0);
-  frmData.append("location_map_title", formData.value.location_map_title);
-  frmData.append("location_map", formData.value.location_map);
 
-  if (formData.value.rating !== "" && formData.value.rating !== null) {
+  frmData.append("data_checked", formData.value.data_checked ? 1 : 0);
+
+  if (
+    hasChanged(
+      originalFormData.value.location_map_title,
+      formData.value.location_map_title,
+    )
+  ) {
+    frmData.append("location_map_title", formData.value.location_map_title);
+  }
+
+  if (
+    hasChanged(originalFormData.value.location_map, formData.value.location_map)
+  ) {
+    frmData.append("location_map", formData.value.location_map);
+  }
+
+  if (
+    hasChanged(originalFormData.value.rating, formData.value.rating) &&
+    formData.value.rating !== "" &&
+    formData.value.rating !== null
+  ) {
     frmData.append("rating", formData.value.rating);
   }
-  if (formData.value.latitude && formData.value.longitude) {
-    frmData.append("latitude", formData.value.latitude);
-    frmData.append("longitude", formData.value.longitude);
+
+  if (
+    hasChanged(originalFormData.value.latitude, formData.value.latitude) ||
+    hasChanged(originalFormData.value.longitude, formData.value.longitude)
+  ) {
+    if (formData.value.latitude && formData.value.longitude) {
+      frmData.append("latitude", formData.value.latitude);
+      frmData.append("longitude", formData.value.longitude);
+    }
   }
 
-  // Append new contract files
+  // Append new contract files only if there are any
   if (formData.value.contracts.length > 0) {
     for (let i = 0; i < formData.value.contracts.length; i++) {
       let file = formData.value.contracts[i];
@@ -696,55 +882,77 @@ const updateHandler = async () => {
     }
   }
 
-  if (formData.value.email.length > 0) {
-    for (let i = 0; i < formData.value.email.length; i++) {
-      frmData.append("email[" + i + "]", formData.value.email[i]);
+  // Only append email if changed
+  if (hasChanged(originalFormData.value.email, formData.value.email)) {
+    if (formData.value.email.length > 0) {
+      for (let i = 0; i < formData.value.email.length; i++) {
+        frmData.append("email[" + i + "]", formData.value.email[i]);
+      }
     }
   }
 
-  frmData.append(
-    "youtube_link[0][mm_link]",
-    formData.value.youtube_link.mm_link
-      ? formData.value.youtube_link.mm_link
-      : "",
-  );
-  frmData.append(
-    "youtube_link[0][en_link]",
-    formData.value.youtube_link.en_link
-      ? formData.value.youtube_link.en_link
-      : "",
-  );
+  // Only append youtube links if changed
+  if (
+    hasChanged(originalFormData.value.youtube_link, formData.value.youtube_link)
+  ) {
+    frmData.append(
+      "youtube_link[0][mm_link]",
+      formData.value.youtube_link.mm_link
+        ? formData.value.youtube_link.mm_link
+        : "",
+    );
+    frmData.append(
+      "youtube_link[0][en_link]",
+      formData.value.youtube_link.en_link
+        ? formData.value.youtube_link.en_link
+        : "",
+    );
+  }
 
-  if (formData.value.nearby_places.length > 0) {
-    for (let i = 0; i < formData.value.nearby_places.length; i++) {
-      if (formData.value.nearby_places[i].img) {
+  // Only append nearby places if changed
+  if (
+    hasChanged(
+      originalFormData.value.nearby_places,
+      formData.value.nearby_places,
+    )
+  ) {
+    if (formData.value.nearby_places.length > 0) {
+      for (let i = 0; i < formData.value.nearby_places.length; i++) {
+        if (formData.value.nearby_places[i].img) {
+          frmData.append(
+            "nearby_places[" + i + "][image]",
+            formData.value.nearby_places[i].img,
+          );
+        } else if (formData.value.nearby_places[i].image) {
+          frmData.append(
+            "nearby_places[" + i + "][image]",
+            formData.value.nearby_places[i].image,
+          );
+        }
         frmData.append(
-          "nearby_places[" + i + "][image]",
-          formData.value.nearby_places[i].img,
+          "nearby_places[" + i + "][name]",
+          formData.value.nearby_places[i].place,
         );
-      } else {
         frmData.append(
-          "nearby_places[" + i + "][image]",
-          formData.value.nearby_places[i].image,
+          "nearby_places[" + i + "][distance]",
+          formData.value.nearby_places[i].distance,
         );
       }
-      frmData.append(
-        "nearby_places[" + i + "][name]",
-        formData.value.nearby_places[i].place,
-      );
-      frmData.append(
-        "nearby_places[" + i + "][distance]",
-        formData.value.nearby_places[i].distance,
-      );
     }
   }
 
-  if (formData.value.facilities.length > 0) {
-    for (let f = 0; f < formData.value.facilities.length; f++) {
-      frmData.append("facilities[" + f + "]", formData.value.facilities[f]);
+  // Only append facilities if changed
+  if (
+    hasChanged(originalFormData.value.facilities, formData.value.facilities)
+  ) {
+    if (formData.value.facilities.length > 0) {
+      for (let f = 0; f < formData.value.facilities.length; f++) {
+        frmData.append("facilities[" + f + "]", formData.value.facilities[f]);
+      }
     }
   }
 
+  // Only append new images
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -753,8 +961,11 @@ const updateHandler = async () => {
   }
 
   frmData.append("_method", "PUT");
+
   try {
     const response = await hotelStore.updateAction(frmData, formData.value.id);
+
+    // Reset form data
     formData.value = {
       name: "",
       city_id: null,
@@ -804,10 +1015,12 @@ const updateHandler = async () => {
       images: [],
       facilities: [],
     };
+
     errors.value = null;
     imagesPreview.value = [];
     editImagesPreview.value = [];
     formData.value.contract_files_preview = [];
+    originalFormData.value = {};
     createModalOpen.value = false;
     closeModal();
 
@@ -940,6 +1153,8 @@ const getDetail = async (params) => {
       }
     }
 
+    originalFormData.value = JSON.parse(JSON.stringify(formData.value));
+
     createModalOpen.value = true;
 
     if (route.query.quiteSwitch) {
@@ -965,33 +1180,6 @@ const exportAction = async () => {
 };
 
 const forSale = ref(false);
-const toggleSale = () => {
-  forSale.value = !forSale.value;
-};
-
-// for import
-const importModal = ref(false);
-const importHandler = () => {
-  importModal.value = !importModal.value;
-};
-const fileImport = ref(null);
-const importFileAction = (e) => {
-  let file = e.target.files[0];
-  fileImport.value = file;
-};
-const importActionHandler = async () => {
-  const frmData = new FormData();
-  frmData.append("file", fileImport.value);
-  try {
-    importModal.value = false;
-    const res = await hotelStore.importAction(frmData);
-    fileImport.value = null;
-    toast.success(`Hotel ${res.message}`);
-  } catch (e) {
-    importModal.value = false;
-    toast.error(e.response.data.message);
-  }
-};
 
 const removeLinkContract = async (id) => {
   const res = await hotelStore.deleteHotelContractAction(formData.value.id, id);
@@ -1077,7 +1265,7 @@ onMounted(async () => {
               <div class="relative">
                 <v-select
                   v-model="formData.type"
-                  class="style-chooser-type bg-orange-500 rounded-lg p-0.5 w-full max-w-[170px]"
+                  class="style-chooser-type bg-[#FF613C] rounded-lg p-0.5 w-full max-w-[170px]"
                   :class="errors?.name ? 'border border-red-500' : ''"
                   :options="typeList ?? []"
                   :style="{
@@ -1151,46 +1339,48 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div class="flex justify-start items-center gap-2 mt-6">
+          <div
+            class="flex justify-start overflow-x-scroll w-full no-sidebar-container items-center gap-2 mt-6"
+          >
             <p
-              class="px-4 py-2 cursor-pointer text-sm rounded-lg transition-all duration-200"
+              class="px-4 py-2 cursor-pointer text-sm rounded-lg transition-all duration-200 whitespace-nowrap"
               @click="quiteSwitch = 1"
               :class="
                 quiteSwitch == 1
-                  ? 'bg-white text-[#ff613c] shadow-md'
+                  ? 'bg-[#FF613c] text-white shadow-md'
                   : 'bg-white text-gray-700 hover:bg-gray-50'
               "
             >
               General
             </p>
             <p
-              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200 whitespace-nowrap"
               @click="quiteSwitch = 2"
               :class="
                 quiteSwitch == 2
-                  ? 'bg-white text-[#ff613c] shadow-md'
+                  ? 'bg-[#FF613c] text-white shadow-md'
                   : 'bg-white text-gray-700  hover:bg-gray-50'
               "
             >
               Hotel Detail & Info
             </p>
             <p
-              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200 whitespace-nowrap"
               @click="quiteSwitch = 3"
               :class="
                 quiteSwitch == 3
-                  ? 'bg-white text-[#ff613c] shadow-md'
+                  ? 'bg-[#FF613c] text-white shadow-md'
                   : 'bg-white text-gray-700  hover:bg-gray-50'
               "
             >
               Facilities
             </p>
             <p
-              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200 whitespace-nowrap"
               @click="quiteSwitch = 4"
               :class="
                 quiteSwitch == 4
-                  ? 'bg-white text-[#ff613c] shadow-md'
+                  ? 'bg-[#FF613c] text-white shadow-md'
                   : 'bg-white text-gray-700  hover:bg-gray-50'
               "
             >
@@ -1198,35 +1388,24 @@ onMounted(async () => {
             </p>
             <p
               v-if="formData.id"
-              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200 whitespace-nowrap"
               @click="quiteSwitch = 5"
               :class="
                 quiteSwitch == 5
-                  ? 'bg-white text-[#ff613c] shadow-md'
+                  ? 'bg-[#FF613c] text-white shadow-md'
                   : 'bg-white text-gray-700  hover:bg-gray-50'
               "
             >
               Add On
             </p>
-            <!-- <p
-              v-if="formData.id"
-              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
-              @click="quiteSwitch = 6"
-              :class="
-                quiteSwitch == 6
-                  ? 'bg-white text-[#ff613c] shadow-md'
-                  : 'bg-white text-gray-700  hover:bg-gray-50'
-              "
-            >
-              VAT & Confirmation
-            </p> -->
+
             <p
               v-if="formData.id"
-              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200 whitespace-nowrap"
               @click="quiteSwitch = 7"
               :class="
                 quiteSwitch == 7
-                  ? 'bg-white text-[#ff613c] shadow-md'
+                  ? 'bg-[#FF613c] text-white shadow-md'
                   : 'bg-white text-gray-700  hover:bg-gray-50'
               "
             >
@@ -1234,11 +1413,11 @@ onMounted(async () => {
             </p>
             <p
               v-if="formData.id"
-              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200 whitespace-nowrap"
               @click="changeSwitch(8)"
               :class="
                 quiteSwitch == 8
-                  ? 'bg-white text-[#ff613c] shadow-md'
+                  ? 'bg-[#FF613c] text-white shadow-md'
                   : 'bg-white text-gray-700  hover:bg-gray-50'
               "
             >
@@ -1246,11 +1425,11 @@ onMounted(async () => {
             </p>
             <p
               v-if="formData.id"
-              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200 whitespace-nowrap"
               @click="changeSwitch(9)"
               :class="
                 quiteSwitch == 9
-                  ? 'bg-white text-[#ff613c] shadow-md'
+                  ? 'bg-[#FF613c] text-white shadow-md'
                   : 'bg-white text-gray-700  hover:bg-gray-50'
               "
             >
@@ -1258,15 +1437,27 @@ onMounted(async () => {
             </p>
             <p
               v-if="formData.id"
-              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200 whitespace-nowrap"
               @click="changeSwitch(10)"
               :class="
                 quiteSwitch == 10
-                  ? 'bg-white text-[#ff613c] shadow-md'
+                  ? 'bg-[#FF613c] text-white shadow-md'
                   : 'bg-white text-gray-700  hover:bg-gray-50'
               "
             >
               Near Places
+            </p>
+            <p
+              v-if="formData.id"
+              class="px-4 py-2 cursor-pointer rounded-lg text-sm transition-all duration-200 whitespace-nowrap"
+              @click="changeSwitch(11)"
+              :class="
+                quiteSwitch == 11
+                  ? 'bg-[#FF613c] text-white shadow-md'
+                  : 'bg-white text-gray-700  hover:bg-gray-50'
+              "
+            >
+              Rooms
             </p>
           </div>
         </div>
@@ -1279,9 +1470,12 @@ onMounted(async () => {
             <button
               type="submit"
               :disabled="loading"
-              class="absolute -top-20 right-6 text-xs p-1.5 px-5 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="absolute -top-[100px] right-6 text-sm py-2 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {{ loading ? "Updating..." : "Update" }}
+              <div class="flex gap-1">
+                <span>{{ loading ? "Updating..." : "Update" }}</span>
+                <PlusIcon class="w-4 h-4" />
+              </div>
             </button>
             <div class="grid grid-cols-2 gap-8">
               <div class="space-y-8">
@@ -1841,9 +2035,12 @@ onMounted(async () => {
             <button
               type="submit"
               :disabled="loading"
-              class="absolute -top-20 right-6 text-xs p-1.5 px-5 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="absolute -top-[100px] right-6 text-sm py-2 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {{ loading ? "Updating..." : "Update" }}
+              <div class="flex gap-1">
+                <span>{{ loading ? "Updating..." : "Update" }}</span>
+                <PlusIcon class="w-4 h-4" />
+              </div>
             </button>
             <div class="grid grid-cols-2 gap-8">
               <div class="space-y-8">
@@ -2256,24 +2453,17 @@ onMounted(async () => {
             <button
               type="submit"
               :disabled="loading"
-              class="absolute -top-20 right-6 text-xs p-1.5 px-5 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="absolute -top-[100px] right-6 text-sm py-2 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {{ loading ? "Updating..." : "Update" }}
+              <div class="flex gap-1">
+                <span>{{ loading ? "Updating..." : "Update" }}</span>
+                <PlusIcon class="w-4 h-4" />
+              </div>
             </button>
 
             <div
               class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
             >
-              <h4
-                class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
-              >
-                Hotel Facilities
-              </h4>
-              <p class="text-sm text-gray-600 mb-6">
-                Select all facilities available at your hotel. These will be
-                displayed to guests.
-              </p>
-
               <FacilitoryStoreVue
                 @Change="onGetArray"
                 :data="formData.facilities"
@@ -2468,116 +2658,9 @@ onMounted(async () => {
                   <h4
                     class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
                   >
-                    Nearby Places
+                    Location Map Preview
                   </h4>
                   <div class="space-y-5">
-                    <div class="space-y-3">
-                      <div class="flex items-center gap-2">
-                        <input
-                          type="file"
-                          ref="nearByImgInput"
-                          @change="handlerNearByFileChange"
-                          class="hidden"
-                          accept="image/*"
-                        />
-                        <div
-                          @click="openFileNearByPicker"
-                          v-if="!nearby.img_preview"
-                          class="cursor-pointer w-16 h-12 border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center hover:border-[#ff613c] transition-colors bg-gray-100"
-                        >
-                          <PhotoIcon class="w-5 h-5 text-gray-400" />
-                        </div>
-                        <div
-                          @click="openFileNearByPicker"
-                          v-if="nearby.img_preview"
-                          class="cursor-pointer w-16 h-12 border-2 border-gray-300 rounded-md overflow-hidden"
-                        >
-                          <img
-                            :src="nearby.img_preview"
-                            alt="Nearby place"
-                            class="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div class="flex-1 grid grid-cols-2 gap-2">
-                          <input
-                            type="text"
-                            v-model="nearby.place"
-                            placeholder="Enter place name"
-                            class="h-10 text-sm px-3 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
-                          />
-                          <input
-                            type="text"
-                            v-model="nearby.distance"
-                            placeholder="Distance (e.g., 3 min drive)"
-                            class="h-10 text-sm px-3 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          @click="addNewNearBy"
-                          class="h-10 w-10 flex items-center justify-center bg-[#ff613c] text-white rounded-md hover:bg-[#e05530] transition-colors"
-                        >
-                          <PlusIcon class="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div
-                      v-if="formData.nearby_places.length > 0"
-                      class="space-y-3"
-                    >
-                      <p class="text-sm font-medium text-gray-700">
-                        Added Nearby Places:
-                      </p>
-                      <div
-                        v-for="(place, index) in formData.nearby_places"
-                        :key="index"
-                        class="flex items-center gap-2 p-3 bg-gray-50 rounded-md"
-                      >
-                        <div class="w-12 h-12 rounded-md overflow-hidden">
-                          <img
-                            v-if="place.img_preview"
-                            :src="place.img_preview"
-                            alt="Nearby place"
-                            class="w-full h-full object-cover"
-                          />
-                          <img
-                            v-else-if="place.image"
-                            :src="place.image"
-                            alt="Nearby place"
-                            class="w-full h-full object-cover"
-                          />
-                          <div
-                            v-else
-                            class="w-full h-full bg-gray-200 flex items-center justify-center"
-                          >
-                            <PhotoIcon class="w-5 h-5 text-gray-400" />
-                          </div>
-                        </div>
-                        <div class="flex-1">
-                          <input
-                            type="text"
-                            v-model="place.place"
-                            class="w-full h-8 text-sm px-2 py-1 text-gray-900 bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#ff613c]"
-                          />
-                        </div>
-                        <div class="w-32">
-                          <input
-                            type="text"
-                            v-model="place.distance"
-                            class="w-full h-8 text-sm px-2 py-1 text-gray-900 bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#ff613c]"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          @click="removeNearByItem(index)"
-                          class="h-8 w-8 flex items-center justify-center bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-                        >
-                          <TrashIcon class="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-
                     <div
                       v-if="
                         formData.location_map &&
@@ -2585,12 +2668,9 @@ onMounted(async () => {
                       "
                       class="mt-6"
                     >
-                      <p class="text-sm font-medium text-gray-700 mb-3">
-                        Location Map Preview
-                      </p>
                       <iframe
                         :src="formData.location_map"
-                        class="w-full h-64 rounded-lg border-0"
+                        class="w-full h-[500px] rounded-lg border-0"
                         allowfullscreen=""
                         loading="lazy"
                         referrerpolicy="no-referrer-when-downgrade"
@@ -2809,9 +2889,12 @@ onMounted(async () => {
               <button
                 type="submit"
                 :disabled="loading"
-                class="px-6 py-2.5 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                class="absolute -top-[100px] right-6 text-sm py-2 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {{ loading ? "Updating..." : "Update VAT & Confirmation" }}
+                <div class="flex gap-1">
+                  <span>{{ loading ? "Updating..." : "Update" }}</span>
+                  <PlusIcon class="w-4 h-4" />
+                </div>
               </button>
             </div>
           </form>
@@ -2846,6 +2929,12 @@ onMounted(async () => {
             :id="formData.id"
             :type="'hotel'"
             :placeData="formData"
+          />
+        </div>
+
+        <div v-if="quiteSwitch == 11" class="">
+          <RoomTypeEditPage
+            :id="formData.id"
           />
         </div>
       </div>

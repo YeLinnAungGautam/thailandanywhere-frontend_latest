@@ -1106,7 +1106,7 @@ const changePage = async (url) => {
 };
 
 const goEditPage = (id) => {
-	router.push(`/entrance/update/${id}`);
+	router.push(`/products-v2/attraction/edit/${id}`);
 };
 
 const goToCreate = () => {

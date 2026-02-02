@@ -1,4 +1,3 @@
-<!-- views/Attraction/AttractionCreate.vue -->
 <template>
   <Layout>
     <button
@@ -8,11 +7,22 @@
       <ChevronLeftIcon class="w-5 h-5 text-gray-700" />
     </button>
 
-    <div class="h-auto col-span-2 bg-white">
+    <div v-if="loading" class="flex items-center justify-center py-20">
+      <div
+        class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent mr-4"
+      >
+        <span class="sr-only">Loading...</span>
+      </div>
+      <span class="text-gray-600">Loading attraction data...</span>
+    </div>
+
+    <div v-else class="h-auto col-span-2 bg-white">
       <div class="h-auto pb-4">
         <div class="py-2 px-6">
           <div class="flex gap-6 items-center mt-5">
-            <h3 class="text-xl font-bold text-gray-800">Create New Attraction</h3>
+            <h3 class="text-xl font-bold text-gray-800">
+              {{ formData.name }}
+            </h3>
           </div>
 
           <div class="flex justify-start items-center gap-2 mt-6">
@@ -49,6 +59,28 @@
             >
               Location & Media
             </p>
+            <p
+              class="px-4 py-2 cursor-pointer text-sm rounded-lg transition-all duration-200"
+              @click="activeTab = 4"
+              :class="
+                activeTab == 4
+                  ? 'bg-white text-[#ff613c] shadow-md'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              "
+            >
+              Good to Know
+            </p>
+            <p
+              class="px-4 py-2 cursor-pointer text-sm rounded-lg transition-all duration-200"
+              @click="activeTab = 5"
+              :class="
+                activeTab == 5
+                  ? 'bg-white text-[#ff613c] shadow-md'
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              "
+            >
+              Key Highlights
+            </p>
           </div>
         </div>
 
@@ -56,12 +88,11 @@
           <form @submit.prevent="onSubmitHandler" class="bg-white rounded-xl p-6 relative">
             <button
               type="submit"
-              :disabled="loading"
+              :disabled="submitLoading"
               class="absolute -top-20 right-6 text-xs p-1.5 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <div class="flex gap-1">
-                <span>{{ loading ? 'Creating...' : 'Create' }}</span>
-                <PlusIcon class="w-4 h-4" />
+                <span>{{ submitLoading ? 'Updating...' : 'Update' }}</span>
               </div>
             </button>
             
@@ -85,7 +116,7 @@
                         :class="validationErrors?.name || errors?.name ? 'border-2 border-red-500' : ''"
                       />
                       <p v-if="validationErrors?.name || errors?.name" class="mt-1 text-sm text-red-500">
-                        {{ validationErrors.name }}
+                        {{ validationErrors.name || errors.name[0] }}
                       </p>
                     </div>
 
@@ -141,8 +172,8 @@
                         :reduce="(city) => city.id"
                         placeholder="Choose City"
                       />
-                    <p v-if="validationErrors?.city_id || errors?.city_id" class="mt-1 text-sm text-red-500">
-                        {{ validationErrors.city_id }}
+                      <p v-if="validationErrors?.city_id || errors?.city_id" class="mt-1 text-sm text-red-500">
+                        {{ validationErrors.city_id || errors.city_id[0] }}
                       </p>
                     </div>
 
@@ -166,10 +197,11 @@
                     </div>
                   </div>
                 </div>
-                                <div class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30">
+
+                <div class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30">
                   <div class="flex justify-between items-center mb-6 pb-3 border-gray-200">
                     <h4 class="text-lg font-semibold text-gray-800">
-                      Contracts <span class="text-red-500">*</span>
+                      Contracts
                     </h4>
                     <input
                       type="file"
@@ -192,7 +224,7 @@
                       <p v-if="validationErrors?.contracts || errors?.contracts">
                         Files needed
                       </p>
-                      <p v-else>Add Contract</p>
+                      <p v-else>Add files</p>
                     </button>
                   </div>
                   
@@ -211,35 +243,62 @@
                         {{ errors.contract_name[0] }}
                       </p>
                     </div>
-
-                    <div class="space-y-4">
-                      <div
-                        v-if="formData.contract_files_preview.length > 0"
-                        class="space-y-2"
+                    
+                  <!-- <div class="flex justify-between items-center">
+                    <div class="mb-2 space-y-1">
+                      <label for="name" class="text-sm text-gray-800"
+                        >Contract Due Date</label
                       >
-                        <p class="text-sm font-medium text-gray-700">
-                          Contract Files:
-                        </p>
-                        <div
-                          v-for="(contract, index) in formData.contract_files_preview"
-                          :key="index"
-                          class="flex items-center gap-2 p-3 bg-gray-50 rounded-md border border-gray-200"
-                        >
-                          <div class="flex-1 text-sm text-gray-700 truncate">
-                            <div class="font-medium">{{ contract.name }}</div>
-                            <div class="text-xs text-gray-500">
-                              {{ contract.size }} • {{ contract.type }}
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            @click.prevent="removeContractFile(index)"
-                            class="h-8 w-8 flex items-center justify-center bg-[#ff613c] text-white text-sm font-medium rounded-md hover:bg-[#e05530] transition-colors"
-                          >
-                            <TrashIcon class="w-4 h-4" />
-                          </button>
-                        </div>
+                      <input
+                        v-model="formData.contract_due"
+                        type="date"
+                        class="w-full h-10 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                      />
+                    </div>
+                    <div class="mb-2 space-y-1">
+                      <label for="name" class="text-sm text-gray-800"
+                        >Data Checked</label
+                      >
+                      <div class="text-end">
+                        <input
+                          type="checkbox"
+                          v-model="formData.data_checked"
+                          class="w-8 h-8 px-4 py-2 text-xs text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-gray-300"
+                        />
                       </div>
+                    </div>
+                  </div> -->
+
+                    <div v-if="existingContracts.length > 0" class="space-y-3">
+                      <p class="text-sm font-medium text-gray-700">
+                        Existing Contracts:
+                      </p>
+                      <div
+                        v-for="(contract, index) in existingContracts"
+                        :key="contract.id"
+                        class="flex items-center gap-2 p-3 bg-gray-50 rounded-md border border-gray-200"
+                      >
+                        <!-- <DocumentIcon class="w-5 h-5 text-gray-500" /> -->
+                        <div class="flex-1 text-sm text-gray-700 truncate">
+                          <div class="font-medium">
+                                  <a
+                          :href="contract.file"
+                          target="_blank"
+                          class="flex-1 text-sm hover:underline px-3 py-2 rounded truncate"
+                        >
+                        contract link {{ index + 1 }}
+                        </a>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          @click.prevent="removeExistingContract(contract.id)"
+                          class="h-8 w-8 flex items-center justify-center bg-[#ff613c] text-white text-sm font-medium rounded-md hover:bg-orange-600 transition-colors"
+                        >
+                          <TrashIcon class="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
 
                       <div
                         v-if="validationErrors?.contracts"
@@ -248,17 +307,35 @@
                         {{ validationErrors.contracts }}
                       </div>
 
-                      <!-- <div
-                        v-if="errors?.contracts"
-                        class="text-sm text-red-500 bg-red-50 px-3 py-2 rounded"
-                      >
-                        {{ errors.contracts[0] }}
-                      </div> -->
-
-                      <p class="text-xs text-gray-500">
-                        You can upload multiple contract files (PDF, DOC, DOCX, TXT, XLS, XLSX)
+                    <div v-if="formData.contract_files_preview.length > 0" class="space-y-3">
+                      <p class="text-sm font-medium text-gray-700">
+                        New Contract Files:
                       </p>
+                      <div
+                        v-for="(contract, index) in formData.contract_files_preview"
+                        :key="index"
+                        class="flex items-center gap-2 p-3 bg-gray-50 rounded-md border border-gray-200"
+                      >
+                        <!-- <DocumentIcon class="w-5 h-5 text-gray-500" /> -->
+                        <div class="flex-1 text-sm text-gray-700 truncate">
+                          <div class="font-medium">{{ contract.name }}</div>
+                          <div class="text-xs text-gray-500">
+                            {{ contract.size }} • {{ contract.type }}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          @click.prevent="removeContractFile(index)"
+                          class="h-8 w-8 flex items-center justify-center bg-[#ff613c] text-white text-sm font-medium rounded-md hover:bg-[#e05530] transition-colors"
+                        >
+                          <TrashIcon class="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
+
+                    <p class="text-xs text-gray-500">
+                      You can upload multiple contract files (PDF, DOC, DOCX, TXT, XLS, XLSX)
+                    </p>
                   </div>
                 </div>
               </div>
@@ -283,8 +360,8 @@
                         :reduce="(h) => h.name"
                         placeholder="Select VAT inclusion"
                       />
-                            <p v-if="validationErrors?.vat_inclusion || errors?.vat_inclusion" class="mt-1 text-sm text-red-500">
-                        {{ validationErrors.vat_inclusion }}
+                      <p v-if="validationErrors?.vat_inclusion || errors?.vat_inclusion" class="mt-1 text-sm text-red-500">
+                        {{ validationErrors.vat_inclusion || errors.vat_inclusion[0] }}
                       </p>
                     </div>
 
@@ -392,7 +469,7 @@
                             placeholder="Add email address"
                             class="flex-1 h-10 px-4 py-2 text-sm text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white transition"
                           />
-                               <div class="h-10 w-10 flex items-center justify-center">
+                          <div class="h-10 w-10 flex items-center justify-center">
                             <button
                               type="button"
                               @click="addEmailAction"
@@ -431,17 +508,15 @@
           </form>
         </div>
 
-
         <div v-if="activeTab == 2">
           <form @submit.prevent="onSubmitHandler" class="bg-white rounded-xl p-6 relative">
             <button
               type="submit"
-              :disabled="loading"
+              :disabled="submitLoading"
               class="absolute -top-20 right-6 text-xs p-1.5 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <div class="flex gap-1">
-                <span>{{ loading ? 'Creating...' : 'Create' }}</span>
-                <PlusIcon class="w-4 h-4" />
+                <span>{{ submitLoading ? 'Updating...' : 'Update' }}</span>
               </div>
             </button>
             
@@ -474,7 +549,7 @@
                   <div class="space-y-4">
                     <div class="space-y-2">
                       <label class="text-sm font-medium text-gray-700">
-                        Upload Feature Image
+                        Current Feature Image
                       </label>
                       <input
                         type="file"
@@ -485,7 +560,7 @@
                       />
                       
                       <div
-                        v-if="!featureImagePreview"
+                        v-if="!featureImagePreview && !editData.cover_image"
                         @click="openFileFeaturePicker"
                         class="cursor-pointer w-full h-[300px] border-2 border-dashed border-gray-400 rounded-lg flex flex-col justify-center items-center hover:border-[#ff613c] transition-colors bg-gray-100"
                       >
@@ -498,7 +573,7 @@
                         <div class="relative group">
                           <img
                             class="w-full h-[300px] object-cover rounded-lg shadow-md"
-                            :src="featureImagePreview"
+                            :src="featureImagePreview || editData.cover_image"
                             alt="Feature image preview"
                           />
                           <button
@@ -592,51 +667,49 @@
 
                       <div class="col-span-2">
                         <div class="grid grid-cols-2 gap-2 h-full">
-                          <template v-if="imagesPreview.length > 0">
+                          <template v-if="allImages.length > 0">
                             <div class="relative group row-span-2">
-                              <template v-if="imagesPreview[0]">
+                              <template v-if="allImages[0]">
+                                <img
+                                  :src="typeof allImages[0] === 'string' ? allImages[0] : allImages[0].image"
+                                  alt="Gallery image"
+                                  class="w-full h-[200px] object-cover rounded-md"
+                                />
                                 <button
                                   @click.prevent="removeImageSelectImage(0)"
                                   class="absolute top-2 right-2 bg-[#ff613c] text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                 >
                                   <XMarkIcon class="w-4 h-4" />
                                 </button>
-                                <img
-                                  :src="imagesPreview[0]"
-                                  alt="Gallery image"
-                                  class="w-full h-[200px] object-cover rounded-md"
-                                />
                               </template>
                             </div>
 
                             <div class="grid grid-cols-2 gap-2">
                               <template v-for="index in 4">
                                 <div
-                                  v-if="imagesPreview[index]"
+                                  v-if="allImages[index]"
                                   :key="`image-${index}`"
                                   class="relative group"
                                 >
-                                  <template v-if="imagesPreview[index]">
-                                    <button
-                                      @click.prevent="removeImageSelectImage(index)"
-                                      class="absolute top-1 right-1 bg-[#ff613c] text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                                    >
-                                      <XMarkIcon class="w-3 h-3" />
-                                    </button>
-                                    <img
-                                      :src="imagesPreview[index]"
-                                      alt="Gallery image"
-                                      class="w-full h-[94px] object-cover rounded-md"
-                                    />
-                                    <div
-                                      v-if="index === 4 && getRemainingImageCount() > 0"
-                                      class="absolute inset-0 bg-black/40 rounded-md flex flex-col items-center justify-center cursor-pointer"
-                                      @click="openImageGallery"
-                                    >
-                                      <span class="text-white font-bold text-lg">+{{ getRemainingImageCount() }}</span>
-                                      <span class="text-white text-xs">More</span>
-                                    </div>
-                                  </template>
+                                  <img
+                                    :src="typeof allImages[index] === 'string' ? allImages[index] : allImages[index].image"
+                                    alt="Gallery image"
+                                    class="w-full h-[94px] object-cover rounded-md"
+                                  />
+                                  <button
+                                    @click.prevent="removeImageSelectImage(index)"
+                                    class="absolute top-1 right-1 bg-[#ff613c] text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                  >
+                                    <XMarkIcon class="w-3 h-3" />
+                                  </button>
+                                  <div
+                                    v-if="index === 4 && getRemainingImageCount() > 0"
+                                    class="absolute inset-0 bg-black/40 rounded-md flex flex-col items-center justify-center cursor-pointer"
+                                    @click="openImageGallery"
+                                  >
+                                    <span class="text-white font-bold text-lg">+{{ getRemainingImageCount() }}</span>
+                                    <span class="text-white text-xs">More</span>
+                                  </div>
                                 </div>
                                 <div
                                   v-else
@@ -689,7 +762,7 @@
                         </button>
                       </div>
                       <p class="text-sm text-gray-600">
-                        Total {{ imagesPreview.length }} images
+                        Total {{ allImages.length }} images
                       </p>
                     </div>
                   </div>
@@ -703,12 +776,11 @@
           <form @submit.prevent="onSubmitHandler" class="bg-white rounded-xl p-6 relative">
             <button
               type="submit"
-              :disabled="loading"
+              :disabled="submitLoading"
               class="absolute -top-20 right-6 text-xs p-1.5 px-4 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <div class="flex gap-1">
-                <span>{{ loading ? 'Creating...' : 'Create' }}</span>
-                <PlusIcon class="w-4 h-4" />
+                <span>{{ submitLoading ? 'Updating...' : 'Update' }}</span>
               </div>
             </button>
             
@@ -786,7 +858,7 @@
                       </div>
                     </div>
 
-                    <div v-if="formData.location_map" class="space-y-2">
+                    <div v-if="formData.location_map && formData.location_map !== 'null'" class="space-y-2">
                       <label class="text-sm font-medium text-gray-700">Map Preview</label>
                       <div class="border border-gray-300 rounded-lg overflow-hidden">
                         <iframe
@@ -863,6 +935,22 @@
             </div>
           </form>
         </div>
+
+        <div v-if="activeTab == 4" class="bg-white rounded-xl p-6">
+          <EntranceGoodToKnow
+            :id="formData.id"
+            :type="'entrance'"
+            :productData="formData"
+          />
+        </div>
+
+        <div v-if="activeTab == 5" class="bg-white rounded-xl p-6">
+          <EntranceKeyHighLight
+            :id="formData.id"
+            :type="'entrance'"
+            :highlightData="formData"
+          />
+        </div>
       </div>
     </div>
 
@@ -897,23 +985,23 @@
             <div class="p-8">
               <div class="mb-8">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                  All Gallery Images ({{ imagesPreview.length }} total)
+                  All Gallery Images ({{ allImages.length }} total)
                 </h3>
                 
-                <div v-if="imagesPreview.length === 0" class="text-center py-12">
+                <div v-if="allImages.length === 0" class="text-center py-12">
                   <PhotoIcon class="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <p class="text-gray-600">No gallery images uploaded yet</p>
                 </div>
                 
                 <div v-else class="grid grid-cols-3 gap-4">
                   <div
-                    v-for="(image, index) in imagesPreview"
+                    v-for="(image, index) in allImages"
                     :key="index"
                     class="relative group"
                   >
                     <div class="aspect-video rounded-lg overflow-hidden bg-gray-100">
                       <img
-                        :src="image"
+                        :src="typeof image === 'string' ? image : image.image"
                         :alt="`Gallery image ${index + 1}`"
                         class="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
                       />
@@ -926,58 +1014,31 @@
                     </button>
                   </div>
                   
-                                  <div class="">
-                                    <input
-                                      type="file"
-                                      ref="galleryUploadInput"
-                                      multiple
-                                      @change="handleGalleryImageChange"
-                                      class="hidden"
-                                      accept="image/*"
-                                    />
-                                    <div
-                                      @click="galleryUploadInput?.click()"
-                                      class="w-full border-2 border-dashed border-gray-400 rounded-xl p-8 hover:border-[#ff613c] transition-colors bg-gray-50 flex flex-col items-center justify-center cursor-pointer"
-                                    >
-                                      <PlusCircleIcon class="w-12 h-12 text-[#ff613c] mb-4" />
-                                      <p class="text-lg font-medium text-gray-700 mb-2">
-                                        Upload More Images
-                                      </p>
-                                      <p class="text-sm text-gray-500 mb-1">
-                                        Click here or drag to add more images
-                                      </p>
-                                      <!-- <p class="text-xs text-gray-400">
-                                        Supports JPG, PNG, GIF • Max 10MB per image
-                                      </p> -->
-                                    </div>
-                                  </div>
+                  <div class="">
+                    <input
+                      type="file"
+                      ref="galleryUploadInput"
+                      multiple
+                      @change="handleGalleryImageChange"
+                      class="hidden"
+                      accept="image/*"
+                    />
+                    <div
+                      @click="galleryUploadInput?.click()"
+                      class="w-full border-2 border-dashed border-gray-400 rounded-xl p-8 hover:border-[#ff613c] transition-colors bg-gray-50 flex flex-col items-center justify-center cursor-pointer"
+                    >
+                      <PlusCircleIcon class="w-12 h-12 text-[#ff613c] mb-4" />
+                      <p class="text-lg font-medium text-gray-700 mb-2">
+                        Upload More Images
+                      </p>
+                      <p class="text-sm text-gray-500 mb-1">
+                        Click here or drag to add more images
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-
-            <!-- Modal Footer -->
-            <!-- <div class="bg-gray-50 px-8 py-6 border-t border-gray-200">
-              <div class="flex justify-between items-center">
-                <p class="text-sm text-gray-600">
-                  {{ imagesPreview.length }} images in gallery
-                </p>
-                <div class="flex gap-3">
-                  <button
-                    @click="openFileImagePicker"
-                    class="px-4 py-2 bg-[#ff613c] text-white text-sm font-medium rounded-lg hover:bg-[#e05530] transition-colors flex items-center gap-2"
-                  >
-                    <PlusIcon class="w-4 h-4" />
-                    Add More Images
-                  </button>
-                  <button
-                    @click="closeImageGallery"
-                    class="px-5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] transition-colors"
-                  >
-                    Close Gallery
-                  </button>
-                </div>
-              </div>
-            </div> -->
           </DialogPanel>
         </div>
       </div>
@@ -986,20 +1047,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted, computed, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { useToast } from "vue-toastification";
 import { storeToRefs } from "pinia";
 import {
   PlusIcon,
-  XCircleIcon,
   ChevronLeftIcon,
   PhotoIcon,
   EyeIcon,
   XMarkIcon,
   PlusCircleIcon,
   TrashIcon,
-  DocumentIcon
+  DocumentIcon,
 } from "@heroicons/vue/24/outline";
 import { Switch } from "@headlessui/vue";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
@@ -1007,12 +1067,15 @@ import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
 import Layout from "./Layout.vue";
+import EntranceGoodToKnow from "./EntranceGoodToKnow.vue";
+import EntranceKeyHighLight from "./EntranceKeyHighLight.vue";
 
 import { useEntranceStore } from "../stores/entrance";
 import { useCityStore } from "../stores/city";
 import { useProductStore } from "../stores/product";
 
 const router = useRouter();
+const route = useRoute();
 const toast = useToast();
 
 const entranceStore = useEntranceStore();
@@ -1022,7 +1085,9 @@ const productStore = useProductStore();
 const { cities } = storeToRefs(cityStore);
 const { products } = storeToRefs(productStore);
 
+const attractionId = route.params.id;
 const loading = ref(false);
+const submitLoading = ref(false);
 const activeTab = ref(1);
 const errors = ref({});
 const validationErrors = ref({});
@@ -1043,6 +1108,7 @@ const citylist = ref([]);
 const categoryList = ref([]);
 
 const formData = ref({
+  id: "",
   name: "",
   description: "",
   full_description_en: "",
@@ -1076,7 +1142,20 @@ const formData = ref({
   meta_data: {
     is_show: true,
   },
+  good_to_knows: [],
+  key_highlights: [],
+  cities: [],
+  categories: [],
 });
+
+const editData = ref({
+  cover_image: "",
+  images: [],
+  city_id: [],
+  category_id: [],
+});
+
+const existingContracts = ref([]);
 
 const bankOptions = [
   { id: "1", name: "K +" },
@@ -1147,6 +1226,7 @@ const handlerFeatureFileChange = (e) => {
 const removeFeatureSelectImage = () => {
   formData.value.cover_image = null;
   featureImagePreview.value = null;
+  editData.value.cover_image = "";
 };
 
 // Gallery Images
@@ -1164,12 +1244,31 @@ const handlerImagesFileChange = (e) => {
     }
   }
 };
-const removeImageSelectImage = (index) => {
-  formData.value.images.splice(index, 1);
-  imagesPreview.value.splice(index, 1);
+const removeImageSelectImage = async (index) => {
+  if (typeof allImages.value[index] !== 'string') {
+    try {
+      await entranceStore.deleteEntranceImageAction(allImages.value[index].id);
+      editData.value.images = editData.value.images.filter(
+        img => img.id !== allImages.value[index].id
+      );
+      toast.success("Image deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete image");
+    }
+  } else {
+    const newImageIndex = imagesPreview.value.indexOf(allImages.value[index]);
+    if (newImageIndex !== -1) {
+      formData.value.images.splice(newImageIndex, 1);
+      imagesPreview.value.splice(newImageIndex, 1);
+    }
+  }
 };
 
-// Gallery Modal
+const allImages = computed(() => {
+  const existing = editData.value.images || [];
+  return [...existing, ...imagesPreview.value];
+});
+
 const imageGalleryModal = ref(false);
 const galleryUploadInput = ref(null);
 const openImageGallery = () => {
@@ -1189,7 +1288,7 @@ const handleGalleryImageChange = (e) => {
 };
 
 const getRemainingImageCount = () => {
-  const totalImages = imagesPreview.value.length;
+  const totalImages = allImages.value.length;
   return Math.max(0, totalImages - 5);
 };
 
@@ -1215,9 +1314,9 @@ const handleContractFileChange = (e) => {
       formData.value.contract_files_preview.push(preview);
     }
   }
-  if (formData.value.contracts.length > 0) {
-    delete validationErrors.value.contracts;
-  }
+  //   if (formData.value.contracts.length > 0) {
+  //   delete validationErrors.value.contracts;
+  // }
 };
 const removeContractFile = (index) => {
   if (formData.value.contracts[index]) {
@@ -1229,7 +1328,19 @@ const removeContractFile = (index) => {
   }
 };
 
-// Validation
+const removeExistingContract = async (contractId) => {
+  try {
+    await entranceStore.deleteContractAction(attractionId, contractId);
+    existingContracts.value = existingContracts.value.filter(
+      c => c.id !== contractId
+    );
+    toast.success("Contract deleted successfully");
+  } catch (error) {
+    toast.error("Failed to delete contract");
+  }
+};
+
+
 const validateForm = () => {
   validationErrors.value = {};
 
@@ -1237,7 +1348,7 @@ const validateForm = () => {
     validationErrors.value.name = "Attraction name is required";
   }
 
-  if (!formData.value.city_id || formData.value.city_id.length === 0 ) {
+  if (!formData.value.city_id || formData.value.city_id.length === 0) {
     validationErrors.value.city_id = "City is required";
   }
 
@@ -1245,11 +1356,94 @@ const validateForm = () => {
     validationErrors.value.vat_inclusion = "Vat inclusion is required";
   }
 
-  if (!formData.value.contracts || formData.value.contracts.length === 0) {
-    validationErrors.value.contracts = "At least one contract file is required";
-  }
+  // if (!formData.value.contracts || formData.value.contracts.length === 0) {
+  //   validationErrors.value.contracts = "At least one contract file is required";
+  // }
 
   return Object.keys(validationErrors.value).length === 0;
+};
+
+// Format date helper
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
+
+
+const loadAttractionData = async () => {
+  loading.value = true;
+  try {
+    const response = await entranceStore.getDetailAction(attractionId);
+    const data = response.result;
+
+    const cityIds = data.cities?.map((city) => city.id) || [];
+    const categoryIds = data.categories?.map((category) => category.id) || [];
+
+    formData.value = {
+      id: data.id,
+      name: data.name || "",
+      description: data.description || "",
+      full_description_en: data.full_description_en || "",
+      account_name: data.account_name || "",
+      payment_method: data.payment_method || "",
+      bank_name: data.bank_name || "",
+      bank_account_number: data.bank_account_number || "",
+      legal_name: data.legal_name || "",
+      latitude: data.latitude || "",
+      longitude: data.longitude || "",
+      vat_id: data.vat_id || "",
+      vat_name: data.vat_name || "",
+      vat_address: data.vat_address || "",
+      contract_name: data.contract_name || "",
+      location_map: data.location_map || "",
+      location_map_title: data.location_map_title || "",
+      vat_inclusion: data.vat_inclusion || "",
+      city_id: cityIds,
+      category_id: categoryIds,
+      email: data.email || [],
+      youtube_link: {
+        mm_link: data.youtube_link?.[0]?.mm_link || "",
+        en_link: data.youtube_link?.[0]?.en_link || "",
+        how_link: data.youtube_link?.[0]?.how_link || "",
+      },
+      meta_data: {
+        is_show: data.meta_data?.is_show == 1 ? true : false,
+      },
+      images: [],
+      contracts: [],
+      contract_files_preview: [],
+      cover_image: "",
+      good_to_knows: data.good_to_knows || [],
+      key_highlights: data.key_highlights || [],
+      cities: data.cities || [],
+      categories: data.categories || [],
+    };
+
+    editData.value = {
+      cover_image: data.cover_image || "",
+      images: data.images || [],
+      city_id: data.cities || [],
+      category_id: data.categories || [],
+    };
+
+    existingContracts.value = data.contacts || [];
+
+    if (route.query.tab) {
+      activeTab.value = parseInt(route.query.tab);
+    }
+  } catch (error) {
+    console.error("Error loading attraction:", error);
+    toast.error(
+      error.response?.data?.message || "Failed to load attraction details",
+    );
+    router.push("/products/6");
+  } finally {
+    loading.value = false;
+  }
 };
 
 
@@ -1265,7 +1459,7 @@ const onSubmitHandler = async () => {
     return;
   }
 
-  loading.value = true;
+  submitLoading.value = true;
   const frmData = new FormData();
 
   frmData.append("name", formData.value.name);
@@ -1353,25 +1547,42 @@ const onSubmitHandler = async () => {
     });
   }
 
+  frmData.append("_method", "PUT");
+
   try {
-    const response = await entranceStore.addNewAction(frmData);
+    const response = await entranceStore.updateAction(frmData, attractionId);
     toast.success(response.message);
-    router.push("/products/6");
+    imagesPreview.value = [];
+    featureImagePreview.value = null;
+    await loadAttractionData();
   } catch (error) {
     if (error.response?.data?.errors) {
       errors.value = error.response.data.errors;
     }
-    toast.error(error.response?.data?.message || "Creation failed");
+    toast.error(error.response?.data?.message || "Update failed");
   } finally {
-    loading.value = false;
+    submitLoading.value = false;
   }
 };
+
+
+watch(activeTab, (newTab) => {
+  router.replace({
+    query: { ...route.query, tab: newTab }
+  });
+});
 
 onMounted(async () => {
   await cityStore.getSimpleListAction();
   await productStore.getSimpleListAction();
   citylist.value = cities.value.data;
   categoryList.value = products.value.data;
+
+  if (route.query.tab) {
+    activeTab.value = parseInt(route.query.tab);
+  }
+
+  await loadAttractionData();
 });
 </script>
 

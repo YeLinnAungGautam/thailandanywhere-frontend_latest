@@ -198,9 +198,14 @@
 
             <!-- Room Price -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Room Price <span class="text-red-500">*</span>
-              </label>
+              <div class="flex justify-between items-center mb-1">
+                <label class="block text-sm font-medium text-gray-700">
+                  Room Price <span class="text-red-500">*</span>
+                </label>
+                <p class="text-red-600 text-xs">
+                  Suggest Price : {{ suggestPrice(formData.cost) }}
+                </p>
+              </div>
               <input
                 v-model="formData.room_price"
                 type="number"
@@ -211,13 +216,13 @@
               />
             </div>
 
-            <!-- Agent Price -->
+            <!-- Cost -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Agent Price
+                Cost
               </label>
               <input
-                v-model="formData.agent_price"
+                v-model="formData.cost"
                 type="number"
                 min="0"
                 step="0.01"
@@ -239,13 +244,13 @@
               />
             </div>
 
-            <!-- Cost -->
+            <!-- Agent Price -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Cost
+                Agent Price
               </label>
               <input
-                v-model="formData.cost"
+                v-model="formData.agent_price"
                 type="number"
                 min="0"
                 step="0.01"
@@ -484,9 +489,17 @@
                   />
                 </div>
                 <div>
-                  <label class="block text-xs text-gray-600 mb-1"
+                  <!-- <label class="block text-xs text-gray-600 mb-1"
                     >Sale Price</label
-                  >
+                  > -->
+                  <div class="flex justify-between items-center mb-1">
+                    <label class="block text-sm font-medium text-gray-700">
+                      Sale Price <span class="text-red-500">*</span>
+                    </label>
+                    <p class="text-red-600 text-xs">
+                      Suggest Price : {{ suggestPrice(period.cost_price) }}
+                    </p>
+                  </div>
                   <input
                     v-model="period.sale_price"
                     type="number"
@@ -565,6 +578,21 @@ const tabs = [
   { id: "amenities", label: "Amenities" },
   { id: "periods", label: "Periods" },
 ];
+
+const suggestPrice = (cost) => {
+  let amount = cost / 0.85;
+
+  // Get the last two digits
+  let lastTwoDigits = amount % 100;
+
+  // If last two digits are over 50, round up to next 100
+  // If under or equal to 50, round to nearest 50
+  if (lastTwoDigits > 50) {
+    return (Math.ceil(amount / 100) * 100).toFixed(0);
+  } else {
+    return (Math.round(amount / 50) * 50).toFixed(0);
+  }
+};
 
 // Form data
 const formData = ref({

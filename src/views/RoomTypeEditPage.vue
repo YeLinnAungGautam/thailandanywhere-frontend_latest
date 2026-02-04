@@ -452,105 +452,96 @@
               class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
             >
               <i class="fa-solid fa-plus mr-1"></i>
-              Add Period
+              Add & Configure Period
             </button>
           </div>
 
+          <!-- Period Summary Cards -->
           <div v-if="formData.period.length > 0" class="space-y-3">
             <div
               v-for="(period, index) in formData.period"
               :key="index"
-              class="p-4 border border-gray-200 rounded-lg space-y-3"
+              class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4"
             >
-              <div class="flex justify-between items-start">
-                <input
-                  v-model="period.period_name"
-                  type="text"
-                  placeholder="Period name"
-                  class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-orange-400"
-                />
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-lg">📅</span>
+                  <h5 class="font-semibold text-gray-900">
+                    {{ period.period_name }}
+                  </h5>
+                </div>
                 <button
                   type="button"
-                  @click="removePeriod(index)"
-                  class="ml-2 p-2 text-red-500 hover:bg-red-50 rounded transition-colors"
+                  @click="removePeriodAtIndex(index)"
+                  class="p-1.5 text-red-500 hover:bg-red-100 rounded transition-colors"
                 >
-                  <i class="fa-solid fa-trash"></i>
+                  <i class="fa-solid fa-trash text-xs"></i>
                 </button>
               </div>
 
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs text-gray-600 mb-1"
-                    >Start Date</label
-                  >
-                  <input
-                    v-model="period.start_date"
-                    type="date"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-orange-400"
-                  />
+              <div class="grid grid-cols-2 gap-3 text-sm">
+                <div class="bg-white rounded px-3 py-2">
+                  <span class="text-gray-600 text-xs">Duration:</span>
+                  <p class="font-medium text-gray-900">
+                    {{ formatDate(period.start_date) }} -
+                    {{ formatDate(period.end_date) }}
+                  </p>
                 </div>
-                <div>
-                  <label class="block text-xs text-gray-600 mb-1"
-                    >End Date</label
-                  >
-                  <input
-                    v-model="period.end_date"
-                    type="date"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-orange-400"
-                  />
+                <div class="bg-white rounded px-3 py-2">
+                  <span class="text-gray-600 text-xs">Sale Price:</span>
+                  <p class="font-bold text-green-600">
+                    THB {{ formatPrice(period.sale_price) }}
+                  </p>
                 </div>
-                <div>
-                  <!-- <label class="block text-xs text-gray-600 mb-1"
-                    >Sale Price</label
-                  > -->
-                  <div class="flex justify-between items-center mb-1">
-                    <label class="block text-sm font-medium text-gray-700">
-                      Sale Price <span class="text-red-500">*</span>
-                    </label>
-                    <p class="text-red-600 text-xs">
-                      Suggest Price : {{ suggestPrice(period.cost_price) }}
-                    </p>
-                  </div>
-                  <input
-                    v-model="period.sale_price"
-                    type="number"
-                    step="0.01"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-orange-400"
-                  />
+                <div class="bg-white rounded px-3 py-2">
+                  <span class="text-gray-600 text-xs">Cost:</span>
+                  <p class="font-medium text-orange-600">
+                    THB {{ formatPrice(period.cost_price) }}
+                  </p>
                 </div>
-                <div>
-                  <label class="block text-xs text-gray-600 mb-1"
-                    >Cost Price</label
-                  >
-                  <input
-                    v-model="period.cost_price"
-                    type="number"
-                    step="0.01"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-orange-400"
-                  />
-                </div>
-                <div>
-                  <label class="block text-xs text-gray-600 mb-1"
-                    >Agent Price</label
-                  >
-                  <input
-                    v-model="period.agent_price"
-                    type="number"
-                    step="0.01"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-orange-400"
-                  />
+                <div class="bg-white rounded px-3 py-2">
+                  <span class="text-gray-600 text-xs">Agent Price:</span>
+                  <p class="font-medium text-blue-600">
+                    THB {{ formatPrice(period.agent_price) }}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div v-else class="text-center py-8 text-gray-500">
-            <i class="fa-solid fa-calendar text-3xl mb-2 text-gray-300"></i>
-            <p class="text-sm">No pricing periods defined</p>
+          <!-- Empty State -->
+          <div
+            v-else
+            class="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"
+          >
+            <i
+              class="fa-solid fa-calendar-xmark text-5xl text-gray-300 mb-3"
+            ></i>
+            <p class="text-gray-600 font-medium mb-1">
+              No pricing periods configured
+            </p>
+            <p class="text-sm text-gray-500 mb-4">
+              Add periods to define seasonal pricing
+            </p>
+            <button
+              type="button"
+              @click="openPeriodModal"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              Add First Period
+            </button>
           </div>
         </div>
       </form>
     </div>
+    <!-- Period Management Modal -->
+    <RoomPeriodModal
+      :isOpen="showPeriodModal"
+      :periods="formData.period"
+      :roomName="formData.name"
+      @close="closePeriodModal"
+      @save="handlePeriodsSave"
+    />
   </div>
 </template>
 
@@ -560,9 +551,11 @@ import { useToast } from "vue-toastification";
 import { Switch } from "@headlessui/vue";
 import { useRoomStore } from "../stores/room";
 import RoomAmenitiesComponent from "./RoomPart/Amenties.vue";
+// import RoomPeriodModal from "./RoomPart/RoomPeriodModal.vue";
 import Swal from "sweetalert2";
 import router from "../router";
 import { useRoute } from "vue-router";
+import RoomPeriodModal from "./RoomPart/RoomPeriodModal.vue";
 
 const props = defineProps({
   id: {
@@ -584,6 +577,7 @@ const searchQuery = ref("");
 const currentTab = ref("basic");
 const imageInput = ref(null);
 const onlyShowOn = ref(false);
+const showPeriodModal = ref(false);
 
 const tabs = [
   { id: "basic", label: "Basic Info" },
@@ -604,6 +598,38 @@ const suggestPrice = (cost) => {
   } else {
     return (Math.round(amount / 50) * 50).toFixed(0);
   }
+};
+
+// Period Modal Methods
+const openPeriodModal = () => {
+  showPeriodModal.value = true;
+};
+
+const closePeriodModal = () => {
+  showPeriodModal.value = false;
+};
+
+const handlePeriodsSave = (periods) => {
+  formData.value.period = [...periods];
+  closePeriodModal();
+  toast.success(`${periods.length} period(s) configured successfully`);
+};
+
+const removePeriodAtIndex = (index) => {
+  Swal.fire({
+    title: "Remove Period?",
+    text: `Remove "${formData.value.period[index].period_name}"?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: "Yes, remove it",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      formData.value.period.splice(index, 1);
+      toast.success("Period removed");
+    }
+  });
 };
 
 // Form data
@@ -653,6 +679,21 @@ const filteredRooms = computed(() => {
 
   return filtered;
 });
+
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+const formatPrice = (price) => {
+  if (!price) return "0";
+  return Number(price).toLocaleString();
+};
 
 // Methods
 const fetchRooms = async () => {
@@ -786,14 +827,15 @@ const removeImage = (index) => {
 };
 
 const addPeriod = () => {
-  formData.value.period.push({
-    period_name: "",
-    start_date: "",
-    end_date: "",
-    sale_price: 0,
-    cost_price: 0,
-    agent_price: 0,
-  });
+  // formData.value.period.push({
+  //   period_name: "",
+  //   start_date: "",
+  //   end_date: "",
+  //   sale_price: 0,
+  //   cost_price: 0,
+  //   agent_price: 0,
+  // });
+  openPeriodModal();
 };
 
 const removePeriod = (index) => {

@@ -580,25 +580,6 @@ onMounted(async () => {
 
 <template>
   <Layout>
-    <button
-      @click="$router.push('/hotel-v2')"
-      class="p-3 mb-5 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-gray-50"
-    >
-      <svg
-        class="w-5 h-5 text-gray-700"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M15 19l-7-7 7-7"
-        />
-      </svg>
-    </button>
-
     <div class="h-auto col-span-2 bg-white">
       <div class="h-auto pb-4">
         <div class="py-2 px-6">
@@ -1766,116 +1747,9 @@ onMounted(async () => {
                   <h4
                     class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
                   >
-                    Nearby Places
+                    Location Map Preview
                   </h4>
                   <div class="space-y-5">
-                    <div class="space-y-3">
-                      <div class="flex items-center gap-2">
-                        <input
-                          type="file"
-                          ref="nearByImgInput"
-                          @change="handlerNearByFileChange"
-                          class="hidden"
-                          accept="image/*"
-                        />
-                        <div
-                          @click="openFileNearByPicker"
-                          v-if="!nearby.img_preview"
-                          class="cursor-pointer w-16 h-12 border-2 border-dashed border-gray-400 rounded-md flex items-center justify-center hover:border-[#ff613c] transition-colors bg-gray-100"
-                        >
-                          <PhotoIcon class="w-5 h-5 text-gray-400" />
-                        </div>
-                        <div
-                          @click="openFileNearByPicker"
-                          v-if="nearby.img_preview"
-                          class="cursor-pointer w-16 h-12 border-2 border-gray-300 rounded-md overflow-hidden"
-                        >
-                          <img
-                            :src="nearby.img_preview"
-                            alt="Nearby place"
-                            class="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div class="flex-1 grid grid-cols-2 gap-2">
-                          <input
-                            type="text"
-                            v-model="nearby.place"
-                            placeholder="Enter place name"
-                            class="h-10 text-sm px-3 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
-                          />
-                          <input
-                            type="text"
-                            v-model="nearby.distance"
-                            placeholder="Distance (e.g., 3 min drive)"
-                            class="h-10 text-sm px-3 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          @click="addNewNearBy"
-                          class="h-10 w-10 flex items-center justify-center bg-[#ff613c] text-white rounded-md hover:bg-[#e05530] transition-colors"
-                        >
-                          <PlusIcon class="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div
-                      v-if="formData.nearby_places.length > 0"
-                      class="space-y-3"
-                    >
-                      <p class="text-sm font-medium text-gray-700">
-                        Added Nearby Places:
-                      </p>
-                      <div
-                        v-for="(place, index) in formData.nearby_places"
-                        :key="index"
-                        class="flex items-center gap-2 p-3 bg-gray-50 rounded-md"
-                      >
-                        <div class="w-12 h-12 rounded-md overflow-hidden">
-                          <img
-                            v-if="place.img_preview"
-                            :src="place.img_preview"
-                            alt="Nearby place"
-                            class="w-full h-full object-cover"
-                          />
-                          <img
-                            v-else-if="place.image"
-                            :src="place.image"
-                            alt="Nearby place"
-                            class="w-full h-full object-cover"
-                          />
-                          <div
-                            v-else
-                            class="w-full h-full bg-gray-200 flex items-center justify-center"
-                          >
-                            <PhotoIcon class="w-5 h-5 text-gray-400" />
-                          </div>
-                        </div>
-                        <div class="flex-1">
-                          <input
-                            type="text"
-                            v-model="place.place"
-                            class="w-full h-8 text-sm px-2 py-1 text-gray-900 bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#ff613c]"
-                          />
-                        </div>
-                        <div class="w-32">
-                          <input
-                            type="text"
-                            v-model="place.distance"
-                            class="w-full h-8 text-sm px-2 py-1 text-gray-900 bg-white border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#ff613c]"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          @click="removeNearByItem(index)"
-                          class="h-8 w-8 flex items-center justify-center bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-                        >
-                          <TrashIcon class="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-
                     <div
                       v-if="
                         formData.location_map &&
@@ -1883,9 +1757,6 @@ onMounted(async () => {
                       "
                       class="mt-6"
                     >
-                      <p class="text-sm font-medium text-gray-700 mb-3">
-                        Location Map Preview
-                      </p>
                       <iframe
                         :src="formData.location_map"
                         class="w-full h-64 rounded-lg border-0"

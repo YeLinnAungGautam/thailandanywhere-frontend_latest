@@ -1,5 +1,17 @@
 <script setup>
-import Layout from "./Layout.vue";
+// ==================== IMPORTS ====================
+// Vue Core
+import { onMounted, ref, watch, nextTick } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { storeToRefs } from "pinia";
+
+// External Libraries
+import Swal from "sweetalert2";
+import { useToast } from "vue-toastification";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
+import { QuillEditor } from "@vueup/vue-quill";
+
+// Icons
 import {
   PencilSquareIcon,
   TrashIcon,
@@ -20,54 +32,52 @@ import {
   DocumentIcon,
   PhotoIcon,
 } from "@heroicons/vue/24/outline";
-import { QuillEditor } from "@vueup/vue-quill";
-import Pagination from "../components/Pagination.vue";
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/vue";
-import { onMounted, ref, watch, nextTick } from "vue";
-import Button from "../components/Button.vue";
-import { storeToRefs } from "pinia";
-import { useRoute, useRouter } from "vue-router";
-import Swal from "sweetalert2";
-import { useToast } from "vue-toastification";
-import Modal from "../components/Modal.vue";
+
+// Stores
 import { useCityStore } from "../stores/city";
 import { useHotelStore } from "../stores/hotel";
 import { useAuthStore } from "../stores/auth";
-import FacilitoryStoreVue from "../components/FacilitoryStore.vue";
 import { useHotelCategoryStore } from "../stores/hotelcategory";
 import { usePlaceStore } from "../stores/place";
+
+// Components
+import Layout from "./Layout.vue";
+import Button from "../components/Button.vue";
+import Modal from "../components/Modal.vue";
+import Pagination from "../components/Pagination.vue";
+import FacilitoryStoreVue from "../components/FacilitoryStore.vue";
+import AiDescriptionEditor from "./GenerateAI/DescriptionAi.vue";
 import AddonPage from "./Addon/AddonPage.vue";
 import HotelConfrimationDemo from "./PngGenerate/HotelConfirmationDemo.vue";
 import AddSlugPage from "../components/Slug/HotelSlug.vue";
 import GoodToKnow from "./GoodToKnow.vue";
 import NearByPlace from "./NearByPlace.vue";
 import KeyHighLight from "./KeyHighLight.vue";
-import AiDescriptionEditor from "./GenerateAI/DescriptionAi.vue";
 import RoomTypeEditPage from "./RoomTypeEditPage.vue";
 
-const createModalOpen = ref(false);
+// AI Auto-Fill Components
+import UploadContractModal from "../components/HotelAIAutoFill/UploadContractModal.vue";
+import DataComparisonModal from "../components/HotelAIAutoFill/DataComparisonModal.vue";
+import ContractSaveConfirmModal from "../components/HotelAIAutoFill/ContractSaveConfirmModal.vue";
+import RoomPeriodImportModal from "../components/HotelAIAutoFill/RoomPeriodImportModal.vue";
+
+// ==================== STORE INITIALIZATION ====================
 const toast = useToast();
+const router = useRouter();
+const route = useRoute();
+
 const cityStore = useCityStore();
 const hotelStore = useHotelStore();
 const authStore = useAuthStore();
-const router = useRouter();
-const route = useRoute();
 const hotelCategoryStore = useHotelCategoryStore();
 const placeStore = usePlaceStore();
 
+const { cities } = storeToRefs(cityStore);
 const { places } = storeToRefs(placeStore);
 const { hcategories } = storeToRefs(hotelCategoryStore);
 const { hotels, loading, importLoading } = storeToRefs(hotelStore);
 
-const search = ref("");
-const errors = ref([]);
-
-const showConfirmation = ref(false);
-
-const editorOptions = {
-  placeholder: "Description with editor ...",
-};
-
+// ==================== STATIC DATA ====================
 const bankName = [
   { id: "1", name: "K + " },
   { id: "2", name: "SCB " },
@@ -96,6 +106,7 @@ const bankName = [
   { id: "25", name: "Bank of China " },
   { id: "26", name: "Indian Overseas Bank " },
 ];
+
 const paymentMethod = [
   { id: "1", name: "Bank Transfer" },
   { id: "2", name: "International Remittance" },
@@ -103,28 +114,52 @@ const paymentMethod = [
   { id: "4", name: "Other ..." },
 ];
 
-const { cities } = storeToRefs(cityStore);
-const citylist = ref([]);
-
 const typeList = ref([
   { id: 1, name: "Direct Booking", value: "direct_booking" },
   { id: 2, name: "Other Booking", value: "other_booking" },
 ]);
 
 const vat_inclusion_array = [
-  {
-    id: 1,
-    name: "Inclusive of VAT",
-  },
-  {
-    id: 2,
-    name: "No VAT",
-  },
+  { id: 1, name: "Inclusive of VAT" },
+  { id: 2, name: "No VAT" },
 ];
 
+// ==================== STATE DECLARATIONS ====================
+// UI State
+const quiteSwitch = ref(1);
+const errors = ref([]);
+const search = ref("");
+const createModalOpen = ref(false);
+const imageGalleryModal = ref(false);
+const showConfirmation = ref(false);
+
+// Dropdown Actions State
+const cityAction = ref(false);
+const placeAction = ref(false);
+const categoryAction = ref(false);
+
+// Display Data
+const citylist = ref([]);
+const cityName = ref("");
+const placeName = ref("");
+const categoryName = ref("");
+const linkContract = ref({});
+
+// AI Auto-Fill State
+const showUploadModal = ref(false);
+const showComparisonModal = ref(false);
+const showContractSaveModal = ref(false);
+const showRoomPeriodModal = ref(false);
+const extractedData = ref({});
+const uploadedFile = ref(null);
+const pendingChanges = ref({});
+const saveContractFile = ref(false);
+
+// Form Data
 const formData = ref({
   id: "",
   name: "",
+  rooms: [],
   city_id: null,
   place_id: null,
   category_id: null,
@@ -174,8 +209,219 @@ const formData = ref({
   slug: [],
 });
 
+const originalFormData = ref({});
+
+// Email Management
 const addEmail = ref("");
 
+// Image Management
+const editImagesPreview = ref([]);
+const imagesPreview = ref([]);
+const imagesInput = ref(null);
+const official_logo_preview = ref(null);
+const official_logo_input = ref(null);
+const galleryUploadInput = ref(null);
+
+// Contract Management
+const contractInput = ref(null);
+
+// Editor
+const textEditor = ref(null);
+const editorOptions = {
+  placeholder: "Description with editor ...",
+};
+
+// ==================== AI AUTO-FILL FUNCTIONS ====================
+/**
+ * Open AI Auto-Fill modal
+ */
+const openAIAutoFill = () => {
+  showUploadModal.value = true;
+};
+
+/**
+ * Handle data extracted from AI
+ */
+const handleDataExtracted = ({ extractedData: data, originalFile }) => {
+  console.log("Data extracted:", data);
+  extractedData.value = data;
+  uploadedFile.value = originalFile;
+  showUploadModal.value = false;
+  nextTick(() => {
+    showComparisonModal.value = true;
+  });
+};
+
+/**
+ * Close comparison modal
+ */
+const closeComparisonModal = () => {
+  showComparisonModal.value = false;
+  extractedData.value = {};
+  uploadedFile.value = null;
+  pendingChanges.value = {};
+};
+
+/**
+ * Handle apply changes from comparison modal
+ */
+const handleApplyChanges = (changes) => {
+  console.log("Applying changes:", changes);
+  pendingChanges.value = changes;
+  showComparisonModal.value = false;
+
+  // Check if there are rooms to import
+  if (extractedData.value.rooms && extractedData.value.rooms.length > 0) {
+    nextTick(() => {
+      showRoomPeriodModal.value = true;
+    });
+  } else {
+    nextTick(() => {
+      showContractSaveModal.value = true;
+    });
+  }
+};
+
+/**
+ * Handle room period import
+ */
+const handleRoomPeriodImport = (importData) => {
+  console.log("Room import data:", importData);
+  showRoomPeriodModal.value = false;
+  nextTick(() => {
+    showContractSaveModal.value = true;
+  });
+};
+
+/**
+ * Get extracted value by key from AI data
+ */
+const getExtractedValue = (key, extracted) => {
+  const keyMap = {
+    // Basic info
+    name: extracted?.basic_info?.hotel_name,
+    legal_name: extracted?.basic_info?.legal_name,
+    place: extracted?.basic_info?.place,
+    // Contact
+    official_phone_number: extracted?.contact?.official_phone_number,
+    official_email: extracted?.contact?.official_email,
+    email: extracted?.contact?.email,
+    official_address: extracted?.contact?.official_address,
+    // Financial
+    vat_inclusion: extracted?.financial?.vat_inclusion,
+    vat_id: extracted?.financial?.vat_id,
+    vat_name: extracted?.financial?.vat_name,
+    vat_address: extracted?.financial?.vat_address,
+    bank_name: extracted?.financial?.bank_name,
+    bank_account_number: extracted?.financial?.bank_account_number,
+    account_name: extracted?.financial?.account_name,
+    payment_method: extracted?.financial?.payment_method,
+    // Policies
+    check_in: extracted?.policies?.check_in,
+    check_out: extracted?.policies?.check_out,
+    cancellation_policy: extracted?.policies?.cancellation_policy,
+    // Contract
+    contract_due: extracted?.contract?.contract_due,
+  };
+  return keyMap[key];
+};
+
+/**
+ * Apply approved changes to formData
+ */
+const applyChangesToFormData = () => {
+  const { fields, rooms, extractedData: extracted } = pendingChanges.value;
+
+  // Apply basic fields
+  Object.keys(fields).forEach((key) => {
+    if (fields[key]) {
+      const value = getExtractedValue(key, extracted);
+      if (value !== null && value !== undefined && value !== "") {
+        formData.value[key] = value;
+      }
+    }
+  });
+
+  // Handle rooms
+  if (rooms && rooms.length > 0) {
+    formData.value.ai_extracted_rooms = rooms;
+  }
+
+  toast.success(
+    `✅ ${
+      Object.values(fields).filter(Boolean).length
+    } changes applied! Review and save.`,
+  );
+};
+
+/**
+ * Save with contract file
+ */
+// const saveWithContract = () => {
+//   saveContractFile.value = true;
+//   showContractSaveModal.value = false;
+//   applyChangesToFormData();
+
+//   Swal.fire({
+//     icon: "success",
+//     title: "Changes Applied!",
+//     html: `
+//       <p class="text-gray-700 mb-3">AI extracted data has been filled into the form.</p>
+//       <p class="font-semibold text-blue-600">📝 Don't forget to click "Update" button to save!</p>
+//       <p class="text-sm text-gray-600 mt-2">Contract file will be saved with the update.</p>
+//     `,
+//     confirmButtonText: "Got it!",
+//     confirmButtonColor: "#8b5cf6",
+//   });
+// };
+const saveWithContract = async () => {
+  saveContractFile.value = true;
+  showContractSaveModal.value = false;
+  applyChangesToFormData();
+
+  const result = await Swal.fire({
+    icon: "success",
+    title: "Changes Applied!",
+    html: `
+      <p class="text-gray-700 mb-3">AI extracted data has been filled into the form.</p>
+      <p class="font-semibold text-blue-600">📝 Click "Save Now" to complete the update!</p>
+      <p class="text-sm text-gray-600 mt-2">Contract file will be saved with the update.</p>
+    `,
+    confirmButtonText: "Save Now",
+    confirmButtonColor: "#8b5cf6",
+    showCancelButton: true,
+    cancelButtonText: "Review First",
+  });
+
+  if (result.isConfirmed) {
+    await updateHandler();
+  }
+};
+
+/**
+ * Save without contract file
+ */
+const saveWithoutContract = () => {
+  saveContractFile.value = false;
+  showContractSaveModal.value = false;
+  applyChangesToFormData();
+
+  Swal.fire({
+    icon: "success",
+    title: "Changes Applied!",
+    html: `
+      <p class="text-gray-700 mb-3">AI extracted data has been filled into the form.</p>
+      <p class="font-semibold text-blue-600">📝 Don't forget to click "Update" button to save!</p>
+    `,
+    confirmButtonText: "Got it!",
+    confirmButtonColor: "#8b5cf6",
+  });
+};
+
+// ==================== EMAIL MANAGEMENT ====================
+/**
+ * Add email to list
+ */
 const addEmailAction = () => {
   if (addEmail.value.trim()) {
     formData.value.email.push(addEmail.value.trim());
@@ -183,10 +429,17 @@ const addEmailAction = () => {
   }
 };
 
+/**
+ * Remove email from list
+ */
 const removeEmail = (index) => {
   formData.value.email.splice(index, 1);
 };
 
+// ==================== FACILITY MANAGEMENT ====================
+/**
+ * Update facilities array
+ */
 const onGetArray = (data) => {
   formData.value.facilities = [];
   for (let i = 0; i < data.length; i++) {
@@ -194,18 +447,19 @@ const onGetArray = (data) => {
   }
 };
 
-const editImagesPreview = ref([]);
-const imagesPreview = ref([]);
-const imagesInput = ref(null);
-const official_logo_preview = ref(null);
-const official_logo_input = ref(null);
-
+// ==================== IMAGE MANAGEMENT ====================
+/**
+ * Open official logo picker
+ */
 const openOfficialLogoImagePicker = () => {
   if (official_logo_input.value) {
     official_logo_input.value.click();
   }
 };
 
+/**
+ * Handle official logo file change
+ */
 const handlerOfficialLogoFileChange = (e) => {
   let selectedFile = e.target.files[0];
   if (selectedFile) {
@@ -214,12 +468,18 @@ const handlerOfficialLogoFileChange = (e) => {
   }
 };
 
+/**
+ * Open file image picker
+ */
 const openFileImagePicker = () => {
   if (imagesInput.value) {
     imagesInput.value.click();
   }
 };
 
+/**
+ * Handle images file change
+ */
 const handlerImagesFileChange = (e) => {
   let selectedFiles = e.target.files;
   if (selectedFiles) {
@@ -230,22 +490,31 @@ const handlerImagesFileChange = (e) => {
   }
 };
 
+/**
+ * Remove selected image
+ */
 const removeImageSelectImage = (index) => {
   formData.value.images.splice(index, 1);
   imagesPreview.value.splice(index, 1);
 };
 
-const imageGalleryModal = ref(false);
-const galleryUploadInput = ref(null);
-
+/**
+ * Open image gallery modal
+ */
 const openImageGallery = () => {
   imageGalleryModal.value = true;
 };
 
+/**
+ * Close image gallery modal
+ */
 const closeImageGallery = () => {
   imageGalleryModal.value = false;
 };
 
+/**
+ * Handle gallery image change
+ */
 const handleGalleryImageChange = (e) => {
   let selectedFiles = e.target.files;
   if (selectedFiles) {
@@ -256,6 +525,9 @@ const handleGalleryImageChange = (e) => {
   }
 };
 
+/**
+ * Remove image in gallery
+ */
 const removeImageInGallery = async (index, isEditImage = false) => {
   try {
     if (isEditImage) {
@@ -278,14 +550,123 @@ const removeImageInGallery = async (index, isEditImage = false) => {
   }
 };
 
+/**
+ * Remove image during update
+ */
+const removeImageUpdateImage = async (id, imageID) => {
+  const res = await hotelStore.deleteImageAction(id, imageID);
+  toast.success("delete image success");
+  closeModal();
+  await getDetail(route.params.id);
+};
+
+/**
+ * Get remaining image count
+ */
 const getRemainingImageCount = () => {
   const totalImages =
     editImagesPreview.value.length + imagesPreview.value.length;
   return Math.max(0, totalImages - 5);
 };
 
-const textEditor = ref(null);
+// ==================== CONTRACT MANAGEMENT ====================
+/**
+ * Open contract file picker
+ */
+const openContractFilePicker = () => {
+  if (contractInput.value) {
+    contractInput.value.click();
+  }
+};
 
+/**
+ * Handle contract file change
+ */
+const handleContractFileChange = (e) => {
+  let selectedFiles = e.target.files;
+  if (selectedFiles && selectedFiles.length > 0) {
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
+      formData.value.contracts.push(file);
+
+      const preview = {
+        name: file.name,
+        size: (file.size / 1024).toFixed(2) + " KB",
+        type: file.type,
+        url: URL.createObjectURL(file),
+        file: file,
+      };
+      formData.value.contract_files_preview.push(preview);
+    }
+  }
+};
+
+/**
+ * Remove contract file
+ */
+const removeContractFile = (index) => {
+  if (formData.value.contracts[index]) {
+    if (formData.value.contract_files_preview[index]?.url) {
+      URL.revokeObjectURL(formData.value.contract_files_preview[index].url);
+    }
+    formData.value.contracts.splice(index, 1);
+    formData.value.contract_files_preview.splice(index, 1);
+  }
+};
+
+/**
+ * Remove linked contract
+ */
+const removeLinkContract = async (id) => {
+  const res = await hotelStore.deleteHotelContractAction(formData.value.id, id);
+  toast.success("delete link contract success");
+  await getDetail(route.params.id);
+};
+
+// ==================== HELPER FUNCTIONS ====================
+/**
+ * Check if value is empty
+ */
+const isEmpty = (value) => {
+  if (value === null || value === undefined) return true;
+  if (typeof value === "string" && value.trim() === "") return true;
+  if (Array.isArray(value) && value.length === 0) return true;
+  if (typeof value === "object" && Object.keys(value).length === 0) return true;
+  return false;
+};
+
+/**
+ * Check if value has changed
+ */
+const hasChanged = (oldValue, newValue) => {
+  if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+    return !isEmpty(newValue);
+  }
+  return false;
+};
+
+/**
+ * Format date
+ */
+const formatDate = (getDate) => {
+  if (getDate != null) {
+    const dateParts = getDate?.split(" ");
+    return dateParts[0];
+  }
+};
+
+/**
+ * Clear editor content
+ */
+const clearEditorContent = () => {
+  if (textEditor.value && textEditor.value.quill) {
+    textEditor.value.quill.setText("");
+  }
+};
+
+/**
+ * Close modal and reset form
+ */
 const closeModal = () => {
   formData.value = {
     id: "",
@@ -294,6 +675,7 @@ const closeModal = () => {
     city_id: null,
     category_id: null,
     vat_inclusion: "",
+    rooms: [],
     type: "other_booking",
     payment_method: "",
     bank_name: "",
@@ -334,12 +716,14 @@ const closeModal = () => {
     images: [],
     facilities: [],
   };
+
   linkContract.value = {};
   editImagesPreview.value = [];
   quiteSwitch.value = true;
   imagesPreview.value = [];
   createModalOpen.value = false;
   imageGalleryModal.value = false;
+
   if (formData.value.full_description == null) {
     clearEditorContent();
   }
@@ -348,117 +732,21 @@ const closeModal = () => {
   }
 };
 
-const clearEditorContent = () => {
-  if (textEditor.value && textEditor.value.quill) {
-    textEditor.value.quill.setText("");
-  }
-};
-
-const nearByImgInput = ref(null);
-
-const openFileNearByPicker = () => {
-  if (nearByImgInput.value) {
-    nearByImgInput.value.click();
-  }
-};
-
-const handlerNearByFileChange = (e) => {
-  let selectedFile = e.target.files[0];
-  if (selectedFile) {
-    nearby.value.img = e.target.files[0];
-    nearby.value.img_preview = URL.createObjectURL(selectedFile);
-  }
-};
-
-const removeNearByImage = () => {
-  nearby.value.img = null;
-  nearby.value.img_preview = null;
-};
-
-const nearby = ref({
-  img: null,
-  img_preview: null,
-  place: null,
-  distance: "",
-});
-const addNewNearBy = () => {
-  if (nearby.value.place && nearby.value.distance) {
-    formData.value.nearby_places.push({ ...nearby.value });
-    nearby.value = {
-      img: null,
-      img_preview: null,
-      place: null,
-      distance: "",
-    };
-  }
-};
-const removeNearByItem = (index) => {
-  formData.value.nearby_places.splice(index, 1);
-};
-
-const contractInput = ref(null);
-
-const openContractFilePicker = () => {
-  if (contractInput.value) {
-    contractInput.value.click();
-  }
-};
-
-const handleContractFileChange = (e) => {
-  let selectedFiles = e.target.files;
-  if (selectedFiles && selectedFiles.length > 0) {
-    for (let i = 0; i < selectedFiles.length; i++) {
-      const file = selectedFiles[i];
-      formData.value.contracts.push(file);
-
-      const preview = {
-        name: file.name,
-        size: (file.size / 1024).toFixed(2) + " KB",
-        type: file.type,
-        url: URL.createObjectURL(file),
-        file: file,
-      };
-      formData.value.contract_files_preview.push(preview);
-    }
-  }
-};
-
-const removeContractFile = (index) => {
-  if (formData.value.contracts[index]) {
-    if (formData.value.contract_files_preview[index]?.url) {
-      URL.revokeObjectURL(formData.value.contract_files_preview[index].url);
-    }
-    formData.value.contracts.splice(index, 1);
-    formData.value.contract_files_preview.splice(index, 1);
-  }
-};
-
-// Helper function to check if value is empty
-const isEmpty = (value) => {
-  if (value === null || value === undefined) return true;
-  if (typeof value === "string" && value.trim() === "") return true;
-  if (Array.isArray(value) && value.length === 0) return true;
-  if (typeof value === "object" && Object.keys(value).length === 0) return true;
-  return false;
-};
-
-// Helper function to compare values
-const hasChanged = (oldValue, newValue) => {
-  if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
-    return !isEmpty(newValue);
-  }
-  return false;
-};
-
-const originalFormData = ref({});
-
+// ==================== CRUD OPERATIONS ====================
+/**
+ * Add new hotel
+ */
 const addNewHandler = async () => {
   const frmData = new FormData();
+
+  // Basic Information
   frmData.append("name", formData.value.name);
   frmData.append("city_id", formData.value.city_id);
+
   if (formData.value.place_id != null) {
     frmData.append("place_id", formData.value.place_id);
   }
+
   if (
     formData.value.category_id != undefined &&
     formData.value.category_id != "undefined" &&
@@ -467,12 +755,13 @@ const addNewHandler = async () => {
   ) {
     frmData.append("category_id", formData.value.category_id);
   }
+
   if (formData.value.vat_inclusion != "") {
     frmData.append("vat_inclusion", formData.value.vat_inclusion);
   }
+
   frmData.append("type", formData.value.type);
   frmData.append("account_name", formData.value.account_name);
-
   frmData.append("official_address", formData.value.official_address);
   frmData.append("vat_id", formData.value.vat_id);
   frmData.append("vat_name", formData.value.vat_name);
@@ -480,13 +769,14 @@ const addNewHandler = async () => {
   frmData.append("official_phone_number", formData.value.official_phone_number);
   frmData.append("official_email", formData.value.official_email);
   frmData.append("official_remark", formData.value.official_remark);
+
   if (formData.value.official_logo) {
     frmData.append("official_logo", formData.value.official_logo);
   }
+
   frmData.append("check_in", formData.value.check_in);
   frmData.append("check_out", formData.value.check_out);
   frmData.append("cancellation_policy", formData.value.cancellation_policy);
-
   frmData.append("place", formData.value.place);
   frmData.append("payment_method", formData.value.payment_method);
   frmData.append("bank_name", formData.value.bank_name);
@@ -497,15 +787,20 @@ const addNewHandler = async () => {
   frmData.append("full_description_en", formData.value.full_description_en);
   frmData.append("location_map_title", formData.value.location_map_title);
   frmData.append("location_map", formData.value.location_map);
+
   if (formData.value.rating != "") {
     frmData.append("rating", formData.value.rating);
   }
+
   if (formData.value.latitude && formData.value.longitude) {
     frmData.append("latitude", formData.value.latitude);
     frmData.append("longitude", formData.value.longitude);
   }
+
   frmData.append("contract_due", formData.value.contract_due);
   frmData.append("data_checked", formData.value.data_checked ? 1 : 0);
+
+  // Images
   if (formData.value.images.length > 0) {
     for (let i = 0; i < formData.value.images.length; i++) {
       let file = formData.value.images[i];
@@ -513,6 +808,7 @@ const addNewHandler = async () => {
     }
   }
 
+  // YouTube Links
   frmData.append(
     "youtube_link[0][mm_link]",
     formData.value.youtube_link.mm_link
@@ -526,6 +822,7 @@ const addNewHandler = async () => {
       : "",
   );
 
+  // Nearby Places
   if (formData.value.nearby_places.length > 0) {
     for (let i = 0; i < formData.value.nearby_places.length; i++) {
       frmData.append(
@@ -542,81 +839,54 @@ const addNewHandler = async () => {
       );
     }
   }
+
+  // Emails
   if (formData.value.email.length > 0) {
     for (let i = 0; i < formData.value.email.length; i++) {
       frmData.append("email[" + i + "]", formData.value.email[i]);
     }
   }
+
+  // Facilities
   if (formData.value.facilities.length > 0) {
     for (let f = 0; f < formData.value.facilities.length; f++) {
       frmData.append("facilities[" + f + "]", formData.value.facilities[f]);
     }
   }
 
-  // Append contract files
+  // Contracts
+  let contractIndex = 0;
+
+  // AI-uploaded contract
+  if (saveContractFile.value && uploadedFile.value) {
+    frmData.append(`contracts[${contractIndex}]`, uploadedFile.value);
+    contractIndex++;
+  }
+
+  // Manually uploaded contracts
   if (formData.value.contracts.length > 0) {
     for (let i = 0; i < formData.value.contracts.length; i++) {
       let file = formData.value.contracts[i];
-      frmData.append("contracts[" + i + "]", file);
+      frmData.append(`contracts[${contractIndex}]`, file);
+      contractIndex++;
     }
   }
 
   try {
     const response = await hotelStore.addNewAction(frmData);
-    formData.value = {
-      name: "",
-      city_id: null,
-      place_id: null,
-      category_id: null,
-      vat_inclusion: "",
-      type: "other_booking",
-      payment_method: "",
-      bank_name: "",
-      account_name: "",
-      check_in: "",
-      check_out: "",
-      cancellation_policy: "",
-      official_address: "",
-      vat_id: "",
-      vat_name: "",
-      vat_address: "",
-      official_phone_number: "",
-      official_email: "",
-      official_remark: "",
-      official_logo: "",
-      bank_account_number: "",
-      place: "",
-      legal_name: "",
-      email: [],
-      description: "",
-      full_description: null,
-      full_description_en: null,
-      location_map_title: "",
-      location_map: "",
-      rating: "",
-      latitude: "",
-      longitude: "",
-      nearby_places: [],
-      youtube_link: {
-        mm_link: "",
-        en_link: "",
-      },
-      contract_due: "",
-      data_checked: false,
-      contracts: [],
-      contract_files_preview: [],
-      images: [],
-      facilities: [],
-    };
+
+    // Reset state
+    saveContractFile.value = false;
+    uploadedFile.value = null;
     errors.value = null;
     imagesPreview.value = [];
     editImagesPreview.value = [];
     formData.value.contract_files_preview = [];
+
     closeModal();
     createModalOpen.value = false;
     toast.success(response.message);
-    let id = response.result.id;
-    // router.push("/product/hotel/edit/" + id);
+
     window.location.reload();
   } catch (error) {
     if (error.response.data.errors) {
@@ -631,6 +901,9 @@ const addNewHandler = async () => {
   }
 };
 
+/**
+ * Update existing hotel
+ */
 const updateHandler = async () => {
   const frmData = new FormData();
 
@@ -874,11 +1147,21 @@ const updateHandler = async () => {
     }
   }
 
-  // Append new contract files only if there are any
+  // Contracts
+  let contractIndex = 0;
+
+  // AI-uploaded contract
+  if (saveContractFile.value && uploadedFile.value) {
+    frmData.append(`contracts[${contractIndex}]`, uploadedFile.value);
+    contractIndex++;
+  }
+
+  // Manually uploaded contracts
   if (formData.value.contracts.length > 0) {
     for (let i = 0; i < formData.value.contracts.length; i++) {
       let file = formData.value.contracts[i];
-      frmData.append("contracts[" + i + "]", file);
+      frmData.append(`contracts[${contractIndex}]`, file);
+      contractIndex++;
     }
   }
 
@@ -906,6 +1189,17 @@ const updateHandler = async () => {
       formData.value.youtube_link.en_link
         ? formData.value.youtube_link.en_link
         : "",
+    );
+  }
+
+  // Add AI extracted rooms if any
+  if (
+    formData.value.ai_extracted_rooms &&
+    formData.value.ai_extracted_rooms.length > 0
+  ) {
+    frmData.append(
+      "ai_extracted_rooms",
+      JSON.stringify(formData.value.ai_extracted_rooms),
     );
   }
 
@@ -965,67 +1259,28 @@ const updateHandler = async () => {
   try {
     const response = await hotelStore.updateAction(frmData, formData.value.id);
 
-    // Reset form data
-    formData.value = {
-      name: "",
-      city_id: null,
-      place_id: null,
-      category_id: null,
-      vat_inclusion: "",
-      type: "other_booking",
-      place: "",
-      id: "",
-      payment_method: "",
-      bank_name: "",
-      bank_account_number: "",
-      account_name: "",
-      check_in: "",
-      check_out: "",
-      cancellation_policy: "",
-      official_address: "",
-      vat_id: "",
-      vat_name: "",
-      vat_address: "",
-      official_phone_number: "",
-      official_email: "",
-      official_remark: "",
-      official_logo: "",
-      legal_name: "",
-      email: [],
-      contract_due: "",
-      data_checked: false,
-      description: "",
-      full_description: null,
-      full_description_en: null,
-      location_map_title: "",
-      location_map: "",
-      good_to_knows: [],
-      key_highlights: [],
-      near_by_places: [],
-      rating: "",
-      latitude: "",
-      longitude: "",
-      nearby_places: [],
-      youtube_link: {
-        mm_link: "",
-        en_link: "",
-      },
-      contracts: [],
-      contract_files_preview: [],
-      images: [],
-      facilities: [],
-    };
+    // Reset AI state
+    saveContractFile.value = false;
+    uploadedFile.value = null;
 
+    // Reset form
     errors.value = null;
     imagesPreview.value = [];
     editImagesPreview.value = [];
     formData.value.contract_files_preview = [];
     originalFormData.value = {};
+
+    if (formData.value.ai_extracted_rooms) {
+      delete formData.value.ai_extracted_rooms;
+    }
+
     createModalOpen.value = false;
     closeModal();
 
     toast.success(response.message);
-    window.location.reload();
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
   } catch (error) {
     if (error.response.data.errors) {
       errors.value = error.response.data.errors;
@@ -1037,6 +1292,9 @@ const updateHandler = async () => {
   }
 };
 
+/**
+ * Submit handler - routes to add or update
+ */
 const onSubmitHandler = async () => {
   if (formData.value.id) {
     updateHandler();
@@ -1045,19 +1303,9 @@ const onSubmitHandler = async () => {
   }
 };
 
-const formatDate = (getDate) => {
-  if (getDate != null) {
-    const dateParts = getDate?.split(" ");
-    return dateParts[0];
-  }
-};
-
-const linkContract = ref({});
-const nearByPlaceArray = ref([]);
-const cityName = ref("");
-const placeName = ref("");
-const categoryName = ref("");
-
+/**
+ * Get hotel details
+ */
 const getDetail = async (params) => {
   if (params == "create") {
     formData.value.id = "";
@@ -1065,7 +1313,10 @@ const getDetail = async (params) => {
     formData.value.id = params;
     const res = await hotelStore.getDetailAction(params);
     let data = res.result;
+
     closeModal();
+
+    // Basic Info
     formData.value.id = data.id;
     formData.value.slug = data.slug;
     formData.value.name = data.name;
@@ -1080,14 +1331,20 @@ const getDetail = async (params) => {
     formData.value.place = data.place;
     formData.value.legal_name = data.legal_name;
     formData.value.email = data.email == null ? [] : data.email;
+
+    // Descriptions
     formData.value.description = data.description;
     formData.value.full_description = data.full_description;
     formData.value.full_description_en = data.full_description_en;
+
+    // Location
     formData.value.location_map_title = "";
     formData.value.location_map = "";
     formData.value.rating = "";
     formData.value.latitude = data.latitude;
     formData.value.longitude = data.longitude;
+
+    // Additional Data
     formData.value.nearby_places = [];
     formData.value.good_to_knows = data.good_to_knows;
     formData.value.key_highlights = data.key_highlights;
@@ -1096,13 +1353,19 @@ const getDetail = async (params) => {
       mm_link: "",
       en_link: "",
     };
+
+    // Financial
     formData.value.contract_due = formatDate(data.contract_due);
     formData.value.data_checked = data.data_checked;
     formData.value.bank_account_number = data.bank_account_number;
     formData.value.account_name = data.account_name;
+
+    // Policies
     formData.value.check_in = data.check_in;
     formData.value.check_out = data.check_out;
     formData.value.cancellation_policy = data.cancellation_policy;
+
+    // Official Info
     formData.value.official_address = data.official_address;
     formData.value.vat_id = data.vat_id;
     formData.value.vat_name = data.vat_name;
@@ -1113,10 +1376,13 @@ const getDetail = async (params) => {
     formData.value.official_logo_has = data.official_logo;
     formData.value.payment_method = data.payment_method;
     formData.value.bank_name = data.bank_name;
+
+    // Contracts
     formData.value.contracts = [];
     formData.value.contract_files_preview = [];
     linkContract.value = data;
 
+    // Images
     if (data.images.length > 0) {
       editImagesPreview.value = [];
       for (let i = 0; i < data.images.length; i++) {
@@ -1124,6 +1390,7 @@ const getDetail = async (params) => {
       }
     }
 
+    // Facilities
     if (data.facilities.length > 0) {
       formData.value.facilities = [];
       for (let i = 0; i < data.facilities.length; i++) {
@@ -1131,10 +1398,12 @@ const getDetail = async (params) => {
       }
     }
 
+    // Location Details
     formData.value.location_map = data.location_map;
     formData.value.location_map_title = data.location_map_title;
     formData.value.rating = data.rating;
 
+    // YouTube
     if (data.youtube_link != null && data.youtube_link.length > 0) {
       formData.value.youtube_link = {
         mm_link: data.youtube_link[0].mm_link,
@@ -1142,6 +1411,7 @@ const getDetail = async (params) => {
       };
     }
 
+    // Nearby Places
     if (data?.nearby_places?.length > 0) {
       for (let i = 0; i < data.nearby_places.length; i++) {
         let obj = {
@@ -1153,6 +1423,7 @@ const getDetail = async (params) => {
       }
     }
 
+    // Store original for comparison
     originalFormData.value = JSON.parse(JSON.stringify(formData.value));
 
     createModalOpen.value = true;
@@ -1163,34 +1434,10 @@ const getDetail = async (params) => {
   }
 };
 
-const removeImageUpdateImage = async (id, imageID) => {
-  const res = await hotelStore.deleteImageAction(id, imageID);
-  toast.success("delete image success");
-  closeModal();
-  await getDetail(route.params.id);
-};
-
-const quiteSwitch = ref(1);
-
-const exportAction = async () => {
-  const res = await hotelStore.downloadExport();
-  if (res) {
-    window.open(res.result.download_link);
-  }
-};
-
-const forSale = ref(false);
-
-const removeLinkContract = async (id) => {
-  const res = await hotelStore.deleteHotelContractAction(formData.value.id, id);
-  toast.success("delete link contract success");
-  await getDetail(route.params.id);
-};
-
-const cityAction = ref(false);
-const placeAction = ref(false);
-const categoryAction = ref(false);
-
+// ==================== NAVIGATION ====================
+/**
+ * Change tab/switch
+ */
 const changeSwitch = (val) => {
   quiteSwitch.value = val;
   router.push({
@@ -1204,6 +1451,10 @@ const changeSwitch = (val) => {
   });
 };
 
+// ==================== WATCHERS ====================
+/**
+ * Watch dropdown actions to load data
+ */
 watch(
   [cityAction, categoryAction, placeAction],
   async ([newCity, newCategory, newPlace]) => {
@@ -1220,6 +1471,9 @@ watch(
   },
 );
 
+/**
+ * Watch city change to enable place selection
+ */
 watch(
   () => formData.value.city_id,
   (newCityId) => {
@@ -1229,6 +1483,10 @@ watch(
   },
 );
 
+// ==================== LIFECYCLE HOOKS ====================
+/**
+ * Initialize component
+ */
 onMounted(async () => {
   await getDetail(route.params.id);
 });
@@ -1257,59 +1515,71 @@ onMounted(async () => {
     <div class="h-auto col-span-2 bg-white">
       <div class="h-auto pb-4">
         <div class="py-2 px-6">
-          <div class="flex gap-6 items-center mt-5">
-            <h3 class="text-xl font-bold text-gray-800">
-              {{ formData.id ? `${formData.name}` : `${formData.name}` }}
-            </h3>
-            <div class="flex gap-2 items-center">
-              <div class="relative">
-                <v-select
-                  v-model="formData.type"
-                  class="style-chooser-type bg-[#FF613C] rounded-lg p-0.5 w-full max-w-[170px]"
-                  :class="errors?.name ? 'border border-red-500' : ''"
-                  :options="typeList ?? []"
-                  :style="{
-                    '--vs-dropdown-bg': '#ffffff',
-                    '--vs-selected-bg': '#f97316',
-                    '--vs-selected-color': '#ffffff',
-                    '--vs-dropdown-option-color': '#ffffff',
-                    '--vs-border-color': 'transparent',
-                    '--vs-border-width': '0px',
-                  }"
-                  label="name"
-                  :clearable="false"
-                  :reduce="(d) => d.value"
-                  placeholder="Select Type"
-                >
-                  <template #open-indicator="{ attributes }">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="19"
-                      height="19"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="white"
-                      stroke-width="3"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="feather feather-chevron-down"
-                      v-bind="attributes"
-                    >
-                      <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                  </template>
-                  <template #option="{ name }">
-                    <div class="text-black hover:text-white">{{ name }}</div>
-                  </template>
-                  <template #selected-option="{ name }">
-                    <div class="text-white">{{ name }}</div>
-                  </template>
-                </v-select>
-                <p v-if="errors?.type" class="mt-1 text-sm text-red-500">
-                  {{ errors.type[0] }}
-                </p>
+          <div class="flex gap-6 items-center mt-5 justify-between">
+            <div class="flex justify-start items-center space-x-4">
+              <h3 class="text-xl font-bold text-gray-800">
+                {{ formData.id ? `${formData.name}` : `${formData.name}` }}
+              </h3>
+
+              <div class="flex gap-2 items-center">
+                <div class="relative">
+                  <v-select
+                    v-model="formData.type"
+                    class="style-chooser-type bg-[#FF613C] rounded-lg p-0.5 w-full max-w-[170px]"
+                    :class="errors?.name ? 'border border-red-500' : ''"
+                    :options="typeList ?? []"
+                    :style="{
+                      '--vs-dropdown-bg': '#ffffff',
+                      '--vs-selected-bg': '#f97316',
+                      '--vs-selected-color': '#ffffff',
+                      '--vs-dropdown-option-color': '#ffffff',
+                      '--vs-border-color': 'transparent',
+                      '--vs-border-width': '0px',
+                    }"
+                    label="name"
+                    :clearable="false"
+                    :reduce="(d) => d.value"
+                    placeholder="Select Type"
+                  >
+                    <template #open-indicator="{ attributes }">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="19"
+                        height="19"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="white"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="feather feather-chevron-down"
+                        v-bind="attributes"
+                      >
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </template>
+                    <template #option="{ name }">
+                      <div class="text-black hover:text-white">{{ name }}</div>
+                    </template>
+                    <template #selected-option="{ name }">
+                      <div class="text-white">{{ name }}</div>
+                    </template>
+                  </v-select>
+                  <p v-if="errors?.type" class="mt-1 text-sm text-red-500">
+                    {{ errors.type[0] }}
+                  </p>
+                </div>
               </div>
             </div>
+
+            <button
+              v-if="formData.id"
+              @click="openAIAutoFill"
+              class="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
+            >
+              <span class="text-lg">🤖</span>
+              <span>AI Auto-Fill</span>
+            </button>
           </div>
 
           <div class="flex gap-4 mt-7">
@@ -2680,15 +2950,6 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
-            <!-- <div class="flex justify-end mt-8">
-              <button
-                type="submit"
-                :disabled="loading"
-                class="px-6 py-2.5 font-medium text-white bg-[#ff613c] border border-transparent rounded-lg shadow-sm hover:bg-[#e05530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff613c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {{ loading ? "Updating..." : "Update Location Details" }}
-              </button>
-            </div> -->
           </form>
         </div>
 
@@ -2752,138 +3013,9 @@ onMounted(async () => {
                         class="w-full text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
                       ></textarea>
                     </div>
-
-                    <!-- <div class="grid grid-cols-2 gap-4">
-                      <div class="space-y-2">
-                        <label
-                          for="check-in-time"
-                          class="text-sm font-medium text-gray-700"
-                          >Check-in Time</label
-                        >
-                        <input
-                          type="text"
-                          v-model="formData.check_in"
-                          id="check-in-time"
-                          placeholder="e.g., 14:00"
-                          class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
-                        />
-                      </div>
-
-                      <div class="space-y-2">
-                        <label
-                          for="check-out-time"
-                          class="text-sm font-medium text-gray-700"
-                          >Check-out Time</label
-                        >
-                        <input
-                          type="text"
-                          v-model="formData.check_out"
-                          id="check-out-time"
-                          placeholder="e.g., 12:00"
-                          class="w-full h-10 text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
-                        />
-                      </div>
-                    </div> -->
                   </div>
                 </div>
-
-                <!-- <div
-                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
-                >
-                  <h4
-                    class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
-                  >
-                    Cancellation Policy
-                  </h4>
-                  <div class="space-y-2">
-                    <textarea
-                      v-model="formData.cancellation_policy"
-                      rows="6"
-                      class="w-full text-sm px-4 py-2 text-gray-900 bg-gray-100 border-none rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#ff613c] focus:bg-white"
-                      placeholder="Enter detailed cancellation policy..."
-                    ></textarea>
-                  </div>
-                </div> -->
               </div>
-
-              <!-- <div class="space-y-8">
-                <div
-                  class="border border-gray-200 rounded-lg py-6 px-4 shadow-sm bg-gray-50/30"
-                >
-                  <h4
-                    class="text-lg font-semibold text-gray-800 mb-6 pb-3 border-gray-200"
-                  >
-                    Official Logo
-                  </h4>
-                  <div class="space-y-4">
-                    <input
-                      type="file"
-                      id="vat-official-logo"
-                      ref="official_logo_input"
-                      class="hidden"
-                      @change="handlerOfficialLogoFileChange"
-                      accept="image/*"
-                    />
-                    <div
-                      @click.prevent="openOfficialLogoImagePicker"
-                      class="cursor-pointer w-full h-48 border-2 border-dashed border-gray-400 rounded-lg flex flex-col justify-center items-center hover:border-[#ff613c] transition-colors bg-gray-100"
-                    >
-                      <span
-                        v-if="
-                          !official_logo_preview &&
-                          !formData.official_logo_has
-                        "
-                        class="text-gray-400"
-                      >
-                        <PhotoIcon
-                          class="w-12 h-12 mx-auto mb-3 text-[#ff613c]"
-                        />
-                        <span class="text-sm">Click to upload official logo</span>
-                        <p class="text-xs text-gray-500 mt-1">
-                          Recommended size: 200x200px
-                        </p>
-                      </span>
-                      <div
-                        v-if="official_logo_preview"
-                        class="relative w-full h-full"
-                      >
-                        <img
-                          :src="official_logo_preview"
-                          alt="Official logo preview"
-                          class="w-full h-full object-contain p-4"
-                        />
-                        <button
-                          type="button"
-                          @click.prevent="openOfficialLogoImagePicker"
-                          class="absolute top-3 right-3 bg-[#ff613c] text-white text-xs px-3 py-1.5 rounded hover:bg-[#e05530]"
-                        >
-                          Change Logo
-                        </button>
-                      </div>
-                      <div
-                        v-if="
-                          formData.official_logo_has &&
-                          !official_logo_preview
-                        "
-                        class="relative w-full h-full"
-                      >
-                        <img
-                          :src="formData.official_logo_has"
-                          alt="Official logo"
-                          class="w-full h-full object-contain p-4"
-                        />
-                        <button
-                          type="button"
-                          @click.prevent="openOfficialLogoImagePicker"
-                          class="absolute top-3 right-3 bg-[#ff613c] text-white text-xs px-3 py-1.5 rounded hover:bg-[#e05530]"
-                        >
-                          Change Logo
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div> -->
             </div>
             <div class="flex justify-end mt-8">
               <button
@@ -3077,6 +3209,37 @@ onMounted(async () => {
         </div>
       </DialogPanel>
     </Modal>
+
+    <UploadContractModal
+      :isOpen="showUploadModal"
+      :hotelData="formData"
+      @close="showUploadModal = false"
+      @dataExtracted="handleDataExtracted"
+    />
+
+    <DataComparisonModal
+      :isOpen="showComparisonModal"
+      :extractedData="extractedData"
+      :currentData="formData"
+      :originalFile="uploadedFile"
+      @close="closeComparisonModal"
+      @applyChanges="handleApplyChanges"
+    />
+
+    <ContractSaveConfirmModal
+      :isOpen="showContractSaveModal"
+      :file="uploadedFile"
+      @yes="saveWithContract"
+      @no="saveWithoutContract"
+    />
+    <RoomPeriodImportModal
+      :isOpen="showRoomPeriodModal"
+      :hotelId="formData.id"
+      :extractedRooms="extractedData.rooms || []"
+      @close="showRoomPeriodModal = false"
+      @complete="handleRoomPeriodImport"
+      @import="handleRoomPeriodImport"
+    />
   </Layout>
 </template>
 
